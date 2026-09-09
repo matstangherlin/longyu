@@ -76,7 +76,7 @@ Todos os CultureItems têm missão com contexto, ≥2 tarefas, feedback, memory 
 
 ## Migração
 
-Persist `longyu-v1` **v22**. `cultureCompletedIds` do v21 viram `CultureMasteryRecord` com **1 estrela** (nunca 3 automáticas), `reviewDueAt` no futuro, memory targets agendados. Arrays antigos permanecem e são union no sync.
+Persist `longyu-v1` **v22**. `cultureCompletedIds` do v21 viram `CultureMasteryRecord` com **1 estrela** (nunca 3 automáticas), `reviewDueAt` no futuro, memory targets agendados. Arrays antigos permanecem e são union no sync. A migração **preserva** `holdAchievementModals` (seeds E2E e lição em curso); forçar `false` abria o modal «Nova medalha» por cima de Sair / Blitz / cápsula.
 
 ## PT / EN
 

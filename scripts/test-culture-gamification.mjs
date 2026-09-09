@@ -57,4 +57,17 @@ assert.equal(auto.stars, 1);
 assert.notEqual(auto.stars, 3);
 console.log("KILLED 7 completing item automatically gives 3 stars");
 
+const migrateBlock = store.slice(store.indexOf("// v22: Culture Quest"), store.indexOf("partialize:"));
+assert.match(
+  migrateBlock,
+  /holdAchievementModals:\s*Boolean\(root\.holdAchievementModals\)/,
+  "v21→v22 migrate must preserve holdAchievementModals from E2E/lesson seeds"
+);
+assert.doesNotMatch(
+  migrateBlock,
+  /holdAchievementModals:\s*false/,
+  "migrate must not clobber holdAchievementModals to false"
+);
+console.log("KILLED medal overlay after persist migrate: holdAchievementModals is preserved");
+
 console.log("PASS culture-gamification mutations");

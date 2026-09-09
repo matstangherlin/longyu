@@ -5417,7 +5417,9 @@ export const useStore = create<AppState>()(
           : activeDailyEnergy(root.dailyEnergy);
         return {
           ...root,
-          holdAchievementModals: false,
+          // Keep the persisted hold. Forcing false on every version bump pops
+          // medal dialogs over Journey/Blitz/logout after E2E v21→v22 migrate.
+          holdAchievementModals: Boolean(root.holdAchievementModals),
           serverIsPro: false,
           isPremium: stripPreview ? false : root.isPremium,
           leagueTier: normalizeLeagueTier(root.leagueTier),
