@@ -12,7 +12,7 @@ export const PRO_CHECKOUT_PENDING =
 // Deve acompanhar `version` do persist em src/lib/store.ts: seeds com versão
 // antiga passam pelas migrações (a v14, por exemplo, remove o isPremium de
 // preview) e deixam de representar o estado que o teste quer simular.
-const STORE_VERSION = 20;
+const STORE_VERSION = 21;
 
 type SeedState = Record<string, unknown>;
 
@@ -78,17 +78,16 @@ export async function seedInterfaceLocale(page: Page, locale: "pt-BR" | "en") {
 export async function seedInstructionLocale(
   page: Page,
   locale: "pt-BR" | "en",
-  options: { userOverride?: boolean } = { userOverride: true }
+  options: { userOverride?: boolean; force?: boolean } = { userOverride: true }
 ) {
-  await page.addInitScript(({ value, userOverride }) => {
-    // Seed only the first document. A hard navigation after a user switch must
-    // preserve the value the UI just persisted.
-    if (localStorage.getItem("longyu:instruction-locale") === null) {
-      localStorage.setItem("longyu:instruction-locale", value);
-      if (userOverride) localStorage.setItem("longyu:instruction-locale-user-override", "1");
-      else localStorage.removeItem("longyu:instruction-locale-user-override");
-    }
-  }, { value: locale, userOverride: options.userOverride !== false });
+  await page.addInitScript(({ value, userOverride, force }) => {
+    // Seed only the first document unless `force` is set. A hard navigation
+    // after a user switch must preserve the value the UI just persisted.
+    if (!force && localStorage.getItem("longyu:instruction-locale") !== null) return;
+    localStorage.setItem("longyu:instruction-locale", value);
+    if (userOverride) localStorage.setItem("longyu:instruction-locale-user-override", "1");
+    else localStorage.removeItem("longyu:instruction-locale-user-override");
+  }, { value: locale, userOverride: options.userOverride !== false, force: Boolean(options.force) });
 }
 
 /** Pedagogy e2e: marca sessão local seeded. Production ignora este marker. */
@@ -226,20 +225,34 @@ export async function clickStable(page: Page, name: RegExp, retries = 4) {
   await page.getByRole("button", { name }).first().click({ force: true });
 }
 
-export async function seedOnboardedSession(page: Page, completedLessons: string[] = ["l1"]) {
+export async function seedOnboardedSession(
+  page: Page,
+  completedLessons: string[] = ["l1"],
+  options: { replace?: boolean } = {}
+) {
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
-  await page.addInitScript((payload: string) => {
-    localStorage.setItem("longyu-v1", payload);
-  }, buildStorePayload({
-    accountSetupComplete: true,
-    completedLessons,
-    // Testes que nÃ£o exercitam medalhas nÃ£o devem receber um modal assÃ­ncrono
-    // depois que o helper de overlays jÃ¡ terminou. MantÃ©m os desbloqueios em
-    // espera e elimina interferÃªncia entre specs executadas em paralelo.
-    holdAchievementModals: true,
-    lessonMasteryById: topicPathMasteryById(completedLessons),
-  }));
+  const replace = options.replace !== false;
+  await page.addInitScript(
+    ({ payload, replace: overwrite }: { payload: string; replace: boolean }) => {
+      // Default replace=true keeps other specs deterministic. Persist tests
+      // pass replace=false so a later page.goto does not wipe longyu-v1.
+      if (!overwrite && localStorage.getItem("longyu-v1")) return;
+      localStorage.setItem("longyu-v1", payload);
+    },
+    {
+      payload: buildStorePayload({
+        accountSetupComplete: true,
+        completedLessons,
+        // Testes que nÃ£o exercitam medalhas nÃ£o devem receber um modal assÃ­ncrono
+        // depois que o helper de overlays jÃ¡ terminou. MantÃ©m os desbloqueios em
+        // espera e elimina interferÃªncia entre specs executadas em paralelo.
+        holdAchievementModals: true,
+        lessonMasteryById: topicPathMasteryById(completedLessons),
+      }),
+      replace,
+    }
+  );
 }
 
 /** Sessão onboarded com estado extra (missões, baús, Pro). */

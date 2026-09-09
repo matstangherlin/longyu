@@ -40,6 +40,32 @@ export function loadIntegratedLearningRuntime() {
   };
 }
 
+export function loadCultureRuntime() {
+  const { ALL_LESSONS, JOURNEY } = require("../../src/data/journey.ts");
+  const { CHUNKS } = require("../../src/data/chunks.ts");
+  const { CHARACTERS } = require("../../src/data/characters.ts");
+  const {
+    CULTURE_ITEMS,
+    CULTURE_CATEGORIES,
+    CULTURE_SCOPES,
+    REJECTED_CULTURE_CANDIDATES,
+  } = require("../../src/data/culture.ts");
+  const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
+  return {
+    items: CULTURE_ITEMS,
+    categories: CULTURE_CATEGORIES,
+    scopes: CULTURE_SCOPES,
+    rejected: REJECTED_CULTURE_CANDIDATES,
+    lessons: ALL_LESSONS,
+    chunks: CHUNKS,
+    characters: CHARACTERS,
+    units: allJourneyUnits(),
+    ineligible: CULTURE_INELIGIBLE_UNITS,
+    futureHooks: FUTURE_UNIT_CULTURE_HOOKS,
+    journey: JOURNEY,
+  };
+}
+
 export function loadRoutineTimeRuntime() {
   const { ALL_LESSONS } = require("../../src/data/journey.ts");
   const { CONVERSATION_SCENES } = require("../../src/data/conversationScenes.ts");

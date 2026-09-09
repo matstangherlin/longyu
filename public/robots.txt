@@ -24,6 +24,7 @@ Disallow: /ideogramas
 Disallow: /fala
 Disallow: /leitura
 Disallow: /revisao
+Disallow: /cultura
 Disallow: /biblioteca
 Disallow: /imersao
 Disallow: /ligas

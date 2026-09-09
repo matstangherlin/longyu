@@ -8,6 +8,12 @@ import { persist } from "zustand/middleware";
 import type { ItemType } from "../data/types";
 import type { DomainTrack } from "../data/domains";
 import { ALL_LESSONS, FOUNDATION_LESSON_IDS } from "../data/journey";
+import { CULTURE_COMPLETE_XP, getCultureItem } from "../data/culture";
+import {
+  applyCultureComplete,
+  applyCultureSaved,
+  applyCultureStarted,
+} from "./cultureProgress";
 import {
   CONVERSATION_HISTORY_LIMIT,
   CONVERSATION_VARIANT_LEVELS,
@@ -1246,6 +1252,10 @@ interface AccountSnapshot extends XpBuckets {
   badges: string[];
   rewardHistory: RewardHistoryEntry[];
   favoriteItems: string[];
+  /** V4.9.6C — culture progress, isolated from SRS / hànzì mastery. */
+  cultureCompletedIds: string[];
+  cultureSavedIds: string[];
+  cultureStartedIds: string[];
   isPremium: boolean;
   placement: PlacementResult | null;
   dailyMissions: DailyMissionsState;
@@ -1356,6 +1366,9 @@ function blankSnapshot(): AccountSnapshot {
     badges: [],
     rewardHistory: [],
     favoriteItems: [],
+    cultureCompletedIds: [],
+    cultureSavedIds: [],
+    cultureStartedIds: [],
     isPremium: false,
     placement: null,
     dailyMissions: freshDailyMissions(),
@@ -1481,6 +1494,9 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     badges: s.badges,
     rewardHistory: s.rewardHistory,
     favoriteItems: s.favoriteItems,
+    cultureCompletedIds: s.cultureCompletedIds ?? [],
+    cultureSavedIds: s.cultureSavedIds ?? [],
+    cultureStartedIds: s.cultureStartedIds ?? [],
     isPremium: s.isPremium,
     placement: s.placement,
     dailyMissions: s.dailyMissions,
@@ -1622,6 +1638,9 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     badges: account.badges ?? [],
     rewardHistory: account.rewardHistory ?? [],
     favoriteItems: account.favoriteItems ?? [],
+    cultureCompletedIds: account.cultureCompletedIds ?? [],
+    cultureSavedIds: account.cultureSavedIds ?? [],
+    cultureStartedIds: account.cultureStartedIds ?? [],
     isPremium: account.isPremium,
     placement: account.placement ?? null,
     dailyMissions: activeDailyMissions(account.dailyMissions, date),
@@ -1968,6 +1987,9 @@ interface AppState {
   badges: string[];
   rewardHistory: RewardHistoryEntry[];
   favoriteItems: string[];
+  cultureCompletedIds: string[];
+  cultureSavedIds: string[];
+  cultureStartedIds: string[];
   /** Preview de assinatura Pro (paywall real vem depois). */
   isPremium: boolean;
   /** Pro real confirmado pelo servidor (assinatura Stripe ativa). */
@@ -2143,6 +2165,9 @@ interface AppState {
   setLessonTaskProgress: (lessonId: string, completedTasks: number) => void;
   setLessonSessionStep: (lessonId: string, cursor: { pass: number; stepIndex: number } | null) => void;
   toggleFavoriteItem: (key: string) => void;
+  startCultureItem: (id: string) => void;
+  saveCultureItem: (id: string, saved?: boolean) => void;
+  completeCultureItem: (id: string) => void;
   claimReward: (reward: RewardGrant) => boolean;
   grantLessonReward: (input: {
     lessonId: string;
@@ -2322,6 +2347,9 @@ export const useStore = create<AppState>()(
       badges: [],
       rewardHistory: [],
       favoriteItems: [],
+      cultureCompletedIds: [],
+      cultureSavedIds: [],
+      cultureStartedIds: [],
       isPremium: false,
       serverIsPro: false,
       cloudSyncState: freshCloudSyncState(),
@@ -3640,6 +3668,45 @@ export const useStore = create<AppState>()(
           const next = { ...s, favoriteItems };
           return { favoriteItems, accounts: saveCurrentAccount(next) };
         }),
+
+      startCultureItem: (id) => {
+        if (!id || !getCultureItem(id)) return;
+        set((s) => {
+          const patch = applyCultureStarted(s.cultureCompletedIds ?? [], s.cultureStartedIds ?? [], id);
+          const next = { ...s, ...patch };
+          return { ...patch, accounts: saveCurrentAccount(next) };
+        });
+      },
+
+      saveCultureItem: (id, saved = true) => {
+        if (!id || !getCultureItem(id)) return;
+        set((s) => {
+          const patch = applyCultureSaved(s.cultureSavedIds ?? [], id, saved);
+          const next = { ...s, ...patch };
+          return { ...patch, accounts: saveCurrentAccount(next) };
+        });
+      },
+
+      completeCultureItem: (id) => {
+        if (!id || !getCultureItem(id)) return;
+        if ((get().cultureCompletedIds ?? []).includes(id)) return;
+        set((s) => {
+          const patch = applyCultureComplete(
+            s.cultureCompletedIds ?? [],
+            s.cultureSavedIds ?? [],
+            s.cultureStartedIds ?? [],
+            id
+          );
+          const next = { ...s, ...patch };
+          return { ...patch, accounts: saveCurrentAccount(next) };
+        });
+        get().claimReward({
+          id: `culture-complete:${id}`,
+          type: "xp",
+          amount: CULTURE_COMPLETE_XP,
+          source: "Cultura",
+        });
+      },
 
       unlockAchievement: (id, reward) => {
         const state = get();
@@ -5048,7 +5115,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 20,
+      version: 21,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -5071,6 +5138,7 @@ export const useStore = create<AppState>()(
       // v18: entitlement cloud nunca é hidratado do navegador; servidor é autoridade.
       // v19: Pedagogia V3 — lessonMasteryById + itemDimensionsByRef (migração segura).
       // v20: Topic Mastery Path — grandfather 4/4 para nós já atrás do ponteiro legado.
+      // v21: Culture Hub — progresso cultural separado (completed / saved / started).
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -5226,6 +5294,14 @@ export const useStore = create<AppState>()(
               lessonSessionStepById: migrated.lessonSessionStepById ?? {},
             };
           }
+          if (version < 21) {
+            migrated = {
+              ...migrated,
+              cultureCompletedIds: migrated.cultureCompletedIds ?? [],
+              cultureSavedIds: migrated.cultureSavedIds ?? [],
+              cultureStartedIds: migrated.cultureStartedIds ?? [],
+            };
+          }
           const completedLessons = normalizeCompletedLessons(
             migrated.completedLessons,
             migrated.lessonStarsById,
@@ -5302,6 +5378,9 @@ export const useStore = create<AppState>()(
           pearlAudioExposures: root.pearlAudioExposures ?? 0,
           pearlProductionCount: root.pearlProductionCount ?? 0,
           lastShopPurchaseFeedback: root.lastShopPurchaseFeedback ?? null,
+          cultureCompletedIds: root.cultureCompletedIds ?? [],
+          cultureSavedIds: root.cultureSavedIds ?? [],
+          cultureStartedIds: root.cultureStartedIds ?? [],
           accounts: normalized,
         } as AppState;
       },

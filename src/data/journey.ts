@@ -453,7 +453,7 @@ export interface Lesson {
    * Technical corpus glyphs stay out of this list.
    */
   hanziMemoryTargets?: string[];
-  /** Reserved for V4.9.6C Culture Hub association. Unused in this remessa. */
+  /** Optional Culture Hub touchpoint shown at the end of a related lesson. */
   cultureItemId?: string;
   rewardQi?: number;
   estimatedMinutes?: number;
@@ -2527,6 +2527,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l2",
             title: "Olá",
             skill: "fala",
+            cultureItemId: "greetings-nihao",
             masteryLoop: true,
             libraryItems: [
               "chunk:nihao",
@@ -2671,6 +2672,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l4",
             title: "Obrigado",
             skill: "fala",
+            cultureItemId: "thanks-keqi",
             masteryLoop: true,
             libraryItems: ["chunk:xiexie", "chunk:bukeqi", "chunk:meiguanxi", "char:xie"],
             reviewItems: ["chunk:xiexie", "chunk:bukeqi", "chunk:meiguanxi"],
@@ -2825,6 +2827,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-primeira-conversa",
             title: "Primeira conversa",
             skill: "fala",
+            cultureItemId: "greetings-nihao",
             masteryLoop: true,
             libraryItems: [
               "chunk:nihao",
@@ -2916,6 +2919,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p1-qingwen-cortesia",
             title: "Com licença",
             skill: "fala",
+            cultureItemId: "qingwen-ask",
             masteryLoop: true,
             libraryItems: [
               "chunk:qingwen",
@@ -3475,6 +3479,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l9",
             title: "Me apresentar",
             skill: "fala",
+            cultureItemId: "teacher-title",
             masteryLoop: true,
             libraryItems: [
               "chunk:wojiao",
@@ -5257,6 +5262,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l24",
             title: "Pai e mãe",
             skill: "fala",
+            cultureItemId: "family-terms",
             premium: true,
             masteryLoop: true,
             // Visto na cena de identificar alguém à distância (那是我妈妈) e na casa (家).
@@ -5466,6 +5472,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l26",
             title: "Fome e gosto",
             skill: "fala",
+            cultureItemId: "host-insistence",
             premium: true,
             masteryLoop: true,
             steps: [
@@ -5503,6 +5510,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l26b",
             title: "No cardápio",
             skill: "fala",
+            cultureItemId: "shared-dishes",
             premium: true,
             masteryLoop: true,
             newHanzi: ["饭", "菜", "肉", "鱼", "喝", "饿", "馆", "务", "单", "员", "服", "杯", "米", "辣", "题", "面", "条", "咖", "啡"],
@@ -5743,6 +5751,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "l27",
             title: "Na loja",
             skill: "fala",
+            cultureItemId: "digital-pay",
             premium: true,
             masteryLoop: true,
             newHanzi: ["多", "少"],
@@ -5871,6 +5880,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p6-rotina-trabalho",
             title: "Rotina e trabalho",
             skill: "fala",
+            cultureItemId: "office-hours",
             premium: true,
             masteryLoop: true,
             hanziMemoryTargets: ["点"],
@@ -6037,6 +6047,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p6-cidade-lugares",
             title: "Cidade e lugares",
             skill: "fala",
+            cultureItemId: "metro-qr",
             premium: true,
             masteryLoop: true,
             // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
@@ -7262,6 +7273,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p6-compras",
             title: "Compras: roupas e itens",
             skill: "fala",
+            cultureItemId: "digital-pay",
             premium: true,
             masteryLoop: true,
             // 买/这/个/多/少/钱/水/机 já existem; novos: 衣/服/鞋/双/件/苹/果/香/蕉/牛/奶/手.
@@ -7965,6 +7977,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p7-imersao-mercado",
             title: "Imersão: no mercado",
             skill: "fala",
+            cultureItemId: "shared-dishes",
             premium: true,
             masteryLoop: true,
             // Vocabulário visto na imersão de mercado (多少钱).
@@ -7999,6 +8012,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p7-imersao-estacao",
             title: "Imersão: na estação",
             skill: "fala",
+            cultureItemId: "metro-qr",
             premium: true,
             masteryLoop: true,
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
@@ -8164,6 +8178,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p7-imersao-casa-amigo",
             title: "Imersão: visita à casa da amiga",
             skill: "fala",
+            cultureItemId: "visiting-home",
             premium: true,
             masteryLoop: true,
             // Vocabulário visto na imersão de visita (认识你很高兴 e distratores).
