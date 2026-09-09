@@ -10,7 +10,7 @@ import {
 
 test.describe("V4.9.6C Culture Hub", () => {
   test("opens /cultura, filters, completes, saves, and persists", async ({ page }) => {
-    await seedOnboardedSession(page, ["l1"]);
+    await seedOnboardedSession(page, ["l1"], { replace: false });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -63,7 +63,7 @@ test.describe("V4.9.6C Culture Hub", () => {
     await expect(page.getByText("Entenda a língua dentro da vida real.")).toBeVisible();
 
     await seedInterfaceLocale(page, "en");
-    await seedInstructionLocale(page, "en");
+    await seedInstructionLocale(page, "en", { force: true });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
