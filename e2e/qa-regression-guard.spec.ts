@@ -6,7 +6,6 @@ import {
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { clickFirstVisible } from "./lesson-player-helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 
 /**

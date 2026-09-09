@@ -23,6 +23,17 @@ export async function clickFirstVisible(page: Page, names: RegExp[]) {
   return false;
 }
 
+/** Content-skip card or listen-imitate without SpeechRecognition — Continuar, not Pular. */
+export async function continueIfSkipCardOrListenImitate(page: Page): Promise<boolean> {
+  const visible = await page
+    .getByText(/Ouça e imite|Listen and imitate|Exercício pulado|Skipped exercise|Voz não disponível|Voice isn't available/i)
+    .first()
+    .isVisible()
+    .catch(() => false);
+  if (!visible) return false;
+  return clickFirstVisible(page, [/^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/]);
+}
+
 /** Clique curto — evita travar 30s em botão disabled (ex.: banco de produce cheio). */
 export async function clickIfEnabled(locator: Locator, timeout = 1_500): Promise<boolean> {
   if (!(await locator.isVisible().catch(() => false))) return false;
@@ -89,6 +100,10 @@ export async function advanceSkipThroughOverlays(page: Page): Promise<boolean> {
     await page.waitForTimeout(180);
     return true;
   }
+  if (await continueIfSkipCardOrListenImitate(page)) {
+    await page.waitForTimeout(180);
+    return true;
+  }
   if (
     await clickFirstVisible(page, [
       /^Entendi$|^Got it$/,
@@ -117,6 +132,10 @@ export function hanziBuilderOrder(prompt: string): string[] {
 /** Avança passos genéricos até o seletor aparecer (smoke, não prova pedagógica profunda). */
 async function locatorIsInsideCultureBridge(target: Locator): Promise<boolean> {
   if (/culture-bridge/.test(String(target))) return true;
+  // count() does not wait. evaluate() on a missing locator inherits the
+  // Playwright Test timeout (actionTimeout is 0) and stalls skip-through
+  // for the rest of the test — e.g. listen-imitate Continuar never clicked.
+  if ((await target.count().catch(() => 0)) === 0) return false;
   return target
     .evaluate((el) => Boolean(el.closest?.("[data-testid=\"culture-bridge\"]") || el.getAttribute("data-testid") === "culture-bridge"))
     .catch(() => false);
@@ -145,6 +164,10 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     const skipSpeak = page.getByRole("button", { name: /Não posso falar agora|I can't speak now/i });
     if (await skipSpeak.isVisible().catch(() => false)) {
       await clickIfEnabled(skipSpeak);
+      await page.waitForTimeout(150);
+      continue;
+    }
+    if (await continueIfSkipCardOrListenImitate(page)) {
       await page.waitForTimeout(150);
       continue;
     }

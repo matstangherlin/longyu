@@ -7,7 +7,7 @@ import {
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
-import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible } from "./lesson-player-helpers";
+import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible, continueIfSkipCardOrListenImitate } from "./lesson-player-helpers";
 
 /** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
 export const MOBILE_VIEWPORTS = [
@@ -477,6 +477,13 @@ export async function advanceUntilSelector(
     ]);
     if (skippedSpeak) {
       await page.waitForTimeout(120);
+      continue;
+    }
+    // Voice-unavailable listen-imitate / content-skip card: Continuar is the
+    // only exit. Do not fall through to advanceOneStep first — that used to
+    // block on evaluate() of a victory button that is not on the page.
+    if (await continueIfSkipCardOrListenImitate(page)) {
+      await page.waitForTimeout(180);
       continue;
     }
     const skipped = allowSkip
