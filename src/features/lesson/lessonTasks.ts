@@ -2544,7 +2544,10 @@ function makeOpenProductionStep(
   const tasks = openProductionTasksFor(knownGlyphs, { structureExposure });
   if (tasks.length === 0) return null;
   const task =
-    pickOpenProductionTask(tasks, { lessonSalt: pickOptions.lessonSalt ?? seed }) ?? tasks[0];
+    pickOpenProductionTask(tasks, {
+      lessonSalt: pickOptions.lessonSalt ?? seed,
+      preferredGoal: pickOptions.lessonId === "l27" ? "ask_price" : undefined,
+    }) ?? tasks[0];
   const [model] = task.examples;
   if (!model) return null;
   return {
@@ -5258,6 +5261,13 @@ function ensureCoverage(
   }
   ensure(
     (candidate) => candidate.step.kind === "free_production" && !candidate.generated,
+    true
+  );
+  ensure(
+    (candidate) =>
+      candidate.step.kind === "free_production" &&
+      !candidate.generated &&
+      Boolean(candidate.step.productionOpen),
     true
   );
   const priorTransferred = priorTransferredFramesForLesson(lesson.id);
