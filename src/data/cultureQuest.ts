@@ -197,7 +197,7 @@ export const CULTURE_ROUTES: CultureRoute[] = [
     id: "everyday-china",
     titlePt: "China cotidiana",
     titleEn: "Everyday China",
-    itemIds: ["digital-pay", "metro-qr", "office-hours", "teacher-title"],
+    itemIds: ["digital-pay", "metro-qr", "office-hours", "teacher-title", "bargaining-context"],
   },
   {
     id: "festivals",
