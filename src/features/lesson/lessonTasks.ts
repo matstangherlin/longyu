@@ -4736,7 +4736,7 @@ function generatedCandidatesFor(
       if (
         lesson.isReview &&
         lessonAllowsImmersionScenes(lesson) &&
-        (step.kind === "transfer_task" || step.kind === "free_production")
+        (step.kind === "transfer_task" || step.kind === "free_production" || step.kind === "audio_discrimination")
       ) {
         continue;
       }
@@ -5112,7 +5112,9 @@ function ensureCoverage(
     if (candidate) replaceLowestIfNeeded(selected, candidate, profile, usedSignatures);
   };
 
-  if (!lesson.isReview) ensure((candidate) => Boolean(candidate.step.pedagogyVariant), true);
+  if (!lesson.isReview || lessonAllowsImmersionScenes(lesson)) {
+    ensure((candidate) => Boolean(candidate.step.pedagogyVariant), true);
+  }
   // Quando o vocabulário permite, cada rodada inclui também um jogo semântico
   // (intenção, intruso ou detecção de erro), não apenas uma variação de áudio.
   if (!lesson.isReview) {
@@ -5246,7 +5248,13 @@ function ensureCoverage(
       authoredFreeCount,
       true
     );
-    ensure((candidate) => candidate.step.kind === "listen_select" && !candidate.generated, true);
+    const authoredListenSelect = lesson.steps.filter((step) => step.kind === "listen_select").length;
+    ensureCount(
+      (candidate) => candidate.step.kind === "listen_select" && !candidate.generated,
+      Math.max(1, authoredListenSelect),
+      true
+    );
+    ensure((candidate) => candidate.step.kind === "audio_discrimination" && !candidate.generated, true);
   }
   ensure(
     (candidate) => candidate.step.kind === "free_production" && !candidate.generated,
@@ -6460,6 +6468,11 @@ export function applyConversationVocabularyLoop(
       excludeTypes.add("produce_free");
       excludeTypes.add("transfer_context");
       excludeTypes.add("write_heard");
+    }
+    if (isReview && lessonAllowsImmersionScenes(lesson)) {
+      // A missão já traz discriminação contextual (几位 × chá, 好 × 要).
+      // sound_contrast no loop puxa pares aleatórios (生/省) fora do restaurante.
+      excludeTypes.add("sound_contrast");
     }
 
     const blueprints = selectPostConversationBlueprints(manifest, conversationStep, focusByRef, {

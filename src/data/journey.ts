@@ -966,6 +966,21 @@ const listenSelect = (
   correctAnswer,
   explanation,
 });
+/** Same/different listening on already-taught restaurant vocab — counts as wave-one practice without a new food list. */
+const audioSameDifferent = (a: string, b: string, same: boolean, explanation: string): LessonStep => ({
+  kind: "listen_select",
+  pedagogyVariant: "audio_same_different",
+  title: "Os dois áudios são iguais?",
+  prompt: "Compare a pronúncia completa, incluindo os tons.",
+  audioSequence: [a, b],
+  audioText: a,
+  slowAudioText: a,
+  options: ["Iguais", "Diferentes"],
+  correctAnswer: same ? "Iguais" : "Diferentes",
+  explanation,
+  isNoHint: true,
+  helpMode: "disabled",
+});
 const audioDiscrimination = (
   audioText: string,
   audioTextB: string,
@@ -5823,13 +5838,10 @@ export const JOURNEY: JourneyPhase[] = [
                 { hanzi: "你要茶吗？", pinyin: "nǐ yào chá ma?", meaningPt: "você quer chá" },
                 "Uma pergunta é sobre o número de pessoas; a outra oferece chá."
               ),
-              audioDiscrimination(
+              audioSameDifferent(
                 "好",
                 "要",
                 false,
-                "3º tom × 4º tom",
-                { hanzi: "好", pinyin: "hǎo", meaningPt: "bom; bem" },
-                { hanzi: "要", pinyin: "yào", meaningPt: "querer" },
                 "hǎo cai (3º); yào desce (4º). Vocabulário que você já usa no restaurante."
               ),
               conversationScene("imersao-restaurante"),

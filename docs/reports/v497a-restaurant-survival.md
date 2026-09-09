@@ -142,9 +142,11 @@ Total da Jornada: **16** aulas com `cultureItemId` (15 da 4.9.6C + `l26c`; teto 
 Contrato do Player, sem Native Listening Engine:
 
 - `listen_select` em `l26c`: áudio `请问几位？`, título **não** vaza o hànzì (“O que a pessoa quer saber?”), opções em PT
-- `audio_discrimination` contextual: 请问几位？ × 你要茶吗？
+- `audio_discrimination` contextual: 请问几位？ × 你要茶吗？ (autoral, garantida no plano)
+- `audio_same_different` **好** × **要** (prática da onda 1 no vocabulário do restaurante; replay A/B)
 - TTS lento via `slowAudioText` (mesmo texto, ritmo menos artificial). Nunca só áudio acelerado
 - M1 de `l26b`: `audio_to_action` da mesma pergunta (opções PT)
+- O loop pós-conversa da missão **não** injeta `sound_contrast` aleatório (ex.: 生/省)
 
 ## Produção independente (missão)
 
@@ -162,7 +164,7 @@ CORE **菜**: introduzido em `l26b` (菜单 / 菜) → delayed recall `recognize
 
 ## Tons integrados
 
-Sem aula nova de tom. Microtouch em `l26c`: **好** (3º) × **要** (4º), vocabulário já usado no restaurante. `买`/`卖` fica para compras (4.9.7B). `TONE_INTEGRATION_LESSON_IDS` inclui `l26c`.
+Sem aula nova de tom. Microtouch em `l26c`: **好** (3º) × **要** (4º) como `audio_same_different` (vocabulário já usado no restaurante). `买`/`卖` fica para compras (4.9.7B). `TONE_INTEGRATION_LESSON_IDS` inclui `l26c`.
 
 ## Missão final
 
@@ -217,7 +219,9 @@ Desktop: listening «O que a pessoa quer saber?» **não** vaza 请问几位 no 
 
 Erro na missão não recomeça do zero (remediation / retry da cena). O tester errou um par auditivo e um produce_reply; a UI ofereceu tentar de novo.
 
-`validate:beta` nesta revisão: a correr após overlays EN + índice estrutural. `build` a seguir se a cadeia fechar.
+`validate:pedagogy-wave-one` exige 75% das lições com variante pedagógica. `l26c` entrou em `ALL_LESSONS` (128) sem variante e o piso subiu para 96; 95/128 falhava. Correção: `audio_same_different` autoral em `l26c` (好×要) + ensure no planner. Sem transfer/open production gerados.
+
+`validate:beta` / `build`: a correr após esta correção. Rebase no SHA real do merge da #241 quando ela fechar.
 
 ## Não feito (de propósito)
 

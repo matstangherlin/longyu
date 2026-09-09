@@ -89,9 +89,10 @@ export function validateChinaSurvivalRestaurant(data) {
         }
       }
       if (AUDIO_KINDS.has(step.kind)) {
-        if (!step.audioText) fail("NO_AUDIO", at);
+        const stimulus = step.audioText ?? step.audioSequence?.[0];
+        if (!stimulus) fail("NO_AUDIO", at);
         for (const field of [step.title, step.prompt, step.promptPt, step.dialoguePrompt]) {
-          if (typeof field === "string" && step.audioText && field.includes(step.audioText)) fail("TARGET_LEAK", `${at}: ${field}`);
+          if (typeof field === "string" && stimulus && field.includes(stimulus)) fail("TARGET_LEAK", `${at}: ${field}`);
         }
       }
       if (step.kind === "free_production" || (step.kind === "write" && step.mode !== "free_reflection")) {
@@ -129,9 +130,10 @@ export function validateChinaSurvivalRestaurant(data) {
   for (const lesson of lessons.filter((item) => RESTAURANT_LESSON_IDS.includes(item.id))) {
     for (const step of lesson.steps ?? []) {
       if (AUDIO_KINDS.has(step.kind)) {
-        if (!step.audioText) fail("NO_AUDIO", `${lesson.id}/${step.kind}`);
+        const stimulus = step.audioText ?? step.audioSequence?.[0];
+        if (!stimulus) fail("NO_AUDIO", `${lesson.id}/${step.kind}`);
         for (const field of [step.title, step.prompt, step.promptPt, step.dialoguePrompt]) {
-          if (typeof field === "string" && step.audioText && field.includes(step.audioText)) {
+          if (typeof field === "string" && stimulus && field.includes(stimulus)) {
             fail("TARGET_LEAK", `${lesson.id}: ${field}`);
           }
         }
