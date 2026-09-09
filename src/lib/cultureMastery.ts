@@ -54,6 +54,7 @@ export function migrateCultureV21ToQuest(input: {
   cultureStartedIds?: string[];
   cultureMasteryById?: Record<string, CultureMasteryRecord>;
   cultureMemoryById?: Record<string, CultureMemoryRecord>;
+  cultureKnowledgeById?: Record<string, CultureKnowledgeRecord>;
   cultureSeals?: string[];
   now?: number;
 }): CultureMasteryMaps {
