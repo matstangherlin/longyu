@@ -8096,6 +8096,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p7-imersao-mercado",
             title: "Imersão: no mercado",
             skill: "fala",
+            cultureItemId: "shared-dishes",
             premium: true,
             masteryLoop: true,
             // Vocabulário visto na imersão de mercado (多少钱).

@@ -11,7 +11,7 @@ Experiência de sobrevivência, não unidade de vocabulário. O aluno cumpre a m
 | `main` antiga | **não usada** |
 | Branch | `cursor/v497a-restaurant-survival-6ae2` |
 | Fingerprint da Jornada (241 HEAD) | `43d5272e1d4b` |
-| Fingerprint da Jornada (esta remessa) | `0785c5f27007` |
+| Fingerprint da Jornada (esta remessa) | `f3096d32f1ce` |
 | Atlas 241 HEAD | 351 / 429 taught (81.8%) |
 | Atlas esta remessa | 358 / 436 taught (82.1%) |
 
@@ -135,7 +135,7 @@ Touchpoints do arco:
 - `l26b` → `shared-dishes`
 - `l26c` → `chopsticks-rest` (final da missão; não interrompe conversa, listening, produção, Hanzi ou tom)
 
-Total da Jornada: **16** aulas com `cultureItemId` (teto do gate: 16). `chopsticks-rest.relatedLessonIds` inclui `l26c`.
+Total da Jornada: **16** aulas com `cultureItemId` (15 da 4.9.6C + `l26c`; teto do gate: 16). `p7-imersao-mercado` mantém `shared-dishes`. `chopsticks-rest.relatedLessonIds` inclui `l26c`.
 
 ## Listening
 
