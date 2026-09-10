@@ -389,6 +389,9 @@ export function availableInteractionsFor(step: LessonStep): AvailableInteraction
   if (kind === "map_direction" && (step.audioText || /\bou[cç]a\b/i.test(step.title ?? ""))) {
     found.add("audio");
   }
+  if (kind === "fill_blank" && step.audioText) {
+    found.add("audio");
+  }
   if (kind === "conversation_scene") found.add("choice");
   if (kind === "substitution_drill") {
     if (hasSelectableOptions(step)) found.add("choice");
