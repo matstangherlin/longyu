@@ -140,9 +140,11 @@ test.describe("V4.9.8A city mobility", () => {
     const before = await readPersist(page);
 
     await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-bridge-options")).toBeVisible();
-    const option = page.locator('[data-testid^="culture-bridge-option-"]').first();
-    await option.click();
+    await expect(page.getByTestId("culture-bridge-sequence")).toBeVisible();
+    await expect(page.getByTestId("culture-bridge-options")).toHaveCount(0);
+    for (const id of ["open", "scan", "move"]) {
+      await page.getByTestId(`culture-bridge-seq-${id}`).click();
+    }
     await page.getByTestId("culture-bridge-continue").click();
     await expect(page.getByTestId("culture-bridge-feedback")).toBeVisible();
     await page.getByTestId("culture-bridge-continue").click();
@@ -165,9 +167,10 @@ test.describe("V4.9.8A city mobility", () => {
   test("p6-direcoes player reaches a map", async ({ page }) => {
     test.setTimeout(120_000);
     await openAuthoredLessonPlayer(page, "p6-direcoes");
-    const map = await advanceUntilSelector(page, "text=Mapa", 50, 90_000);
+    const map = await advanceUntilSelector(page, '[data-current-step-kind="map_direction"]', 80, 90_000);
     expect(map).toBeTruthy();
-    await expect(page.getByText("Mapa").first()).toBeVisible();
+    await expect(page.getByText("酒店").first()).toBeVisible();
+    await expect(page.getByText("地铁站").first()).toBeVisible();
   });
 
   test("p7 station player reaches a mobility conversation", async ({ page }) => {
