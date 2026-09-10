@@ -184,6 +184,20 @@ Mutações 1–12 e 20 cobertas pelos testes novos. 13–18 pelos gates de cultu
 
 `e2e/v498b-hotel-airport.spec.ts`: hotel (cultura + conversa de reserva), aeroporto já interior, transferência, cultura nativa + Hub 1/20, replay +0 XP, 390×844.
 
+## Gates / build
+
+| Gate | Resultado |
+|---|---|
+| `validate:beta` | PASS |
+| Fingerprint | `465390e64799` |
+| `validate:china-survival-hotel` + mutações 1–6 | PASS |
+| `validate:china-survival-airport` + mutações 7–10 | PASS |
+| `validate:travel-conversation-naturalness` + mutações 11–12 e 20 | PASS |
+| `validate:production-transfer` | PASS (produção aberta com 3 variantes) |
+| `validate:culture-*` / story-audio / playability / native / rewards | PASS (sem reabrir arquitetura) |
+| `validate:live-league` | PASS (XP segue pipeline; ranking não reaberto) |
+| `npm run build` | a seguir nesta remessa |
+
 ## Não feito (de propósito)
 
 V4.9.9; reservas reais; mapa de aeroporto; companhia aérea; QR; OCR de passaporte; scanner de bagagem; imigração; catálogo de amenidades; Airport Noise Engine; Culture Player; moeda nova; reabrir Ligas; AI Conversation; Pronunciation Score; Tone Analyzer; Story Mode completo.

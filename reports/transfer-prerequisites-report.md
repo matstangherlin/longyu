@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | b727b36129b1 |
-| HEAD no instante da geração | f3ff6cfd6865310571d16731010472235f95f37d |
+| Hash da Jornada | 465390e64799 |
+| HEAD no instante da geração | 2417cd6ce4bec58d16e677a61fb4d18033bf187a |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T13:34:05.194Z |
-| Lições | 128 |
+| Gerado em | 2026-09-10T18:57:43.435Z |
+| Lições | 131 |
 
 ## Política
 
@@ -25,10 +25,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições | 128 |
+| Lições | 131 |
 | Lições com transfer_task | 21 |
-| Lições com free_production guiada | 77 |
-| Lições com produção aberta (estruturalmente elegível) | 45 |
+| Lições com free_production guiada | 79 |
+| Lições com produção aberta (estruturalmente elegível) | 48 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
 
@@ -107,4 +107,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-mercado** · objetivo `ask_price` · modelo `多少钱？` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:8eb9e5ed6fd79402 -->
+<!-- integridade:9b77e11305b16a2f -->
