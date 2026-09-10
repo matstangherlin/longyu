@@ -160,8 +160,10 @@ Preservados: culture-*, china-survival-restaurant/shopping, conversation-*, hanz
 14. hotel/aeroporto avançado no arco → `SCOPE`
 15. EN ausente → `MISSING_EN`
 
-## QA humano
+## QA
 
-Checklist da spec (desktop + 390×844): p6-cidade-lugares, p7-imersao-estacao, pegar-taxi, City Mobility Mission, metro-qr CultureMission.
+Playwright `e2e/v498a-city-mobility.spec.ts`: **8/8** no Chromium (preview `4173`, plano autoral). O skip-through completa o microtouch de tom (`data-tone-first-exposure` → Percebi a curva) antes do mapa M1.
+
+Checklist humano (desktop + 390×844): p6-cidade-lugares, p7-imersao-estacao, pegar-taxi, City Mobility Mission, metro-qr CultureMission.
 
 Perguntas: «Eu consigo chegar a algum lugar?», mapa exige compreensão, direção sem tradução, pedir ajuda/repetição, NPC ecoa destino, táxi parece táxi, reúso de mandarim antigo, cultura antes da tarefa.
