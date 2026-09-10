@@ -33,3 +33,4 @@ Nenhum após o corte da injeção `setCultureBridgeOpen(true)`. Completar a liç
 - Overlay EN para o par `888` em `four-and-eight`.
 - `TOPIC_INCOMPLETE` tem copy no bloqueio de deep link.
 - Vitória com `src=jornada` volta à Jornada; `from=/licao/…` no touchpoint devolve à aula de mandarim.
+- Abrir o player de uma aula de mandarim **não** marca o CultureItem como `in_progress` (`startCultureItem` só no domínio cultura).

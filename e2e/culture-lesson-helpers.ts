@@ -52,27 +52,63 @@ export async function expandJourneyMap(page: Page) {
   }
 }
 
+function isCulturePlayerUrl(page: Page) {
+  return /\/licao\/culture-[^/]+\/player/.test(page.url());
+}
+
 /**
  * Skip-through the canonical LessonPlayer until culture victory.
- * Prefers Entendi / Verificar / Continuar; uses Pular on graded steps.
+ * Stays on the culture route: Entendi on intro, Pular on graded steps.
  */
 export async function playCultureLessonToVictory(page: Page) {
   await expect(page.getByTestId("culture-item")).toBeVisible({ timeout: 20_000 });
   const victory = page.getByTestId("culture-victory");
   const deadline = Date.now() + 90_000;
   while (Date.now() < deadline) {
+    if (!isCulturePlayerUrl(page)) {
+      throw new Error(`left culture player: ${page.url()}`);
+    }
     await dismissBlockingOverlays(page);
     if (await victory.isVisible().catch(() => false)) {
       await dismissBlockingOverlays(page);
       await expect(victory).toBeVisible();
       return;
     }
-    const moved = await advanceUntilVisible(page, victory, 4);
-    if (moved) {
-      await dismissBlockingOverlays(page);
-      await expect(victory).toBeVisible({ timeout: 8_000 });
-      return;
+
+    const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ }).first();
+    if (await entendi.isVisible().catch(() => false) && !(await entendi.isDisabled().catch(() => true))) {
+      await entendi.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
     }
+
+    const pular = page.getByRole("button", { name: /^(Pular|Skip)/ }).first();
+    if (await pular.isVisible().catch(() => false) && !(await pular.isDisabled().catch(() => true))) {
+      await pular.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
+
+    const continueBtn = page.getByRole("button", { name: /^(Continuar|Continue)$/ }).first();
+    if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
+      await continueBtn.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
+
+    const option = page.getByRole("button", { name: /^(Opção|Option) \d+:/ }).first();
+    if (await option.isVisible().catch(() => false)) {
+      await option.click().catch(() => undefined);
+      const check = page.getByRole("button", { name: /^(Verificar|Check)$/ }).first();
+      if (await check.isVisible().catch(() => false) && !(await check.isDisabled().catch(() => true))) {
+        await check.click().catch(() => undefined);
+      }
+      await page.waitForTimeout(150);
+      continue;
+    }
+
+    const moved = await advanceUntilVisible(page, victory, 2);
+    if (moved) continue;
   }
   await expect(victory).toBeVisible({ timeout: 5_000 });
 }

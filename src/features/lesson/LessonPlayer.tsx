@@ -1941,9 +1941,10 @@ export function LessonPlayer() {
   }, [completedLessons, cultureKnowledgeById, foundLesson, learnedChars, learnedChunks]);
 
   useEffect(() => {
-    const itemId = foundLesson?.cultureItemId ?? cultureItemIdFromLessonId(foundLesson?.id);
+    if (foundLesson?.lessonDomain !== "culture") return;
+    const itemId = foundLesson.cultureItemId ?? cultureItemIdFromLessonId(foundLesson.id);
     if (itemId) startCultureItem(itemId);
-  }, [foundLesson?.cultureItemId, foundLesson?.id, startCultureItem]);
+  }, [foundLesson?.cultureItemId, foundLesson?.id, foundLesson?.lessonDomain, startCultureItem]);
 
   const [adaptiveSteps, setAdaptiveSteps] = useState<LessonStep[] | null>(null);
   const [planReady, setPlanReady] = useState(false);
