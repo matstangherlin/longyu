@@ -159,7 +159,9 @@ Gates da #247 preservados (`culture-native-lessons`, `culture-journey-nodes`, `c
 
 - Contratos SQL de liga: `004_leagues.sql` (`get_league_standings`, `add_league_weekly_xp`). Sem mudança de schema nesta PR.
 - Persist v24 inalterado.
-- `validate:beta` / `test:backend-contract` / `build` — a correr no CI desta PR.
+- `validate:beta` local: **PASS** (fingerprint `b727b36129b1`, `test:backend-contract` incluso na cadeia).
+- E2E Chromium: **31/31 PASS** (`v498a2-release-hardening`, `culture-hub`, `v498a1-native-culture-lessons`).
+- QA manual 390×844 (após Atualizar o SW): qingwen com peças + Verificar, história Mei `欢迎！请进！` com Ouvir, save no card, vitória 🏮 Cultura concluída, ranking Ana/Matheus/Você sem Aluno demo.
 
 ## Preservado
 

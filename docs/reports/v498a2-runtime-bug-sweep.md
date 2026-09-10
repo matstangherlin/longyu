@@ -18,6 +18,9 @@ Classificação: **BLOCKER** / **HIGH** / **MEDIUM** / **LOW**. BLOCKER e HIGH e
 | C8 | Hub vs Jornada | Dois caminhos de XP. | HIGH (preexistente, revalidado) | Mesmo `culture-{id}`; `grantXp: false` no patch cultural; `leagueXpKeyLesson`. |
 | C9 | Mobile 390 | Peças de “Ordene” abaixo do CTA sticky. | HIGH | E2E 390×844: peça 请问 acima de Verificar. |
 | C10 | Resume | Sair no meio e voltar ao step 1. | MEDIUM | Já existia no LessonPlayer padrão (`setLessonSessionStep`). Sem persistência exclusiva de Cultura. |
+| C11 | Culture Review | `sentence_build` errado travava sem “Tentar de novo” porque o StepRenderer sempre passava `onMistake`. | HIGH | `engineMistake` só existe quando o player trata o erro. Review mostra retry. |
+| C12 | Hub card | `culture-save` era irmão do `Link`, então o e2e não achava o botão. | MEDIUM | `data-testid="culture-card"` no wrapper. |
+| C13 | QA PWA | Preview com SW antigo servia o player da #247 (“Salvar para depois” no topo, sem `sentence_build`). | LOW | Não é regressão de código. Atualizar o SW / incognito mostra o bundle desta PR. |
 
 ## Ligas
 
