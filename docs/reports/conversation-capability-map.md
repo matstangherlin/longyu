@@ -311,7 +311,7 @@ READY requires vocabulary + question/answer + productive practice + conversation
 - requiredChunks: chunk:feijichangzainali, chunk:wozuofeiji, chunk:huzhao, chunk:jichangzainali, chunk:dengjikouzainali, chunk:wodehangbanzainali, chunk:zheshiwodehuzhao
 - requiredQuestions: 飞机场在哪里？ / 机场在哪里？ / 登机口在哪里？
 - requiredAnswers: 我坐飞机 / 这是我的护照
-- journeyLessons: p6-china-cidades-2, p6-survival-mandarin
+- journeyLessons: p6-china-cidades-2, p7-imersao-aeroporto
 - productiveCoverage: yes
 - conversationCoverage: yes
 - status: **READY**
@@ -323,7 +323,7 @@ READY requires vocabulary + question/answer + productive practice + conversation
 - requiredChunks: chunk:jiudianzainali, chunk:huzhao, chunk:fangjian, chunk:qiantai, chunk:fangka, chunk:woyouyuding, chunk:zheshiwodehuzhao, chunk:wodefangjianzainali, chunk:youwifima, chunk:qinggeiwodehuzhao
 - requiredQuestions: 酒店在哪里？ / 我的房间在哪里？
 - requiredAnswers: 我有预订 / 这是我的护照
-- journeyLessons: p6-survival-mandarin
+- journeyLessons: p6-survival-mandarin, p7-imersao-hotel
 - productiveCoverage: yes
 - conversationCoverage: yes
 - status: **READY**

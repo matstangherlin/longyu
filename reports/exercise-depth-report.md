@@ -6,18 +6,18 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | b727b36129b1 |
-| HEAD no instante da geração | f3ff6cfd6865310571d16731010472235f95f37d |
+| Hash da Jornada | 465390e64799 |
+| HEAD no instante da geração | 2417cd6ce4bec58d16e677a61fb4d18033bf187a |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T13:31:06.096Z |
-| Lições | 128 |
+| Gerado em | 2026-09-10T18:54:36.763Z |
+| Lições | 131 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições analisadas | 128 |
+| Lições analisadas | 131 |
 | Score médio | 92 (portão: ≥ 78) |
 | Lições abaixo do portão (comum < 60 · revisão < 70) | 0 |
 | Revisões de módulo < 78 | 0 |
@@ -2623,16 +2623,16 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 19 |
-| Tipos de exercício | 13 |
-| Respostas únicas | 14 |
-| Hànzì únicos | 47 |
-| Chunks únicos | 24 |
-| Frases reais | 12 |
-| Contexto | 12 |
+| Passos no plano | 17 |
+| Tipos de exercício | 12 |
+| Respostas únicas | 13 |
+| Hànzì únicos | 43 |
+| Chunks únicos | 25 |
+| Frases reais | 11 |
+| Contexto | 11 |
 | Visuais | 2 |
-| Conversas | 2 |
-| Produção sem apoio | 4 |
+| Conversas | 1 |
+| Produção sem apoio | 5 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2755,16 +2755,16 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 22 |
-| Tipos de exercício | 11 |
+| Passos no plano | 21 |
+| Tipos de exercício | 10 |
 | Respostas únicas | 17 |
-| Hànzì únicos | 60 |
-| Chunks únicos | 38 |
+| Hànzì únicos | 44 |
+| Chunks únicos | 41 |
 | Frases reais | 13 |
-| Contexto | 14 |
+| Contexto | 15 |
 | Visuais | 4 |
 | Conversas | 2 |
-| Produção sem apoio | 3 |
+| Produção sem apoio | 6 |
 | Transferência | 1 |
 
 **Problemas:**
@@ -2824,7 +2824,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Passos no plano | 34 |
 | Tipos de exercício | 16 |
 | Respostas únicas | 22 |
-| Hànzì únicos | 63 |
+| Hànzì únicos | 65 |
 | Chunks únicos | 29 |
 | Frases reais | 12 |
 | Contexto | 12 |
@@ -2839,21 +2839,21 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - manter variedade atual
 
-### p7-imersao-casa-amigo — Imersão: visita à casa da amiga (score 100)
+### p7-imersao-hotel — Imersão: check-in no hotel (score 100)
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 30 |
-| Tipos de exercício | 15 |
-| Respostas únicas | 25 |
-| Hànzì únicos | 47 |
-| Chunks únicos | 21 |
-| Frases reais | 14 |
-| Contexto | 17 |
+| Passos no plano | 26 |
+| Tipos de exercício | 16 |
+| Respostas únicas | 20 |
+| Hànzì únicos | 45 |
+| Chunks únicos | 20 |
+| Frases reais | 12 |
+| Contexto | 13 |
 | Visuais | 3 |
-| Conversas | 2 |
-| Produção sem apoio | 6 |
-| Transferência | 1 |
+| Conversas | 1 |
+| Produção sem apoio | 4 |
+| Transferência | 0 |
 
 **Problemas:**
 - (nenhum crítico)
@@ -2861,9 +2861,75 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - manter variedade atual
 
+### p7-imersao-aeroporto — Imersão: no aeroporto (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 23 |
+| Tipos de exercício | 14 |
+| Respostas únicas | 15 |
+| Hànzì únicos | 41 |
+| Chunks únicos | 15 |
+| Frases reais | 12 |
+| Contexto | 12 |
+| Visuais | 3 |
+| Conversas | 1 |
+| Produção sem apoio | 4 |
+| Transferência | 0 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
+### p7-imersao-viagem — Imersão: hotel ao aeroporto (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 24 |
+| Tipos de exercício | 15 |
+| Respostas únicas | 14 |
+| Hànzì únicos | 46 |
+| Chunks únicos | 15 |
+| Frases reais | 11 |
+| Contexto | 12 |
+| Visuais | 3 |
+| Conversas | 1 |
+| Produção sem apoio | 5 |
+| Transferência | 0 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### p7-imersao-casa-amigo — Imersão: visita à casa da amiga (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 28 |
+| Tipos de exercício | 14 |
+| Respostas únicas | 21 |
+| Hànzì únicos | 50 |
+| Chunks únicos | 21 |
+| Frases reais | 15 |
+| Contexto | 15 |
+| Visuais | 2 |
+| Conversas | 2 |
+| Produção sem apoio | 6 |
+| Transferência | 1 |
+
+**Problemas:**
+- hànzì muito repetido: 我
+
+**Sugestões:**
+- reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
 
 ---
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:28df9653e5c4c67e -->
+<!-- integridade:6d24045b901c5ad7 -->

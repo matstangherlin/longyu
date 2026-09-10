@@ -18,8 +18,8 @@ const V38_SCENES = [
   { id: "que-horas-sao", domain: "time", lessonId: "p6-horarios" },
   { id: "nao-me-sinto-bem", domain: "health", lessonId: "p6-saude" },
   { id: "como-esta-o-tempo", domain: "weather", lessonId: "p6-clima" },
-  { id: "checkin-hotel", domain: "hotel", lessonId: "p6-survival-mandarin" },
-  { id: "no-aeroporto", domain: "airport", lessonId: "p6-china-cidades-2" },
+  { id: "checkin-hotel", domain: "hotel", lessonId: "p7-imersao-hotel" },
+  { id: "no-aeroporto", domain: "airport", lessonId: "p7-imersao-aeroporto" },
   { id: "pegar-taxi", domain: "taxi", lessonId: "p6-china-ruas" },
 ];
 

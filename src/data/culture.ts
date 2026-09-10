@@ -169,6 +169,18 @@ const SRC = {
     url: "https://en.bjhd.gov.cn/workinginhaidian/supportingservices/publicholidays/202512/t20251211_4797062.shtml",
     accessedAt: ACCESSED,
   },
+  niaExitEntryArt39: {
+    title: "Exit and Entry Administration Law of the People's Republic of China (English), Article 39",
+    publisher: "National Immigration Administration of the People's Republic of China",
+    url: "https://www.nia.gov.cn/n741440/n741547/c757592/content.html",
+    accessedAt: "2026-09-10",
+  },
+  niaHotelVsHome: {
+    title: "Policy interpretation of online accommodation registration for foreigners staying outside hotels",
+    publisher: "The State Council of the People's Republic of China (NIA interpretation)",
+    url: "https://english.www.gov.cn/services/visitchina/202603/21/content_WS69ce124cc6d00ca5f9a0a368.html",
+    accessedAt: "2026-09-10",
+  },
 } as const satisfies Record<string, CultureSource>;
 
 export const REJECTED_CULTURE_CANDIDATES: RejectedCultureCandidate[] = [
@@ -948,6 +960,67 @@ export const CULTURE_ITEMS: CultureItem[] = [
       correctOptionId: "b",
       explanationPt: "明码标价 pede o preço visível. Não transforma toda compra numa negociação.",
       explanationEn: "明码标价 requires a visible price. It does not turn every purchase into a negotiation.",
+    },
+  },
+  {
+    id: "hotel-checkin-register",
+    order: 20,
+    category: "daily_life",
+    scope: "formal",
+    estimatedMinutes: 3,
+    titlePt: "Passaporte na recepção",
+    titleEn: "Passport at the front desk",
+    summaryPt:
+      "Em hotel na China continental, a recepção registra a estadia do estrangeiro com o passaporte e envia esse registro ao órgão de segurança pública do lugar. Não é um 'costume de hospitalidade': é dever legal do hotel.",
+    summaryEn:
+      "In a hotel on the Chinese mainland, the front desk registers a foreign guest's stay with the passport and submits that registration to the local public security organ. It is not a hospitality custom: it is the hotel's legal duty.",
+    bodyPt:
+      "O artigo 39 da Lei de Administração de Saída e Entrada diz: se o estrangeiro fica em hotel, o hotel registra a hospedagem segundo as regras de segurança pública da indústria hoteleira e envia a informação ao órgão local. Quem fica em casa, dormitório ou outro domicílio que não seja hotel segue o outro parágrafo: o hóspede ou quem o acolhe registra em 24 horas.",
+    bodyEn:
+      "Article 39 of the Exit and Entry Administration Law says: when a foreigner stays in a hotel, the hotel registers the stay under hotel public-security rules and submits the information to the local organ. Anyone staying in a home, dorm, or other non-hotel domicile follows the other paragraph: the guest or the host registers within 24 hours.",
+    situationPt: "Você chega a um hotel em Xangai. A recepcionista cumprimenta e pede o passaporte.",
+    situationEn: "You arrive at a hotel in Shanghai. The receptionist greets you and asks for the passport.",
+    noticePt:
+      "Mostre o passaporte na 前台. O hotel faz o registro. Isso não é o mesmo processo de quem dorme na casa de um amigo.",
+    noticeEn:
+      "Show the passport at 前台. The hotel does the registration. That is not the same process as staying at a friend's home.",
+    whyPt:
+      "Sem o documento, o hotel não consegue cumprir o registro. Pedir o passaporte na recepção é o passo legal da estadia em hotel — não um pedido aleatório de 'cultura chinesa'.",
+    whyEn:
+      "Without the document, the hotel cannot complete the registration. Asking for the passport at the desk is the legal hotel-stay step — not a random 'Chinese culture' request.",
+    practicePt: "这是我的护照. Guarde o passaporte acessível no check-in. Em casa de amigo, o registro é outro caminho.",
+    practiceEn: "这是我的护照. Keep the passport ready at check-in. At a friend's home, registration is a different path.",
+    variabilityPt:
+      "Hotel, hostel e pousada que aceitam estrangeiros costumam registrar na recepção. Casa, dormitório e alguns aluguéis informais usam o prazo de 24 horas — e o aplicativo ou a delegacia variam por cidade.",
+    variabilityEn:
+      "Hotels, hostels, and guesthouses that take foreigners usually register at the desk. Homes, dorms, and some informal stays use the 24-hour rule — and the app or police station varies by city.",
+    relatedLessonIds: ["p6-survival-mandarin", "p7-imersao-hotel"],
+    relatedChunkRefs: ["huzhao", "zheshiwodehuzhao", "qinggeiwodehuzhao", "qiantai"],
+    relatedHanziRefs: ["you"],
+    sources: [SRC.niaExitEntryArt39, SRC.niaHotelVsHome],
+    miniCheck: {
+      promptPt: "Na recepção de um hotel na China continental, por que pedem o passaporte?",
+      promptEn: "At a hotel front desk on the Chinese mainland, why do they ask for the passport?",
+      options: [
+        {
+          id: "a",
+          labelPt: "É só um hábito de hotel igual em qualquer país, sem regra local.",
+          labelEn: "It is only a hotel habit like anywhere, with no local rule.",
+        },
+        {
+          id: "b",
+          labelPt: "O hotel registra a estadia do estrangeiro e envia isso ao órgão de segurança pública local.",
+          labelEn: "The hotel registers the foreigner's stay and submits it to the local public security organ.",
+        },
+        {
+          id: "c",
+          labelPt: "Todo hóspede chinês também precisa do passaporte para dormir.",
+          labelEn: "Every Chinese guest also needs a passport to sleep there.",
+        },
+      ],
+      correctOptionId: "b",
+      explanationPt: "O artigo 39 atribui o registro ao hotel. Não generalize para casa de amigo nem para 'todo hóspede'.",
+      explanationEn: "Article 39 assigns registration to the hotel. Do not generalise that to a friend's home or to 'every guest'.",
     },
   },
 ];

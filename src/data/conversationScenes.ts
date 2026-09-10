@@ -27,12 +27,14 @@ import {
   PEGAR_TAXI_LEARNED_REFS,
   PEGAR_TAXI_NODES,
 } from "./mobilitySurvivalScenes";
+import { CHECKIN_HOTEL_LEARNED_REFS, CHECKIN_HOTEL_NODES } from "./hotelSurvivalScenes";
+import { NO_AEROPORTO_LEARNED_REFS, NO_AEROPORTO_NODES } from "./airportSurvivalScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
  */
 
-export type ConversationSetting = "classroom" | "street" | "shop" | "home" | "park" | "school";
+export type ConversationSetting = "classroom" | "street" | "shop" | "home" | "park" | "school" | "hotel" | "airport";
 export type ConversationEmotion = "neutral" | "happy" | "confused" | "thinking";
 export type ConversationCheckpointType = "choose_reply" | "fill_reply" | "choose_meaning" | "order_reply" | "produce_reply";
 
@@ -88,6 +90,8 @@ export interface ConversationCharacter {
   name: string;
   avatar: string;
   side: "left" | "right";
+  /** Contextual role (receptionist, traveller) — not a second given name. */
+  role?: string;
 }
 
 export interface ConversationLine {
@@ -174,7 +178,19 @@ export type ConversationSpeechAct =
   | "ask_route"
   | "tell_direction"
   | "request_stop"
-  | "state_destination";
+  | "state_destination"
+  | "ask_reservation"
+  | "confirm_reservation"
+  | "request_document"
+  | "present_document"
+  | "ask_nights"
+  | "tell_nights"
+  | "tell_room_number"
+  | "ask_room_location"
+  | "ask_wifi"
+  | "ask_gate"
+  | "tell_gate"
+  | "ask_repeat";
 
 export type ConversationRepairType =
   | "repeat"
@@ -183,7 +199,12 @@ export type ConversationRepairType =
   | "reask"
   | "confirm_quantity"
   | "reask_order"
-  | "confirm_bill";
+  | "confirm_bill"
+  | "confirm_reservation"
+  | "confirm_document"
+  | "confirm_nights"
+  | "confirm_room"
+  | "confirm_gate";
 
 export interface ConversationInteraction {
   type: ConversationInteractionType;
@@ -208,6 +229,8 @@ export interface ConversationInteraction {
    * balcão, existe mais de um jeito certo de dizer a mesma coisa.
    */
   accepts?: string[];
+  /** listen_reply: áudio ouvido (pode diferir da resposta, ex. 三零五 → 305). */
+  listenAudioText?: string;
   /** Alternativas que o passo TINHA antes de perder o apoio (para a correção). */
   removedOptions?: string[];
   /** NPC move this turn is asking/doing. */
@@ -457,6 +480,16 @@ export const PAIR_LIN_MEI: ConversationCharacter[] = [
 export const PAIR_LIN_WANG: ConversationCharacter[] = [
   { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left" },
   { id: "wang", name: "Wang", avatar: "wang", side: "right" },
+];
+
+export const PAIR_HOTEL: ConversationCharacter[] = [
+  { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left", role: "Viajante" },
+  { id: "wang", name: "Wang", avatar: "wang", side: "right", role: "Recepcionista" },
+];
+
+export const PAIR_AIRPORT: ConversationCharacter[] = [
+  { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left", role: "Viajante" },
+  { id: "wang", name: "Wang", avatar: "wang", side: "right", role: "Funcionário" },
 ];
 
 export const PAIR_LIN_HUA: ConversationCharacter[] = [
@@ -3367,157 +3400,25 @@ sceneV2({
   sceneId: "checkin-hotel",
   title: "Check-in no hotel",
   intent: "hotel",
-  setting: "shop",
-  characters: PAIR_LIN_WANG,
-  sceneRole: "common",
-  entryNodeId: "hotel-1",
-  nodes: [
-    { id: "hotel-1", speakerId: "lin", hanzi: "你好。", pinyin: "nǐ hǎo.", pt: "Olá.", emotion: "happy", nextNodeId: "hotel-2" },
-    {
-      id: "hotel-2",
-      speakerId: "wang",
-      hanzi: "你好。有预订吗？",
-      pinyin: "nǐ hǎo. yǒu yùdìng ma?",
-      pt: "Olá. Tem reserva?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Você tem reserva. O que diz? (também vale entregar o passaporte.)",
-        options: ["我有预订", "这是我的护照"],
-        correctAnswer: "我有预订",
-        correctNextNodeId: "hotel-4",
-        wrongNextNodeId: "hotel-3",
-        explanation: "我有预订 = eu tenho reserva. Entregar o passaporte também funciona.",
-      },
-    },
-    { id: "hotel-3", speakerId: "wang", hanzi: "请给我护照。", pinyin: "qǐng gěi wǒ hùzhào.", pt: "Por favor, me dê o passaporte.", nextNodeId: "hotel-3b" },
-    { id: "hotel-3b", speakerId: "lin", hanzi: "这是我的护照。", pinyin: "zhè shì wǒ de hùzhào.", pt: "Este é o meu passaporte.", nextNodeId: "hotel-4" },
-    { id: "hotel-4", speakerId: "wang", hanzi: "好。你的房间是305。", pinyin: "hǎo. nǐ de fángjiān shì sān líng wǔ.", pt: "Certo. Seu quarto é o 305.", nextNodeId: "hotel-5" },
-    {
-      id: "hotel-5",
-      speakerId: "lin",
-      hanzi: "我的房间在哪里？",
-      pinyin: "wǒ de fángjiān zài nǎlǐ?",
-      pt: "Onde fica o meu quarto?",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus perguntou?",
-        options: ["Onde fica o meu quarto?", "Quanto custa?", "Até logo.", "Obrigado."],
-        correctAnswer: "Onde fica o meu quarto?",
-        correctNextNodeId: "hotel-7",
-        wrongNextNodeId: "hotel-6",
-        explanation: "我的房间在哪里？ pergunta o quarto.",
-      },
-    },
-    { id: "hotel-6", speakerId: "wang", hanzi: "房间在哪里？请再说一遍。", pinyin: "fángjiān zài nǎlǐ? qǐng zài shuō yí biàn.", pt: "Onde fica o quarto? Tente de novo.", emotion: "thinking", nextNodeId: "hotel-5" },
-    {
-      id: "hotel-7",
-      speakerId: "wang",
-      hanzi: "在那里。",
-      pinyin: "zài nàlǐ.",
-      pt: "Lá.",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Pergunte se tem Wi-Fi.",
-        options: ["有Wi-Fi吗？", "再见", "谢谢", "我很好"],
-        correctAnswer: "有Wi-Fi吗？",
-        correctNextNodeId: "hotel-9",
-        wrongNextNodeId: "hotel-8",
-        explanation: "有Wi-Fi吗？ pergunta se tem internet.",
-      },
-    },
-    { id: "hotel-8", speakerId: "wang", hanzi: "有Wi-Fi吗？请再说一遍。", pinyin: "yǒu Wài-Fài ma? qǐng zài shuō yí biàn.", pt: "Tem Wi-Fi? Tente de novo.", emotion: "thinking", nextNodeId: "hotel-7" },
-    { id: "hotel-9", speakerId: "lin", hanzi: "有Wi-Fi吗？", pinyin: "yǒu Wài-Fài ma?", pt: "Tem Wi-Fi?", nextNodeId: "hotel-10" },
-    { id: "hotel-10", speakerId: "wang", hanzi: "有。谢谢！", pinyin: "yǒu. xièxie!", pt: "Tem. Obrigado!", emotion: "happy" },
-  ],
-  learnedRefs: [
-    "chunk:nihao",
-    "chunk:woyouyuding",
-    "chunk:zheshiwodehuzhao",
-    "chunk:qinggeiwodehuzhao",
-    "chunk:fangjian",
-    "chunk:wodefangjianzainali",
-    "chunk:youwifima",
-    "chunk:qingzaishuoyibian",
-    "chunk:zaijian",
-    "chunk:xiexie",
-    "chunk:wohenhao",
-    "char:hao",
-    "char:you",
-    "char:ni",
-    "char:de",
-    "char:shi",
-    "char:zai",
-    "char:na_that",
-    "char:li_inside",
-    "char:ma_question",
-  ],
+  setting: "hotel",
+  characters: PAIR_HOTEL,
+  sceneRole: "immersion",
+  dedicatedLesson: true,
+  entryNodeId: "hotel-greet",
+  nodes: CHECKIN_HOTEL_NODES,
+  learnedRefs: CHECKIN_HOTEL_LEARNED_REFS,
 }),
 sceneV2({
   sceneId: "no-aeroporto",
   title: "No aeroporto",
   intent: "airport",
-  setting: "street",
-  characters: PAIR_LIN_WANG,
-  sceneRole: "common",
-  entryNodeId: "aero-1",
-  nodes: [
-    { id: "aero-1", speakerId: "lin", hanzi: "你好。机场在哪里？", pinyin: "nǐ hǎo. jīchǎng zài nǎlǐ?", pt: "Olá. Onde fica o aeroporto?", nextNodeId: "aero-2" },
-    {
-      id: "aero-2",
-      speakerId: "wang",
-      hanzi: "在那里。这是护照吗？",
-      pinyin: "zài nàlǐ. zhè shì hùzhào ma?",
-      pt: "Lá. Isto é o passaporte?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Mostre o passaporte.",
-        options: ["这是我的护照", "再见", "谢谢", "我很好"],
-        correctAnswer: "这是我的护照",
-        correctNextNodeId: "aero-4",
-        wrongNextNodeId: "aero-3",
-        explanation: "这是我的护照 identifica o documento.",
-      },
-    },
-    { id: "aero-3", speakerId: "wang", hanzi: "这是我的护照。请再说一遍。", pinyin: "zhè shì wǒ de hùzhào. qǐng zài shuō yí biàn.", pt: "Este é o meu passaporte. Tente de novo.", emotion: "thinking", nextNodeId: "aero-2" },
-    { id: "aero-4", speakerId: "lin", hanzi: "这是我的护照。", pinyin: "zhè shì wǒ de hùzhào.", pt: "Este é o meu passaporte.", nextNodeId: "aero-5" },
-    {
-      id: "aero-5",
-      speakerId: "wang",
-      hanzi: "好。登机口在哪里？",
-      pinyin: "hǎo. dēngjīkǒu zài nǎlǐ?",
-      pt: "Certo. Onde fica o portão?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Pergunte o portão de embarque.",
-        options: ["登机口在哪里？", "再见", "谢谢", "我很好"],
-        correctAnswer: "登机口在哪里？",
-        correctNextNodeId: "aero-7",
-        wrongNextNodeId: "aero-6",
-        explanation: "登机口在哪里？ acha o portão.",
-      },
-    },
-    { id: "aero-6", speakerId: "wang", hanzi: "登机口在哪里？请再说一遍。", pinyin: "dēngjīkǒu zài nǎlǐ? qǐng zài shuō yí biàn.", pt: "Onde fica o portão? Tente de novo.", emotion: "thinking", nextNodeId: "aero-5" },
-    { id: "aero-7", speakerId: "lin", hanzi: "登机口在哪里？", pinyin: "dēngjīkǒu zài nǎlǐ?", pt: "Onde fica o portão de embarque?", nextNodeId: "aero-8" },
-    { id: "aero-8", speakerId: "wang", hanzi: "在那里。谢谢！", pinyin: "zài nàlǐ. xièxie!", pt: "Lá. Obrigado!", emotion: "happy" },
-  ],
-  learnedRefs: [
-    "chunk:nihao",
-    "chunk:jichangzainali",
-    "chunk:huzhao",
-    "chunk:zheshiwodehuzhao",
-    "chunk:dengjikouzainali",
-    "chunk:qingzaishuoyibian",
-    "chunk:zaijian",
-    "chunk:xiexie",
-    "chunk:wohenhao",
-    "char:hao",
-    "char:zai",
-    "char:na_that",
-    "char:li_inside",
-    "char:zhe",
-    "char:shi",
-    "char:ma_question",
-  ],
+  setting: "airport",
+  characters: PAIR_AIRPORT,
+  sceneRole: "immersion",
+  dedicatedLesson: true,
+  entryNodeId: "aero-greet",
+  nodes: NO_AEROPORTO_NODES,
+  learnedRefs: NO_AEROPORTO_LEARNED_REFS,
 }),
 sceneV2({
   sceneId: "pegar-taxi",
@@ -3543,6 +3444,8 @@ export const SETTING_LABELS: Record<ConversationSetting, string> = {
   home: "Casa",
   park: "Parque",
   school: "Escola",
+  hotel: "Hotel",
+  airport: "Aeroporto",
 };
 
 export const AVATAR_TONES: Record<string, { bg: string; fg: string }> = {

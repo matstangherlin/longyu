@@ -95,6 +95,11 @@ function CharacterAvatar({
       <span className={["text-xs font-semibold", active ? "text-ink" : "text-ink-faint"].join(" ")}>
         {character.name}
       </span>
+      {character.role ? (
+        <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-faint">
+          {resolveInstructionText(character.role, getInstructionLocale())}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -239,6 +244,8 @@ function SettingBackdrop({ setting }: { setting?: string }) {
     home: "from-[rgb(47_133_90/0.10)] via-[rgb(var(--surface-2))] to-[rgb(185_65_46/0.06)]",
     park: "from-[rgb(47_133_90/0.14)] via-[rgb(var(--surface-2))] to-[rgb(90_96_100/0.06)]",
     school: "from-[rgb(185_65_46/0.12)] via-[rgb(var(--surface-2))] to-[rgb(138_90_23/0.08)]",
+    hotel: "from-[rgb(59_98_166/0.12)] via-[rgb(var(--surface-2))] to-[rgb(138_90_23/0.10)]",
+    airport: "from-[rgb(90_96_100/0.14)] via-[rgb(var(--surface-2))] to-[rgb(59_98_166/0.10)]",
   };
   const wash = washes[setting ?? ""] ?? washes.classroom;
 
@@ -598,7 +605,7 @@ function InteractionPanel({
 
       {isListen && (
         <div className="mt-3 flex items-center gap-2">
-          <SpeakButton text={answer} label={t("player.listen")} size="sm" autoPlay />
+          <SpeakButton text={interaction.listenAudioText ?? answer} label={t("player.listen")} size="sm" autoPlay />
           <span className="text-xs text-ink-faint">{t("player.listenAndChooseReply")}</span>
         </div>
       )}

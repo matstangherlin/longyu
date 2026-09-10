@@ -23,6 +23,7 @@ export const CULTURE_STORY_FLAGSHIP_IDS = [
   "metro-qr",
   "bargaining-context",
   "gift-receiving",
+  "hotel-checkin-register",
 ] as const;
 
 export const CULTURE_JOURNEY_PLACEMENT: readonly CultureJourneyPlacement[] = [
@@ -45,6 +46,7 @@ export const CULTURE_JOURNEY_PLACEMENT: readonly CultureJourneyPlacement[] = [
   { itemId: "dragon-boat", afterTopicId: "p6-natureza", track: "explore" },
   { itemId: "qingming", afterTopicId: "p6-rotina-trabalho", track: "explore" },
   { itemId: "visiting-home", afterTopicId: "p7-imersao-casa-amigo", track: "core" },
+  { itemId: "hotel-checkin-register", afterTopicId: "p6-survival-mandarin", track: "core" },
 ] as const;
 
 export function cultureLessonIdForItem(itemId: string): string {

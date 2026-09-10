@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | f3ff6cfd6865310571d16731010472235f95f37d |
+| Commit | 2417cd6ce4bec58d16e677a61fb4d18033bf187a |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T13:30:43.681Z |
-| Lições | 128 |
-| Hash da Jornada | b727b36129b1 |
+| Gerado em | 2026-09-10T18:54:13.146Z |
+| Lições | 131 |
+| Hash da Jornada | 465390e64799 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Número de cenas | 48 |
-| Média de falas | 8.73 |
-| Média de intervenções | 3.08 |
-| Número de ramificações | 149 |
-| Número de finais | 53 |
-| Vocabulário total exibido (refs únicas no plano real) | 154 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 154 |
+| Média de falas | 9.19 |
+| Média de intervenções | 3.29 |
+| Número de ramificações | 159 |
+| Número de finais | 55 |
+| Vocabulário total exibido (refs únicas no plano real) | 155 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 155 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.54 |
+| Média de reutilizações por ref exibida | 7.96 |
 
 ## Cenas mais curtas
 
@@ -40,7 +40,6 @@
 | conversa-em-casa | 6 | 2 |
 | comentar-ceu | 6 | 2 |
 | como-esta-o-tempo | 6 | 2 |
-| no-aeroporto | 6 | 2 |
 
 ## Cenas mais longas
 
@@ -53,13 +52,13 @@
 | Cena | Usos |
 |------|-----:|
 | como-se-chama | 9 |
+| encontro-amanha | 9 |
 | me-apresentando | 8 |
 | nao-falo-chinês | 8 |
-| encontro-amanha | 8 |
+| packet-exchange-basic_questions | 7 |
 | packet-exchange-introductions | 7 |
 | falar-de-estudo | 7 |
 | cortesia-loja | 6 |
-| packet-exchange-basic_questions | 6 |
 | pedir-repeticao | 5 |
 | pedir-agua | 5 |
 
@@ -67,12 +66,14 @@
 
 | Cenário | Cenas |
 |---------|------:|
+| airport | 1 |
 | classroom | 6 |
 | home | 6 |
+| hotel | 1 |
 | park | 7 |
 | school | 5 |
-| shop | 11 |
-| street | 13 |
+| shop | 10 |
+| street | 12 |
 
 ## Cenas por intenção
 
@@ -143,4 +144,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:74354d7d01737660 -->
+<!-- integridade:fc11aa77bfe67a18 -->

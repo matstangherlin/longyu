@@ -6538,6 +6538,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:woquxian",
               "chunk:shanghaijichang",
               "chunk:jichangzainali",
+              "chunk:dengjikou",
               "chunk:dengjikouzainali",
               "chunk:wodehangbanzainali",
               "chunk:zheshiwodehuzhao",
@@ -6660,9 +6661,21 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "飞机 (fēijī) = avião." }
               ),
               flash("jichangzainali"),
+              flash("dengjikou"),
               flash("dengjikouzainali"),
+              listen("登机口", "dēngjīkǒu", "Portão de embarque."),
+              signReading(
+                "Portão",
+                "登机口",
+                "portão de embarque",
+                ["portão de embarque", "saída", "entrada", "recepção"],
+                "airport"
+              ),
               flash("zheshiwodehuzhao"),
-              conversationScene("no-aeroporto"),
+              intro(
+                "Chegar e entrar",
+                "机场在哪里？ acha o aeroporto na cidade. Dentro do aeroporto — documento, voo e portão — entra na missão de aeroporto, não nesta rua."
+              ),
             ],
           }),
           withLessonDefaults({
@@ -7774,6 +7787,7 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p6-survival-mandarin",
             title: "Survival: pagar, hotel, ajuda",
             skill: "fala",
+            cultureItemId: "hotel-checkin-register",
             premium: true,
             masteryLoop: true,
             newHanzi: [
@@ -7829,6 +7843,10 @@ export const JOURNEY: JourneyPhase[] = [
               "给",
               "李",
               "行",
+              "住",
+              "晚",
+              "两",
+              "零",
             ],
             libraryItems: [
               "chunk:xianjin",
@@ -7849,6 +7867,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wodefangjianzainali",
               "chunk:yiwan",
               "chunk:liangwan",
+              "chunk:zhujiwan",
+              "chunk:sanlingwu",
               "chunk:wozhuzaijiudian",
               "chunk:xishoujianzainali",
               "chunk:woxuyaobangzhu",
@@ -7935,6 +7955,28 @@ export const JOURNEY: JourneyPhase[] = [
               flash("wodefangjianzainali"),
               flash("yiwan"),
               flash("liangwan"),
+              intro(
+                "几 não é só relógio",
+                "Você já ouviu 几点 e 几位. 几 pergunta quantidade pequena. Na recepção vira 住几晚: quantas noites."
+              ),
+              flash("zhujiwan"),
+              listen("住几晚？", "zhù jǐ wǎn?", "Quantas noites?"),
+              dialogue(
+                "Noites",
+                "A recepção pergunta 住几晚？ Você fica duas. O que diz?",
+                "两晚",
+                ["两晚", "一晚", "谢谢", "菜单"],
+                "两晚 = duas noites. 住几晚 transfere 几."
+              ),
+              listenSelect(
+                "Qual é o número do quarto?",
+                "三零五",
+                ["205", "305", "508"],
+                "305",
+                "三零五 é 305 falado. Depois você vê 305 e 三零五 juntos."
+              ),
+              flash("sanlingwu"),
+              listen("三零五", "sān líng wǔ", "305"),
               listen("我有预订", "wǒ yǒu yùdìng", "Eu tenho reserva."),
               listen("这是我的护照", "zhè shì wǒ de hùzhào", "Este é o meu passaporte."),
               dialogue(
@@ -7971,10 +8013,10 @@ export const JOURNEY: JourneyPhase[] = [
               imageChoice(
                 "choose_meaning",
                 "hotel_key_card",
-                "O que esta imagem mostra?",
+                "A recepcionista entrega isto. O que você recebeu?",
                 "cartão do quarto",
                 visualMeaningOptions("hotel_key_card"),
-                { explanation: "房卡 (fángkǎ) abre o quarto do hotel." }
+                { explanation: "房卡 (fángkǎ) abre o quarto do hotel. A imagem resolve a tarefa." }
               ),
               imageChoice(
                 "choose_meaning",
@@ -8051,7 +8093,34 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               flash("youwifima"),
               flash("qinggeiwodehuzhao"),
-              conversationScene("checkin-hotel"),
+              freeProduction({
+                title: "Informe a reserva",
+                situationPt: "Você chegou ao hotel com reserva. Informe isso, sem alternativas.",
+                expected: "我有预订",
+                accepts: ["我有预订", "我有预订。", "有预订", "请问，我有预订"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我有预订", pinyin: "wǒ yǒu yùdìng" },
+                  { hanzi: "有预订", pinyin: "yǒu yùdìng" },
+                  { hanzi: "请问，我有预订", pinyin: "qǐng wèn, wǒ yǒu yùdìng" },
+                ],
+              }),
+              freeProduction({
+                title: "Onde fica o quarto?",
+                situationPt: "Você não encontra o quarto. Pergunte onde ele fica, sem alternativas.",
+                expected: "我的房间在哪里？",
+                accepts: ["我的房间在哪里？", "我的房间在哪里", "房间在哪里？", "请问，我的房间在哪里？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我的房间在哪里？", pinyin: "wǒ de fángjiān zài nǎlǐ?" },
+                  { hanzi: "房间在哪里？", pinyin: "fángjiān zài nǎlǐ?" },
+                  { hanzi: "请问，我的房间在哪里？", pinyin: "qǐng wèn, wǒ de fángjiān zài nǎlǐ?" },
+                ],
+              }),
             ],
           }),
           withLessonDefaults({
@@ -8321,7 +8390,7 @@ export const JOURNEY: JourneyPhase[] = [
         focusHanzi: [],
         focusGrammar: ["conversa longa com ramificação", "recuperar-se de um erro no diálogo"],
         focusSounds: ["duōshao qián", "wǒ yào zhège", "wǒ xiǎng hē chá"],
-        focusSituations: ["negociar no mercado", "comprar bilhete na estação", "visitar a casa de um amigo"],
+        focusSituations: ["negociar no mercado", "comprar bilhete na estação", "fazer check-in no hotel", "encontrar o portão", "visitar a casa de um amigo"],
         lessons: [
           {
             id: "p7-imersao-mercado",
@@ -8717,6 +8786,320 @@ export const JOURNEY: JourneyPhase[] = [
                 ["谢谢", "太贵了", "你好", "我们走吧"],
                 "谢谢 encerra a compra com cortesia.",
                 "Bilheteria"
+              ),
+            ],
+          },
+          {
+            id: "p7-imersao-hotel",
+            title: "Imersão: check-in no hotel",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            curriculumRole: "immersion",
+            newHanzi: ["预", "订", "护", "照", "房", "卡", "间", "给", "住", "晚", "两", "零"],
+            libraryItems: [
+              "chunk:qiantai",
+              "chunk:woyouyuding",
+              "chunk:zheshiwodehuzhao",
+              "chunk:qinggeiwodehuzhao",
+              "chunk:zhujiwan",
+              "chunk:liangwan",
+              "chunk:sanlingwu",
+              "chunk:fangjian",
+              "chunk:fangka",
+              "chunk:wodefangjianzainali",
+              "chunk:youwifima",
+              "chunk:xishoujianzainali",
+              "chunk:woxuyaobangzhu",
+              "chunk:huzhao",
+              "chunk:xingli",
+            ],
+            reviewItems: [
+              "chunk:woyouyuding",
+              "chunk:zheshiwodehuzhao",
+              "chunk:wodefangjianzainali",
+              "chunk:fangka",
+            ],
+            steps: [
+              intro(
+                "Missão: check-in",
+                "Você chegou ao hotel. Ache a recepção, informe a reserva, mostre o passaporte, ouça o quarto, receba a 房卡 e faça uma pergunta útil. Nada de lista nova."
+              ),
+              signReading(
+                "Recepção",
+                "前台",
+                "recepção",
+                ["recepção", "saída", "portão de embarque", "Alipay"],
+                "hotel"
+              ),
+              listenSelect(
+                "Qual é o número do quarto?",
+                "三零五",
+                ["205", "305", "508"],
+                "305",
+                "三零五 é 305 falado. O algarismo não aparece no título."
+              ),
+              imageChoice(
+                "choose_meaning",
+                "hotel_key_card",
+                "A recepcionista entrega isto. O que você recebeu?",
+                "cartão do quarto",
+                visualMeaningOptions("hotel_key_card"),
+                { explanation: "房卡 abre o quarto. Use a imagem para resolver." }
+              ),
+              freeProduction({
+                title: "Informe a reserva",
+                situationPt: "Você chegou com reserva. Informe isso, sem alternativas.",
+                expected: "我有预订",
+                accepts: ["我有预订", "我有预订。", "有预订", "请问，我有预订"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我有预订", pinyin: "wǒ yǒu yùdìng" },
+                  { hanzi: "有预订", pinyin: "yǒu yùdìng" },
+                  { hanzi: "请问，我有预订", pinyin: "qǐng wèn, wǒ yǒu yùdìng" },
+                ],
+              }),
+              freeProduction({
+                title: "Onde fica o quarto?",
+                situationPt: "Você não encontra o quarto. Pergunte onde ele fica, sem alternativas.",
+                expected: "我的房间在哪里？",
+                accepts: ["我的房间在哪里？", "我的房间在哪里", "房间在哪里？", "请问，我的房间在哪里？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我的房间在哪里？", pinyin: "wǒ de fángjiān zài nǎlǐ?" },
+                  { hanzi: "房间在哪里？", pinyin: "fángjiān zài nǎlǐ?" },
+                  { hanzi: "请问，我的房间在哪里？", pinyin: "qǐng wèn, wǒ de fángjiān zài nǎlǐ?" },
+                ],
+              }),
+              conversationScene("checkin-hotel"),
+            ],
+          },
+          {
+            id: "p7-imersao-aeroporto",
+            title: "Imersão: no aeroporto",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            curriculumRole: "immersion",
+            newHanzi: ["登", "机", "口", "护", "照", "直"],
+            libraryItems: [
+              "chunk:dengjikou",
+              "chunk:dengjikouzainali",
+              "chunk:zheshiwodehuzhao",
+              "chunk:huzhao",
+              "chunk:xingli",
+              "chunk:qingzaishuoyibian",
+              "chunk:qingmanyidian",
+              "chunk:woxuyaobangzhu",
+              "chunk:ruko",
+              "chunk:chuko",
+              "chunk:yizhizou",
+            ],
+            reviewItems: [
+              "chunk:dengjikouzainali",
+              "chunk:zheshiwodehuzhao",
+              "chunk:dengjikou",
+            ],
+            steps: [
+              intro(
+                "Já no aeroporto",
+                "Você já chegou. Aqui não se pergunta 机场在哪里？. Mostre o documento, ache o voo pelo portão, ouça o número e leia a placa."
+              ),
+              imageChoice(
+                "choose_image",
+                "airport",
+                "Qual imagem é o aeroporto?",
+                "airport",
+                visualImageOptions("airport"),
+                { explanation: "机场 é o lugar. Esta missão já começa dentro dele." }
+              ),
+              signReading(
+                "Portão",
+                "登机口",
+                "portão de embarque",
+                ["portão de embarque", "saída", "entrada", "recepção"],
+                "airport"
+              ),
+              listenSelect(
+                "Qual é o número do portão?",
+                "十八号登机口",
+                ["8", "10", "18", "28"],
+                "18",
+                "十八号登机口 = portão 18. O número não aparece no título."
+              ),
+              listenSelect(
+                "Para onde ir?",
+                "一直走。",
+                ["siga em frente", "vire à esquerda", "pare aqui", "volte ao hotel"],
+                "siga em frente",
+                "一直走 é direção já usada na cidade."
+              ),
+              imageChoice(
+                "listen_and_choose_image",
+                "luggage",
+                "Ouça e escolha a bagagem.",
+                "luggage",
+                visualImageOptions("luggage"),
+                { explanation: "行李 marca o contexto de bagagem. Sem peso nem esteira." }
+              ),
+              freeProduction({
+                title: "Mostre o documento",
+                situationPt: "O funcionário pediu o passaporte. Mostre o documento, sem alternativas.",
+                expected: "这是我的护照",
+                accepts: ["这是我的护照", "这是我的护照。", "这是护照", "护照"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "这是我的护照", pinyin: "zhè shì wǒ de hùzhào" },
+                  { hanzi: "这是护照", pinyin: "zhè shì hùzhào" },
+                  { hanzi: "护照", pinyin: "hùzhào" },
+                ],
+              }),
+              freeProduction({
+                title: "Pergunte o portão",
+                situationPt: "Você precisa embarcar. Pergunte onde fica o portão, sem alternativas.",
+                expected: "登机口在哪里？",
+                accepts: ["登机口在哪里？", "登机口在哪里", "请问，登机口在哪里？", "登机口怎么走？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "登机口在哪里？", pinyin: "dēngjīkǒu zài nǎlǐ?" },
+                  { hanzi: "请问，登机口在哪里？", pinyin: "qǐng wèn, dēngjīkǒu zài nǎlǐ?" },
+                  { hanzi: "登机口怎么走？", pinyin: "dēngjīkǒu zěnme zǒu?" },
+                ],
+              }),
+              freeProduction({
+                title: "Peça para repetir",
+                situationPt: "Você não entendeu o número do portão. Peça para repetir, sem alternativas.",
+                expected: "请再说一遍",
+                accepts: ["请再说一遍", "请再说一遍。", "请慢一点", "我需要帮助"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "Peça para repetir, falar mais devagar, ou peça ajuda.",
+                productionExamples: [
+                  { hanzi: "请再说一遍", pinyin: "qǐng zài shuō yí biàn" },
+                  { hanzi: "请慢一点", pinyin: "qǐng màn yìdiǎn" },
+                  { hanzi: "我需要帮助", pinyin: "wǒ xūyào bāngzhù" },
+                ],
+              }),
+              conversationScene("no-aeroporto"),
+            ],
+          },
+          {
+            id: "p7-imersao-viagem",
+            title: "Imersão: hotel ao aeroporto",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            curriculumRole: "immersion",
+            newHanzi: ["场", "直", "地", "铁", "转", "登"],
+            libraryItems: [
+              "chunk:woyaoqujiudian",
+              "chunk:jichangzainali",
+              "chunk:ditiezhanzainali",
+              "chunk:yizhizou",
+              "chunk:dengjikouzainali",
+              "chunk:zaizhelictingche",
+              "chunk:wozhuzaijiudian",
+            ],
+            reviewItems: [
+              "chunk:jichangzainali",
+              "chunk:dengjikouzainali",
+              "chunk:yizhizou",
+            ],
+            steps: [
+              intro(
+                "Transferência: sair e chegar",
+                "Hotel → caminho → transporte → aeroporto. Só mandarim que você já usou. Nada de palavra nova."
+              ),
+              freeProduction({
+                title: "Saia do hotel",
+                situationPt: "Você sai do hotel e precisa do aeroporto. Pergunte onde ele fica, sem alternativas.",
+                expected: "机场在哪里？",
+                accepts: ["机场在哪里？", "机场在哪里", "请问，机场在哪里？", "机场怎么走？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "A mesma pergunta de lugar, agora para o aeroporto.",
+                productionExamples: [
+                  { hanzi: "机场在哪里？", pinyin: "jīchǎng zài nǎlǐ?" },
+                  { hanzi: "请问，机场在哪里？", pinyin: "qǐng wèn, jīchǎng zài nǎlǐ?" },
+                  { hanzi: "机场怎么走？", pinyin: "jīchǎng zěnme zǒu?" },
+                ],
+              }),
+              mapDirection(
+                "Do hotel à estação",
+                "酒店",
+                "地铁站",
+                "left",
+                ["left", "right", "straight"],
+                {
+                  promptPt: "Saia do hotel e chegue à estação.",
+                  mapScaffoldLevel: 4,
+                  explanation: "Do hotel à estação: esquerda. Vocabulário de mobilidade.",
+                }
+              ),
+              routeSequence(
+                "Até o aeroporto",
+                "Monte o caminho: siga em frente, metrô, aeroporto.",
+                ["一直走", "地铁站", "机场"],
+                ["一直走", "地铁站", "机场", "酒店", "右转"],
+                "Hotel → transporte → aeroporto. Sem palavra nova."
+              ),
+              freeProduction({
+                title: "No táxi",
+                situationPt: "O motorista pergunta o destino. Você vai ao aeroporto. Diga que quer ir ao hotel só se for o caso — aqui o destino é o aeroporto. Pergunte onde fica.",
+                expected: "机场在哪里？",
+                accepts: ["机场在哪里？", "机场在哪里", "我要去机场", "去机场"],
+                productionGoal: "state_destination",
+                productionOpen: true,
+                productionHintPt: "Pergunte o aeroporto ou diga que quer ir para lá. Sem frase nova.",
+                productionExamples: [
+                  { hanzi: "机场在哪里？", pinyin: "jīchǎng zài nǎlǐ?" },
+                  { hanzi: "我要去机场", pinyin: "wǒ yào qù jīchǎng" },
+                  { hanzi: "去机场", pinyin: "qù jīchǎng" },
+                ],
+              }),
+              listenSelect(
+                "Qual instrução o áudio deu?",
+                "一直走。",
+                ["siga em frente", "vire à esquerda", "pare aqui", "volte ao hotel"],
+                "siga em frente",
+                "Mesma direção da cidade."
+              ),
+              imageChoice(
+                "choose_image",
+                "airport",
+                "Você chegou. Qual imagem é o aeroporto?",
+                "airport",
+                visualImageOptions("airport"),
+                { explanation: "Chegou. Agora o portão." }
+              ),
+              freeProduction({
+                title: "Ache o portão",
+                situationPt: "Dentro do aeroporto, pergunte onde fica o portão, sem alternativas.",
+                expected: "登机口在哪里？",
+                accepts: ["登机口在哪里？", "登机口在哪里", "请问，登机口在哪里？", "登机口怎么走？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "A mesma pergunta da missão de aeroporto.",
+                productionExamples: [
+                  { hanzi: "登机口在哪里？", pinyin: "dēngjīkǒu zài nǎlǐ?" },
+                  { hanzi: "请问，登机口在哪里？", pinyin: "qǐng wèn, dēngjīkǒu zài nǎlǐ?" },
+                  { hanzi: "登机口怎么走？", pinyin: "dēngjīkǒu zěnme zǒu?" },
+                ],
+              }),
+              signReading(
+                "Portão",
+                "登机口",
+                "portão de embarque",
+                ["portão de embarque", "saída", "recepção", "hotel"],
+                "airport"
               ),
             ],
           },

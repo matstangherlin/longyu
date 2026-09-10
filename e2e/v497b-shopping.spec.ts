@@ -79,7 +79,7 @@ test.describe("V4.9.7B shopping survival", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 19/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 20/);
     await expect(page.locator('[data-testid="culture-card"][data-culture-id="bargaining-context"]')).toHaveAttribute(
       "data-culture-status",
       "new"

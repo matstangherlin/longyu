@@ -234,9 +234,10 @@ const CULTURE_ITEM_IDS = [
   "dragon-boat",
   "qingming",
   "visiting-home",
+  "hotel-checkin-register",
 ] as const;
 
-test.describe("V4.9.8A.2 all 19 culture lessons have a playable scored step", () => {
+test.describe("V4.9.8A.2 all culture lessons have a playable scored step", () => {
   test("every canonical culture lesson renders an interactive control", async ({ page }) => {
     test.setTimeout(240_000);
     await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });

@@ -25,7 +25,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 19/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 20/);
     await expect(page.getByTestId("culture-next-cta")).toBeVisible();
     await expect(page.getByTestId("culture-seals")).toBeVisible();
     await expect(page.getByTestId("culture-show-categories")).toBeVisible();
@@ -57,7 +57,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     }
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
 
     await page.getByTestId("culture-show-categories").click();
     const filterAll = page.getByTestId("culture-filter-all");
@@ -69,7 +69,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
     await expect(page.locator('[data-culture-id="visiting-home"]').first()).toHaveAttribute("data-culture-status", "completed");
     await expect(page.locator('[data-culture-id="digital-pay"]').first()).toHaveAttribute("data-culture-status", "in_progress");
   });

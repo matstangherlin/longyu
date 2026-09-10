@@ -926,6 +926,72 @@ const EXTRAS: Record<string, ExtraSteps> = {
       "independent_application"
     ),
   ],
+  "hotel-checkin-register": (item, conceptId) => [
+    story(
+      t("Chegando ao hotel em Xangai", "Arriving at the hotel in Shanghai"),
+      t("Você entra. A recepção está à frente. Não é a rua, não é um amigo: é a 前台.", "You walk in. Reception is ahead. It is not the street, not a friend: it is 前台."),
+      conceptId
+    ),
+    story(
+      t("A recepcionista cumprimenta", "The receptionist greets you"),
+      t("O tom é de balcão, não de conversa entre amigos.", "The tone is a desk, not friends chatting."),
+      conceptId,
+      {
+        speaker: t("Recepcionista", "Receptionist"),
+        hanzi: "你好。",
+        pinyin: "Nǐ hǎo.",
+        meaning: t("Olá.", "Hello."),
+      }
+    ),
+    story(
+      t("Ela pede o documento", "She asks for the document"),
+      t("O hotel precisa do passaporte para registrar a estadia junto ao órgão local — dever do hotel, não um pedido aleatório.", "The hotel needs the passport to register the stay with the local organ — the hotel's duty, not a random request."),
+      conceptId,
+      {
+        speaker: t("Recepcionista", "Receptionist"),
+        hanzi: "请给我护照。",
+        pinyin: "Qǐng gěi wǒ hùzhào.",
+        meaning: t("Por favor, me dê o passaporte.", "Please give me the passport."),
+      }
+    ),
+    pairs(
+      t("Hotel e casa não são o mesmo registro", "Hotel and home are not the same registration"),
+      t("Combine o lugar com quem registra.", "Match the place with who registers."),
+      [
+        { left: t("hotel / hostel que aceita estrangeiros", "hotel / hostel that takes foreigners"), right: t("a recepção registra com o passaporte", "the desk registers with the passport") },
+        { left: t("casa de amigo ou dormitório", "a friend's home or a dorm"), right: t("hóspede ou anfitrião registra em 24h", "guest or host registers within 24h") },
+        { left: t("pedido 请给我护照", "the request 请给我护照"), right: t("passo legal da estadia em hotel", "legal step of a hotel stay") },
+      ],
+      t("O artigo 39 separa hotel de outros domicílios. Não chame os dois de 'cultura de hotel'.", "Article 39 splits hotels from other domiciles. Do not call both 'hotel culture'."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Na recepção", "At the desk"),
+      t("A recepcionista pede o documento. Você entrega falando.", "The receptionist asks for the document. You hand it over while speaking."),
+      t("Você diz ", "You say "),
+      t("这是我的护照", "这是我的护照"),
+      t(".", "."),
+      [t("这是我的护照", "这是我的护照"), t("我很好", "我很好"), t("买单", "买单")],
+      t(item.practicePt, item.practiceEn),
+      conceptId,
+      "independent_application"
+    ),
+    dialogue(
+      t("O que você faz?", "What do you do?"),
+      t("请给我护照。", "请给我护照。"),
+      t("Entregar o passaporte e dizer 这是我的护照", "Hand over the passport and say 这是我的护照"),
+      [
+        t("Entregar o passaporte e dizer 这是我的护照", "Hand over the passport and say 这是我的护照"),
+        t("Dizer que isso é só um hábito mundial de hotel", "Say this is only a worldwide hotel habit"),
+        t("Recusar o documento porque você já tem reserva", "Refuse the document because you already have a reservation"),
+      ],
+      t(item.noticePt, item.noticeEn),
+      conceptId,
+      "guided_application",
+      t("Recepcionista", "Receptionist")
+    ),
+  ],
   "visiting-home": (item, conceptId) => [
     story(
       t("Você chega", "You arrive"),

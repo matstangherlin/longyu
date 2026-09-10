@@ -57,7 +57,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
     await expect(page.locator('[data-culture-id="greetings-nihao"]').first()).toHaveAttribute(
       "data-culture-status",
       "completed"
@@ -65,7 +65,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
 
     await page.reload();
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
   });
 
   test("Hub shortcut and language touchpoint open the same canonical player", async ({ page }) => {
