@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCultureItem } from "../../data/culture";
-import { cultureText, isCultureStepScored } from "../../data/cultureQuest";
+import { cultureText } from "../../data/cultureQuest";
 import type { LessonStep } from "../../data/journey";
 import { Button, ButtonLink, Card } from "../../components/ui/primitives";
 import { HubPage } from "../../components/layout/HubLayout";
@@ -13,16 +13,37 @@ import { StepRenderer } from "../lesson/steps";
 
 function lessonStepFromReview(task: ReturnType<typeof buildCultureReviewSession>[number]): LessonStep | null {
   const step = task.step;
-  if (!step || step.kind === "sequence") return null;
+  if (!step) return null;
+  if (step.kind === "sequence") {
+    const sequence = step.sequence ?? [];
+    if (sequence.length < 2) return null;
+    const byId = new Map(sequence.map((row) => [row.id, cultureText(row.label, "pt-BR")]));
+    const parts = (step.sequenceCorrect ?? sequence.map((row) => row.id))
+      .map((id) => byId.get(id) ?? "")
+      .filter(Boolean);
+    const bank = sequence.map((row) => cultureText(row.label, "pt-BR")).filter(Boolean);
+    if (parts.length < 2 || bank.length < 2) return null;
+    return {
+      kind: "sentence_build",
+      title: cultureText(step.prompt, "pt-BR"),
+      prompt: cultureText(step.prompt, "pt-BR"),
+      target: parts,
+      targetParts: parts,
+      bank,
+      correctAnswer: parts.join(""),
+    };
+  }
   const preferred = step.options?.find((option) => option.preferred);
+  const options = (step.options ?? []).map((option) => cultureText(option.label, "pt-BR")).filter(Boolean);
+  if (!preferred || options.length < 2) return null;
   return {
     kind: "contextual_choice",
     title: cultureText(step.prompt, "pt-BR"),
     situationPt: cultureText(step.prompt, "pt-BR"),
     dialoguePrompt: cultureText(step.prompt, "pt-BR"),
-    correctAnswer: preferred ? cultureText(preferred.label, "pt-BR") : "",
-    options: (step.options ?? []).map((option) => cultureText(option.label, "pt-BR")),
-    explanation: preferred ? cultureText(preferred.feedback, "pt-BR") : "",
+    correctAnswer: cultureText(preferred.label, "pt-BR"),
+    options,
+    explanation: cultureText(preferred.feedback, "pt-BR"),
   };
 }
 
@@ -32,12 +53,9 @@ export function CultureReviewPage() {
   const reviewCultureMemory = useStore((s) => s.reviewCultureMemory);
   const [tasks] = useState(() => buildCultureReviewSession(useStore.getState().cultureMemoryById ?? {}));
   const [index, setIndex] = useState(0);
-  const [order, setOrder] = useState<string[]>([]);
-  const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState(false);
 
   const task = tasks[index];
-  const step = task?.step;
   const lessonStep = task ? lessonStepFromReview(task) : null;
 
   function advance(ok: boolean) {
@@ -49,18 +67,6 @@ export function CultureReviewPage() {
       return;
     }
     setIndex((current) => current + 1);
-    setOrder([]);
-    setRevealed(false);
-  }
-
-  function onContinueSequence() {
-    if (!task || !step) return;
-    if (!revealed && isCultureStepScored(step)) {
-      setRevealed(true);
-      return;
-    }
-    const ok = (step.sequenceCorrect ?? []).join() === order.join();
-    advance(ok);
   }
 
   if (tasks.length === 0) {
@@ -109,29 +115,9 @@ export function CultureReviewPage() {
             onDone={(ok) => advance(ok !== false)}
           />
         ) : (
-          <>
-            {step?.prompt ? <p className="text-sm font-medium leading-6 text-ink">{cultureText(step.prompt, instructionLocale)}</p> : null}
-            {step?.kind === "sequence" && step.sequence ? (
-              <div className="grid gap-2" data-testid="culture-sequence">
-                {step.sequence
-                  .filter((row) => !order.includes(row.id))
-                  .map((row) => (
-                    <button
-                      key={row.id}
-                      type="button"
-                      data-testid={`culture-seq-${row.id}`}
-                      className="min-h-11 rounded-xl border border-line bg-surface px-3 py-2 text-left text-sm"
-                      onClick={() => setOrder((current) => [...current, row.id])}
-                    >
-                      {cultureText(row.label, instructionLocale)}
-                    </button>
-                  ))}
-              </div>
-            ) : null}
-            <Button className="mt-3 min-h-12" onClick={onContinueSequence} disabled={!revealed && order.length === 0} data-testid="culture-complete">
-              {revealed ? t("culture.keepGoing") : t("culture.checkAnswer")}
-            </Button>
-          </>
+          <Button className="min-h-12" onClick={() => advance(true)} data-testid="culture-complete">
+            {t("culture.keepGoing")}
+          </Button>
         )}
       </Card>
     </HubPage>

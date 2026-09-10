@@ -13,6 +13,18 @@ export type CultureJourneyPlacement = {
 
 export const CULTURE_LESSON_ID_PREFIX = "culture-" as const;
 
+/** Flagship stories that must carry Mandarin speech + LessonPlayer audio. */
+export const CULTURE_STORY_FLAGSHIP_IDS = [
+  "visiting-home",
+  "host-insistence",
+  "shared-dishes",
+  "chopsticks-rest",
+  "digital-pay",
+  "metro-qr",
+  "bargaining-context",
+  "gift-receiving",
+] as const;
+
 export const CULTURE_JOURNEY_PLACEMENT: readonly CultureJourneyPlacement[] = [
   { itemId: "greetings-nihao", afterTopicId: "l2", track: "core" },
   { itemId: "thanks-keqi", afterTopicId: "l4", track: "core" },

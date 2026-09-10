@@ -28,6 +28,7 @@ export function MandarinText({
   helpMode,
   disabled = false,
   revealMeaning = false,
+  showAudioStatus = false,
 }: {
   hanzi: string;
   pinyin?: string;
@@ -41,6 +42,7 @@ export function MandarinText({
   helpMode?: MandarinHelpMode;
   disabled?: boolean;
   revealMeaning?: boolean;
+  showAudioStatus?: boolean;
 }) {
   const { t } = useTranslation();
   const globalDisplayMode = useStore((s) => s.mandarinDisplayMode);
@@ -97,7 +99,15 @@ export function MandarinText({
           {mode === "hanzi_only" && hanziNode}
           {mode === "pinyin_only" && pinyinNode}
         </div>
-        {audio && <SpeakButton text={hanzi} size={styles.audio} className="shrink-0" autoPlay={autoPlay} />}
+        {audio && (
+          <SpeakButton
+            text={hanzi}
+            size={styles.audio}
+            className="shrink-0"
+            autoPlay={autoPlay}
+            showStatus={showAudioStatus}
+          />
+        )}
       </div>
 
       {meaning && !helpDisabled && (translationMode === "always" || revealMeaning) && (

@@ -343,10 +343,17 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
 
     case "sentence_build":
     case "translation_build": {
-      const parts = step.targetParts ?? [];
+      const parts = (step.targetParts?.length ? step.targetParts : step.target) ?? [];
       if (parts.length === 0) errors.push(`${step.kind} sem targetParts`);
       if (parts.some((piece) => !piece?.trim())) errors.push(`${step.kind} com peça vazia`);
-      if ((step.bank ?? []).some((piece) => !piece?.trim())) errors.push(`${step.kind} com peça vazia no banco`);
+      const bank = step.bank ?? [];
+      if (bank.length === 0 && parts.length === 0) errors.push(`${step.kind} sem peças renderizáveis`);
+      if (bank.some((piece) => !piece?.trim())) errors.push(`${step.kind} com peça vazia no banco`);
+      for (const piece of parts) {
+        if (bank.length > 0 && !bank.some((candidate) => normalize(candidate) === normalize(piece))) {
+          errors.push(`${step.kind}: banco não contém a peça "${piece}"`);
+        }
+      }
       for (const [index, accepted] of (step.acceptedTargetParts ?? []).entries()) {
         if (accepted.length === 0 || accepted.some((piece) => !piece?.trim())) {
           errors.push(`${step.kind}: acceptedTargetParts ${index + 1} inválido`);
@@ -391,7 +398,9 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
       if (!step.sentenceBefore?.trim() && !step.sentenceAfter?.trim()) {
         errors.push("fill_blank sem contexto de frase");
       }
-      if (step.bank?.length) {
+      if (!step.bank?.length) {
+        errors.push("fill_blank sem bank/input");
+      } else {
         const duplicate = findDuplicate(step.bank);
         if (duplicate) errors.push(`fill_blank: banco com duplicata "${duplicate}"`);
         if (step.blankAnswer && !step.bank.some((piece) => normalize(piece) === normalize(step.blankAnswer!))) {

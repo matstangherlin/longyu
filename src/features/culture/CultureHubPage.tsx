@@ -39,6 +39,7 @@ export function CultureHubPage() {
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const savedIds = useStore((s) => s.cultureSavedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
+  const saveCultureItem = useStore((s) => s.saveCultureItem);
   const masteryById = useStore((s) => s.cultureMasteryById ?? {});
   const seals = useStore((s) => s.cultureSeals ?? []);
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
@@ -201,6 +202,7 @@ export function CultureHubPage() {
               startedIds={startedIds}
               to={`/cultura/${item.id}`}
               cta={t("culture.learn")}
+              onSave={(itemId) => saveCultureItem(itemId, true)}
             />
           ))}
         </div>

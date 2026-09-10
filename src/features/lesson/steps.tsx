@@ -465,10 +465,27 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
 // ---------------------------------------------------------------------------
 
 function StepIntro({ step, onDone }: StepProps) {
+  const line = String(step.audioText ?? step.hanzi ?? "").trim();
+  const canSpeak = Boolean(line && isCjkText(line));
+  const speaker = String(step.speaker ?? "").trim();
   return (
-    <div>
-      <Eyebrow>{t("player.understand")}</Eyebrow>
+    <div data-testid={speaker || canSpeak ? "culture-story-beat" : undefined}>
+      <Eyebrow>{speaker || t("player.understand")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
+      {canSpeak ? (
+        <div className="mt-4" data-testid="culture-story-audio">
+          <MandarinText
+            hanzi={step.hanzi ?? line}
+            pinyin={step.pinyin}
+            meaning={step.pt}
+            audio
+            autoPlay
+            size="lg"
+            revealMeaning
+            showAudioStatus
+          />
+        </div>
+      ) : null}
       <p className="mt-3 text-ink-soft">{step.body}</p>
       <ContinueBtn onClick={() => onDone()} label="Entendi" />
     </div>
@@ -2552,7 +2569,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
   const helpDisabled = help.disabled || help.helpMode === "disabled";
   const isTranslationBuild = step.kind === "translation_build";
   const pieceJoiner = isTranslationBuild ? " " : "";
-  const targetParts = step.targetParts ?? [];
+  const targetParts = (step.targetParts?.length ? step.targetParts : step.target) ?? [];
   const acceptedPartSequences = useMemo(
     () => [targetParts, ...(step.acceptedTargetParts ?? [])].filter((parts) => parts.length > 0),
     [step.acceptedTargetParts, targetParts]
