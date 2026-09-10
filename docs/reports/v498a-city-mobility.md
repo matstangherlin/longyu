@@ -10,7 +10,7 @@ Experiência de deslocamento, não um Google Maps. O aluno cumpre a missão: **p
 | SHA de merge da #245 | _ainda não existe — #245 está MERGEABLE mas BLOCKED pela branch protection (sem `--admin`)_ |
 | Branch | `cursor/v498a-city-mobility-6ae2` (empilhada em `cursor/v497b-shopping-6ae2` até o merge da #245) |
 | Fingerprint da Jornada (#245) | `e8007959fb1f` |
-| Fingerprint da Jornada (esta remessa) | `9841a47409d3` |
+| Fingerprint da Jornada (esta remessa) | `6a18e9fbf42f` |
 | Atlas #245 | 438 itens / 355 taught (81,1%) |
 | Atlas esta remessa | 439 itens / 358 taught (81,5%) |
 
@@ -18,7 +18,7 @@ Não se perseguiu percentual. O item novo no Atlas é `chunk:qunali` (去哪里�
 
 O corpus exige hànzì sem ficha em `CHARACTERS` listados em `newHanzi` da lição que os mostra. Por isso 地/铁 entram no allowlist de `p6-cidade-lugares` e `p6-direcoes`, e 直/转/入/出/停/北/京/怎 voltam no allowlist da missão — reúso, não ensino novo. `char:zuo_left` / `char:you_right` entram em `libraryItems` de `p6-direcoes` para o recognize CORE.
 
-O mastery loop gerava 8 passos e trocava `pegar-taxi` por conversa de loja. `mobilitySurvivalPlanFor` reparte o autoral: M1 vê, M2 ouve, M3 segue/produz com apoio, M4 conversa e produz sem alternativas. Os cortes obedecem `validate:topic-mastery-depth`, `test:mastery-coverage` e `test:mastery-coverage:strict` (`no_false_depth`: flashcard só no M1). `p6-cidade-lugares` M3/M4 voltam ao planner gerado. `p6-direcoes` ensina tom + 左/右 no M1 e aplica o mapa no M2. `p6-china-ruas` M3 leva `address_build`/`city_context` sem flash; M4 abre com `pegar-taxi`. `p7-imersao-estacao` M3 inclui a produção de `地铁站在哪里？`.
+O mastery loop gerava 8 passos e trocava `pegar-taxi` por conversa de loja. `mobilitySurvivalPlanFor` reparte o autoral: M1 vê, M2 ouve, M3 segue/produz com apoio, M4 conversa e produz sem alternativas. Os cortes obedecem `validate:topic-mastery-depth`, `test:mastery-coverage` e `test:mastery-coverage:strict` (`no_false_depth`: flashcard só no M1). `p6-cidade-lugares` M3/M4 voltam ao planner gerado. `p6-direcoes` ensina tom + 左/右 no M1, mantém um mapa scaffold 1 no M1 (`test:china-real`) e aplica áudio/mapa no M2. `p6-china-ruas` M3 leva `address_build`/`city_context` sem flash; M4 abre com `pegar-taxi`. `p7-imersao-estacao` M3 inclui a produção de `地铁站在哪里？`.
 
 Preservado integralmente:
 
@@ -131,7 +131,7 @@ Microtouch em `p6-direcoes`: ouvir contorno → explicar 3º (baixo/curva) vs 4�
 
 | | |
 |--|--|
-| Fingerprint | `9841a47409d3` |
+| Fingerprint | `6a18e9fbf42f` |
 | Contratos | `docs/backend/v478-backend-rc.json`, `v489-backend-rc.json` regenerados |
 
 `CURRICULUM_SOURCES` passa a incluir `chinaSurvivalMobility.ts`, `mobilitySurvivalScenes.ts` e `mobilitySurvivalPlans.ts`.
