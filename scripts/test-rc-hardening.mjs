@@ -65,7 +65,7 @@ assert(coordinator.includes("isQaTestStateActive"), "sync recusa TEST STATE");
 
 const store = read("src/lib/store.ts");
 assert(store.includes("if ((state.rewardHistory ?? []).some((entry) => entry.id === rewardId)) return false"), "grantLessonReward é idempotente");
-assert(/version:\s*23/.test(store), "persist version 23");
+assert(/version:\s*24/.test(store), "persist version 24");
 
 const placement = read("src/lib/placement/types.ts");
 assert(placement.includes("export const PLACEMENT_VERSION = 2"), "Placement v2");
