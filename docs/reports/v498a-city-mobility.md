@@ -7,8 +7,8 @@ Experiência de deslocamento, não um Google Maps. O aluno cumpre a missão: **p
 | Campo | Valor |
 |-------|-------|
 | PR de origem | **#245 — V4.9.7B compras → mercado → pagamento** (obrigatória) |
-| SHA de merge da #245 | _ainda não existe — #245 está MERGEABLE mas BLOCKED pela branch protection (sem `--admin`)_ |
-| Branch | `cursor/v498a-city-mobility-6ae2` (empilhada em `cursor/v497b-shopping-6ae2` até o merge da #245) |
+| SHA de merge da #245 | `f98406906de9bbc26f3a2ca2e7e00a430f878a61` (`Merge pull request #245`) |
+| Branch | `cursor/v498a-city-mobility-6ae2` (base `main`, merge real da #245) |
 | Fingerprint da Jornada (#245) | `e8007959fb1f` |
 | Fingerprint da Jornada (esta remessa) | `6a18e9fbf42f` |
 | Atlas #245 | 438 itens / 355 taught (81,1%) |
