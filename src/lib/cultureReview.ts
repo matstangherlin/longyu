@@ -1,6 +1,7 @@
 import { getCultureMission, allCultureMemoryTargets } from "../data/cultureMissions";
 import {
   cultureText,
+  isCultureStepScored,
   type CultureMissionStep,
   type CultureReviewVariant,
 } from "../data/cultureQuest";
