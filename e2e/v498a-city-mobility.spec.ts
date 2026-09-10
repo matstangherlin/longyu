@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { ALL_LESSONS } from "../src/data/journey";
 import {
   dismissBlockingOverlays,
   seedOnboardedSession,
@@ -95,9 +96,31 @@ async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
   await expect(page.getByTestId("culture-victory")).toBeVisible();
 }
 
-async function openAuthoredLessonPlayer(page: Page, lessonId: string) {
+function mobilityMastery(lessonId: string, level: number) {
+  const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  const completed = ALL_LESSONS.slice(0, Math.max(0, index)).map((lesson) => lesson.id);
+  const now = Date.now();
+  const byId: Record<string, { level: number; passCount: number; lastPass: number; recoveryPending: boolean; updatedAt: number }> = {};
+  for (const id of completed) {
+    const lesson = ALL_LESSONS.find((item) => item.id === id);
+    if (!lesson || lesson.isReview || lesson.reviewMasteryMode) continue;
+    byId[id] = { level: 4, passCount: 4, lastPass: 4, recoveryPending: false, updatedAt: now };
+  }
+  if (level > 0) {
+    byId[lessonId] = {
+      level,
+      passCount: level,
+      lastPass: Math.max(1, level),
+      recoveryPending: false,
+      updatedAt: now,
+    };
+  }
+  return byId;
+}
+
+async function openMobilityPassPlayer(page: Page, lessonId: string, masteryLevel = 0) {
   await seedUnlockedLessonSession(page, lessonId, {
-    lessonSessionStepById: { [lessonId]: { pass: 1, stepIndex: 1 } },
+    lessonMasteryById: mobilityMastery(lessonId, masteryLevel),
   });
   await page.goto(`/licao/${lessonId}/player`);
   await waitForLazyPage(page);
@@ -129,7 +152,7 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("p6-cidade Journey bridge teaches metro-qr without 3★ or lexical SRS", async ({ page }) => {
     test.setTimeout(120_000);
-    await openAuthoredLessonPlayer(page, "p6-cidade-lugares");
+    await openMobilityPassPlayer(page, "p6-cidade-lugares");
     const reached = await advanceUntilSelector(page, '[data-testid="culture-bridge"]', 40, 90_000);
     expect(reached).toBeTruthy();
     const bridge = page.getByTestId("culture-bridge");
@@ -166,7 +189,7 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("p6-direcoes player reaches a map", async ({ page }) => {
     test.setTimeout(120_000);
-    await openAuthoredLessonPlayer(page, "p6-direcoes");
+    await openMobilityPassPlayer(page, "p6-direcoes");
     const map = await advanceUntilSelector(page, '[data-current-step-kind="map_direction"]', 80, 90_000);
     expect(map).toBeTruthy();
     await expect(page.getByText("酒店").first()).toBeVisible();
@@ -175,7 +198,7 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("p7 station player reaches a mobility conversation", async ({ page }) => {
     test.setTimeout(120_000);
-    await openAuthoredLessonPlayer(page, "p7-imersao-estacao");
+    await openMobilityPassPlayer(page, "p7-imersao-estacao", 3);
     const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 50, 90_000);
     expect(scene).toBeTruthy();
     await expect(page.locator("[data-conversation-scene]")).toBeVisible();
@@ -183,10 +206,11 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("p6-china-ruas player reaches the taxi conversation", async ({ page }) => {
     test.setTimeout(120_000);
-    await openAuthoredLessonPlayer(page, "p6-china-ruas");
-    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 50, 90_000);
+    await openMobilityPassPlayer(page, "p6-china-ruas", 3);
+    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 20, 90_000);
     expect(scene).toBeTruthy();
     await expect(page.locator("[data-conversation-scene]")).toBeVisible();
+    await expect(page.getByText(/去哪里？|Pegar um táxi/i).first()).toBeVisible();
   });
 
   test("metro-qr mission teaches before the task and awards stars", async ({ page }) => {
