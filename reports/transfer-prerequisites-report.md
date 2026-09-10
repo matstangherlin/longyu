@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | e8007959fb1f |
-| HEAD no instante da geração | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
+| Hash da Jornada | 9e293c60b11b |
+| HEAD no instante da geração | c06778e930c71249aa91630c59f7218ffbd40c85 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T16:41:08.998Z |
+| Gerado em | 2026-09-10T00:08:24.822Z |
 | Lições | 128 |
 
 ## Política
@@ -101,10 +101,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l28** · objetivo `state_preference` · modelo `我喜欢茶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-china-cidades** · objetivo `offer_item` · modelo `你要菜。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-china-cidades-2** · objetivo `request_item` · modelo `我想吃米饭。` _(elegibilidade estrutural — ver semântica acima)_
+- **p6-china-ruas** · objetivo `state_destination` · modelo `我要去酒店` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-natureza** · objetivo `state_change` · modelo `我病了` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-direcoes** · objetivo `ask_location` · modelo `请问，超市在哪里？` _(elegibilidade estrutural — ver semântica acima)_
-- **l29** · objetivo `state_destination` · modelo `我去北京。` _(elegibilidade estrutural — ver semântica acima)_
 - **l30** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-mercado** · objetivo `ask_price` · modelo `多少钱？` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:3f4657c95de2c081 -->
+<!-- integridade:5b0e0409d1c43425 -->

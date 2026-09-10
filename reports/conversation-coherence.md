@@ -1354,74 +1354,74 @@ Cenas: 48.
 
 ### estacao-1
 
-- NPC_UTTERANCE: 请问，火车站在哪里？
-- MEANING: Com licença, onde fica a estação de trem?
-- PROMPT: O que Matheus está procurando?
-- EXPECTED_RESPONSE: A estação de trem.
+- NPC_UTTERANCE: 你好。
+- MEANING: Olá.
+- PROMPT: Pergunte onde fica a estação de metrô, falando ou escrevendo, sem alternativas.
+- EXPECTED_RESPONSE: 地铁站在哪里？
+- ACCEPTS: 地铁站在哪里？ | 地铁站在哪里 | 请问，地铁站在哪里？ | 请问地铁站在哪里？ | 火车站在哪里？ | 火车站在哪里
+- NEXT_TURN: 一直走。左转。
+- REPAIR: 地铁站吗？
+- speechAct: greet → ask_location (reask)
+- CLASS: OK
+
+### estacao-fast
+
+- NPC_UTTERANCE: 一直走。左转。
+- MEANING: Siga em frente. Vire à esquerda.
+- PROMPT: A pessoa falou rápido. Peça para repetir ou para ir mais devagar — as duas ajudam.
+- EXPECTED_RESPONSE: 请再说一遍
 - ACCEPTS: (none)
 - NEXT_TURN: 好，谢谢！
-- REPAIR: 火车站。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- REPAIR: 左边？
+- speechAct: tell_direction → ask_route (repeat)
 - CLASS: ANSWER_TOO_NARROW
 
-### estacao-3
+### estacao-sign
 
-- NPC_UTTERANCE: 那是火车站。在那里。
-- MEANING: Aquilo é a estação de trem. Fica ali.
-- PROMPT: O que Wang respondeu?
-- EXPECTED_RESPONSE: Fica ali.
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você saiu da rua e precisa entrar. Seguir a placa ou perguntar são os dois caminhos.
+- EXPECTED_RESPONSE: 入口
 - ACCEPTS: (none)
-- NEXT_TURN: 不客气。
-- REPAIR: 那是人吗？不！在那里。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- NEXT_TURN: 你好。
+- REPAIR: 入口？
+- speechAct: tell_location → acknowledge (clarify)
+- CLASS: OK
 
-### estacao-7
+### estacao-ticket
 
-- NPC_UTTERANCE: 请问，票多少钱？
-- MEANING: Com licença, quanto custa a passagem?
-- PROMPT: Agora Matheus pergunta sobre o quê?
-- EXPECTED_RESPONSE: O preço da passagem.
-- ACCEPTS: (none)
-- NEXT_TURN: 好。
-- REPAIR: 票，多少钱。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- NPC_UTTERANCE: 你好。
+- MEANING: Olá.
+- PROMPT: Na bilheteria, pergunte o preço da passagem, sem alternativas.
+- EXPECTED_RESPONSE: 票多少钱？
+- ACCEPTS: 票多少钱？ | 票多少钱 | 多少钱？ | 多少钱
+- NEXT_TURN: 十。
+- REPAIR: 十？
+- speechAct: greet → ask_price (clarify)
+- CLASS: OK
 
-### estacao-10
+### estacao-buy
 
-- NPC_UTTERANCE: 我要这个。
-- MEANING: Eu quero este.
-- PROMPT: Compre apontando: eu quero este.
+- NPC_UTTERANCE: 这个？
+- MEANING: Este?
+- PROMPT: Compre apontando, sem alternativas.
 - EXPECTED_RESPONSE: 我要这个
-- ACCEPTS: (none)
-- NEXT_TURN: 好，等一下。
-- REPAIR: 请再说一遍：我要这个。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
-
-### estacao-12
-
-- NPC_UTTERANCE: 好，等一下。
-- MEANING: Está bem, espere um pouco.
-- PROMPT: O que Wang pediu?
-- EXPECTED_RESPONSE: Espere um pouco.
-- ACCEPTS: (none)
+- ACCEPTS: 我要这个 | 我要这个。 | 我要票 | 我要票。
 - NEXT_TURN: 票。
-- REPAIR: 等一下。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- REPAIR: 这个？
+- speechAct: ask_order → place_order (reask_order)
+- CLASS: OK
 
-### estacao-14
+### estacao-ticket-hand
 
 - NPC_UTTERANCE: 票。
 - MEANING: A passagem.
-- PROMPT: Receba a passagem com educação; ou saia sem agradecer.
+- PROMPT: Receba a passagem e encerre.
 - EXPECTED_RESPONSE: 谢谢
 - ACCEPTS: (none)
 - NEXT_TURN: 不客气！再见！
 - REPAIR: 再见。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- speechAct: confirm_item → thank (clarify)
 - CLASS: OK
 
 ## imersao-casa-amigo
@@ -2039,41 +2039,29 @@ Cenas: 48.
 ## pegar-taxi
 
 - intent: taxi
-- ending: 好！
-- last interaction: choose_reply
+- ending: 谢谢！
+- last interaction: produce_reply
 
-### taxi-2
+### taxi-1
 
-- NPC_UTTERANCE: 去哪里？
-- MEANING: Para onde?
-- PROMPT: Indique a Beijing Road (também vale repetir o hotel).
-- EXPECTED_RESPONSE: 去北京路
-- ACCEPTS: (none)
-- NEXT_TURN: 多少钱？
-- REPAIR: 好，去酒店。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+- NPC_UTTERANCE: 你好。去哪里？
+- MEANING: Olá. Para onde?
+- PROMPT: Diga o destino. Hotel ou Beijing Road — os dois fecham a corrida.
+- EXPECTED_RESPONSE: 我要去酒店
+- ACCEPTS: 我要去酒店 | 我要去酒店。 | 去酒店 | 去酒店。 | 去北京路 | 去北京路。
+- NEXT_TURN: 酒店，好。
+- REPAIR: 酒店吗？
+- speechAct: ask_location → state_destination (clarify)
+- CLASS: OK
 
-### taxi-4
+### taxi-stop
 
-- NPC_UTTERANCE: 好。多少钱？二十八。
-- MEANING: Certo. Quanto custa? Vinte e oito.
-- PROMPT: Pergunte o preço.
-- EXPECTED_RESPONSE: 多少钱？
-- ACCEPTS: (none)
-- NEXT_TURN: 二十八。
-- REPAIR: 多少钱？请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
-
-### taxi-7
-
-- NPC_UTTERANCE: 二十八。
-- MEANING: Vinte e oito.
-- PROMPT: Chegou. Peça para parar aqui.
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você chegou. Peça ao motorista para parar aqui, sem alternativas.
 - EXPECTED_RESPONSE: 在这里停车
-- ACCEPTS: (none)
-- NEXT_TURN: 好！
-- REPAIR: 在这里停车。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- ACCEPTS: 在这里停车 | 在这里停车。 | 在这里停车。谢谢 | 在这里停车。谢谢！
+- NEXT_TURN: 好。
+- REPAIR: 这里？
+- speechAct: acknowledge → request_stop (clarify)
+- CLASS: OK
