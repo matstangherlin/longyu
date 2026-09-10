@@ -12,7 +12,7 @@ Princípio: APRENDER → RECONHECER → PREENCHER → MONTAR → USAR COM AJUDA 
 | #249 | V4.9.8B — China Survival II: Hotel + Aeroporto |
 | Branch | `cursor/v498b1-production-scaffold-6ae2` |
 | Fingerprint da Jornada (8B) | `465390e64799` |
-| Fingerprint da Jornada (esta remessa) | `367463432216` |
+| Fingerprint da Jornada (esta remessa) | `3f7d940af894` |
 | Tópicos de ensino | 113 (imersões continuam `isReview` + `curriculumRole: "immersion"`) |
 
 ## O que esta remessa não faz
@@ -145,8 +145,8 @@ Sentence builds:
 
 | Contrato | Fingerprint |
 |----------|-------------|
-| `docs/backend/v478-backend-rc.json` | `367463432216` |
-| `docs/backend/v489-backend-rc.json` | `367463432216` |
+| `docs/backend/v478-backend-rc.json` | `3f7d940af894` |
+| `docs/backend/v489-backend-rc.json` | `3f7d940af894` |
 
 Nenhuma mudança de schema / RPC / edge.
 

@@ -8960,7 +8960,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "这是我的",
                 "护照",
                 "",
-                ["护照", "菜单", "米饭"],
+                ["护照", "房间", "预订"],
                 "Recuperação atrasada: 护照 já foi ensinado em p6-survival-mandarin."
               ),
               freeProduction({
@@ -9046,7 +9046,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "",
                 "登机口",
                 "在哪里？",
-                ["登机口", "房卡", "菜单"],
+                ["登机口", "护照", "谢谢"],
                 "Recuperação atrasada de 登机口. Não é aquisição nova de 护照."
               ),
               listenSelect(
