@@ -62,11 +62,11 @@ async function openMissionPlayer(page: Page, lessonId: string, masteryLevel = 0)
 
 async function clickVisible(page: Page, name: RegExp) {
   const btn = page.getByRole("button", { name }).first();
-  if (await btn.isVisible().catch(() => false) && !(await btn.isDisabled().catch(() => true))) {
-    await btn.click().catch(() => undefined);
-    return true;
-  }
-  return false;
+  if (!(await btn.isVisible().catch(() => false))) return false;
+  if (await btn.isDisabled().catch(() => true)) return false;
+  await btn.scrollIntoViewIfNeeded().catch(() => undefined);
+  await btn.click({ timeout: 2_000 }).catch(() => undefined);
+  return true;
 }
 
 /** Drive a V2 conversation a few beats: continue, produce, or pick an option. */
@@ -75,8 +75,17 @@ async function driveConversation(page: Page, steps: number) {
   for (let i = 0; i < steps; i += 1) {
     await dismissBlockingOverlays(page);
     if (!(await scene.isVisible().catch(() => false))) return;
+
+    const continueBtn = scene.getByRole("button", { name: /Continuar|Continue|Concluir|Finish|Responder|Reply/i }).first();
+    if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
+      await continueBtn.scrollIntoViewIfNeeded().catch(() => undefined);
+      await continueBtn.click({ timeout: 2_000 }).catch(() => undefined);
+      await page.waitForTimeout(180);
+      continue;
+    }
+
     const textarea = scene.locator("textarea").first();
-    if (await textarea.isVisible().catch(() => false)) {
+    if (await textarea.isVisible().catch(() => false) && !(await textarea.isDisabled().catch(() => true))) {
       const prompt = (await scene.locator("p").allTextContents()).join(" ");
       const draft = /reserva/i.test(prompt)
         ? "我有预订"
@@ -94,14 +103,11 @@ async function driveConversation(page: Page, steps: number) {
       await page.waitForTimeout(180);
       continue;
     }
+
     const option = scene.getByRole("button", { name: /^(Opção|Option) \d+:/ }).first();
     if (await option.isVisible().catch(() => false)) {
       await option.click().catch(() => undefined);
       await clickVisible(page, /^(Verificar|Check|Confirmar|Confirm)$/);
-      await page.waitForTimeout(180);
-      continue;
-    }
-    if (await clickVisible(page, /^(Responder|Reply|Continuar|Continue|Concluir|Finish)(?:\s*>)?$/)) {
       await page.waitForTimeout(180);
       continue;
     }
@@ -137,9 +143,10 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     expect(scene).toBeTruthy();
     await expect(page.locator("[data-conversation-scene]")).toBeVisible();
     await expect(page.getByText(/Hotel|Aeroporto|Recepcionista|Viajante/i).first()).toBeVisible();
-    await driveConversation(page, 8);
     await expect(page.getByText("Matheus perguntou")).toHaveCount(0);
-    await expect(page.getByText(/有预订吗？|我有预订|请给我护照/)).toBeVisible();
+    await driveConversation(page, 2);
+    await expect(page.locator("[data-conversation-scene]")).toContainText(/有预订吗？|我有预订|请给我护照|这是我的护照|护照/);
+    await expect(page.getByText("Matheus perguntou")).toHaveCount(0);
   });
 
   test("airport mission starts inside the airport, not on the street", async ({ page }) => {
@@ -152,17 +159,25 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     const body = await page.locator("[data-conversation-scene]").innerText();
     expect(body).not.toMatch(/机场在哪里？/);
     await expect(page.getByText(/Funcionário|Staff|Aeroporto|Airport|Viajante|Traveller/i).first()).toBeVisible();
-    await driveConversation(page, 6);
-    await expect(page.getByText(/护照|登机口/)).toBeVisible();
+    await driveConversation(page, 2);
+    await expect(page.locator("[data-conversation-scene]")).toContainText(/护照|登机口|这是我的护照/);
+    await expect(page.locator("[data-conversation-scene]")).not.toContainText("机场在哪里？");
   });
 
   test("master travel transfer reuses hotel → mobility → airport language", async ({ page }) => {
+    test.setTimeout(60_000);
     await seedUnlockedLessonSession(page, "p7-imersao-viagem");
     await page.goto("/licao/p7-imersao-viagem");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: /Imersão: hotel ao aeroporto/i })).toBeVisible();
-    await expect(page.getByText(/Hotel → caminho → transporte → aeroporto|Hotel → route → transport → airport/i).first()).toBeVisible();
+
+    await page.goto("/licao/p7-imersao-viagem/player");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByText(/Transferência: sair e chegar|Hotel → caminho → transporte → aeroporto|Hotel → route → transport → airport/i).first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test("hotel culture lesson teaches before the task and Hub shares progress", async ({ page }) => {

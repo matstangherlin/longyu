@@ -196,7 +196,8 @@ Mutações 1–12 e 20 cobertas pelos testes novos. 13–18 pelos gates de cultu
 | `validate:production-transfer` | PASS (produção aberta com 3 variantes) |
 | `validate:culture-*` / story-audio / playability / native / rewards | PASS (sem reabrir arquitetura) |
 | `validate:live-league` | PASS (XP segue pipeline; ranking não reaberto) |
-| `npm run build` | a seguir nesta remessa |
+| `npm run build` | PASS |
+| `e2e/v498b-hotel-airport.spec.ts` | 8 passed (chromium, incl. 390×844) |
 
 ## Não feito (de propósito)
 
