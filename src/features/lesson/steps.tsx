@@ -2896,10 +2896,20 @@ function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
     onContinue: () => onDone(!hadMistake),
   });
 
-  const instruction =
-    scaffold <= 1
-      ? step.promptPt ?? step.prompt ?? "Escolha o caminho no mapa."
-      : step.prompt ?? step.promptPt ?? step.audioText ?? "Escolha o caminho.";
+  const listenFirst = scaffold >= 3 && Boolean(step.audioText);
+  const instruction = listenFirst
+    ? step.promptPt ?? step.prompt ?? t("player.mapListen")
+    : scaffold <= 1
+      ? step.promptPt ?? step.prompt ?? t("player.mapChoose")
+      : step.prompt ?? step.promptPt ?? t("player.mapChoose");
+  const wrongTurnCopy =
+    feedback === "wrong" && picked
+      ? t("player.mapWrongTurn", {
+          direction: MAP_DIRECTION_LABELS[picked].pt,
+          to: toLabel,
+          correct: MAP_DIRECTION_LABELS[answer].pt,
+        })
+      : undefined;
 
   return (
     <div>
@@ -2970,8 +2980,9 @@ function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
         status={feedback}
         model={feedback === "wrong" ? MAP_DIRECTION_LABELS[answer].hanzi : undefined}
         explanation={feedback === "correct" ? step.explanation : undefined}
+        causeFeedback={wrongTurnCopy}
         hadMistake={hadMistake}
-        deferMistakeToParent={Boolean(onMistake)}
+        deferMistakeToParent={false}
         onRetry={retry}
         onContinue={() => onDone(!hadMistake)}
       />
