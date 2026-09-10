@@ -1166,6 +1166,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
   const helpLevelRef = useRef(0);
+  const helpRequestsRef = useRef(0);
   const transitionsRef = useRef(0);
   const skipAutoSpeakRef = useRef(false);
   // Quebra de comunicação: o segundo erro na mesma cena para a conversa e
@@ -1182,6 +1183,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     setRepairPending(null);
     hadMistakeRef.current = false;
     mistakeCountRef.current = 0;
+    helpLevelRef.current = 0;
+    helpRequestsRef.current = 0;
     transitionsRef.current = 0;
     repairUsedRef.current = false;
     skipAutoSpeakRef.current = false;
@@ -1197,7 +1200,11 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   function finish() {
     const attempts = Math.max(1, mistakeCountRef.current + 1);
-    onDone(!hadMistakeRef.current, { attempts, helpLevel: helpLevelRef.current });
+    onDone(!hadMistakeRef.current, {
+      attempts,
+      helpLevel: helpLevelRef.current,
+      helpRequests: helpRequestsRef.current,
+    });
   }
 
   function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
@@ -1329,7 +1336,10 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
             variantLevel={variantLevel}
             sceneId={step.sceneId}
             onCorrect={(attempt, meta) => {
-              if (meta) helpLevelRef.current = Math.max(helpLevelRef.current, meta.helpLevel, meta.helpRequests);
+              if (meta) {
+                helpLevelRef.current = Math.max(helpLevelRef.current, meta.helpLevel);
+                helpRequestsRef.current = Math.max(helpRequestsRef.current, meta.helpRequests);
+              }
               setHint(null);
               const interaction = node.interaction!;
               const mapped = interaction.decision ? interaction.nextByAnswer?.[attempt] : undefined;

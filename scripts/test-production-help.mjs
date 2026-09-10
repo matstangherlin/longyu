@@ -65,6 +65,14 @@ assert.match(stepsSource, /data-production-help-level/, "hook de nível");
 assert.match(stepsSource, /data-production-help-vocab/, "hook vocab nível 3");
 assert.match(stepsSource, /data-production-help-build/, "hook build nível 4");
 
+const playerSource = await readFile(path.join(rootDir, "src/features/lesson/LessonPlayer.tsx"), "utf8");
+assert.match(playerSource, /conversationAssistanceFromHelp/, "histórico grava evidência real, não só o plano");
+assert.match(
+  await readFile(path.join(rootDir, "src/features/lesson/ConversationSceneStep.tsx"), "utf8"),
+  /helpRequestsRef/,
+  "cena envia helpRequests no onDone"
+);
+
 const eventsSource = await readFile(path.join(rootDir, "src/services/pedagogyEvents.ts"), "utf8");
 assert.match(eventsSource, /production_help_requested/, "evento na allowlist do client");
 
@@ -93,5 +101,22 @@ assert.equal(nextConv(0, 3), 1, "first help is frame, not pieces");
 assert.equal(nextConv(1, 3), 3, "second help is vocab");
 assert.equal(nextConv(3, 3), null, "pieces stay locked until ceiling 4");
 assert.equal(nextConv(3, 4), 4, "third help can unlock pieces");
+
+function assistanceFromHelp({ planned = "guided", helpLevel, helpRequests = 0 }) {
+  if (helpLevel >= 4) return "guided";
+  if (helpLevel >= 1 || helpRequests > 0) return "assisted";
+  if (planned === "audio_first") return "audio_first";
+  return "independent";
+}
+
+assert.equal(assistanceFromHelp({ planned: "guided", helpLevel: 4 }), "guided", "pieces = guided evidence");
+assert.equal(assistanceFromHelp({ planned: "guided", helpLevel: 0 }), "independent", "no help = independent even if planned guided");
+assert.equal(assistanceFromHelp({ planned: "guided", helpLevel: 1 }), "assisted", "frame = assisted");
+assert.equal(assistanceFromHelp({ planned: "audio_first", helpLevel: 0 }), "audio_first", "audio-first stays audio-first without help");
+
+if (mod?.conversationAssistanceFromHelp) {
+  assert.equal(mod.conversationAssistanceFromHelp({ planned: "guided", helpLevel: 0 }), "independent");
+  assert.equal(mod.conversationAssistanceFromHelp({ planned: "guided", helpLevel: 4 }), "guided");
+}
 
 console.log("OK: test:production-help (níveis 0–4 · inicial por estágio · unlock pós-erro).");

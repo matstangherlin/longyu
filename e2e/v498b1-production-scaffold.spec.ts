@@ -1,6 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
-import { dismissBlockingOverlays, seedUnlockedLessonSession, waitForLazyPage } from "./helpers";
+import {
+  dismissBlockingOverlays,
+  seedInstructionLocale,
+  seedInterfaceLocale,
+  seedUnlockedLessonSession,
+  waitForLazyPage,
+} from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 
 function masteryThrough(lessonId: string) {
@@ -100,5 +106,48 @@ test.describe("V4.9.8B.1 production scaffold + hanzi fill", () => {
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
     const overflowX = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflowX).toBeLessThanOrEqual(8);
+  });
+
+  test("audio hanzi fill then sentence build recover 护照 without leaking the target", async ({ page }) => {
+    test.setTimeout(150_000);
+    await openPlayer(page, "p6-survival-mandarin");
+    const reached = await advanceUntilSelector(page, "[data-fill-blank-audio]", 90, 140_000);
+    expect(reached).toBeTruthy();
+    await expect(page.locator("[data-current-step-kind]")).toHaveAttribute("data-current-step-kind", "fill_blank");
+    const stem = page.locator("[data-lesson-player-frame]").getByText("这是我的", { exact: false });
+    await expect(stem.first()).toBeVisible();
+    const prompt = page.locator("[data-lesson-player-frame] h2, [data-lesson-player-frame] p").filter({ hasText: /Ouça e complete|Listen and complete|passaporte|passport/i });
+    await expect(prompt.first()).toBeVisible();
+    const promptText = (await prompt.allTextContents()).join(" ");
+    expect(promptText).not.toContain("护照");
+    await page.getByRole("button", { name: /护照/ }).click();
+    await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
+    await expect(page.getByRole("button", { name: /Continuar|Continue|Certo/i }).first()).toBeVisible();
+    await page.getByRole("button", { name: /Continuar|Continue|Certo/i }).first().click();
+    const built = await advanceUntilSelector(page, '[data-current-step-kind="sentence_build"]', 8, 30_000);
+    expect(built).toBeTruthy();
+    await page.getByRole("button", { name: /这是/ }).first().click();
+    await page.getByRole("button", { name: /我的/ }).first().click();
+    await page.getByRole("button", { name: /护照/ }).first().click();
+    await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
+    await expect(page.getByRole("button", { name: /Continuar|Continue|Certo/i }).first()).toBeVisible();
+  });
+
+  test("EN locale exposes Type / Build with pieces / I need help on airport transfer", async ({ page }) => {
+    test.setTimeout(120_000);
+    await seedInterfaceLocale(page, "en");
+    await seedInstructionLocale(page, "en", { force: true });
+    await openPlayer(page, "p7-imersao-aeroporto");
+    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 50, 90_000);
+    expect(scene).toBeTruthy();
+    for (let i = 0; i < 6; i += 1) {
+      if (await page.locator("[data-conversation-produce]").isVisible().catch(() => false)) break;
+      if (!(await continueScene(page))) break;
+    }
+    await expect(page.locator("[data-conversation-produce]")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("button", { name: /Type/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /I need help/i })).toBeVisible();
+    await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Speak|Falar/i }))).toBeVisible();
+    await expect(page.locator("[data-conversation-build-bank]")).toHaveCount(0);
   });
 });

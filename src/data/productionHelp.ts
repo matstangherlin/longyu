@@ -176,3 +176,24 @@ export function conversationHelpShowsVocab(level: ProductionHelpLevel): boolean 
 export function conversationHelpShowsPieces(level: ProductionHelpLevel): boolean {
   return level >= 4;
 }
+
+export type ConversationAssistanceLevel = "guided" | "assisted" | "independent" | "audio_first";
+
+/**
+ * Evidence actually used, not the planned presentation.
+ * Pieces / full bank → guided. Frame or vocab → assisted.
+ * No help consumed → independent (or audio_first if that was the planned mode).
+ */
+export function conversationAssistanceFromHelp(input: {
+  planned?: ConversationAssistanceLevel;
+  helpLevel: number;
+  helpRequests?: number;
+}): ConversationAssistanceLevel {
+  const planned = input.planned ?? "guided";
+  const helpLevel = clampProductionHelpLevel(input.helpLevel);
+  const requests = input.helpRequests ?? 0;
+  if (helpLevel >= 4) return "guided";
+  if (helpLevel >= 1 || requests > 0) return "assisted";
+  if (planned === "audio_first") return "audio_first";
+  return "independent";
+}

@@ -36,7 +36,8 @@ import {
   registerConversationVocabularyInSrs,
   resolveConversationErrorRefs,
 } from "../../lib/conversationVocabularySrs";
-import { conversationSceneById } from "../../data/conversationScenes";
+import { conversationSceneById, type ConversationVariantLevel } from "../../data/conversationScenes";
+import { conversationAssistanceFromHelp } from "../../data/productionHelp";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 import {
   curriculumRefsThroughLesson,
@@ -2447,12 +2448,13 @@ export function LessonPlayer() {
   function registerConversationVocabularyLoop(
     step: LessonStep,
     result: "completed" | "mistake" | "abandoned",
-    attempts: number
+    attempts: number,
+    assistanceOverride?: ConversationVariantLevel
   ) {
     if (step.kind !== "conversation_scene" || !step.sceneId) return;
     if (conversationSrsRegisteredRef.current.has(step.sceneId) && result !== "abandoned") return;
 
-    const assistanceLevel = step.conversationVariantLevel ?? "guided";
+    const assistanceLevel = assistanceOverride ?? step.conversationVariantLevel ?? "guided";
     const setting = step.setting ?? conversationSceneById[step.sceneId]?.setting;
     const manifest = manifestFromConversationStep(step);
     const explicitErrorRefs = conversationErrorTargetsRef.current.map(
@@ -3041,11 +3043,19 @@ export function LessonPlayer() {
       const attempts = Math.max(hadMistake ? 2 : 1, conversationAttemptsRef.current);
       const repeated = (conversationHistory ?? []).some((entry) => entry.sceneId === currentStep.sceneId);
       const variantLevel = currentStep.conversationVariantLevel ?? "guided";
-      registerConversationVocabularyLoop(currentStep, result, attempts);
+      const assistanceLevel = conversationAssistanceFromHelp({
+        planned: variantLevel,
+        helpLevel: meta?.helpLevel ?? 0,
+        helpRequests: meta?.helpRequests ?? 0,
+      });
+      registerConversationVocabularyLoop(currentStep, result, attempts, assistanceLevel);
       const conversationMeta = {
         sceneId: currentStep.sceneId,
         intent: currentStep.sceneIntent ?? "",
         variantLevel,
+        assistanceLevel,
+        helpLevel: meta?.helpLevel ?? 0,
+        helpRequests: meta?.helpRequests ?? 0,
         repeated,
         attempts,
         result,
