@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 2d52a1c3c854 |
-| HEAD no instante da geração | 5aeb9a725855c2b34b4f9e03b03824dfd9adee38 |
+| Hash da Jornada | 2429015e724c |
+| HEAD no instante da geração | e55062e3ee1b1fca4990b70d9ead08264bc3235a |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T00:49:22.083Z |
+| Gerado em | 2026-09-10T02:07:22.967Z |
 | Lições | 128 |
 
 
@@ -30,7 +30,7 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 | Exceções (review/checkpoint) | 15 |
 | Specs autoradas | 38 |
 | Sessões estimadas | 467 |
-| Horas estimadas | 20.9 |
+| Horas estimadas | 21.0 |
 | Média de passos/pass | 8.2 |
 
 ## Primeira vitória (sessão + minutos)
@@ -103,9 +103,13 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 - p1-primeiros-hanzi M4: 14 passos (alvo 6–9)
 - l18 M4: 3 passos (alvo 6–9)
+- p6-cidade-lugares M4: 3 passos (alvo 6–9)
+- p6-china-ruas M4: 3 passos (alvo 6–9)
+- p6-direcoes M2: 15 passos (alvo 6–8)
+- p7-imersao-estacao M2: 14 passos (alvo 6–8)
 
 ## Falhas
 
 Nenhuma.
 
-<!-- integridade:fea6b788c07693ae -->
+<!-- integridade:e953d74ecf097d03 -->
