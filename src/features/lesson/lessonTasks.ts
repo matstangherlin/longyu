@@ -32,6 +32,7 @@ import {
 } from "../../data/masteryPilot";
 import { isTopicMasteryLesson } from "../../data/topicMastery";
 import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
+import { mobilitySurvivalPlanFor } from "../../data/mobilitySurvivalPlans";
 import { identityPeoplePlanFor } from "../../data/identityPeoplePlans";
 import { routineTimePlanFor } from "../../data/routineTimePlans";
 import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
@@ -7291,6 +7292,16 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
       practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
       lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),
     }))));
+  }
+  if (context.masteryPass != null || context.masteryLevel != null) {
+    const mobilityPlan = mobilitySurvivalPlanFor(lesson, identityPass, false);
+    if (mobilityPlan) {
+      return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(mobilityPlan.map(step => ({
+        ...step, generated: false, masteryPass: identityPass,
+        practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+        lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),
+      }))));
+    }
   }
   // Pedagogia V3.4 — Review Mastery so entra com pass/level explicito (player).
   // Validators silenciosos sem masteryLevel continuam no plano classico (imagens etc.).

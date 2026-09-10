@@ -74,9 +74,11 @@ export interface FrameQuantifier {
 export type CommunicativeGoal =
   | "request_item"
   | "ask_location"
+  | "ask_route"
   | "ask_price"
   | "state_preference"
   | "state_destination"
+  | "request_stop"
   | "buy_item"
   | "offer_item"
   | "refuse_drink"

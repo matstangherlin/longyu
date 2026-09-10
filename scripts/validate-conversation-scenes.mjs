@@ -768,7 +768,6 @@ try {
     {
       const KNOWN_DEBT = new Map([
         ["p6-china-cidades-2/no-aeroporto", ["char:na_that"]],
-        ["p6-china-ruas/pegar-taxi", ["char:qu_go"]],
         ["p6-saude/nao-me-sinto-bem", ["char:na_that"]],
         ["p6-clima/como-esta-o-tempo", ["char:tai_too"]],
         ["p6-survival-mandarin/checkin-hotel", ["char:de", "char:na_that"]],

@@ -486,6 +486,17 @@ export async function advanceUntilSelector(
       await page.waitForTimeout(180);
       continue;
     }
+    const toneFirst = page.locator("[data-tone-first-exposure]");
+    if (await toneFirst.isVisible().catch(() => false)) {
+      await toneFirst.click();
+      await page.waitForTimeout(120);
+      continue;
+    }
+    const toneNoticed = await clickFirstVisible(page, [/Percebi a curva|I noticed the contour/i]);
+    if (toneNoticed) {
+      await page.waitForTimeout(120);
+      continue;
+    }
     const skipped = allowSkip
       ? await clickFirstVisible(page, [/^Pular|^Skip/, /^Entendi$|^Got it$/])
       : await clickFirstVisible(page, [/^Entendi$|^Got it$/]);
