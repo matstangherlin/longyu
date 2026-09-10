@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f6430d1a11be |
-| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
+| Hash da Jornada | e8007959fb1f |
+| HEAD no instante da geração | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T07:47:00.393Z |
+| Gerado em | 2026-09-09T16:41:08.998Z |
 | Lições | 128 |
 
 ## Política
@@ -27,7 +27,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições | 128 |
 | Lições com transfer_task | 21 |
-| Lições com free_production guiada | 76 |
+| Lições com free_production guiada | 77 |
 | Lições com produção aberta (estruturalmente elegível) | 45 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
@@ -43,7 +43,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Frame | Padrão | Exposta | Guided | Transfer |
 |-------|--------|---------|--------|----------|
 | `frame_woyao` | 我要 ___ | l26b | l26c | p6-clima |
-| `frame_woxianghe` | 我想喝 ___ | l26 | p6-cidade-lugares | — |
+| `frame_woxianghe` | 我想喝 ___ | l26 | p6-cidade-lugares | p7-imersao-casa-amigo |
 | `frame_nijiaoshenme` | 你叫什么？ | p1-primeira-conversa | p1-primeira-conversa | — |
 | `frame_qingwennijiaoshenme` | 请问，你叫什么？ | — | — | l2-rev |
 | `frame_zainali` | ___ 在哪里？ | l25 | p6-china-ruas | p6-natureza |
@@ -54,7 +54,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | `frame_woyouge` | 我有 ___ 个 ___ | l13-dialogo-nome | p3-ordem-das-palavras | p3-nomes-da-frase |
 | `frame_woxihuan` | 我喜欢 ___ | l26 | l26 | l26b |
 | `frame_woqu` | 我去 ___ | p6-cidade-lugares | p6-china-cidades | p6-china-cidades-2 |
-| `frame_woyaomai` | 我要买 ___ | p6-compras | l29 | p7-imersao-casa-amigo |
+| `frame_woyaomai` | 我要买 ___ | p6-compras | p6-compras | p6-survival-mandarin |
 | `frame_niyao` | 你要 ___ | l26b | — | — |
 | `frame_niyaoma` | 你要 ___ 吗？ | l26b | l26b | — |
 | `frame_wobuhe` | 我不喝 ___ | — | — | — |
@@ -75,8 +75,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **p6-china-ruas** · `frame_woxiangchi` · guided · `我想吃鱼。`
 - **p6-natureza** · `frame_zainali` · guided · `车站在哪里？`
 - **p6-clima** · `frame_woyao` · guided · `我要热水。`
-- **l29** · `frame_duoshaoqian` · guided · `茶多少钱？`
-- **p7-imersao-casa-amigo** · `frame_woyaomai` · guided · `我要买书。`
+- **p6-survival-mandarin** · `frame_woyaomai` · guided · `我要买苹果。`
+- **l29** · `frame_duoshaoqian` · guided · `衣服多少钱？`
+- **p7-imersao-casa-amigo** · `frame_woxianghe` · guided · `我想喝热水。`
 
 ## Primeiras free_production guiadas
 
@@ -90,9 +91,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **p6-cidade-lugares** · `frame_woxianghe` · `我想喝水。`
 - **p6-china-cidades** · `frame_woqu` · `我去医院。`
 - **p6-china-cidades-2** · `frame_woxiangchi` · `我想吃米饭。`
-- **p6-china-ruas** · `frame_zainali` · `登机口在哪里？`
-- **p6-survival-mandarin** · `frame_duoshaoqian` · `这件衣服多少钱？`
-- **l29** · `frame_woyaomai` · `我要买衣服。`
+- **p6-china-ruas** · `frame_zainali` · `车在哪里？`
+- **p6-compras** · `frame_woyaomai` · `我要买衣服。`
+- **p6-survival-mandarin** · `frame_duoshaoqian` · `这个多少钱？`
 
 ## structurallyEligibleOpen (primeira por objetivo)
 
@@ -106,4 +107,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-mercado** · objetivo `ask_price` · modelo `多少钱？` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:b4ee5a74cf601833 -->
+<!-- integridade:3f4657c95de2c081 -->

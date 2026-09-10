@@ -36,7 +36,8 @@ function issue(list, code, ref, message, severity = "failure") {
 }
 
 function edges(node) {
-  return [node?.nextNodeId, node?.interaction?.correctNextNodeId, node?.interaction?.wrongNextNodeId].filter(Boolean);
+  const nextBy = Object.values(node?.interaction?.nextByAnswer ?? {});
+  return [node?.nextNodeId, node?.interaction?.correctNextNodeId, node?.interaction?.wrongNextNodeId, ...nextBy].filter(Boolean);
 }
 
 function mainPath(nodes, entryNodeId) {
@@ -109,9 +110,24 @@ function validateInteraction(interaction, nodeIds, ref, failures) {
   for (const [field, nextId] of [
     ["correctNextNodeId", interaction?.correctNextNodeId],
     ["wrongNextNodeId", interaction?.wrongNextNodeId],
+    ...Object.entries(interaction?.nextByAnswer ?? {}).map(([key, value]) => [`nextByAnswer.${key}`, value]),
   ]) {
     if (nextId && !nodeIds.has(nextId)) {
       issue(failures, "MISSING_NODE_REFERENCE", ref, field + " aponta para nó inexistente: " + nextId);
+    }
+  }
+  if (interaction?.decision) {
+    const valid = interaction.validAnswers ?? [];
+    if (valid.length < 2) {
+      issue(failures, "INVALID_DISTRACTORS", ref, "decisão precisa de pelo menos duas respostas válidas");
+    }
+    for (const item of valid) {
+      if (interaction.options?.length && !interaction.options.includes(item)) {
+        issue(failures, "INVALID_DISTRACTORS", ref, "resposta válida ausente das opções: " + item);
+      }
+      if (!interaction.nextByAnswer?.[item]) {
+        issue(failures, "MISSING_NODE_REFERENCE", ref, "decisão sem nextByAnswer para " + item);
+      }
     }
   }
 }

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f6430d1a11be |
-| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
+| Hash da Jornada | e8007959fb1f |
+| HEAD no instante da geração | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T07:39:35.814Z |
+| Gerado em | 2026-09-09T16:45:24.714Z |
 | Lições | 128 |
 
 ## Resumo
@@ -65,10 +65,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Modo | Exercícios |
 |------|-----------:|
-| imagem → hànzì (`choose_hanzi`) | 33 |
-| imagem → pinyin (`choose_pinyin`) | 49 |
+| imagem → hànzì (`choose_hanzi`) | 34 |
+| imagem → pinyin (`choose_pinyin`) | 51 |
 | imagem → significado (`choose_meaning`) | 31 |
-| áudio → imagem (`listen_and_choose_image`) | 42 |
+| áudio → imagem (`listen_and_choose_image`) | 41 |
 | hànzì → imagem (`choose_image`) | 30 |
 
 ## Conceitos nunca utilizados
@@ -85,6 +85,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | crowd | 众 | multidão | 8 |
 | cat | 猫 | gato | 13 |
 | dog | 狗 | cachorro | 13 |
+| tea | 茶 | chá | 12 |
 | beer | 啤酒 | cerveja | 12 |
 | bread | 面包 | pão | 12 |
 | egg | 鸡蛋 | ovo | 12 |
@@ -102,7 +103,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | travel | 旅行 | viagem | 13 |
 | street | 街道 | rua | 13 |
 | shopping_mall | 商场 | shopping | 13 |
-| two | 二 | dois | 6 |
 | four | 四 | quatro | 6 |
 
 ## Lições concretas sem imagem
@@ -113,4 +113,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:8cf277fd68882758 -->
+<!-- integridade:8fad752d74dd70f9 -->

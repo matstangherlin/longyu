@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f6430d1a11be |
-| HEAD no instante da geração | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
+| Hash da Jornada | e8007959fb1f |
+| HEAD no instante da geração | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T07:44:12.990Z |
+| Gerado em | 2026-09-09T16:46:47.975Z |
 | Lições | 128 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 128 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 965 |
-| Pares com transformação cognitiva | 776 (80%) |
+| Pares de repetição semântica | 971 |
+| Pares com transformação cognitiva | 783 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -139,30 +139,30 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l26 | 15 | 14 | 37 | 9 | 9 | 10 | phrase:我喜欢中文 × 3 |
 | l26b | 26 | 24 | 66 | 6 | 6 | 11 | intent:identify-concept × 3 |
 | l26c | 26 | 25 | 52 | 12 | 10 | 12 | intent:identify-concept × 3 |
-| l27 | 17 | 16 | 44 | 5 | 5 | 14 | action:produce-unaided × 3 |
+| l27 | 17 | 16 | 45 | 5 | 5 | 14 | action:produce-unaided × 3 |
 | l28 | 16 | 16 | 43 | 6 | 5 | 14 | action:assemble-phrase × 3 |
 | p6-rotina-trabalho | 28 | 14 | 21 | 7 | 4 | 9 | action:assemble-phrase × 3 |
 | p6-cidade-lugares | 21 | 19 | 54 | 4 | 4 | 12 | action:assemble-phrase × 2 |
 | p6-china-cidades | 18 | 17 | 42 | 11 | 11 | 14 | phrase:我坐出租车 × 3 |
 | p6-china-cidades-2 | 19 | 18 | 47 | 10 | 7 | 13 | phrase:我坐出租车 × 2 |
-| p6-china-ruas | 20 | 19 | 45 | 9 | 8 | 16 | action:produce-unaided × 3 |
-| p6-saude | 19 | 18 | 44 | 8 | 7 | 15 | action:produce-unaided × 3 |
+| p6-china-ruas | 20 | 19 | 46 | 9 | 9 | 16 | action:produce-unaided × 3 |
+| p6-saude | 19 | 18 | 49 | 8 | 8 | 14 | action:produce-unaided × 3 |
 | p6-horarios | 30 | 18 | 21 | 8 | 2 | 10 | action:write × 7 |
 | p6-natureza | 18 | 17 | 41 | 4 | 4 | 12 | action:produce-unaided × 2 |
 | p6-clima | 19 | 18 | 41 | 7 | 6 | 16 | action:assemble-phrase × 3 |
 | p6-direcoes | 18 | 17 | 37 | 8 | 7 | 13 | intent:state-activity × 3 |
-| p6-compras | 20 | 19 | 50 | 9 | 8 | 13 | phrase:两位 × 3 |
-| p6-survival-mandarin | 21 | 20 | 56 | 10 | 8 | 14 | intent:identify-concept × 4 |
+| p6-compras | 20 | 19 | 51 | 9 | 8 | 12 | intent:identify-concept × 3 |
+| p6-survival-mandarin | 22 | 21 | 60 | 9 | 7 | 15 | intent:identify-concept × 4 |
 | l10-rev | 12 | 12 | 25 | 8 | 7 | 8 | char:水 × 2 |
-| l29 | 18 | 17 | 43 | 10 | 9 | 14 | action:assemble-phrase × 3 |
-| l30 | 17 | 16 | 41 | 2 | 2 | 11 | action:produce-unaided × 2 |
+| l29 | 19 | 18 | 41 | 10 | 6 | 15 | action:assemble-phrase × 3 |
+| l30 | 15 | 14 | 38 | 5 | 5 | 11 | action:produce-unaided × 2 |
 | l11-rev | 12 | 12 | 23 | 8 | 4 | 8 | action:assemble-phrase × 2 |
-| p7-imersao-mercado | 26 | 25 | 45 | 18 | 11 | 15 | phrase:多少钱 × 3 |
+| p7-imersao-mercado | 31 | 30 | 62 | 22 | 17 | 17 | action:produce-unaided × 5 |
 | p7-imersao-estacao | 33 | 31 | 73 | 18 | 13 | 16 | action:assemble-phrase × 3 |
-| p7-imersao-casa-amigo | 30 | 29 | 60 | 20 | 17 | 18 | action:repair-conversation × 3 |
+| p7-imersao-casa-amigo | 30 | 29 | 59 | 20 | 17 | 18 | action:repair-conversation × 3 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:816c3c29d2a0930a -->
+<!-- integridade:d022d4c959a361b8 -->

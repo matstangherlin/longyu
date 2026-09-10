@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | b2db0a8b10e406d00ee8f7bac4e65f7582fc24f0 |
+| Commit | 476044bf6309ac512ee85f594bd1922dcc9ecb53 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-09T07:43:28.142Z |
+| Gerado em | 2026-09-09T16:46:28.513Z |
 | Lições | 128 |
-| Hash da Jornada | f6430d1a11be |
+| Hash da Jornada | e8007959fb1f |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
 | Número de cenas | 48 |
-| Média de falas | 8.50 |
-| Média de intervenções | 3.04 |
-| Número de ramificações | 147 |
-| Número de finais | 52 |
-| Vocabulário total exibido (refs únicas no plano real) | 150 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 150 |
+| Média de falas | 8.69 |
+| Média de intervenções | 3.10 |
+| Número de ramificações | 150 |
+| Número de finais | 53 |
+| Vocabulário total exibido (refs únicas no plano real) | 149 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 149 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.65 |
+| Média de reutilizações por ref exibida | 7.75 |
 
 ## Cenas mais curtas
 
@@ -56,12 +56,12 @@
 | me-apresentando | 8 |
 | nao-falo-chinês | 8 |
 | encontro-amanha | 8 |
+| packet-exchange-basic_questions | 7 |
 | packet-exchange-introductions | 7 |
 | falar-de-estudo | 7 |
 | cortesia-loja | 6 |
 | pedir-repeticao | 5 |
-| packet-exchange-basic_questions | 5 |
-| pedir-agua | 5 |
+| fale-de-novo | 5 |
 
 ## Cenas por cenário
 
@@ -143,4 +143,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:54c733b3fdf20bd1 -->
+<!-- integridade:d4d01e290e8d2cd6 -->

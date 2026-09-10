@@ -252,6 +252,8 @@ export const CHUNKS: Chunk[] = [
   { id: "weixinzhifu", hanzi: "微信支付", pinyin: "Wēixìn zhīfù", meaningPt: "WeChat Pay.", tags: ["survival", "pagamento"], domain: "compras", level: "survival" },
   { id: "zhifubao", hanzi: "支付宝", pinyin: "Zhīfùbǎo", meaningPt: "Alipay.", tags: ["survival", "pagamento"], domain: "compras", level: "survival" },
   { id: "keyishuaka", hanzi: "可以刷卡吗？", pinyin: "kěyǐ shuākǎ ma?", meaningPt: "Posso pagar com cartão?", tags: ["survival", "pagamento"], domain: "compras", level: "survival" },
+  { id: "xianjinkeyima", hanzi: "现金可以吗？", pinyin: "xiànjīn kěyǐ ma?", meaningPt: "Dinheiro pode?", tags: ["survival", "pagamento"], domain: "compras", level: "survival" },
+  { id: "woyaoliangge", hanzi: "我要两个", pinyin: "wǒ yào liǎng ge", meaningPt: "Quero dois.", tags: ["compras"], domain: "compras", level: "survival" },
   { id: "shouji_device", hanzi: "手机", pinyin: "shǒujī", meaningPt: "Celular.", tags: ["survival"], domain: "compras", level: "elementary" },
   { id: "chongdian", hanzi: "充电", pinyin: "chōngdiàn", meaningPt: "Carregar (bateria).", tags: ["survival"], domain: "sobrevivencia", level: "survival" },
   { id: "chongdianqi", hanzi: "充电器", pinyin: "chōngdiànqì", meaningPt: "Carregador.", tags: ["survival"], domain: "sobrevivencia", level: "survival" },

@@ -396,31 +396,39 @@ export const CULTURE_JOURNEY_BRIDGES: CultureJourneyBridge[] = [
     sequenceCorrect: ["open", "scan", "move"],
   },
   {
-    lessonId: "p7-imersao-estacao",
-    cultureItemId: "metro-qr",
-    cultureConceptId: "metro-qr-core",
+    lessonId: "p6-compras",
+    cultureItemId: "bargaining-context",
+    cultureConceptId: "bargaining-context-core",
     placement: "mid",
     teachTitle: loc("Na vida real 🇨🇳", "In real life 🇨🇳"),
     explanation: loc(
-      "Na estação, o mesmo código do metrô reaparece. O gesto seguro é ter o QR pronto e não bloquear a passagem.",
-      "At the station, the same metro code appears again. The safer gesture is to have the QR ready and not block the passage."
+      "Negociar preço pode acontecer em algumas bancas e lojas pequenas. Em supermercado, loja de rede e preço claramente marcado, pechinchar costuma não caber. Olhe o contexto antes de 太贵了.",
+      "Bargaining can happen at some stalls and small shops. In a supermarket, a chain store, and a clearly tagged price, haggling usually does not fit. Read the setting before 太贵了."
     ),
-    rememberPrompt: loc("Você lembra o que não fazer na catraca?", "Do you remember what not to do at the gate?"),
-    taskKind: "identify_mistake",
-    visual: "metro-door",
-    prompt: loc("Qual gesto atrapalha a fila?", "Which gesture gets in the way of the queue?"),
+    rememberPrompt: loc("Você lembra quando 太贵了 cabe?", "Do you remember when 太贵了 fits?"),
+    taskKind: "scenario",
+    prompt: loc(
+      "Há uma etiqueta clara numa loja de rede. Qual leitura é mais segura?",
+      "There is a clear tag in a chain shop. Which reading is safer?"
+    ),
     options: [
       choice(
         "a",
-        loc("Parar na catraca para baixar o app na hora.", "Stop at the gate to download the app on the spot."),
-        true,
-        loc("Esse é o erro: o código precisa estar pronto antes de chegar na catraca.", "That is the mistake: the code needs to be ready before you reach the gate.")
+        loc("Negociar, porque no mercado chinês sempre se pechincha.", "Haggle, because in the Chinese market people always bargain."),
+        false,
+        loc("Isso generaliza demais. Preço marcado numa loja de rede não é banca.", "That over-generalises. A tagged chain-shop price is not a stall.")
       ),
       choice(
         "b",
-        loc("Escanear e seguir, com o código já aberto.", "Scan and continue, with the code already open."),
+        loc("Pagar o valor da etiqueta, ou desistir com 不要了.", "Pay the tagged amount, or step away with 不要了."),
+        true,
+        loc("Esse é o caminho usual neste caixa. Negociação depende do estabelecimento.", "That is the usual path at this till. Bargaining depends on the shop.")
+      ),
+      choice(
+        "c",
+        loc("O preço na etiqueta é só um convite para começar a pechincha.", "The tagged price is only an invitation to start haggling."),
         false,
-        loc("Esse é o ritmo usual — não o erro.", "That is the usual rhythm — not the mistake.")
+        loc("A lei pede o preço visível. Não trata a etiqueta como um jogo.", "The law asks for a visible price. It does not treat the tag as a game.")
       ),
     ],
   },

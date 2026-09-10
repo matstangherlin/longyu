@@ -1343,6 +1343,213 @@ const chopsticksRest = shortMission("chopsticks-rest", {
   ],
 });
 
+const bargainingContext = ((): CultureMission => {
+  const item = itemOrThrow("bargaining-context");
+  const memory = memoryFromItem(
+    item,
+    loc(
+      "Negociação depende do tipo de estabelecimento — não é uma regra de todo mercado.",
+      "Bargaining depends on the kind of shop — it is not a rule of every market."
+    ),
+    loc(
+      "Há uma etiqueta visível. Qual leitura é mais fiel?",
+      "There is a visible price tag. Which reading is more faithful?"
+    ),
+    {
+      story: {
+        kind: "story_error",
+        prompt: loc(
+          "Num supermercado com preço na etiqueta, um personagem começa a pechinchar alto. Qual é o erro?",
+          "In a supermarket with a tagged price, a character starts haggling loudly. What is the mistake?"
+        ),
+        options: [
+          {
+            id: "a",
+            label: loc("Nenhum: supermercado é o lugar clássico para pechinchar.", "None: a supermarket is the classic place to haggle."),
+            preferred: false,
+            feedback: loc("Supermercado com preço marcado não é banca. O erro é generalizar.", "A tagged supermarket is not a stall. The mistake is generalising."),
+            mayVary: true,
+          },
+          {
+            id: "b",
+            label: loc("Tratar o supermercado como se fosse uma banca de preço falado.", "Treating the supermarket as if it were a stall with a spoken price."),
+            preferred: true,
+            feedback: loc("Sim: o tipo de estabelecimento mudou a decisão.", "Yes: the kind of shop changed the decision."),
+          },
+          {
+            id: "c",
+            label: loc("Pagar o preço da etiqueta é sempre grosseiro.", "Paying the tagged price is always rude."),
+            preferred: false,
+            feedback: loc("Pagar o marcado é o caminho usual nesse caixa.", "Paying the marked amount is the usual path at that till."),
+          },
+        ],
+      },
+      sequence: {
+        kind: "sequence",
+        prompt: loc(
+          "Ordene uma compra atenta ao contexto.",
+          "Put a context-aware purchase in order."
+        ),
+        sequence: [
+          { id: "notice", label: loc("Ver se o preço está na etiqueta ou é falado", "See whether the price is tagged or spoken") },
+          { id: "decide", label: loc("Decidir se 太贵了 cabe neste estabelecimento", "Decide whether 太贵了 fits this shop") },
+          { id: "act", label: loc("Pagar, pedir um pouco menos, ou 不要了", "Pay, ask for a little less, or 不要了") },
+        ],
+        sequenceCorrect: ["notice", "decide", "act"],
+      },
+    }
+  );
+  return {
+    id: "bargaining-context",
+    cultureItemId: "bargaining-context",
+    titlePt: item.titlePt,
+    titleEn: item.titleEn,
+    routeId: "everyday-china",
+    difficulty: 2,
+    estimatedMinutes: 4,
+    flagship: false,
+    takeaways: [
+      loc("Etiqueta visível: pagar o marcado é o usual.", "Visible tag: paying the marked price is usual."),
+      loc("Banca com preço falado: 太贵了 pode caber.", "A stall with a spoken price: 太贵了 may fit."),
+      loc("Não transforme «o mercado» numa regra única.", "Do not turn “the market” into a single rule."),
+    ],
+    reward: { xp: CULTURE_MISSION_XP, sealIds: ["urban-china"] },
+    memoryTargets: [memory],
+    steps: [
+      {
+        id: "bc-story",
+        kind: "story",
+        scored: false,
+        prompt: loc(item.situationPt, item.situationEn),
+        beats: [
+          {
+            id: "bc-n",
+            speaker: "narrator",
+            text: loc(item.noticePt, item.noticeEn),
+          },
+        ],
+      },
+      {
+        id: "bc-demo",
+        kind: "story",
+        role: "demo",
+        scored: false,
+        scoreWeight: 0,
+        cultureConceptId: "bargaining-context-core",
+        prompt: loc(
+          "Wang lê dois estabelecimentos antes de falar.",
+          "Wang reads two shops before he speaks."
+        ),
+        beats: [
+          {
+            id: "bc-demo-chain",
+            speaker: "narrator",
+            text: loc(
+              "Loja de rede: preço na etiqueta. Wang não começa a pechincha.",
+              "Chain shop: price on the tag. Wang does not start haggling."
+            ),
+          },
+          {
+            id: "bc-demo-lin",
+            speaker: "lin",
+            hanzi: "好。",
+            pinyin: "Hǎo.",
+            text: loc("Ele aceita o valor marcado.", "He accepts the marked amount."),
+          },
+          {
+            id: "bc-demo-stall",
+            speaker: "wang",
+            hanzi: "这个十。",
+            pinyin: "Zhège shí.",
+            text: loc("Na banca o preço vem falado, sem etiqueta.", "At the stall the price is spoken, with no tag."),
+          },
+        ],
+      },
+      {
+        id: "bc-chain",
+        kind: "scenario_choice",
+        scored: true,
+        prompt: loc(
+          "Wang entra numa loja de rede. O preço está na etiqueta. Você tentaria negociar?",
+          "Wang walks into a chain shop. The price is on the tag. Would you try to bargain?"
+        ),
+        options: miniChoices(item),
+      },
+      {
+        id: "bc-stall",
+        kind: "dialogue_choice",
+        scored: true,
+        prompt: loc(
+          "Agora a banca. O vendedor diz o preço na hora. O que cabe?",
+          "Now the stall. The seller quotes the price on the spot. What fits?"
+        ),
+        beats: [
+          {
+            id: "bc-stall-wang",
+            speaker: "wang",
+            hanzi: "这个十。",
+            pinyin: "Zhège shí.",
+            text: loc("Wang espera a sua reação.", "Wang waits for your reaction."),
+          },
+        ],
+        options: [
+          {
+            id: "a",
+            label: loc("太贵了", "太贵了"),
+            preferred: true,
+            feedback: loc("Nesta banca o preço foi falado. 太贵了 pode abrir um ajuste.", "At this stall the price was spoken. 太贵了 can open an adjustment."),
+            reaction: {
+              id: "bc-stall-a-rx",
+              speaker: "wang",
+              hanzi: "好，便宜一点。",
+              pinyin: "Hǎo, piányi yìdiǎn.",
+              text: loc("O vendedor reage ao pedido.", "The seller reacts to the request."),
+            },
+          },
+          {
+            id: "b",
+            label: loc("好", "好"),
+            preferred: true,
+            feedback: loc("Aceitar também é válido. Não há uma única resposta certa nesta banca.", "Accepting is also valid. There is not a single right answer at this stall."),
+            reaction: {
+              id: "bc-stall-b-rx",
+              speaker: "wang",
+              hanzi: "好，谢谢。",
+              pinyin: "Hǎo, xièxie.",
+              text: loc("A compra segue pelo preço cheio.", "The purchase continues at the full price."),
+            },
+          },
+          {
+            id: "c",
+            label: loc("Pechinchar em qualquer loja da China, inclusive no supermercado da esquina.", "Haggle in every shop in China, including the supermarket on the corner."),
+            preferred: false,
+            feedback: loc("Isso apaga o contexto. Supermercado com etiqueta não é esta banca.", "That erases context. A tagged supermarket is not this stall."),
+            reaction: {
+              id: "bc-stall-c-rx",
+              speaker: "mei",
+              hanzi: "不。",
+              pinyin: "Bù.",
+              text: loc("Mei marca que a generalização não cabe.", "Mei marks that the generalisation does not fit."),
+            },
+          },
+        ],
+      },
+      sequenceStep(
+        "bc-order",
+        loc("Ordene uma compra atenta ao contexto.", "Put a context-aware purchase in order."),
+        [
+          { id: "notice", pt: "Ver se o preço está na etiqueta ou é falado", en: "See whether the price is tagged or spoken" },
+          { id: "decide", pt: "Decidir se 太贵了 cabe neste estabelecimento", en: "Decide whether 太贵了 fits this shop" },
+          { id: "act", pt: "Pagar, pedir um pouco menos, ou 不要了", en: "Pay, ask for a little less, or 不要了" },
+        ],
+        ["notice", "decide", "act"]
+      ),
+      recallStep(memory),
+      summaryStep(item),
+    ],
+  };
+})();
+
 function defaultSecond(itemId: string, pairs: NonNullable<CultureMissionStep["matchPairs"]>): CultureMissionStep {
   return matchStep(`${itemId}-match`, pairs);
 }
@@ -1532,7 +1739,7 @@ const SHORT_MISSIONS: CultureMission[] = SHORT_SPECS.map((spec) =>
   })
 );
 
-const FLAGSHIP_MISSIONS = [visitingHome, hostInsistence, sharedDishes, giftReceiving, digitalPay, metroQr, chopsticksRest];
+const FLAGSHIP_MISSIONS = [visitingHome, hostInsistence, sharedDishes, giftReceiving, digitalPay, metroQr, chopsticksRest, bargainingContext];
 
 export const CULTURE_MISSIONS: CultureMission[] = CULTURE_ITEMS.map((item) => {
   const authored = [...FLAGSHIP_MISSIONS, ...SHORT_MISSIONS].find((mission) => mission.cultureItemId === item.id);

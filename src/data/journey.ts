@@ -5891,10 +5891,29 @@ export const JOURNEY: JourneyPhase[] = [
             cultureItemId: "digital-pay",
             premium: true,
             masteryLoop: true,
-            newHanzi: ["多", "少"],
+            newHanzi: ["多", "少", "便", "宜"],
+            libraryItems: [
+              "chunk:duoshaoqian",
+              "chunk:woyao",
+              "chunk:taiguile",
+              "chunk:pianyiyidian",
+              "char:cai_dish",
+            ],
+            reviewItems: ["char:cai_dish", "chunk:duoshaoqian"],
             steps: [
               flash("duoshaoqian"),
               flash("taiguile"),
+              listen("太贵了", "tài guì le", "Caro demais."),
+              listen("便宜一点", "piányi yìdiǎn", "Um pouco mais barato."),
+              flash("pianyiyidian"),
+              listen("二十八", "èrshíbā", "vinte e oito"),
+              listenSelect(
+                "Quanto o vendedor cobrou?",
+                "二十八",
+                ["28", "18", "10", "50"],
+                "28",
+                "O número falado é vinte e oito — sem 元 na fala curta."
+              ),
               flash("woyao"),
               flash("woxianghe"),
               imageChoice(
@@ -7411,12 +7430,15 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p6-compras",
             title: "Compras: roupas e itens",
             skill: "fala",
-            cultureItemId: "digital-pay",
+            cultureItemId: "bargaining-context",
             premium: true,
             masteryLoop: true,
-            // 买/这/个/多/少/钱/水/机 já existem; novos: 衣/服/鞋/双/件/苹/果/香/蕉/牛/奶/手.
-            newHanzi: ["衣", "服", "鞋", "双", "件", "苹", "果", "香", "蕉", "牛", "奶", "手", "元", "单"],
+            hanziMemoryTargets: ["买"],
+            // 这/个/多/少/钱/水/机 já existem; 买 é CORE nesta aula. Novos de item: 衣/服/鞋/双/件/苹/果/香/蕉/牛/奶/手. 卖 só no contraste tonal.
+            newHanzi: ["买", "卖", "衣", "服", "鞋", "双", "件", "苹", "果", "香", "蕉", "牛", "奶", "手", "元", "单"],
             libraryItems: [
+              "char:mai_buy",
+              "chunk:pianyiyidian",
               "chunk:woyaomaiyifu",
               "chunk:zhejianyifuduoshaoqian",
               "chunk:woyaozheshuangxie",
@@ -7441,7 +7463,30 @@ export const JOURNEY: JourneyPhase[] = [
             steps: [
               intro(
                 "Fazendo compras",
-                "Você já sabe pedir com 我要. Agora entra o vocabulário de loja: 买 (comprar), roupas (衣服, 鞋) e itens do dia a dia (苹果, 香蕉, 牛奶, 手机)."
+                "Você já sabe pedir com 我要这个 e perguntar 多少钱？. Agora 买 entra como verbo, você escolhe um item que já conhece, e o tom 买×卖 evita inverter o negócio. Negociar não é automático: depende do tipo de loja."
+              ),
+              listen("买", "mǎi", "comprar"),
+              listen("卖", "mài", "vender"),
+              recognize("mai_buy"),
+              intro(
+                "Comprar e vender",
+                "买 (mǎi) desce e sobe: 3º tom, comprar. 卖 (mài) só desce: 4º tom, vender. O contorno inverte o negócio."
+              ),
+              tone("买", "mǎi", 3, "guided", [3, 4]),
+              tone("卖", "mài", 4, "guided", [3, 4]),
+              audioSameDifferent(
+                "买",
+                "卖",
+                false,
+                "mǎi cai (3º) = comprar; mài desce (4º) = vender."
+              ),
+              listenSelect(
+                "Qual significa comprar?",
+                "买",
+                ["comprar", "vender"],
+                "comprar",
+                "O contorno de 买 (3º) é comprar. 卖 (4º) é vender.",
+                "Compare o contorno: este áudio é comprar ou vender?"
               ),
               listen("我要买衣服", "wǒ yào mǎi yīfu", "Quero comprar roupa"),
               listen("这件衣服多少钱？", "zhè jiàn yīfu duōshao qián?", "Quanto custa esta roupa?"),
@@ -7624,6 +7669,7 @@ export const JOURNEY: JourneyPhase[] = [
             ],
             libraryItems: [
               "chunk:xianjin",
+              "chunk:xianjinkeyima",
               "chunk:weixinzhifu",
               "chunk:zhifubao",
               "chunk:keyishuaka",
@@ -7663,6 +7709,9 @@ export const JOURNEY: JourneyPhase[] = [
                 "Pagamento, celular, hotel e necessidades: o que um visitante realmente pede nas primeiras semanas."
               ),
               flash("xianjin"),
+              listen("现金", "xiànjīn", "Dinheiro vivo."),
+              flash("xianjinkeyima"),
+              listen("现金可以吗？", "xiànjīn kěyǐ ma?", "Dinheiro pode?"),
               flash("weixinzhifu"),
               listen("微信支付", "Wēixìn zhīfù", "WeChat Pay."),
               flash("zhifubao"),
@@ -8115,37 +8164,52 @@ export const JOURNEY: JourneyPhase[] = [
             id: "p7-imersao-mercado",
             title: "Imersão: no mercado",
             skill: "fala",
-            cultureItemId: "shared-dishes",
             premium: true,
             masteryLoop: true,
-            // Vocabulário visto na imersão de mercado (多少钱).
-            newHanzi: ["多", "少"],
+            curriculumRole: "immersion",
+            // Vocabulário visto na imersão de mercado (preço, quantidade, pagamento).
+            // Glifos de chunks/survival que não estão em CHARACTERS — allowlist, não CORE novo.
+            newHanzi: ["多", "少", "便", "宜", "微", "信", "支", "付", "金", "可", "以", "两", "刷", "卡", "双", "鞋"],
+            libraryItems: [
+              "char:mai_buy",
+              "chunk:pianyiyidian",
+              "chunk:xianjinkeyima",
+              "chunk:woyaoliangge",
+              "chunk:duoshaoqian",
+              "chunk:woyao",
+              "chunk:taiguile",
+              "chunk:buyaole",
+              "chunk:keyishuaka",
+              "chunk:weixinzhifu",
+            ],
+            reviewItems: ["char:mai_buy", "chunk:duoshaoqian", "chunk:woyao", "chunk:xianjinkeyima"],
             steps: [
               intro(
                 "Imersão no mercado",
-                "Uma conversa inteira: cumprimentar, pedir, perguntar o preço e negociar. Erre à vontade — o vendedor te dá outra chance."
+                "Uma compra completa: ver o item, perguntar o preço, entender o número falado, decidir, pagar e sair. Erre à vontade — o vendedor te dá outra chance."
               ),
+              recognize("mai_buy"),
+              listenSelect(
+                "Quanto o vendedor cobrou?",
+                "二十八",
+                ["28", "18", "10", "50"],
+                "28",
+                "二十八 = 28. Entender o número falado fecha a compra."
+              ),
+              listenSelect(
+                "O que o caixa quer saber?",
+                "微信支付？",
+                ["Pagamento pelo WeChat", "Quantas pessoas", "Onde fica o hotel", "Você quer chá"],
+                "Pagamento pelo WeChat",
+                "O caixa oferece pagamento móvel. Cartão e 现金 continuam perguntas úteis."
+              ),
+              listen("现金可以吗？", "xiànjīn kěyǐ ma?", "Dinheiro pode?"),
+              listen("我要两个", "wǒ yào liǎng ge", "Quero dois."),
+              flash("woyaoliangge"),
               conversationScene("imersao-mercado"),
-              // Cenas comuns de aquecimento: quantidade, loja e negociação.
               conversationScene("perguntar-quantidade"),
               conversationScene("conversa-na-loja"),
               conversationScene("comprar-itens"),
-              comp("多少钱？", "duōshao qián?", "Quanto custa?", [
-                "Quanto custa?",
-                "Vamos embora.",
-                "Quero beber chá.",
-                "Está tudo bem.",
-              ]),
-              dialogue(
-                "Hora de negociar",
-                "O preço veio alto. Qual reação abre a pechincha?",
-                "太贵了",
-                ["太贵了", "谢谢", "你好吗？", "我喜欢中文"],
-                "太贵了 = caro demais; no mercado, negociar faz parte.",
-                "Vendedor"
-              ),
-              // Produção aberta de preço depois da produção guiada de
-              // 这件衣服多少钱？ em p6-survival-mandarin. Não fecha pagamento digital.
               freeProduction({
                 title: "Diga do seu jeito",
                 situationPt: "Na loja, pergunte o preço de alguma coisa.",
@@ -8166,6 +8230,42 @@ export const JOURNEY: JourneyPhase[] = [
                   { hanzi: "这个多少钱？", pinyin: "zhège duōshao qián?" },
                   { hanzi: "茶多少钱？", pinyin: "chá duōshao qián?" },
                 ],
+              }),
+              freeProduction({
+                title: "Diga que quer este",
+                situationPt: "Você aponta o produto e quer levar este.",
+                expected: "我要这个",
+                accepts: ["我要这个", "我要买这个", "我要这双鞋"],
+                productionGoal: "buy_item",
+                productionOpen: true,
+                productionHintPt: "Use o frame que você já usa para pedir.",
+                productionExamples: [
+                  { hanzi: "我要这个", pinyin: "wǒ yào zhège" },
+                  { hanzi: "我要买这个", pinyin: "wǒ yào mǎi zhège" },
+                  { hanzi: "我要这双鞋", pinyin: "wǒ yào zhè shuāng xié" },
+                ],
+              }),
+              freeProduction({
+                title: "Pergunte pelo dinheiro",
+                situationPt: "No caixa, pergunte se aceitam dinheiro vivo.",
+                expected: "现金可以吗？",
+                accepts: ["现金可以吗？", "可以刷卡吗？", "微信支付可以吗？"],
+                productionGoal: "buy_item",
+                productionOpen: true,
+                productionHintPt: "Cartão também vale. Não precisa nomear o aplicativo.",
+                productionExamples: [
+                  { hanzi: "现金可以吗？", pinyin: "xiànjīn kěyǐ ma?" },
+                  { hanzi: "可以刷卡吗？", pinyin: "kěyǐ shuākǎ ma?" },
+                  { hanzi: "微信支付可以吗？", pinyin: "Wēixìn zhīfù kěyǐ ma?" },
+                ],
+              }),
+              freeProduction({
+                title: "Desista da compra",
+                situationPt: "O preço não serve. Desista com educação.",
+                expected: "不要了",
+                accepts: ["不要了", "不要了。", "谢谢，不要了"],
+                productionGoal: "refuse_food",
+                productionHintPt: "É o mesmo 不要了 do restaurante.",
               }),
             ],
           },

@@ -44,6 +44,12 @@ mutation("2 all repairs become the same generic line", (data) => {
   }
 }, "GENERIC_REPAIR");
 
+mutation("shopping tell_price cannot expect place_order", (data) => {
+  const scene = data.scenes.find((item) => item.sceneId === "conversa-na-loja");
+  const node = scene.nodes.find((item) => item.id === "loja-2");
+  node.interaction.expectedResponseAct = "place_order";
+}, "INTENT_MISMATCH");
+
 mutation("8 conversation final production becomes multiple choice", (data) => {
   const scene = data.scenes.find((item) => item.sceneId === "que-horas-sao");
   const pathIds = new Set();
@@ -60,4 +66,4 @@ mutation("8 conversation final production becomes multiple choice", (data) => {
   last.interaction.options = [last.interaction.correctAnswer, "我很好"];
 }, "FINAL_NOT_PRODUCTION");
 
-console.log("PASS conversation-coherence mutations 1, 2, 8");
+console.log("PASS conversation-coherence mutations 1, 2, shopping-price, 8");
