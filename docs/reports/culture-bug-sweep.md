@@ -34,3 +34,4 @@ Nenhum após o corte da injeção `setCultureBridgeOpen(true)`. Completar a liç
 - `TOPIC_INCOMPLETE` tem copy no bloqueio de deep link.
 - Vitória com `src=jornada` volta à Jornada; `from=/licao/…` no touchpoint devolve à aula de mandarim.
 - Abrir o player de uma aula de mandarim **não** marca o CultureItem como `in_progress` (`startCultureItem` só no domínio cultura).
+- Erro numa lição cultural **não** abre a revisão imediata lexical nem despeja na Jornada; a vitória cultural permanece.

@@ -89,8 +89,13 @@ export async function playCultureLessonToVictory(page: Page) {
       continue;
     }
 
+    const reviewOffer = page.locator("[data-review-offer]");
     const continueBtn = page.getByRole("button", { name: /^(Continuar|Continue)$/ }).first();
-    if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
+    if (
+      (await continueBtn.isVisible().catch(() => false)) &&
+      !(await continueBtn.isDisabled().catch(() => true)) &&
+      (await reviewOffer.count()) === 0
+    ) {
       await continueBtn.click().catch(() => undefined);
       await page.waitForTimeout(120);
       continue;

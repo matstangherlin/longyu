@@ -2199,6 +2199,7 @@ export function LessonPlayer() {
 
   useEffect(() => {
     if (!foundLesson || !entryChecked || finished || pendingReviewRestoredRef.current) return;
+    if (foundLesson.lessonDomain === "culture") return;
     const masteryRecord = lessonMasteryById?.[foundLesson.id];
     const cursor = lessonSessionStepById?.[foundLesson.id];
     if (
@@ -3495,7 +3496,9 @@ export function LessonPlayer() {
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
-    setErrorReviewMode(activityErrorsRef.current.length > 0 ? "offer" : "idle");
+    setErrorReviewMode(
+      lesson.lessonDomain === "culture" || activityErrorsRef.current.length === 0 ? "idle" : "offer"
+    );
     setCorrectedErrorIds([]);
     setRecovered(false);
     recoveryAppliedRef.current = false;
@@ -3740,6 +3743,7 @@ export function LessonPlayer() {
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
+            if (lesson.lessonDomain === "culture") return;
             const topicNodeDone = isTopicMasteryLesson(lesson);
             const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
             // Tema em andamento: fica na vitória (Lição X de 4). Só vai à

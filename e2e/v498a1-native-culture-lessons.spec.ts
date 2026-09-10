@@ -101,7 +101,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
     await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
     const mistake = page.getByRole("heading", { name: /Quer tentar de novo|Want to try again/i });
     await expect(mistake).toBeVisible({ timeout: 8_000 });
-    await page.getByRole("button", { name: /^(Continuar|Continue)$/ }).click();
+    await page.getByRole("dialog", { name: /Quer tentar de novo|Want to try again/i }).getByRole("button", { name: /^(Continuar|Continue)$/ }).click();
     await playCultureLessonToVictory(page);
 
     const persist = await readCulturePersist(page);
