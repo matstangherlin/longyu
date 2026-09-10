@@ -82,6 +82,7 @@ Desbloqueio do nó da Jornada: o tópico de língua âncora precisa estar path-c
 - `validate:culture-journey-nodes` / `test:culture-journey-nodes`
 - `validate:culture-standard-tasks` / `test:culture-standard-tasks`
 - `validate:culture-journey-integration` (cobertura nativa obrigatória; overlay redundante é vermelho)
+- Mutações de catálogo usam `cloneCultureRuntime` (helpers como `routeForJourneyNode` não passam por `structuredClone`)
 
 E2E: `e2e/culture-hub.spec.ts`, `e2e/v497b-shopping.spec.ts`, `e2e/v498a-city-mobility.spec.ts`, `e2e/v498a1-native-culture-lessons.spec.ts`.
 

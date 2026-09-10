@@ -1,14 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { loadCultureRuntime } from "./lib/v495a-runtime.mjs";
+import { cloneCultureRuntime, loadCultureRuntime, require as tsRequire } from "./lib/v495a-runtime.mjs";
 import { validateCultureDistribution } from "./lib/culture-distribution-validation.mjs";
-import { require as tsRequire } from "./lib/v495a-runtime.mjs";
 
 const base = loadCultureRuntime();
 assert.deepEqual(validateCultureDistribution(base).failures, [], "positive control must pass");
 
 function fixture() {
-  return structuredClone(base);
+  return cloneCultureRuntime(base);
 }
 
 function mutation(label, edit, code) {
@@ -36,8 +35,8 @@ assert.match(player, /completeLesson\(lesson\.id\)/, "player still completes the
 assert.match(player, /CultureTouchpoint/, "victory may show a culture touchpoint");
 assert.match(
   player,
-  /data-testid="topic-victory-return"/,
-  "lesson continue remains independent of culture"
+  /lesson\.lessonDomain === "culture" \? "culture-back-journey" : "topic-victory-return"/,
+  "language continue stays topic-victory-return; culture uses culture-back-journey"
 );
 assert.match(
   player,

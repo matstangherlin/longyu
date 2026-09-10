@@ -101,6 +101,22 @@ export function loadCultureRuntime() {
   };
 }
 
+/**
+ * Mutation fixtures clone the catalog. Helpers such as routeForJourneyNode
+ * cannot go through structuredClone, so they are copied by reference.
+ */
+export function cloneCultureRuntime(base) {
+  const fns = {};
+  const data = { ...base };
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "function") {
+      fns[key] = value;
+      delete data[key];
+    }
+  }
+  return { ...structuredClone(data), ...fns };
+}
+
 export function loadRoutineTimeRuntime() {
   const { ALL_LESSONS } = require("../../src/data/journey.ts");
   const { CONVERSATION_SCENES } = require("../../src/data/conversationScenes.ts");
