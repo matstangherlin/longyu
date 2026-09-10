@@ -89,9 +89,14 @@ test.describe("V4.9.8A.2 Culture playability", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    const show = page.getByTestId("culture-show-categories");
+    if (await show.isVisible().catch(() => false)) await show.click().catch(() => undefined);
+    const filterAll = page.getByTestId("culture-filter-all");
+    if (await filterAll.isVisible().catch(() => false)) await filterAll.click().catch(() => undefined);
     const card = page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]');
+    await card.scrollIntoViewIfNeeded();
     await expect(card.getByTestId("culture-save")).toBeVisible();
-    await card.click();
+    await card.locator("a").click();
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "visiting-home");
     await expect(page.getByTestId("culture-save")).toHaveCount(0);
@@ -155,11 +160,14 @@ test.describe("V4.9.8A.2 Live leagues", () => {
     await expect(page.getByTestId("league-demo-banner")).toHaveCount(0);
     await expect(page.getByText("Demonstração")).toHaveCount(0);
     await expect(page.getByTestId("league-live-banner")).toBeVisible();
-    await expect(page.getByText("Ana")).toBeVisible();
-    await expect(page.getByText("Matheus")).toBeVisible();
-    await expect(page.getByTestId("league-row")).toHaveCount(3);
-    await expect(page.getByTestId("league-xp").first()).toContainText(/XP|100|80|40/);
+    const rows = page.getByTestId("league-row");
+    await expect(rows).toHaveCount(3);
+    await expect(rows.nth(0)).toContainText("Ana");
+    await expect(rows.nth(0).getByTestId("league-xp")).toContainText("100");
+    await expect(rows.nth(1)).toContainText("Matheus");
+    await expect(rows.nth(1).getByTestId("league-xp")).toContainText("80");
     await expect(page.locator('[data-league-you="true"]')).toContainText(/Você|João/);
+    await expect(page.locator('[data-league-you="true"]').getByTestId("league-xp")).toContainText("40");
   });
 
   test("culture first completion feeds weekly XP once; replay does not", async ({ page }) => {

@@ -60,13 +60,15 @@ export function CultureCard({
   const status = cultureCardStatus(item.id, completedIds, savedIds, startedIds);
   const saved = savedIds.includes(item.id);
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      data-testid="culture-card"
+      data-culture-id={item.id}
+      data-culture-status={status}
+    >
       <Link
         to={to}
         className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-        data-testid="culture-card"
-        data-culture-id={item.id}
-        data-culture-status={status}
       >
         <Card variant="interactive" className="flex h-full min-h-[7.5rem] flex-col p-3 pb-12">
           <div className="flex items-start justify-between gap-2">

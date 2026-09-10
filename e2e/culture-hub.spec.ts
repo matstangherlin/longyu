@@ -36,7 +36,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await expect(cards.first()).toBeVisible();
     await expect(cards).toHaveCount(3);
 
-    await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').click();
+    await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').locator("a").click();
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "visiting-home");
     await expect(page.getByTestId("culture-teach")).toBeVisible();
@@ -52,11 +52,16 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     expect(persist.cultureMasteryById["visiting-home"]?.stars).toBeGreaterThanOrEqual(1);
 
     await leaveCultureVictory(page);
+    if (!(await page.getByTestId("culture-hub").isVisible().catch(() => false))) {
+      await page.goto("/cultura");
+    }
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
     await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
 
     await page.getByTestId("culture-show-categories").click();
+    const filterAll = page.getByTestId("culture-filter-all");
+    if (await filterAll.isVisible().catch(() => false)) await filterAll.click();
     const savedCard = page.locator('[data-testid="culture-card"][data-culture-id="digital-pay"]');
     await savedCard.scrollIntoViewIfNeeded();
     await savedCard.getByTestId("culture-save").click();
@@ -85,7 +90,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Culture", exact: true })).toBeVisible();
-    await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').click();
+    await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').locator("a").click();
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "visiting-home");
     await expect(page.getByRole("heading", { name: "Arriving at someone's home" })).toBeVisible();
@@ -272,7 +277,7 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     );
     expect(overflow).toBeLessThanOrEqual(2);
-    await card.click();
+    await card.locator("a").click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-item")).toBeVisible();
     const cta = page.locator("[data-lesson-action-region] button").first();

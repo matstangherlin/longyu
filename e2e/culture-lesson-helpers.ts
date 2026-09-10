@@ -154,6 +154,32 @@ export async function leaveCultureVictory(page: Page) {
   }
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function assembleSentenceBuild(page: Page) {
+  const builder = page.locator("[data-sentence-build]").first();
+  if (!(await builder.isVisible().catch(() => false))) return false;
+  const raw = (await builder.getAttribute("data-target-parts")) ?? "";
+  const parts = raw.split("\u001f").filter(Boolean);
+  if (parts.length === 0) return false;
+  for (const part of parts) {
+    const buttons = page.getByRole("button", {
+      name: new RegExp(`^(Peça|Piece) \\d+: ${escapeRegExp(part)}$`),
+    });
+    const count = await buttons.count();
+    for (let i = 0; i < count; i += 1) {
+      const btn = buttons.nth(i);
+      if (await btn.isVisible().catch(() => false) && !(await btn.isDisabled().catch(() => true))) {
+        await btn.click().catch(() => undefined);
+        break;
+      }
+    }
+  }
+  return true;
+}
+
 export async function playCultureReviewToDone(page: Page) {
   const done = page.getByTestId("culture-review-done");
   for (let i = 0; i < 40; i += 1) {
@@ -188,9 +214,7 @@ export async function playCultureReviewToDone(page: Page) {
       continue;
     }
 
-    const piece = page.getByRole("button", { name: /^(Peça|Piece) / }).first();
-    if (await piece.isVisible().catch(() => false) && !(await piece.isDisabled().catch(() => true))) {
-      await piece.click().catch(() => undefined);
+    if (await assembleSentenceBuild(page)) {
       const check = page.getByRole("button", { name: /^(Verificar|Check)$/ }).first();
       if (await check.isVisible().catch(() => false) && !(await check.isDisabled().catch(() => true))) {
         await check.click().catch(() => undefined);
