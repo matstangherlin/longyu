@@ -2,21 +2,12 @@ import { expect, test, type Page } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
 import {
   dismissBlockingOverlays,
-  seedOnboardedSession,
   seedUnlockedLessonSession,
+  seedMissionsSession,
   waitForLazyPage,
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
-
-const SEQUENCE_ORDERS = [
-  ["notice", "decide", "act"],
-  ["notice", "decide", "thanks"],
-  ["off", "in", "move"],
-  ["wait-serve", "serve-others", "taste"],
-  ["ask", "scan", "confirm"],
-  ["shoes", "observe"],
-  ["open", "scan", "move"],
-];
+import { expectCultureLessonPlayer, playCultureLessonToVictory, readCulturePersist } from "./culture-lesson-helpers";
 
 type PersistSlice = {
   srs: Record<string, unknown>;
@@ -27,73 +18,14 @@ type PersistSlice = {
 };
 
 async function readPersist(page: Page): Promise<PersistSlice> {
-  return page.evaluate(() => {
-    const raw = localStorage.getItem("longyu-v1");
-    const parsed = raw
-      ? (JSON.parse(raw) as { state?: PersistSlice } & PersistSlice)
-      : ({ state: {} } as { state?: PersistSlice } & PersistSlice);
-    const state = parsed.state ?? parsed;
-    return {
-      srs: state.srs ?? {},
-      cultureCompletedIds: state.cultureCompletedIds ?? [],
-      cultureMasteryById: state.cultureMasteryById ?? {},
-      cultureMemoryById: state.cultureMemoryById ?? {},
-      cultureKnowledgeById: state.cultureKnowledgeById ?? {},
-    };
-  });
-}
-
-async function playCurrentStep(page: Page, wrongFirst = false) {
-  if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
-
-  const sequence = page.getByTestId("culture-sequence");
-  if (await sequence.isVisible().catch(() => false)) {
-    const buttons = sequence.locator("button");
-    const n = await buttons.count();
-    const ids: string[] = [];
-    for (let i = 0; i < n; i += 1) {
-      const testid = await buttons.nth(i).getAttribute("data-testid");
-      ids.push((testid ?? "").replace("culture-seq-", ""));
-    }
-    const order =
-      SEQUENCE_ORDERS.find((row) => row.length === ids.length && row.every((id) => ids.includes(id))) ?? ids;
-    for (const id of order) {
-      await page.getByTestId(`culture-seq-${id}`).click();
-    }
-  } else if (await page.getByTestId("culture-match").isVisible().catch(() => false)) {
-    const lefts = page.locator('[data-testid^="culture-match-left-"]');
-    const n = await lefts.count();
-    for (let i = 0; i < n; i += 1) {
-      const testid = await lefts.nth(i).getAttribute("data-testid");
-      const id = (testid ?? "").replace("culture-match-left-", "");
-      await page.getByTestId(`culture-match-left-${id}`).click();
-      await page.getByTestId(`culture-match-right-${id}`).click();
-    }
-  } else {
-    const options = page.locator('[data-testid^="culture-option-"]');
-    if ((await options.count()) > 0 && !(await page.getByTestId("culture-check-feedback").isVisible().catch(() => false))) {
-      if (wrongFirst) {
-        const optionA = page.getByTestId("culture-option-a");
-        if (await optionA.count()) await optionA.click();
-        else await options.first().click();
-      } else {
-        const optionB = page.getByTestId("culture-option-b");
-        if (await optionB.count()) await optionB.click();
-        else await options.first().click();
-      }
-    }
-  }
-  await page.getByTestId("culture-complete").click();
-}
-
-async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
-  await expect(page.getByTestId("culture-item")).toBeVisible();
-  for (let i = 0; i < 40; i += 1) {
-    if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
-    await playCurrentStep(page, wrongFirst && i === 0);
-    wrongFirst = false;
-  }
-  await expect(page.getByTestId("culture-victory")).toBeVisible();
+  const slice = await readCulturePersist(page);
+  return {
+    srs: slice.srs,
+    cultureCompletedIds: slice.cultureCompletedIds,
+    cultureMasteryById: slice.cultureMasteryById,
+    cultureMemoryById: slice.cultureMemoryById,
+    cultureKnowledgeById: slice.cultureKnowledgeById,
+  };
 }
 
 function mobilityMastery(lessonId: string, level: number) {
@@ -129,7 +61,7 @@ async function openMobilityPassPlayer(page: Page, lessonId: string, masteryLevel
 }
 
 test.describe("V4.9.8A city mobility", () => {
-  test("p6-cidade-lugares opens the metro-qr mission", async ({ page }) => {
+  test("p6-cidade-lugares opens the metro-qr lesson", async ({ page }) => {
     await seedUnlockedLessonSession(page, "p6-cidade-lugares");
     await page.goto("/licao/p6-cidade-lugares");
     await waitForLazyPage(page);
@@ -137,8 +69,7 @@ test.describe("V4.9.8A city mobility", () => {
     await expect(page.getByTestId("culture-touchpoint")).toHaveAttribute("data-culture-id", "metro-qr");
     await page.getByTestId("culture-touchpoint-open").click();
     await waitForLazyPage(page);
-    await expect(page).toHaveURL(/\/cultura\/metro-qr/);
-    await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "metro-qr");
+    await expectCultureLessonPlayer(page, "metro-qr");
   });
 
   test("p7 station lesson page keeps metro-qr without a second card gap", async ({ page }) => {
@@ -150,41 +81,16 @@ test.describe("V4.9.8A city mobility", () => {
     await expect(page.getByTestId("culture-touchpoint")).toHaveAttribute("data-culture-id", "metro-qr");
   });
 
-  test("p6-cidade Journey bridge teaches metro-qr without 3★ or lexical SRS", async ({ page }) => {
+  test("p6-cidade player does not inject a metro-qr bridge", async ({ page }) => {
     test.setTimeout(120_000);
     await openMobilityPassPlayer(page, "p6-cidade-lugares");
-    const reached = await advanceUntilSelector(page, '[data-testid="culture-bridge"]', 40, 90_000);
-    expect(reached).toBeTruthy();
-    const bridge = page.getByTestId("culture-bridge");
-    await expect(bridge).toHaveAttribute("data-item-id", "metro-qr");
-    await expect(page.getByTestId("culture-bridge-teach")).toBeVisible();
-    await expect(page.getByTestId("culture-bridge-options")).toHaveCount(0);
-
     const before = await readPersist(page);
-
-    await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-bridge-sequence")).toBeVisible();
-    await expect(page.getByTestId("culture-bridge-options")).toHaveCount(0);
-    for (const id of ["open", "scan", "move"]) {
-      await page.getByTestId(`culture-bridge-seq-${id}`).click();
-    }
-    await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-bridge-feedback")).toBeVisible();
-    await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-plus-one")).toBeVisible();
-    await expect(page.getByTestId("culture-stars")).toHaveCount(0);
-
-    await expect
-      .poll(async () => (await readPersist(page)).cultureKnowledgeById["metro-qr-core"]?.state, {
-        timeout: 8_000,
-      })
-      .toBe("practiced");
+    const reached = await advanceUntilSelector(page, '[data-testid="culture-bridge"]', 12, 25_000);
+    expect(reached).toBeFalsy();
+    await expect(page.getByTestId("culture-bridge")).toHaveCount(0);
     const after = await readPersist(page);
-    expect(after.cultureCompletedIds).not.toContain("metro-qr");
-    expect(after.cultureMasteryById["metro-qr"]).toBeUndefined();
-    expect(after.cultureMemoryById["metro-qr-core"]).toBeUndefined();
     expect(Object.keys(after.srs)).toEqual(Object.keys(before.srs));
-    expect(after.cultureKnowledgeById["metro-qr-core"]?.source).toBe("journey");
+    expect(after.cultureCompletedIds).not.toContain("metro-qr");
   });
 
   test("p6-direcoes player reaches a map", async ({ page }) => {
@@ -215,28 +121,28 @@ test.describe("V4.9.8A city mobility", () => {
     await expect(page.getByText(/去哪里？|Pegar um táxi/i).first()).toBeVisible();
   });
 
-  test("metro-qr mission teaches before the task and awards stars", async ({ page }) => {
+  test("metro-qr lesson teaches before the task and awards stars without lexical SRS", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedOnboardedSession(page, ["l1"]);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
     await page.goto("/cultura/metro-qr");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "metro-qr");
-    await playCurrentStep(page);
+    await expectCultureLessonPlayer(page, "metro-qr");
     await expect(page.getByTestId("culture-teach")).toBeVisible();
-    await expect(page.getByTestId("culture-options")).toHaveCount(0);
-    await playMissionToVictory(page);
+    const before = await readPersist(page);
+    await playCultureLessonToVictory(page);
     await expect(page.getByTestId("culture-stars")).toBeVisible();
     const persist = await readPersist(page);
     expect(persist.cultureCompletedIds).toContain("metro-qr");
     expect(persist.cultureMasteryById["metro-qr"]?.stars).toBeGreaterThanOrEqual(1);
+    expect(Object.keys(persist.srs)).toEqual(Object.keys(before.srs));
   });
 });
 
 test.describe("V4.9.8A city mobility 390×844", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("station lesson and metro-qr mission fit the phone viewport", async ({ page }) => {
+  test("station lesson and metro-qr lesson fit the phone viewport", async ({ page }) => {
     test.setTimeout(90_000);
     await seedUnlockedLessonSession(page, "p7-imersao-estacao");
     await page.goto("/licao/p7-imersao-estacao");
@@ -248,7 +154,7 @@ test.describe("V4.9.8A city mobility 390×844", () => {
     await page.goto("/cultura/metro-qr");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "metro-qr");
+    await expectCultureLessonPlayer(page, "metro-qr");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= 392)).toBe(true);
   });
 });
