@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 465390e64799 |
-| HEAD no instante da geração | 2417cd6ce4bec58d16e677a61fb4d18033bf187a |
+| Hash da Jornada | 003cb0ed7858 |
+| HEAD no instante da geração | 059af6c1834cd9040d38c4b22fda29ef1401a706 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T18:56:41.477Z |
+| Gerado em | 2026-09-10T22:25:24.996Z |
 | Lições | 131 |
 
 ## Resumo
@@ -26,11 +26,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Objetivos de produção aberta declarados | 13 |
 | Objetivos de produção aberta no plano real | 10 |
 | Lições com produção aberta | 48 / 131 |
-| Falas de conversa sem apoio (aluno veterano) | 203 |
+| Falas de conversa sem apoio (aluno veterano) | 201 |
 | Lições com conversa sem apoio | 98 / 131 |
 | Lições com quebra de comunicação jogável | 84 / 131 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 583 |
+| Passos auditados no plano real (3 tentativas) | 581 |
 | Lições com produção livre | 82 / 131 |
 | Lições com transferência | 21 / 131 |
 | Lições com reparo conversacional | 58 / 131 |
@@ -96,4 +96,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 请问医院在哪里
 - 车站在哪里
 
-<!-- integridade:11246d693ea03bee -->
+<!-- integridade:abdb22da08f660c8 -->

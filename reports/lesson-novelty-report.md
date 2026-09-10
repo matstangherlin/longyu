@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 367463432216 |
-| HEAD no instante da geração | 62871c6652c0979dcdba05b524044c97f7714fa6 |
+| Hash da Jornada | 003cb0ed7858 |
+| HEAD no instante da geração | 059af6c1834cd9040d38c4b22fda29ef1401a706 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T20:46:37.892Z |
+| Gerado em | 2026-09-10T22:23:40.755Z |
 | Lições | 131 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 131 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 996 |
-| Pares com transformação cognitiva | 796 (80%) |
+| Pares de repetição semântica | 995 |
+| Pares com transformação cognitiva | 795 (80%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -160,7 +160,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p7-imersao-mercado | 31 | 30 | 62 | 22 | 17 | 17 | action:produce-unaided × 5 |
 | p7-imersao-estacao | 34 | 32 | 74 | 13 | 10 | 14 | action:assemble-phrase × 3 |
 | p7-imersao-hotel | 26 | 25 | 51 | 10 | 8 | 14 | intent:identify-concept × 4 |
-| p7-imersao-aeroporto | 23 | 22 | 46 | 11 | 9 | 14 | action:produce-unaided × 3 |
+| p7-imersao-aeroporto | 22 | 21 | 43 | 10 | 8 | 13 | action:produce-unaided × 3 |
 | p7-imersao-viagem | 24 | 22 | 46 | 13 | 9 | 14 | action:produce-unaided × 4 |
 | p7-imersao-casa-amigo | 28 | 27 | 56 | 23 | 19 | 16 | action:repair-conversation × 3 |
 
@@ -168,4 +168,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:6a109fa4c15957b4 -->
+<!-- integridade:2ee5d8152832a922 -->

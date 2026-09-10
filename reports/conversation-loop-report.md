@@ -6,28 +6,28 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 465390e64799 |
-| HEAD no instante da geração | 2417cd6ce4bec58d16e677a61fb4d18033bf187a |
+| Hash da Jornada | 003cb0ed7858 |
+| HEAD no instante da geração | 059af6c1834cd9040d38c4b22fda29ef1401a706 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T18:53:51.896Z |
+| Gerado em | 2026-09-10T22:22:35.669Z |
 | Lições | 131 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Conversas analisadas (nos planos reais) | 136 |
-| Itens de vocabulário exibidos | 989 |
-| Itens cobertos por tarefa posterior | 761 |
-| Cobertura bruta | 76.9 % |
-| **Itens de prioridade** (novo · resposta · pouco exposto) | 554 |
-| **Cobertura relevante** (portão ≥ 76 %) | **80.5 %** |
-| Itens do núcleo saturado (≥ 40 exposições no curso) | 31 refs |
-| Reutilização média por item | 1.96 |
+| Conversas analisadas (nos planos reais) | 135 |
+| Itens de vocabulário exibidos | 983 |
+| Itens cobertos por tarefa posterior | 755 |
+| Cobertura bruta | 76.8 % |
+| **Itens de prioridade** (novo · resposta · pouco exposto) | 553 |
+| **Cobertura relevante** (portão ≥ 76 %) | **80.3 %** |
+| Itens do núcleo saturado (≥ 40 exposições no curso) | 29 refs |
+| Reutilização média por item | 1.95 |
 | Itens sem cobertura | 228 |
-| Tarefas da fase Pós-Conversa | 563 |
-| Média Pós-Conversa por conversa | 4.14 |
+| Tarefas da fase Pós-Conversa | 560 |
+| Média Pós-Conversa por conversa | 4.15 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, conversation_repair, dialogue_choice, dictation, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build, write |
 | l2 @ M1 tarefas pós-conversa | 2 |
 
@@ -38,37 +38,35 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Núcleo saturado (fora do denominador)
 
-- char:hao — 497 exposições ao longo dos 131 planos
+- char:hao — 495 exposições ao longo dos 131 planos
 - chunk:nihao — 355 exposições ao longo dos 131 planos
 - char:bu — 261 exposições ao longo dos 131 planos
 - char:shi — 231 exposições ao longo dos 131 planos
-- char:ma_question — 216 exposições ao longo dos 131 planos
+- char:ma_question — 217 exposições ao longo dos 131 planos
 - char:yi — 212 exposições ao longo dos 131 planos
 - chunk:nijiaoshenme — 208 exposições ao longo dos 131 planos
 - chunk:wohenhao — 167 exposições ao longo dos 131 planos
 - chunk:qingzaishuoyibian — 134 exposições ao longo dos 131 planos
-- char:zai — 113 exposições ao longo dos 131 planos
-- chunk:xiexie — 110 exposições ao longo dos 131 planos
+- char:zai — 114 exposições ao longo dos 131 planos
+- chunk:xiexie — 109 exposições ao longo dos 131 planos
 - chunk:wojiao — 95 exposições ao longo dos 131 planos
 - char:na_that — 94 exposições ao longo dos 131 planos
 - chunk:nihaoma — 91 exposições ao longo dos 131 planos
 - char:ri — 91 exposições ao longo dos 131 planos
 - chunk:zaijian — 88 exposições ao longo dos 131 planos
-- char:yao — 70 exposições ao longo dos 131 planos
+- char:yao — 72 exposições ao longo dos 131 planos
 - chunk:bukeqi — 69 exposições ao longo dos 131 planos
-- char:shui — 69 exposições ao longo dos 131 planos
+- char:shui — 68 exposições ao longo dos 131 planos
 - char:dian_point — 54 exposições ao longo dos 131 planos
 - char:shan — 50 exposições ao longo dos 131 planos
 - chunk:nashirenm — 49 exposições ao longo dos 131 planos
 - char:san — 49 exposições ao longo dos 131 planos
+- char:li_inside — 46 exposições ao longo dos 131 planos
 - chunk:zheshishenme — 45 exposições ao longo dos 131 planos
-- char:er — 45 exposições ao longo dos 131 planos
-- char:li_inside — 45 exposições ao longo dos 131 planos
 - chunk:wohuishuoyidian — 44 exposições ao longo dos 131 planos
-- char:ba8 — 44 exposições ao longo dos 131 planos
+- char:cha_tea — 44 exposições ao longo dos 131 planos
 - chunk:pengyou — 44 exposições ao longo dos 131 planos
-- char:cha_tea — 43 exposições ao longo dos 131 planos
-- char:you — 41 exposições ao longo dos 131 planos
+- char:er — 41 exposições ao longo dos 131 planos
 
 ## Itens de prioridade sem cobertura
 
@@ -114,7 +112,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p5-kou-ma-pergunta:chunk:zheshishui (14 exposições no curso)
 - l19-logica-ma:chunk:zheshishui (14 exposições no curso)
 - l8-rev:char:liu (15 exposições no curso)
-- l8-rev:char:shi10 (37 exposições no curso)
+- l8-rev:char:shi10 (34 exposições no curso)
 - l8-rev:char:si (18 exposições no curso)
 - l22:chunk:nishinaiguoren (21 exposições no curso)
 - l23:chunk:nishinaiguoren (21 exposições no curso)
@@ -127,12 +125,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - l24:chunk:woyeshi (7 exposições no curso)
 - l25:chunk:qingwen (33 exposições no curso)
 - l26:chunk:zheshishui (14 exposições no curso)
-- l26b:chunk:caidan (3 exposições no curso)
+- l26b:chunk:caidan (5 exposições no curso)
 - l26b:chunk:qingwenjiwei (5 exposições no curso)
 - l26b:chunk:qingzuo (6 exposições no curso)
-- l26b:chunk:woyaocai (2 exposições no curso)
 - l26b:chunk:woyaocaidan (2 exposições no curso)
-- …mais 48.
+- l26b:chunk:woyaomifan (6 exposições no curso)
+- …mais 49.
 
 ## Itens sem cobertura (bruto)
 
@@ -218,4 +216,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p5-ren-ren-cong:char:shan
 - …mais 148.
 
-<!-- integridade:4c6dde3b56c780da -->
+<!-- integridade:37c146dc6dc5338c -->

@@ -164,6 +164,8 @@ Novos (nesta remessa):
 
 Preservados (#249 e anteriores): china-survival hotel / airport / travel / mobility / shopping / restaurant; conversation-coherence / decisions / scenes / pedagogy / loop / vocabulary-srs; hanzi-memory-integration; tone-*; teach-before-test (+ journey); exercise-affordance; listening-affordance; modality-contract; production-transfer; transfer-integrity; exercise-depth --beta; lesson-novelty; cognitive-budget; culture-native-lessons / playability / story-audio / rewards; live-league; i18n / journey-en; sync-merge; backend-contract; validate:beta; npm run build.
 
+`validate:report-freshness` passou com Jornada `003cb0ed7858`. A cauda `test:v478-hosted-gate` → `validate:seo` fechou com EXIT:0 após o fingerprint.
+
 ## Mutations
 
 | # | Mutação | Código | Resultado |
