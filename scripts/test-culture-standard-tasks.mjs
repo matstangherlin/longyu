@@ -32,9 +32,13 @@ mutation("1 Hub opens MissionPlayer", (data) => {
   data.cultureItemPageSource = 'export { CultureMissionPlayer as CultureItemPage } from "./CultureMissionPlayer";\n';
 }, "HUB_MISSION_PLAYER");
 
-mutation("15 custom option buttons", (data) => {
-  data.lessonPlayerSource = `${data.lessonPlayerSource}\n<button data-testid="culture-option-a">A</button>\n`;
-}, "CUSTOM_OPTIONS");
+mutation("16 save for later in player", (data) => {
+  data.lessonPlayerSource = `${data.lessonPlayerSource}\n<button data-testid="culture-save">Salvar para depois</button>\n`;
+}, "SAVE_IN_PLAYER");
+
+mutation("17 fake review sequence overlay", (data) => {
+  data.cultureReviewSource = `${data.cultureReviewSource}\n<button data-testid="culture-seq-open">x</button>\n`;
+}, "FAKE_SEQUENCE");
 
 mutation("8 replay perfect XP", (data) => {
   data.storeSource = data.storeSource.replace(/grantXp: false/g, "grantXp: true");
@@ -45,10 +49,6 @@ mutation("10 lexical SRS leak", (data) => {
 }, "SRS_LEAK");
 
 mutation("11 migration wipes mastery", (data) => {
-  data.storeSource = data.storeSource.replace(
-    /migrateNativeCultureProgress/g,
-    "migrateNativeCultureProgress"
-  );
   data.storeSource += "\nconst wiped = migrateNativeCultureProgress(state); cultureMasteryById: {}\n";
 }, "MIGRATION_WIPES_MASTERY");
 

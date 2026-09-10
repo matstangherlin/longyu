@@ -54,7 +54,7 @@ export function loadCultureRuntime() {
   const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS } = require("../../src/data/cultureQuest.ts");
   const { CULTURE_JOURNEY_BRIDGES } = require("../../src/data/cultureJourneyBridges.ts");
   const { CULTURE_NATIVE_LESSONS, CULTURE_NATIVE_GLOSS_EN } = require("../../src/data/cultureLessons.ts");
-  const { CULTURE_JOURNEY_PLACEMENT, migrateNativeCultureProgress } = require("../../src/data/cultureNative.ts");
+  const { CULTURE_JOURNEY_PLACEMENT, migrateNativeCultureProgress, CULTURE_STORY_FLAGSHIP_IDS } = require("../../src/data/cultureNative.ts");
   const { JOURNEY_NODES, routeForJourneyNode } = require("../../src/data/journeyOrchestrator.ts");
   const { isTopicMasteryLesson } = require("../../src/data/topicMastery.ts");
   const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
@@ -63,6 +63,14 @@ export function loadCultureRuntime() {
   const cultureItemPageSource = fs.readFileSync("src/features/culture/CultureItemPage.tsx", "utf8");
   const cultureHubSource = fs.readFileSync("src/features/culture/CultureHubPage.tsx", "utf8");
   const cultureReviewSource = fs.readFileSync("src/features/culture/CultureReviewPage.tsx", "utf8");
+  const cultureMissionPlayerSource = fs.readFileSync("src/features/culture/CultureMissionPlayer.tsx", "utf8");
+  const routesSource = fs.readFileSync("src/routes.tsx", "utf8");
+  const leagueHookSource = fs.readFileSync("src/hooks/useLeagueData.ts", "utf8");
+  const ligasPageSource = fs.readFileSync("src/features/ligas/LigasPage.tsx", "utf8");
+  const leagueServiceSource = fs.readFileSync("src/services/leagueService.ts", "utf8");
+  const leagueLiveViewSource = fs.readFileSync("src/lib/leagueLiveView.ts", "utf8");
+  const stepsSource = fs.readFileSync("src/features/lesson/steps.tsx", "utf8");
+  const leagueSqlSource = fs.readFileSync("supabase/migrations/004_leagues.sql", "utf8");
   const journeyInlineSource = fs.readFileSync("src/features/journey/JourneyInlineNode.tsx", "utf8");
   const { INSTRUCTION_GLOSS_EN, hasEnglishOverlay } = require("../../src/i18n/overlays/instructionGloss.ts");
   return {
@@ -95,6 +103,15 @@ export function loadCultureRuntime() {
     cultureItemPageSource,
     cultureHubSource,
     cultureReviewSource,
+    cultureMissionPlayerSource,
+    routesSource,
+    leagueHookSource,
+    ligasPageSource,
+    leagueServiceSource,
+    leagueLiveViewSource,
+    stepsSource,
+    leagueSqlSource,
+    storyFlagshipIds: CULTURE_STORY_FLAGSHIP_IDS,
     journeyInlineSource,
     gloss: INSTRUCTION_GLOSS_EN,
     hasEnglishOverlay,

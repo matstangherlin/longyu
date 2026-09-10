@@ -160,8 +160,15 @@ export function validateCultureStandardTasks(data) {
   if (itemPage && !/Navigate/.test(itemPage)) {
     fail("HUB_MISSION_PLAYER", "CultureItemPage", "published items must redirect to LessonPlayer");
   }
-  if (player && /culture-option-/.test(player)) {
-    fail("CUSTOM_OPTIONS", "LessonPlayer", "culture lessons must not use custom culture-option buttons");
+  if (player && /data-testid="culture-save"/.test(player)) {
+    fail("SAVE_IN_PLAYER", "LessonPlayer", "Salvar para depois must not appear inside LessonPlayer");
+  }
+  if (review && /culture-seq-/.test(review)) {
+    fail("FAKE_SEQUENCE", "CultureReviewPage", "culture review must not use a fake sequence overlay");
+  }
+  const routes = data.routesSource ?? "";
+  if (routes && /CultureMissionPlayer/.test(routes)) {
+    fail("HUB_MISSION_PLAYER", "routes", "public routes must not mount CultureMissionPlayer");
   }
   if (player && !/data-lesson-domain/.test(player)) {
     fail("STANDARD_PLAYER", "LessonPlayer", "culture player must declare lesson domain");

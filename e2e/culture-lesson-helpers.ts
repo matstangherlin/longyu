@@ -188,16 +188,13 @@ export async function playCultureReviewToDone(page: Page) {
       continue;
     }
 
-    const seq = page.locator('[data-testid^="culture-seq-"]');
-    if ((await seq.count()) > 0) {
-      while ((await seq.count()) > 0) {
-        const next = seq.first();
-        if (!(await next.isVisible().catch(() => false))) break;
-        await next.click().catch(() => undefined);
-        await page.waitForTimeout(80);
+    const piece = page.getByRole("button", { name: /^(Peça|Piece) / }).first();
+    if (await piece.isVisible().catch(() => false) && !(await piece.isDisabled().catch(() => true))) {
+      await piece.click().catch(() => undefined);
+      const check = page.getByRole("button", { name: /^(Verificar|Check)$/ }).first();
+      if (await check.isVisible().catch(() => false) && !(await check.isDisabled().catch(() => true))) {
+        await check.click().catch(() => undefined);
       }
-      const complete = page.getByTestId("culture-complete");
-      if (await complete.isVisible().catch(() => false)) await complete.click().catch(() => undefined);
       await page.waitForTimeout(180);
       continue;
     }

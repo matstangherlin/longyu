@@ -56,11 +56,11 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await expect(page.getByTestId("culture-hub")).toBeVisible();
     await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
 
-    await page.getByTestId("culture-node-digital-pay").click();
-    await waitForLazyPage(page);
-    await expectCultureLessonPlayer(page, "digital-pay");
-    await page.getByTestId("culture-save").click();
-    await expect(page.getByTestId("culture-save")).toContainText(/Salvo|Saved/i);
+    await page.getByTestId("culture-show-categories").click();
+    const savedCard = page.locator('[data-testid="culture-card"][data-culture-id="digital-pay"]');
+    await savedCard.scrollIntoViewIfNeeded();
+    await savedCard.getByTestId("culture-save").click();
+    await expect(savedCard.getByTestId("culture-save")).toContainText(/Salvo|Saved/i);
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
