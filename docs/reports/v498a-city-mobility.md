@@ -10,7 +10,7 @@ Experiência de deslocamento, não um Google Maps. O aluno cumpre a missão: **p
 | SHA de merge da #245 | _ainda não existe — #245 está MERGEABLE mas BLOCKED pela branch protection (sem `--admin`)_ |
 | Branch | `cursor/v498a-city-mobility-6ae2` (empilhada em `cursor/v497b-shopping-6ae2` até o merge da #245) |
 | Fingerprint da Jornada (#245) | `e8007959fb1f` |
-| Fingerprint da Jornada (esta remessa) | `2429015e724c` |
+| Fingerprint da Jornada (esta remessa) | `8581677e21b7` |
 | Atlas #245 | 438 itens / 355 taught (81,1%) |
 | Atlas esta remessa | 439 itens / 358 taught (81,5%) |
 
@@ -18,7 +18,7 @@ Não se perseguiu percentual. O item novo no Atlas é `chunk:qunali` (去哪里�
 
 O corpus exige hànzì sem ficha em `CHARACTERS` listados em `newHanzi` da lição que os mostra. Por isso 地/铁 entram no allowlist de `p6-cidade-lugares` e `p6-direcoes`, e 直/转/入/出/停/北/京/怎 voltam no allowlist da missão — reúso, não ensino novo. `char:zuo_left` / `char:you_right` entram em `libraryItems` de `p6-direcoes` para o recognize CORE.
 
-O mastery loop gerava 8 passos e trocava `pegar-taxi` por conversa de loja. `mobilitySurvivalPlanFor` reparte o autoral: M1 vê, M2 ouve, M3 segue/produz com apoio, M4 conversa e produz sem alternativas. Os cortes obedecem `validate:topic-mastery-depth` (M4 ≥3 com transferência/produção; M3 ≤16; passes adjacentes não são cópia).
+O mastery loop gerava 8 passos e trocava `pegar-taxi` por conversa de loja. `mobilitySurvivalPlanFor` reparte o autoral: M1 vê, M2 ouve, M3 segue/produz com apoio, M4 conversa e produz sem alternativas. Os cortes obedecem `validate:topic-mastery-depth` e `test:mastery-coverage` (`isProductionOrTransferKind` não conta `sentence_build`/`dialogue_choice`). `p6-cidade-lugares` M3/M4 voltam ao planner gerado (a lição não tem mapa/cena/produção livre). `p6-direcoes` M2 fica em 14 passos; `p6-china-ruas` M3 leva `address_build`/`city_context` e M4 abre com `pegar-taxi`; `p7-imersao-estacao` M3 inclui a produção de `地铁站在哪里？`.
 
 Preservado integralmente:
 
@@ -131,7 +131,7 @@ Microtouch em `p6-direcoes`: ouvir contorno → explicar 3º (baixo/curva) vs 4�
 
 | | |
 |--|--|
-| Fingerprint | `2429015e724c` |
+| Fingerprint | `8581677e21b7` |
 | Contratos | `docs/backend/v478-backend-rc.json`, `v489-backend-rc.json` regenerados |
 
 `CURRICULUM_SOURCES` passa a incluir `chinaSurvivalMobility.ts`, `mobilitySurvivalScenes.ts` e `mobilitySurvivalPlans.ts`.

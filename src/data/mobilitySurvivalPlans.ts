@@ -20,21 +20,21 @@ const PASS_INDEXES: Record<(typeof MOBILITY_SURVIVAL_TOPIC_IDS)[number], Record<
   },
   "p6-direcoes": {
     1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 21, 22],
-    2: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25, 26],
+    2: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25],
     3: [27, 28, 29, 30, 31, 32],
     4: [33, 34, 35, 36],
   },
   "p6-china-ruas": {
     1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    2: [11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 26],
-    3: [17, 18, 23, 24, 25],
-    4: [29, 27, 28],
+    2: [11, 12, 13, 19, 20, 21, 22, 26],
+    3: [14, 15, 16, 17, 18, 23, 24, 25],
+    4: [29, 27, 28, 26],
   },
   "p7-imersao-estacao": {
     1: [0, 1, 2, 3, 4, 5, 6, 7],
     2: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-    3: [23, 24, 25, 26, 27, 28, 29, 30, 31, 38, 39],
-    4: [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+    3: [23, 24, 25, 26, 27, 28, 29, 30, 31, 38, 43],
+    4: [40, 41, 42, 44, 45, 46, 47, 48, 49],
   },
 };
 
@@ -45,6 +45,9 @@ export function mobilitySurvivalPlanFor(
 ): LessonStep[] | null {
   if (!(MOBILITY_SURVIVAL_TOPIC_IDS as readonly string[]).includes(lesson.id)) return null;
   if (aggregate) return lesson.steps;
+  // Cidade M3/M4 keep the generated production/transfer kinds; authored
+  // slices of this lesson have no map/scene/free_production steps.
+  if (lesson.id === "p6-cidade-lugares" && pass >= 3) return null;
   const indexes = PASS_INDEXES[lesson.id as (typeof MOBILITY_SURVIVAL_TOPIC_IDS)[number]]?.[pass];
   return indexes ? slice(lesson.steps, indexes) : null;
 }
