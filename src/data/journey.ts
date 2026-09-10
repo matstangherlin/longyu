@@ -6208,7 +6208,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             masteryLoop: true,
             // Chars de lugares que só têm gloss (supermercado/banco/hospital/parque).
-            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场", "机", "出", "租", "车"],
+            newHanzi: ["超", "市", "银", "行", "医", "院", "公", "园", "酒", "场", "机", "出", "租", "车", "地", "铁"],
             libraryItems: [
               "chunk:chaoshizainali",
               "chunk:yinhangzainali",
@@ -7355,8 +7355,10 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             hanziMemoryTargets: ["左", "右"],
             // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路 + mapa (转/怎) e distractores.
-            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面", "转", "怎", "单"],
+            newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面", "转", "怎", "单", "地", "铁"],
             libraryItems: [
+              "char:zuo_left",
+              "char:you_right",
               "chunk:zuobian",
               "chunk:youbian",
               "chunk:qianmian",
@@ -8431,7 +8433,7 @@ export const JOURNEY: JourneyPhase[] = [
             curriculumRole: "immersion",
             hanziMemoryTargets: ["左", "右"],
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
-            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店", "交", "公", "单", "地", "辣", "铁"],
+            newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店", "交", "公", "单", "地", "辣", "铁", "直", "转", "入", "出", "停", "北", "京", "怎"],
             libraryItems: [
               "char:che",
               "char:piao_ticket",
