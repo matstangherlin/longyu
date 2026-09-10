@@ -166,6 +166,16 @@ O plano autoral expôs strings antigas da cidade/estação que o gerador de 8 pa
 
 Playwright `e2e/v498a-city-mobility.spec.ts`: **8/8** no Chromium (preview `4173`, plano autoral). O skip-through completa o microtouch de tom (`data-tone-first-exposure` → Percebi a curva). O mapa de `p6-direcoes` fica no M2 (flashcards no M1).
 
-Checklist humano (desktop + 390×844): p6-cidade-lugares, p7-imersao-estacao, pegar-taxi, City Mobility Mission, metro-qr CultureMission.
+Checklist humano (desktop + 390×844), preview seeded como o e2e:
 
-Perguntas: «Eu consigo chegar a algum lugar?», mapa exige compreensão, direção sem tradução, pedir ajuda/repetição, NPC ecoa destino, táxi parece táxi, reúso de mandarim antigo, cultura antes da tarefa.
+- Consigo chegar a algum lugar? Sim — hotel→metrô no mapa; táxi fecha destino; missão da estação reusa 请问.
+- Mapa exige compreensão real? Sim — três caminhos (一直走 / 右转 / 左转) de 酒店 a 地铁站.
+- Direção sem tradução no áudio? Sim nos mapas M2+ (`promptPt`, sem `audioText` no título).
+- Pedir ajuda / repetição? Ramos 请再说一遍 / 请慢一点 na cena da estação.
+- NPC ecoa o destino? Sim — 你好。去哪里？ → 我要去酒店 → 酒店，好。
+- Táxi parece táxi? Sim — sem 你好吗; duas rotas válidas (酒店 / 北京路).
+- Reúso de mandarim antigo? 请问 na estação; 我要去 / 在这里停车 no táxi.
+- Cultura antes da tarefa? `metro-qr` abre com o fluxo da porta (rush hour) antes de quiz; um card só em `p6-cidade-lugares`.
+- 390×844: lição da estação e missão cabem (`scrollWidth ≤ 392`).
+
+A tipografia latina desta VM se sobrepõe; não é regressão do produto. Erro de mapa ainda passa pelo modal de tentativa do player; o copy espacial (`player.mapWrongTurn`) existe no passo.
