@@ -142,7 +142,7 @@ Sentence builds:
 - Speaking permanece visível com peças (`FreeAnswerField micOnly` + `data-free-answer-mic`).
 - PT-BR: `Montar com peças`, `Digitar`, `Preciso de ajuda`, `Monte sua resposta`, `Vocabulário útil`.
 - EN: `Build with pieces`, `Type`, `I need help`, `Build your reply`, `Useful words`.
-- Overlays EN dos novos enunciados + 2 strings de l26b que o gate de journey-en cobrou.
+- Overlays EN dos novos enunciados + 2 strings de l26b que o gate de journey-en cobrou. O fill auditivo usa “Listen and fill…” (não “complete” + `hànzì`) para o overlay não ser classificado como vazamento de PT.
 - Touch target das peças ≥ 44px; layout 390×844 exercitado no e2e.
 
 ## Fingerprint / backend
