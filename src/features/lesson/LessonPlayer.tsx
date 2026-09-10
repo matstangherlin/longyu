@@ -4214,8 +4214,19 @@ export function LessonPlayer() {
             ))}
           </div>
           <h1 className="mt-1 text-balance font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {topicVictory ? `✓ ${topicVictory.heading}` : stars === 3 ? t("player.lessonComplete") : t("player.youAdvanced")}
+            {lesson.lessonDomain === "culture"
+              ? t("culture.lessonComplete")
+              : topicVictory
+                ? `✓ ${topicVictory.heading}`
+                : stars === 3
+                  ? t("player.lessonComplete")
+                  : t("player.youAdvanced")}
           </h1>
+          {lesson.lessonDomain === "culture" && stars === 3 ? (
+            <p className="mt-1 text-sm font-semibold text-accent" data-testid="culture-perfect">
+              {t("player.perfect")}
+            </p>
+          ) : null}
           {topicVictory ? (
             <div className="mx-auto mt-1 max-w-md" data-testid="topic-victory-copy">
               <p className="text-sm font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</p>
@@ -4274,11 +4285,13 @@ export function LessonPlayer() {
           )}
 
           {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
-          <div className="mt-3 flex flex-wrap items-stretch justify-center gap-1.5">
+          <div className="mt-3 flex flex-wrap items-stretch justify-center gap-1.5" data-testid={lesson.lessonDomain === "culture" ? "culture-score" : undefined}>
             <span data-testid={lesson.lessonDomain === "culture" ? "culture-xp" : undefined}>
               <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
             </span>
             <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
+            <MetricChip value={String(correct)} label={t("player.hits")} tone="good" />
+            <MetricChip value={String(Math.max(0, graded - correct))} label={t("player.errorsShort")} tone="neutral" />
             <MetricChip value={`${precision}%`} label={t("player.accuracy")} tone={precision >= 80 ? "good" : "neutral"} />
             {extraRewards.map((reward) => (
               <MetricChip
@@ -4603,27 +4616,14 @@ export function LessonPlayer() {
           >
             {t("common.back")}
           </button>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="min-h-10 rounded-full border border-line px-3 text-xs"
-              data-testid="culture-save"
-              onClick={() => lesson.cultureItemId && saveCultureItem(lesson.cultureItemId, true)}
-              disabled={Boolean(lesson.cultureItemId && (cultureSavedIds ?? []).includes(lesson.cultureItemId))}
-            >
-              {lesson.cultureItemId && (cultureSavedIds ?? []).includes(lesson.cultureItemId)
-                ? t("culture.saved")
-                : t("culture.saveForLater")}
-            </button>
-            <button
-              type="button"
-              className="min-h-10 rounded-full border border-line px-3 text-xs"
-              data-testid="culture-sources-open"
-              onClick={() => setCultureSourcesOpen((open) => !open)}
-            >
-              {t("culture.openSources")}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="min-h-10 rounded-full border border-line px-3 text-xs"
+            data-testid="culture-sources-open"
+            onClick={() => setCultureSourcesOpen((open) => !open)}
+          >
+            {t("culture.openSources")}
+          </button>
         </div>
       ) : null}
       {cultureTeachSkipped ? (

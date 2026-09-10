@@ -154,6 +154,32 @@ export async function leaveCultureVictory(page: Page) {
   }
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function assembleSentenceBuild(page: Page) {
+  const builder = page.locator("[data-sentence-build]").first();
+  if (!(await builder.isVisible().catch(() => false))) return false;
+  const raw = (await builder.getAttribute("data-target-parts")) ?? "";
+  const parts = raw.split("\u001f").filter(Boolean);
+  if (parts.length === 0) return false;
+  for (const part of parts) {
+    const buttons = page.getByRole("button", {
+      name: new RegExp(`^(Peça|Piece) \\d+: ${escapeRegExp(part)}$`),
+    });
+    const count = await buttons.count();
+    for (let i = 0; i < count; i += 1) {
+      const btn = buttons.nth(i);
+      if (await btn.isVisible().catch(() => false) && !(await btn.isDisabled().catch(() => true))) {
+        await btn.click().catch(() => undefined);
+        break;
+      }
+    }
+  }
+  return true;
+}
+
 export async function playCultureReviewToDone(page: Page) {
   const done = page.getByTestId("culture-review-done");
   for (let i = 0; i < 40; i += 1) {
@@ -188,16 +214,11 @@ export async function playCultureReviewToDone(page: Page) {
       continue;
     }
 
-    const seq = page.locator('[data-testid^="culture-seq-"]');
-    if ((await seq.count()) > 0) {
-      while ((await seq.count()) > 0) {
-        const next = seq.first();
-        if (!(await next.isVisible().catch(() => false))) break;
-        await next.click().catch(() => undefined);
-        await page.waitForTimeout(80);
+    if (await assembleSentenceBuild(page)) {
+      const check = page.getByRole("button", { name: /^(Verificar|Check)$/ }).first();
+      if (await check.isVisible().catch(() => false) && !(await check.isDisabled().catch(() => true))) {
+        await check.click().catch(() => undefined);
       }
-      const complete = page.getByTestId("culture-complete");
-      if (await complete.isVisible().catch(() => false)) await complete.click().catch(() => undefined);
       await page.waitForTimeout(180);
       continue;
     }

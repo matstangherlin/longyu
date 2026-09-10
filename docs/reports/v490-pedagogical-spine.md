@@ -16,7 +16,7 @@ Relatório computado pelo gate `npm run validate:teach-before-test`. A camada V4
 - first20ViolationsBefore: 8
 - first20ViolationsAfter: 0
 - lessonCapsules: 6
-- journeyIntegratedBoosters: 8
+- journeyIntegratedBoosters: 17
 - themeCount: 15
 - topicsWithoutTheme: 0
 - topicsWithBrokenPrerequisite: 0

@@ -25,7 +25,7 @@ de passo promete, e o que a tela oferece de fato.
 | recognize | construir/reconhecer forma | 93 | 0 | 0 | 3 | 0 | StepRecognize | — |
 | dictation | ouvir | 83 | 83 | 0 | 39 | 0 | StepDictation | — |
 | match_pairs | escolher | 78 | 0 | 0 | 0 | 0 | StepMatchPairs | — |
-| flashcard | escolher | 70 | 0 | 0 | 0 | 0 | StepFlashcard | — |
+| flashcard | escolher | 69 | 0 | 0 | 0 | 0 | StepFlashcard | — |
 | odd_one_out | escolher | 59 | 0 | 0 | 59 | 0 | StepOddOneOut | — |
 | dialogue_completion | escolher | 57 | 0 | 0 | 57 | 0 | StepDialogueChoice | — |
 | produce | produzir | 52 | 0 | 0 | 52 | 52 | StepProduce | — |

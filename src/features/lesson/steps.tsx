@@ -465,10 +465,27 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
 // ---------------------------------------------------------------------------
 
 function StepIntro({ step, onDone }: StepProps) {
+  const line = String(step.audioText ?? step.hanzi ?? "").trim();
+  const canSpeak = Boolean(line && isCjkText(line));
+  const speaker = String(step.speaker ?? "").trim();
   return (
-    <div>
-      <Eyebrow>{t("player.understand")}</Eyebrow>
+    <div data-testid={speaker || canSpeak ? "culture-story-beat" : undefined}>
+      <Eyebrow>{speaker || t("player.understand")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
+      {canSpeak ? (
+        <div className="mt-4" data-testid="culture-story-audio">
+          <MandarinText
+            hanzi={step.hanzi ?? line}
+            pinyin={step.pinyin}
+            meaning={step.pt}
+            audio
+            autoPlay
+            size="lg"
+            revealMeaning
+            showAudioStatus
+          />
+        </div>
+      ) : null}
       <p className="mt-3 text-ink-soft">{step.body}</p>
       <ContinueBtn onClick={() => onDone()} label="Entendi" />
     </div>
@@ -2552,7 +2569,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
   const helpDisabled = help.disabled || help.helpMode === "disabled";
   const isTranslationBuild = step.kind === "translation_build";
   const pieceJoiner = isTranslationBuild ? " " : "";
-  const targetParts = step.targetParts ?? [];
+  const targetParts = (step.targetParts?.length ? step.targetParts : step.target) ?? [];
   const acceptedPartSequences = useMemo(
     () => [targetParts, ...(step.acceptedTargetParts ?? [])].filter((parts) => parts.length > 0),
     [step.acceptedTargetParts, targetParts]
@@ -2693,7 +2710,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
   }
 
   return (
-    <div data-sentence-build>
+    <div data-sentence-build data-target-parts={targetParts.join("\u001f")}>
       <Eyebrow>{kindLabel}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {promptText && <p className="mt-2 text-sm leading-6 text-ink-soft">{promptText}</p>}
@@ -5052,6 +5069,7 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
     },
     [onMistake, personalizedStep.helpMode]
   );
+  const engineMistake = onMistake ? handleMistake : undefined;
 
   useEffect(() => {
     setProgressiveUnlocked(false);
@@ -5074,38 +5092,38 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
 
   const rendered = (() => {
     if (personalizedStep.pedagogyVariant === "audio_same_different") {
-      return <StepAudioSameDifferent step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      return <StepAudioSameDifferent step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
     }
     if (personalizedStep.pedagogyVariant === "dragon_dictation" && personalizedStep.kind === "write") {
-      return <StepDragonDictation step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      return <StepDragonDictation step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
     }
     switch (personalizedStep.kind) {
       case "intro": return <StepIntro step={personalizedStep} onDone={onDone} />;
       case "listen": return <StepListen step={personalizedStep} onDone={onDone} />;
-      case "tone": return <StepTone step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "comprehend": return <StepComprehend step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "produce": return <StepProduce step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "write": return <StepWrite step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "recognize": return <StepRecognize step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "tone": return <StepTone step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "comprehend": return <StepComprehend step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "produce": return <StepProduce step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "write": return <StepWrite step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "recognize": return <StepRecognize step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "decompose": return <StepDecompose step={personalizedStep} onDone={onDone} />;
       case "hanzi_evolution": return <StepHanziEvolution step={personalizedStep} onDone={onDone} />;
       case "flashcard": return <StepFlashcard step={personalizedStep} onDone={onDone} />;
       case "microread": return <StepMicroread step={personalizedStep} onDone={onDone} />;
-      case "match_pairs": return <StepMatchPairs step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "match_pairs": return <StepMatchPairs step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       // V4.9.5A.1 — audio_to_action é escuta: tem audioText e pede que o aluno
       // reconheça o que ouviu. Ia parar no renderer de diálogo, que nunca toca
       // áudio nenhum: a tarefa dizia "Ouça" e não havia o que ouvir, nem botão
       // de repetir. StepListenSelect é o renderer que cumpre a promessa.
       case "listen_select":
       case "audio_to_action":
-        return <StepListenSelect step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+        return <StepListenSelect step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "sentence_build":
         return (
           <StepSentenceBuild
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
@@ -5116,12 +5134,12 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
         );
-      case "fill_blank": return <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "fill_blank": return <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "dialogue_choice":
       case "contextual_choice":
       case "dialogue_completion":
@@ -5180,18 +5198,18 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
             }
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
           />
         );
       case "map_direction":
-        return <StepMapDirection step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+        return <StepMapDirection step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "sentence_transform":
         return (
           <StepSentenceBuild
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
@@ -5207,49 +5225,49 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
             }}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
         );
       case "substitution_drill":
         return step.options?.length
-          ? <StepDialogueChoice step={{ ...personalizedStep, kind: "dialogue_choice", correctAnswer: personalizedStep.blankAnswer, dialoguePrompt: personalizedStep.prompt ?? personalizedStep.sentenceBefore }} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />
-          : <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+          ? <StepDialogueChoice step={{ ...personalizedStep, kind: "dialogue_choice", correctAnswer: personalizedStep.blankAnswer, dialoguePrompt: personalizedStep.prompt ?? personalizedStep.sentenceBefore }} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />
+          : <StepFillBlank step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "reverse_recall":
         return (
           <StepFreeProduction
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             onUnrecognized={onUnrecognized}
             lessonId={lessonId}
           />
         );
-      case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "conversation_scene": return <ConversationSceneStep step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "hanzi_build":
         return (
           <StepHanziBuild
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
         );
-      case "tone_pair": return <StepTonePair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "image_choice": return <StepImageChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "compare_with_image": return <StepCompareWithImage step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
-      case "audio_discrimination": return <StepAudioDiscrimination step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "tone_pair": return <StepTonePair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "image_choice": return <StepImageChoice step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "compare_with_image": return <StepCompareWithImage step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
+      case "audio_discrimination": return <StepAudioDiscrimination step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       case "dictation":
         return (
           <StepDictation
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
@@ -5260,7 +5278,7 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
@@ -5271,14 +5289,14 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
             step={personalizedStep}
             onDone={onDone}
             onSkip={onSkip}
-            onMistake={handleMistake}
+            onMistake={engineMistake}
             lessonId={lessonId}
             attemptSeed={attemptSeed}
           />
         );
       case "free_production":
-      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} onUnrecognized={onUnrecognized} lessonId={lessonId} />;
-      case "conversation_repair": return <StepConversationRepair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={handleMistake} />;
+      case "transfer_task": return <StepFreeProduction step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} onUnrecognized={onUnrecognized} lessonId={lessonId} />;
+      case "conversation_repair": return <StepConversationRepair step={personalizedStep} onDone={onDone} onSkip={onSkip} onMistake={engineMistake} />;
       default: return null;
     }
   })();

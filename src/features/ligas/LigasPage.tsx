@@ -26,6 +26,7 @@ export function LigasPage() {
     loading,
     isLive,
     isDemo,
+    bannerKind,
     demoMessage,
     leagueTier,
     meta,
@@ -37,6 +38,7 @@ export function LigasPage() {
     allStandingsZero,
     isXpSyncing,
     lastSyncError,
+    lastUpdatedLabel,
     resetAt,
     lastWeek,
     proHistory,
@@ -99,32 +101,46 @@ export function LigasPage() {
 
       <EconomyExplainer isPro={isPro} context="ligas" />
 
-      {isDemo && (
-        <div className="rounded-xl border border-line/50 bg-surface-2/80 px-3 py-2 text-center text-[11px] leading-4 text-ink-soft">
-          <span className="font-semibold text-ink">
-            {demoMessage?.includes("login") || demoMessage?.includes("Demonstração")
-              ? "Demonstração"
-              : loading
-                ? "Sincronizando"
-                : "Liga indisponível"}
-          </span>
+      {bannerKind === "demo" && (
+        <div className="rounded-xl border border-line/50 bg-surface-2/80 px-3 py-2 text-center text-[11px] leading-4 text-ink-soft" data-testid="league-demo-banner">
+          <span className="font-semibold text-ink">Demonstração</span>
           {" · "}
           {demoMessage ?? "Alunos simulados. Não representam pessoas reais."}
-          {!loading && demoMessage && !demoMessage.includes("login") && !demoMessage.includes("Demonstração") && (
+        </div>
+      )}
+
+      {(bannerKind === "error" || bannerKind === "syncing") && (
+        <div className="rounded-xl border border-wrong/25 bg-wrong-soft/40 px-3 py-2 text-center text-[11px] leading-4 text-ink" data-testid="league-error-banner">
+          <span className="font-semibold">{bannerKind === "syncing" ? "Sincronizando" : "Não foi possível carregar a liga."}</span>
+          {" · "}
+          {demoMessage ?? "Tente novamente."}
+          {bannerKind === "error" && (
             <button
               type="button"
               className="mt-1 block w-full font-semibold text-accent hover:underline"
+              data-testid="league-retry"
               onClick={() => void refreshLive()}
             >
-              Tentar de novo
+              Tentar novamente
             </button>
           )}
         </div>
       )}
 
+      {bannerKind === "cached" && (
+        <div className="rounded-xl border border-accent/25 bg-accent-soft/30 px-3 py-2 text-center text-[11px] text-ink-soft" data-testid="league-cached-banner">
+          Mostrando a última liga carregada
+          {lastUpdatedLabel ? ` · Última atualização: ${lastUpdatedLabel}` : ""}.
+          <button type="button" className="ml-1 font-semibold text-accent hover:underline" onClick={() => void refreshLive()}>
+            Tentar novamente
+          </button>
+        </div>
+      )}
+
       {isLive && (
-        <div className="rounded-xl border border-good/25 bg-good/8 px-3 py-2 text-center text-[11px] text-good">
+        <div className="rounded-xl border border-good/25 bg-good/8 px-3 py-2 text-center text-[11px] text-good" data-testid="league-live-banner">
           Liga real · {standings.length} aluno{standings.length === 1 ? "" : "s"} nesta divisão
+          {lastUpdatedLabel ? ` · Atualizado ${lastUpdatedLabel}` : ""}
         </div>
       )}
 
@@ -338,16 +354,23 @@ export function LigasPage() {
         </div>
         <Card className="overflow-hidden p-0 lg:min-h-[28rem]">
           {standings.length === 0 ? (
-            <div className="p-6 text-center text-sm text-ink-soft">Nenhum participante nesta divisão ainda.</div>
+            <div className="p-6 text-center text-sm text-ink-soft" data-testid="league-empty">
+              {isDemo
+                ? "Faça login para competir com contas reais."
+                : bannerKind === "error"
+                  ? "Não foi possível carregar a liga."
+                  : "Nenhum participante nesta divisão ainda."}
+            </div>
           ) : (
-          standings.map((row, index) => {
+          <ol className="m-0 list-none p-0" aria-label="Ranking semanal da liga">
+          {standings.map((row, index) => {
             const promotion = row.rank <= promotionCutoff;
             const demotion = row.rank > standings.length - demotionCutoff;
             const showPromotionDivider = row.rank === 1;
             const showStayDivider = row.rank === promotionCutoff + 1;
             const showDemotionDivider = row.rank === standings.length - demotionCutoff + 1;
             return (
-              <div key={row.id}>
+              <li key={row.id}>
                 {showPromotionDivider && !isTopTier && (
                   <ZoneDivider tone="good" label={`Promoção · top ${promotionCutoff}`} />
                 )}
@@ -362,9 +385,10 @@ export function LigasPage() {
                   joined={joined}
                   last={index === standings.length - 1}
                 />
-              </div>
+              </li>
             );
-          })
+          })}
+          </ol>
           )}
         </Card>
         {isDemo && (
@@ -444,6 +468,9 @@ function RankRow({
         row.isUser ? "bg-accent-soft/40" : "",
         last ? "" : "border-b border-line/40",
       ].join(" ")}
+      data-testid="league-row"
+      data-league-you={row.isUser ? "true" : undefined}
+      aria-current={row.isUser ? "true" : undefined}
     >
       <div
         className={[
@@ -468,7 +495,7 @@ function RankRow({
         )}
         {row.isUser && !joined && <div className="text-[10px] text-ink-faint">fora desta semana</div>}
       </div>
-      <div className="text-right">
+      <div className="text-right" data-testid="league-xp">
         <span className="font-serif text-sm font-semibold tabular-nums text-ink">{row.xp}</span>
         <span className="ml-0.5 text-[10px] text-ink-faint">XP</span>
       </div>

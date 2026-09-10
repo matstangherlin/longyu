@@ -45,6 +45,7 @@ export function CultureCard({
   startedIds,
   to,
   cta,
+  onSave,
 }: {
   item: CultureItem;
   title: string;
@@ -53,30 +54,51 @@ export function CultureCard({
   startedIds: readonly string[];
   to: string;
   cta: string;
+  onSave?: (itemId: string) => void;
 }) {
   const { t } = useTranslation();
   const status = cultureCardStatus(item.id, completedIds, savedIds, startedIds);
+  const saved = savedIds.includes(item.id);
   return (
-    <Link
-      to={to}
-      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+    <div
+      className="relative"
       data-testid="culture-card"
       data-culture-id={item.id}
       data-culture-status={status}
     >
-      <Card variant="interactive" className="flex h-full min-h-[7.5rem] flex-col p-3">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
-            {cultureCategoryLabel(item.category, t)}
+      <Link
+        to={to}
+        className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+      >
+        <Card variant="interactive" className="flex h-full min-h-[7.5rem] flex-col p-3 pb-12">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+              {cultureCategoryLabel(item.category, t)}
+            </p>
+            <Pill tone={STATUS_TONE[status]}>{t(STATUS_KEYS[status])}</Pill>
+          </div>
+          <h3 className="mt-2 text-balance font-serif text-base font-semibold leading-snug text-ink">{title}</h3>
+          <p className="mt-auto pt-3 text-xs text-ink-soft">
+            {t("culture.minutes", { n: item.estimatedMinutes })}
+            <span className="ml-2 font-medium text-accent">{cta}</span>
           </p>
-          <Pill tone={STATUS_TONE[status]}>{t(STATUS_KEYS[status])}</Pill>
-        </div>
-        <h3 className="mt-2 text-balance font-serif text-base font-semibold leading-snug text-ink">{title}</h3>
-        <p className="mt-auto pt-3 text-xs text-ink-soft">
-          {t("culture.minutes", { n: item.estimatedMinutes })}
-          <span className="ml-2 font-medium text-accent">{cta}</span>
-        </p>
-      </Card>
-    </Link>
+        </Card>
+      </Link>
+      {onSave ? (
+        <button
+          type="button"
+          data-testid="culture-save"
+          className="absolute bottom-3 right-3 min-h-9 rounded-full border border-line bg-surface px-2.5 text-[11px] font-medium text-ink-soft"
+          disabled={saved || status === "completed"}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onSave(item.id);
+          }}
+        >
+          {saved ? t("culture.saved") : t("culture.saveForLater")}
+        </button>
+      ) : null}
+    </div>
   );
 }

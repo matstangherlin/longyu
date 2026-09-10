@@ -44,6 +44,11 @@ export function buildCultureReviewSession(
     const variant = target.reviewVariants[variantIndex % target.reviewVariants.length];
     if (!variant) return false;
     const step = variantToStep(target.id, variant, variantIndex);
+    if (step.kind === "sequence") {
+      if ((step.sequence ?? []).length < 2) return false;
+    } else if ((step.options ?? []).filter((option) => cultureText(option.label, "pt-BR").trim()).length < 2) {
+      return false;
+    }
     const prompt = `${cultureText(step.prompt, "pt-BR")} ${cultureText(step.prompt, "en")}`;
     const answers = (step.options ?? [])
       .filter((option) => option.preferred)

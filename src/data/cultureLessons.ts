@@ -49,6 +49,47 @@ function intro(title: string, body: string, conceptId: string): LessonStep {
   };
 }
 
+function story(
+  title: string,
+  body: string,
+  conceptId: string,
+  line?: { speaker: string; hanzi: string; pinyin: string; meaning: string }
+): LessonStep {
+  return {
+    kind: "intro",
+    title,
+    body,
+    speaker: line?.speaker,
+    hanzi: line?.hanzi,
+    pinyin: line?.pinyin,
+    pt: line?.meaning,
+    audioText: line?.hanzi,
+    pedagogicalEvidence: evidence(conceptId, "teach", false),
+  };
+}
+
+function build(
+  title: string,
+  prompt: string,
+  parts: string[],
+  bank: string[],
+  explanation: string,
+  conceptId: string,
+  role: CultureRole
+): LessonStep {
+  return {
+    kind: "sentence_build",
+    title,
+    prompt,
+    target: parts,
+    targetParts: parts,
+    bank,
+    correctAnswer: parts.join(""),
+    explanation,
+    pedagogicalEvidence: evidence(conceptId, role, true),
+  };
+}
+
 function contextual(
   title: string,
   situation: string,
@@ -244,6 +285,31 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "qingwen-ask": (_item, conceptId) => [
+    story(
+      t("No corredor", "In the corridor"),
+      t("Você precisa do caminho. A pessoa é um desconhecido — não um amigo.", "You need directions. The person is a stranger — not a friend."),
+      conceptId
+    ),
+    story(
+      t("Mei abre o pedido", "Mei opens the request"),
+      t("Ela não começa pelo conteúdo. Primeiro pede licença, depois pergunta, e pode fechar com 谢谢.", "She does not start with the content. First she asks leave, then asks, and may close with 谢谢."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "请问，地铁站怎么走？",
+        pinyin: "Qǐngwèn, dìtiě zhàn zěnme zǒu?",
+        meaning: t("Com licença, como se chega à estação de metrô?", "Excuse me, how do I get to the metro station?"),
+      }
+    ),
+    build(
+      t("Você lembra?", "Do you remember?"),
+      t("Ordene o pedido a um desconhecido no corredor.", "Put the request to a stranger in the corridor in order."),
+      ["请问", "地铁站怎么走？", "谢谢"],
+      ["请问", "地铁站怎么走？", "谢谢"],
+      t("请问 abre. O pedido vem depois. 谢谢 fecha se couber. Não é um interrogatório.", "请问 opens. The request comes next. 谢谢 closes if it fits. It is not an interrogation."),
+      conceptId,
+      "guided_application"
+    ),
     fill(
       t("Como abrir a pergunta", "How to open the question"),
       t("Você vai perguntar o caminho a um desconhecido.", "You are about to ask a stranger for the way."),
@@ -253,7 +319,7 @@ const EXTRAS: Record<string, ExtraSteps> = {
       ["请问", "你好吗", "买单"],
       t("请问 avisa que você vai ocupar o tempo de alguém. Não substitui o conteúdo da pergunta.", "请问 signals you will take someone's time. It does not replace the question."),
       conceptId,
-      "guided_application"
+      "independent_application"
     ),
     pairs(
       t("Abrir × perguntar", "Open × ask"),
@@ -319,10 +385,21 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "gift-receiving": (item, conceptId) => [
-    intro(
+    story(
       t("Jantar na casa de Mei", "Dinner at Mei's"),
-      t("Mei entrega um pacote com as duas mãos. Você observa o gesto antes de falar.", "Mei holds out a package with both hands. You watch the gesture before speaking."),
+      t("Mei se aproxima com um pacote. O gesto vem antes da fala.", "Mei comes closer with a package. The gesture comes before the words."),
       conceptId
+    ),
+    story(
+      t("Ela oferece o presente", "She offers the gift"),
+      t("As duas mãos sustentam o pacote. Não é um teste de recusas — é um convite para receber com cuidado.", "Both hands hold the package. It is not a refusal test — it is an invitation to receive with care."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "给你。",
+        pinyin: "Gěi nǐ.",
+        meaning: t("Pra você.", "For you."),
+      }
     ),
     dialogue(
       t("Agora é a sua vez", "Now it's your turn"),
@@ -336,6 +413,17 @@ const EXTRAS: Record<string, ExtraSteps> = {
       t("As duas mãos reconhecem o cuidado. 谢谢 fecha o gesto. Não é uma regra de recusas.", "Both hands acknowledge the care. 谢谢 closes the gesture. It is not a refusal rule."),
       conceptId,
       "guided_application"
+    ),
+    story(
+      t("Mei reage", "Mei reacts"),
+      t("O ciclo fecha. Não precisa de um discurso.", "The cycle closes. No speech is needed."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "不客气。",
+        pinyin: "Bú kèqi.",
+        meaning: t("De nada.", "You're welcome."),
+      }
     ),
     fill(
       t("O gesto do recebimento", "The receiving gesture"),
@@ -475,15 +563,32 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "host-insistence": (item, conceptId) => [
-    intro(
-      t("Mei oferece chá de novo", "Mei offers tea again"),
-      t("Você já disse que está bem. Mei segura o bule e pergunta outra vez: 再喝一点吧！", "You already said you are fine. Mei holds the teapot and asks again: 再喝一点吧！"),
+    story(
+      t("Você já disse que está bem", "You already said you are fine"),
+      t("O copo ainda tem chá. Mei segura o bule e não trata a primeira recusa como um fim.", "The cup still has tea. Mei holds the teapot and does not treat the first decline as an ending."),
       conceptId
     ),
-    intro(
-      t("Como isso pode soar", "How this can sound"),
-      t("Lin: 谢谢，我喝过了。 Mei: 好。 Uma segunda oferta pode ser hospitalidade, não uma ordem.", "Lin: 谢谢，我喝过了。 Mei: 好。 A second offer can be hospitality, not a command."),
-      conceptId
+    story(
+      t("Mei oferece de novo", "Mei offers again"),
+      t("Ouça a segunda oferta. Não é um comando — é hospitalidade insistente.", "Listen to the second offer. It is not a command — it is insistent hospitality."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "再喝一点吧！",
+        pinyin: "Zài hē yìdiǎn ba!",
+        meaning: t("Toma mais um pouco!", "Have a little more!"),
+      }
+    ),
+    story(
+      t("Como Lin responde", "How Lin replies"),
+      t("Agradecer e dar uma razão curta lê a insistência como 客气.", "Thanking and giving a short reason reads the insistence as 客气."),
+      conceptId,
+      {
+        speaker: t("Lin", "Lin"),
+        hanzi: "谢谢，我喝过了。",
+        pinyin: "Xièxie, wǒ hē guo le.",
+        meaning: t("Obrigado, eu já bebi.", "Thanks, I already drank."),
+      }
     ),
     dialogue(
       t("Agora é a sua vez", "Now it's your turn"),
@@ -498,6 +603,17 @@ const EXTRAS: Record<string, ExtraSteps> = {
       conceptId,
       "guided_application"
     ),
+    story(
+      t("Mei aceita", "Mei accepts"),
+      t("A segunda oferta encerra sem constrangimento. Hospitalidade não é uma ordem.", "The second offer closes without embarrassment. Hospitality is not a command."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "好。",
+        pinyin: "Hǎo.",
+        meaning: t("Tudo bem.", "All right."),
+      }
+    ),
     fill(
       t("Ler a segunda oferta", "Reading the second offer"),
       t("Mei oferece chá novamente.", "Mei offers tea again."),
@@ -511,10 +627,21 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "shared-dishes": (item, conceptId) => [
-    intro(
+    story(
       t("Jantar na mesa de Mei", "Dinner at Mei's table"),
       t("Vários pratos chegam ao centro. Ninguém pediu um prato só para você.", "Several dishes arrive in the centre. Nobody ordered a plate just for you."),
       conceptId
+    ),
+    story(
+      t("Mei convida a mesa", "Mei invites the table"),
+      t("Comer do centro é o fluxo. Recusar um pouco também é possível.", "Eating from the centre is the flow. Declining a little is also possible."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "请吃。",
+        pinyin: "Qǐng chī.",
+        meaning: t("Por favor, coma.", "Please eat."),
+      }
     ),
     image(
       "rice",
@@ -550,8 +677,19 @@ const EXTRAS: Record<string, ExtraSteps> = {
       conceptId,
       "independent_application"
     ),
+    story(
+      t("Mei oferece mais", "Mei offers more"),
+      t("É a mesma hospitalidade da segunda oferta de chá: convite, não ordem.", "It is the same hospitality as the second tea offer: an invitation, not a command."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "再吃一点吧！",
+        pinyin: "Zài chī yìdiǎn ba!",
+        meaning: t("Come mais um pouco!", "Eat a little more!"),
+      }
+    ),
     dialogue(
-      t("Mei oferece mais um pouco", "Mei offers a little more"),
+      t("O que está acontecendo?", "What is happening?"),
       t("再吃一点吧！", "再吃一点吧！"),
       t("谢谢，我吃饱了。", "谢谢，我吃饱了。"),
       [
@@ -565,6 +703,22 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "chopsticks-rest": (item, conceptId) => [
+    story(
+      t("A mesa continua", "The table continues"),
+      t("Wang se levanta por um instante. Os hashis ficam no prato de arroz.", "Wang stands up for a moment. The chopsticks stay in the rice bowl."),
+      conceptId
+    ),
+    story(
+      t("Mei chama para sentar", "Mei asks you to sit"),
+      t("O convite é para a refeição, não para um ritual de hashis fincados.", "The invitation is to the meal, not to a planted-chopstick ritual."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "请坐。",
+        pinyin: "Qǐng zuò.",
+        meaning: t("Por favor, sente.", "Please sit."),
+      }
+    ),
     image(
       "eat",
       t("Onde os hashis descansam com mais cuidado?", "Where do chopsticks rest more carefully?"),
@@ -599,10 +753,21 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "digital-pay": (item, conceptId) => [
-    intro(
+    story(
       t("No caixa", "At the till"),
       t("O caixa aponta para um QR. Ninguém pergunta se você tem dinheiro vivo.", "The cashier points at a QR code. Nobody asks if you have cash."),
       conceptId
+    ),
+    story(
+      t("O caixa confirma", "The cashier confirms"),
+      t("O telefone paga. Um 谢谢 curto fecha o ciclo se couber.", "The phone pays. A short 谢谢 closes the cycle if it fits."),
+      conceptId,
+      {
+        speaker: t("Caixa", "Cashier"),
+        hanzi: "好。",
+        pinyin: "Hǎo.",
+        meaning: t("Pronto.", "Done."),
+      }
     ),
     pairs(
       t("O que o QR faz", "What the QR does"),
@@ -631,6 +796,22 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "metro-qr": (item, conceptId) => [
+    story(
+      t("Na catraca", "At the gate"),
+      t("O fluxo não espera. O QR precisa estar pronto antes da porta.", "The flow does not wait. The QR needs to be ready before the door."),
+      conceptId
+    ),
+    story(
+      t("Um aviso curto", "A short cue"),
+      t("A catraca lê o código. Parar na porta bloqueia quem entra e sai.", "The gate reads the code. Stopping in the doorway blocks people entering and leaving."),
+      conceptId,
+      {
+        speaker: t("Aviso", "Notice"),
+        hanzi: "请。",
+        pinyin: "Qǐng.",
+        meaning: t("Por favor — siga.", "Please — go ahead."),
+      }
+    ),
     image(
       "metro",
       t("Qual imagem é o metrô?", "Which image is the metro?"),
@@ -692,10 +873,21 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "bargaining-context": (item, conceptId) => [
-    intro(
+    story(
       t("Na loja", "In the shop"),
       t("Há uma etiqueta com preço. O vendedor está atrás do caixa. Ninguém começou a pechinchar.", "There is a price tag. The seller is behind the till. Nobody has started bargaining."),
       conceptId
+    ),
+    story(
+      t("O vendedor confirma o preço", "The seller confirms the price"),
+      t("Em preço marcado, aceitar é válido. Pechinchar é opção de contexto, não dever.", "On a marked price, accepting is valid. Bargaining is a context option, not a duty."),
+      conceptId,
+      {
+        speaker: t("Vendedor", "Seller"),
+        hanzi: "好。",
+        pinyin: "Hǎo.",
+        meaning: t("Combinado.", "All right."),
+      }
     ),
     pairs(
       t("Onde o preço vive", "Where the price lives"),
@@ -735,13 +927,29 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "visiting-home": (item, conceptId) => [
-    intro(
+    story(
       t("Você chega", "You arrive"),
-      t("A porta está aberta. Ninguém disse ainda 请进. Você observa os sapatos na entrada.", "The door is open. Nobody has said 请进 yet. You look at the shoes at the entrance."),
+      t("A porta está aberta. Você observa os sapatos na entrada antes de circular.", "The door is open. You look at the shoes at the entrance before wandering."),
+      conceptId
+    ),
+    story(
+      t("Mei na porta", "Mei at the door"),
+      t("O convite é para entrar — não para circular a casa inteira.", "The invitation is to come in — not to walk the whole house."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "欢迎！请进！",
+        pinyin: "Huānyíng! Qǐng jìn!",
+        meaning: t("Bem-vindo! Entre!", "Welcome! Come in!"),
+      }
+    ),
+    story(
+      t("Os sapatos na entrada", "The shoes at the entrance"),
+      t("Chinelos à vista são um sinal. A casa não é um convite automático para circular.", "Slippers in sight are a cue. The house is not an automatic invitation to wander."),
       conceptId
     ),
     dialogue(
-      t("Mei na porta", "Mei at the door"),
+      t("O que você faz?", "What do you do?"),
       t("请进！", "请进！"),
       t("Tirar os sapatos se houver chinelos e entrar", "Take off your shoes if slippers are there and go in"),
       [
@@ -752,6 +960,28 @@ const EXTRAS: Record<string, ExtraSteps> = {
       t("Observe o anfitrião: sapatos, chinelos, onde sentar. A casa não é um convite automático para circular.", "Watch the host: shoes, slippers, where to sit. The house is not an automatic invitation to wander."),
       conceptId,
       "guided_application"
+    ),
+    story(
+      t("Mei reage", "Mei reacts"),
+      t("O convite continua. Circular a casa ainda não começou.", "The invitation continues. Walking the house has not started."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "好，请进。",
+        pinyin: "Hǎo, qǐng jìn.",
+        meaning: t("Isso, entre.", "That's it, come in."),
+      }
+    ),
+    story(
+      t("Ela oferece chá", "She offers tea"),
+      t("Nova situação: hospitalidade na sala, ainda observando o anfitrião.", "New situation: hospitality in the living room, still watching the host."),
+      conceptId,
+      {
+        speaker: t("Mei", "Mei"),
+        hanzi: "请喝茶。",
+        pinyin: "Qǐng hē chá.",
+        meaning: t("Por favor, tome chá.", "Please have some tea."),
+      }
     ),
     fill(
       t("Antes de circular", "Before you wander"),
