@@ -19,6 +19,8 @@ import {
   getKnowledgeTarget,
   type KnowledgeStage,
 } from "../data/pedagogicalSpine";
+import { ALL_LESSONS } from "../data/journey";
+import { isJourneyTopicComplete } from "../data/topicMastery";
 import type { JourneyNode } from "../data/journeyOrchestrator";
 import { dueItems, type SRSItem } from "./srs";
 
@@ -31,6 +33,7 @@ export type JourneyReadinessReason =
   | "INSUFFICIENT_RECOGNITION"
   | "NO_REVIEW_DUE"
   | "CAPSULE_PREREQUISITE"
+  | "TOPIC_INCOMPLETE"
   | "UNKNOWN_REQUIREMENT";
 
 export interface LearnerReadinessState {
@@ -226,6 +229,24 @@ export function evaluateJourneyNodeReadiness(
   for (const requiredNodeId of node.requiresNodeIds ?? []) {
     if (!state.completedNodeIds.includes(requiredNodeId)) {
       unmet.push({ reason: "CAPSULE_PREREQUISITE", detail: requiredNodeId });
+    }
+  }
+
+  // Culture native lessons unlock only after the related language topic is
+  // path-complete — never merely because the student has arrived at that node.
+  for (const lessonId of node.requiredCompletedLessonIds ?? []) {
+    const lesson = ALL_LESSONS.find((item) => item.id === lessonId);
+    if (!lesson) {
+      unmet.push({ reason: "UNKNOWN_REQUIREMENT", detail: lessonId });
+      continue;
+    }
+    if (
+      !isJourneyTopicComplete(lesson, {
+        completedLessons: state.completedLessons,
+        lessonMasteryById: state.lessonMasteryById,
+      })
+    ) {
+      unmet.push({ reason: "TOPIC_INCOMPLETE", detail: lessonId });
     }
   }
 

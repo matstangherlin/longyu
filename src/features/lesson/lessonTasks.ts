@@ -7276,6 +7276,20 @@ export function resolveMasteryPassForContext(
 }
 
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
+  if (lesson.lessonDomain === "culture") {
+    const steps = lesson.steps ?? [];
+    return withDirectAudioDiscriminationCopy(
+      withEvaluableQuestionNumbers(
+        steps.map((step, index) => ({
+          ...step,
+          generated: false,
+          lessonStageId: step.lessonStageId ?? (step.kind === "intro" ? ("intro" as const) : ("usage" as const)),
+          lessonStageQuestion: index + 1,
+          lessonStageQuestionCount: steps.length,
+        }))
+      )
+    );
+  }
   const identityPass = resolveMasteryPassForContext(lesson, context) ?? 1;
   const identityPlan = identityPeoplePlanFor(lesson, identityPass, context.silent === true && context.masteryPass == null);
   if (identityPlan) {

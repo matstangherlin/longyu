@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { loadCultureRuntime } from "./lib/v495a-runtime.mjs";
+import { cloneCultureRuntime, loadCultureRuntime } from "./lib/v495a-runtime.mjs";
 import { validateCultureMissions } from "./lib/culture-missions-validation.mjs";
 
 const base = loadCultureRuntime();
 assert.deepEqual(validateCultureMissions(base).failures, [], "positive control must pass");
 
 function fixture() {
-  return structuredClone(base);
+  return cloneCultureRuntime(base);
 }
 
 function mutation(label, edit, code) {
@@ -48,9 +48,10 @@ mutation("10 CultureMission without EN", (data) => {
 }, "MISSING_EN");
 
 const itemPage = fs.readFileSync("src/features/culture/CultureItemPage.tsx", "utf8");
-assert.match(itemPage, /CultureMissionPlayer/, "related lesson must open the mission player, not the old article page");
+assert.match(itemPage, /cultureLessonPlayerPath/, "related lesson opens the native LessonPlayer, not the old article page");
+assert.doesNotMatch(itemPage, /CultureMissionPlayer/, "hub item route does not open CultureMissionPlayer");
 const touchpoint = fs.readFileSync("src/features/culture/CultureTouchpoint.tsx", "utf8");
-assert.match(touchpoint, /\/cultura\/\$\{item\.id\}/, "touchpoint still routes to /cultura/:id");
+assert.match(touchpoint, /cultureLessonPlayerPath/, "touchpoint opens the same canonical LessonPlayer");
 assert.doesNotMatch(touchpoint, /sectionSituation/, "touchpoint does not send the learner into a static article body");
 console.log("KILLED 11 related lesson opens article instead of mission: route");
 

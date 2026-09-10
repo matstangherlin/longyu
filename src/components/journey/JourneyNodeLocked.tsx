@@ -25,6 +25,7 @@ export function JourneyNodeLocked({ readiness }: { readiness: JourneyNodeReadine
         INSUFFICIENT_RECOGNITION: "There is not enough review evidence yet to say this input would be mostly familiar.",
         NO_REVIEW_DUE: "Nothing is due for review right now.",
         CAPSULE_PREREQUISITE: "A short capsule comes before this one.",
+        TOPIC_INCOMPLETE: "Finish the related language topic on the Journey first.",
         UNKNOWN_REQUIREMENT: "This booster declares a requirement the app cannot resolve.",
       }
     : {
@@ -36,6 +37,7 @@ export function JourneyNodeLocked({ readiness }: { readiness: JourneyNodeReadine
         INSUFFICIENT_RECOGNITION: "Ainda não há evidência de revisão suficiente para afirmar que esse conteúdo seria majoritariamente conhecido.",
         NO_REVIEW_DUE: "Nada vencido para revisar agora.",
         CAPSULE_PREREQUISITE: "Uma cápsula curta vem antes desta.",
+        TOPIC_INCOMPLETE: "Conclua primeiro o tópico de língua correspondente na Jornada.",
         UNKNOWN_REQUIREMENT: "Este reforço declara um requisito que o app não consegue resolver.",
       };
 

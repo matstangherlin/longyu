@@ -229,6 +229,8 @@ export type CultureMissionResult = {
   memoryCorrect: boolean;
   scoredCount: number;
   correctCount: number;
+  /** Native LessonPlayer already grants lesson XP. Skip culture-complete XP. */
+  grantXp?: boolean;
 };
 
 export function applyCultureMissionComplete(
@@ -303,7 +305,7 @@ export function applyCultureMissionComplete(
     cultureCompletedIds: unionIds([...maps.cultureCompletedIds, itemId]),
     cultureSavedIds: unionIds(maps.cultureSavedIds).filter((id) => id !== itemId),
     cultureStartedIds: unionIds([...maps.cultureStartedIds, itemId]),
-    grantedXp: !alreadyCompleted,
+    grantedXp: result.grantXp === false ? false : !alreadyCompleted,
     newSeals,
     stars,
   };

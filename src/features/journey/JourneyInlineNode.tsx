@@ -4,15 +4,19 @@ import {
   routeForJourneyNode,
   type JourneyNode,
 } from "../../data/journeyOrchestrator";
+import { getLesson } from "../../data/journey";
 import { resolveLessonCapsule } from "../../data/lessonCatalog";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 import { useJourneyNodeAccess } from "../../hooks/useJourneyNodeAccess";
+import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
+import { displayLessonTitle } from "../../i18n/overlays/journeyChrome";
 import {
   IconCheck,
   IconChat,
   IconFlame,
   IconHeadphones,
+  IconLantern,
   IconLock,
   IconPlay,
   IconRefresh,
@@ -29,6 +33,7 @@ const ICON_BY_TYPE = {
   CONVERSATION: IconChat,
   REVIEW: IconRefresh,
   PRACTICE: IconHeadphones,
+  CULTURE_LESSON: IconLantern,
 } as const;
 
 /**
@@ -44,9 +49,13 @@ const ICON_BY_TYPE = {
  * competir com o caminho principal por atenção.
  */
 export function JourneyInlineNode({ node }: { node: JourneyNode }) {
-  const { instructionLocale } = useTranslation();
+  const { t, instructionLocale } = useTranslation();
   const access = useJourneyNodeAccess(node);
-  const complete = isJourneyNodeComplete(node.id);
+  const completedLessons = useStore((state) => state.completedLessons);
+  const complete =
+    node.type === "CULTURE_LESSON"
+      ? Boolean(node.sourceId && completedLessons.includes(node.sourceId))
+      : isJourneyNodeComplete(node.id);
   const ready = access?.ready ?? false;
   const en = instructionLocale === "en";
   const Icon = ICON_BY_TYPE[node.type as keyof typeof ICON_BY_TYPE] ?? IconPlay;
@@ -57,7 +66,9 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
   const publishedTitle =
     node.type === "LESSON_CAPSULE"
       ? resolveLessonCapsule(node.sourceId ?? "")?.localized[instructionLocale]?.title
-      : undefined;
+      : node.type === "CULTURE_LESSON"
+        ? displayLessonTitle(getLesson(node.sourceId ?? "")?.title ?? "", instructionLocale)
+        : undefined;
   const label = INLINE_LABELS[node.id]?.[en ? "en" : "pt"] ?? publishedTitle ?? node.sourceId ?? node.id;
 
   const body = (
@@ -90,6 +101,10 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
               ? en
                 ? "Locked"
                 : "Bloqueado"
+              : node.type === "CULTURE_LESSON"
+                ? node.priority === "CORE"
+                  ? t("culture.journeyNodeCore")
+                  : t("culture.journeyNodeExplore")
               : node.priority === "CORE"
                 ? en
                   ? "Lesson"

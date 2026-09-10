@@ -7,8 +7,9 @@ import {
 import { persist } from "zustand/middleware";
 import type { ItemType } from "../data/types";
 import type { DomainTrack } from "../data/domains";
-import { ALL_LESSONS, FOUNDATION_LESSON_IDS } from "../data/journey";
+import { ALL_LESSONS, FOUNDATION_LESSON_IDS, getLesson } from "../data/journey";
 import { CULTURE_COMPLETE_XP, getCultureItem } from "../data/culture";
+import { cultureItemIdFromLessonId, migrateNativeCultureProgress } from "../data/cultureNative";
 import {
   applyCultureSaved,
   applyCultureStarted,
@@ -2284,6 +2285,70 @@ interface AppState {
   recordModuleSkipAttempt: (unitId: string) => void;
 }
 
+function cultureLessonCompletionPatch(s: {
+  cultureMasteryById?: AppState["cultureMasteryById"];
+  cultureMemoryById?: AppState["cultureMemoryById"];
+  cultureKnowledgeById?: AppState["cultureKnowledgeById"];
+  cultureSeals?: string[];
+  cultureCompletedIds?: string[];
+  cultureSavedIds?: string[];
+  cultureStartedIds?: string[];
+  lessonStarsById: AppState["lessonStarsById"];
+  completedLessons: string[];
+}, lessonId: string): Partial<{
+  cultureMasteryById: AppState["cultureMasteryById"];
+  cultureMemoryById: AppState["cultureMemoryById"];
+  cultureKnowledgeById: AppState["cultureKnowledgeById"];
+  cultureSeals: string[];
+  cultureCompletedIds: string[];
+  cultureSavedIds: string[];
+  cultureStartedIds: string[];
+  completedLessons: string[];
+}> {
+  const itemId = cultureItemIdFromLessonId(lessonId);
+  if (!itemId || !getCultureItem(itemId)) return {};
+  if ((s.cultureCompletedIds ?? []).includes(itemId)) {
+    return migrateNativeCultureProgress({
+      completedLessons: s.completedLessons,
+      cultureCompletedIds: s.cultureCompletedIds,
+    });
+  }
+  const stars = s.lessonStarsById[lessonId] ?? 3;
+  const applied = applyCultureMissionComplete(
+    {
+      cultureMasteryById: s.cultureMasteryById ?? {},
+      cultureMemoryById: s.cultureMemoryById ?? {},
+      cultureKnowledgeById: s.cultureKnowledgeById ?? {},
+      cultureSeals: s.cultureSeals ?? [],
+      cultureCompletedIds: s.cultureCompletedIds ?? [],
+      cultureSavedIds: s.cultureSavedIds ?? [],
+      cultureStartedIds: s.cultureStartedIds ?? [],
+    },
+    {
+      itemId,
+      score: stars >= 3 ? 1 : stars >= 2 ? 0.75 : 0.45,
+      memoryCorrect: stars >= 3,
+      scoredCount: 1,
+      correctCount: stars >= 3 ? 1 : 0,
+      grantXp: false,
+    }
+  );
+  const synced = migrateNativeCultureProgress({
+    completedLessons: s.completedLessons,
+    cultureCompletedIds: applied.cultureCompletedIds,
+  });
+  return {
+    cultureMasteryById: applied.cultureMasteryById,
+    cultureMemoryById: applied.cultureMemoryById,
+    cultureKnowledgeById: applied.cultureKnowledgeById,
+    cultureSeals: applied.cultureSeals,
+    cultureSavedIds: applied.cultureSavedIds,
+    cultureStartedIds: applied.cultureStartedIds,
+    cultureCompletedIds: synced.cultureCompletedIds,
+    completedLessons: synced.completedLessons,
+  };
+}
+
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
@@ -3771,14 +3836,19 @@ export const useStore = create<AppState>()(
             grantedXp: applied.grantedXp,
             newSeals: applied.newSeals,
           };
+          const synced = migrateNativeCultureProgress({
+            completedLessons: s.completedLessons,
+            cultureCompletedIds: applied.cultureCompletedIds,
+          });
           const patch = {
             cultureMasteryById: applied.cultureMasteryById,
             cultureMemoryById: applied.cultureMemoryById,
             cultureKnowledgeById: applied.cultureKnowledgeById,
             cultureSeals: applied.cultureSeals,
-            cultureCompletedIds: applied.cultureCompletedIds,
+            cultureCompletedIds: synced.cultureCompletedIds,
             cultureSavedIds: applied.cultureSavedIds,
             cultureStartedIds: applied.cultureStartedIds,
+            completedLessons: synced.completedLessons,
           };
           const next = { ...s, ...patch };
           return { ...patch, accounts: saveCurrentAccount(next) };
@@ -4925,18 +4995,25 @@ export const useStore = create<AppState>()(
           const currentStar = current.lessonStarsById[id] ?? 0;
           const lessonStarsById = { ...current.lessonStarsById, [id]: (currentStar > 0 ? currentStar : 3) as LessonStar };
           if (current.completedLessons.includes(id)) {
-            const next = { ...current, lessonStarsById };
-            return { ...leaguePatch, lessonStarsById, accounts: saveCurrentAccount(next) };
+            const culturePatch = cultureLessonCompletionPatch({ ...current, lessonStarsById, completedLessons: current.completedLessons }, id);
+            const next = { ...current, lessonStarsById, ...culturePatch };
+            return { ...leaguePatch, lessonStarsById, ...culturePatch, accounts: saveCurrentAccount(next) };
           }
           const leagueJoin = joinLeaguePatch(current);
           const week = activeWeeklyMissions(current.weeklyMissions);
           const weeklyMissions = { ...week, lessons: week.lessons + 1 };
+          const completedLessons = [...current.completedLessons, id];
+          const culturePatch = cultureLessonCompletionPatch(
+            { ...current, lessonStarsById, completedLessons },
+            id
+          );
           const next = {
             ...current,
             ...leagueJoin,
-            completedLessons: [...current.completedLessons, id],
+            completedLessons: culturePatch.completedLessons ?? completedLessons,
             lessonStarsById,
             weeklyMissions,
+            ...culturePatch,
           };
           return {
             ...leaguePatch,
@@ -4944,10 +5021,11 @@ export const useStore = create<AppState>()(
             completedLessons: next.completedLessons,
             lessonStarsById,
             weeklyMissions,
+            ...culturePatch,
             accounts: saveCurrentAccount(next),
           };
         });
-        const lesson = ALL_LESSONS.find((item) => item.id === id);
+        const lesson = getLesson(id);
         if (!wasComplete) {
           queueSocialFromApp("lesson_complete", {
             lessonId: id,
@@ -5241,7 +5319,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "longyu-v1",
-      version: 23,
+      version: 24,
       // v1: garante authMode em toda conta (com email → "cloud_pending", senão "local").
       // v2: separa XP do Qi. Contas antigas ganham os recortes de XP zerados
       //     (freshXp); o Qi acumulado continua em `points`, sem duplicar nada.
@@ -5267,6 +5345,7 @@ export const useStore = create<AppState>()(
       // v21: Culture Hub — progresso cultural separado (completed / saved / started).
       // v22: Culture Quest — mastery, memory, seals. Completed items migrate to 1★.
       // v23: Culture teaching loop — knowledge states (unseen/introduced/practiced/mastered).
+      // v24: Native Culture Lessons — Hub and Journey share completedLessons + cultureCompletedIds.
       migrate: (persisted, version) => {
         const state = persisted as { accounts?: Record<string, LearningAccount> } | undefined;
         if (!state) return persisted as AppState;
@@ -5447,10 +5526,15 @@ export const useStore = create<AppState>()(
             migrated.lessonStarsById,
             new Set(Object.keys(normalizeLessonPendingStars(migrated.lessonPendingStars)))
           );
+          const nativeCulture = migrateNativeCultureProgress({
+            completedLessons,
+            cultureCompletedIds: migrated.cultureCompletedIds,
+          });
           migrated = {
             ...migrated,
-            completedLessons,
-            lessonStarsById: normalizeLessonStars(migrated.lessonStarsById, completedLessons),
+            completedLessons: nativeCulture.completedLessons,
+            cultureCompletedIds: nativeCulture.cultureCompletedIds,
+            lessonStarsById: normalizeLessonStars(migrated.lessonStarsById, nativeCulture.completedLessons),
             lessonAttemptsById: normalizeLessonAttempts(migrated.lessonAttemptsById),
             currentLessonAttempt: normalizeCurrentLessonAttempt(migrated.currentLessonAttempt),
             mistakeHistory: normalizeLessonMistakes(migrated.mistakeHistory),
@@ -5476,6 +5560,10 @@ export const useStore = create<AppState>()(
           ? reconcileFreePlanEnergy(root.dailyEnergy)
           : activeDailyEnergy(root.dailyEnergy);
         const rootQuest = migrateCultureV21ToQuest(root);
+        const nativeCulture = migrateNativeCultureProgress({
+          completedLessons: rootCompletedLessons,
+          cultureCompletedIds: rootQuest.cultureCompletedIds ?? root.cultureCompletedIds,
+        });
         return {
           ...root,
           // Keep the persisted hold. Forcing false on every version bump pops
@@ -5488,11 +5576,11 @@ export const useStore = create<AppState>()(
           leagueBots: root.leagueBots ?? [],
           leagueHistory: root.leagueHistory ?? [],
           journeyChestsOpened: root.journeyChestsOpened ?? [],
-          completedLessons: rootCompletedLessons,
-          lessonStarsById: normalizeLessonStars(root.lessonStarsById, rootCompletedLessons),
+          completedLessons: nativeCulture.completedLessons,
+          lessonStarsById: normalizeLessonStars(root.lessonStarsById, nativeCulture.completedLessons),
           lessonMasteryById:
             version < 20
-              ? grandfatherTopicMastery(ALL_LESSONS, rootCompletedLessons, root.lessonMasteryById)
+              ? grandfatherTopicMastery(ALL_LESSONS, nativeCulture.completedLessons, root.lessonMasteryById)
               : (root.lessonMasteryById ?? {}),
           lessonSessionStepById: root.lessonSessionStepById ?? {},
           lessonAttemptsById: normalizeLessonAttempts(root.lessonAttemptsById),
@@ -5522,6 +5610,7 @@ export const useStore = create<AppState>()(
           pearlProductionCount: root.pearlProductionCount ?? 0,
           lastShopPurchaseFeedback: root.lastShopPurchaseFeedback ?? null,
           ...rootQuest,
+          cultureCompletedIds: nativeCulture.cultureCompletedIds,
           cultureKnowledgeById: migrateCultureKnowledgeFromMastery({
             ...rootQuest,
             cultureKnowledgeById: {

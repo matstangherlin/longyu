@@ -6,7 +6,16 @@ const base = loadCultureRuntime();
 assert.deepEqual(validateCultureJourneyIntegration(base).failures, [], "positive control must pass");
 
 function fixture() {
-  return structuredClone(base);
+  return {
+    ...base,
+    bridges: structuredClone(base.bridges),
+    lessons: structuredClone(base.lessons),
+    items: structuredClone(base.items),
+    nativeLessons: structuredClone(base.nativeLessons),
+    nodes: structuredClone(base.nodes),
+    ineligible: structuredClone(base.ineligible),
+    lessonPlayerSource: base.lessonPlayerSource,
+  };
 }
 
 function mutation(label, edit, code) {

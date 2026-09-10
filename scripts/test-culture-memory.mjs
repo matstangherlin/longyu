@@ -1,13 +1,12 @@
 import assert from "node:assert/strict";
-import { loadCultureRuntime } from "./lib/v495a-runtime.mjs";
+import { cloneCultureRuntime, loadCultureRuntime, require as tsRequire } from "./lib/v495a-runtime.mjs";
 import { validateCultureMemory } from "./lib/culture-memory-validation.mjs";
-import { require as tsRequire } from "./lib/v495a-runtime.mjs";
 
 const base = loadCultureRuntime();
 assert.deepEqual(validateCultureMemory(base).failures, [], "positive control must pass");
 
 function fixture() {
-  return structuredClone(base);
+  return cloneCultureRuntime(base);
 }
 
 function mutation(label, edit, code) {

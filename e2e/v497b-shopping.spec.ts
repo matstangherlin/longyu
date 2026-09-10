@@ -1,20 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
-  seedOnboardedSession,
   seedUnlockedLessonSession,
+  seedMissionsSession,
   waitForLazyPage,
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
-
-const SEQUENCE_ORDERS = [
-  ["notice", "decide", "act"],
-  ["notice", "decide", "thanks"],
-  ["off", "in", "move"],
-  ["wait-serve", "serve-others", "taste"],
-  ["ask", "scan", "confirm"],
-  ["shoes", "observe"],
-];
+import { expectCultureLessonPlayer, playCultureLessonToVictory, readCulturePersist } from "./culture-lesson-helpers";
 
 type PersistSlice = {
   srs: Record<string, unknown>;
@@ -25,73 +17,14 @@ type PersistSlice = {
 };
 
 async function readPersist(page: Page): Promise<PersistSlice> {
-  return page.evaluate(() => {
-    const raw = localStorage.getItem("longyu-v1");
-    const parsed = raw
-      ? (JSON.parse(raw) as { state?: PersistSlice } & PersistSlice)
-      : ({ state: {} } as { state?: PersistSlice } & PersistSlice);
-    const state = parsed.state ?? parsed;
-    return {
-      srs: state.srs ?? {},
-      cultureCompletedIds: state.cultureCompletedIds ?? [],
-      cultureMasteryById: state.cultureMasteryById ?? {},
-      cultureMemoryById: state.cultureMemoryById ?? {},
-      cultureKnowledgeById: state.cultureKnowledgeById ?? {},
-    };
-  });
-}
-
-async function playCurrentStep(page: Page, wrongFirst = false) {
-  if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
-
-  const sequence = page.getByTestId("culture-sequence");
-  if (await sequence.isVisible().catch(() => false)) {
-    const buttons = sequence.locator("button");
-    const n = await buttons.count();
-    const ids: string[] = [];
-    for (let i = 0; i < n; i += 1) {
-      const testid = await buttons.nth(i).getAttribute("data-testid");
-      ids.push((testid ?? "").replace("culture-seq-", ""));
-    }
-    const order =
-      SEQUENCE_ORDERS.find((row) => row.length === ids.length && row.every((id) => ids.includes(id))) ?? ids;
-    for (const id of order) {
-      await page.getByTestId(`culture-seq-${id}`).click();
-    }
-  } else if (await page.getByTestId("culture-match").isVisible().catch(() => false)) {
-    const lefts = page.locator('[data-testid^="culture-match-left-"]');
-    const n = await lefts.count();
-    for (let i = 0; i < n; i += 1) {
-      const testid = await lefts.nth(i).getAttribute("data-testid");
-      const id = (testid ?? "").replace("culture-match-left-", "");
-      await page.getByTestId(`culture-match-left-${id}`).click();
-      await page.getByTestId(`culture-match-right-${id}`).click();
-    }
-  } else {
-    const options = page.locator('[data-testid^="culture-option-"]');
-    if ((await options.count()) > 0 && !(await page.getByTestId("culture-check-feedback").isVisible().catch(() => false))) {
-      if (wrongFirst) {
-        const optionA = page.getByTestId("culture-option-a");
-        if (await optionA.count()) await optionA.click();
-        else await options.first().click();
-      } else {
-        const optionB = page.getByTestId("culture-option-b");
-        if (await optionB.count()) await optionB.click();
-        else await options.first().click();
-      }
-    }
-  }
-  await page.getByTestId("culture-complete").click();
-}
-
-async function playMissionToVictory(page: Page, { wrongFirst = false } = {}) {
-  await expect(page.getByTestId("culture-item")).toBeVisible();
-  for (let i = 0; i < 40; i += 1) {
-    if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) return;
-    await playCurrentStep(page, wrongFirst && i === 0);
-    wrongFirst = false;
-  }
-  await expect(page.getByTestId("culture-victory")).toBeVisible();
+  const slice = await readCulturePersist(page);
+  return {
+    srs: slice.srs,
+    cultureCompletedIds: slice.cultureCompletedIds,
+    cultureMasteryById: slice.cultureMasteryById,
+    cultureMemoryById: slice.cultureMemoryById,
+    cultureKnowledgeById: slice.cultureKnowledgeById,
+  };
 }
 
 /** Resume at step 1 so the adaptive planner keeps the authored round (idx > 0). */
@@ -106,7 +39,7 @@ async function openAuthoredLessonPlayer(page: Page, lessonId: string) {
 }
 
 test.describe("V4.9.7B shopping survival", () => {
-  test("l27 lesson page opens the digital-pay mission", async ({ page }) => {
+  test("l27 lesson page opens the digital-pay lesson", async ({ page }) => {
     await seedUnlockedLessonSession(page, "l27");
     await page.goto("/licao/l27");
     await waitForLazyPage(page);
@@ -114,11 +47,10 @@ test.describe("V4.9.7B shopping survival", () => {
     await expect(page.getByTestId("culture-touchpoint")).toHaveAttribute("data-culture-id", "digital-pay");
     await page.getByTestId("culture-touchpoint-open").click();
     await waitForLazyPage(page);
-    await expect(page).toHaveURL(/\/cultura\/digital-pay/);
-    await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "digital-pay");
+    await expectCultureLessonPlayer(page, "digital-pay");
   });
 
-  test("p6-compras lesson page opens the bargaining-context mission", async ({ page }) => {
+  test("p6-compras lesson page opens the bargaining-context lesson", async ({ page }) => {
     await seedUnlockedLessonSession(page, "p6-compras");
     await page.goto("/licao/p6-compras");
     await waitForLazyPage(page);
@@ -135,45 +67,19 @@ test.describe("V4.9.7B shopping survival", () => {
     await expect(page.getByTestId("culture-touchpoint")).toHaveCount(0);
   });
 
-  test("p6-compras Journey bridge teaches bargaining without 3★ or lexical SRS", async ({ page }) => {
+  test("p6-compras player does not inject a bargaining bridge", async ({ page }) => {
     test.setTimeout(120_000);
     await openAuthoredLessonPlayer(page, "p6-compras");
-    const reached = await advanceUntilSelector(page, '[data-testid="culture-bridge"]', 40, 90_000);
-    expect(reached).toBeTruthy();
-    const bridge = page.getByTestId("culture-bridge");
-    await expect(bridge).toHaveAttribute("data-item-id", "bargaining-context");
-    await expect(page.getByTestId("culture-bridge-teach")).toBeVisible();
-    await expect(page.getByTestId("culture-bridge-options")).toHaveCount(0);
-
-    const before = await readPersist(page);
-
-    await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-bridge-options")).toBeVisible();
-    await page.getByTestId("culture-bridge-option-b").click();
-    await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-bridge-feedback")).toBeVisible();
-    await page.getByTestId("culture-bridge-continue").click();
-    await expect(page.getByTestId("culture-plus-one")).toBeVisible();
-    await expect(page.getByTestId("culture-stars")).toHaveCount(0);
-
-    await expect
-      .poll(async () => (await readPersist(page)).cultureKnowledgeById["bargaining-context-core"]?.state, {
-        timeout: 8_000,
-      })
-      .toBe("practiced");
+    const reached = await advanceUntilSelector(page, '[data-testid="culture-bridge"]', 12, 25_000);
+    expect(reached).toBeFalsy();
+    await expect(page.getByTestId("culture-bridge")).toHaveCount(0);
     const after = await readPersist(page);
     expect(after.cultureCompletedIds).not.toContain("bargaining-context");
-    expect(after.cultureMasteryById["bargaining-context"]).toBeUndefined();
-    expect(after.cultureMemoryById["bargaining-context-core"]).toBeUndefined();
-    expect(Object.keys(after.srs)).toEqual(Object.keys(before.srs));
-    expect(after.cultureKnowledgeById["bargaining-context-core"]?.source).toBe("journey");
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 19/);
-    await expect(page.getByTestId("culture-node-bargaining-context")).toHaveAttribute("data-knowledge", "practiced");
-    await expect(page.getByTestId("culture-node-journey-bargaining-context")).toBeVisible();
     await expect(page.locator('[data-testid="culture-card"][data-culture-id="bargaining-context"]')).toHaveAttribute(
       "data-culture-status",
       "new"
@@ -188,48 +94,33 @@ test.describe("V4.9.7B shopping survival", () => {
     await expect(page.locator("[data-conversation-scene]")).toBeVisible();
   });
 
-  test("digital-pay mission completes with stars", async ({ page }) => {
+  test("digital-pay lesson completes with stars without lexical SRS", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedOnboardedSession(page, ["l1"]);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
     await page.goto("/cultura/digital-pay");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "digital-pay");
-    await playCurrentStep(page);
+    await expectCultureLessonPlayer(page, "digital-pay");
     await expect(page.getByTestId("culture-teach")).toBeVisible();
-    await playMissionToVictory(page);
+    const before = await readPersist(page);
+    await playCultureLessonToVictory(page);
     await expect(page.getByTestId("culture-stars")).toBeVisible();
     const persist = await readPersist(page);
     expect(persist.cultureCompletedIds).toContain("digital-pay");
     expect(persist.cultureMasteryById["digital-pay"]?.stars).toBeGreaterThanOrEqual(1);
     expect(persist.cultureMemoryById["digital-pay-core"]).toBeTruthy();
+    expect(Object.keys(persist.srs)).toEqual(Object.keys(before.srs));
   });
 
-  test("bargaining mission teaches, sequences notice-decide-act, and awards stars", async ({ page }) => {
+  test("bargaining lesson teaches, uses standard tasks, and awards stars", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedOnboardedSession(page, ["l1"]);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
     await page.goto("/cultura/bargaining-context");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-item")).toHaveAttribute("data-culture-id", "bargaining-context");
-    await playCurrentStep(page);
+    await expectCultureLessonPlayer(page, "bargaining-context");
     await expect(page.getByTestId("culture-teach")).toBeVisible();
-    await expect(page.getByTestId("culture-options")).toHaveCount(0);
-    await playCurrentStep(page);
-    await expect(page.getByTestId("culture-teach")).toBeVisible();
-
-    let sawSequence = false;
-    for (let i = 0; i < 40; i += 1) {
-      if (await page.getByTestId("culture-victory").isVisible().catch(() => false)) break;
-      if (await page.getByTestId("culture-seq-notice").isVisible().catch(() => false)) {
-        sawSequence = true;
-        await expect(page.getByTestId("culture-seq-decide")).toBeVisible();
-        await expect(page.getByTestId("culture-seq-act")).toBeVisible();
-      }
-      await playCurrentStep(page);
-    }
-    await expect(page.getByTestId("culture-victory")).toBeVisible();
-    expect(sawSequence).toBeTruthy();
+    await playCultureLessonToVictory(page);
     await expect(page.getByTestId("culture-stars")).toBeVisible();
     const persist = await readPersist(page);
     expect(persist.cultureCompletedIds).toContain("bargaining-context");

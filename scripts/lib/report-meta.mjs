@@ -34,6 +34,8 @@ export const CURRICULUM_SOURCES = [
   "src/data/chinaSurvivalMobility.ts",
   "src/data/mobilitySurvivalScenes.ts",
   "src/data/mobilitySurvivalPlans.ts",
+  "src/data/cultureNative.ts",
+  "src/data/cultureLessons.ts",
   "src/data/topicMasteryBonus.ts",
   "src/data/exerciseFeasibility.ts",
   "src/features/lesson/lessonTasks.ts",

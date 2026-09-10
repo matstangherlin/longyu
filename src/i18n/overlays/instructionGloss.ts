@@ -6,8 +6,12 @@
 
 import instructionGlossEn from "./instructionGloss.en.json";
 import { DEFAULT_LOCALE, type SupportedLocale } from "../config";
+import { CULTURE_NATIVE_GLOSS_EN } from "../../data/cultureLessons";
 
-export const INSTRUCTION_GLOSS_EN: Record<string, string> = instructionGlossEn as Record<string, string>;
+export const INSTRUCTION_GLOSS_EN: Record<string, string> = {
+  ...(instructionGlossEn as Record<string, string>),
+  ...CULTURE_NATIVE_GLOSS_EN,
+};
 
 const CJK_RE = /[\u3400-\u9fff]/;
 const PINYIN_MARK_CHARS = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜüĀÁǍÀĒÉĚÈĪÍǏÌŌÓǑÒŪÚǓÙ]/;

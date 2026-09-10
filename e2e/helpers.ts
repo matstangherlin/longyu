@@ -9,7 +9,8 @@ export const PRO_PRICING_HEADLINE =
 export const PRO_CHECKOUT_PENDING =
   /Indisponível enquanto o preço está pendente|Unavailable while pricing is pending/i;
 
-// Seeds stay on persist v21 so v22 Culture Quest and v23 teaching-loop migrations run in E2E.
+// Seeds stay on persist v21 so v22 Culture Quest, v23 teaching-loop, and v24
+// native Culture Lesson id migrations run in E2E.
 // Older versions still pass through every prior migrate (v14 strips preview Pro).
 const STORE_VERSION = 21;
 

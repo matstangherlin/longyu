@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition, type ReactNode } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
@@ -67,11 +67,7 @@ import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { CultureTouchpoint } from "../culture/CultureTouchpoint";
-import { JourneyCultureBridgePanel } from "../culture/JourneyCultureBridge";
-import {
-  cultureBridgeForLesson,
-  isCultureBridgeBlockedKind,
-} from "../../data/cultureJourneyBridges";
+import { cultureItemIdFromLessonId } from "../../data/cultureNative";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
@@ -166,6 +162,15 @@ const SKILL_TRACK: Record<Skill, Track> = {
 
 function isGradedStep(step: LessonStep): boolean {
   return isEvaluableQuestionStep(step);
+}
+
+function cultureReturnPath(search: URLSearchParams, isCulture: boolean): string {
+  const from = search.get("from");
+  if (from?.startsWith("/")) return from;
+  const src = search.get("src");
+  if (src === "jornada") return "/jornada";
+  if (src === "cultura" || isCulture) return "/cultura";
+  return "/jornada";
 }
 
 const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
@@ -1728,13 +1733,14 @@ function buildNextFocus({
 export function LessonPlayer() {
   const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
   const completeLesson = useStore((s) => s.completeLesson);
   const saveCultureItem = useStore((s) => s.saveCultureItem);
+  const startCultureItem = useStore((s) => s.startCultureItem);
   const cultureSavedIds = useStore((s) => s.cultureSavedIds);
-  const completeCultureBridge = useStore((s) => s.completeCultureBridge);
   const cultureKnowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
@@ -1822,10 +1828,7 @@ export function LessonPlayer() {
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
   const [cultureTouchpointOpen, setCultureTouchpointOpen] = useState(true);
-  const [cultureBridgeOpen, setCultureBridgeOpen] = useState(false);
-  const [culturePlusOne, setCulturePlusOne] = useState(false);
-  const cultureBridgeShownRef = useRef(false);
-  const pendingAfterBridgeRef = useRef<null | { type: "next" | "finish"; correct: number }>(null);
+  const [cultureSourcesOpen, setCultureSourcesOpen] = useState(false);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
   const [answerStreak, setAnswerStreak] = useState(0);
   const [streakBurst, setStreakBurst] = useState(0);
@@ -1918,7 +1921,15 @@ export function LessonPlayer() {
   // PERF-011 — shell rápido com passos autorais; plano adaptativo em startTransition.
   const authoredEnrichedSteps = useMemo(() => {
     if (!foundLesson) return null;
-    return foundLesson.steps.map((step) =>
+    let sourceSteps = foundLesson.steps;
+    if (foundLesson.lessonDomain === "culture") {
+      const conceptId = foundLesson.cultureConceptIds?.[0] ?? `${foundLesson.cultureItemId ?? ""}-core`;
+      const knowledge = cultureKnowledgeById[conceptId];
+      if (knowledge?.state === "practiced" || knowledge?.state === "mastered" || knowledge?.state === "review_due") {
+        sourceSteps = sourceSteps.filter((step) => step.kind !== "intro");
+      }
+    }
+    return sourceSteps.map((step) =>
       enrichMatchPairsStep(step, {
         currentLessonId: foundLesson.id,
         phaseOrder: foundLesson.phaseOrder,
@@ -1927,7 +1938,13 @@ export function LessonPlayer() {
         learnedChars,
       })
     );
-  }, [completedLessons, foundLesson, learnedChars, learnedChunks]);
+  }, [completedLessons, cultureKnowledgeById, foundLesson, learnedChars, learnedChunks]);
+
+  useEffect(() => {
+    if (foundLesson?.lessonDomain !== "culture") return;
+    const itemId = foundLesson.cultureItemId ?? cultureItemIdFromLessonId(foundLesson.id);
+    if (itemId) startCultureItem(itemId);
+  }, [foundLesson?.cultureItemId, foundLesson?.id, foundLesson?.lessonDomain, startCultureItem]);
 
   const [adaptiveSteps, setAdaptiveSteps] = useState<LessonStep[] | null>(null);
   const [planReady, setPlanReady] = useState(false);
@@ -2182,6 +2199,7 @@ export function LessonPlayer() {
 
   useEffect(() => {
     if (!foundLesson || !entryChecked || finished || pendingReviewRestoredRef.current) return;
+    if (foundLesson.lessonDomain === "culture") return;
     const masteryRecord = lessonMasteryById?.[foundLesson.id];
     const cursor = lessonSessionStepById?.[foundLesson.id];
     if (
@@ -2708,6 +2726,7 @@ export function LessonPlayer() {
   }
 
   function gradeErrorTargets(error: ActivityError, grade: "again" | "good") {
+    if (lesson.lessonDomain === "culture") return;
     for (const target of error.targets) {
       gradeReviewDomain({
         ensureSrs,
@@ -3169,25 +3188,6 @@ export function LessonPlayer() {
       finish(nextCorrect, "out_of_lives");
       return;
     }
-    const bridge = cultureBridgeForLesson(lesson.id);
-    const nextStep = lesson.steps[idx + 1];
-    const atEnd = idx + 1 >= total;
-    const progressRatio = (idx + 1) / Math.max(1, total);
-    const nextOk = atEnd || !nextStep || !isCultureBridgeBlockedKind(nextStep.kind);
-    const midReady =
-      Boolean(bridge) &&
-      bridge?.placement === "mid" &&
-      !cultureBridgeShownRef.current &&
-      progressRatio >= 0.35 &&
-      nextOk;
-    const endReady =
-      Boolean(bridge) && bridge?.placement === "end" && !cultureBridgeShownRef.current && atEnd;
-    if (bridge && (midReady || endReady)) {
-      cultureBridgeShownRef.current = true;
-      pendingAfterBridgeRef.current = { type: atEnd ? "finish" : "next", correct: nextCorrect };
-      setCultureBridgeOpen(true);
-      return;
-    }
     if (idx + 1 >= total) finish(nextCorrect);
     else setIdx(idx + 1);
   }
@@ -3204,17 +3204,19 @@ export function LessonPlayer() {
       return;
     }
     const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
-    for (const target of targets) {
-      gradeReviewDomain({
-        ensureSrs,
-        gradeSrs,
-        type: target.type,
-        itemId: target.itemId,
-        track: target.track,
-        domain: target.domain,
-        grade: "again",
-      });
-      folegoSkipRefsRef.current.add(`${target.type}:${target.itemId}`);
+    if (lesson.lessonDomain !== "culture") {
+      for (const target of targets) {
+        gradeReviewDomain({
+          ensureSrs,
+          gradeSrs,
+          type: target.type,
+          itemId: target.itemId,
+          track: target.track,
+          domain: target.domain,
+          grade: "again",
+        });
+        folegoSkipRefsRef.current.add(`${target.type}:${target.itemId}`);
+      }
     }
     folegoSkipCountRef.current += 1;
     skippedStepsRef.current += 1;
@@ -3253,7 +3255,7 @@ export function LessonPlayer() {
       });
     }
     playSoundFx("phaseExit", soundEffects);
-    navigate("/jornada");
+    navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
@@ -3263,12 +3265,14 @@ export function LessonPlayer() {
     // Itens distintos praticados nesta sessão — alimentam o resumo final.
     const practicedChunkIds = new Set<string>();
     const practicedCharIds = new Set<string>();
+    const isCultureDomain = lesson.lessonDomain === "culture";
     const gradeOnce = (
       type: ItemType,
       itemId: string,
       domain: ReviewDomain,
       sourceTrack: Track = track
     ) => {
+      if (isCultureDomain) return;
       const key = `${type}:${itemId}:${domain}`;
       if (type === "chunk") practicedChunkIds.add(itemId);
       else practicedCharIds.add(itemId);
@@ -3385,19 +3389,21 @@ export function LessonPlayer() {
       }
     }
     const weakDomains = new Set<string>();
-    for (const target of mistakeReviewTargetsRef.current) {
-      const key = `${target.type}:${target.itemId}:${target.domain}:${target.track}`;
-      if (weakDomains.has(key)) continue;
-      weakDomains.add(key);
-      gradeReviewDomain({
-        ensureSrs,
-        gradeSrs,
-        type: target.type,
-        itemId: target.itemId,
-        track: target.track,
-        domain: target.domain,
-        grade: "again",
-      });
+    if (!isCultureDomain) {
+      for (const target of mistakeReviewTargetsRef.current) {
+        const key = `${target.type}:${target.itemId}:${target.domain}:${target.track}`;
+        if (weakDomains.has(key)) continue;
+        weakDomains.add(key);
+        gradeReviewDomain({
+          ensureSrs,
+          gradeSrs,
+          type: target.type,
+          itemId: target.itemId,
+          track: target.track,
+          domain: target.domain,
+          grade: "again",
+        });
+      }
     }
     const minutesEarned = lesson.estimatedMinutes ?? 5;
     const goalMin = DAILY_GOAL_PER_TRACK * 4;
@@ -3490,7 +3496,9 @@ export function LessonPlayer() {
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
-    setErrorReviewMode(activityErrorsRef.current.length > 0 ? "offer" : "idle");
+    setErrorReviewMode(
+      lesson.lessonDomain === "culture" || activityErrorsRef.current.length === 0 ? "idle" : "offer"
+    );
     setCorrectedErrorIds([]);
     setRecovered(false);
     recoveryAppliedRef.current = false;
@@ -3735,6 +3743,7 @@ export function LessonPlayer() {
           onStart={() => setErrorReviewMode("review")}
           onLater={() => {
             setErrorReviewMode("dismissed");
+            if (lesson.lessonDomain === "culture") return;
             const topicNodeDone = isTopicMasteryLesson(lesson);
             const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
             // Tema em andamento: fica na vitória (Lição X de 4). Só vai à
@@ -4071,7 +4080,7 @@ export function LessonPlayer() {
 
     function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
-      else navigate("/jornada");
+      else navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
     }
 
     // Botão principal: 1º toque resgata (se houver), depois volta à Jornada.
@@ -4106,7 +4115,7 @@ export function LessonPlayer() {
       // Pérolas de ofensiva: só marcos únicos (streak:7, streak:30, …).
       maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("streak", soundEffects);
-      navigate("/jornada");
+      navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
     }
 
     if (postLessonView === "streak") {
@@ -4170,6 +4179,7 @@ export function LessonPlayer() {
       <div
         className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[env(safe-area-inset-bottom)]"
         data-lesson-victory
+        data-testid={lesson.lessonDomain === "culture" ? "culture-victory" : undefined}
       >
         {recoveryDebugPanel}
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift">
@@ -4182,7 +4192,10 @@ export function LessonPlayer() {
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {displayLessonTitle(lesson.title, locale)}
           </div>
-          <div className="relative mx-auto mt-1 h-14 w-20 shrink-0">
+          <div
+            className="relative mx-auto mt-1 h-14 w-20 shrink-0"
+            data-testid={lesson.lessonDomain === "culture" ? "culture-stars" : undefined}
+          >
             <div className="absolute inset-x-0 top-0 flex justify-center">
               <Mascot size={56} variant="celebrate" />
             </div>
@@ -4262,7 +4275,9 @@ export function LessonPlayer() {
 
           {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
           <div className="mt-3 flex flex-wrap items-stretch justify-center gap-1.5">
-            <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
+            <span data-testid={lesson.lessonDomain === "culture" ? "culture-xp" : undefined}>
+              <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
+            </span>
             <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
             <MetricChip value={`${precision}%`} label={t("player.accuracy")} tone={precision >= 80 ? "good" : "neutral"} />
             {extraRewards.map((reward) => (
@@ -4290,7 +4305,7 @@ export function LessonPlayer() {
             {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · {t("player.rewardsReceived")}</span>}
           </div>
 
-          {lesson.cultureItemId && cultureTouchpointOpen ? (
+          {lesson.lessonDomain !== "culture" && lesson.cultureItemId && cultureTouchpointOpen ? (
             <CultureTouchpoint
               cultureItemId={lesson.cultureItemId}
               lessonId={lesson.id}
@@ -4452,7 +4467,7 @@ export function LessonPlayer() {
             <Button
               className="min-h-12 w-full shadow-lift"
               size="lg"
-              data-testid="topic-victory-return"
+              data-testid={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
               onClick={handlePrimaryAction}
             >
               {hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
@@ -4488,12 +4503,19 @@ export function LessonPlayer() {
         .filter(Boolean)
         .join(" · ")
     : undefined;
+  const cultureTeachSkipped =
+    lesson.lessonDomain === "culture" &&
+    (foundLesson.steps ?? []).some((item) => item.kind === "intro") &&
+    !(authoredEnrichedSteps ?? []).some((item) => item.kind === "intro");
 
   return (
     <div
       className="fixed z-40 flex flex-col overflow-hidden bg-bg"
       data-lesson-player-frame
       data-lesson-id={lesson.id}
+      data-lesson-domain={lesson.lessonDomain ?? "mandarin"}
+      data-culture-id={lesson.cultureItemId ?? cultureItemIdFromLessonId(lesson.id) ?? undefined}
+      data-testid={lesson.lessonDomain === "culture" ? "culture-item" : undefined}
       data-mastery-pass={String(
         nextMasteryPass(lessonMasteryById?.[lesson.id]?.level ?? 0, {
           recoveryPending: lessonMasteryById?.[lesson.id]?.recoveryPending,
@@ -4538,13 +4560,6 @@ export function LessonPlayer() {
           </div>
         </div>
       )}
-      {culturePlusOne ? (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
-          <div className="rounded-full border border-accent-soft bg-surface px-4 py-2 text-sm font-semibold text-accent shadow-card" data-testid="culture-plus-one">
-            {t("culture.plusOne")}
-          </div>
-        </div>
-      ) : null}
       {chargePenaltyNotice && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-error-shake rounded-full border border-wrong/30 bg-wrong-soft px-4 py-2 text-sm font-semibold text-wrong shadow-card">
@@ -4571,8 +4586,65 @@ export function LessonPlayer() {
         unlimitedLives={hasUnlimitedLives}
         folego={folego}
         folegoUnlimited={isPremium}
-        stageLabel={stageLabel}
+        stageLabel={
+          lesson.lessonDomain === "culture"
+            ? [t("culture.lessonEyebrow"), stageLabel].filter(Boolean).join(" · ")
+            : stageLabel
+        }
       />
+
+      {lesson.lessonDomain === "culture" ? (
+        <div className="flex items-center justify-between gap-2 px-2 pb-1 sm:px-0">
+          <button
+            type="button"
+            className="min-h-10 text-xs font-medium text-ink-soft underline-offset-2 hover:underline"
+            data-testid="culture-back"
+            onClick={exitLesson}
+          >
+            {t("common.back")}
+          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="min-h-10 rounded-full border border-line px-3 text-xs"
+              data-testid="culture-save"
+              onClick={() => lesson.cultureItemId && saveCultureItem(lesson.cultureItemId, true)}
+              disabled={Boolean(lesson.cultureItemId && (cultureSavedIds ?? []).includes(lesson.cultureItemId))}
+            >
+              {lesson.cultureItemId && (cultureSavedIds ?? []).includes(lesson.cultureItemId)
+                ? t("culture.saved")
+                : t("culture.saveForLater")}
+            </button>
+            <button
+              type="button"
+              className="min-h-10 rounded-full border border-line px-3 text-xs"
+              data-testid="culture-sources-open"
+              onClick={() => setCultureSourcesOpen((open) => !open)}
+            >
+              {t("culture.openSources")}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {cultureTeachSkipped ? (
+        <p className="px-2 pb-1 text-xs font-medium text-accent sm:px-0" data-testid="culture-seen-on-journey">
+          {t("culture.practicedOnJourney")}
+        </p>
+      ) : null}
+      {lesson.lessonDomain === "culture" && cultureSourcesOpen ? (
+        <div className="mx-2 mb-2 rounded-2xl border border-line bg-surface p-3 text-left text-xs sm:mx-0" data-testid="culture-sources">
+          <p className="font-semibold text-ink">{t("culture.sourcesAndContext")}</p>
+          <ul className="mt-2 space-y-1 text-ink-soft">
+            {(lesson.cultureSources ?? []).map((source) => (
+              <li key={source.url}>
+                <a href={source.url} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
+                  {source.title} · {source.publisher}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {showFolegoUpsell && (
         <FolegoUpsellModal
@@ -4619,47 +4691,21 @@ export function LessonPlayer() {
       <Card
         data-lesson-step-frame
         data-lesson-task-body
-        data-current-step-kind={cultureBridgeOpen ? "culture_bridge" : step.kind}
+        data-current-step-kind={step.kind}
         data-current-step-index={idx}
+        data-testid={lesson.lessonDomain === "culture" && step.kind === "intro" ? "culture-teach" : undefined}
         className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
-        {cultureBridgeOpen && cultureBridgeForLesson(lesson.id) ? (
-          <JourneyCultureBridgePanel
-            bridge={cultureBridgeForLesson(lesson.id)!}
-            recall={["practiced", "mastered", "review_due"].includes(
-              cultureKnowledgeById[cultureBridgeForLesson(lesson.id)!.cultureConceptId]?.state ?? ""
-            )}
-            onFinished={(result) => {
-              const catalog = cultureBridgeForLesson(lesson.id);
-              if (catalog) {
-                completeCultureBridge({
-                  conceptId: catalog.cultureConceptId,
-                  cultureItemId: catalog.cultureItemId,
-                  taught: result.taught,
-                  taskCorrect: result.taskCorrect,
-                });
-              }
-              setCultureBridgeOpen(false);
-              setCulturePlusOne(true);
-              window.setTimeout(() => setCulturePlusOne(false), 1800);
-              const pending = pendingAfterBridgeRef.current;
-              pendingAfterBridgeRef.current = null;
-              if (pending?.type === "finish") finish(pending.correct);
-              else setIdx(idx + 1);
-            }}
-          />
-        ) : (
-          <StepRenderer
-            key={`${idx}:${stepAttempt}`}
-            step={step}
-            lessonId={lesson.id}
-            attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
-            onDone={handleDone}
-            onSkip={canSkipStep ? skipCurrentStep : undefined}
-            onMistake={canSkipStep ? registerCurrentMistake : undefined}
-            onUnrecognized={registerUnrecognizedAnswer}
-          />
-        )}
+        <StepRenderer
+          key={`${idx}:${stepAttempt}`}
+          step={step}
+          lessonId={lesson.id}
+          attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
+          onDone={handleDone}
+          onSkip={canSkipStep ? skipCurrentStep : undefined}
+          onMistake={canSkipStep ? registerCurrentMistake : undefined}
+          onUnrecognized={registerUnrecognizedAnswer}
+        />
       </Card>
       </div>
 
