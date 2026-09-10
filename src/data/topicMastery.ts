@@ -31,6 +31,7 @@ export interface TopicLessonRef {
   isReview?: boolean;
   reviewMasteryMode?: boolean;
   curriculumRole?: string;
+  lessonDomain?: "mandarin" | "culture";
 }
 
 export interface TopicMasteryProgressContext {
@@ -83,6 +84,7 @@ export const TOPIC_MASTERY_CTA: Record<
 /** Normal teaching node: 4/4 Topic Mastery. Reviews are explicit exceptions. */
 export function isTopicMasteryLesson(lesson: TopicLessonRef | undefined | null): boolean {
   if (!lesson) return false;
+  if (lesson.lessonDomain === "culture") return false;
   if (lesson.isReview) return false;
   if (lesson.reviewMasteryMode) return false;
   return true;

@@ -471,7 +471,15 @@ export const CULTURE_JOURNEY_BRIDGES: CultureJourneyBridge[] = [
 
 const byLesson = new Map(CULTURE_JOURNEY_BRIDGES.map((bridge) => [bridge.lessonId, bridge]));
 
-export function cultureBridgeForLesson(lessonId: string): CultureJourneyBridge | undefined {
+/**
+ * V4.9.8A.1 — native Culture Lessons replace mid-lesson bridges.
+ * The catalog stays for audit, but LessonPlayer must not inject it.
+ */
+export function cultureBridgeForLesson(_lessonId: string): CultureJourneyBridge | undefined {
+  return undefined;
+}
+
+export function cultureBridgeCatalogForLesson(lessonId: string): CultureJourneyBridge | undefined {
   return byLesson.get(lessonId);
 }
 

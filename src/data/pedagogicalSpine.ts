@@ -47,6 +47,10 @@ export interface PedagogicalStepEvidence {
   hiddenSkillRequirements?: string[];
   distractorSafety?: DistractorSafety;
   graded?: boolean;
+  /** V4.9.8A.1 — culture steps reuse the same evidence contract. */
+  domain?: "mandarin" | "culture";
+  role?: "teach" | "guided_application" | "independent_application" | "recall";
+  conceptId?: string;
 }
 
 export interface KnowledgeTarget {

@@ -4,10 +4,12 @@ import { FOUNDATION_TARGET_IDS, type KnowledgeStage } from "./pedagogicalSpine";
 import type { MandarinTone } from "./toneTrainer";
 import { JOURNEY_THEMES, themeForTopic } from "./journeyThemes";
 import { isTopicMasteryLesson } from "./topicMastery";
+import { CULTURE_JOURNEY_PLACEMENT, cultureJourneyNodeId, cultureLessonIdForItem } from "./cultureNative";
 
 export type JourneyNodeType =
   | "CORE_LESSON"
   | "LESSON_CAPSULE"
+  | "CULTURE_LESSON"
   | "PRACTICE"
   | "REVIEW"
   | "BLITZ"
@@ -36,6 +38,8 @@ export interface JourneyNode {
   anyOfKnowledgeTargetIds?: string[][];
   /** Nodes auxiliares que precisam estar concluídos antes deste. */
   requiresNodeIds?: string[];
+  /** Lições canônicas que precisam estar concluídas (path-complete) antes deste node. */
+  requiredCompletedLessonIds?: string[];
   /**
    * Estar neste tópico dispensa os requisitos de ESTÁGIO do node — não o node
    * inteiro. Repertório, grupos OR e pré-requisitos continuam valendo.
@@ -247,8 +251,21 @@ export const IMMERSION_READINESS_NODE: JourneyNode = {
   affectsCoreMastery: false,
 };
 
+const cultureLessonNodes: JourneyNode[] = CULTURE_JOURNEY_PLACEMENT.map((row) => ({
+  id: cultureJourneyNodeId(row.itemId),
+  type: "CULTURE_LESSON",
+  priority: row.track === "core" ? "CORE" : "OPTIONAL",
+  sourceThemeId: themeForTopic(row.afterTopicId)?.id ?? `theme:${row.afterTopicId}`,
+  sourceId: cultureLessonIdForItem(row.itemId),
+  afterTopicId: row.afterTopicId,
+  requiredCompletedLessonIds: [row.afterTopicId],
+  returnToJourney: true,
+  affectsCoreMastery: false,
+}));
+
 export const JOURNEY_NODES: JourneyNode[] = [
   ...coreLessonNodes,
+  ...cultureLessonNodes,
   PINYIN_CAPSULE_NODE,
   FOUNDATION_BLITZ_NODE,
   TONE_CONTOUR_INTRO_NODE,
@@ -286,6 +303,8 @@ export function routeForJourneyNode(node: JourneyNode): string {
       return `/revisao?${query}`;
     case "PRACTICE":
       return `/imersao?${query}`;
+    case "CULTURE_LESSON":
+      return `/licao/${encodeURIComponent(node.sourceId ?? "")}/player?src=jornada&${query}`;
     default:
       return `/jornada`;
   }

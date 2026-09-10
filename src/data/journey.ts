@@ -26,6 +26,7 @@ import {
   isJourneyTopicComplete,
   type TopicMasteryProgressContext,
 } from "./topicMastery";
+import { CULTURE_NATIVE_LESSONS } from "./cultureLessons";
 
 export type { CurriculumRole };
 
@@ -455,6 +456,14 @@ export interface Lesson {
   hanziMemoryTargets?: string[];
   /** Optional Culture Hub touchpoint shown at the end of a related lesson. */
   cultureItemId?: string;
+  /**
+   * V4.9.8A.1 — a lesson remains a Lesson. Culture is a domain, not a second player.
+   */
+  lessonDomain?: "mandarin" | "culture";
+  cultureConceptIds?: string[];
+  cultureRouteId?: string;
+  cultureMemoryTargets?: string[];
+  cultureSources?: Array<{ title: string; publisher: string; url: string }>;
   rewardQi?: number;
   estimatedMinutes?: number;
   /** Lição de consolidação no fim do módulo (nó dourado). */
@@ -8790,7 +8799,20 @@ export const ALL_LESSONS: FlatLesson[] = JOURNEY.flatMap((p) =>
   )
 );
 
-export const getLesson = (id: string) => ALL_LESSONS.find((l) => l.id === id);
+const CULTURE_FLAT_LESSONS: FlatLesson[] = CULTURE_NATIVE_LESSONS.map((lesson) => ({
+  ...lesson,
+  phaseId: "culture-native",
+  phaseTitle: "Cultura",
+  phaseOrder: 99,
+  phaseTier: "avancado",
+  phaseWhy: "Cultura na Jornada",
+  unitId: "culture-native",
+  unitTitle: "Cultura",
+  unitColor: "#b45309",
+}));
+
+export const getLesson = (id: string) =>
+  ALL_LESSONS.find((l) => l.id === id) ?? CULTURE_FLAT_LESSONS.find((l) => l.id === id);
 
 function pathContext(
   completed: string[],

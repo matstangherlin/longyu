@@ -1,4 +1,5 @@
 import { getCultureItem, localizedCulture } from "../../data/culture";
+import { cultureLessonPlayerPath } from "../../data/cultureNative";
 import { Button, ButtonLink } from "../../components/ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { SupportedLocale } from "../../i18n/config";
@@ -22,7 +23,10 @@ export function CultureTouchpoint({
   const item = getCultureItem(cultureItemId);
   if (!item) return null;
   const copy = localizedCulture(item, instructionLocale as SupportedLocale);
-  const href = `/cultura/${item.id}?from=${encodeURIComponent(from)}&src=journey&lesson=${encodeURIComponent(lessonId)}`;
+  const href = cultureLessonPlayerPath(
+    item.id,
+    `?from=${encodeURIComponent(from)}&src=journey&lesson=${encodeURIComponent(lessonId)}`
+  );
   return (
     <aside
       className="mt-4 rounded-2xl border border-accent/25 bg-accent-soft/20 p-3 text-left"

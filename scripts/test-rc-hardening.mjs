@@ -76,7 +76,7 @@ const identity = read("src/lib/releaseCandidate.ts");
 assert(identity.includes('LONGYU_RC_VERSION = "v4.7.4-rc.1"'), "RC version");
 assert(identity.includes("EXPECTED_PLACEMENT_VERSION = 2"), "RC placement 2");
 assert(identity.includes("EXPECTED_PROGRESS_SCHEMA_VERSION = 1"), "RC schema 1");
-assert(identity.includes("EXPECTED_STORE_VERSION = 23"), "RC store 23");
+assert(identity.includes("EXPECTED_STORE_VERSION = 24"), "RC store 24");
 for (const slug of LONGYU_EDGE_FUNCTIONS) {
   assert(identity.includes(`"${slug}"`), `RC lista Edge ${slug}`);
 }

@@ -53,9 +53,18 @@ export function loadCultureRuntime() {
   const { CULTURE_MISSIONS, cultureMissionStats } = require("../../src/data/cultureMissions.ts");
   const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS } = require("../../src/data/cultureQuest.ts");
   const { CULTURE_JOURNEY_BRIDGES } = require("../../src/data/cultureJourneyBridges.ts");
+  const { CULTURE_NATIVE_LESSONS, CULTURE_NATIVE_GLOSS_EN } = require("../../src/data/cultureLessons.ts");
+  const { CULTURE_JOURNEY_PLACEMENT, migrateNativeCultureProgress } = require("../../src/data/cultureNative.ts");
+  const { JOURNEY_NODES, routeForJourneyNode } = require("../../src/data/journeyOrchestrator.ts");
+  const { isTopicMasteryLesson } = require("../../src/data/topicMastery.ts");
   const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
   const lessonPlayerSource = fs.readFileSync("src/features/lesson/LessonPlayer.tsx", "utf8");
   const storeSource = fs.readFileSync("src/lib/store.ts", "utf8");
+  const cultureItemPageSource = fs.readFileSync("src/features/culture/CultureItemPage.tsx", "utf8");
+  const cultureHubSource = fs.readFileSync("src/features/culture/CultureHubPage.tsx", "utf8");
+  const cultureReviewSource = fs.readFileSync("src/features/culture/CultureReviewPage.tsx", "utf8");
+  const journeyInlineSource = fs.readFileSync("src/features/journey/JourneyInlineNode.tsx", "utf8");
+  const { INSTRUCTION_GLOSS_EN, hasEnglishOverlay } = require("../../src/i18n/overlays/instructionGloss.ts");
   return {
     items: CULTURE_ITEMS,
     categories: CULTURE_CATEGORIES,
@@ -67,6 +76,13 @@ export function loadCultureRuntime() {
     routes: CULTURE_ROUTES,
     seals: CULTURE_SEALS,
     lessons: ALL_LESSONS,
+    nativeLessons: CULTURE_NATIVE_LESSONS,
+    nativeGloss: CULTURE_NATIVE_GLOSS_EN,
+    placement: CULTURE_JOURNEY_PLACEMENT,
+    nodes: JOURNEY_NODES,
+    routeForJourneyNode,
+    isTopicMasteryLesson,
+    migrateNativeCultureProgress,
     chunks: CHUNKS,
     characters: CHARACTERS,
     units: allJourneyUnits(),
@@ -76,6 +92,12 @@ export function loadCultureRuntime() {
     bridges: CULTURE_JOURNEY_BRIDGES,
     lessonPlayerSource,
     storeSource,
+    cultureItemPageSource,
+    cultureHubSource,
+    cultureReviewSource,
+    journeyInlineSource,
+    gloss: INSTRUCTION_GLOSS_EN,
+    hasEnglishOverlay,
   };
 }
 

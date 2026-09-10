@@ -6,7 +6,24 @@ export function validateCultureJourneyIntegration(data) {
   const missions = new Map((data.missions ?? []).map((mission) => [mission.cultureItemId, mission]));
   const ineligible = data.ineligible ?? {};
   const bridges = data.bridges ?? [];
+  const nativeLessons = data.nativeLessons ?? [];
+  const nativeByItem = new Map(
+    nativeLessons.map((lesson) => [lesson.cultureItemId ?? String(lesson.id ?? "").replace(/^culture-/, ""), lesson])
+  );
+  const nodes = (data.nodes ?? []).filter((node) => node.type === "CULTURE_LESSON");
+  const nodeByItem = new Map(
+    nodes.map((node) => [String(node.id ?? "").replace(/^culture:/, ""), node])
+  );
   const byLesson = new Map();
+
+  for (const item of data.items ?? []) {
+    if (!nativeByItem.has(item.id)) {
+      fail("NATIVE_COVERAGE", item.id, "published CultureItem needs a native Culture Lesson");
+    }
+    if (!nodeByItem.has(item.id)) {
+      fail("NATIVE_COVERAGE", item.id, "published CultureItem needs a CULTURE_LESSON journey node");
+    }
+  }
 
   for (const bridge of bridges) {
     if (byLesson.has(bridge.lessonId)) fail("DOUBLE_BRIDGE", bridge.lessonId, "at most one culture bridge per lesson");
@@ -41,19 +58,20 @@ export function validateCultureJourneyIntegration(data) {
     }
   }
 
-  if (bridges.length < 8 || bridges.length > 12) {
+  const nativeCoverage = (data.items ?? []).every((item) => nativeByItem.has(item.id) && nodeByItem.has(item.id));
+  if (!nativeCoverage && (bridges.length < 8 || bridges.length > 12)) {
     fail("BRIDGE_COUNT", "catalog", `expected 8–12 journey bridges, found ${bridges.length}`);
   }
 
   const player = data.lessonPlayerSource ?? "";
+  if (player && /setCultureBridgeOpen\(true\)/.test(player)) {
+    fail("REDUNDANT_BRIDGE", "LessonPlayer", "native culture lessons replace mid-lesson bridge injection");
+  }
   if (player && /ensureSrs\(/.test(player) && /completeCultureBridge[\s\S]{0,400}ensureSrs/.test(player)) {
     fail("SRS_LEAK", "LessonPlayer", "culture bridge must not touch lexical SRS");
   }
-  if (player && !/completeCultureBridge/.test(player)) {
-    fail("NO_PLAYER_HOOK", "LessonPlayer", "LessonPlayer must inject the culture bridge");
-  }
-  if (player && !/pendingAfterBridgeRef/.test(player)) {
-    fail("BLOCKS_COMPLETION", "LessonPlayer", "bridge must resume lesson completion");
+  if (player && /lessonDomain === "culture"/.test(player) && /function finish[\s\S]+ensureSrs/.test(player) && !/isCultureDomain/.test(player)) {
+    fail("SRS_LEAK", "LessonPlayer", "culture native finish must skip lexical SRS");
   }
 
   return { failures, count: bridges.length };
