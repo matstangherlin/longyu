@@ -189,12 +189,13 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("p6-direcoes player reaches a map", async ({ page }) => {
     test.setTimeout(120_000);
-    // Maps live on M2 so flashcards can stay on M1 (no_false_depth).
+    // M2 skips the M1 tone wall. First authored map is 银行→公园 (scaffold 2);
+    // later M2 maps use 南京路/酒店/地铁站. Assert any mobility endpoint.
     await openMobilityPassPlayer(page, "p6-direcoes", 1);
-    const map = await advanceUntilSelector(page, '[data-current-step-kind="map_direction"]', 80, 90_000);
-    expect(map).toBeTruthy();
-    await expect(page.getByText("酒店").first()).toBeVisible();
-    await expect(page.getByText("地铁站").first()).toBeVisible();
+    const reached = await advanceUntilSelector(page, '[data-current-step-kind="map_direction"]', 80, 90_000);
+    expect(reached).toBeTruthy();
+    await expect(page.locator('[data-current-step-kind="map_direction"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/银行|酒店|南京路|公园|地铁站/).first()).toBeVisible({ timeout: 15_000 });
   });
 
   test("p7 station player reaches a mobility conversation", async ({ page }) => {
