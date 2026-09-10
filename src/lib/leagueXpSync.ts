@@ -1,5 +1,7 @@
 import { useStore } from "./store";
 import { addLeagueWeeklyXpOnServer } from "../services/leagueService";
+import { getSupabaseClient } from "./supabaseClient";
+import { isSupabaseBackendEnabled } from "./backendConfig";
 
 export const LEAGUE_XP_SYNCED_EVENT = "longyu:league-xp-synced";
 export const LEAGUE_XP_SYNC_FAILED_EVENT = "longyu:league-xp-sync-failed";
@@ -76,10 +78,25 @@ function logDev(message: string, detail?: unknown): void {
   }
 }
 
-function isCloudAccount(): { ok: true; accountId: string } | { ok: false } {
+function localCloudAccount(): { ok: true; accountId: string } | { ok: false } {
   const { accounts, currentAccountId } = useStore.getState();
   const account = accounts[currentAccountId];
-  if (!account || account.authMode !== "cloud") return { ok: false };
+  if (!account) return { ok: false };
+  if (account.authMode === "cloud") return { ok: true, accountId: currentAccountId };
+  return { ok: false };
+}
+
+async function resolveCloudAccount(): Promise<{ ok: true; accountId: string } | { ok: false }> {
+  const local = localCloudAccount();
+  if (local.ok) return local;
+  if (!isSupabaseBackendEnabled()) return { ok: false };
+  const client = getSupabaseClient();
+  if (!client) return { ok: false };
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  if (!user?.id) return { ok: false };
+  const { currentAccountId } = useStore.getState();
   return { ok: true, accountId: currentAccountId };
 }
 
@@ -118,7 +135,7 @@ export async function syncLeagueXpToServer(
   if (inc <= 0) return { ok: false, added: 0, reason: "zero_amount", sourceKey: key };
   if (key.length < 3) return { ok: false, added: 0, reason: "invalid_key", sourceKey: key };
 
-  const cloud = isCloudAccount();
+  const cloud = await resolveCloudAccount();
   if (!cloud.ok) return { ok: false, added: 0, reason: "not_cloud", sourceKey: key };
 
   queuePending(cloud.accountId, inc, key);
@@ -132,7 +149,7 @@ export function syncLeagueXpToServerAsync(amount: number, sourceKey: string): vo
 
 /** Reenvia XP pendente (offline / falha anterior). Chamado ao abrir Ligas ou após login. */
 export async function flushPendingLeagueXpSync(): Promise<number> {
-  const cloud = isCloudAccount();
+  const cloud = await resolveCloudAccount();
   if (!cloud.ok) return 0;
 
   const pending = readPending(cloud.accountId);
@@ -171,7 +188,7 @@ export function onLeagueXpSyncFailed(
 
 /** Quantidade de eventos de XP ainda não confirmados pelo servidor. */
 export function getPendingLeagueXpCount(): number {
-  const cloud = isCloudAccount();
-  if (!cloud.ok) return 0;
-  return readPending(cloud.accountId).length;
+  const { currentAccountId } = useStore.getState();
+  if (!currentAccountId) return 0;
+  return readPending(currentAccountId).length;
 }

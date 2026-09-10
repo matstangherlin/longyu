@@ -2,6 +2,7 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import type { LeagueOutcome, LeagueTier } from "../lib/leagues";
 import { LEAGUE_META, normalizeLeagueTier } from "../lib/leagues";
+import { leagueFixtureToPayload, readLeagueLiveFixture } from "../lib/leagueLiveFixture";
 
 export type LeagueDataMode = "live" | "demo" | "loading" | "error";
 
@@ -72,10 +73,12 @@ function parseStandings(raw: unknown): ServerLeagueStanding[] {
       const r = row as Record<string, unknown>;
       const userId = String(r.user_id ?? "");
       if (!userId) return null;
+      const rawName = String(r.display_name ?? "").trim();
+      const displayName = !rawName || /^aluno\s*demo/i.test(rawName) ? "Aluno" : rawName;
       return {
         user_id: userId,
-        display_name: String(r.display_name ?? "Aluno"),
-        avatar_letter: String(r.avatar_letter ?? "A").slice(0, 1),
+        display_name: displayName,
+        avatar_letter: String(r.avatar_letter ?? displayName).slice(0, 1),
         weekly_xp: Math.max(0, Number(r.weekly_xp ?? 0)),
         rank: r.rank == null ? null : Math.max(1, Number(r.rank)),
         streak: Math.max(0, Number(r.streak ?? 0)),
@@ -104,6 +107,9 @@ function parseWeekResult(raw: unknown): ServerLeagueWeekResult | null {
 }
 
 export async function fetchLiveLeagueData(): Promise<LeagueDataPayload> {
+  const fixture = readLeagueLiveFixture();
+  if (fixture) return leagueFixtureToPayload(fixture);
+
   if (!isSupabaseBackendEnabled()) {
     return emptyPayload("demo", "Backend em nuvem indisponível.");
   }
