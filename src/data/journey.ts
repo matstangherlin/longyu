@@ -6218,6 +6218,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:woquyiyuan",
               "chunk:feijichangzainali",
               "chunk:wozuochuzuche",
+              "chunk:ditiezhan",
+              "chunk:jiudianzainali",
             ],
             reviewItems: [
               "chunk:chaoshizainali",
@@ -6261,6 +6263,40 @@ export const JOURNEY: JourneyPhase[] = [
                 { explanation: "银行 (yínháng) = banco." }
               ),
               listen("机场在哪里？", "jīchǎng zài nǎlǐ?", "Onde fica o aeroporto?"),
+              listen("地铁站", "dìtiězhàn", "estação de metrô"),
+              listen("酒店在哪里？", "jiǔdiàn zài nǎlǐ?", "Onde fica o hotel?"),
+              placeLabel(
+                "Ver o hotel",
+                "Qual destes é o hotel?",
+                "酒店",
+                ["酒店", "银行", "公园", "地铁站"],
+                "lugar",
+                "酒店 = hotel. Aqui ele é um lugar na cidade, não a recepção."
+              ),
+              placeLabel(
+                "Ver a estação",
+                "Qual destes é a estação de metrô?",
+                "地铁站",
+                ["地铁站", "酒店", "银行", "公园"],
+                "lugar",
+                "地铁站 = estação de metrô."
+              ),
+              placeLabel(
+                "Ver o banco",
+                "Qual destes é o banco?",
+                "银行",
+                ["银行", "公园", "酒店", "地铁站"],
+                "lugar",
+                "银行 = banco."
+              ),
+              placeLabel(
+                "Ver o parque",
+                "Qual destes é o parque?",
+                "公园",
+                ["公园", "银行", "酒店", "地铁站"],
+                "lugar",
+                "公园 = parque."
+              ),
               listen("我坐出租车", "wǒ zuò chūzūchē", "Vou de táxi."),
               imageChoice(
                 "choose_image",
@@ -6645,6 +6681,7 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:qubeijinglu",
               "chunk:zaizhelictingche",
               "chunk:duoshaoqian",
+              "chunk:qunali",
             ],
             reviewItems: [
               "chunk:beijing",
@@ -6735,8 +6772,45 @@ export const JOURNEY: JourneyPhase[] = [
               listen("我要去酒店", "wǒ yào qù jiǔdiàn", "Quero ir ao hotel"),
               listen("去北京路", "qù Běijīng lù", "Vá para a Beijing Road"),
               listen("在这里停车", "zài zhèlǐ tíngchē", "Pare aqui"),
+              listen("去哪里？", "qù nǎlǐ?", "Para onde?"),
               flash("woyaoqujiudian"),
               flash("zaizhelictingche"),
+              flash("qunali"),
+              listenSelect(
+                "O motorista confirmou qual destino?",
+                "酒店，好。",
+                ["hotel", "parque", "banco", "estação"],
+                "hotel",
+                "Ele ecoa o hotel. O hotel aqui é só o destino."
+              ),
+              freeProduction({
+                title: "Diga o destino",
+                situationPt: "Você entrou no táxi. Informe que quer ir ao hotel, sem alternativas.",
+                expected: "我要去酒店",
+                accepts: ["我要去酒店", "我要去酒店。", "去酒店", "去酒店。", "去北京路", "去北京路。", "我要去地铁站"],
+                productionGoal: "state_destination",
+                productionOpen: true,
+                productionHintPt: "O frame de pedido já é seu. Troque só o lugar se quiser.",
+                productionExamples: [
+                  { hanzi: "我要去酒店", pinyin: "wǒ yào qù jiǔdiàn" },
+                  { hanzi: "去北京路", pinyin: "qù Běijīng lù" },
+                  { hanzi: "我要去地铁站", pinyin: "wǒ yào qù dìtiězhàn" },
+                ],
+              }),
+              freeProduction({
+                title: "Peça para parar",
+                situationPt: "Você chegou. Peça ao motorista para parar aqui, sem alternativas.",
+                expected: "在这里停车",
+                accepts: ["在这里停车", "在这里停车。", "在这里停车。谢谢", "停车", "请停车"],
+                productionGoal: "request_stop",
+                productionOpen: true,
+                productionHintPt: "É a mesma frase da rua. Fale ou escreva.",
+                productionExamples: [
+                  { hanzi: "在这里停车", pinyin: "zài zhèlǐ tíngchē" },
+                  { hanzi: "停车", pinyin: "tíngchē" },
+                  { hanzi: "请停车", pinyin: "qǐng tíngchē" },
+                ],
+              }),
               conversationScene("pegar-taxi"),
             ],
           }),
@@ -7279,6 +7353,7 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
+            hanziMemoryTargets: ["左", "右"],
             // 走/在 já existem; novos: 左/右/前/后/边/直/往/南/路 + mapa (转/怎) e distractores.
             newHanzi: ["左", "右", "前", "后", "边", "直", "往", "南", "面", "转", "怎", "单"],
             libraryItems: [
@@ -7317,6 +7392,16 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("左边", "zuǒbiān", "À esquerda"),
               listen("右边", "yòubiān", "À direita"),
+              listen("左转", "zuǒ zhuǎn", "Vire à esquerda"),
+              listen("右转", "yòu zhuǎn", "Vire à direita"),
+              recognize("zuo_left"),
+              recognize("you_right"),
+              intro(
+                "Esquerda e direita no ouvido",
+                "左 (zuǒ) é 3º tom: desce e sobe. 右 (yòu) é 4º tom: queda forte. O contorno muda o lado no mapa."
+              ),
+              tone("左", "zuǒ", 3, "guided", [3, 4]),
+              tone("右", "yòu", 4, "guided", [3, 4]),
               listen("前面", "qiánmiàn", "Em frente"),
               listen("后面", "hòumiàn", "Atrás"),
               match(
@@ -7357,7 +7442,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "straight",
                 ["left", "right", "straight"],
                 {
-                  prompt: "一直走",
+                  promptPt: "Do banco ao parque: o que o caminho pede?",
                   mapScaffoldLevel: 2,
                   explanation: "一直走 = siga em frente.",
                 }
@@ -7370,9 +7455,63 @@ export const JOURNEY: JourneyPhase[] = [
                 ["left", "right", "straight"],
                 {
                   audioText: "右转",
+                  promptPt: "Ouça a instrução e escolha o caminho. O mandarim não aparece escrito.",
                   mapScaffoldLevel: 3,
-                  explanation: "右转 = vire à direita.",
+                  explanation: "O áudio pede a direita. A instrução não aparece escrita.",
                 }
+              ),
+              mapDirection(
+                "Hotel até o metrô",
+                "酒店",
+                "地铁站",
+                "left",
+                ["left", "right", "straight"],
+                {
+                  audioText: "左转",
+                  promptPt: "Ouça e vá do hotel até a estação.",
+                  mapScaffoldLevel: 3,
+                  explanation: "Do hotel à estação: vire à esquerda.",
+                }
+              ),
+              mapDirection(
+                "Estação até o hotel",
+                "地铁站",
+                "酒店",
+                "right",
+                ["left", "right", "straight"],
+                {
+                  audioText: "右转",
+                  promptPt: "Ouça e volte da estação ao hotel.",
+                  mapScaffoldLevel: 3,
+                  explanation: "Da estação ao hotel: vire à direita.",
+                }
+              ),
+              mapDirection(
+                "Parque até a estação",
+                "公园",
+                "地铁站",
+                "straight",
+                ["left", "right", "straight"],
+                {
+                  audioText: "一直走",
+                  promptPt: "Você está no parque. Ouça e chegue à estação.",
+                  mapScaffoldLevel: 3,
+                  explanation: "Do parque à estação: siga em frente.",
+                }
+              ),
+              routeSequence(
+                "Duas instruções",
+                "Monte o caminho: siga em frente, depois vire à esquerda, a estação está ali.",
+                ["一直走", "左转", "地铁站"],
+                ["一直走", "左转", "右转", "地铁站", "酒店"],
+                "A rota se resolve em pedaços, não como um GPS."
+              ),
+              listenSelect(
+                "Qual lado o áudio pediu?",
+                "左转",
+                ["esquerda", "direita", "em frente", "parar"],
+                "esquerda",
+                "É o lado esquerdo."
               ),
               comp("直走", "zhí zǒu", "Siga em frente.", ["Siga em frente.", "Vá para a esquerda.", "Atrás.", "Está ventando."]),
               sentenceBuild(
@@ -7412,6 +7551,19 @@ export const JOURNEY: JourneyPhase[] = [
                 "shanghai",
                 "怎么走？ pede o caminho."
               ),
+              freeProduction({
+                title: "Pergunte o caminho",
+                situationPt: "Na rua, pergunte como chegar à estação. Sem alternativas.",
+                expected: "怎么走？",
+                accepts: ["怎么走？", "怎么走", "请问，怎么走？", "请问怎么走？", "地铁站怎么走？"],
+                productionGoal: "ask_route",
+                productionHintPt: "A cortesia antiga cabe na frente. O lugar pode vir antes da pergunta.",
+                productionExamples: [
+                  { hanzi: "怎么走？", pinyin: "zěnme zǒu?" },
+                  { hanzi: "请问，怎么走？", pinyin: "qǐng wèn, zěnme zǒu?" },
+                  { hanzi: "地铁站怎么走？", pinyin: "dìtiězhàn zěnme zǒu?" },
+                ],
+              }),
               mapDirection(
                 "Só chinês",
                 "南京路",
@@ -8276,11 +8428,15 @@ export const JOURNEY: JourneyPhase[] = [
             cultureItemId: "metro-qr",
             premium: true,
             masteryLoop: true,
+            curriculumRole: "immersion",
+            hanziMemoryTargets: ["左", "右"],
             // Vocabulário visto na imersão de estação (在那里, 票多少钱, 等一下) + 车/票.
             newHanzi: ["那", "里", "多", "少", "等", "下", "车", "票", "酒", "店", "交", "公", "单", "地", "辣", "铁"],
             libraryItems: [
               "char:che",
               "char:piao_ticket",
+              "char:zuo_left",
+              "char:you_right",
               "chunk:chezainali",
               "chunk:woyaopiao",
               "chunk:piaoduoshaoqian",
@@ -8293,12 +8449,66 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wozuochuzuche",
               "chunk:ditiezhanzainali",
               "chunk:woyaoqubeijing",
+              "chunk:ruko",
+              "chunk:chuko",
+              "chunk:qunali",
             ],
-            reviewItems: ["char:che", "char:piao_ticket", "chunk:chezainali", "chunk:woyaopiao", "chunk:wozuoditie"],
+            reviewItems: [
+              "char:che",
+              "char:piao_ticket",
+              "char:zuo_left",
+              "char:you_right",
+              "chunk:chezainali",
+              "chunk:woyaopiao",
+              "chunk:wozuoditie",
+            ],
             steps: [
               intro(
-                "Imersão na estação",
-                "Ache o carro, pergunte o preço da passagem e compre o bilhete — uma cena longa de rua, do 请问 ao 再见."
+                "Missão: chegar",
+                "Você está numa cidade chinesa e precisa chegar ao destino: achar a estação, seguir uma direção, ler a placa, entender o bilhete e fechar o trecho de táxi. Hotel e aeroporto entram só como lugar na cidade."
+              ),
+              recognize("zuo_left"),
+              recognize("you_right"),
+              mapDirection(
+                "Você está no hotel",
+                "酒店",
+                "地铁站",
+                "left",
+                ["left", "right", "straight"],
+                {
+                  promptPt: "Chegue à estação. Sem tradução completa da rota.",
+                  mapScaffoldLevel: 4,
+                  explanation: "Do hotel à estação: esquerda.",
+                }
+              ),
+              routeSequence(
+                "Rota curta",
+                "Você está no parque. Monte o caminho até a estação.",
+                ["一直走", "左转", "地铁站"],
+                ["一直走", "左转", "右转", "地铁站", "酒店"],
+                "Duas ou três instruções bastam. Não é um labirinto."
+              ),
+              listenSelect(
+                "Qual instrução o áudio deu?",
+                "一直走，右转。",
+                ["siga em frente e vire à direita", "vire à esquerda", "pare aqui", "vá ao hotel"],
+                "siga em frente e vire à direita",
+                "O mapa se resolve pelo ouvido. A frase não aparece no título."
+              ),
+              listenSelect(
+                "Quanto custa o bilhete?",
+                "十。",
+                ["10", "18", "28", "8"],
+                "10",
+                "十 = 10. O número falado fecha a bilheteria."
+              ),
+              dialogue(
+                "Qual placa para entrar?",
+                "Você quer entrar no metrô. Qual placa procura?",
+                "入口",
+                ["入口", "出口", "酒店", "菜单"],
+                "入口 manda entrar. 出口 manda sair. A placa pede uma ação.",
+                "Estação"
               ),
               listen("车", "chē", "carro; veículo"),
               listen("票", "piào", "bilhete; passagem"),
@@ -8417,6 +8627,70 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               conversationScene("onde-esta-o-carro"),
               conversationScene("imersao-estacao"),
+              conversationScene("pegar-taxi"),
+              freeProduction({
+                title: "Pergunte onde fica",
+                situationPt: "Na rua, pergunte onde fica a estação de metrô, sem alternativas.",
+                expected: "地铁站在哪里？",
+                accepts: [
+                  "地铁站在哪里？",
+                  "地铁站在哪里",
+                  "请问，地铁站在哪里？",
+                  "请问地铁站在哪里？",
+                  "火车站在哪里？",
+                  "酒店在哪里？",
+                ],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "A cortesia antiga cabe na frente. Troque o lugar se quiser.",
+                productionExamples: [
+                  { hanzi: "地铁站在哪里？", pinyin: "dìtiězhàn zài nǎlǐ?" },
+                  { hanzi: "请问，地铁站在哪里？", pinyin: "qǐng wèn, dìtiězhàn zài nǎlǐ?" },
+                  { hanzi: "酒店在哪里？", pinyin: "jiǔdiàn zài nǎlǐ?" },
+                ],
+              }),
+              freeProduction({
+                title: "Pergunte o caminho",
+                situationPt: "Você encontrou alguém na rua. Pergunte como chegar à estação, sem alternativas.",
+                expected: "怎么走？",
+                accepts: ["怎么走？", "怎么走", "请问，怎么走？", "请问怎么走？", "地铁站怎么走？"],
+                productionGoal: "ask_route",
+                productionOpen: true,
+                productionHintPt: "Junte a cortesia antiga com a cidade. O lugar pode vir antes da pergunta.",
+                productionExamples: [
+                  { hanzi: "怎么走？", pinyin: "zěnme zǒu?" },
+                  { hanzi: "请问，怎么走？", pinyin: "qǐng wèn, zěnme zǒu?" },
+                  { hanzi: "地铁站怎么走？", pinyin: "dìtiězhàn zěnme zǒu?" },
+                ],
+              }),
+              freeProduction({
+                title: "Informe o destino",
+                situationPt: "No táxi, diga que quer ir ao hotel, sem alternativas.",
+                expected: "我要去酒店",
+                accepts: ["我要去酒店", "我要去酒店。", "去酒店", "去北京路", "我要去地铁站"],
+                productionGoal: "state_destination",
+                productionOpen: true,
+                productionHintPt: "Não reensine o frame de pedido. Só o lugar muda.",
+                productionExamples: [
+                  { hanzi: "我要去酒店", pinyin: "wǒ yào qù jiǔdiàn" },
+                  { hanzi: "去北京路", pinyin: "qù Běijīng lù" },
+                  { hanzi: "我要去地铁站", pinyin: "wǒ yào qù dìtiězhàn" },
+                ],
+              }),
+              freeProduction({
+                title: "Peça para parar aqui",
+                situationPt: "Você chegou ao destino. Peça ao motorista para parar aqui, sem alternativas.",
+                expected: "在这里停车",
+                accepts: ["在这里停车", "在这里停车。", "停车", "请停车"],
+                productionGoal: "request_stop",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em caracteres ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "在这里停车", pinyin: "zài zhèlǐ tíngchē" },
+                  { hanzi: "停车", pinyin: "tíngchē" },
+                  { hanzi: "请停车", pinyin: "qǐng tíngchē" },
+                ],
+              }),
               comp("在那里", "zài nàlǐ", "Fica ali.", ["Fica ali.", "Custa dez.", "Espere um pouco.", "Não sei."]),
               sentenceBuild(
                 "Compre o bilhete",

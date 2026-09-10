@@ -226,6 +226,7 @@ export const CHUNKS: Chunk[] = [
   { id: "beijinglu10hao", hanzi: "北京路10号", pinyin: "Běijīng lù shí hào", meaningPt: "Beijing Road, número 10.", literalPt: "Pequim rua 10 número", tags: ["lugar", "china_real"], domain: "lugar", level: "survival" },
   { id: "shanghai_nanjinglu20hao", hanzi: "上海市南京路20号", pinyin: "Shànghǎi shì Nánjīng lù èrshí hào", meaningPt: "Xangai, Nanjing Road 20.", literalPt: "Xangai cidade Nanjing rua 20 número", tags: ["lugar", "china_real"], domain: "lugar", level: "survival" },
   { id: "zenmezou", hanzi: "怎么走？", pinyin: "zěnme zǒu?", meaningPt: "Como chegar? / Como ir?", literalPt: "como andar", tags: ["direcao", "china_real"], domain: "lugar", level: "elementary" },
+  { id: "qunali", hanzi: "去哪里？", pinyin: "qù nǎlǐ?", meaningPt: "Para onde?", literalPt: "ir onde", tags: ["direcao", "transporte"], domain: "transporte", level: "elementary" },
   { id: "zuozhuan", hanzi: "左转", pinyin: "zuǒ zhuǎn", meaningPt: "Vire à esquerda.", literalPt: "esquerda virar", tags: ["direcao", "china_real"], domain: "lugar", level: "elementary" },
   { id: "youzhuan", hanzi: "右转", pinyin: "yòu zhuǎn", meaningPt: "Vire à direita.", literalPt: "direita virar", tags: ["direcao", "china_real"], domain: "lugar", level: "elementary" },
   { id: "yizhizou", hanzi: "一直走", pinyin: "yìzhí zǒu", meaningPt: "Siga em frente.", literalPt: "sempre andar", tags: ["direcao"], domain: "lugar", level: "elementary" },

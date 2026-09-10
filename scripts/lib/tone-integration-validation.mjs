@@ -104,7 +104,7 @@ export function validateToneIntegration(data) {
   const returns = later.filter((lesson) => (lesson.steps ?? []).some(isToneActivity));
   if (returns.length === 0) fail("TONE_OUTSIDE_P2", "tons não reaparecem depois do módulo P2");
 
-  const integrationIds = new Set(["p6-horarios", "p6-clima", "l26c", "p6-compras"]);
+  const integrationIds = new Set(["p6-horarios", "p6-clima", "l26c", "p6-compras", "p6-direcoes"]);
   for (const lesson of later) {
     if (!integrationIds.has(lesson.id)) continue;
     const index = lessons.findIndex((item) => item.id === lesson.id);

@@ -79,6 +79,7 @@ export const LEXICAL_LIFECYCLE_V37_EXTRA = [
   { ref: "chunk:feijichangzainali", introduceAt: "p6-cidade-lugares", reinforceAt: ["p6-china-cidades", "l30"], productiveAt: "p6-cidade-lugares", packet: "transport", role: "core" },
   { ref: "chunk:ditiezhan", introduceAt: "p6-cidade-lugares", reinforceAt: ["p6-china-cidades", "l30"], productiveAt: "p6-cidade-lugares", packet: "transport", role: "support" },
   { ref: "chunk:zenmezou", introduceAt: "p6-cidade-lugares", reinforceAt: ["p6-direcoes"], productiveAt: "p6-cidade-lugares", packet: "city", role: "support" },
+  { ref: "chunk:qunali", introduceAt: "p6-china-ruas", reinforceAt: ["p7-imersao-estacao"], productiveAt: "p6-china-ruas", packet: "transport", role: "support" },
   { ref: "chunk:zheshibaba", introduceAt: "l24", reinforceAt: ["l25"], productiveAt: "l24", packet: "family", role: "support" },
   { ref: "chunk:zheshimama", introduceAt: "l24", reinforceAt: ["l25"], productiveAt: "l24", packet: "family", role: "support" },
   { ref: "chunk:zheshiwodejia", introduceAt: "l24", reinforceAt: ["l25"], productiveAt: "l24", packet: "family", role: "support" },

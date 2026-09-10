@@ -19,6 +19,8 @@ export const HANZI_MEMORY_TARGETS: readonly HanziMemoryTarget[] = [
   { glyph: "现", charId: "xian_now", introduceLessonId: "p6-horarios", delayedLessonIds: ["p6-clima"] },
   { glyph: "菜", charId: "cai_dish", introduceLessonId: "l26b", delayedLessonIds: ["l26c", "l27"] },
   { glyph: "买", charId: "mai_buy", introduceLessonId: "p6-compras", delayedLessonIds: ["p7-imersao-mercado"] },
+  { glyph: "左", charId: "zuo_left", introduceLessonId: "p6-direcoes", delayedLessonIds: ["p7-imersao-estacao"] },
+  { glyph: "右", charId: "you_right", introduceLessonId: "p6-direcoes", delayedLessonIds: ["p7-imersao-estacao"] },
 ];
 
 export const HANZI_MEMORY_TARGET_GLYPHS = new Set(HANZI_MEMORY_TARGETS.map((item) => item.glyph));
@@ -28,7 +30,7 @@ export function hanziMemoryTargetsForLesson(lessonId: string): HanziMemoryTarget
 }
 
 /** Tone micro-activities belong on lessons whose vocab already carries the contour. */
-export const TONE_INTEGRATION_LESSON_IDS = ["p6-horarios", "p6-clima", "l26c", "p6-compras"] as const;
+export const TONE_INTEGRATION_LESSON_IDS = ["p6-horarios", "p6-clima", "l26c", "p6-compras", "p6-direcoes"] as const;
 
 export const INTEGRATED_CONVERSATION_SCENE_IDS = [
   "encontro-amanha",
