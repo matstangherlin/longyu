@@ -770,7 +770,7 @@ function InteractionPanel({
                     {vocabHints.map((item) => (
                       <span
                         key={item.hanzi}
-                        className="min-h-11 rounded-xl border border-line bg-surface px-3 py-2 hanzi text-lg text-ink"
+                        className="min-h-12 rounded-xl border border-line bg-surface px-3 py-2 hanzi text-lg text-ink"
                       >
                         {item.hanzi}
                         {item.pinyin && helpPlan.showPinyinOnPieces ? (
@@ -801,7 +801,7 @@ function InteractionPanel({
                           setPieceBank((prev) => [...prev, piece]);
                           setFeedback(null);
                         }}
-                        className="min-h-11 rounded-xl border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent hanzi text-xl"
+                        className="min-h-12 rounded-xl border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent hanzi text-xl"
                       >
                         {piece}
                         {helpPlan.showPinyinOnPieces && interaction.productionHelpPiecePinyin?.[piece] ? (
@@ -829,7 +829,7 @@ function InteractionPanel({
                           setBuildPicked((prev) => [...prev, piece]);
                           setFeedback(null);
                         }}
-                        className="min-h-11 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card hanzi text-xl"
+                        className="min-h-12 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card hanzi text-xl"
                       >
                         {piece}
                         {helpPlan.showPinyinOnPieces && interaction.productionHelpPiecePinyin?.[piece] ? (
