@@ -159,3 +159,40 @@ export function loadShoppingRuntime() {
     conversationPlayerSource: fs.readFileSync("src/features/lesson/ConversationSceneStep.tsx", "utf8"),
   };
 }
+
+export function loadMobilityRuntime() {
+  const { ALL_LESSONS } = require("../../src/data/journey.ts");
+  const { CONVERSATION_SCENES } = require("../../src/data/conversationScenes.ts");
+  const { CHUNKS } = require("../../src/data/chunks.ts");
+  const { CHARACTERS } = require("../../src/data/characters.ts");
+  const { HANZI_MEMORY_TARGETS } = require("../../src/data/hanziMemoryTargets.ts");
+  const { CULTURE_ITEMS } = require("../../src/data/culture.ts");
+  const { CULTURE_MISSIONS } = require("../../src/data/cultureMissions.ts");
+  const { CULTURE_JOURNEY_BRIDGES } = require("../../src/data/cultureJourneyBridges.ts");
+  const { lessonRoundStepsFor } = require("../../src/features/lesson/lessonTasks.ts");
+  const { MOBILITY_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalMobility.ts");
+  const { INSTRUCTION_GLOSS_EN, hasEnglishOverlay, isCanonicalZhOrPinyin } = require("../../src/i18n/overlays/instructionGloss.ts");
+  const plans = Object.fromEntries(
+    MOBILITY_SURVIVAL_TOPIC_IDS.map((id) => [
+      id,
+      [1, 2, 3, 4].map((masteryPass) => lessonRoundStepsFor(ALL_LESSONS.find((lesson) => lesson.id === id), { masteryPass })),
+    ])
+  );
+  return {
+    lessons: ALL_LESSONS,
+    scenes: CONVERSATION_SCENES,
+    chunks: CHUNKS,
+    characters: CHARACTERS,
+    plans,
+    hanziMemoryTargets: HANZI_MEMORY_TARGETS,
+    cultureItems: CULTURE_ITEMS,
+    missions: CULTURE_MISSIONS,
+    bridges: CULTURE_JOURNEY_BRIDGES,
+    gloss: INSTRUCTION_GLOSS_EN,
+    hasEnglishOverlay,
+    isCanonicalZhOrPinyin,
+    lessonPlayerSource: fs.readFileSync("src/features/lesson/LessonPlayer.tsx", "utf8"),
+    conversationPlayerSource: fs.readFileSync("src/features/lesson/ConversationSceneStep.tsx", "utf8"),
+    lessonStepsSource: fs.readFileSync("src/features/lesson/steps.tsx", "utf8"),
+  };
+}
