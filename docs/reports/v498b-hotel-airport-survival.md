@@ -12,7 +12,7 @@ Objetivo do aluno: *Consigo atravessar um check-in simples de hotel e uma situa�
 | #248 fechou | Culture playability, Culture Story Audio, Native Culture Lessons, Culture Rewards, Live Leagues hardening |
 | Esta PR | **não** reabre esses sistemas |
 | Branch | `cursor/v498b-hotel-airport-6ae2` |
-| Fingerprint da Jornada (esta remessa) | `7661a691a00a` |
+| Fingerprint da Jornada (esta remessa) | `465390e64799` |
 
 V4.9.8A permanece: perguntar → navegar → pegar transporte → chegar. Esta remessa não mistura achar o aeroporto **na rua** com check-in **dentro** do aeroporto.
 
