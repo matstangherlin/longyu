@@ -56,6 +56,16 @@ export function validateChinaSurvivalMobility(data) {
   const maps = mobilityLessons.flatMap((lesson) => (lesson.steps ?? []).filter((step) => step.kind === "map_direction" || step.kind === "route_sequence"));
   if (!maps.some((step) => step.kind === "map_direction")) fail("NO_MAP", "spatial application needs map_direction");
   if (!maps.some((step) => step.kind === "route_sequence")) fail("NO_MAP", "spatial application needs route_sequence");
+  const planned = Object.values(data.plans ?? {}).flat(2);
+  if (planned.length) {
+    if (!planned.some((step) => step.kind === "map_direction")) fail("NO_MAP", "runtime plan dropped map_direction");
+    if (!planned.some((step) => step.kind === "route_sequence")) fail("NO_MAP", "runtime plan dropped route_sequence");
+    if (!planned.some((step) => step.sceneId === "imersao-estacao")) fail("CAPABILITY", "runtime plan dropped imersao-estacao");
+    if (!planned.some((step) => step.sceneId === "pegar-taxi")) fail("CAPABILITY", "runtime plan dropped pegar-taxi");
+    if (!planned.some((step) => step.kind === "free_production" && /在这里停车/.test(clean(step.answer ?? step.correctAnswer)))) {
+      fail("CAPABILITY", "runtime plan dropped request_stop");
+    }
+  }
   if (!String(data.lessonStepsSource ?? "").includes("mapWrongTurn")) {
     fail("NO_MAP", "map wrong-turn must show a spatial consequence");
   }
