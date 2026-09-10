@@ -229,6 +229,21 @@ export interface ConversationInteraction {
    * balcão, existe mais de um jeito certo de dizer a mesma coisa.
    */
   accepts?: string[];
+  /**
+   * produce_reply scaffolding: first productive use may offer phrase pieces;
+   * transfer of an already-taught phrase starts independent.
+   */
+  productionScaffold?: "first" | "transfer";
+  /** Stable id of the phrase/capability (e.g. zheshiwodehuzhao). */
+  capabilityId?: string;
+  /** Visible frame without the target word (这是我的 ______). */
+  productionPattern?: string;
+  /** Useful vocab chips (level 3) — not an ordered answer. */
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  /** Sentence-build bank (level 4). Same evaluator as typed/spoken text. */
+  productionHelpBuildBank?: string[];
+  /** Optional pinyin under pieces at the most guided rung. */
+  productionHelpPiecePinyin?: Record<string, string>;
   /** listen_reply: áudio ouvido (pode diferir da resposta, ex. 三零五 → 305). */
   listenAudioText?: string;
   /** Alternativas que o passo TINHA antes de perder o apoio (para a correção). */
@@ -930,15 +945,23 @@ export function conversationVariantLevelFor(
   history: readonly ConversationHistoryEntry[] | undefined
 ): ConversationVariantLevel {
   const entries = history ?? [];
-  const timesScene = entries.filter((entry) => entry.sceneId === scene.sceneId && entry.result === "completed").length;
+  const sceneEntries = entries.filter((entry) => entry.sceneId === scene.sceneId);
+  const timesScene = sceneEntries.filter((entry) => entry.result === "completed").length;
   const timesIntent = entries.filter((entry) => entry.intent === scene.intent && entry.result === "completed").length;
   const totalCompleted = entries.filter((entry) => entry.result === "completed").length;
+  const last = sceneEntries[0];
+  const lastClean =
+    last?.result === "completed" && (last.attempts ?? 1) <= 1 && (last.assistanceLevel === "independent" || last.assistanceLevel === "audio_first");
+  const lastStruggled = Boolean(last && ((last.attempts ?? 1) >= 3 || last.result === "mistake"));
   // Sobe um degrau por repetição da própria cena; intenção bem praticada e
-  // aluno avançado elevam o piso mesmo numa cena nova.
+  // aluno avançado elevam o piso mesmo numa cena nova. Erro repetido segura
+  // o andaime; acerto independente acelera a retirada.
   let level = timesScene;
   if (timesIntent >= 2) level = Math.max(level, 1);
   if (totalCompleted >= 6) level = Math.max(level, 1);
   if (totalCompleted >= 12) level = Math.max(level, 2);
+  if (lastClean) level += 1;
+  if (lastStruggled) level = Math.max(0, level - 1);
   const index = Math.min(level, CONVERSATION_VARIANT_LEVELS.length - 1);
   return CONVERSATION_VARIANT_LEVELS[index];
 }

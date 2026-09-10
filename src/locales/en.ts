@@ -926,6 +926,11 @@ export const en: MessageCatalog = {
     conversationContinues: "The conversation continues.",
     conversationStuck: "The conversation stalled",
     noChoicesThisTime: "No choices this time: answer in your own words.",
+    assembleWithPieces: "Build with pieces",
+    typeAnswer: "Type",
+    needHelp: "I need help",
+    buildYourReply: "Build your reply",
+    usefulWords: "Useful words",
     nowSayMandarin: "Now say that in Mandarin, with no choices.",
     repairMoveWrong: "That move doesn't fix this. Read again what the person said.",
     repairMoveWrongLong:

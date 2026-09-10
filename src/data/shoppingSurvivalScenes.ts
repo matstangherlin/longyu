@@ -31,6 +31,12 @@ type Interaction = {
   decision?: boolean;
   validAnswers?: string[];
   nextByAnswer?: Record<string, string>;
+  productionScaffold?: "first" | "transfer";
+  capabilityId?: string;
+  productionPattern?: string;
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  productionHelpBuildBank?: string[];
+  productionHelpPiecePinyin?: Record<string, string>;
 };
 
 function npc(
@@ -64,6 +70,12 @@ function interactionOf(turn: Interaction, answerId: string, wrongNextNodeId: str
     decision: turn.decision,
     validAnswers: turn.validAnswers,
     nextByAnswer: turn.nextByAnswer,
+    productionScaffold: turn.productionScaffold,
+    capabilityId: turn.capabilityId,
+    productionPattern: turn.productionPattern,
+    productionHelpVocab: turn.productionHelpVocab,
+    productionHelpBuildBank: turn.productionHelpBuildBank,
+    productionHelpPiecePinyin: turn.productionHelpPiecePinyin,
   };
 }
 
@@ -225,6 +237,14 @@ export const COMPRAR_ITENS_NODES: ConversationNode[] = [
       pinyin: "duōshao qián?",
       pt: "Quanto custa?",
       accepts: ["多少钱", "这个多少钱？", "这个多少钱"],
+      productionScaffold: "transfer",
+      capabilityId: "duoshaoqian",
+      productionPattern: "______？",
+      productionHelpBuildBank: ["多少", "钱", "这个"],
+      productionHelpPiecePinyin: { 多少: "duōshao", 钱: "qián", 这个: "zhège" },
+      productionHelpVocab: [
+        { hanzi: "多少钱", pinyin: "duōshao qián", meaningPt: "quanto custa" },
+      ],
       speechAct: "confirm_item",
       expectedResponseAct: "ask_price",
       repairType: "clarify",
@@ -348,6 +368,14 @@ export const IMERSAO_MERCADO_NODES: ConversationNode[] = [
       pinyin: "duōshao qián?",
       pt: "Quanto custa?",
       accepts: ["多少钱", "这个多少钱？", "这个多少钱"],
+      productionScaffold: "transfer",
+      capabilityId: "duoshaoqian",
+      productionPattern: "______？",
+      productionHelpBuildBank: ["多少", "钱", "这个"],
+      productionHelpPiecePinyin: { 多少: "duōshao", 钱: "qián", 这个: "zhège" },
+      productionHelpVocab: [
+        { hanzi: "多少钱", pinyin: "duōshao qián", meaningPt: "quanto custa" },
+      ],
       speechAct: "confirm_item",
       expectedResponseAct: "ask_price",
       repairType: "clarify",
@@ -405,6 +433,15 @@ export const IMERSAO_MERCADO_NODES: ConversationNode[] = [
       pinyin: "piányi yìdiǎn",
       pt: "Um pouco mais barato.",
       accepts: ["便宜一点", "便宜一点。"],
+      productionScaffold: "transfer",
+      capabilityId: "pianyiyidian",
+      productionPattern: "______",
+      productionHelpBuildBank: ["便宜", "一点", "太贵了"],
+      productionHelpPiecePinyin: { 便宜: "piányi", 一点: "yìdiǎn", 太贵了: "tài guì le" },
+      productionHelpVocab: [
+        { hanzi: "便宜", pinyin: "piányi", meaningPt: "barato" },
+        { hanzi: "一点", pinyin: "yìdiǎn", meaningPt: "um pouco" },
+      ],
       speechAct: "confirm_price",
       expectedResponseAct: "request_discount",
       repairType: "clarify",

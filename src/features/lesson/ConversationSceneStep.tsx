@@ -7,7 +7,7 @@ import type {
   ConversationNode,
   ConversationVariantLevel,
 } from "../../data/conversationScenes";
-import { conversationDecisionMatches } from "../../data/conversationScenes";
+import { conversationDecisionMatches, conversationVariantLevelFor } from "../../data/conversationScenes";
 import { AVATAR_TONES, SETTING_LABELS } from "../../data/conversationScenes";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -33,6 +33,15 @@ import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from ".
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { FreeAnswerField } from "./FreeAnswerField";
+import {
+  conversationHelpShowsFrame,
+  conversationHelpShowsPieces,
+  conversationHelpShowsVocab,
+  nextConversationHelpLevel,
+  resolveConversationProduceHelp,
+  unlockProductionHelpAfterMistake,
+  type ProductionHelpLevel,
+} from "../../data/productionHelp";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -503,25 +512,52 @@ function CheckpointPanel({
 // ————————————————————————————————————————————————————————————————
 function InteractionPanel({
   interaction,
+  variantLevel,
+  sceneId,
   onCorrect,
   onWrongBranch,
   onLocalMistake,
   onSkip,
 }: {
   interaction: ConversationInteraction;
-  onCorrect: (attempt: string) => void;
+  variantLevel?: ConversationVariantLevel;
+  sceneId?: string;
+  onCorrect: (attempt: string, meta?: { helpLevel: number; helpRequests: number }) => void;
   /** Presente quando a interação tem wrongNextNodeId: navega no erro. */
   onWrongBranch?: () => void;
   onLocalMistake: () => void;
   onSkip?: StepProps["onSkip"];
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
+  const history = useStore((s) => s.conversationHistory ?? []);
   const answer = interaction.correctAnswer;
   const isOrder = interaction.type === "order_reply";
   const isListen = interaction.type === "listen_reply";
   // Sem apoio: a conversa não oferece alternativa nenhuma e o aluno escreve a
   // própria fala. Aparece nos níveis altos da variante (ver withUnaidedReplies).
   const isProduce = interaction.type === "produce_reply";
+  const scaffoldKind = interaction.productionScaffold ?? "none";
+  const buildBank = useMemo(
+    () => interaction.productionHelpBuildBank ?? [],
+    [interaction.productionHelpBuildBank]
+  );
+  const vocabHints = useMemo(
+    () => interaction.productionHelpVocab ?? [],
+    [interaction.productionHelpVocab]
+  );
+  const hasScaffold = isProduce && (scaffoldKind === "first" || scaffoldKind === "transfer" || buildBank.length > 0);
+  const sceneCompletions = history.filter((entry) => entry.sceneId === sceneId && entry.result === "completed").length;
+  const lastScene = history.find((entry) => entry.sceneId === sceneId);
+  const helpPlan = useMemo(
+    () =>
+      resolveConversationProduceHelp({
+        variantLevel,
+        scaffoldKind: hasScaffold ? (scaffoldKind === "none" ? "first" : scaffoldKind) : "none",
+        sceneCompletions,
+        lastAttempts: lastScene?.attempts,
+      }),
+    [variantLevel, hasScaffold, scaffoldKind, sceneCompletions, lastScene?.attempts]
+  );
   const options = useMemo(() => [...(interaction.options ?? [])], [interaction.prompt, interaction.correctAnswer]);
   const acceptedAnswers = useMemo(
     () => [...new Set([answer, ...(interaction.accepts ?? []), ...(interaction.validAnswers ?? [])])].filter(Boolean),
@@ -534,6 +570,13 @@ function InteractionPanel({
   const [bank, setBank] = useState(() => shuffle(options));
   const [shuffled, setShuffled] = useState(() => shuffle(options));
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [helpLevel, setHelpLevel] = useState<ProductionHelpLevel>(helpPlan.initial);
+  const [unlockedMax, setUnlockedMax] = useState<ProductionHelpLevel>(helpPlan.softCeiling);
+  const [helpRequests, setHelpRequests] = useState(0);
+  const [localMistakes, setLocalMistakes] = useState(0);
+  const [buildPicked, setBuildPicked] = useState<string[]>([]);
+  const [pieceBank, setPieceBank] = useState(() => shuffle(buildBank));
+  const [inputMode, setInputMode] = useState<"type" | "build">(helpPlan.showPiecesInitially ? "build" : "type");
 
   useEffect(() => {
     setPicked(null);
@@ -542,12 +585,28 @@ function InteractionPanel({
     setBank(shuffle(options));
     setShuffled(shuffle(options));
     setFeedback(null);
-  }, [interaction.prompt, interaction.correctAnswer]);
+    setHelpLevel(helpPlan.initial);
+    setUnlockedMax(helpPlan.softCeiling);
+    setHelpRequests(0);
+    setLocalMistakes(0);
+    setBuildPicked([]);
+    setPieceBank(shuffle(buildBank));
+    setInputMode(helpPlan.showPiecesInitially ? "build" : "type");
+  }, [interaction.prompt, interaction.correctAnswer, helpPlan.initial, helpPlan.softCeiling, helpPlan.showPiecesInitially, buildBank]);
 
   const visibleOptions = isOrder ? bank : shuffled;
+  const piecesUnlocked = hasScaffold && (conversationHelpShowsPieces(helpLevel) || helpPlan.showPiecesInitially);
+  const showPieces = piecesUnlocked && inputMode === "build";
+  const showFrame = hasScaffold && conversationHelpShowsFrame(helpLevel) && !conversationHelpShowsPieces(helpLevel);
+  const showVocab = hasScaffold && conversationHelpShowsVocab(helpLevel);
+  const canRequestHelp = hasScaffold && nextConversationHelpLevel(helpLevel, unlockedMax) != null;
+  const produceAttempt = () => {
+    if (showPieces && buildPicked.length > 0) return buildPicked.join("");
+    return draft.trim();
+  };
 
   function check() {
-    const attempt = isOrder ? ordered.join("") : isProduce ? draft.trim() : picked ?? "";
+    const attempt = isOrder ? ordered.join("") : isProduce ? produceAttempt() : picked ?? "";
     if (!attempt) return;
     lastAttemptRef.current = attempt;
     const matches = isProduce
@@ -561,6 +620,24 @@ function InteractionPanel({
       return;
     }
     onLocalMistake();
+    if (hasScaffold) {
+      const nextCount = localMistakes + 1;
+      setLocalMistakes(nextCount);
+      const nextUnlock = unlockProductionHelpAfterMistake({
+        unlockedMax,
+        mistakeCount: nextCount,
+        softCeiling: helpPlan.softCeiling,
+      });
+      setUnlockedMax(nextUnlock);
+      const offered = nextConversationHelpLevel(helpLevel, nextUnlock);
+      if (offered != null) {
+        setHelpLevel(offered);
+        if (conversationHelpShowsPieces(offered)) {
+          setInputMode("build");
+          setPieceBank(shuffle(buildBank));
+        }
+      }
+    }
     playSoundFx("error", soundEffects);
     if (onWrongBranch) {
       onWrongBranch();
@@ -569,10 +646,23 @@ function InteractionPanel({
     setFeedback("wrong");
   }
 
+  function requestHelp() {
+    const next = nextConversationHelpLevel(helpLevel, unlockedMax);
+    if (next == null) return;
+    setHelpLevel(next);
+    setHelpRequests((count) => count + 1);
+    if (conversationHelpShowsPieces(next)) {
+      setInputMode("build");
+      setPieceBank(shuffle(buildBank));
+    }
+  }
+
   function retry() {
     setPicked(null);
     setOrdered([]);
     setBank(shuffle(options));
+    setBuildPicked([]);
+    setPieceBank(shuffle(buildBank));
     setFeedback(null);
   }
 
@@ -582,7 +672,11 @@ function InteractionPanel({
     optionCount: isOrder || isProduce ? 0 : visibleOptions.length,
     allowNumberKeys: !isOrder && !isProduce,
     isAnswered: feedback === "correct",
-    hasSelection: isOrder ? ordered.length > 0 : isProduce ? draft.trim().length > 0 : Boolean(picked),
+    hasSelection: isOrder
+      ? ordered.length > 0
+      : isProduce
+        ? produceAttempt().length > 0
+        : Boolean(picked),
     onSelectOption: (index) => {
       if (isOrder || isProduce) return;
       const option = visibleOptions[index];
@@ -594,7 +688,7 @@ function InteractionPanel({
     },
     onSubmit: check,
     onContinue: () => {
-      if (feedback === "correct") onCorrect(lastAttemptRef.current);
+      if (feedback === "correct") onCorrect(lastAttemptRef.current, { helpLevel, helpRequests });
     },
   });
 
@@ -612,26 +706,186 @@ function InteractionPanel({
 
       {isProduce ? (
         <>
-          <p className="mt-2 text-sm text-ink-soft">
-            {t("player.noChoicesThisTime")}
-          </p>
-          {/*
-            V4.9.5A.1 — produzir a própria fala numa conversa é o lugar mais
-            óbvio para responder falando, e era justamente onde só havia
-            teclado. O campo é o mesmo do resto do player: hànzì, pinyin ou
-            microfone, avaliados pelo mesmo evaluator.
-          */}
-          <FreeAnswerField
-            value={draft}
-            onChange={(next) => {
-              setDraft(next);
-              if (feedback !== "correct") setFeedback(null);
-            }}
-            disabled={feedback === "correct"}
-            placeholder={t("player.writeHanziOrPinyin")}
-            ariaLabel={t("player.yourConversationAnswer")}
-            onSubmit={check}
-          />
+          {hasScaffold ? (
+            <div
+              className="mt-3"
+              data-conversation-produce
+              data-conversation-help-level={helpLevel}
+              data-conversation-scaffold-kind={scaffoldKind}
+              data-conversation-mode={inputMode}
+            >
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={inputMode === "type" && !showPieces ? "soft" : "outline"}
+                  size="sm"
+                  className="min-h-11 flex-1 sm:flex-none"
+                  data-conversation-mode-type
+                  disabled={feedback === "correct"}
+                  onClick={() => setInputMode("type")}
+                >
+                  {t("player.typeAnswer")}
+                </Button>
+                {piecesUnlocked ? (
+                  <Button
+                    variant={showPieces ? "soft" : "outline"}
+                    size="sm"
+                    className="min-h-11 flex-1 sm:flex-none"
+                    data-conversation-mode-build
+                    disabled={feedback === "correct"}
+                    onClick={() => {
+                      setInputMode("build");
+                      if (pieceBank.length === 0 && buildBank.length) setPieceBank(shuffle(buildBank));
+                    }}
+                  >
+                    {t("player.assembleWithPieces")}
+                  </Button>
+                ) : null}
+              </div>
+              {canRequestHelp ? (
+                <button
+                  type="button"
+                  className="mt-2 text-xs font-semibold text-accent underline decoration-accent/35 underline-offset-2"
+                  data-conversation-help-request
+                  onClick={requestHelp}
+                >
+                  {t("player.needHelp")}
+                </button>
+              ) : null}
+
+              {showFrame && interaction.productionPattern ? (
+                <div
+                  className="mt-3 rounded-xl border border-dashed border-line bg-surface-2 px-3 py-2 hanzi text-xl text-ink"
+                  data-conversation-help-frame
+                >
+                  {interaction.productionPattern}
+                </div>
+              ) : null}
+
+              {showVocab && vocabHints.length > 0 ? (
+                <div className="mt-3" data-conversation-help-vocab>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+                    {t("player.usefulWords")}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {vocabHints.map((item) => (
+                      <span
+                        key={item.hanzi}
+                        className="min-h-11 rounded-xl border border-line bg-surface px-3 py-2 hanzi text-lg text-ink"
+                      >
+                        {item.hanzi}
+                        {item.pinyin && helpPlan.showPinyinOnPieces ? (
+                          <span className="ml-2 text-xs font-normal text-ink-faint">{item.pinyin}</span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {showPieces && buildBank.length > 0 ? (
+                <div className="mt-3" data-conversation-build-bank data-conversation-help-build>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                    {t("player.buildYourReply")}
+                  </div>
+                  <div className="mt-2 flex min-h-12 flex-wrap gap-2 rounded-xl border border-dashed border-line bg-surface-2 p-2.5">
+                    {buildPicked.length === 0 && (
+                      <span className="self-center text-sm text-ink-faint">{t("player.tapPiecesToBuild")}</span>
+                    )}
+                    {buildPicked.map((piece, index) => (
+                      <button
+                        key={`${piece}-picked-${index}`}
+                        type="button"
+                        disabled={feedback === "correct"}
+                        onClick={() => {
+                          setBuildPicked((prev) => prev.filter((_, i) => i !== index));
+                          setPieceBank((prev) => [...prev, piece]);
+                          setFeedback(null);
+                        }}
+                        className="min-h-11 rounded-xl border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent hanzi text-xl"
+                      >
+                        {piece}
+                        {helpPlan.showPinyinOnPieces && interaction.productionHelpPiecePinyin?.[piece] ? (
+                          <span className="ml-1 text-[10px] font-normal opacity-80">
+                            {interaction.productionHelpPiecePinyin[piece]}
+                          </span>
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {pieceBank.map((piece, index) => (
+                      <button
+                        key={`${piece}-bank-${index}`}
+                        type="button"
+                        disabled={feedback === "correct"}
+                        data-conversation-build-piece={piece}
+                        onClick={() => {
+                          playSoundFx("pieceSelect", soundEffects);
+                          setPieceBank((prev) => {
+                            const next = [...prev];
+                            next.splice(index, 1);
+                            return next;
+                          });
+                          setBuildPicked((prev) => [...prev, piece]);
+                          setFeedback(null);
+                        }}
+                        className="min-h-11 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card hanzi text-xl"
+                      >
+                        {piece}
+                        {helpPlan.showPinyinOnPieces && interaction.productionHelpPiecePinyin?.[piece] ? (
+                          <span className="ml-1 text-[10px] font-normal text-ink-faint">
+                            {interaction.productionHelpPiecePinyin[piece]}
+                          </span>
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {inputMode === "type" || !showPieces ? (
+                <FreeAnswerField
+                  value={draft}
+                  onChange={(next) => {
+                    setDraft(next);
+                    if (feedback !== "correct") setFeedback(null);
+                  }}
+                  disabled={feedback === "correct"}
+                  placeholder={t("player.writeHanziOrPinyin")}
+                  ariaLabel={t("player.yourConversationAnswer")}
+                  onSubmit={check}
+                />
+              ) : (
+                <FreeAnswerField
+                  value={draft}
+                  onChange={(next) => {
+                    setDraft(next);
+                    if (feedback !== "correct") setFeedback(null);
+                  }}
+                  disabled={feedback === "correct"}
+                  placeholder={t("player.writeHanziOrPinyin")}
+                  ariaLabel={t("player.yourConversationAnswer")}
+                  onSubmit={check}
+                  micOnly
+                />
+              )}
+            </div>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-ink-soft">{t("player.noChoicesThisTime")}</p>
+              <FreeAnswerField
+                value={draft}
+                onChange={(next) => {
+                  setDraft(next);
+                  if (feedback !== "correct") setFeedback(null);
+                }}
+                disabled={feedback === "correct"}
+                placeholder={t("player.writeHanziOrPinyin")}
+                ariaLabel={t("player.yourConversationAnswer")}
+                onSubmit={check}
+              />
+            </>
+          )}
         </>
       ) : isOrder ? (
         <>
@@ -734,7 +988,7 @@ function InteractionPanel({
           className="flex-1 shadow-lift"
           disabled={
             feedback === "correct" ||
-            (isOrder ? ordered.length === 0 : isProduce ? draft.trim().length === 0 : !picked)
+            (isOrder ? ordered.length === 0 : isProduce ? produceAttempt().length === 0 : !picked)
           }
           onClick={check}
         >
@@ -753,7 +1007,7 @@ function InteractionPanel({
             <IconCheck width={18} height={18} /> {t("player.almostQi")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? t("player.conversationContinues")}</p>
-          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onCorrect(lastAttemptRef.current)}>
+          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onCorrect(lastAttemptRef.current, { helpLevel, helpRequests })}>
             {t("player.continue")} <IconChevron width={18} height={18} />
           </Button>
         </div>
@@ -900,12 +1154,18 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const nodes = (step.nodes ?? []) as ConversationNode[];
   const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.sceneId]);
   const entryNodeId = step.entryNodeId ?? nodes[0]?.id ?? "";
+  const history = useStore((s) => s.conversationHistory ?? []);
+  const variantLevel = conversationVariantLevelFor(
+    { sceneId: step.sceneId ?? "", intent: step.sceneIntent ?? "" },
+    history
+  );
   const [nodeId, setNodeId] = useState(entryNodeId);
   const [answering, setAnswering] = useState(false);
   const [spokenCount, setSpokenCount] = useState(1);
   const [hint, setHint] = useState<string | null>(null);
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
+  const helpLevelRef = useRef(0);
   const transitionsRef = useRef(0);
   const skipAutoSpeakRef = useRef(false);
   // Quebra de comunicação: o segundo erro na mesma cena para a conversa e
@@ -937,7 +1197,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   function finish() {
     const attempts = Math.max(1, mistakeCountRef.current + 1);
-    onDone(!hadMistakeRef.current, { attempts });
+    onDone(!hadMistakeRef.current, { attempts, helpLevel: helpLevelRef.current });
   }
 
   function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
@@ -1031,7 +1291,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           line={line}
           side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
           visible
-          variantLevel={step.conversationVariantLevel}
+          variantLevel={variantLevel}
           autoSpeak={!skipAutoSpeakRef.current}
           nodeKey={node.id}
         />
@@ -1066,7 +1326,10 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         {!repairPending && answering && node.interaction && (
           <InteractionPanel
             interaction={node.interaction}
-            onCorrect={(attempt) => {
+            variantLevel={variantLevel}
+            sceneId={step.sceneId}
+            onCorrect={(attempt, meta) => {
+              if (meta) helpLevelRef.current = Math.max(helpLevelRef.current, meta.helpLevel, meta.helpRequests);
               setHint(null);
               const interaction = node.interaction!;
               const mapped = interaction.decision ? interaction.nextByAnswer?.[attempt] : undefined;
@@ -1236,6 +1499,8 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         {phase === "checkpoint" && checkpoint && (
           checkpoint.type === "produce_reply" ? <InteractionPanel
             interaction={{ ...checkpoint, correctNextNodeId: "done" }}
+            variantLevel={step.conversationVariantLevel}
+            sceneId={step.sceneId}
             onCorrect={() => onDone(true)}
             onLocalMistake={() => onMistake?.()}
             onSkip={onSkip}

@@ -33,6 +33,7 @@ import { seededShuffleAvoidingOrder } from "../../lib/seededShuffle";
 import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
 import { useStore } from "../../lib/store";
 import { Button, cx } from "../../components/ui/primitives";
+import { SpeakButton } from "../../components/ui/SpeakButton";
 import { ExerciseText, containsCjk } from "../../components/hanzi/ExerciseText";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { ToneContour } from "../../components/tone/ToneContour";
@@ -3088,6 +3089,13 @@ function StepFillBlank({ step, onDone, onSkip, onMistake }: StepProps) {
       <Eyebrow>{t("player.fillTheGap")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
       {step.prompt && <p className="mt-2 text-sm leading-6 text-ink-soft">{step.prompt}</p>}
+
+      {step.audioText ? (
+        <div className="mt-3 flex items-center justify-center gap-2" data-fill-blank-audio>
+          <SpeakButton text={step.audioText} label={t("player.listen")} size="sm" autoPlay />
+          <span className="text-xs text-ink-faint">{t("player.listenAndChooseReply")}</span>
+        </div>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-line bg-surface-2 p-4">
         {step.sentenceBefore && (

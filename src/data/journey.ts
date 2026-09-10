@@ -1024,7 +1024,8 @@ const fillBlank = (
   blankAnswer: string,
   sentenceAfter: string,
   bank: string[],
-  explanation?: string
+  explanation?: string,
+  extras?: { audioText?: string }
 ): LessonStep => ({
   kind: "fill_blank",
   title,
@@ -1035,6 +1036,8 @@ const fillBlank = (
   bank,
   correctAnswer: `${sentenceBefore}${blankAnswer}${sentenceAfter}`,
   explanation,
+  audioText: extras?.audioText,
+  slowAudioText: extras?.audioText,
 });
 const match = (
   title: string,
@@ -5733,6 +5736,15 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我", "要", "饭", "菜", "鱼"],
                 "我要饭 pede a refeição / o arroz."
               ),
+              fillBlank(
+                "Complete: verdura",
+                "Complete: quero verdura / um prato.",
+                "我要",
+                "菜",
+                "",
+                ["菜", "饭", "鱼"],
+                "我要菜 recupera 菜 depois da exposição."
+              ),
               // Reforço do padrão (etapas 1–2) com vocabulário 要 + coisa — chinês primeiro.
               intro(
                 "Mesma lógica",
@@ -6664,6 +6676,23 @@ export const JOURNEY: JourneyPhase[] = [
               flash("dengjikou"),
               flash("dengjikouzainali"),
               listen("登机口", "dēngjīkǒu", "Portão de embarque."),
+              fillBlank(
+                "Ouça e complete: portão",
+                "Ouça e complete a pergunta. Recupere a forma em hànzì.",
+                "",
+                "登机口",
+                "在哪里？",
+                ["登机口", "房卡", "菜单"],
+                "登机口在哪里？ acha o portão. O áudio não mostra o hànzì alvo no enunciado.",
+                { audioText: "登机口" }
+              ),
+              sentenceBuild(
+                "Monte: onde fica o portão",
+                "Monte: onde fica o portão de embarque?",
+                ["登机口", "在哪里"],
+                ["登机口", "在哪里", "房卡"],
+                "登机口在哪里？ pergunta o portão."
+              ),
               signReading(
                 "Portão",
                 "登机口",
@@ -7019,6 +7048,24 @@ export const JOURNEY: JourneyPhase[] = [
                 "amanhã",
                 "Você ouviu 明天: amanhã."
               ),
+              fillBlank(
+                "Recupere: hoje",
+                "Complete o dia presente.",
+                "",
+                "今",
+                "天",
+                ["今", "昨", "明"],
+                "今天 = hoje. 今 marca o dia presente."
+              ),
+              fillBlank(
+                "Recupere: ontem",
+                "Complete o dia anterior.",
+                "",
+                "昨",
+                "天",
+                ["昨", "今", "明"],
+                "昨天 = ontem. 昨 marca o dia que passou."
+              ),
               listenSelect(
                 "Qual é a data?",
                 "九月八号",
@@ -7293,6 +7340,24 @@ export const JOURNEY: JourneyPhase[] = [
               listen("明天天气很好", "míngtiān tiānqì hěn hǎo", "Amanhã o tempo está ótimo"),
               listen("北京今天很冷", "Běijīng jīntiān hěn lěng", "Hoje Pequim está fria"),
               listen("上海今天很热", "Shànghǎi jīntiān hěn rè", "Hoje Xangai está quente"),
+              fillBlank(
+                "Recupere: ontem frio",
+                "Complete: ontem estava frio.",
+                "",
+                "昨天",
+                "很冷",
+                ["昨天", "今天", "现在"],
+                "昨天很冷 retoma 昨 depois de p6-horarios."
+              ),
+              fillBlank(
+                "Recupere: hoje em Pequim",
+                "Complete: Pequim hoje está fria.",
+                "北京",
+                "今天",
+                "很冷",
+                ["今天", "昨天", "明天"],
+                "北京今天很冷 retoma 今."
+              ),
               listen("有风", "yǒu fēng", "Está ventando"),
               match(
                 "Quente ou frio?",
@@ -7993,6 +8058,32 @@ export const JOURNEY: JourneyPhase[] = [
                 ["这是我的护照", "我很好", "太贵了", "菜单"],
                 "这是我的护照 identifica o passaporte."
               ),
+              fillBlank(
+                "Ouça e complete: passaporte",
+                "Ouça e complete a frase. Não copie o hànzì do enunciado — recupere a forma.",
+                "这是我的",
+                "护照",
+                "",
+                ["护照", "房间", "菜单"],
+                "这是我的护照. O áudio é o som; a lacuna pede a forma.",
+                { audioText: "护照" }
+              ),
+              sentenceBuild(
+                "Monte: este é o meu passaporte",
+                "Monte: este é o meu passaporte.",
+                ["这是", "我的", "护照"],
+                ["这是", "我的", "护照", "房间"],
+                "这是我的护照 junta demonstrativo + posse + documento."
+              ),
+              fillBlank(
+                "Complete: reserva",
+                "Complete: eu tenho reserva.",
+                "我有",
+                "预订",
+                "",
+                ["预订", "房间", "菜单"],
+                "我有预订 = eu tenho reserva."
+              ),
               listen("行李", "xíngli", "bagagem"),
               imageChoice(
                 "choose_meaning",
@@ -8032,6 +8123,22 @@ export const JOURNEY: JourneyPhase[] = [
                 "我的房间在哪里？",
                 ["我的房间在哪里？", "你好吗？", "买单", "太贵了"],
                 "我的房间在哪里？ pergunta onde fica o quarto."
+              ),
+              fillBlank(
+                "Complete: quarto",
+                "Complete: onde fica o meu quarto?",
+                "我的",
+                "房间",
+                "在哪里？",
+                ["房间", "护照", "菜单"],
+                "我的房间在哪里？ localiza o quarto."
+              ),
+              sentenceBuild(
+                "Monte: onde fica o meu quarto",
+                "Monte: onde fica o meu quarto?",
+                ["我的", "房间", "在哪里"],
+                ["我的", "房间", "在哪里", "护照"],
+                "我的房间在哪里？ monta posse + lugar."
               ),
               flash("chuko"),
               flash("ruko"),
@@ -8847,6 +8954,15 @@ export const JOURNEY: JourneyPhase[] = [
                 visualMeaningOptions("hotel_key_card"),
                 { explanation: "房卡 abre o quarto. Use a imagem para resolver." }
               ),
+              fillBlank(
+                "Recupere: passaporte",
+                "Complete com o documento já aprendido no hotel.",
+                "这是我的",
+                "护照",
+                "",
+                ["护照", "菜单", "米饭"],
+                "Recuperação atrasada: 护照 já foi ensinado em p6-survival-mandarin."
+              ),
               freeProduction({
                 title: "Informe a reserva",
                 situationPt: "Você chegou com reserva. Informe isso, sem alternativas.",
@@ -8923,6 +9039,15 @@ export const JOURNEY: JourneyPhase[] = [
                 "portão de embarque",
                 ["portão de embarque", "saída", "entrada", "recepção"],
                 "airport"
+              ),
+              fillBlank(
+                "Recupere: portão",
+                "Complete a pergunta com o que a placa mostra.",
+                "",
+                "登机口",
+                "在哪里？",
+                ["登机口", "房卡", "菜单"],
+                "Recuperação atrasada de 登机口. Não é aquisição nova de 护照."
               ),
               listenSelect(
                 "Qual é o número do portão?",

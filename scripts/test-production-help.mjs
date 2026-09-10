@@ -82,4 +82,16 @@ if (mod?.resolveProductionHelpPlan) {
   assert.equal(plan.initial, 1);
 }
 
+function nextConv(current, unlockedMax) {
+  const sequence = [0, 1, 3, 4].filter((level) => level <= unlockedMax);
+  const index = sequence.indexOf(current);
+  if (index < 0) return sequence.find((level) => level > current) ?? null;
+  return sequence[index + 1] ?? null;
+}
+
+assert.equal(nextConv(0, 3), 1, "first help is frame, not pieces");
+assert.equal(nextConv(1, 3), 3, "second help is vocab");
+assert.equal(nextConv(3, 3), null, "pieces stay locked until ceiling 4");
+assert.equal(nextConv(3, 4), 4, "third help can unlock pieces");
+
 console.log("OK: test:production-help (níveis 0–4 · inicial por estágio · unlock pós-erro).");

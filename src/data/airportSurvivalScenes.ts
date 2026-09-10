@@ -32,6 +32,12 @@ type Interaction = {
   decision?: boolean;
   validAnswers?: string[];
   nextByAnswer?: Record<string, string>;
+  productionScaffold?: "first" | "transfer";
+  capabilityId?: string;
+  productionPattern?: string;
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  productionHelpBuildBank?: string[];
+  productionHelpPiecePinyin?: Record<string, string>;
 };
 
 function npc(
@@ -66,6 +72,12 @@ function interactionOf(turn: Interaction, answerId: string, wrongNextNodeId: str
     decision: turn.decision,
     validAnswers: turn.validAnswers,
     nextByAnswer: turn.nextByAnswer,
+    productionScaffold: turn.productionScaffold,
+    capabilityId: turn.capabilityId,
+    productionPattern: turn.productionPattern,
+    productionHelpVocab: turn.productionHelpVocab,
+    productionHelpBuildBank: turn.productionHelpBuildBank,
+    productionHelpPiecePinyin: turn.productionHelpPiecePinyin,
   };
 }
 
@@ -129,11 +141,21 @@ export const NO_AEROPORTO_NODES: ConversationNode[] = [
     { hanzi: "护照。", pinyin: "hùzhào.", pt: "O passaporte." },
     {
       type: "produce_reply",
-      prompt: "O funcionário pediu o documento. Mostre o passaporte, sem alternativas.",
+      prompt: "O funcionário pediu o documento. Mostre o passaporte.",
       answer: "这是我的护照",
       pinyin: "zhè shì wǒ de hùzhào",
       pt: "Este é o meu passaporte.",
       accepts: ["这是我的护照。", "护照", "护照。"],
+      productionScaffold: "transfer",
+      capabilityId: "zheshiwodehuzhao",
+      productionPattern: "这是我的 ______",
+      productionHelpBuildBank: ["这是", "我的", "护照", "房间"],
+      productionHelpPiecePinyin: { 这是: "zhè shì", 我的: "wǒ de", 护照: "hùzhào", 房间: "fángjiān" },
+      productionHelpVocab: [
+        { hanzi: "这是", pinyin: "zhè shì", meaningPt: "isto é" },
+        { hanzi: "我的", pinyin: "wǒ de", meaningPt: "meu" },
+        { hanzi: "护照", pinyin: "hùzhào", meaningPt: "passaporte" },
+      ],
       speechAct: "request_document",
       expectedResponseAct: "present_document",
       repairType: "confirm_document",
@@ -150,11 +172,20 @@ export const NO_AEROPORTO_NODES: ConversationNode[] = [
     { hanzi: "好。", pinyin: "hǎo.", pt: "Certo." },
     {
       type: "produce_reply",
-      prompt: "Você precisa do portão. Pergunte onde fica o portão de embarque, sem alternativas.",
+      prompt: "Você precisa do portão. Pergunte onde fica o portão de embarque.",
       answer: "登机口在哪里？",
       pinyin: "dēngjīkǒu zài nǎlǐ?",
       pt: "Onde fica o portão de embarque?",
       accepts: ["登机口在哪里", "登机口呢？", "登机口呢"],
+      productionScaffold: "first",
+      capabilityId: "dengjikouzainali",
+      productionPattern: "______ 在哪里？",
+      productionHelpBuildBank: ["登机口", "在哪里", "房卡"],
+      productionHelpPiecePinyin: { 登机口: "dēngjīkǒu", 在哪里: "zài nǎlǐ", 房卡: "fángkǎ" },
+      productionHelpVocab: [
+        { hanzi: "登机口", pinyin: "dēngjīkǒu", meaningPt: "portão de embarque" },
+        { hanzi: "在哪里", pinyin: "zài nǎlǐ", meaningPt: "onde" },
+      ],
       speechAct: "acknowledge",
       expectedResponseAct: "ask_gate",
       repairType: "confirm_gate",

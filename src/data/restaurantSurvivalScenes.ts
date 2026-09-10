@@ -28,6 +28,12 @@ type Interaction = {
   repairPinyin: string;
   repairPt: string;
   explanation?: string;
+  productionScaffold?: "first" | "transfer";
+  capabilityId?: string;
+  productionPattern?: string;
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  productionHelpBuildBank?: string[];
+  productionHelpPiecePinyin?: Record<string, string>;
 };
 
 function npc(
@@ -58,6 +64,12 @@ function interactionOf(turn: Interaction, answerId: string, wrongNextNodeId: str
     speechAct: turn.speechAct,
     expectedResponseAct: turn.expectedResponseAct,
     repairType: turn.repairType,
+    productionScaffold: turn.productionScaffold,
+    capabilityId: turn.capabilityId,
+    productionPattern: turn.productionPattern,
+    productionHelpVocab: turn.productionHelpVocab,
+    productionHelpBuildBank: turn.productionHelpBuildBank,
+    productionHelpPiecePinyin: turn.productionHelpPiecePinyin,
   };
 }
 
@@ -235,6 +247,14 @@ export const PEDIR_CARDAPIO_NODES: ConversationNode[] = [
       pinyin: "mǎidān",
       pt: "A conta, por favor.",
       accepts: ["买单。", "买单谢谢"],
+      productionScaffold: "transfer",
+      capabilityId: "maidan",
+      productionPattern: "______",
+      productionHelpBuildBank: ["买单", "谢谢"],
+      productionHelpPiecePinyin: { 买单: "mǎidān", 谢谢: "xièxie" },
+      productionHelpVocab: [
+        { hanzi: "买单", pinyin: "mǎidān", meaningPt: "a conta" },
+      ],
       speechAct: "confirm_order",
       expectedResponseAct: "request_bill",
       repairType: "confirm_bill",
@@ -342,6 +362,14 @@ export const REVISAO_RESTAURANTE_NODES: ConversationNode[] = [
       pinyin: "mǎidān",
       pt: "A conta, por favor.",
       accepts: ["买单。", "买单谢谢"],
+      productionScaffold: "transfer",
+      capabilityId: "maidan",
+      productionPattern: "______",
+      productionHelpBuildBank: ["买单", "谢谢"],
+      productionHelpPiecePinyin: { 买单: "mǎidān", 谢谢: "xièxie" },
+      productionHelpVocab: [
+        { hanzi: "买单", pinyin: "mǎidān", meaningPt: "a conta" },
+      ],
       speechAct: "confirm_order",
       expectedResponseAct: "request_bill",
       repairType: "confirm_bill",
@@ -508,6 +536,14 @@ export const IMERSAO_RESTAURANTE_NODES: ConversationNode[] = [
       pinyin: "mǎidān",
       pt: "A conta, por favor.",
       accepts: ["买单。", "买单谢谢"],
+      productionScaffold: "transfer",
+      capabilityId: "maidan",
+      productionPattern: "______",
+      productionHelpBuildBank: ["买单", "谢谢"],
+      productionHelpPiecePinyin: { 买单: "mǎidān", 谢谢: "xièxie" },
+      productionHelpVocab: [
+        { hanzi: "买单", pinyin: "mǎidān", meaningPt: "a conta" },
+      ],
       speechAct: "confirm_order",
       expectedResponseAct: "request_bill",
       repairType: "confirm_bill",
@@ -529,6 +565,14 @@ export const IMERSAO_RESTAURANTE_NODES: ConversationNode[] = [
       pinyin: "mǎidān",
       pt: "A conta, por favor.",
       accepts: ["买单。", "买单谢谢"],
+      productionScaffold: "transfer",
+      capabilityId: "maidan",
+      productionPattern: "______",
+      productionHelpBuildBank: ["买单", "谢谢"],
+      productionHelpPiecePinyin: { 买单: "mǎidān", 谢谢: "xièxie" },
+      productionHelpVocab: [
+        { hanzi: "买单", pinyin: "mǎidān", meaningPt: "a conta" },
+      ],
       speechAct: "confirm_order",
       expectedResponseAct: "request_bill",
       repairType: "confirm_bill",
