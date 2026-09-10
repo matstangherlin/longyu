@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 65f3c20d7be6 |
-| HEAD no instante da geração | 32dbf07fc57a6ba680f0282207bfa1ee2117bf37 |
+| Hash da Jornada | 7661a691a00a |
+| HEAD no instante da geração | 709561d640daf15947428c344bc69537f20cb63d |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T17:47:14.635Z |
+| Gerado em | 2026-09-10T18:18:18.070Z |
 | Lições | 131 |
 
 ## Resumo
@@ -111,15 +111,9 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 | Indicador | Valor |
 |-----------|------:|
 | Variantes com manifesto gerado | 49 |
-| Itens de vocabulário mapeados | 688 |
-| Textos exibidos sem referência canônica (aviso) | 1 |
+| Itens de vocabulário mapeados | 687 |
+| Textos exibidos sem referência canônica (aviso) | 0 |
 | Refs declarados nunca exibidos (aviso) | 12 |
-
-### Texto exibido sem referência canônica standalone
-
-_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._
-
-- checkin-hotel (advanced): sem referência canônica → "晚"
 
 ### Refs declarados que não aparecem no texto exibido (over-declaração)
 
@@ -141,4 +135,4 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:195630cf922b2e6e -->
+<!-- integridade:060bdfc0841d997c -->

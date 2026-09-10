@@ -64,6 +64,12 @@ try {
   let rotatedLessons = 0;
   let lessonsWithVariants = 0;
   let alternateSentenceAnswers = 0;
+  // Review immersions (restaurant / hotel / airport / travel) are transfer
+  // missions, not wave-one practice targets. Keep them out of the 75% / 65%
+  // denominators so adding a survival immersion does not tax the A/B/C budget.
+  const coveragePoolSize = ALL_LESSONS.filter(
+    (lesson) => !(lesson.isReview && lesson.curriculumRole === "immersion")
+  ).length;
 
   assert(practiceVariantForAttempt(0) === "A", "tentativa 0 deveria usar variante A");
   assert(practiceVariantForAttempt(1) === "B", "tentativa 1 deveria usar variante B");
@@ -100,8 +106,14 @@ try {
   for (const mode of ["blocks", "pinyin", "hanzi", "immersion"]) {
     assert((dictationCounts.get(mode) ?? 0) > 0, `modo de ditado sem cobertura real: ${mode}`);
   }
-  assert(lessonsWithVariants >= Math.floor(ALL_LESSONS.length * 0.75), `só ${lessonsWithVariants}/${ALL_LESSONS.length} lições receberam nova prática`);
-  assert(rotatedLessons >= Math.floor(ALL_LESSONS.length * 0.65), `só ${rotatedLessons}/${ALL_LESSONS.length} lições realmente giraram A/B/C`);
+  assert(
+    lessonsWithVariants >= Math.floor(coveragePoolSize * 0.75),
+    `só ${lessonsWithVariants}/${coveragePoolSize} lições receberam nova prática`
+  );
+  assert(
+    rotatedLessons >= Math.floor(coveragePoolSize * 0.65),
+    `só ${rotatedLessons}/${coveragePoolSize} lições realmente giraram A/B/C`
+  );
   assert(alternateSentenceAnswers > 0, "Sentence Lab não expôs nenhuma resposta gramatical alternativa");
 
   const deck = buildMandarinBlitzDeck(CHUNKS, CHARACTERS, "validator");

@@ -186,7 +186,7 @@ export const CHECKIN_HOTEL_NODES: ConversationNode[] = [
       repairHanzi: "两晚吗？",
       repairPinyin: "liǎng wǎn ma?",
       repairPt: "Duas noites?",
-      explanation: "几晚 transfere 几 de 几点 / 几位. 两晚 = duas noites.",
+      explanation: "住几晚 transfere 几 de 几点 / 几位. 两晚 = duas noites.",
     },
     "hotel-room"
   ),

@@ -7843,6 +7843,10 @@ export const JOURNEY: JourneyPhase[] = [
               "给",
               "李",
               "行",
+              "住",
+              "晚",
+              "两",
+              "零",
             ],
             libraryItems: [
               "chunk:xianjin",
@@ -7953,7 +7957,7 @@ export const JOURNEY: JourneyPhase[] = [
               flash("liangwan"),
               intro(
                 "几 não é só relógio",
-                "Você já ouviu 几点 e 几位. 几 pergunta quantidade pequena. Na recepção vira 几晚: quantas noites."
+                "Você já ouviu 几点 e 几位. 几 pergunta quantidade pequena. Na recepção vira 住几晚: quantas noites."
               ),
               flash("zhujiwan"),
               listen("住几晚？", "zhù jǐ wǎn?", "Quantas noites?"),
@@ -7962,7 +7966,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "A recepção pergunta 住几晚？ Você fica duas. O que diz?",
                 "两晚",
                 ["两晚", "一晚", "谢谢", "菜单"],
-                "两晚 = duas noites. 几晚 transfere 几."
+                "两晚 = duas noites. 住几晚 transfere 几."
               ),
               listenSelect(
                 "Qual é o número do quarto?",
@@ -8788,7 +8792,7 @@ export const JOURNEY: JourneyPhase[] = [
             isReview: true,
             premium: true,
             curriculumRole: "immersion",
-            newHanzi: ["预", "订", "护", "照", "房", "卡"],
+            newHanzi: ["预", "订", "护", "照", "房", "卡", "间", "给", "住", "晚", "两", "零"],
             libraryItems: [
               "chunk:qiantai",
               "chunk:woyouyuding",
@@ -8869,7 +8873,7 @@ export const JOURNEY: JourneyPhase[] = [
             isReview: true,
             premium: true,
             curriculumRole: "immersion",
-            newHanzi: ["登", "机", "口", "护", "照"],
+            newHanzi: ["登", "机", "口", "护", "照", "直"],
             libraryItems: [
               "chunk:dengjikou",
               "chunk:dengjikouzainali",
@@ -8973,7 +8977,7 @@ export const JOURNEY: JourneyPhase[] = [
             isReview: true,
             premium: true,
             curriculumRole: "immersion",
-            newHanzi: [],
+            newHanzi: ["场", "直", "地", "铁", "转", "登"],
             libraryItems: [
               "chunk:woyaoqujiudian",
               "chunk:jichangzainali",
