@@ -142,6 +142,8 @@ Novos: `validate:china-survival-mobility`, `test:china-survival-mobility` (15/15
 
 Preservados: culture-*, china-survival-restaurant/shopping, conversation-*, hanzi-memory, tone-*, teach-before-test, listening-affordance, modality-contract, production-transfer, exercise-depth, lesson-novelty, i18n, journey-en, sync-merge, backend-contract, validate:beta, build.
 
+O plano autoral expôs strings antigas da cidade/estação que o gerador de 8 passos escondia. `instructionGloss.en.json` cobre essas falas + as novas da missão. `validate:journey-en` PASS.
+
 ## Mutações (15/15)
 
 1. 右转 no mapa antes de ensinar → `TEACH_BEFORE_TEST`
