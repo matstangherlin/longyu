@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-10T22:04:34.277Z",
+  "generatedAt": "2026-09-10T22:41:33.870Z",
   "teachingTopicCount": 113,
   "topicIds": [
     "p1-o-que-e-mandarim",
@@ -215,7 +215,7 @@
     "p7-imersao-estacao",
     "p7-imersao-casa-amigo"
   ],
-  "uniqueStrings": 5214,
+  "uniqueStrings": 5232,
   "missingCount": 0,
   "leakCount": 0,
   "fingerprintDrift": 0,
