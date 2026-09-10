@@ -1728,6 +1728,21 @@ const SHORT_SPECS: Array<{
       loc("Você não deve o holerite.", "You do not owe a payslip."),
     ],
   },
+  {
+    id: "hotel-checkin-register",
+    concept: loc(
+      "Em hotel na China continental, a recepção registra o estrangeiro com o passaporte e envia isso ao órgão local.",
+      "In a mainland hotel, the desk registers the foreigner with the passport and submits that to the local organ."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Recepção pede 护照", "The desk asks for 护照"), right: loc("Registro legal da estadia em hotel", "Legal registration of a hotel stay") },
+      { id: "p2", left: loc("Casa de amigo", "A friend's home"), right: loc("Outro parágrafo: registro em 24h", "The other paragraph: register within 24h") },
+    ],
+    takeaways: [
+      loc("这是我的护照 na 前台.", "这是我的护照 at 前台."),
+      loc("Não chame o registro de hotel de regra da casa de amigo.", "Do not call hotel registration the friend's-home rule."),
+    ],
+  },
 ];
 
 const SHORT_MISSIONS: CultureMission[] = SHORT_SPECS.map((spec) =>

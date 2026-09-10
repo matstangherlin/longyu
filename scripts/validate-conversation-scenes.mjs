@@ -767,10 +767,9 @@ try {
     // item deixar de violar, o portão exige que ele saia daqui.
     {
       const KNOWN_DEBT = new Map([
-        ["p6-china-cidades-2/no-aeroporto", ["char:na_that"]],
         ["p6-saude/nao-me-sinto-bem", ["char:na_that"]],
         ["p6-clima/como-esta-o-tempo", ["char:tai_too"]],
-        ["p6-survival-mandarin/checkin-hotel", ["char:de", "char:na_that"]],
+        ["p7-imersao-hotel/checkin-hotel", ["char:de", "char:na_that"]],
       ]);
       const stillOwed = new Set();
 

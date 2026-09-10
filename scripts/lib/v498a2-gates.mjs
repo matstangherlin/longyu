@@ -75,7 +75,7 @@ export function validateExerciseAffordance(data) {
 export function validateCulturePlayability(data) {
   const { fail, failures } = failList();
   const native = data.nativeLessons ?? [];
-  if (native.length !== 19) fail("COVERAGE", "catalog", `expected 19 culture lessons, found ${native.length}`);
+  if (native.length !== 20) fail("COVERAGE", "catalog", `expected 20 culture lessons, found ${native.length}`);
   for (const lesson of native) {
     const scored = (lesson.steps ?? []).filter(
       (step) => GRADED.has(step.kind) || step.pedagogicalEvidence?.graded === true

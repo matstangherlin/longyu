@@ -1967,74 +1967,194 @@ Cenas: 48.
 ## checkin-hotel
 
 - intent: hotel
-- ending: 有。谢谢！
+- ending: 不客气。
 - last interaction: choose_reply
 
-### hotel-2
+### hotel-reserve
 
-- NPC_UTTERANCE: 你好。有预订吗？
-- MEANING: Olá. Tem reserva?
-- PROMPT: Você tem reserva. O que diz? (também vale entregar o passaporte.)
+- NPC_UTTERANCE: 有预订吗？
+- MEANING: Tem reserva?
+- PROMPT: Você chegou com reserva. Informe isso, falando ou escrevendo, sem alternativas.
 - EXPECTED_RESPONSE: 我有预订
+- ACCEPTS: 我有预订 | 我有预订。 | 有预订 | 有预订。
+- NEXT_TURN: 请给我护照。
+- REPAIR: 预订？
+- speechAct: ask_reservation → confirm_reservation (confirm_reservation)
+- CLASS: OK
+
+### hotel-passport
+
+- NPC_UTTERANCE: 请给我护照。
+- MEANING: Por favor, me dê o passaporte.
+- PROMPT: A recepção pediu o documento. Mostre o passaporte, sem alternativas.
+- EXPECTED_RESPONSE: 这是我的护照
+- ACCEPTS: 这是我的护照 | 这是我的护照。 | 护照 | 护照。
+- NEXT_TURN: 住几晚？
+- REPAIR: 护照？
+- speechAct: request_document → present_document (confirm_document)
+- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
+
+### hotel-nights
+
+- NPC_UTTERANCE: 住几晚？
+- MEANING: Quantas noites?
+- PROMPT: A recepcionista pergunta quantas noites. Você fica duas.
+- EXPECTED_RESPONSE: 两晚
+- ACCEPTS: 两晚 | 两晚。 | 两晚
+- NEXT_TURN: 三零五。
+- REPAIR: 两晚吗？
+- speechAct: ask_nights → tell_nights (confirm_nights)
+- CLASS: OK
+
+### hotel-room
+
+- NPC_UTTERANCE: 三零五。
+- MEANING: Trezentos e cinco — falado dígito a dígito.
+- PROMPT: Ouça o número do quarto. Qual número você ouviu?
+- EXPECTED_RESPONSE: 305
 - ACCEPTS: (none)
-- NEXT_TURN: 我的房间在哪里？
-- REPAIR: 请给我护照。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+- NEXT_TURN: 这是房卡。
+- REPAIR: 三零五吗？
+- speechAct: tell_room_number → acknowledge (confirm_room)
+- CLASS: OK
 
-### hotel-5
+### hotel-card
 
-- NPC_UTTERANCE: 我的房间在哪里？
-- MEANING: Onde fica o meu quarto?
-- PROMPT: O que Matheus perguntou?
-- EXPECTED_RESPONSE: Onde fica o meu quarto?
+- NPC_UTTERANCE: 这是房卡。
+- MEANING: Este é o cartão do quarto.
+- PROMPT: O que você recebeu?
+- EXPECTED_RESPONSE: O cartão do quarto
 - ACCEPTS: (none)
-- NEXT_TURN: 有Wi-Fi吗？
-- REPAIR: 房间在哪里？请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+- NEXT_TURN: 好。
+- REPAIR: 房卡？
+- speechAct: confirm_item → acknowledge (clarify)
+- CLASS: ANSWER_TOO_NARROW
 
-### hotel-7
+### hotel-where
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você não encontra o quarto. Pergunte onde ele fica, sem alternativas.
+- EXPECTED_RESPONSE: 我的房间在哪里？
+- ACCEPTS: 我的房间在哪里？ | 我的房间在哪里 | 房间在哪里？ | 房间在哪里
+- NEXT_TURN: 在那里。
+- REPAIR: 房间？
+- speechAct: acknowledge → ask_room_location (confirm_room)
+- CLASS: OK
+
+### hotel-point
 
 - NPC_UTTERANCE: 在那里。
 - MEANING: Lá.
-- PROMPT: Pergunte se tem Wi-Fi.
+- PROMPT: Pergunte uma necessidade simples: Wi-Fi ou banheiro. As duas servem.
 - EXPECTED_RESPONSE: 有Wi-Fi吗？
 - ACCEPTS: (none)
-- NEXT_TURN: 有。谢谢！
-- REPAIR: 有Wi-Fi吗？请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 有。
+- REPAIR: Wi-Fi？
+- speechAct: tell_location → ask_wifi (clarify)
 - CLASS: ANSWER_TOO_NARROW
+
+### hotel-wifi-yes
+
+- NPC_UTTERANCE: 有。
+- MEANING: Tem.
+- PROMPT: A recepcionista confirmou. Encerre com educação.
+- EXPECTED_RESPONSE: 谢谢
+- ACCEPTS: (none)
+- NEXT_TURN: 不客气。
+- REPAIR: 再见。
+- speechAct: acknowledge → thank (clarify)
+- CLASS: OK
 
 ## no-aeroporto
 
 - intent: airport
-- ending: 在那里。谢谢！
+- ending: 不客气。
 - last interaction: choose_reply
 
-### aero-2
+### aero-passport
 
-- NPC_UTTERANCE: 在那里。这是护照吗？
-- MEANING: Lá. Isto é o passaporte?
-- PROMPT: Mostre o passaporte.
+- NPC_UTTERANCE: 护照。
+- MEANING: O passaporte.
+- PROMPT: O funcionário pediu o documento. Mostre o passaporte, sem alternativas.
 - EXPECTED_RESPONSE: 这是我的护照
-- ACCEPTS: (none)
-- NEXT_TURN: 好。登机口在哪里？
-- REPAIR: 这是我的护照。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+- ACCEPTS: 这是我的护照 | 这是我的护照。 | 护照 | 护照。
+- NEXT_TURN: 好。
+- REPAIR: 护照？
+- speechAct: request_document → present_document (confirm_document)
+- CLASS: OK
 
-### aero-5
+### aero-gate
 
-- NPC_UTTERANCE: 好。登机口在哪里？
-- MEANING: Certo. Onde fica o portão?
-- PROMPT: Pergunte o portão de embarque.
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você precisa do portão. Pergunte onde fica o portão de embarque, sem alternativas.
 - EXPECTED_RESPONSE: 登机口在哪里？
+- ACCEPTS: 登机口在哪里？ | 登机口在哪里 | 登机口呢？ | 登机口呢
+- NEXT_TURN: 十八号登机口。
+- REPAIR: 登机口？
+- speechAct: acknowledge → ask_gate (confirm_gate)
+- CLASS: OK
+
+### aero-fast
+
+- NPC_UTTERANCE: 十八号登机口。
+- MEANING: Portão de embarque número 18.
+- PROMPT: A fala foi rápida. Peça para repetir ou para ir mais devagar — as duas mudam a conversa.
+- EXPECTED_RESPONSE: 请再说一遍
 - ACCEPTS: (none)
-- NEXT_TURN: 在那里。谢谢！
-- REPAIR: 登机口在哪里？请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NEXT_TURN: 好。
+- REPAIR: 十八？
+- speechAct: tell_gate → ask_repeat (repeat)
 - CLASS: ANSWER_TOO_NARROW
+
+### aero-number
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Qual é o número do portão?
+- EXPECTED_RESPONSE: 18
+- ACCEPTS: (none)
+- NEXT_TURN: 好。
+- REPAIR: 十八吗？
+- speechAct: tell_gate → acknowledge (confirm_gate)
+- CLASS: OK
+
+### aero-sign
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Qual placa você procura para o embarque?
+- EXPECTED_RESPONSE: 登机口
+- ACCEPTS: (none)
+- NEXT_TURN: 一直走。在那里。
+- REPAIR: 登机口？
+- speechAct: tell_location → acknowledge (clarify)
+- CLASS: OK
+
+### aero-dir
+
+- NPC_UTTERANCE: 一直走。在那里。
+- MEANING: Siga em frente. Lá.
+- PROMPT: O que o funcionário disse?
+- EXPECTED_RESPONSE: Siga em frente. Fica lá.
+- ACCEPTS: (none)
+- NEXT_TURN: 好。
+- REPAIR: 那里？
+- speechAct: tell_direction → acknowledge (clarify)
+- CLASS: ANSWER_TOO_NARROW
+
+### aero-close
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você chegou ao portão. Agradeça ou peça ajuda se ainda precisar.
+- EXPECTED_RESPONSE: 谢谢
+- ACCEPTS: (none)
+- NEXT_TURN: 不客气。
+- REPAIR: 再见。
+- speechAct: acknowledge → thank (clarify)
+- CLASS: OK
 
 ## pegar-taxi
 

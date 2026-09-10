@@ -11,7 +11,7 @@ export const INTEGRATED_SCENE_IDS = [
 ];
 
 export const SPEECH_ACT_PAIRS = {
-  greet: ["greet", "acknowledge", "get_attention", "ask_location", "ask_route", "ask_price"],
+  greet: ["greet", "acknowledge", "get_attention", "ask_location", "ask_route", "ask_price", "confirm_reservation", "present_document"],
   farewell: ["farewell"],
   ask_time: ["tell_time"],
   ask_when: ["tell_when"],
@@ -25,10 +25,10 @@ export const SPEECH_ACT_PAIRS = {
   confirm_plan: ["confirm_plan", "acknowledge"],
   ask_name: ["tell_name"],
   ask_wellbeing: ["tell_wellbeing", "praise_food"],
-  acknowledge: ["acknowledge", "greet", "request_stop"],
+  acknowledge: ["acknowledge", "greet", "request_stop", "ask_room_location", "ask_gate", "ask_wifi", "thank"],
   tell_time: ["acknowledge"],
   tell_when: ["acknowledge"],
-  tell_location: ["acknowledge"],
+  tell_location: ["acknowledge", "ask_wifi"],
   tell_job: ["acknowledge"],
   acknowledge_thanks: ["acknowledge"],
   tell_name: ["acknowledge"],
@@ -53,6 +53,18 @@ export const SPEECH_ACT_PAIRS = {
   ask_payment: ["ask_card", "ask_cash", "acknowledge"],
   ask_card: ["acknowledge"],
   ask_cash: ["acknowledge"],
+  ask_reservation: ["confirm_reservation"],
+  confirm_reservation: ["acknowledge", "request_document"],
+  request_document: ["present_document"],
+  present_document: ["acknowledge"],
+  ask_nights: ["tell_nights"],
+  tell_nights: ["acknowledge"],
+  tell_room_number: ["acknowledge", "ask_room_location"],
+  ask_room_location: ["tell_location"],
+  ask_wifi: ["acknowledge"],
+  ask_gate: ["tell_gate"],
+  tell_gate: ["acknowledge", "ask_repeat", "ask_route"],
+  ask_repeat: ["acknowledge"],
 };
 
 const PUNCT = /[\u3000-\u303f\uff00-\uffef,.!?\s:;"'()？！。，、]/gu;

@@ -3,11 +3,11 @@ export const BASELINE_DEBT = {
   "l25/onde-esta": ["chunk:nashirenm"],
   "l26b/pedir-cardapio": ["chunk:taiguile", "chunk:la"],
   "p6-rotina-trabalho/rotina-e-trabalho": ["char:dian_point"],
-  "p6-china-cidades-2/no-aeroporto": ["char:zai", "char:na_that", "char:li_inside"],
+  "p7-imersao-aeroporto/no-aeroporto": ["char:zai", "char:na_that", "char:li_inside"],
   "p6-china-ruas/pegar-taxi": ["char:qu_go", "char:na_which", "char:li_inside"],
   "p6-saude/nao-me-sinto-bem": ["char:zai", "char:na_that", "char:li_inside"],
   "p6-clima/como-esta-o-tempo": ["char:tai_too"],
-  "p6-survival-mandarin/checkin-hotel": ["char:de", "char:zai", "char:na_that", "char:li_inside"],
+  "p7-imersao-hotel/checkin-hotel": ["char:de", "char:zai", "char:na_that", "char:li_inside"],
 };
 const clean = value => String(value ?? "").replace(/[\s，。！？,.!?]/g, "");
 const CAPABILITIES = {
