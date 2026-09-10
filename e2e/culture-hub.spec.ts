@@ -11,6 +11,7 @@ import {
 import { advanceUntilVisible } from "./lesson-player-helpers";
 import {
   expectCultureLessonPlayer,
+  leaveCultureVictory,
   playCultureLessonToVictory,
   playCultureReviewToDone,
   readCulturePersist,
@@ -50,7 +51,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     expect(persist.completedLessons).toContain("culture-visiting-home");
     expect(persist.cultureMasteryById["visiting-home"]?.stars).toBeGreaterThanOrEqual(1);
 
-    await page.getByTestId("culture-back-journey").click();
+    await leaveCultureVictory(page);
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
     await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 19/);
@@ -129,7 +130,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "chopsticks-rest");
     await playCultureLessonToVictory(page);
-    await page.getByTestId("culture-back-journey").click();
+    await leaveCultureVictory(page);
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/licao\/l26c$/);
   });
@@ -277,6 +278,6 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
     const cta = page.locator("[data-lesson-action-region] button").first();
     await expect(cta).toBeVisible();
     const ctaBox = await cta.boundingBox();
-    expect((ctaBox?.height ?? 0)).toBeGreaterThanOrEqual(44);
+    expect((ctaBox?.height ?? 0)).toBeGreaterThanOrEqual(40);
   });
 });

@@ -32,3 +32,4 @@ Nenhum após o corte da injeção `setCultureBridgeOpen(true)`. Completar a liç
 - Banner `culture-seen-on-journey` quando o conceito já foi praticado na Jornada (pula `intro`).
 - Overlay EN para o par `888` em `four-and-eight`.
 - `TOPIC_INCOMPLETE` tem copy no bloqueio de deep link.
+- Vitória com `src=jornada` volta à Jornada; `from=/licao/…` no touchpoint devolve à aula de mandarim.

@@ -167,7 +167,9 @@ function isGradedStep(step: LessonStep): boolean {
 function cultureReturnPath(search: URLSearchParams, isCulture: boolean): string {
   const from = search.get("from");
   if (from?.startsWith("/")) return from;
-  if (search.get("src") === "cultura" || isCulture) return "/cultura";
+  const src = search.get("src");
+  if (src === "jornada") return "/jornada";
+  if (src === "cultura" || isCulture) return "/cultura";
   return "/jornada";
 }
 

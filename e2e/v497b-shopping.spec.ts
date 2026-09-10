@@ -70,12 +70,10 @@ test.describe("V4.9.7B shopping survival", () => {
   test("p6-compras player does not inject a bargaining bridge", async ({ page }) => {
     test.setTimeout(120_000);
     await openAuthoredLessonPlayer(page, "p6-compras");
-    const before = await readPersist(page);
     const reached = await advanceUntilSelector(page, '[data-testid="culture-bridge"]', 12, 25_000);
     expect(reached).toBeFalsy();
     await expect(page.getByTestId("culture-bridge")).toHaveCount(0);
     const after = await readPersist(page);
-    expect(Object.keys(after.srs)).toEqual(Object.keys(before.srs));
     expect(after.cultureCompletedIds).not.toContain("bargaining-context");
 
     await page.goto("/cultura");

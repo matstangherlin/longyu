@@ -304,7 +304,7 @@ export function routeForJourneyNode(node: JourneyNode): string {
     case "PRACTICE":
       return `/imersao?${query}`;
     case "CULTURE_LESSON":
-      return `/licao/${encodeURIComponent(node.sourceId ?? "")}/player?src=jornada&${query}`;
+      return `/licao/${encodeURIComponent(node.sourceId ?? "")}/player?src=jornada&from=${encodeURIComponent("/jornada")}&${query}`;
     default:
       return `/jornada`;
   }
