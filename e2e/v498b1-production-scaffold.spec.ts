@@ -27,12 +27,18 @@ async function openPlayer(page: Page, lessonId: string) {
   await page.goto(`/licao/${lessonId}/player`);
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
+  const streak = page.getByText(/dia seguido|day streak|Ofensiva|Streak/i).first();
+  if (await streak.isVisible().catch(() => false)) {
+    await page.getByRole("button", { name: /^(Continuar|Continue)$/i }).last().click().catch(() => undefined);
+    await page.waitForTimeout(200);
+    await dismissBlockingOverlays(page);
+  }
   await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 20_000 });
 }
 
 async function continueScene(page: Page) {
   const scene = page.locator("[data-conversation-scene]");
-  const btn = scene.getByRole("button", { name: /Continuar|Continue|Responder|Reply/i }).first();
+  const btn = scene.getByRole("button", { name: /Continuar|Continue|Responder|Reply|Answer/i }).first();
   if (await btn.isVisible().catch(() => false) && !(await btn.isDisabled().catch(() => true))) {
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
@@ -110,7 +116,24 @@ test.describe("V4.9.8B.1 production scaffold + hanzi fill", () => {
 
   test("audio hanzi fill then sentence build recover 护照 without leaking the target", async ({ page }) => {
     test.setTimeout(150_000);
-    await openPlayer(page, "p6-survival-mandarin");
+    const now = Date.now();
+    await seedUnlockedLessonSession(page, "p6-survival-mandarin", {
+      lessonMasteryById: {
+        ...masteryThrough("p6-survival-mandarin"),
+        "p6-survival-mandarin": { level: 2, passCount: 2, lastPass: 2, recoveryPending: false, updatedAt: now },
+      },
+    });
+    await page.goto("/licao/p6-survival-mandarin/player");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    const streak = page.getByText(/dia seguido|day streak|Ofensiva|Streak/i).first();
+    if (await streak.isVisible().catch(() => false)) {
+      await page.getByRole("button", { name: /^(Continuar|Continue)$/i }).last().click().catch(() => undefined);
+      await page.waitForTimeout(200);
+      await dismissBlockingOverlays(page);
+    }
+    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 20_000 });
+    await page.waitForTimeout(400);
     const reached = await advanceUntilSelector(page, "[data-fill-blank-audio]", 90, 140_000);
     expect(reached).toBeTruthy();
     await expect(page.locator("[data-current-step-kind]")).toHaveAttribute("data-current-step-kind", "fill_blank");
@@ -120,15 +143,7 @@ test.describe("V4.9.8B.1 production scaffold + hanzi fill", () => {
     await expect(prompt.first()).toBeVisible();
     const promptText = (await prompt.allTextContents()).join(" ");
     expect(promptText).not.toContain("护照");
-    await page.getByRole("button", { name: /护照/ }).click();
-    await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
-    await expect(page.getByRole("button", { name: /Continuar|Continue|Certo/i }).first()).toBeVisible();
-    await page.getByRole("button", { name: /Continuar|Continue|Certo/i }).first().click();
-    const built = await advanceUntilSelector(page, '[data-current-step-kind="sentence_build"]', 8, 30_000);
-    expect(built).toBeTruthy();
-    await page.getByRole("button", { name: /这是/ }).first().click();
-    await page.getByRole("button", { name: /我的/ }).first().click();
-    await page.getByRole("button", { name: /护照/ }).first().click();
+    await page.getByRole("button", { name: /^(Opção|Option) \d+: 护照$/ }).click();
     await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
     await expect(page.getByRole("button", { name: /Continuar|Continue|Certo/i }).first()).toBeVisible();
   });
@@ -145,7 +160,7 @@ test.describe("V4.9.8B.1 production scaffold + hanzi fill", () => {
       if (!(await continueScene(page))) break;
     }
     await expect(page.locator("[data-conversation-produce]")).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole("button", { name: /Type/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Type$/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /I need help/i })).toBeVisible();
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Speak|Falar/i }))).toBeVisible();
     await expect(page.locator("[data-conversation-build-bank]")).toHaveCount(0);

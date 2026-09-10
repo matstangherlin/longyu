@@ -91,6 +91,8 @@ Níveis:
 
 Erro repetido sobe o teto e oferece o próximo degrau (frame → vocab → peças). Acerto independente sobe `conversationVariantLevelFor` (attempts + assistanceLevel). Pedir ajuda não marca erro e não retira XP; a evidência de mastery é mais fraca (helpLevel no `onDone`).
 
+`conversationAssistanceFromHelp` grava no histórico a ajuda **usada**: peças → `guided`; frame/vocab → `assisted`; nenhuma ajuda → `independent` (ou `audio_first` se essa era a variante). A variante planejada sozinha não marca mais um acerto livre como guided.
+
 Primeiro toque em “Preciso de ajuda” **não** revela a frase inteira.
 
 ## Hanzi fill audit
@@ -178,7 +180,7 @@ Preservados (#249 e anteriores): china-survival hotel / airport / travel / mobil
 | 12 | Audio fill mostra hànzì alvo | LISTENING | KILLED |
 | 13 | Aeroporto reensina 护照 | LEXICAL_NOVELTY | KILLED |
 | 14 | Montar e digitar usam evaluators diferentes | EVALUATOR | KILLED |
-| 15 | Scaffold quebra mobile | e2e 390×844 | a verificar no e2e |
+| 15 | Scaffold quebra mobile | e2e 390×844 | KILLED (peças ≥44px) |
 
 ## Pronto para V4.9.9
 
