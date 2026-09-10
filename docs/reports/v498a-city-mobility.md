@@ -164,7 +164,7 @@ O plano autoral expôs strings antigas da cidade/estação que o gerador de 8 pa
 
 ## QA
 
-Playwright `e2e/v498a-city-mobility.spec.ts`: **8/8** no Chromium (preview `4173`, plano autoral). O skip-through completa o microtouch de tom (`data-tone-first-exposure` → Percebi a curva) antes do mapa M1.
+Playwright `e2e/v498a-city-mobility.spec.ts`: **8/8** no Chromium (preview `4173`, plano autoral). O skip-through completa o microtouch de tom (`data-tone-first-exposure` → Percebi a curva). O mapa de `p6-direcoes` fica no M2 (flashcards no M1).
 
 Checklist humano (desktop + 390×844): p6-cidade-lugares, p7-imersao-estacao, pegar-taxi, City Mobility Mission, metro-qr CultureMission.
 

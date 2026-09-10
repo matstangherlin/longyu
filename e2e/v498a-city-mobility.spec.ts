@@ -189,7 +189,8 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("p6-direcoes player reaches a map", async ({ page }) => {
     test.setTimeout(120_000);
-    await openMobilityPassPlayer(page, "p6-direcoes");
+    // Maps live on M2 so flashcards can stay on M1 (no_false_depth).
+    await openMobilityPassPlayer(page, "p6-direcoes", 1);
     const map = await advanceUntilSelector(page, '[data-current-step-kind="map_direction"]', 80, 90_000);
     expect(map).toBeTruthy();
     await expect(page.getByText("酒店").first()).toBeVisible();
