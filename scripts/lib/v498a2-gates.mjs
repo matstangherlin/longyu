@@ -104,7 +104,8 @@ export function validateCulturePlayability(data) {
   if (qingwen && !(qingwen.steps ?? []).some((step) => step.kind === "sentence_build")) {
     fail("FAKE_SEQUENCE", "culture-qingwen-ask", "canonical lesson must use a real sentence_build engine");
   }
-  if ((data.lessonPlayerSource ?? "").includes('data-testid="culture-save"')) {
+  const player = data.lessonPlayerSource ?? "";
+  if (player.includes('data-testid="culture-save"') || /culture\.saveForLater/.test(player)) {
     fail("SAVE_IN_PLAYER", "LessonPlayer", "Salvar para depois inside LessonPlayer");
   }
   if ((data.cultureReviewSource ?? "").includes("culture-seq-")) {

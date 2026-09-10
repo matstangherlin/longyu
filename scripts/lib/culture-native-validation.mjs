@@ -160,7 +160,7 @@ export function validateCultureStandardTasks(data) {
   if (itemPage && !/Navigate/.test(itemPage)) {
     fail("HUB_MISSION_PLAYER", "CultureItemPage", "published items must redirect to LessonPlayer");
   }
-  if (player && /data-testid="culture-save"/.test(player)) {
+  if (player && (/data-testid="culture-save"/.test(player) || /culture\.saveForLater/.test(player))) {
     fail("SAVE_IN_PLAYER", "LessonPlayer", "Salvar para depois must not appear inside LessonPlayer");
   }
   if (review && /culture-seq-/.test(review)) {

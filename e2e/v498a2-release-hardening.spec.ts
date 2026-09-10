@@ -67,6 +67,7 @@ test.describe("V4.9.8A.2 Culture playability", () => {
     await dismissBlockingOverlays(page);
     await expectCultureLessonPlayer(page, "qingwen-ask");
     await expect(page.getByTestId("culture-save")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Salvar para depois|Save for later/ })).toHaveCount(0);
 
     const orderPrompt = page.getByText(/Ordene o pedido a um desconhecido no corredor/);
     for (let i = 0; i < 14; i += 1) {
@@ -100,6 +101,7 @@ test.describe("V4.9.8A.2 Culture playability", () => {
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "visiting-home");
     await expect(page.getByTestId("culture-save")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Salvar para depois|Save for later/ })).toHaveCount(0);
   });
 });
 
