@@ -12,7 +12,7 @@ Princípio: APRENDER → RECONHECER → PREENCHER → MONTAR → USAR COM AJUDA 
 | #249 | V4.9.8B — China Survival II: Hotel + Aeroporto |
 | Branch | `cursor/v498b1-production-scaffold-6ae2` |
 | Fingerprint da Jornada (8B) | `465390e64799` |
-| Fingerprint da Jornada (esta remessa) | `3f7d940af894` |
+| Fingerprint da Jornada (esta remessa) | `003cb0ed7858` |
 | Tópicos de ensino | 113 (imersões continuam `isReview` + `curriculumRole: "immersion"`) |
 
 ## O que esta remessa não faz
@@ -113,6 +113,8 @@ CORE elegíveis com recuperação ativa (fill / sentence_build / hanzi_build / d
 
 Não se exigiu fill em toda aula. Não se fingiu mastery de caractere isolado para 登机口.
 
+O player de mastery de `p6-survival-mandarin` (pass 3) e `p6-china-cidades-2` (pass 4) recebe os mesmos fill/build como bônus, para a recuperação não ficar só no `journey.ts` autoral.
+
 ## Fills / builds / áudio+Hànzì adicionados
 
 Fills:
@@ -133,7 +135,7 @@ Sentence builds:
 - 我的 / 房间 / 在哪里
 - 登机口 / 在哪里
 
-Áudio + Hànzì: fills de 护照 e 登机口. O enunciado não contém o hànzì-alvo (`TARGET_LEAK` / `LISTENING` gates).
+Áudio + Hànzì: fills de 护照 e 登机口. O enunciado não contém o hànzì-alvo (`TARGET_LEAK` / `LISTENING` gates). `fill_blank` com `audioText` conta como interação `audio` no contrato de factibilidade, para o enunciado “Ouça e complete…” não falhar `instruction_mismatch`.
 
 ## Scaffold levels / speaking / i18n / viewport
 
@@ -147,8 +149,8 @@ Sentence builds:
 
 | Contrato | Fingerprint |
 |----------|-------------|
-| `docs/backend/v478-backend-rc.json` | `3f7d940af894` |
-| `docs/backend/v489-backend-rc.json` | `3f7d940af894` |
+| `docs/backend/v478-backend-rc.json` | `003cb0ed7858` |
+| `docs/backend/v489-backend-rc.json` | `003cb0ed7858` |
 
 Nenhuma mudança de schema / RPC / edge.
 
