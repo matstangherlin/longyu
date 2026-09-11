@@ -258,10 +258,13 @@ test.describe("V4.8.4 English core surfaces", () => {
         needle === "Opcional" ? /\bOpcional\b/ : new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
       );
     }
-    await expect(page.getByText("Review", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("Library", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("Practice", { exact: true }).first()).toBeVisible();
+    const victory = page.locator("[data-lesson-victory]");
+    await expect(victory).toBeVisible();
+    await expect(page.locator("[data-victory-highlight]")).toBeVisible();
+    await expect(page.locator("[data-victory-primary]")).toHaveCount(1);
+    await expect(page.getByText(/Lesson complete/i).first()).toBeVisible();
     await expect(page.getByText(/Accuracy|Serene Accuracy/i).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Review|Library|Practice/i })).toHaveCount(0);
     await page.screenshot({ path: path.join(SHOTS, "lesson-victory.png"), fullPage: true });
     expect(await masteryLevel(page, FIRST.id)).toBeGreaterThanOrEqual(1);
   });
