@@ -1,24 +1,29 @@
-/** Garante que o fim de lição compacto permanece no card único (sem tela rewards separada). */
+/** Garante que o fim de lição continua num único shell mínimo. */
 
 import { readFileSync } from "node:fs";
 
 const player = readFileSync("src/features/lesson/LessonPlayer.tsx", "utf8");
+const victory = readFileSync("src/features/lesson/LessonVictory.tsx", "utf8");
 const errors = [];
 
-function requireMatch(label, pattern) {
-  if (!pattern.test(player)) errors.push(label);
+function requireMatch(label, source, pattern) {
+  if (!pattern.test(source)) errors.push(label);
 }
 
-requireMatch('max-w-xl na vitória', /max-w-xl flex-col/);
-requireMatch('chips de métricas', /MetricChip value=\{`\+\$\{lessonXp\}`\}/);
-requireMatch('botão Receber recompensas', /Receber recompensas|player\.claimRewards/);
-requireMatch('botão Continuar Jornada', /player\.continueJourney/);
-requireMatch('botão Voltar à Jornada (tema)', /player\.backToJourney/);
-requireMatch('recompensas inline', /recompensas recebidas|player\.rewardsReceived/);
-requireMatch('accordions fechados por padrão', /defaultOpen=\{false\}/);
+requireMatch("LessonPlayer monta LessonVictory", player, /<LessonVictory/);
+requireMatch("shell data-lesson-victory", victory, /data-lesson-victory/);
+requireMatch("XP na vitória", victory, /data-victory-xp/);
+requireMatch("precisão na vitória", victory, /data-victory-accuracy/);
+requireMatch("highlight determinístico", victory, /data-victory-highlight/);
+requireMatch("um CTA primário", victory, /data-victory-primary/);
+requireMatch("Continuar Jornada / Voltar à Jornada no player", player, /player\.continueJourney|player\.backToJourney/);
+requireMatch("recompensas ainda reclamáveis no 1º toque", player, /player\.claimRewards/);
 
+if (/CultureTouchpoint/.test(player) || /culture-touchpoint/.test(victory)) {
+  errors.push("vitória não deve mostrar Culture Mission card");
+}
 if (/postLessonView === "rewards"/.test(player)) {
-  errors.push('não deve existir view rewards separada');
+  errors.push("não deve existir view rewards separada");
 }
 
 if (errors.length > 0) {

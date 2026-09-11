@@ -32,23 +32,19 @@ mutation("7 eligible unit with no culture", (data) => {
 
 const player = fs.readFileSync("src/features/lesson/LessonPlayer.tsx", "utf8");
 assert.match(player, /completeLesson\(lesson\.id\)/, "player still completes the lesson");
-assert.match(player, /CultureTouchpoint/, "victory may show a culture touchpoint");
+assert.doesNotMatch(player, /CultureTouchpoint/, "victory no longer mounts a culture mission card");
 assert.match(
   player,
   /lesson\.lessonDomain === "culture" \? "culture-back-journey" : "topic-victory-return"/,
   "language continue stays topic-victory-return; culture uses culture-back-journey"
 );
-assert.match(
-  player,
-  /cultureTouchpointOpen/,
-  "touchpoint can be dismissed without blocking the victory CTA"
-);
+assert.match(player, /<LessonVictory/, "language and culture share the minimal LessonVictory shell");
 
 const touchpoint = fs.readFileSync("src/features/culture/CultureTouchpoint.tsx", "utf8");
 assert.match(
   touchpoint,
   /data-testid="culture-touchpoint"/,
-  "touchpoint is addressable without replacing the primary continue control"
+  "detail-page touchpoint stays addressable without replacing the primary continue control"
 );
 assert.match(touchpoint, /data-testid="culture-touchpoint-continue"/, "continue on the card is optional");
 
