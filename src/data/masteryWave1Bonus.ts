@@ -1255,74 +1255,9 @@ export function wave1BonusStepsFor(lessonId: string, pass: MasteryPass): LessonS
   }
 
   if (lessonId === "p6-saude") {
-    if (pass === 1) {
-      return [
-        {
-          kind: "place_label",
-          title: "Placa de saude",
-          prompt: "Qual destas e o hospital?",
-          dialoguePrompt: "Qual destas e o hospital?",
-          correctAnswer: "医院",
-          options: ["医院", "饭馆", "酒店", "公园"],
-          placeLabelCategory: "saude",
-          speaker: "Placa",
-        },
-        contextualChoice("Nao estou bem", "Voce esta doente. O que voce diz?", "我病了", [
-          "我病了",
-          "我很好",
-          "谢谢",
-          "再见",
-        ]),
-      ];
-    }
-    if (pass === 2) {
-      return [
-        contextualChoice(
-          "Discriminar sintomas",
-          "Qual frase indica DOR DE CABECA especificamente, nao doenca em geral?",
-          "我头疼",
-          ["我头疼", "我病了", "我很好", "谢谢"],
-          "我头疼 aponta o sintoma especifico; 我病了 e geral."
-        ),
-        substitutionDrill(
-          "Complete o sintoma",
-          "我___了",
-          "病",
-          ["病", "很好", "饿"],
-          "我病了 = estou doente."
-        ),
-      ];
-    }
-    if (pass === 3) {
-      return [
-        sentenceTransform(
-          "De sintoma a pedido",
-          "我头疼",
-          ["我", "要", "看", "医", "生"],
-          ["我", "要", "看", "医", "生", "病"],
-          "Transforme o sintoma no pedido de ajuda: 我要看医生."
-        ),
-        reverseRecall("Peca o medico", "Diga que quer ver um medico.", "我要看医生", [
-          "我要看医生",
-          "我要看医生。",
-        ]),
-      ];
-    }
-    return [
-      withEquivalentAccepts(
-        reverseRecall("Transferencia", "Voce esta doente numa cidade nova. Diga isso.", "我病了", [
-          "我病了",
-          "我病了。",
-        ])
-      ),
-      dialogueCompletion(
-        "Achar o hospital",
-        "Voce esta doente numa cidade nova e precisa de ajuda medica. O que voce pergunta?",
-        "医院在哪里？",
-        ["医院在哪里？", "现在几点？", "多少钱？", "再见"],
-        "医院在哪里？ acha o hospital em qualquer cidade nova."
-      ),
-    ];
+    // Authored slices in healthSurvivalPlans.ts own M1–M4. Do not inject
+    // char-level 医+生 or reverseRecall that skips fill/build.
+    return [];
   }
 
   if (lessonId === "p6-clima") {

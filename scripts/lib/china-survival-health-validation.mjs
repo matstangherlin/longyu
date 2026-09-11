@@ -260,6 +260,38 @@ export function validateChinaSurvivalHealth(data) {
     }
   }
 
+  const p6plans = data.plans?.["p6-saude"];
+  if (Array.isArray(p6plans) && p6plans.length === 4) {
+    const [m1, m2, m3, m4] = p6plans;
+    if (!m1.some((step) => step.kind === "listen" && /我不舒服/.test(String(step.text ?? "")))) {
+      fail("CAPABILITY", "health M1 missing 我不舒服 listening");
+    }
+    if (!m1.some((step) => step.kind === "fill_blank" && /舒服/.test(String(step.blankAnswer ?? "")))) {
+      fail("CAPABILITY", "health M1 missing 舒服 fill");
+    }
+    if (!m1.some((step) => step.kind === "sentence_build" && (step.targetParts ?? []).includes("舒服"))) {
+      fail("CAPABILITY", "health M1 missing 我不舒服 build");
+    }
+    if (m1.some((step) => step.kind === "conversation_scene" || step.kind === "free_production")) {
+      fail("NOVELTY", "health M1 must not jump to open production or conversation");
+    }
+    if (!m2.some((step) => step.kind === "listen_select" && /头疼吗/.test(String(step.audioText ?? "")))) {
+      fail("CAPABILITY", "health M2 missing symptom-question listening");
+    }
+    if (!m2.some((step) => step.kind === "sentence_build" && (step.targetParts ?? []).includes("医生") && !(step.targetParts ?? []).includes("医"))) {
+      fail("CAPABILITY", "health M2 must build 医生 as a word");
+    }
+    if (!m3.some((step) => step.kind === "free_production" && step.productionOpen && /我不舒服/.test(clean(step.answer ?? step.correctAnswer ?? "")))) {
+      fail("CAPABILITY", "health M3 missing speaking 我不舒服");
+    }
+    if (!m4.some((step) => step.sceneId === "nao-me-sinto-bem")) {
+      fail("CAPABILITY", "health M4 missing friend conversation");
+    }
+    if (!m4.some((step) => step.kind === "free_production" && /医院在哪里/.test(clean(step.answer ?? step.correctAnswer ?? "")))) {
+      fail("CAPABILITY", "health M4 missing hospital transfer production");
+    }
+  }
+
   const decisions = validateConversationDecisions(data);
   return { failures, evidence, decisions: decisions.scenes?.filter((id) => HEALTH_SCENE_IDS.includes(id)) ?? [] };
 }

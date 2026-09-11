@@ -280,7 +280,10 @@ function SettingBackdrop({ setting }: { setting?: string }) {
   const wash = washes[setting ?? ""] ?? washes.classroom;
 
   return (
-    <div className={["relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br p-3 sm:p-4", wash].join(" ")}>
+    <div
+      className={["relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br p-3 sm:p-4", wash].join(" ")}
+      data-conversation-setting={setting ?? "classroom"}
+    >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[radial-gradient(ellipse_at_top,rgb(255_255_255/0.55),transparent_70%)]" />
       <div className="relative text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{label}</div>
     </div>

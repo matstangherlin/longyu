@@ -735,11 +735,11 @@ const CORE_PILOT_LEXICAL_TARGETS = {
       { ref: "chunk:wobingle", hanzi: "我病了", pinyin: "wo bing le", meaningPt: "estou doente", role: "core", introduceAtPass: 1 },
       { ref: "chunk:wobushufu", hanzi: "我不舒服", pinyin: "wo bu shufu", meaningPt: "nao me sinto bem", role: "core", introduceAtPass: 1 },
       { ref: "chunk:wotouteng", hanzi: "我头疼", pinyin: "wo tou teng", meaningPt: "estou com dor de cabeca", role: "core", introduceAtPass: 1 },
-      { ref: "chunk:woduziteng", hanzi: "我肚子疼", pinyin: "wo duzi teng", meaningPt: "estou com dor de barriga", role: "support", introduceAtPass: 2 },
+      { ref: "chunk:woduziteng", hanzi: "我肚子疼", pinyin: "wo duzi teng", meaningPt: "estou com dor de barriga", role: "support", introduceAtPass: 1 },
       { ref: "chunk:wofashao", hanzi: "我发烧了", pinyin: "wo fa shao le", meaningPt: "estou com febre", role: "support", introduceAtPass: 2 },
       { ref: "chunk:woyaokanyisheng", hanzi: "我要看医生", pinyin: "wo yao kan yisheng", meaningPt: "quero ver um medico", role: "support", introduceAtPass: 2 },
       { ref: "chunk:woxuyaoyisheng", hanzi: "我需要医生", pinyin: "wo xu yao yi sheng", meaningPt: "preciso de um medico", role: "core", introduceAtPass: 2 },
-      { ref: "chunk:yiyuanzainali", hanzi: "医院在哪里？", pinyin: "yiyuan zai nali", meaningPt: "onde fica o hospital?", role: "productive", introduceAtPass: 3 }
+      { ref: "chunk:yiyuanzainali", hanzi: "医院在哪里？", pinyin: "yiyuan zai nali", meaningPt: "onde fica o hospital?", role: "productive", introduceAtPass: 4 }
     ],
     networkChunks: ["我病了", "我头疼", "我要看医生", "医院在哪里？", "caminho da saude"],
   },

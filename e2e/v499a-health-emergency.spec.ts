@@ -9,6 +9,11 @@ import {
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 
+/**
+ * Firefox (e o Chromium do CI sem mic) não expõem SpeechRecognition.
+ * Falar some de propósito quando a API não existe — instalar o fake
+ * reconhecedor, como em v498b1-production-scaffold.
+ */
 async function installFakeRecognition(page: Page) {
   await page.addInitScript(() => {
     class FakeRecognition {
@@ -50,9 +55,21 @@ function masteryThrough(lessonId: string) {
   return byId;
 }
 
-async function openPlayer(page: Page, lessonId: string) {
+/** Seed the current lesson at `level` so the next pass is level+1 (1–4). */
+function masteryAt(lessonId: string, level: number) {
+  const now = Date.now();
+  const lastPass = Math.max(1, Math.min(4, level || 1));
+  return {
+    ...masteryThrough(lessonId),
+    [lessonId]: { level, passCount: level, lastPass, recoveryPending: false, updatedAt: now },
+  };
+}
+
+async function openPlayer(page: Page, lessonId: string, masteryLevel?: number) {
   await installFakeRecognition(page);
-  await seedUnlockedLessonSession(page, lessonId, { lessonMasteryById: masteryThrough(lessonId) });
+  await seedUnlockedLessonSession(page, lessonId, {
+    lessonMasteryById: masteryLevel == null ? masteryThrough(lessonId) : masteryAt(lessonId, masteryLevel),
+  });
   await page.goto(`/licao/${lessonId}/player`);
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
@@ -71,66 +88,87 @@ async function continueScene(page: Page) {
   if (await btn.isVisible().catch(() => false) && !(await btn.isDisabled().catch(() => true))) {
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(250);
     return true;
   }
   return false;
 }
 
+async function reachProduce(page: Page) {
+  for (let i = 0; i < 8; i += 1) {
+    if (await page.locator("[data-conversation-produce]").isVisible().catch(() => false)) return true;
+    await page.waitForTimeout(200);
+    if (!(await continueScene(page))) break;
+  }
+  return page.locator("[data-conversation-produce]").isVisible().catch(() => false);
+}
+
 test.describe("V4.9.9A health + emergency", () => {
-  test("health lesson keeps listen, fill, build and Falar", async ({ page }) => {
+  test("health discovery keeps listen, fill and sentence build", async ({ page }) => {
     test.setTimeout(120_000);
     await openPlayer(page, "p6-saude");
-    await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
-    const heard = await advanceUntilSelector(page, "text=我不舒服", 12, 40_000);
-    expect(heard).toBeTruthy();
-    const fill = await advanceUntilSelector(page, "[data-fill-blank], text=舒服", 16, 50_000);
+    const listen = await advanceUntilSelector(page, '[data-current-step-kind="listen"]', 8, 40_000, { allowSkip: true });
+    expect(listen).toBeTruthy();
+    const fill = await advanceUntilSelector(page, '[data-current-step-kind="fill_blank"]', 10, 50_000, { allowSkip: true });
     expect(fill).toBeTruthy();
-    await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible({ timeout: 40_000 });
+    await expect(page.getByText("舒服").first()).toBeVisible();
+    const build = await advanceUntilSelector(page, "[data-sentence-build]", 8, 40_000, { allowSkip: true });
+    expect(build).toBeTruthy();
   });
 
   test("friend conversation auto-reveals and starts with pieces", async ({ page }) => {
     test.setTimeout(120_000);
-    await openPlayer(page, "p6-saude");
-    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 60, 90_000);
+    await openPlayer(page, "p6-saude", 3);
+    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 12, 60_000, { allowSkip: true });
     expect(scene).toBeTruthy();
-    await expect(page.locator("[data-conversation-auto-reveal]")).toBeVisible({ timeout: 20_000 });
-    for (let i = 0; i < 6; i += 1) {
-      if (await page.locator("[data-conversation-produce]").isVisible().catch(() => false)) break;
-      if (!(await continueScene(page))) break;
-    }
-    await expect(page.locator("[data-conversation-produce]")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator("[data-conversation-auto-reveal]").first()).toBeVisible({ timeout: 20_000 });
+    expect(await reachProduce(page)).toBeTruthy();
+    await expect(page.locator("[data-conversation-produce]")).toBeVisible();
     await expect(page.locator("[data-conversation-scaffold-kind]")).toHaveAttribute("data-conversation-scaffold-kind", "first");
     await expect(page.locator("[data-conversation-build-bank]")).toBeVisible();
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
+    await page.locator('[data-conversation-build-piece="我"]').click();
+    await page.locator('[data-conversation-build-piece="不"]').click();
+    await page.locator('[data-conversation-build-piece="舒服"]').click();
+    await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
+    await expect(page.getByRole("button", { name: /Continuar|Continue/i }).first()).toBeVisible();
   });
 
   test("health mission has open production and clinic scene", async ({ page }) => {
     test.setTimeout(120_000);
     await openPlayer(page, "p7-imersao-saude");
-    const produce = await advanceUntilSelector(page, "[data-free-production], [data-conversation-produce]", 20, 60_000);
+    const produce = await advanceUntilSelector(page, "[data-production-step], [data-production-answer]", 16, 60_000, { allowSkip: true });
     expect(produce).toBeTruthy();
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
-    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 40, 80_000);
+    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 40, 80_000, { allowSkip: true });
     expect(scene).toBeTruthy();
-    await expect(page.getByText(/Clínica|Clinic/i)).toBeVisible();
+    await expect(page.locator('[data-conversation-setting="clinic"]')).toBeVisible();
+    await expect(page.getByText(/Clínica|Clinic/i).first()).toBeVisible();
   });
 
   test("390 viewport keeps Falar on health production", async ({ page }) => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width: 390, height: 844 });
-    await openPlayer(page, "p6-saude");
-    const field = await advanceUntilSelector(page, "[data-testid=free-answer-mic], [data-free-production]", 24, 60_000);
+    await openPlayer(page, "p6-saude", 2);
+    const field = await advanceUntilSelector(page, "[data-testid=free-answer-mic], [data-production-step]", 8, 40_000, {
+      allowSkip: false,
+    });
     expect(field).toBeTruthy();
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
+    const overflowX = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflowX).toBeLessThanOrEqual(8);
   });
 
   test("EN health lesson keeps the same player shell", async ({ page }) => {
     test.setTimeout(90_000);
     await seedInterfaceLocale(page, "en");
-    await seedInstructionLocale(page, "en");
-    await openPlayer(page, "p6-saude");
+    await seedInstructionLocale(page, "en", { force: true });
+    await openPlayer(page, "p6-saude", 2);
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Speak|Falar/i }).or(page.getByTestId("free-answer-mic"))).toBeVisible({ timeout: 40_000 });
+    const field = await advanceUntilSelector(page, "[data-testid=free-answer-mic], [data-production-step]", 8, 40_000, {
+      allowSkip: false,
+    });
+    expect(field).toBeTruthy();
+    await expect(page.getByRole("button", { name: /Speak|Falar/i }).or(page.getByTestId("free-answer-mic"))).toBeVisible();
   });
 });

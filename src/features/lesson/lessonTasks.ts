@@ -33,6 +33,7 @@ import {
 import { isTopicMasteryLesson } from "../../data/topicMastery";
 import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
 import { mobilitySurvivalPlanFor } from "../../data/mobilitySurvivalPlans";
+import { healthSurvivalPlanFor } from "../../data/healthSurvivalPlans";
 import { identityPeoplePlanFor } from "../../data/identityPeoplePlans";
 import { routineTimePlanFor } from "../../data/routineTimePlans";
 import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
@@ -7311,6 +7312,14 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
     const mobilityPlan = mobilitySurvivalPlanFor(lesson, identityPass, false);
     if (mobilityPlan) {
       return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(mobilityPlan.map(step => ({
+        ...step, generated: false, masteryPass: identityPass,
+        practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+        lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),
+      }))));
+    }
+    const healthPlan = healthSurvivalPlanFor(lesson, identityPass, false);
+    if (healthPlan) {
+      return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(healthPlan.map(step => ({
         ...step, generated: false, masteryPass: identityPass,
         practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
         lessonStageId: step.lessonStageId ?? (identityPass >= 3 ? "usage" as const : "recognition" as const),
