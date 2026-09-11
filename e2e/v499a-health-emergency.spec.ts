@@ -65,10 +65,29 @@ function masteryAt(lessonId: string, level: number) {
   };
 }
 
+async function dismissLessonChrome(page: Page) {
+  await dismissBlockingOverlays(page);
+  const medal = page.getByText(/Nova medalha|New medal|Primeira voz|First voice/i).first();
+  if (await medal.isVisible().catch(() => false)) {
+    await page.getByRole("button", { name: /^(Continuar|Continue)$/i }).last().click().catch(() => undefined);
+    await page.waitForTimeout(200);
+    await dismissBlockingOverlays(page);
+  }
+}
+
+async function currentStepKind(page: Page) {
+  return page.locator("[data-current-step-kind]").getAttribute("data-current-step-kind");
+}
+
 async function openPlayer(page: Page, lessonId: string, masteryLevel?: number) {
   await installFakeRecognition(page);
   await seedUnlockedLessonSession(page, lessonId, {
     lessonMasteryById: masteryLevel == null ? masteryThrough(lessonId) : masteryAt(lessonId, masteryLevel),
+    achievementsUnlocked: {
+      "jornada-primeira-licao": Date.now(),
+      "fala-primeira-frase": Date.now(),
+      "som-primeiro-audio": Date.now(),
+    },
   });
   await page.goto(`/licao/${lessonId}/player`);
   await waitForLazyPage(page);
@@ -80,6 +99,7 @@ async function openPlayer(page: Page, lessonId: string, masteryLevel?: number) {
     await dismissBlockingOverlays(page);
   }
   await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 20_000 });
+  await dismissLessonChrome(page);
 }
 
 async function continueScene(page: Page) {
@@ -137,11 +157,25 @@ test.describe("V4.9.9A health + emergency", () => {
   test("health mission has open production and clinic scene", async ({ page }) => {
     test.setTimeout(120_000);
     await openPlayer(page, "p7-imersao-saude");
-    const produce = await advanceUntilSelector(page, "[data-production-step], [data-production-answer]", 16, 60_000, { allowSkip: true });
-    expect(produce).toBeTruthy();
-    await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
-    const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 40, 80_000, { allowSkip: true });
-    expect(scene).toBeTruthy();
+    let sawProduction = false;
+    let sawSpeak = false;
+    const deadline = Date.now() + 80_000;
+    for (let step = 0; step < 40 && Date.now() < deadline; step += 1) {
+      await dismissLessonChrome(page);
+      const kind = await currentStepKind(page);
+      if (kind === "free_production") {
+        sawProduction = true;
+        if (await page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i })).first().isVisible().catch(() => false)) {
+          sawSpeak = true;
+        }
+      }
+      if (await page.locator("[data-conversation-scene]").isVisible().catch(() => false)) break;
+      const reached = await advanceUntilSelector(page, "[data-conversation-scene]", 1, 4_000, { allowSkip: true });
+      if (reached) break;
+    }
+    expect(sawProduction).toBeTruthy();
+    expect(sawSpeak).toBeTruthy();
+    await expect(page.locator("[data-conversation-scene]")).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('[data-conversation-setting="clinic"]')).toBeVisible();
     await expect(page.getByText(/Clínica|Clinic/i).first()).toBeVisible();
   });
@@ -150,10 +184,10 @@ test.describe("V4.9.9A health + emergency", () => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width: 390, height: 844 });
     await openPlayer(page, "p6-saude", 2);
-    const field = await advanceUntilSelector(page, "[data-testid=free-answer-mic], [data-production-step]", 8, 40_000, {
-      allowSkip: false,
-    });
-    expect(field).toBeTruthy();
+    await dismissLessonChrome(page);
+    const reached = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 6, 30_000, { allowSkip: true });
+    expect(reached).toBeTruthy();
+    await dismissLessonChrome(page);
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
     const overflowX = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflowX).toBeLessThanOrEqual(8);
@@ -165,10 +199,9 @@ test.describe("V4.9.9A health + emergency", () => {
     await seedInstructionLocale(page, "en", { force: true });
     await openPlayer(page, "p6-saude", 2);
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
-    const field = await advanceUntilSelector(page, "[data-testid=free-answer-mic], [data-production-step]", 8, 40_000, {
-      allowSkip: false,
-    });
-    expect(field).toBeTruthy();
+    await dismissLessonChrome(page);
+    const reached = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 6, 30_000, { allowSkip: true });
+    expect(reached).toBeTruthy();
     await expect(page.getByRole("button", { name: /Speak|Falar/i }).or(page.getByTestId("free-answer-mic"))).toBeVisible();
   });
 });
