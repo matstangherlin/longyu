@@ -7298,6 +7298,7 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
     return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(everydayPlan.map((step) => ({
       ...step,
       generated: false,
+      practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
       lessonStageId: step.lessonStageId ?? ("usage" as const),
     }))));
   }
@@ -7306,6 +7307,7 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
     return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(capstonePlan.map((step) => ({
       ...step,
       generated: false,
+      practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
       lessonStageId: step.lessonStageId ?? ("usage" as const),
     }))));
   }
