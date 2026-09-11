@@ -112,7 +112,9 @@ test.describe("V4.9.9B everyday + capstone", () => {
     expect(fill).toBeTruthy();
     const build = await advanceUntilSelector(page, "[data-sentence-build]", 8, 40_000, { allowSkip: true });
     expect(build).toBeTruthy();
-    await expect(page.getByText("你呢").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "你" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "呢" })).toBeVisible();
+    await expect(page.getByText(/Devolva a pergunta|Give the question back/i)).toBeVisible();
     const production = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 6, 30_000, { allowSkip: true });
     expect(production).toBeTruthy();
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
