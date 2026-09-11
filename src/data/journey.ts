@@ -6873,7 +6873,7 @@ export const JOURNEY: JourneyPhase[] = [
             masteryLoop: true,
             hanziMemoryTargets: ["疼"],
             // Gloss-only chars stay here. CORE productivo novo: só 疼, com recall atrasado.
-            newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班", "舒", "服", "需", "肚", "怎", "么", "样"],
+            newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班", "舒", "服", "需", "肚", "怎", "么", "样", "发", "烧", "帮", "助"],
             libraryItems: [
               "chunk:wobingle",
               "chunk:wotouteng",
@@ -7029,7 +7029,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "",
                 "医院",
                 "在哪里？",
-                ["医院", "银行", "医生"],
+                ["医院", "舒服", "医生"],
                 "医院 em 在哪里？ é transferência da cidade, não aquisição nova."
               ),
               freeProduction({
@@ -9216,7 +9216,7 @@ export const JOURNEY: JourneyPhase[] = [
             premium: true,
             curriculumRole: "immersion",
             hanziMemoryTargets: ["疼"],
-            newHanzi: ["疼", "医"],
+            newHanzi: ["疼", "医", "院", "病", "需", "肚", "发", "烧", "直", "帮", "助", "舒", "服", "头"],
             libraryItems: [
               "chunk:wobushufu",
               "chunk:wotouteng",

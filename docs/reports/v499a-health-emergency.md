@@ -10,7 +10,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 6c505d41d6a2 |
+| Hash da Jornada | 6d7a49fea9ef |
 | HEAD no instante da geração | 5d4543d34e6a38e0d9d10c3fe5b04491a0ddc187 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
@@ -27,7 +27,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Esta PR | **não** reabre esses sistemas |
 | Branch | `cursor/v499a-health-emergency-6ae2` |
 | Fingerprint da Jornada (#251 tip) | `003cb0ed7858` |
-| Fingerprint da Jornada (esta remessa) | `6c505d41d6a2` |
+| Fingerprint da Jornada (esta remessa) | `6d7a49fea9ef` |
 | Tópicos de ensino | 113 (imersão `p7-imersao-saude` é `isReview` + `curriculumRole: "immersion"`) |
 
 Quando a #251 mergear, rebasear esta branch no SHA real do merge e substituir a linha «ainda inexistente». Não inventar SHA.
@@ -152,7 +152,7 @@ CORE novo: **疼** (`teng_pain`), recall em `p7-imersao-saude`. Não 医/病 com
 
 ## Atlas
 
-| Métrica | #251 tip (`003cb0ed7858`) | V4.9.9A (`6c505d41d6a2`) |
+| Métrica | #251 tip (`003cb0ed7858`) | V4.9.9A (`6d7a49fea9ef`) |
 |---------|---------------------------|--------------------------|
 | Atlas items | 442 | 444 |
 | Taught | 361 | 362 |
@@ -212,8 +212,8 @@ Todo conteúdo novo nasce PT-BR + EN (`instructionGloss` + `generate:stable-peda
 
 | Arquivo | Fingerprint |
 |---------|-------------|
-| `docs/backend/v478-backend-rc.json` | `6c505d41d6a2` |
-| `docs/backend/v489-backend-rc.json` | `6c505d41d6a2` |
+| `docs/backend/v478-backend-rc.json` | `6d7a49fea9ef` |
+| `docs/backend/v489-backend-rc.json` | `6d7a49fea9ef` |
 
 ## O que esta remessa não faz
 
