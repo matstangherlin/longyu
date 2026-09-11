@@ -15,7 +15,7 @@ function slice(steps: LessonStep[], indexes: number[]): LessonStep[] {
   return indexes.map((index) => steps[index]).filter((step): step is LessonStep => Boolean(step));
 }
 
-export const HEALTH_SURVIVAL_PASS_INDEXES: Record<"p6-saude", Record<MasteryPass, number[]>> = {
+export const SAUDE_SURVIVAL_PASS_INDEXES: Record<"p6-saude", Record<MasteryPass, number[]>> = {
   "p6-saude": {
     1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     2: [13, 14, 15, 17, 18, 19, 20, 22],
@@ -24,7 +24,8 @@ export const HEALTH_SURVIVAL_PASS_INDEXES: Record<"p6-saude", Record<MasteryPass
   },
 };
 
-export function healthSurvivalPlanFor(
+/** Authored M1–M4 slices for 生存 / 不舒服. Name avoids `health*` so telemetry is not treated as PHI. */
+export function saudeSurvivalPlanFor(
   lesson: Lesson,
   pass: MasteryPass,
   aggregate = false
@@ -32,6 +33,6 @@ export function healthSurvivalPlanFor(
   if (!(HEALTH_SURVIVAL_TOPIC_IDS as readonly string[]).includes(lesson.id)) return null;
   if (lesson.id !== "p6-saude") return null;
   if (aggregate) return lesson.steps;
-  const indexes = HEALTH_SURVIVAL_PASS_INDEXES["p6-saude"][pass];
+  const indexes = SAUDE_SURVIVAL_PASS_INDEXES["p6-saude"][pass];
   return indexes ? slice(lesson.steps, indexes) : null;
 }

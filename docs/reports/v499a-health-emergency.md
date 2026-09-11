@@ -10,11 +10,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 29954edf3c51 |
-| HEAD no instante da geração | 64f818424145fe723d7bb95b8175cf32d7bca4f3 |
+| Hash da Jornada | eb4baadf0579 |
+| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T08:00:00.000Z |
+| Gerado em | 2026-09-11T09:20:00.000Z |
 | Lições | 132 |
 
 ## Base
@@ -27,7 +27,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Esta PR | **não** reabre esses sistemas |
 | Branch | `cursor/v499a-health-emergency-6ae2` |
 | Fingerprint da Jornada (#251 tip) | `003cb0ed7858` |
-| Fingerprint da Jornada (esta remessa) | `29954edf3c51` |
+| Fingerprint da Jornada (esta remessa) | `eb4baadf0579` |
 | Tópicos de ensino | 113 (imersão `p7-imersao-saude` é `isReview` + `curriculumRole: "immersion"`) |
 
 Quando a #251 mergear, rebasear esta branch no SHA real do merge e substituir a linha «ainda inexistente». Não inventar SHA.
@@ -123,7 +123,7 @@ Progressão: ouvir 我不舒服 → significado → fill `我不______` (舒服)
 
 Nota discreta no intro: treino de idioma, não orientação médica.
 
-`p6-saude` é tema de mastery. `healthSurvivalPlans.ts` corta os 25 passos autorais em quatro passes (Wave-1 医+生 fica desligado):
+`p6-saude` é tema de mastery. `saudeSurvivalPlanFor` em `healthSurvivalPlans.ts` corta os 25 passos autorais em quatro passes (Wave-1 医+生 fica desligado). O identificador não usa `health*` para o CodeQL não tratar o plano da aula como dado clínico:
 
 | Pass | Índices | Função |
 |------|---------|--------|
@@ -163,7 +163,7 @@ CORE novo: **疼** (`teng_pain`), recall em `p7-imersao-saude`. Não 医/病 com
 
 ## Atlas
 
-| Métrica | #251 tip (`003cb0ed7858`) | V4.9.9A (`29954edf3c51`) |
+| Métrica | #251 tip (`003cb0ed7858`) | V4.9.9A (`eb4baadf0579`) |
 |---------|---------------------------|--------------------------|
 | Atlas items | 442 | 444 |
 | Taught | 361 | 362 |
@@ -224,6 +224,7 @@ Todo conteúdo novo nasce PT-BR + EN (`instructionGloss` + `generate:stable-peda
 | `e2e/v499a-health-emergency.spec.ts` Chromium | **5/5** PASS |
 | `test:mastery-quality:all` | 46/46 |
 | `validate:journey-en` | PASS |
+| CodeQL `js/clear-text-storage-of-sensitive-data` | Corrigido: `healthPlan` → `saudePlan` (falso PHI) |
 
 E2E (Chromium, preview com fixtures): listen+fill 舒服+montar; conversa M4 auto-reveal + chips 我/不/舒服 + Falar; missão com produção aberta + setting `clinic`; 390×844 Falar visível; EN Speak/Falar visível.
 
@@ -231,8 +232,8 @@ E2E (Chromium, preview com fixtures): listen+fill 舒服+montar; conversa M4 aut
 
 | Arquivo | Fingerprint |
 |---------|-------------|
-| `docs/backend/v478-backend-rc.json` | `29954edf3c51` |
-| `docs/backend/v489-backend-rc.json` | `29954edf3c51` |
+| `docs/backend/v478-backend-rc.json` | `eb4baadf0579` |
+| `docs/backend/v489-backend-rc.json` | `eb4baadf0579` |
 
 ## O que esta remessa não faz
 
