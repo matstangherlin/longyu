@@ -27,7 +27,7 @@ export const SPEECH_ACT_PAIRS = {
   ask_wellbeing: ["tell_wellbeing", "praise_food"],
   acknowledge: ["acknowledge", "greet", "request_stop", "ask_room_location", "ask_gate", "ask_wifi", "thank", "request_doctor", "request_help", "ask_location", "ask_repeat"],
   tell_time: ["acknowledge"],
-  tell_when: ["acknowledge"],
+  tell_when: ["acknowledge", "ask_repeat"],
   tell_location: ["acknowledge", "ask_wifi"],
   tell_job: ["acknowledge"],
   acknowledge_thanks: ["acknowledge"],
