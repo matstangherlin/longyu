@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 6c505d41d6a2 |
+| HEAD no instante da geração | 5b2ced9d2ab950fc10963c88cbb8d10e34119ad2 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:10:33.349Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T05:26:20.622Z |
+| Lições | 132 |
 
 | Lesson | CORE | fill_blank | sentence_build | hanzi_build | delayed | Class |
 |--------|------|------------|----------------|-------------|---------|-------|
@@ -61,7 +61,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | p6-china-cidades | — | 0 | 1 | 0 | 0 | NOT_ELIGIBLE |
 | p6-china-cidades-2 | — | 1 | 1 | 0 | 0 | ENOUGH |
 | p6-china-ruas | — | 0 | 1 | 0 | 0 | NOT_ELIGIBLE |
-| p6-saude | — | 1 | 2 | 0 | 0 | NOT_ELIGIBLE |
+| p6-saude | 疼 | 5 | 3 | 0 | 0 | ENOUGH |
 | p6-horarios | 明天今昨现 | 2 | 1 | 0 | 0 | ENOUGH |
 | p6-natureza | — | 1 | 2 | 0 | 0 | NOT_ELIGIBLE |
 | p6-clima | — | 3 | 2 | 0 | 0 | NOT_ELIGIBLE |
@@ -75,5 +75,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | p7-imersao-estacao | 左右 | 0 | 2 | 0 | 0 | ENOUGH |
 | p7-imersao-hotel | — | 1 | 0 | 0 | 0 | NOT_ELIGIBLE |
 | p7-imersao-aeroporto | — | 1 | 0 | 0 | 0 | NOT_ELIGIBLE |
+| p7-imersao-saude | 疼 | 2 | 0 | 0 | 0 | ENOUGH |
 
-<!-- integridade:31f879966ed95ebf -->
+<!-- integridade:d7c60b4a380ba385 -->

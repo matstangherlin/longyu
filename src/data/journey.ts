@@ -6871,7 +6871,8 @@ export const JOURNEY: JourneyPhase[] = [
             skill: "fala",
             premium: true,
             masteryLoop: true,
-            // Chars de saúde que só têm gloss (院, 下 e 班 entram via 医院/我下班).
+            hanziMemoryTargets: ["疼"],
+            // Gloss-only chars stay here. CORE productivo novo: só 疼, com recall atrasado.
             newHanzi: ["病", "头", "疼", "医", "了", "看", "院", "下", "班", "舒", "服", "需", "肚", "怎", "么", "样"],
             libraryItems: [
               "chunk:wobingle",
@@ -6881,6 +6882,8 @@ export const JOURNEY: JourneyPhase[] = [
               "chunk:wobushufu",
               "chunk:woxuyaoyisheng",
               "chunk:woduziteng",
+              "chunk:wofashao",
+              "chunk:woxuyaobangzhu",
             ],
             reviewItems: [
               "chunk:wobingle",
@@ -6892,39 +6895,28 @@ export const JOURNEY: JourneyPhase[] = [
             ],
             steps: [
               intro(
-                "Estar doente",
-                "Para falar de saúde você precisa de três blocos: dizer que está doente, apontar a dor e pedir o médico. E saber onde fica o hospital."
+                "Não estou bem",
+                "Diga que não está bem, aponte um sintoma simples, peça médico e ache o hospital. Isto é treino de idioma, não orientação médica."
+              ),
+              listen("我不舒服", "wǒ bù shūfu", "Não me sinto bem"),
+              comp("我不舒服", "wǒ bù shūfu", "Não me sinto bem.", ["Não me sinto bem.", "Estou doente.", "Preciso de um médico.", "Estou bem."]),
+              fillBlank(
+                "Complete: não estou bem",
+                "Complete: não estou me sentindo bem.",
+                "我不",
+                "舒服",
+                "",
+                ["舒服", "医生", "医院"],
+                "舒服 entra como unidade. Não monte 舒 + 服."
+              ),
+              sentenceBuild(
+                "Monte: não estou bem",
+                "Monte a frase.",
+                ["我", "不", "舒服"],
+                ["我", "不", "舒服", "医生"],
+                "我不舒服 = não me sinto bem."
               ),
               listen("我病了", "wǒ bìng le", "Estou doente"),
-              listen("我头疼", "wǒ tóu téng", "Estou com dor de cabeça"),
-              listen("我要看医生", "wǒ yào kàn yīshēng", "Quero ver um médico"),
-              match(
-                "O que dizer?",
-                "Combine a situação com a frase.",
-                [
-                  { left: "我病了", right: "estou doente", leftType: "hanzi", rightType: "pt" },
-                  { left: "我头疼", right: "dor de cabeça", leftType: "hanzi", rightType: "pt" },
-                  { left: "我要看医生", right: "quero ver médico", leftType: "hanzi", rightType: "pt" },
-                  { left: "医院在哪里？", right: "onde fica o hospital", leftType: "hanzi", rightType: "pt" },
-                ],
-                "Doente → dor → médico → hospital: o caminho da saúde."
-              ),
-              listenSelect("O que você ouviu?", "我头疼", ["我病了", "我头疼", "我要看医生", "谢谢"], "我头疼", "我头疼 é dor de cabeça."),
-              comp("我病了", "wǒ bìng le", "Estou doente.", ["Estou doente.", "Estou com dor de cabeça.", "Quero ver um médico.", "Estou bem."]),
-              sentenceBuild(
-                "Monte: quero ver o médico",
-                "Monte a frase.",
-                ["我", "要", "看", "医", "生"],
-                ["我", "要", "看", "医", "生", "病"],
-                "我要看医生 = quero ver um médico."
-              ),
-              sentenceBuild(
-                "Monte: dor de cabeça",
-                "Monte a frase.",
-                ["我", "头", "疼"],
-                ["我", "头", "疼", "病"],
-                "我头疼 = estou com dor de cabeça."
-              ),
               fillBlank(
                 "Complete: estou doente",
                 "Complete: estou doente.",
@@ -6934,26 +6926,126 @@ export const JOURNEY: JourneyPhase[] = [
                 ["病", "疼"],
                 "我病了 = estou doente."
               ),
-              dialogue(
-                "Na emergência",
-                "Você precisa de médico. O que diz?",
-                "我要看医生",
-                ["我要看医生", "我头疼", "我下班", "谢谢"],
-                "我要看医生 pede o médico.",
-                "Situação"
+              listen("我头疼", "wǒ tóu téng", "Estou com dor de cabeça"),
+              listen("我肚子疼", "wǒ dùzi téng", "Estou com dor de barriga"),
+              match(
+                "Onde dói?",
+                "Combine a parte do corpo com o significado. 疼 marca a dor.",
+                [
+                  { left: "头", right: "cabeça", leftType: "hanzi", rightType: "pt" },
+                  { left: "肚子", right: "barriga", leftType: "hanzi", rightType: "pt" },
+                  { left: "疼", right: "dói", leftType: "hanzi", rightType: "pt" },
+                ],
+                "头/肚子 + 疼. Só estes dois sítios nesta versão."
               ),
-              dialogue(
-                "Onde há médico?",
-                "Quer saber onde fica o hospital. O que pergunta?",
-                "医院在哪里？",
-                ["医院在哪里？", "现在几点？", "我很好", "再见"],
-                "医院在哪里？ acha o hospital.",
-                "Situação"
+              fillBlank(
+                "Complete: dor de barriga",
+                "Complete a dor.",
+                "我",
+                "肚子",
+                "疼",
+                ["肚子", "头", "发烧"],
+                "我肚子疼 = estou com dor de barriga."
               ),
-              listen("我不舒服", "wǒ bù shūfu", "Não me sinto bem"),
+              sentenceBuild(
+                "Monte: dor de cabeça",
+                "Monte a frase.",
+                ["我", "头", "疼"],
+                ["我", "头", "疼", "病"],
+                "我头疼 = estou com dor de cabeça."
+              ),
+              freeProduction({
+                title: "Diga que não está bem",
+                situationPt: "Você não está se sentindo bem. Diga isso, sem alternativas.",
+                expected: "我不舒服",
+                accepts: ["我不舒服", "我不舒服。", "不舒服", "我病了"],
+                productionGoal: "state_wellbeing",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我不舒服", pinyin: "wǒ bù shūfu" },
+                  { hanzi: "不舒服", pinyin: "bù shūfu" },
+                  { hanzi: "我病了", pinyin: "wǒ bìng le" },
+                ],
+              }),
+              listen("我发烧了", "wǒ fāshāo le", "Estou com febre"),
+              comp("我发烧了", "wǒ fāshāo le", "Estou com febre.", ["Estou com febre.", "Estou com dor de cabeça.", "Não me sinto bem.", "Estou bem."]),
+              fillBlank(
+                "Complete: febre",
+                "Complete: estou com febre.",
+                "我",
+                "发烧",
+                "了",
+                ["发烧", "舒服", "帮助"],
+                "发烧 entra como unidade. Não monte 发 + 烧 + 了."
+              ),
+              freeProduction({
+                title: "Diga que está com febre",
+                situationPt: "Você está com febre. Diga isso, sem alternativas.",
+                expected: "我发烧了",
+                accepts: ["我发烧了", "我发烧了。", "发烧了", "我发烧"],
+                productionGoal: "state_wellbeing",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我发烧了", pinyin: "wǒ fāshāo le" },
+                  { hanzi: "发烧了", pinyin: "fāshāo le" },
+                  { hanzi: "我发烧", pinyin: "wǒ fāshāo" },
+                ],
+              }),
+              listenSelect(
+                "Sobre o que ela perguntou?",
+                "头疼吗？",
+                ["dor de cabeça", "o hospital", "o preço", "o quarto"],
+                "dor de cabeça",
+                "头疼吗？ pergunta da dor de cabeça. O título não mostra o hànzì."
+              ),
+              listen("我要看医生", "wǒ yào kàn yīshēng", "Quero ver um médico"),
+              sentenceBuild(
+                "Monte: quero ver o médico",
+                "Monte a frase.",
+                ["我", "要", "看", "医生"],
+                ["我", "要", "看", "医生", "帮助"],
+                "医生 fica junto. 我要看医生 pede consulta."
+              ),
               listen("我需要医生", "wǒ xūyào yīshēng", "Preciso de um médico"),
-              flash("wobushufu"),
-              flash("woxuyaoyisheng"),
+              freeProduction({
+                title: "Peça atendimento",
+                situationPt: "Você está indisposto e quer atendimento. Peça o médico, sem alternativas.",
+                expected: "我要看医生",
+                accepts: ["我要看医生", "我要看医生。", "我需要医生", "我需要医生。", "要看医生"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "Consulta e necessidade direta valem. Fale ou escreva.",
+                productionExamples: [
+                  { hanzi: "我要看医生", pinyin: "wǒ yào kàn yīshēng" },
+                  { hanzi: "我需要医生", pinyin: "wǒ xūyào yīshēng" },
+                  { hanzi: "要看医生", pinyin: "yào kàn yīshēng" },
+                ],
+              }),
+              fillBlank(
+                "Recupere: hospital",
+                "Complete a pergunta de lugar já aprendida.",
+                "",
+                "医院",
+                "在哪里？",
+                ["医院", "银行", "医生"],
+                "医院 em 在哪里？ é transferência da cidade, não aquisição nova."
+              ),
+              freeProduction({
+                title: "Onde fica o hospital?",
+                situationPt: "Você está na rua e precisa do hospital. Pergunte onde ele fica, sem alternativas.",
+                expected: "医院在哪里？",
+                accepts: ["医院在哪里？", "医院在哪里", "请问，医院在哪里？", "医院怎么走？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "A mesma pergunta de lugar da cidade, agora para o hospital.",
+                productionExamples: [
+                  { hanzi: "医院在哪里？", pinyin: "yīyuàn zài nǎlǐ?" },
+                  { hanzi: "请问，医院在哪里？", pinyin: "qǐng wèn, yīyuàn zài nǎlǐ?" },
+                  { hanzi: "医院怎么走？", pinyin: "yīyuàn zěnme zǒu?" },
+                ],
+              }),
               conversationScene("nao-me-sinto-bem"),
             ],
           }),
@@ -9114,6 +9206,177 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
               }),
               conversationScene("no-aeroporto"),
+            ],
+          },
+          {
+            id: "p7-imersao-saude",
+            title: "Imersão: não estou bem",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            curriculumRole: "immersion",
+            hanziMemoryTargets: ["疼"],
+            newHanzi: ["疼", "医"],
+            libraryItems: [
+              "chunk:wobushufu",
+              "chunk:wotouteng",
+              "chunk:woduziteng",
+              "chunk:wofashao",
+              "chunk:woyaokanyisheng",
+              "chunk:woxuyaoyisheng",
+              "chunk:woxuyaobangzhu",
+              "chunk:yiyuanzainali",
+              "chunk:yizhizou",
+              "chunk:qingzaishuoyibian",
+              "chunk:qingmanyidian",
+            ],
+            reviewItems: [
+              "chunk:wobushufu",
+              "chunk:wotouteng",
+              "chunk:wofashao",
+              "chunk:yiyuanzainali",
+            ],
+            steps: [
+              intro(
+                "Missão: achar atendimento",
+                "Você não está se sentindo bem. Explique o básico, peça ajuda e chegue ao atendimento. Isto é treino de idioma, não orientação médica."
+              ),
+              signReading(
+                "Atendimento",
+                "医院",
+                "hospital",
+                ["hospital", "hotel", "aeroporto", "banco"],
+                "hospital"
+              ),
+              listenSelect(
+                "Sobre o que ela perguntou?",
+                "头疼吗？",
+                ["dor de cabeça", "o hospital", "o preço", "o quarto"],
+                "dor de cabeça",
+                "Recuperação: 头疼吗？ pergunta da dor. Sem hànzì no título."
+              ),
+              fillBlank(
+                "Recupere: dor",
+                "Complete a dor já aprendida.",
+                "我头",
+                "疼",
+                "",
+                ["疼", "医", "病"],
+                "Recuperação atrasada de 疼. Não é aquisição nova."
+              ),
+              fillBlank(
+                "Recupere: médico",
+                "Complete com o profissional já aprendido.",
+                "我需要",
+                "医生",
+                "",
+                ["医生", "医院", "帮助"],
+                "医生 já foi ensinado em p6-saude."
+              ),
+              freeProduction({
+                title: "Diga que não está bem",
+                situationPt: "Você percebeu que não está bem. Diga isso, sem alternativas.",
+                expected: "我不舒服",
+                accepts: ["我不舒服", "我不舒服。", "不舒服", "我病了"],
+                productionGoal: "state_wellbeing",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我不舒服", pinyin: "wǒ bù shūfu" },
+                  { hanzi: "不舒服", pinyin: "bù shūfu" },
+                  { hanzi: "我病了", pinyin: "wǒ bìng le" },
+                ],
+              }),
+              freeProduction({
+                title: "Variante: cabeça",
+                situationPt: "Dói a cabeça. Explique o sintoma, sem alternativas.",
+                expected: "我头疼",
+                accepts: ["我头疼", "我头疼。", "头疼", "我头很疼"],
+                productionGoal: "state_wellbeing",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我头疼", pinyin: "wǒ tóu téng" },
+                  { hanzi: "头疼", pinyin: "tóu téng" },
+                  { hanzi: "我头很疼", pinyin: "wǒ tóu hěn téng" },
+                ],
+              }),
+              freeProduction({
+                title: "Variante: barriga",
+                situationPt: "Dói a barriga. Explique o sintoma, sem alternativas.",
+                expected: "我肚子疼",
+                accepts: ["我肚子疼", "我肚子疼。", "肚子疼", "我肚子很疼"],
+                productionGoal: "state_wellbeing",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我肚子疼", pinyin: "wǒ dùzi téng" },
+                  { hanzi: "肚子疼", pinyin: "dùzi téng" },
+                  { hanzi: "我肚子很疼", pinyin: "wǒ dùzi hěn téng" },
+                ],
+              }),
+              freeProduction({
+                title: "Variante: febre",
+                situationPt: "Você está com febre. Diga isso, sem alternativas.",
+                expected: "我发烧了",
+                accepts: ["我发烧了", "我发烧了。", "发烧了", "我发烧"],
+                productionGoal: "state_wellbeing",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我发烧了", pinyin: "wǒ fāshāo le" },
+                  { hanzi: "发烧了", pinyin: "fāshāo le" },
+                  { hanzi: "我发烧", pinyin: "wǒ fāshāo" },
+                ],
+              }),
+              freeProduction({
+                title: "Peça ajuda agora",
+                situationPt: "Você precisa de ajuda agora. Peça ajuda, sem alternativas.",
+                expected: "我需要帮助",
+                accepts: ["我需要帮助", "我需要帮助。", "需要帮助", "我需要医生", "我需要医生。"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "Peça ajuda agora. Pedir o médico também vale.",
+                productionExamples: [
+                  { hanzi: "我需要帮助", pinyin: "wǒ xūyào bāngzhù" },
+                  { hanzi: "需要帮助", pinyin: "xūyào bāngzhù" },
+                  { hanzi: "我需要医生", pinyin: "wǒ xūyào yīshēng" },
+                ],
+              }),
+              mapDirection(
+                "Chegar ao hospital",
+                "这里",
+                "医院",
+                "straight",
+                ["left", "right", "straight"],
+                {
+                  promptPt: "Você está na rua. Precisa chegar ao hospital.",
+                  mapScaffoldLevel: 4,
+                  explanation: "一直走: siga em frente. Transferência de mobilidade.",
+                }
+              ),
+              listenSelect(
+                "Para onde ir?",
+                "一直走。",
+                ["siga em frente", "vire à esquerda", "pare aqui", "volte ao hotel"],
+                "siga em frente",
+                "一直走 é direção já usada na cidade."
+              ),
+              freeProduction({
+                title: "Pergunte o hospital",
+                situationPt: "Você precisa do atendimento. Pergunte onde fica o hospital, sem alternativas.",
+                expected: "医院在哪里？",
+                accepts: ["医院在哪里？", "医院在哪里", "请问，医院在哪里？", "医院怎么走？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "A mesma pergunta de lugar, agora para chegar ao atendimento.",
+                productionExamples: [
+                  { hanzi: "医院在哪里？", pinyin: "yīyuàn zài nǎlǐ?" },
+                  { hanzi: "请问，医院在哪里？", pinyin: "qǐng wèn, yīyuàn zài nǎlǐ?" },
+                  { hanzi: "医院怎么走？", pinyin: "yīyuàn zěnme zǒu?" },
+                ],
+              }),
+              conversationScene("na-clinica"),
             ],
           },
           {

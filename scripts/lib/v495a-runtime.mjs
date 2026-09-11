@@ -304,3 +304,9 @@ export function loadTravelRuntime() {
   const { TRAVEL_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalTravel.ts");
   return loadTravelBundle([...TRAVEL_SURVIVAL_TOPIC_IDS]);
 }
+
+export function loadHealthRuntime() {
+  const { HEALTH_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalHealth.ts");
+  const { EMERGENCY_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalEmergency.ts");
+  return loadTravelBundle([...new Set([...HEALTH_SURVIVAL_TOPIC_IDS, ...EMERGENCY_SURVIVAL_TOPIC_IDS])]);
+}

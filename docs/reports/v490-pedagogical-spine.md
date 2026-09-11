@@ -4,8 +4,8 @@ Relatório computado pelo gate `npm run validate:teach-before-test`. A camada V4
 
 ## Métricas
 
-- totalKnowledgeTargets: 453
-- targetsWithPrerequisiteMetadata: 453
+- totalKnowledgeTargets: 455
+- targetsWithPrerequisiteMetadata: 455
 - firstGradedBeforeExposure: 0
 - insufficientScaffoldBeforeFirstGrade: 0
 - unknownDistractorCount: 0

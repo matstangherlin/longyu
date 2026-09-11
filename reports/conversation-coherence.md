@@ -1,6 +1,6 @@
 # Conversation coherence audit
 
-Cenas: 48.
+Cenas: 49.
 
 ## primeiro-cumprimento
 
@@ -1895,44 +1895,56 @@ Cenas: 48.
 ## nao-me-sinto-bem
 
 - intent: health
-- ending: 在那里。
-- last interaction: choose_reply
+- ending: 好。
+- last interaction: produce_reply
 
-### saude-2
+### saude-unwell
 
-- NPC_UTTERANCE: 我不舒服。
-- MEANING: Não me sinto bem.
-- PROMPT: O que Matheus disse?
-- EXPECTED_RESPONSE: Não me sinto bem.
-- ACCEPTS: (none)
-- NEXT_TURN: 我头疼。我需要医生。
-- REPAIR: 不舒服。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
-
-### saude-4
-
-- NPC_UTTERANCE: 头疼？
-- MEANING: Dor de cabeça?
-- PROMPT: Confirme a dor de cabeça.
-- EXPECTED_RESPONSE: 我头疼
-- ACCEPTS: (none)
-- NEXT_TURN: 医院在哪里？
-- REPAIR: 我头疼。请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
+- NPC_UTTERANCE: 你好！你怎么样？
+- MEANING: Olá! Como vai?
+- PROMPT: Você não está se sentindo bem. Diga isso.
+- EXPECTED_RESPONSE: 我不舒服
+- ACCEPTS: 我不舒服 | 我不舒服。 | 不舒服 | 不舒服。
+- NEXT_TURN: 头疼吗？
+- REPAIR: 不舒服？
+- speechAct: ask_wellbeing → tell_wellbeing (confirm_symptom)
 - CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
 
-### saude-7
+### saude-head
 
-- NPC_UTTERANCE: 医院在哪里？
-- MEANING: Onde fica o hospital?
-- PROMPT: Peça o hospital.
+- NPC_UTTERANCE: 头疼吗？
+- MEANING: Dor de cabeça?
+- PROMPT: Ela perguntou da dor de cabeça. Confirme.
+- EXPECTED_RESPONSE: 我头疼
+- ACCEPTS: 我头疼 | 我头疼。 | 头疼 | 头疼。
+- NEXT_TURN: 好。
+- REPAIR: 头？
+- speechAct: ask_symptom → tell_symptom (confirm_symptom)
+- CLASS: OK
+
+### saude-doctor
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você precisa de um médico agora. Peça isso.
+- EXPECTED_RESPONSE: 我需要医生
+- ACCEPTS: 我需要医生 | 我需要医生。 | 需要医生 | 需要医生。
+- NEXT_TURN: 好。
+- REPAIR: 医生？
+- speechAct: acknowledge → request_doctor (confirm_doctor)
+- CLASS: OK
+
+### saude-hospital
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você está na rua e precisa do hospital. Pergunte onde ele fica.
 - EXPECTED_RESPONSE: 医院在哪里？
-- ACCEPTS: (none)
-- NEXT_TURN: 在那里。
-- REPAIR: 医院在哪里？请再说一遍。
-- speechAct: (undeclared) → (undeclared) (no repairType)
-- CLASS: ANSWER_TOO_NARROW
+- ACCEPTS: 医院在哪里？ | 医院在哪里 | 医院在哪里？ | 请问，医院在哪里？
+- NEXT_TURN: 好。
+- REPAIR: 医院？
+- speechAct: acknowledge → ask_location (confirm_help)
+- CLASS: OK
 
 ## como-esta-o-tempo
 
@@ -2154,6 +2166,84 @@ Cenas: 48.
 - NEXT_TURN: 不客气。
 - REPAIR: 再见。
 - speechAct: acknowledge → thank (clarify)
+- CLASS: OK
+
+## na-clinica
+
+- intent: health
+- ending: 不客气。
+- last interaction: choose_reply
+
+### clinic-unwell
+
+- NPC_UTTERANCE: 你好。
+- MEANING: Olá.
+- PROMPT: Você chegou ao atendimento. Diga que não está se sentindo bem.
+- EXPECTED_RESPONSE: 我不舒服
+- ACCEPTS: 我不舒服 | 我不舒服。 | 不舒服 | 不舒服。
+- NEXT_TURN: 头疼吗？
+- REPAIR: 不舒服？
+- speechAct: greet → tell_wellbeing (confirm_symptom)
+- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT
+
+### clinic-ask
+
+- NPC_UTTERANCE: 头疼吗？
+- MEANING: Dor de cabeça?
+- PROMPT: Sobre o que ela perguntou?
+- EXPECTED_RESPONSE: dor de cabeça
+- ACCEPTS: (none)
+- NEXT_TURN: 头疼吗？
+- REPAIR: 头？
+- speechAct: ask_symptom → acknowledge (confirm_symptom)
+- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+
+### clinic-symptom
+
+- NPC_UTTERANCE: 头疼吗？
+- MEANING: Dor de cabeça?
+- PROMPT: Explique o sintoma. Cabeça, barriga ou febre — as três já foram ensinadas.
+- EXPECTED_RESPONSE: 我头疼
+- ACCEPTS: (none)
+- NEXT_TURN: 好。
+- REPAIR: 疼？
+- speechAct: ask_symptom → tell_symptom (confirm_symptom)
+- CLASS: OK
+
+### clinic-consult
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você quer consulta. Peça para ver o médico.
+- EXPECTED_RESPONSE: 我要看医生
+- ACCEPTS: 我要看医生 | 我要看医生。 | 要看医生 | 我需要医生 | 我需要医生。
+- NEXT_TURN: 一直走。
+- REPAIR: 看医生？
+- speechAct: acknowledge → request_doctor (confirm_doctor)
+- CLASS: OK
+
+### clinic-dir
+
+- NPC_UTTERANCE: 一直走。
+- MEANING: Siga em frente.
+- PROMPT: A orientação foi rápida. Peça para repetir ou para ir mais devagar — as duas mudam a conversa.
+- EXPECTED_RESPONSE: 请再说一遍
+- ACCEPTS: (none)
+- NEXT_TURN: 好。
+- REPAIR: 走？
+- speechAct: tell_direction → ask_repeat (repeat)
+- CLASS: ANSWER_TOO_NARROW
+
+### clinic-arrive
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Você chegou ao atendimento. Agradeça ou peça ajuda se ainda precisar.
+- EXPECTED_RESPONSE: 谢谢
+- ACCEPTS: (none)
+- NEXT_TURN: 不客气。
+- REPAIR: 好？
+- speechAct: acknowledge → thank (confirm_help)
 - CLASS: OK
 
 ## pegar-taxi

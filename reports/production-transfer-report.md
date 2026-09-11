@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 6c505d41d6a2 |
+| HEAD no instante da geração | 5b2ced9d2ab950fc10963c88cbb8d10e34119ad2 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:28:38.428Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T05:26:07.011Z |
+| Lições | 132 |
 
 ## Resumo
 
@@ -24,20 +24,20 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Objetivos comunicativos | 15 |
 | Tarefas que aceitam frase irmã | 44 |
 | Objetivos de produção aberta declarados | 13 |
-| Objetivos de produção aberta no plano real | 10 |
-| Lições com produção aberta | 48 / 131 |
-| Falas de conversa sem apoio (aluno veterano) | 201 |
-| Lições com conversa sem apoio | 98 / 131 |
-| Lições com quebra de comunicação jogável | 84 / 131 |
+| Objetivos de produção aberta no plano real | 11 |
+| Lições com produção aberta | 49 / 132 |
+| Falas de conversa sem apoio (aluno veterano) | 207 |
+| Lições com conversa sem apoio | 99 / 132 |
+| Lições com quebra de comunicação jogável | 84 / 132 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 581 |
-| Lições com produção livre | 82 / 131 |
-| Lições com transferência | 21 / 131 |
-| Lições com reparo conversacional | 58 / 131 |
+| Passos auditados no plano real (3 tentativas) | 603 |
+| Lições com produção livre | 83 / 132 |
+| Lições com transferência | 20 / 132 |
+| Lições com reparo conversacional | 58 / 132 |
 | Estruturas diferentes no plano real | 16 |
-| Frases inéditas cobradas | 28 |
-| Transfer guided / supported / question | 26 / 19 / 16 |
-| 1ªs transferências (attempt 0) | 21 |
+| Frases inéditas cobradas | 27 |
+| Transfer guided / supported / question | 25 / 18 / 15 |
+| 1ªs transferências (attempt 0) | 20 |
 
 > Uma frase só entra como **transferência** quando não existe em `chunks.ts`,
 > em `vocabulary.ts` nem em nenhum passo autoral da jornada. Se o aluno acerta,
@@ -59,11 +59,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **p6-china-cidades** · `frame_woxihuan` · guided · âncora 我喜欢中文 → `我喜欢茶。`
 - **p6-china-cidades-2** · `frame_woqu` · guided · âncora 我去学校 → `我今天去火车站。`
 - **p6-china-ruas** · `frame_woxiangchi` · guided · âncora 我想吃米饭 → `我想吃鱼。`
-- **p6-saude** · `frame_wo_le` · guided · âncora 我饿了 → `我回家了。`
 - **p6-natureza** · `frame_zainali` · guided · âncora 火车站在哪里？ → `车站在哪里？`
 - **p6-clima** · `frame_woyao` · guided · âncora 我要这个 → `我要热水。`
 - **p6-direcoes** · `frame_woqu` · guided · âncora 我去学校 → `我明天去医院。`
-- …mais 6.
+- **p6-compras** · `frame_woyao` · guided · âncora 我要这个 → `我要苹果。`
+- …mais 5.
 
 ## Frases inéditas cobradas por transferência
 
@@ -78,7 +78,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 我喜欢中国
 - 我喜欢茶
 - 我喜欢鱼
-- 我回家了
 - 我在吃饭
 - 我在喝水
 - 我想吃鱼
@@ -96,4 +95,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 请问医院在哪里
 - 车站在哪里
 
-<!-- integridade:cddc7aec75acd310 -->
+<!-- integridade:6069d6897c24e252 -->

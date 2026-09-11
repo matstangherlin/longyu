@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Commit | 5b2ced9d2ab950fc10963c88cbb8d10e34119ad2 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:26:06.514Z |
-| Lições | 131 |
-| Hash da Jornada | 003cb0ed7858 |
+| Gerado em | 2026-09-11T05:28:15.730Z |
+| Lições | 132 |
+| Hash da Jornada | 6c505d41d6a2 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 48 |
-| Média de falas | 9.19 |
-| Média de intervenções | 3.29 |
-| Número de ramificações | 159 |
-| Número de finais | 55 |
-| Vocabulário total exibido (refs únicas no plano real) | 155 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 155 |
+| Número de cenas | 49 |
+| Média de falas | 9.37 |
+| Média de intervenções | 3.37 |
+| Número de ramificações | 166 |
+| Número de finais | 57 |
+| Vocabulário total exibido (refs únicas no plano real) | 162 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 162 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.86 |
+| Média de reutilizações por ref exibida | 7.62 |
 
 ## Cenas mais curtas
 
@@ -68,6 +68,7 @@
 |---------|------:|
 | airport | 1 |
 | classroom | 6 |
+| clinic | 1 |
 | home | 6 |
 | hotel | 1 |
 | park | 7 |
@@ -101,7 +102,7 @@
 | greet | 1 |
 | greet-review | 1 |
 | hanzi-nature-review | 1 |
-| health | 1 |
+| health | 2 |
 | home-chat | 1 |
 | hotel | 1 |
 | identify-person | 1 |
@@ -144,4 +145,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:0f49bfb5655ee29a -->
+<!-- integridade:9558b8fee52eef54 -->

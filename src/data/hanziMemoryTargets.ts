@@ -21,6 +21,7 @@ export const HANZI_MEMORY_TARGETS: readonly HanziMemoryTarget[] = [
   { glyph: "买", charId: "mai_buy", introduceLessonId: "p6-compras", delayedLessonIds: ["p7-imersao-mercado"] },
   { glyph: "左", charId: "zuo_left", introduceLessonId: "p6-direcoes", delayedLessonIds: ["p7-imersao-estacao"] },
   { glyph: "右", charId: "you_right", introduceLessonId: "p6-direcoes", delayedLessonIds: ["p7-imersao-estacao"] },
+  { glyph: "疼", charId: "teng_pain", introduceLessonId: "p6-saude", delayedLessonIds: ["p7-imersao-saude"] },
 ];
 
 export const HANZI_MEMORY_TARGET_GLYPHS = new Set(HANZI_MEMORY_TARGETS.map((item) => item.glyph));

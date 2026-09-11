@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 6c505d41d6a2 |
+| HEAD no instante da geração | 5b2ced9d2ab950fc10963c88cbb8d10e34119ad2 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:10:08.584Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T05:26:07.999Z |
+| Lições | 132 |
 
 ## Contrato
 
@@ -19,7 +19,7 @@ CONVERSATION REF → acquisition lesson → recognition → guided use → conve
 
 Uma fala de NPC não conta como ensino.
 
-Nesta remessa o gate **bloqueia** só China Survival (restaurante, compras, mobilidade, hotel, aeroporto).
+Nesta remessa o gate **bloqueia** só China Survival (restaurante, compras, mobilidade, hotel, aeroporto, saúde).
 Lacunas globais de arcos anteriores entram no relatório e não reescrevem o currículo inteiro.
 
 ## China Survival
@@ -84,6 +84,15 @@ Lacunas globais de arcos anteriores entram no relatório e não reescrevem o cur
 | pegar-taxi | chunk:xiexie | learned | p1-engine-2-lab | p6-china-ruas | PASS |
 | pegar-taxi | char:hao | learned | p1-o-que-e-mandarim | p6-china-ruas | PASS |
 | pegar-taxi | char:ma_question | learned | p1-engine-2-lab | p6-china-ruas | PASS |
+| nao-me-sinto-bem | chunk:nihao | learned | p1-o-que-e-mandarim | p6-saude | PASS |
+| nao-me-sinto-bem | chunk:zenmeyang | learned | l9-tudo-bem | p6-saude | PASS |
+| nao-me-sinto-bem | chunk:wobushufu | learned | p6-saude | p6-saude | PASS |
+| nao-me-sinto-bem | chunk:wotouteng | learned | p6-saude | p6-saude | PASS |
+| nao-me-sinto-bem | chunk:woxuyaoyisheng | learned | p6-saude | p6-saude | PASS |
+| nao-me-sinto-bem | chunk:yiyuanzainali | learned | p6-cidade-lugares | p6-saude | PASS |
+| nao-me-sinto-bem | char:hao | learned | p1-o-que-e-mandarim | p6-saude | PASS |
+| nao-me-sinto-bem | char:bu | learned | l4 | p6-saude | PASS |
+| nao-me-sinto-bem | char:ma_question | learned | p1-engine-2-lab | p6-saude | PASS |
 | revisao-restaurante | chunk:woele | learned | l26 | l10-rev | PASS |
 | revisao-restaurante | chunk:womenchifanba | learned | l26b | l10-rev | PASS |
 | revisao-restaurante | chunk:nihao | learned | p1-o-que-e-mandarim | l10-rev | PASS |
@@ -224,6 +233,21 @@ Lacunas globais de arcos anteriores entram no relatório e não reescrevem o cur
 | no-aeroporto | char:ba8 | learned | p4-num-678 | p7-imersao-aeroporto | PASS |
 | no-aeroporto | char:hao_number | learned | p6-china-ruas | p7-imersao-aeroporto | PASS |
 | no-aeroporto | char:kou | learned | p1-o-que-e-hanzi | p7-imersao-aeroporto | PASS |
+| na-clinica | chunk:nihao | learned | p1-o-que-e-mandarim | p7-imersao-saude | PASS |
+| na-clinica | chunk:wobushufu | learned | p6-saude | p7-imersao-saude | PASS |
+| na-clinica | chunk:wotouteng | learned | p6-saude | p7-imersao-saude | PASS |
+| na-clinica | chunk:woduziteng | learned | p6-saude | p7-imersao-saude | PASS |
+| na-clinica | chunk:wofashao | learned | p6-saude | p7-imersao-saude | PASS |
+| na-clinica | chunk:woyaokanyisheng | learned | p6-saude | p7-imersao-saude | PASS |
+| na-clinica | chunk:woxuyaoyisheng | learned | p6-saude | p7-imersao-saude | PASS |
+| na-clinica | chunk:woxuyaobangzhu | learned | p6-survival-mandarin | p7-imersao-saude | PASS |
+| na-clinica | chunk:yizhizou | learned | p6-direcoes | p7-imersao-saude | PASS |
+| na-clinica | chunk:qingzaishuoyibian | learned | p2-sons-brasileiros | p7-imersao-saude | PASS |
+| na-clinica | chunk:qingmanyidian | learned | l11 | p7-imersao-saude | PASS |
+| na-clinica | chunk:xiexie | learned | p1-engine-2-lab | p7-imersao-saude | PASS |
+| na-clinica | chunk:bukeqi | learned | l4 | p7-imersao-saude | PASS |
+| na-clinica | char:hao | learned | p1-o-que-e-mandarim | p7-imersao-saude | PASS |
+| na-clinica | char:ma_question | learned | p1-engine-2-lab | p7-imersao-saude | PASS |
 
 ## Lacunas globais (não bloqueantes)
 
@@ -234,4 +258,4 @@ Lacunas globais de arcos anteriores entram no relatório e não reescrevem o cur
 | pedir-repeticao | chunk:wojiao | (none) | p2-sons-brasileiros |
 | o-que-e-isto | chunk:woxianghe | (none) | l26 |
 
-<!-- integridade:5c0d2a32760b079e -->
+<!-- integridade:9e15b1d6fc7aa8d9 -->

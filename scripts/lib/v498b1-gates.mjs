@@ -35,6 +35,8 @@ const SURVIVAL_SCENE_IDS = new Set([
   "imersao-estacao",
   "checkin-hotel",
   "no-aeroporto",
+  "nao-me-sinto-bem",
+  "na-clinica",
 ]);
 const HIGH_VALUE = [
   {
@@ -46,6 +48,9 @@ const HIGH_VALUE = [
   { id: "woyouyuding", phrase: "我有预订", firstScene: "checkin-hotel" },
   { id: "wodefangjianzainali", phrase: "我的房间在哪里", firstScene: "checkin-hotel" },
   { id: "dengjikouzainali", phrase: "登机口在哪里", firstScene: "no-aeroporto" },
+  { id: "wobushufu", phrase: "我不舒服", firstScene: "nao-me-sinto-bem" },
+  { id: "wofashao", phrase: "我发烧了", firstScene: "nao-me-sinto-bem" },
+  { id: "yiyuanzainali", phrase: "医院在哪里", firstScene: "nao-me-sinto-bem", transferScene: "na-clinica" },
 ];
 
 export function cleanHanzi(value) {
@@ -393,7 +398,7 @@ export function writeBridgeReport(rootDir, result) {
     "",
     "Uma fala de NPC não conta como ensino.",
     "",
-    "Nesta remessa o gate **bloqueia** só China Survival (restaurante, compras, mobilidade, hotel, aeroporto).",
+    "Nesta remessa o gate **bloqueia** só China Survival (restaurante, compras, mobilidade, hotel, aeroporto, saúde).",
     "Lacunas globais de arcos anteriores entram no relatório e não reescrevem o currículo inteiro.",
     "",
     "## China Survival",

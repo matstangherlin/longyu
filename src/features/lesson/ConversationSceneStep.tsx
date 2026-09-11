@@ -275,6 +275,7 @@ function SettingBackdrop({ setting }: { setting?: string }) {
     school: "from-[rgb(185_65_46/0.12)] via-[rgb(var(--surface-2))] to-[rgb(138_90_23/0.08)]",
     hotel: "from-[rgb(59_98_166/0.12)] via-[rgb(var(--surface-2))] to-[rgb(138_90_23/0.10)]",
     airport: "from-[rgb(90_96_100/0.14)] via-[rgb(var(--surface-2))] to-[rgb(59_98_166/0.10)]",
+    clinic: "from-[rgb(47_133_90/0.12)] via-[rgb(var(--surface-2))] to-[rgb(59_98_166/0.08)]",
   };
   const wash = washes[setting ?? ""] ?? washes.classroom;
 

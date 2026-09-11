@@ -6,23 +6,23 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 6c505d41d6a2 |
+| HEAD no instante da geração | 5b2ced9d2ab950fc10963c88cbb8d10e34119ad2 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:25:21.397Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T05:27:52.902Z |
+| Lições | 132 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Cenas no catálogo | 48 |
-| Cenas V2 (nós/ramificação) | 48 |
+| Cenas no catálogo | 49 |
+| Cenas V2 (nós/ramificação) | 49 |
 | Cenas V1 autorais (sem nós) | 0 |
-| Fallback V1 derivado (lines/checkpoint) | 48 |
+| Fallback V1 derivado (lines/checkpoint) | 49 |
 | Intenções distintas | 48 |
-| Passos autorais na jornada | 53 |
+| Passos autorais na jornada | 54 |
 | Lições com cena gerada no plano | 100 |
 | Cenas geradas distintas | 41 |
 | Cenas nunca usadas (autoral ou plano) | 0 |
@@ -32,9 +32,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Papel | Cenas |
 |-------|------:|
-| common | 34 |
-| module_review | 8 |
-| immersion | 6 |
+| common | 33 |
+| module_review | 9 |
+| immersion | 7 |
 
 ## Cenas por cenário
 
@@ -48,6 +48,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | home | 6 |
 | hotel | 1 |
 | airport | 1 |
+| clinic | 1 |
 
 ## Catálogo
 
@@ -96,10 +97,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | falar-de-estudo | common | study | 7 | 3 | sim | 1 | 1 | 6 |
 | rotina-e-trabalho | common | work-routine | 10 | 3 | sim | 1 | 1 | 0 |
 | que-horas-sao | common | ask-time | 7 | 2 | sim | 1 | 1 | 0 |
-| nao-me-sinto-bem | common | health | 7 | 3 | sim | 1 | 1 | 0 |
+| nao-me-sinto-bem | module_review | health | 10 | 4 | sim | 1 | 1 | 0 |
 | como-esta-o-tempo | common | weather | 6 | 2 | sim | 1 | 1 | 0 |
 | checkin-hotel | immersion | hotel | 18 | 8 | sim | 2 | 1 | 0 |
 | no-aeroporto | immersion | airport | 17 | 7 | sim | 2 | 1 | 0 |
+| na-clinica | immersion | health | 15 | 6 | sim | 2 | 1 | 0 |
 | pegar-taxi | common | taxi | 7 | 2 | sim | 1 | 2 | 0 |
 
 ## Cenas nunca usadas
@@ -110,8 +112,8 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 | Indicador | Valor |
 |-----------|------:|
-| Variantes com manifesto gerado | 49 |
-| Itens de vocabulário mapeados | 687 |
+| Variantes com manifesto gerado | 50 |
+| Itens de vocabulário mapeados | 711 |
 | Textos exibidos sem referência canônica (aviso) | 0 |
 | Refs declarados nunca exibidos (aviso) | 12 |
 
@@ -135,4 +137,4 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:833a2af22c11198b -->
+<!-- integridade:c22eef4d3ce99daa -->

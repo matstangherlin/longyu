@@ -29,12 +29,18 @@ import {
 } from "./mobilitySurvivalScenes";
 import { CHECKIN_HOTEL_LEARNED_REFS, CHECKIN_HOTEL_NODES } from "./hotelSurvivalScenes";
 import { NO_AEROPORTO_LEARNED_REFS, NO_AEROPORTO_NODES } from "./airportSurvivalScenes";
+import {
+  NAO_ME_SINTO_BEM_LEARNED_REFS,
+  NAO_ME_SINTO_BEM_NODES,
+  NA_CLINICA_LEARNED_REFS,
+  NA_CLINICA_NODES,
+} from "./healthSurvivalScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
  */
 
-export type ConversationSetting = "classroom" | "street" | "shop" | "home" | "park" | "school" | "hotel" | "airport";
+export type ConversationSetting = "classroom" | "street" | "shop" | "home" | "park" | "school" | "hotel" | "airport" | "clinic";
 export type ConversationEmotion = "neutral" | "happy" | "confused" | "thinking";
 export type ConversationCheckpointType = "choose_reply" | "fill_reply" | "choose_meaning" | "order_reply" | "produce_reply";
 
@@ -190,7 +196,11 @@ export type ConversationSpeechAct =
   | "ask_wifi"
   | "ask_gate"
   | "tell_gate"
-  | "ask_repeat";
+  | "ask_repeat"
+  | "ask_symptom"
+  | "tell_symptom"
+  | "request_doctor"
+  | "request_help";
 
 export type ConversationRepairType =
   | "repeat"
@@ -204,7 +214,10 @@ export type ConversationRepairType =
   | "confirm_document"
   | "confirm_nights"
   | "confirm_room"
-  | "confirm_gate";
+  | "confirm_gate"
+  | "confirm_symptom"
+  | "confirm_doctor"
+  | "confirm_help";
 
 export interface ConversationInteraction {
   type: ConversationInteractionType;
@@ -505,6 +518,11 @@ export const PAIR_HOTEL: ConversationCharacter[] = [
 export const PAIR_AIRPORT: ConversationCharacter[] = [
   { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left", role: "Viajante" },
   { id: "wang", name: "Wang", avatar: "wang", side: "right", role: "Funcionário" },
+];
+
+export const PAIR_CLINIC: ConversationCharacter[] = [
+  { id: "lin", name: STUDENT_NAME, avatar: "lin", side: "left", role: "Paciente" },
+  { id: "wang", name: "Wang", avatar: "wang", side: "right", role: "Atendente" },
 ];
 
 export const PAIR_LIN_HUA: ConversationCharacter[] = [
@@ -3280,81 +3298,10 @@ sceneV2({
   intent: "health",
   setting: "street",
   characters: PAIR_LIN_MEI,
-  sceneRole: "common",
-  entryNodeId: "saude-1",
-  nodes: [
-    { id: "saude-1", speakerId: "mei", hanzi: "你好！你怎么样？", pinyin: "nǐ hǎo! nǐ zěnmeyàng?", pt: "Olá! Como vai?", emotion: "happy", nextNodeId: "saude-2" },
-    {
-      id: "saude-2",
-      speakerId: "lin",
-      hanzi: "我不舒服。",
-      pinyin: "wǒ bù shūfu.",
-      pt: "Não me sinto bem.",
-      emotion: "confused",
-      interaction: {
-        type: "choose_meaning",
-        prompt: "O que Matheus disse?",
-        options: ["Não me sinto bem.", "Estou bem.", "Até logo.", "Obrigado."],
-        correctAnswer: "Não me sinto bem.",
-        correctNextNodeId: "saude-4",
-        wrongNextNodeId: "saude-3",
-        explanation: "我不舒服 = não me sinto bem.",
-      },
-    },
-    { id: "saude-3", speakerId: "mei", hanzi: "不舒服。请再说一遍。", pinyin: "bù shūfu. qǐng zài shuō yí biàn.", pt: "Indisposto. Tente de novo.", emotion: "thinking", nextNodeId: "saude-2" },
-    {
-      id: "saude-4",
-      speakerId: "mei",
-      hanzi: "头疼？",
-      pinyin: "tóu téng?",
-      pt: "Dor de cabeça?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Confirme a dor de cabeça.",
-        options: ["我头疼", "再见", "谢谢", "我很好"],
-        correctAnswer: "我头疼",
-        correctNextNodeId: "saude-6",
-        wrongNextNodeId: "saude-5",
-        explanation: "我头疼 = estou com dor de cabeça.",
-      },
-    },
-    { id: "saude-5", speakerId: "mei", hanzi: "我头疼。请再说一遍。", pinyin: "wǒ tóu téng. qǐng zài shuō yí biàn.", pt: "Dor de cabeça. Tente de novo.", emotion: "thinking", nextNodeId: "saude-4" },
-    { id: "saude-6", speakerId: "lin", hanzi: "我头疼。我需要医生。", pinyin: "wǒ tóu téng. wǒ xūyào yīshēng.", pt: "Estou com dor de cabeça. Preciso de um médico.", nextNodeId: "saude-7" },
-    {
-      id: "saude-7",
-      speakerId: "mei",
-      hanzi: "医院在哪里？",
-      pinyin: "yīyuàn zài nǎlǐ?",
-      pt: "Onde fica o hospital?",
-      interaction: {
-        type: "choose_reply",
-        prompt: "Peça o hospital.",
-        options: ["医院在哪里？", "再见", "谢谢", "我很好"],
-        correctAnswer: "医院在哪里？",
-        correctNextNodeId: "saude-9",
-        wrongNextNodeId: "saude-8",
-        explanation: "医院在哪里？ acha o hospital.",
-      },
-    },
-    { id: "saude-8", speakerId: "mei", hanzi: "医院在哪里？请再说一遍。", pinyin: "yīyuàn zài nǎlǐ? qǐng zài shuō yí biàn.", pt: "Onde fica o hospital? Tente de novo.", emotion: "thinking", nextNodeId: "saude-7" },
-    { id: "saude-9", speakerId: "lin", hanzi: "医院在哪里？", pinyin: "yīyuàn zài nǎlǐ?", pt: "Onde fica o hospital?", nextNodeId: "saude-10" },
-    { id: "saude-10", speakerId: "mei", hanzi: "在那里。", pinyin: "zài nàlǐ.", pt: "Lá.", emotion: "happy" },
-  ],
-  learnedRefs: [
-    "chunk:nihao",
-    "chunk:zenmeyang",
-    "chunk:wobushufu",
-    "chunk:wotouteng",
-    "chunk:woxuyaoyisheng",
-    "chunk:yiyuanzainali",
-    "chunk:qingzaishuoyibian",
-    "chunk:zaijian",
-    "chunk:xiexie",
-    "chunk:wohenhao",
-    "char:zai",
-    "char:na_that",
-    "char:li_inside",
-  ],
+  sceneRole: "module_review",
+  entryNodeId: "saude-greet",
+  nodes: NAO_ME_SINTO_BEM_NODES,
+  learnedRefs: NAO_ME_SINTO_BEM_LEARNED_REFS,
 }),
 sceneV2({
   sceneId: "como-esta-o-tempo",
@@ -3444,6 +3391,18 @@ sceneV2({
   learnedRefs: NO_AEROPORTO_LEARNED_REFS,
 }),
 sceneV2({
+  sceneId: "na-clinica",
+  title: "Na clínica",
+  intent: "health",
+  setting: "clinic",
+  characters: PAIR_CLINIC,
+  sceneRole: "immersion",
+  dedicatedLesson: true,
+  entryNodeId: "clinic-greet",
+  nodes: NA_CLINICA_NODES,
+  learnedRefs: NA_CLINICA_LEARNED_REFS,
+}),
+sceneV2({
   sceneId: "pegar-taxi",
   title: "Pegar um táxi",
   intent: "taxi",
@@ -3469,6 +3428,7 @@ export const SETTING_LABELS: Record<ConversationSetting, string> = {
   school: "Escola",
   hotel: "Hotel",
   airport: "Aeroporto",
+  clinic: "Clínica",
 };
 
 export const AVATAR_TONES: Record<string, { bg: string; fg: string }> = {

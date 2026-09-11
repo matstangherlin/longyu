@@ -11,13 +11,13 @@ export const INTEGRATED_SCENE_IDS = [
 ];
 
 export const SPEECH_ACT_PAIRS = {
-  greet: ["greet", "acknowledge", "get_attention", "ask_location", "ask_route", "ask_price", "confirm_reservation", "present_document"],
+  greet: ["greet", "acknowledge", "get_attention", "ask_location", "ask_route", "ask_price", "confirm_reservation", "present_document", "tell_wellbeing"],
   farewell: ["farewell"],
   ask_time: ["tell_time"],
   ask_when: ["tell_when"],
   ask_location: ["tell_location", "state_destination"],
   ask_route: ["tell_direction", "acknowledge"],
-  tell_direction: ["acknowledge", "ask_route"],
+  tell_direction: ["acknowledge", "ask_route", "ask_repeat"],
   request_stop: ["acknowledge"],
   state_destination: ["acknowledge", "confirm_item"],
   ask_job: ["tell_job"],
@@ -25,7 +25,7 @@ export const SPEECH_ACT_PAIRS = {
   confirm_plan: ["confirm_plan", "acknowledge"],
   ask_name: ["tell_name"],
   ask_wellbeing: ["tell_wellbeing", "praise_food"],
-  acknowledge: ["acknowledge", "greet", "request_stop", "ask_room_location", "ask_gate", "ask_wifi", "thank"],
+  acknowledge: ["acknowledge", "greet", "request_stop", "ask_room_location", "ask_gate", "ask_wifi", "thank", "request_doctor", "request_help", "ask_location", "ask_repeat"],
   tell_time: ["acknowledge"],
   tell_when: ["acknowledge"],
   tell_location: ["acknowledge", "ask_wifi"],
@@ -65,6 +65,10 @@ export const SPEECH_ACT_PAIRS = {
   ask_gate: ["tell_gate"],
   tell_gate: ["acknowledge", "ask_repeat", "ask_route"],
   ask_repeat: ["acknowledge"],
+  ask_symptom: ["tell_symptom", "acknowledge"],
+  tell_symptom: ["acknowledge", "request_doctor"],
+  request_doctor: ["acknowledge", "tell_direction"],
+  request_help: ["acknowledge", "tell_direction"],
 };
 
 const PUNCT = /[\u3000-\u303f\uff00-\uffef,.!?\s:;"'()？！。，、]/gu;

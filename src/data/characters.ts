@@ -331,6 +331,8 @@ export const CHARACTERS: Character[] = [
   { id: "ding_reserve", hanzi: "订", pinyin: "dìng", toneless: "ding", tone: 4, meaningPt: "reservar; pedir", freqRank: 744, components: [], exampleWords: [{ hanzi: "预订", pinyin: "yùdìng", pt: "reserva" }] },
   { id: "yu_beforehand", hanzi: "预", pinyin: "yù", toneless: "yu", tone: 4, meaningPt: "de antemão", freqRank: 745, components: [], exampleWords: [{ hanzi: "预订", pinyin: "yùdìng", pt: "reserva" }] },
   { id: "jiu_wine", hanzi: "酒", pinyin: "jiǔ", toneless: "jiu", tone: 3, meaningPt: "bebida alcoólica; vinho", freqRank: 746, components: [], exampleWords: [{ hanzi: "酒店", pinyin: "jiǔdiàn", pt: "hotel" }] },
+  { id: "yi_heal", hanzi: "医", pinyin: "yī", toneless: "yi", tone: 1, meaningPt: "medicina; médico", freqRank: 747, components: [], exampleWords: [{ hanzi: "医生", pinyin: "yīshēng", pt: "médico" }] },
+  { id: "yuan_clinic", hanzi: "院", pinyin: "yuàn", toneless: "yuan", tone: 4, meaningPt: "instituição; pátio", freqRank: 748, components: [], exampleWords: [{ hanzi: "医院", pinyin: "yīyuàn", pt: "hospital" }] },
 ];
 
 export const charById = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));
