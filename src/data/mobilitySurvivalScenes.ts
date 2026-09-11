@@ -31,6 +31,12 @@ type Interaction = {
   decision?: boolean;
   validAnswers?: string[];
   nextByAnswer?: Record<string, string>;
+  productionScaffold?: "first" | "transfer";
+  capabilityId?: string;
+  productionPattern?: string;
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  productionHelpBuildBank?: string[];
+  productionHelpPiecePinyin?: Record<string, string>;
 };
 
 function npc(
@@ -64,6 +70,12 @@ function interactionOf(turn: Interaction, answerId: string, wrongNextNodeId: str
     decision: turn.decision,
     validAnswers: turn.validAnswers,
     nextByAnswer: turn.nextByAnswer,
+    productionScaffold: turn.productionScaffold,
+    capabilityId: turn.capabilityId,
+    productionPattern: turn.productionPattern,
+    productionHelpVocab: turn.productionHelpVocab,
+    productionHelpBuildBank: turn.productionHelpBuildBank,
+    productionHelpPiecePinyin: turn.productionHelpPiecePinyin,
   };
 }
 
@@ -126,6 +138,15 @@ export const IMERSAO_ESTACAO_NODES: ConversationNode[] = [
       pinyin: "dìtiězhàn zài nǎlǐ?",
       pt: "Onde fica a estação de metrô?",
       accepts: ["地铁站在哪里", "请问，地铁站在哪里？", "请问地铁站在哪里？", "火车站在哪里？", "火车站在哪里"],
+      productionScaffold: "transfer",
+      capabilityId: "ditiezhanzainali",
+      productionPattern: "______ 在哪里？",
+      productionHelpBuildBank: ["地铁站", "在哪里", "机场"],
+      productionHelpPiecePinyin: { 地铁站: "dìtiězhàn", 在哪里: "zài nǎlǐ", 机场: "jīchǎng" },
+      productionHelpVocab: [
+        { hanzi: "地铁站", pinyin: "dìtiězhàn", meaningPt: "estação de metrô" },
+        { hanzi: "在哪里", pinyin: "zài nǎlǐ", meaningPt: "onde" },
+      ],
       speechAct: "greet",
       expectedResponseAct: "ask_location",
       repairType: "reask",
@@ -191,6 +212,15 @@ export const IMERSAO_ESTACAO_NODES: ConversationNode[] = [
       pinyin: "piào duōshao qián?",
       pt: "Quanto custa a passagem?",
       accepts: ["票多少钱", "多少钱？", "多少钱"],
+      productionScaffold: "transfer",
+      capabilityId: "piaoduoshaoqian",
+      productionPattern: "票 ______？",
+      productionHelpBuildBank: ["票", "多少钱", "菜单"],
+      productionHelpPiecePinyin: { 票: "piào", 多少钱: "duōshao qián", 菜单: "càidān" },
+      productionHelpVocab: [
+        { hanzi: "票", pinyin: "piào", meaningPt: "passagem" },
+        { hanzi: "多少钱", pinyin: "duōshao qián", meaningPt: "quanto custa" },
+      ],
       speechAct: "greet",
       expectedResponseAct: "ask_price",
       repairType: "clarify",
@@ -212,6 +242,15 @@ export const IMERSAO_ESTACAO_NODES: ConversationNode[] = [
       pinyin: "wǒ yào zhège",
       pt: "Eu quero este.",
       accepts: ["我要这个。", "我要票", "我要票。"],
+      productionScaffold: "transfer",
+      capabilityId: "woyaozhege",
+      productionPattern: "我要 ______",
+      productionHelpBuildBank: ["我要", "这个", "那个"],
+      productionHelpPiecePinyin: { 我要: "wǒ yào", 这个: "zhège", 那个: "nàge" },
+      productionHelpVocab: [
+        { hanzi: "我要", pinyin: "wǒ yào", meaningPt: "eu quero" },
+        { hanzi: "这个", pinyin: "zhège", meaningPt: "este" },
+      ],
       speechAct: "ask_order",
       expectedResponseAct: "place_order",
       repairType: "reask_order",
@@ -293,6 +332,15 @@ export const PEGAR_TAXI_NODES: ConversationNode[] = [
       pinyin: "zài zhèlǐ tíngchē",
       pt: "Pare aqui.",
       accepts: ["在这里停车。", "在这里停车。谢谢", "在这里停车。谢谢！"],
+      productionScaffold: "transfer",
+      capabilityId: "zaizhelitingche",
+      productionPattern: "在这里 ______",
+      productionHelpBuildBank: ["在这里", "停车", "左转"],
+      productionHelpPiecePinyin: { 在这里: "zài zhèlǐ", 停车: "tíngchē", 左转: "zuǒ zhuǎn" },
+      productionHelpVocab: [
+        { hanzi: "在这里", pinyin: "zài zhèlǐ", meaningPt: "aqui" },
+        { hanzi: "停车", pinyin: "tíngchē", meaningPt: "parar" },
+      ],
       speechAct: "acknowledge",
       expectedResponseAct: "request_stop",
       repairType: "clarify",

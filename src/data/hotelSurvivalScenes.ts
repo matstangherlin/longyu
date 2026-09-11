@@ -32,6 +32,12 @@ type Interaction = {
   decision?: boolean;
   validAnswers?: string[];
   nextByAnswer?: Record<string, string>;
+  productionScaffold?: "first" | "transfer";
+  capabilityId?: string;
+  productionPattern?: string;
+  productionHelpVocab?: { hanzi: string; pinyin?: string; meaningPt?: string }[];
+  productionHelpBuildBank?: string[];
+  productionHelpPiecePinyin?: Record<string, string>;
 };
 
 function npc(
@@ -66,6 +72,12 @@ function interactionOf(turn: Interaction, answerId: string, wrongNextNodeId: str
     decision: turn.decision,
     validAnswers: turn.validAnswers,
     nextByAnswer: turn.nextByAnswer,
+    productionScaffold: turn.productionScaffold,
+    capabilityId: turn.capabilityId,
+    productionPattern: turn.productionPattern,
+    productionHelpVocab: turn.productionHelpVocab,
+    productionHelpBuildBank: turn.productionHelpBuildBank,
+    productionHelpPiecePinyin: turn.productionHelpPiecePinyin,
   };
 }
 
@@ -134,11 +146,20 @@ export const CHECKIN_HOTEL_NODES: ConversationNode[] = [
     { hanzi: "有预订吗？", pinyin: "yǒu yùdìng ma?", pt: "Tem reserva?" },
     {
       type: "produce_reply",
-      prompt: "Você chegou com reserva. Informe isso, falando ou escrevendo, sem alternativas.",
+      prompt: "Você chegou com reserva. Informe isso.",
       answer: "我有预订",
       pinyin: "wǒ yǒu yùdìng",
       pt: "Eu tenho reserva.",
       accepts: ["我有预订。", "有预订", "有预订。"],
+      productionScaffold: "first",
+      capabilityId: "woyouyuding",
+      productionPattern: "我有 ______",
+      productionHelpBuildBank: ["我有", "预订", "房间"],
+      productionHelpPiecePinyin: { 我有: "wǒ yǒu", 预订: "yùdìng", 房间: "fángjiān" },
+      productionHelpVocab: [
+        { hanzi: "我有", pinyin: "wǒ yǒu", meaningPt: "eu tenho" },
+        { hanzi: "预订", pinyin: "yùdìng", meaningPt: "reserva" },
+      ],
       speechAct: "ask_reservation",
       expectedResponseAct: "confirm_reservation",
       repairType: "confirm_reservation",
@@ -154,11 +175,21 @@ export const CHECKIN_HOTEL_NODES: ConversationNode[] = [
     { hanzi: "请给我护照。", pinyin: "qǐng gěi wǒ hùzhào.", pt: "Por favor, me dê o passaporte." },
     {
       type: "produce_reply",
-      prompt: "A recepção pediu o documento. Mostre o passaporte, sem alternativas.",
+      prompt: "A recepção pediu o documento. Mostre o passaporte.",
       answer: "这是我的护照",
       pinyin: "zhè shì wǒ de hùzhào",
       pt: "Este é o meu passaporte.",
       accepts: ["这是我的护照。", "护照", "护照。"],
+      productionScaffold: "first",
+      capabilityId: "zheshiwodehuzhao",
+      productionPattern: "这是我的 ______",
+      productionHelpBuildBank: ["这是", "我的", "护照", "房间"],
+      productionHelpPiecePinyin: { 这是: "zhè shì", 我的: "wǒ de", 护照: "hùzhào", 房间: "fángjiān" },
+      productionHelpVocab: [
+        { hanzi: "这是", pinyin: "zhè shì", meaningPt: "isto é" },
+        { hanzi: "我的", pinyin: "wǒ de", meaningPt: "meu" },
+        { hanzi: "护照", pinyin: "hùzhào", meaningPt: "passaporte" },
+      ],
       speechAct: "request_document",
       expectedResponseAct: "present_document",
       repairType: "confirm_document",
@@ -229,11 +260,20 @@ export const CHECKIN_HOTEL_NODES: ConversationNode[] = [
     { hanzi: "好。", pinyin: "hǎo.", pt: "Certo." },
     {
       type: "produce_reply",
-      prompt: "Você não encontra o quarto. Pergunte onde ele fica, sem alternativas.",
+      prompt: "Você não encontra o quarto. Pergunte onde ele fica.",
       answer: "我的房间在哪里？",
       pinyin: "wǒ de fángjiān zài nǎlǐ?",
       pt: "Onde fica o meu quarto?",
       accepts: ["我的房间在哪里", "房间在哪里？", "房间在哪里"],
+      productionScaffold: "first",
+      capabilityId: "wodefangjianzainali",
+      productionPattern: "我的 ______ 在哪里？",
+      productionHelpBuildBank: ["我的", "房间", "在哪里", "护照"],
+      productionHelpPiecePinyin: { 我的: "wǒ de", 房间: "fángjiān", 在哪里: "zài nǎlǐ", 护照: "hùzhào" },
+      productionHelpVocab: [
+        { hanzi: "房间", pinyin: "fángjiān", meaningPt: "quarto" },
+        { hanzi: "在哪里", pinyin: "zài nǎlǐ", meaningPt: "onde" },
+      ],
       speechAct: "acknowledge",
       expectedResponseAct: "ask_room_location",
       repairType: "confirm_room",

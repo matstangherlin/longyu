@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 465390e64799 |
-| HEAD no instante da geração | 2417cd6ce4bec58d16e677a61fb4d18033bf187a |
+| Hash da Jornada | 003cb0ed7858 |
+| HEAD no instante da geração | 205ded9eabafd838673eb9929260b5a647ef10e6 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-10T18:54:57.475Z |
+| Gerado em | 2026-09-10T22:58:36.963Z |
 | Lições | 131 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 131 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 997 |
-| Pares com transformação cognitiva | 794 (80%) |
+| Pares de repetição semântica | 995 |
+| Pares com transformação cognitiva | 795 (80%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -137,30 +137,30 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l24 | 28 | 13 | 21 | 16 | 10 | 8 | intent:introduce-family × 4 |
 | l25 | 18 | 17 | 42 | 9 | 9 | 15 | action:produce-unaided × 3 |
 | l26 | 15 | 14 | 37 | 9 | 9 | 10 | phrase:我喜欢中文 × 3 |
-| l26b | 26 | 24 | 66 | 6 | 6 | 11 | intent:identify-concept × 3 |
+| l26b | 26 | 24 | 67 | 6 | 6 | 11 | intent:identify-concept × 3 |
 | l26c | 26 | 25 | 52 | 12 | 10 | 12 | intent:identify-concept × 3 |
 | l27 | 17 | 16 | 45 | 5 | 5 | 14 | action:produce-unaided × 3 |
 | l28 | 16 | 16 | 43 | 6 | 5 | 14 | action:assemble-phrase × 3 |
 | p6-rotina-trabalho | 28 | 14 | 21 | 7 | 4 | 9 | action:assemble-phrase × 3 |
 | p6-cidade-lugares | 21 | 19 | 54 | 4 | 4 | 12 | action:assemble-phrase × 2 |
 | p6-china-cidades | 19 | 18 | 43 | 9 | 6 | 16 | action:assemble-phrase × 3 |
-| p6-china-cidades-2 | 17 | 16 | 43 | 6 | 4 | 12 | action:produce-unaided × 3 |
+| p6-china-cidades-2 | 17 | 16 | 43 | 6 | 3 | 12 | action:produce-unaided × 3 |
 | p6-china-ruas | 17 | 16 | 38 | 7 | 6 | 13 | action:produce-unaided × 3 |
 | p6-saude | 19 | 18 | 44 | 8 | 7 | 15 | action:produce-unaided × 3 |
-| p6-horarios | 30 | 18 | 21 | 8 | 2 | 10 | action:write × 7 |
+| p6-horarios | 32 | 20 | 23 | 10 | 4 | 12 | action:write × 7 |
 | p6-natureza | 18 | 17 | 41 | 4 | 4 | 12 | action:produce-unaided × 2 |
-| p6-clima | 19 | 18 | 41 | 7 | 6 | 16 | action:assemble-phrase × 3 |
+| p6-clima | 19 | 18 | 40 | 7 | 6 | 16 | action:assemble-phrase × 3 |
 | p6-direcoes | 18 | 17 | 37 | 7 | 5 | 13 | action:assemble-phrase × 3 |
 | p6-compras | 20 | 19 | 51 | 9 | 8 | 12 | intent:identify-concept × 3 |
-| p6-survival-mandarin | 21 | 20 | 58 | 12 | 7 | 15 | action:produce-unaided × 4 |
+| p6-survival-mandarin | 19 | 18 | 54 | 9 | 8 | 12 | intent:identify-concept × 4 |
 | l10-rev | 12 | 12 | 25 | 8 | 7 | 8 | char:水 × 2 |
 | l29 | 19 | 18 | 41 | 10 | 6 | 15 | action:assemble-phrase × 3 |
 | l30 | 15 | 14 | 38 | 5 | 5 | 11 | action:produce-unaided × 2 |
 | l11-rev | 12 | 12 | 23 | 8 | 4 | 8 | action:assemble-phrase × 2 |
 | p7-imersao-mercado | 31 | 30 | 62 | 22 | 17 | 17 | action:produce-unaided × 5 |
 | p7-imersao-estacao | 34 | 32 | 74 | 13 | 10 | 14 | action:assemble-phrase × 3 |
-| p7-imersao-hotel | 26 | 25 | 54 | 9 | 7 | 15 | intent:identify-concept × 3 |
-| p7-imersao-aeroporto | 23 | 22 | 44 | 12 | 10 | 14 | action:produce-unaided × 3 |
+| p7-imersao-hotel | 26 | 25 | 51 | 10 | 8 | 14 | intent:identify-concept × 4 |
+| p7-imersao-aeroporto | 22 | 21 | 43 | 10 | 8 | 13 | action:produce-unaided × 3 |
 | p7-imersao-viagem | 24 | 22 | 46 | 13 | 9 | 14 | action:produce-unaided × 4 |
 | p7-imersao-casa-amigo | 28 | 27 | 56 | 23 | 19 | 16 | action:repair-conversation × 3 |
 
@@ -168,4 +168,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:b731f2dddaeedde9 -->
+<!-- integridade:72edc0330394937c -->

@@ -5,26 +5,26 @@ de passo promete, e o que a tela oferece de fato.
 
 | StepKind | habilidade | passos | com áudio | com imagem | com alternativas | resposta livre | renderer | voz |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| sentence_build | montar | 607 | 0 | 0 | 607 | 0 | StepSentenceBuild | — |
-| dialogue_choice | escolher | 580 | 0 | 0 | 580 | 0 | StepDialogueChoice | — |
-| fill_blank | escolher | 550 | 0 | 0 | 550 | 0 | StepFillBlank | — |
-| conversation_scene | conversar | 536 | 0 | 0 | 482 | 0 | ConversationSceneStep | — |
-| comprehend | escolher | 533 | 0 | 0 | 533 | 0 | StepComprehend | — |
-| image_choice | interpretar imagem | 518 | 0 | 518 | 310 | 0 | StepImageChoice | — |
+| sentence_build | montar | 608 | 0 | 0 | 608 | 0 | StepSentenceBuild | — |
+| dialogue_choice | escolher | 578 | 0 | 0 | 578 | 0 | StepDialogueChoice | — |
+| fill_blank | escolher | 546 | 4 | 0 | 546 | 0 | StepFillBlank | — |
+| comprehend | escolher | 538 | 0 | 0 | 538 | 0 | StepComprehend | — |
+| conversation_scene | conversar | 535 | 0 | 0 | 481 | 0 | ConversationSceneStep | — |
+| image_choice | interpretar imagem | 518 | 0 | 518 | 313 | 0 | StepImageChoice | — |
 | listen_select | ouvir | 471 | 471 | 0 | 471 | 0 | StepListenSelect | — |
-| free_production | produzir | 433 | 0 | 0 | 0 | 433 | StepFreeProduction | sim |
-| hanzi_build | escolher | 296 | 0 | 0 | 261 | 0 | StepHanziBuild | — |
+| free_production | produzir | 432 | 0 | 0 | 0 | 432 | StepFreeProduction | sim |
+| hanzi_build | escolher | 298 | 0 | 0 | 263 | 0 | StepHanziBuild | — |
 | listen | ouvir | 287 | 0 | 0 | 0 | 0 | StepListen | — |
-| intro | escolher | 270 | 0 | 0 | 0 | 0 | StepIntro | — |
+| intro | escolher | 269 | 0 | 0 | 0 | 0 | StepIntro | — |
 | reverse_recall | produzir | 154 | 0 | 0 | 154 | 154 | StepFreeProduction | sim |
 | conversation_repair | produzir | 153 | 0 | 0 | 0 | 0 | StepConversationRepair | sim |
 | contextual_choice | escolher | 143 | 0 | 0 | 143 | 0 | StepDialogueChoice | — |
 | tone | escolher | 134 | 0 | 0 | 0 | 0 | StepTone | — |
 | recognize | construir/reconhecer forma | 98 | 0 | 0 | 3 | 0 | StepRecognize | — |
 | spot_error | escolher | 97 | 0 | 0 | 97 | 0 | StepSpotError | — |
-| dictation | ouvir | 97 | 97 | 0 | 53 | 0 | StepDictation | — |
 | audio_discrimination | ouvir | 95 | 95 | 0 | 0 | 0 | StepAudioDiscrimination | — |
-| match_pairs | escolher | 78 | 0 | 0 | 0 | 0 | StepMatchPairs | — |
+| dictation | ouvir | 94 | 94 | 0 | 50 | 0 | StepDictation | — |
+| match_pairs | escolher | 83 | 0 | 0 | 0 | 0 | StepMatchPairs | — |
 | odd_one_out | escolher | 76 | 0 | 0 | 76 | 0 | StepOddOneOut | — |
 | flashcard | escolher | 69 | 0 | 0 | 0 | 0 | StepFlashcard | — |
 | dialogue_completion | escolher | 57 | 0 | 0 | 57 | 0 | StepDialogueChoice | — |

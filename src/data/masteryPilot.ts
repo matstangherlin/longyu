@@ -1910,6 +1910,28 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
     }
     return [
       {
+        kind: "fill_blank",
+        title: "Ouça e complete: portão",
+        prompt: "Ouça e complete a pergunta. Recupere a forma em hànzì.",
+        sentenceBefore: "",
+        blankAnswer: "登机口",
+        sentenceAfter: "在哪里？",
+        bank: ["登机口", "房卡", "菜单"],
+        correctAnswer: "登机口在哪里？",
+        explanation: "登机口在哪里？ acha o portão. O áudio não mostra o hànzì alvo no enunciado.",
+        audioText: "登机口",
+        slowAudioText: "登机口",
+      },
+      {
+        kind: "sentence_build",
+        title: "Monte: onde fica o portão",
+        prompt: "Monte: onde fica o portão de embarque?",
+        targetParts: ["登机口", "在哪里"],
+        bank: ["登机口", "在哪里", "房卡"],
+        correctAnswer: "登机口在哪里",
+        explanation: "登机口在哪里？ pergunta o portão.",
+      },
+      {
         kind: "city_context",
         title: "Nanjing em viagem",
         situationPt: "Voce reconhece Nanjing e quer ir la. O que diz?",
@@ -2010,6 +2032,28 @@ export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): Lesso
           "房卡",
           ["房卡", "现金", "辣", "菜单"]
         ),
+        {
+          kind: "fill_blank",
+          title: "Ouça e complete: passaporte",
+          prompt: "Ouça e complete a frase. Não copie o hànzì do enunciado — recupere a forma.",
+          sentenceBefore: "这是我的",
+          blankAnswer: "护照",
+          sentenceAfter: "",
+          bank: ["护照", "房间", "菜单"],
+          correctAnswer: "这是我的护照",
+          explanation: "这是我的护照. O áudio é o som; a lacuna pede a forma.",
+          audioText: "护照",
+          slowAudioText: "护照",
+        },
+        {
+          kind: "sentence_build",
+          title: "Monte: este é o meu passaporte",
+          prompt: "Monte: este é o meu passaporte.",
+          targetParts: ["这是", "我的", "护照"],
+          bank: ["这是", "我的", "护照", "房间"],
+          correctAnswer: "这是我的护照",
+          explanation: "这是我的护照 junta demonstrativo + posse + documento.",
+        },
       ];
     }
     return [

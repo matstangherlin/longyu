@@ -925,6 +925,11 @@ export const ptBR = {
     conversationContinues: "A conversa continua.",
     conversationStuck: "A conversa travou",
     noChoicesThisTime: "Sem alternativas desta vez: responda com as suas palavras.",
+    assembleWithPieces: "Montar com peças",
+    typeAnswer: "Digitar",
+    needHelp: "Preciso de ajuda",
+    buildYourReply: "Monte sua resposta",
+    usefulWords: "Vocabulário útil",
     nowSayMandarin: "Agora diga isso em mandarim, sem alternativas.",
     repairMoveWrong: "Esse movimento não resolve aqui. Releia o que a pessoa disse.",
     repairMoveWrongLong:

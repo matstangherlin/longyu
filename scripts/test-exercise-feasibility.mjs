@@ -127,6 +127,22 @@ try {
     { lessonId: "l15", pass: 1, index: 0 }
   );
   if (!recognizeQual.feasible) fail(`recognize Qual precisa ser escolha: ${recognizeQual.detail.join("; ")}`);
+
+  const audioFill = feas.auditStepFeasibility(
+    {
+      kind: "fill_blank",
+      title: "Ouça e complete: passaporte",
+      prompt: "Ouça e complete a frase.",
+      sentenceBefore: "这是我的",
+      blankAnswer: "护照",
+      bank: ["护照", "房间", "菜单"],
+      correctAnswer: "这是我的护照",
+      audioText: "护照",
+    },
+    { lessonId: "p6-survival-mandarin", pass: 3, index: 0 }
+  );
+  if (!audioFill.feasible) fail(`fill_blank com áudio precisa ser factível: ${audioFill.detail.join("; ")}`);
+  if (!audioFill.availableInteractions.includes("audio")) fail("fill_blank+audioText precisa expor interação audio");
   if (!recognizeQual.availableInteractions.includes("choice")) fail("recognize é escolha, não montagem");
 
   const dictationHanzi = feas.auditStepFeasibility(

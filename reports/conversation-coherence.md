@@ -1974,7 +1974,7 @@ Cenas: 48.
 
 - NPC_UTTERANCE: 有预订吗？
 - MEANING: Tem reserva?
-- PROMPT: Você chegou com reserva. Informe isso, falando ou escrevendo, sem alternativas.
+- PROMPT: Você chegou com reserva. Informe isso.
 - EXPECTED_RESPONSE: 我有预订
 - ACCEPTS: 我有预订 | 我有预订。 | 有预订 | 有预订。
 - NEXT_TURN: 请给我护照。
@@ -1986,7 +1986,7 @@ Cenas: 48.
 
 - NPC_UTTERANCE: 请给我护照。
 - MEANING: Por favor, me dê o passaporte.
-- PROMPT: A recepção pediu o documento. Mostre o passaporte, sem alternativas.
+- PROMPT: A recepção pediu o documento. Mostre o passaporte.
 - EXPECTED_RESPONSE: 这是我的护照
 - ACCEPTS: 这是我的护照 | 这是我的护照。 | 护照 | 护照。
 - NEXT_TURN: 住几晚？
@@ -2034,7 +2034,7 @@ Cenas: 48.
 
 - NPC_UTTERANCE: 好。
 - MEANING: Certo.
-- PROMPT: Você não encontra o quarto. Pergunte onde ele fica, sem alternativas.
+- PROMPT: Você não encontra o quarto. Pergunte onde ele fica.
 - EXPECTED_RESPONSE: 我的房间在哪里？
 - ACCEPTS: 我的房间在哪里？ | 我的房间在哪里 | 房间在哪里？ | 房间在哪里
 - NEXT_TURN: 在那里。
@@ -2076,7 +2076,7 @@ Cenas: 48.
 
 - NPC_UTTERANCE: 护照。
 - MEANING: O passaporte.
-- PROMPT: O funcionário pediu o documento. Mostre o passaporte, sem alternativas.
+- PROMPT: O funcionário pediu o documento. Mostre o passaporte.
 - EXPECTED_RESPONSE: 这是我的护照
 - ACCEPTS: 这是我的护照 | 这是我的护照。 | 护照 | 护照。
 - NEXT_TURN: 好。
@@ -2088,7 +2088,7 @@ Cenas: 48.
 
 - NPC_UTTERANCE: 好。
 - MEANING: Certo.
-- PROMPT: Você precisa do portão. Pergunte onde fica o portão de embarque, sem alternativas.
+- PROMPT: Você precisa do portão. Pergunte onde fica o portão de embarque.
 - EXPECTED_RESPONSE: 登机口在哪里？
 - ACCEPTS: 登机口在哪里？ | 登机口在哪里 | 登机口呢？ | 登机口呢
 - NEXT_TURN: 十八号登机口。

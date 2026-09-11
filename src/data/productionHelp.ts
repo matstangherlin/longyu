@@ -107,3 +107,93 @@ export function productionHelpLevelLabel(level: ProductionHelpLevel): string {
       return "montagem";
   }
 }
+
+/** First productive use vs transfer of an already-mastered phrase. */
+export type ConversationScaffoldKind = "first" | "transfer" | "none";
+
+export interface ConversationProduceHelpPlan {
+  initial: ProductionHelpLevel;
+  softCeiling: ProductionHelpLevel;
+  showPiecesInitially: boolean;
+  showPinyinOnPieces: boolean;
+}
+
+/**
+ * Conversation produce_reply reuses the 0–4 help ladder.
+ * Transfer starts independent; first guided exposure may start with pieces.
+ * Help steps: none → frame → vocab → pieces (pieces never on the first help tap).
+ */
+export function resolveConversationProduceHelp(input: {
+  variantLevel?: "guided" | "assisted" | "independent" | "audio_first";
+  scaffoldKind: ConversationScaffoldKind;
+  sceneCompletions: number;
+  lastAttempts?: number;
+}): ConversationProduceHelpPlan {
+  const variant = input.variantLevel ?? "guided";
+  const completions = input.sceneCompletions;
+  const lastAttempts = input.lastAttempts ?? 1;
+
+  if (input.scaffoldKind === "none") {
+    return { initial: 0, softCeiling: 0, showPiecesInitially: false, showPinyinOnPieces: false };
+  }
+
+  if (input.scaffoldKind === "transfer") {
+    return { initial: 0, softCeiling: 4, showPiecesInitially: false, showPinyinOnPieces: false };
+  }
+
+  if (completions >= 2 || variant === "audio_first" || variant === "independent") {
+    const softCeiling = lastAttempts >= 3 ? 4 : 3;
+    return { initial: 0, softCeiling, showPiecesInitially: false, showPinyinOnPieces: false };
+  }
+  if (completions >= 1 || variant === "assisted") {
+    return { initial: 3, softCeiling: 4, showPiecesInitially: false, showPinyinOnPieces: false };
+  }
+  return { initial: 4, softCeiling: 4, showPiecesInitially: true, showPinyinOnPieces: true };
+}
+
+/** Frame → vocab → pieces. Never reveal the full bank on the first help tap. */
+export function nextConversationHelpLevel(
+  current: ProductionHelpLevel,
+  unlockedMax: ProductionHelpLevel
+): ProductionHelpLevel | null {
+  const sequence: ProductionHelpLevel[] = [0, 1, 3, 4].filter((level) => level <= unlockedMax) as ProductionHelpLevel[];
+  const index = sequence.indexOf(current);
+  if (index < 0) {
+    const next = sequence.find((level) => level > current);
+    return next ?? null;
+  }
+  return sequence[index + 1] ?? null;
+}
+
+export function conversationHelpShowsFrame(level: ProductionHelpLevel): boolean {
+  return level >= 1;
+}
+
+export function conversationHelpShowsVocab(level: ProductionHelpLevel): boolean {
+  return level >= 3 && level < 4;
+}
+
+export function conversationHelpShowsPieces(level: ProductionHelpLevel): boolean {
+  return level >= 4;
+}
+
+export type ConversationAssistanceLevel = "guided" | "assisted" | "independent" | "audio_first";
+
+/**
+ * Evidence actually used, not the planned presentation.
+ * Pieces / full bank → guided. Frame or vocab → assisted.
+ * No help consumed → independent (or audio_first if that was the planned mode).
+ */
+export function conversationAssistanceFromHelp(input: {
+  planned?: ConversationAssistanceLevel;
+  helpLevel: number;
+  helpRequests?: number;
+}): ConversationAssistanceLevel {
+  const planned = input.planned ?? "guided";
+  const helpLevel = clampProductionHelpLevel(input.helpLevel);
+  const requests = input.helpRequests ?? 0;
+  if (helpLevel >= 4) return "guided";
+  if (helpLevel >= 1 || requests > 0) return "assisted";
+  if (planned === "audio_first") return "audio_first";
+  return "independent";
+}

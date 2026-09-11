@@ -85,6 +85,12 @@ async function driveConversation(page: Page, steps: number) {
     }
 
     const textarea = scene.locator("textarea").first();
+    const typeBtn = scene.getByRole("button", { name: /Digitar|Type/i }).first();
+    if (await typeBtn.isVisible().catch(() => false) && !(await textarea.isVisible().catch(() => false))) {
+      await typeBtn.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+    }
+
     if (await textarea.isVisible().catch(() => false) && !(await textarea.isDisabled().catch(() => true))) {
       const prompt = (await scene.locator("p").allTextContents()).join(" ");
       const draft = /reserva/i.test(prompt)

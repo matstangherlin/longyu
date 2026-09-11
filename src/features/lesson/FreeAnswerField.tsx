@@ -35,6 +35,7 @@ export function FreeAnswerField({
   placeholder,
   onSubmit,
   speechAsAlternative = false,
+  micOnly = false,
   rows = 2,
   inputRef,
   ariaLabel,
@@ -46,6 +47,8 @@ export function FreeAnswerField({
   onSubmit: () => void;
   /** Se true, o mic vira link discreto em vez de botão ao lado do campo. */
   speechAsAlternative?: boolean;
+  /** Só o microfone — o rascunho alimenta o mesmo avaliador sem mostrar o textarea. */
+  micOnly?: boolean;
   rows?: number;
   /** Para quem precisa devolver o foco ao campo (banco de peças, sugestão). */
   inputRef?: RefObject<HTMLTextAreaElement>;
@@ -101,7 +104,8 @@ export function FreeAnswerField({
   }
 
   return (
-    <div className={speechAsAlternative ? "mt-2" : "mt-3.5"}>
+    <div className={speechAsAlternative || micOnly ? "mt-2" : "mt-3.5"} data-free-answer-field={micOnly ? "mic" : "full"}>
+      {micOnly ? null : (
       <textarea
         ref={inputRef}
         value={value}
@@ -132,6 +136,7 @@ export function FreeAnswerField({
         aria-label={ariaLabel ?? t("player.yourAnswer")}
         className="w-full resize-none rounded-2xl border border-line bg-surface-2 p-3.5 text-lg text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:opacity-60"
       />
+      )}
       {speechAsAlternative ? (
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
           {speechSupported ? (
