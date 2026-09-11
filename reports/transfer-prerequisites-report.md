@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 850ec9d39d26 |
+| HEAD no instante da geração | 03e753eb44594dd41d7aeaca781abc540a952f29 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:29:40.683Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T06:05:20.527Z |
+| Lições | 132 |
 
 ## Política
 
@@ -25,10 +25,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições | 131 |
-| Lições com transfer_task | 21 |
-| Lições com free_production guiada | 79 |
-| Lições com produção aberta (estruturalmente elegível) | 48 |
+| Lições | 132 |
+| Lições com transfer_task | 20 |
+| Lições com free_production guiada | 80 |
+| Lições com produção aberta (estruturalmente elegível) | 49 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
 
@@ -102,9 +102,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **p6-china-cidades** · objetivo `offer_item` · modelo `你要菜。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-china-cidades-2** · objetivo `request_item` · modelo `我想吃米饭。` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-china-ruas** · objetivo `state_destination` · modelo `我要去酒店` _(elegibilidade estrutural — ver semântica acima)_
-- **p6-natureza** · objetivo `state_change` · modelo `我病了` _(elegibilidade estrutural — ver semântica acima)_
+- **p6-saude** · objetivo `state_change` · modelo `我发烧了` _(elegibilidade estrutural — ver semântica acima)_
 - **p6-direcoes** · objetivo `ask_location` · modelo `请问，超市在哪里？` _(elegibilidade estrutural — ver semântica acima)_
 - **l30** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-mercado** · objetivo `ask_price` · modelo `多少钱？` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:b6c7c44170377341 -->
+<!-- integridade:ffc0b777524a5362 -->

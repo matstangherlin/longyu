@@ -6959,7 +6959,7 @@ export const JOURNEY: JourneyPhase[] = [
                 situationPt: "Você não está se sentindo bem. Diga isso, sem alternativas.",
                 expected: "我不舒服",
                 accepts: ["我不舒服", "我不舒服。", "不舒服", "我病了"],
-                productionGoal: "state_wellbeing",
+                productionGoal: "state_change",
                 productionOpen: true,
                 productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
                 productionExamples: [
@@ -6984,7 +6984,7 @@ export const JOURNEY: JourneyPhase[] = [
                 situationPt: "Você está com febre. Diga isso, sem alternativas.",
                 expected: "我发烧了",
                 accepts: ["我发烧了", "我发烧了。", "发烧了", "我发烧"],
-                productionGoal: "state_wellbeing",
+                productionGoal: "state_change",
                 productionOpen: true,
                 productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
                 productionExamples: [
@@ -9278,7 +9278,7 @@ export const JOURNEY: JourneyPhase[] = [
                 situationPt: "Você percebeu que não está bem. Diga isso, sem alternativas.",
                 expected: "我不舒服",
                 accepts: ["我不舒服", "我不舒服。", "不舒服", "我病了"],
-                productionGoal: "state_wellbeing",
+                productionGoal: "state_change",
                 productionOpen: true,
                 productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
                 productionExamples: [
@@ -9292,7 +9292,7 @@ export const JOURNEY: JourneyPhase[] = [
                 situationPt: "Dói a cabeça. Explique o sintoma, sem alternativas.",
                 expected: "我头疼",
                 accepts: ["我头疼", "我头疼。", "头疼", "我头很疼"],
-                productionGoal: "state_wellbeing",
+                productionGoal: "state_change",
                 productionOpen: true,
                 productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
                 productionExamples: [
@@ -9306,7 +9306,7 @@ export const JOURNEY: JourneyPhase[] = [
                 situationPt: "Dói a barriga. Explique o sintoma, sem alternativas.",
                 expected: "我肚子疼",
                 accepts: ["我肚子疼", "我肚子疼。", "肚子疼", "我肚子很疼"],
-                productionGoal: "state_wellbeing",
+                productionGoal: "state_change",
                 productionOpen: true,
                 productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
                 productionExamples: [
@@ -9320,7 +9320,7 @@ export const JOURNEY: JourneyPhase[] = [
                 situationPt: "Você está com febre. Diga isso, sem alternativas.",
                 expected: "我发烧了",
                 accepts: ["我发烧了", "我发烧了。", "发烧了", "我发烧"],
-                productionGoal: "state_wellbeing",
+                productionGoal: "state_change",
                 productionOpen: true,
                 productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
                 productionExamples: [

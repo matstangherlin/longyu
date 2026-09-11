@@ -6,18 +6,18 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 850ec9d39d26 |
+| HEAD no instante da geração | 03e753eb44594dd41d7aeaca781abc540a952f29 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:26:30.535Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T06:10:45.870Z |
+| Lições | 132 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições analisadas | 131 |
+| Lições analisadas | 132 |
 | Score médio | 92 (portão: ≥ 78) |
 | Lições abaixo do portão (comum < 60 · revisão < 70) | 0 |
 | Revisões de módulo < 78 | 0 |
@@ -2646,16 +2646,16 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 19 |
-| Tipos de exercício | 12 |
-| Respostas únicas | 14 |
-| Hànzì únicos | 45 |
-| Chunks únicos | 18 |
+| Tipos de exercício | 10 |
+| Respostas únicas | 13 |
+| Hànzì únicos | 37 |
+| Chunks únicos | 16 |
 | Frases reais | 13 |
-| Contexto | 14 |
+| Contexto | 13 |
 | Visuais | 1 |
 | Conversas | 2 |
-| Produção sem apoio | 5 |
-| Transferência | 1 |
+| Produção sem apoio | 4 |
+| Transferência | 0 |
 
 **Problemas:**
 - hànzì muito repetido: 我
@@ -2714,11 +2714,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Passos no plano | 18 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 12 |
-| Hànzì únicos | 49 |
+| Hànzì únicos | 50 |
 | Chunks únicos | 23 |
-| Frases reais | 11 |
-| Contexto | 12 |
-| Visuais | 2 |
+| Frases reais | 12 |
+| Contexto | 13 |
+| Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 4 |
 | Transferência | 1 |
@@ -2883,18 +2883,40 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 **Sugestões:**
 - manter variedade atual
 
+### p7-imersao-saude — Imersão: não estou bem (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 28 |
+| Tipos de exercício | 15 |
+| Respostas únicas | 19 |
+| Hànzì únicos | 46 |
+| Chunks únicos | 14 |
+| Frases reais | 14 |
+| Contexto | 14 |
+| Visuais | 3 |
+| Conversas | 1 |
+| Produção sem apoio | 8 |
+| Transferência | 0 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
+
 ### p7-imersao-viagem — Imersão: hotel ao aeroporto (score 100)
 
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 24 |
 | Tipos de exercício | 15 |
-| Respostas únicas | 14 |
-| Hànzì únicos | 46 |
+| Respostas únicas | 15 |
+| Hànzì únicos | 49 |
 | Chunks únicos | 15 |
 | Frases reais | 11 |
 | Contexto | 12 |
-| Visuais | 3 |
+| Visuais | 2 |
 | Conversas | 1 |
 | Produção sem apoio | 5 |
 | Transferência | 0 |
@@ -2910,12 +2932,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Métrica | Valor |
 |---------|------:|
 | Passos no plano | 28 |
-| Tipos de exercício | 14 |
-| Respostas únicas | 21 |
-| Hànzì únicos | 50 |
+| Tipos de exercício | 15 |
+| Respostas únicas | 22 |
+| Hànzì únicos | 54 |
 | Chunks únicos | 21 |
 | Frases reais | 15 |
-| Contexto | 15 |
+| Contexto | 16 |
 | Visuais | 2 |
 | Conversas | 2 |
 | Produção sem apoio | 6 |
@@ -2932,4 +2954,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:f1d3f41cf30e3ced -->
+<!-- integridade:4285de15d2bc9a4e -->

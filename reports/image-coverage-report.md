@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 850ec9d39d26 |
+| HEAD no instante da geração | 03e753eb44594dd41d7aeaca781abc540a952f29 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:22:08.963Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T06:11:08.365Z |
+| Lições | 132 |
 
 ## Resumo
 
@@ -19,9 +19,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Conceitos no catálogo | 87 |
 | Imagens locais (WebP) | 87 |
-| Lições na jornada | 131 |
-| Lições concretas elegíveis | 87 |
-| Lições elegíveis com imagem | 87 (100%) |
+| Lições na jornada | 132 |
+| Lições concretas elegíveis | 88 |
+| Lições elegíveis com imagem | 88 (100%) |
 | Meta: lições concretas com imagem | ≥70% — OK |
 | Lições dedicadas de hànzì concreto | 42 |
 | Dedicadas com imagem | 42 (100%) |
@@ -39,7 +39,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | p4 — Hànzì Lógico | 32 | 27 | 27 | 100% |
 | p5 — Construção Lógica | 21 | 19 | 19 | 100% |
 | p6 — Vida Cotidiana | 20 | 20 | 20 | 100% |
-| p7 — Leitura Graduada | 9 | 9 | 9 | 100% |
+| p7 — Leitura Graduada | 10 | 10 | 10 | 100% |
 
 ## Cobertura por unidade
 
@@ -59,16 +59,16 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | u6-1 — Família | 2 | 2 | 2 | 100% |
 | u6-2 — Comida e compras | 18 | 18 | 18 | 100% |
 | u7-1 — Histórias curtas | 3 | 3 | 3 | 100% |
-| u7-2 — Imersão | 6 | 6 | 6 | 100% |
+| u7-2 — Imersão | 7 | 7 | 7 | 100% |
 
 ## Modos utilizados (nos planos reais)
 
 | Modo | Exercícios |
 |------|-----------:|
 | imagem → hànzì (`choose_hanzi`) | 34 |
-| imagem → pinyin (`choose_pinyin`) | 52 |
+| imagem → pinyin (`choose_pinyin`) | 54 |
 | imagem → significado (`choose_meaning`) | 33 |
-| áudio → imagem (`listen_and_choose_image`) | 44 |
+| áudio → imagem (`listen_and_choose_image`) | 43 |
 | hànzì → imagem (`choose_image`) | 32 |
 
 ## Conceitos nunca utilizados
@@ -113,4 +113,4 @@ Nenhuma — todas as lições concretas elegíveis têm pelo menos um exercício
 
 _Elegível = lição não abstrata (fora de pinyin/tom) cujo foco resolve para pelo menos um conceito concreto do catálogo liberado na unidade. Lições abstratas não recebem imagem artificialmente._
 
-<!-- integridade:55d1605d84aea4ff -->
+<!-- integridade:9e71ad7afe8692e6 -->

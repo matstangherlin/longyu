@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 6c505d41d6a2 |
+| HEAD no instante da geração | 9643caff1d2b80178d259cbb1108c5330212bede |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:15:37.281Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T05:47:56.307Z |
+| Lições | 132 |
 
 
 Semântica (TM-015): **ACQUIRED** = `completedLessons` (primeira exposição válida; SRS/achievements/analytics).
@@ -25,12 +25,12 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 
 | Métrica | Valor |
 |---------|------:|
-| Nós totais | 131 |
+| Nós totais | 132 |
 | Temas 4-pass | 113 |
-| Exceções (review/checkpoint) | 18 |
+| Exceções (review/checkpoint) | 19 |
 | Specs autoradas | 38 |
-| Sessões estimadas | 470 |
-| Horas estimadas | 21.2 |
+| Sessões estimadas | 471 |
+| Horas estimadas | 21.3 |
 | Média de passos/pass | 8.3 |
 
 ## Primeira vitória (sessão + minutos)
@@ -65,6 +65,7 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Revisão do módulo (`l11-rev`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Imersão: check-in no hotel (`p7-imersao-hotel`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Imersão: no aeroporto (`p7-imersao-aeroporto`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
+| Imersão: não estou bem (`p7-imersao-saude`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Imersão: hotel ao aeroporto (`p7-imersao-viagem`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 
 ## Primeiros 30 temas
@@ -114,4 +115,4 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 Nenhuma.
 
-<!-- integridade:4166d19c357cde07 -->
+<!-- integridade:f89c7b311831624e -->
