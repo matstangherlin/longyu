@@ -10,12 +10,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
+| Hash da Jornada | 29954edf3c51 |
+| HEAD no instante da geração | 64f818424145fe723d7bb95b8175cf32d7bca4f3 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:33:38.151Z |
-| Lições | 131 |
+| Gerado em | 2026-09-11T07:35:41.396Z |
+| Lições | 132 |
 
 ## Base
 
@@ -24,7 +24,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | SHA obrigatória (`main` após merge #250) | `ddc08aa57a7dad11a1033b3611e63618fd786a57` |
 | #250 | V4.9.8B.1 — Conversation phrase builder + Hanzi fill + lexical bridge |
 | Branch | `cursor/v498b2-unified-lesson-ux-6ae2` |
-| Fingerprint da Jornada | `003cb0ed7858` |
+| Fingerprint da Jornada | `29954edf3c51` |
 | Tópicos de ensino | 113 (imersões continuam `isReview` + `curriculumRole: "immersion"`) |
 
 ## O que esta remessa não faz
@@ -106,9 +106,6 @@ Preservados (#250 e anteriores): conversation-lexical-bridge, production-scaffol
 
 `e2e/v498b2-unified-lesson-ux.spec.ts`: hotel Falar+peças sem tap-reveal; nó Cultura `culture-greetings-nihao`; Victory mínima sem card/save/nav; EN Type/Speak; viewport 390×844.
 
-## validate:beta
-
-PASS em 2026-09-11 (~1578s). Fingerprint `003cb0ed7858`. Relatórios de qualidade regenerados nesta mesma rodada.
 
 
-<!-- integridade:6ebda22f1b061d2d -->
+<!-- integridade:ec5a64b460f8ad6a -->

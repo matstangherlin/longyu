@@ -1,6 +1,6 @@
 {
   "version": "v4.8.8",
-  "generatedAt": "2026-09-11T05:24:01.830Z",
+  "generatedAt": "2026-09-11T07:14:49.535Z",
   "rule": "ALL_LESSONS.filter(isTopicMasteryLesson).slice(20, 113)",
   "topicIds": [
     "p2-comparar-tom-2-3",
@@ -97,11 +97,11 @@
     "p7-imersao-estacao",
     "p7-imersao-casa-amigo"
   ],
-  "entryCount": 19526,
-  "uniquePtCount": 3130,
+  "entryCount": 19440,
+  "uniquePtCount": 3148,
   "kindCounts": {
-    "DIRECT_TRANSLATION": 1982,
-    "NATURAL_REWRITE": 1139,
+    "DIRECT_TRANSLATION": 2017,
+    "NATURAL_REWRITE": 1122,
     "SOURCE_LANGUAGE_ADAPTATION": 9
   },
   "entries": [
@@ -100810,1144 +100810,652 @@
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s02.promptPt",
-      "pt": "Ouça e escolha a imagem certa.",
-      "en": "Listen and choose the right image.",
+      "id": "p.p6-saude.m1.s02.pt",
+      "pt": "Não me sinto bem",
+      "en": "I don't feel well",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s02.targetMeaningPt",
-      "pt": "hospital",
-      "en": "hospital",
+      "id": "p.p6-saude.m1.s03.answer",
+      "pt": "Não me sinto bem.",
+      "en": "I don't feel well.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s02.explanation",
-      "pt": "医院 (yīyuàn) = hospital.",
-      "en": "医院 (yīyuàn) = hospital.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.title",
-      "pt": "Troca · Cidade e lugares",
-      "en": "Exchange · City and places",
+      "id": "p.p6-saude.m1.s03.options.0",
+      "pt": "Não me sinto bem.",
+      "en": "I don't feel well.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s03.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.lines.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
+      "id": "p.p6-saude.m1.s03.options.1",
+      "pt": "Estou doente.",
+      "en": "I'm sick.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s03.lines.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.lines.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.lines.3.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.lines.4.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.lines.5.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
+      "id": "p.p6-saude.m1.s03.options.3",
+      "pt": "Estou bem.",
+      "en": "I'm fine.",
       "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.1.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.1.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.3.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.4.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.4.prompt",
-      "pt": "Agora Mei pergunta: 超市在哪里？. Qual frase encaixa?",
-      "en": "Now Mei asks: 超市在哪里？. Which sentence fits?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.4.explanation",
-      "pt": "我去超市 continua a troca de frases de Cidade e lugares.",
-      "en": "我去超市 continues the exchange of phrases of City and places.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.5.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.6.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.nodes.7.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.checkpoint.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s03.checkpoint.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-saude.m1.s04.title",
-      "pt": "Monte a resposta que você usou.",
-      "en": "Build the reply you used.",
+      "pt": "Complete: não estou bem",
+      "en": "Complete: I am not well",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m1.s04.prompt",
-      "pt": "Monte: Estou em Pequim..",
-      "en": "Build: I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Complete: não estou me sentindo bem.",
+      "en": "Complete: I am not feeling well.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m1.s04.explanation",
-      "pt": "我在北京。 significa Estou em Pequim..",
-      "en": "我在北京。 means I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
+      "pt": "舒服 entra como unidade. Não monte 舒 + 服.",
+      "en": "舒服 is learned as one unit. Do not build 舒 + 服.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m1.s05.title",
-      "pt": "Complete a palavra que faltou.",
-      "en": "Complete the missing word.",
+      "pt": "Monte: não estou bem",
+      "en": "Build: I am not well",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m1.s05.prompt",
-      "pt": "Complete: Onde fica o supermercado?.",
-      "en": "Complete: Where is the supermarket?",
+      "pt": "Monte a frase.",
+      "en": "Assemble the sentence.",
       "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-saude.m1.s05.explanation",
-      "pt": "超市在哪里？ = Onde fica o supermercado?.",
-      "en": "超市在哪里？ = Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.title",
-      "pt": "Sobre o que ela perguntou?",
-      "en": "What did she ask about?",
+      "pt": "我不舒服 = não me sinto bem.",
+      "en": "我不舒服 = I don't feel well.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s06.prompt",
-      "pt": "Toque no que ouviu.",
-      "en": "Tap what you heard.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.explanation",
-      "pt": "头疼吗？ pergunta da dor de cabeça. O título não mostra o hànzì.",
-      "en": "头疼吗？ asks about a headache. The title does not show the hànzì.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.correctAnswer",
-      "pt": "dor de cabeça",
-      "en": "a headache",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.options.0",
-      "pt": "dor de cabeça",
-      "en": "a headache",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.options.1",
-      "pt": "o hospital",
-      "en": "the hospital",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.options.2",
-      "pt": "o preço",
-      "en": "the price",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s06.options.3",
-      "pt": "o quarto",
-      "en": "the room",
+      "id": "p.p6-saude.m1.s06.pt",
+      "pt": "Estou doente",
+      "en": "I'm sick",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m1.s07.title",
-      "pt": "Nao estou bem",
-      "en": "I'm not well",
+      "pt": "Complete: estou doente",
+      "en": "Complete: estou doente",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s07.situationPt",
-      "pt": "Voce esta doente. O que voce diz?",
-      "en": "You are sick. What do you say?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s07.dialoguePrompt",
-      "pt": "Voce esta doente. O que voce diz?",
-      "en": "You are sick. What do you say?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s07.speaker",
-      "pt": "Situacao",
-      "en": "Situation",
+      "id": "p.p6-saude.m1.s07.prompt",
+      "pt": "Complete: estou doente.",
+      "en": "Complete: estou doente.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m1.s08.title",
-      "pt": "Placa de saude",
-      "en": "Health card",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m1.s08.prompt",
-      "pt": "Qual destas e o hospital?",
-      "en": "Which of these is the hospital?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s08.dialoguePrompt",
-      "pt": "Qual destas e o hospital?",
-      "en": "Which of these is the hospital?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m1.s08.speaker",
-      "pt": "Placa",
-      "en": "Board",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s01.title",
-      "pt": "Complete o sintoma",
-      "en": "Complete the symptom",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s01.prompt",
+      "id": "p.p6-saude.m1.s07.explanation",
       "pt": "我病了 = estou doente.",
       "en": "我病了 = I'm sick.",
       "kind": "NATURAL_REWRITE"
     },
     {
-      "id": "p.p6-saude.m2.s02.promptPt",
-      "pt": "Ouça e escolha a imagem certa.",
-      "en": "Listen and choose the right image.",
+      "id": "p.p6-saude.m1.s08.pt",
+      "pt": "Estou com dor de cabeça",
+      "en": "I have a headache",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s02.targetMeaningPt",
-      "pt": "hospital",
-      "en": "hospital",
+      "id": "p.p6-saude.m1.s09.pt",
+      "pt": "Estou com dor de barriga",
+      "en": "I have a stomachache",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s02.explanation",
-      "pt": "医院 (yīyuàn) = hospital.",
-      "en": "医院 (yīyuàn) = hospital.",
+      "id": "p.p6-saude.m1.s10.body",
+      "pt": "Combine a parte do corpo com o significado. 疼 marca a dor.",
+      "en": "Match the body part with its meaning. 疼 marks pain.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s10.explanation",
+      "pt": "头/肚子 + 疼. Só estes dois sítios nesta versão.",
+      "en": "头/肚子 + 疼. Only these two places in this version.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s10.pairs.0.right",
+      "pt": "cabeça",
+      "en": "head",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s10.pairs.1.right",
+      "pt": "barriga",
+      "en": "stomach",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s10.pairs.2.right",
+      "pt": "dói",
+      "en": "hurts",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s11.title",
+      "pt": "Complete: dor de barriga",
+      "en": "Complete: stomachache",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s11.prompt",
+      "pt": "Complete a dor.",
+      "en": "Complete the pain.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s11.explanation",
+      "pt": "我肚子疼 = estou com dor de barriga.",
+      "en": "我肚子疼 = I have a stomachache.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s12.title",
+      "pt": "Monte: dor de cabeça",
+      "en": "Build: a headache",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m1.s12.prompt",
+      "pt": "Monte a frase.",
+      "en": "Assemble the sentence.",
       "kind": "NATURAL_REWRITE"
     },
     {
+      "id": "p.p6-saude.m1.s12.explanation",
+      "pt": "我头疼 = estou com dor de cabeça.",
+      "en": "我头疼 = I have a headache.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s01.pt",
+      "pt": "Estou com febre",
+      "en": "I have a fever",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s02.answer",
+      "pt": "Estou com febre.",
+      "en": "I have a fever.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s02.options.0",
+      "pt": "Estou com febre.",
+      "en": "I have a fever.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s02.options.1",
+      "pt": "Estou com dor de cabeça.",
+      "en": "I have a headache.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s02.options.2",
+      "pt": "Não me sinto bem.",
+      "en": "I don't feel well.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s02.options.3",
+      "pt": "Estou bem.",
+      "en": "I'm fine.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.p6-saude.m2.s03.title",
-      "pt": "Troca · Cidade e lugares",
-      "en": "Exchange · City and places",
+      "pt": "Complete: febre",
+      "en": "Complete: fever",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m2.s03.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
+      "pt": "Complete: estou com febre.",
+      "en": "Complete: I have a fever.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m2.s03.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.lines.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
+      "pt": "发烧 entra como unidade. Não monte 发 + 烧 + 了.",
+      "en": "发烧 is learned as one unit. Do not build 发 + 烧 + 了.",
       "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.lines.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.lines.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.lines.3.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.lines.4.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.lines.5.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.1.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.1.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.3.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.4.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.4.prompt",
-      "pt": "Agora Mei pergunta: 超市在哪里？. Qual frase encaixa?",
-      "en": "Now Mei asks: 超市在哪里？. Which sentence fits?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.4.explanation",
-      "pt": "我去超市 continua a troca de frases de Cidade e lugares.",
-      "en": "我去超市 continues the exchange of phrases of City and places.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.5.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.6.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.nodes.7.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.checkpoint.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s03.checkpoint.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-saude.m2.s04.title",
-      "pt": "Monte a resposta que você usou.",
-      "en": "Build the reply you used.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s04.prompt",
-      "pt": "Monte: Estou em Pequim..",
-      "en": "Build: I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s04.explanation",
-      "pt": "我在北京。 significa Estou em Pequim..",
-      "en": "我在北京。 means I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s05.title",
-      "pt": "Complete a palavra que faltou.",
-      "en": "Complete the missing word.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s05.prompt",
-      "pt": "Complete: Onde fica o supermercado?.",
-      "en": "Complete: Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s05.explanation",
-      "pt": "超市在哪里？ = Onde fica o supermercado?.",
-      "en": "超市在哪里？ = Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s06.title",
-      "pt": "Qual não pertence?",
-      "en": "Which one doesn't belong?",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s06.prompt",
-      "pt": "Três pertencem ao mesmo grupo. Qual sobra?",
-      "en": "Three belong to the same group. Which one is left over?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s06.explanation",
-      "pt": "四、五、六 são números. 你 é pronome, não número.",
-      "en": "四、五、六 are numbers. 你 is a pronoun, not a number.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s06.groupLabelPt",
-      "pt": "números",
-      "en": "numbers",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s07.title",
-      "pt": "Discriminar sintomas",
-      "en": "Discriminate symptoms",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s07.explanation",
-      "pt": "我头疼 aponta o sintoma especifico; 我病了 e geral.",
-      "en": "我头疼 points out the specific symptom; 我病了 and general.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s07.situationPt",
-      "pt": "Qual frase indica DOR DE CABECA especificamente, nao doenca em geral?",
-      "en": "Which phrase indicates HEADACHE specifically, not illness in general?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s07.dialoguePrompt",
-      "pt": "Qual frase indica DOR DE CABECA especificamente, nao doenca em geral?",
-      "en": "Which phrase indicates HEADACHE specifically, not illness in general?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m2.s07.speaker",
-      "pt": "Situacao",
-      "en": "Situation",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m2.s08.title",
       "pt": "Sobre o que ela perguntou?",
       "en": "What did she ask about?",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.prompt",
+      "id": "p.p6-saude.m2.s04.prompt",
       "pt": "Toque no que ouviu.",
       "en": "Tap what you heard.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.explanation",
+      "id": "p.p6-saude.m2.s04.explanation",
       "pt": "头疼吗？ pergunta da dor de cabeça. O título não mostra o hànzì.",
       "en": "头疼吗？ asks about a headache. The title does not show the hànzì.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.correctAnswer",
+      "id": "p.p6-saude.m2.s04.correctAnswer",
       "pt": "dor de cabeça",
       "en": "a headache",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.options.0",
+      "id": "p.p6-saude.m2.s04.options.0",
       "pt": "dor de cabeça",
       "en": "a headache",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.options.1",
+      "id": "p.p6-saude.m2.s04.options.1",
       "pt": "o hospital",
       "en": "the hospital",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.options.2",
+      "id": "p.p6-saude.m2.s04.options.2",
       "pt": "o preço",
       "en": "the price",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m2.s08.options.3",
+      "id": "p.p6-saude.m2.s04.options.3",
       "pt": "o quarto",
       "en": "the room",
       "kind": "DIRECT_TRANSLATION"
     },
     {
+      "id": "p.p6-saude.m2.s06.title",
+      "pt": "Monte: quero ver o médico",
+      "en": "Build: I want to see a doctor",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s06.prompt",
+      "pt": "Monte a frase.",
+      "en": "Assemble the sentence.",
+      "kind": "NATURAL_REWRITE"
+    },
+    {
+      "id": "p.p6-saude.m2.s06.explanation",
+      "pt": "医生 fica junto. 我要看医生 pede consulta.",
+      "en": "医生 stays together. 我要看医生 asks for a consultation.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s08.title",
+      "pt": "Recupere: hospital",
+      "en": "Retrieve: hospital",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m2.s08.explanation",
+      "pt": "医院 em 在哪里？ é transferência da cidade, não aquisição nova.",
+      "en": "医院 in 在哪里？ is city transfer, not a new acquisition.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.p6-saude.m3.s01.title",
-      "pt": "Peça atendimento",
-      "en": "Ask for care",
+      "pt": "Diga que não está bem",
+      "en": "Say you are unwell",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m3.s01.situationPt",
-      "pt": "Você está indisposto e quer atendimento. Peça o médico, sem alternativas.",
-      "en": "You feel unwell and want care. Ask for a doctor, with no choices.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s01.productionHintPt",
-      "pt": "Consulta e necessidade direta valem. Fale ou escreva.",
-      "en": "Consultation and a direct need both count. Speak or write.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s02.title",
-      "pt": "Peca o medico",
-      "en": "Ask the doctor",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s02.body",
-      "pt": "Diga que quer ver um medico.",
-      "en": "Say you want to see a doctor.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s02.situationPt",
-      "pt": "Diga que quer ver um medico.",
-      "en": "Say you want to see a doctor.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s03.title",
-      "pt": "De sintoma a pedido",
-      "en": "From symptom to request",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s03.prompt",
-      "pt": "Transforme o sintoma no pedido de ajuda: 我要看医生.",
-      "en": "Turn the symptom into a cry for help: 我要看医生.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s04.situationPt",
-      "pt": "Você está com febre. Diga isso, sem alternativas.",
-      "en": "You have a fever. Say that, with no choices.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.title",
-      "pt": "Troca · Cidade e lugares",
-      "en": "Exchange · City and places",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.lines.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.lines.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.lines.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.lines.3.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.lines.4.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.lines.5.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.1.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.1.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.3.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.4.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.4.prompt",
-      "pt": "Agora Mei pergunta: 超市在哪里？. Qual frase encaixa?",
-      "en": "Now Mei asks: 超市在哪里？. Which sentence fits?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.4.explanation",
-      "pt": "我去超市 continua a troca de frases de Cidade e lugares.",
-      "en": "我去超市 continues the exchange of phrases of City and places.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.5.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.6.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.nodes.7.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.checkpoint.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s05.checkpoint.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s06.title",
-      "pt": "Monte a resposta que você usou.",
-      "en": "Build the reply you used.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s06.prompt",
-      "pt": "Monte: Estou em Pequim..",
-      "en": "Build: I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s06.explanation",
-      "pt": "我在北京。 significa Estou em Pequim..",
-      "en": "我在北京。 means I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s07.title",
-      "pt": "Complete a palavra que faltou.",
-      "en": "Complete the missing word.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s07.prompt",
-      "pt": "Complete: Onde fica o supermercado?.",
-      "en": "Complete: Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s07.explanation",
-      "pt": "超市在哪里？ = Onde fica o supermercado?.",
-      "en": "超市在哪里？ = Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s08.title",
-      "pt": "Diga isto sozinho, sem alternativas.",
-      "en": "Say this on your own, with no choices.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s08.explanation",
-      "pt": "我去超市。 (wǒ qù chāoshì.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação.",
-      "en": "我去超市。 (wǒ qù chāoshì.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s08.situationPt",
-      "pt": "Um amigo pergunta onde você vai agora. Responda que vai ao supermercado.",
-      "en": "A friend asks where you're going now. Answer that you are going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m3.s09.title",
-      "pt": "Diga que não está bem",
-      "en": "Say you are unwell",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m3.s09.situationPt",
       "pt": "Você não está se sentindo bem. Diga isso, sem alternativas.",
       "en": "You are not feeling well. Say that, with no choices.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s01.title",
+      "id": "p.p6-saude.m3.s02.situationPt",
+      "pt": "Você está com febre. Diga isso, sem alternativas.",
+      "en": "You have a fever. Say that, with no choices.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m3.s03.title",
+      "pt": "Monte: quero ver o médico",
+      "en": "Build: I want to see a doctor",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m3.s03.prompt",
+      "pt": "Monte a frase.",
+      "en": "Assemble the sentence.",
+      "kind": "NATURAL_REWRITE"
+    },
+    {
+      "id": "p.p6-saude.m3.s03.explanation",
+      "pt": "医生 fica junto. 我要看医生 pede consulta.",
+      "en": "医生 stays together. 我要看医生 asks for a consultation.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m3.s04.title",
       "pt": "Peça atendimento",
       "en": "Ask for care",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s01.situationPt",
+      "id": "p.p6-saude.m3.s04.situationPt",
       "pt": "Você está indisposto e quer atendimento. Peça o médico, sem alternativas.",
       "en": "You feel unwell and want care. Ask for a doctor, with no choices.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s01.productionHintPt",
+      "id": "p.p6-saude.m3.s04.productionHintPt",
       "pt": "Consulta e necessidade direta valem. Fale ou escreva.",
       "en": "Consultation and a direct need both count. Speak or write.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
+      "id": "p.p6-saude.m4.s01.title",
+      "pt": "Sobre o que ela perguntou?",
+      "en": "What did she ask about?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.prompt",
+      "pt": "Toque no que ouviu.",
+      "en": "Tap what you heard.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.explanation",
+      "pt": "头疼吗？ pergunta da dor de cabeça. O título não mostra o hànzì.",
+      "en": "头疼吗？ asks about a headache. The title does not show the hànzì.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.correctAnswer",
+      "pt": "dor de cabeça",
+      "en": "a headache",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.options.0",
+      "pt": "dor de cabeça",
+      "en": "a headache",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.options.1",
+      "pt": "o hospital",
+      "en": "the hospital",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.options.2",
+      "pt": "o preço",
+      "en": "the price",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s01.options.3",
+      "pt": "o quarto",
+      "en": "the room",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
       "id": "p.p6-saude.m4.s02.title",
-      "pt": "Achar o hospital",
-      "en": "Find the hospital",
+      "pt": "Recupere: hospital",
+      "en": "Retrieve: hospital",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m4.s02.explanation",
-      "pt": "医院在哪里？ acha o hospital em qualquer cidade nova.",
-      "en": "医院在哪里？ finds the hospital in any new city.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s02.dialoguePrompt",
-      "pt": "Voce esta doente numa cidade nova e precisa de ajuda medica. O que voce pergunta?",
-      "en": "You are sick in a new city and need medical help. What do you ask?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s02.speaker",
-      "pt": "Dialogo",
-      "en": "Dialogue",
+      "pt": "医院 em 在哪里？ é transferência da cidade, não aquisição nova.",
+      "en": "医院 in 在哪里？ is city transfer, not a new acquisition.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
       "id": "p.p6-saude.m4.s03.title",
-      "pt": "Transferencia",
-      "en": "Transfer",
+      "pt": "Onde fica o hospital?",
+      "en": "Where is the hospital?",
       "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s03.body",
-      "pt": "Voce esta doente numa cidade nova. Diga isso.",
-      "en": "You are sick in a new city. Say it.",
-      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-saude.m4.s03.situationPt",
-      "pt": "Voce esta doente numa cidade nova. Diga isso.",
-      "en": "You are sick in a new city. Say it.",
+      "pt": "Você está na rua e precisa do hospital. Pergunte onde ele fica, sem alternativas.",
+      "en": "You are on the street and need the hospital. Ask where it is, with no choices.",
       "kind": "NATURAL_REWRITE"
     },
     {
-      "id": "p.p6-saude.m4.s04.situationPt",
-      "pt": "Você está com febre. Diga isso, sem alternativas.",
-      "en": "You have a fever. Say that, with no choices.",
+      "id": "p.p6-saude.m4.s03.productionHintPt",
+      "pt": "A mesma pergunta de lugar da cidade, agora para o hospital.",
+      "en": "The same city place question, now for the hospital.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s05.title",
-      "pt": "Troca · Cidade e lugares",
-      "en": "Exchange · City and places",
+      "id": "p.p6-saude.m4.s04.title",
+      "pt": "Não me sinto bem",
+      "en": "I don't feel well",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s05.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
+      "id": "p.p6-saude.m4.s04.prompt",
+      "pt": "Você não está se sentindo bem. Diga isso.",
+      "en": "You are not feeling well. Say that.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s05.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
+      "id": "p.p6-saude.m4.s04.explanation",
+      "pt": "你怎么样？ pergunta como você está. 我不舒服 responde sem diagnóstico.",
+      "en": "你怎么样？ asks how you are. 我不舒服 answers without a diagnosis.",
+      "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s05.lines.0.pt",
+      "id": "p.p6-saude.m4.s04.lines.2.pt",
+      "pt": "Não me sinto bem.",
+      "en": "I don't feel well.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.lines.3.pt",
+      "pt": "Dor de cabeça?",
+      "en": "A headache?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.lines.4.pt",
+      "pt": "Estou com dor de cabeça.",
+      "en": "I have a headache.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.lines.5.pt",
+      "pt": "Certo.",
+      "en": "All right.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.lines.7.pt",
+      "pt": "Certo.",
+      "en": "All right.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.lines.8.pt",
+      "pt": "Onde fica o hospital?",
+      "en": "Where is the hospital?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.lines.9.pt",
+      "pt": "Certo — ela entendeu e vai ajudar.",
+      "en": "Okay — she understood and will help.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.1.prompt",
+      "pt": "Você não está se sentindo bem. Diga isso.",
+      "en": "You are not feeling well. Say that.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.1.explanation",
+      "pt": "你怎么样？ pergunta como você está. 我不舒服 responde sem diagnóstico.",
+      "en": "你怎么样？ asks how you are. 我不舒服 answers without a diagnosis.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.2.pt",
+      "pt": "Indisposto?",
+      "en": "Unwell?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.3.pt",
+      "pt": "Não me sinto bem.",
+      "en": "I don't feel well.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.4.pt",
+      "pt": "Dor de cabeça?",
+      "en": "A headache?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.4.prompt",
+      "pt": "Ela perguntou da dor de cabeça. Confirme.",
+      "en": "She asked about the headache. Confirm it.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.4.explanation",
+      "pt": "头疼吗？ confirma a dor. 我头疼 responde.",
+      "en": "头疼吗？ checks the pain. 我头疼 answers.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.5.pt",
+      "pt": "A cabeça?",
+      "en": "Your head?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.6.pt",
+      "pt": "Estou com dor de cabeça.",
+      "en": "I have a headache.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.7.pt",
+      "pt": "Certo.",
+      "en": "All right.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.7.prompt",
+      "pt": "Você precisa de um médico agora. Peça isso.",
+      "en": "You need a doctor now. Ask for one.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.7.explanation",
+      "pt": "Com um amigo na rua, 我需要医生 pede o profissional. Não é a fala de consulta 我要看医生.",
+      "en": "With a friend on the street, 我需要医生 asks for the professional. It is not the consultation line 我要看医生.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.10.pt",
+      "pt": "Certo.",
+      "en": "All right.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.10.prompt",
+      "pt": "Você está na rua e precisa do hospital. Pergunte onde ele fica.",
+      "en": "You are on the street and need the hospital. Ask where it is.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.10.explanation",
+      "pt": "医院在哪里？ transfere 在哪里 da cidade. Mei não pergunta isso a você.",
+      "en": "医院在哪里？ transfers 在哪里 from the city. Mei does not ask you that.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.11.pt",
+      "pt": "O hospital?",
+      "en": "The hospital?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.12.pt",
+      "pt": "Onde fica o hospital?",
+      "en": "Where is the hospital?",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.nodes.13.pt",
+      "pt": "Certo — ela entendeu e vai ajudar.",
+      "en": "Okay — she understood and will help.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.checkpoint.prompt",
+      "pt": "Você não está se sentindo bem. Diga isso.",
+      "en": "You are not feeling well. Say that.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.m4.s04.checkpoint.explanation",
+      "pt": "你怎么样？ pergunta como você está. 我不舒服 responde sem diagnóstico.",
+      "en": "你怎么样？ asks how you are. 我不舒服 answers without a diagnosis.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.meta.lex.char.bu.meaningPt",
+      "pt": "não",
+      "en": "no",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.meta.lex.char.hao.meaningPt",
+      "pt": "bom; bem",
+      "en": "good; well",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.meta.lex.char.hao.mnemonicPt",
+      "pt": "Mulher (女) + filho (子): mãe e criança juntas — isso é bom.",
+      "en": "Woman (女) + child (子): mother and child together — that's good.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.meta.lex.char.ma_question.mnemonicPt",
+      "pt": "口 (boca/fala) mostra que é partícula de frase; 马 dá a pista sonora ma. Em 你好吗？, 吗 transforma afirmação em pergunta.",
+      "en": "口 (mouth/speech) shows it is a sentence particle; 马 gives the ma sound clue. In 你好吗？, 吗 turns a statement into a question.",
+      "kind": "DIRECT_TRANSLATION"
+    },
+    {
+      "id": "p.p6-saude.meta.lex.chunk.nihao.meaningPt",
       "pt": "Olá.",
       "en": "Hello.",
       "kind": "DIRECT_TRANSLATION"
     },
     {
-      "id": "p.p6-saude.m4.s05.lines.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.lines.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.lines.3.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.lines.4.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.lines.5.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
+      "id": "p.p6-saude.meta.lex.chunk.nihao.literalPt",
+      "pt": "você + bom",
+      "en": "you + good",
       "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.0.pt",
-      "pt": "Olá.",
-      "en": "Hello.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.1.pt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.1.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.1.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.2.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.3.pt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.4.pt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.4.prompt",
-      "pt": "Agora Mei pergunta: 超市在哪里？. Qual frase encaixa?",
-      "en": "Now Mei asks: 超市在哪里？. Which sentence fits?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.4.explanation",
-      "pt": "我去超市 continua a troca de frases de Cidade e lugares.",
-      "en": "我去超市 continues the exchange of phrases of City and places.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.5.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.6.pt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.nodes.7.pt",
-      "pt": "Está bem; ok.",
-      "en": "all right; okay",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.checkpoint.prompt",
-      "pt": "Mei pergunta: 银行在哪里？. Como você responde?",
-      "en": "Mei asks: 银行在哪里？. How do you respond?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s05.checkpoint.explanation",
-      "pt": "我在北京。 responde 银行在哪里？ neste pacote (Cidade e lugares).",
-      "en": "我在北京。 responds 银行在哪里？ in this package (City and places).",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s06.title",
-      "pt": "Monte a resposta que você usou.",
-      "en": "Build the reply you used.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s06.prompt",
-      "pt": "Monte: Estou em Pequim..",
-      "en": "Build: I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s06.explanation",
-      "pt": "我在北京。 significa Estou em Pequim..",
-      "en": "我在北京。 means I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s07.title",
-      "pt": "Complete a palavra que faltou.",
-      "en": "Complete the missing word.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s07.prompt",
-      "pt": "Complete: Onde fica o supermercado?.",
-      "en": "Complete: Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s07.explanation",
-      "pt": "超市在哪里？ = Onde fica o supermercado?.",
-      "en": "超市在哪里？ = Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s08.title",
-      "pt": "Diga isto sozinho, sem alternativas.",
-      "en": "Say this on your own, with no choices.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s08.explanation",
-      "pt": "我去超市。 (wǒ qù chāoshì.) — 去 já significa 'ir a' — o destino vem colado, sem 到 no meio. Tempo (今天/明天) fica entre quem age e a ação.",
-      "en": "我去超市。 (wǒ qù chāoshì.) — 去 already means 'to go to' — the destination is glued together, without 到 in the middle. Time (今天/明天) stands between the person who acts and the action.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s08.situationPt",
-      "pt": "Um amigo pergunta onde você vai agora. Responda que vai ao supermercado.",
-      "en": "A friend asks where you're going now. Answer that you are going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.m4.s09.title",
-      "pt": "Diga que não está bem",
-      "en": "Say you are unwell",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.m4.s09.situationPt",
-      "pt": "Você não está se sentindo bem. Diga isso, sem alternativas.",
-      "en": "You are not feeling well. Say that, with no choices.",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.zaina.meaningPt",
-      "pt": "Onde fica?",
-      "en": "Where is it?",
-      "kind": "DIRECT_TRANSLATION"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.chaoshizainali.meaningPt",
-      "pt": "Onde fica o supermercado?",
-      "en": "Where is the supermarket?",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.yinhangzainali.meaningPt",
-      "pt": "Onde fica o banco?",
-      "en": "Where is the bank?",
-      "kind": "NATURAL_REWRITE"
     },
     {
       "id": "p.p6-saude.meta.lex.chunk.yiyuanzainali.meaningPt",
@@ -101959,18 +101467,6 @@
       "id": "p.p6-saude.meta.lex.chunk.yiyuanzainali.literalPt",
       "pt": "medicina-instituição está onde",
       "en": "medicine-institution is where",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.woquchaoshi.meaningPt",
-      "pt": "Vou ao supermercado.",
-      "en": "I'm going to the supermarket.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.woquchaoshi.literalPt",
-      "pt": "eu ir super-mercado",
-      "en": "I go to the supermarket",
       "kind": "NATURAL_REWRITE"
     },
     {
@@ -102001,18 +101497,6 @@
       "id": "p.p6-saude.meta.lex.chunk.woyaokanyisheng.literalPt",
       "pt": "eu querer ver medicina-pessoa",
       "en": "I want to see medicine-person",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.wozaibeijing.meaningPt",
-      "pt": "Estou em Pequim.",
-      "en": "I'm in Beijing.",
-      "kind": "NATURAL_REWRITE"
-    },
-    {
-      "id": "p.p6-saude.meta.lex.chunk.wozaibeijing.literalPt",
-      "pt": "eu estar Pequim",
-      "en": "I be Beijing",
       "kind": "NATURAL_REWRITE"
     },
     {

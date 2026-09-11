@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-11T05:43:11.264Z",
+  "generatedAt": "2026-09-11T07:36:57.755Z",
   "rule": "ALL_LESSONS.filter(isTopicMasteryLesson)",
   "teachingTopicCount": 113,
   "EnglishJourney": {

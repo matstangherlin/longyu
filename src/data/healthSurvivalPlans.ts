@@ -8,8 +8,8 @@ import { HEALTH_SURVIVAL_TOPIC_IDS } from "./chinaSurvivalHealth";
  *
  * M1 learn / recognize / fill / build: unwell, sick, X+疼.
  * M2 fever, symptom listening, doctor as a word, hospital fill as transfer.
- * M3 speak: unwell, fever, doctor.
- * M4 transfer: 医院在哪里？ + friend conversation.
+ * M3 speak unwell/fever, then guided 医生 → speak doctor.
+ * M4 delayed symptom listen + 医院 fill → produce 医院在哪里？ → friend conversation.
  */
 function slice(steps: LessonStep[], indexes: number[]): LessonStep[] {
   return indexes.map((index) => steps[index]).filter((step): step is LessonStep => Boolean(step));
@@ -19,8 +19,8 @@ export const HEALTH_SURVIVAL_PASS_INDEXES: Record<"p6-saude", Record<MasteryPass
   "p6-saude": {
     1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     2: [13, 14, 15, 17, 18, 19, 20, 22],
-    3: [12, 16, 21],
-    4: [23, 24],
+    3: [12, 16, 19, 21],
+    4: [17, 22, 23, 24],
   },
 };
 

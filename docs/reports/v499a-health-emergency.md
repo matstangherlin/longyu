@@ -10,11 +10,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 850ec9d39d26 |
-| HEAD no instante da geração | 5d4543d34e6a38e0d9d10c3fe5b04491a0ddc187 |
+| Hash da Jornada | 29954edf3c51 |
+| HEAD no instante da geração | 64f818424145fe723d7bb95b8175cf32d7bca4f3 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T05:40:00.000Z |
+| Gerado em | 2026-09-11T08:00:00.000Z |
 | Lições | 132 |
 
 ## Base
@@ -22,12 +22,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | SHA de trabalho (#251 tip, **não** é merge) | `5b2ced9d2ab950fc10963c88cbb8d10e34119ad2` |
-| SHA **obrigatória** (`main` após merge #251) | *ainda inexistente — #251 OPEN em 2026-09-11* |
+| SHA **obrigatória** (`main` após merge #251) | *ainda inexistente — #251 OPEN em 2026-09-11T08:00Z* |
 | #251 fecha | Speaking First, Phrase Chips, Progressive Assistance, Conversation Auto-Reveal, Hanzi Fill, Culture Lessons na Jornada, Culture Hub canônico, Victory mínima, UX mobile compacta |
 | Esta PR | **não** reabre esses sistemas |
 | Branch | `cursor/v499a-health-emergency-6ae2` |
 | Fingerprint da Jornada (#251 tip) | `003cb0ed7858` |
-| Fingerprint da Jornada (esta remessa) | `850ec9d39d26` |
+| Fingerprint da Jornada (esta remessa) | `29954edf3c51` |
 | Tópicos de ensino | 113 (imersão `p7-imersao-saude` é `isReview` + `curriculumRole: "immersion"`) |
 
 Quando a #251 mergear, rebasear esta branch no SHA real do merge e substituir a linha «ainda inexistente». Não inventar SHA.
@@ -123,6 +123,17 @@ Progressão: ouvir 我不舒服 → significado → fill `我不______` (舒服)
 
 Nota discreta no intro: treino de idioma, não orientação médica.
 
+`p6-saude` é tema de mastery. `healthSurvivalPlans.ts` corta os 25 passos autorais em quatro passes (Wave-1 医+生 fica desligado):
+
+| Pass | Índices | Função |
+|------|---------|--------|
+| M1 | 0–11 | ouvir / fill / montar 我不舒服, 我病了, X+疼 |
+| M2 | 13, 14, 15, 17, 18, 19, 20, 22 | febre, listening `头疼吗？`, 医生 como palavra, fill 医院 (transfer) |
+| M3 | 12, 16, 19, 21 | Falar 我不舒服 / 我发烧了; montar 医生; Falar médico |
+| M4 | 17, 22, 23, 24 | listening atrasado + fill 医院 + produzir 医院在哪里？ + conversa na rua |
+
+M3/M4 têm ≥4 passos (massa do mastery-coverage). M1 não abre produção nem conversa.
+
 ## Cenas
 
 ### `nao-me-sinto-bem` (amigo na rua)
@@ -152,7 +163,7 @@ CORE novo: **疼** (`teng_pain`), recall em `p7-imersao-saude`. Não 医/病 com
 
 ## Atlas
 
-| Métrica | #251 tip (`003cb0ed7858`) | V4.9.9A (`850ec9d39d26`) |
+| Métrica | #251 tip (`003cb0ed7858`) | V4.9.9A (`29954edf3c51`) |
 |---------|---------------------------|--------------------------|
 | Atlas items | 442 | 444 |
 | Taught | 361 | 362 |
@@ -168,7 +179,7 @@ Nenhuma Culture Lesson de saúde nesta remessa. Sem medicamento, dose, TCM ou «
 
 ## PT / EN / UX #251
 
-Todo conteúdo novo nasce PT-BR + EN (`instructionGloss` + `generate:stable-pedagogy`). Victory = `LessonVictory` mínima. Falar primário. Auto-reveal. Mobile 390×844 coberto no e2e.
+Todo conteúdo novo nasce PT-BR + EN (`instructionGloss` + `generate:stable-pedagogy`). Labels sem ponto (`Não me sinto bem`, `Estou com febre`, `Dor de cabeça?`) e a equivalência `我头疼 = estou com dor de cabeça.` entram no overlay. `validate:journey-en` PASS (113 temas READY). Victory = `LessonVictory` mínima. Falar primário. Auto-reveal. Mobile 390×844 coberto no e2e.
 
 ## Gates novos
 
@@ -206,14 +217,22 @@ Todo conteúdo novo nasce PT-BR + EN (`instructionGloss` + `generate:stable-peda
 
 `lesson-ui-consistency`, `conversation-auto-reveal`, `culture-journey-placement`, `completion-experience`, `conversation-lexical-bridge`, `production-scaffolding`, `hanzi-fill-integration`, `teach-before-test` (+ journey), `conversation-coherence/scenes/loop/pedagogy/decisions/vocabulary-srs`, `hanzi-memory-integration`, `tone-integration/progression/teach-before-test`, `exercise-affordance`, `listening-affordance`, `modality-contract`, `production-transfer`, `transfer-integrity`, `lesson-novelty`, `cognitive-budget`, `culture-native-lessons/playability/story-audio/rewards`, `live-league`, `i18n`, `journey-en`.
 
-`validate:beta` e `npm run build` seguem nesta mesma PR após regenerar a cauda de relatórios.
+| Gate | Resultado |
+|------|-----------|
+| `validate:beta` | PASS 2026-09-11T07:58Z (~1661 s, `pipefail`) |
+| `npm run build` | PASS (~7 s, PWA + seo-prerender) |
+| `e2e/v499a-health-emergency.spec.ts` Chromium | **5/5** PASS |
+| `test:mastery-quality:all` | 46/46 |
+| `validate:journey-en` | PASS |
+
+E2E (Chromium, preview com fixtures): listen+fill 舒服+montar; conversa M4 auto-reveal + chips 我/不/舒服 + Falar; missão com produção aberta + setting `clinic`; 390×844 Falar visível; EN Speak/Falar visível.
 
 ## Backend
 
 | Arquivo | Fingerprint |
 |---------|-------------|
-| `docs/backend/v478-backend-rc.json` | `850ec9d39d26` |
-| `docs/backend/v489-backend-rc.json` | `850ec9d39d26` |
+| `docs/backend/v478-backend-rc.json` | `29954edf3c51` |
+| `docs/backend/v489-backend-rc.json` | `29954edf3c51` |
 
 ## O que esta remessa não faz
 
