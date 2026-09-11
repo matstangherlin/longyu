@@ -121,6 +121,24 @@ test.describe("V4.9.9B everyday + capstone", () => {
     await expect(page.locator("[data-conversation-auto-reveal]").first()).toBeVisible({ timeout: 20_000 });
   });
 
+  async function skipSceneAndReach(page: Page, sceneId: string) {
+    await expect(page.locator("[data-conversation-scene]")).toBeVisible({ timeout: 20_000 });
+    const skip = page.getByRole("button", { name: /^Pular$|^Skip$/i }).first();
+    if (await skip.isVisible().catch(() => false)) {
+      await skip.click().catch(() => undefined);
+      await page.waitForTimeout(250);
+    }
+    const reached = await advanceUntilSelector(
+      page,
+      `[data-conversation-scene-id="${sceneId}"]`,
+      12,
+      50_000,
+      { allowSkip: true }
+    );
+    expect(reached).toBeTruthy();
+    await expect(page.locator(`[data-conversation-scene-id="${sceneId}"]`)).toBeVisible();
+  }
+
   test("capstone A opens first contact then restaurant", async ({ page }) => {
     test.setTimeout(120_000);
     await openPlayer(page, "p7-china-survival");
@@ -136,6 +154,8 @@ test.describe("V4.9.9B everyday + capstone", () => {
     expect(sawProduction || (await page.locator("[data-conversation-scene]").isVisible().catch(() => false))).toBeTruthy();
     await expect(page.locator("[data-conversation-scene]")).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('[data-conversation-setting="street"]')).toBeVisible();
+    await expect(page.locator('[data-conversation-scene-id="conversa-cotidiana"]')).toBeVisible();
+    await skipSceneAndReach(page, "imersao-restaurante");
   });
 
   test("capstone B rotates into shopping", async ({ page }) => {
@@ -145,6 +165,8 @@ test.describe("V4.9.9B everyday + capstone", () => {
     });
     const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 16, 80_000, { allowSkip: true });
     expect(scene).toBeTruthy();
+    await expect(page.locator('[data-conversation-scene-id="conversa-cotidiana"]')).toBeVisible();
+    await skipSceneAndReach(page, "conversa-na-loja");
   });
 
   test("capstone C rotates into health", async ({ page }) => {
@@ -154,6 +176,8 @@ test.describe("V4.9.9B everyday + capstone", () => {
     });
     const scene = await advanceUntilSelector(page, "[data-conversation-scene]", 16, 80_000, { allowSkip: true });
     expect(scene).toBeTruthy();
+    await expect(page.locator('[data-conversation-scene-id="conversa-cotidiana"]')).toBeVisible();
+    await skipSceneAndReach(page, "nao-me-sinto-bem");
   });
 
   test("390 viewport keeps Falar on everyday production", async ({ page }) => {
