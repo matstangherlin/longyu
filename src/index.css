@@ -28,6 +28,13 @@
      Sem esse escopo a barra do HanziBuilder flutuava ~80px acima do fim do
      scroller e cobria as peças. */
   --activity-actions-offset: calc(var(--app-bottom-nav-height) + 0.5rem);
+  --lesson-max-width: 42rem;
+  --lesson-padding: 0.75rem;
+  --lesson-card-radius: 1rem;
+  --lesson-button-height: 2.75rem;
+  --lesson-mobile-gap: 0.5rem;
+  --lesson-desktop-gap: 0.75rem;
+  --lesson-section-spacing: 0.75rem;
   --bg: 247 246 243; /* #F7F6F3 */
   --surface: 255 255 255; /* #FFFFFF */
   --surface-2: 250 249 246; /* leve off-white p/ blocos internos */
@@ -554,6 +561,58 @@ textarea {
   animation: conversation-bubble-in 0.32s ease-out both;
 }
 
+@keyframes conversation-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.conversation-chip-in {
+  animation: conversation-chip-in 160ms ease-out both;
+}
+
+@keyframes lesson-victory-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lesson-victory-in {
+  animation: lesson-victory-in 360ms ease-out both;
+}
+
+.lesson-ui-frame {
+  max-width: var(--lesson-max-width);
+}
+
+.lesson-ui-card {
+  border-radius: var(--lesson-card-radius);
+}
+
+.lesson-ui-cta {
+  min-height: var(--lesson-button-height);
+}
+
+.lesson-ui-gap {
+  gap: var(--lesson-mobile-gap);
+}
+
+@media (min-width: 640px) {
+  .lesson-ui-gap {
+    gap: var(--lesson-desktop-gap);
+  }
+}
+
 @keyframes longyu-error-shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-5px); }
@@ -601,7 +660,10 @@ textarea {
   .longyu-chest-aura,
   .longyu-chest-glow,
   .longyu-chest-lid,
-  .longyu-chest-spark {
+  .longyu-chest-spark,
+  .conversation-chip-in,
+  .lesson-victory-in,
+  .conversation-bubble-in {
     animation: none !important;
   }
 

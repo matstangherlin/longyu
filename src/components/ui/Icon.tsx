@@ -26,6 +26,9 @@ export const IconPath = (p: P) => (
 export const IconSound = (p: P) => (
   <svg {...base(p)}><path d="M4 9v6h4l5 4V5L8 9H4Z" /><path d="M16.5 8.5a5 5 0 0 1 0 7" /><path d="M19 6a8 8 0 0 1 0 12" /></svg>
 );
+export const IconMic = (p: P) => (
+  <svg {...base(p)}><path d="M12 3.5a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0v-6a3 3 0 0 0-3-3Z" /><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0" /><path d="M12 17v3.5" /></svg>
+);
 export const IconHanzi = (p: P) => (
   <svg {...base(p)}><rect x="3.5" y="3.5" width="17" height="17" rx="2.5" /><path d="M12 6v12M7.5 9.5 12 6l4.5 3.5M8 14h8" /></svg>
 );

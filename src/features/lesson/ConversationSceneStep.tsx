@@ -32,6 +32,9 @@ import { t } from "../../i18n/catalog";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { evaluateLearnerResponse } from "../../lib/learnerResponse";
+import { useStudentFirstName } from "../../lib/personalize";
+import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
+import { LESSON_UI_CLASS } from "../../ui/lessonTokens";
 import { FreeAnswerField } from "./FreeAnswerField";
 import {
   conversationHelpShowsFrame,
@@ -116,7 +119,7 @@ function CharacterAvatar({
 /**
  * Visibilidade por nível de apresentação (não muda o conteúdo, só o apoio):
  * guided = pinyin + tradução; assisted = pinyin; independent = só hànzì + áudio;
- * audio_first = áudio primeiro, texto revelado ao tocar.
+ * audio_first = áudio primeiro; o texto aparece sozinho (500–1000 ms).
  */
 function variantVisibility(level: ConversationVariantLevel | undefined) {
   switch (level) {
@@ -130,6 +133,18 @@ function variantVisibility(level: ConversationVariantLevel | undefined) {
     default:
       return { showPinyin: true, showPt: true, audioFirst: false };
   }
+}
+
+function naturalizeConversationPrompt(prompt: string): string {
+  if (/responde com\s*我叫/i.test(prompt)) return t("player.promptAskedYourName");
+  if (/我不会说中文/.test(prompt) && /esclarece|comunica|clarif/i.test(prompt)) {
+    return t("player.promptClarifyCannotSpeak");
+  }
+  if (/O que Matheus está procurando/i.test(prompt)) return t("player.promptWhatAreYouLookingFor");
+  if (/O que Matheus pediu/i.test(prompt)) return t("player.promptWhatDidYouWant");
+  if (/O que Matheus perguntou/i.test(prompt)) return t("player.promptWhatDidYouAsk");
+  if (/O que Matheus (disse|achou)/i.test(prompt)) return t("player.promptWhatDidYouSay");
+  return prompt;
 }
 
 function conversationLineAudio(line: Pick<ConversationLine, "audioText" | "hanzi"> | undefined): string {
@@ -183,12 +198,20 @@ function SpeechBubble({
     return () => window.clearTimeout(timer);
   }, [visible, autoSpeak, autoPlayAudio, nodeKey, audio]);
 
-  // audio_first: o texto começa oculto atrás de um botão de revelar (o áudio
-  // fica em destaque). Reseta quando a fala muda.
+  // audio_first: o texto aparece sozinho depois do áudio. Sem toque para revelar.
+  // Se o autoplay for bloqueado, o texto entra na hora.
   const [revealed, setRevealed] = useState(!audioFirst);
   useEffect(() => {
     setRevealed(!audioFirst);
-  }, [line.hanzi, audioFirst]);
+    if (!audioFirst || !visible) return;
+    const blocked = !autoPlayAudio || !hasRecentTtsGesture(3000);
+    if (blocked) {
+      setRevealed(true);
+      return;
+    }
+    const timer = window.setTimeout(() => setRevealed(true), 700);
+    return () => window.clearTimeout(timer);
+  }, [line.hanzi, audioFirst, visible, autoPlayAudio]);
   const textHidden = audioFirst && !revealed;
   return (
     <div
@@ -200,20 +223,17 @@ function SpeechBubble({
     >
       <div
         className={[
-          "max-w-[88%] rounded-2xl border border-line bg-surface px-3.5 py-3 shadow-card sm:max-w-[80%]",
+          "max-w-[88%] rounded-2xl border border-line bg-surface px-3 py-2.5 shadow-card sm:max-w-[80%]",
           side === "left" ? "rounded-tl-md" : "rounded-tr-md",
         ].join(" ")}
+        data-conversation-auto-reveal={audioFirst ? (revealed ? "shown" : "pending") : "immediate"}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {textHidden ? (
-              <button
-                type="button"
-                onClick={() => setRevealed(true)}
-                className="hanzi rounded-xl border border-dashed border-accent-soft bg-accent-soft/40 px-4 py-2 text-lg font-semibold text-accent"
-              >
-                Ouça e toque para revelar
-              </button>
+              <p className="text-sm font-medium text-ink-faint" data-conversation-reveal-pending>
+                {t("player.listen")}
+              </p>
             ) : (
               <>
                 <div className="hanzi text-[26px] font-semibold leading-tight text-ink sm:text-[30px]">
@@ -259,7 +279,7 @@ function SettingBackdrop({ setting }: { setting?: string }) {
   const wash = washes[setting ?? ""] ?? washes.classroom;
 
   return (
-    <div className={["relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br p-4 sm:p-5", wash].join(" ")}>
+    <div className={["relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br p-3 sm:p-4", wash].join(" ")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[radial-gradient(ellipse_at_top,rgb(255_255_255/0.55),transparent_70%)]" />
       <div className="relative text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{label}</div>
     </div>
@@ -530,6 +550,7 @@ function InteractionPanel({
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const history = useStore((s) => s.conversationHistory ?? []);
+  const studentName = useStudentFirstName();
   const answer = interaction.correctAnswer;
   const isOrder = interaction.type === "order_reply";
   const isListen = interaction.type === "listen_reply";
@@ -692,10 +713,14 @@ function InteractionPanel({
     },
   });
 
+  const displayPrompt = naturalizeConversationPrompt(
+    resolveInstructionText(interaction.prompt, getInstructionLocale())
+  ).replaceAll("Matheus", studentName ?? "você");
+
   return (
-    <div className="mt-4 animate-pop rounded-2xl border border-accent-soft bg-surface p-3.5 shadow-card">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("player.yourTurn")}</div>
-      <p className="mt-2 text-base font-medium leading-7 text-ink">{interaction.prompt}</p>
+    <div className={`mt-3 animate-pop rounded-2xl border border-accent-soft bg-surface p-3 shadow-card ${LESSON_UI_CLASS.card}`}>
+      <LessonKindLabel kind="conversation" />
+      <p className="mt-2 text-base font-medium leading-6 text-ink">{displayPrompt}</p>
 
       {isListen && (
         <div className="mt-3 flex items-center gap-2">
@@ -714,11 +739,11 @@ function InteractionPanel({
               data-conversation-scaffold-kind={scaffoldKind}
               data-conversation-mode={inputMode}
             >
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
-                  variant={inputMode === "type" && !showPieces ? "soft" : "outline"}
+                  variant={inputMode === "type" && !showPieces ? "soft" : "ghost"}
                   size="sm"
-                  className="min-h-11 flex-1 sm:flex-none"
+                  className="min-h-11"
                   data-conversation-mode-type
                   disabled={feedback === "correct"}
                   onClick={() => setInputMode("type")}
@@ -727,9 +752,9 @@ function InteractionPanel({
                 </Button>
                 {piecesUnlocked ? (
                   <Button
-                    variant={showPieces ? "soft" : "outline"}
+                    variant={showPieces ? "soft" : "ghost"}
                     size="sm"
-                    className="min-h-11 flex-1 sm:flex-none"
+                    className="min-h-11"
                     data-conversation-mode-build
                     disabled={feedback === "correct"}
                     onClick={() => {
@@ -740,17 +765,17 @@ function InteractionPanel({
                     {t("player.assembleWithPieces")}
                   </Button>
                 ) : null}
+                {canRequestHelp ? (
+                  <button
+                    type="button"
+                    className="min-h-11 text-sm font-semibold text-accent underline decoration-accent/35 underline-offset-2"
+                    data-conversation-help-request
+                    onClick={requestHelp}
+                  >
+                    {t("player.needHelp")}
+                  </button>
+                ) : null}
               </div>
-              {canRequestHelp ? (
-                <button
-                  type="button"
-                  className="mt-2 text-xs font-semibold text-accent underline decoration-accent/35 underline-offset-2"
-                  data-conversation-help-request
-                  onClick={requestHelp}
-                >
-                  {t("player.needHelp")}
-                </button>
-              ) : null}
 
               {showFrame && interaction.productionPattern ? (
                 <div
@@ -801,7 +826,7 @@ function InteractionPanel({
                           setPieceBank((prev) => [...prev, piece]);
                           setFeedback(null);
                         }}
-                        className="min-h-12 rounded-xl border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent hanzi text-xl"
+                        className="conversation-chip-in min-h-12 rounded-full border border-accent bg-accent-soft px-3 py-1.5 font-semibold text-accent hanzi text-xl"
                       >
                         {piece}
                         {helpPlan.showPinyinOnPieces && interaction.productionHelpPiecePinyin?.[piece] ? (
@@ -829,7 +854,7 @@ function InteractionPanel({
                           setBuildPicked((prev) => [...prev, piece]);
                           setFeedback(null);
                         }}
-                        className="min-h-12 rounded-xl border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card hanzi text-xl"
+                        className="conversation-chip-in min-h-12 rounded-full border border-line bg-surface px-3 py-1.5 font-semibold text-ink shadow-card hanzi text-xl"
                       >
                         {piece}
                         {helpPlan.showPinyinOnPieces && interaction.productionHelpPiecePinyin?.[piece] ? (
@@ -1268,7 +1293,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   return (
     <div data-conversation-scene>
-      <Eyebrow>{t("player.conversationScene")}</Eyebrow>
+      <LessonKindLabel kind="conversation" />
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
       <div className="mt-3">
@@ -1452,7 +1477,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   return (
     <div data-conversation-scene>
-      <Eyebrow>{t("player.conversationScene")}</Eyebrow>
+      <LessonKindLabel kind="conversation" />
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
       <div className="mt-3">
