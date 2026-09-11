@@ -93,7 +93,7 @@ export function FreeAnswerField({
 
   const speakLabel =
     speechState === "listening"
-      ? t("player.listening")
+      ? t("player.listeningTapStop")
       : speechState === "processing"
         ? t("player.processingSpeech")
         : value.trim() || pendingTranscript

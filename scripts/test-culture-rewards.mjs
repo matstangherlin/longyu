@@ -15,6 +15,7 @@ function kill(label, edit, code) {
 
 kill("7 culture victory without XP chip", (data) => {
   data.lessonPlayerSource = data.lessonPlayerSource.replace(/culture-xp/g, "culture-no-xp");
+  data.lessonVictorySource = (data.lessonVictorySource ?? "").replace(/culture-xp/g, "culture-no-xp");
 }, "NO_REWARD");
 
 kill("8 replay grants XP", (data) => {

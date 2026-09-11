@@ -153,6 +153,7 @@ export function validateCultureStoryAudio(data) {
 export function validateCultureRewards(data) {
   const { fail, failures } = failList();
   const player = data.lessonPlayerSource ?? "";
+  const victory = data.lessonVictorySource ?? "";
   const store = data.storeSource ?? "";
   if (player && !/LESSON_BASE_XP/.test(player)) fail("NO_REWARD", "LessonPlayer", "culture victory must use LESSON_BASE_XP");
   if (player && !/LESSON_THREE_STAR_XP_BONUS/.test(player)) {
@@ -166,8 +167,15 @@ export function validateCultureRewards(data) {
   if (player && /cultureLeagueXpSync/.test(player)) {
     fail("LEAGUE_XP", "LessonPlayer", "do not create a separate cultureLeagueXpSync");
   }
-  if (player && !/culture-xp/.test(player)) fail("NO_REWARD", "LessonPlayer", "victory must show culture-xp");
-  if (player && !/culture\.lessonComplete/.test(player) && !/Cultura concluída/.test(player)) {
+  if (player && !/culture-xp/.test(player) && !/culture-xp/.test(victory)) {
+    fail("NO_REWARD", "LessonPlayer", "victory must show culture-xp");
+  }
+  if (
+    player &&
+    !/culture\.lessonComplete/.test(player) &&
+    !/Cultura concluída/.test(player) &&
+    !/culture\.lessonComplete/.test(victory)
+  ) {
     fail("NO_REWARD", "LessonPlayer", "victory must show Cultura concluída");
   }
   return { failures };

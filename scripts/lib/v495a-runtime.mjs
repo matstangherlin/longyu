@@ -59,6 +59,7 @@ export function loadCultureRuntime() {
   const { isTopicMasteryLesson } = require("../../src/data/topicMastery.ts");
   const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
   const lessonPlayerSource = fs.readFileSync("src/features/lesson/LessonPlayer.tsx", "utf8");
+  const lessonVictorySource = fs.readFileSync("src/features/lesson/LessonVictory.tsx", "utf8");
   const storeSource = fs.readFileSync("src/lib/store.ts", "utf8");
   const cultureItemPageSource = fs.readFileSync("src/features/culture/CultureItemPage.tsx", "utf8");
   const cultureHubSource = fs.readFileSync("src/features/culture/CultureHubPage.tsx", "utf8");
@@ -99,6 +100,7 @@ export function loadCultureRuntime() {
     journey: JOURNEY,
     bridges: CULTURE_JOURNEY_BRIDGES,
     lessonPlayerSource,
+    lessonVictorySource,
     storeSource,
     cultureItemPageSource,
     cultureHubSource,
