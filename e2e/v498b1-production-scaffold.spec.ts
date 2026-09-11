@@ -9,6 +9,40 @@ import {
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 
+/**
+ * Firefox (e o Chromium do CI sem mic) não expõem SpeechRecognition.
+ * O botão Falar some de propósito quando a API não existe — o contrato
+ * "peças não escondem a fala" só pode ser provado com o reconhecedor
+ * instalado, como em production-multimodal-input / v495a1-player-ux.
+ */
+async function installFakeRecognition(page: Page) {
+  await page.addInitScript(() => {
+    class FakeRecognition {
+      lang = "";
+      continuous = false;
+      interimResults = false;
+      onresult: ((event: unknown) => void) | null = null;
+      onerror: ((event: unknown) => void) | null = null;
+      onend: (() => void) | null = null;
+      start() {
+        setTimeout(() => this.onend?.(), 60);
+      }
+      stop() {
+        this.onend?.();
+      }
+      abort() {
+        this.onend?.();
+      }
+    }
+    Object.defineProperty(window, "SpeechRecognition", { value: FakeRecognition, writable: true });
+    Object.defineProperty(window, "webkitSpeechRecognition", { value: FakeRecognition, writable: true });
+    Object.defineProperty(navigator, "mediaDevices", {
+      value: { getUserMedia: async () => ({ getTracks: () => [{ stop() {} }] }) },
+      writable: true,
+    });
+  });
+}
+
 function masteryThrough(lessonId: string) {
   const index = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
   const completed = ALL_LESSONS.slice(0, Math.max(0, index)).map((lesson) => lesson.id);
@@ -23,6 +57,7 @@ function masteryThrough(lessonId: string) {
 }
 
 async function openPlayer(page: Page, lessonId: string) {
+  await installFakeRecognition(page);
   await seedUnlockedLessonSession(page, lessonId, { lessonMasteryById: masteryThrough(lessonId) });
   await page.goto(`/licao/${lessonId}/player`);
   await waitForLazyPage(page);
