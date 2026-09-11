@@ -11,10 +11,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 003cb0ed7858 |
-| HEAD no instante da geração | 72d3a93e59a46f52289d647bd844388277696f5c |
+| HEAD no instante da geração | 09e4f74f5eacfc8899ea0a4c168bc723d2c19d2c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T03:06:37.934Z |
+| Gerado em | 2026-09-11T03:33:38.151Z |
 | Lições | 131 |
 
 ## Base
@@ -106,6 +106,9 @@ Preservados (#250 e anteriores): conversation-lexical-bridge, production-scaffol
 
 `e2e/v498b2-unified-lesson-ux.spec.ts`: hotel Falar+peças sem tap-reveal; nó Cultura `culture-greetings-nihao`; Victory mínima sem card/save/nav; EN Type/Speak; viewport 390×844.
 
+## validate:beta
+
+PASS em 2026-09-11 (~1578s). Fingerprint `003cb0ed7858`. Relatórios de qualidade regenerados nesta mesma rodada.
 
 
-<!-- integridade:e191ba4d5fcc29df -->
+<!-- integridade:6ebda22f1b061d2d -->
