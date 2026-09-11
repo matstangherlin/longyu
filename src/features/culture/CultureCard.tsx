@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { CultureCategory, CultureItem } from "../../data/culture";
 import { cultureCardStatus, type CultureCardStatus } from "../../lib/cultureProgress";
+import { cultureLessonIdForItem } from "../../data/cultureNative";
 import { Card, Pill } from "../../components/ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
@@ -64,6 +65,7 @@ export function CultureCard({
       className="relative"
       data-testid="culture-card"
       data-culture-id={item.id}
+      data-canonical-lesson-id={cultureLessonIdForItem(item.id)}
       data-culture-status={status}
     >
       <Link

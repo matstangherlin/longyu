@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -45,7 +45,6 @@ import {
   primaryExerciseFamilyFor,
 } from "./lessonTasks";
 import { LessonPerfOverlay } from "./LessonPerfOverlay";
-import { buildMissionViews, isMissionActionable, MONTHLY_GOAL, type MissionView } from "../../data/missions";
 import {
   BREATH_LIVES,
   BREATH_RECOVERY_QI,
@@ -67,17 +66,19 @@ import {
 import { speak } from "../../lib/tts";
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
-import { CultureTouchpoint } from "../culture/CultureTouchpoint";
 import { cultureItemIdFromLessonId } from "../../data/cultureNative";
+import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
+import { LessonVictory } from "./LessonVictory";
+import { resolveVictoryContinuePath, cultureReturnPath } from "./nextJourneyContinue";
+import { studentFirstName } from "../../lib/personalize";
+import type { LessonCompletionSkill } from "./buildLessonCompletionSummary";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle, localizedPassLabel, localizedTopicVictory, localizeUnlockReason } from "../../i18n/overlays/journeyChrome";
-import { ACCURACY_SERENE_BADGE, localizedBadgeTitle, localizedRewardSource } from "../../i18n/achievements";
+import { ACCURACY_SERENE_BADGE } from "../../i18n/achievements";
 import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
-import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { trackPedagogyEvent } from "../../services/pedagogyEvents";
-import { flushCloudProgressPush } from "../../services/cloudSyncCoordinator";
 import { useOnline } from "../../hooks/useOnline";
 import { useVisualViewportFrame } from "../../hooks/useVisualViewportFrame";
 import {
@@ -97,8 +98,7 @@ import {
   beginReferralLessonAttestation,
   completeReferralLessonAttestation,
 } from "../../services/referralLearningAttestation";
-import { IconCheck, IconChevron, IconFlame, IconHanzi, IconLibrary, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
-import { Mascot } from "../../components/brand/Mascot";
+import { IconCheck, IconChevron, IconFlame, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionRegionProvider } from "./LessonActionRegion";
@@ -125,7 +125,6 @@ import {
 } from "../../data/topicMastery";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
-import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
@@ -163,15 +162,6 @@ const SKILL_TRACK: Record<Skill, Track> = {
 
 function isGradedStep(step: LessonStep): boolean {
   return isEvaluableQuestionStep(step);
-}
-
-function cultureReturnPath(search: URLSearchParams, isCulture: boolean): string {
-  const from = search.get("from");
-  if (from?.startsWith("/")) return from;
-  const src = search.get("src");
-  if (src === "jornada") return "/jornada";
-  if (src === "cultura" || isCulture) return "/cultura";
-  return "/jornada";
 }
 
 const charById = new Map(CHARACTERS.map((char) => [char.id, char]));
@@ -368,64 +358,6 @@ function LessonSummaryStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-// Chip compacto para as métricas do fim de lição (XP, Qi, precisão, estrelas).
-// Substitui os cards grandes: a mesma informação em uma linha, estilo app.
-function MetricChip({
-  value,
-  label,
-  icon,
-  tone = "neutral",
-}: {
-  value: string;
-  label?: string;
-  icon?: ReactNode;
-  tone?: "neutral" | "accent" | "good" | "gold";
-}) {
-  const toneClass = {
-    neutral: "border-line bg-surface-2 text-ink",
-    accent: "border-accent-soft bg-accent-soft/60 text-accent",
-    good: "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
-    gold: "border-[#B7791F]/25 bg-[#B7791F]/[0.1] text-gold",
-  }[tone];
-  return (
-    <span
-      className={[
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold shadow-card",
-        toneClass,
-      ].join(" ")}
-    >
-      {icon}
-      <span className="font-serif tabular-nums">{value}</span>
-      {label && <span className="text-xs font-medium opacity-80">{label}</span>}
-    </span>
-  );
-}
-
-function CollapsibleInfoCard({
-  title,
-  defaultOpen = false,
-  compactLabel,
-  children,
-}: {
-  title: string;
-  defaultOpen?: boolean;
-  compactLabel?: string;
-  children: ReactNode;
-}) {
-  return (
-    <details
-      className="rounded-[20px] border border-line bg-surface/85 p-3 text-left shadow-card"
-      open={defaultOpen}
-    >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink">
-        <span>{title}</span>
-        <span className="text-xs font-medium text-ink-faint">{compactLabel ?? t("player.tapToExpand")}</span>
-      </summary>
-      <div className="mt-3">{children}</div>
-    </details>
-  );
-}
-
 function progressSaveLabel(
   authMode: "local" | "cloud_pending" | "cloud",
   syncStatus: ReturnType<typeof useStore.getState>["cloudSyncState"]["status"]
@@ -482,17 +414,6 @@ function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
   return t("player.roundPractice");
 }
 
-function victoryTitleFor(lessonId: string): string {
-  const titles = [
-    t("player.victoryContinue"),
-    t("player.victoryStageDone"),
-    t("player.victoryDragonStronger"),
-    t("player.victoryMasteredStep"),
-    t("player.victoryClearer"),
-  ];
-  return titles[Math.abs(lessonId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % titles.length];
-}
-
 const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
 const DRAGON_BREATH_LIVES = BREATH_LIVES;
 const BREATH_RECOVERY_QI_COST = BREATH_RECOVERY_QI;
@@ -502,21 +423,6 @@ type FinishReason = "completed" | "out_of_lives";
 
 function totalToday(today: Record<Track, number>): number {
   return today.som + today.fala + today.hanzi + today.leitura;
-}
-
-function rewardLabel(reward: RewardGrant): string {
-  if (reward.type === "qi") return t("player.rewardQi", { n: reward.amount });
-  if (reward.type === "dragonPearl") return t("player.rewardPearls", { n: reward.amount });
-  if (reward.type === "streakShield") return t("player.rewardStreakShield", { n: reward.amount });
-  if (reward.type === "badge") return localizedBadgeTitle(reward.source);
-  return localizedRewardSource(reward.source);
-}
-
-function rewardIcon(reward: RewardGrant): string {
-  if (reward.type === "qi") return "气";
-  if (reward.type === "dragonPearl") return "珠";
-  if (reward.type === "streakShield") return "盾";
-  return "章";
 }
 
 function nextStreakMilestone(streak: number): number {
@@ -1625,112 +1531,6 @@ function ImmediateErrorReviewSession({
   );
 }
 
-function MissionUpdateCard({ mission }: { mission: MissionView }) {
-  const pct = Math.round((mission.progress / Math.max(1, mission.goal)) * 100);
-  const stateLabel = mission.claimed
-    ? "Resgatada"
-    : mission.complete
-      ? "Missão concluída"
-      : `${pct}%`;
-
-  return (
-    <div className="longyu-reward-rise rounded-[22px] border border-line bg-surface/90 px-4 py-3 text-left shadow-card">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-ink">{mission.title}</div>
-          <div className="mt-1 text-xs text-ink-faint">
-            {mission.progress}/{mission.goal}
-          </div>
-        </div>
-        <span
-          className={[
-            "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]",
-            mission.complete && !mission.claimed
-              ? "bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
-              : "bg-accent-soft text-accent",
-          ].join(" ")}
-        >
-          {stateLabel}
-        </span>
-      </div>
-      <ProgressBar value={mission.progress} max={mission.goal} className="mt-3 h-2" />
-    </div>
-  );
-}
-
-interface NextFocusSuggestion {
-  title: string;
-  desc: string;
-  to: string;
-  cta: string;
-}
-
-// Próxima recomendação ao fim da sessão, na ordem que mais destrava a Jornada:
-// erros pendentes > tons fracos > hànzì fracos > próxima lição > revisão.
-function buildNextFocus({
-  remainingErrorCount,
-  toneErrorCount,
-  hanziErrorCount,
-  nextLessonTitle,
-  topicContinue,
-}: {
-  remainingErrorCount: number;
-  toneErrorCount: number;
-  hanziErrorCount: number;
-  nextLessonTitle?: string;
-  topicContinue?: { title: string; nextPass: 1 | 2 | 3 | 4 };
-}): NextFocusSuggestion {
-  if (remainingErrorCount > 0) {
-    return {
-      title: t("player.fixTodayErrors"),
-      desc:
-        remainingErrorCount === 1
-          ? t("player.fixTodayErrorsOne", { n: remainingErrorCount })
-          : t("player.fixTodayErrorsMany", { n: remainingErrorCount }),
-      to: "/revisao",
-      cta: t("player.reviewNow"),
-    };
-  }
-  if (toneErrorCount > 0 && toneErrorCount >= hanziErrorCount) {
-    return {
-      title: t("player.reinforceTones"),
-      desc: t("player.reinforceTonesDesc"),
-      to: "/pinyin",
-      cta: t("player.trainTones"),
-    };
-  }
-  if (hanziErrorCount > 0) {
-    return {
-      title: t("player.reinforceHanzi"),
-      desc: t("player.reinforceHanziDesc"),
-      to: "/hanzi",
-      cta: t("player.practiceHanzi"),
-    };
-  }
-  if (topicContinue) {
-    return {
-      title: `${t("journey.ctaLessonOf", { n: topicContinue.nextPass })} · ${localizedPassLabel(topicContinue.nextPass)}`,
-      desc: t("player.topicContinueDesc", { title: topicContinue.title }),
-      to: "/jornada",
-      cta: t("player.seeOnJourney"),
-    };
-  }
-  if (nextLessonTitle) {
-    return {
-      title: t("player.nextTopic", { title: nextLessonTitle }),
-      desc: t("player.nextTopicDesc"),
-      to: "/jornada",
-      cta: t("player.continueJourney"),
-    };
-  }
-  return {
-    title: t("player.reviewOfDay"),
-    desc: t("player.reviewOfDayDesc"),
-    to: "/revisao",
-    cta: t("review.title"),
-  };
-}
-
 export function LessonPlayer() {
   const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
@@ -1739,9 +1539,9 @@ export function LessonPlayer() {
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
   const completeLesson = useStore((s) => s.completeLesson);
-  const saveCultureItem = useStore((s) => s.saveCultureItem);
   const startCultureItem = useStore((s) => s.startCultureItem);
-  const cultureSavedIds = useStore((s) => s.cultureSavedIds);
+  const cultureCompletedIds = useStore((s) => s.cultureCompletedIds ?? []);
+  const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name);
   const cultureKnowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
@@ -1816,10 +1616,6 @@ export function LessonPlayer() {
   useStore((s) => s.srs);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const lessonAttemptsById = useStore((s) => s.lessonAttemptsById);
-  const missionAggregates = useStore((s) => s.getMissionAggregates());
-  const dailyMissions = useStore((s) => s.dailyMissions);
-  const weeklyMissions = useStore((s) => s.weeklyMissions);
-  const monthlyMission = useStore((s) => s.monthlyMission);
   const { openFeedback } = useFeedbackUi();
 
   const [idx, setIdx] = useState(0);
@@ -1828,7 +1624,6 @@ export function LessonPlayer() {
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
-  const [cultureTouchpointOpen, setCultureTouchpointOpen] = useState(true);
   const [cultureSourcesOpen, setCultureSourcesOpen] = useState(false);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
   const [answerStreak, setAnswerStreak] = useState(0);
@@ -1840,20 +1635,11 @@ export function LessonPlayer() {
   const [correctedErrorIds, setCorrectedErrorIds] = useState<string[]>([]);
   // Estrela recuperada: o aluno corrigiu TODOS os erros da tentativa atual.
   const [recovered, setRecovered] = useState(false);
-  const [reviewItemsAdded, setReviewItemsAdded] = useState(0);
   // Fôlego esgotado ao tentar pular: abre o convite ao Pro (skips ilimitados).
   const [showFolegoUpsell, setShowFolegoUpsell] = useState(false);
   const [lessonReward, setLessonReward] = useState(0);
   const [lessonXp, setLessonXp] = useState(0);
   const [postLessonXpTotal, setPostLessonXpTotal] = useState(0);
-  // Resumo pedagógico da sessão: o que de fato foi praticado nesta rodada.
-  const [sessionSummary, setSessionSummary] = useState<{
-    phrases: number;
-    newPhrases: number;
-    hanzi: number;
-    tones: number;
-  } | null>(null);
-  const [estimatedMinutes, setEstimatedMinutes] = useState(5);
   const [postLessonView, setPostLessonView] = useState<"victory" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
   // Recompensas (Qi/pérola/medalha) resgatadas no próprio card de vitória.
@@ -3272,9 +3058,6 @@ export function LessonPlayer() {
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
     const gradedDomains = new Set<string>();
-    // Itens distintos praticados nesta sessão — alimentam o resumo final.
-    const practicedChunkIds = new Set<string>();
-    const practicedCharIds = new Set<string>();
     const isCultureDomain = lesson.lessonDomain === "culture";
     const gradeOnce = (
       type: ItemType,
@@ -3284,8 +3067,6 @@ export function LessonPlayer() {
     ) => {
       if (isCultureDomain) return;
       const key = `${type}:${itemId}:${domain}`;
-      if (type === "chunk") practicedChunkIds.add(itemId);
-      else practicedCharIds.add(itemId);
       if (gradedDomains.has(key)) return;
       gradedDomains.add(key);
       gradeReviewDomain({
@@ -3471,15 +3252,7 @@ export function LessonPlayer() {
         (isPremium ? PRO_LESSON_QI_BONUS : 0)
       : 0;
 
-    // Resumo pedagógico: frases/hànzì praticados e tons acertados na rodada.
     const tonesHit = toneHitsRef.current;
-    const newPhrases = [...practicedChunkIds].filter((id) => !learnedChunks.includes(id)).length;
-    setSessionSummary({
-      phrases: practicedChunkIds.size,
-      newPhrases,
-      hanzi: practicedCharIds.size,
-      tones: tonesHit,
-    });
     if (tonesHit > 0) recordDailyTask("tonesTrained", tonesHit);
     const xpClaimed = completionXp > 0
       ? claimReward({
@@ -3498,11 +3271,9 @@ export function LessonPlayer() {
       });
     }
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
-    setReviewItemsAdded(gradedDomains.size);
     setLessonXp(xpClaimed ? completionXp : 0);
     setPostLessonXpTotal(useStore.getState().xpTotal);
     setLessonReward(completionQi);
-    setEstimatedMinutes(minutesEarned);
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
@@ -3646,15 +3417,6 @@ export function LessonPlayer() {
       : t("player.starsRequired", { n: masteryStars });
     const helpCount = skippedStepsRef.current + retryUsesRef.current + recoveryUsesRef.current;
     const precision = graded === 0 ? 100 : Math.round((correct / graded) * 100);
-    const victoryTitle = victoryTitleFor(lesson.id);
-    const missionHighlights = [
-      ...buildMissionViews("daily", missionAggregates, dailyMissions.claimed),
-      ...buildMissionViews("weekly", missionAggregates, weeklyMissions.claimed),
-    ]
-      .filter((mission) => mission.progress > 0 && !mission.claimed && isMissionActionable(mission, isPremium))
-      .sort((a, b) => Number(b.complete) - Number(a.complete) || (b.progress / b.goal) - (a.progress / a.goal))
-      .slice(0, 3);
-    const monthlyProgress = Math.min(monthlyMission.completed, MONTHLY_GOAL);
     const committedErrors = (activityErrors.length > 0 ? activityErrors : activityErrorsRef.current).filter(
       (error) => error.lessonId === lesson.id
     );
@@ -3662,12 +3424,6 @@ export function LessonPlayer() {
     const remainingErrors = committedErrors.filter((error) => !correctedErrorIds.includes(error.id));
     const reviewQueue = errorReviewMode === "review" && remainingErrors.length > 0 ? remainingErrors : committedErrors;
     const canRetryAfterReview = !passed || (!lesson.isReview && stars < masteryStars);
-    const suggestsPinyinLab = lesson.steps.some((step) =>
-      step.kind === "tone" || step.kind === "tone_pair" || step.kind === "listen_select"
-    );
-    const suggestsHanziLab = lesson.steps.some((step) =>
-      step.kind === "recognize" || step.kind === "decompose" || step.kind === "hanzi_build"
-    );
     // Próximo foco + frase-resumo: dizem em uma linha o que a sessão rendeu.
     const toneErrorCount = committedErrors.filter(
       (error) => error.skill === "som" || error.step?.kind === "tone" || error.step?.kind === "tone_pair"
@@ -3681,63 +3437,6 @@ export function LessonPlayer() {
         ? localizedTopicVictory(Math.min(4, masteryNow) as 1 | 2 | 3 | 4)
         : null;
     const journeyCta = isTopicMasteryLesson(lesson) ? t("player.backToJourney") : t("player.continueJourney");
-    const topicContinue =
-      isTopicMasteryLesson(lesson) && masteryNow < 4
-        ? { title: displayLessonTitle(lesson.title, locale), nextPass: Math.min(4, masteryNow + 1) as 1 | 2 | 3 | 4 }
-        : undefined;
-    const nextFocus = buildNextFocus({
-      remainingErrorCount: remainingErrors.length,
-      toneErrorCount,
-      hanziErrorCount,
-      nextLessonTitle: nextLesson ? displayLessonTitle(nextLesson.title, locale) : undefined,
-      topicContinue,
-    });
-    const weakSkillsLabel =
-      toneErrorCount > 0 && hanziErrorCount > 0
-        ? t("player.weakSkillsTonesHanzi")
-        : toneErrorCount > 0
-          ? t("player.weakSkillsTones")
-          : hanziErrorCount > 0
-            ? t("player.weakSkillsHanzi")
-            : t("player.weakSkillsPhrases");
-    const summaryParts: string[] = [];
-    if (sessionSummary) {
-      if (sessionSummary.phrases > 0) {
-        summaryParts.push(
-          sessionSummary.newPhrases > 0
-            ? t("player.phrasesPracticedNew", {
-                n: sessionSummary.phrases,
-                newCount: sessionSummary.newPhrases,
-              })
-            : t("player.phrasesPracticed", {
-                n: sessionSummary.phrases,
-                unit:
-                  sessionSummary.phrases === 1 ? t("player.phraseUnitOne") : t("player.phraseUnitMany"),
-              })
-        );
-      }
-      if (sessionSummary.hanzi > 0) summaryParts.push(t("player.reinforcedHanzi", { n: sessionSummary.hanzi }));
-      if (sessionSummary.tones > 0) summaryParts.push(t("player.hitTones", { n: sessionSummary.tones }));
-    }
-    if (correctedCount > 0) {
-      summaryParts.push(
-        correctedCount === 1
-          ? t("player.fixedErrorOne", { n: correctedCount })
-          : t("player.fixedErrorMany", { n: correctedCount })
-      );
-    }
-    const sessionSummaryLine =
-      summaryParts.length > 0
-        ? t("player.todayYou", {
-            summary:
-              summaryParts.length > 1
-                ? t("player.summaryJoin", {
-                    head: summaryParts.slice(0, -1).join(", "),
-                    tail: summaryParts[summaryParts.length - 1],
-                  })
-                : summaryParts[0],
-          })
-        : t("player.completedJourneyStage");
 
     // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
     // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
@@ -3818,11 +3517,9 @@ export function LessonPlayer() {
       setRecovered(false);
       recoveryAppliedRef.current = false;
       pendingReviewRestoredRef.current = false;
-      setReviewItemsAdded(0);
       setLessonReward(0);
       setLessonXp(0);
       setPostLessonXpTotal(0);
-      setSessionSummary(null);
       skippedStepsRef.current = 0;
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
@@ -3833,7 +3530,6 @@ export function LessonPlayer() {
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
       mistakeReviewTargetsRef.current = [];
-      setEstimatedMinutes(5);
       setPostLessonView("victory");
       setDailyGoalReached(false);
       setClaimedRewardCards(false);
@@ -4058,16 +3754,7 @@ export function LessonPlayer() {
     const shouldShowStreak = dailyGoalReached;
     const saveStatusLabel = progressSaveLabel(authMode, cloudSyncState.status);
     // Recompensas extras além de XP/Qi (pérola, medalha) viram chips no card.
-    const extraRewards = allRewards.filter((reward) => reward.type !== "qi");
     const hasUnclaimedRewards = newRewards.length > 0 && !claimedRewardCards;
-    const topSummaryStats = [
-      {
-        label: t("player.phrases"),
-        value: `${sessionSummary?.phrases ?? 0}${(sessionSummary?.newPhrases ?? 0) > 0 ? ` (${t("player.newCount", { n: sessionSummary?.newPhrases ?? 0 })})` : ""}`,
-      },
-      { label: "Hànzì", value: `${sessionSummary?.hanzi ?? 0}` },
-      { label: "Tons", value: `${sessionSummary?.tones ?? 0}` },
-    ];
 
     // Resgata as recompensas no próprio card (sem uma segunda tela longa).
     function claimLessonRewards() {
@@ -4088,9 +3775,18 @@ export function LessonPlayer() {
       setClaimedRewardCards(true);
     }
 
+    const victoryContinuePath = resolveVictoryContinuePath({
+      lessonId: lesson.id,
+      isCultureLesson: lesson.lessonDomain === "culture",
+      search: searchParams,
+      completedLessonIds: completedLessons,
+      completedCultureIds: cultureCompletedIds,
+      preferJourney: isTopicMasteryLesson(lesson),
+    });
+
     function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
-      else navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
+      else navigate(victoryContinuePath);
     }
 
     // Botão principal: 1º toque resgata (se houver), depois volta à Jornada.
@@ -4125,7 +3821,7 @@ export function LessonPlayer() {
       // Pérolas de ofensiva: só marcos únicos (streak:7, streak:30, …).
       maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("streak", soundEffects);
-      navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
+      navigate(victoryContinuePath);
     }
 
     if (postLessonView === "streak") {
@@ -4185,321 +3881,76 @@ export function LessonPlayer() {
       );
     }
 
+    const mistakesBySkill: Partial<Record<LessonCompletionSkill, number>> = {
+      tone: toneErrorCount,
+      hanzi: hanziErrorCount,
+      listening: committedErrors.filter((error) => error.step?.kind === "listen_select" || error.step?.kind === "audio_discrimination" || error.step?.kind === "dictation").length,
+      conversation: committedErrors.filter((error) => error.step?.kind === "conversation_scene").length,
+    };
+    const pendingStarsHint =
+      (lessonPendingStars[lesson.id]?.length ?? 0) > 0
+        ? isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
+          ? t("player.skippedBreathTopic")
+          : t("player.skippedBreathNext")
+        : !recovered && stars === 2
+          ? isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
+            ? t("player.topicLessonDoneContinue")
+            : isTopicMasteryLesson(lesson)
+              ? t("player.topicMasteredStars")
+              : t("player.stageDoneStars")
+          : undefined;
+    const victoryContext =
+      lesson.lessonDomain === "culture" ? "culture" : lesson.isReview ? "review" : "lesson";
+    const victoryHeadline =
+      lesson.lessonDomain === "culture"
+        ? t("culture.lessonComplete")
+        : topicVictory
+          ? `✓ ${topicVictory.heading}`
+          : stars === 3
+            ? t("player.lessonComplete")
+            : t("player.youAdvanced");
+
     return (
-      <div
-        className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[env(safe-area-inset-bottom)]"
-        data-lesson-victory
-        data-testid={lesson.lessonDomain === "culture" ? "culture-victory" : undefined}
-      >
+      <>
         {recoveryDebugPanel}
-        <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift">
-        <div
-          data-lesson-activity-scroll
-          data-lesson-scroll-region
-          data-lesson-victory-scroll
-          className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5 pt-4 [-webkit-overflow-scrolling:touch] [scroll-padding-bottom:1.25rem] [touch-action:pan-y] sm:px-6"
-        >
-          <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
-            {displayLessonTitle(lesson.title, locale)}
-          </div>
-          <div
-            className="relative mx-auto mt-1 h-14 w-20 shrink-0"
-            data-testid={lesson.lessonDomain === "culture" ? "culture-stars" : undefined}
-          >
-            <div className="absolute inset-x-0 top-0 flex justify-center">
-              <Mascot size={56} variant="celebrate" />
-            </div>
-            {[0, 1, 2].map((n) => (
-              <IconStar
-                key={n}
-                width={12 + n * 2}
-                height={12 + n * 2}
-                className={[
-                  "longyu-star-spark absolute text-accent",
-                  n === 0 ? "left-1 top-7" : n === 1 ? "right-1 top-1" : "right-4 bottom-1",
-                ].join(" ")}
-                fill="currentColor"
-                style={{ animationDelay: `${n * 90}ms` }}
-              />
-            ))}
-          </div>
-          <h1 className="mt-1 text-balance font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-            {lesson.lessonDomain === "culture"
-              ? t("culture.lessonComplete")
-              : topicVictory
-                ? `✓ ${topicVictory.heading}`
-                : stars === 3
-                  ? t("player.lessonComplete")
-                  : t("player.youAdvanced")}
-          </h1>
-          {lesson.lessonDomain === "culture" && stars === 3 ? (
-            <p className="mt-1 text-sm font-semibold text-accent" data-testid="culture-perfect">
-              {t("player.perfect")}
-            </p>
-          ) : null}
-          {topicVictory ? (
-            <div className="mx-auto mt-1 max-w-md" data-testid="topic-victory-copy">
-              <p className="text-sm font-semibold text-ink">{displayLessonTitle(lesson.title, locale)}</p>
-              <p className="mt-0.5 text-xs text-ink-soft sm:text-sm" data-testid="topic-victory-lesson">
-                {topicVictory.lessonLine}
-                {!topicVictory.mastered && masteryNow >= 1 && masteryNow <= 4
-                  ? ` · ${localizedPassLabel(masteryNow as 1 | 2 | 3 | 4)}`
-                  : ""}
-              </p>
-              <p className="mt-1 text-sm font-medium text-accent" data-testid="topic-victory-remaining">
-                {topicVictory.remainingLine}
-              </p>
-            </div>
-          ) : (
-            <p className="mx-auto mt-0.5 text-xs text-ink-soft sm:text-sm">{victoryTitle}</p>
-          )}
-
-          <div className="mt-2 flex items-center justify-center gap-1.5">
-            {[1, 2, 3].map((n) => (
-              <IconStar
-                key={n}
-                width={26}
-                height={26}
-                className={n <= stars ? "longyu-star-spark text-accent" : "text-line"}
-                fill={n <= stars ? "currentColor" : "none"}
-                style={{ animationDelay: `${n * 80}ms` }}
-              />
-            ))}
-          </div>
-
-          {recovered && (
-            <div
-              className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]"
-              data-review-recovered
-            >
-              {REVIEW_RECOVERED.banner}
-            </div>
-          )}
-
-          {(lessonPendingStars[lesson.id]?.length ?? 0) > 0 && (
-            <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
-                ? t("player.skippedBreathTopic")
-                : t("player.skippedBreathNext")}
-            </div>
-          )}
-
-          {!recovered && stars === 2 && (lessonPendingStars[lesson.id]?.length ?? 0) === 0 && (
-            <div className="mx-auto mt-2.5 rounded-xl border border-accent-soft bg-accent-soft/45 px-3 py-2 text-xs font-medium text-accent">
-              {isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
-                ? t("player.topicLessonDoneContinue")
-                : isTopicMasteryLesson(lesson)
-                  ? t("player.topicMasteredStars")
-                  : t("player.stageDoneStars")}
-            </div>
-          )}
-
-          {/* Métricas compactas em chips (substitui os 6 cards grandes). */}
-          <div className="mt-3 flex flex-wrap items-stretch justify-center gap-1.5" data-testid={lesson.lessonDomain === "culture" ? "culture-score" : undefined}>
-            <span data-testid={lesson.lessonDomain === "culture" ? "culture-xp" : undefined}>
-              <MetricChip value={`+${lessonXp}`} label="XP" tone="accent" />
-            </span>
-            <MetricChip value={`+${lessonReward}`} label="Qi" tone="neutral" />
-            <MetricChip value={String(correct)} label={t("player.hits")} tone="good" />
-            <MetricChip value={String(Math.max(0, graded - correct))} label={t("player.errorsShort")} tone="neutral" />
-            <MetricChip value={`${precision}%`} label={t("player.accuracy")} tone={precision >= 80 ? "good" : "neutral"} />
-            {extraRewards.map((reward) => (
-              <MetricChip
-                key={reward.id}
-            value={reward.type === "badge" ? localizedBadgeTitle(reward.source) : rewardLabel(reward)}
-                icon={<span className="hanzi text-base leading-none">{rewardIcon(reward)}</span>}
-                tone="gold"
-              />
-            ))}
-          </div>
-          <div className="mt-2 text-[11px] text-ink-faint">
-            {authMode === "cloud" && cloudSyncState.status === "error" ? (
-              <button
-                type="button"
-                className="underline decoration-dotted underline-offset-2 hover:text-ink-soft"
-                onClick={() => void flushCloudProgressPush()}
-              >
-                {saveStatusLabel}
-              </button>
-            ) : (
-              saveStatusLabel
-            )}{" "}
-            · {t("player.xpTotalNow", { n: postLessonXpTotal })}
-            {claimedRewardCards && <span className="text-[rgb(var(--good))]"> · {t("player.rewardsReceived")}</span>}
-          </div>
-
-          {lesson.lessonDomain !== "culture" && lesson.cultureItemId && cultureTouchpointOpen ? (
-            <CultureTouchpoint
-              cultureItemId={lesson.cultureItemId}
-              lessonId={lesson.id}
-              from={`/licao/${lesson.id}`}
-              saved={(cultureSavedIds ?? []).includes(lesson.cultureItemId)}
-              onSave={() => saveCultureItem(lesson.cultureItemId!, true)}
-              onContinue={() => setCultureTouchpointOpen(false)}
-            />
-          ) : null}
-
-          {/* 2 · Próximo foco — card compacto com CTA. */}
-          <div className="mt-2.5 flex flex-col gap-2 rounded-2xl border border-line bg-surface/85 p-3 text-left shadow-card sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">{t("player.nextFocus")}</div>
-              <div className="mt-0.5 text-sm font-semibold text-ink">{nextFocus.title}</div>
-              <p className="mt-0.5 text-xs leading-5 text-ink-soft">{nextFocus.desc}</p>
-            </div>
-            {nextFocus.cta === t("player.seeOnJourney") ? (
-              <ButtonLink to="/jornada" variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-                {t("player.seeOnJourney")} <IconChevron width={15} height={15} />
-              </ButtonLink>
-            ) : (
-              <ButtonLink to={nextFocus.to} variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
-                {nextFocus.cta} <IconChevron width={15} height={15} />
-              </ButtonLink>
-            )}
-          </div>
-
-          {/* 4 · Detalhes opcionais — tudo em accordions, fechado por padrão. */}
-          <div className="mt-2.5 grid gap-1.5 text-left">
-            <CollapsibleInfoCard title={t("player.reviewResults")} compactLabel={`~${estimatedMinutes} min`}>
-              <div className="grid grid-cols-3 gap-2">
-                {topSummaryStats.map((item) => (
-                  <LessonSummaryStat key={item.label} label={item.label} value={item.value} />
-                ))}
-                <LessonSummaryStat label={t("player.accuracy")} value={`${precision}%`} />
-                <LessonSummaryStat
-                  label={t("player.errorsCorrected")}
-                  value={committedErrors.length > 0 ? `${correctedCount}/${committedErrors.length}` : "0"}
-                />
-                <LessonSummaryStat label={t("player.forReview")} value={`${reviewItemsAdded}`} />
-              </div>
-              <p className="mt-2 text-xs leading-5 text-ink-soft">
-                {sessionSummaryLine} {t("player.practiceMinutes", { n: estimatedMinutes })}
-                {reviewItemsAdded > 0 ? ` ${t("player.itemsEnteredReview", { n: reviewItemsAdded })}` : "."}
-              </p>
-            </CollapsibleInfoCard>
-
-            <CollapsibleInfoCard
-              title={t("player.missionsUpdated")}
-              compactLabel={missionHighlights.length > 0 ? t("player.updatedCount", { n: missionHighlights.length }) : t("player.monthlyCount", { n: `${monthlyProgress}/${MONTHLY_GOAL}` })}
-              defaultOpen={false}
-            >
-              <ProgressBar value={monthlyProgress} max={MONTHLY_GOAL} className="h-2" />
-              {missionHighlights.length > 0 ? (
-                <div className="mt-2.5 grid gap-2">
-                  {missionHighlights.map((mission) => (
-                    <MissionUpdateCard key={`${mission.scope}:${mission.id}`} mission={mission} />
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-2.5 rounded-[16px] border border-line bg-surface-2 px-3 py-2.5 text-xs text-ink-soft">
-                  {t("player.keepPracticingMission")}
-                </div>
-              )}
-              <Link to="/missoes" className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-                {t("player.seeMissions")} <IconChevron width={13} height={13} />
-              </Link>
-            </CollapsibleInfoCard>
-
-            {(suggestsPinyinLab || suggestsHanziLab) && (
-              <CollapsibleInfoCard title={t("player.guidedReinforcement")} compactLabel={t("player.shortPractice")}>
-                <div className="text-sm font-medium text-ink">{t("player.wantReinforceThis")}</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {suggestsPinyinLab && (
-                    <ButtonLink to="/pinyin" variant="outline" size="sm">
-                      <IconSound width={15} height={15} /> Pinyin Lab
-                    </ButtonLink>
-                  )}
-                  {suggestsHanziLab && (
-                    <ButtonLink to="/hanzi" variant="outline" size="sm">
-                      <IconHanzi width={15} height={15} /> Hànzì Lab
-                    </ButtonLink>
-                  )}
-                </div>
-              </CollapsibleInfoCard>
-            )}
-
-            <CollapsibleInfoCard title={t("player.leaveFeedback")} compactLabel={t("common.optional")}>
-              <FeedbackPrompt
-                context={{
-                  screen: `/licao/${lesson.id}/player`,
-                  route: `/licao/${lesson.id}/player`,
-                  lessonId: lesson.id,
-                  exerciseKind: committedErrors[0]?.step?.kind ?? lesson.steps[Math.min(idx, lesson.steps.length - 1)]?.kind,
-                  exerciseIndex: (() => {
-                    const fromQuestion = committedErrors[0]?.questionId?.match(/:(\d+):/)?.[1];
-                    if (fromQuestion != null) return Number(fromQuestion);
-                    return Math.min(idx, lesson.steps.length - 1);
-                  })(),
-                  activityProblem: committedErrors.length > 0,
-                }}
-                compact
-                className="border-line/70"
-              />
-            </CollapsibleInfoCard>
-
-            {!isPremium && committedErrors.length >= 3 && (
-              <div className="rounded-[18px] border border-[#B7791F]/25 bg-[#B7791F]/[0.07] px-3 py-2.5 text-left shadow-card">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">Longyu Pro</div>
-                <p className="mt-0.5 text-xs leading-5 text-ink">
-                  {t("player.proWeakSkills", { skills: weakSkillsLabel })}
-                </p>
-                <Button variant="soft" size="sm" className="mt-2" onClick={() => setProPaywallKind("weak_spots")}>
-                  {t("player.meetFocusedReview")}
-                </Button>
-              </div>
-            )}
-
-            {!recovered && mistakes.length > 0 && (
-              <CollapsibleInfoCard title={t("player.sentToReview")} compactLabel={t("player.itemCount", { n: mistakes.length })}>
-                <div className="grid gap-2">
-                  {mistakes.slice(0, 3).map((mistake, index) => (
-                    <div key={`${mistake.prompt}-${index}`} className="rounded-xl bg-surface-2 px-3 py-2 text-xs">
-                      <div className="font-medium text-ink">{mistake.prompt}</div>
-                      <div className="mt-0.5 text-ink-soft">
-                        {t("player.correctAnswer")}: <span className="font-medium text-ink">{mistake.correction}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleInfoCard>
-            )}
-          </div>
-
-          <ProOfferBanner
-            offer={contextualOffer.offer}
-            onDismiss={contextualOffer.dismiss}
-            className="mt-4"
-          />
-        </div>
-
-          {/* 3 · Botão principal — fora do scroll, visível em 720p e no celular. */}
-          <div
-            data-lesson-victory-actions
-            className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-10px_28px_rgb(0_0_0/0.14)] backdrop-blur sm:px-6"
-          >
-            <div className="mb-1.5 hidden items-center justify-center gap-4 text-xs font-medium text-ink-faint sm:flex">
-              <Link to="/revisao" className="inline-flex items-center gap-1 transition hover:text-ink">
-                <IconRefresh width={14} height={14} /> {t("player.navReview")}
-              </Link>
-              <Link to="/biblioteca" className="inline-flex items-center gap-1 transition hover:text-ink">
-                <IconLibrary width={14} height={14} /> {t("player.navLibrary")}
-              </Link>
-              <Link to="/treino" className="inline-flex items-center gap-1 transition hover:text-ink">
-                <IconTarget width={14} height={14} /> {t("player.navTrain")}
-              </Link>
-            </div>
-            <Button
-              className="min-h-12 w-full shadow-lift"
-              size="lg"
-              data-testid={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
-              onClick={handlePrimaryAction}
-            >
-              {hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
-              <IconChevron width={18} height={18} />
-            </Button>
-          </div>
-        </section>
+        <LessonVictory
+          context={victoryContext}
+          title={displayLessonTitle(lesson.title, locale)}
+          headline={victoryHeadline}
+          stars={stars}
+          xp={lessonXp}
+          accuracy={precision}
+          errorCount={Math.max(0, graded - correct)}
+          assistanceCount={helpCount}
+          mistakesBySkill={mistakesBySkill}
+          displayName={studentFirstName(accountName)}
+          locale={locale === "en" ? "en" : "pt"}
+          recovered={recovered}
+          recoveredBanner={REVIEW_RECOVERED.banner}
+          pendingStarsHint={pendingStarsHint}
+          topicLines={
+            topicVictory
+              ? {
+                  title: displayLessonTitle(lesson.title, locale),
+                  lessonLine: `${topicVictory.lessonLine}${
+                    !topicVictory.mastered && masteryNow >= 1 && masteryNow <= 4
+                      ? ` · ${localizedPassLabel(masteryNow as 1 | 2 | 3 | 4)}`
+                      : ""
+                  }`,
+                  remainingLine: topicVictory.remainingLine,
+                }
+              : undefined
+          }
+          saveStatusLabel={saveStatusLabel}
+          xpTotal={postLessonXpTotal}
+          claimedRewards={claimedRewardCards}
+          primaryLabel={hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
+          primaryTestId={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
+          onPrimary={handlePrimaryAction}
+          onReviewErrors={committedErrors.length > 0 ? () => setErrorReviewMode("review") : undefined}
+        />
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
-      </div>
+      </>
     );
   }
 
@@ -4618,14 +4069,17 @@ export function LessonPlayer() {
 
       {lesson.lessonDomain === "culture" ? (
         <div className="flex items-center justify-between gap-2 px-2 pb-1 sm:px-0">
-          <button
-            type="button"
-            className="min-h-10 text-xs font-medium text-ink-soft underline-offset-2 hover:underline"
-            data-testid="culture-back"
-            onClick={exitLesson}
-          >
-            {t("common.back")}
-          </button>
+          <div className="flex min-w-0 items-center gap-2">
+            <LessonKindLabel kind="culture" />
+            <button
+              type="button"
+              className="min-h-10 text-xs font-medium text-ink-soft underline-offset-2 hover:underline"
+              data-testid="culture-back"
+              onClick={exitLesson}
+            >
+              {t("common.back")}
+            </button>
+          </div>
           <button
             type="button"
             className="min-h-10 rounded-full border border-line px-3 text-xs"

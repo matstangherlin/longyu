@@ -86,7 +86,7 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
         {complete ? <IconCheck width={17} height={17} /> : ready ? <Icon width={17} height={17} /> : <IconLock width={15} height={15} />}
       </span>
       <span className="min-w-0 text-left">
-        <span className="block truncate text-[13px] font-semibold text-ink">{label}</span>
+        <span className="block line-clamp-2 text-[13px] font-semibold leading-4 text-ink">{label}</span>
         <span className="block text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
           {/*
             Uma aula da fundação não é "opcional". Ela é o caminho, e chamá-la
@@ -130,6 +130,7 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
     return (
       <div
         data-journey-inline-node={node.id}
+        data-canonical-lesson-id={node.type === "CULTURE_LESSON" ? node.sourceId : undefined}
         data-ready="false"
         data-reason={access?.reason}
         className={[shell, "border-dashed border-line/70 bg-surface-2/40 opacity-80"].join(" ")}
@@ -143,6 +144,7 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
     <Link
       to={routeForJourneyNode(node)}
       data-journey-inline-node={node.id}
+      data-canonical-lesson-id={node.type === "CULTURE_LESSON" ? node.sourceId : undefined}
       data-ready="true"
       className={[
         shell,

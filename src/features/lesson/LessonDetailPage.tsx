@@ -177,8 +177,6 @@ export function LessonDetailPage() {
   const lessonSessionStepById = useStore((state) => state.lessonSessionStepById);
   const toneTrainer = useStore((state) => state.toneTrainer);
   const canStartActivity = useStore((state) => state.canStartActivity);
-  const saveCultureItem = useStore((state) => state.saveCultureItem);
-  const cultureSavedIds = useStore((state) => state.cultureSavedIds);
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
   const [cultureDismissed, setCultureDismissed] = useState(false);
 
@@ -424,8 +422,6 @@ export function LessonDetailPage() {
           cultureItemId={lesson.cultureItemId}
           lessonId={lesson.id}
           from={`/licao/${lesson.id}`}
-          saved={(cultureSavedIds ?? []).includes(lesson.cultureItemId)}
-          onSave={() => saveCultureItem(lesson.cultureItemId!, true)}
           onContinue={() => setCultureDismissed(true)}
         />
       ) : null}
