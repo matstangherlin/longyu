@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
 import { IconChevron, IconStar } from "../../components/ui/Icon";
@@ -36,6 +36,7 @@ export function LessonVictory({
   primaryTestId,
   onPrimary,
   onReviewErrors,
+  banner,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -59,6 +60,7 @@ export function LessonVictory({
   primaryTestId: string;
   onPrimary: () => void;
   onReviewErrors?: () => void;
+  banner?: ReactNode;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const [motionReady, setMotionReady] = useState(false);
@@ -225,6 +227,8 @@ export function LessonVictory({
               </div>
             ) : null}
           </div>
+
+          {banner}
 
           {saveStatusLabel ? (
             <div className="mt-3 text-[11px] text-ink-faint">

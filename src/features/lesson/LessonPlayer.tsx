@@ -123,6 +123,7 @@ import {
   lessonTopicMasteredXpRewardId,
   markJourneyPassReturn,
 } from "../../data/topicMastery";
+import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
@@ -3948,6 +3949,15 @@ export function LessonPlayer() {
           primaryTestId={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
           onPrimary={handlePrimaryAction}
           onReviewErrors={committedErrors.length > 0 ? () => setErrorReviewMode("review") : undefined}
+          banner={
+            contextualOffer.offer?.strength === "card" ? (
+              <ProOfferBanner
+                className="mx-auto mt-3 max-w-sm text-left"
+                offer={contextualOffer.offer}
+                onDismiss={contextualOffer.dismiss}
+              />
+            ) : null
+          }
         />
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       </>
