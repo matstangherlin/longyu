@@ -112,7 +112,7 @@ const CHROME_LEFTOVERS = [
 ];
 
 const CAPTURED_CONTEXT = [
-  { file: "src/features/lesson/LessonPlayer.tsx", needle: "player.navReview", label: "victory footer Review" },
+  { file: "src/components/layout/nav.tsx", needle: "navigation.review", label: "app chrome Review" },
   { file: "src/features/lesson/LessonPlayer.tsx", needle: "player.saveLocalDevice", label: "save status catalog" },
   { file: "src/features/lesson/LessonPlayer.tsx", needle: "achievements.accuracy-serene", label: "serene accuracy via helper", optional: true },
   { file: "src/i18n/achievements.ts", needle: "achievements.accuracy-serene.title", label: "accuracy-serene catalog key" },
