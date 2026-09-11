@@ -98,13 +98,19 @@ test.describe("V4.9.8B.2 unified lesson UX", () => {
 
   test("culture journey node opens the same LessonPlayer as Hub", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedUnlockedLessonSession(page, "l2", { lessonMasteryById: masteryThrough("l2") });
+    const l2Index = ALL_LESSONS.findIndex((lesson) => lesson.id === "l2");
+    const completedThroughL2 = ALL_LESSONS.slice(0, l2Index + 1).map((lesson) => lesson.id);
+    await seedUnlockedLessonSession(page, "l3", {
+      completedLessons: completedThroughL2,
+      lessonMasteryById: masteryThrough("l3"),
+    });
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const node = page.locator('[data-journey-inline-node="culture:greetings-nihao"]');
-    if (await node.isVisible().catch(() => false)) {
-      await expect(node).toHaveAttribute("data-canonical-lesson-id", "culture-greetings-nihao");
+    await expect(node).toHaveAttribute("data-canonical-lesson-id", "culture-greetings-nihao");
+    if ((await node.getAttribute("data-ready")) === "true") {
+      await node.scrollIntoViewIfNeeded();
       await node.click();
     } else {
       await page.goto("/licao/culture-greetings-nihao/player?src=jornada");
