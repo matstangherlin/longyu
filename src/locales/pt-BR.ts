@@ -1950,6 +1950,10 @@ export const ptBR = {
       title: "Salto do dragão",
       desc: "Seja aprovado em um teste de pular módulo.",
     },
+    "jornada-china-survival": {
+      title: "China Survival",
+      desc: "Conclua a missão Um dia na China.",
+    },
     "sequencia-3": {
       title: "Chama acesa",
       desc: "Estude 3 dias seguidos.",

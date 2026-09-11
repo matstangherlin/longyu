@@ -217,6 +217,16 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     progress: (s) =>
       capped(s.rewardHistory.filter((entry) => /^challenge:.+:skip:qi$/.test(entry.id)).length, 1),
   },
+  {
+    id: "jornada-china-survival",
+    category: "jornada",
+    tier: "medium",
+    glyph: "行",
+    title: "China Survival",
+    desc: "Conclua a missão Um dia na China.",
+    reward: REWARD_MEDIUM,
+    progress: (s) => capped(s.completedLessons.includes("p7-china-survival") ? 1 : 0, 1),
+  },
 
   // 2. Sequência -----------------------------------------------------------
   {

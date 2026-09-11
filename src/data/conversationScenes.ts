@@ -35,6 +35,10 @@ import {
   NA_CLINICA_LEARNED_REFS,
   NA_CLINICA_NODES,
 } from "./healthSurvivalScenes";
+import {
+  CONVERSA_COTIDIANA_LEARNED_REFS,
+  CONVERSA_COTIDIANA_NODES,
+} from "./everydaySurvivalScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
@@ -3302,6 +3306,17 @@ sceneV2({
   entryNodeId: "saude-greet",
   nodes: NAO_ME_SINTO_BEM_NODES,
   learnedRefs: NAO_ME_SINTO_BEM_LEARNED_REFS,
+}),
+sceneV2({
+  sceneId: "conversa-cotidiana",
+  title: "Conversa cotidiana",
+  intent: "everyday-chat",
+  setting: "street",
+  characters: PAIR_LIN_MEI,
+  sceneRole: "immersion",
+  entryNodeId: "cot-open",
+  nodes: CONVERSA_COTIDIANA_NODES,
+  learnedRefs: CONVERSA_COTIDIANA_LEARNED_REFS,
 }),
 sceneV2({
   sceneId: "como-esta-o-tempo",
