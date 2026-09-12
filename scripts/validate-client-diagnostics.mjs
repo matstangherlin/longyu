@@ -25,7 +25,6 @@ assert.match(stale, /STALE_BUNDLE_RELOAD_KEY/, "reload é idempotente na sessão
 const vite = readFileSync("vite.config.ts", "utf8");
 assert.match(vite, /registerType:\s*"autoUpdate"/, "PWA aplica skipWaiting após deploy");
 assert.match(vite, /cleanupOutdatedCaches:\s*true/, "PWA limpa precache antigo");
-assert.match(vite, /VITE_USE_TEST_FIXTURES === "true"/, "E2E preview não registra SW (Firefox NS_BINDING_ABORTED)");
 assert.match(sync, /sync_error/, "falha de sync grava diagnóstico");
 assert.match(sync, /opsCorrelation/, "sync anexa correlation id sem PII");
 

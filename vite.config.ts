@@ -8,9 +8,6 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // E2E preview builds set VITE_USE_TEST_FIXTURES. A live SW + autoUpdate
-      // aborts Firefox navigations (NS_BINDING_ABORTED) mid-suite.
-      disable: process.env.VITE_USE_TEST_FIXTURES === "true",
       // Docs (BETA_RELEASE_QA / REAL_DEVICE_QA) require autoUpdate so a new
       // Netlify publish is not left serving deleted hashed lazy chunks.
       registerType: "autoUpdate",
