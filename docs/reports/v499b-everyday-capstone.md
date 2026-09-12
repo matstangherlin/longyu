@@ -161,9 +161,10 @@ Imersão de revisão pode reusar hànzì já declarado em `newHanzi` anterior se
 
 ## Gates / build
 
-- Gates 9B: PASS (incluindo mutations)
-- `e2e/v499b-everyday-capstone.spec.ts`: 7/7 PASS
+- Gates 9B + mutations: PASS
 - `validate:conversation-loop`: PASS (80.4% cobertura relevante; missões cotidiana/capstone isentas do loop pós-ensino)
 - `validate:conversation-pedagogy`: PASS (reparo do clima usa `今天很冷`; capstone justifica reabrir a cena cotidiana)
-- `validate:beta`: em fechamento da cauda (relatórios + seo)
-- `npm run build`: a registrar após a cauda
+- `validate:production-transfer`: PASS (3 respostas distintas na produção cotidiana; dica do capstone sem hànzì)
+- `e2e/v499b-everyday-capstone.spec.ts`: 7/7 PASS no HEAD atual (`http://127.0.0.1:5173`)
+- `validate:beta` completo: PASS (`BETA_FULL_EXIT:0`, fingerprint `38e70062857d`, `validate:report-freshness` no commit `55dfdfa72c`)
+- `npm run build` (`production_beta`, sem fixtures): PASS (`BUILD_EXIT:0`)
