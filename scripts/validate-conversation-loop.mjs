@@ -161,7 +161,18 @@ try {
   const priorityUncovered = [];
   const saturatedSkipped = new Map();
 
+  // Missões autoradas (cotidiana + capstone) SÃO a conversa/transferência.
+  // O plano delas é authored-only: sem mixer Wave-1 e sem fase pós-conversa
+  // de ensino. Contam no total analisado, mas não entram no mínimo de 3
+  // tarefas pós-cena nem no denominador de cobertura relevante — senão o
+  // portão forçaria drills de vocabulário numa missão que prova uso.
+  const AUTHORED_MISSION_IDS = new Set(["p7-conversa-cotidiana", "p7-china-survival"]);
+
   for (const lesson of ALL_LESSONS) {
+    if (AUTHORED_MISSION_IDS.has(lesson.id)) {
+      conversationsAnalyzed += (plans.get(lesson.id) ?? []).filter((step) => step.kind === "conversation_scene").length;
+      continue;
+    }
     const immersion = isImmersionLesson(lesson);
     const plan = plans.get(lesson.id);
     const conversationIndexes = plan
@@ -384,6 +395,10 @@ try {
     "> `你好` e `我会说一点中文` como o mesmo problema; o primeiro já foi praticado no curso",
     "> inteiro e o segundo apareceu duas vezes. Itens do núcleo saturado saem do",
     "> denominador de propósito: forçá-los de volta seria repetir `谢谢` sem fim.",
+    ">",
+    "> `p7-conversa-cotidiana` e `p7-china-survival` entram no total de conversas",
+    "> analisadas, mas ficam fora do mínimo pós-conversa e da cobertura relevante:",
+    "> a missão é a prática (recall/transfer), não um loop de ensino de vocabulário.",
     ""
   );
   if (saturatedSkipped.size > 0) {
