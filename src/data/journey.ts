@@ -231,6 +231,11 @@ export interface LessonStep {
   builderId?: string;
   /** conversation_scene: id canônico da cena. */
   sceneId?: string;
+  /**
+   * Justifica repetir esta cena como primária logo após a lição anterior.
+   * Usado no capstone: reabrir a conversa cotidiana é transferência.
+   */
+  conversationRepeatJustification?: string;
   setting?: ConversationSetting;
   characters?: ConversationCharacter[];
   checkpoint?: ConversationCheckpoint;

@@ -12,7 +12,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-------|-------|
 | SHA **obrigatória** (`main` após #252) | `4e04b575625c5364134afbc35c126da183824767` |
 | Fingerprint da Jornada **antes** (9A fechada) | `eb4baadf0579` |
-| Fingerprint da Jornada **depois** | _preencher após `build:structure-index` / commit_ |
+| Fingerprint da Jornada **depois** | `ad803486351c` |
 | Lições antes | 132 |
 | Lições depois | 134 (`p7-conversa-cotidiana`, `p7-china-survival`) |
 | Tópicos de ensino | **113** (as duas novas são `isReview` + `curriculumRole: "immersion"`) |
@@ -126,3 +126,42 @@ Todos os gates 9A listados em P34, inclusive `validate:beta` e `npm run build`.
 - Overlay EN para copy nova + título das duas lições
 - E2E 390×844 mantém Falar
 - E2E EN no player cotidiano
+
+## QA e evidências
+
+### E2E `e2e/v499b-everyday-capstone.spec.ts`
+
+7/7 Chromium contra preview em 4173:
+
+- listen / fill / montar 你+呢 / produção / cena
+- Capstone A: rua → restaurante
+- Capstone B: rua → loja
+- Capstone C: rua → saúde
+- Falar em 390×844
+- Player EN
+- refresh mantém o episódio
+
+### QA humano (390×844, `/qa/conversation-scene`)
+
+| Pergunta | Resultado |
+|---|---|
+| Parece conversa? | Sim. Cumprimento → bem-estar+你呢 → clima → amanhã → reparo → 再见 |
+| Parece prova? | Não no caminho principal; opções de reparo são decisão, não quiz solto |
+| NPC reage? | 我很好。你呢？ → 我也很好。今天很冷。 / 我不舒服 → 头疼吗？ (não 很好) |
+| Consigo escolher? | Sim (bem-estar, plano, reparo) |
+| Erro e recuperação? | 请再说一遍 repete 明天见; 请慢一点 divide (gate + cena) |
+| Conteúdo antigo? | Sim. 0 chunks novos |
+| Informação nova escondida? | Não |
+| Falar confortável? | Sim na produção cotidiana e na saúde; turnos de escolha do restaurante usam Responder |
+| PT/EN | PT no player; EN overlay + E2E |
+
+`tell_when` agora aceita `ask_repeat` (mesmo contrato de `tell_gate` / `tell_direction`).
+
+Imersão de revisão pode reusar hànzì já declarado em `newHanzi` anterior sem republicar vocabulário. Imersão não entra na cota visual de revisão de módulo.
+
+## Gates / build
+
+- Gates 9B: PASS (incluindo mutations)
+- `e2e/v499b-everyday-capstone.spec.ts`: 7/7 PASS
+- `validate:beta`: em fechamento da cauda (relatórios + seo)
+- `npm run build`: a registrar após a cauda

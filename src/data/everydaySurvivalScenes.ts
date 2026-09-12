@@ -244,7 +244,7 @@ export const CONVERSA_COTIDIANA_NODES: ConversationNode[] = [
       repairType: "clarify",
     },
   }),
-  npc("mei", "cot-weather-retry", "冷？", "lěng?", "Frio?", { nextNodeId: "cot-fine" }, "thinking"),
+  npc("mei", "cot-weather-retry", "今天很冷？", "jīntiān hěn lěng?", "Hoje está frio?", { nextNodeId: "cot-fine" }, "thinking"),
   lin("cot-weather-ack", "好。", "hǎo.", "Certo.", "cot-tomorrow"),
   npc("mei", "cot-tomorrow", "明天呢？", "míngtiān ne?", "E amanhã?", {
     interaction: {

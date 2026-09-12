@@ -323,6 +323,11 @@ export interface ConversationSceneStep {
   /** Lição dedicada pode apresentar mais de 1 novidade. */
   dedicatedLesson?: boolean;
   /**
+   * Justifica a mesma cena como primária em lições consecutivas.
+   * Usado quando a reabertura é transferência (capstone), não reteach.
+   */
+  repeatJustification?: string;
+  /**
    * Variantes por estágio da MESMA cena/intenção. O nível de topo (nodes +
    * learnedRefs) é a versão canônica/avançada; as variantes são versões mais
    * simples usadas enquanto o vocabulário mais rico ainda não foi aprendido.
@@ -3317,6 +3322,8 @@ sceneV2({
   entryNodeId: "cot-open",
   nodes: CONVERSA_COTIDIANA_NODES,
   learnedRefs: CONVERSA_COTIDIANA_LEARNED_REFS,
+  repeatJustification:
+    "transfer: o capstone reabre a conversa cotidiana como primeiro contato da missão, não reteach",
 }),
 sceneV2({
   sceneId: "como-esta-o-tempo",

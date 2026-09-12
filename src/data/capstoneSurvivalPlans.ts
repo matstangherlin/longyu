@@ -55,7 +55,15 @@ export function capstoneSurvivalPlanFor(
   if (!(CAPSTONE_SURVIVAL_TOPIC_IDS as readonly string[]).includes(lesson.id)) return null;
   const steps = lesson.steps ?? [];
   const variant = capstoneVariantFor(context.attemptNumber ?? 0);
-  const selected = slice(steps, CAPSTONE_VARIANT_INDEXES[variant]);
+  const selected = slice(steps, CAPSTONE_VARIANT_INDEXES[variant]).map((step) =>
+    step.sceneId === "conversa-cotidiana"
+      ? {
+          ...step,
+          conversationRepeatJustification:
+            "transfer: o capstone reabre a conversa cotidiana como primeiro contato da missão, não reteach",
+        }
+      : step
+  );
   const last = selected[selected.length - 1];
   const body =
     variant === "A"
