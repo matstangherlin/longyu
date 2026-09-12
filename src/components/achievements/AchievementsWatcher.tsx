@@ -32,12 +32,12 @@ export function useAchievementSnapshot(): AchievementSnapshot {
   const mandarinDisplayMode = useStore((s) => s.mandarinDisplayMode);
   const validatedModules = useStore((s) => s.validatedModules);
   return {
-    completedLessons,
+    completedLessons: completedLessons ?? [],
     longestStreak,
     xpTotal,
-    learnedChars,
-    learnedChunks,
-    srs,
+    learnedChars: learnedChars ?? [],
+    learnedChunks: learnedChunks ?? [],
+    srs: srs ?? {},
     lifetimeStats: lifetimeStats ?? freshLifetimeStats(),
     medals: medals ?? [],
     missionHistory: missionHistory ?? [],

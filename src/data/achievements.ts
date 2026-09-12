@@ -1,6 +1,6 @@
 import { JOURNEY } from "./journey";
 import { charById } from "./characters";
-import type { SRSItem } from "../lib/srs";
+import { isSrsItem, type SRSItem } from "../lib/srs";
 import type {
   AchievementReward,
   LifetimeStats,
@@ -120,12 +120,17 @@ function phasesCompleted(completedLessons: string[]): number {
   return count;
 }
 
-function reviewEventsTotal(srs: Record<string, SRSItem>): number {
-  return Object.values(srs).reduce((sum, item) => sum + item.reps + item.lapses, 0);
+function reviewEventsTotal(srs: Record<string, SRSItem> | null | undefined): number {
+  return Object.values(srs ?? {})
+    .filter(isSrsItem)
+    .reduce((sum, item) => sum + item.reps + item.lapses, 0);
 }
 
-function srsCount(srs: Record<string, SRSItem>, predicate: (item: SRSItem) => boolean): number {
-  return Object.values(srs).filter(predicate).length;
+function srsCount(
+  srs: Record<string, SRSItem> | null | undefined,
+  predicate: (item: SRSItem) => boolean
+): number {
+  return Object.values(srs ?? {}).filter(isSrsItem).filter(predicate).length;
 }
 
 function tonesMastered(learnedChars: string[]): number {

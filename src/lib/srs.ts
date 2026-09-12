@@ -164,7 +164,7 @@ export function isDue(item: SRSItem, now = Date.now()): boolean {
   return item.due <= now;
 }
 
-function isSrsItem(value: unknown): value is SRSItem {
+export function isSrsItem(value: unknown): value is SRSItem {
   return Boolean(value) && typeof value === "object" && typeof (value as SRSItem).due === "number";
 }
 

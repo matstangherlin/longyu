@@ -22,7 +22,7 @@ import {
 import { ALL_LESSONS } from "../data/journey";
 import { isJourneyTopicComplete } from "../data/topicMastery";
 import type { JourneyNode } from "../data/journeyOrchestrator";
-import { dueItems, type SRSItem } from "./srs";
+import { dueItems, isSrsItem, type SRSItem } from "./srs";
 
 export type JourneyReadinessReason =
   | "READY"
@@ -116,9 +116,11 @@ export function measureRecognitionRate(
   minimumSample: number
 ): RecognitionMeasurement {
   const receptive = new Set<string>(RECOGNITION_REVIEW_DOMAINS);
-  const sample = Object.values(srs ?? {}).filter(
-    (item) => item.reviewedAt != null && item.reviewDomain != null && receptive.has(item.reviewDomain)
-  );
+  const sample = Object.values(srs ?? {})
+    .filter(isSrsItem)
+    .filter(
+      (item) => item.reviewedAt != null && item.reviewDomain != null && receptive.has(item.reviewDomain)
+    );
   const held = sample.filter((item) => item.reps >= 1).length;
   return {
     rate: sample.length >= minimumSample && sample.length > 0 ? held / sample.length : null,
@@ -164,7 +166,9 @@ export function stageForTarget(targetId: string, state: LearnerReadinessState): 
       : state.learnedChars.includes(bareId);
     if (known) {
       // Entrou no repertório: reconhecido. Revisões seguidas levantam o degrau.
-      const items = Object.values(state.srs ?? {}).filter((item) => item.itemId === bareId);
+      const items = Object.values(state.srs ?? {})
+        .filter(isSrsItem)
+        .filter((item) => item.itemId === bareId);
       const bestReps = items.reduce((max, item) => Math.max(max, item.reps), 0);
       const graduated = items.some((item) => item.intervalDays >= 1);
       if (bestReps >= 4 && graduated) return "PRODUCED";

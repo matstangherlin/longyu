@@ -369,6 +369,36 @@ const { mergeWithoutPersistedServerEntitlement } = persistenceModule;
 }
 
 {
+  const hydrated = mergeWithoutPersistedServerEntitlement(
+    {
+      learnedChunks: null,
+      learnedChars: null,
+      srs: { bad: null },
+      today: null,
+      dailyMissions: { date: "2099-01-01" },
+    },
+    {
+      serverIsPro: false,
+      learnedChunks: [],
+      learnedChars: [],
+      srs: {},
+      today: { date: "2026-09-12", som: 0 },
+      dailyMissions: { date: "2026-09-12", claimed: { a: true } },
+    }
+  );
+  assert(
+    Array.isArray(hydrated.learnedChunks) &&
+      hydrated.learnedChunks.length === 0 &&
+      Array.isArray(hydrated.learnedChars) &&
+      hydrated.today?.date === "2026-09-12" &&
+      hydrated.dailyMissions.claimed &&
+      typeof hydrated.dailyMissions.claimed === "object" &&
+      hydrated.srs.bad === null,
+    "hidratação coalesces arrays/today/claimed nulos sem apagar SRS parcial"
+  );
+}
+
+{
   const persistedToast = {
     ...mergeWithoutPersistedServerEntitlement(
       { serverIsPro: false, economySyncMessage: "Resgatando Pérola..." },
