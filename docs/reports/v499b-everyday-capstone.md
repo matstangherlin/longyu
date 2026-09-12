@@ -12,7 +12,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-------|-------|
 | SHA **obrigatória** (`main` após #252) | `4e04b575625c5364134afbc35c126da183824767` |
 | Fingerprint da Jornada **antes** (9A fechada) | `eb4baadf0579` |
-| Fingerprint da Jornada **depois** | `ad803486351c` |
+| Fingerprint da Jornada **depois** | `38e70062857d` |
 | Lições antes | 132 |
 | Lições depois | 134 (`p7-conversa-cotidiana`, `p7-china-survival`) |
 | Tópicos de ensino | **113** (as duas novas são `isReview` + `curriculumRole: "immersion"`) |
@@ -163,5 +163,7 @@ Imersão de revisão pode reusar hànzì já declarado em `newHanzi` anterior se
 
 - Gates 9B: PASS (incluindo mutations)
 - `e2e/v499b-everyday-capstone.spec.ts`: 7/7 PASS
+- `validate:conversation-loop`: PASS (80.4% cobertura relevante; missões cotidiana/capstone isentas do loop pós-ensino)
+- `validate:conversation-pedagogy`: PASS (reparo do clima usa `今天很冷`; capstone justifica reabrir a cena cotidiana)
 - `validate:beta`: em fechamento da cauda (relatórios + seo)
 - `npm run build`: a registrar após a cauda
