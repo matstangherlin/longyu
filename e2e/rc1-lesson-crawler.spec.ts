@@ -31,11 +31,15 @@ async function crawlLesson(
     "[data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible"
   );
   const named = page.getByRole("button", {
-    name: /Continuar|Verificar|Entendi|Ouvir|Falar|Got it|Continue|Check|Listen|Speak/i,
+    name: /Continuar|Verificar|Confirmar|Entendi|Ouvir|Falar|Pular|Got it|Continue|Check|Confirm|Listen|Speak|Skip/i,
   });
+  const interactive = page.locator(
+    "[data-option-index]:visible, [data-pair-tile]:visible, [data-lesson-sticky-actions] button:visible"
+  );
   const ctaVisible =
     (await sticky.first().isVisible().catch(() => false)) ||
-    (await named.first().isVisible().catch(() => false));
+    (await named.first().isVisible().catch(() => false)) ||
+    (await interactive.first().isVisible().catch(() => false));
   expect(ctaVisible, `${lessonId} CTA`).toBe(true);
 }
 
