@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | eb4baadf0579 |
-| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Hash da Jornada | ad803486351c |
+| HEAD no instante da geração | 4cb731b9face3f7423b644cc9850091dedbdc4e8 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:31:46.995Z |
-| Lições | 132 |
+| Gerado em | 2026-09-12T00:01:17.326Z |
+| Lições | 134 |
 
 
 Semântica (TM-015): **ACQUIRED** = `completedLessons` (primeira exposição válida; SRS/achievements/analytics).
@@ -25,12 +25,12 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 
 | Métrica | Valor |
 |---------|------:|
-| Nós totais | 132 |
+| Nós totais | 134 |
 | Temas 4-pass | 113 |
-| Exceções (review/checkpoint) | 19 |
+| Exceções (review/checkpoint) | 21 |
 | Specs autoradas | 38 |
-| Sessões estimadas | 471 |
-| Horas estimadas | 21.3 |
+| Sessões estimadas | 473 |
+| Horas estimadas | 21.4 |
 | Média de passos/pass | 8.2 |
 
 ## Primeira vitória (sessão + minutos)
@@ -66,6 +66,8 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Imersão: check-in no hotel (`p7-imersao-hotel`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Imersão: no aeroporto (`p7-imersao-aeroporto`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Imersão: não estou bem (`p7-imersao-saude`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
+| Imersão: conversa cotidiana (`p7-conversa-cotidiana`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
+| Imersão: um dia na China (`p7-china-survival`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 | Imersão: hotel ao aeroporto (`p7-imersao-viagem`) | review | 1 | Revisão/checkpoint de módulo: uma sessão de consolidação. Path complete = ACQUIRED. Estrelas medem qualidade, não o 4/4. |
 
 ## Primeiros 30 temas
@@ -115,4 +117,4 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 Nenhuma.
 
-<!-- integridade:fe673ea79c49d6db -->
+<!-- integridade:faf1d1c10212ee09 -->

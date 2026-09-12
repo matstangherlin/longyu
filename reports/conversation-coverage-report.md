@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | f3985fb44182 |
-| HEAD no instante da geração | 4e04b575625c5364134afbc35c126da183824767 |
+| Hash da Jornada | 38e70062857d |
+| HEAD no instante da geração | 4663fa6778baddb14619de358543a91a5aad147e |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T23:36:54.225Z |
+| Gerado em | 2026-09-12T01:24:01.502Z |
 | Lições | 134 |
 
 ## Resumo
@@ -114,15 +114,9 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 | Indicador | Valor |
 |-----------|------:|
 | Variantes com manifesto gerado | 51 |
-| Itens de vocabulário mapeados | 729 |
-| Textos exibidos sem referência canônica (aviso) | 1 |
-| Refs declarados nunca exibidos (aviso) | 17 |
-
-### Texto exibido sem referência canônica standalone
-
-_Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O caminho direto já garante que foram ensinados; falta um ref standalone para reúso granular em SRS._
-
-- conversa-cotidiana (advanced): sem referência canônica → "冷"
+| Itens de vocabulário mapeados | 728 |
+| Textos exibidos sem referência canônica (aviso) | 0 |
+| Refs declarados nunca exibidos (aviso) | 14 |
 
 ### Refs declarados que não aparecem no texto exibido (over-declaração)
 
@@ -137,9 +131,6 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 - imersao-restaurante (advanced): ref declarado nunca exibido → chunk:zheshishenme
 - rotina-e-trabalho (advanced): ref declarado nunca exibido → chunk:zaijian
 - que-horas-sao (advanced): ref declarado nunca exibido → chunk:zaijian
-- conversa-cotidiana (advanced): ref declarado nunca exibido → char:bu
-- conversa-cotidiana (advanced): ref declarado nunca exibido → chunk:jintian
-- conversa-cotidiana (advanced): ref declarado nunca exibido → chunk:jintianhenre
 - conversa-cotidiana (advanced): ref declarado nunca exibido → chunk:wobushufu
 - conversa-cotidiana (advanced): ref declarado nunca exibido → chunk:woyeshi
 - checkin-hotel (advanced): ref declarado nunca exibido → chunk:woxuyaobangzhu
@@ -149,4 +140,4 @@ _Glifos mostrados que só existem dentro de chunks (sem `char:` dedicado). O cam
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:37b82478bb9cd226 -->
+<!-- integridade:3fe9294951ebdb77 -->

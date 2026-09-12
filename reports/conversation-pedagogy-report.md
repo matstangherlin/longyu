@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Commit | 4663fa6778baddb14619de358543a91a5aad147e |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:42:23.726Z |
-| Lições | 132 |
-| Hash da Jornada | eb4baadf0579 |
+| Gerado em | 2026-09-12T01:24:48.785Z |
+| Lições | 134 |
+| Hash da Jornada | 38e70062857d |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 49 |
-| Média de falas | 9.37 |
-| Média de intervenções | 3.37 |
-| Número de ramificações | 166 |
-| Número de finais | 57 |
-| Vocabulário total exibido (refs únicas no plano real) | 162 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 162 |
+| Número de cenas | 50 |
+| Média de falas | 9.46 |
+| Média de intervenções | 3.42 |
+| Número de ramificações | 173 |
+| Número de finais | 59 |
+| Vocabulário total exibido (refs únicas no plano real) | 165 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 165 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.62 |
+| Média de reutilizações por ref exibida | 7.52 |
 
 ## Cenas mais curtas
 
@@ -74,7 +74,7 @@
 | park | 7 |
 | school | 5 |
 | shop | 10 |
-| street | 12 |
+| street | 13 |
 
 ## Cenas por intenção
 
@@ -98,6 +98,7 @@
 | cannot-speak | 1 |
 | classroom-intro | 1 |
 | comment-sky | 1 |
+| everyday-chat | 1 |
 | farewell | 1 |
 | greet | 1 |
 | greet-review | 1 |
@@ -145,4 +146,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:1abce1b603260d31 -->
+<!-- integridade:50769a233925bec3 -->
