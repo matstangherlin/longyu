@@ -8,12 +8,17 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "prompt",
+      // Docs (BETA_RELEASE_QA / REAL_DEVICE_QA) require autoUpdate so a new
+      // Netlify publish is not left serving deleted hashed lazy chunks.
+      registerType: "autoUpdate",
       includeAssets: ["favicon-16.png", "favicon-32.png", "apple-touch-icon.png", "logo.png"],
       workbox: {
         // Bust i18n JS/catalog caches when the interface wave changes so an
         // old PT bundle cannot mix with a new EN catalog (or the reverse).
         cacheId: `longyu-i18n-${LONGYU_I18N_VERSION}`,
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       manifest: {

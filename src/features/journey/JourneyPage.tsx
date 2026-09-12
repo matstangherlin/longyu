@@ -223,18 +223,19 @@ function lockedLessonMessage(
 export function JourneyPage() {
   const { t, instructionLocale: locale } = useTranslation();
   const navigate = useNavigate();
-  const completed = useStore((s) => s.completedLessons);
-  const lessonStarsById = useStore((s) => s.lessonStarsById);
-  const lessonMasteryById = useStore((s) => s.lessonMasteryById);
-  const lessonTaskProgress = useStore((s) => s.lessonTaskProgress);
-  const toneTrainer = useStore((s) => s.toneTrainer);
+  const completed = useStore((s) => s.completedLessons) ?? [];
+  const lessonStarsById = useStore((s) => s.lessonStarsById) ?? {};
+  const lessonMasteryById = useStore((s) => s.lessonMasteryById) ?? {};
+  const lessonTaskProgress = useStore((s) => s.lessonTaskProgress) ?? {};
+  const toneTrainer = useStore((s) => s.toneTrainer) ?? {};
   const isPremium = useIsPro();
   const today = useStore((s) => s.today);
   const journeyChestsOpened = useStore((s) => s.journeyChestsOpened ?? []);
   const aggregates = useStore((s) => s.getMissionAggregates());
   const dailyMissions = useStore((s) => s.dailyMissions);
+  const claimedMissions = dailyMissions?.claimed ?? {};
   const streak = useStore((s) => s.streak);
-  const srs = useStore((s) => s.srs);
+  const srs = useStore((s) => s.srs) ?? {};
   const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
   const online = useOnline();
   const contextualOffer = useProOffer();
@@ -263,7 +264,7 @@ export function JourneyPage() {
   // a situação em vez de ser propaganda genérica.
   const outOfCharges = !isPremium && dailyEnergy.charges <= 0;
   // claimed é Record<string, boolean>, não lista: conta só as de valor true.
-  const missionClaimed = Object.values(dailyMissions.claimed).some(Boolean);
+  const missionClaimed = Object.values(claimedMissions).some(Boolean);
   useEffect(() => {
     if (isPremium) return;
     contextualOffer.consider(
@@ -278,15 +279,15 @@ export function JourneyPage() {
     );
   }, [isPremium, outOfCharges, missionClaimed, reviewCount, completed.length]);
 
-  const todayMinutes = today.som + today.fala + today.hanzi + today.leitura;
+  const todayMinutes = (today?.som ?? 0) + (today?.fala ?? 0) + (today?.hanzi ?? 0) + (today?.leitura ?? 0);
   const primaryMission = useMemo(
     () => {
-      const views = buildMissionViews("daily", aggregates, dailyMissions.claimed);
+      const views = buildMissionViews("daily", aggregates, claimedMissions);
       return views.find((mission) => mission.complete && !mission.claimed)
         ?? views.find((mission) => !mission.claimed)
         ?? views[0];
     },
-    [aggregates, dailyMissions.claimed]
+    [aggregates, claimedMissions]
   );
 
   // Aviso ao tocar num nó bloqueado.
@@ -852,7 +853,13 @@ function ModuleBlock({
   const currentLessonIndex = currentId ? ALL_LESSONS.findIndex((lesson) => lesson.id === currentId) : -1;
   const isFutureModule = currentLessonIndex >= 0 && firstLessonIndex > currentLessonIndex;
   const showSkipTest = !moduleComplete && (isFutureModule || done > 0);
-  const skipExam = useMemo(() => buildModuleSkipTest(unit), [unit]);
+  const skipExam = useMemo(() => {
+    try {
+      return buildModuleSkipTest(unit);
+    } catch {
+      return { status: "insufficient" as const, validCount: 0 };
+    }
+  }, [unit]);
   const skipTestReady = skipExam.status === "ok";
   const skipAccess = useMemo(
     () => getModuleSkipAccessInfo(unit, { isPremium, moduleSkipUsage, inventory, points }),
@@ -1000,7 +1007,12 @@ function ModuleBlock({
         {unit.lessons.map((lesson) => {
           const idx = nextIndex();
           const baseState = lessonState(lesson.id, completed, isPremium, lessonMasteryById);
-          const taskCount = lessonTasksFor(lesson).length;
+          let taskCount = 0;
+          try {
+            taskCount = lessonTasksFor(lesson).length;
+          } catch {
+            taskCount = 0;
+          }
           const savedStageProgress = Math.max(0, Math.min(taskCount, lessonTaskProgress[lesson.id] ?? 0));
           const requiredTonePack = requiredToneTrainerPackForLesson(lesson.id);
           const toneLocked = Boolean(

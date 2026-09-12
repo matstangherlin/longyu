@@ -41,7 +41,7 @@ export function TabBar() {
   const due = dueItems(srs).length;
   const readyChests =
     (chests.small ?? 0) + (chests.dragon ?? 0) + (chests.monthly ?? 0) + (chests.legendary ?? 0);
-  const readyMissions = buildMissionViews("daily", aggregates, dailyMissions.claimed).filter(
+  const readyMissions = buildMissionViews("daily", aggregates, dailyMissions?.claimed ?? {}).filter(
     (mission) => mission.complete && !mission.claimed && isMissionActionable(mission, isPro)
   ).length;
   const badges: Record<string, number> = {

@@ -1,77 +1,81 @@
-import { lazy } from "react";
+import { lazy, type ComponentType } from "react";
 import type { RouteObject } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { PublicAuthLayout } from "./components/auth/PublicAuthLayout";
 import { RequireCloudSession } from "./components/auth/RequireCloudSession";
-
-const JourneyPage = lazy(() => import("./features/journey/JourneyPage").then((m) => ({ default: m.JourneyPage })));
-const LessonCapsulePage = lazy(() => import("./features/journey/LessonCapsulePage").then((m) => ({ default: m.LessonCapsulePage })));
-const JourneyBoosterPage = lazy(() => import("./features/journey/JourneyBoosterPage").then((m) => ({ default: m.JourneyBoosterPage })));
-const TreinoPage = lazy(() => import("./features/treino/TreinoPage").then((m) => ({ default: m.TreinoPage })));
+import { importWithStaleBundleRetry } from "./lib/staleBundle";
 import { JourneyNodeGate } from "./components/journey/JourneyNodeGate";
 
-const MandarinBlitzPage = lazy(() => import("./features/arcade/MandarinBlitzPage").then((m) => ({ default: m.MandarinBlitzPage })));
-const MissoesPage = lazy(() => import("./features/missoes/MissoesPage").then((m) => ({ default: m.MissoesPage })));
-const LojaPage = lazy(() => import("./features/loja/LojaPage").then((m) => ({ default: m.LojaPage })));
-const SomPage = lazy(() => import("./features/som/SomPage").then((m) => ({ default: m.SomPage })));
-const PinyinLabPage = lazy(() => import("./features/pinyin/PinyinLabPage").then((m) => ({ default: m.PinyinLabPage })));
-const HanziPage = lazy(() => import("./features/hanzi/HanziPage").then((m) => ({ default: m.HanziPage })));
-const IdeogramasPage = lazy(() => import("./features/hanzi/IdeogramasPage").then((m) => ({ default: m.IdeogramasPage })));
-const HanziAtlasPage = lazy(() => import("./features/hanzi/HanziAtlasPage").then((m) => ({ default: m.HanziAtlasPage })));
-const FalaPage = lazy(() => import("./features/fala/FalaPage").then((m) => ({ default: m.FalaPage })));
-const LeituraPage = lazy(() => import("./features/leitura/LeituraPage").then((m) => ({ default: m.LeituraPage })));
-const RevisaoPage = lazy(() => import("./features/revisao/RevisaoPage").then((m) => ({ default: m.RevisaoPage })));
-const CultureHubPage = lazy(() => import("./features/culture/CultureHubPage").then((m) => ({ default: m.CultureHubPage })));
-const CultureItemPage = lazy(() => import("./features/culture/CultureItemPage").then((m) => ({ default: m.CultureItemPage })));
-const CultureReviewPage = lazy(() => import("./features/culture/CultureReviewPage").then((m) => ({ default: m.CultureReviewPage })));
-const BibliotecaPage = lazy(() => import("./features/biblioteca/BibliotecaPage").then((m) => ({ default: m.BibliotecaPage })));
-const SettingsPage = lazy(() => import("./features/settings/SettingsPage").then((m) => ({ default: m.SettingsPage })));
-const ProfilePage = lazy(() => import("./features/perfil/ProfilePage").then((m) => ({ default: m.ProfilePage })));
-const ContaRoute = lazy(() => import("./features/conta/ContaRoute").then((m) => ({ default: m.ContaRoute })));
-const DadosLocaisPage = lazy(() => import("./features/dados/DadosLocaisPage").then((m) => ({ default: m.DadosLocaisPage })));
-const PrivacyPage = lazy(() => import("./features/privacy/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
-const LessonDetailPage = lazy(() => import("./features/lesson/LessonDetailPage").then((m) => ({ default: m.LessonDetailPage })));
-const LessonPlayer = lazy(() => import("./features/lesson/LessonPlayer").then((m) => ({ default: m.LessonPlayer })));
-const ModuleChallengePage = lazy(() => import("./features/challenge/ModuleChallengePage").then((m) => ({ default: m.ModuleChallengePage })));
-const ImmersionPage = lazy(() => import("./features/immersion/ImmersionPage").then((m) => ({ default: m.ImmersionPage })));
-const ProPage = lazy(() => import("./features/pro/ProPage").then((m) => ({ default: m.ProPage })));
-const LigasPage = lazy(() => import("./features/ligas/LigasPage").then((m) => ({ default: m.LigasPage })));
-const AchievementsPage = lazy(() => import("./features/conquistas/AchievementsPage").then((m) => ({ default: m.AchievementsPage })));
-const MorePage = lazy(() => import("./features/more/MorePage").then((m) => ({ default: m.MorePage })));
-const AboutPage = lazy(() => import("./features/about/AboutPage").then((m) => ({ default: m.AboutPage })));
-const LoginPage = lazy(() => import("./features/auth/LoginPage").then((m) => ({ default: m.LoginPage })));
-const ForgotPasswordPage = lazy(() => import("./features/auth/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage })));
-const ResetPasswordPage = lazy(() => import("./features/auth/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage })));
-const ConfirmEmailPage = lazy(() => import("./features/auth/ConfirmEmailPage").then((m) => ({ default: m.ConfirmEmailPage })));
-const FinalizeCadastroPage = lazy(() =>
-  import("./features/auth/FinalizeCadastroPage").then((m) => ({ default: m.FinalizeCadastroPage }))
+function lazyNamed<T extends Record<string, unknown>>(
+  importer: () => Promise<T>,
+  name: keyof T & string
+) {
+  return lazy(() =>
+    importWithStaleBundleRetry(importer).then((mod) => ({
+      default: mod[name] as ComponentType,
+    }))
+  );
+}
+
+const JourneyPage = lazyNamed(() => import("./features/journey/JourneyPage"), "JourneyPage");
+const LessonCapsulePage = lazyNamed(() => import("./features/journey/LessonCapsulePage"), "LessonCapsulePage");
+const JourneyBoosterPage = lazyNamed(() => import("./features/journey/JourneyBoosterPage"), "JourneyBoosterPage");
+const TreinoPage = lazyNamed(() => import("./features/treino/TreinoPage"), "TreinoPage");
+const MandarinBlitzPage = lazyNamed(() => import("./features/arcade/MandarinBlitzPage"), "MandarinBlitzPage");
+const MissoesPage = lazyNamed(() => import("./features/missoes/MissoesPage"), "MissoesPage");
+const LojaPage = lazyNamed(() => import("./features/loja/LojaPage"), "LojaPage");
+const SomPage = lazyNamed(() => import("./features/som/SomPage"), "SomPage");
+const PinyinLabPage = lazyNamed(() => import("./features/pinyin/PinyinLabPage"), "PinyinLabPage");
+const HanziPage = lazyNamed(() => import("./features/hanzi/HanziPage"), "HanziPage");
+const IdeogramasPage = lazyNamed(() => import("./features/hanzi/IdeogramasPage"), "IdeogramasPage");
+const HanziAtlasPage = lazyNamed(() => import("./features/hanzi/HanziAtlasPage"), "HanziAtlasPage");
+const FalaPage = lazyNamed(() => import("./features/fala/FalaPage"), "FalaPage");
+const LeituraPage = lazyNamed(() => import("./features/leitura/LeituraPage"), "LeituraPage");
+const RevisaoPage = lazyNamed(() => import("./features/revisao/RevisaoPage"), "RevisaoPage");
+const CultureHubPage = lazyNamed(() => import("./features/culture/CultureHubPage"), "CultureHubPage");
+const CultureItemPage = lazyNamed(() => import("./features/culture/CultureItemPage"), "CultureItemPage");
+const CultureReviewPage = lazyNamed(() => import("./features/culture/CultureReviewPage"), "CultureReviewPage");
+const BibliotecaPage = lazyNamed(() => import("./features/biblioteca/BibliotecaPage"), "BibliotecaPage");
+const SettingsPage = lazyNamed(() => import("./features/settings/SettingsPage"), "SettingsPage");
+const ProfilePage = lazyNamed(() => import("./features/perfil/ProfilePage"), "ProfilePage");
+const ContaRoute = lazyNamed(() => import("./features/conta/ContaRoute"), "ContaRoute");
+const DadosLocaisPage = lazyNamed(() => import("./features/dados/DadosLocaisPage"), "DadosLocaisPage");
+const PrivacyPage = lazyNamed(() => import("./features/privacy/PrivacyPage"), "PrivacyPage");
+const LessonDetailPage = lazyNamed(() => import("./features/lesson/LessonDetailPage"), "LessonDetailPage");
+const LessonPlayer = lazyNamed(() => import("./features/lesson/LessonPlayer"), "LessonPlayer");
+const ModuleChallengePage = lazyNamed(() => import("./features/challenge/ModuleChallengePage"), "ModuleChallengePage");
+const ImmersionPage = lazyNamed(() => import("./features/immersion/ImmersionPage"), "ImmersionPage");
+const ProPage = lazyNamed(() => import("./features/pro/ProPage"), "ProPage");
+const LigasPage = lazyNamed(() => import("./features/ligas/LigasPage"), "LigasPage");
+const AchievementsPage = lazyNamed(() => import("./features/conquistas/AchievementsPage"), "AchievementsPage");
+const MorePage = lazyNamed(() => import("./features/more/MorePage"), "MorePage");
+const AboutPage = lazyNamed(() => import("./features/about/AboutPage"), "AboutPage");
+const LoginPage = lazyNamed(() => import("./features/auth/LoginPage"), "LoginPage");
+const ForgotPasswordPage = lazyNamed(() => import("./features/auth/ForgotPasswordPage"), "ForgotPasswordPage");
+const ResetPasswordPage = lazyNamed(() => import("./features/auth/ResetPasswordPage"), "ResetPasswordPage");
+const ConfirmEmailPage = lazyNamed(() => import("./features/auth/ConfirmEmailPage"), "ConfirmEmailPage");
+const FinalizeCadastroPage = lazyNamed(() => import("./features/auth/FinalizeCadastroPage"), "FinalizeCadastroPage");
+const ReferralPage = lazyNamed(() => import("./features/referral/ReferralPage"), "ReferralPage");
+const ReferralInvitePage = lazyNamed(() => import("./features/referral/ReferralInvitePage"), "ReferralInvitePage");
+const AmigosPage = lazyNamed(() => import("./features/amigos/AmigosPage"), "AmigosPage");
+const AdminFeedbackPage = lazyNamed(() => import("./features/admin/AdminFeedbackPage"), "AdminFeedbackPage");
+const MarketingPage = lazyNamed(() => import("./features/marketing/MarketingPage"), "MarketingPage");
+const BusinessPage = lazyNamed(() => import("./features/business/BusinessPage"), "BusinessPage");
+const ComecarRoute = lazyNamed(() => import("./features/onboarding/ComecarPage"), "ComecarRoute");
+const LegacyLocalMigrationPage = lazyNamed(
+  () => import("./features/onboarding/LegacyLocalMigrationPage"),
+  "LegacyLocalMigrationPage"
 );
-const ReferralPage = lazy(() => import("./features/referral/ReferralPage").then((m) => ({ default: m.ReferralPage })));
-const ReferralInvitePage = lazy(() => import("./features/referral/ReferralInvitePage").then((m) => ({ default: m.ReferralInvitePage })));
-const AmigosPage = lazy(() => import("./features/amigos/AmigosPage").then((m) => ({ default: m.AmigosPage })));
-const AdminFeedbackPage = lazy(() => import("./features/admin/AdminFeedbackPage").then((m) => ({ default: m.AdminFeedbackPage })));
-const MarketingPage = lazy(() => import("./features/marketing/MarketingPage").then((m) => ({ default: m.MarketingPage })));
-const BusinessPage = lazy(() => import("./features/business/BusinessPage").then((m) => ({ default: m.BusinessPage })));
-const ComecarRoute = lazy(() =>
-  import("./features/onboarding/ComecarPage").then((m) => ({ default: m.ComecarRoute }))
+const QaHubPage = lazyNamed(() => import("./features/qa/QaHubPage"), "QaHubPage");
+const QaScenarioPage = lazyNamed(() => import("./features/qa/QaScenarioPage"), "QaScenarioPage");
+const QaAudioDiscriminationPage = lazyNamed(
+  () => import("./features/qa/QaAudioDiscriminationPage"),
+  "QaAudioDiscriminationPage"
 );
-const LegacyLocalMigrationPage = lazy(() =>
-  import("./features/onboarding/LegacyLocalMigrationPage").then((m) => ({
-    default: m.LegacyLocalMigrationPage,
-  }))
-);
-const QaHubPage = lazy(() => import("./features/qa/QaHubPage").then((m) => ({ default: m.QaHubPage })));
-const QaScenarioPage = lazy(() =>
-  import("./features/qa/QaScenarioPage").then((m) => ({ default: m.QaScenarioPage }))
-);
-const QaAudioDiscriminationPage = lazy(() =>
-  import("./features/qa/QaAudioDiscriminationPage").then((m) => ({ default: m.QaAudioDiscriminationPage }))
-);
-const QaHanziBuilderPage = lazy(() =>
-  import("./features/qa/QaHanziBuilderPage").then((m) => ({ default: m.QaHanziBuilderPage }))
-);
-const QaConversationScenePage = lazy(() =>
-  import("./features/qa/QaConversationScenePage").then((m) => ({ default: m.QaConversationScenePage }))
+const QaHanziBuilderPage = lazyNamed(() => import("./features/qa/QaHanziBuilderPage"), "QaHanziBuilderPage");
+const QaConversationScenePage = lazyNamed(
+  () => import("./features/qa/QaConversationScenePage"),
+  "QaConversationScenePage"
 );
 import { QaFastPathGate } from "./components/qa/QaFastPathGate";
 

@@ -23,11 +23,11 @@ import { completedJourneyNodeIds } from "../lib/journeyNodeProgress";
 import { useStore } from "../lib/store";
 
 export function useLearnerReadinessState(): LearnerReadinessState {
-  const completedLessons = useStore((state) => state.completedLessons);
-  const lessonMasteryById = useStore((state) => state.lessonMasteryById);
-  const learnedChunks = useStore((state) => state.learnedChunks);
-  const learnedChars = useStore((state) => state.learnedChars);
-  const srs = useStore((state) => state.srs);
+  const completedLessons = useStore((state) => state.completedLessons) ?? [];
+  const lessonMasteryById = useStore((state) => state.lessonMasteryById) ?? {};
+  const learnedChunks = useStore((state) => state.learnedChunks) ?? [];
+  const learnedChars = useStore((state) => state.learnedChars) ?? [];
+  const srs = useStore((state) => state.srs) ?? {};
   const isPremium = useStore((state) => state.isPremium);
 
   const knownPatternCount = useMemo(
