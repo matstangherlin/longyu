@@ -22,6 +22,13 @@ export function PwaUpdateBanner() {
           onNeedRefresh() {
             setNeedRefresh(true);
           },
+          onRegisteredSW(_url, registration) {
+            if (!registration) return;
+            void registration.update();
+            window.setInterval(() => {
+              void registration.update();
+            }, 60 * 60 * 1000);
+          },
         });
       })
       .catch(() => {

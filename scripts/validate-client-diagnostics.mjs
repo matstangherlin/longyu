@@ -17,6 +17,14 @@ assert.match(diagnostics, /requestFeedbackOpen/, "exporta requestFeedbackOpen");
 assert.match(diagnostics, /sanitizeFeedbackMessage/, "reusa sanitização de feedback");
 assert.match(boundary, /common\.reportProblem/, "ErrorBoundary oferece CTA de reportar");
 assert.match(boundary, /recordClientDiagnostic/, "ErrorBoundary grava diagnóstico");
+assert.match(boundary, /isStaleBundleError/, "ErrorBoundary reconhece chunk stale pós-deploy");
+assert.match(boundary, /reloadOnceForStaleBundle/, "ErrorBoundary recarrega uma vez no chunk 404");
+const stale = readFileSync("src/lib/staleBundle.ts", "utf8");
+assert.match(stale, /Failed to fetch dynamically imported module/, "detector cobre import() falho");
+assert.match(stale, /STALE_BUNDLE_RELOAD_KEY/, "reload é idempotente na sessão");
+const vite = readFileSync("vite.config.ts", "utf8");
+assert.match(vite, /registerType:\s*"autoUpdate"/, "PWA aplica skipWaiting após deploy");
+assert.match(vite, /cleanupOutdatedCaches:\s*true/, "PWA limpa precache antigo");
 assert.match(sync, /sync_error/, "falha de sync grava diagnóstico");
 assert.match(sync, /opsCorrelation/, "sync anexa correlation id sem PII");
 

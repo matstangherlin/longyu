@@ -12,8 +12,8 @@ import {
  * Reúne os sinais já persistidos e delega o cálculo a `getLearnerProfile`.
  */
 export function useLearnerProfile(): LearnerProfile {
-  const completedLessons = useStore((s) => s.completedLessons);
-  const srs = useStore((s) => s.srs);
+  const completedLessons = useStore((s) => s.completedLessons) ?? [];
+  const srs = useStore((s) => s.srs) ?? {};
   const medals = useStore((s) => s.medals);
   const leagueJoinedAt = useStore((s) => s.leagueJoinedAt);
   const streak = useStore((s) => s.streak);

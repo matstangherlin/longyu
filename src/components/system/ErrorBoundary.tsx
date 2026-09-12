@@ -4,6 +4,7 @@ import { IconHome, IconRefresh } from "../ui/Icon";
 import { recordClientDiagnostic, requestFeedbackOpen } from "../../lib/clientDiagnostics";
 import { t } from "../../i18n/catalog";
 import { subscribeInterfaceLocale } from "../../i18n/locale";
+import { isStaleBundleError, reloadOnceForStaleBundle } from "../../lib/staleBundle";
 
 /**
  * Rede de segurança contra tela branca.
@@ -55,6 +56,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       area,
       message: error.message || error.name || "render_error",
     });
+    // Page-level only: the shell already rendered. Reloading from the root
+    // boundary after a successful shell paint would loop.
+    if (area === "page" && isStaleBundleError(error)) {
+      reloadOnceForStaleBundle();
+    }
   }
 
   componentDidUpdate(prev: ErrorBoundaryProps) {

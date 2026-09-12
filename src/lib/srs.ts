@@ -164,8 +164,13 @@ export function isDue(item: SRSItem, now = Date.now()): boolean {
   return item.due <= now;
 }
 
-export function dueItems(items: Record<string, SRSItem>, now = Date.now()): SRSItem[] {
-  const due = Object.values(items)
+function isSrsItem(value: unknown): value is SRSItem {
+  return Boolean(value) && typeof value === "object" && typeof (value as SRSItem).due === "number";
+}
+
+export function dueItems(items: Record<string, SRSItem> | null | undefined, now = Date.now()): SRSItem[] {
+  const due = Object.values(items ?? {})
+    .filter(isSrsItem)
     .filter((it) => isDue(it, now))
     .sort((a, b) => reviewPriority(b, now) - reviewPriority(a, now));
 

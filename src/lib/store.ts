@@ -486,7 +486,7 @@ function missionAggregates(s: AppState): MissionAggregates {
   const date = todayKey();
   const xp = activeXp(s);
   const week = activeWeeklyMissions(s.weeklyMissions);
-  const today = s.today.date === date ? s.today : freshDay(date);
+  const today = s.today?.date === date ? s.today : freshDay(date);
   const tasks = activeDailyTasks(s.dailyTasks, date);
   const immersion = activeImmersionDaily(s.immersionDaily, date);
   return {
@@ -1603,9 +1603,9 @@ function accountFields(account: LearningAccount): AccountSnapshot {
   const completedLessons = normalizeCompletedLessons(account.completedLessons, account.lessonStarsById, pendingLessonIds);
   return {
     ...activeXp(account),
-    srs: account.srs,
-    learnedChars: account.learnedChars,
-    learnedChunks: account.learnedChunks,
+    srs: account.srs ?? {},
+    learnedChars: account.learnedChars ?? [],
+    learnedChunks: account.learnedChunks ?? [],
     hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
@@ -3008,7 +3008,7 @@ export const useStore = create<AppState>()(
       applyPlacement: (completedLessonIds, placement) =>
         set((s) => {
           const date = todayKey();
-          const today = s.today.date === date ? s.today : freshDay(date);
+          const today = s.today?.date === date ? s.today : freshDay(date);
           const dailyTasks = activeDailyTasks(s.dailyTasks, date);
           const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
           const completedLessons = normalizeCompletedLessons([...new Set(completedLessonIds)], s.lessonStarsById);
@@ -3046,7 +3046,7 @@ export const useStore = create<AppState>()(
       applyServerPlacement: (analysis) =>
         set((s) => {
           const date = todayKey();
-          const today = s.today.date === date ? s.today : freshDay(date);
+          const today = s.today?.date === date ? s.today : freshDay(date);
           const dailyTasks = activeDailyTasks(s.dailyTasks, date);
           const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
           const mastered = analysis.placement.masteredByPlacement ?? [];
@@ -3586,7 +3586,7 @@ export const useStore = create<AppState>()(
       addMinutes: (track, min) =>
         set((s) => {
           const date = todayKey();
-          const today = s.today.date === date ? s.today : freshDay(date);
+          const today = s.today?.date === date ? s.today : freshDay(date);
           const dailyTasks = activeDailyTasks(s.dailyTasks, date);
           const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
           const next = { ...s, today: { ...today, [track]: today[track] + min }, dailyTasks, dailyEnergy };
@@ -3596,7 +3596,7 @@ export const useStore = create<AppState>()(
       recordDailyTask: (task, amount = 1) => {
         set((s) => {
           const date = todayKey();
-          const today = s.today.date === date ? s.today : freshDay(date);
+          const today = s.today?.date === date ? s.today : freshDay(date);
           const dailyTasks = activeDailyTasks(s.dailyTasks, date);
           const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
           const nextTasks = {
@@ -3670,7 +3670,7 @@ export const useStore = create<AppState>()(
         set((s) => {
           const leaguePatch = settleLeagueWeek(s);
           const currentState = { ...s, ...leaguePatch };
-          const today = currentState.today.date === date ? currentState.today : freshDay(date);
+          const today = currentState.today?.date === date ? currentState.today : freshDay(date);
           const dailyTasks = activeDailyTasks(currentState.dailyTasks, date);
           const dailyEnergy = activeDailyEnergy(currentState.dailyEnergy, date);
           const immersionDaily = activeImmersionDaily(currentState.immersionDaily, date);
@@ -4051,7 +4051,7 @@ export const useStore = create<AppState>()(
         if (dailyTasks.claimedMissions[missionId]) return false;
 
         set((s) => {
-          const today = s.today.date === date ? s.today : freshDay(date);
+          const today = s.today?.date === date ? s.today : freshDay(date);
           const currentTasks = activeDailyTasks(s.dailyTasks, date);
           const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
           let next = {
@@ -5172,7 +5172,7 @@ export const useStore = create<AppState>()(
             streak > prevStreak || (prevStudy !== t && streak >= 1)
               ? streak
               : current.pendingStreakCelebration;
-          const today = current.today.date === t ? current.today : freshDay(t);
+          const today = current.today?.date === t ? current.today : freshDay(t);
           const dailyTasks = activeDailyTasks(current.dailyTasks, t);
           const dailyEnergy = activeDailyEnergy(current.dailyEnergy, t);
           const next = {
@@ -5298,10 +5298,10 @@ export const useStore = create<AppState>()(
           const leaguePatch = settleLeagueWeek(s);
           const current = { ...s, ...leaguePatch };
           const t = todayKey();
-          if (current.today.date === t && current.dailyTasks.date === t && current.dailyEnergy.date === t) {
+          if (current.today?.date === t && current.dailyTasks?.date === t && current.dailyEnergy?.date === t) {
             return { ...leaguePatch, accounts: saveCurrentAccount(current) };
           }
-          const today = current.today.date === t ? current.today : freshDay(t);
+          const today = current.today?.date === t ? current.today : freshDay(t);
           const dailyTasks = activeDailyTasks(current.dailyTasks, t);
           const dailyEnergy = activeDailyEnergy(current.dailyEnergy, t);
           const immersionDaily = activeImmersionDaily(current.immersionDaily, t);
