@@ -420,6 +420,7 @@ export function validateJourney(): CorpusIssue[] {
   const issues: CorpusIssue[] = [];
   const lessonIds = new Set<string>();
   const presentedItems = new Set<string>();
+  const taughtHanzi = new Set<string>();
 
   for (const lesson of ALL_LESSONS) {
     if (lessonIds.has(lesson.id)) {
@@ -434,13 +435,18 @@ export function validateJourney(): CorpusIssue[] {
     const newHanzi = new Set(lesson.newHanzi ?? []);
     const duplicateNewHanzi = hasDuplicates(lesson.newHanzi ?? []);
     if (duplicateNewHanzi) issues.push(issue("error", "journey", lesson.id, `newHanzi duplicado: ${duplicateNewHanzi}`));
+    const reusePriorHanzi = lesson.isReview === true && lesson.curriculumRole === "immersion";
 
     lesson.steps.forEach((step, index) => issues.push(...validateStep(lesson, index, step)));
 
     for (const [index, step] of lesson.steps.entries()) {
       const stepRef = `${lesson.id} passo ${index + 1} (${step.kind})`;
       for (const char of stepTextSources(step).flatMap((source) => cjkChars(source))) {
-        if (!charByHanzi.has(char) && !newHanzi.has(char)) {
+        if (
+          !charByHanzi.has(char) &&
+          !newHanzi.has(char) &&
+          !(reusePriorHanzi && taughtHanzi.has(char))
+        ) {
           issues.push(
             issue("error", "journey", stepRef, `hànzì "${char}" não existe em CHARACTERS nem em newHanzi da lição`)
           );
@@ -465,6 +471,7 @@ export function validateJourney(): CorpusIssue[] {
     for (const itemRef of lesson.libraryItems ?? []) {
       if (itemExists(itemRef)) presentedItems.add(itemRef);
     }
+    for (const char of newHanzi) taughtHanzi.add(char);
   }
 
   return issues;

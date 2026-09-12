@@ -1,6 +1,6 @@
 # Conversation coherence audit
 
-Cenas: 49.
+Cenas: 50.
 
 ## primeiro-cumprimento
 
@@ -1944,6 +1944,84 @@ Cenas: 49.
 - NEXT_TURN: 好。
 - REPAIR: 医院？
 - speechAct: acknowledge → ask_location (confirm_help)
+- CLASS: OK
+
+## conversa-cotidiana
+
+- intent: everyday-chat
+- ending: 再见！
+- last interaction: produce_reply
+
+### cot-hi
+
+- NPC_UTTERANCE: 你好！
+- MEANING: Olá!
+- PROMPT: Cumprimente Mei.
+- EXPECTED_RESPONSE: 你好
+- ACCEPTS: 你好 | 你好。 | 你好！ | 你好!
+- NEXT_TURN: 你好吗？
+- REPAIR: 你好？
+- speechAct: greet → greet (clarify)
+- CLASS: OK
+
+### cot-how
+
+- NPC_UTTERANCE: 你好吗？
+- MEANING: Tudo bem?
+- PROMPT: Responda como você está e devolva a pergunta.
+- EXPECTED_RESPONSE: 我很好你呢
+- ACCEPTS: 我很好你呢 | 我很好。你呢？ | 我很好你呢？ | 我很好。你呢 | 我很好 你呢
+- NEXT_TURN: 我也很好。今天很冷。
+- REPAIR: 好吗？
+- speechAct: ask_wellbeing → tell_wellbeing (reask)
+- CLASS: OK
+
+### cot-fine
+
+- NPC_UTTERANCE: 我也很好。今天很冷。
+- MEANING: Eu também estou bem. Hoje está frio.
+- PROMPT: O que Mei comentou agora?
+- EXPECTED_RESPONSE: está frio
+- ACCEPTS: (none)
+- NEXT_TURN: 明天呢？
+- REPAIR: 今天很冷？
+- speechAct: acknowledge → acknowledge (clarify)
+- CLASS: QUESTION_NOT_USING_PREVIOUS_CONTEXT, ANSWER_TOO_NARROW
+
+### cot-tomorrow
+
+- NPC_UTTERANCE: 明天呢？
+- MEANING: E amanhã?
+- PROMPT: Combinem o amanhã.
+- EXPECTED_RESPONSE: 明天见
+- ACCEPTS: 明天见 | 明天见。 | 明天见! | 明天见！ | 我要工作 | 我要工作。
+- NEXT_TURN: 好。明天见！
+- REPAIR: 明天？
+- speechAct: ask_when → tell_when (confirm_time)
+- CLASS: OK
+
+### cot-fast
+
+- NPC_UTTERANCE: 好。明天见！
+- MEANING: Certo. Até amanhã!
+- PROMPT: Mei falou rápido. Peça para repetir ou para ir mais devagar — as duas mudam a conversa.
+- EXPECTED_RESPONSE: 请再说一遍
+- ACCEPTS: (none)
+- NEXT_TURN: 好。
+- REPAIR: 明天？
+- speechAct: tell_when → ask_repeat (repeat)
+- CLASS: ANSWER_TOO_NARROW
+
+### cot-bye
+
+- NPC_UTTERANCE: 好。
+- MEANING: Certo.
+- PROMPT: Encerre a conversa.
+- EXPECTED_RESPONSE: 再见
+- ACCEPTS: 再见 | 再见。 | 再见！ | 明天见 | 明天见。
+- NEXT_TURN: 再见！
+- REPAIR: 再见？
+- speechAct: farewell → farewell (clarify)
 - CLASS: OK
 
 ## como-esta-o-tempo

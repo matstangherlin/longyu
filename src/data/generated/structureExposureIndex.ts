@@ -3,7 +3,7 @@
 // V3.9 · PERF-012 — índice de exposição estrutural pré-computado.
 //
 // Montar este índice em runtime custava ~12 s de CPU síncrona (plano de prática
-// das 132 lições) só para abrir UMA lição — o congelamento visto no Android.
+// das 134 lições) só para abrir UMA lição — o congelamento visto no Android.
 // Como ele depende apenas de dados estáticos da jornada, é resolvido no build.
 //
 // Degraus codificados como máscara de bits, na ordem:
@@ -3614,6 +3614,156 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     ]
   },
   "p7-imersao-saude": {
+    "free": {
+      "frame_nijiaoshenme": 15,
+      "frame_qingwennijiaoshenme": 9,
+      "frame_wozai": 15,
+      "frame_woyouge": 15,
+      "frame_woyao": 15,
+      "frame_woxianghe": 15,
+      "frame_zainali": 15,
+      "frame_qingwenzainali": 1,
+      "frame_woxihuan": 15,
+      "frame_wo_le": 15,
+      "frame_niyaoma": 15,
+      "frame_niyao": 7,
+      "frame_woxiangchi": 15,
+      "frame_woqu": 15,
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
+    },
+    "transfer": {
+      "frame_nijiaoshenme": 15,
+      "frame_qingwennijiaoshenme": 9,
+      "frame_wozai": 15,
+      "frame_woyouge": 15,
+      "frame_woyao": 15,
+      "frame_woxianghe": 15,
+      "frame_zainali": 15,
+      "frame_qingwenzainali": 1,
+      "frame_woxihuan": 15,
+      "frame_wo_le": 15,
+      "frame_niyaoma": 15,
+      "frame_niyao": 7,
+      "frame_woxiangchi": 15,
+      "frame_woqu": 15,
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
+    },
+    "priorTransferred": [
+      "frame_duoshaoqian",
+      "frame_qingwennijiaoshenme",
+      "frame_wo_le",
+      "frame_woqu",
+      "frame_woxiangchi",
+      "frame_woxihuan",
+      "frame_woyao",
+      "frame_woyaomai",
+      "frame_woyouge",
+      "frame_wozai",
+      "frame_zainali"
+    ],
+    "priorTransferTargets": [
+      "我今天去医院",
+      "我今天去火车站",
+      "我今天去银行",
+      "我喜欢中国",
+      "我喜欢茶",
+      "我喜欢鱼",
+      "我在吃饭",
+      "我在喝水",
+      "我在睡觉",
+      "我想吃鱼",
+      "我明天去医院",
+      "我有一个朋友",
+      "我有三个香蕉",
+      "我有五个朋友",
+      "我有四个朋友",
+      "我睡觉了",
+      "我要买苹果",
+      "我要热水",
+      "我要苹果",
+      "衣服多少钱",
+      "请问你叫什么",
+      "车站在哪里"
+    ]
+  },
+  "p7-conversa-cotidiana": {
+    "free": {
+      "frame_nijiaoshenme": 15,
+      "frame_qingwennijiaoshenme": 9,
+      "frame_wozai": 15,
+      "frame_woyouge": 15,
+      "frame_woyao": 15,
+      "frame_woxianghe": 15,
+      "frame_zainali": 15,
+      "frame_qingwenzainali": 1,
+      "frame_woxihuan": 15,
+      "frame_wo_le": 15,
+      "frame_niyaoma": 15,
+      "frame_niyao": 7,
+      "frame_woxiangchi": 15,
+      "frame_woqu": 15,
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
+    },
+    "transfer": {
+      "frame_nijiaoshenme": 15,
+      "frame_qingwennijiaoshenme": 9,
+      "frame_wozai": 15,
+      "frame_woyouge": 15,
+      "frame_woyao": 15,
+      "frame_woxianghe": 15,
+      "frame_zainali": 15,
+      "frame_qingwenzainali": 1,
+      "frame_woxihuan": 15,
+      "frame_wo_le": 15,
+      "frame_niyaoma": 15,
+      "frame_niyao": 7,
+      "frame_woxiangchi": 15,
+      "frame_woqu": 15,
+      "frame_woyaomai": 15,
+      "frame_duoshaoqian": 15
+    },
+    "priorTransferred": [
+      "frame_duoshaoqian",
+      "frame_qingwennijiaoshenme",
+      "frame_wo_le",
+      "frame_woqu",
+      "frame_woxiangchi",
+      "frame_woxihuan",
+      "frame_woyao",
+      "frame_woyaomai",
+      "frame_woyouge",
+      "frame_wozai",
+      "frame_zainali"
+    ],
+    "priorTransferTargets": [
+      "我今天去医院",
+      "我今天去火车站",
+      "我今天去银行",
+      "我喜欢中国",
+      "我喜欢茶",
+      "我喜欢鱼",
+      "我在吃饭",
+      "我在喝水",
+      "我在睡觉",
+      "我想吃鱼",
+      "我明天去医院",
+      "我有一个朋友",
+      "我有三个香蕉",
+      "我有五个朋友",
+      "我有四个朋友",
+      "我睡觉了",
+      "我要买苹果",
+      "我要热水",
+      "我要苹果",
+      "衣服多少钱",
+      "请问你叫什么",
+      "车站在哪里"
+    ]
+  },
+  "p7-china-survival": {
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,

@@ -35,6 +35,10 @@ import {
   NA_CLINICA_LEARNED_REFS,
   NA_CLINICA_NODES,
 } from "./healthSurvivalScenes";
+import {
+  CONVERSA_COTIDIANA_LEARNED_REFS,
+  CONVERSA_COTIDIANA_NODES,
+} from "./everydaySurvivalScenes";
 /**
  * Cenas curtas de conversa entre dois personagens.
  * Vocabulário: só chunks/hànzì já ensinados + no máximo 1 novidade (newRefs).
@@ -318,6 +322,11 @@ export interface ConversationSceneStep {
   newRefs?: string[];
   /** Lição dedicada pode apresentar mais de 1 novidade. */
   dedicatedLesson?: boolean;
+  /**
+   * Justifica a mesma cena como primária em lições consecutivas.
+   * Usado quando a reabertura é transferência (capstone), não reteach.
+   */
+  repeatJustification?: string;
   /**
    * Variantes por estágio da MESMA cena/intenção. O nível de topo (nodes +
    * learnedRefs) é a versão canônica/avançada; as variantes são versões mais
@@ -3302,6 +3311,19 @@ sceneV2({
   entryNodeId: "saude-greet",
   nodes: NAO_ME_SINTO_BEM_NODES,
   learnedRefs: NAO_ME_SINTO_BEM_LEARNED_REFS,
+}),
+sceneV2({
+  sceneId: "conversa-cotidiana",
+  title: "Conversa cotidiana",
+  intent: "everyday-chat",
+  setting: "street",
+  characters: PAIR_LIN_MEI,
+  sceneRole: "immersion",
+  entryNodeId: "cot-open",
+  nodes: CONVERSA_COTIDIANA_NODES,
+  learnedRefs: CONVERSA_COTIDIANA_LEARNED_REFS,
+  repeatJustification:
+    "transfer: o capstone reabre a conversa cotidiana como primeiro contato da missão, não reteach",
 }),
 sceneV2({
   sceneId: "como-esta-o-tempo",

@@ -34,6 +34,8 @@ import { isTopicMasteryLesson } from "../../data/topicMastery";
 import { foundationAuthoredPlanFor } from "../../data/foundationTopicPlans";
 import { mobilitySurvivalPlanFor } from "../../data/mobilitySurvivalPlans";
 import { saudeSurvivalPlanFor } from "../../data/healthSurvivalPlans";
+import { everydaySurvivalPlanFor } from "../../data/everydaySurvivalPlans";
+import { capstoneSurvivalPlanFor } from "../../data/capstoneSurvivalPlans";
 import { identityPeoplePlanFor } from "../../data/identityPeoplePlans";
 import { routineTimePlanFor } from "../../data/routineTimePlans";
 import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
@@ -7290,6 +7292,24 @@ export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanC
         }))
       )
     );
+  }
+  const everydayPlan = everydaySurvivalPlanFor(lesson);
+  if (everydayPlan) {
+    return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(everydayPlan.map((step) => ({
+      ...step,
+      generated: false,
+      practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+      lessonStageId: step.lessonStageId ?? ("usage" as const),
+    }))));
+  }
+  const capstonePlan = capstoneSurvivalPlanFor(lesson, context);
+  if (capstonePlan) {
+    return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers(capstonePlan.map((step) => ({
+      ...step,
+      generated: false,
+      practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+      lessonStageId: step.lessonStageId ?? ("usage" as const),
+    }))));
   }
   const identityPass = resolveMasteryPassForContext(lesson, context) ?? 1;
   const identityPlan = identityPeoplePlanFor(lesson, identityPass, context.silent === true && context.masteryPass == null);

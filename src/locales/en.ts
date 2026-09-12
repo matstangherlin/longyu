@@ -1944,6 +1944,10 @@ export const en: MessageCatalog = {
       title: "Dragon leap",
       desc: "Pass a module-skip test.",
     },
+    "jornada-china-survival": {
+      title: "China Survival",
+      desc: "Finish the A day in China mission.",
+    },
     "sequencia-3": {
       title: "Flame lit",
       desc: "Study 3 days in a row.",

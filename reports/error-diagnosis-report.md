@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | eb4baadf0579 |
-| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Hash da Jornada | 38e70062857d |
+| HEAD no instante da geração | 55dfdfa72c864b44f1d8995834dba06c96474bc8 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:47:40.967Z |
-| Lições | 132 |
+| Gerado em | 2026-09-12T01:59:52.572Z |
+| Lições | 134 |
 
 ## Resumo
 
@@ -23,8 +23,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Casos curados auditados | 19 |
 | Causas distintas observadas | 13 |
 | Maior concentração numa causa | 16% |
-| Lições que mudam de plano com a fraqueza | 94 / 132 |
-| Lições que renovam o conteúdo na mesma variante | 87 / 132 |
+| Lições que mudam de plano com a fraqueza | 94 / 134 |
+| Lições que renovam o conteúdo na mesma variante | 87 / 134 |
 | Casos de resposta não reconhecida auditados | 8 |
 | Peso de um palpite fraco vs. padrão claro | 0.25× |
 
@@ -109,4 +109,4 @@ Fica registrada para auditoria e para o corpus crescer.
 
 Nenhum.
 
-<!-- integridade:ab0f9f4db1215a8a -->
+<!-- integridade:473e6022bb0715d2 -->

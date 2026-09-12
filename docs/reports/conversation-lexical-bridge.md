@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | eb4baadf0579 |
-| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Hash da Jornada | 38e70062857d |
+| HEAD no instante da geração | 55dfdfa72c864b44f1d8995834dba06c96474bc8 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:26:07.370Z |
-| Lições | 132 |
+| Gerado em | 2026-09-12T01:37:59.244Z |
+| Lições | 134 |
 
 ## Contrato
 
@@ -248,6 +248,154 @@ Lacunas globais de arcos anteriores entram no relatório e não reescrevem o cur
 | na-clinica | chunk:bukeqi | learned | l4 | p7-imersao-saude | PASS |
 | na-clinica | char:hao | learned | p1-o-que-e-mandarim | p7-imersao-saude | PASS |
 | na-clinica | char:ma_question | learned | p1-engine-2-lab | p7-imersao-saude | PASS |
+| conversa-cotidiana | chunk:nihao | learned | p1-o-que-e-mandarim | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:nihaoma | learned | p1-engine-2-lab | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:wohenhao | learned | l3 | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:wobushufu | learned | p6-saude | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:nine | learned | l3 | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:woyeshi | learned | l10 | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:jintianhenleng | learned | p6-clima | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:mingtian | learned | p1-ate-logo | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:mingtianjian | learned | p1-ate-logo | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:zaijian | learned | p1-engine-2-lab | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:qingzaishuoyibian | learned | p2-sons-brasileiros | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:qingmanyidian | learned | l11 | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:woyaogongzuo | learned | p6-rotina-trabalho | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | char:hao | learned | p1-o-que-e-mandarim | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | char:ni | learned | p1-o-que-e-mandarim | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | char:wo | learned | l3 | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | char:ma_question | learned | p1-engine-2-lab | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | char:ming | learned | p1-ate-logo | p7-conversa-cotidiana | PASS |
+| conversa-cotidiana | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:nihaoma | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:wohenhao | learned | l3 | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:wobushufu | learned | p6-saude | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:nine | learned | l3 | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:woyeshi | learned | l10 | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:jintianhenleng | learned | p6-clima | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:mingtian | learned | p1-ate-logo | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:mingtianjian | learned | p1-ate-logo | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:zaijian | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:qingzaishuoyibian | learned | p2-sons-brasileiros | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:qingmanyidian | learned | l11 | p7-china-survival | PASS |
+| conversa-cotidiana | chunk:woyaogongzuo | learned | p6-rotina-trabalho | p7-china-survival | PASS |
+| conversa-cotidiana | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| conversa-cotidiana | char:ni | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| conversa-cotidiana | char:wo | learned | l3 | p7-china-survival | PASS |
+| conversa-cotidiana | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| conversa-cotidiana | char:ming | learned | p1-ate-logo | p7-china-survival | PASS |
+| imersao-restaurante | chunk:qingwenjiwei | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:yiwei | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:liangwei | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:qingzuo | learned | p1-qingwen-cortesia | p7-china-survival | PASS |
+| imersao-restaurante | chunk:woyaocaidan | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:caidan | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:woyaomifan | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:woyaocai | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:woyaoyibeicha | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:buyaole | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:maidan | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| imersao-restaurante | chunk:zaijian | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| imersao-restaurante | chunk:haode | learned | l13-dialogo-ola | p7-china-survival | PASS |
+| imersao-restaurante | chunk:wohenhao | learned | l3 | p7-china-survival | PASS |
+| imersao-restaurante | chunk:zheshishenme | learned | l14-frase-minima | p7-china-survival | PASS |
+| imersao-restaurante | char:wei_person | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | char:yi | learned | p2-sons-brasileiros | p7-china-survival | PASS |
+| imersao-restaurante | char:cai_dish | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | char:fan_rice | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | char:yao | learned | l7 | p7-china-survival | PASS |
+| imersao-restaurante | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| imersao-restaurante | char:cha_tea | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| imersao-restaurante | chunk:fuwuyuan | learned | l26b | p7-china-survival | PASS |
+| imersao-restaurante | chunk:haochi | learned | l26 | p7-china-survival | PASS |
+| conversa-na-loja | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| conversa-na-loja | chunk:woyao | learned | l27 | p7-china-survival | PASS |
+| conversa-na-loja | chunk:duoshaoqian | learned | l26b | p7-china-survival | PASS |
+| conversa-na-loja | chunk:zheshishenme | learned | l14-frase-minima | p7-china-survival | PASS |
+| conversa-na-loja | chunk:taiguile | learned | l27 | p7-china-survival | PASS |
+| conversa-na-loja | chunk:buyaole | learned | l26b | p7-china-survival | PASS |
+| conversa-na-loja | chunk:xiexie | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| conversa-na-loja | chunk:zaijian | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| conversa-na-loja | chunk:bukeqi | learned | l4 | p7-china-survival | PASS |
+| conversa-na-loja | char:shi10 | learned | l8-shi | p7-china-survival | PASS |
+| conversa-na-loja | char:bu | learned | l4 | p7-china-survival | PASS |
+| conversa-na-loja | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| conversa-na-loja | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| imersao-estacao | chunk:qingwen | learned | p1-qingwen-cortesia | p7-china-survival | PASS |
+| imersao-estacao | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| imersao-estacao | chunk:qingzaishuoyibian | learned | p2-sons-brasileiros | p7-china-survival | PASS |
+| imersao-estacao | chunk:qingmanyidian | learned | l11 | p7-china-survival | PASS |
+| imersao-estacao | chunk:xiexie | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| imersao-estacao | chunk:bukeqi | learned | l4 | p7-china-survival | PASS |
+| imersao-estacao | chunk:zaijian | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| imersao-estacao | chunk:woyao | learned | l27 | p7-china-survival | PASS |
+| imersao-estacao | chunk:ditiezhanzainali | learned | p7-imersao-estacao | p7-china-survival | PASS |
+| imersao-estacao | chunk:piaoduoshaoqian | learned | p7-imersao-estacao | p7-china-survival | PASS |
+| imersao-estacao | chunk:yizhizou | learned | p6-direcoes | p7-china-survival | PASS |
+| imersao-estacao | chunk:zuozhuan | learned | p6-direcoes | p7-china-survival | PASS |
+| imersao-estacao | chunk:zuobian | learned | p6-direcoes | p7-china-survival | PASS |
+| imersao-estacao | chunk:ruko | learned | p6-survival-mandarin | p7-china-survival | PASS |
+| imersao-estacao | char:shi10 | learned | l8-shi | p7-china-survival | PASS |
+| imersao-estacao | char:zuo_left | learned | p6-direcoes | p7-china-survival | PASS |
+| imersao-estacao | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| pegar-taxi | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| pegar-taxi | chunk:qunali | learned | p6-china-ruas | p7-china-survival | PASS |
+| pegar-taxi | chunk:woyaoqujiudian | learned | p6-china-ruas | p7-china-survival | PASS |
+| pegar-taxi | chunk:qubeijinglu | learned | p6-china-ruas | p7-china-survival | PASS |
+| pegar-taxi | chunk:zaizhelictingche | learned | p6-china-ruas | p7-china-survival | PASS |
+| pegar-taxi | chunk:xiexie | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| pegar-taxi | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| pegar-taxi | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| no-aeroporto | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| no-aeroporto | chunk:huzhao | learned | p6-china-cidades-2 | p7-china-survival | PASS |
+| no-aeroporto | chunk:zheshiwodehuzhao | learned | p6-china-cidades-2 | p7-china-survival | PASS |
+| no-aeroporto | chunk:dengjikou | learned | p6-china-cidades-2 | p7-china-survival | PASS |
+| no-aeroporto | chunk:dengjikouzainali | learned | p6-china-cidades-2 | p7-china-survival | PASS |
+| no-aeroporto | chunk:qingzaishuoyibian | learned | p2-sons-brasileiros | p7-china-survival | PASS |
+| no-aeroporto | chunk:qingmanyidian | learned | l11 | p7-china-survival | PASS |
+| no-aeroporto | chunk:woxuyaobangzhu | learned | p6-survival-mandarin | p7-china-survival | PASS |
+| no-aeroporto | chunk:xiexie | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| no-aeroporto | chunk:bukeqi | learned | l4 | p7-china-survival | PASS |
+| no-aeroporto | chunk:zaijian | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| no-aeroporto | chunk:chuko | learned | p6-survival-mandarin | p7-china-survival | PASS |
+| no-aeroporto | chunk:yizhizou | learned | p6-direcoes | p7-china-survival | PASS |
+| no-aeroporto | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| no-aeroporto | char:zai | learned | l11-falo-pouco | p7-china-survival | PASS |
+| no-aeroporto | char:na_that | learned | p4-char-tian | p7-china-survival | PASS |
+| no-aeroporto | char:li_inside | learned | l11-falo-pouco | p7-china-survival | PASS |
+| no-aeroporto | char:zhe | learned | p4-char-mu | p7-china-survival | PASS |
+| no-aeroporto | char:shi | learned | l8-shi | p7-china-survival | PASS |
+| no-aeroporto | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| no-aeroporto | char:shi10 | learned | l8-shi | p7-china-survival | PASS |
+| no-aeroporto | char:ba8 | learned | p4-num-678 | p7-china-survival | PASS |
+| no-aeroporto | char:hao_number | learned | p6-china-ruas | p7-china-survival | PASS |
+| no-aeroporto | char:kou | learned | p1-o-que-e-hanzi | p7-china-survival | PASS |
+| nao-me-sinto-bem | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| nao-me-sinto-bem | chunk:zenmeyang | learned | l9-tudo-bem | p7-china-survival | PASS |
+| nao-me-sinto-bem | chunk:wobushufu | learned | p6-saude | p7-china-survival | PASS |
+| nao-me-sinto-bem | chunk:wotouteng | learned | p6-saude | p7-china-survival | PASS |
+| nao-me-sinto-bem | chunk:woxuyaoyisheng | learned | p6-saude | p7-china-survival | PASS |
+| nao-me-sinto-bem | chunk:yiyuanzainali | learned | p6-cidade-lugares | p7-china-survival | PASS |
+| nao-me-sinto-bem | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| nao-me-sinto-bem | char:bu | learned | l4 | p7-china-survival | PASS |
+| nao-me-sinto-bem | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| na-clinica | chunk:nihao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| na-clinica | chunk:wobushufu | learned | p6-saude | p7-china-survival | PASS |
+| na-clinica | chunk:wotouteng | learned | p6-saude | p7-china-survival | PASS |
+| na-clinica | chunk:woduziteng | learned | p6-saude | p7-china-survival | PASS |
+| na-clinica | chunk:wofashao | learned | p6-saude | p7-china-survival | PASS |
+| na-clinica | chunk:woyaokanyisheng | learned | p6-saude | p7-china-survival | PASS |
+| na-clinica | chunk:woxuyaoyisheng | learned | p6-saude | p7-china-survival | PASS |
+| na-clinica | chunk:woxuyaobangzhu | learned | p6-survival-mandarin | p7-china-survival | PASS |
+| na-clinica | chunk:yizhizou | learned | p6-direcoes | p7-china-survival | PASS |
+| na-clinica | chunk:qingzaishuoyibian | learned | p2-sons-brasileiros | p7-china-survival | PASS |
+| na-clinica | chunk:qingmanyidian | learned | l11 | p7-china-survival | PASS |
+| na-clinica | chunk:xiexie | learned | p1-engine-2-lab | p7-china-survival | PASS |
+| na-clinica | chunk:bukeqi | learned | l4 | p7-china-survival | PASS |
+| na-clinica | char:hao | learned | p1-o-que-e-mandarim | p7-china-survival | PASS |
+| na-clinica | char:ma_question | learned | p1-engine-2-lab | p7-china-survival | PASS |
 
 ## Lacunas globais (não bloqueantes)
 
@@ -258,4 +406,4 @@ Lacunas globais de arcos anteriores entram no relatório e não reescrevem o cur
 | pedir-repeticao | chunk:wojiao | (none) | p2-sons-brasileiros |
 | o-que-e-isto | chunk:woxianghe | (none) | l26 |
 
-<!-- integridade:22a1b7621520bbdf -->
+<!-- integridade:03a73533ff6e9696 -->

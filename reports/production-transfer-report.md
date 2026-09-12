@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | eb4baadf0579 |
-| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Hash da Jornada | 38e70062857d |
+| HEAD no instante da geração | 55dfdfa72c864b44f1d8995834dba06c96474bc8 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:44:58.431Z |
-| Lições | 132 |
+| Gerado em | 2026-09-12T01:57:01.813Z |
+| Lições | 134 |
 
 ## Resumo
 
@@ -25,15 +25,15 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Tarefas que aceitam frase irmã | 44 |
 | Objetivos de produção aberta declarados | 13 |
 | Objetivos de produção aberta no plano real | 10 |
-| Lições com produção aberta | 49 / 132 |
-| Falas de conversa sem apoio (aluno veterano) | 207 |
-| Lições com conversa sem apoio | 99 / 132 |
-| Lições com quebra de comunicação jogável | 84 / 132 |
+| Lições com produção aberta | 51 / 134 |
+| Falas de conversa sem apoio (aluno veterano) | 225 |
+| Lições com conversa sem apoio | 101 / 134 |
+| Lições com quebra de comunicação jogável | 84 / 134 |
 | Situações de reparo | 2 |
-| Passos auditados no plano real (3 tentativas) | 603 |
-| Lições com produção livre | 83 / 132 |
-| Lições com transferência | 20 / 132 |
-| Lições com reparo conversacional | 58 / 132 |
+| Passos auditados no plano real (3 tentativas) | 609 |
+| Lições com produção livre | 85 / 134 |
+| Lições com transferência | 20 / 134 |
+| Lições com reparo conversacional | 58 / 134 |
 | Estruturas diferentes no plano real | 16 |
 | Frases inéditas cobradas | 27 |
 | Transfer guided / supported / question | 25 / 18 / 15 |
@@ -95,4 +95,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - 请问医院在哪里
 - 车站在哪里
 
-<!-- integridade:63027d179693a11a -->
+<!-- integridade:f889f9b870bf7bd2 -->

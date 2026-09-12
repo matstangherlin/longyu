@@ -231,6 +231,11 @@ export interface LessonStep {
   builderId?: string;
   /** conversation_scene: id canônico da cena. */
   sceneId?: string;
+  /**
+   * Justifica repetir esta cena como primária logo após a lição anterior.
+   * Usado no capstone: reabrir a conversa cotidiana é transferência.
+   */
+  conversationRepeatJustification?: string;
   setting?: ConversationSetting;
   characters?: ConversationCharacter[];
   checkpoint?: ConversationCheckpoint;
@@ -9377,6 +9382,185 @@ export const JOURNEY: JourneyPhase[] = [
                 ],
               }),
               conversationScene("na-clinica"),
+            ],
+          },
+          {
+            id: "p7-conversa-cotidiana",
+            title: "Imersão: conversa cotidiana",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            curriculumRole: "immersion",
+            hanziMemoryTargets: ["天"],
+            libraryItems: [
+              "chunk:nihao",
+              "chunk:nihaoma",
+              "chunk:wohenhao",
+              "chunk:nine",
+              "chunk:woshixuesheng",
+              "chunk:jintianhenleng",
+              "chunk:mingtianjian",
+              "chunk:zaijian",
+              "chunk:qingzaishuoyibian",
+              "chunk:qingmanyidian",
+            ],
+            reviewItems: [
+              "chunk:wohenhao",
+              "chunk:nine",
+              "chunk:mingtianjian",
+              "chunk:jintianhenleng",
+            ],
+            steps: [
+              intro(
+                "Uma conversa, não uma prova",
+                "Mei te encontra na rua. Cumprimente, fale de você, devolva a pergunta e combine o amanhã. Nada de palavra nova."
+              ),
+              listen("你好吗？", "nǐ hǎo ma?", "Tudo bem?"),
+              listenSelect(
+                "O que ficou combinado?",
+                "明天见！",
+                ["encontrar amanhã", "ir ao hospital", "pedir o cardápio", "pagar a conta"],
+                "encontrar amanhã",
+                "明天见 combina o encontro. O hànzì não aparece no título."
+              ),
+              fillBlank(
+                "Recupere: sou estudante",
+                "Complete a frase já aprendida.",
+                "我",
+                "是",
+                "学生",
+                ["是", "不", "很"],
+                "我是学生 já foi ensinado. Recupere 是."
+              ),
+              fillBlank(
+                "Recupere: até amanhã",
+                "Complete o combinado já aprendido.",
+                "明",
+                "天",
+                "见",
+                ["天", "不", "好"],
+                "明天见 já foi ensinado. Recupere 天."
+              ),
+              sentenceBuild(
+                "Devolva a pergunta",
+                "Mei falou de si. Monte a pergunta recíproca.",
+                ["你", "呢"],
+                ["你", "呢", "我", "好"],
+                "你呢 devolve a pergunta. Não é um flashcard de tradução."
+              ),
+              freeProduction({
+                title: "Fale de você e devolva",
+                situationPt: "Alguém perguntou como você está. Responda e devolva a pergunta, sem alternativas.",
+                expected: "我很好。你呢？",
+                accepts: ["我很好。你呢？", "很好。你呢？", "我不舒服。你呢？"],
+                productionGoal: "state_change",
+                productionOpen: true,
+                productionHintPt: "Fale, escreva em hànzì ou em pinyin.",
+                productionExamples: [
+                  { hanzi: "我很好。你呢？", pinyin: "wǒ hěn hǎo. nǐ ne?" },
+                  { hanzi: "很好。你呢？", pinyin: "hěn hǎo. nǐ ne?" },
+                  { hanzi: "我不舒服。你呢？", pinyin: "wǒ bù shūfu. nǐ ne?" },
+                ],
+              }),
+              listen("今天很冷。", "jīntiān hěn lěng.", "Hoje está frio."),
+              conversationScene("conversa-cotidiana"),
+            ],
+          },
+          {
+            id: "p7-china-survival",
+            title: "Imersão: um dia na China",
+            skill: "fala",
+            isReview: true,
+            premium: true,
+            curriculumRole: "immersion",
+            hanziMemoryTargets: ["天"],
+            libraryItems: [
+              "chunk:qingwen",
+              "chunk:woyao",
+              "chunk:mingtianjian",
+              "chunk:yiyuanzainali",
+              "chunk:dengjikouzainali",
+            ],
+            reviewItems: [
+              "chunk:qingwen",
+              "chunk:woyao",
+              "chunk:mingtianjian",
+            ],
+            steps: [
+              intro(
+                "Um dia na China",
+                "Missão final desta fase: conversar, decidir e se virar com o mandarim que você já tem. Zero palavra nova."
+              ),
+              listenSelect(
+                "O que a pessoa quer?",
+                "请问，地铁站在哪里？",
+                ["perguntar o caminho", "pedir o cardápio", "se despedir", "dizer que está doente"],
+                "perguntar o caminho",
+                "请问 abre o pedido. O hànzì não aparece no título."
+              ),
+              fillBlank(
+                "Recupere: sou estudante",
+                "Complete a frase já aprendida.",
+                "我",
+                "是",
+                "学生",
+                ["是", "不", "很"],
+                "Identidade já ensinada. Recupere 是."
+              ),
+              fillBlank(
+                "Recupere: onde",
+                "Complete a pergunta de lugar já usada na cidade.",
+                "在",
+                "哪里",
+                "？",
+                ["哪里", "今天", "什么"],
+                "在哪里 transfere o mesmo frame para outro lugar."
+              ),
+              fillBlank(
+                "Recupere: eu quero",
+                "Complete o pedido já usado no restaurante e na loja.",
+                "我",
+                "要",
+                "这个",
+                ["要", "是", "不"],
+                "我要这个 é o mesmo frame em contextos diferentes."
+              ),
+              conversationScene("conversa-cotidiana"),
+              conversationScene("imersao-restaurante"),
+              conversationScene("conversa-na-loja"),
+              conversationScene("imersao-estacao"),
+              conversationScene("pegar-taxi"),
+              conversationScene("no-aeroporto"),
+              conversationScene("nao-me-sinto-bem"),
+              conversationScene("na-clinica"),
+              freeProduction({
+                title: "Peça o item",
+                situationPt: "No balcão ou na loja, aponte e peça o item. Sem alternativas.",
+                expected: "我要这个",
+                accepts: ["我要这个", "我要这个。", "我要菜单", "我要这双鞋"],
+                productionGoal: "request_item",
+                productionOpen: true,
+                productionHintPt: "O mesmo pedido, agora noutro lugar.",
+                productionExamples: [
+                  { hanzi: "我要这个", pinyin: "wǒ yào zhège" },
+                  { hanzi: "我要菜单", pinyin: "wǒ yào càidān" },
+                  { hanzi: "我要这双鞋", pinyin: "wǒ yào zhè shuāng xié" },
+                ],
+              }),
+              freeProduction({
+                title: "Pergunte o lugar",
+                situationPt: "Você precisa do hospital. Pergunte onde fica, sem alternativas.",
+                expected: "医院在哪里？",
+                accepts: ["医院在哪里？", "医院在哪里", "请问，医院在哪里？", "登机口在哪里？"],
+                productionGoal: "ask_location",
+                productionOpen: true,
+                productionHintPt: "A mesma pergunta de lugar, noutro destino.",
+                productionExamples: [
+                  { hanzi: "医院在哪里？", pinyin: "yīyuàn zài nǎlǐ?" },
+                  { hanzi: "请问，医院在哪里？", pinyin: "qǐng wèn, yīyuàn zài nǎlǐ?" },
+                  { hanzi: "登机口在哪里？", pinyin: "dēngjīkǒu zài nǎlǐ?" },
+                ],
+              }),
             ],
           },
           {

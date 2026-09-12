@@ -6,12 +6,12 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | eb4baadf0579 |
-| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Hash da Jornada | 38e70062857d |
+| HEAD no instante da geração | 55dfdfa72c864b44f1d8995834dba06c96474bc8 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:49:40.391Z |
-| Lições | 132 |
+| Gerado em | 2026-09-12T02:01:54.031Z |
+| Lições | 134 |
 
 
 ## Before → After
@@ -25,7 +25,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | guided / supported / question | 112/0/19 | 19 / 1 / 0 |
 | totalTransfers (127) | 82 | 20 |
 | transferBearingLessons | ~49 | 20 |
-| transferBearingLessonRate | ~0.39 | 0.152 |
+| transferBearingLessonRate | ~0.39 | 0.149 |
 | transfersBy20 | — | 1 (1 lições) |
 | transfersBy30 | — | 1 (1 lições) |
 | transfersBy50 | — | 3 (3 lições) |
@@ -247,4 +247,4 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **combinational_transfer:** contado acima — alvo inédito montado de componentes já ensinados.
 - **contextual_transfer:** reutilizar frase conhecida em situação nova (métrica separada; não infla novelTargets).
 
-<!-- integridade:0e20eef06429e330 -->
+<!-- integridade:a7dda67175bbbce9 -->

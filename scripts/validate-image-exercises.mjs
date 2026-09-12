@@ -313,13 +313,15 @@ try {
     });
 
     // Cobertura mínima por tipo de lição.
-    if (coverage.eligible && lesson.isReview && imageSteps.length < 2) {
+    // Imersão (conversa/capstone) é missão de transferência, não revisão visual.
+    const conversationImmersion = lesson.curriculumRole === "immersion";
+    if (coverage.eligible && lesson.isReview && !conversationImmersion && imageSteps.length < 2) {
       err("coverage", lesson.id, `revisão de módulo com itens concretos tem ${imageSteps.length} exercício(s) visual(is) (mínimo 2).`);
     }
     // Só exige imagem de conteúdo anterior quando existe conceito de unidade
     // anterior no catálogo (a revisão do primeiro módulo não tem "antes").
     const priorPossible = VISUAL_CONCEPTS.some((concept) => concept.afterUnitIndex < unitIndex);
-    if (coverage.eligible && lesson.isReview && imageSteps.length >= 2 && priorPossible && !hasPriorImage) {
+    if (coverage.eligible && lesson.isReview && !conversationImmersion && imageSteps.length >= 2 && priorPossible && !hasPriorImage) {
       err("coverage", lesson.id, "revisão de módulo sem exercício visual de conteúdo anterior.");
     }
     if (coverage.dedicatedConcreteHanzi && imageSteps.length < 1) {
@@ -336,7 +338,7 @@ try {
   }
 
   // ————— 3. Metas de cobertura —————
-  const eligibleRows = lessonRows.filter((row) => row.coverage.eligible);
+  const eligibleRows = lessonRows.filter((row) => row.coverage.eligible && row.lesson.curriculumRole !== "immersion");
   const eligibleWithImage = eligibleRows.filter((row) => row.imageCount > 0);
   const dedicatedRows = lessonRows.filter((row) => row.coverage.dedicatedConcreteHanzi);
   const dedicatedWithImage = dedicatedRows.filter((row) => row.imageCount > 0);

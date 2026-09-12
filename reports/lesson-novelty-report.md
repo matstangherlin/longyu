@@ -6,21 +6,21 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | eb4baadf0579 |
-| HEAD no instante da geração | 83b80974aeff96083872f07474bbd8b2bfd17465 |
+| Hash da Jornada | 38e70062857d |
+| HEAD no instante da geração | 55dfdfa72c864b44f1d8995834dba06c96474bc8 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-11T09:43:09.182Z |
-| Lições | 132 |
+| Gerado em | 2026-09-12T01:55:12.026Z |
+| Lições | 134 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Lições analisadas | 132 |
+| Lições analisadas | 134 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1021 |
-| Pares com transformação cognitiva | 812 (80%) |
+| Pares de repetição semântica | 1025 |
+| Pares com transformação cognitiva | 817 (80%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -162,11 +162,13 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p7-imersao-hotel | 26 | 25 | 51 | 10 | 8 | 14 | intent:identify-concept × 4 |
 | p7-imersao-aeroporto | 22 | 21 | 43 | 10 | 8 | 13 | action:produce-unaided × 3 |
 | p7-imersao-saude | 28 | 26 | 48 | 19 | 13 | 16 | action:produce-unaided × 7 |
-| p7-imersao-viagem | 24 | 22 | 43 | 14 | 9 | 14 | action:produce-unaided × 4 |
-| p7-imersao-casa-amigo | 28 | 27 | 58 | 22 | 19 | 17 | action:repair-conversation × 3 |
+| p7-conversa-cotidiana | 9 | 6 | 18 | 0 | 0 | 5 | — |
+| p7-china-survival | 10 | 9 | 28 | 3 | 3 | 8 | phrase:我要这个 × 2 |
+| p7-imersao-viagem | 24 | 22 | 46 | 13 | 9 | 14 | action:produce-unaided × 4 |
+| p7-imersao-casa-amigo | 29 | 28 | 59 | 24 | 21 | 17 | action:repair-conversation × 3 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:0cdeb4e463aa71e4 -->
+<!-- integridade:c6e30835128bdd46 -->

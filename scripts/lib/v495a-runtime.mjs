@@ -310,3 +310,24 @@ export function loadHealthRuntime() {
   const { EMERGENCY_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalEmergency.ts");
   return loadTravelBundle([...new Set([...HEALTH_SURVIVAL_TOPIC_IDS, ...EMERGENCY_SURVIVAL_TOPIC_IDS])]);
 }
+
+export function loadEverydayRuntime() {
+  const { EVERYDAY_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalEveryday.ts");
+  const { CAPSTONE_SURVIVAL_TOPIC_IDS } = require("../../src/data/chinaSurvivalCapstone.ts");
+  return loadTravelBundle([...EVERYDAY_SURVIVAL_TOPIC_IDS, ...CAPSTONE_SURVIVAL_TOPIC_IDS]);
+}
+
+export function loadCapstoneRuntime() {
+  const bundle = loadEverydayRuntime();
+  const { lessonRoundStepsFor } = require("../../src/features/lesson/lessonTasks.ts");
+  const { capstoneVariantFor } = require("../../src/data/chinaSurvivalCapstone.ts");
+  const lesson = bundle.lessons.find((item) => item.id === "p7-china-survival");
+  bundle.capstoneVariants = {
+    A: lessonRoundStepsFor(lesson, { masteryPass: 1, attemptNumber: 0 }),
+    B: lessonRoundStepsFor(lesson, { masteryPass: 1, attemptNumber: 1 }),
+    C: lessonRoundStepsFor(lesson, { masteryPass: 1, attemptNumber: 2 }),
+  };
+  bundle.capstoneVariantFor = capstoneVariantFor;
+  bundle.capstoneHighMastery = lessonRoundStepsFor(lesson, { masteryPass: 3, attemptNumber: 0 });
+  return bundle;
+}

@@ -37,6 +37,7 @@ const SURVIVAL_SCENE_IDS = new Set([
   "no-aeroporto",
   "nao-me-sinto-bem",
   "na-clinica",
+  "conversa-cotidiana",
 ]);
 const HIGH_VALUE = [
   {

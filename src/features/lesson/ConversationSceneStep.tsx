@@ -1275,7 +1275,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   if (!node) {
     return (
-      <div data-conversation-scene>
+      <div data-conversation-scene data-conversation-scene-id={step.sceneId}>
         <Eyebrow>{t("player.scene")}</Eyebrow>
         <p className="mt-3 text-ink-soft">{t("player.emptyScene")}</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
@@ -1296,7 +1296,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   };
 
   return (
-    <div data-conversation-scene>
+    <div data-conversation-scene data-conversation-scene-id={step.sceneId}>
       <LessonKindLabel kind="conversation" />
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
@@ -1469,7 +1469,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   if (lines.length === 0) {
     return (
-      <div data-conversation-scene>
+      <div data-conversation-scene data-conversation-scene-id={step.sceneId}>
         <Eyebrow>{t("player.scene")}</Eyebrow>
         <p className="mt-3 text-ink-soft">{t("player.emptyScene")}</p>
         <Button className="mt-4 w-full" onClick={() => onDone(true)}>
@@ -1480,7 +1480,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   return (
-    <div data-conversation-scene>
+    <div data-conversation-scene data-conversation-scene-id={step.sceneId}>
       <LessonKindLabel kind="conversation" />
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
 
