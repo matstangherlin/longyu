@@ -26,6 +26,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Frontend secrets (post-build)
+        run: npm run validate:frontend-secrets
+
       # Relatórios de qualidade regenerados pela cadeia beta (com procedência
       # e hash de integridade) — sempre anexados, mesmo em falha, para triagem.
       - name: Upload quality reports

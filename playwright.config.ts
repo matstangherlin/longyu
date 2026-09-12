@@ -13,6 +13,8 @@ const chromiumLaunch: { launchOptions?: { executablePath: string } } =
 const DEVICE_SPEC = "**/mobile-device.spec.ts";
 // Proxy L1–L20 do runbook humano — rodar à parte: npx playwright test e2e/runbook-20-lessons.spec.ts
 const RUNBOOK_SPEC = "**/runbook-20-lessons.spec.ts";
+// 134 first-step crawl — Chromium only (Firefox/WebKit ignore). Dedicated project: rc1-crawler.
+const RC1_CRAWLER_SPEC = "**/rc1-lesson-crawler.spec.ts";
 // Captura de evidências (docs/screenshots) — só no projeto `screenshots`.
 const SCREENSHOT_SPEC = "**/screenshots.spec.ts";
 
@@ -56,13 +58,13 @@ export default defineConfig({
     // Gecko real (Firefox). Exige `npx playwright install firefox`.
     {
       name: "firefox",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC],
       use: { ...devices["Desktop Firefox"] },
     },
     // WebKit ≈ motor do Safari (macOS e iOS). Exige `npx playwright install webkit`.
     {
       name: "webkit",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC],
       use: { ...devices["Desktop Safari"] },
     },
 
@@ -120,6 +122,12 @@ export default defineConfig({
       name: "runbook",
       testMatch: RUNBOOK_SPEC,
       timeout: 600_000,
+      use: { ...devices["Desktop Chrome"], ...chromiumLaunch },
+    },
+    {
+      name: "rc1-crawler",
+      testMatch: RC1_CRAWLER_SPEC,
+      timeout: 900_000,
       use: { ...devices["Desktop Chrome"], ...chromiumLaunch },
     },
 

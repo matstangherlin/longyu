@@ -1,0 +1,38 @@
+{
+  "id": "rc1",
+  "curriculum_freeze": "RC1",
+  "base_fingerprint": "38e70062857d",
+  "merge_sha": "c4441b68ae2388027d72e3af748417ef7caf2bb6",
+  "verdict": "NO-GO",
+  "verdict_reason": "Operational evidence is missing. A curriculum freeze and green CI are not a launch.",
+  "checks": {
+    "stripe_live": {
+      "pass": false,
+      "evidence": ""
+    },
+    "android_real_device": {
+      "pass": false,
+      "evidence": ""
+    },
+    "ios_real_device": {
+      "pass": false,
+      "evidence": ""
+    },
+    "rollback_drill": {
+      "pass": false,
+      "evidence": ""
+    },
+    "cloud_auth": {
+      "pass": false,
+      "evidence": ""
+    },
+    "cloud_sync": {
+      "pass": false,
+      "evidence": ""
+    },
+    "feedback_backend": {
+      "pass": false,
+      "evidence": ""
+    }
+  }
+}
