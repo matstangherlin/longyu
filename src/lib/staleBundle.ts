@@ -41,9 +41,40 @@ export function clearStaleBundleReloadFlag(): void {
   sessionStore()?.removeItem(STALE_BUNDLE_RELOAD_KEY);
 }
 
+function isAutomatedBrowser(): boolean {
+  const nav =
+    typeof window !== "undefined" && window.navigator
+      ? window.navigator
+      : typeof navigator !== "undefined"
+        ? navigator
+        : undefined;
+  return nav?.webdriver === true;
+}
+
+function isAbortError(error: unknown): boolean {
+  const name =
+    error instanceof Error
+      ? error.name
+      : error && typeof error === "object" && "name" in error
+        ? String((error as { name?: unknown }).name ?? "")
+        : "";
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : error && typeof error === "object" && "message" in error
+          ? String((error as { message?: unknown }).message ?? "")
+          : "";
+  return name === "AbortError" || /NS_BINDING_ABORTED|The operation was aborted/i.test(`${name} ${message}`);
+}
+
 /** @returns true when a reload was scheduled. */
 export function reloadOnceForStaleBundle(): boolean {
   if (typeof window === "undefined") return false;
+  // Playwright sets webdriver. A cancelled Firefox navigation looks like a
+  // failed dynamic import; reloading there aborts the next page.goto.
+  if (isAutomatedBrowser()) return false;
   const storage = sessionStore();
   if (!storage) return false;
   if (storage.getItem(STALE_BUNDLE_RELOAD_KEY) === "1") return false;
@@ -58,6 +89,7 @@ export async function importWithStaleBundleRetry<T>(importer: () => Promise<T>):
     clearStaleBundleReloadFlag();
     return loaded;
   } catch (error) {
+    if (isAbortError(error)) throw error;
     if (isStaleBundleError(error) && reloadOnceForStaleBundle()) {
       return new Promise<T>(() => undefined);
     }

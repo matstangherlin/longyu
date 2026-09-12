@@ -51,6 +51,12 @@ try {
   assert.equal(reloadOnceForStaleBundle(), false);
   assert.equal(reloads, 1);
 
+  globalThis.window = { location: { reload: () => { reloads += 1; } }, navigator: { webdriver: true } };
+  store.delete(STALE_BUNDLE_RELOAD_KEY);
+  assert.equal(reloadOnceForStaleBundle(), false, "Playwright/webdriver não auto-reload");
+  assert.equal(reloads, 1);
+  globalThis.window = { location: { reload: () => { reloads += 1; } } };
+
   store.clear();
   reloads = 0;
   let settled = false;
@@ -74,6 +80,15 @@ try {
   const loaded = await importWithStaleBundleRetry(() => Promise.resolve({ JourneyPage: true }));
   assert.equal(loaded.JourneyPage, true);
   assert.equal(store.has(STALE_BUNDLE_RELOAD_KEY), false, "sucesso limpa a flag");
+
+  store.clear();
+  reloads = 0;
+  await assert.rejects(
+    () => importWithStaleBundleRetry(() => Promise.reject(Object.assign(new Error("NS_BINDING_ABORTED"), { name: "AbortError" }))),
+    /NS_BINDING_ABORTED/,
+    "aborto de navegação não dispara reload"
+  );
+  assert.equal(reloads, 0);
 
   const now = Date.now();
   assert.deepEqual(dueItems(null, now), []);
