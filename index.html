@@ -88,12 +88,49 @@
       }
     </script>
 
+    <!--
+      RC1.2 P1 — as fontes do Google carregam SEM bloquear o boot.
+
+      Isto era um `rel="stylesheet"` comum, e uma folha de estilo externa
+      render-blocking segura duas coisas: a execucao dos scripts que vem depois
+      dela e o evento `load` da pagina. Enquanto a resposta nao chega, o modulo
+      do app nao roda e `#root` fica vazio.
+
+      Em rede boa isso passa despercebido. Em rede ruim, com o CDN fora do ar,
+      ou atras de uma rede que bloqueia `fonts.googleapis.com` — o caso da China
+      continental, que e exatamente para onde este curso prepara o aluno — o app
+      simplesmente nao abre.
+
+      Foi assim que o e2e de history vinha falhando: no `goto` a request falha
+      rapido e destrava; numa navegacao `back_forward` ela pendura, e o app
+      nunca monta. O timeout era sintoma.
+
+      Aqui fica so o `preload`, que aquece o cache sem bloquear nada. Quem
+      promove a folha a stylesheet e o `src/main.tsx`.
+
+      A promocao NAO pode ser um `onload=` inline: a CSP deste site declara
+      `script-src-attr 'none'`, entao o browser ignoraria o handler e as fontes
+      nunca seriam aplicadas em producao — sem erro visivel, e sem os testes
+      locais notarem, porque o preview nao aplica os headers do netlify.toml.
+
+      Os stacks em tailwind.config.js e index.css ja tem fallback real
+      (system-ui / Georgia / Songti SC) e a URL pede `display=swap`, entao o
+      texto aparece na hora e a webfont troca quando (e se) chegar.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      id="longyu-fonts"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
     <title>Longyu — aprenda mandarim pela lógica</title>
   </head>
   <body>

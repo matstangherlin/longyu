@@ -14,6 +14,43 @@ import { bootstrapInterfaceLocale } from "./i18n/locale";
 
 bootstrapInterfaceLocale();
 
+/**
+ * RC1.2 P1 — promove a folha de fontes DEPOIS do boot.
+ *
+ * O `index.html` carrega as fontes do Google como `rel="preload"`, que nao
+ * bloqueia. Antes era um `rel="stylesheet"` comum, e uma folha externa
+ * bloqueante segura a execucao dos scripts seguintes e o evento `load`: numa
+ * navegacao back/forward a request pendurava, o modulo do app nao rodava e
+ * `#root` ficava vazio. Atras de uma rede que engole `fonts.googleapis.com`
+ * — a China continental, para onde este curso prepara o aluno — o app nao abria.
+ *
+ * A promocao vive aqui, e nao num `onload=` inline no HTML, porque a CSP do
+ * site declara `script-src-attr 'none'`: o handler inline seria ignorado em
+ * producao e as fontes nunca apareceriam. Este arquivo e script de 'self', que
+ * a CSP permite.
+ *
+ * Se algo der errado, o pior caso e o app rodar nos fallbacks declarados em
+ * tailwind.config.js / index.css. Nenhuma tela depende da webfont para montar.
+ */
+function promoteWebFonts(): void {
+  const link = document.getElementById("longyu-fonts");
+  if (!(link instanceof HTMLLinkElement) || link.rel === "stylesheet") return;
+  link.rel = "stylesheet";
+}
+
+/**
+ * A promocao espera o `load`, e nao roda na hora.
+ *
+ * Promover de forma sincrona recria o problema: a folha volta a ficar pendente
+ * e segura o proprio evento `load` da pagina. Depois do `load` ja disparado,
+ * uma folha que chega tarde apenas se aplica — nao adia mais nada.
+ */
+if (document.readyState === "complete") {
+  promoteWebFonts();
+} else {
+  window.addEventListener("load", promoteWebFonts, { once: true });
+}
+
 const router = createBrowserRouter([
   {
     element: (

@@ -2,6 +2,24 @@
 
 **Verdict: NO-GO.**
 
+> **Atualizado na RC1.2 (P23).** O que mudou desde que este relatório foi
+> escrito:
+>
+> - **#255 mergeado** (`f661ad0`) e **#257 mergeado** (`06d6bcb`, RC1.1 —
+>   Learning Loop Hardening). O PR #256 foi fechado sem merge; o #257 é o que
+>   entrou.
+> - O loop de aprendizagem foi corrigido: coerência de modalidade, Reforço +,
+>   áudio de feedback, TTS com nome próprio, avanço de revisão e Victory.
+> - A dívida de E2E conhecida (`goForward`) foi **corrigida na raiz** na RC1.2:
+>   era uma folha de estilo externa render-blocking travando o boot do app.
+>   Não há mais E2E vermelho conhecido.
+> - Os checks operacionais foram reestruturados (onze, com runbook cada) e
+>   `stripe_live` virou `stripe_test_mode_e2e` + `stripe_production_config`.
+>
+> O verdict continua **NO-GO**, e pela mesma razão de sempre: **nenhum** check
+> operacional foi executado. Estado atual e caminho para GO em
+> [`rc1-2-release-closure.md`](./rc1-2-release-closure.md).
+
 This remessa freezes the curriculum that already shipped and proves the
 product can be *prepared* for launch. It does not authorize production
 launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
