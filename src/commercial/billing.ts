@@ -14,12 +14,12 @@ export const BILLING_CYCLES = ["monthly", "annual"] as const;
 export type BillingCycle = (typeof BILLING_CYCLES)[number];
 
 export const PRICE_PENDING = "PRICE_PENDING" as const;
-export type PriceStatus = typeof PRICE_PENDING | "CONFIGURED";
+export type PriceStatus = typeof PRICE_PENDING | "CONFIGURED" | "PRICE_MISMATCH";
 
 export interface PriceSlot {
   currency: BillingCurrency;
   status: PriceStatus;
-  /** Minor units (centavos/cents). Null until commercial approval. */
+  /** Minor units (centavos/cents). Public, approved value. */
   amountMinor: number | null;
   /** Server-only value. It must never be accepted from a checkout client. */
   providerPriceId: string | null;
@@ -30,28 +30,98 @@ export type PlanPriceMatrix = Record<
   Record<BillingMarket, Record<BillingCycle, PriceSlot>>
 >;
 
-function pending(currency: BillingCurrency): PriceSlot {
-  return { currency, status: PRICE_PENDING, amountMinor: null, providerPriceId: null };
+export interface PublicPriceEntry {
+  currency: BillingCurrency;
+  amountMinor: number;
 }
 
 /**
- * Central commercial contract. No final value has been approved in V4.8.6,
- * therefore every sellable slot fails closed as PRICE_PENDING.
+ * Annual is priced as ten monthly payments — "dois meses grátis" is a literal
+ * description of the contract, not a marketing rounding.
+ */
+export const ANNUAL_EQUIVALENT_MONTHS = 10;
+
+/**
+ * Preços comerciais aprovados, em unidades menores. Estes valores são
+ * **públicos**: aparecem na UI e podem viver no bundle.
+ *
+ * USD não é BRL convertido. São dois preços comerciais independentes, por
+ * decisão de produto — nada aqui consulta câmbio, hoje nem nunca.
+ *
+ * O que continua sendo segredo de servidor é o Stripe Price ID, que entra
+ * apenas por `buildServerPriceMatrix` lendo o ambiente.
+ */
+export const PUBLIC_COMMERCIAL_CATALOG: Record<
+  CheckoutPlan,
+  Record<BillingMarket, Record<BillingCycle, PublicPriceEntry>>
+> = {
+  pro: {
+    BR: {
+      monthly: { currency: "BRL", amountMinor: 1700 },
+      annual: { currency: "BRL", amountMinor: 17_000 },
+    },
+    INTERNATIONAL: {
+      monthly: { currency: "USD", amountMinor: 500 },
+      annual: { currency: "USD", amountMinor: 5000 },
+    },
+  },
+  family: {
+    BR: {
+      monthly: { currency: "BRL", amountMinor: 2700 },
+      annual: { currency: "BRL", amountMinor: 27_000 },
+    },
+    INTERNATIONAL: {
+      monthly: { currency: "USD", amountMinor: 800 },
+      annual: { currency: "USD", amountMinor: 8000 },
+    },
+  },
+};
+
+export function publicPrice(
+  plan: CheckoutPlan,
+  market: BillingMarket,
+  cycle: BillingCycle
+): PublicPriceEntry {
+  return PUBLIC_COMMERCIAL_CATALOG[plan][market][cycle];
+}
+
+function pendingFromCatalog(plan: CheckoutPlan, market: BillingMarket, cycle: BillingCycle): PriceSlot {
+  const entry = publicPrice(plan, market, cycle);
+  return { currency: entry.currency, status: PRICE_PENDING, amountMinor: entry.amountMinor, providerPriceId: null };
+}
+
+/**
+ * Contrato comercial central. O valor já está aprovado e é público; o que
+ * ainda falta em cada slot é a ligação com o provedor de pagamento, então o
+ * slot nasce PRICE_PENDING até o ambiente do servidor fornecer o Price ID.
  */
 export const PLAN_PRICE_MATRIX: PlanPriceMatrix = {
   pro: {
-    BR: { monthly: pending("BRL"), annual: pending("BRL") },
-    INTERNATIONAL: { monthly: pending("USD"), annual: pending("USD") },
+    BR: { monthly: pendingFromCatalog("pro", "BR", "monthly"), annual: pendingFromCatalog("pro", "BR", "annual") },
+    INTERNATIONAL: {
+      monthly: pendingFromCatalog("pro", "INTERNATIONAL", "monthly"),
+      annual: pendingFromCatalog("pro", "INTERNATIONAL", "annual"),
+    },
   },
   family: {
-    BR: { monthly: pending("BRL"), annual: pending("BRL") },
-    INTERNATIONAL: { monthly: pending("USD"), annual: pending("USD") },
+    BR: { monthly: pendingFromCatalog("family", "BR", "monthly"), annual: pendingFromCatalog("family", "BR", "annual") },
+    INTERNATIONAL: {
+      monthly: pendingFromCatalog("family", "INTERNATIONAL", "monthly"),
+      annual: pendingFromCatalog("family", "INTERNATIONAL", "annual"),
+    },
   },
 };
 
 export type ServerConfigReader = (name: string) => string | undefined;
 
-/** Build the authoritative matrix from server environment only. */
+/**
+ * Build the authoritative matrix from server environment only.
+ *
+ * O ambiente fornece o Stripe Price ID. Se ele também declarar um valor, esse
+ * valor precisa bater com o catálogo público aprovado — um deploy que cobre
+ * diferente do que a tela mostra é o defeito que este contrato existe para
+ * impedir, então o slot falha fechado como PRICE_MISMATCH em vez de cobrar.
+ */
 export function buildServerPriceMatrix(readConfig: ServerConfigReader): PlanPriceMatrix {
   const matrix = structuredClone(PLAN_PRICE_MATRIX);
   for (const plan of ["pro", "family"] as const) {
@@ -60,12 +130,22 @@ export function buildServerPriceMatrix(readConfig: ServerConfigReader): PlanPric
         const suffix = `${plan}_${cycle}_${market}`.toUpperCase();
         const rawAmount = readConfig(`LONGYU_PRICE_${suffix}_MINOR`);
         const providerPriceId = readConfig(`STRIPE_PRICE_${suffix}`)?.trim() || null;
-        const amountMinor = rawAmount && /^\d+$/.test(rawAmount) ? Number(rawAmount) : null;
-        if (amountMinor && providerPriceId) {
+        const approvedMinor = publicPrice(plan, market, cycle).amountMinor;
+        const declaredMinor = rawAmount && /^\d+$/.test(rawAmount) ? Number(rawAmount) : null;
+        if (declaredMinor !== null && declaredMinor !== approvedMinor) {
+          matrix[plan][market][cycle] = {
+            currency: billingCurrencyForMarket(market),
+            status: "PRICE_MISMATCH",
+            amountMinor: approvedMinor,
+            providerPriceId: null,
+          };
+          continue;
+        }
+        if (providerPriceId) {
           matrix[plan][market][cycle] = {
             currency: billingCurrencyForMarket(market),
             status: "CONFIGURED",
-            amountMinor,
+            amountMinor: approvedMinor,
             providerPriceId,
           };
         }
@@ -151,7 +231,18 @@ function isBillingCycle(value: unknown): value is BillingCycle {
 }
 
 function assertNoClientPriceAuthority(input: Record<string, unknown>): void {
-  for (const key of ["priceId", "clientPriceId", "providerPriceId", "currency", "amount", "amountMinor", "billingMarket"]) {
+  for (const key of [
+    "priceId",
+    "clientPriceId",
+    "providerPriceId",
+    "currency",
+    "amount",
+    "amountMinor",
+    "billingMarket",
+    "discount",
+    "coupon",
+    "promotionCode",
+  ]) {
     if (key in input) throw new BillingContractError("CLIENT_PRICE_OVERRIDE", `Client field ${key} is not allowed.`);
   }
 }
@@ -176,6 +267,12 @@ export function resolveAllowedPrice(input: unknown, matrix: PlanPriceMatrix = PL
   if (slot.currency !== billingCurrencyForMarket(market)) {
     throw new BillingContractError("INVALID_SERVER_PRICE", "Server price currency does not match its market.");
   }
+  if (slot.status === "PRICE_MISMATCH") {
+    throw new BillingContractError(
+      "PRICE_MISMATCH",
+      "Server price does not match the approved public catalog."
+    );
+  }
   if (slot.status === "CONFIGURED" && (!Number.isInteger(slot.amountMinor) || (slot.amountMinor ?? 0) <= 0 || !slot.providerPriceId)) {
     throw new BillingContractError("INVALID_SERVER_PRICE", "Configured server price is incomplete.");
   }
@@ -199,4 +296,21 @@ export function calculateAnnualSavingsPercent(monthlyMinor: number, annualMinor:
   if (!Number.isFinite(monthlyMinor) || !Number.isFinite(annualMinor) || monthlyMinor <= 0 || annualMinor < 0) return null;
   const baseline = monthlyMinor * 12;
   return Math.max(0, Math.round(((baseline - annualMinor) / baseline) * 100));
+}
+
+/** Quantos meses o plano anual custa, em pagamentos mensais equivalentes. */
+export function annualEquivalentMonths(monthlyMinor: number, annualMinor: number): number | null {
+  if (!Number.isFinite(monthlyMinor) || !Number.isFinite(annualMinor) || monthlyMinor <= 0) return null;
+  return annualMinor / monthlyMinor;
+}
+
+/**
+ * Meses grátis no anual, e só quando forem exatos. Devolver null em vez de
+ * arredondar impede que a UI prometa "2 meses grátis" sobre uma conta que não
+ * fecha — a copy do P0.3 tem que sair do cálculo, não de um número fixo.
+ */
+export function freeMonthsOnAnnual(monthlyMinor: number, annualMinor: number): number | null {
+  const months = annualEquivalentMonths(monthlyMinor, annualMinor);
+  if (months === null || !Number.isInteger(months) || months > 12) return null;
+  return 12 - months;
 }

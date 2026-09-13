@@ -1,4 +1,13 @@
-export const FAMILY_MAX_MEMBERS = 5;
+/**
+ * Seis pessoas no total: o dono mais cinco convidados.
+ *
+ * `validateFamily` conta o dono dentro de `active.length`, então este número é
+ * o total de contas, não o número de convites. Escrever "5 membros" quando o
+ * limite significa dono + 4 foi o erro que o P4.1 proíbe — a copy tem que
+ * dizer "você + até 5 pessoas" ou "até 6 pessoas", e as duas saem daqui.
+ */
+export const FAMILY_MAX_MEMBERS = 6;
+export const FAMILY_MAX_INVITEES = FAMILY_MAX_MEMBERS - 1;
 export const CHILD_ACCOUNT_POLICY = "FUTURE_DECISION" as const;
 
 export type FamilyRole = "owner" | "member";
@@ -80,6 +89,48 @@ export function addFamilyMember(
   const next = { ...family, memberships: [...family.memberships, membership] };
   validateFamily(next, maxMembers);
   return next;
+}
+
+export interface FamilySeatUsage {
+  /** Contas ocupando lugar: membros ativos + convites ainda pendentes. */
+  used: number;
+  limit: number;
+  remaining: number;
+  full: boolean;
+}
+
+/**
+ * Convite pendente ocupa lugar.
+ *
+ * Sem isso o dono manda seis convites para cinco vagas, todos aceitam, e a
+ * família estoura o limite sem ninguém ter feito nada errado. O lugar só volta
+ * quando o convite expira ou é revogado.
+ */
+export function familySeatUsage(input: {
+  activeMembers: number;
+  pendingInvites: number;
+  maxMembers?: number;
+}): FamilySeatUsage {
+  const limit = input.maxMembers ?? FAMILY_MAX_MEMBERS;
+  const used = Math.max(0, input.activeMembers) + Math.max(0, input.pendingInvites);
+  return { used, limit, remaining: Math.max(0, limit - used), full: used >= limit };
+}
+
+/**
+ * Autoridade de lugar. O servidor chama isto antes de gravar o convite — o
+ * frontend pode chamar também, para desabilitar o botão, mas a checagem que
+ * vale é a do servidor (P5.4).
+ */
+export function assertCanInviteToFamily(input: {
+  activeMembers: number;
+  pendingInvites: number;
+  maxMembers?: number;
+}): FamilySeatUsage {
+  const usage = familySeatUsage(input);
+  if (usage.full) {
+    throw new FamilyContractError("FAMILY_FULL", "Family seat limit reached.");
+  }
+  return usage;
 }
 
 export function removeFamilyMember(family: FamilyAccount, userId: string): FamilyAccount {
