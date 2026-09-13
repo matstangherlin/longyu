@@ -2,37 +2,94 @@
   "id": "rc1",
   "curriculum_freeze": "RC1",
   "base_fingerprint": "38e70062857d",
+  "curriculum_base_sha": "c4441b68ae2388027d72e3af748417ef7caf2bb6",
+  "release_candidate_sha": "",
   "merge_sha": "c4441b68ae2388027d72e3af748417ef7caf2bb6",
   "verdict": "NO-GO",
-  "verdict_reason": "Operational evidence is missing. A curriculum freeze and green CI are not a launch.",
+  "verdict_reason": "Nenhum check operacional foi executado contra um deploy candidate. Currículo congelado, CI verde e loop de aprendizagem corrigido não são lançamento. Cada check abaixo tem um runbook pronto em docs/release/evidence/ e continua false até alguém executá-lo de verdade.",
+  "notes": {
+    "curriculum_base_sha": "SHA do #254, onde o currículo RC1 foi congelado. Não muda entre remessas RC.",
+    "release_candidate_sha": "SHA do candidate que as evidências descrevem. Vazio enquanto não houver deploy candidate.",
+    "merge_sha": "Mantido por compatibilidade com validate:release-candidate. Aponta para o mesmo SHA do freeze inicial.",
+    "stripe": "RC1.2 P9.1 — 'stripe_live' era ambíguo e virou dois checks. Test Mode passando NÃO autoriza marcar configuração de produção."
+  },
   "checks": {
-    "stripe_live": {
-      "pass": false,
-      "evidence": ""
-    },
-    "android_real_device": {
-      "pass": false,
-      "evidence": ""
-    },
-    "ios_real_device": {
-      "pass": false,
-      "evidence": ""
-    },
-    "rollback_drill": {
-      "pass": false,
-      "evidence": ""
-    },
     "cloud_auth": {
       "pass": false,
-      "evidence": ""
+      "evidence": "docs/release/evidence/cloud-auth.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
     },
     "cloud_sync": {
       "pass": false,
-      "evidence": ""
+      "evidence": "docs/release/evidence/cloud-sync.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
     },
     "feedback_backend": {
       "pass": false,
-      "evidence": ""
+      "evidence": "docs/release/evidence/feedback-backend.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "stripe_test_mode_e2e": {
+      "pass": false,
+      "evidence": "docs/release/evidence/stripe-test-mode.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "stripe_production_config": {
+      "pass": false,
+      "evidence": "docs/release/evidence/stripe-production-config.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "stripe_live": {
+      "pass": false,
+      "evidence": "docs/release/evidence/stripe-test-mode.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "android_real_device": {
+      "pass": false,
+      "evidence": "docs/release/evidence/android-real-device.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "ios_real_device": {
+      "pass": false,
+      "evidence": "docs/release/evidence/ios-real-device.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "rollback_drill": {
+      "pass": false,
+      "evidence": "docs/release/evidence/rollback-drill.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "pwa_upgrade": {
+      "pass": false,
+      "evidence": "docs/release/evidence/pwa-upgrade.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "league_cloud_smoke": {
+      "pass": false,
+      "evidence": "docs/release/evidence/league-cloud.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
     }
   }
 }
