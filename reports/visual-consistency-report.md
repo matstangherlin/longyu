@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 38e70062857d |
-| HEAD no instante da geração | 6fcf8c790d146ecea3e4959ebae806c3151e55d8 |
+| HEAD no instante da geração | cae6f9cb871634b5d37f536e2bd3b1ba6c9b8bb4 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-12T16:47:43.569Z |
+| Gerado em | 2026-09-13T03:24:58.077Z |
 | Lições | 134 |
 
 ## Resumo
@@ -139,4 +139,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:f5d73433cf26b05b -->
+<!-- integridade:627bb84df6f074d3 -->
