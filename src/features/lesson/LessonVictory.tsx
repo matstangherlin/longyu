@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
 import { IconChevron, IconStar } from "../../components/ui/Icon";
@@ -29,14 +29,9 @@ export function LessonVictory({
   recoveredBanner,
   pendingStarsHint,
   topicLines,
-  saveStatusLabel,
-  xpTotal,
-  claimedRewards,
   primaryLabel,
   primaryTestId,
   onPrimary,
-  onReviewErrors,
-  banner,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -53,14 +48,9 @@ export function LessonVictory({
   recoveredBanner?: string;
   pendingStarsHint?: string;
   topicLines?: { title: string; lessonLine?: string; remainingLine?: string };
-  saveStatusLabel?: string;
-  xpTotal?: number;
-  claimedRewards?: boolean;
   primaryLabel: string;
   primaryTestId: string;
   onPrimary: () => void;
-  onReviewErrors?: () => void;
-  banner?: ReactNode;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const [motionReady, setMotionReady] = useState(false);
@@ -211,12 +201,30 @@ export function LessonVictory({
             </span>
           </div>
 
+          {/*
+            P14.1/P14.4 — no máximo um ponto forte e um foco, e o ponto forte
+            só se apresenta como tal quando é verdadeiro. Sem evidência
+            positiva, a linha é uma constatação neutra, sem o rótulo
+            "Ponto forte" por cima de uma precisão ruim.
+          */}
           <div className="mx-auto mt-4 w-full max-w-sm space-y-2 text-left" data-victory-summary>
-            <div className="rounded-2xl border border-[rgb(var(--good)/0.25)] bg-[rgb(var(--good)/0.08)] px-3 py-2.5" data-victory-highlight>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgb(var(--good))]">
-                {t("player.strongPoint")}
-              </div>
-              <p className="mt-0.5 text-sm font-medium text-ink">{summary.highlight}</p>
+            <div
+              className={
+                summary.hasRealStrength
+                  ? "rounded-2xl border border-[rgb(var(--good)/0.25)] bg-[rgb(var(--good)/0.08)] px-3 py-2.5"
+                  : "rounded-2xl border border-line bg-surface-2/60 px-3 py-2.5"
+              }
+              data-victory-highlight
+              data-victory-strength={summary.hasRealStrength ? "real" : "neutral"}
+            >
+              {summary.hasRealStrength ? (
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgb(var(--good))]">
+                  {t("player.strongPoint")}
+                </div>
+              ) : null}
+              <p className={`text-sm font-medium text-ink${summary.hasRealStrength ? " mt-0.5" : ""}`}>
+                {summary.highlight}
+              </p>
             </div>
             {summary.focus ? (
               <div className="rounded-2xl border border-accent-soft bg-accent-soft/30 px-3 py-2.5" data-victory-focus>
@@ -227,16 +235,12 @@ export function LessonVictory({
               </div>
             ) : null}
           </div>
-
-          {banner}
-
-          {saveStatusLabel ? (
-            <div className="mt-3 text-[11px] text-ink-faint">
-              {saveStatusLabel}
-              {xpTotal != null ? ` · ${t("player.xpTotalNow", { n: xpTotal })}` : ""}
-              {claimedRewards ? <span className="text-[rgb(var(--good))]"> · {t("player.rewardsReceived")}</span> : null}
-            </div>
-          ) : null}
+          {/*
+            P14.2/P14.3 — o que não entra aqui: oferta Pro, estado de
+            sincronização, card cultural, missões, acordeões, nav inferior e
+            qualquer segundo CTA. A conclusão é recompensa emocional; Pro tem
+            superfícies próprias e o sync acontece em background (P0.5).
+          */}
         </div>
 
         <div
@@ -247,16 +251,6 @@ export function LessonVictory({
             {primaryLabel}
             <IconChevron width={18} height={18} />
           </Button>
-          {errorCount > 0 && onReviewErrors ? (
-            <button
-              type="button"
-              className="mt-2 min-h-11 w-full text-sm font-semibold text-ink-soft"
-              data-victory-review-errors
-              onClick={onReviewErrors}
-            >
-              {t("player.reviewErrors")}
-            </button>
-          ) : null}
         </div>
       </section>
     </div>

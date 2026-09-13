@@ -4,6 +4,7 @@
 
 import { unlockAudio } from "./soundFx";
 import { useStore } from "./store";
+import { speakableProperNames } from "./personalize";
 
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let warmed = false;
@@ -145,6 +146,8 @@ export interface SpeakOptions {
    * aluno, que conclui que o botão está quebrado.
    */
   onerror?: () => void;
+  /** P3 — nomes latinos que podem ser falados dentro de uma fala mandarim. */
+  properNames?: readonly string[];
 }
 
 /** Fala um texto chinês. Cancela qualquer fala anterior. */
@@ -165,17 +168,121 @@ export interface SpeakOptions {
 // A regra: texto COM hànzì tem seu latim tratado como andaime visual e só os
 // trechos chineses são falados. Texto SEM hànzì nenhum passa intacto — é o
 // caso do pinyin, que precisa mesmo ser pronunciado como está.
+//
+// RC1.1 P3 — a exceção dos nomes próprios.
+//
+// A regra acima é certa para andaime de tela e errada para uma coisa só: o
+// nome do aluno. "我叫 Matheus。" é uma frase que o aluno vai mesmo dizer, e
+// apagar "Matheus" dela entrega um alvo que ninguém fala assim. O nome entra
+// no áudio, mas só sob uma condição estrita: o texto inteiro precisa ser
+// mandarim + nomes declarados + pontuação. Basta sobrar uma palavra de
+// interface ("O que", "responde", "Escolha abaixo") para o texto voltar a ser
+// tratado como enunciado — e aí só o chinês é falado, como antes.
+//
+// É essa condição, e não uma lista de palavras proibidas, que impede copy PT/EN
+// de vazar para o TTS: qualquer palavra que não seja um nome declarado
+// desqualifica a frase inteira.
 const CJK_RANGE = "\\u3400-\\u9fff\\uf900-\\ufaff";
 /** Pontuação chinesa que faz parte da prosódia e deve acompanhar o trecho. */
 const CJK_PUNCTUATION = "\\u3001\\u3002\\uff01\\uff0c\\uff1a\\uff1b\\uff1f\\u201c\\u201d\\u2018\\u2019\\uff08\\uff09";
 const CJK_TEST = new RegExp(`[${CJK_RANGE}]`, "u");
 const SPEAKABLE_RUN = new RegExp(`[${CJK_RANGE}][${CJK_RANGE}${CJK_PUNCTUATION}]*`, "gu");
+/** Sobra tolerada fora de hànzì e nomes: espaço e pontuação, nunca letras. */
+const NEUTRAL_RESIDUE = new RegExp(
+  `[\\s${CJK_PUNCTUATION}!-/:-@\\[-\`{-~\\u00a0\\u2013\\u2014\\u2026]+`,
+  "gu"
+);
 
-export function mandarinSpeechText(text: string): string {
+export interface MandarinSpeechOptions {
+  /**
+   * Nomes em alfabeto latino que PODEM ser falados: `displayName` do aluno,
+   * nomes de NPC do catálogo, ou qualquer trecho marcado como `properName`.
+   */
+  properNames?: readonly string[];
+}
+
+function escapeForRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function properNameMatcher(names: readonly string[]): RegExp | null {
+  const clean = Array.from(
+    new Set(
+      names
+        .map((name) => String(name ?? "").trim())
+        .filter((name) => name.length > 0 && /\p{L}/u.test(name))
+    )
+  ).sort((a, b) => b.length - a.length);
+  if (!clean.length) return null;
+  return new RegExp(`(?:${clean.map(escapeForRegExp).join("|")})`, "giu");
+}
+
+interface KeptSpan {
+  start: number;
+  end: number;
+  text: string;
+  properName: boolean;
+}
+
+function collectSpans(text: string, matcher: RegExp | null): KeptSpan[] {
+  const spans: KeptSpan[] = [];
+  for (const match of text.matchAll(SPEAKABLE_RUN)) {
+    spans.push({ start: match.index, end: match.index + match[0].length, text: match[0], properName: false });
+  }
+  if (matcher) {
+    for (const match of text.matchAll(matcher)) {
+      const start = match.index;
+      const end = start + match[0].length;
+      // Um nome dentro de um trecho chinês já está coberto — não duplica.
+      if (spans.some((span) => !span.properName && start < span.end && end > span.start)) continue;
+      spans.push({ start, end, text: match[0], properName: true });
+    }
+  }
+  return spans.sort((a, b) => a.start - b.start);
+}
+
+export function mandarinSpeechText(text: string, options: MandarinSpeechOptions = {}): string {
   if (!CJK_TEST.test(text)) return text;
-  const runs = text.match(SPEAKABLE_RUN);
-  if (!runs?.length) return text;
-  return runs.join("");
+
+  const matcher = properNameMatcher(options.properNames ?? []);
+  const spans = collectSpans(text, matcher);
+  const chineseOnly = spans.filter((span) => !span.properName);
+  if (!chineseOnly.length) return text;
+
+  if (matcher && spans.some((span) => span.properName)) {
+    // A condição estrita: o que sobra fora dos trechos mantidos precisa ser
+    // espaço e pontuação. Qualquer letra remanescente é copy de interface.
+    let residue = "";
+    let cursor = 0;
+    for (const span of spans) {
+      if (span.start > cursor) residue += text.slice(cursor, span.start);
+      cursor = Math.max(cursor, span.end);
+    }
+    residue += text.slice(cursor);
+    const onlyNeutral = residue.replace(NEUTRAL_RESIDUE, "").length === 0;
+    if (onlyNeutral) {
+      return spans
+        .reduce((parts: string[], span, index) => {
+          const previous = spans[index - 1];
+          if (previous && (previous.properName || span.properName)) parts.push(" ");
+          parts.push(span.text);
+          return parts;
+        }, [])
+        .join("")
+        .trim();
+    }
+  }
+
+  return chineseOnly.map((span) => span.text).join("");
+}
+
+function defaultSpeakableProperNames(): string[] {
+  try {
+    const state = useStore.getState();
+    return speakableProperNames(state.accounts?.[state.currentAccountId]?.name);
+  } catch {
+    return [];
+  }
 }
 
 export function speak(text: string, opts: SpeakOptions = {}): void {
@@ -184,7 +291,12 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     opts.onend?.();
     return;
   }
-  const spoken = mandarinSpeechText(text);
+  // P3 — sem lista explícita, o motor usa os nomes próprios que o app conhece
+  // (nome do aluno + NPCs do catálogo). É o que faz "我叫 Matheus。" sair
+  // inteiro; copy de interface continua barrada pela regra de resíduo.
+  const spoken = mandarinSpeechText(text, {
+    properNames: opts.properNames ?? defaultSpeakableProperNames(),
+  });
   if (!spoken.trim()) {
     opts.onend?.();
     return;

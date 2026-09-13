@@ -7,6 +7,39 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### RC1.1 — Learning Loop Hardening
+
+Bugfix + pedagogia de runtime + UX. Currículo congelado: fingerprint da Jornada
+segue `38e70062857d`, 134 lições, 113 temas de ensino. Nenhuma lesson, chunk,
+char, StepKind, LessonPlayer, Review Engine ou Victory framework novo.
+
+- **Coerência de modalidade** — a pass 3 montava "Monte a frase" com alvo de UM
+  caractere e banco de enchimento (`妈 / 一 / 人 / 木`) debaixo de objetivos de
+  tom, em 26 das 134 lições. Corrigido em runtime; varredura pós-correção: 0
+  violações.
+- **Reforço +** — média das quatro rodadas (`<= 2.0` abre uma quinta sessão
+  adaptativa, gerada em runtime a partir do que o tema já produziu). O tema só é
+  anunciado como dominado depois dela. Acontece no máximo uma vez; replay não
+  duplica XP.
+- **Áudio do feedback** — a correção toca o alvo mandarim automaticamente na
+  revisão, no teste de módulo e nas atividades, com dedupe e respeito a mute.
+- **TTS com nome próprio** — `我叫 Matheus。` sai inteiro; copy de interface
+  continua fora do áudio.
+- **Revisão e avanço** — máquina de estados formal, destino único de navegação,
+  conclusão local-first, e o item respondido deixa de voltar colado na fila.
+- **Victory** — sem oferta Pro, sem texto de sincronização, um CTA. O destaque
+  só se apresenta como "ponto forte" quando há evidência positiva real.
+
+Sete gates novos (`review-advance`, `feedback-audio`,
+`task-modality-coherence`, `adaptive-plus-round`,
+`adaptive-remediation-diversity`, `victory-minimalism`,
+`rc-learning-loop-freeze`), todos no `validate:beta`. Relatórios:
+`docs/reports/rc1-1-learning-loop-hardening.md`,
+`docs/reports/rc1-learning-loop-bug-sweep.md`.
+
+`validate:release-candidate` continua **NO-GO**: os checks operacionais seguem
+sem evidência anexada.
+
 ### V4.8.0 — Localization foundation (pt-BR + English)
 
 Interface/instruction locales `pt-BR` (default) and `en`, separate from target

@@ -1212,6 +1212,20 @@ interface AccountSnapshot extends XpBuckets {
   lessonSessionStepById: Record<string, { pass: number; stepIndex: number }>;
   /** Pedagogia V3 — domínio progressivo por lição (0–4). Distinto de estrelas e SRS. */
   lessonMasteryById: Record<string, import("../data/masteryLoop").LessonMasteryRecord>;
+  /**
+   * RC1.1 P10 — estrelas POR RODADA de um tema (pass 1–4).
+   *
+   * `lessonStarsById` guarda a melhor estrela da lição inteira, o que não
+   * responde "como foram as quatro rodadas?". A média do tema precisa de cada
+   * rodada separada, então ela mora aqui — no mesmo contrato de best-stars
+   * (a rodada repetida melhora, nunca piora).
+   */
+  topicPassStarsById: Record<string, Partial<Record<"1" | "2" | "3" | "4", LessonStar>>>;
+  /**
+   * RC1.1 P6.6 — Reforço + concluído por tema. Existe para a Plus acontecer no
+   * máximo uma vez: não há Plus 2, mesmo se o desempenho continuar fraco.
+   */
+  plusRoundById: Record<string, { completedAt: number; stars: LessonStar }>;
   /** Competência por dimensão por item (`chunk:…` / `char:…`). */
   itemDimensionsByRef: Record<string, import("../data/masteryLoop").ItemDimensionScores>;
   recentActivityErrors: ActivityErrorRecord[];
@@ -1353,6 +1367,8 @@ function blankSnapshot(): AccountSnapshot {
     lessonTaskProgress: {},
     lessonSessionStepById: {},
     lessonMasteryById: {},
+    topicPassStarsById: {},
+    plusRoundById: {},
     itemDimensionsByRef: {},
     recentActivityErrors: [],
     unrecognizedProductions: [],
@@ -1474,6 +1490,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     lessonTaskProgress: s.lessonTaskProgress,
     lessonSessionStepById: s.lessonSessionStepById ?? {},
     lessonMasteryById: s.lessonMasteryById ?? {},
+    topicPassStarsById: s.topicPassStarsById ?? {},
+    plusRoundById: s.plusRoundById ?? {},
     itemDimensionsByRef: s.itemDimensionsByRef ?? {},
     recentActivityErrors: s.recentActivityErrors,
     unrecognizedProductions: s.unrecognizedProductions ?? [],
@@ -1619,6 +1637,8 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     lessonTaskProgress: account.lessonTaskProgress ?? {},
     lessonSessionStepById: account.lessonSessionStepById ?? {},
     lessonMasteryById: account.lessonMasteryById ?? {},
+    topicPassStarsById: account.topicPassStarsById ?? {},
+    plusRoundById: account.plusRoundById ?? {},
     itemDimensionsByRef: account.itemDimensionsByRef ?? {},
     recentActivityErrors: normalizeRecentActivityErrors(account.recentActivityErrors),
     unrecognizedProductions: (account.unrecognizedProductions ?? []).slice(-40),
@@ -1961,6 +1981,8 @@ interface AppState {
   lessonTaskProgress: Record<string, number>;
   lessonSessionStepById: Record<string, { pass: number; stepIndex: number }>;
   lessonMasteryById: Record<string, import("../data/masteryLoop").LessonMasteryRecord>;
+  topicPassStarsById: Record<string, Partial<Record<"1" | "2" | "3" | "4", LessonStar>>>;
+  plusRoundById: Record<string, { completedAt: number; stars: LessonStar }>;
   itemDimensionsByRef: Record<string, import("../data/masteryLoop").ItemDimensionScores>;
   recentActivityErrors: ActivityErrorRecord[];
   /** Produções bem formadas que o motor não soube julgar — nunca contam como erro. */
@@ -2272,6 +2294,23 @@ interface AppState {
     }
   ) => void;
   /**
+   * RC1.1 P10 — grava a estrela de UMA rodada do tema (pass 1–4).
+   *
+   * Mesmo contrato de best-stars de `finishLessonAttempt`: refazer a rodada
+   * melhora o registro, nunca piora. É essa série que alimenta a média do tema
+   * e, por consequência, o gatilho do Reforço +.
+   */
+  recordTopicPassStars: (
+    lessonId: string,
+    pass: import("../data/masteryLoop").MasteryPass,
+    stars: LessonStar
+  ) => void;
+  /**
+   * RC1.1 P6.6 / P11.1 — fecha o Reforço + de um tema. Idempotente: a segunda
+   * chamada não reabre a Plus nem paga XP de novo.
+   */
+  completePlusRound: (lessonId: string, stars: LessonStar) => void;
+  /**
    * Desbloqueia uma medalha geral. Idempotente: retorna false se já foi
    * desbloqueada. Aplica a recompensa (Qi via rewardHistory, baú no inventário)
    * apenas na primeira vez — medalhas nunca duplicam.
@@ -2427,6 +2466,8 @@ export const useStore = create<AppState>()(
       lessonTaskProgress: {},
       lessonSessionStepById: {},
       lessonMasteryById: {},
+      topicPassStarsById: {},
+      plusRoundById: {},
       itemDimensionsByRef: {},
       recentActivityErrors: [],
       unrecognizedProductions: [],
@@ -5040,6 +5081,38 @@ export const useStore = create<AppState>()(
         get().recordStudyDay({ tasks: 1, minutes: lesson?.estimatedMinutes ?? 5 });
         get().completeStudySession();
       },
+
+      recordTopicPassStars: (lessonId, pass, stars) =>
+        set((s) => {
+          const cleanId = lessonId.trim();
+          if (!cleanId) return {};
+          const key = String(pass) as "1" | "2" | "3" | "4";
+          const current = s.topicPassStarsById?.[cleanId] ?? {};
+          const nextStar = normalizeLessonStar(stars);
+          const best = Math.max(current[key] ?? 0, nextStar) as LessonStar;
+          if (current[key] === best) return {};
+          const topicPassStarsById = {
+            ...(s.topicPassStarsById ?? {}),
+            [cleanId]: { ...current, [key]: best },
+          };
+          const next = { ...s, topicPassStarsById };
+          return { topicPassStarsById, accounts: saveCurrentAccount(next) };
+        }),
+
+      completePlusRound: (lessonId, stars) =>
+        set((s) => {
+          const cleanId = lessonId.trim();
+          if (!cleanId) return {};
+          // P6.6 — uma vez concluída, a Plus não volta. Replay não reescreve o
+          // registro nem reabre o tema (P11.1 cuida do XP).
+          if (s.plusRoundById?.[cleanId]) return {};
+          const plusRoundById = {
+            ...(s.plusRoundById ?? {}),
+            [cleanId]: { completedAt: Date.now(), stars: normalizeLessonStar(stars) },
+          };
+          const next = { ...s, plusRoundById };
+          return { plusRoundById, accounts: saveCurrentAccount(next) };
+        }),
 
       recordLessonMasteryPass: (lessonId, input) => {
         set((s) => {

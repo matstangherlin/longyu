@@ -265,13 +265,21 @@ assert(banner.includes("display.freeContinues"), "ProOfferBanner deve manter vis
 assert(banner.includes("onDismiss"), "ProOfferBanner deve permitir dispensar (arma o cooldown)");
 assert(!banner.includes("ModalOverlay"), "ProOfferBanner não pode virar modal");
 
-// A oferta pós-lição fica na tela de conclusão, em faixa: nunca interrompe o
-// estudo nem cobre o resultado com um modal.
+// RC1.1 P14.3 — a oferta pós-lição SAIU da tela de conclusão.
+//
+// Este bloco exigia o contrário: que o LessonPlayer renderizasse a faixa. A
+// faixa era melhor que um modal, mas continuava sendo um pedido de dinheiro em
+// cima da comemoração, e a RC1.1 decidiu que a conclusão é recompensa
+// emocional. A asserção foi invertida em vez de apagada: o gate continua
+// mordendo, agora contra quem recolocar o upsell ali.
+//
+// O motor de oferta em si não foi tocado — ProOfferBanner, cooldown, força
+// "card" e as superfícies próprias (Ligas, Jornada) seguem abaixo.
 const lessonPlayer = read("src/features/lesson/LessonPlayer.tsx");
-assert(lessonPlayer.includes("ProOfferBanner"), "LessonPlayer deve renderizar a oferta como faixa");
+assert(!lessonPlayer.includes("ProOfferBanner"), "Victory não pode voltar a exibir oferta Pro (RC1.1 P14.3)");
 assert(
-  /contextualOffer\.consider\(\s*\{[\s\S]*?\},\s*"card"\s*\)/.test(lessonPlayer),
-  "oferta pós-lição deve ser pedida como \"card\" (faixa), não como modal"
+  !/contextualOffer\.consider\(\s*\{[\s\S]*?\},\s*"card"\s*\)/.test(lessonPlayer),
+  "sem faixa na conclusão, o player não pode registrar impressão de oferta que ninguém viu"
 );
 
 // Quem pede oferta discreta não pode receber modal no lugar.

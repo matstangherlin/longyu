@@ -36,10 +36,18 @@ const PASS_EXPECT = {
     ring: "3/4",
   },
   4: {
-    heading: /Tema dominado/,
-    lesson: /4 de 4 concluídas/,
-    remaining: /Tema dominado/,
-    nextDetail: /Tema dominado/,
+    // RC1.1 P15 — a 4a rodada tem DOIS finais validos, e qual deles aparece
+    // depende de como o aluno foi: media das quatro > 2.0 fecha o tema
+    // ("Tema dominado"), <= 2.0 abre o Reforço + ("4 rodadas concluídas" +
+    // "Média do tema:"). O bot deste e2e responde de forma imperfeita, entao
+    // fixar so um dos dois deixaria o teste refem da pontuacao dele.
+    //
+    // O assunto deste teste e o anel 4/4 e o destravamento do proximo tema —
+    // os dois finais servem igual para isso.
+    heading: /Tema dominado|4 rodadas concluídas/,
+    lesson: /4 de 4 concluídas|Média do tema:/,
+    remaining: /Tema dominado|reforçar/,
+    nextDetail: /Tema dominado|Reforço \+/,
     ring: "4/4",
   },
 } as const;
@@ -170,9 +178,27 @@ async function returnToJourney(page: Page) {
   await drainBlockingModals(page);
   const primary = page.getByTestId("topic-victory-return");
   await expect(primary).toBeVisible();
-  await expect(primary).toHaveText(/Voltar à Jornada|Receber recompensas/i);
+  // RC1.1 P15 — na 4a rodada, se a media das quatro ficou <= 2.0, o CTA vira
+  // "Fazer Reforço +" em vez de "Voltar à Jornada". O bot deste e2e responde de
+  // forma imperfeita, entao esse caminho acontece de verdade aqui.
+  //
+  // O Reforço + e recomendacao, nao portao: o proximo tema continua destravando
+  // em 4/4. Este teste mede o anel e o destravamento, entao ele aceita os dois
+  // CTAs e volta para a Jornada pela barra quando a vitoria oferece o reforço.
+  const plusOffered = /Refor/i.test((await primary.textContent()) ?? "");
+  if (!plusOffered) {
+    await expect(primary).toHaveText(/Voltar à Jornada|Receber recompensas/i);
+  }
   await expect(page.getByRole("button", { name: /^Continuar tema$/i })).toHaveCount(0);
   await drainBlockingModals(page);
+  if (plusOffered) {
+    // Nao entra na sessao de reforço: o assunto deste teste e o retorno a
+    // Jornada depois da pass.
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    return;
+  }
   for (let attempt = 0; attempt < 6; attempt += 1) {
     await drainBlockingModals(page);
     try {

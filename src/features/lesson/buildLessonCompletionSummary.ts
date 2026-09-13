@@ -19,6 +19,15 @@ export type LessonCompletionSummary = {
   focus?: string;
   greeting?: string;
   perfect: boolean;
+  /**
+   * RC1.1 P14.4 — houve evidência positiva real por trás do destaque?
+   *
+   * Quando não houve, `highlight` é uma constatação neutra ("Você concluiu a
+   * prática") e a tela não deve rotulá-la como "Ponto forte". Elogiar 20% de
+   * precisão como ponto forte é o tipo de frase que ensina o aluno a não
+   * confiar no que o app diz.
+   */
+  hasRealStrength: boolean;
 };
 
 const COPY = {
@@ -34,6 +43,8 @@ const COPY = {
     conversationFocus: "Conversa: tente a próxima fala com menos ajuda.",
     productionFocus: "Produção: diga de novo sem montar as peças.",
     greeting: "Mandou bem, {name}!",
+    neutralHighlight: "Você concluiu a prática.",
+    lowAccuracyFocus: "Refaça esta prática antes de seguir.",
   },
   en: {
     perfectHighlight: "You got everything right in this session.",
@@ -47,6 +58,8 @@ const COPY = {
     conversationFocus: "Conversation: try the next line with less help.",
     productionFocus: "Production: say it again without the pieces.",
     greeting: "Nice work, {name}!",
+    neutralHighlight: "You finished the practice.",
+    lowAccuracyFocus: "Redo this practice before moving on.",
   },
 } as const;
 
@@ -63,18 +76,34 @@ export function buildLessonCompletionSummary(input: LessonCompletionSummaryInput
   const name = input.displayName?.trim().split(/\s+/)[0];
   const greeting = name && !["Aluno", "Novo", "Student"].includes(name) ? fill(copy.greeting, { name }) : undefined;
 
-  let highlight = fill(copy.accuracyHighlight, { n: accuracy });
-  if (perfect) highlight = copy.perfectHighlight;
-  else if ((mistakes.conversation ?? 0) === 0 && (mistakes.production ?? 0) === 0 && accuracy >= 70) {
-    highlight = copy.conversationHighlight;
-  } else if ((mistakes.listening ?? 0) === 0 && accuracy >= 70) {
-    highlight = copy.listeningHighlight;
-  } else if ((mistakes.production ?? 0) === 0 && accuracy >= 70) {
-    highlight = copy.productionHighlight;
+  // P14.6 — o destaque só existe quando há evidência positiva real.
+  //
+  // O default antigo era "Precisão de {n}%", o que produzia
+  // "Ponto forte: precisão de 20%" — um elogio que contradiz o próprio número
+  // exibido ao lado. Agora uma sessão ruim recebe uma constatação neutra, e o
+  // que orienta o aluno é o foco.
+  const MIN_STRENGTH_ACCURACY = 70;
+  let highlight: string = copy.neutralHighlight;
+  let hasRealStrength = false;
+
+  if (perfect) {
+    highlight = copy.perfectHighlight;
+    hasRealStrength = true;
+  } else if (accuracy >= MIN_STRENGTH_ACCURACY) {
+    hasRealStrength = true;
+    if ((mistakes.conversation ?? 0) === 0 && (mistakes.production ?? 0) === 0) {
+      highlight = copy.conversationHighlight;
+    } else if ((mistakes.listening ?? 0) === 0) {
+      highlight = copy.listeningHighlight;
+    } else if ((mistakes.production ?? 0) === 0) {
+      highlight = copy.productionHighlight;
+    } else {
+      highlight = fill(copy.accuracyHighlight, { n: accuracy });
+    }
   }
 
   if (perfect) {
-    return { highlight, greeting, perfect: true };
+    return { highlight, greeting, perfect: true, hasRealStrength: true };
   }
 
   const ranked: Array<[LessonCompletionSkill, string]> = [
@@ -84,9 +113,15 @@ export function buildLessonCompletionSummary(input: LessonCompletionSummaryInput
     ["conversation", copy.conversationFocus],
     ["production", copy.productionFocus],
   ];
-  const focus = ranked
+  const skillFocus = ranked
     .filter(([skill]) => (mistakes[skill] ?? 0) > 0)
     .sort((a, b) => (mistakes[b[0]] ?? 0) - (mistakes[a[0]] ?? 0))[0]?.[1];
 
-  return { highlight, focus, greeting, perfect: false };
+  // P14.5 — uma sessão ruim sempre sai com um foco. Quando não há detalhe por
+  // habilidade para apontar (sessão sem `mistakesBySkill`), o foco honesto é o
+  // único fato disponível: a prática precisa ser refeita. Inventar
+  // "tons" ou "hànzì" sem evidência seria o mesmo erro do elogio falso.
+  const focus = skillFocus ?? (accuracy < MIN_STRENGTH_ACCURACY ? copy.lowAccuracyFocus : undefined);
+
+  return { highlight, focus, greeting, perfect: false, hasRealStrength };
 }
