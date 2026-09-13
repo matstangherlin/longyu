@@ -12,6 +12,7 @@ import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
+import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
   personalizeConversationPrompt,
   personalizeName as personalizeValue,
@@ -213,6 +214,51 @@ function Eyebrow({ children }: { children: string }) {
   );
 }
 
+/**
+ * RC1.1 P2 — áudio automático do alvo quando o feedback aparece.
+ *
+ * O aluno errou, a correção surgiu escrita, e o som — a parte que de fato
+ * ensina a forma — dependia de ele descobrir o botão. Uma vez por
+ * passo/tentativa/resultado, respeitando mute e a preferência de autoplay.
+ * Se o navegador bloquear (Safari sem gesto), nada trava: o botão de replay
+ * do MandarinText continua ali.
+ */
+function useFeedbackTargetAudio(input: {
+  stepId: string;
+  correct: boolean;
+  target: string | undefined;
+  /** A atividade já tocou este alvo agora (listening) — evita a 3ª repetição. */
+  alreadyPlayedThisStep?: boolean;
+}) {
+  const soundEffects = useStore((s) => s.soundEffects);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
+  const playedRef = useRef(new Set<string>());
+  useEffect(() => {
+    const decision = decideFeedbackAudio(
+      {
+        stepId: input.stepId,
+        attemptId: input.correct ? "correct" : "wrong",
+        outcome: input.correct ? "correct" : "wrong",
+        target: input.target,
+        alreadyPlayedThisStep: input.alreadyPlayedThisStep,
+        soundEnabled: soundEffects,
+        autoPlayAudio: autoPlayAudio !== false,
+      },
+      playedRef.current
+    );
+    if (!decision.play) return undefined;
+    playedRef.current.add(decision.key);
+    return scheduleAutoSpeak(decision.text, { delayMs: 260 });
+  }, [
+    autoPlayAudio,
+    input.alreadyPlayedThisStep,
+    input.correct,
+    input.stepId,
+    input.target,
+    soundEffects,
+  ]);
+}
+
 // Banner de feedback (significado + pronúncia) após responder.
 function AnswerFeedback({
   correct,
@@ -230,6 +276,7 @@ function AnswerFeedback({
   hint?: string;
   onContinue: () => void;
 }) {
+  useFeedbackTargetAudio({ stepId: `answer:${hanzi}`, correct, target: hanzi });
   return (
     <div
       role="status"

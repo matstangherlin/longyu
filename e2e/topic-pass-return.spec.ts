@@ -36,8 +36,8 @@ const PASS_EXPECT = {
     ring: "3/4",
   },
   4: {
-    heading: /Tema dominado/,
-    lesson: /4 de 4 concluídas/,
+    heading: /4 rodadas concluídas/,
+    lesson: /Média do tema:/,
     remaining: /Tema dominado/,
     nextDetail: /Tema dominado/,
     ring: "4/4",

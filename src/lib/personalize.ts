@@ -42,3 +42,25 @@ export function personalizeConversationPrompt(
   const withStudentAlias = value.replace(/\bLin\b/g, "Matheus");
   return personalizeName(withStudentAlias, name) ?? withStudentAlias;
 }
+
+/**
+ * RC1.1 P3.1 — nomes em alfabeto latino que PODEM ser falados pela voz chinesa.
+ *
+ * A lista é fechada de propósito. O TTS pode dizer "我叫 Matheus。" porque
+ * Matheus é o nome do aluno; não pode dizer "O que Matheus responde?", que é
+ * copy de interface. Quem garante isso é a regra em `mandarinSpeechText`: um
+ * nome só sobrevive quando o resto do texto é mandarim e pontuação.
+ *
+ * "Matheus" fica aqui mesmo quando o aluno tem outro nome: é o nome-modelo do
+ * conteúdo autoral e ainda aparece em trechos não personalizados.
+ */
+const MODEL_STUDENT_NAME = "Matheus";
+/** NPCs com grafia latina no catálogo de conversa. */
+const KNOWN_NPC_NAMES = ["Lin", "Ana", "Bruno"] as const;
+
+export function speakableProperNames(studentName?: string): string[] {
+  const names = [MODEL_STUDENT_NAME, ...KNOWN_NPC_NAMES];
+  const student = studentFirstName(studentName);
+  if (student) names.unshift(student);
+  return Array.from(new Set(names));
+}

@@ -38,6 +38,8 @@ import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { LESSON_PERF_MARKS, markLessonPerf } from "../../lib/lessonPerf";
 import type { MasteryLevel } from "../../data/masteryLoop";
+import { plusRoundAvailable, topicAverageStars } from "./plusRound";
+import { topicPassStarsFrom } from "./plusRoundSession";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
@@ -172,6 +174,8 @@ export function LessonDetailPage() {
   const completed = useStore((state) => state.completedLessons);
   const lessonStarsById = useStore((state) => state.lessonStarsById);
   const lessonMasteryById = useStore((state) => state.lessonMasteryById);
+  const topicPassStarsById = useStore((state) => state.topicPassStarsById);
+  const plusRoundById = useStore((state) => state.plusRoundById);
   const isPremium = useIsPro();
   const lessonTaskProgress = useStore((state) => state.lessonTaskProgress);
   const lessonSessionStepById = useStore((state) => state.lessonSessionStepById);
@@ -242,10 +246,26 @@ export function LessonDetailPage() {
     ? LESSON_PASS_XP + (masteryLevel >= 3 ? LESSON_TOPIC_MASTERED_XP_BONUS : 0)
     : LESSON_BASE_XP + LESSON_THREE_STAR_XP_BONUS;
   const totalQi = tasks.reduce((sum, task) => sum + (task.rewardQi ?? 0), 0);
+  // RC1.1 P9 — estado do Reforço + no card do tema.
+  //
+  // A Plus não vira nó do grafo nem uma 5ª etapa estática: depois de 4/4, se a
+  // média das quatro rodadas pediu reforço, o card ganha uma linha compacta e
+  // o CTA muda. Concluída a Plus, o card volta ao normal.
+  const topicPassStars = topicPassStarsFrom(topicPassStarsById?.[lesson.id]);
+  const plusCompleted = Boolean(plusRoundById?.[lesson.id]);
+  const plusPending =
+    topicNode && plusRoundAvailable({ passStars: topicPassStars, plusCompleted });
+  const topicAverage = topicAverageStars(topicPassStars);
+
   const stepLabel = topicNode
-    ? pathComplete
-      ? t("journey.ctaMastered")
-      : `${t("journey.ctaLessonOf", { n: topicPass })} · ${passName}`
+    ? // P6.5 — com Reforço + pendente o tema não está dominado. Dizer o
+      // contrário aqui era o que fazia o aluno fechar quatro rodadas 2★ lendo
+      // "Tema dominado".
+      plusPending
+      ? t("journey.plusRecommended")
+      : pathComplete
+        ? t("journey.ctaMastered")
+        : `${t("journey.ctaLessonOf", { n: topicPass })} · ${passName}`
     : isAcquired
       ? t("journey.lessonComplete")
       : t("player.ofTotal", { index: Math.min(progress + 1, tasks.length), total: tasks.length });
@@ -280,7 +300,7 @@ export function LessonDetailPage() {
       return;
     }
     markLessonPerf(LESSON_PERF_MARKS.startClick);
-    navigate(`/licao/${lesson.id}/player`);
+    navigate(plusPending ? `/licao/${lesson.id}/player?reforco=1` : `/licao/${lesson.id}/player`);
   }
 
   function statusFor(index: number): TaskStatus {
@@ -290,7 +310,12 @@ export function LessonDetailPage() {
     return "bloqueada";
   }
 
-  const topicCta = localizedTopicCta(masteryLevel, activityIndex > 0, t);
+  const baseTopicCta = localizedTopicCta(masteryLevel, activityIndex > 0, t);
+  // P9 — com Reforço + pendente o CTA é "Fazer Reforço +", e a linha de apoio
+  // para de dizer "Tema dominado", que seria falso.
+  const topicCta = plusPending
+    ? { primary: t("journey.doPlusRound"), secondary: t("journey.plusRecommended") }
+    : baseTopicCta;
   const primaryLabel = !hasAccess
     ? t("player.seeLongyuPro")
     : toneLocked
@@ -335,7 +360,11 @@ export function LessonDetailPage() {
         {topicNode ? (
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent" data-testid="topic-pass-label">
-              {pathComplete ? t("journey.ctaMastered") : t("journey.ctaLessonOf", { n: topicPass }) + ` · ${passName}`}
+              {plusPending
+                ? t("journey.plusRecommended")
+                : pathComplete
+                  ? t("journey.ctaMastered")
+                  : t("journey.ctaLessonOf", { n: topicPass }) + ` · ${passName}`}
             </p>
             <p className="mt-2 break-words text-sm leading-6 text-ink sm:text-[15px]">
               {passGoal ? (
@@ -347,7 +376,11 @@ export function LessonDetailPage() {
                 spec ? displayInstruction(spec.promise, locale) : displayInstruction(lessonDescription(lesson), locale)
               )}
             </p>
-            {pathComplete && (
+            {/*
+              P6.5 — o selo de domínio só aparece quando o tema está de fato
+              fechado. Com Reforço + pendente, 4/4 ainda não é domínio.
+            */}
+            {pathComplete && !plusPending && (
               <p className="mt-2 text-[13px] font-semibold text-[rgb(var(--good))]">{t("journey.ctaMastered")} ✓</p>
             )}
           </div>
@@ -380,6 +413,13 @@ export function LessonDetailPage() {
                 />
               ))}
             </div>
+            {plusPending ? (
+              <p className="mt-2 text-[11px] font-medium text-accent" data-topic-plus-round="">
+                {topicAverage != null
+                  ? `${t("journey.topicAverage", { n: topicAverage.toFixed(1) })} · ${t("journey.plusRecommended")}`
+                  : t("journey.plusRecommended")}
+              </p>
+            ) : null}
           </div>
         )}
 

@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import { JOURNEY, type Lesson, type Skill, type Unit } from "../../data/journey";
 import type { ItemType } from "../../data/types";
 import { useStore, type Track } from "../../lib/store";
+import { scheduleAutoSpeak } from "../../lib/tts";
+import { decideFeedbackAudio } from "../lesson/feedbackAudioPolicy";
 import { todayKey } from "../../lib/storage";
 import { playSoundFx } from "../../lib/soundFx";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
@@ -798,6 +800,30 @@ function QuestionStimulus({ question }: { question: ExamQuestion }) {
 
 function QuestionFeedback({ question, answered }: { question: ExamQuestion; answered: AnsweredState }) {
   const { feedback } = question;
+  const soundEffects = useStore((s) => s.soundEffects);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
+  // RC1.1 P2/P2.1 — a correção toca sozinha. O aluno errou 再见 e a resposta
+  // certa aparecia só escrita; o som é a parte que ensina. Uma vez por
+  // pergunta/resultado — o dedupe está na chave, então re-render não repete.
+  const playedRef = useRef(new Set<string>());
+  useEffect(() => {
+    const decision = decideFeedbackAudio(
+      {
+        stepId: question.id,
+        attemptId: answered.correct ? "correct" : "wrong",
+        outcome: answered.correct ? "correct" : "wrong",
+        target: feedback.hanzi,
+        soundEnabled: soundEffects,
+        autoPlayAudio: autoPlayAudio !== false,
+      },
+      playedRef.current
+    );
+    if (!decision.play) return undefined;
+    playedRef.current.add(decision.key);
+    // P2.4 — autoplay bloqueado não trava nada: o SpeakButton segue disponível.
+    return scheduleAutoSpeak(decision.text, { delayMs: 240 });
+  }, [answered.correct, autoPlayAudio, feedback.hanzi, question.id, soundEffects]);
+
   return (
     <div
       className={[

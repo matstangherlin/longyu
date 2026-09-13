@@ -14,27 +14,42 @@ import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
 type AuthMode = "local" | "cloud_pending" | "cloud";
 
-function cloudSyncCopy(sync: CloudSyncState): string {
+/**
+ * RC1.1 — o catálogo de estado de salvamento passou a morar aqui.
+ *
+ * Ele vivia no LessonPlayer, e o que a Victory fazia com ele era exibir
+ * "Sincronizando progresso..." em cima da celebração (P14.2). Tirar de lá é
+ * certo; apagar a informação não é — o aluno continua precisando saber onde o
+ * progresso dele está. Esta é a tela que responde isso.
+ *
+ * Usa as chaves `player.save*` em vez de copy pt-BR embutida, então PT e EN
+ * saem do mesmo catálogo.
+ */
+function cloudSyncCopy(sync: CloudSyncState, translate: (key: string) => string): string {
   const raw =
     sync.message ||
     (sync.status === "loading"
-      ? "Sincronizando progresso com a nuvem"
+      ? translate("player.saveSyncing")
       : sync.status === "error"
-        ? "Erro ao sincronizar — seu progresso local está seguro"
+        ? translate("player.saveLocalSafeRetry")
         : sync.status === "pending"
-          ? "Sincronização pendente"
+          ? translate("player.savePending")
           : sync.status === "synced"
-            ? "Progresso sincronizado"
+            ? translate("player.saveCloud")
             : "");
   return displayInstruction(raw);
 }
 
-function statusFor(authMode: AuthMode): { label: string; tone: "muted" | "accent" | "good"; blurb: string } {
+function statusFor(
+  authMode: AuthMode,
+  translate: (key: string) => string
+): { label: string; tone: "muted" | "accent" | "good"; blurb: string; where: string } {
   if (authMode === "cloud") {
     return {
       label: displayInstruction("Nuvem ativa"),
       tone: "good",
       blurb: displayInstruction("Seu progresso está sincronizado na nuvem e disponível em qualquer aparelho."),
+      where: translate("player.saveCloud"),
     };
   }
   if (authMode === "cloud_pending") {
@@ -42,12 +57,14 @@ function statusFor(authMode: AuthMode): { label: string; tone: "muted" | "accent
       label: displayInstruction("Nuvem pendente"),
       tone: "accent",
       blurb: displayInstruction("Sua conta está preparada. Entre com email e senha para ativar a sincronização."),
+      where: translate("player.savePending"),
     };
   }
   return {
     label: displayInstruction("Neste dispositivo"),
     tone: "muted",
     blurb: displayInstruction("Há estudo salvo só neste aparelho. Associe a uma conta Longyu para continuar."),
+    where: translate("player.saveLocalDevice"),
   };
 }
 
@@ -61,10 +78,10 @@ export function ContaPage() {
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts[currentAccountId];
   const authMode = (account?.authMode ?? "local") as AuthMode;
-  const status = statusFor(authMode);
+  const status = statusFor(authMode, t);
   const backendReady = isSupabaseBackendEnabled();
   const cloudSyncState = useStore((s) => s.cloudSyncState);
-  const syncCopy = cloudSyncCopy(cloudSyncState);
+  const syncCopy = cloudSyncCopy(cloudSyncState, t);
 
   const { signIn } = useCloudSignIn();
   const { signOut, canSignOut } = useCloudSignOut();
@@ -138,6 +155,11 @@ export function ContaPage() {
           <ActionButton to="/perfil" variant="secondary" size="sm" trailingChevron>{displayInstruction("Ver perfil")}</ActionButton>
         </div>
         <p className="mt-2 text-[13px] leading-5 text-ink-soft">{status.blurb}</p>
+        {/* Onde o progresso está salvo, em uma linha — a informação que saiu da
+            Victory (P14.2) e que continua sendo do aluno. */}
+        <p className="mt-1 text-xs font-medium text-ink-faint" data-account-save-status="">
+          {status.where}
+        </p>
       </CompactCard>
 
       {/* Login / sessão cloud */}

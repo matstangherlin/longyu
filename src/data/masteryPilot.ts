@@ -20,6 +20,8 @@ import { makeReverseRecall } from "./exerciseFeasibility";
 import { wave1BonusStepsFor } from "./masteryWave1Bonus";
 import { COMPLETION_LESSON_IDS, COMPLETION_LEXICAL_TARGETS, completionBonusStepsFor } from "./masteryCurriculum";
 import { hasAuthoredTopicMasteryBonus, topicMasteryBonusStepsFor } from "./topicMasteryBonus";
+import { buildersForCharacter } from "./hanziBuilder";
+import { repairPhraseBuilderCoherence } from "../features/lesson/taskModalityCoherence";
 
 export const MASTERY_PILOT_LESSON_IDS = [
   "l2",
@@ -975,13 +977,28 @@ export function reverseRecall(
   return makeReverseRecall(title, situationPt, answer, accepts);
 }
 
+/**
+ * RC1.1 P4.4 — reparo de coerência sobre os passos bônus.
+ *
+ * O gerador genérico produzia "Monte a frase" com alvo de um caractere só e
+ * banco de enchimento (妈 / 一 / 人 / 木). A correção vive aqui, e não no
+ * gerador, porque `topicMasteryBonus.ts` faz parte da identidade congelada do
+ * currículo (RC1, fingerprint 38e70062857d) e esta remessa é runtime.
+ */
+function coherentBonusSteps(lessonId: string, pass: MasteryPass): LessonStep[] {
+  return repairPhraseBuilderCoherence(topicMasteryBonusStepsFor(lessonId, pass), (character) => {
+    const builders = buildersForCharacter(character);
+    return builders.find((item) => item.mode === "fragments") ?? builders[0];
+  });
+}
+
 /** Passos bonus por pass — exigencia cognitiva diferente, nao so outra modalidade. */
 export function masteryBonusStepsFor(lessonId: string, pass: MasteryPass): LessonStep[] {
   if (hasAuthoredTopicMasteryBonus(lessonId)) {
-    return topicMasteryBonusStepsFor(lessonId, pass);
+    return coherentBonusSteps(lessonId, pass);
   }
   if (!isMasteryPilotLesson(lessonId)) {
-    return topicMasteryBonusStepsFor(lessonId, pass);
+    return coherentBonusSteps(lessonId, pass);
   }
 
   if (lessonId === "l2") {

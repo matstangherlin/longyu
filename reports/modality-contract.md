@@ -5,23 +5,23 @@ de passo promete, e o que a tela oferece de fato.
 
 | StepKind | habilidade | passos | com áudio | com imagem | com alternativas | resposta livre | renderer | voz |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| sentence_build | montar | 623 | 0 | 0 | 623 | 0 | StepSentenceBuild | — |
-| dialogue_choice | escolher | 583 | 0 | 0 | 583 | 0 | StepDialogueChoice | — |
-| fill_blank | escolher | 578 | 4 | 0 | 578 | 0 | StepFillBlank | — |
+| sentence_build | montar | 599 | 0 | 0 | 599 | 0 | StepSentenceBuild | — |
+| dialogue_choice | escolher | 587 | 0 | 0 | 587 | 0 | StepDialogueChoice | — |
+| fill_blank | escolher | 580 | 4 | 0 | 580 | 0 | StepFillBlank | — |
 | conversation_scene | conversar | 562 | 0 | 0 | 481 | 0 | ConversationSceneStep | — |
 | comprehend | escolher | 551 | 0 | 0 | 551 | 0 | StepComprehend | — |
-| image_choice | interpretar imagem | 531 | 0 | 531 | 324 | 0 | StepImageChoice | — |
+| image_choice | interpretar imagem | 532 | 0 | 532 | 325 | 0 | StepImageChoice | — |
 | listen_select | ouvir | 494 | 494 | 0 | 494 | 0 | StepListenSelect | — |
 | free_production | produzir | 477 | 0 | 0 | 0 | 477 | StepFreeProduction | sim |
-| listen | ouvir | 304 | 0 | 0 | 0 | 0 | StepListen | — |
-| hanzi_build | escolher | 303 | 0 | 0 | 268 | 0 | StepHanziBuild | — |
+| listen | ouvir | 305 | 0 | 0 | 0 | 0 | StepListen | — |
+| hanzi_build | escolher | 305 | 0 | 0 | 269 | 0 | StepHanziBuild | — |
 | intro | escolher | 282 | 0 | 0 | 0 | 0 | StepIntro | — |
 | conversation_repair | produzir | 155 | 0 | 0 | 0 | 0 | StepConversationRepair | sim |
 | reverse_recall | produzir | 152 | 0 | 0 | 152 | 152 | StepFreeProduction | sim |
 | contextual_choice | escolher | 141 | 0 | 0 | 141 | 0 | StepDialogueChoice | — |
 | tone | escolher | 134 | 0 | 0 | 0 | 0 | StepTone | — |
+| recognize | construir/reconhecer forma | 100 | 0 | 0 | 3 | 0 | StepRecognize | — |
 | dictation | ouvir | 100 | 100 | 0 | 56 | 0 | StepDictation | — |
-| recognize | construir/reconhecer forma | 98 | 0 | 0 | 3 | 0 | StepRecognize | — |
 | spot_error | escolher | 97 | 0 | 0 | 97 | 0 | StepSpotError | — |
 | audio_discrimination | ouvir | 96 | 96 | 0 | 0 | 0 | StepAudioDiscrimination | — |
 | match_pairs | escolher | 84 | 0 | 0 | 0 | 0 | StepMatchPairs | — |
@@ -30,7 +30,7 @@ de passo promete, e o que a tela oferece de fato.
 | dialogue_completion | escolher | 56 | 0 | 0 | 56 | 0 | StepDialogueChoice | — |
 | produce | produzir | 52 | 0 | 0 | 52 | 52 | StepProduce | — |
 | write | produzir | 42 | 0 | 0 | 2 | 42 | StepWrite | sim |
-| tone_pair | escolher | 40 | 0 | 0 | 0 | 0 | StepTonePair | — |
+| tone_pair | escolher | 41 | 0 | 0 | 0 | 0 | StepTonePair | — |
 | transfer_task | produzir | 40 | 0 | 0 | 0 | 40 | StepFreeProduction | sim |
 | audio_to_action | ouvir | 32 | 32 | 0 | 32 | 0 | StepListenSelect | — |
 | sentence_transform | escolher | 30 | 0 | 0 | 30 | 0 | StepSentenceBuild | — |

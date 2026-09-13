@@ -50,6 +50,9 @@ import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
 import { reviewSessionSplit } from "../../lib/reviewSession";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
+import { scheduleAutoSpeak } from "../../lib/tts";
+import { decideFeedbackAudio } from "../lesson/feedbackAudioPolicy";
+import { nextQueuePosition } from "../lesson/taskFlowMachine";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import {
@@ -1215,6 +1218,7 @@ export function RevisaoPage() {
   const completeStudySession = useStore((s) => s.completeStudySession);
   const isPremium = useIsPro();
   const soundEffects = useStore((s) => s.soundEffects);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
   const lessonStarsById = useStore((s) => s.lessonStarsById);
   const completedLessons = useStore((s) => s.completedLessons);
@@ -1434,6 +1438,31 @@ export function RevisaoPage() {
     setPos(0);
     setRetryQueue([]);
   }, [mode]);
+
+  // RC1.1 P2 — quando o feedback aparece e existe alvo mandarim, o áudio toca
+  // sozinho UMA vez. Numa correção o som não é enfeite: 再见 escrito não ensina
+  // o tom. O dedupe é por item + tentativa + estado, então re-render não
+  // dispara de novo, e `decideFeedbackAudio` respeita mute e autoplay.
+  const feedbackAudioPlayedRef = useRef(new Set<string>());
+  useEffect(() => {
+    if (!revealed || !exercise) return undefined;
+    const decision = decideFeedbackAudio(
+      {
+        stepId: `${entry?.id ?? "item"}:${pos}`,
+        attemptId: reviewed,
+        outcome: exerciseCorrect === false ? "wrong" : exerciseCorrect === true ? "correct" : "revealed",
+        target: exercise.entity?.hanzi,
+        soundEnabled: soundEffects,
+        autoPlayAudio: autoPlayAudio !== false,
+      },
+      feedbackAudioPlayedRef.current
+    );
+    if (!decision.play) return undefined;
+    feedbackAudioPlayedRef.current.add(decision.key);
+    // P2.4 — se o navegador bloquear, nada trava: o botão de replay do
+    // MandarinText continua sendo a saída.
+    return scheduleAutoSpeak(decision.text, { delayMs: 260 });
+  }, [autoPlayAudio, entry?.id, exercise, exerciseCorrect, pos, revealed, reviewed, soundEffects]);
 
   // B003 — após revelar, feedback + CTA precisam entrar na viewport (iPhone/Safari).
   useEffect(() => {
@@ -1825,7 +1854,18 @@ export function RevisaoPage() {
     setActivePairId(null);
     setExerciseCorrect(null);
     setSuggestedGrade(null);
-    setPos((p) => p + 1);
+    // P13/P13.1 — o item recém-respondido não pode ser o PRÓXIMO da fila.
+    // Errar o último item empurrava uma cópia de retry para o fim, e `pos + 1`
+    // caía exatamente nela: a mesma pergunta, colada. O retry continua
+    // acontecendo — só não encostado na tentativa que o gerou.
+    const answeredId = entry.id;
+    setPos((p) =>
+      nextQueuePosition({
+        queueIds: [...queue.map((queued) => queued.id), ...(correct ? [] : [answeredId])],
+        from: p,
+        justAnsweredId: answeredId,
+      })
+    );
   }
 
   verifyReviewRef.current = verifyExercise;
@@ -2040,7 +2080,10 @@ export function RevisaoPage() {
             )}
           </div>
           {!correctionDrill && (
-            <span className="tabular-nums">
+            // P0.4/P13 — a posição na fila é o sinal de que a sessão andou.
+            // Marcada explicitamente para o e2e não depender de adivinhar qual
+            // número tabular da tela é este.
+            <span className="tabular-nums" data-review-position={`${pos + 1}/${queue.length}`}>
               {pos + 1} / {queue.length}
             </span>
           )}

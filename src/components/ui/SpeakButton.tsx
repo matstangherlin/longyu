@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { scheduleAutoSpeak, speak, noteUserGesture, isTTSAvailable } from "../../lib/tts";
+import { scheduleAutoSpeak, speak, noteUserGesture, isTTSAvailable, mandarinSpeechText } from "../../lib/tts";
 import { useStore } from "../../lib/store";
 import { noteAudioManualPlay } from "../../lib/lessonSessionMetrics";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -102,6 +102,15 @@ export function SpeakButton({
       onClick={play}
       disabled={unavailable}
       data-audio-failed={failed ? "true" : undefined}
+      /*
+       * RC1.1 P31 — o payload REAL que iria para o TTS, observável.
+       *
+       * É o mesmo `mandarinSpeechText` que `speak()` aplica, então o que este
+       * atributo mostra é exatamente o que a voz diria. Sem isto, "copy de
+       * interface não pode ser falada" só dava para testar na função pura, e
+       * um call site passando o enunciado inteiro para o botão passaria batido.
+       */
+      data-audio-text={mandarinSpeechText(String(text ?? "").trim())}
       className={[
         "inline-flex items-center justify-center rounded-full shadow-sm transition active:scale-95",
         unavailable

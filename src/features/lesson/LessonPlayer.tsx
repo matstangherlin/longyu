@@ -112,6 +112,14 @@ import {
   lessonTasksFor,
   resolveMasteryPassForContext,
 } from "./lessonTasks";
+import {
+  PLUS_ROUND_MIN_TASKS,
+  PLUS_ROUND_XP,
+  plusRoundAvailable,
+  plusRoundXpRewardId,
+  topicRoundFourResult,
+} from "./plusRound";
+import { buildPlusRoundSession, collectPlusRoundEvidence, topicPassStarsFrom } from "./plusRoundSession";
 import { dimensionForStepKind, isProductionOrTransferKind, nextMasteryPass } from "../../data/masteryLoop";
 import { isMasteryPilotLesson } from "../../data/masteryPilot";
 import {
@@ -123,7 +131,6 @@ import {
   lessonTopicMasteredXpRewardId,
   markJourneyPassReturn,
 } from "../../data/topicMastery";
-import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
@@ -357,20 +364,6 @@ function LessonSummaryStat({ label, value }: { label: string; value: string }) {
       <div className="mt-1.5 truncate font-serif text-lg font-semibold text-ink sm:text-xl">{value}</div>
     </div>
   );
-}
-
-function progressSaveLabel(
-  authMode: "local" | "cloud_pending" | "cloud",
-  syncStatus: ReturnType<typeof useStore.getState>["cloudSyncState"]["status"]
-): string {
-  if (authMode === "cloud") {
-    if (syncStatus === "pending" || syncStatus === "loading") return t("player.saveSyncing");
-    if (syncStatus === "error") return t("player.saveLocalSafeRetry");
-    return t("player.saveCloud");
-  }
-  if (syncStatus === "pending") return t("player.savePending");
-  if (syncStatus === "error") return t("player.saveFailed");
-  return t("player.saveLocalDevice");
 }
 
 function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> {
@@ -1536,6 +1529,14 @@ export function LessonPlayer() {
   const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
   const [searchParams] = useSearchParams();
+  /**
+   * RC1.1 P6 — sessão de Reforço +.
+   *
+   * A Plus é uma sessão, não um nó do grafo: entra por parâmetro e some
+   * quando acaba. Não existe `lesson-5-plus` no catálogo, e o fingerprint do
+   * currículo não muda por causa dela.
+   */
+  const isPlusRoundSession = searchParams.get("reforco") === "1";
   const navigate = useNavigate();
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
@@ -1545,6 +1546,10 @@ export function LessonPlayer() {
   const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name);
   const cultureKnowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const recordLessonMasteryPass = useStore((s) => s.recordLessonMasteryPass);
+  const recordTopicPassStars = useStore((s) => s.recordTopicPassStars);
+  const completePlusRound = useStore((s) => s.completePlusRound);
+  const topicPassStarsById = useStore((s) => s.topicPassStarsById);
+  const plusRoundById = useStore((s) => s.plusRoundById);
   const lessonMasteryById = useStore((s) => s.lessonMasteryById);
   useStore((s) => s.itemDimensionsByRef);
   const addChest = useStore((s) => s.addChest);
@@ -1559,7 +1564,10 @@ export function LessonPlayer() {
   const ensureSrs = useStore((s) => s.ensureSrs);
   const addMinutes = useStore((s) => s.addMinutes);
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
-  const cloudSyncState = useStore((s) => s.cloudSyncState);
+  // RC1.1 P12.2 — o player não assina `cloudSyncState`. O destino da navegação
+  // e a tela de conclusão não podem depender de `cloudSync === finished`; a
+  // conclusão é local-first (P0.5) e a nuvem acompanha em background. Sem a
+  // assinatura, não há como um estado de sync voltar a segurar o Continuar.
   const online = useOnline();
   const today = useStore((s) => s.today);
   const streak = useStore((s) => s.streak);
@@ -1640,7 +1648,6 @@ export function LessonPlayer() {
   const [showFolegoUpsell, setShowFolegoUpsell] = useState(false);
   const [lessonReward, setLessonReward] = useState(0);
   const [lessonXp, setLessonXp] = useState(0);
-  const [postLessonXpTotal, setPostLessonXpTotal] = useState(0);
   const [postLessonView, setPostLessonView] = useState<"victory" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
   // Recompensas (Qi/pérola/medalha) resgatadas no próprio card de vitória.
@@ -1842,6 +1849,39 @@ export function LessonPlayer() {
         );
       } catch {
         planned = authored;
+      }
+      // RC1.1 P7/P8 — o Reforço + remonta o plano a partir do que já existe:
+      // os alvos que deram trabalho nas quatro rodadas, em modalidades
+      // diferentes daquelas em que o aluno falhou. Se não houver material
+      // reaproveitável suficiente, a sessão cai no plano normal em vez de
+      // inventar exercício novo.
+      if (isPlusRoundSession) {
+        try {
+          const live = useStore.getState();
+          const pool: LessonStep[] = [];
+          for (const pass of [1, 2, 3, 4] as const) {
+            try {
+              pool.push(
+                ...(lessonRoundStepsFor({ ...foundLesson, steps: authored }, { masteryPass: pass }) as LessonStep[])
+              );
+            } catch {
+              // Uma pass que não planeja não impede as outras de contribuir.
+            }
+          }
+          const session = buildPlusRoundSession({
+            lesson: foundLesson,
+            stepPool: pool.length ? pool : planned,
+            evidence: collectPlusRoundEvidence({
+              lessonId: foundLesson.id,
+              activityErrors: live.recentActivityErrors ?? [],
+              attempts: live.lessonAttemptsById?.[foundLesson.id] ?? [],
+              pendingStarRefs: live.lessonPendingStars?.[foundLesson.id] ?? [],
+            }),
+          });
+          if (session.steps.length >= PLUS_ROUND_MIN_TASKS) planned = session.steps;
+        } catch {
+          // Mantém o plano normal — a Plus nunca bloqueia a sessão.
+        }
       }
       if (gen !== planGenRef.current) return;
       if (idxRef.current > 0) return;
@@ -2565,7 +2605,6 @@ export function LessonPlayer() {
         source: "Conclusão de lição",
       });
       setLessonXp(xpClaimed ? recoveredXp : 0);
-      setPostLessonXpTotal(useStore.getState().xpTotal);
       setLessonReward(LESSON_THREE_STAR_QI + (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0));
     }
     if (firstCompletion || (lessonStarsById[lesson.id] ?? 0) < 3) recordDailyTask("threeStarLessons");
@@ -3273,7 +3312,6 @@ export function LessonPlayer() {
     }
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
     setLessonXp(xpClaimed ? completionXp : 0);
-    setPostLessonXpTotal(useStore.getState().xpTotal);
     setLessonReward(completionQi);
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
@@ -3334,7 +3372,24 @@ export function LessonPlayer() {
           allowSkipAhead: !topicNode,
           commitPass: topicNode,
         });
-        if (topicNode) {
+        if (topicNode && isPlusRoundSession) {
+          // P6.6 — a Plus fecha o tema e não volta. `completePlusRound` é
+          // idempotente, então repetir a sessão não reabre nada.
+          completePlusRound(lesson.id, stars);
+          // P11/P11.1 — XP pequeno, na economia existente, só na primeira vez.
+          // A chave não tem data nem tentativa: replay não farma.
+          claimReward({
+            id: plusRoundXpRewardId(lesson.id),
+            type: "xp",
+            amount: PLUS_ROUND_XP,
+            source: "Reforço +",
+          });
+        } else if (topicNode) {
+          // RC1.1 P10 — a estrela desta rodada fica registrada separadamente.
+          // `lessonStarsById` guarda a melhor estrela da lição inteira e não
+          // sabe dizer como foram as quatro rodadas; a média do tema precisa
+          // de cada uma.
+          recordTopicPassStars(lesson.id, recordedPass, stars);
           const filled = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? recordedPass;
           markJourneyPassReturn(lesson.id, filled);
         }
@@ -3376,27 +3431,17 @@ export function LessonPlayer() {
     if (passed && stars === 3) recordDailyTask("threeStarLessons");
     setFinishReason(reason);
     setFinished(true);
-    const sessionErrors = activityErrorsRef.current;
-    const toneErrorCount = sessionErrors.filter(
-      (error) => error.skill === "som" || error.step?.kind === "tone" || error.step?.kind === "tone_pair"
-    ).length;
-    const hanziErrorCount = sessionErrors.filter(
-      (error) => error.skill === "hanzi" || error.step?.kind === "hanzi_build" || error.step?.kind === "recognize"
-    ).length;
-    // Oferta pós-lição em faixa, não em modal: aparece na tela de conclusão,
-    // depois da tarefa terminada, sem cobrir o resultado nem exigir um clique
-    // para sair. O motor continua decidindo se deve aparecer.
-    contextualOffer.consider(
-      {
-        lessonThreeStars: passed && stars === 3,
-        twoStars: passed && stars === 2,
-        errorCount: sessionErrors.length,
-        outOfBreath: reason === "out_of_lives",
-        repeatedToneErrors: toneErrorCount >= 2,
-        repeatedHanziErrors: hanziErrorCount >= 2,
-      },
-      "card"
-    );
+    // RC1.1 P14.3 — a oferta pós-licao saiu da tela de conclusao.
+    //
+    // Ela existia aqui como faixa, o que era melhor que um modal, mas continua
+    // sendo um pedido de dinheiro em cima da comemoracao. A conclusao e
+    // recompensa emocional; Pro tem superficies proprias (Ligas e Jornada, que
+    // seguem intactas).
+    //
+    // O `consider(..., "card")` foi removido junto, e nao so o render: mantê-lo
+    // registraria uma impressao de oferta que ninguem viu, e o motor usa essa
+    // contagem para cooldown e atribuicao. Uma oferta invisivel que gasta a
+    // cota do aluno e pior que nenhuma oferta.
   }
 
   if (finished) {
@@ -3437,7 +3482,28 @@ export function LessonPlayer() {
       passed && isTopicMasteryLesson(lesson) && masteryNow >= 1
         ? localizedTopicVictory(Math.min(4, masteryNow) as 1 | 2 | 3 | 4)
         : null;
-    const journeyCta = isTopicMasteryLesson(lesson) ? t("player.backToJourney") : t("player.continueJourney");
+    // RC1.1 P6/P15 — depois da 4ª rodada, a média das quatro decide se o tema
+    // fecha ou se abre o Reforço +. Enquanto a Plus for necessária, o tema não
+    // é anunciado como dominado (P6.5).
+    const topicPassStars = topicPassStarsFrom(topicPassStarsById?.[lesson.id]);
+    const plusCompleted = Boolean(plusRoundById?.[lesson.id]);
+    const plusPending =
+      isTopicMasteryLesson(lesson) && plusRoundAvailable({ passStars: topicPassStars, plusCompleted });
+    const plusResult =
+      plusPending && !isPlusRoundSession
+        ? topicRoundFourResult({
+            passStars: topicPassStars,
+            plusCompleted,
+            locale: locale === "en" ? "en" : "pt",
+          })
+        : null;
+    const journeyCta = plusResult
+      ? plusResult.ctaLabel
+      : isPlusRoundSession
+        ? t("player.continueJourney")
+        : isTopicMasteryLesson(lesson)
+          ? t("player.backToJourney")
+          : t("player.continueJourney");
 
     // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
     // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
@@ -3520,7 +3586,6 @@ export function LessonPlayer() {
       pendingReviewRestoredRef.current = false;
       setLessonReward(0);
       setLessonXp(0);
-      setPostLessonXpTotal(0);
       skippedStepsRef.current = 0;
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
@@ -3753,7 +3818,6 @@ export function LessonPlayer() {
     ].filter((reward) => reward.amount > 0);
     const newRewards = allRewards.filter((reward) => !rewardHistory.some((entry) => entry.id === reward.id));
     const shouldShowStreak = dailyGoalReached;
-    const saveStatusLabel = progressSaveLabel(authMode, cloudSyncState.status);
     // Recompensas extras além de XP/Qi (pérola, medalha) viram chips no card.
     const hasUnclaimedRewards = newRewards.length > 0 && !claimedRewardCards;
 
@@ -3795,6 +3859,12 @@ export function LessonPlayer() {
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
+        return;
+      }
+      // P6/P15 — o único caso em que a Victory abre outra sessão: o Reforço +
+      // pedido pela média das quatro rodadas. Continua sendo um CTA só.
+      if (plusResult) {
+        navigate(`/licao/${lesson.id}/player?reforco=1`);
         return;
       }
       continueJourney();
@@ -3905,11 +3975,16 @@ export function LessonPlayer() {
     const victoryHeadline =
       lesson.lessonDomain === "culture"
         ? t("culture.lessonComplete")
-        : topicVictory
-          ? `✓ ${topicVictory.heading}`
-          : stars === 3
-            ? t("player.lessonComplete")
-            : t("player.youAdvanced");
+        : // P15 — a 4ª rodada com média fraca não anuncia domínio.
+          plusResult
+          ? `✓ ${plusResult.headline}`
+          : isPlusRoundSession
+            ? `✓ ${locale === "en" ? "Reinforcement complete" : "Reforço concluído"}`
+            : topicVictory
+              ? `✓ ${topicVictory.heading}`
+              : stars === 3
+                ? t("player.lessonComplete")
+                : t("player.youAdvanced");
 
     return (
       <>
@@ -3930,34 +4005,32 @@ export function LessonPlayer() {
           recoveredBanner={REVIEW_RECOVERED.banner}
           pendingStarsHint={pendingStarsHint}
           topicLines={
-            topicVictory
+            plusResult
               ? {
+                  // P9.2 — compacto: média + uma frase. Não é dashboard.
                   title: displayLessonTitle(lesson.title, locale),
-                  lessonLine: `${topicVictory.lessonLine}${
-                    !topicVictory.mastered && masteryNow >= 1 && masteryNow <= 4
-                      ? ` · ${localizedPassLabel(masteryNow as 1 | 2 | 3 | 4)}`
-                      : ""
-                  }`,
-                  remainingLine: topicVictory.remainingLine,
+                  lessonLine: plusResult.averageLine,
+                  remainingLine: plusResult.helper,
                 }
-              : undefined
+              : isPlusRoundSession
+                ? // P15.1 — o resultado da Plus não repete a estatística das
+                  // quatro rodadas.
+                  undefined
+                : topicVictory
+                  ? {
+                      title: displayLessonTitle(lesson.title, locale),
+                      lessonLine: `${topicVictory.lessonLine}${
+                        !topicVictory.mastered && masteryNow >= 1 && masteryNow <= 4
+                          ? ` · ${localizedPassLabel(masteryNow as 1 | 2 | 3 | 4)}`
+                          : ""
+                      }`,
+                      remainingLine: topicVictory.remainingLine,
+                    }
+                  : undefined
           }
-          saveStatusLabel={saveStatusLabel}
-          xpTotal={postLessonXpTotal}
-          claimedRewards={claimedRewardCards}
           primaryLabel={hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
           primaryTestId={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
           onPrimary={handlePrimaryAction}
-          onReviewErrors={committedErrors.length > 0 ? () => setErrorReviewMode("review") : undefined}
-          banner={
-            contextualOffer.offer?.strength === "card" ? (
-              <ProOfferBanner
-                className="mx-auto mt-3 max-w-sm text-left"
-                offer={contextualOffer.offer}
-                onDismiss={contextualOffer.dismiss}
-              />
-            ) : null
-          }
         />
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       </>

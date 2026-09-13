@@ -113,7 +113,11 @@ const CHROME_LEFTOVERS = [
 
 const CAPTURED_CONTEXT = [
   { file: "src/components/layout/nav.tsx", needle: "navigation.review", label: "app chrome Review" },
-  { file: "src/features/lesson/LessonPlayer.tsx", needle: "player.saveLocalDevice", label: "save status catalog" },
+  // RC1.1 — o catálogo de estado de salvamento saiu da Victory (P14.2: a
+  // celebração não mostra sync) e passou a ser exibido na tela de Conta, que é
+  // onde o aluno pergunta onde o progresso dele está. A âncora do gate segue a
+  // informação, em vez de exigir que ela volte para a tela errada.
+  { file: "src/features/conta/ContaPage.tsx", needle: "player.saveLocalDevice", label: "save status catalog" },
   { file: "src/features/lesson/LessonPlayer.tsx", needle: "achievements.accuracy-serene", label: "serene accuracy via helper", optional: true },
   { file: "src/i18n/achievements.ts", needle: "achievements.accuracy-serene.title", label: "accuracy-serene catalog key" },
   { file: "src/locales/en.ts", needle: 'title: "Serene Accuracy"', label: "EN Serene Accuracy" },
