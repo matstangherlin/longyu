@@ -40,6 +40,33 @@ O agente que preparou os runbooks não tem acesso a nada disso. Preencher aqui
 seria inventar evidência — exatamente o que o P29 do contrato proíbe e o que os
 gates novos recusam.
 
+## O deploy preview do PR não fecha estes checks
+
+Cada PR ganha um deploy preview do Netlify, e é tentador tratá-lo como
+candidate. Ele não é, e o `netlify.toml` diz por quê:
+
+| Contexto | `VITE_BACKEND_MODE` | Supabase |
+| --- | --- | --- |
+| `context.production` | `supabase` | url e anon key reais |
+| `context.deploy-preview` | `local` | vazios |
+
+Um deploy preview roda **sem backend**. Então `cloud_auth`, `cloud_sync`,
+`feedback_backend`, `stripe_test_mode_e2e`, `stripe_production_config` e
+`league_cloud_smoke` não podem sequer ser exercitados ali: não há servidor do
+outro lado. Evidência colhida num preview para esses seis seria falsa por
+construção, não por descuido.
+
+O preview serve para duas coisas legítimas:
+
+- conferir os **headers reais** — a CSP do `netlify.toml` vale no preview, e o
+  `npm run preview` local não a aplica (foi essa lacuna que deixou passar a
+  primeira correção de fonte da RC1.2);
+- abrir o app num Android ou iPhone de verdade, pelo QR code do comentário do
+  Netlify, para render e gestos — sem login, sem sync, sem compra.
+
+O ambiente do agente não alcança `*.netlify.app` (a política de rede recusa a
+conexão), então nem a conferência de headers foi feita daqui.
+
 ## Como fechar um check
 
 1. Executar os passos do runbook contra o **candidate publicado**.

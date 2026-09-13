@@ -136,6 +136,13 @@ Todos ligados ao `validate:beta`, cada um com o `test:*` que o mata por mutaçã
 Cada um tem runbook executável em `docs/release/evidence/`, com pré-requisitos
 e passos. Índice em [`docs/release/evidence/README.md`](../release/evidence/README.md).
 
+**O deploy preview do PR não fecha nenhum destes seis primeiros.** O
+`netlify.toml` dá ao contexto `deploy-preview` o `VITE_BACKEND_MODE = "local"`
+com Supabase vazio: o preview roda sem backend, então auth, sync, feedback,
+Stripe e liga não têm o que exercitar ali. Serve para conferir header real e
+para abrir num device pelo QR code — nada além disso. O índice de evidência
+registra isso para ninguém fechar check contra o alvo errado.
+
 **P9.1 aplicado:** `stripe_live` era ambíguo e virou `stripe_test_mode_e2e` +
 `stripe_production_config`. Test Mode passando não autoriza marcar produção — o
 gate recusa essa combinação explicitamente.
