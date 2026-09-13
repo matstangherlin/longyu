@@ -148,20 +148,29 @@ sobrescrever um com o outro.
 
 ## Browser matrix (P2 / P23) — parcial
 
-| Engine | Local | CI |
-| --- | --- | --- |
-| Chromium | ✅ executado | ✅ |
-| Firefox | ❌ **não instalado neste ambiente** | ✅ roda no workflow cross-engine |
-| WebKit | ❌ **não instalado neste ambiente** | ✅ roda no workflow cross-engine |
+| Engine | Local | CI | Bloqueia merge? |
+| --- | --- | --- | --- |
+| Chromium | ✅ executado | ✅ job `Testes E2E` | **sim** |
+| Firefox | ❌ **não instalado neste ambiente** | ✅ job cross-engine | **sim** |
+| WebKit | ❌ **não instalado neste ambiente** | ⚠️ roda, mas o passo é `continue-on-error: true` | **não** |
 
 Só o Chromium está disponível aqui (`/opt/pw-browsers` tem apenas Chromium). A
 matriz completa depende do workflow `E2E cross-engine (WebKit + Firefox)`, que
 roda no CI do PR.
 
+**A coluna que importa é a terceira.** O passo WebKit do `ci.yml` carrega
+`continue-on-error: true` desde antes desta remessa: WebKit **roda e é
+ignorado**. Um vermelho lá não reprova nada. Então "WebKit passa" não é um fato
+que alguém esteja verificando hoje — nem localmente (engine ausente) nem no CI
+(falha engolida).
+
 **Consequência honesta:** a classificação de falhas WebKit em
 `REAL_PRODUCT_BUG` / `BROWSER_LIMITATION` / `TEST_HARNESS_ONLY` pedida no P2.2
-**não foi feita**, porque não houve como reproduzir localmente. Isso fica em
-aberto e conta contra o GO.
+**não foi feita** — não houve como reproduzir localmente, e o CI não produz o
+veredito porque não olha para o resultado. Isso fica em aberto e conta contra o
+GO. Fechar isso exige um ambiente com WebKit, e é decisão de produto se o passo
+vira bloqueante antes do lançamento (o P2.2 pede a classificação primeiro:
+tornar bloqueante um job com flakes não triados só troca um problema por outro).
 
 ---
 
@@ -178,7 +187,7 @@ maquiagem:
 | P10 PWA upgrade | **não executado** — exige dois deploys |
 | P11 rollback | **não executado** — sem permissão de deploy |
 | P12 liga cloud | **não executado** — sem contas reais |
-| P2.2 classificação WebKit | **não feita** — engine indisponível localmente |
+| P2.2 classificação WebKit | **não feita** — engine indisponível aqui, e no CI o passo é `continue-on-error` |
 | P13 Reforço + cross-device | **não executado** — parte do sync real |
 
 O P29 do próprio contrato prevê isso: *"o agente prepara runbook e evidência,
@@ -196,7 +205,7 @@ mas o check fica FALSE enquanto não acontecer."* É o que foi feito.
 | 4 | Plus sincroniza entre devices | ❌ não executado |
 | 5 | Chromium passa | ✅ |
 | 6 | Firefox passa | ⚠️ só no CI |
-| 7 | WebKit critical path passa | ⚠️ só no CI |
+| 7 | WebKit critical path passa | ❌ ninguém verifica (passo `continue-on-error`) |
 | 8–11 | auth / sync / feedback / Stripe reais | ❌ não executados |
 | 12–16 | mensal, anual, cancelamento, reativação, isolamento | ❌ não executados |
 | 17–18 | Android e iOS reais | ❌ não executados |
