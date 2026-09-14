@@ -178,6 +178,100 @@ export function validateFamilySeats(input) {
   return { failures };
 }
 
+/**
+ * P5 / P5.3 / P5.4 / P6.3 / P28.2 — o Family no banco.
+ *
+ * O gate lê a migration porque as propriedades que importam são do schema, e
+ * não dá para inferi-las do TypeScript: se o limite de seis mora só na
+ * aplicação, duas requisições simultâneas passam pelas duas checagens.
+ */
+export function validateFamilyPlanSchema(input) {
+  const failures = [];
+  const sql = code(input.migrationSource);
+
+  for (const table of ["family_accounts", "family_memberships", "family_invites"]) {
+    if (!new RegExp(`create table if not exists public\\.${table}\\b`).test(sql)) {
+      fail(failures, "TABLE_MISSING", `tabela ${table} ausente`);
+      continue;
+    }
+    if (!new RegExp(`alter table public\\.${table} enable row level security`).test(sql)) {
+      fail(failures, "RLS_DISABLED", `${table} sem row level security`);
+    }
+  }
+
+  // P5.3 — token nunca em claro.
+  if (!/token_hash/.test(sql)) {
+    fail(failures, "NO_TOKEN_HASH", "convite sem token_hash");
+  }
+  if (/\btoken\s+text\b/.test(sql) || /\binvite_token\b/.test(sql)) {
+    fail(failures, "PLAINTEXT_TOKEN", "convite guarda token em claro");
+  }
+  if (!/expires_at/.test(sql)) {
+    fail(failures, "NO_INVITE_EXPIRY", "convite sem expiração");
+  }
+  if (!/'revoked'/.test(sql)) {
+    fail(failures, "NO_INVITE_REVOKE", "convite não pode ser revogado");
+  }
+
+  // P4 / P5.4 — seis lugares, impostos pelo servidor.
+  const maxFn = sql.match(/create or replace function public\.family_max_members\(\)[\s\S]*?select\s+(\d+)/);
+  if (!maxFn) {
+    fail(failures, "NO_SERVER_LIMIT", "limite de assentos não existe no servidor");
+  } else if (Number(maxFn[1]) !== 6) {
+    fail(failures, "SERVER_LIMIT_NOT_SIX", `limite do servidor é ${maxFn[1]}, deveria ser 6`);
+  }
+
+  if (!/create constraint trigger family_memberships_seat_limit/.test(sql)) {
+    fail(failures, "NO_SEAT_TRIGGER", "gravação de participação não passa pelo limite");
+  }
+  if (!/create constraint trigger family_invites_seat_limit/.test(sql)) {
+    fail(failures, "NO_INVITE_SEAT_TRIGGER", "convite não passa pelo limite");
+  }
+
+  // Convite pendente ocupa lugar: sem isso, seis convites entram em cinco vagas.
+  const seatsFn = sql.match(/create or replace function public\.family_seats_used[\s\S]*?\$\$([\s\S]*?)\$\$/);
+  if (!seatsFn) {
+    fail(failures, "NO_SEAT_COUNT", "contagem de assentos ausente");
+  } else if (!/family_invites[\s\S]*'pending'/.test(seatsFn[1])) {
+    fail(failures, "PENDING_INVITE_FREE_SEAT", "convite pendente não conta como lugar ocupado");
+  }
+
+  // A corrida de assento depende disto: a função do trigger precisa ser
+  // VOLATILE para que cada consulta interna pegue snapshot novo depois do
+  // advisory lock. Marcada STABLE, a segunda transação não enxerga a linha que
+  // a primeira acabou de commitar e as duas passam — foi medido, não suposto.
+  const enforce = sql.match(/create or replace function public\.enforce_family_seat_limit\(\)[\s\S]*?as \$\$/);
+  if (!enforce) {
+    fail(failures, "NO_SEAT_ENFORCER", "trigger de limite de assento ausente");
+  } else if (/\b(stable|immutable)\b/i.test(enforce[0])) {
+    fail(
+      failures,
+      "SEAT_ENFORCER_NOT_VOLATILE",
+      "trigger de assento marcado STABLE/IMMUTABLE: a corrida volta"
+    );
+  } else if (!/pg_advisory_xact_lock/.test(enforce[0] + sql.slice(sql.indexOf(enforce[0])))) {
+    fail(failures, "NO_SEAT_LOCK", "escrita de assento não é serializada");
+  }
+
+  // P6.3 — Family compartilha assinatura, não progresso.
+  for (const forbidden of [
+    "lesson_id",
+    "xp",
+    "mastery",
+    "srs",
+    "answer",
+    "transcript",
+    "progress",
+    "client_snapshot",
+  ]) {
+    if (new RegExp(`^\\s*${forbidden}\\b`, "mi").test(sql)) {
+      fail(failures, "FAMILY_TOUCHES_PROGRESS", `tabela de família carrega ${forbidden}`);
+    }
+  }
+
+  return { failures };
+}
+
 export function loadSource(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
 }
