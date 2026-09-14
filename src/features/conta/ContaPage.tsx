@@ -9,6 +9,7 @@ import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { IconChevron, IconShield, IconStar, IconLibrary, IconGear } from "../../components/ui/Icon";
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
+import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
@@ -211,6 +212,8 @@ export function ContaPage() {
         </CompactCard>
       )}
 
+      <PlanCard />
+
       {/* Atalhos para as áreas que saíram da conta */}
       <div className="grid gap-2 sm:grid-cols-3">
         <AccountLink to="/dados-locais" icon={IconLibrary} title={t("navigation.localData")} desc={displayInstruction("Exportar, backup e apagar.")} />
@@ -233,6 +236,48 @@ export function ContaPage() {
         <IconShield width={13} height={13} /> {displayInstruction("Sua senha nunca é salva neste dispositivo. A anon key do backend é pública por design; o RLS protege os dados.")}
       </p>
     </PageShell>
+  );
+}
+
+/**
+ * P15 — a conta diz de onde vem o acesso, não só se ele existe.
+ *
+ * Um membro de família que vê "Pro ativo" e nada mais não sabe que perde o
+ * acesso se quem paga cancelar, e abre chamado quando isso acontece. A origem
+ * vem do servidor a cada resposta; nada aqui é lido do navegador.
+ */
+function PlanCard() {
+  const { t } = useTranslation();
+  const detail = useEntitlementStatus((state) => state.detail);
+  if (!detail) return null;
+
+  const sourceKey: Record<string, string> = {
+    individual_subscription: "familia.sourceIndividual",
+    family_membership: "familia.sourceFamily",
+    business_seat: "familia.sourceBusiness",
+    enterprise_seat: "familia.sourceEnterprise",
+    pearl: "familia.sourcePearl",
+    internal: "familia.sourceInternal",
+    promotion: "familia.sourcePromotion",
+  };
+
+  return (
+    <CompactCard>
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("familia.planCard")}</div>
+      <p className="mt-1 text-[15px] font-semibold text-ink" data-plan-name>
+        {detail.premiumAccess ? t("familia.planPro") : t("familia.planFree")}
+      </p>
+      {detail.premiumAccess && sourceKey[detail.source] && (
+        <p className="mt-0.5 text-[12px] text-ink-soft" data-plan-source={detail.source}>
+          {t(sourceKey[detail.source])}
+        </p>
+      )}
+      {(detail.source === "family_membership" || detail.familyId) && (
+        <ActionButton to="/familia" variant="secondary" size="sm" className="mt-3" trailingChevron>
+          {t("familia.manageFamily")}
+        </ActionButton>
+      )}
+    </CompactCard>
   );
 }
 

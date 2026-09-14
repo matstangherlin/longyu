@@ -26,12 +26,21 @@ de um SHA diferente do candidate.
 | `rollback_drill` | **NOT_RUN** | — | — | [rollback-drill.md](./rollback-drill.md) | — |
 | `pwa_upgrade` | **NOT_RUN** | — | — | [pwa-upgrade.md](./pwa-upgrade.md) | — |
 | `league_cloud_smoke` | **NOT_RUN** | — | — | [league-cloud.md](./league-cloud.md) | — |
+| `family_plan_live` | **NOT_RUN** | — | — | [family-plan-live.md](./family-plan-live.md) | — |
+| `business_seats_live` | **NOT_RUN** | — | — | [business-seats-live.md](./business-seats-live.md) | — |
 
-**Zero de onze executados.** O verdict é NO-GO e não há "quase GO" (P24.1).
+**Zero de treze executados.** O verdict é NO-GO e não há "quase GO" (P24.1).
+
+Os dois últimos entraram na V4.10A.1. Family e a licença Business foram
+verificados contra um PostgreSQL 16 local, com as migrations aplicadas e duas
+sessões concorrentes disputando o último assento de verdade — o resultado está
+em [v410a1-commercial-closure.md](../../reports/v410a1-commercial-closure.md).
+Banco local não é deploy: RLS real, `auth.uid()` real e pool de conexões real
+mudam o que dá para afirmar. Por isso os dois continuam `NOT_RUN`.
 
 ## Por que nada está preenchido
 
-Estes onze checks exigem, nesta ordem: um projeto Supabase de QA com
+Estes treze checks exigem, nesta ordem: um projeto Supabase de QA com
 credenciais, uma conta Stripe em Test Mode com webhook apontando para um
 candidate publicado, um Android físico, um iPhone físico, permissão de publicar
 e reverter deploy, e um backend de feedback no ar.

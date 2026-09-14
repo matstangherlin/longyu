@@ -213,6 +213,54 @@ export const V477_LOCAL_ONLY_CLASS = {
     purpose: "Clamp mastery 0..4, sanitize malformed jsonb, search_path empty, INSERT+UPDATE.",
     objects: ["longyu_clamp_mastery_level", "merge_progress_mastery_monotonic"],
   },
+  "20260914120000_family_plan_foundation.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Family plan: accounts, memberships, invites (token_hash only). Six seats enforced by constraint trigger with advisory lock; pending invites reserve a seat. RLS: owner manages invites, member reads only its own membership, no learning data anywhere.",
+    objects: [
+      "family_accounts",
+      "family_memberships",
+      "family_invites",
+      "family_seats_used",
+      "family_max_members",
+      "enforce_family_seat_limit",
+      "is_family_member",
+      "is_family_owner",
+    ],
+  },
+  "20260914180000_business_seat_integrity.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Business seat integrity: organizations.timezone and contract_reference; valid pending invites now reserve a seat alongside active members; constraint trigger with advisory lock closes the last-seat race on members and invites; read-only panel RPCs (overview, members) with role check inside, no learning data. No new table, no organizations.seat_limit.",
+    objects: [
+      "organizations.timezone",
+      "organizations.contract_reference",
+      "organization_reserved_seat_count",
+      "organization_has_seat_license",
+      "organization_seats_within_entitlement",
+      "enforce_organization_seat_limit",
+      "get_business_overview",
+      "get_business_members",
+    ],
+  },
+  "20260914200000_family_invite_flow.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Family invite flow as RPCs only: the server mints the invite token and stores just its sha256, the plaintext is returned once. No write policy on family tables, so the browser cannot choose a token hash. Accept is single-use and does not consume two seats; remove and revoke free a seat immediately.",
+    objects: [
+      "create_family_invite",
+      "revoke_family_invite",
+      "accept_family_invite",
+      "remove_family_member",
+      "get_family_overview",
+    ],
+  },
+  "20260914210000_family_entitlement.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Family membership finally grants access: get_server_entitlement gains a family_membership branch and economy_user_is_pro sees the same Pro the screen does. The family grants only while it is active and its owner still pays, so access drops on the next call with no job and no cache.",
+    objects: ["_user_family_entitlement", "get_server_entitlement", "economy_user_is_pro"],
+  },
 };
 
 export const V477_HISTORICAL_EDITS = [

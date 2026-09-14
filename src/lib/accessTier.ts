@@ -26,6 +26,7 @@ export interface ServerEntitlement {
   source: EntitlementSource;
   organizationId?: string;
   organizationRole?: OrganizationRole;
+  familyId?: string;
 }
 
 export const EMPTY_SERVER_ENTITLEMENT: ServerEntitlement = {
@@ -75,6 +76,7 @@ export function parseServerEntitlementRpc(row: unknown): ServerEntitlement {
     source?: unknown;
     organization_id?: unknown;
     organization_role?: unknown;
+    family_id?: unknown;
   };
 
   const premiumAccess = data.is_pro === true;
@@ -83,6 +85,7 @@ export function parseServerEntitlementRpc(row: unknown): ServerEntitlement {
   const organizationRole = parseOrganizationRole(
     typeof data.organization_role === "string" ? data.organization_role : undefined
   );
+  const familyId = typeof data.family_id === "string" && data.family_id ? data.family_id : undefined;
   const tier = parseAccessTier(typeof data.tier === "string" ? data.tier : undefined, premiumAccess);
 
   return {
@@ -91,5 +94,6 @@ export function parseServerEntitlementRpc(row: unknown): ServerEntitlement {
     source: premiumAccess || source !== "none" ? source : "none",
     organizationId,
     organizationRole,
+    familyId,
   };
 }

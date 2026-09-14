@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 38e70062857d |
-| HEAD no instante da geração | 4a693b6b965909fce7988e1b95e3276934713845 |
+| HEAD no instante da geração | 3ede718f03d5117c144ad100c84e2168348ca31a |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-13T12:46:51.784Z |
+| Gerado em | 2026-09-14T15:11:40.459Z |
 | Lições | 134 |
 
 
@@ -289,5 +289,5 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:a93fbaf84fb96f8c -->
+<!-- integridade:fe159d23de7f57e4 -->
 

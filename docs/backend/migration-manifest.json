@@ -338,6 +338,34 @@
       "name": "progress_mastery_monotonic_clamp",
       "sha256": "598a102062ae17c7163edb2336c0c26b0a40871c92ad593753c9cfa090799e8f",
       "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "version": "20260914120000",
+      "name": "family_plan_foundation",
+      "sha256": "b8f9091c6ea291be27cc6fc373dfece3e1ef6abed1ffffec5937cf49fb4442f2",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "version": "20260914180000",
+      "name": "business_seat_integrity",
+      "sha256": "7b98b66bb396349156d12177a0f0d53c21acaef59e4c9bde5c0261588935a9b3",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "version": "20260914200000",
+      "name": "family_invite_flow",
+      "sha256": "9bbbc790ada4a656eaf8ed3aa77a9c8a807fce1176a2af03ae34ec722fc4c7f4",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "version": "20260914210000",
+      "name": "family_entitlement",
+      "sha256": "c434a900f868be5fb3a2391e4d6730e4600a0da130627b055c6ba5aef744d19f",
+      "status": "FROZEN"
     }
   ]
 }

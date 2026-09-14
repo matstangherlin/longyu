@@ -56,12 +56,36 @@ assert.equal(pending.status, billing.PRICE_PENDING);
 assert.equal(pending.currency, "BRL");
 
 const configured = billing.buildServerPriceMatrix((name) => ({
-  LONGYU_PRICE_PRO_MONTHLY_BR_MINOR: "2990",
+  LONGYU_PRICE_PRO_MONTHLY_BR_MINOR: "1700",
   STRIPE_PRICE_PRO_MONTHLY_BR: "price_test_pro_br_monthly",
 }[name]));
 const allowed = billing.resolveAllowedPrice({ plan: "pro", cycle: "monthly", billingCountry: "BR", returnPath: "/pro" }, configured);
-assert.equal(allowed.amountMinor, 2990);
+assert.equal(allowed.amountMinor, 1700);
 assert.equal(allowed.providerPriceId, "price_test_pro_br_monthly");
+
+// O ambiente pode omitir o valor: quem manda é o catálogo público aprovado.
+const idOnly = billing.buildServerPriceMatrix((name) =>
+  name === "STRIPE_PRICE_PRO_MONTHLY_BR" ? "price_test_pro_br_monthly" : undefined
+);
+assert.equal(
+  billing.resolveAllowedPrice({ plan: "pro", cycle: "monthly", billingCountry: "BR", returnPath: "/pro" }, idOnly)
+    .amountMinor,
+  1700,
+  "sem valor no env, o preço aprovado continua valendo"
+);
+
+// E um deploy que declare valor diferente do aprovado falha fechado em vez de
+// cobrar um preço que a tela nunca mostrou.
+const mismatched = billing.buildServerPriceMatrix((name) => ({
+  LONGYU_PRICE_PRO_MONTHLY_BR_MINOR: "2990",
+  STRIPE_PRICE_PRO_MONTHLY_BR: "price_test_pro_br_monthly",
+}[name]));
+assert.equal(mismatched.pro.BR.monthly.status, "PRICE_MISMATCH");
+assert.throws(
+  () => billing.resolveAllowedPrice({ plan: "pro", cycle: "monthly", billingCountry: "BR", returnPath: "/pro" }, mismatched),
+  /PRICE_MISMATCH|does not match/i,
+  "valor do env divergente do catálogo aprovado não pode virar cobrança"
+);
 
 for (const request of [
   { plan: "unknown", cycle: "monthly", billingCountry: "BR" },
@@ -81,9 +105,12 @@ const base = { id: "family-a", ownerUserId: "owner", memberships: [membership("f
 family.validateFamily(base);
 assert.equal(family.activeFamilyMembers(base).length, 1, "owner counts as member");
 let full = base;
-for (const userId of ["u1", "u2", "u3", "u4"]) full = family.addFamilyMember(full, membership("family-a", userId));
+// Dono + cinco convidados = seis contas. É o limite inteiro do plano Family.
+for (const userId of ["u1", "u2", "u3", "u4", "u5"]) full = family.addFamilyMember(full, membership("family-a", userId));
 assert.equal(family.activeFamilyMembers(full).length, family.FAMILY_MAX_MEMBERS);
-assert.throws(() => family.addFamilyMember(full, membership("family-a", "u5")), /limit/i);
+assert.equal(family.FAMILY_MAX_MEMBERS, 6, "seis contas no total");
+assert.equal(family.FAMILY_MAX_INVITEES, 5, "dono mais cinco convidados");
+assert.throws(() => family.addFamilyMember(full, membership("family-a", "u6")), /limit/i);
 assert.throws(() => family.addFamilyMember(full, membership("family-a", "u1")), /already/i);
 assert.throws(() => family.removeFamilyMember(full, "owner"), /ownership/i);
 assert.throws(() => family.assertOneActiveFamilyPerUser([base, { id: "family-b", ownerUserId: "owner", memberships: [membership("family-b", "owner", "owner")] }]), /one active family/i);

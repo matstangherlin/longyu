@@ -11,7 +11,8 @@
     "curriculum_base_sha": "SHA do #254, onde o currículo RC1 foi congelado. Não muda entre remessas RC.",
     "release_candidate_sha": "SHA do candidate que as evidências descrevem. Vazio enquanto não houver deploy candidate.",
     "merge_sha": "Mantido por compatibilidade com validate:release-candidate. Aponta para o mesmo SHA do freeze inicial.",
-    "stripe": "RC1.2 P9.1 — 'stripe_live' era ambíguo e virou dois checks. Test Mode passando NÃO autoriza marcar configuração de produção."
+    "stripe": "RC1.2 P9.1 — 'stripe_live' era ambíguo e virou dois checks. Test Mode passando NÃO autoriza marcar configuração de produção.",
+    "v410a1": "V4.10A.1 acrescentou family_plan_live e business_seats_live. Os dois foram verificados contra um PostgreSQL 16 local com as migrations aplicadas; banco local nao e deploy, entao os checks continuam false ate alguem executar o runbook contra o candidate."
   },
   "checks": {
     "cloud_auth": {
@@ -87,6 +88,20 @@
     "league_cloud_smoke": {
       "pass": false,
       "evidence": "docs/release/evidence/league-cloud.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "family_plan_live": {
+      "pass": false,
+      "evidence": "docs/release/evidence/family-plan-live.md",
+      "testedAt": null,
+      "environment": null,
+      "commitSha": null
+    },
+    "business_seats_live": {
+      "pass": false,
+      "evidence": "docs/release/evidence/business-seats-live.md",
       "testedAt": null,
       "environment": null,
       "commitSha": null

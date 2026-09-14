@@ -11,9 +11,11 @@ import {
   BUSINESS_USE_CASES,
   ENTERPRISE_PLAN,
 } from "../../data/businessOffer";
+import { availabilityLabelKey, productAvailability } from "../../commercial/productTruth";
 import { trackBusinessEvent } from "../../services/businessEvents";
 import { PublicMarketingLayout } from "../marketing/PublicMarketingLayout";
 import { BusinessLeadForm } from "./BusinessLeadForm";
+import { t } from "../../i18n/catalog";
 
 function BenefitList({ items }: { items: readonly string[] }) {
   return (
@@ -39,7 +41,14 @@ export function BusinessPage() {
     <PublicMarketingLayout eyebrow="Para empresas">
       <article data-business-page className="space-y-10 overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+1rem)]">
         <section className="relative overflow-hidden rounded-2xl border border-gold/20 bg-[linear-gradient(160deg,rgb(var(--gold)/0.12)_0%,rgb(var(--surface))_45%,rgb(var(--bg))_100%)] p-5 sm:p-6">
-          <Pill tone="gold">{BUSINESS_HERO.eyebrow}</Pill>
+          <div className="flex flex-wrap items-center gap-2">
+            <Pill tone="gold">{BUSINESS_HERO.eyebrow}</Pill>
+            {/* O Business é piloto por contrato, e a página diz isso em vez de
+                deixar o leitor achar que existe autoatendimento. */}
+            <Pill tone="muted" data-product-truth="business_workspace">
+              {t(availabilityLabelKey(productAvailability("business_workspace")))}
+            </Pill>
+          </div>
           <h1 className="mt-3 font-serif text-[1.85rem] font-semibold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2.35rem]">
             {BUSINESS_HERO.title}
           </h1>

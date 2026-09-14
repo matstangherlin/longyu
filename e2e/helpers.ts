@@ -49,7 +49,7 @@ function topicPathMasteryById(
   return byId;
 }
 
-function isoWeekKey(d = new Date()): string {
+export function isoWeekKey(d = new Date()): string {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const day = date.getUTCDay() || 7;
   date.setUTCDate(date.getUTCDate() + 4 - day);
