@@ -150,6 +150,15 @@ Coberto por `test:entitlements` (teto 5+bônus, corte do 999) e
 | Service role fora do frontend | ✅ | `validate:frontend-secrets` (dist limpo); service role só nas edge functions (Deno env) |
 | Webhook verifica assinatura Stripe | ✅ | `constructEventAsync` com `STRIPE_WEBHOOK_SECRET`; sem assinatura → 400 |
 
+> **Desatualizado desde a V4.10A (nomes de price id).** O catálogo virou plano ×
+> mercado × ciclo, e a Edge Function lê `STRIPE_PRICE_<PLANO>_<CICLO>_<MERCADO>`
+> — oito slots. Os dois nomes abaixo não são lidos por ninguém: configurar só
+> eles deixa todo checkout recusado com `PRICE_PENDING`. A lista viva está em
+> `scripts/lib/stripe-price-slots.mjs`; para aplicar, use
+> `node scripts/set-stripe-price-secrets.mjs PRO_MONTHLY_BR=price_... ...`.
+> O resto desta auditoria continua valendo como registro do que foi verificado
+> na data dela.
+
 **Config necessária no ambiente Supabase (produção):** `STRIPE_SECRET_KEY`,
 `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_URL`,
 `STRIPE_PRICE_PRO_MONTHLY` / `STRIPE_PRICE_PRO_ANNUAL`, `STRIPE_ALLOWED_ORIGINS`
