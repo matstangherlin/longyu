@@ -19,7 +19,7 @@ qualquer migration desta remessa que escreva conteúdo de currículo. Nenhuma
 lição, nenhum chunk, nenhum caractere, nenhum Culture Item, nenhuma
 Conversation Scene.
 
-## Os três defeitos que existiam de verdade
+## Os quatro defeitos que existiam de verdade
 
 Não são refinamentos. Cada um tinha consequência para alguém.
 
@@ -47,7 +47,36 @@ Passou despercebido porque nenhuma peça estava errada. Só o conjunto não
 funcionava. O gate `validate:family-experience` existe por isso: ele cobre o
 caminho inteiro, e sua mutação número um é exatamente este estado.
 
-### 3. Os scripts de operação gravavam secrets que ninguém lê
+### 3. O trigger recusava o primeiro membro de toda empresa nova
+
+Este não foi encontrado por mim — foi o ensaio efêmero do CI, e vale registrar
+exatamente por quê.
+
+O trigger de assento comparava reservados contra
+`organization_seat_entitlement()`, que devolve **0** tanto para "licença de
+zero assentos" quanto para "ainda não tem licença nenhuma". O provisionamento
+real cria a organização, coloca o dono e só depois anexa a assinatura — nessa
+ordem, o dono chegava quando a licença ainda era 0 e era barrado:
+
+```
+FAIL rehearse-backend-contract: organization seed: BUSINESS_SEATS_FULL: 1 reservados, licenca e 0
+```
+
+Meus testes locais nunca pegaram isso porque eu sempre criava a assinatura
+antes do primeiro membro. O harness do CI insere em paralelo, como produção
+faz, e por isso encontrou.
+
+A correção é `organization_has_seat_license()`, que distingue as duas
+situações: organização sem licença não é medida. Não abre buraco — sem
+assinatura ativa e sem grant, `_user_organization_entitlement()` não concede
+acesso a ninguém daquela organização, então linhas ali não viram assento de
+ninguém. No instante em que a licença aparece, o limite passa a valer para toda
+escrita seguinte, e isso está no smoke versionado.
+
+O gate ganhou a mutação `NO_UNLICENSED_BYPASS`: tirar a ressalva volta a
+quebrar o provisionamento.
+
+### 4. Os scripts de operação gravavam secrets que ninguém lê
 
 `deploy-backend.mjs` e `set-stripe-price-secrets.mjs` gravavam
 `STRIPE_PRICE_PRO_MONTHLY` e `_ANNUAL`. A Edge Function monta
@@ -199,18 +228,27 @@ Quinze, todos no `validate:beta`:
 | --- | --- |
 | `business-schema-reuse` | tabela paralela, `seat_limit` de volta, `member` como papel, `canceled` como estado |
 | `business-seat-reservation` | voltar a contar só `active`; convite vencido segurando lugar |
-| `business-seat-concurrency` | trigger STABLE, sem advisory lock, ramos colapsados numa condição só |
+| `business-seat-concurrency` | trigger STABLE, sem advisory lock, ramos colapsados numa condição só, organização sem licença voltando a ser medida |
 | `business-overview-rpc` | execute para `authenticated`, organization_id do cliente sem checagem, página sem teto |
 | `business-progress-privacy` | resposta livre, fala transcrita, snapshot bruto, erro cru do banco |
 | `family-experience` | aceitar convite sem conceder acesso; token do cliente; link multiuso |
 | `commercial-product-truth` | oferta paga se declarando disponível sem evidência |
 | `v410a1-freeze` | fingerprint, contagem de lições e temas, migration comercial escrevendo currículo |
 
-Um detalhe do ramo colapsado merece registro, porque só apareceu ao executar: as
+Dois detalhes merecem registro, porque nenhum dos dois aparece na leitura do
+código.
+
+O primeiro é o ramo colapsado: as
 duas tabelas nomeiam o estado diferente (`seat_status` e `status`), e o PL/pgSQL
 avalia o acesso ao campo mesmo quando a comparação de `tg_table_name` é falsa.
 Numa condição só, gravar um membro estourava com `record "new" has no field
-"status"`. Leitura de código não pegava isso.
+"status"`.
+
+O segundo é a organização sem licença, que só apareceu quando o ensaio efêmero
+do CI semeou na ordem que produção usa. Isso é o argumento inteiro a favor de
+manter esse ensaio: banco local rodando o roteiro que eu escrevi confirma o que
+eu já esperava; o ensaio rodando o roteiro do sistema encontra o que eu não
+pensei em testar.
 
 ## O que não foi feito
 

@@ -236,6 +236,7 @@ export const V477_LOCAL_ONLY_CLASS = {
       "organizations.timezone",
       "organizations.contract_reference",
       "organization_reserved_seat_count",
+      "organization_has_seat_license",
       "organization_seats_within_entitlement",
       "enforce_organization_seat_limit",
       "get_business_overview",

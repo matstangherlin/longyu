@@ -58,6 +58,14 @@ const mutations = [
     "NO_SEAT_ERROR_CODE",
   ],
   [
+    "organização sem licença volta a ser medida",
+    migrationSource.replace(
+      /  if not public\.organization_has_seat_license\(v_org_id\) then\n    return new;\n  end if;\n/,
+      ""
+    ),
+    "NO_UNLICENSED_BYPASS",
+  ],
+  [
     "os dois ramos viram uma condição só",
     migrationSource.replace(
       /  if tg_table_name = 'organization_members' then[\s\S]*?  end if;\n/,

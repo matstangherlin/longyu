@@ -248,6 +248,18 @@ export function validateBusinessSeatConcurrency(input) {
   if (!/pg_advisory_xact_lock/.test(enforcer.body)) {
     fail(failures, "NO_SEAT_LOCK", "escrita de assento não é serializada por organização");
   }
+
+  // Organização ainda sem licença não é medida, senão o primeiro membro de
+  // toda empresa nova é recusado: o provisionamento cria a organização, coloca
+  // o dono e só depois anexa a assinatura. O ensaio efêmero do CI encontrou
+  // isso com a mesma sequência que produção usa.
+  if (!/organization_has_seat_license/.test(enforcer.body)) {
+    fail(
+      failures,
+      "NO_UNLICENSED_BYPASS",
+      "o trigger não distingue organização sem licença: o primeiro membro de toda empresa nova é recusado"
+    );
+  }
   if (!/BUSINESS_SEATS_FULL/.test(enforcer.body)) {
     fail(failures, "NO_SEAT_ERROR", "recusa sem código próprio: o cliente não sabe o que aconteceu");
   }

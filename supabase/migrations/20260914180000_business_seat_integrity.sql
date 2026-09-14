@@ -106,7 +106,61 @@ as $$
 $$;
 
 comment on function public.organization_seats_within_entitlement(uuid) is
-  'Reservados (ativos + convidados + convites pendentes) dentro da licença contratada.';
+  'Reservados (ativos + convidados + convites pendentes) dentro da licença contratada. Organização sem licença responde false: ela tem gente e não tem contrato, e é isso que a operação precisa enxergar.';
+
+/**
+ * A organização já tem licença contratada?
+ *
+ * organization_seat_entitlement() devolve 0 tanto para "licença de zero
+ * assentos" quanto para "ainda não tem licença nenhuma", e a diferença entre
+ * as duas é o que decide se o limite se aplica.
+ *
+ * Sem isto o trigger recusa o PRIMEIRO membro de toda organização nova: o
+ * provisionamento real cria a organização, coloca o dono e só depois anexa a
+ * assinatura — nessa ordem, o dono chegava quando a licença ainda era 0 e era
+ * barrado. Foi o ensaio efêmero do CI que mostrou isso, com a mesma sequência
+ * que produção usa.
+ *
+ * Deixar passar não abre buraco: sem assinatura ativa e sem grant,
+ * _user_organization_entitlement() não concede acesso a ninguém daquela
+ * organização. Linhas numa organização sem licença não viram assento de
+ * ninguém — e no instante em que a licença aparece, o limite passa a valer
+ * para toda escrita seguinte.
+ */
+create or replace function public.organization_has_seat_license(p_org_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.organization_subscriptions s
+    where s.organization_id = p_org_id
+      and (
+        s.status in ('trialing', 'active')
+        or (
+          s.status = 'canceled'
+          and s.current_period_end is not null
+          and s.current_period_end > now()
+        )
+      )
+  )
+  or exists (
+    select 1
+    from public.organization_entitlement_grants g
+    where g.organization_id = p_org_id
+      and g.status = 'active'
+      and (g.expires_at is null or g.expires_at > now())
+  );
+$$;
+
+comment on function public.organization_has_seat_license(uuid) is
+  'Existe licença contratada (assinatura ativa ou grant) para esta organização? Distingue "licença zero" de "ainda sem licença".';
+
+revoke all on function public.organization_has_seat_license(uuid) from public, anon, authenticated;
+grant execute on function public.organization_has_seat_license(uuid) to service_role;
 
 -- ─── concorrência do último assento (P3) ────────────────────────────────────
 
@@ -145,6 +199,14 @@ begin
     if new.status is distinct from 'pending' then
       return new;
     end if;
+  end if;
+
+  -- Organização ainda sem licença não é medida. Fora daqui, o primeiro membro
+  -- de toda empresa nova seria recusado, porque a assinatura só é anexada
+  -- depois. A checagem vem antes do lock de propósito: não há o que serializar
+  -- quando não há limite a impor.
+  if not public.organization_has_seat_license(v_org_id) then
+    return new;
   end if;
 
   perform pg_advisory_xact_lock(hashtextextended(v_org_id::text, 0));

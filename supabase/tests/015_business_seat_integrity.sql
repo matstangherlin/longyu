@@ -81,7 +81,40 @@ begin
     raise exception 'aceite nao pode consumir dois assentos; obtido %', v_reserved;
   end if;
 
-  raise notice 'OK 015_business_seat_integrity: pendente reserva, expirado e revogado liberam, aceite nao duplica.';
+  -- Organizacao ainda sem licenca precisa conseguir receber o primeiro membro.
+  -- O provisionamento real cria a organizacao, coloca o dono e so depois anexa
+  -- a assinatura; sem esta ressalva o trigger recusava o dono de toda empresa
+  -- nova. Foi o ensaio efemero do CI que encontrou isso.
+  declare
+    v_novo uuid;
+    v_dono uuid;
+  begin
+    insert into public.organizations (name, slug, status, plan)
+      values ('Sem Licenca', 'sem-licenca-' || substr(gen_random_uuid()::text, 1, 8), 'active', 'business')
+      returning id into v_novo;
+    insert into auth.users (id) values (gen_random_uuid()) returning id into v_dono;
+    insert into public.profiles (id, name) values (v_dono, 'Dono novo') on conflict do nothing;
+    insert into public.organization_members (organization_id, user_id, role, seat_status, joined_at)
+      values (v_novo, v_dono, 'owner', 'active', now());
+
+    if public.organization_has_seat_license(v_novo) then
+      raise exception 'organizacao sem assinatura nao deveria ter licenca';
+    end if;
+
+    -- E no instante em que a licenca aparece, o limite passa a valer.
+    insert into public.organization_subscriptions (organization_id, status, seat_limit)
+      values (v_novo, 'active', 1);
+    begin
+      insert into auth.users (id) values (gen_random_uuid()) returning id into v_dono;
+      insert into public.organization_members (organization_id, user_id, role, seat_status, joined_at)
+        values (v_novo, v_dono, 'learner', 'active', now());
+      raise exception 'segundo membro passou numa licenca de um assento';
+    exception when check_violation then
+      null;
+    end;
+  end;
+
+  raise notice 'OK 015_business_seat_integrity: pendente reserva, expirado e revogado liberam, aceite nao duplica, organizacao sem licenca provisiona.';
 end $$;
 
 rollback;

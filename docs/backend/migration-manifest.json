@@ -350,7 +350,7 @@
       "path": "supabase/migrations/20260914180000_business_seat_integrity.sql",
       "version": "20260914180000",
       "name": "business_seat_integrity",
-      "sha256": "dbdb1bc8f7d07ae634f8fbd490e05c5d570c240d5f15b14877bfca211aa38ddb",
+      "sha256": "7b98b66bb396349156d12177a0f0d53c21acaef59e4c9bde5c0261588935a9b3",
       "status": "FROZEN"
     },
     {
