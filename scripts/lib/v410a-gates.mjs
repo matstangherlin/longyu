@@ -272,6 +272,41 @@ export function validateFamilyPlanSchema(input) {
   return { failures };
 }
 
+/**
+ * P26 / P27 — o entitlement vem do backend, e nenhuma origem cancela outra.
+ *
+ * O risco que este gate cobre é específico: alguém "resolve" um bug de
+ * carregamento lendo uma flag do localStorage. A partir daí qualquer pessoa
+ * com o devtools aberto vira Pro, e a checagem de servidor vira decoração.
+ */
+export function validateEffectiveEntitlement(input) {
+  const failures = [];
+  const source = code(input.entitlementSource);
+
+  if (!/export function resolveEffectiveEntitlement/.test(source)) {
+    fail(failures, "NO_RESOLVER", "resolveEffectiveEntitlement ausente");
+  }
+  if (!/activeSources/.test(source)) {
+    fail(failures, "SOURCE_COLLAPSED", "origens ativas não são preservadas");
+  }
+
+  // Entitlement nunca sai do cliente.
+  for (const pattern of [/localStorage/, /sessionStorage/, /document\.cookie/]) {
+    if (pattern.test(source)) {
+      fail(failures, "CLIENT_TRUSTED", `entitlement lendo armazenamento do cliente (${pattern})`);
+    }
+  }
+
+  for (const [file, body] of Object.entries(input.consumerSources ?? {})) {
+    const clean = code(body);
+    if (/localStorage[\s\S]{0,80}(isPro|premiumAccess|family|entitlement)/i.test(clean)) {
+      fail(failures, "CLIENT_ENTITLEMENT_FLAG", `${file}: acesso decidido por flag do cliente`);
+    }
+  }
+
+  return { failures };
+}
+
 export function loadSource(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
 }
