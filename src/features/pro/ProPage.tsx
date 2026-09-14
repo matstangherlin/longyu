@@ -9,7 +9,11 @@ import { isQaFastPathAllowed } from "../../lib/appEnvironment";
 import {
   PLAN_PRICE_MATRIX,
   PRICE_PENDING,
+  billingCurrencyForMarket,
   billingMarketFromCountry,
+  formatBillingAmount,
+  freeMonthsOnAnnual,
+  publicPrice,
   type BillingCycle,
   type BillingMarket,
   type CheckoutPlan,
@@ -24,7 +28,7 @@ const PERSONAL_PLANS: readonly ProductPlan[] = ["free", "pro", "family"];
 const COMPANY_PLANS: readonly ProductPlan[] = ["business", "enterprise"];
 
 export function ProPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const navigate = useNavigate();
   const serverIsPro = useStore((state) => state.serverIsPro);
   const checkingPlan = useEntitlementStatus((state) => state.checking);
@@ -49,6 +53,35 @@ export function ProPage() {
     }),
     [t]
   );
+
+  const currency = billingCurrencyForMarket(billingMarket);
+
+  /**
+   * Preço público do catálogo aprovado — não do que o servidor devolveu.
+   *
+   * A tela mostra o valor porque ele está aprovado; o checkout continua
+   * fechado até o slot ter Price ID. São duas perguntas diferentes, e juntá-las
+   * deixava a página dizendo "preço a definir" sobre um preço já definido.
+   */
+  function priceFor(plan: CheckoutPlan, cycle: BillingCycle) {
+    const entry = publicPrice(plan, billingMarket, cycle);
+    return formatBillingAmount(entry.amountMinor, entry.currency, locale);
+  }
+
+  /**
+   * Equivalência mensal do anual. Sai da conta, nunca de um número fixo: se o
+   * catálogo mudar e a divisão não fechar, a linha some em vez de mentir.
+   */
+  function annualCopyFor(plan: CheckoutPlan) {
+    const monthly = publicPrice(plan, billingMarket, "monthly").amountMinor;
+    const annual = publicPrice(plan, billingMarket, "annual").amountMinor;
+    const perMonth = annual / 12;
+    const equivalent = Number.isInteger(perMonth)
+      ? t("pro.annualEquivalent", { amount: formatBillingAmount(perMonth, currency, locale) })
+      : null;
+    const free = freeMonthsOnAnnual(monthly, annual);
+    return { equivalent, freeMonths: free && free > 0 ? t("pro.freeMonthsOnAnnual", { count: free }) : null };
+  }
 
   async function handleCheckout() {
     if (!checkoutEnabled) return;
@@ -75,6 +108,21 @@ export function ProPage() {
       <Card key={plan} className={active ? "border-gold/35 bg-gold/[0.06] p-4" : "p-4"}>
         <h3 className="font-serif text-lg font-semibold text-ink">{planCopy[plan].title}</h3>
         <p className="mt-1 min-h-10 text-xs leading-5 text-ink-soft">{planCopy[plan].lead}</p>
+        {plan === "free" ? (
+          <p className="mt-3 font-serif text-xl font-semibold text-ink">{t("pro.freeForever")}</p>
+        ) : sellable ? (
+          <div className="mt-3" data-plan-price={plan}>
+            <p className="font-serif text-xl font-semibold text-ink">
+              {priceFor(plan as CheckoutPlan, selectedCycle)}{" "}
+              <span className="font-sans text-xs font-normal text-ink-soft">
+                {selectedCycle === "monthly" ? t("pro.perMonth") : t("pro.perYear")}
+              </span>
+            </p>
+            {selectedCycle === "annual" && annualCopyFor(plan as CheckoutPlan).equivalent && (
+              <p className="mt-0.5 text-[11px] text-ink-faint">{annualCopyFor(plan as CheckoutPlan).equivalent}</p>
+            )}
+          </div>
+        ) : null}
         <div className="mt-3 flex items-center gap-2 text-xs text-ink">
           <IconCheck width={13} height={13} className="text-gold" />
           {planCopy[plan].access}
@@ -172,6 +220,26 @@ export function ProPage() {
           <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("pro.forYou")}</div>
           <h2 className="font-serif text-xl font-semibold text-ink">{t("pro.fullCatalog")}</h2>
         </div>
+        <div
+          className="mx-auto mb-4 flex w-full max-w-xs rounded-xl border border-line p-1"
+          role="group"
+          aria-label={t("pro.billingCycle")}
+          data-testid="billing-cycle-switch"
+        >
+          {(["monthly", "annual"] as const).map((cycle) => (
+            <button
+              key={cycle}
+              type="button"
+              onClick={() => setSelectedCycle(cycle)}
+              aria-pressed={selectedCycle === cycle}
+              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold ${
+                selectedCycle === cycle ? "bg-gold text-white" : "text-ink-soft"
+              }`}
+            >
+              {cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}
+            </button>
+          ))}
+        </div>
         <div className="grid gap-3 md:grid-cols-3">
           {PERSONAL_PLANS.map((plan) => renderPlanCard(plan))}
         </div>
@@ -202,9 +270,9 @@ export function ProPage() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="font-serif text-lg font-semibold text-ink">{planCopy[selectedPlan].title}</h2>
-              <p className="mt-1 text-xs text-ink-soft">{billingMarket === "BR" ? "BRL" : "USD"}</p>
+              <p className="mt-1 text-xs text-ink-soft">{currency}</p>
             </div>
-            <Pill tone="gold">{t("pro.pricePending")}</Pill>
+            <Pill tone="gold">{t("pro.approvedPrice")}</Pill>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
             {(["monthly", "annual"] as const).map((cycle) => (
@@ -216,13 +284,26 @@ export function ProPage() {
                 className={`rounded-xl border p-3 text-left ${selectedCycle === cycle ? "border-gold/40 bg-gold/10" : "border-line"}`}
               >
                 <span className="text-sm font-semibold text-ink">{cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}</span>
-                <span className="mt-1 block text-xs text-ink-faint">{t("pro.pricePending")}</span>
+                <span className="mt-1 block text-xs text-ink-faint" data-checkout-price={cycle}>
+                  {priceFor(selectedPlan, cycle)}
+                </span>
               </button>
             ))}
           </div>
-          <p className="mt-3 text-xs text-ink-soft">{t("pro.pricePendingDetail")}</p>
+          {selectedCycle === "annual" && annualCopyFor(selectedPlan).freeMonths && (
+            <p className="mt-3 text-xs font-semibold text-good">{annualCopyFor(selectedPlan).freeMonths}</p>
+          )}
+          <p className="mt-3 text-xs text-ink-soft">
+            {checkoutEnabled ? t("pro.serverAuthority") : t("pro.checkoutNotLive")}
+          </p>
           <Button className="mt-3 w-full" disabled={!checkoutEnabled} onClick={() => void handleCheckout()}>
-            <IconLock width={14} height={14} /> {t("pro.unavailable")}
+            {checkoutEnabled ? (
+              t("pro.subscribeNow", { plan: planCopy[selectedPlan].title })
+            ) : (
+              <>
+                <IconLock width={14} height={14} /> {t("pro.unavailable")}
+              </>
+            )}
           </Button>
           {notice && <p className="mt-2 text-xs text-ink-soft">{notice}</p>}
         </Card>

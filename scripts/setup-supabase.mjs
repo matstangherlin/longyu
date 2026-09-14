@@ -78,10 +78,14 @@ step("E", "Secrets das Edge Functions", [
 ]);
 
 step("F", "Stripe — produto e webhook", [
-  "1. Crie dois prices recorrentes (BRL) no Stripe Dashboard.",
-  "2. Mensal: R$ 24,90/mês.",
-  "3. Anual: R$ 120/ano (apresente como R$ 10/mês, com desconto).",
-  "4. Copie os price ids para STRIPE_PRICE_PRO_MONTHLY e STRIPE_PRICE_PRO_ANNUAL.",
+  "1. Crie oito prices recorrentes no Stripe Dashboard (dois planos x dois mercados x dois ciclos).",
+  "2. Pro: R$ 17/mes e R$ 170/ano (BRL); US$ 5/mes e US$ 50/ano (USD).",
+  "3. Family: R$ 27/mes e R$ 270/ano (BRL); US$ 8/mes e US$ 80/ano (USD).",
+  "   O anual equivale a dez meses. Os valores sao os do catalogo aprovado em",
+  "   src/commercial/billing.ts — se o ambiente declarar outro, o slot falha",
+  "   fechado como PRICE_MISMATCH em vez de cobrar diferente da tela.",
+  "4. Copie cada price id para STRIPE_PRICE_<PLANO>_<CICLO>_<MERCADO>, por exemplo",
+  "   STRIPE_PRICE_PRO_MONTHLY_BR e STRIPE_PRICE_FAMILY_ANNUAL_INTERNATIONAL.",
   "5. Developers → Webhooks → Add endpoint:",
   "   URL: https://<project-ref>.supabase.co/functions/v1/stripe-webhook",
   "6. Eventos:",

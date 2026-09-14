@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { LONGYU_EDGE_FUNCTIONS } from "./lib/edge-functions.mjs";
+import { STRIPE_PRICE_SLOTS } from "./lib/stripe-price-slots.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
@@ -16,8 +17,7 @@ const EDGE_FUNCTIONS = LONGYU_EDGE_FUNCTIONS;
 const SECRETS = [
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
-  "STRIPE_PRICE_PRO_MONTHLY",
-  "STRIPE_PRICE_PRO_ANNUAL",
+  ...STRIPE_PRICE_SLOTS,
   "SUPABASE_SERVICE_ROLE_KEY",
 ];
 
