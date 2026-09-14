@@ -434,3 +434,167 @@ export function validateV410a1Freeze(input) {
 
   return { failures };
 }
+
+/**
+ * P22–P24 — o registro de verdade do produto.
+ *
+ * A regra que dá sentido a este gate: uma oferta que depende de pagamento não
+ * pode se declarar `available` enquanto o check operacional correspondente não
+ * passou de verdade. O P26.1 é explícito — implementação verde não vira
+ * stripe_test_mode_e2e = true. Aqui isso deixa de ser combinado e passa a ser
+ * verificado contra o próprio documento de evidência.
+ */
+export function validateCommercialProductTruth(input) {
+  const failures = [];
+  const registry = input.registry ?? {};
+  const checks = input.operationalChecks?.checks ?? {};
+  const allowed = new Set(["available", "pilot", "planned"]);
+
+  const ids = Object.keys(registry);
+  if (ids.length === 0) {
+    fail(failures, "EMPTY_REGISTRY", "registro de verdade vazio");
+  }
+
+  for (const [id, entry] of Object.entries(registry)) {
+    if (!entry || typeof entry !== "object") {
+      fail(failures, "BAD_ENTRY", `${id} não é uma entrada válida`);
+      continue;
+    }
+    if (!allowed.has(entry.availability)) {
+      fail(failures, "UNKNOWN_AVAILABILITY", `${id}: estado '${entry.availability}' não existe`);
+    }
+    if (!entry.because || String(entry.because).trim().length < 10) {
+      fail(failures, "NO_REASON", `${id} não diz por que está nesse estado`);
+    }
+    if (entry.gatedBy) {
+      const check = checks[entry.gatedBy];
+      if (!check) {
+        fail(failures, "UNKNOWN_CHECK", `${id} depende de ${entry.gatedBy}, que não existe na evidência operacional`);
+      } else if (entry.availability === "available" && check.pass !== true) {
+        fail(
+          failures,
+          "CLAIMS_BEYOND_EVIDENCE",
+          `${id} se declara disponível, mas ${entry.gatedBy} não passou: pass=${check.pass}`
+        );
+      }
+    }
+  }
+
+  // O que cobra dinheiro precisa de um check operacional atrás. Sem isso a
+  // regra acima vira decorativa: basta não declarar gatedBy para escapar dela.
+  for (const id of input.paidCapabilities ?? []) {
+    const entry = registry[id];
+    if (!entry) {
+      fail(failures, "MISSING_PAID_CAPABILITY", `${id} não está no registro`);
+    } else if (!entry.gatedBy) {
+      fail(failures, "PAID_WITHOUT_GATE", `${id} cobra e não aponta nenhum check operacional`);
+    }
+  }
+
+  // As telas leem do registro em vez de afirmarem por conta própria.
+  for (const [file, source] of Object.entries(input.surfaceSources ?? {})) {
+    if (!/productTruth/.test(String(source ?? ""))) {
+      fail(failures, "SURFACE_IGNORES_REGISTRY", `${file} anuncia plano sem ler o registro de verdade`);
+    }
+  }
+
+  return { failures };
+}
+
+/**
+ * P7 e P10–P13 — a experiência Family de ponta a ponta.
+ *
+ * O gate cobre o caminho inteiro porque cada peça isolada parecia pronta e o
+ * conjunto não funcionava: as tabelas existiam desde a V4.10A, e aceitar um
+ * convite não dava Pro a ninguém porque get_server_entitlement() não conhecia
+ * família. Esse buraco específico tem verificação própria abaixo.
+ */
+export function validateFamilyExperience(input) {
+  const failures = [];
+  const flow = sqlCode(input.inviteFlowSource ?? "");
+  const entitlement = sqlCode(input.entitlementSource ?? "");
+
+  for (const fn of [
+    "create_family_invite",
+    "accept_family_invite",
+    "revoke_family_invite",
+    "remove_family_member",
+    "get_family_overview",
+  ]) {
+    if (!functionBody(flow, fn)) {
+      fail(failures, "NO_FLOW_RPC", `${fn} ausente: a tela não tem por onde fazer isso`);
+    }
+  }
+
+  const create = functionBody(flow, "create_family_invite");
+  if (create) {
+    if (!/gen_random_uuid\(\)/.test(create.body)) {
+      fail(failures, "TOKEN_NOT_SERVER_MINTED", "o token do convite não nasce no servidor");
+    }
+    if (!/encode\(\s*sha256\(/.test(create.body)) {
+      fail(failures, "TOKEN_NOT_HASHED", "o convite guarda o token sem passar por hash");
+    }
+    if (!/expires_at/.test(create.body)) {
+      fail(failures, "INVITE_WITHOUT_EXPIRY", "convite criado sem prazo");
+    }
+  }
+
+  const accept = functionBody(flow, "accept_family_invite");
+  if (accept) {
+    if (!/encode\(\s*sha256\(/.test(accept.body)) {
+      fail(failures, "ACCEPT_COMPARES_PLAINTEXT", "o aceite compara token em claro");
+    }
+    if (!/status\s*=\s*'accepted'/.test(accept.body)) {
+      fail(failures, "TOKEN_REUSABLE", "o convite não sai de pendente: o link vira multiuso");
+    }
+  }
+
+  // Nenhuma policy de escrita nas tabelas de família: se o browser puder
+  // inserir o convite, ele escolhe o token_hash e o convite vale o que ele quiser.
+  if (/create policy[^;]*on public\.family_(invites|memberships)[^;]*for (insert|update|delete|all)/i.test(flow)) {
+    fail(failures, "CLIENT_WRITES_FAMILY", "policy de escrita direta nas tabelas de família");
+  }
+
+  // O buraco real da V4.10A: participar de família tinha que conceder acesso.
+  const server = functionBody(entitlement, "get_server_entitlement");
+  if (!server) {
+    fail(failures, "NO_ENTITLEMENT_FN", "get_server_entitlement ausente");
+  } else {
+    if (!/family_membership/.test(server.body)) {
+      fail(failures, "FAMILY_GRANTS_NOTHING", "entitlement do servidor não conhece família: o membro entra e continua grátis");
+    }
+    if (!/_user_family_entitlement/.test(server.body)) {
+      fail(failures, "FAMILY_NOT_RESOLVED", "entitlement não resolve a participação em família");
+    }
+  }
+
+  const familyEntitlement = functionBody(entitlement, "_user_family_entitlement");
+  if (familyEntitlement) {
+    if (!/m\.status\s*=\s*'active'/.test(familyEntitlement.body)) {
+      fail(failures, "REMOVED_MEMBER_KEEPS_ACCESS", "participação removida continuaria concedendo acesso");
+    }
+    if (!/_user_stripe_pro_active|user_has_entitlement_grant/.test(familyEntitlement.body)) {
+      fail(failures, "FREE_FAMILY_GRANTS_PRO", "família concede Pro sem ninguém estar pagando");
+    }
+  }
+
+  const economy = functionBody(entitlement, "economy_user_is_pro");
+  if (economy && !/_user_family_entitlement/.test(economy.body)) {
+    fail(failures, "ECONOMY_IGNORES_FAMILY", "a economia não enxerga o Pro de família: bônus somem sem explicação");
+  }
+
+  // A tela precisa existir e passar pelas RPCs, não pelas tabelas.
+  for (const [file, source] of Object.entries(input.clientSources ?? {})) {
+    const clean = String(source ?? "");
+    if (/from\(\s*["'`]family_(invites|memberships|accounts)["'`]/.test(clean)) {
+      fail(failures, "CLIENT_QUERIES_FAMILY_TABLES", `${file}: a tela consulta tabela de família direto`);
+    }
+  }
+  for (const required of input.requiredClientFiles ?? []) {
+    if (!(required in (input.clientSources ?? {}))) {
+      fail(failures, "MISSING_FAMILY_SCREEN", `${required} ausente`);
+    }
+  }
+
+  return { failures };
+}

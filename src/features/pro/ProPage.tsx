@@ -20,9 +20,29 @@ import {
   type ProductPlan,
 } from "../../commercial/billing";
 import { FAMILY_MAX_MEMBERS } from "../../commercial/family";
+import {
+  availabilityLabelKey,
+  productAvailability,
+  type ProductCapabilityId,
+} from "../../commercial/productTruth";
 import { createCheckoutSession, isBillingPortalAvailable, openBillingPortal } from "../../services/subscriptionService";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
+
+/**
+ * Cada cartão diz o que a oferta é hoje, lido do registro de verdade.
+ *
+ * Antes disso a página inteira soava igualmente comprável: Free, Pro, Família,
+ * Business e Enterprise lado a lado, com o mesmo peso visual e nenhum sinal de
+ * que três deles ainda não têm caminho de compra.
+ */
+const TRUTH_BY_PLAN: Record<ProductPlan, ProductCapabilityId> = {
+  free: "free_plan",
+  pro: "pro_individual",
+  family: "family_plan",
+  business: "business_workspace",
+  enterprise: "enterprise_plan",
+};
 
 const PERSONAL_PLANS: readonly ProductPlan[] = ["free", "pro", "family"];
 const COMPANY_PLANS: readonly ProductPlan[] = ["business", "enterprise"];
@@ -106,7 +126,12 @@ export function ProPage() {
     const active = sellable && selectedPlan === plan;
     return (
       <Card key={plan} className={active ? "border-gold/35 bg-gold/[0.06] p-4" : "p-4"}>
-        <h3 className="font-serif text-lg font-semibold text-ink">{planCopy[plan].title}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-serif text-lg font-semibold text-ink">{planCopy[plan].title}</h3>
+          <Pill tone={productAvailability(TRUTH_BY_PLAN[plan]) === "available" ? "good" : "muted"}>
+            {t(availabilityLabelKey(productAvailability(TRUTH_BY_PLAN[plan])))}
+          </Pill>
+        </div>
         <p className="mt-1 min-h-10 text-xs leading-5 text-ink-soft">{planCopy[plan].lead}</p>
         {plan === "free" ? (
           <p className="mt-3 font-serif text-xl font-semibold text-ink">{t("pro.freeForever")}</p>
