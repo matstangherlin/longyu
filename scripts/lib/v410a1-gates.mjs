@@ -23,6 +23,34 @@ export const ORGANIZATION_STATUSES = ["pending", "active", "suspended", "churned
 export const MEMBERSHIP_STATUSES = ["invited", "active", "suspended", "removed"];
 export const INVITE_STATUSES = ["pending", "accepted", "revoked", "expired"];
 
+/**
+ * A assinatura tem vocabulário próprio, e é o do Stripe.
+ *
+ * Aqui `canceled` existe e é correto: quem cancela um pagamento cancela. A
+ * REGRA 5 proíbe `canceled` como estado de ORGANIZAÇÃO — uma empresa que sai
+ * fica `churned` — e misturar as duas coisas fazia o gate recusar
+ * `s.status = 'canceled'` numa consulta legítima de licença.
+ */
+export const SUBSCRIPTION_STATUSES = [
+  "trialing",
+  "active",
+  "canceled",
+  "past_due",
+  "unpaid",
+  "incomplete",
+  "incomplete_expired",
+];
+export const GRANT_STATUSES = ["active", "expired", "revoked"];
+
+/** Qual vocabulário vale, por tabela. */
+const STATUS_VOCABULARY = {
+  organizations: ORGANIZATION_STATUSES,
+  organization_members: MEMBERSHIP_STATUSES,
+  organization_invites: INVITE_STATUSES,
+  organization_subscriptions: SUBSCRIPTION_STATUSES,
+  organization_entitlement_grants: GRANT_STATUSES,
+};
+
 /** Tabelas paralelas que a REGRA 1 proíbe de nascer. */
 export const FORBIDDEN_BUSINESS_TABLES = [
   "business_organizations",
@@ -89,17 +117,35 @@ export function functionBody(sql, name) {
 }
 
 function literalsNear(sql, ...columnPatterns) {
-  const found = new Set();
+  return [...new Set(comparisonsOn(sql, ...columnPatterns).map((row) => row.value))];
+}
+
+/**
+ * Comparações contra uma coluna, com a tabela a que pertencem.
+ *
+ * A tabela sai do `public.<tabela>` mais próximo antes da comparação. É
+ * heurística, e é a heurística certa aqui: sem ela o gate não distingue
+ * `s.status = 'canceled'` (assinatura Stripe, legítimo) de
+ * `o.status = 'canceled'` (organização, proibido pela REGRA 5) — e passou a
+ * recusar a consulta de licença que ele mesmo exige.
+ */
+function comparisonsOn(sql, ...columnPatterns) {
+  const rows = [];
   for (const columnPattern of columnPatterns) {
     const re = new RegExp(
       `\\b${columnPattern}\\b\\s*(?:=|<>|!=|is distinct from|not in|in)\\s*(\\([^)]*\\)|'[^']*')`,
       "gi"
     );
     for (const match of sql.matchAll(re)) {
-      for (const literal of match[1].matchAll(/'([^']*)'/g)) found.add(literal[1]);
+      const before = sql.slice(Math.max(0, match.index - 400), match.index);
+      const tables = [...before.matchAll(/public\.(\w+)/g)];
+      const table = tables.length > 0 ? tables[tables.length - 1][1].toLowerCase() : null;
+      for (const literal of match[1].matchAll(/'([^']*)'/g)) {
+        rows.push({ value: literal[1], table });
+      }
     }
   }
-  return [...found];
+  return rows;
 }
 
 /**
@@ -152,17 +198,31 @@ export function validateBusinessSchemaReuse(input) {
     }
   }
 
-  // REGRA 5 — estados do banco.
-  const allowedStatuses = new Set([...ORGANIZATION_STATUSES, ...MEMBERSHIP_STATUSES, ...INVITE_STATUSES]);
+  // REGRA 5 — estados do banco, cada tabela com o seu vocabulário.
+  const anyKnownStatus = new Set(Object.values(STATUS_VOCABULARY).flat());
   for (const column of ["seat_status", "status"]) {
-    for (const status of literalsNear(sql, column)) {
-      if (!allowedStatuses.has(status)) {
-        fail(failures, "UNKNOWN_STATUS", `estado '${status}' em ${column} não existe no banco`);
+    for (const { value, table } of comparisonsOn(sql, column)) {
+      const allowed = new Set(
+        column === "seat_status"
+          ? MEMBERSHIP_STATUSES
+          : (STATUS_VOCABULARY[table] ?? [...anyKnownStatus])
+      );
+      if (!allowed.has(value)) {
+        fail(
+          failures,
+          "UNKNOWN_STATUS",
+          `estado '${value}' em ${table ? `${table}.` : ""}${column} não existe no banco`
+        );
+      }
+      // `canceled` só vale para assinatura. Em organização, quem sai é 'churned'.
+      if (/^cancell?ed$/i.test(value) && table !== "organization_subscriptions") {
+        fail(
+          failures,
+          "CANCELED_INVENTED",
+          `'${value}' em ${table ?? "status"} não existe: uma organização que sai fica 'churned'`
+        );
       }
     }
-  }
-  if (/'cancell?ed'/i.test(sql)) {
-    fail(failures, "CANCELED_INVENTED", "'canceled' não existe: uma organização que sai fica 'churned'");
   }
 
   return { failures };

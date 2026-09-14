@@ -64,6 +64,13 @@ const mutations = [
     migrationSource.replaceAll("'removed'", "'canceled'"),
     "CANCELED_INVENTED",
   ],
+  [
+    // A assinatura tem vocabulário próprio, mas não é vale-tudo: um estado que
+    // o Stripe não emite continua sendo recusado.
+    "estado que a assinatura não tem",
+    migrationSource.replace("s.status in ('trialing', 'active')", "s.status in ('pausada', 'active')"),
+    "UNKNOWN_STATUS",
+  ],
 ];
 
 for (const [label, mutated, expected] of mutations) {
