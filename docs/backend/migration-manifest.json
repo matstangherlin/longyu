@@ -338,6 +338,13 @@
       "name": "progress_mastery_monotonic_clamp",
       "sha256": "598a102062ae17c7163edb2336c0c26b0a40871c92ad593753c9cfa090799e8f",
       "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "version": "20260914120000",
+      "name": "family_plan_foundation",
+      "sha256": "b8f9091c6ea291be27cc6fc373dfece3e1ef6abed1ffffec5937cf49fb4442f2",
+      "status": "FROZEN"
     }
   ]
 }

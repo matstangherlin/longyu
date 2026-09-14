@@ -213,6 +213,21 @@ export const V477_LOCAL_ONLY_CLASS = {
     purpose: "Clamp mastery 0..4, sanitize malformed jsonb, search_path empty, INSERT+UPDATE.",
     objects: ["longyu_clamp_mastery_level", "merge_progress_mastery_monotonic"],
   },
+  "20260914120000_family_plan_foundation.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Family plan: accounts, memberships, invites (token_hash only). Six seats enforced by constraint trigger with advisory lock; pending invites reserve a seat. RLS: owner manages invites, member reads only its own membership, no learning data anywhere.",
+    objects: [
+      "family_accounts",
+      "family_memberships",
+      "family_invites",
+      "family_seats_used",
+      "family_max_members",
+      "enforce_family_seat_limit",
+      "is_family_member",
+      "is_family_owner",
+    ],
+  },
 };
 
 export const V477_HISTORICAL_EDITS = [
