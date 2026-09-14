@@ -95,7 +95,7 @@ function candidateIsLive(candidate: EntitlementCandidate, now: number): boolean 
  *    e a pessoa paga a própria assinatura, ela continua Pro — a empresa nunca
  *    teve poder de cancelar a assinatura pessoal dela.
  *
- * O que NÃO entra aqui: nada vindo do cliente. Uma flag em localStorage não é
+ * O que não entra aqui: nada vindo do cliente. Uma flag em localStorage não é
  * origem de entitlement; quem responde é o backend.
  */
 export function resolveEffectiveEntitlement(input: {

@@ -7,7 +7,7 @@
 -- Como rodar (Postgres 16 local, com auth.users e auth.uid() disponíveis):
 --   psql -v ON_ERROR_STOP=1 -f supabase/tests/014_family_plan_seats.sql
 --
--- A corrida do último assento NÃO está aqui: uma transação só não consegue
+-- A corrida do último assento não está aqui: uma transação só não consegue
 -- disputar consigo mesma. Ela precisa de duas sessões simultâneas — veja o
 -- procedimento no relatório da V4.10A.
 
