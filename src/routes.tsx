@@ -63,6 +63,15 @@ const AmigosPage = lazyNamed(() => import("./features/amigos/AmigosPage"), "Amig
 const AdminFeedbackPage = lazyNamed(() => import("./features/admin/AdminFeedbackPage"), "AdminFeedbackPage");
 const MarketingPage = lazyNamed(() => import("./features/marketing/MarketingPage"), "MarketingPage");
 const BusinessPage = lazyNamed(() => import("./features/business/BusinessPage"), "BusinessPage");
+const BusinessLoginPage = lazyNamed(() => import("./features/business/BusinessLoginPage"), "BusinessLoginPage");
+const BusinessDashboardPage = lazyNamed(
+  () => import("./features/business/BusinessDashboardPage"),
+  "BusinessDashboardPage"
+);
+const BusinessMembersPage = lazyNamed(
+  () => import("./features/business/BusinessMembersPage"),
+  "BusinessMembersPage"
+);
 const ComecarRoute = lazyNamed(() => import("./features/onboarding/ComecarPage"), "ComecarRoute");
 const LegacyLocalMigrationPage = lazyNamed(
   () => import("./features/onboarding/LegacyLocalMigrationPage"),
@@ -95,6 +104,7 @@ export const routes: RouteObject[] = [
   { path: "/como-funciona", element: <MarketingPage /> },
   { path: "/metodo-longyu", element: <MarketingPage /> },
   { path: "/business", element: <BusinessPage /> },
+  { path: "/business/login", element: <BusinessLoginPage /> },
   { path: "/convite/:code", element: <ReferralInvitePage /> },
   { path: "/familia/convite/:token", element: <FamilyInvitePage /> },
   {
@@ -154,6 +164,8 @@ export const routes: RouteObject[] = [
       { path: "amigos", element: <AmigosPage /> },
       { path: "convide", element: <ReferralPage /> },
       { path: "familia", element: <FamilyPage /> },
+      { path: "business/dashboard", element: <BusinessDashboardPage /> },
+      { path: "business/members", element: <BusinessMembersPage /> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },

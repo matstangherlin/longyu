@@ -9,6 +9,7 @@ export const PUBLIC_APP_PATHS = [
   "/esqueci-senha",
   "/redefinir-senha",
   "/business",
+  "/business/login",
   "/privacidade",
   "/sobre",
   "/salvar-progresso",
