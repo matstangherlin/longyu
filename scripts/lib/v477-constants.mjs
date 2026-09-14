@@ -228,6 +228,20 @@ export const V477_LOCAL_ONLY_CLASS = {
       "is_family_owner",
     ],
   },
+  "20260914180000_business_seat_integrity.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Business seat integrity: organizations.timezone and contract_reference; valid pending invites now reserve a seat alongside active members; constraint trigger with advisory lock closes the last-seat race on members and invites; read-only panel RPCs (overview, members) with role check inside, no learning data. No new table, no organizations.seat_limit.",
+    objects: [
+      "organizations.timezone",
+      "organizations.contract_reference",
+      "organization_reserved_seat_count",
+      "organization_seats_within_entitlement",
+      "enforce_organization_seat_limit",
+      "get_business_overview",
+      "get_business_members",
+    ],
+  },
 };
 
 export const V477_HISTORICAL_EDITS = [

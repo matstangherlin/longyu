@@ -345,6 +345,13 @@
       "name": "family_plan_foundation",
       "sha256": "b8f9091c6ea291be27cc6fc373dfece3e1ef6abed1ffffec5937cf49fb4442f2",
       "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "version": "20260914180000",
+      "name": "business_seat_integrity",
+      "sha256": "dbdb1bc8f7d07ae634f8fbd490e05c5d570c240d5f15b14877bfca211aa38ddb",
+      "status": "FROZEN"
     }
   ]
 }
