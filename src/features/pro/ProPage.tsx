@@ -128,7 +128,10 @@ export function ProPage() {
       <Card key={plan} className={active ? "border-gold/35 bg-gold/[0.06] p-4" : "p-4"}>
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-serif text-lg font-semibold text-ink">{planCopy[plan].title}</h3>
-          <Pill tone={productAvailability(TRUTH_BY_PLAN[plan]) === "available" ? "good" : "muted"}>
+          <Pill
+            tone={productAvailability(TRUTH_BY_PLAN[plan]) === "available" ? "good" : "muted"}
+            data-plan-availability={plan}
+          >
             {t(availabilityLabelKey(productAvailability(TRUTH_BY_PLAN[plan])))}
           </Pill>
         </div>
