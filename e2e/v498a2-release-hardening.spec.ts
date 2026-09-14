@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   dismissBlockingOverlays,
+  isoWeekKey,
   seedLeagueDemoSession,
   seedMissionsSession,
   seedUnlockedLessonSession,
@@ -174,7 +175,16 @@ test.describe("V4.9.8A.2 Live leagues", () => {
 
   test("culture first completion feeds weekly XP once; replay does not", async ({ page }) => {
     test.setTimeout(120_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, weeklyXp: 40, xpWeekKey: "2026-W37" });
+    // A semana precisa ser a corrente. Fixada à mão, o XP semeado pertence a
+    // uma semana já virada, a store zera o acumulado e a asserção passa a
+    // medir só o XP da lição — o teste quebra sozinho quando o calendário anda.
+    await seedMissionsSession(page, {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      weeklyXp: 40,
+      xpWeekKey: isoWeekKey(),
+    });
     await page.addInitScript(() => {
       localStorage.setItem(
         "longyu-league-live-fixture",
