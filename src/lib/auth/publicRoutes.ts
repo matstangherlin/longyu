@@ -24,7 +24,7 @@ export const PUBLIC_APP_PATHS = [
   "/metodo-longyu",
 ] as const;
 
-const PUBLIC_PREFIXES = ["/convite/"];
+const PUBLIC_PREFIXES = ["/convite/", "/familia/convite/"];
 
 export function isPublicAppPath(pathname: string): boolean {
   const path = pathname.split("?")[0] || "/";

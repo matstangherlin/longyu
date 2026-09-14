@@ -242,6 +242,24 @@ export const V477_LOCAL_ONLY_CLASS = {
       "get_business_members",
     ],
   },
+  "20260914200000_family_invite_flow.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Family invite flow as RPCs only: the server mints the invite token and stores just its sha256, the plaintext is returned once. No write policy on family tables, so the browser cannot choose a token hash. Accept is single-use and does not consume two seats; remove and revoke free a seat immediately.",
+    objects: [
+      "create_family_invite",
+      "revoke_family_invite",
+      "accept_family_invite",
+      "remove_family_member",
+      "get_family_overview",
+    ],
+  },
+  "20260914210000_family_entitlement.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose:
+      "Family membership finally grants access: get_server_entitlement gains a family_membership branch and economy_user_is_pro sees the same Pro the screen does. The family grants only while it is active and its owner still pays, so access drops on the next call with no job and no cache.",
+    objects: ["_user_family_entitlement", "get_server_entitlement", "economy_user_is_pro"],
+  },
 };
 
 export const V477_HISTORICAL_EDITS = [

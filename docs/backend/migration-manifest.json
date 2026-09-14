@@ -352,6 +352,20 @@
       "name": "business_seat_integrity",
       "sha256": "dbdb1bc8f7d07ae634f8fbd490e05c5d570c240d5f15b14877bfca211aa38ddb",
       "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "version": "20260914200000",
+      "name": "family_invite_flow",
+      "sha256": "9bbbc790ada4a656eaf8ed3aa77a9c8a807fce1176a2af03ae34ec722fc4c7f4",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "version": "20260914210000",
+      "name": "family_entitlement",
+      "sha256": "c434a900f868be5fb3a2391e4d6730e4600a0da130627b055c6ba5aef744d19f",
+      "status": "FROZEN"
     }
   ]
 }

@@ -4,8 +4,8 @@
 Remote history captured at `2026-08-28T02:20:00Z` (MCP `list_migrations`).
 Production watermark: `20260810175737` `beta_experience_telemetry`.
 
-Counts: local **50** files, remote **34** versions,
-**LOCAL_AND_REMOTE=26**, **REMOTE_ONLY=8**, **LOCAL_ONLY=24**.
+Counts: local **52** files, remote **34** versions,
+**LOCAL_AND_REMOTE=26**, **REMOTE_ONLY=8**, **LOCAL_ONLY=26**.
 
 Do **not** add empty SQL files named after REMOTE_ONLY timestamps.
 
@@ -55,6 +55,8 @@ No REMOTE_ONLY row is UNKNOWN (class D).
 | `20260828032249_progress_mastery_monotonic_clamp.sql` | NOT_YET_DEPLOYED | Clamp 0..4 + empty search_path | `longyu_clamp_mastery_level` | yes (local only) |
 | `20260914120000_family_plan_foundation.sql` | NOT_YET_DEPLOYED | Family: contas, participacoes, convites (so token_hash); seis lugares por constraint trigger com advisory lock; RLS sem nenhum dado de aprendizagem | `family_accounts`, `family_memberships`, `family_invites`, `enforce_family_seat_limit` | yes (local only) |
 | `20260914180000_business_seat_integrity.sql` | NOT_YET_DEPLOYED | Business: timezone e contract_reference; convite pendente valido passa a reservar assento; constraint trigger com advisory lock fecha a disputa do ultimo assento; RPCs de leitura do painel sem nenhum dado de aprendizagem. Nenhuma tabela nova, nenhum organizations.seat_limit | `organization_reserved_seat_count`, `enforce_organization_seat_limit`, `get_business_overview`, `get_business_members` | yes (local only) |
+| `20260914200000_family_invite_flow.sql` | NOT_YET_DEPLOYED | Family: convite, revogacao, aceite, remocao e visao da familia como RPCs. Token nasce no servidor e so o sha256 fica gravado; nenhuma policy de escrita nas tabelas de familia | `create_family_invite`, `accept_family_invite`, `revoke_family_invite`, `remove_family_member`, `get_family_overview` | yes (local only) |
+| `20260914210000_family_entitlement.sql` | NOT_YET_DEPLOYED | Participacao em familia paga passa a conceder Pro: ramo family_membership em get_server_entitlement e a mesma regra em economy_user_is_pro. Cai na hora se o dono parar de pagar ou o membro for removido | `_user_family_entitlement`, `get_server_entitlement`, `economy_user_is_pro` | yes (local only) |
 
 ## LOCAL_AND_REMOTE (name match, timestamps differ)
 

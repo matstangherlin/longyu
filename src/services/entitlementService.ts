@@ -6,6 +6,7 @@ import {
   type ServerEntitlement,
 } from "../lib/accessTier";
 import { useStore } from "../lib/store";
+import { useEntitlementStatus } from "../lib/entitlementStatus";
 import type { ServerSubscriptionSnapshot } from "./subscriptionService";
 
 const ACTIVE_STATUSES = new Set(["trialing", "active"]);
@@ -146,20 +147,32 @@ export async function fetchServerIsPro(): Promise<boolean> {
 
 /** Entitlement completo; `premiumAccess` alimenta `serverIsPro` na migração. */
 export async function fetchServerEntitlement(): Promise<ServerEntitlement> {
-  if (!isSupabaseBackendEnabled()) return { ...EMPTY_SERVER_ENTITLEMENT };
+  if (!isSupabaseBackendEnabled()) return publish({ ...EMPTY_SERVER_ENTITLEMENT });
   const client = getSupabaseClient();
-  if (!client) return { ...EMPTY_SERVER_ENTITLEMENT };
+  if (!client) return publish({ ...EMPTY_SERVER_ENTITLEMENT });
 
   const rpc = await fetchServerEntitlementRpc();
-  if (rpc.isPro !== null) return rpc.entitlement;
+  if (rpc.isPro !== null) return publish(rpc.entitlement);
 
   const snapshot = await fetchServerSubscription();
   if (subscriptionGrantsPro(snapshot)) {
-    return {
+    return publish({
       tier: "pro",
       premiumAccess: true,
       source: "individual_subscription",
-    };
+    });
   }
-  return { ...EMPTY_SERVER_ENTITLEMENT };
+  return publish({ ...EMPTY_SERVER_ENTITLEMENT });
+}
+
+/**
+ * Guarda a resposta inteira no estado transitório.
+ *
+ * Este é o único ponto por onde a resposta do servidor entra na aplicação, e
+ * por isso é o único lugar onde a origem do acesso pode ser registrada sem
+ * risco de divergir. Nada disso é persistido.
+ */
+function publish(entitlement: ServerEntitlement): ServerEntitlement {
+  useEntitlementStatus.getState().setDetail(entitlement);
+  return entitlement;
 }

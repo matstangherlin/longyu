@@ -57,6 +57,8 @@ const ConfirmEmailPage = lazyNamed(() => import("./features/auth/ConfirmEmailPag
 const FinalizeCadastroPage = lazyNamed(() => import("./features/auth/FinalizeCadastroPage"), "FinalizeCadastroPage");
 const ReferralPage = lazyNamed(() => import("./features/referral/ReferralPage"), "ReferralPage");
 const ReferralInvitePage = lazyNamed(() => import("./features/referral/ReferralInvitePage"), "ReferralInvitePage");
+const FamilyPage = lazyNamed(() => import("./features/familia/FamilyPage"), "FamilyPage");
+const FamilyInvitePage = lazyNamed(() => import("./features/familia/FamilyInvitePage"), "FamilyInvitePage");
 const AmigosPage = lazyNamed(() => import("./features/amigos/AmigosPage"), "AmigosPage");
 const AdminFeedbackPage = lazyNamed(() => import("./features/admin/AdminFeedbackPage"), "AdminFeedbackPage");
 const MarketingPage = lazyNamed(() => import("./features/marketing/MarketingPage"), "MarketingPage");
@@ -94,6 +96,7 @@ export const routes: RouteObject[] = [
   { path: "/metodo-longyu", element: <MarketingPage /> },
   { path: "/business", element: <BusinessPage /> },
   { path: "/convite/:code", element: <ReferralInvitePage /> },
+  { path: "/familia/convite/:token", element: <FamilyInvitePage /> },
   {
     element: <PublicAuthLayout />,
     children: [
@@ -150,6 +153,7 @@ export const routes: RouteObject[] = [
       { path: "ligas", element: <LigasPage /> },
       { path: "amigos", element: <AmigosPage /> },
       { path: "convide", element: <ReferralPage /> },
+      { path: "familia", element: <FamilyPage /> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },
