@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 38e70062857d |
-| HEAD no instante da geração | 543ffb7767284576a1cc3c13e5b039ce71732802 |
+| HEAD no instante da geração | 5c0caf0fcbb6a16029a7ce3a6316b4ca63dc27ba |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-14T14:47:32.732Z |
+| Gerado em | 2026-09-15T00:47:04.873Z |
 | Lições | 134 |
 
 ## Resumo
@@ -48,7 +48,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | Asset | Conceito | Estilo | Fundo | Tamanho | Dimensão | Problemas | Substituir? |
 |-------|----------|--------|-------|--------:|----------|-----------|:-----------:|
 | person | 人 pessoa | flat_illustration | transparent | 33.2 KB | 600×600 | — | — |
-| tree | 木 árvore | flat_illustration | transparent | 28.5 KB | 600×600 | — | — |
+| tree | 木 árvore | flat_illustration | transparent | 24.5 KB | 600×600 | — | — |
 | mouth | 口 boca | flat_illustration | transparent | 4.4 KB | 600×600 | — | — |
 | sun | 日 sol | flat_illustration | transparent | 10.0 KB | 600×600 | — | — |
 | moon | 月 lua | flat_illustration | transparent | 3.2 KB | 600×600 | — | — |
@@ -57,11 +57,11 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | fire | 火 fogo | flat_illustration | transparent | 3.4 KB | 600×600 | — | — |
 | big | 大 grande | flat_illustration | transparent | 3.4 KB | 600×600 | — | — |
 | small | 小 pequeno | flat_illustration | transparent | 3.6 KB | 600×600 | — | — |
-| woman | 女 mulher | flat_illustration | transparent | 16.2 KB | 600×600 | — | — |
+| woman | 女 mulher | flat_illustration | transparent | 15.5 KB | 600×600 | — | — |
 | child | 子 criança | flat_illustration | transparent | 25.6 KB | 600×600 | — | — |
-| mother | 妈 mãe | flat_illustration | transparent | 24.7 KB | 600×600 | — | — |
+| mother | 妈 mãe | flat_illustration | transparent | 24.1 KB | 600×600 | — | — |
 | father | 爸 pai | flat_illustration | transparent | 25.4 KB | 600×600 | — | — |
-| friend | 朋 amigo | flat_illustration | transparent | 30.3 KB | 600×600 | — | — |
+| friend | 朋 amigo | flat_illustration | transparent | 29.6 KB | 600×600 | — | — |
 | son | 儿子 filho | flat_illustration | transparent | 22.5 KB | 600×600 | — | — |
 | daughter | 女儿 filha | flat_illustration | transparent | 25.5 KB | 600×600 | — | — |
 | older_brother | 哥哥 irmão mais velho | flat_illustration | transparent | 34.8 KB | 600×600 | — | — |
@@ -72,7 +72,7 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 | crowd | 众 multidão | flat_illustration | transparent | 70.8 KB | 600×600 | — | — |
 | sky | 天 céu | flat_illustration | transparent | 4.1 KB | 600×600 | — | — |
 | woods | 林 bosque | flat_illustration | transparent | 34.5 KB | 600×600 | — | — |
-| forest | 森 floresta | flat_illustration | transparent | 65.1 KB | 600×600 | — | — |
+| forest | 森 floresta | flat_illustration | transparent | 64.2 KB | 600×600 | — | — |
 | horse | 马 cavalo | flat_illustration | transparent | 58.0 KB | 600×600 | — | — |
 | fish | 鱼 peixe | flat_illustration | transparent | 16.1 KB | 600×600 | — | — |
 | cat | 猫 gato | flat_illustration | transparent | 27.8 KB | 600×600 | — | — |
@@ -139,4 +139,4 @@ famílias — ver docs/VISUAL_ASSET_GUIDE.md.
 
 _Substituir = estilo diverge do majoritário da categoria, arquivo grande, ou item na lista de prioridade do guia. Não é obrigatório trocar por foto — o alvo é aparência profissional, consistência e boa leitura no mobile._
 
-<!-- integridade:a79bb2b491832ea0 -->
+<!-- integridade:9372e331c4ba3b15 -->

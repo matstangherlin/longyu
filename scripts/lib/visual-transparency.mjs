@@ -179,3 +179,156 @@ export async function stripBackground(sharp, svg, { tolerance = 0.004 } = {}) {
   }
   return { svg: current, removed, kept };
 }
+
+/**
+ * RC1.3 · P10/P11 — resíduo de fundo que a placa de canvas não cobre.
+ *
+ * O QA real viu a árvore ainda com "pixels/área de fundo ao redor da base".
+ * `findCanvasPlates` não pegava: aquilo não é uma placa full-bleed, são manchas
+ * do chão traçadas pelo VTracer. E `stripBackground` também não: as manchas
+ * ficam fora da família estrita do canvas (min < 0xC0), e os retalhos cor de
+ * canvas PINTADOS POR CIMA do desenho eram preservados porque a métrica antiga
+ * lia "revelou sujeito" como "mudou a silhueta" — quando é exatamente o
+ * contrário: revelar o desenho é a prova de que aquilo era fundo.
+ *
+ * Duas classes, ambas medidas no raster (não no olho):
+ *
+ * - `canvas-over-drawing` — fill da família do canvas cuja remoção NÃO tira
+ *   nenhum pixel opaco nem nenhum pixel de sujeito, e revela desenho embaixo.
+ *   Era o halo claro em volta dos galhos.
+ * - `ground-residue` — mancha clara e pouco saturada na margem INFERIOR,
+ *   pequena, cuja remoção só apaga ela mesma. Era a grama/sombra solta na base.
+ *
+ * P10.4 continua valendo: sombra pode existir. O que não pode é canvas —
+ * e canvas é claro, dessaturado e da cor do fundo original, não um tom do
+ * próprio desenho.
+ */
+export function isGroundResidueFill(hex) {
+  const rgb = parseHexPublic(hex);
+  if (!rgb) return false;
+  const [r, g, b] = rgb;
+  return Math.min(r, g, b) >= 0x8c && Math.max(r, g, b) - Math.min(r, g, b) <= 0x30;
+}
+
+/**
+ * Tinta de CANVAS, não tinta de desenho.
+ *
+ * O fundo traçado deste pacote é um branco-esverdeado quase puro (#EAF0EA e
+ * vizinhos): min de canal ≥ 0xE0. Isso separa, sem depender do olho, o halo de
+ * fundo dos detalhes claros que pertencem à ilustração — o vidro esverdeado das
+ * janelas da casa (#C6DCD2, min 0xC6) fica de fora e continua desenhado, como
+ * tem de ficar. Foi essa distinção que faltou na primeira passada: sem ela,
+ * "limpar o fundo" apagava as vidraças junto.
+ */
+export function isCanvasPaintFill(hex) {
+  const rgb = parseHexPublic(hex);
+  if (!rgb) return false;
+  const [r, g, b] = rgb;
+  return Math.min(r, g, b) >= 0xe0 && Math.max(r, g, b) - Math.min(r, g, b) <= 0x24 && g >= r;
+}
+
+function parseHexPublic(hex) {
+  if (typeof hex !== "string" || !/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
+  return [hex.slice(1, 3), hex.slice(3, 5), hex.slice(5, 7)].map((part) => parseInt(part, 16));
+}
+
+const RESIDUE_RASTER_SIZE = 200;
+
+async function residueMasks(sharp, svg) {
+  const { data, info } = await sharp(Buffer.from(svg), { density: 160 })
+    .resize(RESIDUE_RASTER_SIZE, RESIDUE_RASTER_SIZE, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const alpha = new Uint8Array(RESIDUE_RASTER_SIZE * RESIDUE_RASTER_SIZE);
+  const subject = new Uint8Array(alpha.length);
+  for (let i = 0; i < alpha.length; i += 1) {
+    const offset = i * info.channels;
+    if (data[offset + 3] < 128) continue;
+    alpha[i] = 1;
+    const hex = `#${[0, 1, 2].map((c) => data[offset + c].toString(16).padStart(2, "0")).join("")}`;
+    if (!isBackgroundFamily(hex)) subject[i] = 1;
+  }
+  return { alpha, subject };
+}
+
+function viewBoxNumbers(svg) {
+  const raw = svg.match(/viewBox="([\d.\s-]+)"/)?.[1];
+  const parts = raw ? raw.trim().split(/\s+/).map(Number) : [];
+  if (parts.length === 4 && parts.every(Number.isFinite)) return parts;
+  return [0, 0, 600, 600];
+}
+
+/**
+ * Limiares do gate. `subjectRevealRatio` separa o halo de canvas (décimos de
+ * 1% do sujeito) de arte clara legítima que por acaso cobre desenho — uma
+ * camisa branca, a cédula, o brilho da xícara — que fica na casa dos 2–10%.
+ */
+export const RESIDUE_LIMITS = {
+  minRevealedPixels: 12,
+  maxSubjectRevealRatio: 0.01,
+  maxGroundBoxRatio: 0.05,
+};
+
+export async function findResidueShapes(sharp, svg) {
+  const [vx, vy, vw, vh] = viewBoxNumbers(svg);
+  const base = await residueMasks(sharp, svg);
+  const subjectPixels = base.subject.reduce((total, value) => total + value, 0) || 1;
+  const findings = [];
+  for (const shape of svgShapes(svg)) {
+    const without = await residueMasks(sharp, removeShapes(svg, [shape]));
+    let alphaLost = 0;
+    let subjectLost = 0;
+    let subjectRevealed = 0;
+    for (let i = 0; i < base.alpha.length; i += 1) {
+      if (base.alpha[i] && !without.alpha[i]) alphaLost += 1;
+      if (base.subject[i] && !without.subject[i]) subjectLost += 1;
+      if (!base.subject[i] && without.subject[i]) subjectRevealed += 1;
+    }
+    const ratio = subjectRevealed / subjectPixels;
+    if (
+      isCanvasPaintFill(shape.fill) &&
+      alphaLost === 0 &&
+      subjectLost === 0 &&
+      subjectRevealed >= RESIDUE_LIMITS.minRevealedPixels &&
+      ratio <= RESIDUE_LIMITS.maxSubjectRevealRatio
+    ) {
+      findings.push({
+        reason: "canvas-over-drawing",
+        fill: shape.fill,
+        tag: shape.tag,
+        box: shape.box,
+        subjectRevealed,
+        ratio,
+      });
+      continue;
+    }
+    const boxArea = (shape.box.x1 - shape.box.x0) * (shape.box.y1 - shape.box.y0);
+    const inBottomMargin = shape.box.y1 >= vy + vh * 0.9 && shape.box.y0 >= vy + vh * 0.8;
+    if (
+      isGroundResidueFill(shape.fill) &&
+      inBottomMargin &&
+      subjectRevealed === 0 &&
+      boxArea <= vw * vh * RESIDUE_LIMITS.maxGroundBoxRatio
+    ) {
+      findings.push({ reason: "ground-residue", fill: shape.fill, tag: shape.tag, box: shape.box });
+    }
+  }
+  return findings;
+}
+
+/** Remove o resíduo encontrado, repetindo até o arquivo estabilizar. */
+export async function stripResidue(sharp, svg) {
+  let current = svg;
+  const removed = [];
+  for (let pass = 0; pass < 12; pass += 1) {
+    const findings = await findResidueShapes(sharp, current);
+    if (findings.length === 0) break;
+    removed.push(...findings.map(({ reason, fill, box }) => ({ reason, fill, box })));
+    current = removeShapes(current, findings);
+  }
+  return { svg: current, removed };
+}
