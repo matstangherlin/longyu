@@ -171,8 +171,43 @@ export async function dismissJourneyCultureBridgeIfOpen(
   return progressed;
 }
 
+/**
+ * Pilha de modais: fechar sempre a de CIMA primeiro.
+ *
+ * A lista de prioridade de `dismissBlockingOverlays` é por TIPO, não por
+ * profundidade. Com dois modais abertos ao mesmo tempo — medalha embaixo,
+ * ofensiva em cima, que é o que acontece ao concluir a primeira lição do dia —
+ * ela tentava a de baixo, e o `force: true` mandava o clique para as
+ * coordenadas do botão escondido: quem recebia era o card de cima, que faz
+ * `stopPropagation` e não fecha nada. Nenhuma das duas saía, o CTA atrás
+ * continuava inalcançável e o helper girava até o timeout.
+ *
+ * Um humano fecha a de cima primeiro. Aqui também. Só age com 2+ modais
+ * empilhados; com um só, a lista por tipo continua no comando.
+ */
+async function dismissTopmostStackedDialog(page: Page): Promise<boolean> {
+  const dialogs = page.locator('[role="dialog"][aria-modal="true"]');
+  if ((await dialogs.count().catch(() => 0)) < 2) return false;
+  const top = dialogs.last();
+  if (!(await top.isVisible().catch(() => false))) return false;
+  const dismiss = top
+    .getByRole("button", {
+      name: /Continuar|Fechar|Ok|Depois|Entendi|Continue|Close|Later|Not now|Agora não/i,
+    })
+    .first();
+  // Sem `force`: a de cima está realmente clicável, é ela que recebe o ponteiro.
+  if (await dismiss.isVisible().catch(() => false)) {
+    await dismiss.click({ timeout: 2_000 }).catch(() => undefined);
+  } else {
+    await page.keyboard.press("Escape").catch(() => undefined);
+  }
+  await page.waitForTimeout(150);
+  return true;
+}
+
 export async function dismissBlockingOverlays(page: Page) {
   for (let attempt = 0; attempt < 8; attempt += 1) {
+    if (await dismissTopmostStackedDialog(page)) continue;
     const privacy = page.getByRole("dialog", { name: /Ajude a melhorar o Longyu|Help improve Longyu/i });
     if (await privacy.isVisible().catch(() => false)) {
       const decline = page.getByRole("button", { name: /Agora não|Not now/i });

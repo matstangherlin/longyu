@@ -117,22 +117,32 @@ export function LessonVictory({
      * (P24.3, sticky continua fazendo sentido com o polegar); no desktop, onde o
      * conteúdo é curto, `h-full` + `flex-1` esticavam o card até quase 100dvh e
      * abriam um vazio enorme entre o resumo e "Voltar à Jornada" (P24.2).
-     * A partir de `sm`, o card acompanha o conteúdo e o CTA vem logo abaixo.
+     *
+     * A compactação é `roomy:`, não `sm:`. `sm:` é largura, e um celular deitado
+     * (667x360) satisfaz `sm` com 360px de altura: o card deixava de ocupar a
+     * tela, crescia até a altura do conteúdo e levava o CTA para fora do alcance.
+     * `roomy` exige largura de `sm` E altura sobrando.
+     *
+     * E, em qualquer tamanho, a região de conteúdo continua encolhível
+     * (`min-h-0 flex-1 overflow-y-auto`). Quando o conteúdo passa do teto do
+     * card, ela rola; o CTA, que é `shrink-0`, nunca é empurrado para fora do
+     * `overflow-hidden` da seção. Foi exatamente isso que um `flex-none` aqui
+     * causou: o CTA saía do card recortado e não dava mais para sair da tela.
      */
     <div
-      className={`mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[env(safe-area-inset-bottom)] sm:h-auto sm:min-h-0 sm:justify-start sm:py-4 ${LESSON_UI_CLASS.frame}`}
+      className={`mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[env(safe-area-inset-bottom)] roomy:h-auto roomy:justify-start roomy:py-4 ${LESSON_UI_CLASS.frame}`}
       data-lesson-victory
       data-lesson-victory-shell="minimal"
       data-lesson-victory-compact="desktop"
       data-testid={context === "culture" ? "culture-victory" : undefined}
       data-victory-context={context}
     >
-      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift sm:max-h-[calc(100dvh-4rem)] sm:flex-none">
+      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none">
         <div
           data-lesson-activity-scroll
           data-lesson-scroll-region
           data-lesson-victory-scroll
-          className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5 pt-4 [-webkit-overflow-scrolling:touch] sm:min-h-0 sm:flex-none sm:px-6"
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5 pt-4 [-webkit-overflow-scrolling:touch] sm:px-6"
         >
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {title}
@@ -254,10 +264,10 @@ export function LessonVictory({
           */}
         </div>
 
-        {/* P24.3 — sticky no mobile; no desktop o CTA só segue o conteúdo. */}
+        {/* P24.3 — sticky no mobile; com folga vertical o CTA só segue o conteúdo. */}
         <div
           data-lesson-victory-actions
-          className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 sm:border-t-0 sm:px-6 sm:pb-4"
+          className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-6 roomy:border-t-0 roomy:pb-4"
         >
           <Button className={`min-h-12 w-full shadow-lift ${LESSON_UI_CLASS.cta}`} size="lg" data-testid={primaryTestId} data-victory-primary onClick={onPrimary}>
             {primaryLabel}

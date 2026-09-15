@@ -539,6 +539,45 @@ card ocupa < 95% da viewport.
 
 Evidência: `docs/screenshots/rc1-3/victory-desktop.png`, `victory-390.png`.
 
+### A primeira versão desta correção quebrou o E2E — o que ela ensinou
+
+A compactação saiu como `sm:`, e `sm:` é **largura**. Um celular deitado
+(667×360) satisfaz `sm` com 360px de altura: o card deixava de ocupar a tela,
+crescia até a altura do conteúdo e levava o CTA para `bottom: 585` numa viewport
+de 360. `lesson-player-mobile.spec.ts` (667×360 landscape) pegou exatamente isso.
+
+Junto veio um segundo defeito, pior: `flex-none` na região rolável. `flex: none`
+desliga o encolhimento, e dentro de uma seção com teto e `overflow-hidden` quem
+sai do recorte é o CTA — a tela de vitória ficava sem saída.
+
+Duas correções:
+
+- a compactação virou `roomy:` — largura de `sm` **e** altura sobrando
+  (`min-width: 640px and min-height: 640px`);
+- a região rolável volta a ser `min-h-0 flex-1` em **todo** tamanho: quando o
+  conteúdo passa do teto do card ela rola, em vez de recortar o CTA.
+
+`roomy` entra como **plugin** (`addVariant`), não como `theme.extend.screens`.
+Um `screens` com objetos (`{ raw: … }`) desliga os variants `min-*`/`max-*` no
+projeto inteiro: medido, `min-width: 390px` saiu de 1 para **0 regras** no CSS
+gerado, o que apagaria silenciosamente as grades da Home, de Conquistas, do
+Pinyin Lab e do passo de comparação. Com `addVariant`, `min-[390px]`,
+`min-[480px]` e `roomy` geram regra.
+
+O gate também estava errado, e é a parte que mais importa: `validate:completion-layout`
+exigia as strings `sm:h-auto` e `sm:flex-none`, ou seja, tinha gravado a
+implementação com defeito como se fosse o contrato — ele teria aprovado a
+regressão para sempre. Agora cobra o invariante: compactar só com folga vertical
+(e **reprova** `sm:h-auto`/`sm:flex-none`/`sm:justify-start`, que compactam por
+largura) e região rolável sempre encolhível. As quatro mutações passam:
+
+| Mutação | Resultado |
+| --- | --- |
+| `roomy:h-auto` → `sm:h-auto` | reprova `WIDTH_ONLY_COMPACT` |
+| `roomy:flex-none` → `sm:flex-none` | reprova `WIDTH_ONLY_COMPACT` |
+| região rolável `flex-none` | reprova `SCROLL_REGION_RIGID` |
+| região rolável sem `min-h-0` | reprova `SCROLL_REGION_RIGID` |
+
 ---
 
 ## P25 — Gates novos
@@ -602,6 +641,30 @@ Verificados um a um, todos **PASS**:
 | P31 | o cartão apresenta os dois membros com pinyin, significado, contorno e os quatro controles de áudio, ANTES do teste tonal |
 | P24 | vazio entre resumo e CTA < 120px no desktop |
 | P24.3 | CTA na metade de baixo em 390×844 |
+
+### Suítes existentes ajustadas — e por quê
+
+Além das 9 specs novas, a rodada de CI cobrou três ajustes em suítes que já
+existiam. Nenhuma asserção foi afrouxada:
+
+- **`lesson-player-mobile.spec.ts` (667×360 landscape)** — pegou o `sm:` da
+  Victory (acima). Nada mudou na spec: mudou o código. É o teste fazendo o
+  trabalho dele.
+- **`v491-tone-boosters-fairness.spec.ts`** — a spec assumia que, depois do
+  "Reconheça os quatro", vinha direto a avaliação de quatro tons. Com o P16 a
+  aula passa a **apresentar o par antes de cobrá-lo**, que é o objetivo da
+  remessa. A spec agora atravessa o cartão de ensino (e afirma que ele existe,
+  virando mais uma prova do teach-before-test); as asserções sobre a avaliação
+  seguem idênticas.
+- **`e2e/helpers.ts` · `dismissBlockingOverlays`** — impasse com **dois** modais
+  empilhados. A lista de dispensa era por TIPO, não por profundidade: com
+  medalha embaixo e ofensiva em cima, ela tentava a de baixo e o `force: true`
+  mandava o clique para as coordenadas do botão escondido — quem recebia era o
+  card de cima, que faz `stopPropagation`. Nenhuma das duas fechava e o CTA
+  atrás ficava inalcançável. O empilhamento é pré-existente (a `main` produz os
+  mesmos dois modais; ela só ganhava a corrida). Agora o helper fecha a de cima
+  primeiro, como um humano faria. Nenhum efeito em produção: para o usuário, a
+  de cima sempre esteve clicável.
 
 ---
 

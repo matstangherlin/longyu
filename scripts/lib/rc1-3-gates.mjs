@@ -821,16 +821,59 @@ export function validateToneContrastNoNewVocab(data = {}) {
  * Preserva o desenho da RC1.1 (P24.1): o gate olha SÓ para a altura. O que
  * reprova é o card continuar preso a ~100dvh no desktop quando o conteúdo é
  * curto — a regressão da screenshot.
+ *
+ * A primeira versão deste gate exigia as strings `sm:h-auto` e `sm:flex-none`,
+ * e com isso gravou a implementação errada como se fosse o contrato:
+ *
+ *  - `sm:` é LARGURA. Um celular deitado (667x360) satisfaz `sm` com 360px de
+ *    altura, deixava de ocupar a tela e levava o CTA para fora do alcance.
+ *  - `flex-none` na região de conteúdo desliga o encolhimento. Dentro de uma
+ *    seção com teto e `overflow-hidden`, quem é empurrado para fora do recorte
+ *    é o CTA — e aí não dá mais para sair da tela de vitória.
+ *
+ * O gate agora cobra o invariante, não o nome da classe: compactar só com
+ * folga vertical, e a região de conteúdo sempre encolhível.
  */
 export function validateCompletionLayout(data = {}) {
   const { fail, failures } = failList();
   const victory = data.victorySource ?? read("src/features/lesson/LessonVictory.tsx");
 
-  if (!/sm:h-auto/.test(victory)) {
-    fail("DESKTOP_HEIGHT", "LessonVictory", "P24.2: o card precisa acompanhar o conteúdo no desktop");
+  if (!/roomy:h-auto/.test(victory)) {
+    fail("DESKTOP_HEIGHT", "LessonVictory", "P24.2: o card precisa acompanhar o conteúdo quando há folga vertical");
   }
-  if (!/sm:flex-none/.test(victory)) {
-    fail("DESKTOP_HEIGHT", "LessonVictory", "P24.2: a região de conteúdo não pode esticar no desktop");
+  if (!/roomy:flex-none/.test(victory)) {
+    fail("DESKTOP_HEIGHT", "LessonVictory", "P24.2: a seção não pode esticar quando há folga vertical");
+  }
+  // A compactação NUNCA pode depender só de largura: `sm:` pega celular deitado.
+  for (const widthOnly of ["sm:h-auto", "sm:flex-none", "sm:justify-start"]) {
+    if (victory.includes(widthOnly)) {
+      fail(
+        "WIDTH_ONLY_COMPACT",
+        "LessonVictory",
+        `P24.2: "${widthOnly}" compacta por largura — um celular deitado (667x360) satisfaz \`sm\` e perde o CTA. Use \`roomy:\`.`
+      );
+    }
+  }
+  // A região rolável precisa continuar encolhível, ou o CTA sai do recorte.
+  const scrollRegion = victory.match(/data-lesson-victory-scroll[\s\S]{0,400}?className="([^"]*)"/);
+  if (!scrollRegion) {
+    fail("SCROLL_REGION", "LessonVictory", "P24: não achei a região rolável da Victory");
+  } else {
+    const classes = scrollRegion[1];
+    if (/(^|\s|:)flex-none/.test(classes)) {
+      fail(
+        "SCROLL_REGION_RIGID",
+        "LessonVictory",
+        "P24.3: a região rolável não pode ser `flex-none` — ela para de encolher e empurra o CTA para fora do `overflow-hidden` da seção"
+      );
+    }
+    if (!/(^|\s)flex-1(\s|$)/.test(classes) || !/(^|\s)min-h-0(\s|$)/.test(classes)) {
+      fail(
+        "SCROLL_REGION_RIGID",
+        "LessonVictory",
+        "P24.3: a região rolável precisa de `flex-1 min-h-0` em TODO tamanho para rolar em vez de recortar o CTA"
+      );
+    }
   }
   if (!/data-lesson-victory-compact/.test(victory)) {
     fail("MARKER", "LessonVictory", "P24: falta o marcador de compactação para o e2e");
