@@ -5,13 +5,13 @@
  *
  *     MESMA SÍLABA-BASE + TOM DIFERENTE = PALAVRA / SIGNIFICADO DIFERENTE.
  *
- * E o que elas NÃO devem dizer (P13.2): que "o mesmo caractere muda de
+ * E o que elas JAMAIS devem dizer (P13.2): que "o mesmo caractere muda de
  * significado quando muda o tom". Não é isso. Na esmagadora maioria dos casos
  * estamos comparando a mesma sílaba-base em pinyin com OUTRO tom, OUTRA palavra
  * e, quase sempre, OUTRO hànzì — 妈 e 马 são caracteres distintos que só
  * compartilham a base `ma`.
  *
- * Esta remessa NÃO inventa vocabulário para ensinar tom (P19). Os pares abaixo
+ * Esta remessa NUNCA inventa vocabulário para ensinar tom (P19). Os pares abaixo
  * saem do corpus que as próprias tone lessons já apresentam, e o que aparece só
  * como demonstração fica marcado `contrastOnly` (P19.1): não conta como chunk
  * ensinado, vocabulário dominado, `newRefs` nem vocabulário da Jornada, e não
@@ -76,7 +76,7 @@ export function stripToneMarks(pinyin: string): string {
  *
  * Todos usam a base `ma`, que é a única com quatro palavras já apresentadas nas
  * tone lessons existentes (`p1-o-que-e-tom`, `p2-ma-*`, `p2-comparar-tom-*`).
- * P13.4 — NÃO adicionamos 马 nem nenhum outro caractere "porque é o exemplo
+ * P13.4 — jamais adicionamos 马 nem nenhum outro caractere "porque é o exemplo
  * famoso": eles já estão no corpus destas aulas, foi por isso que entraram.
  *
  * 妈 é o único membro efetivamente ensinado (aparece em `newHanzi` de l16 /

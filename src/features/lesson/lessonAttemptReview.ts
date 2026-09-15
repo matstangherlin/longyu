@@ -28,7 +28,7 @@ function pairLeftFromQuestionId(questionId: string, lessonId: string): string | 
  * RC1.3 · BUG 2 — a raiz de "请问 pergunta, 我叫马修 corrige".
  *
  * `questionId` é `${lessonId}:${stepIndex}:${kind}`, e esse `stepIndex` indexa o
- * PLANO DA SESSÃO — a sequência que `lessonRoundStepsFor` montou para aquela
+ * PLANO DA sessão — a sequência que `lessonRoundStepsFor` montou para aquela
  * rodada de mastery, com passos reordenados, bônus da pass e Reforço +. Resolver
  * esse índice contra `lesson.steps` (o array autoral do catálogo) devolve OUTRO
  * passo sempre que o plano difere do autoral, que é o caso normal.

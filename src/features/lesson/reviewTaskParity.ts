@@ -7,7 +7,7 @@
  * O caminho da menor implementação — transformar tudo em MCQ — inverte a
  * pedagogia: a revisão deixa de treinar a habilidade que falhou.
  *
- * A regra principal (P3): a revisão NÃO inventa um exercício mais difícil do que
+ * A regra principal (P3): a revisão NUNCA inventa um exercício mais difícil do que
  * o exercício que o aluno errou. Daqui saem duas garantias verificáveis:
  *
  * - `reviewKindsForSourceKind` — o conjunto de motores que a revisão pode usar
@@ -39,7 +39,7 @@ export const REVIEW_KINDS_BY_SOURCE_KIND: Partial<Record<StepKind, ImmediateReme
   /*
    * Associação visual continua associação visual — sem porta de saída.
    *
-   * `choice` NÃO entra aqui de propósito. Os 339 itens visuais do currículo
+   * `choice` fica de fora de propósito. Os 339 itens visuais do currículo
    * resolvem o conceito canônico e voltam como `image`; deixar um fallback
    * textual declarado seria abrir exatamente a porta que P3.3 fecha, e ela se
    * abriria sozinha no dia em que um asset quebrasse.

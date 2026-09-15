@@ -24,7 +24,7 @@
  * visual depois do shuffle (P6.2/P6.4). O feedback recebe a resposta canônica
  * pronta (P6.5). A explicação vem do mesmo objeto (P6.6). O áudio toca
  * `audioTarget` da resposta canônica, nunca a opção errada que o aluno tocou
- * (P6.7). E, quando a explicação contradiz a resposta, a correção NÃO é
+ * (P6.7). E, quando a explicação contradiz a resposta, a correção NUNCA é
  * apresentada: falha fechada com `ANSWER_INTEGRITY_MISMATCH` (P8).
  */
 

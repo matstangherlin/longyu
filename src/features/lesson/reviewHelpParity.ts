@@ -136,7 +136,7 @@ export function sourceHelpProfile(step: LessonStep | undefined): HelpProfile {
 }
 
 /**
- * Apoio que a REVISÃO oferece.
+ * Apoio que a revisão oferece.
  *
  * O piso é sempre pelo menos o da origem (P4.1) e a escada da modalidade entra
  * inteira no teto: é ela que garante "mais apoio, não menos" sem revelar nada

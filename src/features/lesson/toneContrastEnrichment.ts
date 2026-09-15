@@ -7,7 +7,7 @@
  * tonal vem ANTES da apresentação do par (mutação 20), e o aluno é cobrado sobre
  * palavras cujo significado ainda não viu.
  *
- * A correção NÃO mexe no currículo. `src/data/journey.ts` está congelado nesta
+ * A correção nunca mexe no currículo. `src/data/journey.ts` está congelado nesta
  * remessa (fingerprint 38e70062857d) e reescrever passos autorais mudaria o
  * hash. O contrato de ensino entra em RUNTIME: antes do primeiro item pontuado
  * que cobra um contraste, inserimos um cartão de ensino (`intro`, portanto não
@@ -171,7 +171,7 @@ export function toneContrastApproachForOccurrence(occurrence: number): ToneContr
 }
 
 /**
- * P21.1/P21.2 — o que podemos e o que NÃO podemos prometer em fala de tom.
+ * P21.1/P21.2 — o que podemos e o que JAMAIS podemos prometer em fala de tom.
  *
  * Longyu não tem analisador acústico. `SpeechRecognition` devolve texto, não
  * contorno de F0: usá-lo para dizer "seu 3º tom está 87% correto" seria inventar

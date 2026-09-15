@@ -1843,7 +1843,7 @@ function ImmediateErrorReviewSession({
           onCorrect(activityError);
         }}
         onNeedsMoreReview={(activityError) => {
-          // P1.2 — errar NÃO cria uma revisão dentro da revisão. No máximo um
+          // P1.2 — errar NUNCA cria uma revisão dentro da revisão. No máximo um
           // retry atrasado; passado o orçamento, a fraqueza vai para o SRS.
           setSession((state) => answerReviewItem(state, { reviewItemId: item.reviewItemId, correct: false }));
           onNeedsMoreReview(activityError);
@@ -3849,7 +3849,7 @@ export function LessonPlayer() {
     );
     const correctedCount = committedErrors.filter((error) => correctedErrorIds.includes(error.id)).length;
     /**
-     * RC1.3 · BUG 1 — a fila da revisão NÃO é recalculada a cada resposta.
+     * RC1.3 · BUG 1 — a fila da revisão NUNCA é recalculada a cada resposta.
      *
      * A linha antiga era
      *
@@ -3926,7 +3926,7 @@ export function LessonPlayer() {
     if (!recovered && errorReviewMode === "review" && reviewQueue.length > 0) {
       return (
         /*
-         * P1.1 — a `key` é a da SESSÃO, não a dos corrigidos. A antiga
+         * P1.1 — a `key` é a da sessão, NUNCA a dos corrigidos. A antiga
          * (`review-${correctedErrorIds}-${length}`) remontava o componente a
          * cada acerto, zerando o cursor: metade do loop morava aqui.
          */
@@ -3938,7 +3938,7 @@ export function LessonPlayer() {
           onNeedsMoreReview={markErrorNeedsMoreReview}
           onDone={(outcome) => {
             /*
-             * P1.6 — o que a revisão não resolveu NÃO some: cada conhecimento
+             * P1.6 — o que a revisão não resolveu NUNCA some: cada conhecimento
              * ainda aberto entra no SRS como "again". Vale inclusive quando o
              * disjuntor encerrou a sessão no meio (P1.8): o aluno sai da tela,
              * mas a fraqueza continua registrada.

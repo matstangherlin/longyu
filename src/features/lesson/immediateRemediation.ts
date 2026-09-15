@@ -89,7 +89,7 @@ export interface ImmediateRemediationExercise {
   canonical: CanonicalResponse;
   /** P6.2/P6.3 — opções com id estável e `correctOptionId`; nunca índice. */
   optionSet?: CanonicalOptionSet;
-  /** P8 — quando falha, a correção NÃO é apresentada. */
+  /** P8 — quando falha, a correção NUNCA é apresentada. */
   integrity: AnswerIntegrityResult;
   /** P3 — tipo do passo que originou a correção (paridade de tarefa). */
   sourceKind?: string;

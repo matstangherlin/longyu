@@ -198,7 +198,7 @@ function unresolvedAfter(state: ReviewSessionState): string[] {
 /**
  * Registra a resposta do item corrente.
  *
- * P1.2/P1.4 — errar NÃO reinsere o item logo a seguir nem abre uma sub-revisão.
+ * P1.2/P1.4 — errar NUNCA reinsere o item logo a seguir nem abre uma sub-revisão.
  * Quando ainda há orçamento e o conhecimento apareceu só uma vez, o retry entra
  * no FIM da fila (A B C A'), e só se houver ao menos um outro item entre agora
  * e ele: sem item no meio, repetir seria "A A", que é o que a regra proíbe —
