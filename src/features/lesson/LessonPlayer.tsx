@@ -137,6 +137,28 @@ import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
 import { buildImmediateRemediationExercise, normalizeRemediationAnswer } from "./immediateRemediation";
+import {
+  answerIntegrityDiagnostic,
+  evaluateCanonicalChoice,
+  type CanonicalOption,
+} from "./canonicalAnswer";
+import {
+  isAudioFirstReviewKind,
+  nextReviewHint,
+  type HelpAffordance,
+} from "./reviewHelpParity";
+import {
+  advanceReviewSession,
+  answerReviewItem,
+  buildReviewSessionPlan,
+  currentReviewItem,
+  endReviewSession,
+  startReviewSession,
+  type ReviewSessionState,
+} from "./reviewSessionPlan";
+import { decideFeedbackAudio } from "./feedbackAudioPolicy";
+import { withToneContrastTeaching } from "./toneContrastEnrichment";
+import { scheduleAutoSpeak } from "../../lib/tts";
 import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
@@ -750,6 +772,18 @@ function errorHanziForStep(step: LessonStep): string | undefined {
     // Preferir a fala do checkpoint / última linha com hànzì — não o diálogo inteiro.
     const checkpointLine = step.lines?.find((line) => displayTextHasHanzi(line.hanzi) && line.hanzi === reply);
     if (checkpointLine?.hanzi) return checkpointLine.hanzi;
+    /*
+     * RC1.3 · P6.7 — checkpoint `choose_meaning` guarda a resposta em português,
+     * então casar só por hànzì caía na ÚLTIMA fala da cena (a réplica do NPC) e
+     * o áudio da correção tocava outra frase. Casar por `pt` acha a fala certa.
+     */
+    const byMeaning = step.lines?.find(
+      (line) =>
+        displayTextHasHanzi(line.hanzi) &&
+        Boolean(reply) &&
+        line.pt?.trim().toLowerCase() === reply?.trim().toLowerCase()
+    );
+    if (byMeaning?.hanzi) return byMeaning.hanzi;
     const lastHanziLine = [...(step.lines ?? [])].reverse().find((line) => displayTextHasHanzi(line.hanzi));
     if (lastHanziLine?.hanzi) return lastHanziLine.hanzi;
   }
@@ -1020,18 +1054,26 @@ function ImmediateErrorReviewOffer({
   );
 }
 
+/**
+ * RC1.3 · P2.2/P23.1 — o resumo fecha a revisão; não a reabre.
+ *
+ * O CTA "Continuar revisão" existia aqui e devolvia o aluno à mesma fila, o que
+ * fechava o círculo do loop: errar → resumo → revisar de novo → errar. A revisão
+ * ensina de novo e TERMINA (P2.2). O que ficou sem resolver não some — vai para
+ * o SRS (P1.6) — e a 3ª estrela simplesmente não volta desta vez (P23.1).
+ * "Refazer lição" continua: é uma tentativa NOVA, com plano novo, não a mesma
+ * sessão reiniciada.
+ */
 function ImmediateErrorReviewSummary({
   corrected,
   remaining,
   canRetryLesson,
-  onReviewAgain,
   onContinue,
   onRetryLesson,
 }: {
   corrected: number;
   remaining: number;
   canRetryLesson: boolean;
-  onReviewAgain: () => void;
   onContinue: () => void;
   onRetryLesson: () => void;
 }) {
@@ -1065,11 +1107,11 @@ function ImmediateErrorReviewSummary({
           <LessonSummaryStat label={REVIEW_SUMMARY.remainingLabel} value={`${remaining}`} />
         </div>
         <div className="mt-auto grid gap-2 pt-6">
-          {stillMissing && (
-            <Button size="lg" className="w-full shadow-lift" onClick={onReviewAgain}>
-              {REVIEW_SUMMARY.ctaRetry} <IconChevron width={18} height={18} />
-            </Button>
-          )}
+          {stillMissing ? (
+            <p className="mb-1 text-sm leading-5 text-ink-soft" data-review-summary-srs>
+              {t("review.unresolvedGoesToSrs")}
+            </p>
+          ) : null}
           {canRetryLesson && (
             <Button variant="outline" className="w-full" onClick={onRetryLesson}>
               {REVIEW_SUMMARY.ctaRetryLesson}
@@ -1120,24 +1162,59 @@ function ErrorReviewQuestion({
   error,
   index,
   total,
+  occurrence,
   canRecover,
   onCorrect,
   onNeedsMoreReview,
   onNext,
+  onLeave,
 }: {
   error: ActivityError;
   index: number;
   total: number;
+  /** 1 = item planejado · 2 = retry atrasado do mesmo conhecimento (P1.4). */
+  occurrence?: 1 | 2;
   canRecover: boolean;
   onCorrect: (error: ActivityError) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onNext: () => void;
+  /** P2.2 — sair da revisão é sempre possível; ela não é uma prisão. */
+  onLeave?: () => void;
 }) {
   // Correção central: fiel ao erro real da tentativa atual.
   const exercise = useMemo(() => buildImmediateRemediationExercise(error), [error]);
   const answer = exercise.answer;
-  const options = exercise.options ?? [];
+  const optionSet = exercise.optionSet;
+  const options = optionSet?.options ?? [];
   const isBuild = exercise.kind === "build";
+  /**
+   * RC1.3 · P8 — falha FECHADA.
+   *
+   * Quando a resposta canônica e a explicação não falam do mesmo item, não há
+   * correção honesta a mostrar. A linha "Resposta certa" some, o áudio não toca
+   * e o aluno segue em frente — é melhor um item sem correção do que a correção
+   * errada que o QA viu (请问 na pergunta, 我叫马修 na resposta).
+   */
+  const integrityOk = exercise.integrity.ok;
+  const soundEffects = useStore((s) => s.soundEffects);
+  const autoPlayAudio = useStore((s) => s.autoPlayAudio);
+  const feedbackAudioPlayedRef = useRef(new Set<string>());
+  const [usedHints, setUsedHints] = useState<HelpAffordance[]>([]);
+  const [revealed, setRevealed] = useState(false);
+
+  // P8 — quando a integridade falha, o diagnóstico sai para quem investiga; o
+  // aluno só vê que aquela correção não está disponível.
+  useEffect(() => {
+    if (integrityOk) return;
+    console.warn(
+      "[longyu]",
+      answerIntegrityDiagnostic({
+        canonical: exercise.canonical,
+        result: exercise.integrity,
+        context: { lessonId: error.lessonId, questionId: error.questionId, kind: exercise.kind },
+      })
+    );
+  }, [error.lessonId, error.questionId, exercise.canonical, exercise.integrity, exercise.kind, integrityOk]);
   const bankPieces = useMemo<AssemblyPiece[]>(() => {
     const raw = exercise.pieces ?? [];
     // IDs únicos: evita reusar a mesma peça duas vezes (como na lição).
@@ -1171,11 +1248,54 @@ function ErrorReviewQuestion({
     isLastItem,
     remaining: remainingForRecovery,
   });
-  const pinyinWouldCueAnswer =
-    exercise.kind === "tone" || exercise.kind === "listen" || exercise.kind === "pinyin" || error.type === "tone_pair";
-  const showPromptPinyin = Boolean(exercise.displayPinyin && (!pinyinWouldCueAnswer || answered));
+  // P5 / mutação 7 — listening e tom não revelam o alvo escrito antes do áudio.
+  const pinyinWouldCueAnswer = isAudioFirstReviewKind(exercise.kind) || error.type === "tone_pair";
+  const showPromptPinyin = Boolean(
+    exercise.displayPinyin && (!pinyinWouldCueAnswer || answered || usedHints.includes("pinyin"))
+  );
   const feedbackPinyin =
-    exercise.answerPinyin && !/[\/|]/.test(exercise.answerPinyin) ? exercise.answerPinyin : undefined;
+    exercise.canonical.pinyin && !/[\/|]/.test(exercise.canonical.pinyin) ? exercise.canonical.pinyin : undefined;
+  /**
+   * P4/P5 — a escada de dicas. A revisão tem a MESMA ajuda da tarefa original,
+   * ou mais (P4.1), e ela é progressiva: "revelar" é sempre o último degrau,
+   * nunca o primeiro (P4.4).
+   */
+  const nextHint = useMemo(
+    () =>
+      nextReviewHint({
+        reviewKind: exercise.kind,
+        used: usedHints,
+        available: exercise.availableHints,
+      }),
+    [exercise.kind, exercise.availableHints, usedHints]
+  );
+  const eliminatedOptionIds = useMemo(() => {
+    if (!usedHints.includes("eliminate") || !optionSet) return new Set<string>();
+    const wrong = optionSet.options.filter((option) => option.id !== optionSet.correctOptionId);
+    // Elimina UMA alternativa errada — apoio, não entrega.
+    return new Set(wrong.slice(0, 1).map((option) => option.id));
+  }, [optionSet, usedHints]);
+  /**
+   * P5 (SENTENCE BUILD) — a dica reduz as peças distratoras; nunca monta a frase
+   * pelo aluno. As peças do alvo ficam; sobra no máximo uma distratora.
+   */
+  const visibleBankPieces = useMemo(() => {
+    if (!usedHints.includes("chips")) return bankPieces;
+    const needed = new Map<string, number>();
+    for (const part of targetParts) needed.set(part, (needed.get(part) ?? 0) + 1);
+    const kept: AssemblyPiece[] = [];
+    const extras: AssemblyPiece[] = [];
+    for (const piece of bankPieces) {
+      const left = needed.get(piece.value) ?? 0;
+      if (left > 0) {
+        needed.set(piece.value, left - 1);
+        kept.push(piece);
+      } else {
+        extras.push(piece);
+      }
+    }
+    return [...kept, ...extras.slice(0, 1)];
+  }, [bankPieces, targetParts, usedHints]);
   const usedIds = useMemo(() => new Set(pickedPieces.map((piece) => piece.id)), [pickedPieces]);
   const requiredCount = Math.max(targetParts.length, 1);
   const wrongIndexes = useMemo(() => {
@@ -1204,15 +1324,55 @@ function ErrorReviewQuestion({
     }
   }, [answerable, error, onNeedsMoreReview]);
 
+  /**
+   * RC1.1 P9 preservado — errou, o feedback mostra a resposta certa E toca o
+   * mandarim correto uma vez. RC1.3 acrescenta a garantia de QUAL mandarim:
+   * `canonical.audioTarget` (P6.7/P9.1). Mute, autoplay e dedupe continuam
+   * decididos por `decideFeedbackAudio` (P9.2).
+   */
+  useEffect(() => {
+    if (!answered || !integrityOk) return undefined;
+    const decision = decideFeedbackAudio(
+      {
+        stepId: `review:${error.id}`,
+        attemptId: feedback === "correct" ? "correct" : "wrong",
+        outcome: feedback === "correct" ? "correct" : "wrong",
+        target: exercise.canonical.audioTarget,
+        soundEnabled: soundEffects,
+        autoPlayAudio: autoPlayAudio !== false,
+      },
+      feedbackAudioPlayedRef.current
+    );
+    if (!decision.play) return undefined;
+    feedbackAudioPlayedRef.current.add(decision.key);
+    return scheduleAutoSpeak(decision.text, { rate: 0.86, delayMs: 260 });
+  }, [
+    answered,
+    autoPlayAudio,
+    error.id,
+    exercise.canonical.audioTarget,
+    feedback,
+    integrityOk,
+    soundEffects,
+  ]);
+
   const builtAnswer = pickedPieces.map((piece) => piece.value).join(exercise.pieceJoin);
-  const answerDisplay = exercise.answerDisplay ?? exercise.answer;
+  // P6.5 — o feedback recebe a resposta canônica pronta; não recalcula a sua.
+  const answerDisplay = exercise.canonical.display;
   const displayIsHanzi = displayTextHasHanzi(exercise.display);
 
-  function checkChoice(value: string) {
+  /**
+   * P6.2/P6.4 — o avaliador compara `correctOptionId`, nunca posição.
+   *
+   * Depois do shuffle, "posição 2" não significa "resposta 2 do array
+   * original". Comparar id mantém a resposta certa colada ao seu rótulo em
+   * qualquer ordem — é o que o teste de 100 seeds (P7.2) verifica.
+   */
+  function checkChoice(option: CanonicalOption) {
     if (answeredRef.current) return;
     answeredRef.current = true;
-    setSelected(value);
-    const correct = normalizeRemediationAnswer(value) === normalizeRemediationAnswer(answer);
+    setSelected(option.id);
+    const correct = optionSet ? evaluateCanonicalChoice(option.id, optionSet) : false;
     setFeedback(correct ? "correct" : "wrong");
     if (correct) onCorrect(error);
     else onNeedsMoreReview(error);
@@ -1253,10 +1413,22 @@ function ErrorReviewQuestion({
     setMatchPrefix(0);
   }
 
-  function playReviewAudio() {
-    const audio = exercise.audioText ?? error.hanzi ?? error.correctAnswer;
-    if (!audio || /[\/|]/.test(audio)) return;
-    speak(audio, { rate: 0.86 });
+  /**
+   * P6.7/P9 — o áudio da correção é SEMPRE `canonical.audioTarget`. Nunca a
+   * opção errada que o aluno tocou, nunca um item obsoleto do array.
+   */
+  function playReviewAudio(options?: { slow?: boolean }) {
+    const audio = exercise.canonical.audioTarget;
+    if (!audio) return;
+    speak(audio, { rate: options?.slow ? 0.6 : 0.86 });
+  }
+
+  function takeHint() {
+    if (!nextHint) return;
+    setUsedHints((current) => [...current, nextHint]);
+    if (nextHint === "audio") playReviewAudio();
+    if (nextHint === "audio_slow") playReviewAudio({ slow: true });
+    if (nextHint === "reveal") setRevealed(true);
   }
 
   return (
@@ -1264,6 +1436,9 @@ function ErrorReviewQuestion({
       className="flex min-h-[calc(100dvh-6.25rem)] flex-col p-4 sm:min-h-0 sm:p-6"
       data-review-question
       data-review-kind={exercise.kind}
+      data-review-source-kind={exercise.sourceKind}
+      data-review-occurrence={occurrence ?? 1}
+      data-review-integrity={integrityOk ? "ok" : "blocked"}
       data-review-mode={canRecover ? (isLastItem ? "last_chance" : "recovery") : "review"}
     >
       <div className="flex flex-wrap items-center justify-between gap-2" data-review-progress>
@@ -1299,7 +1474,25 @@ function ErrorReviewQuestion({
         {isBuild ? REVIEW_QUESTION.doNowBuild : REVIEW_QUESTION.doNowChoice}
       </p>
 
-      {exercise.kind === "blank" ? (
+      {exercise.kind === "image" && exercise.visualImageSrc ? (
+        /* P3.2/P12 — a revisão da associação visual continua visual: a MESMA
+           imagem do conceito canônico, e o alvo (hànzì/pinyin/significado) sai
+           desse mesmo ref. */
+        <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
+          <img
+            src={exercise.visualImageSrc}
+            alt={exercise.visualImageAlt ?? exercise.display ?? ""}
+            className="mx-auto h-36 w-36 object-contain"
+            data-review-visual
+            data-review-visual-concept={exercise.visualConceptId}
+          />
+          {exercise.display ? (
+            <div className="mt-2 text-base font-medium leading-6 text-ink" data-review-display>
+              {exercise.display}
+            </div>
+          ) : null}
+        </section>
+      ) : exercise.kind === "blank" ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           <div className="hanzi text-2xl leading-relaxed text-ink">
             {exercise.blankBefore}
@@ -1309,7 +1502,10 @@ function ErrorReviewQuestion({
             {exercise.blankAfter}
           </div>
         </section>
-      ) : exercise.display ? (
+      ) : exercise.display && normalizeRemediationAnswer(exercise.display) !== normalizeRemediationAnswer(exercise.prompt) ? (
+        /* O estímulo de um item situacional é o próprio enunciado. Renderizar os
+           dois imprimia a mesma frase duas vezes seguidas — foi o que o QA
+           humano viu no card de 请问. */
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           {displayIsHanzi ? (
             <div className="hanzi text-4xl text-ink" data-review-display>
@@ -1324,14 +1520,14 @@ function ErrorReviewQuestion({
             <Pinyin text={exercise.displayPinyin ?? ""} className="mt-1 block font-serif text-lg text-accent" />
           )}
           {exercise.kind === "listen" && (
-            <Button variant="soft" className="mt-3" onClick={playReviewAudio}>
+            <Button variant="soft" className="mt-3" onClick={() => playReviewAudio()}>
               <IconSound width={17} height={17} /> {t("player.listenAgainBtn")}
             </Button>
           )}
         </section>
       ) : exercise.kind === "listen" ? (
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
-          <Button variant="soft" onClick={playReviewAudio}>
+          <Button variant="soft" onClick={() => playReviewAudio()}>
             <IconSound width={17} height={17} /> {t("player.listenAgainBtn")}
           </Button>
         </section>
@@ -1362,7 +1558,7 @@ function ErrorReviewQuestion({
             }
             bank={
               <PieceAssemblyBank
-                pieces={bankPieces}
+                pieces={visibleBankPieces}
                 usedIds={usedIds}
                 locked={answered}
                 onAdd={(piece) => {
@@ -1385,24 +1581,64 @@ function ErrorReviewQuestion({
         <section className="mt-4 grid gap-2" data-review-options>
           {options.map((option) => (
             <button
-              key={option}
+              key={option.id}
               type="button"
-              disabled={answered}
+              disabled={answered || eliminatedOptionIds.has(option.id)}
+              data-review-option-id={option.id}
+              data-review-option-eliminated={eliminatedOptionIds.has(option.id) ? "true" : undefined}
               onClick={() => checkChoice(option)}
               className={[
                 "min-h-12 rounded-2xl border px-4 text-left text-sm font-semibold transition",
-                selected === option && feedback === "correct"
+                eliminatedOptionIds.has(option.id)
+                  ? "border-line bg-surface-2 text-ink-faint line-through opacity-60"
+                  : selected === option.id && feedback === "correct"
                   ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
-                  : selected === option && feedback === "wrong"
+                  : selected === option.id && feedback === "wrong"
                   ? "border-transparent bg-wrong-soft text-wrong"
                   : "border-line bg-surface text-ink hover:bg-surface-2",
               ].join(" ")}
             >
-              {option}
+              {option.label}
             </button>
           ))}
         </section>
       )}
+
+      {/*
+        RC1.3 · P4 — "Preciso de uma dica" continua existindo na revisão.
+        A tarefa original oferecia ajuda progressiva; a revisão, que é
+        remediação e não prova, oferece a mesma escada ou mais (P4.1/P4.2).
+      */}
+      {!answered && nextHint ? (
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1" data-review-help>
+          <button
+            type="button"
+            onClick={takeHint}
+            data-review-help-request
+            data-review-next-hint={nextHint}
+            className="text-xs font-semibold text-accent underline decoration-accent/35 underline-offset-2 transition hover:decoration-accent"
+          >
+            {t("player.needHint")}
+          </button>
+          {usedHints.length > 0 ? (
+            <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint" data-review-help-used>
+              {t("review.hintsUsed", { count: usedHints.length })}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {revealed && !answered ? (
+        <div className="mt-3 rounded-2xl border border-accent-soft bg-accent-soft/30 px-4 py-3" data-review-revealed>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+            {REVIEW_QUESTION.correctLabel}
+          </div>
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-base font-semibold text-ink">{answerDisplay}</span>
+            {feedbackPinyin ? <Pinyin text={feedbackPinyin} className="text-sm text-ink-soft" /> : null}
+          </div>
+        </div>
+      ) : null}
 
       {feedback && feedback !== "incomplete" && (
         <section
@@ -1424,23 +1660,42 @@ function ErrorReviewQuestion({
           >
             {feedback === "correct" ? REVIEW_QUESTION.feedbackOk : REVIEW_QUESTION.feedbackRetry}
           </div>
-          <div className="mt-2.5" data-review-correct-answer>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              {REVIEW_QUESTION.correctLabel}
-            </div>
-            <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="text-base font-semibold text-ink">{answerDisplay}</span>
-              {feedbackPinyin ? <Pinyin text={feedbackPinyin} className="text-sm text-ink-soft" /> : null}
-            </div>
-            {exercise.meaningPt ? (
-              <div className="mt-0.5 text-sm text-ink-soft" data-review-meaning>
-                {exercise.meaningPt}
+          {/* P8 — sem integridade não existe correção honesta: a linha some. */}
+          {integrityOk ? (
+            <div className="mt-2.5" data-review-correct-answer data-review-canonical-id={exercise.canonical.id}>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
+                {REVIEW_QUESTION.correctLabel}
               </div>
-            ) : null}
-          </div>
-          {exercise.explanation ? (
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-base font-semibold text-ink">{answerDisplay}</span>
+                {feedbackPinyin ? <Pinyin text={feedbackPinyin} className="text-sm text-ink-soft" /> : null}
+                {exercise.canonical.audioTarget ? (
+                  <button
+                    type="button"
+                    onClick={() => playReviewAudio()}
+                    className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-ink-soft"
+                    data-review-replay-audio
+                    aria-label={t("player.listenAgainBtn")}
+                  >
+                    <IconSound width={14} height={14} />
+                  </button>
+                ) : null}
+              </div>
+              {exercise.canonical.meaning ? (
+                <div className="mt-0.5 text-sm text-ink-soft" data-review-meaning>
+                  {exercise.canonical.meaning}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <p className="mt-2.5 text-sm leading-5 text-ink-soft" data-review-integrity-blocked>
+              {t("review.answerUnavailable")}
+            </p>
+          )}
+          {/* P6.6 — a explicação vem da MESMA resposta canônica. */}
+          {integrityOk && exercise.canonical.explanation ? (
             <p className="mt-2 text-sm leading-5 text-ink-soft" data-review-explanation>
-              {exercise.explanation}
+              {exercise.canonical.explanation}
             </p>
           ) : null}
         </section>
@@ -1468,11 +1723,37 @@ function ErrorReviewQuestion({
             <IconChevron width={18} height={18} />
           </Button>
         )}
+        {/* P2.2 — a revisão não é uma prisão até acertar tudo: sair é possível
+            a qualquer momento, e o que ficou volta pelo SRS (P1.6). */}
+        {onLeave ? (
+          <button
+            type="button"
+            onClick={onLeave}
+            data-review-leave
+            className="mt-2 w-full text-center text-xs font-semibold text-ink-faint underline decoration-ink-faint/30 underline-offset-2"
+          >
+            {t("review.leaveSession")}
+          </button>
+        ) : null}
       </div>
     </Card>
   );
 }
 
+/**
+ * RC1.3 · P1/P2 — a sessão de revisão, agora FINITA.
+ *
+ * Antes, a lista de erros era recalculada pelo pai a cada resposta e a `key`
+ * deste componente mudava junto, remontando a sessão do índice 0; quando tudo
+ * ficava corrigido, a fila caía de volta no conjunto inteiro e a revisão
+ * recomeçava. Era o loop que o QA viu.
+ *
+ * Agora o plano é construído UMA vez a partir dos erros recebidos (P1.1) e vive
+ * aqui dentro, em `reviewSessionPlan.ts`. O pai não consegue mais empurrar itens
+ * para dentro da sessão: errar gera, no máximo, um retry atrasado dentro do
+ * orçamento (P1.3/P1.4), e o disjuntor encerra com segurança se algum invariante
+ * cair (P1.8).
+ */
 function ImmediateErrorReviewSession({
   errors,
   canRecover,
@@ -1484,10 +1765,26 @@ function ImmediateErrorReviewSession({
   canRecover: boolean;
   onCorrect: (error: ActivityError) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
-  onDone: () => void;
+  onDone: (outcome: { unresolvedLogicalIds: string[]; aborted: boolean }) => void;
 }) {
-  const [index, setIndex] = useState(0);
-  const current = errors[index];
+  const errorsRef = useRef(errors);
+  // P1.1 — o plano NASCE UMA VEZ. `errors` muda de identidade a cada render do
+  // pai; ler a referência congelada é o que impede o plano de se reconstruir.
+  const [session, setSession] = useState<ReviewSessionState>(() =>
+    startReviewSession(
+      buildReviewSessionPlan({
+        reviewSessionId: `rev:${errorsRef.current[0]?.lessonId ?? "lesson"}:${Date.now()}`,
+        sources: errorsRef.current.map((error) => ({
+          errorId: error.id,
+          logicalReviewItemId: logicalReviewItemIdFor(error),
+        })),
+      })
+    )
+  );
+  const errorById = useMemo(() => new Map(errorsRef.current.map((error) => [error.id, error])), []);
+  const item = currentReviewItem(session);
+  const current = item ? errorById.get(item.sourceErrorId) : undefined;
+  const doneRef = useRef(false);
 
   // A sessão de revisão sempre abre ancorada no topo.
   //
@@ -1501,28 +1798,75 @@ function ImmediateErrorReviewSession({
       if (node && node.scrollTop !== 0) node.scrollTop = 0;
     }
     document.querySelector<HTMLElement>("[data-review-session]")?.scrollIntoView({ block: "start" });
-  }, [index]);
+  }, [session.currentIndex]);
 
-  if (!current) {
-    return null;
-  }
+  // P1.7/P1.8 — terminou (ou o disjuntor abriu): o aluno vai para o resumo.
+  // Nunca volta para o mesmo card.
+  useEffect(() => {
+    if (session.status === "active" || doneRef.current) return;
+    doneRef.current = true;
+    if (session.breaker) {
+      console.warn("[longyu] REVIEW_CIRCUIT_BREAKER", {
+        reviewSessionId: session.plan.reviewSessionId,
+        ...session.breaker,
+      });
+    }
+    onDone({
+      unresolvedLogicalIds: [...session.unresolvedLogicalIds],
+      aborted: session.status === "aborted",
+    });
+  }, [onDone, session]);
+
+  if (!item || !current) return null;
+
+  const progress = { index: session.currentIndex, total: session.queue.length };
 
   return (
-    <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]" data-review-session>
+    <div
+      className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      data-review-session
+      data-review-session-id={session.plan.reviewSessionId}
+      data-review-planned={session.plan.plannedItems.length}
+      data-review-retry-budget={session.plan.retryBudget}
+      data-review-rendered={session.renderedTasks}
+      data-review-max-rendered={session.plan.maxRenderedTasks}
+    >
       <ErrorReviewQuestion
+        key={item.reviewItemId}
         error={current}
-        index={index}
-        total={errors.length}
+        index={progress.index}
+        total={progress.total}
+        occurrence={item.occurrence}
         canRecover={canRecover}
-        onCorrect={onCorrect}
-        onNeedsMoreReview={onNeedsMoreReview}
-        onNext={() => {
-          if (index + 1 >= errors.length) onDone();
-          else setIndex((value) => value + 1);
+        onCorrect={(activityError) => {
+          setSession((state) => answerReviewItem(state, { reviewItemId: item.reviewItemId, correct: true }));
+          onCorrect(activityError);
         }}
+        onNeedsMoreReview={(activityError) => {
+          // P1.2 — errar NUNCA cria uma revisão dentro da revisão. No máximo um
+          // retry atrasado; passado o orçamento, a fraqueza vai para o SRS.
+          setSession((state) => answerReviewItem(state, { reviewItemId: item.reviewItemId, correct: false }));
+          onNeedsMoreReview(activityError);
+        }}
+        onNext={() => setSession((state) => advanceReviewSession(state))}
+        onLeave={() => setSession((state) => endReviewSession(state))}
       />
     </div>
   );
+}
+
+/**
+ * P1.3 — o conhecimento por trás do erro.
+ *
+ * Dois erros do mesmo alvo (o mesmo hànzì em passos diferentes) compartilham
+ * este id e, somados, não passam de duas aparições. Sem isso, "no máximo 1
+ * retry por item" viraria "no máximo 1 retry por CARD", e cinco cards do mesmo
+ * ponto voltariam cinco vezes.
+ */
+function logicalReviewItemIdFor(error: ActivityError): string {
+  if (error.sourceRef) return error.sourceRef;
+  const target = error.hanzi ?? error.correctAnswer ?? error.questionId;
+  return `${error.skill ?? "uso"}:${target}`;
 }
 
 export function LessonPlayer() {
@@ -1642,6 +1986,16 @@ export function LessonPlayer() {
   const [activityErrors, setActivityErrors] = useState<ActivityError[]>([]);
   const [errorReviewMode, setErrorReviewMode] = useState<ErrorReviewMode>("idle");
   const [correctedErrorIds, setCorrectedErrorIds] = useState<string[]>([]);
+  /**
+   * RC1.3 · P1.1 — identidade da sessão de revisão.
+   *
+   * Só muda quando começa uma sessão NOVA (outra tentativa da lição). É o que
+   * garante que a `key` do componente de revisão não dependa do progresso: o
+   * plano finito precisa sobreviver a cada resposta.
+   */
+  const [reviewSessionNonce, setReviewSessionNonce] = useState(0);
+  /** P1.6 — conhecimentos que a revisão não resolveu; seguem para o SRS. */
+  const reviewUnresolvedRef = useRef<string[]>([]);
   // Estrela recuperada: o aluno corrigiu TODOS os erros da tentativa atual.
   const [recovered, setRecovered] = useState(false);
   // Fôlego esgotado ao tentar pular: abre o convite ao Pro (skips ilimitados).
@@ -1883,6 +2237,15 @@ export function LessonPlayer() {
           // Mantém o plano normal — a Plus nunca bloqueia a sessão.
         }
       }
+      /*
+       * RC1.3 · P16 — teach-before-test tonal, aplicado ao PLANO.
+       *
+       * A auditoria achou `p1-o-que-e-tom` cobrando o tom de 妈/马/麻/骂 antes de
+       * apresentar os pares com significado. Corrigir no catálogo mudaria o
+       * fingerprint do currículo, que está congelado nesta remessa; corrigir no
+       * plano ensina o par antes de cobrá-lo sem tocar em `journey.ts`.
+       */
+      planned = withToneContrastTeaching(foundLesson, planned);
       if (gen !== planGenRef.current) return;
       if (idxRef.current > 0) return;
       const liveMasteryLevel =
@@ -2040,7 +2403,22 @@ export function LessonPlayer() {
     ) {
       return;
     }
-    const pending = getPendingAttemptReview(foundLesson.id, lessonAttemptsById, foundLesson);
+    /*
+     * RC1.3 · BUG 2 — resolver o passo de origem pelo PLANO antes do autoral.
+     *
+     * O `stepIndex` gravado no erro indexa o plano da sessão. Passar os passos
+     * do plano aqui faz a resolução acertar por identidade em vez de cair na
+     * busca; `stepForMistake` ainda valida a coerência e descarta o que não
+     * bater, para que `error.step` e `error.correctAnswer` nunca voltem a falar
+     * de itens diferentes.
+     */
+    const plannedSteps = sessionPlanRef.current?.steps ?? authoredStepsRef.current ?? [];
+    const pending = getPendingAttemptReview(
+      foundLesson.id,
+      lessonAttemptsById,
+      foundLesson,
+      plannedSteps
+    );
     if (!pending) return;
     pendingReviewRestoredRef.current = true;
     attemptIdRef.current = pending.attemptId;
@@ -3320,6 +3698,9 @@ export function LessonPlayer() {
       lesson.lessonDomain === "culture" || activityErrorsRef.current.length === 0 ? "idle" : "offer"
     );
     setCorrectedErrorIds([]);
+    // Sessão de revisão NOVA: identidade nova, plano novo (P1.1).
+    setReviewSessionNonce((value) => value + 1);
+    reviewUnresolvedRef.current = [];
     setRecovered(false);
     recoveryAppliedRef.current = false;
     if (passed) {
@@ -3467,8 +3848,20 @@ export function LessonPlayer() {
       (error) => error.lessonId === lesson.id
     );
     const correctedCount = committedErrors.filter((error) => correctedErrorIds.includes(error.id)).length;
-    const remainingErrors = committedErrors.filter((error) => !correctedErrorIds.includes(error.id));
-    const reviewQueue = errorReviewMode === "review" && remainingErrors.length > 0 ? remainingErrors : committedErrors;
+    /**
+     * RC1.3 · BUG 1 — a fila da revisão NUNCA é recalculada a cada resposta.
+     *
+     * A linha antiga era
+     *
+     *     errorReviewMode === "review" && remaining.length > 0 ? remaining : committed
+     *
+     * e, combinada com a `key` que mudava a cada correção, produzia o loop: ao
+     * corrigir o último item pendente, `remaining` ficava vazio, a fila caía de
+     * volta em `committed` e a sessão recomeçava do zero. O plano finito agora
+     * vive dentro de `ImmediateErrorReviewSession`; aqui só entregamos os erros
+     * da tentativa, uma vez.
+     */
+    const reviewQueue = committedErrors;
     const canRetryAfterReview = !passed || (!lesson.isReview && stars < masteryStars);
     // Próximo foco + frase-resumo: dizem em uma linha o que a sessão rendeu.
     const toneErrorCount = committedErrors.filter(
@@ -3532,13 +3925,33 @@ export function LessonPlayer() {
 
     if (!recovered && errorReviewMode === "review" && reviewQueue.length > 0) {
       return (
+        /*
+         * P1.1 — a `key` é a da sessão, NUNCA a dos corrigidos. A antiga
+         * (`review-${correctedErrorIds}-${length}`) remontava o componente a
+         * cada acerto, zerando o cursor: metade do loop morava aqui.
+         */
         <ImmediateErrorReviewSession
-          key={`review-${correctedErrorIds.join("|")}-${reviewQueue.length}`}
+          key={`review-${lesson.id}-${reviewSessionNonce}`}
           errors={reviewQueue}
           canRecover={canRecoverStar}
           onCorrect={markErrorCorrected}
           onNeedsMoreReview={markErrorNeedsMoreReview}
-          onDone={() => setErrorReviewMode("summary")}
+          onDone={(outcome) => {
+            /*
+             * P1.6 — o que a revisão não resolveu NUNCA some: cada conhecimento
+             * ainda aberto entra no SRS como "again". Vale inclusive quando o
+             * disjuntor encerrou a sessão no meio (P1.8): o aluno sai da tela,
+             * mas a fraqueza continua registrada.
+             */
+            reviewUnresolvedRef.current = outcome.unresolvedLogicalIds;
+            const unresolved = new Set(outcome.unresolvedLogicalIds);
+            for (const activityError of reviewQueue) {
+              if (!unresolved.has(logicalReviewItemIdFor(activityError))) continue;
+              if (correctedErrorIds.includes(activityError.id)) continue;
+              gradeErrorTargets(activityError, "again");
+            }
+            setErrorReviewMode("summary");
+          }}
         />
       );
     }
@@ -3549,7 +3962,6 @@ export function LessonPlayer() {
           corrected={correctedCount}
           remaining={Math.max(0, committedErrors.length - correctedCount)}
           canRetryLesson={canRetryAfterReview}
-          onReviewAgain={() => setErrorReviewMode("review")}
           onContinue={() => setErrorReviewMode("dismissed")}
           onRetryLesson={() => retryLesson()}
         />
@@ -3581,6 +3993,8 @@ export function LessonPlayer() {
       activityErrorsRef.current = [];
       setErrorReviewMode("idle");
       setCorrectedErrorIds([]);
+      setReviewSessionNonce((value) => value + 1);
+      reviewUnresolvedRef.current = [];
       setRecovered(false);
       recoveryAppliedRef.current = false;
       pendingReviewRestoredRef.current = false;

@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 38e70062857d |
-| HEAD no instante da geração | 70bf730bcb1cde23a7460807a097d43c7d8dddca |
+| HEAD no instante da geração | 6e5d0c825aa5bc63b944fb2eb95b42670d910063 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-13T13:07:47.668Z |
+| Gerado em | 2026-09-15T01:48:49.113Z |
 | Lições | 134 |
 
 ## Política de rótulos
@@ -58,4 +58,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l26b**: sujeito · verbo · objeto · partícula
 - **l11-rev**: sujeito · verbo · objeto · partícula
 
-<!-- integridade:396add0c17b183ac -->
+<!-- integridade:22e20727925919d9 -->

@@ -1,3 +1,5 @@
+import plugin from "tailwindcss/plugin";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
@@ -40,5 +42,25 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    /**
+     * `roomy:` — "tem folga vertical": largura de `sm` E altura sobrando.
+     *
+     * `sm:` sozinho é largura. Um celular deitado (667x360) satisfaz `sm` com
+     * 360px de altura, e regras escritas pensando em "desktop" caem nele: um
+     * card que deixa de ocupar a tela para acompanhar o conteúdo fica mais alto
+     * que a viewport e empurra o CTA para fora do alcance. Quem depende de folga
+     * vertical pede as duas condições.
+     *
+     * É um plugin, e NÃO uma entrada em `theme.extend.screens`, de propósito:
+     * um `screens` contendo objetos (`{ raw: … }`) desliga os variants `min-*` e
+     * `max-*` no projeto inteiro — o Tailwind avisa e simplesmente para de gerar
+     * as regras. Aqui isso apagaria os `min-[390px]:` e `min-[480px]:` que
+     * seguram as grades da Home, de Conquistas, do Pinyin Lab e do passo de
+     * comparação. `addVariant` não toca em `screens` e não tem esse efeito.
+     */
+    plugin(({ addVariant }) => {
+      addVariant("roomy", "@media (min-width: 640px) and (min-height: 640px)");
+    }),
+  ],
 };

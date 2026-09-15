@@ -2,7 +2,18 @@ import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import type { LessonStep } from "../../data/journey";
 import { REMEDIATION_BY_CAUSE } from "../../data/errorDiagnosis";
+import { resolveVisualConcept, type VisualConcept } from "../../data/visualVocabulary";
 import type { ActivityErrorRecord } from "../../lib/store";
+import {
+  buildCanonicalOptionSet,
+  checkAnswerIntegrity,
+  normalizeCanonicalValue,
+  type AnswerIntegrityResult,
+  type CanonicalOptionSet,
+  type CanonicalResponse,
+} from "./canonicalAnswer";
+import type { HelpAffordance } from "./reviewHelpParity";
+import { preferredReviewKind, reviewKindsForSourceKind } from "./reviewTaskParity";
 
 /**
  * Revisão imediata pós-lição — geração central da correção.
@@ -26,7 +37,13 @@ export type ImmediateRemediationKind =
   | "blank"
   | "hanzi"
   | "pinyin"
-  | "tone";
+  | "tone"
+  /**
+   * RC1.3 · P3.2 — associação visual errada volta como associação visual. Antes
+   * ela caía em `hanzi`/`choice` e o aluno perdia a imagem: a habilidade que
+   * falhou (ligar imagem ↔ hànzì ↔ som) deixava de ser praticada.
+   */
+  | "image";
 
 /** Erro da tentativa atual; `step` só existe na revisão in-lesson. */
 export interface ActivityErrorInput extends ActivityErrorRecord {
@@ -55,6 +72,9 @@ export interface ImmediateRemediationExercise {
   pieceJoin: string;
   /** Texto para tocar o áudio (listen). */
   audioText?: string;
+  /** RC1.3 · P3.2 — imagem da associação visual; a revisão não perde o visual. */
+  visualImageSrc?: string;
+  visualImageAlt?: string;
   explanation?: string;
   meaningPt?: string;
   /** Pinyin exclusivo da resposta correta (feedback) — nunca misturar com o display. */
@@ -62,6 +82,21 @@ export interface ImmediateRemediationExercise {
   /** Erro de origem — permite marcar como corrigido e recuperar a estrela. */
   sourceErrorId: string;
   canRecoverStar: true;
+  /**
+   * RC1.3 · P6 — a ÚNICA resposta da correção. Avaliação, feedback, explicação e
+   * áudio derivam daqui; nenhuma superfície recalcula a sua.
+   */
+  canonical: CanonicalResponse;
+  /** P6.2/P6.3 — opções com id estável e `correctOptionId`; nunca índice. */
+  optionSet?: CanonicalOptionSet;
+  /** P8 — quando falha, a correção NUNCA é apresentada. */
+  integrity: AnswerIntegrityResult;
+  /** P3 — tipo do passo que originou a correção (paridade de tarefa). */
+  sourceKind?: string;
+  /** P12 — id do conceito visual, quando a correção é visual. */
+  visualConceptId?: string;
+  /** P5 — degraus de dica realmente disponíveis neste item. */
+  availableHints: HelpAffordance[];
 }
 
 const TONE_OPTIONS = ["1º tom", "2º tom", "3º tom", "4º tom"];
@@ -295,12 +330,44 @@ function remediationKindForCause(error: ActivityErrorInput): ImmediateRemediatio
   }
 }
 
+/**
+ * RC1.3 · P3 — a causa escolhe o motor DENTRO da paridade, nunca fora dela.
+ *
+ * `remediationKindForCause` continua existindo (errar por tom dentro de uma
+ * montagem pede um motor de tom, não outra montagem), mas agora passa por um
+ * filtro: se a causa aponta para um motor que não está na paridade da tarefa
+ * original, ela é ignorada. Era por aí que uma montagem de frase virava múltipla
+ * escolha "porque é mais fácil de implementar" (P3.3, mutação 6).
+ */
+function causeKindWithinParity(error: ActivityErrorInput): ImmediateRemediationKind | undefined {
+  const byCause = remediationKindForCause(error);
+  if (!byCause) return undefined;
+  const allowed = reviewKindsForSourceKind(error.step?.kind ?? error.type);
+  if (allowed.length === 0) return byCause;
+  return allowed.includes(byCause) ? byCause : undefined;
+}
+
+/** Associação visual só volta como visual quando o conceito e a imagem existem. */
+function visualConceptForError(error: ActivityErrorInput): VisualConcept | undefined {
+  const step = error.step;
+  if (!step) return undefined;
+  if (step.kind !== "image_choice" && step.kind !== "compare_with_image") return undefined;
+  return (
+    resolveVisualConcept(step.correctImageId) ??
+    resolveVisualConcept(step.targetHanzi) ??
+    resolveVisualConcept(step.imageId) ??
+    resolveVisualConcept(step.charId)
+  );
+}
+
 function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
+  // P3.2 — associação visual errada volta como associação visual.
+  if (visualConceptForError(error)) return "image";
   // Diálogo/cena: SEMPRE escolha situacional — causa não pode forçar montagem
   // (que misturava dump de falas e opções estranhas).
   if (error.type === "dialogue_choice" || error.type === "conversation_scene") return "choice";
 
-  const byCause = remediationKindForCause(error);
+  const byCause = causeKindWithinParity(error);
   if (byCause) return byCause;
   if (error.type === "pair-match") return "pair";
   if (error.type === "tone") return "tone";
@@ -333,7 +400,8 @@ function remediationKind(error: ActivityErrorInput): ImmediateRemediationKind {
     return "hanzi";
   }
   if (error.skill === "pinyin") return "pinyin";
-  return "choice";
+  // Último recurso: o motor preferido da paridade antes de cair em MCQ.
+  return preferredReviewKind(error.step?.kind ?? error.type) ?? "choice";
 }
 
 /** Peças de montagem: alvo + distratores do próprio exercício (podem repetir). */
@@ -430,7 +498,12 @@ function coherentMeaning(error: ActivityErrorInput, answer: string): string | un
  * sempre `canRecoverStar: true` — corrigir todos os erros da tentativa devolve
  * a 3ª estrela.
  */
-export function buildImmediateRemediationExercise(error: ActivityErrorInput): ImmediateRemediationExercise {
+type RemediationSurface = Omit<
+  ImmediateRemediationExercise,
+  "canonical" | "optionSet" | "integrity" | "availableHints" | "sourceKind" | "visualConceptId"
+>;
+
+function buildRemediationSurface(error: ActivityErrorInput): RemediationSurface {
   const kind = remediationKind(error);
   const step = error.step;
   const safeAnswer = (error.correctAnswer ?? step?.correctAnswer ?? step?.checkpoint?.correctAnswer ?? "").trim();
@@ -446,6 +519,42 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
     meaningPt: coherentMeaning(error, safeAnswer),
     pieceJoin: "",
   };
+
+  if (kind === "image") {
+    // P3.2/P12 — a MESMA associação visual: a imagem continua na tela e o alvo
+    // sai do conceito canônico (hànzì, pinyin e significado do mesmo ref), nunca
+    // de um texto hardcoded no renderer.
+    const concept = visualConceptForError(error)!;
+    const distractorConcepts = (step?.options ?? [])
+      .map((option) => resolveVisualConcept(option))
+      .filter((candidate): candidate is VisualConcept => Boolean(candidate) && candidate!.id !== concept.id);
+    const answer = concept.hanzi;
+    return {
+      ...base,
+      kind: "image",
+      prompt: `Qual hànzì combina com a imagem?`,
+      display: concept.meaningPt,
+      displayPinyin: undefined,
+      visualImageSrc: concept.imageSrc,
+      visualImageAlt: concept.imageAltPt,
+      answer,
+      answerDisplay: answer,
+      answerPinyin: concept.pinyin,
+      meaningPt: concept.meaningPt,
+      audioText: answer,
+      explanation:
+        base.explanation ?? `${concept.hanzi} (${concept.pinyin}) é ${concept.meaningPt}.`,
+      options: buildChoiceOptions(
+        answer,
+        [
+          error.selectedAnswer,
+          ...distractorConcepts.map((candidate) => candidate.hanzi),
+          ...CHARACTERS.filter((char) => char.hanzi !== answer).map((char) => char.hanzi),
+        ],
+        error.id
+      ),
+    };
+  }
 
   if (kind === "pair") {
     // match_pairs / tone_pair: revisar SÓ o par errado, nunca a tabela inteira.
@@ -517,7 +626,32 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
   if (kind === "blank" && step?.blankAnswer) {
     // Re-apresenta a MESMA lacuna, mesmo alvo, distratores do próprio exercício.
     const answer = step.blankAnswer;
-    const bankDistractors = (step.bank ?? step.distractors ?? []).filter(Boolean);
+    /*
+     * RC1.3 · P4 — as alternativas DO PRÓPRIO exercício também entram.
+     *
+     * Lendo só `bank`/`distractors`, um `substitution_drill` cujas opções vivem
+     * em `step.options` (l9 · "我叫 ___") virava uma lacuna com UMA alternativa:
+     * sem contraste para pensar e sem nenhum degrau de dica antes de revelar.
+     * A revisão tem de ter o mesmo apoio da tarefa original, não menos.
+     */
+    const bankDistractors = [
+      ...(step.bank ?? []),
+      ...(step.distractors ?? []),
+      ...(step.options ?? []),
+      ...(step.checkpoint?.options ?? []),
+    ].filter(Boolean);
+    /*
+     * P5 (MEANING/BLANK) — a frase COMPLETA é um degrau de dica honesto.
+     *
+     * Numa lacuna cujo alvo é latino (o nome em 我叫___), não há pinyin nem
+     * significado para oferecer, e a escada acabava direto em "revelar". Ouvir a
+     * frase inteira com a lacuna preenchida ensina de verdade e não entrega a
+     * alternativa escrita.
+     */
+    const completedSentence = [step.sentenceBefore, answer, step.sentenceAfter]
+      .filter(Boolean)
+      .join("")
+      .replace(/_+/g, "");
     return {
       ...base,
       kind: "blank",
@@ -525,6 +659,7 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
       blankBefore: step.sentenceBefore,
       blankAfter: step.sentenceAfter,
       display: singleTargetHanzi(error) ?? cleanDisplay(error.correctAnswer),
+      audioText: containsHanzi(completedSentence) ? completedSentence : undefined,
       answer,
       answerDisplay: error.correctAnswer || answer,
       answerPinyin: pinyinForSinglePhrase(containsHanzi(answer) ? answer : undefined, error.pinyin),
@@ -665,5 +800,98 @@ export function buildImmediateRemediationExercise(error: ActivityErrorInput): Im
       error.explanation,
       error.mistakeReason
     ),
+  };
+}
+
+/**
+ * RC1.3 · P6.1 — a resposta canônica da correção.
+ *
+ * Um objeto, derivado UMA vez a partir da superfície montada acima, do qual toda
+ * a tela deriva: o avaliador (por `correctOptionId`), a linha "Resposta certa"
+ * (por `display`/`pinyin`/`meaning`), a explicação (`explanation`) e o áudio
+ * automático (`audioTarget`). Nenhuma superfície recalcula a sua — era
+ * exatamente essa recomputação independente que produzia 请问 na pergunta e
+ * 我叫马修 na correção.
+ */
+function canonicalFromSurface(
+  surface: RemediationSurface,
+  error: ActivityErrorInput
+): CanonicalResponse {
+  const display = (surface.answerDisplay ?? surface.answer ?? "").trim();
+  const hanzi = containsHanzi(display) ? display : cleanDisplay(error.hanzi);
+  const audioTarget = (() => {
+    const candidate = surface.audioText ?? hanzi;
+    if (!candidate || /[\/|]/.test(candidate) || !containsHanzi(candidate)) return undefined;
+    return candidate;
+  })();
+  return {
+    id: error.sourceRef ?? `error:${error.id}`,
+    hanzi,
+    pinyin: surface.answerPinyin,
+    meaning: surface.meaningPt,
+    explanation: surface.explanation,
+    audioTarget,
+    display,
+    // `value` é o que o avaliador compara — o alvo escolhível, não o texto lido.
+    value: normalizeCanonicalValue(surface.answer),
+  };
+}
+
+/** P5 — degraus que este item consegue oferecer de fato. */
+function availableHintsFor(surface: RemediationSurface, canonical: CanonicalResponse): HelpAffordance[] {
+  const hints: HelpAffordance[] = [];
+  if (canonical.audioTarget) {
+    hints.push("audio");
+    hints.push("audio_slow");
+  }
+  if (canonical.pinyin) hints.push("pinyin");
+  if (canonical.meaning) hints.push("meaning");
+  if (surface.visualImageSrc) hints.push("image");
+  if (surface.explanation) hints.push("context");
+  if ((surface.pieces?.length ?? 0) > 0) {
+    hints.push("chips");
+    hints.push("structure");
+  }
+  if ((surface.options?.length ?? 0) > 2) hints.push("eliminate");
+  hints.push("reveal");
+  return [...new Set(hints)];
+}
+
+/**
+ * Constrói a correção imediata para um erro da tentativa atual.
+ *
+ * Fiel ao erro real: mesmo par, mesma frase, mesmo hànzì, mesmo tom, MESMA
+ * modalidade (P3) e com pelo menos a mesma ajuda (P4). Retorna sempre
+ * `canRecoverStar: true` — corrigir todos os erros da tentativa devolve a 3ª
+ * estrela (P23).
+ */
+export function buildImmediateRemediationExercise(error: ActivityErrorInput): ImmediateRemediationExercise {
+  const surface = buildRemediationSurface(error);
+  const canonical = canonicalFromSurface(surface, error);
+  const optionSet =
+    surface.options && surface.options.length > 0
+      ? buildCanonicalOptionSet({
+          canonical,
+          // O rótulo escolhível é `answer`; `display` é o que o feedback lê. Na
+          // lacuna os dois divergem de propósito (ver `buildCanonicalOptionSet`).
+          correctLabel: surface.answer,
+          distractors: surface.options.filter(
+            (option) => normalizeCanonicalValue(option) !== canonical.value
+          ),
+          seed: error.id,
+        })
+      : undefined;
+  const integrity = checkAnswerIntegrity({ canonical, optionSet });
+  return {
+    ...surface,
+    // P6.3 — a ordem apresentada passa a ser a do conjunto canônico, para que
+    // rótulo e id nunca se separem.
+    options: optionSet ? optionSet.options.map((option) => option.label) : surface.options,
+    canonical,
+    optionSet,
+    integrity,
+    sourceKind: error.step?.kind ?? error.type,
+    visualConceptId: visualConceptForError(error)?.id,
+    availableHints: availableHintsFor(surface, canonical),
   };
 }

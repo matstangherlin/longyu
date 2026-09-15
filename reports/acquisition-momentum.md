@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 38e70062857d |
-| HEAD no instante da geração | 543ffb7767284576a1cc3c13e5b039ce71732802 |
+| HEAD no instante da geração | 6e5d0c825aa5bc63b944fb2eb95b42670d910063 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-14T14:37:09.007Z |
+| Gerado em | 2026-09-15T01:53:16.400Z |
 | Lições | 134 |
 
 ## Resumo
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:2b6d464fffdafc62 -->
+<!-- integridade:ea990e514a0bbed2 -->

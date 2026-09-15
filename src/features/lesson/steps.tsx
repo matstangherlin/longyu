@@ -67,6 +67,8 @@ import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
+import { ToneContrastCard } from "../../components/tone/ToneContrastCard";
+import { TONE_CONTRAST_SET_BY_ID } from "../../data/toneContrastSets";
 import { localizeLessonStep } from "../../i18n/overlays/localizeLesson";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { validateExercise } from "./exerciseValidation";
@@ -516,10 +518,25 @@ function StepIntro({ step, onDone }: StepProps) {
   const line = String(step.audioText ?? step.hanzi ?? "").trim();
   const canSpeak = Boolean(line && isCjkText(line));
   const speaker = String(step.speaker ?? "").trim();
+  /**
+   * RC1.3 · P16 — cartão de contraste tonal.
+   *
+   * Entra como `intro` (não pontuado) inserido em runtime antes do primeiro item
+   * que cobra o par — ver `toneContrastEnrichment.ts`. Reaproveita o StepKind
+   * existente de propósito: a remessa não cria motor novo para ensinar tom.
+   */
+  const contrastSet = step.toneContrastSetId
+    ? TONE_CONTRAST_SET_BY_ID.get(step.toneContrastSetId)
+    : undefined;
   return (
     <div data-testid={speaker || canSpeak ? "culture-story-beat" : undefined}>
       <Eyebrow>{speaker || t("player.understand")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
+      {contrastSet ? (
+        <div className="mt-4">
+          <ToneContrastCard set={contrastSet} locale={getInstructionLocale() === "en" ? "en" : "pt-BR"} />
+        </div>
+      ) : null}
       {canSpeak ? (
         <div className="mt-4" data-testid="culture-story-audio">
           <MandarinText

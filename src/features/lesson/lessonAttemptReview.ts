@@ -24,10 +24,81 @@ function pairLeftFromQuestionId(questionId: string, lessonId: string): string | 
   return tail.split(":pair:")[1];
 }
 
-function stepForMistake(mistake: LessonMistakeRecord, lesson: Lesson): LessonStep | undefined {
+/**
+ * RC1.3 · BUG 2 — a raiz de "请问 pergunta, 我叫马修 corrige".
+ *
+ * `questionId` é `${lessonId}:${stepIndex}:${kind}`, e esse `stepIndex` indexa o
+ * PLANO DA sessão — a sequência que `lessonRoundStepsFor` montou para aquela
+ * rodada de mastery, com passos reordenados, bônus da pass e Reforço +. Resolver
+ * esse índice contra `lesson.steps` (o array autoral do catálogo) devolve OUTRO
+ * passo sempre que o plano difere do autoral, que é o caso normal.
+ *
+ * O efeito no aluno é exatamente o que o QA viu: a revisão restaurada montava o
+ * card com `error.step` de um item (prompt e explicação do 请问) e
+ * `error.correctAnswer` de outro (`mistake.expectedAnswer`, 我叫马修, que era o
+ * alvo do passo realmente errado). Avaliação, feedback e explicação referindo
+ * itens diferentes.
+ *
+ * A correção é resolver por IDENTIDADE, não por posição:
+ *
+ * 1. o índice é apenas um palpite — só vale se o passo candidato for COERENTE
+ *    com o erro gravado (mesmo tipo e mesma resposta esperada);
+ * 2. se não for, procuramos em toda a lição um passo coerente;
+ * 3. se nenhum for, devolvemos `undefined` — o erro é descartado da revisão.
+ *
+ * Descartar é a decisão certa: sem o passo de origem não há como garantir
+ * paridade de tarefa (P3) nem de ajuda (P4), e apresentar um par incoerente é o
+ * bug que estamos fechando. Melhor uma revisão com um item a menos do que uma
+ * revisão que ensina errado (P8, falha fechada).
+ */
+function stepMatchesMistake(step: LessonStep | undefined, mistake: LessonMistakeRecord): boolean {
+  if (!step) return false;
+  if (mistake.exerciseType && step.kind !== mistake.exerciseType) return false;
+  const expected = normalizeAnswerKey(mistake.expectedAnswer);
+  if (!expected) return true;
+  const candidates = [
+    step.correctAnswer,
+    step.checkpoint?.correctAnswer,
+    step.answer,
+    step.blankAnswer,
+    step.correctImageId,
+    step.targetHanzi,
+    step.targetMeaningPt,
+    step.hanzi,
+    step.targetParts?.join(""),
+    step.target?.join(""),
+    step.kind === "tone" && step.tone ? `${step.tone}º tom` : undefined,
+    ...(step.pairs ?? []).map((pair) => pair.right),
+  ];
+  return candidates.some((candidate) => {
+    const value = normalizeAnswerKey(candidate);
+    return Boolean(value) && (value === expected || value.includes(expected) || expected.includes(value));
+  });
+}
+
+function normalizeAnswerKey(value: string | undefined): string {
+  return (value ?? "")
+    .replace(/[，。！？、,.!?？\s]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function stepForMistake(
+  mistake: LessonMistakeRecord,
+  lesson: Lesson,
+  stepPool: readonly LessonStep[] = []
+): LessonStep | undefined {
   const stepIndex = parseStepIndex(mistake.questionId, lesson.id);
-  if (stepIndex == null || stepIndex < 0) return undefined;
-  return lesson.steps[stepIndex];
+  const byIndex = stepIndex != null && stepIndex >= 0 ? lesson.steps[stepIndex] : undefined;
+  if (stepMatchesMistake(byIndex, mistake)) return byIndex;
+  // O índice veio do plano da sessão, não do autoral: procure por identidade,
+  // primeiro nos passos do plano (quando o chamador tem o plano em mãos) e
+  // depois no autoral.
+  const byIdentity =
+    stepPool.find((candidate) => stepMatchesMistake(candidate, mistake)) ??
+    lesson.steps.find((candidate) => stepMatchesMistake(candidate, mistake));
+  if (byIdentity) return byIdentity;
+  return undefined;
 }
 
 function reviewTargetsForStep(step: LessonStep): ActivityErrorRecord["targets"] {
@@ -73,6 +144,20 @@ function singleTargetHanziFromStep(step: LessonStep, expectedAnswer?: string): s
   if (step.kind === "conversation_scene") {
     const match = step.lines?.find((line) => hasHanzi(line.hanzi) && line.hanzi === reply);
     if (match?.hanzi) return match.hanzi;
+    /**
+     * RC1.3 · P6.7 — o alvo da cena é a fala que RESPONDE ao checkpoint.
+     *
+     * O checkpoint `choose_meaning` guarda a resposta em português ("Meu nome é
+     * Matheus."), então o casamento por `line.hanzi` nunca batia e caíamos na
+     * ÚLTIMA fala com hànzì — que, nesta cena, é a réplica do NPC (你好，
+     * Matheus！). Daí saíam um `hanzi` e um `audioTarget` de outra fala que não a
+     * corrigida, e a checagem de integridade (com razão) recusava a correção.
+     * Casar por `pt` encontra 我叫Matheus。, que é o alvo real.
+     */
+    const byMeaning = step.lines?.find(
+      (line) => hasHanzi(line.hanzi) && Boolean(reply) && normalizeAnswerKey(line.pt) === normalizeAnswerKey(reply)
+    );
+    if (byMeaning?.hanzi) return byMeaning.hanzi;
     const last = [...(step.lines ?? [])].reverse().find((line) => hasHanzi(line.hanzi));
     if (last?.hanzi) return last.hanzi;
   }
@@ -105,9 +190,10 @@ function cleanSelectedAnswer(value: string | undefined): string {
 /** Reconstrói um erro da tentativa salva para revisão imediata tardia. */
 export function activityErrorFromMistake(
   mistake: LessonMistakeRecord,
-  lesson: Lesson
+  lesson: Lesson,
+  stepPool: readonly LessonStep[] = []
 ): (ActivityErrorInput & { step?: LessonStep }) | null {
-  const step = stepForMistake(mistake, lesson);
+  const step = stepForMistake(mistake, lesson, stepPool);
   if (!step) return null;
   const meta = lessonMeta(lesson);
 
@@ -198,7 +284,13 @@ export function shouldRestorePendingAttemptReview(input: {
 export function getPendingAttemptReview(
   lessonId: string,
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>,
-  lesson: Lesson
+  lesson: Lesson,
+  /**
+   * Passos do PLANO da sessão, quando o chamador os tem. O erro foi gravado
+   * contra o plano; procurar nele primeiro resolve por identidade exata em vez
+   * de cair na busca pelo autoral (ver `stepForMistake`).
+   */
+  stepPool: readonly LessonStep[] = []
 ): PendingAttemptReview | null {
   const attempts = lessonAttemptsById[lessonId];
   if (!attempts?.length) return null;
@@ -210,7 +302,7 @@ export function getPendingAttemptReview(
   if (pendingMistakes.length === 0) return null;
 
   const errors = pendingMistakes
-    .map((mistake) => activityErrorFromMistake(mistake, lesson))
+    .map((mistake) => activityErrorFromMistake(mistake, lesson, stepPool))
     .filter((error): error is NonNullable<typeof error> => Boolean(error));
   if (errors.length === 0) return null;
 
