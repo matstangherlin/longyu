@@ -103,3 +103,5 @@ Copy nova do planner RC1.4 (item central / contorno-alvo / prompts de tom / pist
 ## Mastery depth
 
 Pass 3 de `tone_contrast` / `numeric_value` não reemite o `dialogue_choice` do Pass 2 (mesmo `targetRef`); só produção (`reverse_recall`). Evita overlap 1.00 em `validate:topic-mastery-depth` (ex.: `p2-ma-primeiro-tom`, `l6`, `l8`).
+
+Quando `mustProduce` é choice-like (“escolher qual…”), o body do `reverse_recall` usa `Diga {target}` — não o texto de escolha — para `validate:exercise-feasibility`.

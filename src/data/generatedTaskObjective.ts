@@ -833,12 +833,18 @@ export function buildGeneratedBonusStep(
     const produceGoal = spec?.mustProduce[0] ?? lesson.title;
     const assembleHanzi = /montar|monte|caractere/i.test(`${produceGoal} ${spec?.passObjectives[3] ?? ""}`);
     const parts = [...objective.targetRef];
-    const say = makeReverseRecall(
-      "Diga sem apoio extra",
-      assembleHanzi ? "Diga o núcleo deste tema, sem ler a tradução." : produceGoal,
+    // reverse_recall offers speech/assembly — never reuse a mustProduce that says "escolha/qual".
+    const choiceLikeProduce = /escolh|\bqual\b|ouviu|marque|toque/i.test(produceGoal);
+    const sayBody = assembleHanzi
+      ? "Diga o núcleo deste tema, sem ler a tradução."
+      : choiceLikeProduce ||
+          objective.relationType === "tone_contrast" ||
+          objective.relationType === "numeric_value"
+        ? `Diga ${objective.targetRef} em voz alta.`
+        : produceGoal;
+    const say = makeReverseRecall("Diga sem apoio extra", sayBody, objective.targetRef, [
       objective.targetRef,
-      [objective.targetRef]
-    );
+    ]);
 
     if (assembleHanzi && parts.length === 1) {
       const builder =
