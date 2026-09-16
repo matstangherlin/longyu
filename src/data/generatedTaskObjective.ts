@@ -258,7 +258,7 @@ function compoundsWithPhonetic(anchor: string, pool: readonly string[]): string[
 function detectRelationType(
   lesson: Lesson,
   spec: TopicMasterySpec | null | undefined,
-  pass: MasteryPass,
+  _pass: MasteryPass,
   pedagogyText: string
 ): GeneratedRelationType {
   const titlePromise = `${lesson.title}\n${spec?.promise ?? ""}\n${pedagogyText}`;
@@ -573,7 +573,6 @@ export function surfacesForObjective(
   const target = objective.targetRef;
   const anchors = objective.anchorRefs ?? [];
   const relation = objective.relationType;
-  const lessonTitle = lesson?.title ?? spec?.topicId ?? "";
   const singleTitle = lesson ? titleHanzi(lesson) : null;
 
   let prompt: string;
