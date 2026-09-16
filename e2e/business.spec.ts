@@ -138,7 +138,8 @@ test.describe("V4.4 /business — guest, copy e formulário", () => {
   });
 
   test("lead válido dispara envio (preview local valida; produção usa Edge)", async ({ page }) => {
-    await page.route("**/functions/v1/submit-business-lead", async (route) => {
+    // Mock both the Functions gateway path and any absolute project URL.
+    await page.route(/submit-business-lead/, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

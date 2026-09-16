@@ -29,7 +29,16 @@ const PREVIEW_MESSAGE =
 
 function publicLeadError(body: { error?: string; message?: string } | null): string {
   const text = (body?.error || body?.message || "").trim();
-  if (!text || /Failed to send|FunctionsHttpError|NetworkError|fetch/i.test(text)) {
+  if (
+    !text ||
+    /Failed to send|FunctionsHttpError|NetworkError|fetch|not found|FunctionsFetchError|FunctionsRelayError/i.test(
+      text
+    )
+  ) {
+    return "Não foi possível enviar. Tente de novo.";
+  }
+  // Never surface raw Edge/Supabase infrastructure copy to the visitor.
+  if (/^[A-Za-z][A-Za-z0-9 _.-]{0,80}$/.test(text) && !/[ãáàâéêíóôõúç]/i.test(text)) {
     return "Não foi possível enviar. Tente de novo.";
   }
   return text;
