@@ -115,7 +115,14 @@ export function LojaPage() {
       errorsCorrected,
       hanziLearned: learnedChars?.length ?? 0,
       audioExposures: Math.max(pearlAudioExposures ?? 0, lifetimeStats?.audioHeard ?? 0),
-      productionCount: Math.max(pearlProductionCount ?? 0, lifetimeStats?.phrasesSpoken ?? 0),
+      // RC1.5 — o sinal vivo é `phrasesReviewed`. `phrasesSpoken` fica só como
+      // piso histórico, para ninguém perder pérola já conquistada quando a
+      // semântica mudou; não é lido como prova de fala em lugar nenhum.
+      productionCount: Math.max(
+        pearlProductionCount ?? 0,
+        lifetimeStats?.phrasesReviewed ?? 0,
+        lifetimeStats?.phrasesSpoken ?? 0
+      ),
       monthlyChallengeProgress: monthProgress,
       monthlyChallengeCompleted: Boolean(month?.claimed || (month?.completed ?? 0) >= MONTHLY_GOAL),
       monthlyChallengeKey: month?.monthKey ?? monthKey(),

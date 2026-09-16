@@ -3,7 +3,6 @@ import { ModalOverlay } from "../ui/ModalOverlay";
 import { Button, ButtonLink } from "../ui/primitives";
 import {
   IconBook,
-  IconChat,
   IconFlame,
   IconHanzi,
   IconHeadphones,
@@ -18,6 +17,7 @@ import {
   type ProPaywallKind,
 } from "../../data/planFeatures";
 import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
+import { canOpenPaywallKind } from "../../product/featureTruth";
 import { useTranslation } from "../../i18n/useTranslation";
 
 export type { PaywallKind, ProPaywallKind };
@@ -27,7 +27,6 @@ const PAYWALL_ICONS: Record<PaywallKind, typeof IconStar> = {
   energy: IconFlame,
   immersion: IconHeadphones,
   hanzi: IconHanzi,
-  speech: IconChat,
   reports: IconTarget,
   content: IconBook,
   review: IconTarget,
@@ -88,6 +87,12 @@ export function ProPaywall({
   }, [onClose, open]);
 
   if (!open) return null;
+
+  // RC1.5, P3.1 — última linha de defesa. Se alguém ligar um paywall a uma
+  // capacidade que não está no ar, ele não abre: preferimos a tela sem modal
+  // à tela cobrando por algo que não existe. Os gates recusam antes, no CI;
+  // isto é o que segura em produção se um deles for contornado.
+  if (!canOpenPaywallKind(offer?.paywallKind ?? kind)) return null;
 
   return (
     <ModalOverlay role="presentation" onBackdropClick={onClose}>

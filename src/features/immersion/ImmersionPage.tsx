@@ -21,7 +21,7 @@ import {
   IconStar,
   IconTarget,
 } from "../../components/ui/Icon";
-import { storyStepCountsAsPhrasePractice } from "../../lib/missionHelpers";
+import { storyStepCountsAsPhraseReview } from "../../lib/missionHelpers";
 import { buildMissionViews, isMissionActionable } from "../../data/missions";
 import {
   IMMERSION_SESSIONS,
@@ -907,7 +907,9 @@ function InteractiveStoryPlayer({
     markStepComplete(step.id);
     gradeStoryTarget(step, correct);
     if (!correct) recordStoryError(step, cleanAnswer);
-    if (storyStepCountsAsPhrasePractice(step.type)) recordDailyTask("phrasesSpoken");
+    // RC1.5 — escolher opção, digitar hànzì ou preencher pinyin é revisão de
+    // frase, não fala. O contador de fala não passa por aqui: exige microfone.
+    if (storyStepCountsAsPhraseReview(step.type)) recordDailyTask("phrasesReviewed");
     playSoundFx(correct ? "success" : "error", soundEffects);
   }
 

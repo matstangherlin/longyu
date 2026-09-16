@@ -1633,14 +1633,14 @@ export const en: MessageCatalog = {
     voiceMissing:
       "No Chinese voice detected — install a zh-CN voice pack on your system for better audio. (Web Speech API)",
     footer: "Longyu Beta (龙语) · audio via Web Speech API · data saved on this device only.",
-    proSomTitle: "Tone diagnosis",
-    proSomFeatures: "advanced minimal pairs · slow neural audio · weak-tone map",
-    proFalaTitle: "Guided speaking",
-    proFalaFeatures: "roleplays · pronunciation feedback · unlimited chunks",
+    proSomTitle: "Unlimited tone perception",
+    proSomFeatures: "advanced minimal pairs · slow audio · tone contrast without spending a Charge",
+    proFalaTitle: "Unlimited phrase training",
+    proFalaFeatures: "unlimited chunks · audio on demand · spaced review of useful phrases",
     proHanziTitle: "Graphic families",
     proHanziFeatures: "advanced radicals · extra decomposition · no-pinyin mode",
     proLeituraTitle: "Graded library",
-    proLeituraFeatures: "longer stories · reading without pinyin · line-by-line shadowing",
+    proLeituraFeatures: "longer stories · reading without pinyin · line-by-line audio",
     deletionInactive:
       "Cloud account deletion is not active yet. You can erase local data on this device.",
     deletionNeedLogin: "Sign in to request cloud account deletion.",
@@ -2138,16 +2138,16 @@ export const en: MessageCatalog = {
       desc: "Master the sound of 3 review items without a miss.",
     },
     "fala-primeira-frase": {
-      title: "First voice",
-      desc: "Speak your first sentence out loud.",
+      title: "First phrase",
+      desc: "Practise your first useful phrase.",
     },
     "fala-10-frases": {
-      title: "Conversation started",
-      desc: "Speak 10 sentences out loud.",
+      title: "Repertoire started",
+      desc: "Practise 10 useful phrases.",
     },
     "fala-50-frases": {
-      title: "Confident voice",
-      desc: "Speak 50 sentences out loud.",
+      title: "Solid repertoire",
+      desc: "Practise 50 useful phrases.",
     },
     "leitura-primeiro-texto": {
       title: "First page",

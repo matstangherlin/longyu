@@ -13,7 +13,13 @@ export function isJourneyBlockingActivityError(
   return stars > 0 && stars < 3;
 }
 
-/** Passo de história que conta como prática de frase (diálogo, escolha, lacuna). */
-export function storyStepCountsAsPhrasePractice(type: string): boolean {
+/**
+ * Passo de história que conta como revisão de frase (diálogo, escolha, lacuna).
+ *
+ * RC1.5 — chamava-se `storyStepCountsAsPhrasePractice` e alimentava
+ * `phrasesSpoken`. Nenhum destes passos usa microfone: são opção selecionada,
+ * hànzì digitado, pinyin preenchido e resposta curta escrita.
+ */
+export function storyStepCountsAsPhraseReview(type: string): boolean {
   return type === "choice" || type === "fill_hanzi" || type === "fill_pinyin" || type === "short_answer";
 }

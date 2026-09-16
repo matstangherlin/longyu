@@ -1636,14 +1636,14 @@ export const ptBR = {
     voiceMissing:
       "Nenhuma voz em chinês detectada — instale um pacote de voz zh-CN no sistema para melhor áudio. (Web Speech API)",
     footer: "Longyu Beta (龙语) · áudio via Web Speech API · dados salvos só neste dispositivo.",
-    proSomTitle: "Diagnóstico tonal",
-    proSomFeatures: "pares mínimos avançados · áudio lento neural · mapa de tons fracos",
-    proFalaTitle: "Produção oral guiada",
-    proFalaFeatures: "roleplays · feedback de pronúncia · chunks ilimitados",
+    proSomTitle: "Percepção de tom sem limite",
+    proSomFeatures: "pares mínimos avançados · áudio lento · contraste tonal sem gastar Carga",
+    proFalaTitle: "Treino de frases sem limite",
+    proFalaFeatures: "chunks ilimitados · áudio sob demanda · revisão espaçada da fala útil",
     proHanziTitle: "Famílias gráficas",
     proHanziFeatures: "radicais avançados · decomposição extra · modo sem pinyin",
     proLeituraTitle: "Biblioteca graduada",
-    proLeituraFeatures: "histórias maiores · leitura sem pinyin · shadowing por linha",
+    proLeituraFeatures: "histórias maiores · leitura sem pinyin · áudio linha a linha",
     deletionInactive:
       "Exclusão de conta na nuvem ainda não está ativa. Você pode apagar os dados locais neste dispositivo.",
     deletionNeedLogin: "Faça login para solicitar exclusão da conta na nuvem.",
@@ -2144,16 +2144,16 @@ export const ptBR = {
       desc: "Domine o som de 3 itens na revisão sem errar.",
     },
     "fala-primeira-frase": {
-      title: "Primeira voz",
-      desc: "Fale sua primeira frase em voz alta.",
+      title: "Primeira frase",
+      desc: "Pratique sua primeira frase útil.",
     },
     "fala-10-frases": {
-      title: "Conversa iniciada",
-      desc: "Fale 10 frases em voz alta.",
+      title: "Repertório iniciado",
+      desc: "Pratique 10 frases úteis.",
     },
     "fala-50-frases": {
-      title: "Voz confiante",
-      desc: "Fale 50 frases em voz alta.",
+      title: "Repertório firme",
+      desc: "Pratique 50 frases úteis.",
     },
     "leitura-primeiro-texto": {
       title: "Primeira página",

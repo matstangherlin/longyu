@@ -186,9 +186,17 @@ interface DailyProgress {
   leitura: number;
 }
 
+/**
+ * Chaves que `recordDailyTask` aceita.
+ *
+ * RC1.5 — `phrasesSpoken` saiu daqui de propósito. Fala real não é uma tarefa
+ * que qualquer tela pode declarar cumprida: ela passa por `recordSpeechAttempt`
+ * e exige captura de voz. Tirar do tipo é o que mata a mutação de verdade —
+ * `recordDailyTask("phrasesSpoken")` deixa de compilar.
+ */
 export type DailyTaskKey =
   | "audioHeard"
-  | "phrasesSpoken"
+  | "phrasesReviewed"
   | "reviewsDone"
   | "hanziDecomposed"
   | "microtextsRead"
@@ -199,7 +207,13 @@ export type DailyTaskKey =
 export interface DailyTasks {
   date: string;
   audioHeard: number;
+  /**
+   * Fala REALMENTE tentada hoje (microfone aberto, voz capturada).
+   * Escrito só por `recordSpeechAttempt`.
+   */
   phrasesSpoken: number;
+  /** Frases úteis revisadas hoje (flashcard, história, autoavaliação). */
+  phrasesReviewed: number;
   reviewsDone: number;
   hanziDecomposed: number;
   microtextsRead: number;
@@ -209,13 +223,31 @@ export interface DailyTasks {
   threeStarLessons: number;
   /** Tons acertados hoje (lições, Pinyin Lab, Tone Trainer). */
   tonesTrained: number;
+  /**
+   * Tentativas de fala já contabilizadas hoje (RC1.5).
+   *
+   * A mesma tentativa não pode somar duas vezes: um re-render, um retry do
+   * reconhecedor ou um duplo clique em "Falar de novo" no mesmo resultado
+   * voltariam a chamar o registro. A chave é da tentativa, não da frase.
+   */
+  speechAttemptKeys?: string[];
   claimedMissions: Record<string, boolean>;
 }
 
 /** Contadores vitalícios (nunca zeram) — alimentam as medalhas/conquistas. */
 export interface LifetimeStats {
   audioHeard: number;
+  /**
+   * Fala realmente tentada, vitalício.
+   *
+   * RC1.5 — valores gravados ANTES desta remessa misturavam revisão e fala e
+   * ficam como estão: não são reescritos e não são lidos como fala comprovada
+   * (ver `legacySemantics` em `learningEvents.ts`). Do corte em diante só
+   * `recordSpeechAttempt` incrementa.
+   */
   phrasesSpoken: number;
+  /** Frases úteis revisadas, vitalício. Começa em 0 para quem já existia. */
+  phrasesReviewed: number;
   reviewsDone: number;
   hanziDecomposed: number;
   microtextsRead: number;
@@ -235,6 +267,7 @@ export function freshLifetimeStats(): LifetimeStats {
   return {
     audioHeard: 0,
     phrasesSpoken: 0,
+    phrasesReviewed: 0,
     reviewsDone: 0,
     hanziDecomposed: 0,
     microtextsRead: 0,
@@ -243,14 +276,30 @@ export function freshLifetimeStats(): LifetimeStats {
 }
 
 /** Chaves diárias que também têm espelho vitalício (numérico) em LifetimeStats. */
-function isLifetimeTaskKey(task: DailyTaskKey): task is "audioHeard" | "phrasesSpoken" | "reviewsDone" | "hanziDecomposed" | "microtextsRead" {
+function isLifetimeTaskKey(
+  task: DailyTaskKey
+): task is "audioHeard" | "phrasesReviewed" | "reviewsDone" | "hanziDecomposed" | "microtextsRead" {
   return (
     task === "audioHeard" ||
-    task === "phrasesSpoken" ||
+    task === "phrasesReviewed" ||
     task === "reviewsDone" ||
     task === "hanziDecomposed" ||
     task === "microtextsRead"
   );
+}
+
+/**
+ * Contrato de tentativa de fala (RC1.5, P5).
+ *
+ * Uma tentativa só conta quando o microfone abriu E a voz foi efetivamente
+ * capturada. Reconhecedor que voltou vazio, permissão negada, navegador sem
+ * suporte: o aluno segue aprendendo, mas nada é registrado como fala.
+ */
+export interface SpeechAttempt {
+  /** Chave idempotente DA TENTATIVA (não da frase). */
+  id: string;
+  /** Houve captura real de voz — transcrição não vazia. */
+  captured: boolean;
 }
 
 /** Recompensa de uma medalha: Qi e/ou um baú. */
@@ -284,7 +333,11 @@ export interface ImmersionDailyProgress {
 
 export interface ImmersionCompletion {
   audioHeard: number;
-  phrasesSpoken?: number;
+  /**
+   * RC1.5 — era `phrasesSpoken`. Uma sessão de imersão é escuta e resposta
+   * digitada/selecionada: ninguém fala. O contador honesto é revisão.
+   */
+  phrasesReviewed?: number;
   microtextsRead?: number;
   somMinutes?: number;
   falaMinutes?: number;
@@ -347,12 +400,14 @@ function freshDailyTasks(date = todayKey()): DailyTasks {
     date,
     audioHeard: 0,
     phrasesSpoken: 0,
+    phrasesReviewed: 0,
     reviewsDone: 0,
     hanziDecomposed: 0,
     microtextsRead: 0,
     errorsCorrected: 0,
     threeStarLessons: 0,
     tonesTrained: 0,
+    speechAttemptKeys: [],
     claimedMissions: {},
   };
 }
@@ -494,7 +549,11 @@ function missionAggregates(s: AppState): MissionAggregates {
     minutesToday: today.som + today.fala + today.hanzi + today.leitura,
     reviewsToday: tasks.reviewsDone,
     audioToday: Math.max(tasks.audioHeard, today.som * 2),
-    phrasesToday: tasks.phrasesSpoken,
+    // RC1.5 — "usar frases" é revisão; "falar frases" é `spokenToday`. Uma
+    // missão de fala que aceitasse `phrasesToday` avançaria com 5 cliques em
+    // "Já sabia", e é exatamente isso que o gate de missão recusa agora.
+    phrasesToday: tasks.phrasesReviewed,
+    spokenToday: tasks.phrasesSpoken,
     hanziToday: tasks.hanziDecomposed,
     errorsToday: tasks.errorsCorrected,
     threeStarToday: tasks.threeStarLessons,
@@ -763,6 +822,12 @@ function activeDailyTasks(tasks: DailyTasks | undefined, date = todayKey()): Dai
   return {
     ...freshDailyTasks(date),
     ...tasks,
+    // RC1.5 — snapshot gravado antes desta remessa não tem `phrasesReviewed`.
+    // O default seguro é 0: o número antigo de `phrasesSpoken` continua onde
+    // está, e não é copiado para cá (seria inventar revisão) nem lido como
+    // fala comprovada (seria inventar fala).
+    phrasesReviewed: Math.max(0, tasks.phrasesReviewed ?? 0),
+    speechAttemptKeys: tasks.speechAttemptKeys ?? [],
     claimedMissions: tasks.claimedMissions ?? {},
   };
 }
@@ -2212,6 +2277,8 @@ interface AppState {
   }) => void;
   addMinutes: (track: Track, min: number) => void;
   recordDailyTask: (task: DailyTaskKey, amount?: number) => void;
+  /** Tentativa real de fala. `true` quando contou de fato. */
+  recordSpeechAttempt: (attempt: SpeechAttempt) => boolean;
   completeImmersionSession: (sessionId: string, completion: ImmersionCompletion) => boolean;
   setLessonTaskProgress: (lessonId: string, completedTasks: number) => void;
   setLessonSessionStep: (lessonId: string, cursor: { pass: number; stepIndex: number } | null) => void;
@@ -3671,9 +3738,13 @@ export const useStore = create<AppState>()(
             task === "audioHeard"
               ? Math.max(s.pearlAudioExposures ?? 0, lifetimeStats.audioHeard)
               : s.pearlAudioExposures;
+          // A pérola conta prática de produção, não fala. Antes da
+          // RC1.5 ela era alimentada por `phrasesSpoken` porque era ali que a
+          // revisão de chunk caía; agora a fonte é o contador honesto, e o
+          // valor legado continua servindo de piso para ninguém perder pérola.
           const pearlProductionCount =
-            task === "phrasesSpoken"
-              ? Math.max(s.pearlProductionCount ?? 0, lifetimeStats.phrasesSpoken)
+            task === "phrasesReviewed"
+              ? Math.max(s.pearlProductionCount ?? 0, lifetimeStats.phrasesReviewed)
               : s.pearlProductionCount;
           const next = {
             ...s,
@@ -3696,9 +3767,50 @@ export const useStore = create<AppState>()(
             accounts: saveCurrentAccount(next),
           };
         });
-        if (task === "audioHeard" || task === "phrasesSpoken") {
+        if (task === "audioHeard" || task === "phrasesReviewed") {
           get().maybeClaimPearlMilestonesFromProgress();
         }
+      },
+
+      /**
+       * Registra uma tentativa REAL de fala (RC1.5, P5).
+       *
+       * Devolve `true` só quando a tentativa contou. Não conta: reconhecedor
+       * que voltou vazio, permissão negada, navegador sem SpeechRecognition,
+       * e a mesma tentativa chegando duas vezes. Clique em TTS, autoavaliação
+       * de flashcard e resposta digitada não chegam aqui — não têm como.
+       */
+      recordSpeechAttempt: (attempt) => {
+        const key = attempt?.id?.trim();
+        if (!key || !attempt.captured) return false;
+
+        let counted = false;
+        set((s) => {
+          const date = todayKey();
+          const today = s.today?.date === date ? s.today : freshDay(date);
+          const dailyTasks = activeDailyTasks(s.dailyTasks, date);
+          const dailyEnergy = activeDailyEnergy(s.dailyEnergy, date);
+          const seen = dailyTasks.speechAttemptKeys ?? [];
+          if (seen.includes(key)) return {};
+
+          counted = true;
+          const nextTasks: DailyTasks = {
+            ...dailyTasks,
+            phrasesSpoken: dailyTasks.phrasesSpoken + 1,
+            speechAttemptKeys: [...seen, key].slice(-200),
+          };
+          const base = { ...freshLifetimeStats(), ...(s.lifetimeStats ?? {}) };
+          const lifetimeStats: LifetimeStats = { ...base, phrasesSpoken: base.phrasesSpoken + 1 };
+          const next = { ...s, today, dailyTasks: nextTasks, dailyEnergy, lifetimeStats };
+          return {
+            today,
+            dailyTasks: nextTasks,
+            dailyEnergy,
+            lifetimeStats,
+            accounts: saveCurrentAccount(next),
+          };
+        });
+        return counted;
       },
 
       completeImmersionSession: (sessionId, completion) => {
@@ -3726,14 +3838,14 @@ export const useStore = create<AppState>()(
           const nextTasks = {
             ...dailyTasks,
             audioHeard: dailyTasks.audioHeard + Math.max(0, completion.audioHeard),
-            phrasesSpoken: dailyTasks.phrasesSpoken + Math.max(0, completion.phrasesSpoken ?? 0),
+            phrasesReviewed: dailyTasks.phrasesReviewed + Math.max(0, completion.phrasesReviewed ?? 0),
             microtextsRead: dailyTasks.microtextsRead + Math.max(0, completion.microtextsRead ?? 0),
           };
           const lifetimeBase = { ...freshLifetimeStats(), ...(currentState.lifetimeStats ?? {}) };
           const lifetimeStats: LifetimeStats = {
             ...lifetimeBase,
             audioHeard: lifetimeBase.audioHeard + Math.max(0, completion.audioHeard),
-            phrasesSpoken: lifetimeBase.phrasesSpoken + Math.max(0, completion.phrasesSpoken ?? 0),
+            phrasesReviewed: lifetimeBase.phrasesReviewed + Math.max(0, completion.phrasesReviewed ?? 0),
             microtextsRead: lifetimeBase.microtextsRead + Math.max(0, completion.microtextsRead ?? 0),
           };
           const nextToday = {
@@ -4399,8 +4511,12 @@ export const useStore = create<AppState>()(
             if (audio >= m.threshold && claimablePearlMilestone(claimed, m.id)) toClaim.push(m.id);
           }
 
+          // RC1.5 — `phrasesSpoken` entra aqui como PISO HISTÓRICO, não como
+          // prova de fala: quem já tinha pérola de produção não a perde no
+          // corte de semântica. O sinal vivo é `phrasesReviewed`.
           const production = Math.max(
             state.pearlProductionCount ?? 0,
+            state.lifetimeStats?.phrasesReviewed ?? 0,
             state.lifetimeStats?.phrasesSpoken ?? 0
           );
           for (const m of PEARL_PRODUCTION_MILESTONES) {

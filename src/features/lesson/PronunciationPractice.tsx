@@ -12,6 +12,7 @@ import {
 } from "../../lib/speech";
 import { Button } from "../../components/ui/primitives";
 import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
+import { useStore } from "../../lib/store";
 import { t } from "../../i18n/catalog";
 
 type Phase = "idle" | "listening" | "result";
@@ -46,6 +47,7 @@ export function PronunciationPractice({
   const secure = isSecureMicContext();
   const supported = isRecognitionAvailable();
   const touchUi = isTouchUi();
+  const recordSpeechAttempt = useStore((s) => s.recordSpeechAttempt);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [heard, setHeard] = useState("");
@@ -58,6 +60,14 @@ export function PronunciationPractice({
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const handleRef = useRef<RecognizeHandle | null>(null);
+  /**
+   * Chave DA TENTATIVA em curso (RC1.5, P5).
+   *
+   * Nasce quando o aluno toca em "Falar" e morre no resultado. É por ela que
+   * um re-render, um `onend` duplicado do reconhecedor ou um duplo clique não
+   * viram duas frases faladas: a mesma tentativa só conta uma vez.
+   */
+  const attemptKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -114,6 +124,15 @@ export function PronunciationPractice({
   }
 
   function finishResult(transcript: string) {
+    // Só aqui existe fala comprovada: o microfone abriu e o reconhecedor
+    // devolveu texto. Transcrição vazia é sessão sem captura — o aluno segue,
+    // mas nada é registrado como fala. O ACERTO não importa: tentar é falar.
+    const attemptKey = attemptKeyRef.current;
+    if (attemptKey && transcript.trim()) {
+      recordSpeechAttempt({ id: attemptKey, captured: true });
+    }
+    attemptKeyRef.current = null;
+
     const r = analyzePronunciation(transcript, target);
     setHeard(transcript);
     setCorrect(r.correct);
@@ -126,6 +145,9 @@ export function PronunciationPractice({
   }
 
   function finishError(code: RecognizeErrorCode) {
+    // Permissão negada, navegador sem suporte, no-speech: nada foi capturado,
+    // logo nada é contado (P5.2). O aluno continua a lição do mesmo jeito.
+    attemptKeyRef.current = null;
     setHeard("");
     setCorrect(false);
     setErrorHint(speechErrorMessage(code));
@@ -137,6 +159,9 @@ export function PronunciationPractice({
 
   async function start() {
     if (busy) return;
+    // Chave opaca de propósito: `dailyTasks` é sincronizado, e não há motivo
+    // para mandar o texto praticado junto só para desduplicar uma tentativa.
+    attemptKeyRef.current = `speech:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`;
     setBusy(true);
     setPhase("listening");
     setHeard("");
