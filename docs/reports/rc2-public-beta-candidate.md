@@ -111,14 +111,54 @@ Primeira execução com a trava ativa (head `0f1b7fa`): `553 passed`, `2 flaky`,
 - `docs/reports/closed-beta-release-candidate.md:56,61` documenta **um** flake
   conhecido de WebKit: `topic-pass-return`. **Nenhuma das sete é ele.**
 - As duas de `/missoes` são as únicas que poderiam vir desta remessa, já que a
-  RC1.5 adicionou a missão `daily-speak` àquela tela. **Não vêm**: a missão só
-  renderiza quando existe `SpeechRecognition`, e os navegadores do CI não
-  expõem a API sem stub — é por isso que os specs da RC1.5 precisam stubar
-  explicitamente, e `v498b1-production-scaffold.spec.ts:13` registra o mesmo
-  para Firefox e Chromium de CI. No CI a `/missoes` é idêntica à da main.
+  RC1.5 adicionou a missão `daily-speak` àquela tela. **Atribuição
+  indeterminada** — ver abaixo.
 
-Conclusão: as sete são quase certamente **pré-existentes**, invisíveis
-enquanto o passo era informativo.
+Conclusão: cinco das sete reproduzem de forma determinística em duas execuções
+(heads `0f1b7fa` e `6fb4680`), então não são flake. Duas — `business.spec.ts:140`
+e `rc1-4-generated-learning-integrity.spec.ts:118` — passaram no retry da
+segunda execução e são flaky de verdade.
+
+| Head | Resultado |
+| --- | --- |
+| `0f1b7fa` | 7 failed · 2 flaky · 553 passed |
+| `6fb4680` | **5 failed** · 5 flaky · 552 passed |
+
+O núcleo determinístico de 5: `missions-responsive:42`,
+`missions-responsive:209`, `mobile-device:162` (webkit **e** mobile-safari) e
+`v492b-lesson-media:324`.
+
+### Correção de uma afirmação anterior
+
+Uma versão anterior deste relatório afirmava que as duas falhas de `/missoes`
+**não** eram desta remessa, com o argumento de que `daily-speak` só renderiza
+com `SpeechRecognition` e os navegadores de CI não expõem a API. Medido
+diretamente, isso é **falso para o Chromium**:
+
+```
+PROBE {"SpeechRecognition":"function","webkitSpeechRecognition":"function","secure":true}
+```
+
+O Chromium headless expõe as duas APIs e `isSecureContext` é `true`, logo a
+missão **renderiza** no CI. A crença veio de um comentário em
+`v498b1-production-scaffold.spec.ts:13` que não confere com o comportamento
+observado.
+
+O que isso muda e o que não muda:
+
+- **Não muda**: no Chromium a missão renderiza *e* `missions-responsive` passa.
+  Ou seja, a missão extra não quebra aquele layout no Chromium.
+- **Muda**: não sei se o WebKit do Playwright expõe `SpeechRecognition`. Se
+  expuser, `daily-speak` renderiza lá também e poderia, em tese, afetar o
+  layout de `/missoes` em WebKit.
+
+Portanto **a atribuição das duas falhas de `/missoes` fica em aberto**. As
+outras três do núcleo determinístico (offline-PWA em webkit e mobile-safari,
+e o player de mídia) não têm relação com `/missoes` nem com esta remessa.
+
+O que resolveria: rodar `missions-responsive` em WebKit na main (sem esta
+remessa) e comparar. Não é possível neste ambiente — `cdn.playwright.dev` está
+bloqueado e o WebKit não instala.
 
 ### O que não foi feito, de propósito
 
