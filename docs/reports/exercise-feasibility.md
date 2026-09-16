@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 7c054f2255e7 |
-| HEAD no instante da geração | 2eec851fbdfa9b75bbdcac0588a7c10661b349ab |
-| Árvore de trabalho | com mudanças locais (pré-commit) |
+| HEAD no instante da geração | 9e3f60a0e9beef7a273ad03a21f255b5adb3745c |
+| Árvore de trabalho | limpa |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T08:44:32.643Z |
+| Gerado em | 2026-09-16T14:49:51.351Z |
 | Lições | 134 |
 
 
@@ -36,5 +36,5 @@ Auditoria do plano real (`lessonRoundStepsFor`) × pass de mastery. Meta: invali
 
 Cada pass precisa de topic fidelity DIRECT ≥ 70% **e** feasibility = 0 falhas.
 
-<!-- integridade:22cf10141aa32848 -->
+<!-- integridade:ce371e871ead6e24 -->
 

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 38e70062857d |
-| HEAD no instante da geração | 6e5d0c825aa5bc63b944fb2eb95b42670d910063 |
+| Hash da Jornada | 7c054f2255e7 |
+| HEAD no instante da geração | 9e3f60a0e9beef7a273ad03a21f255b5adb3745c |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-15T01:49:21.437Z |
+| Gerado em | 2026-09-16T15:11:17.911Z |
 | Lições | 134 |
 
 ## Objetivo
@@ -45,4 +45,4 @@ Impedir que atividades avançadas apareçam antes dos pré-requisitos pedagógic
 | Lições auditadas | 134 |
 | Achados | 0 |
 
-<!-- integridade:a615327f742ac040 -->
+<!-- integridade:4215189db31d00c8 -->
