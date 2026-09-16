@@ -171,6 +171,54 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (firstInPlace) return `The first ${firstInPlace[1]} pieces are in place — adjust the order of the others.`;
   const firstCorrect = pt.match(/^As (\d+) primeiras estão certas\. Revise o restante\.$/);
   if (firstCorrect) return `The first ${firstCorrect[1]} are right. Check the rest.`;
+  // RC1.4 generated surfaces: targetRef stays CJK; PT shell gets EN overlay.
+  const centralItem = pt.match(/^([\u3400-\u9fff]+)\s+é o item central desta passagem\.$/);
+  if (centralItem) return `${centralItem[1]} is the central item in this passage.`;
+  const contrastContour = pt.match(/^([\u3400-\u9fff]+)\s+carrega o contorno-alvo deste contraste\.$/);
+  if (contrastContour) return `${contrastContour[1]} carries the target contour in this contrast.`;
+  const phoneticUses = pt.match(/^Qual caractere usa ([\u3400-\u9fff]+) como pista sonora\?$/);
+  if (phoneticUses) return `Which character uses ${phoneticUses[1]} as a sound clue?`;
+  const phoneticExpl = pt.match(/^([\u3400-\u9fff]+) usa ([\u3400-\u9fff]+) como pista sonora\.$/);
+  if (phoneticExpl) return `${phoneticExpl[1]} uses ${phoneticExpl[2]} as a sound clue.`;
+  const phoneticHint = pt.match(/^Procure o caractere composto com ([\u3400-\u9fff]+)\.$/);
+  if (phoneticHint) return `Look for the compound character with ${phoneticHint[1]}.`;
+  const numeralPrompt = pt.match(/^Qual é o numeral ([\u3400-\u9fff]+)\?$/);
+  if (numeralPrompt) return `Which option is the numeral ${numeralPrompt[1]}?`;
+  const numeralExpl = pt.match(/^([\u3400-\u9fff]+) é o valor numérico deste passo\.$/);
+  if (numeralExpl) return `${numeralExpl[1]} is the numeric value for this step.`;
+  const chooseTarget = pt.match(/^Escolha ([\u3400-\u9fff]+)\.$/);
+  if (chooseTarget) return `Choose ${chooseTarget[1]}.`;
+  const hanziForm = pt.match(/^Qual é o hànzì (.+)\?$/);
+  if (hanziForm) return `Which is the hànzì ${hanziForm[1]}?`;
+  const hanziCentral = pt.match(/^([\u3400-\u9fff]+) é o hànzì central deste tema\.$/);
+  if (hanziCentral) return `${hanziCentral[1]} is the central hànzì of this topic.`;
+  const focusForm = pt.match(/^Foque na forma de ([\u3400-\u9fff]+)\.$/);
+  if (focusForm) return `Focus on the form of ${focusForm[1]}.`;
+  const nucleus = pt.match(/^Qual opção é o núcleo \((.+)\) deste tema\?$/);
+  if (nucleus) return `Which option is the core (${nucleus[1]}) of this topic?`;
+  const recognize = pt.match(/^Reconheça ([\u3400-\u9fff]+)\.$/);
+  if (recognize) return `Recognize ${recognize[1]}.`;
+  const whichOption = pt.match(/^Qual opção é ([\u3400-\u9fff]+)\?$/);
+  if (whichOption) return `Which option is ${whichOption[1]}?`;
+  const contourTarget = pt.match(/^Qual sílaba tem o contorno-alvo \((.+)\)\?$/);
+  if (contourTarget) return `Which syllable has the target contour (${contourTarget[1]})?`;
+  const contourOf = pt.match(/^Qual sílaba tem o contorno de (.+)\?$/);
+  if (contourOf) return `Which syllable has the contour of ${contourOf[1]}?`;
+  if (pt === "Compare o movimento da voz, não a tradução.") {
+    return "Compare the voice movement, not the translation.";
+  }
+  if (pt === "Qual sílaba fica alta e reta (1º tom)?") {
+    return "Which syllable stays high and level (1st tone)?";
+  }
+  if (pt === "Qual sílaba sobe (2º tom)?") {
+    return "Which syllable rises (2nd tone)?";
+  }
+  if (pt === "Qual sílaba faz o vale (3º tom)?") {
+    return "Which syllable makes the dip (3rd tone)?";
+  }
+  if (pt === "Qual sílaba cai (4º tom)?") {
+    return "Which syllable falls (4th tone)?";
+  }
   return undefined;
 }
 
