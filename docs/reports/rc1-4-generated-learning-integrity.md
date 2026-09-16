@@ -99,3 +99,7 @@ Planner (`topicMasteryBonus.ts`) + tipo `generatedTaskTrace` em `journey.ts` ent
 ## First-20 EN overlay
 
 Copy nova do planner RC1.4 (item central / contorno-alvo / prompts de tom / pista sonora) quebra `validate:first-20-en` sem gloss. Cobertura via padrões em `instructionGloss.ts` (`applyPatterns`), com `targetRef` CJK preservado — sem map por `lessonId`.
+
+## Mastery depth
+
+Pass 3 de `tone_contrast` / `numeric_value` não reemite o `dialogue_choice` do Pass 2 (mesmo `targetRef`); só produção (`reverse_recall`). Evita overlap 1.00 em `validate:topic-mastery-depth` (ex.: `p2-ma-primeiro-tom`, `l6`, `l8`).
