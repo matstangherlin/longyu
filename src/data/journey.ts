@@ -380,6 +380,17 @@ export interface LessonStep {
   routeParts?: string[];
   /** Tabela curta de horário (schedule_reading). */
   scheduleRows?: { timeHanzi: string; destinationHanzi: string; labelPt?: string }[];
+  /**
+   * RC1.4 — non-student-facing semantic trace for generated mastery bonus steps.
+   * Never render this to the learner; used by integrity asserts and audits.
+   */
+  generatedTaskTrace?: {
+    objectiveId: string;
+    targetRef: string;
+    relationType?: string;
+    anchorRefs?: string[];
+    masteryPass?: 1 | 2 | 3 | 4;
+  };
 }
 
 /** Batida de reparo disparada por falha repetida numa cena. */
