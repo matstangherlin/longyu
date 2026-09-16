@@ -108,9 +108,14 @@ test.describe("V4.9.4 — montar e desmontar sem conhecimento oculto", () => {
   test("7 · Desfazer tira a última peça colocada", async ({ page }) => {
     await openBuilder(page);
     await placePieces(page, 3);
-    await page.getByTestId("builder-undo").click();
+    const undo = page.getByTestId("builder-undo");
+    await expect(undo).toBeEnabled();
+    await undo.click();
     await expect(page.locator(PLACED)).toHaveCount(2);
-    await page.getByTestId("builder-undo").click();
+    // WebKit: espera o botão estabilizar após o re-render do primeiro undo
+    // (sem isso o driver às vezes fecha o contexto no segundo click).
+    await expect(undo).toBeEnabled();
+    await undo.click({ timeout: 15_000 });
     await expect(page.locator(PLACED)).toHaveCount(1);
   });
 
