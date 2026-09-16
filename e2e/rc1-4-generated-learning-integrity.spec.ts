@@ -4,21 +4,13 @@ import {
   seedLessonPlayerReady,
   waitForLazyPage,
 } from "./helpers";
-import {
-  advanceOneStep,
-  advanceSkipThroughOverlays,
-  advanceUntilVisible,
-  clickFirstVisible,
-  clickIfEnabled,
-} from "./lesson-player-helpers";
+import { advanceOneStep } from "./lesson-player-helpers";
 import { getLesson } from "../src/data/journey";
 import { lessonRoundStepsFor } from "../src/features/lesson/lessonTasks";
 
 /**
  * RC1.4 — Generated Learning Integrity + #261 lab mastery preservation (browser).
  */
-
-const VICTORY = /Continuar Jornada|Voltar à Jornada|Receber recompensas|Praticar novamente|Continuar tema|Practice again|Back to the Journey/i;
 
 async function masteryLevel(page: Page, lessonId: string): Promise<number> {
   return page.evaluate((id) => {
@@ -33,58 +25,6 @@ async function masteryLevel(page: Page, lessonId: string): Promise<number> {
       return 0;
     }
   }, lessonId);
-}
-
-async function playOpenStep(page: Page): Promise<boolean> {
-  const production = page.locator("[data-production-answer] textarea, [data-production-answer] input").first();
-  if (await production.isVisible().catch(() => false)) {
-    await production.fill("你好").catch(() => undefined);
-    return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Responder$/, /^Continuar$/]);
-  }
-  if (await page.locator("[data-conversation-scene]").first().isVisible().catch(() => false)) {
-    const option = page.getByRole("button", { name: /^Opção \d+:/ });
-    if (await option.first().isVisible().catch(() => false)) {
-      await clickIfEnabled(option.first());
-      return clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Continuar$/, /^Concluir$/]);
-    }
-    return clickFirstVisible(page, [/^Responder$/, /^Concluir$/, /^Continuar$/]);
-  }
-  return false;
-}
-
-async function completeCurrentPass(page: Page, lessonId: string, targetLevel: number) {
-  await page.goto(`/licao/${lessonId}/player`);
-  await waitForLazyPage(page);
-  await dismissBlockingOverlays(page);
-  const victory = page.getByRole("button", { name: VICTORY });
-  const deadline = Date.now() + 120_000;
-  for (let steps = 0; steps < 100 && Date.now() < deadline; steps += 1) {
-    if ((await masteryLevel(page, lessonId)) >= targetLevel) return;
-    await dismissBlockingOverlays(page);
-    if (await victory.isVisible().catch(() => false)) {
-      // Só sai depois que o anel subir — clicar Victory cedo demais não conta.
-      await victory.click().catch(() => undefined);
-      await page.waitForTimeout(500);
-      if ((await masteryLevel(page, lessonId)) >= targetLevel) return;
-      // Se a Victory navegou para /jornada sem subir o anel, volta ao player.
-      if (!page.url().includes("/player")) {
-        await page.goto(`/licao/${lessonId}/player`);
-        await waitForLazyPage(page);
-      }
-      continue;
-    }
-    if (await advanceSkipThroughOverlays(page)) continue;
-    if (await playOpenStep(page)) {
-      await page.waitForTimeout(180);
-      continue;
-    }
-    const advanced = await advanceOneStep(page);
-    if (!advanced) await advanceUntilVisible(page, victory, 2);
-  }
-  const level = await masteryLevel(page, lessonId);
-  expect(level, `esperava mastery ≥ ${targetLevel} após Pass ${targetLevel}, ficou ${level}`).toBeGreaterThanOrEqual(
-    targetLevel
-  );
 }
 
 test.describe("RC1.4 · lab mastery #261", () => {
