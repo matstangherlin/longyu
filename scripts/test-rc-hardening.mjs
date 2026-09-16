@@ -89,12 +89,32 @@ assert(mastery.includes("rehidratação mock"), "logout/login mock");
 
 const ci = read(".github/workflows/ci.yml");
 assert(ci.includes("test:e2e:firefox"), "CI ainda roda Firefox");
-assert(
-  ci.includes("informativo") || ci.includes("continue-on-error"),
-  "falhas não-determinísticas de motor extra continuam documentadas no job"
-);
 assert(ci.includes("E2E WebKit"), "WebKit permanece passo próprio");
-assert(/E2E WebKit[\s\S]{0,200}continue-on-error/.test(ci), "WebKit continue-on-error só no passo");
+assert(ci.includes("test:e2e:webkit"), "CI ainda roda WebKit");
+
+/**
+ * RC2 P2.1 — esta asserção foi INVERTIDA.
+ *
+ * Até a RC1.5 ela exigia `continue-on-error` no passo do WebKit: a política
+ * era "Chromium segura o merge, WebKit informa", e o gate existia para impedir
+ * que alguém movesse o continue-on-error para o job inteiro e apagasse o
+ * Firefox junto.
+ *
+ * Para beta pública a política se inverte, porque em iPhone o Safari não é uma
+ * engine alternativa — é a única. Um flake que "não cobre caminho crítico" no
+ * CI cobre 100% do caminho de um usuário de iOS. O próprio `beta:rc-status`
+ * lista "congelar RC com WebKit vermelho" entre as coisas que não se pode
+ * fingir.
+ *
+ * Agora o gate proíbe o que antes exigia: nenhum passo do CI tolera falha.
+ * A checagem é por linha de YAML, então o comentário que conta esta história
+ * (e cita o termo) não reprova o próprio arquivo que o documenta.
+ */
+assert(
+  !/^\s*continue-on-error:\s*true/m.test(ci),
+  "nenhum passo do CI tolera falha — WebKit bloqueia desde a RC2 (P2.1)"
+);
+assert(ci.includes("RC2 P2.1"), "o job documenta por que o WebKit passou a bloquear");
 
 const rc = read("docs/reports/closed-beta-release-candidate.md");
 for (const field of [
