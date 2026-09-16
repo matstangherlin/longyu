@@ -96,6 +96,8 @@ Avanço Pass 4 → 4/4 no lab: `test:lab-mastery-pass4` / `validate:mastery-plan
 
 Planner (`topicMasteryBonus.ts`) + tipo `generatedTaskTrace` em `journey.ts` entram no hash. Freeze atualizado para `7c054f2255e7` com justificativa acima — não se falsificou o valor antigo.
 
+Contratos `docs/backend/v478-backend-rc.json` / `v489-backend-rc.json` regenerados (`generate:backend-contracts`) para o mesmo fingerprint live (antes `38e70062857d`).
+
 ## First-20 EN overlay
 
 Copy nova do planner RC1.4 (item central / contorno-alvo / prompts de tom / pista sonora) quebra `validate:first-20-en` sem gloss. Cobertura via padrões em `instructionGloss.ts` (`applyPatterns`), com `targetRef` CJK preservado — sem map por `lessonId`.
