@@ -219,6 +219,8 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (pt === "Qual sílaba cai (4º tom)?") {
     return "Which syllable falls (4th tone)?";
   }
+  const sayAloud = pt.match(/^Diga ([\u3400-\u9fff]+) em voz alta\.$/);
+  if (sayAloud) return `Say ${sayAloud[1]} out loud.`;
   return undefined;
 }
 
