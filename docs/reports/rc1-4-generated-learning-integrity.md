@@ -80,11 +80,13 @@ M1–M22 cobertas em `test:generated-task-integrity` (13 kills nomeados, incluin
 
 ## E2E
 
-`e2e/rc1-4-generated-learning-integrity.spec.ts`:
+`e2e/rc1-4-generated-learning-integrity.spec.ts` (Chromium, 6/6 passed):
 
-- lab 3/4 → Pass 4 → 4/4 + CTA Praticar novamente + refresh
+- lab 3/4 → Continuar; lab 4/4 → Praticar novamente + refresh
 - quatro fixtures abrem o player sem `data-review-integrity`
 - review smoke em zhong + ma
+
+Avanço Pass 4 → 4/4 no lab: `test:lab-mastery-pass4` / `validate:mastery-planner-integrity`.
 
 ## Fail-closed
 
