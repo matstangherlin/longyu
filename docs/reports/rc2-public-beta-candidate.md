@@ -8,9 +8,10 @@
 >
 > 1. **WebKit está vermelho.** A RC2 tornou o Safari bloqueante (P2.1) e a
 >    primeira execução com a trava ativa encontrou **7 falhas reais** que o
->    `continue-on-error` vinha escondendo. Duas delas são offline-PWA em
->    **mobile-safari** — exatamente o caminho de iPhone que a RC2 existe para
->    cobrir. Por P2.1 e P30.1, isso sozinho é NO-GO.
+>    `continue-on-error` vinha escondendo. Duas delas são o mesmo teste de
+>    offline-PWA, em `webkit` e em **`mobile-safari`** — exatamente o caminho
+>    de iPhone que a RC2 existe para cobrir. Por P2.1 e P30.1, isso sozinho é
+>    NO-GO. Quatro execuções depois, seis falhas reproduzem sempre.
 > 2. **Nenhum dos 12 checks operacionais foi executado.** Não por decisão:
 >    o ambiente que rodou esta remessa não tem projeto Supabase de QA, chaves
 >    Stripe, acesso de deploy, aparelhos físicos nem testadores humanos.
@@ -25,7 +26,7 @@
 | RC1.5 merge SHA | **não mergeada** — PR [#262](https://github.com/matstangherlin/longyu/pull/262) aberta, bloqueada por WebKit |
 | RC2_CODE_SHA | **não capturada** — depende do merge |
 | Branch candidata | `claude/bold-wright-7y973w` |
-| Head avaliada | `63794523da1bacd3ba4b9573ec429ba22019726c` |
+| Head avaliada | `6839c82d7f830afb751c52c37e4f0787266b8768` |
 | Base | `edd3e191a70206eee6f76f675644ca5c09d762dc` (#261, RC1.4) |
 | Fingerprint | `7c054f2255e7` — inalterado |
 | Lições / temas | 134 / 113 — inalterados |
@@ -106,6 +107,23 @@ Primeira execução com a trava ativa (head `0f1b7fa`): `553 passed`, `2 flaky`,
 | `rc1-4-generated-learning-integrity.spec.ts:118` | feedback canônico alinhado em zhong e ma | webkit |
 | `v492b-lesson-media.spec.ts:324` | arrastar até o fim não conclui a aula | webkit |
 
+Na head avaliada (`6839c82`) o número é o mesmo — `554 passed`, `1 flaky`,
+**`7 failed`** — mas a lista não é idêntica:
+
+| Spec | Teste | Projeto |
+| --- | --- | --- |
+| `business.spec.ts:140` | lead válido dispara envio | webkit |
+| `missions-responsive.spec.ts:42` | layout, FAB de Feedback e CTAs sem colisão | webkit |
+| `missions-responsive.spec.ts:209` | hero mensal incompleto e vazio de medalhas | webkit |
+| `mobile-device.spec.ts:162` | app shell abre offline após precache do SW | webkit |
+| `mobile-device.spec.ts:162` | app shell abre offline após precache do SW | **mobile-safari** |
+| `v492b-lesson-media.spec.ts:324` | arrastar até o fim não conclui a aula | webkit |
+| `v494-builder-ux.spec.ts:108` | Desfazer tira a última peça colocada | webkit |
+
+Saiu `rc1-4-generated-learning-integrity:118`; entrou `v494-builder-ux:108`.
+O flaky único foi `ui-consistency.spec.ts:87` (alvos de toque ≥ 44 px), que
+passou no retry.
+
 ### Atribuição — conferida, não presumida
 
 - `docs/reports/closed-beta-release-candidate.md:56,61` documenta **um** flake
@@ -114,19 +132,36 @@ Primeira execução com a trava ativa (head `0f1b7fa`): `553 passed`, `2 flaky`,
   RC1.5 adicionou a missão `daily-speak` àquela tela. **Atribuição
   indeterminada** — ver abaixo.
 
-Conclusão: cinco das sete reproduzem de forma determinística em duas execuções
-(heads `0f1b7fa` e `6fb4680`), então não são flake. Duas — `business.spec.ts:140`
-e `rc1-4-generated-learning-integrity.spec.ts:118` — passaram no retry da
-segunda execução e são flaky de verdade.
+Conclusão: cinco das sete reproduzem de forma determinística em **quatro**
+execuções, então não são flake. Em volta delas há uma cauda que troca de
+execução para execução.
 
-| Head | Resultado |
-| --- | --- |
-| `0f1b7fa` | 7 failed · 2 flaky · 553 passed |
-| `6fb4680` | **5 failed** · 5 flaky · 552 passed |
+| Head | WebKit + mobile Safari | Firefox |
+| --- | --- | --- |
+| `0f1b7fa` | 7 failed · 2 flaky · 553 passed | não executado (passo abortado) |
+| `6fb4680` | **5 failed** · 5 flaky · 552 passed | não executado (passo abortado) |
+| `6379452` | 7 failed · 3 flaky · 552 passed | ✅ 551 passed · 1 flaky |
+| `6839c82` | 7 failed · 1 flaky · 554 passed | ✅ **552 passed · 0 flaky** |
 
-O núcleo determinístico de 5: `missions-responsive:42`,
-`missions-responsive:209`, `mobile-device:162` (webkit **e** mobile-safari) e
-`v492b-lesson-media:324`.
+O núcleo determinístico de 5 falhou nas quatro, sempre nas duas tentativas:
+`missions-responsive:42`, `missions-responsive:209`, `mobile-device:162`
+(webkit **e** mobile-safari) e `v492b-lesson-media:324`.
+
+A cauda, medida teste a teste nas duas últimas execuções:
+
+| Spec | `6379452` | `6839c82` | Leitura |
+| --- | --- | --- | --- |
+| `business.spec.ts:140` (webkit) | failed | failed | falhou em 3 das 4 execuções, sempre nas duas tentativas; só passou no retry de `6fb4680`. **Não é mais defensável chamar de flake** |
+| `v494-builder-ux.spec.ts:108` (webkit) | passou | failed | entrou agora, falhando nas duas tentativas |
+| `lesson-player-mobile.spec.ts:177` (390×844, webkit) | failed | passou | saiu |
+| `ui-consistency.spec.ts:87` (webkit) | flaky | flaky | passa no retry nas duas |
+| `rc1-4-generated-learning-integrity.spec.ts:118` (webkit) | não falhou | não falhou | flaky apenas nas duas primeiras |
+
+Ou seja: a correção anterior deste relatório — que dizia que
+`business.spec.ts:140` era "flaky de verdade" — **não se sustenta com mais
+dados**. Duas execuções seguidas em que ela falha nas duas tentativas contam
+como reprodução, não como sorte. O conjunto que bloqueia hoje tem **6** testes
+estáveis, não 5.
 
 ### Correção de uma afirmação anterior
 
@@ -191,13 +226,13 @@ reproduzido e verificado localmente.
 | Check | Estado | Nota |
 | --- | --- | --- |
 | `npm ci` | ✅ | 0 vulnerabilidades |
-| `npm run validate:beta` | ✅ local **e CI** | `BETA3_EXIT=0`; job de qualidade `success` em `4c4d878` |
+| `npm run validate:beta` | ✅ local **e CI** | `BETA3_EXIT=0`; job de qualidade `success` em `4c4d878`, `6379452` e `6839c82` |
 | `npm run build` | ✅ local e CI | |
-| `npm run test:e2e` (Chromium) | ✅ | job `success` em `4c4d878`, confirmando a correção do vazamento EN |
-| `npm run test:e2e:firefox` | ⚠️ **não executado** | ver "Firefox ficou mudo" abaixo |
-| `npm run test:e2e:webkit` | ❌ **5 falhas determinísticas** | **bloqueante — P2.1** |
+| `npm run test:e2e` (Chromium) | ✅ | job `success` em `4c4d878`, `6379452` e `6839c82` |
+| `npm run test:e2e:firefox` | ✅ **verde no CI** | `552 passed · 38 skipped` em `6839c82`; ver "Firefox ficou mudo" abaixo |
+| `npm run test:e2e:webkit` | ❌ **6 falhas determinísticas** | **bloqueante — P2.1** |
 
-### Firefox ficou mudo — defeito meu, corrigido
+### Firefox ficou mudo — defeito meu, corrigido e verificado
 
 Ao remover o `continue-on-error`, o passo do WebKit passou a abortar o job
 antes do Firefox. No head `4c4d878` os passos reportaram:
@@ -215,10 +250,26 @@ Corrigido em `6379452` com `if: always()` no passo do Firefox. Não afrouxa
 nada — o job continua vermelho se qualquer um dos dois falhar, e
 `test:rc-hardening` (que proíbe `continue-on-error: true`) segue verde.
 
+**Verificado nas duas execuções seguintes**, passo a passo, não pela conclusão
+do job:
+
+```
+6379452 · E2E WebKit (Safari) + mobile Safari .... failure  (21:54:19 → 22:26:53)
+6379452 · E2E Firefox ............................ success  (22:26:53 → 22:47:42)
+6839c82 · E2E WebKit (Safari) + mobile Safari .... failure  (21:56:14 → 22:27:55)
+6839c82 · E2E Firefox ............................ success  (22:27:55 → 22:47:45)
+```
+
+O Firefox roda depois do WebKit vermelho, gasta ~20 min de verdade e reporta:
+`551 passed · 1 flaky` em `6379452`, `552 passed · 0 flaky` em `6839c82`. O
+único flake foi `review-match-pairs-ux.spec.ts:148` (legibilidade no dark),
+que passou no retry e não reapareceu.
+
 Só apareceu porque olhei a conclusão **de cada passo**. No nível do job o
 resultado era apenas `failure`, que eu já havia atribuído ao WebKit e poderia
 ter dado por explicado. As três execuções anteriores rodaram sem sinal nenhum
-de Firefox.
+de Firefox — e o motor estava verde o tempo todo, o que é exatamente o
+problema: um resultado verde que ninguém mediu não é evidência de nada.
 
 ---
 
@@ -350,8 +401,9 @@ mentira que a RC1.5 veio eliminar do produto.
 
 ## Blockers — lista exata
 
-1. **WebKit vermelho: 7 falhas.** Bloqueante por P2.1/P30.1. Precisa de
-   diagnóstico em máquina com WebKit instalado.
+1. **WebKit vermelho: 7 falhas na head `6839c82`, 6 delas reproduzíveis.**
+   Bloqueante por P2.1/P30.1. Precisa de diagnóstico em máquina com WebKit
+   instalado. (Firefox **não** é blocker: roda e está verde desde `6379452`.)
 2. Ambiente candidate production-like (P5.2) não existe.
 3. `cloud_auth`, `cloud_sync`, `feedback_backend`, `league_cloud_smoke`,
    `family_plan_live`, `business_seats_live` — sem backend/credenciais.
@@ -396,6 +448,11 @@ apareceram na máquina de release, nenhum deles achável lendo código:
    garantindo que continuasse assim. Sete falhas legítimas estavam atrás dessa
    chave, duas delas offline-PWA em mobile-safari.
 2. O sinal de frescor dos relatórios de qualidade está quebrado desde a RC1.3.
+3. O Firefox, que **era** bloqueante desde a V4.7.4, rodou três execuções sem
+   emitir sinal nenhum e ninguém percebeu — a conclusão do job já estava
+   vermelha pelo WebKit e absorvia a ausência. Ele está verde, mas isso só se
+   soube depois de medir: um motor "bloqueante" que não executa não bloqueia
+   nada.
 
 O congelamento não aconteceu porque a trava que esta remessa instalou fez
 exatamente o que deveria fazer.
