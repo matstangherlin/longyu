@@ -397,7 +397,10 @@ export function LessonDetailPage() {
         </div>
 
         {topicNode && (
-          <div className="mt-3 rounded-xl border border-line/60 bg-surface-2/60 px-3 py-2.5">
+          <div
+            className="mt-3 rounded-xl border border-line/60 bg-surface-2/60 px-3 py-2.5"
+            data-topic-progress={`${masteryLevel}/4`}
+          >
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] font-semibold text-ink-soft">{t("journey.topicProgress")}</span>
               <span className="text-[11px] font-medium text-ink-faint">{masteryLevel}/4</span>

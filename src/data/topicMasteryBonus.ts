@@ -12,7 +12,7 @@ import { withEquivalentAccepts } from "./masteryLoop";
 import { conversationSceneStepFromId } from "./conversationScenes";
 import { topicMasterySpecFor } from "./topicMasterySpecs";
 import { makeReverseRecall } from "./exerciseFeasibility";
-import { buildersForCharacter } from "./hanziBuilder";
+import { buildGeneratedBonusStep } from "./generatedTaskObjective";
 
 function intro(title: string, body: string): LessonStep {
   return { kind: "intro", title, body };
@@ -329,34 +329,6 @@ const AUTHORED_BONUS: Record<string, Record<MasteryPass, LessonStep[]>> = {
   },
 };
 
-function firstHanziFromLesson(lesson: Lesson | undefined, allowGreeting: boolean): string | null {
-  if (!lesson) return null;
-  for (const step of lesson.steps) {
-    const blob = [step.hanzi, step.audioText, step.text, step.correctAnswer, step.answer].filter(Boolean).join("");
-    const found = blob.match(/[\u3400-\u9fff]+/);
-    if (!found) continue;
-    const hanzi = found[0].slice(0, 4);
-    if (hanzi === "你好" && !allowGreeting) continue;
-    return hanzi;
-  }
-  return null;
-}
-
-const GREETING_TOPIC_RE =
-  /mandarim|pinyin|hànzì|hanzi|tom|nihao|olá|cumpriment|engine-2|primeiros-hanzi|l2\b/i;
-
-function topicAllowsGreetingFallback(lesson: Lesson): boolean {
-  return GREETING_TOPIC_RE.test(`${lesson.id} ${lesson.title}`);
-}
-
-function uniqueOptions(preferred: string, extras: string[]): string[] {
-  const out: string[] = [];
-  for (const item of [preferred, ...extras]) {
-    if (item && !out.includes(item)) out.push(item);
-  }
-  return out.slice(0, 4);
-}
-
 function conceptualBonus(lesson: Lesson, pass: MasteryPass, spec: ReturnType<typeof topicMasterySpecFor>): LessonStep[] {
   const promise = spec?.promise ?? lesson.title;
   const objective = spec?.passObjectives[pass] ?? promise;
@@ -422,77 +394,10 @@ function conceptualBonus(lesson: Lesson, pass: MasteryPass, spec: ReturnType<typ
 
 function genericFidelityBonus(lesson: Lesson, pass: MasteryPass): LessonStep[] {
   const spec = topicMasterySpecFor(lesson);
-  const fromSpec = spec?.canonicalExamples.find((item) => /[\u3400-\u9fff]/.test(item));
-  const fromLesson = firstHanziFromLesson(lesson, topicAllowsGreetingFallback(lesson));
-  let hanzi = fromSpec ?? fromLesson ?? "";
-  if (hanzi === "你好" && !topicAllowsGreetingFallback(lesson)) {
-    hanzi = fromLesson && fromLesson !== "你好" ? fromLesson : "";
-  }
-  if (!hanzi) return conceptualBonus(lesson, pass, spec);
-  const distractors = uniqueOptions(hanzi, topicAllowsGreetingFallback(lesson) ? ["谢谢", "一", "人"] : ["一", "人", "木"]);
-  if (pass === 1) {
-    return [
-      intro("O que este tema ensina", spec?.promise ?? lesson.title),
-      listenSelect("Ouça o núcleo", hanzi, distractors, hanzi),
-    ];
-  }
-  if (pass === 2) {
-    return [
-      dialogue(
-        "Reconhecer de verdade",
-        spec?.passObjectives[2] ?? `Qual opção é o núcleo de ${lesson.title}?`,
-        hanzi,
-        distractors,
-        spec?.mustRecognize[0]
-      ),
-    ];
-  }
-  if (pass === 3) {
-    const produceGoal = spec?.mustProduce[0] ?? lesson.title;
-    const assembleHanzi = /montar|monte|caractere/i.test(`${produceGoal} ${spec?.passObjectives[3] ?? ""}`);
-    const produceIsChoice = /escolh|qual dos|ouviu|distingu/i.test(produceGoal);
-    const parts = [...hanzi];
-    const bank = uniqueOptions(parts.join(""), [...parts, "一", "人"]);
-    const sayPrompt =
-      assembleHanzi || produceIsChoice ? "Diga o núcleo deste tema, sem ler a tradução." : produceGoal;
-    const say = reverseRecall("Diga sem apoio extra", sayPrompt, hanzi, [hanzi]);
-    if (assembleHanzi && parts.length === 1) {
-      const builder =
-        buildersForCharacter(hanzi).find((item) => item.mode === "fragments") ?? buildersForCharacter(hanzi)[0];
-      if (builder) {
-        return [
-          {
-            kind: "hanzi_build",
-            title: "Monte o caractere",
-            builderId: builder.id,
-            prompt: builder.promptPt,
-            sourceMeaning: builder.meaningPt,
-            correctAnswer: builder.character,
-            explanation: builder.explanationPt,
-          },
-          say,
-        ];
-      }
-    }
-    return [
-      sentenceBuild(
-        "Produza o núcleo",
-        spec?.passObjectives[3] ?? "Monte o que este tema ensina.",
-        parts,
-        [...parts, ...bank.filter((item) => !parts.includes(item))]
-      ),
-      say,
-    ];
-  }
-  return [
-    contextualChoice(
-      "Situação nova",
-      spec?.passObjectives[4] ?? `Use o que ${lesson.title} ensinou.`,
-      hanzi,
-      distractors,
-      spec?.mustTransfer[0]
-    ),
-  ];
+  // RC1.4 — resolve target + surfaces structurally (no lessonId hardcoding).
+  const generated = buildGeneratedBonusStep(lesson, pass, spec);
+  if (generated.length > 0) return generated;
+  return conceptualBonus(lesson, pass, spec);
 }
 
 export function topicMasteryBonusStepsFor(lessonId: string, pass: MasteryPass): LessonStep[] {
