@@ -108,6 +108,13 @@ jobs:
         run: npm run test:e2e:webkit
 
       - name: E2E Firefox
+        # `if: always()` porque o passo do WebKit agora BLOQUEIA, e sem isto uma
+        # falha nele aborta o job antes do Firefox — trocaríamos "WebKit mudo"
+        # por "Firefox mudo", que é o mesmo defeito virado do avesso.
+        #
+        # Isto não afrouxa nada: o job continua vermelho se qualquer um dos dois
+        # falhar. Só garante que os dois motores sempre reportem.
+        if: always()
         run: npm run test:e2e:firefox
 
       - name: Upload cross-browser report
