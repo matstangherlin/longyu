@@ -860,13 +860,10 @@ export function buildGeneratedBonusStep(
       }
     }
 
+    // Pass 3 must be production — do not re-emit Pass 2's dialogue_choice
+    // with the same target (validate:topic-mastery-depth treats that as overlap 1.0).
     if (objective.relationType === "tone_contrast" || objective.relationType === "numeric_value") {
-      return [
-        attach(
-          dialogue("Identifique", surfaces.prompt, objective.targetRef, options, surfaces.explanation)
-        ),
-        attach(say),
-      ];
+      return [attach(say)];
     }
 
     const bank = uniquePreserve([...parts, "一", "人", "木"]).slice(0, 6);
