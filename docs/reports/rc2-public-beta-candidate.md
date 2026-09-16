@@ -25,7 +25,7 @@
 | RC1.5 merge SHA | **não mergeada** — PR [#262](https://github.com/matstangherlin/longyu/pull/262) aberta, bloqueada por WebKit |
 | RC2_CODE_SHA | **não capturada** — depende do merge |
 | Branch candidata | `claude/bold-wright-7y973w` |
-| Head avaliada | `a8a7702e04dc22dc59f012e0bc0f4e5cf2e2dc6d` |
+| Head avaliada | `63794523da1bacd3ba4b9573ec429ba22019726c` |
 | Base | `edd3e191a70206eee6f76f675644ca5c09d762dc` (#261, RC1.4) |
 | Fingerprint | `7c054f2255e7` — inalterado |
 | Lições / temas | 134 / 113 — inalterados |
@@ -191,11 +191,34 @@ reproduzido e verificado localmente.
 | Check | Estado | Nota |
 | --- | --- | --- |
 | `npm ci` | ✅ | 0 vulnerabilidades |
-| `npm run validate:beta` | ✅ local | verde após a correção do `test:rc-hardening` |
-| `npm run build` | ✅ | |
-| `npm run test:e2e` (Chromium) | ✅ após `a8a7702` | falhou antes por vazamento EN, corrigido |
-| `npm run test:e2e:firefox` | ✅ no CI | não executável localmente (CDN bloqueado) |
-| `npm run test:e2e:webkit` | ❌ **7 falhas** | **bloqueante — P2.1** |
+| `npm run validate:beta` | ✅ local **e CI** | `BETA3_EXIT=0`; job de qualidade `success` em `4c4d878` |
+| `npm run build` | ✅ local e CI | |
+| `npm run test:e2e` (Chromium) | ✅ | job `success` em `4c4d878`, confirmando a correção do vazamento EN |
+| `npm run test:e2e:firefox` | ⚠️ **não executado** | ver "Firefox ficou mudo" abaixo |
+| `npm run test:e2e:webkit` | ❌ **5 falhas determinísticas** | **bloqueante — P2.1** |
+
+### Firefox ficou mudo — defeito meu, corrigido
+
+Ao remover o `continue-on-error`, o passo do WebKit passou a abortar o job
+antes do Firefox. No head `4c4d878` os passos reportaram:
+
+```
+E2E WebKit (Safari) + mobile Safari .... failure
+E2E Firefox ............................ skipped
+```
+
+Enquanto o WebKit estivesse vermelho, a cobertura de Firefox sumiria por
+inteiro. Isso é o mesmo defeito que a P2.1 veio corrigir, apenas apontado para
+outro motor: troquei "WebKit mudo" por "Firefox mudo".
+
+Corrigido em `6379452` com `if: always()` no passo do Firefox. Não afrouxa
+nada — o job continua vermelho se qualquer um dos dois falhar, e
+`test:rc-hardening` (que proíbe `continue-on-error: true`) segue verde.
+
+Só apareceu porque olhei a conclusão **de cada passo**. No nível do job o
+resultado era apenas `failure`, que eu já havia atribuído ao WebKit e poderia
+ter dado por explicado. As três execuções anteriores rodaram sem sinal nenhum
+de Firefox.
 
 ---
 
