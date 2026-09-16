@@ -7,6 +7,16 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### RC1.4 — Generated Learning Integrity
+
+Planner escolhe `GeneratedTaskObjective` (target canônico + relação) antes de
+montar prompt/resposta/explicação/dica/áudio. Os quatro mismatches congelados
+em RC1.3 (`p2-comparar-tom-2-3`, `p4-num-910`, `p4-char-zhong`, `l19-logica-ma`)
+somem na origem; `KNOWN_FROZEN_ANSWER_MISMATCHES` fica vazia. Fail-closed e o
+fix de labs 4/4 (#261) permanecem nos gates. Fingerprint `7c054f2255e7`.
+
+Relatório: `docs/reports/rc1-4-generated-learning-integrity.md`.
+
 ### Fix — Labs de percepção/hànzì presos em 3/4 no Domínio
 
 Concluir a Pass 4 (Domínio) em `perception_lab` / `hanzi_lab` (ex.: **1º tom com ma**

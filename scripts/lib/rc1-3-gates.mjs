@@ -395,29 +395,26 @@ export function validateReviewAnswerIntegrity(data = {}) {
 }
 
 /**
- * Itens de conteúdo CONGELADO em que prompt, resposta e explicação já divergiam
- * antes desta remessa.
+ * RC1.4 — allowlist REMOVIDA.
  *
- * São passos gerados pelo planejador de mastery em `lessonTasks.ts`, que está
- * dentro do fingerprint do currículo (38e70062857d) e, portanto, fora do escopo
- * de uma remessa de bugfix — ver `docs/reports/rc1-3-learning-integrity-review-tones.md`.
+ * Em RC1.3 estes quatro refs estavam congelados porque o planejador gerava
+ * prompt/resposta/explicação de alvos diferentes. RC1.4 corrigiu a origem
+ * (`generatedTaskObjective` + `genericFidelityBonus`); a lista fica vazia.
  *
- * Eles NÃO são varridos para debaixo do tapete: em runtime a correção falha
- * fechada (P8), o aluno não vê resposta errada nenhuma e o diagnóstico
- * `ANSWER_INTEGRITY_MISMATCH` é registrado. A lista existe para que um item NOVO
- * com o mesmo defeito reprove o gate, em vez de se esconder no meio destes.
+ * Mutação P15.1 / M14: reintroduzir entradas aqui deve falhar o gate
+ * `validate:generated-task-integrity` (não use isto como escape hatch).
  */
-export const KNOWN_FROZEN_ANSWER_MISMATCHES = new Set([
-  "p2-comparar-tom-2-3#4:1:contextual_choice",
-  "p4-num-910#4:1:contextual_choice",
-  "p4-char-zhong#2:0:dialogue_choice",
-  "l19-logica-ma#2:0:dialogue_choice",
-]);
+export const KNOWN_FROZEN_ANSWER_MISMATCHES = new Set([]);
+
+/** RC1.4 P15.1 — a allowlist de mismatches gerados deve permanecer vazia. */
+export function assertFrozenMismatchAllowlistEmpty() {
+  return [...KNOWN_FROZEN_ANSWER_MISMATCHES];
+}
 
 /**
  * Varre as correções REAIS de todas as lições. Qualquer item em que a resposta
  * canônica e a explicação apontem para hànzì diferentes é exatamente o bug do
- * 请问 — e o gate só aceita zero fora da lista congelada acima.
+ * 请问 — e o gate só aceita zero (a allowlist RC1.3 foi esvaziada em RC1.4).
  */
 export function scanAnswerIntegrity() {
   const { journey, lessonTasks } = loadCurriculum();
@@ -894,7 +891,7 @@ export function validateCompletionLayout(data = {}) {
 // ── validate:rc13-curriculum-freeze ────────────────────────────────────────
 
 export const RC13_FREEZE = {
-  fingerprint: "38e70062857d",
+  fingerprint: "7c054f2255e7",
   lessons: 134,
   teachingTopics: 113,
 };

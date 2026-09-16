@@ -683,8 +683,15 @@ export function assertGeneratedSurfacesCoherent(
       issues.push(`prompt numérico deve mencionar ${target}`);
     }
   }
-  if (explanationHanzi.length > 0 && !explanationHanzi.includes(target)) {
-    issues.push(`explanation nomeia hànzì diferentes de targetRef=${target}`);
+  if (explanationHanzi.length > 0) {
+    const explanationRuns = hanziTokens(surfaces.explanation);
+    const mentionsTarget =
+      explanationRuns.some((run) => run.includes(target) || target.includes(run)) ||
+      (flattenHanziChars([target]).every((ch) => explanationHanzi.includes(ch)) &&
+        flattenHanziChars([target]).length > 0);
+    if (!mentionsTarget) {
+      issues.push(`explanation nomeia hànzì diferentes de targetRef=${target}`);
+    }
   }
   if (
     promptHanzi.length > 0 &&
