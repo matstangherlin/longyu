@@ -92,3 +92,20 @@ export function inferCurriculumRole(lesson: CurriculumRoleHint): CurriculumRole 
   }
   return "acquisition";
 }
+
+/** Labs deepen perception/form — Pass 4 Domínio must not require communicative production. */
+export function isLabCurriculumRole(role: CurriculumRole | string | undefined | null): boolean {
+  return role === "perception_lab" || role === "hanzi_lab";
+}
+
+/**
+ * Whether finishing Domínio (Pass 4) needs a production/transfer step to mark MASTERED.
+ * Perception/hanzi labs intentionally ship without those kinds.
+ */
+export function requiresProductionOrTransferForMastery(
+  lesson: CurriculumRoleHint | undefined | null
+): boolean {
+  if (!lesson) return true;
+  const role = lesson.curriculumRole ?? inferCurriculumRole(lesson);
+  return !isLabCurriculumRole(role);
+}

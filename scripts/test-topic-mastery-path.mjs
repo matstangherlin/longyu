@@ -222,10 +222,39 @@ try {
 
   const playerSrc = await readFile(path.join(root, "src/features/lesson/LessonPlayer.tsx"), "utf8");
   assert.match(playerSrc, /allowSkipAhead: !topicNode/, "player não pula passes no anel 0–4");
+  assert.match(
+    playerSrc,
+    /requireProductionOrTransfer:\s*requiresProductionOrTransferForMastery\(lesson\)/,
+    "labs não ficam presos em 3/4 no Domínio"
+  );
   assert.match(playerSrc, /lessonPassXpRewardId/, "XP por pass");
   assert.match(playerSrc, /setLessonSessionStep/, "grava cursor da pass");
   assert.match(playerSrc, /player\.backToJourney/, "vitória do tema volta à Jornada");
   assert.doesNotMatch(playerSrc, /retryLesson\(\{\s*newPass:\s*true\s*\}\)/, "não auto-inicia a próxima pass");
+
+  // Labs (tom/hànzì) must complete Domínio without communicative production.
+  const labPass4 = mastery.advanceLessonMastery({
+    current: { level: 3, passCount: 3, lastPass: 3, updatedAt: 1 },
+    pass: 4,
+    accuracy: 1,
+    mistakeCount: 0,
+    hadProductionOrTransfer: false,
+    requireProductionOrTransfer: false,
+    allowSkipAhead: false,
+    commitPass: true,
+  });
+  assert.equal(labPass4.record.level, 4, "lab Pass 4 → 4/4 sem produção");
+  const acquisitionClamp = mastery.advanceLessonMastery({
+    current: { level: 3, passCount: 3, lastPass: 3, updatedAt: 1 },
+    pass: 4,
+    accuracy: 1,
+    mistakeCount: 0,
+    hadProductionOrTransfer: false,
+    requireProductionOrTransfer: true,
+    allowSkipAhead: false,
+    commitPass: true,
+  });
+  assert.equal(acquisitionClamp.record.level, 3, "aquisição sem produção ainda trava em 3/4");
 
   const journeySrc = await readFile(path.join(root, "src/features/journey/JourneyPage.tsx"), "utf8");
   assert.match(journeySrc, /data-topic-progress/, "anel expõe 0/4–4/4");

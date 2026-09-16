@@ -7,6 +7,16 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### Fix — Labs de percepção/hànzì presos em 3/4 no Domínio
+
+Concluir a Pass 4 (Domínio) em `perception_lab` / `hanzi_lab` (ex.: **1º tom com ma**
+e os outros tons de ma) não marcava o tema como dominado: o anel ficava em
+**Progresso do tema 3/4** e o CTA em **Continuar**. Causa: `advanceLessonMastery`
+exigia um kind de produção/transferência que esses labs nunca têm. Agora o
+Domínio de lab completa para 4/4; aquisição comunicativa mantém o gate.
+
+Regressão: `npm run test:lab-mastery-pass4` (16 labs).
+
 ### RC1.1 — Learning Loop Hardening
 
 Bugfix + pedagogia de runtime + UX. Currículo congelado: fingerprint da Jornada

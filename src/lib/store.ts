@@ -2282,6 +2282,8 @@ interface AppState {
       accuracy: number;
       mistakeCount: number;
       hadProductionOrTransfer: boolean;
+      /** Labs pass false so Domínio can reach MASTERED without communicative production. */
+      requireProductionOrTransfer?: boolean;
       dimensionUpdates?: Array<{
         ref: string;
         dimension: import("../data/masteryLoop").CompetencyDimension;
@@ -5125,6 +5127,7 @@ export const useStore = create<AppState>()(
               accuracy: input.accuracy,
               mistakeCount: input.mistakeCount,
               hadProductionOrTransfer: input.hadProductionOrTransfer,
+              requireProductionOrTransfer: input.requireProductionOrTransfer,
               allowSkipAhead: input.allowSkipAhead,
               commitPass: input.commitPass,
             },

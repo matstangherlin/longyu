@@ -456,6 +456,12 @@ export interface MasteryAdvancementInput {
   /** Conteúdo permite tarefa de produção/transferência nesta pass. */
   hadProductionOrTransfer: boolean;
   /**
+   * When true (default), Pass 4 without production/transfer stays at level 3.
+   * Perception/hanzi labs pass false — their Domínio is discrimination/reuse,
+   * not communicative production, so the clamp would trap them at 3/4 forever.
+   */
+  requireProductionOrTransfer?: boolean;
+  /**
    * V4.6 Topic Path: the ring is 0–4 with one cognitive pass each.
    * Skip-ahead would open M4 from a 2/4 circle. Default true for legacy
    * mastery-loop tests; the player passes false for teaching topics.
@@ -505,8 +511,14 @@ export function advanceLessonMastery(input: MasteryAdvancementInput, now = Date.
   if (input.allowSkipAhead !== false && excellent && input.pass >= 2 && nextLevel < 4) {
     nextLevel = Math.min(4, nextLevel + 1) as MasteryLevel;
   }
-  // Pass 4 sem produção quando o conteúdo permite → não marca domínio total.
-  if (input.pass === 4 && !input.hadProductionOrTransfer && nextLevel >= 4) {
+  // Pass 4 sem produção quando o conteúdo exige → não marca domínio total.
+  // Labs (requireProductionOrTransfer=false) concluem Domínio sem kind comunicativo.
+  if (
+    input.pass === 4 &&
+    input.requireProductionOrTransfer !== false &&
+    !input.hadProductionOrTransfer &&
+    nextLevel >= 4
+  ) {
     nextLevel = 3;
   }
 

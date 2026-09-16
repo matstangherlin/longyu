@@ -122,6 +122,7 @@ import {
 import { buildPlusRoundSession, collectPlusRoundEvidence, topicPassStarsFrom } from "./plusRoundSession";
 import { dimensionForStepKind, isProductionOrTransferKind, nextMasteryPass } from "../../data/masteryLoop";
 import { isMasteryPilotLesson } from "../../data/masteryPilot";
+import { requiresProductionOrTransferForMastery } from "../../data/curriculumRole";
 import {
   energyIdempotencyKeyForPass,
   energySessionFlagForPass,
@@ -3748,6 +3749,9 @@ export function LessonPlayer() {
           hadProductionOrTransfer: (lesson.steps as LessonRoundStep[]).some((step) =>
             isProductionOrTransferKind(step.kind)
           ),
+          // Perception/hanzi labs never ship production/transfer kinds; without
+          // this flag Domínio clamps forever at 3/4 ("Continuar" forever).
+          requireProductionOrTransfer: requiresProductionOrTransferForMastery(lesson),
           dimensionUpdates: dimensionUpdates.slice(0, 12),
           startedAt: attemptStartedAtRef.current,
           allowSkipAhead: !topicNode,

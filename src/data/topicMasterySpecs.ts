@@ -108,6 +108,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["你", "好", "你好"],
     prerequisites: ["p1-o-que-e-mandarim", "p1-o-que-e-pinyin"],
+    transferOptionalReason:
+      "Laboratório de hànzì: Domínio é reconhecer/montar forma, não produção comunicativa.",
   },
   "p1-primeiros-hanzi": {
     topicId: "p1-primeiros-hanzi",
@@ -125,6 +127,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["木", "你好"],
     prerequisites: ["p1-o-que-e-hanzi"],
+    transferOptionalReason:
+      "Laboratório de hànzì: Domínio é reconhecer/montar forma, não produção comunicativa.",
   },
   "p1-engine-2-lab": {
     topicId: "p1-engine-2-lab",
@@ -160,6 +164,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["妈", "mā"],
     prerequisites: ["p1-o-que-e-tom"],
+    transferOptionalReason:
+      "Laboratório de percepção: Domínio é reconhecer o contorno em sílaba conhecida, não produção comunicativa.",
   },
   "p2-ma-segundo-tom": {
     topicId: "p2-ma-segundo-tom",
@@ -177,6 +183,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["麻", "má"],
     prerequisites: ["p2-ma-primeiro-tom"],
+    transferOptionalReason:
+      "Laboratório de percepção: Domínio é reconhecer o contorno em sílaba conhecida, não produção comunicativa.",
   },
   "p2-ma-terceiro-tom": {
     topicId: "p2-ma-terceiro-tom",
@@ -194,6 +202,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["马", "mǎ", "你"],
     prerequisites: ["p2-ma-segundo-tom"],
+    transferOptionalReason:
+      "Laboratório de percepção: Domínio é reconhecer o contorno em sílaba conhecida, não produção comunicativa.",
   },
   "p2-ma-quarto-tom": {
     topicId: "p2-ma-quarto-tom",
@@ -211,6 +221,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["骂", "mà"],
     prerequisites: ["p2-ma-terceiro-tom"],
+    transferOptionalReason:
+      "Laboratório de percepção: Domínio é reconhecer o contorno em sílaba conhecida, não produção comunicativa.",
   },
   "p2-comparar-tom-1-4": {
     topicId: "p2-comparar-tom-1-4",
@@ -228,6 +240,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["mā", "mà"],
     prerequisites: ["p2-ma-primeiro-tom", "p2-ma-quarto-tom"],
+    transferOptionalReason:
+      "Laboratório de percepção: Domínio é reconhecer o contorno em sílaba conhecida, não produção comunicativa.",
   },
   "p2-comparar-tom-2-3": {
     topicId: "p2-comparar-tom-2-3",
@@ -245,6 +259,8 @@ const AUTHORED: Record<string, TopicMasterySpec> = {
     },
     canonicalExamples: ["má", "mǎ"],
     prerequisites: ["p2-ma-segundo-tom", "p2-ma-terceiro-tom"],
+    transferOptionalReason:
+      "Laboratório de percepção: Domínio é reconhecer o contorno em sílaba conhecida, não produção comunicativa.",
   },
   "p2-tons-nihao": {
     topicId: "p2-tons-nihao",
