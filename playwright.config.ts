@@ -42,6 +42,12 @@ export default defineConfig({
       VITE_USE_TEST_FIXTURES: "true",
       VITE_ALLOW_PRO_PREVIEW: "true",
       VITE_DEV_ALLOW_LOCAL_AUTH: "1",
+      // Preview E2E never talks to MandarimProject. Without these, `vite build`
+      // loads `.env.production` (supabase) and WebKit hits real Edge Functions
+      // that may not exist ("Requested function was not found").
+      VITE_BACKEND_MODE: "local",
+      VITE_SUPABASE_URL: "",
+      VITE_SUPABASE_ANON_KEY: "",
     },
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
