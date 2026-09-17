@@ -21,7 +21,7 @@ import {
   RC2_EXPECTED_JOURNEY_CULTURE_NODES,
   RELEASE_CANDIDATE_SHA,
 } from "./curriculumFreeze";
-import { PRODUCT_TRUTH, type ProductCapabilityId } from "../commercial/productTruth";
+import { PRODUCT_TRUTH } from "../commercial/productTruth";
 
 export { FEATURE_FREEZE };
 export const PUBLIC_BETA_PROFILE = "PUBLIC_BETA_CORE" as const;
@@ -72,19 +72,25 @@ export type OperationalCheckMap = Record<
   { pass?: boolean; evidence?: string; testedAt?: string | null }
 >;
 
+/** Loose shape so mutation tests can flip availability without fighting `as const`. */
+export type ProductTruthLike = Record<
+  string,
+  { id?: string; availability: string; gatedBy?: string; because?: string }
+>;
+
 export type PublicBetaCoreInput = {
   checks: OperationalCheckMap;
   /** When false, league_cloud_smoke is not a GO blocker. Default false until proven. */
   leaguePubliclyEnabled?: boolean;
-  productTruth?: typeof PRODUCT_TRUTH;
+  productTruth?: ProductTruthLike;
   releaseCandidateSha?: string;
   fingerprint?: string;
 };
 
 export type PublicBetaFailure = { code: string; where: string; why: string };
 
-function paidOffersSellable(truth: typeof PRODUCT_TRUTH): ProductCapabilityId[] {
-  return (Object.keys(truth) as ProductCapabilityId[]).filter((id) => {
+function paidOffersSellable(truth: ProductTruthLike): string[] {
+  return Object.keys(truth).filter((id) => {
     if (id === "journey" || id === "free_plan") return false;
     return truth[id]?.availability === "available";
   });
@@ -103,7 +109,7 @@ export function evaluatePublicBetaCore(input: PublicBetaCoreInput): {
   skippedCommercial: readonly string[];
 } {
   const failures: PublicBetaFailure[] = [];
-  const truth = input.productTruth ?? PRODUCT_TRUTH;
+  const truth = (input.productTruth ?? PRODUCT_TRUTH) as ProductTruthLike;
   const checks = input.checks ?? {};
 
   for (const id of PUBLIC_BETA_CORE_REQUIRED_CHECKS) {
@@ -126,46 +132,45 @@ export function evaluatePublicBetaCore(input: PublicBetaCoreInput): {
     }
   }
 
-  // Product Truth honesty for free beta.
-  if (truth.journey.availability !== "available") {
+  if (truth.journey?.availability !== "available") {
     failures.push({ code: "PRODUCT_TRUTH", where: "journey", why: "journey must stay available" });
   }
-  if (truth.free_plan.availability !== "available") {
+  if (truth.free_plan?.availability !== "available") {
     failures.push({ code: "PRODUCT_TRUTH", where: "free_plan", why: "free_plan must stay available" });
   }
-  if (truth.pro_individual.availability === "available" && !checks.stripe_test_mode_e2e?.pass) {
+  if (truth.pro_individual?.availability === "available" && !checks.stripe_test_mode_e2e?.pass) {
     failures.push({
       code: "PRO_WITHOUT_STRIPE",
       where: "pro_individual",
       why: "pro_individual cannot be available while stripe_test_mode_e2e is false",
     });
   }
-  if (truth.family_plan.availability === "available" && !checks.stripe_test_mode_e2e?.pass) {
+  if (truth.family_plan?.availability === "available" && !checks.stripe_test_mode_e2e?.pass) {
     failures.push({
       code: "FAMILY_WITHOUT_STRIPE",
       where: "family_plan",
       why: "family_plan cannot be available while stripe_test_mode_e2e is false",
     });
   }
-  if (truth.pro_individual.availability !== "planned") {
+  if (truth.pro_individual?.availability !== "planned") {
     failures.push({
       code: "PRO_STATE",
       where: "pro_individual",
-      why: `expected planned for free public beta, got ${truth.pro_individual.availability}`,
+      why: `expected planned for free public beta, got ${truth.pro_individual?.availability}`,
     });
   }
-  if (truth.family_plan.availability !== "planned") {
+  if (truth.family_plan?.availability !== "planned") {
     failures.push({
       code: "FAMILY_STATE",
       where: "family_plan",
-      why: `expected planned for free public beta, got ${truth.family_plan.availability}`,
+      why: `expected planned for free public beta, got ${truth.family_plan?.availability}`,
     });
   }
-  if (truth.business_workspace.availability !== "pilot") {
+  if (truth.business_workspace?.availability !== "pilot") {
     failures.push({
       code: "BUSINESS_STATE",
       where: "business_workspace",
-      why: `expected pilot, got ${truth.business_workspace.availability}`,
+      why: `expected pilot, got ${truth.business_workspace?.availability}`,
     });
   }
 
