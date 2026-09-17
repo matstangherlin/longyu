@@ -26,12 +26,20 @@ function resolveAppEnvironment(env = process.env) {
     .replace(/-/g, "_");
   if (raw === "preview" || raw === "deploy_preview" || raw === "staging") return "preview";
   if (raw === "development" || raw === "dev") return "development";
+  if (raw === "qa_candidate" || raw === "rc2_candidate" || raw === "candidate" || raw === "qa") {
+    return "qa_candidate";
+  }
   return "production_beta";
+}
+
+function isProductionLikeEnv(env = process.env) {
+  const appEnv = resolveAppEnvironment(env);
+  return appEnv === "production_beta" || appEnv === "qa_candidate";
 }
 
 function isDevPreviewAllowed(env = process.env) {
   const appEnv = resolveAppEnvironment(env);
-  if (appEnv === "production_beta") return false;
+  if (isProductionLikeEnv(env)) return false;
   if (appEnv === "development") return true;
   return env.VITE_ALLOW_PRO_PREVIEW === "true";
 }
@@ -98,6 +106,7 @@ assert(entitlementsSrc.includes("return serverIsPro === true"), "cloud deve depe
 const appEnvSrc = read("src/lib/appEnvironment.ts");
 assert(appEnvSrc.includes("VITE_ALLOW_PRO_PREVIEW"), "appEnvironment deve checar VITE_ALLOW_PRO_PREVIEW");
 assert(appEnvSrc.includes("production_beta"), "appEnvironment deve definir production_beta");
+assert(appEnvSrc.includes('"qa_candidate"'), "appEnvironment deve definir qa_candidate");
 
 const storeSrc = read("src/lib/store.ts");
 assert(storeSrc.includes("version: 24"), "Persist deve estar na versão 24 (Native Culture Lessons + Culture teaching loop + Culture Quest + Topic Mastery Path + entitlement cloud efêmero)");
@@ -195,6 +204,15 @@ assert(effectivePremium(true, false, devEnv), "Preview permitido em Development"
 assert(effectivePremium(true, false, previewFlagEnv), "Preview permitido em Preview com flag");
 assert(!effectivePremium(true, false, previewNoFlagEnv), "Preview bloqueado em Preview sem flag");
 assert(!effectivePremium(true, false, prodEnv), "Preview bloqueado em Production Beta mesmo com flag");
+
+// RC2.2 — o candidate QA é production-like: flag vazada não libera Pro nele.
+const candidateFlagEnv = {
+  NODE_ENV: "production",
+  VITE_APP_ENV: "qa_candidate",
+  VITE_ALLOW_PRO_PREVIEW: "true",
+};
+assert(!isDevPreviewAllowed(candidateFlagEnv), "isDevPreviewAllowed deve ser false em qa_candidate");
+assert(!effectivePremium(true, false, candidateFlagEnv), "Preview bloqueado no candidate QA mesmo com flag");
 
 const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 const past = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();

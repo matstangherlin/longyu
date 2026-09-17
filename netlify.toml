@@ -31,6 +31,34 @@
   # Canonical / Open Graph / sitemap (trocar ao apontar domínio próprio).
   VITE_SITE_URL = "https://singular-meringue-7838cd.netlify.app"
 
+# RC2 Candidate (QA) — production-like, backend Supabase QA.
+#
+# Isto NÃO é o deploy-preview de PR: o preview roda VITE_BACKEND_MODE=local e
+# por isso não prova auth, sync, feedback cloud nem entitlements. O candidate
+# existe para ser o alvo real dos runbooks de nuvem/dispositivo.
+#
+# Modelo adotado: branch deploy dedicado na branch `rc2-candidate`, apontada
+# para o commit C que será certificado. (O modelo alternativo — site Netlify QA
+# dedicado — usa as mesmas variáveis no escopo do site.)
+#
+# VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY NÃO são fixados aqui de propósito:
+# vêm do escopo do provider (Netlify → Environment variables, branch
+# `rc2-candidate`), para não versionar uma segunda cópia da config de QA e para
+# não haver risco de colar o projeto de produção neste arquivo.
+# Sem eles, scripts/assert-netlify-env.mjs FALHA o build — falha fechada, de
+# propósito: um candidate sem backend QA não deve chegar a publicar.
+[context."rc2-candidate".environment]
+  VITE_APP_ENV = "qa_candidate"
+  VITE_APP_VERSION = "0.2.0-beta.1"
+  VITE_BACKEND_MODE = "supabase"
+  VITE_ALLOW_PRO_PREVIEW = "false"
+  VITE_USE_TEST_FIXTURES = "false"
+  # Candidate acompanha produção: handoff V4.7.1 desligado enquanto produção estiver.
+  VITE_CLOUD_ONBOARDING_V2_ENABLED = "false"
+  # Feedback precisa estar carregável para o runbook feedback_backend (RC2.2.1).
+  VITE_ENABLE_BETA_FEEDBACK = "true"
+  VITE_ENABLE_TELEMETRY = "true"
+
 # Deploy Preview — NÃO usa o Supabase de produção.
 # Preview em modo local (progresso só no browser).
 # Se precisar de nuvem isolada de novo: criar projeto Free separado
