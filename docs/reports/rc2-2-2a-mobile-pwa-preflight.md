@@ -21,7 +21,7 @@ Emulation / local N→N+1 is labeled `CHROMIUM` / `WEBKIT` / `LOCAL_PREFLIGHT` �
 | PR base | #273 `cursor/rc2-cloud-certification-5b4f` |
 | `STACK_BASE_SHA` | `529f85ef2b72a9682307e790639d1008654329fb` |
 | Branch | `cursor/rc2-mobile-pwa-preflight-5b4f` |
-| FINAL_HEAD |  |
+| FINAL_HEAD | `44bc152abee81a3eae817ab57a23b292a912922e` (validate:beta green; tip may advance by docs stamp) |
 | `validate:beta` | PASS · fingerprint `516692632525` · verdict NO-GO (candidate blocked) |
 | Candidate | still blocked — no QA restore / no Netlify |
 | Fingerprint | `516692632525` |
