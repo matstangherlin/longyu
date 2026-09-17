@@ -46,10 +46,19 @@ export function useVisualViewportFrame(): VisualViewportFrame | null {
     viewport?.addEventListener("resize", sync);
     viewport?.addEventListener("scroll", sync);
     window.addEventListener("resize", sync);
+    // Playwright WebKit (e alguns Safari) atualizam a caixa visível sem
+    // disparar visualViewport "resize". ResizeObserver no documento cobre
+    // setViewportSize / teclado virtual nesses motores.
+    const observer =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => sync())
+        : null;
+    observer?.observe(document.documentElement);
     return () => {
       viewport?.removeEventListener("resize", sync);
       viewport?.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
+      observer?.disconnect();
     };
   }, []);
 
