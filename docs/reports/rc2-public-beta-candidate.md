@@ -1,5 +1,13 @@
 # RC2 — Public Beta Release Candidate
 
+> ## Atualização V4.11A.3 (Culture Atlas closure)
+>
+> O currículo cultural fechou com `CURRICULUM_FREEZE=RC2_CONTENT_FREEZE` e
+> fingerprint **`516692632525`**. Isso é **content freeze**, não deploy
+> candidate. `release_candidate_sha` continua `""`. Qualquer referência a
+> `40be45d` / RC2_CODE_SHA antigo como candidate atual está **superseded**.
+> Próxima fase: evidência operacional + candidate real de deploy.
+
 > ## Veredito
 >
 > **NO-GO.**

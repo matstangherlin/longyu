@@ -90,6 +90,78 @@
 
 Hub ignores collections · featured missing id · evergreen-only-annual · yearFact 2027×holiday2026 · yearFact without verifiedAt · Lantern without source · Wukong/Xiyouji as history · biography without frame · dragon universalisation · 孙悟空 in newRefs · 西游记 SRS seed · culture→weak lexical · empty 0/0 UX · hub-only fake node (integration)
 
-### Stop condition
+### Stop condition (V4.11A.2)
 
-**Do not open RC2 yet.** Next remessa: **V4.11A.3 — China History Essentials + Culture Atlas Closure + RC2 Content Freeze**.
+Next remessa stacked: **V4.11A.3 — China History Essentials + Culture Atlas Closure + RC2 Content Freeze**.
+
+---
+
+## Remessa V4.11A.3 — China History Essentials + Atlas Closure + RC2 Content Freeze
+
+### Identity
+
+| Field | Value |
+|-------|-------|
+| START_SHA_REAL | `30aef8101d7022843fda6a3c5b09985500d16f65` (#266 HEAD ancestor) |
+| Branch | `cursor/culture-history-essentials-5b4f` (stacked on `cursor/culture-hub-2-5b4f`) |
+| PR base | `cursor/culture-hub-2-5b4f` (not `main`) |
+| Fingerprint before | `943a8f9fb720` |
+| Fingerprint after | **`516692632525`** (real; CURRICULUM_SOURCES include culture native lessons) |
+
+### BEFORE → AFTER
+
+| Metric | Before (#266) | After (V4.11A.3) |
+|--------|---------------|------------------|
+| CultureItems | 24 | **30** |
+| Culture Native Lessons | 24 | **30** |
+| History collection | 0 (Em preparação) | **6** |
+| Journey Culture nodes | 20 | **20** (history wave hub-only) |
+| Core Mandarin lessons | 134 | **134** |
+| Teaching topics | 113 | **113** |
+| Journey fingerprint | `943a8f9fb720` | **`516692632525`** |
+
+### History items (order)
+
+1. `china-history-timeline` — overview / mental map  
+2. `qin-unification` — 秦 Qín  
+3. `han-dynasty` — 汉 Hàn (+ 汉字 cultural link)  
+4. `tang-dynasty` — 唐 Táng  
+5. `song-dynasty` — 宋 Sòng  
+6. `ming-qing` — 明/清 late empire  
+
+All six: `kind=history`, hub-only, durable sources (≥ museum / encyclopedia / UNESCO where applicable), teach-before-test, PT-BR + EN.
+
+### Featured
+
+`CULTURE_FEATURED_ITEMS` = `spring-festival`, `sun-wukong`, `china-history-timeline`
+
+### Kind firewall
+
+| Item | kind | Collection |
+|------|------|------------|
+| sun-wukong | literature | Legends & Literature |
+| journey-to-the-west | literature | Legends & Literature |
+| chinese-dragon | symbol | Symbols |
+
+### Gates added
+
+- `validate:culture-history-integrity` / `test:culture-history-integrity`
+- `validate:culture-history-chronology` / `test:culture-history-chronology`
+
+### RC2_CONTENT_FREEZE
+
+| Field | Value |
+|-------|-------|
+| `CURRICULUM_FREEZE` | `RC2_CONTENT_FREEZE` |
+| `RC_BASE_FINGERPRINT` | `516692632525` |
+| `RC2_CONTENT_FREEZE_SHA` | stamped at tip after freeze commit |
+| `RELEASE_CANDIDATE_SHA` / `release_candidate_sha` | **empty** (no deploy candidate yet) |
+| Old `40be45d` as RC2 candidate | **superseded** |
+
+### Lexical firewall
+
+History Mandarin labels (秦/汉/唐/宋/明/清) are culture-only: no `newRefs`, no Mandarin SRS seed, Culture Review for mistakes.
+
+### Stop condition (Atlas closed)
+
+**Do not add more Culture content.** Next phase: **RC2 — Public Beta Candidate & Operational Evidence** (live cloud, Stripe, devices, gate:public-beta).
