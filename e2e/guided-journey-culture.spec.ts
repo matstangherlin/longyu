@@ -142,26 +142,16 @@ test.describe("RC2.1.1 Journey Culture Moments", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    // Hub shares completion — card or list marks explored for chinese-dragon
-    const hubCard = page.locator('[data-culture-id="chinese-dragon"], [data-item-id="chinese-dragon"]').first();
-    if (await hubCard.isVisible().catch(() => false)) {
-      await expect(hubCard).toHaveAttribute(/data-(completed|explored|done)/, /true|1|done|explored/i).catch(
-        async () => {
-          // Fallback: store truth already asserted above
-          expect(after.cultureCompletedIds).toContain("chinese-dragon");
-        }
-      );
-    }
+    // Hub shares completion via the same store fields asserted above.
+    expect(after.cultureCompletedIds).toContain("chinese-dragon");
 
-    // Re-open and finish again — points must not increase from culture-complete reward
+    // Re-open and finish again — culture-complete reward id stays idempotent.
     const mid = await readCulturePersist(page);
     await page.goto("/licao/culture-chinese-dragon/player?src=jornada&from=%2Fjornada");
     await waitForLazyPage(page);
     await playCultureLessonToVictory(page);
     await leaveCultureVictory(page);
     const again = await readCulturePersist(page);
-    // Lesson replay may grant lesson XP differently; culture-complete reward id must stay idempotent.
-    // Assert cultureCompletedIds unchanged length for this item (still once).
     expect(again.cultureCompletedIds.filter((id) => id === "chinese-dragon")).toHaveLength(1);
     expect(again.points).toBeGreaterThanOrEqual(mid.points);
   });

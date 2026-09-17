@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Mascot } from "../brand/Mascot";
 import { Button } from "../ui/primitives";
 import { IconChevron } from "../ui/Icon";
@@ -44,12 +44,15 @@ export function GuideDialogue({
   const { t } = useTranslation();
   const cleaned = messages.map((message) => String(message ?? "").trim()).filter(Boolean);
   const [state, setState] = useState<GuideDialogueState>(() => createGuideDialogueState());
-  const onCompleteEvent = useEffectEvent(onComplete);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+  const doneFiredRef = useRef(false);
   const tickTimer = useRef<number | null>(null);
   const mascotSize = size === "compact" ? 56 : 72;
 
   useEffect(() => {
     const instant = prefersReducedMotion();
+    doneFiredRef.current = false;
     setState(
       reduceGuideDialogue(createGuideDialogueState(), { type: "START", instant }, cleaned, {
         instant,
@@ -65,7 +68,10 @@ export function GuideDialogue({
 
   useEffect(() => {
     if (state.phase === "done") {
-      onCompleteEvent();
+      if (!doneFiredRef.current) {
+        doneFiredRef.current = true;
+        onCompleteRef.current();
+      }
       return;
     }
     if (state.phase !== "typing") return;
@@ -79,7 +85,7 @@ export function GuideDialogue({
     return () => {
       if (tickTimer.current != null) window.clearTimeout(tickTimer.current);
     };
-  }, [state.phase, state.messageIndex, state.visibleCount, cleaned, onCompleteEvent]);
+  }, [state.phase, state.messageIndex, state.visibleCount, cleaned]);
 
   function continueDialogue() {
     setState((prev) => {
