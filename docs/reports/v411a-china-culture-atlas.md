@@ -75,7 +75,7 @@
 | Life in China | 15 |
 | Core Mandarin lessons | **134** |
 | Teaching topics | **113** |
-| Journey fingerprint | **`943a8f9fb720`** (real; curriculum sources changed) |
+| Journey fingerprint | **`943a8f9fb720`** (real; advanced from `7c054f2255e7` because `cultureNative.ts` + `cultureLessons.ts` are CURRICULUM_SOURCES — hub-only wave). Core 134 / topics 113 unchanged. Freeze updated with explicit justification. |
 
 ### Gates added
 

@@ -1,7 +1,7 @@
 {
   "id": "rc1",
   "curriculum_freeze": "RC1",
-  "base_fingerprint": "7c054f2255e7",
+  "base_fingerprint": "943a8f9fb720",
   "curriculum_base_sha": "c4441b68ae2388027d72e3af748417ef7caf2bb6",
   "release_candidate_sha": "",
   "merge_sha": "c4441b68ae2388027d72e3af748417ef7caf2bb6",
