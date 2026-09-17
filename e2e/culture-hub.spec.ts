@@ -417,7 +417,9 @@ test.describe("V4.11A.3 China History Essentials", () => {
     await expect(page.getByTestId("culture-review-done")).toBeVisible();
     await expect(page.getByTestId("srs-card")).toHaveCount(0);
     const persist = await readCulturePersist(page);
-    expect(JSON.stringify(persist.weakWords ?? {})).not.toMatch(/秦|汉|唐|宋|明|清|Qin|Han/);
+    expect(persist.cultureMemoryById["china-history-timeline-core"]).toBeTruthy();
+    // History review stays in Culture memory — Mandarin SRS must not absorb dynasty labels.
+    expect(JSON.stringify(persist.srs)).not.toMatch(/秦|汉|唐|宋|明|清/);
   });
 });
 
