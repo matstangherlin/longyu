@@ -41,7 +41,15 @@ export type FeatureId =
   | "plano_estudo_inteligente"
   | "estatisticas_avancadas";
 
-/** Paywalls contextuais padronizados na UI pública. */
+/**
+ * Paywalls contextuais padronizados na UI pública.
+ *
+ * RC1.5 — `speech` saiu daqui. Era o único paywall que apontava para uma
+ * capacidade inexistente: cobrava do usuário grátis o acesso a uma conversação
+ * com IA que nem o assinante podia usar. Recurso que não existe não cobra, e
+ * `PAYWALL_CAPABILITY` (em `src/product/featureTruth.ts`) agora amarra cada
+ * kind a uma capacidade que precisa estar no ar.
+ */
 export type PaywallKind =
   | "energy"
   | "errors"
@@ -55,8 +63,7 @@ export type PaywallKind =
   | "training"
   | "immersion"
   | "content"
-  | "qi"
-  | "speech";
+  | "qi";
 
 /** Compatibilidade com ProPaywall legado (subset usado nas telas). */
 export type ProPaywallKind = PaywallKind;
@@ -488,13 +495,6 @@ export const PAYWALL_COPY: Record<PaywallKind, PaywallCopy> = {
     description: "Com o Longyu Pro, repetir uma questão, lição ou teste não consome Qi.",
     benefit: getPlanFeature("qi_bonus").proBenefit,
   }),
-  speech: {
-    eyebrow: "Fala com IA",
-    title: "Pratique conversas com feedback",
-    description: "Em breve você poderá treinar conversas guiadas com feedback mais completo.",
-    benefit: "Um recurso do Longyu Pro para praticar a fala com correção clara.",
-    freeContinues: "Recursos básicos de fala continuam disponíveis na Jornada.",
-  },
 };
 
 export function getLeagueProBonusLabel(): string {

@@ -12,8 +12,21 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
-import { useIsPro } from "../../lib/proAccess";
+import { FeatureRoadmapNote } from "../../components/product/FeatureRoadmapNote";
 
+/**
+ * /fala — treino de chunks úteis.
+ *
+ * RC1.5 — esta tela vendia "Fala com IA · Pro", com "roleplays guiados e
+ * correção de pronúncia frase por frase" e um botão "Praticar com IA" que
+ * abria paywall. Nada disso existia: o assinante que pagasse recebia o mesmo
+ * botão dizendo "Em breve no Pro". O usuário grátis levava paywall de um
+ * recurso que nem o pagante podia usar.
+ *
+ * O que a tela faz de verdade é o que ela agora afirma: hànzì, pinyin, TTS,
+ * significado e autoavaliação com SRS. A conversação com IA aparece como
+ * roadmap, lida do registro de capacidades, sem CTA e sem paywall.
+ */
 export function FalaPage() {
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
@@ -22,14 +35,12 @@ export function FalaPage() {
   const soundEffects = useStore((s) => s.soundEffects);
   const learnedChunks = useStore((s) => s.learnedChunks);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
-  const isPremium = useIsPro();
   const consumeCharge = useStore((s) => s.consumeCharge);
 
   const [i, setI] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [doneCount, setDoneCount] = useState(0);
   const [paywallKind, setPaywallKind] = useState<ProPaywallKind | null>(null);
-  const [speechNotice, setSpeechNotice] = useState<string | null>(null);
   const [sessionCharged, setSessionCharged] = useState(false);
   const chunk = CHUNKS[i];
 
@@ -56,7 +67,10 @@ export function FalaPage() {
       domain: "fala",
       grade: knew ? "good" : "again",
     });
-    recordDailyTask("phrasesSpoken");
+    // Autoavaliação de flashcard é revisão, não fala: ninguém abriu o mic aqui, e
+    // até a RC1.4 este mesmo clique registrava `phrasesSpoken` — a métrica que
+    // alimentava medalha de "falar em voz alta" e missão de frases.
+    recordDailyTask("phrasesReviewed");
     playSoundFx(knew ? "success" : "task", soundEffects);
     const next = (i + 1) % CHUNKS.length;
     setI(next);
@@ -81,26 +95,14 @@ export function FalaPage() {
       />
 
       <section className="border-y border-[#B7791F]/25 bg-surface px-4 py-5 sm:px-5">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Fala com IA · Pro</div>
-            <h2 className="mt-1 font-serif text-xl font-semibold text-ink">Converse sem medo de errar</h2>
-            <p className="mt-1 text-sm text-ink-soft">Roleplays guiados e correção de pronúncia frase por frase.</p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => {
-              if (isPremium) {
-                setSpeechNotice("Em breve, você poderá praticar conversas com IA e receber correção de áudio no app.");
-                return;
-              }
-              setPaywallKind("speech");
-            }}
-          >
-            {isPremium ? "Em breve no Pro" : "Praticar com IA"}
-          </Button>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
+          Treino de frases
         </div>
-        {speechNotice && <p className="mt-3 text-xs leading-5 text-ink-faint">{speechNotice}</p>}
+        <h2 className="mt-1 font-serif text-xl font-semibold text-ink">O que este treino faz</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Hànzì, pinyin e áudio de cada bloco, com significado na hora e revisão espaçada a partir
+          da sua própria avaliação.
+        </p>
       </section>
 
       {/* Flashcard */}
@@ -164,7 +166,15 @@ export function FalaPage() {
           ))}
         </div>
       </section>
-      <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "speech"} onClose={() => setPaywallKind(null)} />
+
+      {/*
+        Roadmap, não vitrine: o card lê o registro de capacidades e some
+        sozinho no dia em que `ai_roleplay` entrar no ar. Sem CTA, sem paywall,
+        sem badge Pro — quem lê fica sabendo que não dá para usar hoje.
+      */}
+      <FeatureRoadmapNote capability="ai_roleplay" />
+
+      <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "energy"} onClose={() => setPaywallKind(null)} />
     </div>
     </EngineGate>
   );

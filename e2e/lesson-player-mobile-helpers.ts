@@ -424,12 +424,27 @@ export async function seedProOnTopOfSession(page: Page) {
   });
 }
 
-/** Simula teclado virtual encolhendo a viewport (Chromium headless). */
+/** Simula teclado virtual encolhendo a viewport (Chromium/WebKit headless). */
 export async function simulateVirtualKeyboard(page: Page, targetHeight: number) {
   const size = page.viewportSize();
   if (!size) return;
   await page.setViewportSize({ width: size.width, height: Math.max(280, targetHeight) });
-  await page.waitForTimeout(120);
+  // Playwright WebKit atualiza visualViewport.height no setViewportSize, mas
+  // nem sempre dispara o evento "resize" do visualViewport — o frame do player
+  // (useVisualViewportFrame) ficava na altura antiga (~308px de gap).
+  await page.evaluate(() => {
+    window.dispatchEvent(new Event("resize"));
+    window.visualViewport?.dispatchEvent(new Event("resize"));
+  });
+  await page
+    .waitForFunction(() => {
+      const frame = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;
+      if (!frame) return true;
+      const vv = window.visualViewport?.height ?? window.innerHeight;
+      return Math.abs(frame.getBoundingClientRect().height - vv) <= 8;
+    }, null, { timeout: 3_000 })
+    .catch(() => undefined);
+  await page.waitForTimeout(80);
 }
 
 export async function injectLongActivityScroll(page: Page, scrollTop = 900) {

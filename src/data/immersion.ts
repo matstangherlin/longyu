@@ -22,7 +22,12 @@ export interface ImmersionSession {
   rewardQi: number;
   missionProgress: {
     audioHeard: number;
-    phrasesSpoken?: number;
+    /**
+     * RC1.5 — era `phrasesSpoken`. Estas sessões são "ouça e repita": o app
+     * toca o áudio e o aluno acompanha. Nada mede se alguém abriu a boca, e o
+     * contador de fala agora exige microfone.
+     */
+    phrasesReviewed?: number;
     microtextsRead?: number;
   };
   minutes: {
@@ -58,7 +63,7 @@ export const IMMERSION_SESSIONS: ImmersionSession[] = [
     items: ["nihao", "nihaoma", "xiexie", "bukeqi", "zaijian"].map(chunkItem),
     rewardXp: 15,
     rewardQi: 6,
-    missionProgress: { audioHeard: 5, phrasesSpoken: 5 },
+    missionProgress: { audioHeard: 5, phrasesReviewed: 5 },
     minutes: { som: 2, fala: 2 },
   },
   {
@@ -70,7 +75,7 @@ export const IMMERSION_SESSIONS: ImmersionSession[] = [
     items: ["wojiao", "wature", "wohuishuoyidian", "wobuhui"].map(chunkItem),
     rewardXp: 15,
     rewardQi: 6,
-    missionProgress: { audioHeard: 4, phrasesSpoken: 4 },
+    missionProgress: { audioHeard: 4, phrasesReviewed: 4 },
     minutes: { som: 2, fala: 2 },
   },
   {

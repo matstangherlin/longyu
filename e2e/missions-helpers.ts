@@ -62,6 +62,7 @@ export function richMissionSeed(options: {
       date: day,
       audioHeard: 8,
       phrasesSpoken: 0,
+      phrasesReviewed: 0,
       reviewsDone: 10,
       hanziDecomposed: 0,
       microtextsRead: 0,

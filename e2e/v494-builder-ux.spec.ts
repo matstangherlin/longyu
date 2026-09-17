@@ -35,7 +35,10 @@ async function openBuilder(page: Page, builderId?: string) {
 /** Coloca as `count` primeiras peças disponíveis, uma a uma. */
 async function placePieces(page: Page, count: number) {
   for (let i = 0; i < count; i += 1) {
-    await page.locator(AVAILABLE).first().click();
+    const piece = page.locator(AVAILABLE).first();
+    await expect(piece).toBeVisible();
+    // WebKit: espera estabilidade; clicks em sequência às vezes fecham o contexto.
+    await piece.click({ timeout: 15_000 });
     await expect(page.locator(PLACED)).toHaveCount(i + 1);
   }
 }
@@ -108,9 +111,14 @@ test.describe("V4.9.4 — montar e desmontar sem conhecimento oculto", () => {
   test("7 · Desfazer tira a última peça colocada", async ({ page }) => {
     await openBuilder(page);
     await placePieces(page, 3);
-    await page.getByTestId("builder-undo").click();
+    const undo = page.getByTestId("builder-undo");
+    await expect(undo).toBeEnabled();
+    await undo.click();
     await expect(page.locator(PLACED)).toHaveCount(2);
-    await page.getByTestId("builder-undo").click();
+    // WebKit: espera o botão estabilizar após o re-render do primeiro undo
+    // (sem isso o driver às vezes fecha o contexto no segundo click).
+    await expect(undo).toBeEnabled();
+    await undo.click({ timeout: 15_000 });
     await expect(page.locator(PLACED)).toHaveCount(1);
   });
 
@@ -138,8 +146,11 @@ test.describe("V4.9.4 — montar e desmontar sem conhecimento oculto", () => {
     await page.getByRole("button", { name: /Verificar|Check/i }).click();
     // Acertar revela o caractere na carta; concluir é o passo seguinte, no
     // "Continuar" — é ele que devolve o resultado a quem hospeda o exercício.
-    await expect(page.getByText("森", { exact: true }).first()).toBeVisible({ timeout: 10_000 });
-    await page.getByRole("button", { name: /Continuar|Continue/i }).first().click();
+    const builder = page.locator("[data-hanzi-builder]");
+    await expect(builder.getByText("森", { exact: true }).first()).toBeVisible({ timeout: 10_000 });
+    const continueBtn = builder.getByRole("button", { name: /Continuar|Continue/i });
+    await expect(continueBtn).toBeVisible();
+    await continueBtn.click();
     await expect(page.locator("[data-qa-builder-status]")).toHaveAttribute(
       "data-qa-builder-status",
       "correct",

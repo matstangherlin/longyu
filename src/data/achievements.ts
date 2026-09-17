@@ -151,8 +151,25 @@ function microtextsRead(s: AchievementSnapshot): number {
   return Math.max(s.lifetimeStats.microtextsRead, microreadLessons);
 }
 
-function phrasesSpoken(s: AchievementSnapshot): number {
-  return Math.max(s.lifetimeStats.phrasesSpoken, s.learnedChunks.length);
+/**
+ * Frases úteis praticadas — revisão, não fala (RC1.5).
+ *
+ * As medalhas da categoria "fala" diziam "Fale 50 frases em voz alta" e eram
+ * concedidas por cinquenta cliques em "Já sabia": nenhuma delas jamais exigiu
+ * microfone. Duas saídas existiam — trocar a métrica ou trocar a promessa.
+ * Trocar a métrica tiraria medalhas já conquistadas de quem nunca pôde falar
+ * (navegador sem SpeechRecognition) e reescreveria o passado. Trocamos a
+ * promessa: a copy passou a dizer o que o número sempre mediu.
+ *
+ * `phrasesSpoken` continua no cálculo apenas como PISO HISTÓRICO, para que
+ * ninguém perca medalha no corte de semântica — não como prova de fala.
+ */
+function phrasesPracticed(s: AchievementSnapshot): number {
+  return Math.max(
+    s.lifetimeStats.phrasesReviewed ?? 0,
+    s.lifetimeStats.phrasesSpoken,
+    s.learnedChunks.length
+  );
 }
 
 function dailyMissionsClaimed(s: AchievementSnapshot): number {
@@ -438,30 +455,30 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "fala",
     tier: "small",
     glyph: "口",
-    title: "Primeira voz",
-    desc: "Fale sua primeira frase em voz alta.",
+    title: "Primeira frase",
+    desc: "Pratique sua primeira frase útil.",
     reward: REWARD_SMALL,
-    progress: (s) => capped(phrasesSpoken(s), 1),
+    progress: (s) => capped(phrasesPracticed(s), 1),
   },
   {
     id: "fala-10-frases",
     category: "fala",
     tier: "medium",
     glyph: "说",
-    title: "Conversa iniciada",
-    desc: "Fale 10 frases em voz alta.",
+    title: "Repertório iniciado",
+    desc: "Pratique 10 frases úteis.",
     reward: REWARD_MEDIUM,
-    progress: (s) => capped(phrasesSpoken(s), 10),
+    progress: (s) => capped(phrasesPracticed(s), 10),
   },
   {
     id: "fala-50-frases",
     category: "fala",
     tier: "large",
     glyph: "言",
-    title: "Voz confiante",
-    desc: "Fale 50 frases em voz alta.",
+    title: "Repertório firme",
+    desc: "Pratique 50 frases úteis.",
     reward: REWARD_LARGE_QI,
-    progress: (s) => capped(phrasesSpoken(s), 50),
+    progress: (s) => capped(phrasesPracticed(s), 50),
   },
 
   // 7. Leitura -------------------------------------------------------------

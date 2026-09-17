@@ -5,23 +5,23 @@ de passo promete, e o que a tela oferece de fato.
 
 | StepKind | habilidade | passos | com áudio | com imagem | com alternativas | resposta livre | renderer | voz |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| sentence_build | montar | 599 | 0 | 0 | 599 | 0 | StepSentenceBuild | — |
-| dialogue_choice | escolher | 587 | 0 | 0 | 587 | 0 | StepDialogueChoice | — |
+| sentence_build | montar | 596 | 0 | 0 | 596 | 0 | StepSentenceBuild | — |
+| dialogue_choice | escolher | 581 | 0 | 0 | 581 | 0 | StepDialogueChoice | — |
 | fill_blank | escolher | 580 | 4 | 0 | 580 | 0 | StepFillBlank | — |
 | conversation_scene | conversar | 562 | 0 | 0 | 481 | 0 | ConversationSceneStep | — |
 | comprehend | escolher | 551 | 0 | 0 | 551 | 0 | StepComprehend | — |
 | image_choice | interpretar imagem | 532 | 0 | 532 | 325 | 0 | StepImageChoice | — |
-| listen_select | ouvir | 494 | 494 | 0 | 494 | 0 | StepListenSelect | — |
+| listen_select | ouvir | 497 | 497 | 0 | 497 | 0 | StepListenSelect | — |
 | free_production | produzir | 477 | 0 | 0 | 0 | 477 | StepFreeProduction | sim |
+| hanzi_build | escolher | 307 | 0 | 0 | 269 | 0 | StepHanziBuild | — |
 | listen | ouvir | 305 | 0 | 0 | 0 | 0 | StepListen | — |
-| hanzi_build | escolher | 305 | 0 | 0 | 269 | 0 | StepHanziBuild | — |
 | intro | escolher | 282 | 0 | 0 | 0 | 0 | StepIntro | — |
+| reverse_recall | produzir | 155 | 0 | 0 | 155 | 155 | StepFreeProduction | sim |
 | conversation_repair | produzir | 155 | 0 | 0 | 0 | 0 | StepConversationRepair | sim |
-| reverse_recall | produzir | 152 | 0 | 0 | 152 | 152 | StepFreeProduction | sim |
 | contextual_choice | escolher | 141 | 0 | 0 | 141 | 0 | StepDialogueChoice | — |
-| tone | escolher | 134 | 0 | 0 | 0 | 0 | StepTone | — |
-| recognize | construir/reconhecer forma | 100 | 0 | 0 | 3 | 0 | StepRecognize | — |
+| tone | escolher | 135 | 0 | 0 | 0 | 0 | StepTone | — |
 | dictation | ouvir | 100 | 100 | 0 | 56 | 0 | StepDictation | — |
+| recognize | construir/reconhecer forma | 99 | 0 | 0 | 3 | 0 | StepRecognize | — |
 | spot_error | escolher | 97 | 0 | 0 | 97 | 0 | StepSpotError | — |
 | audio_discrimination | ouvir | 96 | 96 | 0 | 0 | 0 | StepAudioDiscrimination | — |
 | match_pairs | escolher | 84 | 0 | 0 | 0 | 0 | StepMatchPairs | — |

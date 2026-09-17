@@ -11,7 +11,7 @@ import {
   seedRichMissions,
 } from "./missions-helpers";
 
-const PRINCIPAL_WEBKIT = new Set(["320×568", "390×844", "1024×768"]);
+const PRINCIPAL_WEBKIT = new Set(["320×568", "390×844", "1280×720"]);
 
 function skipHeavyMatrix(browserName: string, label: string) {
   if (browserName === "chromium") return false;
@@ -203,8 +203,8 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
     });
   });
 
-  test.describe("estados desktop 1024", () => {
-    test.use({ viewport: { width: 1024, height: 768 } });
+  test.describe("estados desktop 1280", () => {
+    test.use({ viewport: { width: 1280, height: 720 } });
 
     test("hero mensal incompleto e vazio de medalhas", async ({ page }) => {
       await seedRichMissions(page, { monthlyCompleted: 3, monthlyChests: 0 });

@@ -88,8 +88,10 @@ test.describe("consistência visual e responsiva", () => {
     await page.setViewportSize({ width: 360, height: 640 });
     await seedOnboardedSession(page);
     await page.goto("/jornada");
+    const nav = page.locator("nav").last();
+    await expect(nav.locator("a, button").first()).toBeVisible({ timeout: 15_000 });
 
-    const sizes = await page.locator("nav").last().locator("a, button").evaluateAll((els) =>
+    const sizes = await nav.locator("a, button").evaluateAll((els) =>
       els.map((el) => {
         const rect = el.getBoundingClientRect();
         return { width: rect.width, height: rect.height };

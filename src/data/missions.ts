@@ -5,6 +5,7 @@
 // componentes na camada de UI, para manter os dados desacoplados.
 
 import { monthKey } from "../lib/storage";
+import { isRecognitionAvailable } from "../lib/speech";
 
 export type MissionScope = "daily" | "weekly" | "monthly";
 
@@ -34,7 +35,10 @@ export type MissionMetric =
   | "minutesToday"
   | "reviewsToday"
   | "audioToday"
+  /** Frases REVISADAS hoje (flashcard, história, autoavaliação). */
   | "phrasesToday"
+  /** Frases realmente FALADAS hoje — só tentativa de fala com voz capturada. */
+  | "spokenToday"
   | "hanziToday"
   | "errorsToday"
   | "threeStarToday"
@@ -83,6 +87,43 @@ export interface MissionDef {
    * exige a assinatura — as missões grátis continuam pagando Qi suficiente.
    */
   pro?: boolean;
+  /**
+   * Capacidade de plataforma sem a qual a missão é impossível (RC1.5, P8.2).
+   *
+   * Uma missão "fale 5 frases" num navegador sem SpeechRecognition não é uma
+   * meta difícil, é uma meta inalcançável — e uma meta inalcançável no topo da
+   * tela ensina o aluno a ignorar missões. Quem não tem a capacidade não
+   * recebe a missão.
+   */
+  requiresPlatform?: "speech_recognition";
+}
+
+/**
+ * Métricas que só avançam com tentativa REAL de fala (RC1.5, P8).
+ *
+ * `phrasesToday` não está aqui, e é esse o ponto: ela conta revisão. Uma
+ * missão de falar que aceitasse revisão seria concluída com cinco cliques em
+ * "Já sabia" — o gate `validate:mission-speech-integrity` recusa.
+ */
+export const SPEECH_MISSION_METRICS: readonly MissionMetric[] = ["spokenToday"];
+
+/**
+ * A copy desta missão promete FALA?
+ *
+ * Deliberadamente amplo: "fale", "em voz alta", "speak". Falso positivo custa
+ * uma métrica trocada; falso negativo devolve a mentira que a RC1.5 veio
+ * fechar.
+ */
+export const SPEAKING_CLAIM_PATTERN =
+  /\b(fale|falar|falando|falou|pronuncie|pronunciar|speak|speaking|spoke|say it|out loud)\b|em voz alta/i;
+
+export function missionClaimsSpeaking(def: Pick<MissionDef, "title" | "desc">): boolean {
+  return SPEAKING_CLAIM_PATTERN.test(`${def.title} ${def.desc}`);
+}
+
+/** A métrica desta missão exige fala comprovada? */
+export function missionUsesSpeechMetric(def: Pick<MissionDef, "metric">): boolean {
+  return SPEECH_MISSION_METRICS.includes(def.metric);
 }
 
 // Missões do dia (resetam todo dia). Todas derivam de contadores já existentes,
@@ -142,6 +183,27 @@ export const DAILY_MISSION_DEFS: MissionDef[] = [
     goal: 3,
     to: "/fala",
     reward: { xp: 8, qi: 6 },
+  },
+  {
+    /**
+     * A única missão que promete fala — e a única que exige microfone.
+     *
+     * Ela existe para que "falar" volte a significar falar: avança por
+     * `spokenToday`, que só cresce com voz capturada. A meta é 1 porque o
+     * objetivo é vencer a barreira de abrir a boca, não bater volume; e a
+     * missão nem aparece para quem não tem reconhecimento de voz no navegador
+     * (P8.2) — meta impossível no topo da tela ensina a ignorar missões.
+     */
+    id: "daily-speak",
+    scope: "daily",
+    title: "Fale 1 frase em voz alta",
+    desc: "Use o microfone em uma tarefa de fala da jornada e fale de verdade.",
+    iconKey: "lessons",
+    metric: "spokenToday",
+    goal: 1,
+    to: "/jornada",
+    reward: { xp: 10, qi: 8 },
+    requiresPlatform: "speech_recognition",
   },
   {
     id: "daily-hanzi",
@@ -355,6 +417,7 @@ export interface MissionAggregates {
   reviewsToday: number;
   audioToday: number;
   phrasesToday: number;
+  spokenToday: number;
   hanziToday: number;
   errorsToday: number;
   threeStarToday: number;
@@ -373,8 +436,32 @@ export function metricValue(metric: MissionMetric, agg: MissionAggregates): numb
   return agg[metric];
 }
 
-export function missionDefsFor(scope: Exclude<MissionScope, "monthly">): MissionDef[] {
-  return scope === "daily" ? DAILY_MISSION_DEFS : WEEKLY_MISSION_DEFS;
+/** O que a plataforma do aluno sabe fazer agora. */
+export interface MissionPlatformSupport {
+  speechRecognition?: boolean;
+}
+
+/**
+ * O que ESTE navegador sabe fazer (P8.2).
+ *
+ * O default é consultar a plataforma de verdade, não assumir que tudo existe:
+ * assim as sete telas que montam missão ficam capability-aware sem que cada
+ * uma precise lembrar de perguntar. Em Node (gates, testes) não há `window`,
+ * `isRecognitionAvailable` devolve false, e a missão de fala some — que é a
+ * resposta correta para um ambiente sem microfone.
+ */
+export function detectMissionPlatform(): MissionPlatformSupport {
+  return { speechRecognition: isRecognitionAvailable() };
+}
+
+export function missionDefsFor(
+  scope: Exclude<MissionScope, "monthly">,
+  platform: MissionPlatformSupport = detectMissionPlatform()
+): MissionDef[] {
+  const defs = scope === "daily" ? DAILY_MISSION_DEFS : WEEKLY_MISSION_DEFS;
+  return defs.filter((def) =>
+    def.requiresPlatform === "speech_recognition" ? Boolean(platform.speechRecognition) : true
+  );
 }
 
 export function findMissionDef(
@@ -404,9 +491,10 @@ export function isMissionActionable(mission: Pick<MissionDef, "pro">, isPro: boo
 export function buildMissionViews(
   scope: Exclude<MissionScope, "monthly">,
   agg: MissionAggregates,
-  claimed: Record<string, boolean>
+  claimed: Record<string, boolean>,
+  platform?: MissionPlatformSupport
 ): MissionView[] {
-  return missionDefsFor(scope).map((def) => {
+  return missionDefsFor(scope, platform).map((def) => {
     const raw = metricValue(def.metric, agg);
     return {
       ...def,
