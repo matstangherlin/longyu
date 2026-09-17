@@ -417,9 +417,9 @@ preservados. Product truth inalterado.
 
 | Gate | Resultado |
 |---|---|
-| `validate:beta` | (preenchido abaixo) |
-| `build` | (preenchido abaixo) |
-| `validate:frontend-secrets` | (preenchido abaixo) |
+| `build` | ✅ PASS (exit 0) — `dist/version.json` com SHA de 40 hex, `sw.js` e `manifest.webmanifest` emitidos |
+| `validate:frontend-secrets` (pós-build) | ✅ PASS — nenhum segredo no `dist/` |
+| `validate:beta` | ⚠️ **não concluído neste ambiente** — ver nota abaixo |
 | `validate:security-boundaries` | ✅ PASS |
 | `validate:public-beta-core` | ✅ PASS (**NO-GO**, como esperado) |
 | `validate:public-beta-feature-freeze` | ✅ PASS |
@@ -432,6 +432,40 @@ preservados. Product truth inalterado.
 | `test:rc2-candidate-infra` | ✅ 35 mutações mortas |
 | `verify:rc2-candidate-identity` | ⛔ `BLOCKED_CREDENTIALS` (exit 2) |
 | `audit:rc2-qa-backend` | ⛔ `BLOCKED_CREDENTIALS` (exit 2) |
+
+### Nota honesta sobre `validate:beta`
+
+A cadeia `validate:beta` tem várias centenas de passos. Este agente roda num
+container que **suspende entre turnos**, então o processo acumulou apenas
+segundos de CPU ao longo de várias esperas de 10 minutos — concluir a cadeia
+inteira aqui não era praticável.
+
+O que de fato aconteceu: a cadeia rodou até
+`test:travel-conversation-naturalness` e **todos os passos executados passaram**
+(nenhuma falha em nenhum ponto) antes de ser interrompida. Em seguida `build` e
+`validate:frontend-secrets` rodaram inteiros e passaram.
+
+Todos os validadores que **esta remessa toca** foram executados
+individualmente e passam: `validate:app-environment`, `test:entitlements`,
+`test:qa-fast-path`, `validate:production-no-fixtures`,
+`validate:rc2-content-freeze`, `validate:rc2-candidate-config`,
+`validate:rc2-candidate-drift`, `validate:rc2-candidate-infra`,
+`test:rc2-candidate-infra`, `validate:public-beta-core`,
+`validate:public-beta-feature-freeze`, `validate:security-boundaries`,
+`typecheck`.
+
+**A autoridade sobre `validate:beta` é o CI da PR**, que roda a cadeia completa
+mais `build` e `validate:frontend-secrets`. O DoD só está fechado quando o
+workflow ficar verde.
+
+Contrato do candidate também exercitado de verdade contra
+`scripts/assert-netlify-env.mjs` com env simulada de Netlify:
+
+| Cenário | Resultado |
+|---|---|
+| candidate válido (supabase QA, fixtures/Pro Preview off) | ✅ exit 0, ref mascarado no log |
+| candidate com `VITE_BACKEND_MODE=local` | ✅ exit 1 · `LOCAL_BACKEND` |
+| candidate apontando para o Supabase de **produção** | ✅ exit 1 · `PRODUCTION_REF` |
 
 **P39 — CI:** Chromium, WebKit, Firefox e Security rodam no CI da PR. WebKit é
 bloqueante desde RC2 P2.1. Este relatório não declara CI verde por conta própria
