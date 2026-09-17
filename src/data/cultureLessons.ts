@@ -680,6 +680,243 @@ const EXTRAS: Record<string, ExtraSteps> = {
       "independent_application"
     ),
   ],
+  "china-history-timeline": (_item, conceptId) => [
+    story(
+      t("Mapa mental", "Mental map"),
+      t(
+        "China antiga → Qin → Han → Tang → Song → Ming → Qing → China moderna. Introdução, não curso completo.",
+        "Ancient China → Qin → Han → Tang → Song → Ming → Qing → modern China. An introduction, not a full course."
+      ),
+      conceptId
+    ),
+    pairs(
+      t("Ordem dos blocos", "Order of the blocks"),
+      t("Combine o período com a posição.", "Match the period with its place."),
+      [
+        { left: t("Qin", "Qin"), right: t("primeiro império unificado neste mapa", "first unified empire on this map") },
+        { left: t("Han", "Han"), right: t("depois de Qin", "after Qin") },
+        { left: t("Tang", "Tang"), right: t("depois de Han", "after Han") },
+      ],
+      t("A sequência Qin → Han → Tang é o eixo estável deste mapa introdutório.", "The Qin → Han → Tang sequence is the stable axis of this introductory map."),
+      conceptId,
+      "guided_application"
+    ),
+    contextual(
+      t("Ordem cronológica", "Chronological order"),
+      t("Nesta visão introdutória, qual ordem está correta?", "In this introductory overview, which order is correct?"),
+      t("Qin → Han → Tang → Song", "Qin → Han → Tang → Song"),
+      [
+        t("Tang → Han → Qin", "Tang → Han → Qin"),
+        t("Qin → Han → Tang → Song", "Qin → Han → Tang → Song"),
+        t("Song → Qin → Ming", "Song → Qin → Ming"),
+      ],
+      t("O mapa segue Qin, Han, Tang, Song — depois Ming/Qing.", "The map follows Qin, Han, Tang, Song — then Ming/Qing."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "qin-unification": (_item, conceptId) => [
+    story(
+      t("秦 · Qín", "秦 · Qín"),
+      t(
+        "Unificação imperial sob Qin Shi Huang; padronizações; mausoléu dos Guerreiros de Terracota.",
+        "Imperial unification under Qin Shi Huang; standardisations; Terracotta Army mausoleum."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "秦",
+        pinyin: "Qín",
+        meaning: t("Qin (dinastia)", "Qin (dynasty)"),
+      }
+    ),
+    contextual(
+      t("Grande Muralha e Qin", "Great Wall and Qin"),
+      t("Sobre a Grande Muralha e Qin, qual leitura é mais segura?", "About the Great Wall and Qin, which reading is safer?"),
+      t("conexões antigas/Qin; muita da muralha visitável é Ming", "earlier/Qin links; much of the visitable wall is Ming"),
+      [
+        t("Qin construiu toda a muralha atual", "Qin built all of today's wall"),
+        t("conexões antigas/Qin; muita da muralha visitável é Ming", "earlier/Qin links; much of the visitable wall is Ming"),
+        t("a muralha só existe na literatura", "the wall exists only in literature"),
+      ],
+      t("Não diga que Qin construiu toda a Grande Muralha atual.", "Do not say Qin built all of today's Great Wall."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("No mapa", "On the map"),
+      t("Qin aparece no início do bloco imperial deste Atlas.", "Qin appears at the start of this Atlas's imperial block."),
+      t("Qin vem ", "Qin comes "),
+      t("antes de Han", "before Han"),
+      t(".", "."),
+      [t("antes de Han", "before Han"), t("depois de Tang", "after Tang"), t("depois de Qing", "after Qing")],
+      t("Sequência: Qin → Han → Tang…", "Sequence: Qin → Han → Tang…"),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "han-dynasty": (_item, conceptId) => [
+    story(
+      t("汉 · Hàn", "汉 · Hàn"),
+      t(
+        "Consolidação após Qin. 汉 em 汉字 é vínculo cultural/histórico — a escrita é bem mais antiga.",
+        "Consolidation after Qin. 汉 in 汉字 is a cultural/historical link — writing is much older."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "汉",
+        pinyin: "Hàn",
+        meaning: t("Han (dinastia)", "Han (dynasty)"),
+      }
+    ),
+    contextual(
+      t("汉字 e Han", "汉字 and Han"),
+      t("Por que 汉 aparece em 汉字 nesta lição?", "Why does 汉 appear in 汉字 in this lesson?"),
+      t("vínculo cultural com a era Han; a escrita é mais antiga", "a cultural link to the Han era; writing is older"),
+      [
+        t("a escrita nasceu só em 220 d.C.", "writing only began in 220 CE"),
+        t("vínculo cultural com a era Han; a escrita é mais antiga", "a cultural link to the Han era; writing is older"),
+        t("Han é um feriado estatal", "Han is a state holiday"),
+      ],
+      t("Contexto cultural — não vira newRef lexical automático.", "Cultural context — it does not become an automatic lexical newRef."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Cronologia", "Chronology"),
+      t("No mapa introdutório…", "On the introductory map…"),
+      t("Han vem ", "Han comes "),
+      t("depois de Qin", "after Qin"),
+      t(" e antes de Tang.", " and before Tang."),
+      [t("depois de Qin", "after Qin"), t("antes de Qin", "before Qin"), t("depois de Song", "after Song")],
+      t("Qin → Han → Tang.", "Qin → Han → Tang."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "tang-dynasty": (_item, conceptId) => [
+    story(
+      t("唐 · Táng", "唐 · Táng"),
+      t(
+        "Chang'an, intercâmbio cultural e poesia — 'idade de ouro' é caracterização, não ranking absoluto.",
+        "Chang'an, cultural exchange, and poetry — 'golden age' is a characterisation, not an absolute ranking."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "唐",
+        pinyin: "Táng",
+        meaning: t("Tang (dinastia)", "Tang (dynasty)"),
+      }
+    ),
+    contextual(
+      t("Antes e depois", "Before and after"),
+      t("Qual veio antes no mapa introdutório?", "Which came earlier on the introductory map?"),
+      t("Han antes de Tang", "Han before Tang"),
+      [
+        t("Tang antes de Han", "Tang before Han"),
+        t("Han antes de Tang", "Han before Tang"),
+        t("Tang e Han no mesmo século", "Tang and Han in the same century"),
+      ],
+      t("Qin → Han → Tang. Tang não precede Han.", "Qin → Han → Tang. Tang does not precede Han."),
+      conceptId,
+      "guided_application"
+    ),
+    pairs(
+      t("Leitura cuidadosa", "Careful reading"),
+      t("Separe fato de rótulo.", "Separate fact from label."),
+      [
+        { left: t("'idade de ouro'", "'golden age'"), right: t("caracterização histórica", "historical characterisation") },
+        { left: t("Chang'an", "Chang'an"), right: t("capital cosmopolita nas fontes", "a cosmopolitan capital in the sources") },
+        { left: t("'a melhor dinastia' absoluto", "'the best dynasty' as absolute"), right: t("evitar", "avoid") },
+      ],
+      t("Não romantize Tang como veredicto objetivo.", "Do not romanticise Tang as an objective verdict."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "song-dynasty": (_item, conceptId) => [
+    story(
+      t("宋 · Sòng", "宋 · Sòng"),
+      t(
+        "Urbanização, comércio e tecnologias graduais — não 'inventou tudo num dia'.",
+        "Urbanisation, commerce, and gradual technologies — not 'invented everything in a day'."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "宋",
+        pinyin: "Sòng",
+        meaning: t("Song (dinastia)", "Song (dynasty)"),
+      }
+    ),
+    contextual(
+      t("Inovações", "Innovations"),
+      t("Sobre impressão, bússola e pólvora na era Song…", "About printing, the compass, and gunpowder in the Song era…"),
+      t("processos graduais neste horizonte histórico", "gradual processes in this historical horizon"),
+      [
+        t("Song inventou tudo num único dia", "Song invented everything in a single day"),
+        t("processos graduais neste horizonte histórico", "gradual processes in this historical horizon"),
+        t("nada disso existiu antes de 1900", "none of that existed before 1900"),
+      ],
+      t("Leitura gradual, não milagre de um dia.", "A gradual reading, not a one-day miracle."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Ordem", "Order"),
+      t("No mapa…", "On the map…"),
+      t("Song vem ", "Song comes "),
+      t("depois de Tang", "after Tang"),
+      t(".", "."),
+      [t("depois de Tang", "after Tang"), t("antes de Qin", "before Qin"), t("antes de Han", "before Han")],
+      t("Tang → Song → Ming/Qing.", "Tang → Song → Ming/Qing."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "ming-qing": (_item, conceptId) => [
+    story(
+      t("明 · Míng / 清 · Qīng", "明 · Míng / 清 · Qīng"),
+      t(
+        "Império tardio: Forbidden City e muralha visitável (sobretudo Ming); Qing como última dinastia até 1911/12.",
+        "Late empire: Forbidden City and visitable wall (mainly Ming); Qing as last dynasty until 1911/12."
+      ),
+      conceptId,
+      {
+        speaker: t("Períodos", "Periods"),
+        hanzi: "明清",
+        pinyin: "Míng Qīng",
+        meaning: t("Ming e Qing", "Ming and Qing"),
+      }
+    ),
+    contextual(
+      t("Império tardio", "Late empire"),
+      t("Qual período está associado à China imperial tardia neste mapa?", "Which period is associated with late imperial China on this map?"),
+      t("Ming e Qing", "Ming and Qing"),
+      [
+        t("Qin e Han", "Qin and Han"),
+        t("Ming e Qing", "Ming and Qing"),
+        t("Tang e Song apenas", "Tang and Song only"),
+      ],
+      t("Ming antes de Qing; fim do sistema imperial em 1911/12.", "Ming before Qing; end of the imperial system in 1911/12."),
+      conceptId,
+      "guided_application"
+    ),
+    pairs(
+      t("Ming e Qing", "Ming and Qing"),
+      t("Combine sem entrar em política contemporânea profunda.", "Match without entering deep contemporary politics."),
+      [
+        { left: t("Ming", "Ming"), right: t("Forbidden City / muralha visitável", "Forbidden City / visitable wall") },
+        { left: t("Qing", "Qing"), right: t("última dinastia imperial", "last imperial dynasty") },
+        { left: t("1911/12", "1911/12"), right: t("fim do sistema imperial", "end of the imperial system") },
+      ],
+      t("Esta lesson para no fim do império — sem deep dive político moderno.", "This lesson stops at the end of empire — no modern political deep dive."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
   "mid-autumn": (_item, conceptId) => [
     fill(
       t("O que é estável no 中秋", "What is stable about Mid-Autumn"),

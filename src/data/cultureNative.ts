@@ -73,6 +73,13 @@ export const CULTURE_LESSON_ENTRIES: readonly CultureLessonEntry[] = [
   { itemId: "chinese-dragon", track: "explore" },
   { itemId: "sun-wukong", track: "explore" },
   { itemId: "journey-to-the-west", track: "explore" },
+  // V4.11A.3 — History essentials (hub-only; Journey stays compact).
+  { itemId: "china-history-timeline", track: "explore" },
+  { itemId: "qin-unification", track: "explore" },
+  { itemId: "han-dynasty", track: "explore" },
+  { itemId: "tang-dynasty", track: "explore" },
+  { itemId: "song-dynasty", track: "explore" },
+  { itemId: "ming-qing", track: "explore" },
 ] as const;
 
 /**

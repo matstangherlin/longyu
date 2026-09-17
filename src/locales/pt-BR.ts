@@ -2226,6 +2226,7 @@ export const ptBR = {
     hideSecondary: "Esconder extras",
     collectionPreparing: "Em preparação",
     collectionPreparingBody: "Esta coleção ainda não tem lições publicadas.",
+    timelineEyebrow: "Linha do tempo",
     missionEyebrow: "Missão cultural",
     missionProgress: "{current} / {total}",
     missionDoneEyebrow: "Missão concluída",

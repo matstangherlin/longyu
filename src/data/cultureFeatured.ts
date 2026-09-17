@@ -6,7 +6,7 @@
 export const CULTURE_FEATURED_ITEMS = [
   "spring-festival",
   "sun-wukong",
-  "chinese-dragon",
+  "china-history-timeline",
 ] as const;
 
 export type CultureFeaturedItemId = (typeof CULTURE_FEATURED_ITEMS)[number];
