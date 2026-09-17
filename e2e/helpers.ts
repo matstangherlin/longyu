@@ -287,6 +287,13 @@ export async function advanceToChoiceOptions(page: Page, timeoutMs = 15_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (await options.first().isVisible().catch(() => false)) return;
+    // GuideDialogue: typewriter complete then advance (may need two clicks).
+    const guideContinue = page.getByTestId("guide-continue");
+    if (await guideContinue.isVisible().catch(() => false)) {
+      await guideContinue.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
     const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
     const continueBtn = page.getByRole("button", { name: /^Continuar$/i });
     const entendi = page.getByRole("button", { name: /^Entendi$/i });

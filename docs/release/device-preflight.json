@@ -1,0 +1,39 @@
+{
+  "id": "rc2-device-preflight",
+  "kind": "PRE_CERTIFICATION",
+  "stackBaseSha": "529f85ef2b72a9682307e790639d1008654329fb",
+  "inheritedPr": 273,
+  "candidateStatus": "BLOCKED_CREDENTIALS",
+  "note": "PREFLIGHT_* is not a formal operational PASS. android_real_device / ios_real_device / pwa_upgrade / rollback_drill remain false until candidate C drills.",
+  "android": {
+    "status": "PENDING",
+    "label": "CHROMIUM_MOBILE_PREFLIGHT",
+    "formalCheck": "android_real_device",
+    "formalPass": false
+  },
+  "ios": {
+    "status": "PENDING",
+    "label": "WEBKIT_MOBILE_PREFLIGHT",
+    "formalCheck": "ios_real_device",
+    "formalPass": false
+  },
+  "pwa": {
+    "status": "PREFLIGHT_PASS",
+    "label": "LOCAL_N_TO_N1_PREFLIGHT",
+    "formalCheck": "pwa_upgrade",
+    "formalPass": false,
+    "testedAt": "2026-09-17T20:58:19.616Z",
+    "note": "Local N→N+1 identity swap + rollback identity; NOT formal pwa_upgrade"
+  },
+  "rollback": {
+    "status": "PREFLIGHT_PASS",
+    "label": "LOCAL_ROLLBACK_READINESS",
+    "formalCheck": "rollback_drill",
+    "formalPass": false,
+    "testedAt": "2026-09-17T20:58:19.616Z",
+    "note": "Local identity rollback + persisted progress file; NOT formal rollback_drill"
+  },
+  "fingerprint": "516692632525",
+  "curriculumFreeze": "RC2_CONTENT_FREEZE",
+  "featureFreeze": "PUBLIC_BETA"
+}

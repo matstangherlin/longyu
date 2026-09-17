@@ -397,6 +397,7 @@ export async function openPlayerPro(page: Page, lessonId = "p1-o-que-e-mandarim"
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+  await advancePastGuideDialogue(page);
 }
 
 export async function openPlayer(page: Page, lessonId = "p1-o-que-e-mandarim") {
@@ -405,6 +406,35 @@ export async function openPlayer(page: Page, lessonId = "p1-o-que-e-mandarim") {
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
+  await advancePastGuideDialogue(page);
+}
+
+/**
+ * GuideDialogue (#269/#270): first Continuar/Entendi completes typewriter;
+ * second advances. Sticky CTA geometry only applies after the guide step.
+ */
+export async function advancePastGuideDialogue(page: Page, timeoutMs = 20_000) {
+  const dialogue = page.getByTestId("guide-dialogue");
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline && (await dialogue.isVisible().catch(() => false))) {
+    const cont = page.getByTestId("guide-continue");
+    if (await cont.isVisible().catch(() => false)) {
+      await cont.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
+    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
+    break;
+  }
+  // Prefer landing on a docked action / choice step for sticky geometry tests.
+  if (await page.locator("[data-lesson-action-region]").isVisible().catch(() => false)) return;
+  if (await page.locator("[data-option-index]").first().isVisible().catch(() => false)) return;
+  await advanceUntilSelector(page, "[data-lesson-action-region], [data-option-index]", 12, 25_000);
 }
 
 export async function seedProOnTopOfSession(page: Page) {

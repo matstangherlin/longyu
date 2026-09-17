@@ -224,12 +224,46 @@ for (const viewport of MOBILE_VIEWPORTS) {
     });
 
     test("troca de step — scroll da atividade volta ao topo", async ({ page }) => {
+      test.setTimeout(90_000);
       await openPlayer(page);
       const scroller = page.locator("[data-lesson-activity-scroll]");
       await injectLongActivityScroll(page);
-      await page.getByRole("button", { name: "Entendi" }).click();
-      await expect(page.getByRole("button", { name: /你好|谢谢|我很好|Não posso falar agora/ }).first()).toBeVisible({ timeout: 10_000 });
-      await expect.poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 5_000 }).toBe(0);
+      // Spacer leaves options above the fold when scrollTop≈900 — bring them
+      // back to select, then re-apply scroll so advance must reset it.
+      const option = page.locator("[data-option-index]").first();
+      if ((await option.count()) > 0) {
+        await option.evaluate((el) => el.scrollIntoView({ block: "center" }));
+        await option.click();
+        await expect(
+          page.getByRole("button", { name: /^Verificar$|^Confirmar$|^Conferir$|^Continuar$/ }).first()
+        ).toBeEnabled({ timeout: 5_000 });
+        await scroller.evaluate((node) => {
+          node.scrollTop = Math.min(900, Math.max(0, node.scrollHeight - node.clientHeight));
+        });
+        await expect
+          .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 3_000 })
+          .toBeGreaterThan(100);
+        const verified = await clickFirstVisible(page, [
+          /^Verificar$/,
+          /^Confirmar$/,
+          /^Conferir$/,
+          /^Continuar$/,
+        ]);
+        expect(verified, "verify/continue after option").toBe(true);
+        // Graded choice: Verificar shows feedback; Continuar calls onDone → idx++.
+        await clickFirstVisible(page, [/^Continuar$/, /^Entendi$/, /^Got it$/]);
+      } else {
+        const advanced = await clickFirstVisible(page, [
+          /^Não posso falar agora$/,
+          /^Continuar$/,
+          /^Entendi$/,
+          /^Got it$/,
+        ]);
+        expect(advanced, "non-choice advance").toBe(true);
+      }
+      await expect
+        .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 8_000 })
+        .toBe(0);
       await assertPageScrollLocked(page);
     });
   });

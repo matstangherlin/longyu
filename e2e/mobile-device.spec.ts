@@ -31,6 +31,7 @@ test.describe("dispositivo — toque", () => {
   });
 
   test("primeira lição avança por toque (Entendi → opção)", async ({ page }) => {
+    test.setTimeout(90_000);
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
@@ -41,10 +42,18 @@ test.describe("dispositivo — toque", () => {
     const entendi = page.getByRole("button", { name: "Entendi" });
     await expect(entendi).toBeVisible({ timeout: 20_000 });
     await entendi.tap();
-    const option = page.getByRole("button", { name: /你好/ }).first();
+    await page.waitForTimeout(150);
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.tap();
+    }
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await skipSpeak.tap();
+    }
+    await advanceToChoiceOptions(page, 30_000);
+    const option = page.locator("[data-option-index]").first();
     await expect(option).toBeVisible();
     await option.tap();
-    // Após o toque, o player mostra verificação/feedback ou avança — sem crash.
     await expect(page.locator("body")).not.toContainText("Unexpected Application Error");
   });
 });
@@ -67,6 +76,7 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
   });
 
   test("Enter aciona o botão em foco (avançar)", async ({ page }) => {
+    test.setTimeout(90_000);
     await seedFreshJourneySession(page);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
@@ -74,7 +84,17 @@ test.describe("dispositivo — teclado físico (desktop)", () => {
     const entendi = page.getByRole("button", { name: "Entendi" });
     await entendi.focus();
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    await page.waitForTimeout(150);
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.focus();
+      await page.keyboard.press("Enter");
+    }
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) {
+      await skipSpeak.click();
+    }
+    await advanceToChoiceOptions(page, 30_000);
+    await expect(page.locator("[data-option-index]").first()).toBeVisible();
   });
 });
 

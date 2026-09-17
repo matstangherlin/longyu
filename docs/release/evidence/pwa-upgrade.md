@@ -30,20 +30,22 @@ IDs de teste devem ser mascarados (`cus_***4242`).
 
 ## Pré-requisitos
 
-- Capacidade de publicar duas versões (N e N+1)
-- Dispositivo com o app já instalado
+- Capacidade de publicar duas versões **no candidate** (N e N+1)
+- Dispositivo com o app já instalado / aba aberta
+- `/version.json` acessível (Cache-Control `no-cache`)
 
 ## Passos
 
-1. Instalar a versão N e abrir o app.
-2. Publicar a versão N+1.
+1. Instalar / abrir a versão N; anotar `commitSha` de `/version.json`.
+2. Publicar a versão N+1 no mesmo site candidate.
 3. Voltar ao app **sem limpar dados**.
 4. Confirmar: o service worker assume, as rotas lazy funcionam e nenhuma tela
-   "Algo saiu do prumo" aparece.
-5. **P8.2 / P10** — deixar uma aba aberta durante o deploy e navegar depois.
-   Reload controlado no máximo uma vez; nunca loop.
-6. **P10.1 Offline** — se offline for suportado oficialmente, testar. Se não
-   for, remover qualquer promessa pública de offline.
+   branca permanente ("Algo saiu do prumo" só se recovery falhar).
+5. Deixar uma aba aberta durante o deploy e navegar depois (Journey, Cultura,
+   Profile, lesson). Reload controlado no máximo **uma** vez; nunca loop.
+6. Confirmar `/version.json` = SHA de N+1.
+7. Offline: Longyu **não** promete currículo offline completo. Indicadores
+   "Sem conexão" / sync posterior são honestos; não marcar offline-ready.
 
 ## RESULTADO
 
@@ -52,9 +54,15 @@ IDs de teste devem ser mascarados (`cus_***4242`).
 | date | _(não executado)_ |
 | environment | _(não executado)_ |
 | result | **NOT_RUN** |
-| commitSha | _(não executado)_ |
+| shaN | _(não executado — 40 hex)_ |
+| shaN1 | _(não executado — 40 hex)_ |
+| commitSha | _(não executado — deve = shaN1)_ |
+| openTabSurvived | _(não executado)_ |
+| reloadLoop | _(não executado — deve ser false)_ |
 | tester | _(não executado)_ |
 
 ### Observações
 
 _(preencher ao executar — incluir o que falhou, não só o que passou)_
+
+> `test:pwa-upgrade-preflight` é **LOCAL PREFLIGHT** e **não** fecha `pwa_upgrade.pass`.
