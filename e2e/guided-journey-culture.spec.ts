@@ -29,10 +29,16 @@ test.describe("RC2.1.1 GuideDialogue", () => {
     const dialogue = page.getByTestId("guide-dialogue");
     await expect(dialogue).toBeVisible({ timeout: 20_000 });
     await expect(dialogue).toHaveAttribute("data-guide-phase", "typing");
+    // Entrance may already be ready on fast machines; contract is entering|ready then ready.
+    await expect(dialogue).toHaveAttribute("data-guide-motion", /entering|ready/);
+    await expect(page.getByTestId("guide-mascot-slot")).toBeVisible();
+    await expect(page.getByTestId("guide-speech-box")).toBeVisible();
+    await expect.poll(async () => dialogue.getAttribute("data-guide-motion")).toBe("ready");
 
     const visible = page.getByTestId("guide-visible-text");
     const before = ((await visible.textContent()) ?? "").trim();
 
+    // Continue must work even if entrance just finished / overlapped.
     await page.getByTestId("guide-continue").click();
     await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
     const after = ((await visible.textContent()) ?? "").trim();
@@ -40,15 +46,15 @@ test.describe("RC2.1.1 GuideDialogue", () => {
     expect(after.length).toBeGreaterThan(10);
 
     const stepBefore = await page.locator("[data-current-step-index]").getAttribute("data-current-step-index");
-    // Guard window must elapse before advance (no double-skip).
     await page.waitForTimeout(120);
     await page.getByTestId("guide-continue").click();
     await expect
       .poll(async () => page.locator("[data-current-step-index]").getAttribute("data-current-step-index"))
       .not.toBe(stepBefore);
+    // Next message / step must not re-run dialogue entrance from scratch on a still-mounted set.
   });
 
-  test("reduced motion: guide starts complete", async ({ page }) => {
+  test("reduced motion: guide starts complete and motion ready", async ({ page }) => {
     test.setTimeout(60_000);
     await seedFreshJourneySession(page, { isPremium: true });
     await seedLessonPlayerReady(page, "l1", { isPremium: true, folego: 20 });
@@ -60,6 +66,23 @@ test.describe("RC2.1.1 GuideDialogue", () => {
     const dialogue = page.getByTestId("guide-dialogue");
     await expect(dialogue).toBeVisible({ timeout: 20_000 });
     await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect(dialogue).toHaveAttribute("data-guide-motion", "ready");
+  });
+
+  test("Continue during entrance still completes typing", async ({ page }) => {
+    test.setTimeout(60_000);
+    await seedFreshJourneySession(page, { isPremium: true });
+    await seedLessonPlayerReady(page, "l1", { isPremium: true, folego: 20 });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/licao/l1/player");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    const dialogue = page.getByTestId("guide-dialogue");
+    await expect(dialogue).toBeVisible({ timeout: 20_000 });
+    // Click immediately — do not wait for ready.
+    await page.getByTestId("guide-continue").click();
+    await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect.poll(async () => dialogue.getAttribute("data-guide-motion")).toBe("ready");
   });
 });
 

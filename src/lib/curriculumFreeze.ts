@@ -17,6 +17,12 @@
  * Supersedes any older doc that treated 40be45d as a current RC2 candidate.
  */
 export const CURRICULUM_FREEZE = "RC2_CONTENT_FREEZE" as const;
+/**
+ * After RC2.1.2: no new product features until public beta GO/NO-GO.
+ * Allowed: P0/P1 blockers, security, a11y, auth/sync, devices, release tooling, QA fixes.
+ * Forbidden: new lessons, CultureItems, exercise modes, AI, gamification, commercial launches.
+ */
+export const FEATURE_FREEZE = "PUBLIC_BETA" as const;
 export const RC_BASE_FINGERPRINT = "516692632525";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
