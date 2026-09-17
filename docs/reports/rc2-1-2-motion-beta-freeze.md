@@ -102,7 +102,7 @@ Future `release_candidate_sha` = HEAD after this stack (or release-config-only f
 
 | Field | Value |
 |---|---|
-| FINAL_HEAD | _(stamped at commit tip of this report)_ |
+| FINAL_HEAD | `2389dc4134058457fcfaabac556fd6b79dd39317` |
 | Candidate SHA | still empty — capture only in RC2.2 after this stack |
 | Next remessa | RC2.2 — Public Beta Candidate Infrastructure |
 
