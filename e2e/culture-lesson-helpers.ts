@@ -75,6 +75,13 @@ export async function playCultureLessonToVictory(page: Page) {
       return;
     }
 
+    const guideContinue = page.getByTestId("guide-continue");
+    if (await guideContinue.isVisible().catch(() => false) && !(await guideContinue.isDisabled().catch(() => true))) {
+      await guideContinue.click().catch(() => undefined);
+      await page.waitForTimeout(80);
+      continue;
+    }
+
     const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ }).first();
     if (await entendi.isVisible().catch(() => false) && !(await entendi.isDisabled().catch(() => true))) {
       await entendi.click().catch(() => undefined);
