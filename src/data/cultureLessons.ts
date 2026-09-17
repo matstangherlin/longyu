@@ -4,7 +4,7 @@
 
 import { CULTURE_ITEMS, getCultureItem, type CultureItem } from "./culture";
 import {
-  CULTURE_JOURNEY_PLACEMENT,
+  CULTURE_LESSON_ENTRIES,
   cultureLessonIdForItem,
   type CultureLessonTrack,
 } from "./cultureNative";
@@ -1111,7 +1111,7 @@ function buildCultureLesson(item: CultureItem, track: CultureLessonTrack): Lesso
   };
 }
 
-export const CULTURE_NATIVE_LESSONS: Lesson[] = CULTURE_JOURNEY_PLACEMENT.map((row) => {
+export const CULTURE_NATIVE_LESSONS: Lesson[] = CULTURE_LESSON_ENTRIES.map((row) => {
   const item = getCultureItem(row.itemId) ?? CULTURE_ITEMS.find((entry) => entry.id === row.itemId);
   if (!item) throw new Error(`CultureItem missing for native lesson: ${row.itemId}`);
   return buildCultureLesson(item, row.track);
