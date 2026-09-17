@@ -20,6 +20,10 @@ export function assertMobileBetaReadiness(root = process.cwd()) {
     /safe-area-inset-bottom/.test(sticky) && /data-lesson-sticky-actions|StickyActionBar/.test(sticky),
     "sticky CTA must remain safe-area aware"
   );
+  push(
+    /function StepDialogueChoice[\s\S]{0,4500}optionChoiceDomProps/.test(sticky),
+    "dialogue_choice options must publish data-option-index (keyboard + touch contract)"
+  );
 
   const freeAnswer = read(root, "src/features/lesson/FreeAnswerField.tsx");
   push(/isRecognitionAvailable/.test(freeAnswer), "speech availability gate required");

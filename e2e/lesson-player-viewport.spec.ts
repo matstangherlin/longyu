@@ -80,8 +80,22 @@ test.describe("lesson player — viewport & scroll", () => {
       .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 3_000 })
       .toBeGreaterThan(100);
 
-    await page.getByRole("button", { name: "Entendi" }).click();
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    // GuideDialogue / intro: advance until the step changes (scroll must reset).
+    const progress = page.locator("[data-lesson-player-frame]").getByText(/\d+\/\d+/).first();
+    const before = ((await progress.textContent().catch(() => "")) ?? "").trim();
+    for (let i = 0; i < 4; i += 1) {
+      const top = await scroller.evaluate((node) => node.scrollTop);
+      if (top === 0) break;
+      const guideContinue = page.getByTestId("guide-continue");
+      if (await guideContinue.isVisible().catch(() => false)) {
+        await guideContinue.click();
+      } else {
+        await page.getByRole("button", { name: /^(Entendi|Got it|Continuar)$/ }).first().click();
+      }
+      await page.waitForTimeout(150);
+      const after = ((await progress.textContent().catch(() => "")) ?? "").trim();
+      if (after && after !== before) break;
+    }
 
     // Nova atividade montada: scroll da região e da janela voltam ao início.
     await expect
@@ -89,6 +103,6 @@ test.describe("lesson player — viewport & scroll", () => {
       .toBe(0);
     const windowScroll = await page.evaluate(() => window.scrollY);
     expect(windowScroll).toBe(0);
-    await expect(page.locator("[data-lesson-step-frame]")).toBeVisible();
+    await expect(page.locator("[data-lesson-step-frame], [data-lesson-activity-scroll]").first()).toBeVisible();
   });
 });

@@ -43,6 +43,10 @@ Did **not** pause `atomurus`, did **not** use production, did **not** invent clo
 | Rollback runbook gaps filled | Netlify Publish deploy, before/after SHA, version.json |
 | PWA upgrade runbook gaps filled | shaN/shaN1, open-tab, no loop, honest offline |
 
+### Bug fix in this remessa
+
+`StepDialogueChoice` (and sibling choice UIs) now publish `optionChoiceDomProps` / `data-option-index` — keyboard + touch contract was missing on dialogue choices, which broke mobile graded-step helpers after GuideDialogue.
+
 ### Reused (not rebuilt)
 
 VisualViewport sticky stack · FreeAnswerField speech gate · GuideDialogue compact ·
@@ -61,8 +65,24 @@ existing mobile Playwright projects · evidence runbooks.
 | `npm run build` | PASS (manifest + sw.js + version.json) |
 | Local N→N+1 | PREFLIGHT_PASS (formal `pwa_upgrade` still false) |
 | Local rollback identity | PREFLIGHT_PASS (formal `rollback_drill` still false) |
+| Chromium mobile E2E | PASS · `lesson-player-mobile` + sticky + viewport + `mobile-device` |
+| mobile-chrome | PASS (CHROMIUM_MOBILE_PREFLIGHT) |
+| mobile-safari | PASS (WEBKIT_MOBILE_PREFLIGHT) |
+| Final matrix stamp | **88 passed · 6 skipped · 0 failed** |
 
-Playwright mobile-critical suites: see artifacts / CI stamp below after run.
+Viewports covered in player suite: 360×640, 375×667, 390×844, 667×360 landscape.
+Keyboard / scroll-reset / sticky CTA / feedback modal / GuideDialogue advance covered in Chromium.
+
+---
+
+## device-preflight.json
+
+| Surface | Status | Formal |
+|---|---|---|
+| android | `PREFLIGHT_PASS` (CHROMIUM) | `formalPass: false` |
+| ios | `PREFLIGHT_PASS` (WEBKIT) | `formalPass: false` |
+| pwa | `PREFLIGHT_PASS` (LOCAL N→N+1) | `formalPass: false` |
+| rollback | `PREFLIGHT_PASS` (LOCAL) | `formalPass: false` |
 
 ---
 

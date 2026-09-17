@@ -285,21 +285,32 @@ export async function waitForLazyPage(page: Page) {
 export async function advanceToChoiceOptions(page: Page, timeoutMs = 15_000) {
   const options = page.locator("[data-option-index]");
   const deadline = Date.now() + timeoutMs;
+  let lastGuideState: string | null = null;
   while (Date.now() < deadline) {
-    if (await options.first().isVisible().catch(() => false)) return;
+    if ((await options.count()) > 0 && (await options.first().isVisible().catch(() => false))) {
+      return;
+    }
+    await dismissBlockingOverlays(page);
     // GuideDialogue: typewriter complete then advance (may need two clicks).
     const guideContinue = page.getByTestId("guide-continue");
     if (await guideContinue.isVisible().catch(() => false)) {
+      const state = (await guideContinue.getAttribute("data-guide-continue").catch(() => null)) ?? "visible";
       await guideContinue.click().catch(() => undefined);
-      await page.waitForTimeout(120);
-      continue;
+      await page.waitForTimeout(150);
+      // If the same continue state persists after a click, fall through to other CTAs.
+      if (lastGuideState === state) {
+        /* continue to Entendi/Continuar fallback */
+      } else {
+        lastGuideState = state;
+        continue;
+      }
     }
     const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
     const continueBtn = page.getByRole("button", { name: /^Continuar$/i });
-    const entendi = page.getByRole("button", { name: /^Entendi$/i });
+    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
     if (await skipSpeak.isVisible().catch(() => false)) {
       await skipSpeak.click().catch(() => undefined);
-    } else if (await continueBtn.isVisible().catch(() => false)) {
+    } else if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
       await continueBtn.click().catch(() => undefined);
     } else if (await entendi.isVisible().catch(() => false)) {
       await entendi.click().catch(() => undefined);

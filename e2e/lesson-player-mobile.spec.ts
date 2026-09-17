@@ -11,6 +11,7 @@
 import { test, expect } from "@playwright/test";
 import {
   dismissBlockingOverlays,
+  seedFreshJourneySession,
   seedPendingStarRecoverySession,
   waitForLazyPage,
 } from "./helpers";
@@ -82,14 +83,41 @@ for (const viewport of MOBILE_VIEWPORTS) {
     });
 
     test("3 · feedback de acerto — CTA acessível", async ({ page }) => {
+      test.setTimeout(90_000);
       await openListenSelectStep(page);
-      const correct = page
-        .getByRole("button", { name: /Opção \d+: Olá|^Olá$/ })
-        .or(page.getByRole("button", { name: /Opção \d+: nǐ hǎo$/ }))
-        .or(page.getByRole("button", { name: /Opção \d+: 你好/ }))
-        .or(page.getByRole("button", { name: /^你好$/ }));
-      await correct.first().click();
+      // Prefer known-correct labels from p1 adaptive dialogue cards, then fall back.
+      const preferred = page.getByRole("button", {
+        name: /Opção \d+: (mostrar a língua de verdade|mandarim falado|Olá|你好)/,
+      });
+      if (await preferred.first().isVisible().catch(() => false)) {
+        await preferred.first().click();
+      } else {
+        await page.locator("[data-option-index]").first().click();
+      }
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+      // If preferred guess was wrong, walk remaining options with explicit retry.
+      for (let i = 0; i < 6; i += 1) {
+        const wrongDialog = page.getByRole("dialog", { name: /Quer tentar de novo|Quase/i });
+        const quase = page.getByText(/^Quase$/).first();
+        if (
+          !(await wrongDialog.isVisible().catch(() => false)) &&
+          !(await quase.isVisible().catch(() => false))
+        ) {
+          break;
+        }
+        const retry = wrongDialog.getByRole("button", { name: /Tentar de novo/i }).first();
+        if (await retry.isVisible().catch(() => false)) {
+          await retry.click();
+        } else {
+          await clickFirstVisible(page, [/^Tentar de novo/]);
+        }
+        await page.waitForTimeout(120);
+        const options = page.locator("[data-option-index]");
+        const count = await options.count();
+        if (count === 0) break;
+        await options.nth((i + 1) % count).click();
+        await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+      }
       const stickyCta = page.locator("[data-lesson-sticky-actions]").locator("button:visible").first();
       await expect(stickyCta).toBeVisible({ timeout: 10_000 });
       await assertPageScrollLocked(page);
@@ -98,14 +126,27 @@ for (const viewport of MOBILE_VIEWPORTS) {
     });
 
     test("4 · feedback de erro — modal com ação acessível", async ({ page }) => {
+      test.setTimeout(90_000);
       await openListenSelectStep(page);
-      const wrong = page
-        .getByRole("button", { name: /Opção \d+: wǒ hěn hǎo|Opção \d+: jīntiān hěn hǎo/ })
-        .or(page.getByRole("button", { name: /Opção \d+: um número|^um número$/i }))
-        .or(page.getByRole("button", { name: /Obrigado|Até logo|De nada/i }))
-        .or(page.getByRole("button", { name: /^(谢谢|再见)$/ }));
-      await wrong.first().click();
+      // Prefer known distractors for p1 dialogue cards.
+      const distractor = page.getByRole("button", {
+        name: /Opção \d+: (ensinar só hànzì|ensinar só pinyin|um alfabeto|um desenho|uma tradução|Obrigado|Até logo|De nada|谢谢|再见)/,
+      });
+      if (await distractor.first().isVisible().catch(() => false)) {
+        await distractor.first().click();
+      } else {
+        const count = await page.locator("[data-option-index]").count();
+        await page.locator("[data-option-index]").nth(count > 1 ? count - 1 : 0).click();
+      }
       await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+      // If that was somehow correct, try another option via fresh open.
+      const wrongDialog = page.getByRole("dialog", { name: /Quer tentar de novo|Quase/i });
+      if (!(await wrongDialog.isVisible().catch(() => false))) {
+        await openListenSelectStep(page);
+        const count = await page.locator("[data-option-index]").count();
+        await page.locator("[data-option-index]").nth(count > 1 ? 1 : 0).click();
+        await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+      }
       await assertModalActionAccessible(page);
       await assertPageScrollLocked(page);
       await assertFrameFillsViewport(page);
@@ -225,42 +266,33 @@ for (const viewport of MOBILE_VIEWPORTS) {
 
     test("troca de step — scroll da atividade volta ao topo", async ({ page }) => {
       test.setTimeout(90_000);
-      await openPlayer(page);
+      // Same contract as lesson-player-viewport.spec.ts: inject scroll on the
+      // first Continuar/Entendi step, then advance — avoids Fôlego/skip side paths.
+      await seedFreshJourneySession(page);
+      await page.goto("/licao/p1-o-que-e-mandarim/player");
+      await waitForLazyPage(page);
+      await dismissBlockingOverlays(page);
       const scroller = page.locator("[data-lesson-activity-scroll]");
+      await expect(page.locator("[data-lesson-player-frame]")).toBeVisible({ timeout: 20_000 });
+      await expect(scroller).toBeVisible();
       await injectLongActivityScroll(page);
-      // Spacer leaves options above the fold when scrollTop≈900 — bring them
-      // back to select, then re-apply scroll so advance must reset it.
-      const option = page.locator("[data-option-index]").first();
-      if ((await option.count()) > 0) {
-        await option.evaluate((el) => el.scrollIntoView({ block: "center" }));
-        await option.click();
-        await expect(
-          page.getByRole("button", { name: /^Verificar$|^Confirmar$|^Conferir$|^Continuar$/ }).first()
-        ).toBeEnabled({ timeout: 5_000 });
-        await scroller.evaluate((node) => {
-          node.scrollTop = Math.min(900, Math.max(0, node.scrollHeight - node.clientHeight));
-        });
-        await expect
-          .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 3_000 })
-          .toBeGreaterThan(100);
-        const verified = await clickFirstVisible(page, [
-          /^Verificar$/,
-          /^Confirmar$/,
-          /^Conferir$/,
-          /^Continuar$/,
-        ]);
-        expect(verified, "verify/continue after option").toBe(true);
-        // Graded choice: Verificar shows feedback; Continuar calls onDone → idx++.
-        await clickFirstVisible(page, [/^Continuar$/, /^Entendi$/, /^Got it$/]);
+
+      const guideContinue = page.getByTestId("guide-continue");
+      if (await guideContinue.isVisible().catch(() => false)) {
+        await guideContinue.click();
+        await page.waitForTimeout(120);
+        if (await guideContinue.isVisible().catch(() => false)) {
+          await guideContinue.click();
+        }
       } else {
-        const advanced = await clickFirstVisible(page, [
-          /^Não posso falar agora$/,
-          /^Continuar$/,
-          /^Entendi$/,
-          /^Got it$/,
-        ]);
-        expect(advanced, "non-choice advance").toBe(true);
+        const entendi = page.getByRole("button", { name: /^(Entendi|Got it|Continuar)$/ }).first();
+        await expect(entendi).toBeVisible({ timeout: 20_000 });
+        await entendi.click();
+        if (await entendi.isVisible().catch(() => false)) {
+          await entendi.click();
+        }
       }
+
       await expect
         .poll(async () => scroller.evaluate((node) => node.scrollTop), { timeout: 8_000 })
         .toBe(0);

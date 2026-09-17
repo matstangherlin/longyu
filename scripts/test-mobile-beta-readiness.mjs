@@ -90,4 +90,14 @@ kill("PWA update banner auto-reloads in a loop", (tmp) => {
   );
 });
 
+kill("dialogue_choice loses data-option-index", (tmp) => {
+  const p = path.join(tmp, "src/features/lesson/steps.tsx");
+  let src = fs.readFileSync(p, "utf8");
+  const start = src.indexOf("function StepDialogueChoice");
+  const end = src.indexOf("function StepRecognize");
+  assert.ok(start >= 0 && end > start, "StepDialogueChoice region");
+  const region = src.slice(start, end).replaceAll("optionChoiceDomProps", "OPTION_PROPS_REMOVED");
+  fs.writeFileSync(p, src.slice(0, start) + region + src.slice(end));
+});
+
 console.log("PASS test:mobile-beta-readiness");
