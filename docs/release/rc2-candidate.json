@@ -1,0 +1,20 @@
+{
+  "id": "rc2-candidate",
+  "status": "BLOCKED",
+  "blocker": "No QA Supabase / Netlify candidate credentials in this agent environment. Deploy-preview uses VITE_BACKEND_MODE=local and cannot close cloud evidence. release_candidate_sha stays empty until a production-like candidate is published and identity-verified.",
+  "candidateSha": "",
+  "contentFreezeSha": "24ba129d79e61124c7d6dd3aaa3756eb9a6adf40",
+  "fingerprint": "516692632525",
+  "environment": "qa",
+  "deploymentUrl": "",
+  "deployedAt": null,
+  "backendMode": null,
+  "fixtures": null,
+  "stackBaseSha": "281094de6f6897dd68b4cb0786197b9399ecf370",
+  "inheritedPr": 267,
+  "notes": [
+    "CONTENT_FREEZE_SHA ≠ RELEASE_CANDIDATE_SHA",
+    "Do not mark cloud_* PASS against deploy-preview or local PostgreSQL",
+    "CodeQL build blocker on #267 was e2e CulturePersistSlice.weakWords — fixed in 281094d"
+  ]
+}
