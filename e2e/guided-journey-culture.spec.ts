@@ -39,11 +39,13 @@ test.describe("RC2.1.1 GuideDialogue", () => {
     expect(after.length).toBeGreaterThanOrEqual(before.length);
     expect(after.length).toBeGreaterThan(10);
 
-    const titleBefore = ((await page.locator("h2").first().textContent()) ?? "").trim();
+    const stepBefore = await page.locator("[data-current-step-index]").getAttribute("data-current-step-index");
+    // Guard window must elapse before advance (no double-skip).
+    await page.waitForTimeout(120);
     await page.getByTestId("guide-continue").click();
     await expect
-      .poll(async () => ((await page.locator("h2").first().textContent()) ?? "").trim())
-      .not.toBe(titleBefore);
+      .poll(async () => page.locator("[data-current-step-index]").getAttribute("data-current-step-index"))
+      .not.toBe(stepBefore);
   });
 
   test("reduced motion: guide starts complete", async ({ page }) => {
@@ -87,9 +89,8 @@ test.describe("RC2.1.1 Journey Culture Moments", () => {
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/culture-china-history-timeline/);
     await expect(page).toHaveURL(/from=/);
-    await expect(page.getByTestId("guide-dialogue").or(page.getByTestId("culture-teach"))).toBeVisible({
-      timeout: 20_000,
-    });
+    await expect(page.getByTestId("culture-teach")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("guide-dialogue")).toBeVisible();
 
     const before = await readCulturePersist(page);
     await playCultureLessonToVictory(page);
