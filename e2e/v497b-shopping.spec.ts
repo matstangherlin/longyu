@@ -79,7 +79,7 @@ test.describe("V4.9.7B shopping survival", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 24/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 30/);
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-all").click();

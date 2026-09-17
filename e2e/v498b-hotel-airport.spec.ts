@@ -206,7 +206,7 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 24/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
     await expect(page.locator('[data-culture-id="hotel-checkin-register"]').first()).toHaveAttribute(
       "data-culture-status",
       "completed"
