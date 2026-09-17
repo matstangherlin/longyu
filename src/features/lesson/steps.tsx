@@ -2630,6 +2630,7 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
             type="button"
             onClick={() => setPicked(option)}
             disabled={feedback === "correct"}
+            {...optionChoiceDomProps(index, picked === option, option)}
             className={[engineTileClass({ active: picked === option }), "relative"].join(" ")}
           >
             <ShortcutBadge>{shortcutKeyForIndex(index)}</ShortcutBadge>
@@ -3066,6 +3067,7 @@ function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
               type="button"
               onClick={() => pickOption(option)}
               disabled={feedback === "correct"}
+              {...optionChoiceDomProps(index, active, option)}
               className={[
                 engineTileClass({ active, matched: Boolean(correct), wrong }),
                 "relative flex items-center gap-3",
@@ -3325,6 +3327,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
               type="button"
               disabled={feedback === "correct"}
               onClick={() => pickOption(option)}
+              {...optionChoiceDomProps(index, active, option)}
               className={[engineTileClass({ active, matched: Boolean(correct), wrong, cjk: isCjkText(option) }), "relative flex items-center gap-2.5"].join(" ")}
               aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: option })}
             >
@@ -3425,6 +3428,7 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
               disabled={answered != null}
               onClick={() => answerOption(o)}
               aria-label={t("player.optionAria", { key: shortcutKeyForIndex(index), value: o })}
+              {...optionChoiceDomProps(index, o === selected, o)}
               className={[
                 "relative flex min-h-12 items-center gap-2.5 rounded-xl border px-4 py-2.5 transition",
                 state === "idle" && "border-line hover:bg-surface-2",
@@ -3740,6 +3744,7 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
                 setPicked(option.value);
                 setFeedback(null);
               }}
+              {...optionChoiceDomProps(index, active, option.label)}
               className={["relative flex items-center justify-center", engineTileClass({ active, matched: correct, wrong })].join(" ")}
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
@@ -4120,6 +4125,7 @@ function MeaningChoiceExercise({
                 setPicked(option);
                 setFeedback(null);
               }}
+              {...optionChoiceDomProps(index, active, option)}
               className={[
                 "relative flex flex-col items-center justify-center gap-0.5",
                 engineTileClass({ active, matched: correct, wrong, cjk: isCjkText(option) }),

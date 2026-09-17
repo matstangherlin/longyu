@@ -30,21 +30,38 @@ IDs de teste devem ser mascarados (`cus_***4242`).
 
 ## Pré-requisitos
 
-- Candidate publicado
+- Candidate **publicado** (`qa_candidate`, não deploy-preview local)
 - Conta de QA com progresso
-- Permissão de rollback
+- Permissão de rollback no site Netlify do candidate
+- Acesso a `/version.json` no candidate
 
-## Passos
+## Procedimento Netlify (RC2 candidate)
 
-Registrar o SHA antes e depois de cada passo (P30 mutação 9).
+Preferir o site/contexto **candidate** (`rc2-candidate` / site QA dedicado),
+nunca produção.
 
-1. Publicar o candidate RC1.2.
+1. Abrir Netlify → site do candidate → **Deploys**.
+2. Anotar o deploy **N** (candidate C): SHA de `/version.json` = `beforeSha`.
+3. Publicar marcador **N+1** (ou promover o deploy seguinte).
+4. Confirmar `/version.json` = `afterSha` ≠ `beforeSha`.
+5. Em Deploys, escolher o deploy de `beforeSha` → **Publish deploy** (rollback).
+6. Confirmar `/version.json` voltou a `beforeSha` (40 hex).
+7. Smoke: login, Jornada, progresso, sync, lição, Cultura. Liga só se pública.
+8. PWA: no máximo **um** reload controlado após o rollback; sem loop.
+9. Opcional: `RC2_CANDIDATE_URL=… RC2_EXPECTED_SHA=<beforeSha> npm run verify:rc2-candidate-identity`.
+
+Rollback de frontend **não** apaga dado de usuário na nuvem.
+
+## Passos (resumo)
+
+Registrar o SHA antes e depois de cada passo (mutação: SHA ausente → FAIL).
+
+1. Publicar o candidate.
 2. Gerar progresso numa conta de QA (lição, estrelas, XP, Cultura).
 3. Publicar uma versão posterior (marcador de teste).
-4. **Rollback** para o candidate.
-5. Conferir: login, Jornada, progresso, sync, lição, Cultura, Liga, assinatura.
-6. **P11.2 / P12.2** — nenhum progresso na nuvem pode ter sumido. Rollback de
-   frontend não apaga dado de usuário.
+4. **Rollback** para o candidate (Publish deploy anterior).
+5. Conferir: login, Jornada, progresso, sync, lição, Cultura.
+6. Confirmar que nenhum progresso na nuvem sumiu.
 
 ## RESULTADO
 
@@ -53,9 +70,15 @@ Registrar o SHA antes e depois de cada passo (P30 mutação 9).
 | date | _(não executado)_ |
 | environment | _(não executado)_ |
 | result | **NOT_RUN** |
-| commitSha | _(não executado)_ |
+| beforeSha | _(não executado — 40 hex)_ |
+| afterSha (N+1) | _(não executado — 40 hex)_ |
+| commitSha (após rollback) | _(não executado — deve = beforeSha)_ |
+| versionJsonMatched | _(não executado)_ |
+| progressSurvived | _(não executado)_ |
 | tester | _(não executado)_ |
 
 ### Observações
 
 _(preencher ao executar — incluir o que falhou, não só o que passou)_
+
+> Preflight local N→N+1 (`test:pwa-upgrade-preflight`) **não** fecha este check.
