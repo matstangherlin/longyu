@@ -1,112 +1,164 @@
-# Longyu — Runbook de QA humano (pós #148)
+# Longyu — Runbook de QA humano (RC2.2.3 / PUBLIC_BETA_CORE)
 
-**Objetivo:** provar o produto em pessoas e aparelhos reais.  
-**Regra:** **automação não substitui QA humano** — nada aqui é substituível por Playwright, emulação, fixture ou `test:qa-regression-guard`.
+**Objetivo:** provar que um humano real consegue usar e entender o Longyu.  
+**Regra:** **automação não substitui QA humano.** Playwright, emulação, fixtures e `test:qa-regression-guard` **não** fecham checkbox humano.
 
-Atualizado: 2026-08-13 · tip `main` = `npm run beta:rc-status` → `origin/main`.  
-Mapa ponderado: [`BETA_LAUNCH_REMAINING.md`](./BETA_LAUNCH_REMAINING.md).  
-Log de bugs: [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
+Atualizado: 2026-09-17 · stack tip = branch `cursor/rc2-human-qa-prebeta-*` (ancestral `#274`).  
+Manifesto: [`docs/release/human-qa-prebeta.json`](./release/human-qa-prebeta.json).  
+Log de bugs: [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).  
+Instruções externas: [`docs/release/beta-tester-instructions.md`](./release/beta-tester-instructions.md).
 
-> **Nenhum checkbox humano abaixo foi marcado automaticamente.** Só a pessoa que executar o passo marca.
+> **Nenhum checkbox humano abaixo foi marcado automaticamente.** Só a pessoa que executar o passo marca.  
+> **Agente / automação não pode marcar** L1–L20, B001 físico, B002 humano, ou batch de testadores como PASS.
 
 ---
 
-## Próximo fluxo (ordem obrigatória)
+## Contexto congelado (RC2)
+
+| Campo | Valor |
+| --- | --- |
+| FEATURE_FREEZE | `PUBLIC_BETA` |
+| CURRICULUM_FREEZE | `RC2_CONTENT_FREEZE` |
+| Fingerprint | `516692632525` |
+| Lessons / topics | 134 / 113 |
+| CultureItems / Native / Journey nodes | 30 / 30 / 20 |
+| Cloud candidate | `BLOCKED_CREDENTIALS` → **DEFERRED_UNTIL_QA_CANDIDATE** |
+| Formal device/PWA/rollback | continuam `pass: false` |
+
+**Human QA PASS ≠ Public Beta GO.** Ainda faltam cloud, device físico, PWA real e rollback real.
+
+---
+
+## O que NÃO bloqueia Free Public Beta
+
+| Item | Status para Free Beta | Onde vive |
+| --- | --- | --- |
+| Stripe Test Mode / Pro purchase | **NOT REQUIRED FOR PUBLIC_BETA_CORE** | Commercial follow-up |
+| Family plan | **planned** — não self-serve | Commercial |
+| Business | **pilot** — não self-serve | Commercial |
+| League | publicamente disabled | Product truth |
+
+---
+
+## O que continua obrigatório (ainda blocked)
+
+| Check | Estado atual | Nota |
+| --- | --- | --- |
+| `cloud_auth` | false · DEFERRED_UNTIL_QA_CANDIDATE | Não marcar PASS por QA local |
+| `cloud_sync` | false · DEFERRED_UNTIL_QA_CANDIDATE | Idem |
+| `feedback_backend` | false · DEFERRED_UNTIL_QA_CANDIDATE | UI pode ser exercitada; backend não |
+| `android_real_device` | false | Emulação ≠ físico |
+| `ios_real_device` | false | WebKit ≠ iPhone |
+| `pwa_upgrade` | false | Local N→N+1 ≠ deploy real |
+| `rollback_drill` | false | Local ≠ Netlify |
+
+---
+
+## Severidade canônica
+
+| Sev | Significado | Exemplos |
+| --- | --- | --- |
+| **P0** | Blocker absoluto | Não avança; crash; perda de progresso; conteúdo perigoso; login impossível; leak |
+| **P1** | Major / fluxo principal | CTA escondido; lição impossível; áudio obrigatório falha; Guide bloqueia; Journey confunde |
+| **P2** | Medium | Copy estranha; layout incômodo; inconsistência visual |
+| **P3** | Minor | Polish |
+
+**Regra beta:** P0 = 0. P1 do fluxo principal = 0 ou waiver explícito com razão.
+
+---
+
+## Próximo fluxo (ordem)
 
 Execute **nesta ordem**. Não pule B001/B002 para ir direto a L1–L20.
 
-| # | Passo | Onde registrar |
-| ---: | --- | --- |
-| 1 | **Force refresh / cache limpo** | §0 Preparo |
-| 2 | **Revalidar B001** no Android real | §B001 + [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) |
-| 3 | **Revalidar B002** no app real | §B002 + [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) |
-| 4 | **L1–L20** com conta nova | §1 |
-| 5 | **Android completo** | §2 |
-| 6 | **iPhone / Safari** | §3 |
-| 7 | **E-mail real** | §4 |
-| 8 | **Stripe Test Mode** | §5 |
-| 9 | **Sync PC ↔ celular** | §6 |
-| 10 | **VoiceOver / TalkBack** | §7 |
-| 11 | **5–15 testadores** | §8 |
-| 12 | **Corrigir P0/P1** | [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md) |
-| 13 | **Congelar RC** | §9 |
-| 14 | **`gate:public-beta`** | §9 |
-| 15 | **Full security scan** da SHA final | §9 |
-
-**Estado do código (não confundir com QA feito):**
-
-- Tip a testar: **`npm run beta:rc-status`** (campo `origin/main`).  
-- B001/B003/B004: **corrigidos em código** + E2E (#158/#159); aguardam aparelho.  
-- B002: **corrigido em código**, aguardando revalidação humana.  
-- Produção/transferência, PieceAssembly, guarda QA, tom/assets validators: **na main**.  
-- RC, full security scan final, L1–L20 humano, aparelhos, e-mail, Stripe, sync e testadores: **não concluídos**.
+| # | Passo | Quem | Onde |
+| ---: | --- | --- | --- |
+| 1 | Force refresh + anotar SHA/URL/device | Humano | §0 |
+| 2 | B001 no Android **físico** (ou registrar EMULATED_PREFLIGHT sem PASS formal) | Humano | §B001 |
+| 3 | B002 star recovery no app real | Humano | §B002 |
+| 4 | L1–L20 conta/perfil zerado | Humano | §1 |
+| 5 | GuideDialogue human checks | Humano | §Guide |
+| 6 | Culture Moments + Hub | Humano | §Culture |
+| 7 | Review + Reforço+ + Victory + Nav | Humano | §Review+ |
+| 8 | Product truth (Pro/Family/Speech) | Humano | §Truth |
+| 9 | Android físico completo | Humano | §2 |
+| 10 | iPhone / Safari físico | Humano | §3 |
+| 11 | E-mail real | Humano | §4 · **DEFERRED** se cloud blocked |
+| 12 | Sync PC ↔ celular | Humano | §6 · **DEFERRED** se cloud blocked |
+| 13 | Stripe / Family / Business | Humano | §5 · **NOT REQUIRED** Free Beta |
+| 14 | VoiceOver / TalkBack amostra | Humano | §7 |
+| 15 | Batch 1–5 testadores | Externos | §8 + kit |
+| 16 | Corrigir P0/P1 | Dev | bug log |
+| 17 | Voltar ao candidate QA (#273) | Ops | cloud |
 
 ```bash
-npm run beta:rc-status          # SHA, versão, próximos gates — só consulta
-npm run gate:public-beta        # só na SHA congelada (passo 14)
+git rev-parse HEAD                 # SHA obrigatória da sessão
+npm run beta:rc-status             # consulta — não prova humano
+npm run gate:mobile-pwa-preflight  # máquina (#274) — não prova humano
+npm run validate:human-qa-prebeta  # honestidade do manifesto
 ```
 
 ---
 
-## 0. Preparo — force refresh / cache limpo
+## 0. Preparo — force refresh / identidade
 
-Antes de qualquer revalidação:
+Antes de qualquer sessão:
 
-- [ ] Abrir produção beta (ou preview estável) em **janela anônima**  
-- [ ] **Force refresh** (Android Chrome: menu → atualizar; se preciso, limpar dados do site)  
-- [ ] Confirmar tip / versão: landing ou Sobre = `v0.2.0-beta.1` · tip = saída de `npm run beta:rc-status` (`origin/main`)  
-- [ ] Anotar: URL · navegador · SO · aparelho  
-- [ ] Conta **nova** (e-mail real) **ou** perfil local zerado — para L1–L20  
-- [ ] Telemetria: decidir optar-in (recomendado em conta de QA)  
-- [ ] Feedback: saber onde está o botão / reportar no player  
+- [ ] Ambiente anotado: `LOCAL_PREVIEW` · `DEPLOY_PREVIEW` · `LAN` · (nunca produção como “cloud QA”)
+- [ ] **SHA completa** (`git rev-parse HEAD`) — nunca “latest” / “PR build”
+- [ ] Branch anotada
+- [ ] URL anotada (se houver)
+- [ ] Data + nome do tester
+- [ ] **Force refresh** / janela anônima / limpar dados do site
+- [ ] Confirmar versão (Sobre / landing) alinhada à SHA
+- [ ] Conta **nova** ou perfil local **zerado** — **sem seed / skip / debug unlock**
+- [ ] Saber onde reportar problema (Mais / Sobre / Ajustes / fim de lesson)
 
-**Não avance para B001 com cache antigo.**
+**Se não houver URL compartilhável para externos:**  
+`EXTERNAL_TESTERS_BLOCKED_SHAREABLE_BUILD` — founder/manual local pode continuar.
 
 ---
 
-## B001 — revalidar no Android real
+## B001 — mobile player (Android físico)
 
-Aparelho: ________ · Chrome: ________ · Tip confirmada: ☐ (colar short de `beta:rc-status`)
-
-Abra uma lição no player (`/licao/*/player`). Registre falhas em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md).
+Aparelho: ________ · Chrome: ________ · SHA: ________
 
 | Check | OK |
 | --- | :---: |
-| **Body não arrasta** — puxar a página não move o documento (só a região da atividade, se houver overflow) | ☐ |
-| **CTA acessível** — Continuar / Verificar / Tentar de novo visível sem caça (após acerto e após erro) | ☐ |
-| **Teclado aberto** — com IME/pinyin aberto, Verificar (ou CTA principal) continua alcançável | ☐ |
-| **Teclado fechado** — ao fechar o teclado, layout e CTA voltam corretos | ☐ |
-| **Vitória correta** — tela final: Continuar Jornada / Receber recompensas acessível **sem** scroll da página | ☐ |
+| Body não arrasta indevidamente | ☐ |
+| CTA acessível (Continuar / Verificar / Tentar de novo) | ☐ |
+| Teclado aberto — CTA alcançável | ☐ |
+| Teclado fechado — layout/CTA corretos | ☐ |
+| Victory acessível sem scroll da página | ☐ |
 
-**Passe B001:** os 5 checks acima no Android físico. Automação / emulação **não** fecha B001.
+**PASS formal B001** = Android físico.  
+`MANUAL_DESKTOP_MOBILE_VIEW` / `EMULATED_PREFLIGHT` = informação apenas — **não** fecha `android_real_device`.
 
 ---
 
-## B002 — revalidar no app real
+## B002 — star recovery (app real)
 
-Ambiente: ________ (desktop e/ou mobile) · Tip: ☐ (colar short de `beta:rc-status`)
-
-Fluxo: errar ou pular um diálogo → aceitar a oferta de revisão / recuperação de estrela.
+Ambiente: ________ · SHA: ________
 
 | Check | OK |
 | --- | :---: |
-| **Errar / pular** dispara a oferta de revisão | ☐ |
-| **Aceitar revisão** abre a sessão de recuperação | ☐ |
-| **Um único prompt** situacional (sem dump `你好 / 你好吗 / …`) | ☐ |
-| **Pinyin coerente** — só o da resposta correta / alvo | ☐ |
-| **Status não vira alternativa** — “Pulou…” / “incorretamente” **não** aparece como opção | ☐ |
-| **Sentence build correto** — peças certas, sem dump concatenado (PieceAssembly) | ☐ |
-| **Recuperação da estrela funciona** — acertar o(s) item(ns) recupera a 3ª estrela / feedback coerente | ☐ |
+| Errar / pular dispara oferta de revisão | ☐ |
+| Aceitar abre sessão de recuperação | ☐ |
+| Um único prompt situacional (sem dump) | ☐ |
+| Pinyin coerente | ☐ |
+| Status não vira alternativa | ☐ |
+| PieceAssembly correto | ☐ |
+| Estrela realmente recupera | ☐ |
 
-**Passe B002:** os 7 checks acima no app real. `test:immediate-remediation` / E2E **não** fecham B002.
+E2E / `test:immediate-remediation` **não** fecham B002.
 
 ---
 
-## 1. L1–L20 com conta nova
+## 1. L1–L20 (conta / perfil zerado)
 
-Faça **em ordem**, como aluno novo. Sem seed de progresso.
+Faça **em ordem**, como aluno novo. Sem seed.
 
-| # | Lição (`id`) | Feita | Notas / bug-id |
+| # | Lição (`id`) | Feita | Fricção / bug-id |
 | ---: | --- | :---: | --- |
 | 1 | `p1-o-que-e-mandarim` | ☐ | |
 | 2 | `p1-o-que-e-pinyin` | ☐ | |
@@ -129,165 +181,165 @@ Faça **em ordem**, como aluno novo. Sem seed de progresso.
 | 19 | `p4-num-45` | ☐ | |
 | 20 | `p4-num-678` | ☐ | |
 
-### Em **cada** atividade
+### Em cada lesson — perguntar (anotar)
 
-- [ ] Ao avançar, a nova atividade começa **no topo** (sem herdar scroll)  
-- [ ] CTA (Continuar / Verificar / Responder) **acessível** sem caça  
-- [ ] Áudio toca quando esperado; mic não quebra a tela  
-- [ ] Erro → retry / feedback claro  
-- [ ] Nada “parece bug” de layout (espaço morto, botão fora, teclado)  
+- Entendi o objetivo? Sei o que fazer?
+- Guide ajudou ou atrapalhou? Texto longo? Typewriter irritante?
+- Continue claro? Áudio ok? Erro explicou algo?
+- Hanzi/Pinyin coerentes? CTA onde espero? Victory natural?
 
-**Passe:** 20/20 + bugs P0/P1 no log (mesmo que zero).  
-Proxy E2E `runbook-20-lessons` **não** substitui este passo.
+### Timing (baseline)
+
+| Marco | Minutos |
+| --- | ---: |
+| Onboarding | |
+| L1 | |
+| L1–L5 | |
+| Até 1ª Culture Moment | |
+
+Proxy E2E `runbook-20-lessons` **não** substitui este passo.  
+Se só local: registrar `LOCAL_HUMAN_PREFLIGHT` — **não** inventar PASS externo.
+
+---
+
+## GuideDialogue — human QA
+
+| Check / pergunta | Nota |
+| --- | --- |
+| Mascot entrance / bubble / typewriter | ☐ |
+| Continue durante typing vs depois completo | ☐ |
+| Transições entre mensagens | ☐ |
+| Reduced motion (SO) — instantâneo | ☐ |
+| O personagem ajuda ou cansa? | |
+| Balão ocupa espaço demais? Texto legível? | |
+
+Não remover o Guide só porque uma pessoa prefere texto instantâneo — procurar **padrão**.
+
+---
+
+## Culture Moments + Hub
+
+### Moment (Journey → Culture → volta)
+
+| Pergunta | Nota |
+| --- | --- |
+| Entendi por que Cultura apareceu aqui? | |
+| Pareceu parte da aula ou propaganda? | |
+| Sabia que era opcional? | |
+| Sabia voltar à Journey? | |
+| Explorado / Rever / return context OK? | ☐ |
+
+### Hub
+
+| Check | OK |
+| --- | :---: |
+| History / Legends / Symbols / Festivals / Life in China compreensíveis sem tutorial externo | ☐ |
+
+---
+
+## Review · Reforço+ · Victory · Navigation
+
+| Área | Perguntas |
+| --- | --- |
+| Review | Por que estou revisando? Item faz sentido? Explicação ajuda? Sessão acaba (sem loop)? |
+| Reforço+ | Por que apareceu? Diferença do Review? 4/4 mastery claro? Não reaparece na hora? |
+| Victory | Curta/clara? Próxima ação óbvia sem caça ao botão? |
+| Nav | Onde estudar / revisar / ver cultura? Back faz sentido? |
+
+---
+
+## Product truth (humano)
+
+Tester **não** deve acreditar que pode comprar Pro / Family agora.  
+Business não deve parecer self-serve se continua pilot.  
+Speech **não** deve parecer AI pronunciation scoring se isso não existe.
+
+---
+
+## Feedback surface
+
+Mesmo sem backend QA: achar caminho real de reportar (Mais / Sobre / Ajustes / fim de lesson).  
+No mobile, **não** procurar FAB desktop-only como se fosse bug.
 
 ---
 
 ## 2. Android completo (físico)
 
-Dispositivo: ________ · Chrome: ________ · PWA: ☐ sim ☐ não  
+Dispositivo: ________ · Chrome: ________ · PWA: ☐ · SHA: ________
 
 | Check | OK |
 | --- | :---: |
-| Landing → conta → primeira lição | ☐ |
+| Landing → conta/local → primeira lição | ☐ |
 | Player: scroll reset ao Continuar | ☐ |
-| CTA sticky / não some atrás da barra | ☐ |
-| Teclado (pinyin / IME) não esconde Verificar | ☐ |
-| Conversa: linhas novas entram na viewport | ☐ |
-| Áudio + (se possível) mic | ☐ |
-| Offline curto → banner / progresso local | ☐ |
-| PWA: ícone na home · abre standalone · “Nova versão” se houver deploy | ☐ |
-| Zoom com pinça funciona | ☐ |
+| CTA sticky / teclado | ☐ |
+| Áudio + mic allow/deny/cancel (se aplicável) | ☐ |
+| Offline curto / progresso local | ☐ |
+| PWA install visual | ☐ |
+| Pinch-zoom funciona | ☐ |
 
 ---
 
 ## 3. iPhone / Safari (físico)
 
-Dispositivo: ________ · iOS: ________ · “Adicionar à Tela de Início”: ☐  
-SHA tip: ________ · Force refresh / cache limpo **antes**: ☐  
+Dispositivo: ________ · iOS: ________ · SHA: ________
 
 | Check | OK |
 | --- | :---: |
-| Mesmos fluxos do Android (player, CTA, scroll, áudio) | ☐ |
-| Safe area (notch / home indicator) — CTA não fica sob a barra | ☐ |
-| `100dvh` / teclado Safari não empurra CTA para fora | ☐ |
-| Standalone: sem chrome do Safari “quebrando” layout | ☐ |
-| Confirmar e-mail / reset abrem no Safari e voltam ao app | ☐ |
-
-### 3.1 Remessa device (B001 / B003 / B004) — activity-by-activity
-
-Use o deploy tip da PR (ou `main` pós-merge). Marque só após ver no aparelho.
-
-| # | Fluxo | OK | Nota |
-| ---: | --- | :---: | --- |
-| 1 | Abrir lição com StickyActionBar → Conteúdo não fica sob o CTA; scroll chega ao fim | ☐ | B001 |
-| 2 | Verificar / Continuar sticky em light + dark; teclado aberto não some o CTA | ☐ | B001 |
-| 3 | `/revisao` → Corrigir agora → Verificar → **Certo/Errado** imediato | ☐ | B003 |
-| 4 | Após revelar: **Continuar** (ou Errei — continuar) visível na viewport sem caça | ☐ | B003 |
-| 5 | Continuar avança ao próximo item (ou fim de sessão) | ☐ | B003 |
-| 6 | Associação visual (`image_choice`): 4 imagens visíveis **antes** de responder | ☐ | B004 |
-| 7 | Asset quebrado → fallback (ícone/emoji), nunca 4 tiles vazios | ☐ | B004 |
-| 8 | Lição de tom (`p1-o-que-e-tom`): escada clara (tom → pinyin → palavra) | ☐ | PED-005 |
-| 9 | Ilustrações light/dark sem fundo mint sólido | ☐ | VIS-006 |
-
-Automação: `e2e/review-continue-iphone.spec.ts` (Chromium + WebKit no CI) cobre B003 em viewport iPhone — **não** substitui o físico.
+| Fluxos player + safe-area | ☐ |
+| Autoplay pode falhar — replay manual ok | ☐ |
+| Speech unavailable → fallback (sem CTA morto) | ☐ |
+| Standalone / Adicionar à Tela de Início | ☐ |
 
 ---
 
-## 4. E-mail real
+## 4. E-mail real · DEFERRED_UNTIL_QA_CANDIDATE
 
-E-mail de teste: ________  
-
-| Passo | OK | Evidência |
-| --- | :---: | --- |
-| Criar conta → e-mail de confirmação **chega** | ☐ | |
-| Clicar no link → conta confirma → consegue entrar | ☐ | |
-| Esqueci senha → e-mail **chega** | ☐ | |
-| Link abre → nova senha → login ok | ☐ | |
-| Logout → login noutro browser/aparelho | ☐ | |
-| Sessão depois de horas / reload mantém cloud | ☐ | |
-
-`e2e/auth-surface.spec.ts` cobre superfície de rotas — **não** entrega de e-mail.
+Aguardando candidate cloud. **Não** marcar PASS com produção.
 
 ---
 
-## 5. Stripe Test Mode
+## 5. Stripe / Family / Business · NOT REQUIRED FOR PUBLIC_BETA_CORE
 
-Siga [`SUBSCRIPTION_E2E_REPORT.md` §7](./SUBSCRIPTION_E2E_REPORT.md). Mínimo:
-
-| Cenário | OK |
-| --- | :---: |
-| A — Trial: checkout → Pro no app → reload → continua Pro | ☐ |
-| A′ — Logout/login mantém Pro | ☐ |
-| C — Pagamento falho → Pro cai / paywall | ☐ |
-| D — Cancelamento: Pro até o fim do período, depois cai | ☐ |
-| Outro aparelho: mesma conta vê o mesmo entitlement | ☐ |
-
-Cartões de teste: sucesso `4000 0000 0000 0077` · falha `4000 0000 0000 0341`.
+Commercial follow-up. Ver [`SUBSCRIPTION_E2E_REPORT.md`](./SUBSCRIPTION_E2E_REPORT.md) quando for a hora — **não** bloqueia Free Beta.
 
 ---
 
-## 6. Sync PC ↔ celular (físico)
-
-Conta cloud: ________  
-
-| Passo | OK |
-| --- | :---: |
-| Celular conclui uma lição (online) | ☐ |
-| PC abre a mesma conta → progresso aparece | ☐ |
-| PC offline altera algo → celular altera outra coisa → ambos online | ☐ |
-| Merge: nenhum lado “some”; sem progresso zerado | ☐ |
-| Banner/erro de sync se falhar; progresso local seguro | ☐ |
+## 6. Sync PC ↔ celular · DEFERRED_UNTIL_QA_CANDIDATE
 
 ---
 
 ## 7. VoiceOver / TalkBack (amostra)
 
-15–20 min bastam para achar P0.
-
-| Check | iPhone VoiceOver | Android TalkBack |
-| --- | :---: | :---: |
-| Foco chega em Continuar / Verificar | ☐ | ☐ |
-| Modal de erro / feedback fechável | ☐ | ☐ |
-| Botão de áudio tem nome | ☐ | ☐ |
-| Troca de atividade: foco não fica “perdido” | ☐ | ☐ |
-| Contraste de texto principal legível | ☐ | ☐ |
+15–20 min. Foco: Continuar/Verificar, modal, áudio nomeado, foco após troca de step.
 
 ---
 
-## 8. 5–15 testadores reais
+## 8. Testadores externos (batch 1 = 5)
 
-| # | Quem | Aparelho | Fez até lição… | Feedback canal | Bugs |
-| ---: | --- | --- | --- | --- | --- |
-| 1 | | | | in-app / WhatsApp / … | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
-| … | | | | | |
+| # | Quem | Device/browser | Start SHA | Duration | Last lesson | Friction | P0 | P1 | P2 | Free-text |
+| ---: | --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | --- |
+| 1 | | | | | | | | | | |
+| 2 | | | | | | | | | | |
+| 3 | | | | | | | | | | |
+| 4 | | | | | | | | | | |
+| 5 | | | | | | | | | | |
 
-Pedido mínimo:
+Usar [`beta-tester-instructions.md`](./release/beta-tester-instructions.md).  
+**Não inventar linhas.** Se sem URL: `EXTERNAL_TESTERS_BLOCKED_SHAREABLE_BUILD`.
 
-> Use 20–40 minutos do zero. Se precisar rolar para achar a próxima atividade, ou o botão sumir, mande print + lição.
+Perguntas preferidas (sem bias):
+
+- Alguma parte te confundiu?
+- Como você descreveria o que o personagem faz?
+- O que você aprendeu?
 
 ---
 
-## 9. Corrigir P0/P1 → congelar RC → gate → security
+## 9. Depois do Human QA
 
-Ordem:
+1. Corrigir P0 / P1 main-flow (ou waivers documentados)  
+2. **Retornar ao #273** — destravar candidate QA  
+3. Só então RC2.2.2B (device/PWA/rollback reais)  
+4. RC2.3 final main candidate (SHA pós-squash ≠ SHA desta stack)
 
-1. **Corrigir P0/P1** do log (B001/B002 só fecham após revalidação humana — §§B001/B002)  
-2. **Congelar RC:** `git rev-parse HEAD` → anotar SHA em [`BETA_BUG_LOG.md`](./BETA_BUG_LOG.md)  
-3. `npm run beta:rc-status`  
-4. **`npm run gate:public-beta`** nessa SHA  
-5. **Full security scan** da SHA final (workflow `Security`: npm audit + CodeQL + gitleaks) — **não** concluído até rodar na RC  
-6. Tag sugerida: `0.2.0-beta.1-rc1`  
-
-| Passo RC | OK |
-| --- | :---: |
-| P0 = 0 e P1 de fluxo principal tratados (ou waivers) | ☐ |
-| SHA RC anotada no bug log | ☐ |
-| `beta:rc-status` ok | ☐ |
-| `gate:public-beta` verde | ☐ |
-| Full security scan da SHA final verde | ☐ |
-
-**Só então** abrir beta fechado amplo. Automação verde **não** conta como RC concluída.
+**Verdict público continua NO-GO** até cloud + devices + PWA + rollback + security + freeze.

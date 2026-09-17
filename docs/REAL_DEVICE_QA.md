@@ -109,7 +109,7 @@ e o que precisa de iPhone real.
 | Altura com barra do Safari | Landing usa `min-h-dvh` (dynamic viewport); AppShell `min-h-screen`. `dvh` acompanha a barra do Safari | ⚙️ código ✅ · `⏳` confirmar `100vh` residual em device |
 | Scroll elástico | `overscroll` padrão; conteúdo em containers com `overflow` próprio nos exercícios | `⏳` device real |
 | Input aumentando zoom | Inputs de auth/onboarding com `text-base` (16px) → iOS **não** dá zoom no foco | ⚙️ código ✅ |
-| PWA standalone | Manifest `display: standalone`, `orientation: portrait`, ícone maskable | ⚙️ código ✅ · `⏳` "Add to Home Screen" real. **Falta meta legada `apple-mobile-web-app-capable`/status-bar** (§9, baixa) |
+| PWA standalone | Manifest `display: standalone`, `orientation: portrait`, ícone maskable; `index.html` com `apple-mobile-web-app-capable` / status-bar / title (RC2.2.3 **PASS_CODE**) | ⚙️ código ✅ · `⏳` "Add to Home Screen" real — formal `pwa_upgrade` continua `false` |
 | Atualização do service worker | `registerType: "autoUpdate"` (Workbox `skipWaiting`+`clientsClaim`) → nova versão aplica sem prompt | ⚙️ código ✅ |
 | Volta do background | Estado em `localStorage` (Zustand persist); `AuthBootstrap`/`CloudSyncBootstrap` reidratam ao focar | ⚙️ código ✅ · `⏳` device real |
 | Sessão Supabase após fechar/abrir | `persistSession: true` + `autoRefreshToken: true` + `detectSessionInUrl: true` | ⚙️ código ✅ · `⏳` device real |
@@ -143,15 +143,16 @@ Colunas conforme solicitado. Severidade: Bloqueador > Alta > Média > Baixa.
 | 6 | 390×844 | — | Chromium | `/` | Offline (PWA precache) | ✅ passou | — | — | SW assumiu controle e serviu o shell offline | — |
 | 7 | Desktop | — | Chrome | `/` | Rede lenta (Slow 3G) | ✅ passou | `16-landing-desktop` | — | — | — |
 | 8 | Tablet (emul.) | — | Chromium | `/jornada` | Retrato + paisagem | ✅ passou | `15-jornada-tablet-landscape` | — | — | — |
-| 9 | Global | iOS/Android | — | Global | Pinch-zoom | ⚠️ desativado | — | Média | `user-scalable=no, maximum-scale=1.0` bloqueia zoom (WCAG 1.4.4) | Remover `user-scalable=no`/`maximum-scale` do meta viewport (fast-follow) |
-| 10 | iPhone | iOS | Safari | Global (standalone) | Meta iOS legada | ⚠️ ausente | — | Baixa | Sem `apple-mobile-web-app-capable`/status-bar meta | Adicionar metas iOS de web-app (fast-follow) |
+| 9 | Global | iOS/Android | — | Global | Pinch-zoom | ✅ PASS_CODE (RC2.2.3) | — | — | `index.html` viewport = `width=device-width, initial-scale=1.0, viewport-fit=cover` — **sem** `user-scalable=no` / `maximum-scale=1` | Confirmado em código; revalidar pinch em device físico (não fecha `android_real_device`/`ios_real_device`) |
+| 10 | iPhone | iOS | Safari | Global (standalone) | Meta iOS legada | ✅ PASS_CODE (RC2.2.3) | — | — | Presentes: `apple-mobile-web-app-capable`, `status-bar-style`, `title` | Confirmado em código; install real ainda formal `pwa_upgrade=false` |
 | 11 | Android | Android | Chrome | Instalação | Ícone 192 dedicado | ⚠️ por escala | — | Baixa | Manifest sem ícone 192×192 dedicado (`logo.png any` cobre) | Adicionar ícone 192 (fast-follow) |
 | 12 | Global | — | — | Global | Toggle in-app "reduzir movimento" | ⚠️ ausente | — | Baixa | Só respeita a preferência do SO | Adicionar toggle nas configurações (fast-follow) |
 | 13 | iPhone/Android | iOS/Android | Safari/Chrome reais | Todos | **Verificação em device físico** | ⏳ pendente | — | — | Emulação não substitui device real (ver §8) | Rodar a matriz em iPhone + Android reais e WebKit/Firefox no CI |
 
 **Nenhum bloqueador e nenhum item de severidade Alta em aberto** na automação
-desta rodada. Itens 9–12 são fast-follow (Média/Baixa) herdados/ratificados;
-item 13 é a verificação manual pendente.
+desta rodada. Itens **9–10** reauditados em RC2.2.3 (**PASS_CODE** — pinch zoom
+desbloqueado; metas iOS presentes). Itens 11–12 permanecem fast-follow (Baixa);
+item 13 é a verificação manual em device físico pendente.
 
 ### Screenshots (docs/screenshots/)
 
