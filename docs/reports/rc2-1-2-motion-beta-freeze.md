@@ -105,7 +105,7 @@ Future `release_candidate_sha` = HEAD after this stack (or release-config-only f
 | Field | Value |
 |---|---|
 | FINAL_HEAD | `af13cf27335b5f8d2533324975843093843f699a` (first evidence tip) |
-| STACK_TIP | _(post-validate:beta docs)_ |
+| STACK_TIP | `fbfec3c95118acf57326d018417d94d3c33ad3c5` |
 | Candidate SHA | still empty — capture only in RC2.2 after this stack |
 | Next remessa | RC2.2 — Public Beta Candidate Infrastructure |
 
