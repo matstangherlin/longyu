@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
   type Lesson, type Skill, type LessonState, type Unit,
@@ -47,6 +47,8 @@ import {
   auxiliaryJourneyNodesAfterTopic,
   PINYIN_CAPSULE_NODE,
 } from "../../data/journeyOrchestrator";
+import { cultureMomentsAfterTopic } from "../../data/journeyCultureMoments";
+import { JourneyCultureMomentCard } from "./JourneyCultureMomentCard";
 import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
 import {
   instructionNodesBeforeTopic,
@@ -223,6 +225,7 @@ function lockedLessonMessage(
 export function JourneyPage() {
   const { t, instructionLocale: locale } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const completed = useStore((s) => s.completedLessons) ?? [];
   const lessonStarsById = useStore((s) => s.lessonStarsById) ?? {};
   const lessonMasteryById = useStore((s) => s.lessonMasteryById) ?? {};
@@ -342,6 +345,16 @@ export function JourneyPage() {
       }, 1400);
       return () => window.clearTimeout(timer);
     }
+    const focus = searchParams.get("focus");
+    if (focus?.startsWith("culture-moment:")) {
+      const momentId = focus.slice("culture-moment:".length);
+      requestAnimationFrame(() => {
+        document
+          .querySelector(`[data-culture-moment="${momentId}"]`)
+          ?.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
+      });
+      return;
+    }
     if (didScroll.current || doneCount === 0) return;
     didScroll.current = true;
     const el = document.querySelector('[data-current="true"]');
@@ -349,7 +362,7 @@ export function JourneyPage() {
     const rect = el.getBoundingClientRect();
     const alreadyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
     if (!alreadyVisible) el.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
-  }, [doneCount]);
+  }, [doneCount, searchParams]);
 
   // índice global para alternar o offset ao longo de toda a jornada
   let globalIndex = -1;
@@ -1060,11 +1073,12 @@ function ModuleBlock({
             ...auxiliaryJourneyNodesAfterTopic(lesson.id),
             ...publishedCapsuleNodesAfterTopic(lesson.id),
           ];
+          const cultureMoments = cultureMomentsAfterTopic(lesson.id);
           // V4.9.3 — a aula explicativa vem ANTES do tópico na trilha, porque
           // é antes dele que ela acontece. Renderizá-la depois seria desenhar
           // a ordem errada e ensinar o aluno a ignorá-la.
           const instruction = instructionNodesBeforeTopic(lesson.id);
-          if (!inline.length && !instruction.length) return node;
+          if (!inline.length && !instruction.length && !cultureMoments.length) return node;
           return (
             <div key={lesson.id} className="flex w-full flex-col items-center gap-3">
               {instruction.length > 0 && (
@@ -1085,6 +1099,16 @@ function ModuleBlock({
                 >
                   {inline.map((auxiliary) => (
                     <JourneyInlineNode key={auxiliary.id} node={auxiliary} />
+                  ))}
+                </div>
+              )}
+              {cultureMoments.length > 0 && (
+                <div
+                  className="flex w-full flex-col items-center gap-2"
+                  data-journey-culture-moments-after={lesson.id}
+                >
+                  {cultureMoments.map((moment) => (
+                    <JourneyCultureMomentCard key={moment.id} moment={moment} />
                   ))}
                 </div>
               )}

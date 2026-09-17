@@ -69,6 +69,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { ToneContrastCard } from "../../components/tone/ToneContrastCard";
 import { TONE_CONTRAST_SET_BY_ID } from "../../data/toneContrastSets";
+import { GuideDialogue } from "../../components/guide/GuideDialogue";
 import { localizeLessonStep } from "../../i18n/overlays/localizeLesson";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { validateExercise } from "./exerciseValidation";
@@ -514,6 +515,13 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
 
 // ---------------------------------------------------------------------------
 
+function guideMessagesFromExistingBody(body: string | undefined): string[] {
+  return String(body ?? "")
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 function StepIntro({ step, onDone }: StepProps) {
   const line = String(step.audioText ?? step.hanzi ?? "").trim();
   const canSpeak = Boolean(line && isCjkText(line));
@@ -528,6 +536,8 @@ function StepIntro({ step, onDone }: StepProps) {
   const contrastSet = step.toneContrastSetId
     ? TONE_CONTRAST_SET_BY_ID.get(step.toneContrastSetId)
     : undefined;
+  const guideMessages = guideMessagesFromExistingBody(step.body);
+  const useGuide = guideMessages.length > 0;
   return (
     <div data-testid={speaker || canSpeak ? "culture-story-beat" : undefined}>
       <Eyebrow>{speaker || t("player.understand")}</Eyebrow>
@@ -551,8 +561,21 @@ function StepIntro({ step, onDone }: StepProps) {
           />
         </div>
       ) : null}
-      <p className="mt-3 text-ink-soft">{step.body}</p>
-      <ContinueBtn onClick={() => onDone()} label="Entendi" />
+      {useGuide ? (
+        <div className="mt-4">
+          <GuideDialogue
+            messages={guideMessages}
+            onComplete={() => onDone()}
+            size={canSpeak ? "compact" : "default"}
+            continueLabel={t("player.gotIt")}
+          />
+        </div>
+      ) : (
+        <>
+          {step.body ? <p className="mt-3 text-ink-soft">{step.body}</p> : null}
+          <ContinueBtn onClick={() => onDone()} label="Entendi" />
+        </>
+      )}
     </div>
   );
 }
