@@ -84,6 +84,8 @@ Future `release_candidate_sha` = HEAD after this stack (or release-config-only f
 - `validate:rc2-content-freeze` — PASS · fingerprint `516692632525`
 - `validate:commercial-product-truth` — PASS (Pro/Family planned · Business pilot)
 - E2E `e2e/guided-journey-culture.spec.ts` — **8 passed** (Chromium + WebKit)
+- `validate:beta` — PASS (exit 0; release-candidate NO-GO expected; fingerprint `516692632525`)
+- `validate:security-boundaries` — PASS
   - teach intro: Continuar during typing → complete; second click advances
   - reduced motion: phase complete + motion ready
   - Continue during entrance still completes typing
@@ -102,7 +104,8 @@ Future `release_candidate_sha` = HEAD after this stack (or release-config-only f
 
 | Field | Value |
 |---|---|
-| FINAL_HEAD | `af13cf27335b5f8d2533324975843093843f699a` |
+| FINAL_HEAD | `af13cf27335b5f8d2533324975843093843f699a` (first evidence tip) |
+| STACK_TIP | _(post-validate:beta docs)_ |
 | Candidate SHA | still empty — capture only in RC2.2 after this stack |
 | Next remessa | RC2.2 — Public Beta Candidate Infrastructure |
 
