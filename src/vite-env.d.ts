@@ -7,7 +7,9 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_ANON_KEY?: string;
   readonly VITE_ADMIN_EMAILS?: string;
   readonly VITE_APP_VERSION?: string;
-  /** development | preview | production_beta */
+  /** Git commit SHA baked at build time for candidate identity (public). */
+  readonly VITE_COMMIT_SHA?: string;
+  /** development | preview | production_beta | rc2-candidate */
   readonly VITE_APP_ENV?: string;
   /** Nunca true no ambiente principal (Production Beta). */
   readonly VITE_ALLOW_PRO_PREVIEW?: string;

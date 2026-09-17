@@ -25,6 +25,11 @@ if (!process.env.VITE_APP_ENV?.trim()) {
   process.env.VITE_APP_ENV = "production_beta";
 }
 
+if (!process.env.VITE_COMMIT_SHA?.trim()) {
+  const git = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" });
+  if (git.status === 0) process.env.VITE_COMMIT_SHA = git.stdout.trim();
+}
+
 const result = spawnSync(process.execPath, [viteEntry, "build", ...extraArgs], {
   cwd: root,
   stdio: "inherit",
@@ -33,6 +38,21 @@ const result = spawnSync(process.execPath, [viteEntry, "build", ...extraArgs], {
 
 if ((result.status ?? 1) !== 0) {
   process.exit(result.status ?? 1);
+}
+
+// Public deploy identity (no secrets): commitSha / env label / version.
+try {
+  const dist = path.join(root, "dist");
+  fs.mkdirSync(dist, { recursive: true });
+  const identity = {
+    commitSha: process.env.VITE_COMMIT_SHA || "",
+    appVersion: process.env.VITE_APP_VERSION || "",
+    environment: process.env.VITE_APP_ENV || "",
+    builtAt: new Date().toISOString(),
+  };
+  fs.writeFileSync(path.join(dist, "version.json"), `${JSON.stringify(identity, null, 2)}\n`);
+} catch {
+  /* non-fatal */
 }
 
 // Meta tags por rota pública + sitemap.xml no dist/.

@@ -31,6 +31,11 @@ de um SHA diferente do candidate.
 
 **Zero de treze executados.** O verdict é NO-GO e não há "quase GO" (P24.1).
 
+> **RC2.1:** manifesto em `../rc2-candidate.json` está `BLOCKED` — sem credentials
+> de candidate QA production-like neste ambiente. Deploy-preview continua
+> inelegível (`VITE_BACKEND_MODE=local`). `release_candidate_sha` permanece vazio.
+> Ver `../../reports/rc2-1-candidate-cloud-evidence.md`.
+
 Os dois últimos entraram na V4.10A.1. Family e a licença Business foram
 verificados contra um PostgreSQL 16 local, com as migrations aplicadas e duas
 sessões concorrentes disputando o último assento de verdade — o resultado está
