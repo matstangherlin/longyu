@@ -5,8 +5,9 @@
 | Field | Value |
 |---|---|
 | STACK_BASE_SHA | `7acd074fc3a66b247d53eb039ccd248ac5a70837` (#268 inherited HEAD) |
+| FINAL_HEAD | `16f2a0a41e` (this remessa tip — future RC2 candidate SHA base) |
 | Branch | `cursor/guided-journey-culture-5b4f` |
-| PR base | `cursor/rc2-candidate-cloud-5b4f` (not `main`) |
+| PR | #269 → base `cursor/rc2-candidate-cloud-5b4f` (not `main`) |
 | CURRICULUM_FREEZE | `RC2_CONTENT_FREEZE` |
 | Fingerprint before | `516692632525` |
 | Fingerprint after | `516692632525` |
