@@ -77,8 +77,33 @@ Future `release_candidate_sha` = HEAD after this stack (or release-config-only f
 
 ## Gates / tests
 
-- `validate:guide-dialogue-motion` / `test:guide-dialogue-motion`
-- `validate:public-beta-feature-freeze`
-- `validate:public-beta-core` / `test:public-beta-core`
-- `gate:public-beta-core`
-- E2E GuideDialogue motion + existing Culture Moment flow (Chromium + WebKit)
+- `validate:guide-dialogue-motion` / `test:guide-dialogue-motion` — PASS
+- `validate:public-beta-feature-freeze` — PASS (`FEATURE_FREEZE=PUBLIC_BETA`)
+- `validate:public-beta-core` / `test:public-beta-core` — PASS (mutations + expected NO-GO)
+- `gate:public-beta-core` — PASS (contract green; GO still NO until cloud/device/candidate)
+- `validate:rc2-content-freeze` — PASS · fingerprint `516692632525`
+- `validate:commercial-product-truth` — PASS (Pro/Family planned · Business pilot)
+- E2E `e2e/guided-journey-culture.spec.ts` — **8 passed** (Chromium + WebKit)
+  - teach intro: Continuar during typing → complete; second click advances
+  - reduced motion: phase complete + motion ready
+  - Continue during entrance still completes typing
+  - Journey Culture Moment → Guide → Hub+Journey completion
+
+## Evidence
+
+| Artifact | Notes |
+|---|---|
+| Desktop Guide ready | `rc212-desktop-guide-ready.png` |
+| Mobile 390×844 Guide | `rc212-mobile-guide-ready.png` |
+| Culture Moment Guide | `rc212-culture-guide-ready.png` |
+| Manual demo clip | `rc212-guide-entrance-demo-clip.mp4` |
+
+## Close
+
+| Field | Value |
+|---|---|
+| FINAL_HEAD | _(stamped at commit tip of this report)_ |
+| Candidate SHA | still empty — capture only in RC2.2 after this stack |
+| Next remessa | RC2.2 — Public Beta Candidate Infrastructure |
+
+**STOP:** after merge of this stack — zero new product features before public beta. Question becomes: which blocker prevents GO?
