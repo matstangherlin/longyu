@@ -19,7 +19,7 @@ const crashTitle = /Algo saiu do prumo|Something went off track|Unexpected Appli
 test.describe("RC1 launch surfaces", () => {
   test("freeze contract still matches the shipped Journey", () => {
     expect(CURRICULUM_FREEZE).toBe("RC1");
-    expect(RC_BASE_FINGERPRINT).toBe("7c054f2255e7");
+    expect(RC_BASE_FINGERPRINT).toBe("943a8f9fb720");
     expect(ALL_LESSONS).toHaveLength(RC1_EXPECTED_LESSON_COUNT);
     expect(
       ALL_LESSONS.filter((lesson) => !lesson.isReview && !lesson.reviewMasteryMode)

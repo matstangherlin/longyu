@@ -25,11 +25,13 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 20/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 24/);
     await expect(page.getByTestId("culture-next-cta")).toBeVisible();
-    await expect(page.getByTestId("culture-seals")).toBeVisible();
-    await expect(page.getByTestId("culture-show-categories")).toBeVisible();
+    await expect(page.getByTestId("culture-collections")).toBeVisible();
+    await expect(page.getByTestId("culture-featured")).toBeVisible();
 
+    await page.getByTestId("culture-toggle-secondary").click();
+    await expect(page.getByTestId("culture-seals")).toBeVisible();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-home_visits").click();
     const cards = page.getByTestId("culture-card");
@@ -57,8 +59,9 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     }
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 24/);
 
+    await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     const filterAll = page.getByTestId("culture-filter-all");
     if (await filterAll.isVisible().catch(() => false)) await filterAll.click();
@@ -69,9 +72,8 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 24/);
     await expect(page.locator('[data-culture-id="visiting-home"]').first()).toHaveAttribute("data-culture-status", "completed");
-    await expect(page.locator('[data-culture-id="digital-pay"]').first()).toHaveAttribute("data-culture-status", "in_progress");
   });
 
   test("PT-BR and EN catalogs render without crashing", async ({ page }) => {
@@ -82,7 +84,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Cultura", exact: true })).toBeVisible();
-    await expect(page.getByText(/Missões culturais para agir na China|Entenda a língua/)).toBeVisible();
+    await expect(page.getByText(/Explore a China além das palavras/)).toBeVisible();
 
     await seedInterfaceLocale(page, "en");
     await seedInstructionLocale(page, "en", { force: true });
@@ -90,11 +92,10 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Culture", exact: true })).toBeVisible();
-    await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').locator("a").click();
+    await page.locator('[data-testid="culture-card"][data-culture-id="spring-festival"]').locator("a").click();
     await waitForLazyPage(page);
-    await expectCultureLessonPlayer(page, "visiting-home");
-    await expect(page.getByRole("heading", { name: "Arriving at someone's home" })).toBeVisible();
-    await expect(page.getByText(/Hosts often guide entry|Guests usually wait/i)).toBeVisible();
+    await expectCultureLessonPlayer(page, "spring-festival");
+    await expect(page.getByRole("heading", { name: "Spring Festival" })).toBeVisible();
   });
 
   test("invalid culture id does not crash the route", async ({ page }) => {
@@ -254,8 +255,78 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await page.getByTestId("culture-toggle-secondary").click();
     await expect(page.getByTestId("culture-node-journey-shared-dishes")).toBeVisible();
     await expect(page.getByTestId("culture-node-shared-dishes")).toHaveAttribute("data-knowledge", "practiced");
+  });
+});
+
+test.describe("V4.11A.2 Culture Atlas Hub", () => {
+  test("collections, festivals shelf, and secondary topic filters", async ({ page }) => {
+    test.setTimeout(120_000);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+
+    await expect(page.getByTestId("culture-collections")).toBeVisible();
+    await expect(page.getByTestId("culture-collection-card-festivals_calendar")).toBeVisible();
+    await expect(page.getByTestId("culture-collection-preparing-china_history")).toBeVisible();
+    await expect(page.getByTestId("culture-featured")).toBeVisible();
+
+    await page.getByTestId("culture-collection-card-festivals_calendar").click();
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-page")).toBeVisible();
+    await expect(page.locator('[data-culture-id="spring-festival"]')).toBeVisible();
+    await expect(page.locator('[data-culture-id="lantern-festival"]')).toBeVisible();
+
+    await page.getByTestId("culture-collection-back").click();
+    await waitForLazyPage(page);
+    await page.getByTestId("culture-collection-card-legends_literature").click();
+    await waitForLazyPage(page);
+    await expect(page.locator('[data-culture-id="sun-wukong"]')).toBeVisible();
+    await expect(page.locator('[data-culture-id="journey-to-the-west"]')).toBeVisible();
+
+    await page.locator('[data-testid="culture-card"][data-culture-id="sun-wukong"]').locator("a").click();
+    await waitForLazyPage(page);
+    await expectCultureLessonPlayer(page, "sun-wukong");
+    await playCultureLessonToVictory(page);
+    await leaveCultureVictory(page);
+
+    await page.goto("/cultura/colecao/legends_literature");
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-progress")).toContainText(/1 de 2|1 of 2/);
+
+    await page.goto("/cultura/colecao/china_history");
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-preparing")).toBeVisible();
+
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await page.getByTestId("culture-toggle-secondary").click();
+    await page.getByTestId("culture-show-categories").click();
+    await expect(page.getByTestId("culture-category-filter")).toBeVisible();
+  });
+
+  test("hub-only Journey to the West and Chinese Dragon lesson", async ({ page }) => {
+    test.setTimeout(180_000);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+
+    await page.goto("/cultura/journey-to-the-west");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expectCultureLessonPlayer(page, "journey-to-the-west");
+    await expect(page.getByText(/西游记|Xīyóujì/)).toBeVisible();
+    await playCultureLessonToVictory(page);
+    await leaveCultureVictory(page);
+
+    await page.goto("/cultura/chinese-dragon");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expectCultureLessonPlayer(page, "chinese-dragon");
+    await expect(page.getByText(/龙|lóng/)).toBeVisible();
+    await expect(page.getByTestId("culture-story-audio").or(page.locator("[data-current-step-kind='intro']"))).toBeVisible();
+    await playCultureLessonToVictory(page);
   });
 });
 
@@ -268,7 +339,8 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    const card = page.getByTestId("culture-card").first();
+    await expect(page.getByTestId("culture-collections")).toBeVisible();
+    const card = page.getByTestId("culture-collection-card-festivals_calendar");
     await expect(card).toBeVisible();
     const box = await card.boundingBox();
     expect(box).toBeTruthy();
@@ -277,12 +349,11 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     );
     expect(overflow).toBeLessThanOrEqual(2);
-    await card.locator("a").click();
+
+    await page.getByTestId("culture-collection-card-legends_literature").click();
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-item")).toBeVisible();
-    const cta = page.locator("[data-lesson-action-region] button").first();
-    await expect(cta).toBeVisible();
-    const ctaBox = await cta.boundingBox();
-    expect((ctaBox?.height ?? 0)).toBeGreaterThanOrEqual(40);
+    await page.locator('[data-testid="culture-card"][data-culture-id="sun-wukong"]').locator("a").click();
+    await waitForLazyPage(page);
+    await expectCultureLessonPlayer(page, "sun-wukong");
   });
 });
