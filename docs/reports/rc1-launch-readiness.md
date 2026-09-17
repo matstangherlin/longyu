@@ -29,7 +29,7 @@ launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
 | Field | Value |
 | --- | --- |
 | Freeze | `CURRICULUM_FREEZE=RC1` |
-| Base fingerprint | `7c054f2255e7` |
+| Base fingerprint | `943a8f9fb720` |
 | Real merge SHA (#254 on `main`) | `c4441b68ae2388027d72e3af748417ef7caf2bb6` |
 | Forbidden SHA | `241386c8fc814ebdfa166dde1035bc3d7ca195f5` (9B feature-branch tip, never a release SHA) |
 | Lessons | 134 |
@@ -37,9 +37,11 @@ launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
 | New lessons / chunks / arcs in this remessa | 0 |
 | Health plans | `saudeSurvivalPlanFor` / `saudePlan` only |
 
-The Journey fingerprint is the curriculum identity. It did not move with
-the #254 hotfix (persist/SRS/PWA). **RC1.4** retargeted `RC_BASE_FINGERPRINT`
-from `38e70062857d` → `7c054f2255e7` because the generated-task planner
+The Journey fingerprint is the curriculum identity. **V4.11A.2** advanced it
+from `7c054f2255e7` → `943a8f9fb720` because hub-only culture lessons landed in
+`cultureNative.ts` / `cultureLessons.ts` (`CURRICULUM_SOURCES`); core Mandarin
+134 / teaching topics 113 unchanged. Earlier, **RC1.4** retargeted
+`RC_BASE_FINGERPRINT` from `38e70062857d` → `7c054f2255e7` because the generated-task planner
 (`topicMasteryBonus` / `generatedTaskTrace`) enters `CURRICULUM_SOURCES` —
 documented in [`rc1-4-generated-learning-integrity.md`](./rc1-4-generated-learning-integrity.md).
 Do not silently retarget again without a report.
