@@ -86,8 +86,10 @@ No false PASS. Runbooks under `docs/release/evidence/` reused, not rewritten.
 | `validate:rc2-candidate-config` + mutations | PASS (status BLOCKED) |
 | `validate:rc2-candidate-drift` + mutations | PASS |
 | Chromium `e2e/culture-hub.spec.ts` | **17/17 PASS** (History shelf, timeline mobile 390×844, Culture Review) |
-| WebKit Culture Hub | see log / CI |
+| WebKit `e2e/culture-hub.spec.ts` | **17/17 PASS** (local after system deps) |
 | Cloud evidence | BLOCKED — no QA candidate credentials |
+| CI #267 Portão (validate:beta + build) | PASS |
+| CI #267 Security | PASS |
 
 ## Stop
 
