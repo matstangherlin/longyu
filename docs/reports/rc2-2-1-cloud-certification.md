@@ -21,9 +21,9 @@ No invent-deploy. Zero product features.
 | Credential | Purpose | Status |
 |---|---|---|
 | Supabase org `Noba` (`cwvlptpndrekubhhtoln`) | MCP access | AVAILABLE |
-| QA project `longyu-preview` (`wpnmygzxqvmpdlcuwrjp`) | Candidate backend | DISCOVERED · **INACTIVE** |
-| Restore `longyu-preview` | Activate QA DB | **BLOCKED** — free plan 2/2 active projects |
-| Active slots | — | `MandarimProject` (prod) + `atomurus` |
+| QA project `qa-candidate-project` (`wpnm…wrjp`) | Candidate backend | DISCOVERED · **INACTIVE** |
+| Restore `qa-candidate-project` | Activate QA DB | **BLOCKED** — free plan 2/2 active projects |
+| Active slots | — | `MandarimProject` (prod) + `sibling-free-tier-project` |
 | Supabase branching (Pro) | Alternate QA | **BLOCKED** — Pro plan required (`PaymentRequiredException`) |
 | `SUPABASE_ACCESS_TOKEN` env | CLI migrate/deploy | MISSING in agent env (MCP works for management) |
 | Netlify auth / candidate site | Publish SHA C | MISSING |
@@ -33,14 +33,14 @@ No invent-deploy. Zero product features.
 
 | Check | Result |
 |---|---|
-| Preferred QA ref | `wpnmygzxqvmpdlcuwrjp` |
+| Preferred QA ref | `wpnm…wrjp` |
 | Production ref | `drjcfalvlbbeblmmyhwj` |
 | QA ≠ production | **PASS** |
 | `.env.production` in agent | points at production — must not be used as QA |
 
 ## What advanced this turn
 
-1. Reused existing QA topology (`longyu-preview`) — no duplicate project created.
+1. Reused existing QA topology (`qa-candidate-project`) — no duplicate project created.
 2. Attempted restore → free-tier limit.
 3. Attempted development branch off production → Pro plan required.
 4. Confirmed production isolation for the preferred QA ref.
@@ -48,8 +48,8 @@ No invent-deploy. Zero product features.
 
 ## Exact human actions to unblock (then continue on this branch)
 
-1. Free one Supabase free-tier slot (owner pauses/deletes unused `atomurus`, **or** upgrades org).
-2. Restore/activate `longyu-preview` (`wpnmygzxqvmpdlcuwrjp`).
+1. Free one Supabase free-tier slot (owner pauses/deletes unused `sibling-free-tier-project`, **or** upgrades org).
+2. Restore/activate `qa-candidate-project` (`wpnm…wrjp`).
 3. Provide agent secrets: `RC2_QA_PROJECT_REF`, QA URL, QA anon key, `SUPABASE_ACCESS_TOKEN` (migrate + Edge).
 4. Provide Netlify candidate deploy access (`NETLIFY_AUTH_TOKEN` + site, or CI secrets).
 5. Configure Auth redirects + Turnstile QA on that project.
@@ -75,21 +75,21 @@ Re-checked via Supabase MCP on tip `c9adeed`:
 | Project | Ref | Status |
 |---|---|---|
 | MandarimProject (production) | `drjcfalvlbbeblmmyhwj` | ACTIVE_HEALTHY |
-| atomurus | `ylofdottauzcqcifnnpm` | ACTIVE_HEALTHY |
-| longyu-preview (preferred QA) | `wpnmygzxqvmpdlcuwrjp` | INACTIVE |
+| sibling-free-tier-project | `ylof…nnpm` | ACTIVE_HEALTHY |
+| qa-candidate-project (preferred QA) | `wpnm…wrjp` | INACTIVE |
 
-Free plan still **2/2**. Restore of `longyu-preview` still impossible without freeing a slot.
+Free plan still **2/2**. Restore of `qa-candidate-project` still impossible without freeing a slot.
 Branching still Pro-only. Netlify candidate access still MISSING.
 Agent env secrets still MISSING (`RC2_QA_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `NETLIFY_*`).
 
-Per remessa A1/A2: **did not** pause or delete `atomurus` / `MandarimProject` — no explicit owner authorization in this message.
+Per remessa A1/A2: **did not** pause or delete `sibling-free-tier-project` / `MandarimProject` — no explicit owner authorization in this message.
 No local backend, no production QA, no invent-deploy, no cloud PASS, no new scaffolding PR.
 
 ### Authorization needed (reply with one)
 
-1. **PAUSE `atomurus`** (preferred) — then agent restores `longyu-preview` and continues B→L on this same #273 branch  
-2. **DELETE `atomurus`** — only if you explicitly authorize delete  
-3. **Upgrade Supabase org** — then restore `longyu-preview`  
+1. **PAUSE `sibling-free-tier-project`** (preferred) — then agent restores `qa-candidate-project` and continues B→L on this same #273 branch  
+2. **DELETE `sibling-free-tier-project`** — only if you explicitly authorize delete  
+3. **Upgrade Supabase org** — then restore `qa-candidate-project`  
 4. **Provide Netlify candidate access** in parallel (still required for publish C even after QA restore)
 
 After (1) or (2)/(3): same path — restore QA → migrate → Edge core → Netlify C → identity → cloud_auth → cloud_sync → feedback → NO-GO remaining device checks.

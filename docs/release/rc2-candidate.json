@@ -1,14 +1,14 @@
 {
   "id": "rc2-candidate",
   "status": "BLOCKED",
-  "blocker": "BLOCKED_CREDENTIALS. QA topology discovered via Supabase MCP: project `longyu-preview` (ref wpnmygzxqvmpdlcuwrjp) exists and is INACTIVE. Restore failed: free-plan active project limit (2/2) — MandarimProject (production) + atomurus occupy slots. Supabase branching requires Pro plan. Netlify candidate deploy credentials still missing. candidateSha/deploymentUrl remain empty.",
+  "blocker": "BLOCKED_CREDENTIALS. QA topology discovered via Supabase MCP: project `qa-candidate-project` (ref wpnm…wrjp) exists and is INACTIVE. Restore failed: free-plan active project limit (2/2) — MandarimProject (production) + sibling-free-tier-project occupy slots. Supabase branching requires Pro plan. Netlify candidate deploy credentials still missing. candidateSha/deploymentUrl remain empty.",
   "blockedCredentials": [
-    "Free a Supabase free-tier slot (pause/delete unused `atomurus`, or upgrade org) so `longyu-preview` can be restored",
-    "Restore/activate Supabase project longyu-preview (ref wpnmygzxqvmpdlcuwrjp) — confirmed != production drjcfalvlbbeblmmyhwj",
-    "RC2_QA_PROJECT_REF=wpnmygzxqvmpdlcuwrjp once restored",
-    "QA anon key + URL from longyu-preview (public by design; via provider env)",
-    "SUPABASE_ACCESS_TOKEN with migrate + Edge deploy on longyu-preview",
-    "Auth Site URL / redirects on longyu-preview for candidate host",
+    "Free a Supabase free-tier slot (pause/delete unused `sibling-free-tier-project`, or upgrade org) so `qa-candidate-project` can be restored",
+    "Restore/activate Supabase project qa-candidate-project (ref wpnm…wrjp) — confirmed != production drjcfalvlbbeblmmyhwj",
+    "RC2_QA_PROJECT_REF=wpnm…wrjp once restored",
+    "QA anon key + URL from qa-candidate-project (public by design; via provider env)",
+    "SUPABASE_ACCESS_TOKEN with migrate + Edge deploy on qa-candidate-project",
+    "Auth Site URL / redirects on qa-candidate-project for candidate host",
     "NETLIFY_AUTH_TOKEN + QA candidate site (or rc2-candidate branch deploy)",
     "Turnstile QA site key + secret if signup/feedback require it"
   ],
@@ -34,21 +34,21 @@
     "Do not mark cloud_* PASS against deploy-preview or local PostgreSQL",
     "RC2.2 certifica uma stack ainda não mergeada. O projeto usa squash merge, então a SHA final da main será diferente da SHA C certificada aqui. RC2.3 recaptura a SHA pós-merge e reexecuta as evidências sensíveis à SHA.",
     "CodeQL build blocker on #267 was e2e CulturePersistSlice.weakWords — fixed in 281094d",
-    "RC2.2.1 advance: Supabase MCP listed orgs/projects; reuse longyu-preview (do not create duplicate).",
-    "Do not pause atomurus from the agent without owner confirmation — it is outside MandarimProject/longyu-preview."
+    "RC2.2.1 advance: Supabase MCP listed orgs/projects; reuse qa-candidate-project (do not create duplicate).",
+    "Do not pause sibling-free-tier-project from the agent without owner confirmation — it is outside MandarimProject/qa-candidate-project."
   ],
   "qaTopology": {
     "discoveredAt": "2026-09-17T20:01:07Z",
-    "preferredQaProjectName": "longyu-preview",
+    "preferredQaProjectName": "qa-candidate-project",
     "preferredQaRefMasked": "wpnm…wrjp",
-    "preferredQaRef": "wpnmygzxqvmpdlcuwrjp",
+    "preferredQaRef": "wpnm…wrjp",
     "preferredQaStatus": "INACTIVE",
     "productionRef": "drjcfalvlbbeblmmyhwj",
     "productionIsolation": "PASS — preferred QA ref != production",
     "restoreBlocker": "FREE_PROJECT_LIMIT_2",
     "activeProjectsOccupyingSlots": [
       "MandarimProject",
-      "atomurus"
+      "sibling-free-tier-project"
     ],
     "branchingAttempt": "PaymentRequiredException — Branching is supported only on the Pro plan or above"
   }

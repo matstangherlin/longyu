@@ -26,7 +26,7 @@ Emulation / local N→N+1 is labeled `CHROMIUM` / `WEBKIT` / `LOCAL_PREFLIGHT` �
 | FEATURE_FREEZE | `PUBLIC_BETA` |
 | Curriculum | 134 / 113 / 30 / 30 / 20 |
 
-Did **not** pause `atomurus`, did **not** use production, did **not** invent cloud PASS.
+Did **not** pause `sibling-free-tier-project`, did **not** use production, did **not** invent cloud PASS.
 
 ---
 
@@ -102,7 +102,7 @@ No `PREVIEW_DEVICE_PREFLIGHT` physical run recorded.
 
 ## Remaining blockers (order)
 
-1. Human: free Supabase slot → restore `longyu-preview` (#273)
+1. Human: free Supabase slot → restore `qa-candidate-project` (#273)
 2. Netlify candidate publish C
 3. Cloud auth / sync / feedback on C
 4. RC2.2.2B formal device/PWA/rollback on C
