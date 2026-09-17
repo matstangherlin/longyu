@@ -77,17 +77,19 @@ Spring Festival stays on its existing journey explore node (no duplicate moment)
 
 ## Gates / tests
 
-- `validate:guide-dialogue-contract` / `test:guide-dialogue`
-- `validate:journey-culture-moments` / `test:journey-culture-moments`
-- Wired into `validate:beta`
-- E2E: `e2e/guided-journey-culture.spec.ts` (Chromium + WebKit)
+- `validate:guide-dialogue-contract` / `test:guide-dialogue` — PASS
+- `validate:journey-culture-moments` / `test:journey-culture-moments` — PASS (5 moments · 20 journey culture nodes)
+- Wired into `validate:beta` — PASS (exit 0); fingerprint `516692632525`; release-candidate verdict remains NO-GO / cloud BLOCKED as expected
+- `build` — PASS
+- E2E `e2e/guided-journey-culture.spec.ts` — **6/6 PASS** on Chromium + WebKit
 
 ## Locales / viewport
 
 - PT-BR + EN via existing culture item fields + `player.gotIt` / explore chrome
 - Culture Moment card: `w-[min(100%,320px)]` for 390×844
 - GuideDialogue: column on mobile, row on `sm+`
+- Manual/mobile evidence: GuideDialogue typing→complete @ 390×844; Culture Moment on Journey; culture lesson GuideDialogue after Explorar
 
 ## Candidate status
 
-Future candidate SHA = HEAD of this stack (or later release-config-only commit). Do not set `release_candidate_sha` or cloud PASS until RC2.1 cloud execution with real QA evidence.
+Future candidate SHA = HEAD of this stack (`16f2a0a…`) or a later release-config-only commit. Do not set `release_candidate_sha` or cloud PASS until RC2.1 cloud execution with real QA evidence.
