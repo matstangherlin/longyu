@@ -8,8 +8,20 @@ function failList() {
   return { fail, failures };
 }
 
-const WAVE_TERMS = ["孙悟空", "西游记", "元宵节", "春节", "龙"];
-const WAVE_IDS = ["sun-wukong", "journey-to-the-west", "lantern-festival", "chinese-dragon", "spring-festival"];
+const WAVE_TERMS = ["孙悟空", "西游记", "元宵节", "春节", "龙", "秦", "汉", "唐", "宋", "明", "清"];
+const WAVE_IDS = [
+  "sun-wukong",
+  "journey-to-the-west",
+  "lantern-festival",
+  "chinese-dragon",
+  "spring-festival",
+  "china-history-timeline",
+  "qin-unification",
+  "han-dynasty",
+  "tang-dynasty",
+  "song-dynasty",
+  "ming-qing",
+];
 
 export function validateCultureNoLexicalPollution(data) {
   const { fail, failures } = failList();
