@@ -1733,8 +1733,8 @@ const SHORT_SPECS: Array<{
   {
     id: "china-history-timeline",
     concept: loc(
-      "Mapa introdutório: Qin → Han → Tang → Song → Ming → Qing — não um curso completo.",
-      "Introductory map: Qin → Han → Tang → Song → Ming → Qing — not a full course."
+      "Mapa introdutório dos grandes períodos imperiais — não um curso completo.",
+      "Introductory map of major imperial periods — not a full course."
     ),
     pairs: [
       { id: "p1", left: loc("Qin → Han", "Qin → Han"), right: loc("ordem imperial inicial", "early imperial order") },
@@ -1812,8 +1812,8 @@ const SHORT_SPECS: Array<{
   {
     id: "ming-qing",
     concept: loc(
-      "Ming e Qing = império tardio; fim do sistema imperial em 1911/12.",
-      "Ming and Qing = late empire; end of the imperial system in 1911/12."
+      "Bloco final do império neste mapa curto; fim do sistema imperial em 1911/12.",
+      "Final imperial block on this short map; end of the imperial system in 1911/12."
     ),
     pairs: [
       { id: "p1", left: loc("Forbidden City / muralha visitável", "Forbidden City / visitable wall"), right: loc("sobretudo Ming", "mainly Ming") },
