@@ -358,7 +358,7 @@ prontas** em `verify:rc2-candidate-identity`, e todas falham fechado hoje.
 
 ### Mutações mortas (P42)
 
-`npm run test:rc2-candidate-infra` — **35 mutações**, todas mortas:
+`npm run test:rc2-candidate-infra` — **33 mutações**, todas mortas:
 
 | # | Mutação | Código |
 |---|---|---|
@@ -429,7 +429,7 @@ preservados. Product truth inalterado.
 | `test:entitlements` / `test:qa-fast-path` | ✅ PASS |
 | `validate:production-no-fixtures` | ✅ PASS |
 | `validate:rc2-candidate-config` / `-drift` / `-infra` | ✅ PASS |
-| `test:rc2-candidate-infra` | ✅ 35 mutações mortas |
+| `test:rc2-candidate-infra` | ✅ 33 mutações mortas |
 | `verify:rc2-candidate-identity` | ⛔ `BLOCKED_CREDENTIALS` (exit 2) |
 | `audit:rc2-qa-backend` | ⛔ `BLOCKED_CREDENTIALS` (exit 2) |
 
@@ -513,3 +513,10 @@ ausentes).
 
 `docs/release/evidence/rc2-candidate-deploy.md` — passo a passo executável por
 quem tiver as credenciais.
+
+## 19. Cursor remessa re-verification
+
+Branch naming for this agent remessa: `cursor/rc2-candidate-infra-5b4f` @ `b651265`
+(same tip as #271). Re-ran infra gates green. Credentials still **MISSING** — no deploy,
+`candidateSha` remains empty. No runtime changes.
+
