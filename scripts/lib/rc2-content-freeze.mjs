@@ -8,6 +8,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { isProductionProjectId } from "./staging-guard.mjs";
 
 function failList() {
   const failures = [];
@@ -65,7 +66,9 @@ export function validateRc2ContentFreeze(data = {}) {
   if (data.operationalChecks) {
     const sha = data.operationalChecks.release_candidate_sha ?? "";
     const candidate = data.candidateManifest;
-    if (sha && candidate?.status === "PREPARING") {
+    // P42 mutação 6 — release_candidate_sha preenchido antes do deploy.
+    // BLOCKED conta tanto quanto PREPARING: nos dois casos nada foi publicado.
+    if (sha && (candidate?.status === "PREPARING" || candidate?.status === "BLOCKED")) {
       fail("CANDIDATE_SHA_TOO_EARLY", "operational-checks", "release_candidate_sha preenchido antes de DEPLOYED");
     }
     if (sha && candidate?.candidateSha && sha !== candidate.candidateSha) {
@@ -90,9 +93,18 @@ export function validateRc2CandidateConfig(data = {}) {
   }
 
   if (status === "PREPARING" || status === "BLOCKED") {
-    // Honest pre-deploy states: no production-like claims required yet.
-    if (candidate.backendMode === "local" && status === "DEPLOYED") {
-      fail("LOCAL_BACKEND", "rc2-candidate", "candidate DEPLOYED não pode usar backend local");
+    // Estados honestos de pré-deploy: nada production-like é exigido ainda.
+    // Mas também não pode haver a ALEGAÇÃO de um candidate que não existe —
+    // um SHA ou URL aqui seria exatamente a mentira que estes gates existem
+    // para impedir.
+    if (candidate.candidateSha) {
+      fail("SHA_WITHOUT_DEPLOY", "rc2-candidate", `candidateSha preenchido com status ${status}`);
+    }
+    if (candidate.deploymentUrl) {
+      fail("URL_WITHOUT_DEPLOY", "rc2-candidate", `deploymentUrl preenchida com status ${status}`);
+    }
+    if (candidate.deployedAt) {
+      fail("DEPLOYED_AT_WITHOUT_DEPLOY", "rc2-candidate", `deployedAt preenchido com status ${status}`);
     }
     return { failures };
   }
@@ -107,6 +119,26 @@ export function validateRc2CandidateConfig(data = {}) {
   }
   if (candidate.environment === "production") {
     fail("PROD_QA", "rc2-candidate", "QA candidate não pode apontar para production DB");
+  }
+  // P42 mutação 10 — DEPLOYED sem deployedAt é uma data que ninguém mediu.
+  if (!candidate.deployedAt) {
+    fail("MISSING_DEPLOYED_AT", "rc2-candidate", "deployedAt obrigatório quando status >= DEPLOYED");
+  }
+  // P42 mutação 4 — candidate rodando com o app env de produção.
+  if (candidate.appEnv && candidate.appEnv !== "qa_candidate") {
+    fail("BAD_APP_ENV", "rc2-candidate", `appEnv=${candidate.appEnv}, esperado qa_candidate`);
+  }
+  // P42 mutações 3 e 5 — QA apontando para o projeto de produção.
+  if (candidate.supabaseRef && isProductionProjectId(candidate.supabaseRef)) {
+    fail("PRODUCTION_SUPABASE", "rc2-candidate", "candidate QA aponta para o Supabase de produção");
+  }
+  // P11.1 — branch, "latest" ou short label não identificam um runtime.
+  if (candidate.candidateSha && !/^[0-9a-f]{40}$/i.test(String(candidate.candidateSha))) {
+    fail("AMBIGUOUS_SHA", "rc2-candidate", `candidateSha "${candidate.candidateSha}" não é SHA completo de 40 hex`);
+  }
+  // P19 — a URL do candidate precisa ser HTTPS para auth redirect e PWA.
+  if (candidate.deploymentUrl && !/^https:\/\//i.test(String(candidate.deploymentUrl))) {
+    fail("INSECURE_URL", "rc2-candidate", "deploymentUrl precisa ser HTTPS");
   }
   if (!candidate.contentFreezeSha) fail("MISSING_CONTENT_FREEZE", "rc2-candidate", "contentFreezeSha ausente");
   if (candidate.fingerprint && candidate.fingerprint !== EXPECTED.fingerprint) {

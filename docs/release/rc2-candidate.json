@@ -1,20 +1,36 @@
 {
   "id": "rc2-candidate",
   "status": "BLOCKED",
-  "blocker": "No QA Supabase / Netlify candidate credentials in this agent environment. Deploy-preview uses VITE_BACKEND_MODE=local and cannot close cloud evidence. release_candidate_sha stays empty until a production-like candidate is published and identity-verified.",
+  "blocker": "BLOCKED_CREDENTIALS. A infraestrutura do candidate existe em código (contrato qa_candidate, guard de build, contexto de deploy, identidade de deploy, gates de identidade/drift/infra), mas este ambiente não tem credencial de Netlify nem projeto Supabase QA. Nada foi publicado, então candidateSha, deploymentUrl e release_candidate_sha continuam vazios.",
+  "blockedCredentials": [
+    "NETLIFY_AUTH_TOKEN (ou acesso ao painel) para criar o site QA / branch deploy do candidate",
+    "Projeto Supabase QA: ref + URL (RC2_QA_PROJECT_REF) — precisa ser != drjcfalvlbbeblmmyhwj",
+    "Anon key do projeto Supabase QA (pública por design, mas inexistente aqui)",
+    "SUPABASE_ACCESS_TOKEN com permissão de ler/aplicar migrations no projeto QA",
+    "Permissão de deploy de Edge Functions no projeto QA",
+    "Acesso ao Supabase Auth do projeto QA para Site URL / redirect URLs do candidate"
+  ],
   "candidateSha": "",
   "contentFreezeSha": "24ba129d79e61124c7d6dd3aaa3756eb9a6adf40",
   "fingerprint": "516692632525",
   "environment": "qa",
+  "appEnv": null,
+  "supabaseRef": null,
   "deploymentUrl": "",
   "deployedAt": null,
   "backendMode": null,
   "fixtures": null,
-  "stackBaseSha": "281094de6f6897dd68b4cb0786197b9399ecf370",
-  "inheritedPr": 267,
+  "stackBaseSha": "dd684150eef48ef1e6c32cc707f429f5f5527150",
+  "inheritedPr": 270,
+  "identityEndpoint": "/version.json",
+  "netlifyCandidateContext": "rc2-candidate",
+  "migrationsExpected": 52,
+  "migrationsApplied": null,
   "notes": [
     "CONTENT_FREEZE_SHA ≠ RELEASE_CANDIDATE_SHA",
+    "Deploy preview NÃO é candidate: roda VITE_BACKEND_MODE=local e não prova auth/sync/feedback/entitlements",
     "Do not mark cloud_* PASS against deploy-preview or local PostgreSQL",
+    "RC2.2 certifica uma stack ainda não mergeada. O projeto usa squash merge, então a SHA final da main será diferente da SHA C certificada aqui. RC2.3 recaptura a SHA pós-merge e reexecuta as evidências sensíveis à SHA.",
     "CodeQL build blocker on #267 was e2e CulturePersistSlice.weakWords — fixed in 281094d"
   ]
 }

@@ -1,5 +1,7 @@
 /**
- * V4.7.4 — QA Fast Path: só preview/dev; nunca Production Beta.
+ * V4.7.4 — QA Fast Path: só preview/dev; nunca em ambiente production-like.
+ * RC2.2 — o candidate QA (qa_candidate) conta como production-like: ele existe
+ * para ser testado pelos caminhos reais do aluno, não pelo atalho de QA.
  * Marker, query string, deep link e refresh não abrem em production.
  * TEST STATE não sincroniza nem altera conta cloud.
  */
@@ -26,6 +28,9 @@ function resolveAppEnvironment(env) {
     .replace(/-/g, "_");
   if (raw === "development" || raw === "dev") return "development";
   if (raw === "preview" || raw === "deploy_preview" || raw === "staging") return "preview";
+  if (raw === "qa_candidate" || raw === "rc2_candidate" || raw === "candidate" || raw === "qa") {
+    return "qa_candidate";
+  }
   if (raw === "production_beta" || raw === "production" || raw === "prod" || raw === "beta") {
     return "production_beta";
   }
@@ -33,8 +38,13 @@ function resolveAppEnvironment(env) {
   return "production_beta";
 }
 
+function isProductionLikeEnv(env) {
+  const appEnv = resolveAppEnvironment(env);
+  return appEnv === "production_beta" || appEnv === "qa_candidate";
+}
+
 function isQaFastPathAllowed(env) {
-  if (resolveAppEnvironment(env) === "production_beta") return false;
+  if (isProductionLikeEnv(env)) return false;
   const appEnv = resolveAppEnvironment(env);
   return appEnv === "development" || appEnv === "preview";
 }
@@ -46,7 +56,11 @@ function productionGate(env, pathName) {
 
 const envSrc = read("src/lib/appEnvironment.ts");
 assert(envSrc.includes("isQaFastPathAllowed"), "appEnvironment deve expor isQaFastPathAllowed");
-assert(envSrc.includes("isProductionBetaEnv(env)) return false"), "QA Fast Path deve falhar fechado em production_beta");
+assert(
+  envSrc.includes("isProductionLikeEnv(env)) return false"),
+  "QA Fast Path deve falhar fechado em ambiente production-like"
+);
+assert(envSrc.includes('"qa_candidate"'), "appEnvironment deve reconhecer qa_candidate");
 
 assert(isQaFastPathAllowed({ MODE: "production" }) === false, "MODE production → Fast Path off");
 assert(isQaFastPathAllowed({ VITE_APP_ENV: "production_beta" }) === false, "production_beta → Fast Path off");
@@ -54,6 +68,8 @@ assert(isQaFastPathAllowed({ VITE_APP_ENV: "production" }) === false, "VITE_APP_
 assert(isQaFastPathAllowed({ VITE_APP_ENV: "prod" }) === false, "VITE_APP_ENV prod → off");
 assert(isQaFastPathAllowed({ VITE_APP_ENV: "beta" }) === false, "VITE_APP_ENV beta → off");
 assert(isQaFastPathAllowed({ VITE_APP_ENV: "preview" }) === true, "preview → Fast Path on");
+assert(isQaFastPathAllowed({ VITE_APP_ENV: "qa_candidate" }) === false, "qa_candidate → Fast Path off");
+assert(isQaFastPathAllowed({ VITE_APP_ENV: "rc2-candidate" }) === false, "alias rc2-candidate → Fast Path off");
 assert(isQaFastPathAllowed({ DEV: true }) === true, "DEV → Fast Path on");
 assert(
   isQaFastPathAllowed({ VITE_APP_ENV: "preview", MODE: "production" }) === true,
@@ -71,6 +87,7 @@ assert(
 for (const pathName of ["/qa", "/qa/player", "/qa/m1", "/qa/player?seed=1", "/qa?marker=1"]) {
   assert(productionGate({ MODE: "production" }, pathName) === "/", `production + ${pathName} → /`);
   assert(productionGate({ VITE_APP_ENV: "production_beta" }, pathName) === "/", `production_beta + ${pathName} → /`);
+  assert(productionGate({ VITE_APP_ENV: "qa_candidate" }, pathName) === "/", `qa_candidate + ${pathName} → /`);
   assert(productionGate({ DEV: true }, pathName) === pathName, `dev + ${pathName} permanece`);
 }
 
@@ -106,6 +123,7 @@ assert(audience.includes("qaFastPathAccess"), "override de audience QA não puxa
 
 assert(!read("netlify.toml").includes("VITE_DEV_ALLOW_LOCAL_AUTH"), "preview/prod não ligam auth local no toml");
 assert(read("netlify.toml").includes('VITE_APP_ENV = "production_beta"'), "produção declara production_beta");
+assert(read("netlify.toml").includes('VITE_APP_ENV = "qa_candidate"'), "candidate declara qa_candidate");
 
 const accessSrc = read("src/lib/qaFastPathAccess.ts");
 assert(accessSrc.includes("snapshotRealStateForQa"), "backup do estado real antes do seed");
