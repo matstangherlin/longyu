@@ -32,7 +32,7 @@ export const RC2_EXPECTED_HISTORY_ITEMS = 6;
  * Tip SHA of the V4.11A.3 content freeze. Stamped after the freeze commit lands.
  * Distinct from RELEASE_CANDIDATE_SHA (deploy candidate — still empty).
  */
-export const RC2_CONTENT_FREEZE_SHA = "92fdac08333c224cb1c4b73661b32e253a2ab912";
+export const RC2_CONTENT_FREEZE_SHA = "24ba129d79e61124c7d6dd3aaa3756eb9a6adf40";
 
 /** Intentionally empty until a real public-beta deploy candidate exists. */
 export const RELEASE_CANDIDATE_SHA = "";
