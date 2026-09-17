@@ -305,7 +305,7 @@ export function CultureHubPage() {
                 {filterButtons}
               </div>
             ) : null}
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2" data-testid="culture-topic-list">
               {items.map((item) => (
                 <CultureCard
                   key={item.id}

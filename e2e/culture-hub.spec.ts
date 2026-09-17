@@ -34,7 +34,8 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await expect(page.getByTestId("culture-seals")).toBeVisible();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-home_visits").click();
-    const cards = page.getByTestId("culture-card");
+    // Featured cards also use culture-card — scope to the topic list.
+    const cards = page.getByTestId("culture-topic-list").getByTestId("culture-card");
     await expect(cards.first()).toBeVisible();
     await expect(cards).toHaveCount(3);
 
@@ -73,7 +74,13 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
-    await expect(page.locator('[data-culture-id="visiting-home"]').first()).toHaveAttribute("data-culture-status", "completed");
+    await page.getByTestId("culture-toggle-secondary").click();
+    await page.getByTestId("culture-show-categories").click();
+    const filterAllAgain = page.getByTestId("culture-filter-all");
+    if (await filterAllAgain.isVisible().catch(() => false)) await filterAllAgain.click();
+    await expect(
+      page.getByTestId("culture-topic-list").locator('[data-culture-id="visiting-home"]')
+    ).toHaveAttribute("data-culture-status", "completed");
   });
 
   test("PT-BR and EN catalogs render without crashing", async ({ page }) => {
@@ -328,7 +335,7 @@ test.describe("V4.11A.2 Culture Atlas Hub", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expectCultureLessonPlayer(page, "chinese-dragon");
-    await expect(page.getByText(/龙|lóng/)).toBeVisible();
+    await expect(page.getByTestId("culture-item").getByText(/龙 \(lóng\)|龙 · lóng|lóng/)).toBeVisible();
     await expect(page.getByTestId("culture-story-audio").or(page.locator("[data-current-step-kind='intro']"))).toBeVisible();
     await playCultureLessonToVictory(page);
   });

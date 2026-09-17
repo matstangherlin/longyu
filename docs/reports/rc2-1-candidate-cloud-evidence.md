@@ -73,6 +73,22 @@ No false PASS. Runbooks under `docs/release/evidence/` reused, not rewritten.
 4. Docs-only commit: `release_candidate_sha=C` + manifesto `DEPLOYED`  
 5. Execute existing runbooks; set `pass=true` only with testedAt/environment/commitSha  
 
+
+
+## Validation evidence (this agent)
+
+| Gate | Result |
+|------|--------|
+| `npm run typecheck` / `npm run build` | PASS (post CodeQL fix) |
+| Security on #267 | PASS (gitleaks, npm audit, CodeQL) |
+| `validate:beta` (local, pre-RC2-gate wiring) | PASS · ~41 min · fingerprint `516692632525` |
+| `validate:rc2-content-freeze` + mutations | PASS |
+| `validate:rc2-candidate-config` + mutations | PASS (status BLOCKED) |
+| `validate:rc2-candidate-drift` + mutations | PASS |
+| Chromium `e2e/culture-hub.spec.ts` | **17/17 PASS** (History shelf, timeline mobile 390×844, Culture Review) |
+| WebKit Culture Hub | see log / CI |
+| Cloud evidence | BLOCKED — no QA candidate credentials |
+
 ## Stop
 
 Do not invent cloud PASS. Do not fill `release_candidate_sha` early. Next stack:
