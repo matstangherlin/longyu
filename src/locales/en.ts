@@ -2220,6 +2220,7 @@ export const en: MessageCatalog = {
     hideSecondary: "Hide extras",
     collectionPreparing: "In preparation",
     collectionPreparingBody: "This collection has no published lessons yet.",
+    timelineEyebrow: "Timeline",
     missionEyebrow: "Culture mission",
     missionProgress: "{current} / {total}",
     missionDoneEyebrow: "Mission complete",

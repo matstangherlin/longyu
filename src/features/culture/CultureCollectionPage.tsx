@@ -10,6 +10,7 @@ import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
 import { CultureCard } from "./CultureCard";
+import { CultureTimeline } from "./CultureTimeline";
 
 function isCollectionId(value: string | undefined): value is CultureCollectionId {
   return Boolean(value && CULTURE_COLLECTIONS.some((collection) => collection.id === value));
@@ -39,6 +40,7 @@ export function CultureCollectionPage() {
   const done = items.filter((item) => completedIds.includes(item.id)).length;
   const total = items.length;
   const empty = total === 0;
+  const showTimeline = collectionId === "china_history" && !empty;
 
   return (
     <HubPage data-testid="culture-collection-page" data-collection-id={collectionId}>
@@ -72,6 +74,14 @@ export function CultureCollectionPage() {
               style={{ width: `${Math.round((done / Math.max(total, 1)) * 100)}%` }}
             />
           </div>
+          {showTimeline ? (
+            <div className="mt-4 rounded-2xl border border-line bg-surface p-3" data-testid="culture-history-timeline-panel">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+                {t("culture.timelineEyebrow")}
+              </p>
+              <CultureTimeline />
+            </div>
+          ) : null}
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {items.map((item) => (
               <CultureCard

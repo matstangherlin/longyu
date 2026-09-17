@@ -213,6 +213,12 @@ export const CULTURE_ROUTES: CultureRoute[] = [
       "chinese-dragon",
       "sun-wukong",
       "journey-to-the-west",
+      "china-history-timeline",
+      "qin-unification",
+      "han-dynasty",
+      "tang-dynasty",
+      "song-dynasty",
+      "ming-qing",
     ],
   },
 ];

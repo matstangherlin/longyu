@@ -1731,6 +1731,101 @@ const SHORT_SPECS: Array<{
     difficulty: 2,
   },
   {
+    id: "china-history-timeline",
+    concept: loc(
+      "Mapa introdutório dos grandes períodos imperiais — não um curso completo.",
+      "Introductory map of major imperial periods — not a full course."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Qin → Han", "Qin → Han"), right: loc("ordem imperial inicial", "early imperial order") },
+      { id: "p2", left: loc("'Toda a história chinesa'", "'All of Chinese history'"), right: loc("exagero: é introdução", "overreach: it is an introduction") },
+    ],
+    takeaways: [
+      loc("Memorize a ordem dos blocos, não dezenas de datas.", "Remember the block order, not dozens of dates."),
+      loc("Depois abra cada dinastia para detalhe.", "Then open each dynasty for detail."),
+    ],
+  },
+  {
+    id: "qin-unification",
+    concept: loc(
+      "秦 marca unificação imperial e padronizações; a muralha visitável é sobretudo Ming.",
+      "秦 marks imperial unification and standardisations; the visitable wall is mainly Ming."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Qin Shi Huang", "Qin Shi Huang"), right: loc("primeiro imperador Qin", "first Qin emperor") },
+      { id: "p2", left: loc("Grande Muralha atual", "Today's Great Wall"), right: loc("não = só Qin", "not = Qin only") },
+    ],
+    takeaways: [
+      loc("Terracotta Army = mausoléu Qin (UNESCO).", "Terracotta Army = Qin mausoleum (UNESCO)."),
+      loc("Qin vem antes de Han no mapa.", "Qin comes before Han on the map."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "han-dynasty",
+    concept: loc(
+      "汉 consolida após Qin; 汉字 carrega vínculo cultural com Hàn.",
+      "汉 consolidates after Qin; 汉字 carries a cultural link to Hàn."
+    ),
+    pairs: [
+      { id: "p1", left: loc("汉字", "汉字"), right: loc("vínculo cultural, escrita mais antiga", "cultural link, older writing") },
+      { id: "p2", left: loc("Han vs Qin", "Han vs Qin"), right: loc("Han depois de Qin", "Han after Qin") },
+    ],
+    takeaways: [
+      loc("Contexto cultural ≠ newRef lexical automático.", "Cultural context ≠ automatic lexical newRef."),
+      loc("Silk Road: rótulo moderno com contexto.", "Silk Road: a modern label with context."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "tang-dynasty",
+    concept: loc(
+      "唐: Chang'an e intercâmbio; 'idade de ouro' é caracterização, não ranking absoluto.",
+      "唐: Chang'an and exchange; 'golden age' is characterisation, not absolute ranking."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Chang'an", "Chang'an"), right: loc("capital cosmopolita", "cosmopolitan capital") },
+      { id: "p2", left: loc("Han → Tang", "Han → Tang"), right: loc("ordem do mapa", "map order") },
+    ],
+    takeaways: [
+      loc("Não diga 'a melhor dinastia' como fato.", "Do not say 'the best dynasty' as fact."),
+      loc("Tang vem depois de Han.", "Tang comes after Han."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "song-dynasty",
+    concept: loc(
+      "宋: cidades e inovação gradual — não 'inventou tudo num dia'.",
+      "宋: cities and gradual innovation — not 'invented everything in a day'."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Impressão / bússola / pólvora", "Printing / compass / gunpowder"), right: loc("processos graduais", "gradual processes") },
+      { id: "p2", left: loc("Tang → Song", "Tang → Song"), right: loc("ordem do mapa", "map order") },
+    ],
+    takeaways: [
+      loc("Urbanização e comércio são eixos Song.", "Urbanisation and commerce are Song axes."),
+      loc("Evite milagre de um dia.", "Avoid a one-day miracle."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "ming-qing",
+    concept: loc(
+      "Bloco final do império neste mapa curto; fim do sistema imperial em 1911/12.",
+      "Final imperial block on this short map; end of the imperial system in 1911/12."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Forbidden City / muralha visitável", "Forbidden City / visitable wall"), right: loc("sobretudo Ming", "mainly Ming") },
+      { id: "p2", left: loc("Qing", "Qing"), right: loc("última dinastia imperial", "last imperial dynasty") },
+    ],
+    takeaways: [
+      loc("Ming antes de Qing.", "Ming before Qing."),
+      loc("Sem deep dive político moderno nesta lesson.", "No modern political deep dive in this lesson."),
+    ],
+    difficulty: 2,
+  },
+  {
     id: "mid-autumn",
     concept: loc(
       "中秋节 é feriado oficial ligado a reunião e à lua; os costumes locais mudam.",
