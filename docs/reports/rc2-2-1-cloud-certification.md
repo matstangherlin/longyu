@@ -65,3 +65,32 @@ Then this remessa resumes: migrate → Edge core functions → capture C → dep
 RC2.2.1 completion → RC2.2.2 devices/PWA/rollback → RC2.2.3 human QA → RC2.3 final candidate → V5.0.
 
 Generated: 2026-09-17T20:01:07Z
+
+## RC2.2.1B — QA UNBLOCK attempt (2026-09-17T20:05:44Z)
+
+**STOP — human authorization required before any slot action.**
+
+Re-checked via Supabase MCP on tip `c9adeed`:
+
+| Project | Ref | Status |
+|---|---|---|
+| MandarimProject (production) | `drjcfalvlbbeblmmyhwj` | ACTIVE_HEALTHY |
+| atomurus | `ylofdottauzcqcifnnpm` | ACTIVE_HEALTHY |
+| longyu-preview (preferred QA) | `wpnmygzxqvmpdlcuwrjp` | INACTIVE |
+
+Free plan still **2/2**. Restore of `longyu-preview` still impossible without freeing a slot.
+Branching still Pro-only. Netlify candidate access still MISSING.
+Agent env secrets still MISSING (`RC2_QA_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `NETLIFY_*`).
+
+Per remessa A1/A2: **did not** pause or delete `atomurus` / `MandarimProject` — no explicit owner authorization in this message.
+No local backend, no production QA, no invent-deploy, no cloud PASS, no new scaffolding PR.
+
+### Authorization needed (reply with one)
+
+1. **PAUSE `atomurus`** (preferred) — then agent restores `longyu-preview` and continues B→L on this same #273 branch  
+2. **DELETE `atomurus`** — only if you explicitly authorize delete  
+3. **Upgrade Supabase org** — then restore `longyu-preview`  
+4. **Provide Netlify candidate access** in parallel (still required for publish C even after QA restore)
+
+After (1) or (2)/(3): same path — restore QA → migrate → Edge core → Netlify C → identity → cloud_auth → cloud_sync → feedback → NO-GO remaining device checks.
+
