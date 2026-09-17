@@ -154,7 +154,7 @@ All six: `kind=history`, hub-only, durable sources (≥ museum / encyclopedia / 
 |-------|-------|
 | `CURRICULUM_FREEZE` | `RC2_CONTENT_FREEZE` |
 | `RC_BASE_FINGERPRINT` | `516692632525` |
-| `RC2_CONTENT_FREEZE_SHA` | stamped at tip after freeze commit |
+| `RC2_CONTENT_FREEZE_SHA` | `24ba129d79e61124c7d6dd3aaa3756eb9a6adf40` |
 | `RELEASE_CANDIDATE_SHA` / `release_candidate_sha` | **empty** (no deploy candidate yet) |
 | Old `40be45d` as RC2 candidate | **superseded** |
 
