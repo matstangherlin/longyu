@@ -4,54 +4,52 @@
 >
 > **NO-GO.**
 >
-> Por dois motivos independentes, e nenhum deles é "faltou tempo":
+> O blocker de código (WebKit) **fechou**. O blocker operacional **não**.
 >
-> 1. **WebKit está vermelho.** A RC2 tornou o Safari bloqueante (P2.1) e a
->    primeira execução com a trava ativa encontrou **7 falhas reais** que o
->    `continue-on-error` vinha escondendo. Duas delas são o mesmo teste de
->    offline-PWA, em `webkit` e em **`mobile-safari`** — exatamente o caminho
->    de iPhone que a RC2 existe para cobrir. Por P2.1 e P30.1, isso sozinho é
->    NO-GO. Quatro execuções depois, seis falhas reproduzem sempre.
-> 2. **Nenhum dos 12 checks operacionais foi executado.** Não por decisão:
->    o ambiente que rodou esta remessa não tem projeto Supabase de QA, chaves
->    Stripe, acesso de deploy, aparelhos físicos nem testadores humanos.
->    Marcá-los seria inventar evidência, que é precisamente o que a P25.1
->    proíbe.
+> 1. **WebKit ficou verde** na tip `5523d99` do [#262](https://github.com/matstangherlin/longyu/pull/262)
+>    (Portão + Chromium E2E + cross-engine WebKit/Firefox + Security), squash-mergeado
+>    em main como `40be45d`. P2.1 cumpriu o papel: a remessa não entrou com Safari
+>    vermelho, e as falhas que o `continue-on-error` escondia foram corrigidas
+>    antes do merge.
+> 2. **Nenhum dos 12 checks operacionais foi executado.** Continua valendo a
+>    P25.1: este ambiente não tem Supabase QA, Stripe, deploy candidate, aparelhos
+>    físicos nem testadores humanos. Marcá-los seria inventar evidência.
 >
-> O candidate **não foi congelado**: o congelamento depende do merge, o merge
-> depende do CI, e o CI depende do WebKit. A trava funcionou.
+> O candidate de **código** está congelado em `RC2_CODE_SHA`. O candidate de
+> **lançamento** (deploy production-like + evidências P7–P24) ainda não existe.
+> `release_candidate_sha` no contrato permanece `""` — correto: o campo descreve
+> o deploy que as evidências descrevem, e não há deploy.
 
 | Campo | Valor |
 | --- | --- |
-| RC1.5 merge SHA | **não mergeada** — PR [#262](https://github.com/matstangherlin/longyu/pull/262) aberta, bloqueada por WebKit |
-| RC2_CODE_SHA | **não capturada** — depende do merge |
-| Branch candidata | `claude/bold-wright-7y973w` |
-| Head avaliada | `6839c82d7f830afb751c52c37e4f0787266b8768` |
-| Base | `edd3e191a70206eee6f76f675644ca5c09d762dc` (#261, RC1.4) |
-| Fingerprint | `7c054f2255e7` — inalterado |
+| RC1.5 merge SHA | `40be45dd040c687cfbb710997abe099f9bc3b394` ([#262](https://github.com/matstangherlin/longyu/pull/262)) |
+| RC2_CODE_SHA | `40be45dd040c687cfbb710997abe099f9bc3b394` (`git rev-parse HEAD` = `origin/main`) |
+| Tip de conteúdo (pré-squash) | `5523d99e8bb8ffb36b47f062ec03ae3de06ec844` |
+| CI verde da tip | [run 35170369482](https://github.com/matstangherlin/longyu/actions/runs/35170369482) — Portão + E2E + WebKit/Firefox |
+| Branch de acompanhamento | `cursor/rc2-public-beta-candidate-1f8b` |
+| Base anterior | `edd3e191a70206eee6f76f675644ca5c09d762dc` (#261, RC1.4) |
+| Fingerprint | `7c054f2255e7` — inalterado (`validate:rc15-freeze` PASS) |
 | Lições / temas | 134 / 113 — inalterados |
-| `release_candidate_sha` no contrato | continua `""` — correto, não há candidate |
+| `release_candidate_sha` no contrato | continua `""` — sem deploy candidate |
 
 ---
 
-## P0 · Por que o candidate não foi congelado
-
-A P0 exige congelar em `RC2_CODE_SHA` obtido de `git rev-parse HEAD` na main
-**pós-merge**. O merge não aconteceu, então não existe SHA candidata — e
-inventar uma a partir da branch violaria a própria P0 ("nunca trabalhar sobre
-SHA assumido").
-
-O `beta:rc-status` diz a mesma coisa, sem ambiguidade:
+## P0 · Congelamento
 
 ```
-on main tip: NÃO — HEAD ≠ origin/main
-Aviso: congele a RC na tip de origin/main, não neste HEAD.
+RC2_CODE_SHA=40be45dd040c687cfbb710997abe099f9bc3b394
+on main tip: sim
+working tree: limpa
+validate:rc15-freeze: PASS · fingerprint 7c054f2255e7 · 134 lições · 113 temas
 ```
+
+Capturado com `git fetch origin main && git rev-parse origin/main` depois do
+merge do #262. Não é SHA da branch de feature: é a tip de `origin/main`.
 
 `release_candidate_sha` permanece `""` em
-`docs/release/rc1-operational-checks.json`. Isso é a resposta certa: o campo
-descreve o candidate que as evidências descrevem, e não há nem candidate nem
-evidência.
+`docs/release/rc1-operational-checks.json`. Congelar o código ≠ ter candidate
+deploado; o campo só se preenche quando existir ambiente production-like com
+evidências apontando para ele.
 
 ---
 
@@ -226,11 +224,11 @@ reproduzido e verificado localmente.
 | Check | Estado | Nota |
 | --- | --- | --- |
 | `npm ci` | ✅ | 0 vulnerabilidades |
-| `npm run validate:beta` | ✅ local **e CI** | `BETA3_EXIT=0`; job de qualidade `success` em `4c4d878`, `6379452` e `6839c82` |
+| `npm run validate:beta` | ✅ CI tip `5523d99` | Portão `success` no run `35170369482` (conteúdo do squash) |
 | `npm run build` | ✅ local e CI | |
 | `npm run test:e2e` (Chromium) | ✅ | job `success` em `4c4d878`, `6379452` e `6839c82` |
 | `npm run test:e2e:firefox` | ✅ **verde no CI** | `552 passed · 38 skipped` em `6839c82`; ver "Firefox ficou mudo" abaixo |
-| `npm run test:e2e:webkit` | ❌ **6 falhas determinísticas** | **bloqueante — P2.1** |
+| `npm run test:e2e:webkit` | ✅ **verde na tip `5523d99`** | bloqueante (P2.1) e passou no run `35170369482` |
 
 ### Firefox ficou mudo — defeito meu, corrigido e verificado
 
@@ -401,19 +399,17 @@ mentira que a RC1.5 veio eliminar do produto.
 
 ## Blockers — lista exata
 
-1. **WebKit vermelho: 7 falhas na head `6839c82`, 6 delas reproduzíveis.**
-   Bloqueante por P2.1/P30.1. Precisa de diagnóstico em máquina com WebKit
-   instalado. (Firefox **não** é blocker: roda e está verde desde `6379452`.)
+1. ~~WebKit vermelho~~ — **fechado** em `5523d99` / merge `40be45d` (P2.1 verde).
 2. Ambiente candidate production-like (P5.2) não existe.
 3. `cloud_auth`, `cloud_sync`, `feedback_backend`, `league_cloud_smoke`,
    `family_plan_live`, `business_seats_live` — sem backend/credenciais.
 4. `stripe_test_mode_e2e`, `stripe_production_config` — sem chaves nem slots.
 5. `android_real_device`, `ios_real_device` — sem aparelhos físicos.
 6. `rollback_drill`, `pwa_upgrade` — sem acesso de deploy.
-7. P21 (headers/CSP) e P22 (deep links) — preview inalcançável do ambiente.
+7. P21 (headers/CSP) e P22 (deep links) — sem candidate deploado.
 8. `test:rls`, `test:stripe` — sem `service_role` nem chaves Stripe.
 9. P23 QA humano e P24 smoke externo — exigem pessoas.
-10. Merge da RC1.5 bloqueado ⇒ sem `RC2_CODE_SHA` ⇒ sem congelamento (P0/P6).
+10. ~~Merge da RC1.5 / `RC2_CODE_SHA`~~ — **fechado** (`40be45d` = tip `origin/main`).
 
 ---
 
@@ -435,24 +431,23 @@ saber que o sinal de frescor desses arquivos nunca foi confiável.
 
 ---
 
-## O que a RC2 entregou, mesmo com NO-GO
+## O que a RC2 entregou, mesmo com NO-GO operacional
 
 A pergunta da RC2 era: *"este EXATO SHA foi realmente exercitado nas condições
 em que o beta vai rodar?"*
 
-A resposta é **não** — e descobrir isso é o resultado. Dois defeitos reais
-apareceram na máquina de release, nenhum deles achável lendo código:
+Para **código** (P2/P2.1/P3 de CI): **sim** — `40be45d` / tip `5523d99` passou
+Portão, Chromium, WebKit e Firefox no CI, com WebKit bloqueante.
 
-1. O CI estava **estruturalmente configurado** para que o único motor que roda
-   em todo iPhone não pudesse barrar um lançamento, com um gate ativo
-   garantindo que continuasse assim. Sete falhas legítimas estavam atrás dessa
-   chave, duas delas offline-PWA em mobile-safari.
-2. O sinal de frescor dos relatórios de qualidade está quebrado desde a RC1.3.
-3. O Firefox, que **era** bloqueante desde a V4.7.4, rodou três execuções sem
-   emitir sinal nenhum e ninguém percebeu — a conclusão do job já estava
-   vermelha pelo WebKit e absorvia a ausência. Ele está verde, mas isso só se
-   soube depois de medir: um motor "bloqueante" que não executa não bloqueia
-   nada.
+Para **lançamento** (P5 + P7–P24): **não** — não há deploy candidate nem
+evidências operacionais reais. O NO-GO restante é só esse eixo.
 
-O congelamento não aconteceu porque a trava que esta remessa instalou fez
-exatamente o que deveria fazer.
+O que a remessa já entregou na máquina de release:
+
+1. O CI deixou de estar **estruturalmente configurado** para que o único motor
+   de todo iPhone não pudesse barrar um lançamento. As falhas que estavam atrás
+   do `continue-on-error` foram corrigidas e o merge só entrou com WebKit verde.
+2. O sinal de frescor dos relatórios de qualidade segue frágil (ver seção
+   "Recomendação fora de escopo") — não resolvido nesta RC.
+3. Firefox, que chegou a ficar mudo enquanto o WebKit abortava o job, agora
+   roda com `if: always()` e está verde medido passo a passo.
