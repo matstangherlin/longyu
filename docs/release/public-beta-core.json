@@ -1,0 +1,54 @@
+{
+  "id": "public-beta-core",
+  "profile": "PUBLIC_BETA_CORE",
+  "featureFreeze": "PUBLIC_BETA",
+  "curriculumFreeze": "RC2_CONTENT_FREEZE",
+  "fingerprint": "516692632525",
+  "verdict": "NO-GO",
+  "verdictReason": "Core operational checks and release_candidate_sha are still empty/false. Free public beta does not require Stripe while Pro/Family stay planned and checkout cannot complete publicly.",
+  "roadmap": [
+    "RC2.1.2 Motion + Feature Freeze (current)",
+    "RC2.2 Candidate Infrastructure",
+    "RC2.2.1 Cloud Evidence",
+    "RC2.2.2 Devices + PWA + Rollback",
+    "RC2.2.3 Human QA + Blocker Fix",
+    "RC2.3 Final Candidate",
+    "V5.0 Public Beta"
+  ],
+  "productTruth": {
+    "journey": "available",
+    "free_plan": "available",
+    "pro_individual": "planned",
+    "family_plan": "planned",
+    "business_workspace": "pilot",
+    "enterprise_plan": "planned"
+  },
+  "requiredChecks": [
+    "cloud_auth",
+    "cloud_sync",
+    "feedback_backend",
+    "android_real_device",
+    "ios_real_device",
+    "pwa_upgrade",
+    "rollback_drill"
+  ],
+  "conditionalChecks": {
+    "league_cloud_smoke": "required only when League is publicly enabled"
+  },
+  "commercialConditionalChecks": [
+    "stripe_test_mode_e2e",
+    "stripe_production_config",
+    "family_plan_live",
+    "business_seats_live"
+  ],
+  "commercialNote": "These do not block FREE public beta while paid offers remain planned/pilot and public checkout cannot complete.",
+  "frozenMetrics": {
+    "lessons": 134,
+    "teachingTopics": 113,
+    "cultureItems": 30,
+    "cultureNativeLessons": 30,
+    "journeyCultureNodes": 20
+  },
+  "leaguePubliclyEnabled": false,
+  "releaseCandidateSha": ""
+}

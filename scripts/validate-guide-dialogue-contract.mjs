@@ -19,11 +19,13 @@ assert.match(component, /from ["'].*Mascot/, "must reuse canonical Mascot");
 assert.match(component, /aria-hidden="true"/, "visual typewriter must be aria-hidden");
 assert.match(component, /aria-live="polite"/, "AT gets full sentence via live region");
 assert.match(component, /guide-continue/, "must expose Continuar control");
+assert.match(component, /data-guide-motion/, "must expose entrance motion phase");
 assert.doesNotMatch(component, /GuideLessonPlayer/, "must not create GuideLessonPlayer");
 assert.match(steps, /GuideDialogue/, "StepIntro / lesson steps must consume GuideDialogue");
 assert.doesNotMatch(steps, /GuideLessonPlayer/, "must not couple a GuideLessonPlayer");
 
 const mascot = fs.readFileSync(path.join(root, "src/components/brand/Mascot.tsx"), "utf8");
 assert.match(mascot, /\/longyu-mascot\.png/, "canonical guide asset must remain longyu-mascot.png");
+assert.match(mascot, /data-mascot-motion="eyes-only"/, "body remains static; blink is eyes-only");
 
 console.log("PASS validate:guide-dialogue-contract");
