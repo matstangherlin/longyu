@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | STACK_BASE_SHA | `7acd074fc3a66b247d53eb039ccd248ac5a70837` (#268 inherited HEAD) |
-| FINAL_HEAD | `16f2a0a41e` (this remessa tip — future RC2 candidate SHA base) |
+| FINAL_HEAD | branch tip of `cursor/guided-journey-culture-5b4f` (stacked on #268) |
 | Branch | `cursor/guided-journey-culture-5b4f` |
 | PR | #269 → base `cursor/rc2-candidate-cloud-5b4f` (not `main`) |
 | CURRICULUM_FREEZE | `RC2_CONTENT_FREEZE` |
@@ -92,4 +92,4 @@ Spring Festival stays on its existing journey explore node (no duplicate moment)
 
 ## Candidate status
 
-Future candidate SHA = HEAD of this stack (`16f2a0a…`) or a later release-config-only commit. Do not set `release_candidate_sha` or cloud PASS until RC2.1 cloud execution with real QA evidence.
+Future candidate SHA = HEAD of this stack (`18e251b…`) or a later release-config-only commit. Do not set `release_candidate_sha` or cloud PASS until RC2.1 cloud execution with real QA evidence.
