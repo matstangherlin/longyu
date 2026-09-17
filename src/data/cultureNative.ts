@@ -68,6 +68,11 @@ export const CULTURE_LESSON_ENTRIES: readonly CultureLessonEntry[] = [
   { itemId: "qingming", afterTopicId: "p6-rotina-trabalho", track: "explore" },
   { itemId: "visiting-home", afterTopicId: "p7-imersao-casa-amigo", track: "core" },
   { itemId: "hotel-checkin-register", afterTopicId: "p6-survival-mandarin", track: "core" },
+  // V4.11A.2 flagship wave — hub-only (sem nó falso na Jornada).
+  { itemId: "lantern-festival", track: "explore" },
+  { itemId: "chinese-dragon", track: "explore" },
+  { itemId: "sun-wukong", track: "explore" },
+  { itemId: "journey-to-the-west", track: "explore" },
 ] as const;
 
 /**
