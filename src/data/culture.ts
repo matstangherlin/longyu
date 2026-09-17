@@ -34,6 +34,25 @@ export const CULTURE_SCOPES = [
 
 export type CultureScope = (typeof CULTURE_SCOPES)[number];
 
+/**
+ * V4.11A — que TIPO de coisa o item é. Distinto de `category` (assunto) e de
+ * `scope` (abrangência da prática).
+ *
+ * Existe para uma coisa só: nunca deixar história, lenda e obra literária se
+ * confundirem. 孙悟空 é `literature`, não `history`, e o tipo é o que impede a
+ * copy de dizer "aconteceu" sobre ele.
+ */
+export const CULTURE_ITEM_KINDS = [
+  "documented_practice",
+  "festival",
+  "history",
+  "legend",
+  "literature",
+  "symbol",
+] as const;
+
+export type CultureItemKind = (typeof CULTURE_ITEM_KINDS)[number];
+
 export type CultureSource = {
   title: string;
   publisher: string;
@@ -75,6 +94,7 @@ export type CultureItem = {
   variabilityPt?: string;
   variabilityEn?: string;
   category: CultureCategory;
+  kind: CultureItemKind;
   scope: CultureScope;
   variabilityNote?: string;
   relatedLessonIds: string[];
@@ -218,6 +238,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "visiting-home",
     order: 1,
     category: "home_visits",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Chegar à casa de alguém",
@@ -258,6 +279,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "host-insistence",
     order: 2,
     category: "home_visits",
+    kind: "documented_practice",
     scope: "informal",
     estimatedMinutes: 4,
     titlePt: "Quando o anfitrião insiste",
@@ -298,6 +320,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "shared-dishes",
     order: 3,
     category: "table_food",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Pratos no centro da mesa",
@@ -338,6 +361,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "chopsticks-rest",
     order: 4,
     category: "table_food",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Onde pousar os hashis",
@@ -378,6 +402,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "greetings-nihao",
     order: 5,
     category: "social_etiquette",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Olá: o que 你好 faz — e o que não faz",
@@ -418,6 +443,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "thanks-keqi",
     order: 6,
     category: "social_etiquette",
+    kind: "documented_practice",
     scope: "informal",
     estimatedMinutes: 3,
     titlePt: "谢谢 e a resposta 不客气",
@@ -457,6 +483,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "qingwen-ask",
     order: 7,
     category: "communication_relations",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 3,
     titlePt: "Pedir informação com 请问",
@@ -496,6 +523,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "family-terms",
     order: 8,
     category: "home_visits",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Apresentar a família",
@@ -535,6 +563,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "teacher-title",
     order: 9,
     category: "school_work",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 3,
     titlePt: "Chamar o professor de 老师",
@@ -574,6 +603,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "gift-receiving",
     order: 10,
     category: "gifts",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 4,
     titlePt: "Receber algo com as duas mãos",
@@ -614,6 +644,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "four-and-eight",
     order: 11,
     category: "gifts",
+    kind: "symbol",
     scope: "regional",
     estimatedMinutes: 3,
     titlePt: "Quatro e oito: som, não magia",
@@ -654,6 +685,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "spring-festival",
     order: 12,
     category: "festivals",
+    kind: "festival",
     scope: "broad",
     estimatedMinutes: 4,
     titlePt: "Festival da Primavera",
@@ -693,6 +725,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "mid-autumn",
     order: 13,
     category: "festivals",
+    kind: "festival",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Festival do Meio Outono",
@@ -732,6 +765,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "qingming",
     order: 14,
     category: "festivals",
+    kind: "festival",
     scope: "historical",
     estimatedMinutes: 3,
     titlePt: "Qingming: lembrar, não 'festa'",
@@ -771,6 +805,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "dragon-boat",
     order: 15,
     category: "festivals",
+    kind: "festival",
     scope: "regional",
     estimatedMinutes: 3,
     titlePt: "Festival do Barco-Dragão",
@@ -810,6 +845,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "digital-pay",
     order: 16,
     category: "contemporary_china",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Pagar com o celular",
@@ -849,6 +885,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "metro-qr",
     order: 17,
     category: "transport_public",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Metrô e espaço público",
@@ -888,6 +925,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "office-hours",
     order: 18,
     category: "daily_life",
+    kind: "documented_practice",
     scope: "generational",
     estimatedMinutes: 3,
     titlePt: "Horário, trabalho e ritmo urbano",
@@ -927,6 +965,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "bargaining-context",
     order: 19,
     category: "contemporary_china",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Quando negociar o preço",
@@ -966,6 +1005,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "hotel-checkin-register",
     order: 20,
     category: "daily_life",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 3,
     titlePt: "Passaporte na recepção",

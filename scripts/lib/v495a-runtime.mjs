@@ -47,10 +47,16 @@ export function loadCultureRuntime() {
   const {
     CULTURE_ITEMS,
     CULTURE_CATEGORIES,
+    CULTURE_ITEM_KINDS,
     CULTURE_SCOPES,
     REJECTED_CULTURE_CANDIDATES,
   } = require("../../src/data/culture.ts");
   const { CULTURE_MISSIONS, cultureMissionStats } = require("../../src/data/cultureMissions.ts");
+  const {
+    CULTURE_COLLECTIONS,
+    collectionForItem,
+    cultureCollectionProgress,
+  } = require("../../src/data/cultureCollections.ts");
   const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS } = require("../../src/data/cultureQuest.ts");
   const { CULTURE_JOURNEY_BRIDGES } = require("../../src/data/cultureJourneyBridges.ts");
   const { CULTURE_NATIVE_LESSONS, CULTURE_NATIVE_GLOSS_EN } = require("../../src/data/cultureLessons.ts");
@@ -77,6 +83,10 @@ export function loadCultureRuntime() {
   return {
     items: CULTURE_ITEMS,
     categories: CULTURE_CATEGORIES,
+    kinds: CULTURE_ITEM_KINDS,
+    collections: CULTURE_COLLECTIONS,
+    collectionForItem,
+    cultureCollectionProgress,
     scopes: CULTURE_SCOPES,
     rejected: REJECTED_CULTURE_CANDIDATES,
     missions: CULTURE_MISSIONS,
