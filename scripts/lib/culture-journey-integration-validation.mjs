@@ -14,14 +14,19 @@ export function validateCultureJourneyIntegration(data) {
   const nodeByItem = new Map(
     nodes.map((node) => [String(node.id ?? "").replace(/^culture:/, ""), node])
   );
+  const hubOnly = new Set(data.hubOnlyItemIds ?? []);
   const byLesson = new Map();
 
   for (const item of data.items ?? []) {
     if (!nativeByItem.has(item.id)) {
       fail("NATIVE_COVERAGE", item.id, "published CultureItem needs a native Culture Lesson");
     }
-    if (!nodeByItem.has(item.id)) {
+    // V4.11A — hub-only: lição existe, nó da Jornada não.
+    if (!hubOnly.has(item.id) && !nodeByItem.has(item.id)) {
       fail("NATIVE_COVERAGE", item.id, "published CultureItem needs a CULTURE_LESSON journey node");
+    }
+    if (hubOnly.has(item.id) && nodeByItem.has(item.id)) {
+      fail("HUB_ONLY_FAKE_NODE", item.id, "hub-only item must not get a Journey node");
     }
   }
 

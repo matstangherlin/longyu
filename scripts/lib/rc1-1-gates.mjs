@@ -493,8 +493,12 @@ export function validateRcLearningLoopFreeze(data = {}) {
   const fingerprint = data.fingerprint;
   const counts = data.counts;
 
-  if (freeze.CURRICULUM_FREEZE !== "RC1") {
-    fail("FREEZE", "curriculumFreeze", `CURRICULUM_FREEZE=${freeze.CURRICULUM_FREEZE} (esperado RC1)`);
+  if (freeze.CURRICULUM_FREEZE !== "RC2_CONTENT_FREEZE") {
+    fail(
+      "FREEZE",
+      "curriculumFreeze",
+      `CURRICULUM_FREEZE=${freeze.CURRICULUM_FREEZE} (esperado RC2_CONTENT_FREEZE após V4.11A.3)`
+    );
   }
   if (fingerprint && fingerprint !== freeze.RC_BASE_FINGERPRINT) {
     fail(

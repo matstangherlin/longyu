@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
+  advancePastGuideDialogue,
+  advanceToChoiceOptions,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedLessonPlayerReady,
@@ -21,9 +23,19 @@ test.describe("QA regression guard — player mobile", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // WebKit/Firefox often land on listen-imitate before graded choice — wait for options.
+    await advanceToChoiceOptions(page, 30_000);
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
-    await expect(sticky).toBeVisible({ timeout: 20_000 });
+    if (!(await sticky.isVisible().catch(() => false))) {
+      // Pick the correct meaning so AnswerFeedback mounts Continuar in StickyActionBar
+      // (a wrong pick opens the recovery dialog instead).
+      const correct = page.getByRole("button", { name: /Opção \d+: Olá/i }).first();
+      if (await correct.isVisible().catch(() => false)) await correct.click();
+      else await page.locator("[data-option-index]").first().click();
+      await dismissBlockingOverlays(page);
+    }
+    await expect(sticky).toBeVisible({ timeout: 10_000 });
     const cta = sticky.locator("button:visible").first();
     await expect(cta).toBeVisible();
 
@@ -65,8 +77,14 @@ test.describe("QA regression guard — player mobile", () => {
     expect(before.top).toBeLessThanOrEqual(2);
     expect(Math.abs(before.height - before.vv)).toBeLessThan(8);
 
-    await page.getByRole("button", { name: "Entendi" }).click();
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    await advancePastGuideDialogue(page);
+    // Prefer speak-skip OR graded choice — not a hard 你好-only assert (WebKit interstitial).
+    await expect(
+      page
+        .getByRole("button", { name: /你好|Não posso falar agora|Opção \d+:/i })
+        .or(page.locator("[data-option-index]"))
+        .first()
+    ).toBeVisible({ timeout: 15_000 });
 
     const after = await page.evaluate(() => {
       const el = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;

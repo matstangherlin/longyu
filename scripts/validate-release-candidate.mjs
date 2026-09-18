@@ -17,8 +17,8 @@ const errors = [];
 const fail = (message) => errors.push(message);
 const read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
 
-const FREEZE = "RC1";
-const FINGERPRINT = "7c054f2255e7";
+const FREEZE = "RC2_CONTENT_FREEZE";
+const FINGERPRINT = "516692632525";
 const LESSONS = 134;
 const TEACHING = 113;
 const MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -90,7 +90,7 @@ try {
 }
 
 if (checksDoc) {
-  if (checksDoc.curriculum_freeze !== FREEZE) fail("operational-checks.curriculum_freeze ≠ RC1");
+  if (checksDoc.curriculum_freeze !== FREEZE) fail(`operational-checks.curriculum_freeze ≠ ${FREEZE}`);
   if (checksDoc.base_fingerprint !== FINGERPRINT) fail("operational-checks.base_fingerprint drift");
   if (checksDoc.merge_sha !== MERGE_SHA) fail("operational-checks.merge_sha deve ser o merge real da #254");
   if (checksDoc.merge_sha === "241386c8fc814ebdfa166dde1035bc3d7ca195f5") {

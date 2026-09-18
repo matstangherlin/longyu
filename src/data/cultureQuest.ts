@@ -201,9 +201,25 @@ export const CULTURE_ROUTES: CultureRoute[] = [
   },
   {
     id: "festivals",
-    titlePt: "Festivais",
-    titleEn: "Festivals",
-    itemIds: ["spring-festival", "mid-autumn", "qingming", "dragon-boat", "four-and-eight"],
+    titlePt: "Festivais e clássicos",
+    titleEn: "Festivals and classics",
+    itemIds: [
+      "spring-festival",
+      "lantern-festival",
+      "mid-autumn",
+      "qingming",
+      "dragon-boat",
+      "four-and-eight",
+      "chinese-dragon",
+      "sun-wukong",
+      "journey-to-the-west",
+      "china-history-timeline",
+      "qin-unification",
+      "han-dynasty",
+      "tang-dynasty",
+      "song-dynasty",
+      "ming-qing",
+    ],
   },
 ];
 

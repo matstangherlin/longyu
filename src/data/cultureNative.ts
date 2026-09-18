@@ -5,6 +5,23 @@
 
 export type CultureLessonTrack = "core" | "explore";
 
+/**
+ * V4.11A — o registro de lições deixa de ser o mesmo que o de nós da Jornada.
+ *
+ * Antes uma linha valia por duas coisas ao mesmo tempo: a lição canônica E o nó
+ * na trilha. Isso tornava impossível ter lição que só vive no Hub — e o Culture
+ * Atlas precisa disso, porque a Jornada não comporta uma dúzia de nós novos.
+ *
+ * `afterTopicId` ausente = hub-only: a lição existe, o Hub abre, e nenhum nó é
+ * criado. Não é placement falso nem placeholder; é a ausência declarada.
+ */
+export type CultureLessonEntry = {
+  itemId: string;
+  track: CultureLessonTrack;
+  /** Tópico de mandarim que ancora a lição na Jornada. Ausente = hub-only. */
+  afterTopicId?: string;
+};
+
 export type CultureJourneyPlacement = {
   itemId: string;
   afterTopicId: string;
@@ -26,7 +43,11 @@ export const CULTURE_STORY_FLAGSHIP_IDS = [
   "hotel-checkin-register",
 ] as const;
 
-export const CULTURE_JOURNEY_PLACEMENT: readonly CultureJourneyPlacement[] = [
+/**
+ * Toda lição cultural canônica, ancorada na Jornada ou não. É esta lista que
+ * gera `CULTURE_NATIVE_LESSONS` — por isso hub-only continua tendo lição.
+ */
+export const CULTURE_LESSON_ENTRIES: readonly CultureLessonEntry[] = [
   { itemId: "greetings-nihao", afterTopicId: "l2", track: "core" },
   { itemId: "thanks-keqi", afterTopicId: "l4", track: "core" },
   { itemId: "qingwen-ask", afterTopicId: "p1-qingwen-cortesia", track: "core" },
@@ -47,7 +68,36 @@ export const CULTURE_JOURNEY_PLACEMENT: readonly CultureJourneyPlacement[] = [
   { itemId: "qingming", afterTopicId: "p6-rotina-trabalho", track: "explore" },
   { itemId: "visiting-home", afterTopicId: "p7-imersao-casa-amigo", track: "core" },
   { itemId: "hotel-checkin-register", afterTopicId: "p6-survival-mandarin", track: "core" },
+  // V4.11A.2 flagship wave — hub-only (sem nó falso na Jornada).
+  { itemId: "lantern-festival", track: "explore" },
+  { itemId: "chinese-dragon", track: "explore" },
+  { itemId: "sun-wukong", track: "explore" },
+  { itemId: "journey-to-the-west", track: "explore" },
+  // V4.11A.3 — History essentials (hub-only; Journey stays compact).
+  { itemId: "china-history-timeline", track: "explore" },
+  { itemId: "qin-unification", track: "explore" },
+  { itemId: "han-dynasty", track: "explore" },
+  { itemId: "tang-dynasty", track: "explore" },
+  { itemId: "song-dynasty", track: "explore" },
+  { itemId: "ming-qing", track: "explore" },
 ] as const;
+
+/**
+ * Só as lições que viram nó na Jornada. Derivado, não mantido à mão: uma
+ * entrada hub-only não tem como escapar para cá, e o contrato de quem consome
+ * a Jornada continua exigindo `afterTopicId` obrigatório.
+ */
+export const CULTURE_JOURNEY_PLACEMENT: readonly CultureJourneyPlacement[] =
+  CULTURE_LESSON_ENTRIES.flatMap((row) =>
+    row.afterTopicId
+      ? [{ itemId: row.itemId, afterTopicId: row.afterTopicId, track: row.track }]
+      : []
+  );
+
+/** Lições que vivem só no Hub. Vazio hoje; o Culture Atlas povoa. */
+export const CULTURE_HUB_ONLY_ITEM_IDS: readonly string[] = CULTURE_LESSON_ENTRIES.filter(
+  (row) => !row.afterTopicId
+).map((row) => row.itemId);
 
 export function cultureLessonIdForItem(itemId: string): string {
   return `${CULTURE_LESSON_ID_PREFIX}${itemId}`;

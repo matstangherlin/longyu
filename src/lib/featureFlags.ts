@@ -1,4 +1,4 @@
-import { isProductionBetaEnv, type AppEnvironmentInput } from "./appEnvironment";
+import { isProductionLikeEnv, type AppEnvironmentInput } from "./appEnvironment";
 
 /**
  * Feature flags de runtime/build para rollback rápido da beta.
@@ -40,8 +40,10 @@ export type CloudOnboardingV2Env = AppEnvironmentInput & {
 
 /**
  * Handoff V4.7.1 (onboarding_completed + finalize-onboarding + draft no servidor).
- * Default: desligado em Production Beta enquanto o schema/Edges novas não
- * existirem no MandarimProject. Preview/dev ficam ligados.
+ * Default: desligado em ambiente production-like (Production Beta e QA
+ * Candidate) enquanto o schema/Edges novas não existirem no backend alvo.
+ * Preview/dev ficam ligados. O candidate acompanha a produção: certificar um
+ * candidate com handoff V2 ligado não diria nada sobre a beta pública.
  * Explicit VITE_CLOUD_ONBOARDING_V2_ENABLED=true só depois do backend V4.7.
  * Nunca reativa conta local nova.
  */
@@ -52,5 +54,5 @@ export function isCloudOnboardingV2Enabled(
   if (raw !== undefined && String(raw).trim() !== "") {
     return flagEnabled(String(raw), false);
   }
-  return !isProductionBetaEnv(env);
+  return !isProductionLikeEnv(env);
 }

@@ -479,6 +479,12 @@ export function SettingsPage() {
           >
             {t("settings.privacyPolicy")}
           </Link>
+          <Link
+            to="/termos"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          >
+            {t("marketing.terms")}
+          </Link>
 
           {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
         </Card>

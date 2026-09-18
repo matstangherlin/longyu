@@ -1655,17 +1655,175 @@ const SHORT_SPECS: Array<{
   {
     id: "spring-festival",
     concept: loc(
-      "春节 costuma ser reunião e deslocamento, com práticas que variam por família.",
-      "春节 is usually reunion and travel, with practices that vary by family."
+      "春节 (Chūnjié) é Ano Novo lunissolar: reunião, deslocamento e costumes que variam por família.",
+      "春节 (Chūnjié) is lunisolar New Year: reunion, travel, and customs that vary by family."
     ),
     pairs: [
       { id: "p1", left: loc("Colega volta para casa no 春节", "A colleague goes home for 春节"), right: loc("Reunião e viagem, não um ritual idêntico", "Reunion and travel, not an identical ritual") },
-      { id: "p2", left: loc("Menu de cada casa", "Each household's menu"), right: loc("Varia; a reunião é o eixo mais estável", "Varies; reunion is the more stable axis") },
+      { id: "p2", left: loc("Data gregoriana fixa todo ano", "A fixed Gregorian date every year"), right: loc("Não: o calendário lunissolar move o dia", "No: the lunisolar calendar moves the day") },
     ],
     takeaways: [
       loc("Deseje um bom 春节 se alguém viaja.", "Wish them a good 春节 if someone is travelling."),
-      loc("Não assuma o mesmo prato em cada casa.", "Do not assume the same dish in every home."),
+      loc("红包 e o menu variam; a reunião é o eixo mais estável.", "红包 and the menu vary; reunion is the more stable axis."),
     ],
+  },
+  {
+    id: "lantern-festival",
+    concept: loc(
+      "元宵节 fecha o ciclo do Ano Novo lunissolar; lanternas e costumes locais variam.",
+      "元宵节 closes the lunisolar New Year cycle; lanterns and local customs vary."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Lanternas no 15º dia do 1º mês", "Lanterns on the 15th of the 1st month"), right: loc("Uso celebratório frequente do 元宵节", "A frequent celebratory use of 元宵节") },
+      { id: "p2", left: loc("Mesmo ritual em toda casa", "The same ritual in every home"), right: loc("Não é regra nacional", "Is not a national rule") },
+    ],
+    takeaways: [
+      loc("Não confunda com 春节 nem com 端午节.", "Do not confuse it with 春节 or 端午节."),
+      loc("Pergunte sobre lanternas sem assumir um único prato.", "Ask about lanterns without assuming one dish."),
+    ],
+  },
+  {
+    id: "chinese-dragon",
+    concept: loc(
+      "龙 é símbolo cultural contextual — não monstro europeu padrão nem sinônimo de 端午节.",
+      "龙 is a contextual cultural symbol — not the default European monster nor a synonym for 端午节."
+    ),
+    pairs: [
+      { id: "p1", left: loc("龙 em decoração de festa", "龙 in festival decoration"), right: loc("Símbolo celebratório possível", "A possible celebratory symbol") },
+      { id: "p2", left: loc("Barco e 粽子", "Boats and 粽子"), right: loc("Outra lição: Festival do Barco-Dragão", "Another lesson: Dragon Boat Festival") },
+    ],
+    takeaways: [
+      loc("Evite 'o dragão sempre significa…' sem escopo.", "Avoid 'the dragon always means…' without scope."),
+      loc("Separe símbolo (龙) de feriado (端午节).", "Separate symbol (龙) from holiday (端午节)."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "sun-wukong",
+    concept: loc(
+      "孙悟空 é personagem da tradição literária ligado a 西游记 — não biografia histórica.",
+      "孙悟空 is a literary-tradition character linked to 西游记 — not a historical biography."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Rei Macaco / 孙悟空", "Monkey King / 孙悟空"), right: loc("Personagem literário", "Literary character") },
+      { id: "p2", left: loc("'Nasceu como general real…'", "'Was born as a real general…'"), right: loc("Erro: falta o marco da narrativa", "Error: missing the narrative frame") },
+    ],
+    takeaways: [
+      loc("Prefira 'na narrativa…' / 'o personagem…'.", "Prefer 'in the narrative…' / 'the character…'."),
+      loc("A obra 西游记 tem a sua própria lição.", "The work 西游记 has its own lesson."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "journey-to-the-west",
+    concept: loc(
+      "西游记 é obra clássica da literatura chinesa; 孙悟空 vive na narrativa.",
+      "西游记 is a classic of Chinese literature; 孙悟空 lives in the narrative."
+    ),
+    pairs: [
+      { id: "p1", left: loc("西游记", "西游记"), right: loc("Romance clássico", "Classical novel") },
+      { id: "p2", left: loc("孙悟空 na obra", "孙悟空 in the work"), right: loc("Personagem da narrativa", "A character in the narrative") },
+    ],
+    takeaways: [
+      loc("Não trate a obra como diário militar moderno.", "Do not treat the work as a modern military diary."),
+      loc("Cada lição (obra / personagem) faz sentido sozinha.", "Each lesson (work / character) stands alone."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "china-history-timeline",
+    concept: loc(
+      "Mapa introdutório dos grandes períodos imperiais — não um curso completo.",
+      "Introductory map of major imperial periods — not a full course."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Qin → Han", "Qin → Han"), right: loc("ordem imperial inicial", "early imperial order") },
+      { id: "p2", left: loc("'Toda a história chinesa'", "'All of Chinese history'"), right: loc("exagero: é introdução", "overreach: it is an introduction") },
+    ],
+    takeaways: [
+      loc("Memorize a ordem dos blocos, não dezenas de datas.", "Remember the block order, not dozens of dates."),
+      loc("Depois abra cada dinastia para detalhe.", "Then open each dynasty for detail."),
+    ],
+  },
+  {
+    id: "qin-unification",
+    concept: loc(
+      "秦 marca unificação imperial e padronizações; a muralha visitável é sobretudo Ming.",
+      "秦 marks imperial unification and standardisations; the visitable wall is mainly Ming."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Qin Shi Huang", "Qin Shi Huang"), right: loc("primeiro imperador Qin", "first Qin emperor") },
+      { id: "p2", left: loc("Grande Muralha atual", "Today's Great Wall"), right: loc("não = só Qin", "not = Qin only") },
+    ],
+    takeaways: [
+      loc("Terracotta Army = mausoléu Qin (UNESCO).", "Terracotta Army = Qin mausoleum (UNESCO)."),
+      loc("Qin vem antes de Han no mapa.", "Qin comes before Han on the map."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "han-dynasty",
+    concept: loc(
+      "汉 consolida após Qin; 汉字 carrega vínculo cultural com Hàn.",
+      "汉 consolidates after Qin; 汉字 carries a cultural link to Hàn."
+    ),
+    pairs: [
+      { id: "p1", left: loc("汉字", "汉字"), right: loc("vínculo cultural, escrita mais antiga", "cultural link, older writing") },
+      { id: "p2", left: loc("Han vs Qin", "Han vs Qin"), right: loc("Han depois de Qin", "Han after Qin") },
+    ],
+    takeaways: [
+      loc("Contexto cultural ≠ newRef lexical automático.", "Cultural context ≠ automatic lexical newRef."),
+      loc("Silk Road: rótulo moderno com contexto.", "Silk Road: a modern label with context."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "tang-dynasty",
+    concept: loc(
+      "唐: Chang'an e intercâmbio; 'idade de ouro' é caracterização, não ranking absoluto.",
+      "唐: Chang'an and exchange; 'golden age' is characterisation, not absolute ranking."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Chang'an", "Chang'an"), right: loc("capital cosmopolita", "cosmopolitan capital") },
+      { id: "p2", left: loc("Han → Tang", "Han → Tang"), right: loc("ordem do mapa", "map order") },
+    ],
+    takeaways: [
+      loc("Não diga 'a melhor dinastia' como fato.", "Do not say 'the best dynasty' as fact."),
+      loc("Tang vem depois de Han.", "Tang comes after Han."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "song-dynasty",
+    concept: loc(
+      "宋: cidades e inovação gradual — não 'inventou tudo num dia'.",
+      "宋: cities and gradual innovation — not 'invented everything in a day'."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Impressão / bússola / pólvora", "Printing / compass / gunpowder"), right: loc("processos graduais", "gradual processes") },
+      { id: "p2", left: loc("Tang → Song", "Tang → Song"), right: loc("ordem do mapa", "map order") },
+    ],
+    takeaways: [
+      loc("Urbanização e comércio são eixos Song.", "Urbanisation and commerce are Song axes."),
+      loc("Evite milagre de um dia.", "Avoid a one-day miracle."),
+    ],
+    difficulty: 2,
+  },
+  {
+    id: "ming-qing",
+    concept: loc(
+      "Bloco final do império neste mapa curto; fim do sistema imperial em 1911/12.",
+      "Final imperial block on this short map; end of the imperial system in 1911/12."
+    ),
+    pairs: [
+      { id: "p1", left: loc("Forbidden City / muralha visitável", "Forbidden City / visitable wall"), right: loc("sobretudo Ming", "mainly Ming") },
+      { id: "p2", left: loc("Qing", "Qing"), right: loc("última dinastia imperial", "last imperial dynasty") },
+    ],
+    takeaways: [
+      loc("Ming antes de Qing.", "Ming before Qing."),
+      loc("Sem deep dive político moderno nesta lesson.", "No modern political deep dive in this lesson."),
+    ],
+    difficulty: 2,
   },
   {
     id: "mid-autumn",

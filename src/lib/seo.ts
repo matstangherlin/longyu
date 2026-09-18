@@ -116,6 +116,12 @@ export const PUBLIC_SEO_PAGES: SeoPage[] = [
     crawlerText: "Informações sobre privacidade, dados locais e conta na nuvem no Longyu.",
   },
   {
+    path: "/termos",
+    title: "Termos da beta — Longyu",
+    description: "Termos mínimos do serviço Longyu em beta pública.",
+    crawlerText: "Termos de uso da beta pública do Longyu: disponibilidade, uso aceitável, conta, feedback e exclusão.",
+  },
+  {
     path: "/sobre",
     title: "Sobre o Longyu",
     description:

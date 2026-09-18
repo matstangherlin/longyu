@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 import {
   PRO_CHECKOUT_PENDING,
   PRO_PRICING_HEADLINE,
+  advanceToChoiceOptions,
+  dismissBlockingOverlays,
   seedLeagueDemoSession,
   seedOnboardedSession,
   waitForLazyPage,
@@ -169,7 +171,9 @@ test.describe("mobile", () => {
   test("player da primeira lição cabe em 360px", async ({ page }) => {
     await seedOnboardedSession(page, []);
     await page.goto("/licao/p1-o-que-e-mandarim/player");
-    await page.getByRole("button", { name: "Entendi" }).click();
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await advanceToChoiceOptions(page, 30_000);
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });
 

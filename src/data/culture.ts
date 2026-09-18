@@ -34,11 +34,55 @@ export const CULTURE_SCOPES = [
 
 export type CultureScope = (typeof CULTURE_SCOPES)[number];
 
+/**
+ * V4.11A — que TIPO de coisa o item é. Distinto de `category` (assunto) e de
+ * `scope` (abrangência da prática).
+ *
+ * Existe para uma coisa só: nunca deixar história, lenda e obra literária se
+ * confundirem. 孙悟空 é `literature`, não `history`, e o tipo é o que impede a
+ * copy de dizer "aconteceu" sobre ele.
+ */
+export const CULTURE_ITEM_KINDS = [
+  "documented_practice",
+  "festival",
+  "history",
+  "legend",
+  "literature",
+  "symbol",
+] as const;
+
+export type CultureItemKind = (typeof CULTURE_ITEM_KINDS)[number];
+
+/**
+ * V4.11A.2 — papel editorial da fonte.
+ *
+ * `year_specific` cobre calendário civil / folga oficial daquele ano.
+ * Nunca basta sozinha para sustentar um claim evergreen de festival.
+ */
+export type CultureSourceRole = "evergreen" | "year_specific" | "primary" | "secondary";
+
 export type CultureSource = {
   title: string;
   publisher: string;
   url: string;
   accessedAt: string;
+  /** Papel editorial. Ausente = evergreen (compatibilidade com o catálogo antigo). */
+  role?: CultureSourceRole;
+  /** Ano civil coberto quando `role` é `year_specific`. */
+  year?: number;
+};
+
+/**
+ * Fato amarrado a um ano civil. Fica fora do body evergreen para não forçar
+ * reescrita anual do texto principal.
+ */
+export type CultureYearFact = {
+  year: number;
+  labelPt: string;
+  labelEn: string;
+  gregorianDate?: string;
+  source: CultureSource;
+  verifiedAt: string;
 };
 
 export type CultureMiniCheckOption = {
@@ -75,16 +119,31 @@ export type CultureItem = {
   variabilityPt?: string;
   variabilityEn?: string;
   category: CultureCategory;
+  kind: CultureItemKind;
   scope: CultureScope;
   variabilityNote?: string;
   relatedLessonIds: string[];
   relatedChunkRefs?: string[];
   relatedHanziRefs?: string[];
+  /** Links leves entre CultureItems (sem graph engine). */
+  relatedCultureItemIds?: string[];
   sources: CultureSource[];
+  /** Dados anuais (ex.: folga oficial de 2026). Não substituem fonte evergreen. */
+  yearFacts?: CultureYearFact[];
   estimatedMinutes: number;
   order: number;
   miniCheck: CultureMiniCheck;
 };
+
+/** Fonte anual só cobre o ano declarado — não sustenta claim evergreen sozinha. */
+export function isYearSpecificSource(source: CultureSource): boolean {
+  return source.role === "year_specific";
+}
+
+export function isEvergreenSource(source: CultureSource): boolean {
+  if (source.role === "year_specific") return false;
+  return true;
+}
 
 export type RejectedCultureCandidate = {
   id: string;
@@ -102,24 +161,232 @@ const SRC = {
     publisher: "UNESCO Intangible Cultural Heritage",
     url: "https://ich.unesco.org/en/RL/dragon-boat-festival-00225",
     accessedAt: ACCESSED,
+    role: "evergreen" as const,
   },
   govSpringFestival: {
     title: "UNESCO inscribes Spring Festival on intangible cultural heritage list",
     publisher: "The State Council of the People's Republic of China",
     url: "https://english.www.gov.cn/news/202412/05/content_WS6750dd47c6d0868f4e8edab6.html",
     accessedAt: ACCESSED,
+    role: "evergreen" as const,
   },
   holiday2026: {
     title: "Notice on arrangements for several public holidays in 2026",
     publisher: "General Office of the State Council",
     url: "https://www.gov.cn/zhengce/content/202511/content_7047090.htm",
     accessedAt: ACCESSED,
+    role: "year_specific" as const,
+    year: 2026,
   },
   chinaOrgTaboos: {
     title: "Good manners, bad luck",
     publisher: "China.org.cn (China International Communications Group)",
     url: "http://www.china.org.cn/travel/beijingguide/2008-05/20/content_15355396.htm",
     accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaMidAutumn: {
+    title: "Mid-Autumn Festival",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Mid-Autumn-Festival",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  ihchinaQingming: {
+    title: "清明节 (Qingming Festival)",
+    publisher: "China Intangible Cultural Heritage Digital Museum (ihchina.cn)",
+    url: "https://www.ihchina.cn/Article/Index/detail?id=14907",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  unescoSolarTerms: {
+    title: "The Twenty-Four Solar Terms",
+    publisher: "UNESCO Intangible Cultural Heritage",
+    url: "https://ich.unesco.org/en/RL/the-twenty-four-solar-terms-00647",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaLantern: {
+    title: "Lantern Festival",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Lantern-Festival",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  chinaCultureLantern: {
+    title: "The Lantern Festival",
+    publisher: "China Culture (Ministry of Culture and Tourism affiliated)",
+    url: "http://en.chinaculture.org/2014-12/09/content_584309.htm",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaDragon: {
+    title: "Long (Chinese dragon)",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/long",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  metDragonRobes: {
+    title: "Dragon Robes of China",
+    publisher: "The Metropolitan Museum of Art",
+    url: "https://www.metmuseum.org/toah/hd/drg/hd_drg.htm",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaMonkeyKing: {
+    title: "Sun Wukong",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Sun-Wukong",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaXiyouji: {
+    title: "Journey to the West",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Journey-to-the-West",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  chinaOrgXiyouji: {
+    title: "Journey to the West",
+    publisher: "China.org.cn (China International Communications Group)",
+    url: "http://www.china.org.cn/english/features/Literature/145325.htm",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  columbiaDynastyTimeline: {
+    title: "Timeline of Chinese Dynasties",
+    publisher: "Columbia University Asia for Educators",
+    url: "https://afe.easia.columbia.edu/timelines/china_timeline.htm",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  smithsonianChinaTimeline: {
+    title: "Timeline of Chinese History, Art, and Culture",
+    publisher: "Smithsonian National Museum of Asian Art",
+    url: "https://asia-archive.si.edu/learn/for-educators/teaching-china-with-the-smithsonian/interactives/timelines/timeline-of-chinese-history-art-and-culture/",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaQin: {
+    title: "Qin dynasty",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Qin-dynasty",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  metQin: {
+    title: "Qin Dynasty (221–206 B.C.)",
+    publisher: "The Metropolitan Museum of Art (Heilbrunn Timeline)",
+    url: "https://www.metmuseum.org/essays/qin-dynasty-221-206-b-c",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  unescoQinMausoleum: {
+    title: "Mausoleum of the First Qin Emperor",
+    publisher: "UNESCO World Heritage Centre",
+    url: "https://whc.unesco.org/en/list/441/",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  unescoGreatWall: {
+    title: "The Great Wall",
+    publisher: "UNESCO World Heritage Centre",
+    url: "https://whc.unesco.org/en/list/438/",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaHan: {
+    title: "Han dynasty",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Han-dynasty",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  metHan: {
+    title: "Han Dynasty (206 B.C.–220 A.D.)",
+    publisher: "The Metropolitan Museum of Art (Heilbrunn Timeline)",
+    url: "https://www.metmuseum.org/TOAH/hd/hand/hd_hand.htm",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaSilkRoad: {
+    title: "Silk Road",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Silk-Road-trade-route",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaTang: {
+    title: "Tang dynasty",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Tang-dynasty",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  metTang: {
+    title: "Tang Dynasty (618–907)",
+    publisher: "The Metropolitan Museum of Art (Heilbrunn Timeline)",
+    url: "https://www.metmuseum.org/essays/tang-dynasty-618-906",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaChangan: {
+    title: "Chang'an",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/place/Changan",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaSong: {
+    title: "Song dynasty",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Song-dynasty",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  metSong: {
+    title: "Northern Song Dynasty (960–1127)",
+    publisher: "The Metropolitan Museum of Art (Heilbrunn Timeline)",
+    url: "https://www.metmuseum.org/essays/northern-song-dynasty-960-1127",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaMing: {
+    title: "Ming dynasty",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Ming-dynasty-Chinese-history",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  metMing: {
+    title: "Ming Dynasty (1368–1644)",
+    publisher: "The Metropolitan Museum of Art (Heilbrunn Timeline)",
+    url: "https://www.metmuseum.org/TOAH/HD/ming/hd_ming.htm",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  unescoImperialPalaces: {
+    title: "Imperial Palaces of the Ming and Qing Dynasties in Beijing and Shenyang",
+    publisher: "UNESCO World Heritage Centre",
+    url: "https://whc.unesco.org/en/list/439/",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaQing: {
+    title: "Qing dynasty",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/topic/Qing-dynasty",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
+  },
+  britannicaChineseRevolution: {
+    title: "Chinese Revolution (1911–1912)",
+    publisher: "Encyclopaedia Britannica",
+    url: "https://www.britannica.com/event/Chinese-Revolution-1911-1912",
+    accessedAt: ACCESSED,
+    role: "evergreen" as const,
   },
   chinaDailyTable: {
     title: "Table manners",
@@ -162,12 +429,15 @@ const SRC = {
     publisher: "China Culture (Ministry of Culture and Tourism affiliated)",
     url: "http://en.chinaculture.org/2014-12/09/content_584311.htm",
     accessedAt: ACCESSED,
+    role: "evergreen" as const,
   },
   holidayEn: {
     title: "Notice of General Office of State Council on arrangements for several public holidays in 2026",
     publisher: "Haidian District People's Government (English translation of State Council notice)",
     url: "https://en.bjhd.gov.cn/workinginhaidian/supportingservices/publicholidays/202512/t20251211_4797062.shtml",
     accessedAt: ACCESSED,
+    role: "year_specific" as const,
+    year: 2026,
   },
   niaExitEntryArt39: {
     title: "Exit and Entry Administration Law of the People's Republic of China (English), Article 39",
@@ -218,6 +488,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "visiting-home",
     order: 1,
     category: "home_visits",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Chegar à casa de alguém",
@@ -258,6 +529,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "host-insistence",
     order: 2,
     category: "home_visits",
+    kind: "documented_practice",
     scope: "informal",
     estimatedMinutes: 4,
     titlePt: "Quando o anfitrião insiste",
@@ -298,6 +570,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "shared-dishes",
     order: 3,
     category: "table_food",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Pratos no centro da mesa",
@@ -338,6 +611,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "chopsticks-rest",
     order: 4,
     category: "table_food",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Onde pousar os hashis",
@@ -378,6 +652,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "greetings-nihao",
     order: 5,
     category: "social_etiquette",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Olá: o que 你好 faz — e o que não faz",
@@ -418,6 +693,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "thanks-keqi",
     order: 6,
     category: "social_etiquette",
+    kind: "documented_practice",
     scope: "informal",
     estimatedMinutes: 3,
     titlePt: "谢谢 e a resposta 不客气",
@@ -457,6 +733,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "qingwen-ask",
     order: 7,
     category: "communication_relations",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 3,
     titlePt: "Pedir informação com 请问",
@@ -496,6 +773,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "family-terms",
     order: 8,
     category: "home_visits",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Apresentar a família",
@@ -535,6 +813,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "teacher-title",
     order: 9,
     category: "school_work",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 3,
     titlePt: "Chamar o professor de 老师",
@@ -574,6 +853,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "gift-receiving",
     order: 10,
     category: "gifts",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 4,
     titlePt: "Receber algo com as duas mãos",
@@ -614,6 +894,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "four-and-eight",
     order: 11,
     category: "gifts",
+    kind: "symbol",
     scope: "regional",
     estimatedMinutes: 3,
     titlePt: "Quatro e oito: som, não magia",
@@ -636,7 +917,8 @@ export const CULTURE_ITEMS: CultureItem[] = [
     relatedLessonIds: ["l19", "l20", "l27", "p4-num-45"],
     relatedChunkRefs: ["duoshaoqian", "ershibayuan"],
     relatedHanziRefs: ["yi"],
-    sources: [SRC.chinaOrgTaboos, SRC.holiday2026],
+    // holiday2026 não sustenta simbologia numérica — era citação errada.
+    sources: [SRC.chinaOrgTaboos],
     miniCheck: {
       promptPt: "Você viu um preço 888 e um andar sem 4. Qual leitura é mais segura?",
       promptEn: "You saw a price 888 and a floor without 4. Which reading is safer?",
@@ -654,28 +936,40 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "spring-festival",
     order: 12,
     category: "festivals",
+    kind: "festival",
     scope: "broad",
-    estimatedMinutes: 4,
+    estimatedMinutes: 5,
     titlePt: "Festival da Primavera",
     titleEn: "Spring Festival",
-    summaryPt: "É o Ano Novo lunar: reunião familiar, deslocamento nacional e práticas sociais reconhecidas pela UNESCO em 2024.",
-    summaryEn: "It is the lunar New Year: family reunion, national travel, and social practices UNESCO inscribed in 2024.",
-    bodyPt: "O Conselho de Estado trata o feriado como o mais longo do calendário civil. A UNESCO descreve práticas de reunião, bênçãos e eventos comunitários — não um único ritual idêntico em cada casa.",
-    bodyEn: "The State Council treats the holiday as the longest in the civil calendar. UNESCO describes reunion, well-wishing, and community events — not one identical ritual in every home.",
-    situationPt: "Colegas falam em voltar para casa no 春节.",
-    situationEn: "Colleagues talk about going home for 春节.",
-    noticePt: "Há viagens, reuniões, saudações de ano novo e um calendário lunar. O que cada família come e visita muda.",
-    noticeEn: "There is travel, reunion, New Year greetings, and a lunar calendar. What each family eats and visits still changes.",
-    whyPt: "A inscrição da UNESCO enfatiza reunião familiar e práticas sociais transmitidas em casa e na escola. Por isso o feriado organiza o ano de tanta gente — sem apagar diferenças regionais.",
-    whyEn: "The UNESCO inscription emphasises family reunion and social practices passed on at home and at school. That is why the holiday organises so many people's year — without erasing regional difference.",
-    practicePt: "Se alguém viaja: deseja um bom 春节. Não assuma que todos fazem o mesmo prato ou a mesma visita. 家 e nomes de família que você já estudou voltam com força nesse período.",
-    practiceEn: "If someone is travelling: wish them a good 春节. Do not assume every household cooks the same dish or visits the same way. 家 and family terms you already study come back strongly in this period.",
-    variabilityPt: "Dias oficiais, pratos e se a pessoa fica na cidade natal ou na cidade onde trabalha variam. A reunião é o eixo mais estável, não o menu.",
-    variabilityEn: "Official days off, dishes, and whether someone stays in their hometown or work city all vary. Reunion is the more stable axis, not the menu.",
+    summaryPt: "春节 (Chūnjié) é o Ano Novo no calendário lunissolar chinês: reunião familiar, deslocamento e costumes que variam por casa — reconhecidos pela UNESCO em 2024.",
+    summaryEn: "春节 (Chūnjié) is New Year on the Chinese lunisolar calendar: family reunion, travel, and household customs that vary — UNESCO-inscribed in 2024.",
+    bodyPt:
+      "春节 marca a virada do ano no calendário lunissolar tradicional (intercalação lunar com correção solar). Por isso a data gregoriana muda a cada ano — não há um único '1º de janeiro chinês' fixo no calendário ocidental. O eixo mais estável é a reunião familiar: muitos viajam na véspera (除夕), trocam cumprimentos de ano novo, usam decoração vermelha e, em alguns círculos, 红包 (hóngbāo). A UNESCO descreve práticas de reunião, bênçãos e eventos comunitários — não um ritual idêntico em cada casa. Costumes de comida, visita e etiqueta mudam por região, geração e família.",
+    bodyEn:
+      "春节 marks the turn of the year on the traditional Chinese lunisolar calendar (lunar months with solar correction). That is why the Gregorian date moves each year — there is no single fixed 'Chinese January 1' on the Western calendar. The most stable axis is family reunion: many travel on New Year's Eve (除夕), exchange New Year greetings, use red decoration, and in some circles give 红包 (hóngbāo). UNESCO describes reunion, well-wishing, and community events — not one identical ritual in every home. Food, visits, and etiquette still shift by region, generation, and family.",
+    situationPt: "Colegas falam em voltar para casa no 春节 e alguém menciona 红包.",
+    situationEn: "Colleagues talk about going home for 春节 and someone mentions 红包.",
+    noticePt: "Há viagens, reunião na véspera, cumprimentos, decoração e às vezes 红包. O que cada família come e visita muda.",
+    noticeEn: "There is travel, reunion on New Year's Eve, greetings, decoration, and sometimes 红包. What each family eats and visits still changes.",
+    whyPt: "A inscrição da UNESCO enfatiza reunião familiar e práticas transmitidas em casa e na escola. Entender 春节 como calendário lunissolar + reunião evita tanto o erro de data fixa gregoriana quanto o estereótipo de um único ritual nacional.",
+    whyEn: "The UNESCO inscription emphasises family reunion and practices passed on at home and at school. Reading 春节 as lunisolar calendar + reunion avoids both a fixed Gregorian-date error and the stereotype of one national ritual.",
+    practicePt: "Se alguém viaja: deseja um bom 春节. Não assuma o mesmo prato, a mesma visita ou o mesmo 红包. 家 e termos de família que você já estudou voltam com força nesse período.",
+    practiceEn: "If someone is travelling: wish them a good 春节. Do not assume the same dish, visit, or 红包. 家 and family terms you already study come back strongly in this period.",
+    variabilityPt: "Dias oficiais de folga, pratos, 红包 e se a pessoa fica na cidade natal ou na cidade onde trabalha variam. A reunião é o eixo mais estável, não o menu.",
+    variabilityEn: "Official days off, dishes, 红包, and whether someone stays in their hometown or work city all vary. Reunion is the more stable axis, not the menu.",
     relatedLessonIds: ["l24", "l25", "p6-rotina-trabalho"],
     relatedChunkRefs: ["zheshiwodejia", "zheshibaba", "mingtianjian"],
     relatedHanziRefs: ["jia"],
     sources: [SRC.govSpringFestival, SRC.holiday2026, SRC.holidayEn],
+    yearFacts: [
+      {
+        year: 2026,
+        labelPt: "Em 2026, o período oficial de folga do Festival da Primavera consta no aviso de feriados públicos do Conselho de Estado.",
+        labelEn: "In 2026, the official Spring Festival public-holiday window is listed in the State Council public-holiday notice.",
+        source: SRC.holiday2026,
+        verifiedAt: ACCESSED,
+      },
+    ],
     miniCheck: {
       promptPt: "Um colega diz que volta para casa no 春节. Qual leitura é mais segura?",
       promptEn: "A colleague says they are going home for 春节. Which reading is safer?",
@@ -693,14 +987,15 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "mid-autumn",
     order: 13,
     category: "festivals",
+    kind: "festival",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Festival do Meio Outono",
     titleEn: "Mid-Autumn Festival",
     summaryPt: "É feriado oficial no 15º dia do 8º mês lunar. Reunião e lua são o eixo; bolos e costumes locais variam.",
     summaryEn: "It is an official holiday on the 15th day of the 8th lunar month. Reunion and the moon are the axis; cakes and local customs vary.",
-    bodyPt: "O Conselho de Estado lista 中秋节 no calendário civil. A lua cheia e a reunião aparecem em descrições institucionais; o que se come e se visita não é único.",
-    bodyEn: "The State Council lists 中秋节 on the civil calendar. The full moon and reunion appear in institutional descriptions; what people eat and visit is not unique.",
+    bodyPt: "中秋节 cai no 15º dia do 8º mês do calendário lunissolar. Fontes institucionais e enciclopédicas ligam o dia à lua cheia e à reunião; bolos (月饼) e costumes locais variam. O calendário civil estatal lista o feriado — isso não fixa um único script de festa.",
+    bodyEn: "中秋节 falls on the 15th day of the 8th lunisolar month. Institutional and encyclopaedic sources link the day to the full moon and reunion; cakes (月饼) and local customs vary. The state civil calendar lists the holiday — that does not fix a single party script.",
     situationPt: "Na semana do feriado, alguém oferece um pacote de 月饼.",
     situationEn: "In the holiday week, someone offers a box of 月饼.",
     noticePt: "Pode haver folga, deslocamento curto e conversa sobre ver a lua. Presentes de bolo acontecem em alguns círculos de trabalho e família.",
@@ -714,7 +1009,16 @@ export const CULTURE_ITEMS: CultureItem[] = [
     relatedLessonIds: ["l24", "l4", "l26"],
     relatedChunkRefs: ["xiexie", "zheshiwodejia"],
     relatedHanziRefs: ["jia", "yue"],
-    sources: [SRC.holiday2026, SRC.holidayEn],
+    sources: [SRC.britannicaMidAutumn, SRC.holiday2026, SRC.holidayEn],
+    yearFacts: [
+      {
+        year: 2026,
+        labelPt: "Em 2026, 中秋节 aparece no aviso oficial de feriados públicos do Conselho de Estado.",
+        labelEn: "In 2026, 中秋节 appears in the State Council official public-holiday notice.",
+        source: SRC.holiday2026,
+        verifiedAt: ACCESSED,
+      },
+    ],
     miniCheck: {
       promptPt: "Alguém menciona 中秋节. O que é mais estável nesse feriado?",
       promptEn: "Someone mentions 中秋节. What is more stable about this holiday?",
@@ -732,6 +1036,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "qingming",
     order: 14,
     category: "festivals",
+    kind: "festival",
     scope: "historical",
     estimatedMinutes: 3,
     titlePt: "Qingming: lembrar, não 'festa'",
@@ -753,7 +1058,16 @@ export const CULTURE_ITEMS: CultureItem[] = [
     relatedLessonIds: ["l24", "p6-rotina-trabalho"],
     relatedChunkRefs: ["zheshiwodejia", "mingtianjian"],
     relatedHanziRefs: ["jia"],
-    sources: [SRC.holiday2026, SRC.holidayEn],
+    sources: [SRC.ihchinaQingming, SRC.unescoSolarTerms, SRC.holiday2026, SRC.holidayEn],
+    yearFacts: [
+      {
+        year: 2026,
+        labelPt: "Em 2026, 清明节 consta no aviso oficial de feriados públicos do Conselho de Estado.",
+        labelEn: "In 2026, 清明节 is listed in the State Council official public-holiday notice.",
+        source: SRC.holiday2026,
+        verifiedAt: ACCESSED,
+      },
+    ],
     miniCheck: {
       promptPt: "Qingming aparece no calendário. Qual leitura combina melhor?",
       promptEn: "Qingming appears on the calendar. Which reading fits better?",
@@ -771,6 +1085,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "dragon-boat",
     order: 15,
     category: "festivals",
+    kind: "festival",
     scope: "regional",
     estimatedMinutes: 3,
     titlePt: "Festival do Barco-Dragão",
@@ -810,6 +1125,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "digital-pay",
     order: 16,
     category: "contemporary_china",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Pagar com o celular",
@@ -849,6 +1165,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "metro-qr",
     order: 17,
     category: "transport_public",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Metrô e espaço público",
@@ -888,6 +1205,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "office-hours",
     order: 18,
     category: "daily_life",
+    kind: "documented_practice",
     scope: "generational",
     estimatedMinutes: 3,
     titlePt: "Horário, trabalho e ritmo urbano",
@@ -927,6 +1245,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "bargaining-context",
     order: 19,
     category: "contemporary_china",
+    kind: "documented_practice",
     scope: "broad",
     estimatedMinutes: 3,
     titlePt: "Quando negociar o preço",
@@ -966,6 +1285,7 @@ export const CULTURE_ITEMS: CultureItem[] = [
     id: "hotel-checkin-register",
     order: 20,
     category: "daily_life",
+    kind: "documented_practice",
     scope: "formal",
     estimatedMinutes: 3,
     titlePt: "Passaporte na recepção",
@@ -1021,6 +1341,441 @@ export const CULTURE_ITEMS: CultureItem[] = [
       correctOptionId: "b",
       explanationPt: "O artigo 39 atribui o registro ao hotel. Não generalize para casa de amigo nem para 'todo hóspede'.",
       explanationEn: "Article 39 assigns registration to the hotel. Do not generalise that to a friend's home or to 'every guest'.",
+    },
+  },
+  {
+    id: "lantern-festival",
+    order: 21,
+    category: "festivals",
+    kind: "festival",
+    scope: "broad",
+    estimatedMinutes: 4,
+    titlePt: "Festival das Lanternas",
+    titleEn: "Lantern Festival",
+    summaryPt: "元宵节 (Yuánxiāojié) fecha o período do Ano Novo lunissolar: lanternas, reunião e costumes que variam por região e família.",
+    summaryEn: "元宵节 (Yuánxiāojié) closes the lunisolar New Year period: lanterns, gathering, and customs that vary by region and family.",
+    bodyPt:
+      "元宵节 cai no 15º dia do 1º mês do calendário lunissolar — em muitas descrições, o encerramento do ciclo aberto no 春节. Lanternas e passeios noturnos aparecem com frequência; alimentos e ritos locais (incluindo 元宵 / 汤圆 em algumas regiões) não são idênticos em todo o país. Evite absolutizar costumes como se fossem iguais em cada casa e horário.",
+    bodyEn:
+      "元宵节 falls on the 15th day of the 1st lunisolar month — in many accounts, the close of the cycle opened at 春节. Lanterns and evening strolls appear often; local foods and rites (including 元宵 / 汤圆 in some regions) are not identical nationwide. Avoid treating customs as identical in every household and hour.",
+    situationPt: "Alguém menciona lanternas no fim do período do Ano Novo e fala em 元宵节.",
+    situationEn: "Someone mentions lanterns at the end of the New Year period and talks about 元宵节.",
+    noticePt: "Pode haver lanternas, passeio e conversa sobre o fim do ciclo do 春节. Comidas e costumes locais mudam.",
+    noticeEn: "There may be lanterns, an evening outing, and talk about the close of the 春节 cycle. Local foods and customs change.",
+    whyPt: "Ligar 元宵节 ao período do 春节 ajuda a ler o calendário lunissolar sem confundir o Festival das Lanternas com o próprio Ano Novo nem com o Dragon Boat.",
+    whyEn: "Linking 元宵节 to the 春节 period helps you read the lunisolar calendar without confusing Lantern Festival with New Year itself or with Dragon Boat.",
+    practicePt: "Se alguém falar em 元宵节: pergunte se há lanternas ou reunião — sem assumir um único prato ou rito. Trate variação regional como o normal.",
+    practiceEn: "If someone mentions 元宵节: ask about lanterns or a gathering — without assuming one dish or rite. Treat regional variation as normal.",
+    variabilityPt: "Cidades destacam lanternas públicas; famílias podem só reunir-se em casa. O nome do doce e o roteiro da noite não são nacionais únicos.",
+    variabilityEn: "Cities may highlight public lanterns; families may only gather at home. The sweet's name and the evening script are not a single national form.",
+    relatedLessonIds: ["l24", "l25"],
+    relatedChunkRefs: ["zheshiwodejia", "mingtianjian"],
+    relatedHanziRefs: ["jia"],
+    sources: [SRC.britannicaLantern, SRC.chinaCultureLantern],
+    miniCheck: {
+      promptPt: "元宵节 aparece na conversa. Qual leitura é mais segura?",
+      promptEn: "元宵节 comes up in conversation. Which reading is safer?",
+      options: [
+        {
+          id: "a",
+          labelPt: "É o mesmo dia que o 春节, com o mesmo ritual em toda casa.",
+          labelEn: "It is the same day as 春节, with the same ritual in every home.",
+        },
+        {
+          id: "b",
+          labelPt: "Costuma fechar o período do Ano Novo lunissolar; lanternas e costumes locais variam.",
+          labelEn: "It usually closes the lunisolar New Year period; lanterns and local customs vary.",
+        },
+        {
+          id: "c",
+          labelPt: "É o Festival do Barco-Dragão.",
+          labelEn: "It is the Dragon Boat Festival.",
+        },
+      ],
+      correctOptionId: "b",
+      explanationPt: "元宵节 marca o 15º dia do 1º mês lunissolar, ligado ao ciclo do 春节 — não é 端午节 nem um ritual único nacional.",
+      explanationEn: "元宵节 marks the 15th day of the 1st lunisolar month, tied to the 春节 cycle — not 端午节 and not one national ritual.",
+    },
+  },
+  {
+    id: "chinese-dragon",
+    order: 22,
+    category: "festivals",
+    kind: "symbol",
+    scope: "broad",
+    estimatedMinutes: 4,
+    titlePt: "O dragão chinês",
+    titleEn: "The Chinese dragon",
+    summaryPt: "龙 (lóng) é um símbolo cultural recorrente na iconografia chinesa — distinto de muitas imagens europeias de dragão como monstro a ser vencido.",
+    summaryEn: "龙 (lóng) is a recurring cultural symbol in Chinese iconography — distinct from many European images of the dragon as a monster to be slain.",
+    bodyPt:
+      "Em contextos culturais chineses, 龙 aparece em arte, celebrações e linguagem simbólica. Fontes enciclopédicas e museais descrevem associações com poder, auspício e autoridade em contextos históricos e cerimoniais — sempre com escopo: não diga que o dragão 'sempre' significa a mesma coisa para todas as pessoas. A dança do dragão em festas é um uso celebratório possível. Não confunda esta lição com 端午节 (Festival do Barco-Dragão): podem se relacionar visualmente, mas não são o mesmo tema.",
+    bodyEn:
+      "In Chinese cultural contexts, 龙 appears in art, celebrations, and symbolic language. Encyclopaedic and museum sources describe associations with power, auspiciousness, and authority in historical and ceremonial settings — always with scope: do not say the dragon 'always' means the same thing for everyone. Dragon dance at festivals is one possible celebratory use. Do not confuse this lesson with 端午节 (Dragon Boat Festival): they may relate visually, but they are not the same topic.",
+    situationPt: "Você vê um dragão em decoração de festa ou em arte e alguém diz 龙.",
+    situationEn: "You see a dragon in festival decoration or art and someone says 龙.",
+    noticePt: "Pode ser emblema celebratório, motivo artístico ou referência simbólica — o tom muda com o contexto.",
+    noticeEn: "It may be a celebratory emblem, an artistic motif, or a symbolic reference — the tone shifts with context.",
+    whyPt: "Separar 龙 de estereótipos europeus de 'monstro' evita leitura errada de arte e festa. Separar de 端午节 evita misturar símbolo e feriado.",
+    whyEn: "Separating 龙 from European 'monster' stereotypes avoids misreading art and festivals. Separating it from 端午节 avoids mixing symbol and holiday.",
+    practicePt: "Se apontarem um 龙: reconheça o símbolo cultural sem afirmar um significado único universal. Se a conversa for sobre barcos e 粽子, isso é outra lição (端午节).",
+    practiceEn: "If someone points to a 龙: recognise the cultural symbol without asserting one universal meaning. If the talk is about boats and 粽子, that is another lesson (端午节).",
+    variabilityPt: "Estilos regionais de dança, arte imperial versus uso popular e leitura contemporânea mudam o peso do símbolo.",
+    variabilityEn: "Regional dance styles, imperial versus popular art, and contemporary readings all change the symbol's weight.",
+    relatedLessonIds: ["l26", "p6-natureza"],
+    relatedChunkRefs: ["xiexie"],
+    relatedCultureItemIds: ["dragon-boat"],
+    sources: [SRC.britannicaDragon, SRC.metDragonRobes],
+    miniCheck: {
+      promptPt: "Alguém aponta um 龙 em decoração de festa. Qual leitura é mais segura?",
+      promptEn: "Someone points to a 龙 in festival decoration. Which reading is safer?",
+      options: [
+        {
+          id: "a",
+          labelPt: "É sempre um monstro malvado que deve ser destruído, como em muitas histórias europeias.",
+          labelEn: "It is always an evil monster that must be destroyed, as in many European stories.",
+        },
+        {
+          id: "b",
+          labelPt: "É um símbolo cultural recorrente; significados dependem do contexto e não são universais.",
+          labelEn: "It is a recurring cultural symbol; meanings depend on context and are not universal.",
+        },
+        {
+          id: "c",
+          labelPt: "É automaticamente o Festival do Barco-Dragão.",
+          labelEn: "It is automatically the Dragon Boat Festival.",
+        },
+      ],
+      correctOptionId: "b",
+      explanationPt: "龙 é símbolo com leituras contextuais. Não é monstro europeu padrão nem sinônimo automático de 端午节.",
+      explanationEn: "龙 is a symbol with contextual readings. It is not the default European monster, nor an automatic synonym for 端午节.",
+    },
+  },
+  {
+    id: "sun-wukong",
+    order: 23,
+    category: "festivals",
+    kind: "literature",
+    scope: "historical",
+    estimatedMinutes: 4,
+    titlePt: "Sun Wukong",
+    titleEn: "Sun Wukong",
+    summaryPt: "孙悟空 (Sūn Wùkōng), o Rei Macaco, é figura da tradição literária chinesa — não uma biografia de general histórico.",
+    summaryEn: "孙悟空 (Sūn Wùkōng), the Monkey King, is a figure in Chinese literary tradition — not a biography of a historical general.",
+    bodyPt:
+      "Na narrativa e na tradição cultural em torno de 西游记 (Xīyóujì), 孙悟空 é o Rei Macaco: figura literária reconhecível por traços como a agilidade, o bastão e a rebeldia dentro da obra. Fontes enciclopédicas o tratam como personagem — não como figura documentada de arquivo militar. Esta lição apresenta o personagem; a obra completa tem a sua própria entrada.",
+    bodyEn:
+      "In the narrative and cultural tradition around 西游记 (Xīyóujì), 孙悟空 is the Monkey King: a literary figure recognisable for traits such as agility, the staff, and rebelliousness within the work. Encyclopaedic sources treat him as a character — not as a documented military-archive figure. This lesson introduces the character; the full work has its own entry.",
+    situationPt: "Alguém menciona o Rei Macaco ou 孙悟空 em conversa sobre histórias chinesas.",
+    situationEn: "Someone mentions the Monkey King or 孙悟空 in a conversation about Chinese stories.",
+    noticePt: "É referência a personagem literário/cultural. O tom é de narrativa, não de biografia de arquivo.",
+    noticeEn: "It is a reference to a literary/cultural character. The tone is narrative, not archival biography.",
+    whyPt: "Separar literatura de história evita transformar 孙悟空 em 'general real'. Isso é exatamente o erro que o tipo `literature` existe para impedir.",
+    whyEn: "Separating literature from history stops 孙悟空 from becoming a 'real general'. That is exactly the error the `literature` kind exists to block.",
+    practicePt: "Se ouvirem 孙悟空: trate como personagem da tradição literária ligado a 西游记. Não recite uma biografia histórica inventada.",
+    practiceEn: "If you hear 孙悟空: treat him as a literary-tradition character linked to 西游记. Do not recite an invented historical biography.",
+    variabilityPt: "Adaptações modernas mudam ênfase; a base literária clássica permanece o eixo desta lição.",
+    variabilityEn: "Modern adaptations shift emphasis; the classical literary base remains this lesson's axis.",
+    relatedLessonIds: ["l24", "l9"],
+    relatedChunkRefs: ["xiexie"],
+    relatedCultureItemIds: ["journey-to-the-west", "china-history-timeline"],
+    sources: [SRC.britannicaMonkeyKing, SRC.britannicaXiyouji],
+    miniCheck: {
+      promptPt: "Sun Wukong é apresentado aqui como:",
+      promptEn: "Sun Wukong is presented here as:",
+      options: [
+        { id: "a", labelPt: "um imperador documentado", labelEn: "a documented emperor" },
+        { id: "b", labelPt: "leitura literária, não histórica", labelEn: "a literary, not historical, reading" },
+        { id: "c", labelPt: "um feriado nacional", labelEn: "a national holiday" },
+      ],
+      correctOptionId: "b",
+      explanationPt: "孙悟空 é personagem literário/cultural ligado a 西游记 — não biografia de arquivo nem feriado.",
+      explanationEn: "孙悟空 is a literary/cultural character linked to 西游记 — not an archival biography or a holiday.",
+    },
+  },
+  {
+    id: "journey-to-the-west",
+    order: 24,
+    category: "festivals",
+    kind: "literature",
+    scope: "historical",
+    estimatedMinutes: 4,
+    titlePt: "Jornada ao Oeste",
+    titleEn: "Journey to the West",
+    summaryPt: "西游记 (Xīyóujì) é romance clássico chinês; 孙悟空 é um de seus personagens centrais na narrativa.",
+    summaryEn: "西游记 (Xīyóujì) is a Chinese classical novel; 孙悟空 is one of its central characters in the narrative.",
+    bodyPt:
+      "西游记 é um romance da tradição literária chinesa. Na obra, um monge viaja para o oeste com discípulos — entre eles 孙悟空 — em uma narrativa de provações e transformação. Esta lição apresenta o título, o contexto literário e a relação com o Rei Macaco; não é uma enciclopédia completa de todos os episódios. Personagens principais podem ser nomeados para orientação, sempre como figuras da narrativa.",
+    bodyEn:
+      "西游记 is a novel in Chinese literary tradition. In the work, a monk travels west with disciples — among them 孙悟空 — in a narrative of trials and transformation. This lesson introduces the title, literary context, and the link to the Monkey King; it is not a full encyclopaedia of every episode. Main characters may be named for orientation, always as figures in the narrative.",
+    situationPt: "Alguém cita 西游记 ou 'Journey to the West' ao falar de clássicos chineses.",
+    situationEn: "Someone cites 西游记 or 'Journey to the West' when talking about Chinese classics.",
+    noticePt: "É título de obra literária. Os personagens vivem dentro da narrativa — não como fichas de arquivo histórico.",
+    noticeEn: "It is a literary title. The characters live inside the narrative — not as historical-archive files.",
+    whyPt: "Reconhecer 西游记 como literatura clássica abre a porta para 孙悟空 e outras figuras sem misturá-las com história documental.",
+    whyEn: "Recognising 西游记 as classical literature opens the door to 孙悟空 and other figures without mixing them into documentary history.",
+    practicePt: "Se ouvirem 西游记: trate como obra literária. Relacione 孙悟空 à narrativa sem transformar a conversa em biografia histórica.",
+    practiceEn: "If you hear 西游记: treat it as a literary work. Link 孙悟空 to the narrative without turning the talk into historical biography.",
+    variabilityPt: "Traduções, adaptações e ênfases escolares variam; o status de clássico literário é o eixo estável aqui.",
+    variabilityEn: "Translations, adaptations, and school emphases vary; classical literary status is the stable axis here.",
+    relatedLessonIds: ["l24", "l9"],
+    relatedChunkRefs: ["xiexie"],
+    relatedCultureItemIds: ["sun-wukong"],
+    sources: [SRC.britannicaXiyouji, SRC.chinaOrgXiyouji],
+    miniCheck: {
+      promptPt: "西游记, nesta lição, é melhor descrito como:",
+      promptEn: "西游记, in this lesson, is best described as:",
+      options: [
+        { id: "a", labelPt: "um diário de viagem militar do século XX", labelEn: "a twentieth-century military travel diary" },
+        { id: "b", labelPt: "clássico da literatura chinesa", labelEn: "a Chinese literary classic" },
+        { id: "c", labelPt: "um feriado do calendário estatal", labelEn: "a holiday on the state calendar" },
+      ],
+      correctOptionId: "b",
+      explanationPt: "西游记 é romance clássico. Personagens como 孙悟空 pertencem à narrativa da obra.",
+      explanationEn: "西游记 is a classical novel. Characters such as 孙悟空 belong to the work's narrative.",
+    },
+  },
+  {
+    id: "china-history-timeline",
+    order: 25,
+    category: "school_work",
+    kind: "history",
+    scope: "historical",
+    estimatedMinutes: 5,
+    titlePt: "Uma visão da história chinesa",
+    titleEn: "A timeline of Chinese history",
+    summaryPt: "Um mapa mental introdutório dos grandes períodos — não um curso completo de história chinesa.",
+    summaryEn: "An introductory mental map of major periods — not a full course in Chinese history.",
+    bodyPt:
+      "Esta visão introdutória organiza grandes blocos: China antiga → Qin → Han → Tang → Song → Ming → Qing → China moderna. O objetivo é orientação cronológica e continuidade, não decorar dezenas de datas. Museus e linhas do tempo acadêmicas usam marcas aproximadas; dinastias intermediárias e rupturas existem e ficam fora deste primeiro mapa.",
+    bodyEn:
+      "This introductory overview organises major blocks: ancient China → Qin → Han → Tang → Song → Ming → Qing → modern China. The goal is chronological orientation and continuity, not memorising dozens of dates. Museums and academic timelines use approximate markers; intermediate dynasties and ruptures exist and sit outside this first map.",
+    situationPt: "Você quer um primeiro mapa antes de aprofundar uma dinastia.",
+    situationEn: "You want a first map before going deeper into one dynasty.",
+    noticePt: "É introdução. Não diga que esta lista é 'toda a história chinesa'.",
+    noticeEn: "It is an introduction. Do not treat this list as 'all of Chinese history'.",
+    whyPt: "Sem um mapa mental, nomes como Qin e Tang ficam soltos. Com o mapa, cada lesson histórica ganha lugar.",
+    whyEn: "Without a mental map, names like Qin and Tang float free. With the map, each history lesson has a place.",
+    practicePt: "Memorize a ordem dos blocos principais. Depois, abra Qin, Han, Tang, Song e Ming/Qing para detalhe.",
+    practiceEn: "Remember the order of the main blocks. Then open Qin, Han, Tang, Song, and Ming/Qing for detail.",
+    variabilityPt: "Linhas do tempo de museus e enciclopédias variam em datas limítrofes; a sequência Qin→Han→Tang→Song→Ming→Qing é o eixo estável aqui.",
+    variabilityEn: "Museum and encyclopaedia timelines vary on boundary dates; the Qin→Han→Tang→Song→Ming→Qing sequence is the stable axis here.",
+    relatedLessonIds: ["l9", "l24"],
+    relatedCultureItemIds: ["qin-unification", "han-dynasty", "tang-dynasty", "song-dynasty", "ming-qing"],
+    sources: [SRC.columbiaDynastyTimeline, SRC.smithsonianChinaTimeline],
+    miniCheck: {
+      promptPt: "Nesta visão introdutória, qual ordem cronológica está correta?",
+      promptEn: "In this introductory overview, which chronological order is correct?",
+      options: [
+        { id: "a", labelPt: "Tang → Han → Qin", labelEn: "Tang → Han → Qin" },
+        { id: "b", labelPt: "Qin → Han → Tang → Song", labelEn: "Qin → Han → Tang → Song" },
+        { id: "c", labelPt: "Song → Qin → Ming", labelEn: "Song → Qin → Ming" },
+      ],
+      correctOptionId: "b",
+      explanationPt: "O mapa introdutório segue Qin, depois Han, depois Tang, depois Song — antes de Ming/Qing.",
+      explanationEn: "The introductory map follows Qin, then Han, then Tang, then Song — before Ming/Qing.",
+    },
+  },
+  {
+    id: "qin-unification",
+    order: 26,
+    category: "school_work",
+    kind: "history",
+    scope: "historical",
+    estimatedMinutes: 4,
+    titlePt: "Qin: unificação imperial",
+    titleEn: "Qin: imperial unification",
+    summaryPt: "秦 (Qín) marca o primeiro império unificado sob Qin Shi Huang — com padronizações e o mausoléu dos Guerreiros de Terracota.",
+    summaryEn: "秦 (Qín) marks the first unified empire under Qin Shi Huang — with standardisations and the Terracotta Army mausoleum.",
+    bodyPt:
+      "No fim do século III a.C., o estado Qin unificou territórios rivais sob Qin Shi Huang. Fontes museológicas e enciclopédicas descrevem padronizações (escrita, pesos, medidas) e um sistema imperial centralizado. O mausoléu do primeiro imperador Qin, com o Exército de Terracota, é Patrimônio da UNESCO. Sobre a Grande Muralha: há conexões com obras de defesa mais antigas e projetos Qin, mas a muralha que visitantes veem hoje é em grande parte construção/reconstrução Ming — não diga que Qin 'construiu toda a Grande Muralha atual'.",
+    bodyEn:
+      "In the late 3rd century BCE, the Qin state unified rival territories under Qin Shi Huang. Museum and encyclopaedic sources describe standardisations (script, weights, measures) and a centralised imperial system. The First Qin Emperor's mausoleum, with the Terracotta Army, is a UNESCO World Heritage site. On the Great Wall: there are links to earlier defence works and Qin projects, but the wall visitors see today is largely Ming construction/rebuild — do not say Qin 'built all of today's Great Wall'.",
+    situationPt: "Alguém menciona Qin Shi Huang ou os Guerreiros de Terracota.",
+    situationEn: "Someone mentions Qin Shi Huang or the Terracotta Army.",
+    noticePt: "É história documentada de unificação imperial curta e intensa — não uma lenda de origem mítica.",
+    noticeEn: "It is documented history of a short, intense imperial unification — not a mythical origin legend.",
+    whyPt: "Qin dá o primeiro marco imperial do mapa. Sem ele, Han e as dinastias seguintes ficam sem ponto de partida.",
+    whyEn: "Qin gives the map its first imperial marker. Without it, Han and later dynasties lack a starting point.",
+    practicePt: "Associe 秦 a unificação e padronização. Separe Terracotta Army (Qin) de 'muralha atual = só Qin'.",
+    practiceEn: "Link 秦 to unification and standardisation. Separate Terracotta Army (Qin) from 'today's wall = Qin only'.",
+    relatedLessonIds: ["l9", "l19"],
+    relatedCultureItemIds: ["china-history-timeline", "ming-qing"],
+    sources: [SRC.britannicaQin, SRC.metQin, SRC.unescoQinMausoleum, SRC.unescoGreatWall],
+    miniCheck: {
+      promptPt: "Sobre a Grande Muralha e Qin, qual leitura é mais segura?",
+      promptEn: "About the Great Wall and Qin, which reading is safer?",
+      options: [
+        { id: "a", labelPt: "Qin construiu toda a Grande Muralha que os turistas veem hoje.", labelEn: "Qin built all of the Great Wall tourists see today." },
+        { id: "b", labelPt: "Há conexões com defesas antigas e Qin, mas muita da muralha visitável é Ming.", labelEn: "There are links to earlier defences and Qin, but much of the visitable wall is Ming." },
+        { id: "c", labelPt: "A muralha só existe na literatura, não na história.", labelEn: "The wall exists only in literature, not in history." },
+      ],
+      correctOptionId: "b",
+      explanationPt: "UNESCO e fontes museológicas separam obras antigas/Qin da predominância Ming na muralha visitável.",
+      explanationEn: "UNESCO and museum sources separate earlier/Qin works from Ming predominance in the visitable wall.",
+    },
+  },
+  {
+    id: "han-dynasty",
+    order: 27,
+    category: "school_work",
+    kind: "history",
+    scope: "historical",
+    estimatedMinutes: 4,
+    titlePt: "Han: consolidação e 汉字",
+    titleEn: "Han: consolidation and 汉字",
+    summaryPt: "汉 (Hàn) consolida o império após Qin e ajuda a explicar por que 汉 aparece em termos como 汉字.",
+    summaryEn: "汉 (Hàn) consolidates the empire after Qin and helps explain why 汉 appears in terms such as 汉字.",
+    bodyPt:
+      "A dinastia Han (aprox. 206 a.C.–220 d.C.) sucede Qin e é descrita por fontes enciclopédicas e museológicas como período de consolidação imperial, expansão e intercâmbios de longa distância — rotas depois associadas à ideia de Silk Road. O etônimo 汉 e a associação cultural com a escrita (汉字) são vínculos históricos/culturais frequentes: a escrita chinesa é bem mais antiga, mas a era Han é um marco de consolidação e identidade. Isso é contexto cultural — não cria automaticamente novo domínio lexical no app.",
+    bodyEn:
+      "The Han dynasty (approx. 206 BCE–220 CE) follows Qin and is described by encyclopaedic and museum sources as a period of imperial consolidation, expansion, and long-distance exchange — routes later associated with the idea of the Silk Road. The ethnonym 汉 and the cultural link to writing (汉字) are frequent historical/cultural associations: Chinese writing is much older, but the Han era is a consolidation and identity landmark. That is cultural context — it does not automatically create new lexical mastery in the app.",
+    situationPt: "Você vê 汉字 e quer saber por que há 汉 no nome.",
+    situationEn: "You see 汉字 and wonder why 汉 is in the name.",
+    noticePt: "Han vem depois de Qin no mapa. Silk Road é rótulo moderno para redes de troca — use com contexto.",
+    noticeEn: "Han comes after Qin on the map. Silk Road is a modern label for exchange networks — use it with context.",
+    whyPt: "Han liga história imperial a um termo que o aluno encontra no aprendizado de escrita.",
+    whyEn: "Han links imperial history to a term learners meet in writing study.",
+    practicePt: "Ordene: Qin antes de Han. Leia 汉字 como vínculo cultural com Hàn, não como invenção súbita da escrita.",
+    practiceEn: "Order: Qin before Han. Read 汉字 as a cultural link to Hàn, not as a sudden invention of writing.",
+    relatedLessonIds: ["l9", "l19"],
+    relatedCultureItemIds: ["china-history-timeline", "qin-unification"],
+    sources: [SRC.britannicaHan, SRC.metHan, SRC.britannicaSilkRoad],
+    miniCheck: {
+      promptPt: "Por que 汉 aparece em 汉字, nesta lição?",
+      promptEn: "Why does 汉 appear in 汉字 in this lesson?",
+      options: [
+        { id: "a", labelPt: "Porque a escrita chinesa nasceu só em 220 d.C.", labelEn: "Because Chinese writing only began in 220 CE." },
+        { id: "b", labelPt: "Por um vínculo cultural/histórico com a era Han — a escrita é bem mais antiga.", labelEn: "Because of a cultural/historical link to the Han era — writing is much older." },
+        { id: "c", labelPt: "Porque Han é um feriado do calendário estatal.", labelEn: "Because Han is a state-calendar holiday." },
+      ],
+      correctOptionId: "b",
+      explanationPt: "汉字 carrega associação com Hàn; a escrita precede a dinastia. É contexto cultural, não trivia de ano exato.",
+      explanationEn: "汉字 carries an association with Hàn; writing predates the dynasty. It is cultural context, not exact-year trivia.",
+    },
+  },
+  {
+    id: "tang-dynasty",
+    order: 28,
+    category: "school_work",
+    kind: "history",
+    scope: "historical",
+    estimatedMinutes: 4,
+    titlePt: "Tang: Chang'an e intercâmbio",
+    titleEn: "Tang: Chang'an and exchange",
+    summaryPt: "唐 (Táng) é um período imperial importante associado a Chang'an, poesia e intercâmbio cultural — sem romantizar como 'a melhor dinastia'.",
+    summaryEn: "唐 (Táng) is a major imperial period linked to Chang'an, poetry, and cultural exchange — without romanticising it as 'the best dynasty'.",
+    bodyPt:
+      "A dinastia Tang (618–907) tem capital em Chang'an (hoje associada a Xi'an). Fontes museológicas descrevem uma capital cosmopolita e intercâmbio cultural de longa distância. A caracterização de 'idade de ouro' aparece em algumas narrativas históricas como interpretação, não como fato absoluto — evite 'foi objetivamente a melhor dinastia'. Poesia e artes são marcas culturais frequentes deste período nas descrições institucionais.",
+    bodyEn:
+      "The Tang dynasty (618–907) has its capital at Chang'an (today linked with Xi'an). Museum sources describe a cosmopolitan capital and long-distance cultural exchange. The 'golden age' characterisation appears in some historical narratives as interpretation, not absolute fact — avoid 'it was objectively the best dynasty'. Poetry and the arts are frequent cultural markers of this period in institutional descriptions.",
+    situationPt: "Alguém fala em Tang ou na antiga Chang'an.",
+    situationEn: "Someone talks about Tang or ancient Chang'an.",
+    noticePt: "Tang vem depois de Han no mapa introdutório. 'Golden age' = caracterização, não veredicto absoluto.",
+    noticeEn: "Tang comes after Han on the introductory map. 'Golden age' = characterisation, not an absolute verdict.",
+    whyPt: "Tang ancora cosmopolitismo e literatura no mapa mental — útil para ler arte e poesia com contexto.",
+    whyEn: "Tang anchors cosmopolitanism and literature on the mental map — useful for reading art and poetry with context.",
+    practicePt: "Ordene: Han antes de Tang. Se ouvir 'idade de ouro', trate como rótulo histórico, não como ranking objetivo.",
+    practiceEn: "Order: Han before Tang. If you hear 'golden age', treat it as a historical label, not an objective ranking.",
+    relatedLessonIds: ["l9", "l24"],
+    relatedCultureItemIds: ["china-history-timeline", "han-dynasty", "song-dynasty"],
+    sources: [SRC.britannicaTang, SRC.metTang, SRC.britannicaChangan],
+    miniCheck: {
+      promptPt: "Qual veio antes no mapa introdutório?",
+      promptEn: "Which came earlier on the introductory map?",
+      options: [
+        { id: "a", labelPt: "Tang antes de Han", labelEn: "Tang before Han" },
+        { id: "b", labelPt: "Han antes de Tang", labelEn: "Han before Tang" },
+        { id: "c", labelPt: "Tang e Han no mesmo século", labelEn: "Tang and Han in the same century" },
+      ],
+      correctOptionId: "b",
+      explanationPt: "No mapa: Qin → Han → Tang. Tang não precede Han.",
+      explanationEn: "On the map: Qin → Han → Tang. Tang does not precede Han.",
+    },
+  },
+  {
+    id: "song-dynasty",
+    order: 29,
+    category: "school_work",
+    kind: "history",
+    scope: "historical",
+    estimatedMinutes: 4,
+    titlePt: "Song: cidades e inovação gradual",
+    titleEn: "Song: cities and gradual innovation",
+    summaryPt: "宋 (Sòng) é associado a urbanização, comércio e tecnologias que se desenvolveram ao longo do tempo — não 'inventou tudo num dia'.",
+    summaryEn: "宋 (Sòng) is linked to urbanisation, commerce, and technologies that developed over time — not 'invented everything in a day'.",
+    bodyPt:
+      "A dinastia Song (960–1279; Norte e Sul) aparece em fontes museológicas e enciclopédicas ligada a crescimento urbano, comércio e cultura. Impressão, bússola náutica e armas de pólvora são frequentemente discutidas neste horizonte histórico, mas como processos graduais — não como invenção única num único dia ou 'Song inventou tudo'. O período também é marcado por produção intelectual e artística nas descrições institucionais.",
+    bodyEn:
+      "The Song dynasty (960–1279; Northern and Southern) appears in museum and encyclopaedic sources linked to urban growth, commerce, and culture. Printing, the navigational compass, and gunpowder weapons are often discussed in this historical horizon, but as gradual processes — not as a single-day invention or 'Song invented everything'. The period is also marked by intellectual and artistic production in institutional descriptions.",
+    situationPt: "Alguém menciona Song e inovações chinesas antigas.",
+    situationEn: "Someone mentions Song and older Chinese innovations.",
+    noticePt: "Song vem depois de Tang. Evite absolutizar invenções como eventos de um dia.",
+    noticeEn: "Song comes after Tang. Avoid treating inventions as one-day events.",
+    whyPt: "Song completa o bloco medieval do mapa com urbanização e tecnologia em leitura cuidadosa.",
+    whyEn: "Song completes the map's medieval block with urbanisation and technology in a careful reading.",
+    practicePt: "Ordene: Tang antes de Song. Se falarem em tipografia ou bússola, prefira 'desenvolvimento gradual' a 'inventou tudo'.",
+    practiceEn: "Order: Tang before Song. If print or the compass come up, prefer 'gradual development' to 'invented everything'.",
+    relatedLessonIds: ["l9", "l27"],
+    relatedCultureItemIds: ["china-history-timeline", "tang-dynasty"],
+    sources: [SRC.britannicaSong, SRC.metSong, SRC.columbiaDynastyTimeline],
+    miniCheck: {
+      promptPt: "Sobre impressão, bússola e pólvora na era Song, qual leitura é mais segura?",
+      promptEn: "About printing, the compass, and gunpowder in the Song era, which reading is safer?",
+      options: [
+        { id: "a", labelPt: "Song inventou tudo isso num único dia.", labelEn: "Song invented all of that in a single day." },
+        { id: "b", labelPt: "São processos graduais frequentemente discutidos neste horizonte histórico.", labelEn: "They are gradual processes often discussed in this historical horizon." },
+        { id: "c", labelPt: "Nada disso existiu antes de 1900.", labelEn: "None of that existed before 1900." },
+      ],
+      correctOptionId: "b",
+      explanationPt: "Fontes sérias tratam essas tecnologias como desenvolvimento ao longo do tempo, não como milagre de um dia.",
+      explanationEn: "Serious sources treat these technologies as development over time, not as a one-day miracle.",
+    },
+  },
+  {
+    id: "ming-qing",
+    order: 30,
+    category: "school_work",
+    kind: "history",
+    scope: "historical",
+    estimatedMinutes: 5,
+    titlePt: "Ming e Qing: império tardio",
+    titleEn: "Ming and Qing: late empire",
+    summaryPt: "明 (Míng) e 清 (Qīng) formam a China imperial tardia: Forbidden City, muralha Ming, última dinastia e fim do sistema imperial em 1911/12.",
+    summaryEn: "明 (Míng) and 清 (Qīng) form late imperial China: the Forbidden City, the Ming wall, the last dynasty, and the end of the imperial system in 1911/12.",
+    bodyPt:
+      "Ming (1368–1644) e Qing (1644–1911/12) cobrem a China imperial tardia neste mapa curto. Ming: palácios imperiais (Forbidden City — UNESCO), grande parte da Grande Muralha visitável, e expedições marítimas associadas a Zheng He em narrativas históricas. Qing: última dinastia imperial, império diverso e expandido; a Revolução de 1911–1912 marca o fim do sistema imperial (abdicação em 1912). Esta lesson não entra em Century of Humiliation, Taiwan, Revolução Cultural ou política contemporânea — esses temas exigem outra política editorial.",
+    bodyEn:
+      "Ming (1368–1644) and Qing (1644–1911/12) cover late imperial China on this short map. Ming: imperial palaces (Forbidden City — UNESCO), much of the visitable Great Wall, and maritime expeditions associated with Zheng He in historical narratives. Qing: last imperial dynasty, a diverse expanded empire; the 1911–1912 Revolution marks the end of the imperial system (abdication in 1912). This lesson does not enter the Century of Humiliation, Taiwan, the Cultural Revolution, or contemporary politics — those topics need another editorial policy.",
+    situationPt: "Você visita (ou lê sobre) a Cidade Proibida ou a muralha e quer o período certo.",
+    situationEn: "You visit (or read about) the Forbidden City or the wall and want the right period.",
+    noticePt: "Ming antes de Qing. Império tardio ≠ história política moderna profunda.",
+    noticeEn: "Ming before Qing. Late empire ≠ deep modern political history.",
+    whyPt: "Fecha o mapa imperial: do primeiro Qin ao último Qing, com o que o visitante mais encontra hoje.",
+    whyEn: "Closes the imperial map: from first Qin to last Qing, with what visitors most often meet today.",
+    practicePt: "Associe Forbidden City e muralha visitável sobretudo a Ming; Qing como última dinastia até 1911/12.",
+    practiceEn: "Link the Forbidden City and the visitable wall mainly to Ming; Qing as the last dynasty until 1911/12.",
+    relatedLessonIds: ["l9", "l24"],
+    relatedCultureItemIds: ["china-history-timeline", "qin-unification"],
+    sources: [
+      SRC.britannicaMing,
+      SRC.metMing,
+      SRC.unescoImperialPalaces,
+      SRC.britannicaQing,
+      SRC.britannicaChineseRevolution,
+      SRC.unescoGreatWall,
+    ],
+    miniCheck: {
+      promptPt: "Qual período está associado à China imperial tardia neste mapa?",
+      promptEn: "Which period is associated with late imperial China on this map?",
+      options: [
+        { id: "a", labelPt: "Qin e Han", labelEn: "Qin and Han" },
+        { id: "b", labelPt: "Ming e Qing", labelEn: "Ming and Qing" },
+        { id: "c", labelPt: "Tang e Song apenas", labelEn: "Tang and Song only" },
+      ],
+      correctOptionId: "b",
+      explanationPt: "Ming e Qing cobrem o bloco final do império neste Atlas introdutório.",
+      explanationEn: "Ming and Qing cover the final imperial block in this introductory Atlas.",
     },
   },
 ];

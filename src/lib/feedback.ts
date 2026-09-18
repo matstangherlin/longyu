@@ -53,6 +53,15 @@ export function getAppVersion(): string {
   return String(import.meta.env.VITE_APP_VERSION ?? "0.2.0-beta.1");
 }
 
+/** Public deploy identity — commit SHA only, never secrets. */
+export function getCommitSha(): string {
+  return String(import.meta.env.VITE_COMMIT_SHA ?? "").trim();
+}
+
+export function getAppEnvironmentLabel(): string {
+  return String(import.meta.env.VITE_APP_ENV ?? "development").trim();
+}
+
 export function currentRoute(): string {
   if (typeof window === "undefined") return "";
   return `${window.location.pathname}${window.location.search}`;

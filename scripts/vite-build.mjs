@@ -25,6 +25,21 @@ if (!process.env.VITE_APP_ENV?.trim()) {
   process.env.VITE_APP_ENV = "production_beta";
 }
 
+// RC2.2 — candidate QA sem VITE_SITE_URL cairia no default de PRODUÇÃO
+// (scripts/seo-prerender.mjs), publicando canonical/OG/sitemap apontando para o
+// site principal a partir de um host de QA. Deriva da URL do próprio deploy.
+if (!process.env.VITE_SITE_URL?.trim()) {
+  const appEnv = String(process.env.VITE_APP_ENV ?? "").trim().toLowerCase().replace(/-/g, "_");
+  const isCandidate = ["qa_candidate", "rc2_candidate", "candidate", "qa"].includes(appEnv);
+  const deployUrl = String(process.env.DEPLOY_PRIME_URL || process.env.DEPLOY_URL || "").trim();
+  if (isCandidate && deployUrl) process.env.VITE_SITE_URL = deployUrl;
+}
+
+if (!process.env.VITE_COMMIT_SHA?.trim()) {
+  const git = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" });
+  if (git.status === 0) process.env.VITE_COMMIT_SHA = git.stdout.trim();
+}
+
 const result = spawnSync(process.execPath, [viteEntry, "build", ...extraArgs], {
   cwd: root,
   stdio: "inherit",
@@ -33,6 +48,21 @@ const result = spawnSync(process.execPath, [viteEntry, "build", ...extraArgs], {
 
 if ((result.status ?? 1) !== 0) {
   process.exit(result.status ?? 1);
+}
+
+// Public deploy identity (no secrets): commitSha / env label / version.
+try {
+  const dist = path.join(root, "dist");
+  fs.mkdirSync(dist, { recursive: true });
+  const identity = {
+    commitSha: process.env.VITE_COMMIT_SHA || "",
+    appVersion: process.env.VITE_APP_VERSION || "",
+    environment: process.env.VITE_APP_ENV || "",
+    builtAt: new Date().toISOString(),
+  };
+  fs.writeFileSync(path.join(dist, "version.json"), `${JSON.stringify(identity, null, 2)}\n`);
+} catch {
+  /* non-fatal */
 }
 
 // Meta tags por rota pública + sitemap.xml no dist/.

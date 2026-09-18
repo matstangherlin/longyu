@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { dismissBlockingOverlays, seedInstructionLocale, seedUnlockedLessonSession, waitForLazyPage } from "./helpers";
+import { dismissBlockingOverlays, advancePastGuideDialogue, seedInstructionLocale, seedUnlockedLessonSession, waitForLazyPage } from "./helpers";
 
 const SHOTS = path.join(process.cwd(), "docs/reports/v490-screenshots");
 
@@ -15,7 +15,7 @@ test.describe("V4.9.0 pedagogical spine", () => {
     await dismissBlockingOverlays(page);
 
     await expect(page.getByRole("heading", { name: "Uma língua falada" })).toBeVisible();
-    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await advancePastGuideDialogue(page);
     await expect(page.locator("[data-testid=pedagogical-notice]")).toBeVisible();
     await expect(page.getByText("你好", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("nǐ hǎo", { exact: true }).first()).toBeVisible();

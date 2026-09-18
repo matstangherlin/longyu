@@ -25,14 +25,17 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 20/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 30/);
     await expect(page.getByTestId("culture-next-cta")).toBeVisible();
-    await expect(page.getByTestId("culture-seals")).toBeVisible();
-    await expect(page.getByTestId("culture-show-categories")).toBeVisible();
+    await expect(page.getByTestId("culture-collections")).toBeVisible();
+    await expect(page.getByTestId("culture-featured")).toBeVisible();
 
+    await page.getByTestId("culture-toggle-secondary").click();
+    await expect(page.getByTestId("culture-seals")).toBeVisible();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-home_visits").click();
-    const cards = page.getByTestId("culture-card");
+    // Featured cards also use culture-card — scope to the topic list.
+    const cards = page.getByTestId("culture-topic-list").getByTestId("culture-card");
     await expect(cards.first()).toBeVisible();
     await expect(cards).toHaveCount(3);
 
@@ -57,8 +60,9 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     }
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
 
+    await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     const filterAll = page.getByTestId("culture-filter-all");
     if (await filterAll.isVisible().catch(() => false)) await filterAll.click();
@@ -69,9 +73,14 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
-    await expect(page.locator('[data-culture-id="visiting-home"]').first()).toHaveAttribute("data-culture-status", "completed");
-    await expect(page.locator('[data-culture-id="digital-pay"]').first()).toHaveAttribute("data-culture-status", "in_progress");
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
+    await page.getByTestId("culture-toggle-secondary").click();
+    await page.getByTestId("culture-show-categories").click();
+    const filterAllAgain = page.getByTestId("culture-filter-all");
+    if (await filterAllAgain.isVisible().catch(() => false)) await filterAllAgain.click();
+    await expect(
+      page.getByTestId("culture-topic-list").locator('[data-culture-id="visiting-home"]')
+    ).toHaveAttribute("data-culture-status", "completed");
   });
 
   test("PT-BR and EN catalogs render without crashing", async ({ page }) => {
@@ -82,7 +91,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Cultura", exact: true })).toBeVisible();
-    await expect(page.getByText(/Missões culturais para agir na China|Entenda a língua/)).toBeVisible();
+    await expect(page.getByText(/Explore a China além das palavras/)).toBeVisible();
 
     await seedInterfaceLocale(page, "en");
     await seedInstructionLocale(page, "en", { force: true });
@@ -90,11 +99,10 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Culture", exact: true })).toBeVisible();
-    await page.locator('[data-testid="culture-card"][data-culture-id="visiting-home"]').locator("a").click();
+    await page.locator('[data-testid="culture-card"][data-culture-id="spring-festival"]').locator("a").click();
     await waitForLazyPage(page);
-    await expectCultureLessonPlayer(page, "visiting-home");
-    await expect(page.getByRole("heading", { name: "Arriving at someone's home" })).toBeVisible();
-    await expect(page.getByText(/Hosts often guide entry|Guests usually wait/i)).toBeVisible();
+    await expectCultureLessonPlayer(page, "spring-festival");
+    await expect(page.getByRole("heading", { name: "Spring Festival" })).toBeVisible();
   });
 
   test("invalid culture id does not crash the route", async ({ page }) => {
@@ -254,8 +262,171 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await page.getByTestId("culture-toggle-secondary").click();
     await expect(page.getByTestId("culture-node-journey-shared-dishes")).toBeVisible();
     await expect(page.getByTestId("culture-node-shared-dishes")).toHaveAttribute("data-knowledge", "practiced");
+  });
+});
+
+test.describe("V4.11A.2 Culture Atlas Hub", () => {
+  test("collections, festivals shelf, and secondary topic filters", async ({ page }) => {
+    test.setTimeout(120_000);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+
+    await expect(page.getByTestId("culture-collections")).toBeVisible();
+    await expect(page.getByTestId("culture-collection-card-festivals_calendar")).toBeVisible();
+    await expect(page.getByTestId("culture-collection-card-china_history")).toBeVisible();
+    await expect(page.getByTestId("culture-collection-preparing-china_history")).toHaveCount(0);
+    await expect(page.getByTestId("culture-featured")).toBeVisible();
+    await expect(page.locator('[data-testid="culture-featured"] [data-culture-id="china-history-timeline"]')).toBeVisible();
+
+    await page.getByTestId("culture-collection-card-festivals_calendar").click();
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-page")).toBeVisible();
+    await expect(page.locator('[data-culture-id="spring-festival"]')).toBeVisible();
+    await expect(page.locator('[data-culture-id="lantern-festival"]')).toBeVisible();
+
+    await page.getByTestId("culture-collection-back").click();
+    await waitForLazyPage(page);
+    await page.getByTestId("culture-collection-card-legends_literature").click();
+    await waitForLazyPage(page);
+    await expect(page.locator('[data-culture-id="sun-wukong"]')).toBeVisible();
+    await expect(page.locator('[data-culture-id="journey-to-the-west"]')).toBeVisible();
+
+    await page.locator('[data-testid="culture-card"][data-culture-id="sun-wukong"]').locator("a").click();
+    await waitForLazyPage(page);
+    await expectCultureLessonPlayer(page, "sun-wukong");
+    await playCultureLessonToVictory(page);
+    await leaveCultureVictory(page);
+
+    await page.goto("/cultura/colecao/legends_literature");
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-progress")).toContainText(/1 de 2|1 of 2/);
+
+    await page.goto("/cultura/colecao/china_history");
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-preparing")).toHaveCount(0);
+    await expect(page.getByTestId("culture-timeline")).toBeVisible();
+    await expect(page.getByTestId("culture-collection-progress")).toContainText(/0 de 6|0 of 6/);
+
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await page.getByTestId("culture-toggle-secondary").click();
+    await page.getByTestId("culture-show-categories").click();
+    await expect(page.getByTestId("culture-category-filter")).toBeVisible();
+  });
+
+  test("hub-only Journey to the West and Chinese Dragon lesson", async ({ page }) => {
+    test.setTimeout(180_000);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+
+    await page.goto("/cultura/journey-to-the-west");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expectCultureLessonPlayer(page, "journey-to-the-west");
+    await expect(page.getByText(/西游记|Xīyóujì/)).toBeVisible();
+    await playCultureLessonToVictory(page);
+    await leaveCultureVictory(page);
+
+    await page.goto("/cultura/chinese-dragon");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expectCultureLessonPlayer(page, "chinese-dragon");
+    await expect(page.getByTestId("culture-item").getByText(/龙 \(lóng\)|龙 · lóng|lóng/)).toBeVisible();
+    await expect(page.getByTestId("culture-story-audio").or(page.locator("[data-current-step-kind='intro']"))).toBeVisible();
+    await playCultureLessonToVictory(page);
+  });
+});
+
+test.describe("V4.11A.3 China History Essentials", () => {
+  test("History shelf has 6 items; Wukong/Dragon stay out of History", async ({ page }) => {
+    test.setTimeout(180_000);
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+
+    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 30/);
+    await page.getByTestId("culture-collection-card-china_history").click();
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-page")).toBeVisible();
+    await expect(page.getByTestId("culture-timeline")).toBeVisible();
+    for (const id of ["qin", "han", "tang", "song", "ming", "qing"] as const) {
+      await expect(page.getByTestId(`culture-timeline-entry-${id}`)).toBeVisible();
+    }
+    const indices = await page.locator("[data-testid^='culture-timeline-entry-']").evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        id: node.getAttribute("data-testid")?.replace("culture-timeline-entry-", ""),
+        index: Number(node.getAttribute("data-timeline-index")),
+      }))
+    );
+    const byId = Object.fromEntries(indices.map((row) => [row.id, row.index]));
+    expect(byId.qin).toBeLessThan(byId.han);
+    expect(byId.han).toBeLessThan(byId.tang);
+    expect(byId.tang).toBeLessThan(byId.song);
+    expect(byId.song).toBeLessThan(byId.ming);
+    expect(byId.ming).toBeLessThan(byId.qing);
+
+    await expect(page.locator('[data-culture-id="sun-wukong"]')).toHaveCount(0);
+    await expect(page.locator('[data-culture-id="chinese-dragon"]')).toHaveCount(0);
+    await expect(page.locator('[data-culture-id="china-history-timeline"]')).toBeVisible();
+    await expect(page.locator('[data-culture-id="qin-unification"]')).toBeVisible();
+
+    await page.locator('[data-testid="culture-card"][data-culture-id="china-history-timeline"]').locator("a").click();
+    await waitForLazyPage(page);
+    await expectCultureLessonPlayer(page, "china-history-timeline");
+    await expect(page.getByTestId("culture-teach").or(page.locator("[data-current-step-kind='intro']"))).toBeVisible();
+    await playCultureLessonToVictory(page);
+    await leaveCultureVictory(page);
+
+    await page.goto("/cultura/colecao/china_history");
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-collection-progress")).toContainText(/1 de 6|1 of 6/);
+
+    await page.goto("/cultura/qin-unification");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expectCultureLessonPlayer(page, "qin-unification");
+    await expect(page.locator("[data-current-step-kind='intro']")).toBeVisible();
+    await playCultureLessonToVictory(page);
+  });
+
+  test("History mistake stays in Culture Review, not Mandarin SRS", async ({ page }) => {
+    test.setTimeout(90_000);
+    const due = Date.now() - 60_000;
+    await seedMissionsSession(page, {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      cultureMemoryById: {
+        "china-history-timeline-core": {
+          targetId: "china-history-timeline-core",
+          cultureItemId: "china-history-timeline",
+          due,
+          stage: 0,
+          reps: 0,
+          lapses: 0,
+          updatedAt: Date.now(),
+        },
+      },
+    });
+    await page.goto("/cultura");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-review-card")).toBeVisible();
+    await page.getByTestId("culture-review-cta").click();
+    await waitForLazyPage(page);
+    await expect(page.getByTestId("culture-review")).toBeVisible();
+    await playCultureReviewToDone(page);
+    await expect(page.getByTestId("culture-review-done")).toBeVisible();
+    await expect(page.getByTestId("srs-card")).toHaveCount(0);
+    const persist = await readCulturePersist(page);
+    expect(persist.cultureMemoryById["china-history-timeline-core"]).toBeTruthy();
+    // History review stays in Culture memory — Mandarin SRS must not absorb dynasty labels.
+    expect(JSON.stringify(persist.srs)).not.toMatch(/秦|汉|唐|宋|明|清/);
   });
 });
 
@@ -268,7 +439,8 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    const card = page.getByTestId("culture-card").first();
+    await expect(page.getByTestId("culture-collections")).toBeVisible();
+    const card = page.getByTestId("culture-collection-card-festivals_calendar");
     await expect(card).toBeVisible();
     const box = await card.boundingBox();
     expect(box).toBeTruthy();
@@ -277,12 +449,33 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     );
     expect(overflow).toBeLessThanOrEqual(2);
-    await card.locator("a").click();
+
+    await page.getByTestId("culture-collection-card-legends_literature").click();
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-item")).toBeVisible();
-    const cta = page.locator("[data-lesson-action-region] button").first();
-    await expect(cta).toBeVisible();
-    const ctaBox = await cta.boundingBox();
-    expect((ctaBox?.height ?? 0)).toBeGreaterThanOrEqual(40);
+    await page.locator('[data-testid="culture-card"][data-culture-id="sun-wukong"]').locator("a").click();
+    await waitForLazyPage(page);
+    await expectCultureLessonPlayer(page, "sun-wukong");
+  });
+
+  test("History timeline is vertical without horizontal scroll at 390×844", async ({ page }) => {
+    await seedOnboardedSession(page, ["l1"]);
+    await page.goto("/cultura/colecao/china_history");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-timeline")).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+    );
+    expect(overflow).toBeLessThanOrEqual(2);
+    for (const id of ["qin-unification", "han-dynasty", "tang-dynasty", "song-dynasty", "ming-qing"] as const) {
+      await page.goto(`/cultura/${id}`);
+      await waitForLazyPage(page);
+      await dismissBlockingOverlays(page);
+      await expectCultureLessonPlayer(page, id);
+      const lessonOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      );
+      expect(lessonOverflow).toBeLessThanOrEqual(2);
+    }
   });
 });

@@ -47,14 +47,26 @@ export function loadCultureRuntime() {
   const {
     CULTURE_ITEMS,
     CULTURE_CATEGORIES,
+    CULTURE_ITEM_KINDS,
     CULTURE_SCOPES,
     REJECTED_CULTURE_CANDIDATES,
   } = require("../../src/data/culture.ts");
   const { CULTURE_MISSIONS, cultureMissionStats } = require("../../src/data/cultureMissions.ts");
+  const {
+    CULTURE_COLLECTIONS,
+    collectionForItem,
+    cultureCollectionProgress,
+  } = require("../../src/data/cultureCollections.ts");
   const { CULTURE_FLAGSHIP_ITEM_IDS, CULTURE_ROUTES, CULTURE_SEALS } = require("../../src/data/cultureQuest.ts");
   const { CULTURE_JOURNEY_BRIDGES } = require("../../src/data/cultureJourneyBridges.ts");
   const { CULTURE_NATIVE_LESSONS, CULTURE_NATIVE_GLOSS_EN } = require("../../src/data/cultureLessons.ts");
-  const { CULTURE_JOURNEY_PLACEMENT, migrateNativeCultureProgress, CULTURE_STORY_FLAGSHIP_IDS } = require("../../src/data/cultureNative.ts");
+  const { CULTURE_JOURNEY_PLACEMENT, migrateNativeCultureProgress, CULTURE_STORY_FLAGSHIP_IDS, CULTURE_HUB_ONLY_ITEM_IDS } = require("../../src/data/cultureNative.ts");
+  const { CULTURE_FEATURED_ITEMS } = require("../../src/data/cultureFeatured.ts");
+  const {
+    CULTURE_HISTORY_TIMELINE,
+    CULTURE_HISTORY_DYNASTY_ORDER,
+    CULTURE_HISTORY_ITEM_IDS,
+  } = require("../../src/data/cultureHistory.ts");
   const { JOURNEY_NODES, routeForJourneyNode } = require("../../src/data/journeyOrchestrator.ts");
   const { isTopicMasteryLesson } = require("../../src/data/topicMastery.ts");
   const { CULTURE_INELIGIBLE_UNITS, FUTURE_UNIT_CULTURE_HOOKS, allJourneyUnits } = require("../../src/data/cultureDistribution.ts");
@@ -77,6 +89,10 @@ export function loadCultureRuntime() {
   return {
     items: CULTURE_ITEMS,
     categories: CULTURE_CATEGORIES,
+    kinds: CULTURE_ITEM_KINDS,
+    collections: CULTURE_COLLECTIONS,
+    collectionForItem,
+    cultureCollectionProgress,
     scopes: CULTURE_SCOPES,
     rejected: REJECTED_CULTURE_CANDIDATES,
     missions: CULTURE_MISSIONS,
@@ -88,6 +104,11 @@ export function loadCultureRuntime() {
     nativeLessons: CULTURE_NATIVE_LESSONS,
     nativeGloss: CULTURE_NATIVE_GLOSS_EN,
     placement: CULTURE_JOURNEY_PLACEMENT,
+    hubOnlyItemIds: CULTURE_HUB_ONLY_ITEM_IDS,
+    featuredIds: [...CULTURE_FEATURED_ITEMS],
+    historyTimeline: CULTURE_HISTORY_TIMELINE,
+    historyDynastyOrder: CULTURE_HISTORY_DYNASTY_ORDER,
+    historyItemIds: CULTURE_HISTORY_ITEM_IDS,
     nodes: JOURNEY_NODES,
     routeForJourneyNode,
     isTopicMasteryLesson,

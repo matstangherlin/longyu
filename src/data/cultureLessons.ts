@@ -4,7 +4,7 @@
 
 import { CULTURE_ITEMS, getCultureItem, type CultureItem } from "./culture";
 import {
-  CULTURE_JOURNEY_PLACEMENT,
+  CULTURE_LESSON_ENTRIES,
   cultureLessonIdForItem,
   type CultureLessonTrack,
 } from "./cultureNative";
@@ -463,12 +463,34 @@ const EXTRAS: Record<string, ExtraSteps> = {
     ),
   ],
   "spring-festival": (_item, conceptId) => [
+    story(
+      t("春节 · Chūnjié", "春节 · Chūnjié"),
+      t(
+        "O nome do Festival da Primavera em mandarim. A data gregoriana muda porque o calendário é lunissolar.",
+        "The Mandarin name for Spring Festival. The Gregorian date moves because the calendar is lunisolar."
+      ),
+      conceptId,
+      {
+        speaker: t("Termo", "Term"),
+        hanzi: "春节",
+        pinyin: "Chūnjié",
+        meaning: t("Festival da Primavera / Ano Novo chinês", "Spring Festival / Chinese New Year"),
+      }
+    ),
+    story(
+      t("Tradições comuns — com variação", "Common traditions — with variation"),
+      t(
+        "Reunião na véspera (除夕), cumprimentos, decoração vermelha e, em alguns círculos, 红包. Nenhuma casa é obrigada a fazer a mesma lista.",
+        "Reunion on New Year's Eve (除夕), greetings, red decoration, and in some circles 红包. No household must follow the same list."
+      ),
+      conceptId
+    ),
     pairs(
       t("O que é estável no 春节", "What is stable about 春节"),
       t("Combine o sinal com a leitura.", "Match the cue with the reading."),
       [
         { left: t("colega volta para casa", "a colleague goes home"), right: t("reunião familiar é o núcleo", "family reunion is the core") },
-        { left: t("datas exatas iguais em todo o país", "identical dates everywhere"), right: t("o calendário lunar muda o dia", "the lunar calendar moves the day") },
+        { left: t("datas gregorianas idênticas todo ano", "identical Gregorian dates every year"), right: t("o calendário lunissolar move o dia", "the lunisolar calendar moves the day") },
         { left: t("obrigação de gastar uma fortuna", "a duty to spend a fortune"), right: t("exagero: o gesto varia", "overreach: the gesture varies") },
       ],
       t("A reunião familiar é o núcleo mais estável. O resto varia por região e geração.", "Family reunion is the most stable core. The rest varies by region and generation."),
@@ -483,6 +505,414 @@ const EXTRAS: Record<string, ExtraSteps> = {
       t(", não um feriado genérico qualquer.", ", not just any generic holiday."),
       [t("reunião familiar", "family reunion"), t("só fogos de artifício", "only fireworks"), t("feriado obrigatório de compras", "mandatory shopping holiday")],
       t("Perguntar se a pessoa volta para casa é mais útil do que recitar uma lista de costumes.", "Asking whether they go home is more useful than reciting a custom list."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "lantern-festival": (_item, conceptId) => [
+    story(
+      t("元宵节 · Yuánxiāojié", "元宵节 · Yuánxiāojié"),
+      t(
+        "Festival das Lanternas: 15º dia do 1º mês lunissolar, em muitas leituras o fecho do ciclo do 春节.",
+        "Lantern Festival: 15th day of the 1st lunisolar month, in many readings the close of the 春节 cycle."
+      ),
+      conceptId,
+      {
+        speaker: t("Termo", "Term"),
+        hanzi: "元宵节",
+        pinyin: "Yuánxiāojié",
+        meaning: t("Festival das Lanternas", "Lantern Festival"),
+      }
+    ),
+    pairs(
+      t("Lanternas e variação", "Lanterns and variation"),
+      t("Combine o sinal com a leitura.", "Match the cue with the reading."),
+      [
+        { left: t("lanternas à noite", "lanterns at night"), right: t("uso celebratório frequente", "a frequent celebratory use") },
+        { left: t("mesmo prato em toda casa", "the same dish in every home"), right: t("não é regra nacional", "is not a national rule") },
+        { left: t("confundir com 端午节", "confusing it with 端午节"), right: t("outro feriado, outro mês", "another holiday, another month") },
+      ],
+      t("Lanternas e o calendário lunissolar são o eixo. O menu único nacional não é.", "Lanterns and the lunisolar calendar are the axis. A single national menu is not."),
+      conceptId,
+      "guided_application"
+    ),
+    contextual(
+      t("Como ler 元宵节", "How to read 元宵节"),
+      t("Alguém fala em lanternas no fim do período do Ano Novo.", "Someone talks about lanterns at the end of the New Year period."),
+      t("fecho do ciclo do 春节, com costumes locais", "close of the 春节 cycle, with local customs"),
+      [
+        t("fecho do ciclo do 春节, com costumes locais", "close of the 春节 cycle, with local customs"),
+        t("mesmo dia e ritual que o 春节 em toda casa", "the same day and ritual as 春节 in every home"),
+        t("Festival do Barco-Dragão", "Dragon Boat Festival"),
+      ],
+      t("元宵节 fecha o ciclo aberto no 春节. Não é 端午节 nem um ritual único.", "元宵节 closes the cycle opened at 春节. It is not 端午节 and not a single ritual."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "chinese-dragon": (_item, conceptId) => [
+    story(
+      t("龙 · lóng", "龙 · lóng"),
+      t(
+        "O dragão como símbolo cultural em contextos chineses — não o monstro europeu padrão.",
+        "The dragon as a cultural symbol in Chinese contexts — not the default European monster."
+      ),
+      conceptId,
+      {
+        speaker: t("Termo", "Term"),
+        hanzi: "龙",
+        pinyin: "lóng",
+        meaning: t("dragão (símbolo cultural)", "dragon (cultural symbol)"),
+      }
+    ),
+    pairs(
+      t("Símbolo com escopo", "Symbol with scope"),
+      t("Combine o sinal com a leitura.", "Match the cue with the reading."),
+      [
+        { left: t("decoração de festa com 龙", "festival decoration with 龙"), right: t("símbolo celebratório possível", "a possible celebratory symbol") },
+        { left: t("'sempre significa X' sem contexto", "'always means X' without context"), right: t("universalização sem escopo", "universalising without scope") },
+        { left: t("barco e 粽子", "boats and 粽子"), right: t("outra lição: 端午节", "another lesson: 端午节") },
+      ],
+      t("龙 é símbolo contextual. Não misture com o feriado do barco-dragão.", "龙 is a contextual symbol. Do not mix it with the dragon-boat holiday."),
+      conceptId,
+      "guided_application"
+    ),
+    contextual(
+      t("Leitura do 龙", "Reading 龙"),
+      t("Você vê um dragão em arte de festa e alguém diz 龙.", "You see a dragon in festival art and someone says 龙."),
+      t("símbolo cultural; o significado depende do contexto", "a cultural symbol; meaning depends on context"),
+      [
+        t("símbolo cultural; o significado depende do contexto", "a cultural symbol; meaning depends on context"),
+        t("monstro malvado que deve ser destruído", "an evil monster that must be destroyed"),
+        t("sinônimo automático de 端午节", "an automatic synonym for 端午节"),
+      ],
+      t("Trate 龙 com escopo. Não importe o monstro europeu nem confunda com o feriado.", "Treat 龙 with scope. Do not import the European monster or confuse it with the holiday."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "sun-wukong": (_item, conceptId) => [
+    story(
+      t("孙悟空 · Sūn Wùkōng", "孙悟空 · Sūn Wùkōng"),
+      t(
+        "Na narrativa e na tradição literária, o Rei Macaco é um personagem — não uma ficha de general histórico.",
+        "In the narrative and literary tradition, the Monkey King is a character — not a historical-general file."
+      ),
+      conceptId,
+      {
+        speaker: t("Personagem", "Character"),
+        hanzi: "孙悟空",
+        pinyin: "Sūn Wùkōng",
+        meaning: t("Rei Macaco / Monkey King (personagem literário)", "Monkey King (literary character)"),
+      }
+    ),
+    story(
+      t("Ligação com 西游记", "Link to 西游记"),
+      t(
+        "孙悟空 é central na narrativa de 西游记. Cada lição faz sentido sozinha; juntas, elas se reforçam.",
+        "孙悟空 is central in the 西游记 narrative. Each lesson stands alone; together they reinforce each other."
+      ),
+      conceptId
+    ),
+    contextual(
+      t("Quem é Sun Wukong?", "Who is Sun Wukong?"),
+      t("Sun Wukong é apresentado aqui como:", "Sun Wukong is presented here as:"),
+      t("leitura literária, não histórica", "a literary, not historical, reading"),
+      [
+        t("um imperador documentado", "a documented emperor"),
+        t("leitura literária, não histórica", "a literary, not historical, reading"),
+        t("um feriado nacional", "a national holiday"),
+      ],
+      t("É personagem literário/cultural ligado a 西游记 — não biografia de arquivo.", "He is a literary/cultural character linked to 西游记 — not an archival biography."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Na obra", "In the work"),
+      t("Alguém menciona o Rei Macaco.", "Someone mentions the Monkey King."),
+      t("A leitura segura é ", "The safe reading is "),
+      t("personagem literário", "literary character"),
+      t(", não general histórico documentado.", ", not a documented historical general."),
+      [t("personagem literário", "literary character"), t("imperador de arquivo", "archival emperor"), t("feriado estatal", "state holiday")],
+      t("Prefira 'na narrativa…' / 'o personagem…' a biografia inventada.", "Prefer 'in the narrative…' / 'the character…' over invented biography."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "journey-to-the-west": (_item, conceptId) => [
+    story(
+      t("西游记 · Xīyóujì", "西游记 · Xīyóujì"),
+      t(
+        "Título clássico da literatura chinesa. Os personagens vivem dentro da narrativa.",
+        "A classic title in Chinese literature. The characters live inside the narrative."
+      ),
+      conceptId,
+      {
+        speaker: t("Obra", "Work"),
+        hanzi: "西游记",
+        pinyin: "Xīyóujì",
+        meaning: t("Jornada ao Oeste (obra literária)", "Journey to the West (literary work)"),
+      }
+    ),
+    pairs(
+      t("Obra e personagem", "Work and character"),
+      t("Combine sem misturar com história documental.", "Match without mixing in documentary history."),
+      [
+        { left: "西游记", right: t("obra literária clássica", "classic literary work") },
+        { left: "孙悟空", right: t("personagem na narrativa", "a character in the narrative") },
+        { left: t("diário militar do século XX", "twentieth-century military diary"), right: t("não é esta obra", "is not this work") },
+      ],
+      t("Trate título e personagem como literatura. Não invente ficha histórica.", "Treat title and character as literature. Do not invent a historical file."),
+      conceptId,
+      "guided_application"
+    ),
+    contextual(
+      t("Como classificar 西游记", "How to classify 西游记"),
+      t("Alguém cita Journey to the West entre clássicos chineses.", "Someone cites Journey to the West among Chinese classics."),
+      t("clássico da literatura chinesa", "a Chinese literary classic"),
+      [
+        t("clássico da literatura chinesa", "a Chinese literary classic"),
+        t("um diário de viagem militar do século XX", "a twentieth-century military travel diary"),
+        t("um feriado do calendário estatal", "a holiday on the state calendar"),
+      ],
+      t("西游记 é romance clássico. 孙悟空 pertence à narrativa da obra.", "西游记 is a classical novel. 孙悟空 belongs to the work's narrative."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "china-history-timeline": (_item, conceptId) => [
+    story(
+      t("Mapa mental", "Mental map"),
+      t(
+        "China antiga → Qin → Han → Tang → Song → Ming → Qing → China moderna. Introdução, não curso completo.",
+        "Ancient China → Qin → Han → Tang → Song → Ming → Qing → modern China. An introduction, not a full course."
+      ),
+      conceptId
+    ),
+    pairs(
+      t("Ordem dos blocos", "Order of the blocks"),
+      t("Combine o período com a posição.", "Match the period with its place."),
+      [
+        { left: t("Qin", "Qin"), right: t("primeiro império unificado neste mapa", "first unified empire on this map") },
+        { left: t("Han", "Han"), right: t("depois de Qin", "after Qin") },
+        { left: t("Tang", "Tang"), right: t("depois de Han", "after Han") },
+      ],
+      t("A sequência Qin → Han → Tang é o eixo estável deste mapa introdutório.", "The Qin → Han → Tang sequence is the stable axis of this introductory map."),
+      conceptId,
+      "guided_application"
+    ),
+    contextual(
+      t("Ordem cronológica", "Chronological order"),
+      t("Nesta visão introdutória, qual ordem está correta?", "In this introductory overview, which order is correct?"),
+      t("Qin → Han → Tang → Song", "Qin → Han → Tang → Song"),
+      [
+        t("Tang → Han → Qin", "Tang → Han → Qin"),
+        t("Qin → Han → Tang → Song", "Qin → Han → Tang → Song"),
+        t("Song → Qin → Ming", "Song → Qin → Ming"),
+      ],
+      t("O mapa segue Qin, Han, Tang, Song — depois Ming/Qing.", "The map follows Qin, Han, Tang, Song — then Ming/Qing."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "qin-unification": (_item, conceptId) => [
+    story(
+      t("秦 · Qín", "秦 · Qín"),
+      t(
+        "Unificação imperial sob Qin Shi Huang; padronizações; mausoléu dos Guerreiros de Terracota.",
+        "Imperial unification under Qin Shi Huang; standardisations; Terracotta Army mausoleum."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "秦",
+        pinyin: "Qín",
+        meaning: t("Qin (dinastia)", "Qin (dynasty)"),
+      }
+    ),
+    contextual(
+      t("Grande Muralha e Qin", "Great Wall and Qin"),
+      t("Sobre a Grande Muralha e Qin, qual leitura é mais segura?", "About the Great Wall and Qin, which reading is safer?"),
+      t("conexões antigas/Qin; muita da muralha visitável é Ming", "earlier/Qin links; much of the visitable wall is Ming"),
+      [
+        t("Qin construiu toda a muralha atual", "Qin built all of today's wall"),
+        t("conexões antigas/Qin; muita da muralha visitável é Ming", "earlier/Qin links; much of the visitable wall is Ming"),
+        t("a muralha só existe na literatura", "the wall exists only in literature"),
+      ],
+      t("Não diga que Qin construiu toda a Grande Muralha atual.", "Do not say Qin built all of today's Great Wall."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("No mapa", "On the map"),
+      t("Qin aparece no início do bloco imperial deste Atlas.", "Qin appears at the start of this Atlas's imperial block."),
+      t("Qin vem ", "Qin comes "),
+      t("antes de Han", "before Han"),
+      t(".", "."),
+      [t("antes de Han", "before Han"), t("depois de Tang", "after Tang"), t("depois de Qing", "after Qing")],
+      t("Sequência: Qin → Han → Tang…", "Sequence: Qin → Han → Tang…"),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "han-dynasty": (_item, conceptId) => [
+    story(
+      t("汉 · Hàn", "汉 · Hàn"),
+      t(
+        "Consolidação após Qin. 汉 em 汉字 é vínculo cultural/histórico — a escrita é bem mais antiga.",
+        "Consolidation after Qin. 汉 in 汉字 is a cultural/historical link — writing is much older."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "汉",
+        pinyin: "Hàn",
+        meaning: t("Han (dinastia)", "Han (dynasty)"),
+      }
+    ),
+    contextual(
+      t("汉字 e Han", "汉字 and Han"),
+      t("Por que 汉 aparece em 汉字 nesta lição?", "Why does 汉 appear in 汉字 in this lesson?"),
+      t("vínculo cultural com a era Han; a escrita é mais antiga", "a cultural link to the Han era; writing is older"),
+      [
+        t("a escrita nasceu só em 220 d.C.", "writing only began in 220 CE"),
+        t("vínculo cultural com a era Han; a escrita é mais antiga", "a cultural link to the Han era; writing is older"),
+        t("Han é um feriado estatal", "Han is a state holiday"),
+      ],
+      t("Contexto cultural — não vira newRef lexical automático.", "Cultural context — it does not become an automatic lexical newRef."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Cronologia", "Chronology"),
+      t("No mapa introdutório…", "On the introductory map…"),
+      t("Han vem ", "Han comes "),
+      t("depois de Qin", "after Qin"),
+      t(" e antes de Tang.", " and before Tang."),
+      [t("depois de Qin", "after Qin"), t("antes de Qin", "before Qin"), t("depois de Song", "after Song")],
+      t("Qin → Han → Tang.", "Qin → Han → Tang."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "tang-dynasty": (_item, conceptId) => [
+    story(
+      t("唐 · Táng", "唐 · Táng"),
+      t(
+        "Chang'an, intercâmbio cultural e poesia — 'idade de ouro' é caracterização, não ranking absoluto.",
+        "Chang'an, cultural exchange, and poetry — 'golden age' is a characterisation, not an absolute ranking."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "唐",
+        pinyin: "Táng",
+        meaning: t("Tang (dinastia)", "Tang (dynasty)"),
+      }
+    ),
+    contextual(
+      t("Antes e depois", "Before and after"),
+      t("Qual veio antes no mapa introdutório?", "Which came earlier on the introductory map?"),
+      t("Han antes de Tang", "Han before Tang"),
+      [
+        t("Tang antes de Han", "Tang before Han"),
+        t("Han antes de Tang", "Han before Tang"),
+        t("Tang e Han no mesmo século", "Tang and Han in the same century"),
+      ],
+      t("Qin → Han → Tang. Tang não precede Han.", "Qin → Han → Tang. Tang does not precede Han."),
+      conceptId,
+      "guided_application"
+    ),
+    pairs(
+      t("Leitura cuidadosa", "Careful reading"),
+      t("Separe fato de rótulo.", "Separate fact from label."),
+      [
+        { left: t("'idade de ouro'", "'golden age'"), right: t("caracterização histórica", "historical characterisation") },
+        { left: t("Chang'an", "Chang'an"), right: t("capital cosmopolita nas fontes", "a cosmopolitan capital in the sources") },
+        { left: t("'a melhor dinastia' absoluto", "'the best dynasty' as absolute"), right: t("evitar", "avoid") },
+      ],
+      t("Não romantize Tang como veredicto objetivo.", "Do not romanticise Tang as an objective verdict."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "song-dynasty": (_item, conceptId) => [
+    story(
+      t("宋 · Sòng", "宋 · Sòng"),
+      t(
+        "Urbanização, comércio e tecnologias graduais — não 'inventou tudo num dia'.",
+        "Urbanisation, commerce, and gradual technologies — not 'invented everything in a day'."
+      ),
+      conceptId,
+      {
+        speaker: t("Período", "Period"),
+        hanzi: "宋",
+        pinyin: "Sòng",
+        meaning: t("Song (dinastia)", "Song (dynasty)"),
+      }
+    ),
+    contextual(
+      t("Inovações", "Innovations"),
+      t("Sobre impressão, bússola e pólvora na era Song…", "About printing, the compass, and gunpowder in the Song era…"),
+      t("processos graduais neste horizonte histórico", "gradual processes in this historical horizon"),
+      [
+        t("Song inventou tudo num único dia", "Song invented everything in a single day"),
+        t("processos graduais neste horizonte histórico", "gradual processes in this historical horizon"),
+        t("nada disso existiu antes de 1900", "none of that existed before 1900"),
+      ],
+      t("Leitura gradual, não milagre de um dia.", "A gradual reading, not a one-day miracle."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Ordem", "Order"),
+      t("No mapa…", "On the map…"),
+      t("Song vem ", "Song comes "),
+      t("depois de Tang", "after Tang"),
+      t(".", "."),
+      [t("depois de Tang", "after Tang"), t("antes de Qin", "before Qin"), t("antes de Han", "before Han")],
+      t("Tang → Song → Ming/Qing.", "Tang → Song → Ming/Qing."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "ming-qing": (_item, conceptId) => [
+    story(
+      t("明 · Míng / 清 · Qīng", "明 · Míng / 清 · Qīng"),
+      t(
+        "Império tardio: Forbidden City e muralha visitável (sobretudo Ming); Qing como última dinastia até 1911/12.",
+        "Late empire: Forbidden City and visitable wall (mainly Ming); Qing as last dynasty until 1911/12."
+      ),
+      conceptId,
+      {
+        speaker: t("Períodos", "Periods"),
+        hanzi: "明清",
+        pinyin: "Míng Qīng",
+        meaning: t("Ming e Qing", "Ming and Qing"),
+      }
+    ),
+    contextual(
+      t("Império tardio", "Late empire"),
+      t("Qual período está associado à China imperial tardia neste mapa?", "Which period is associated with late imperial China on this map?"),
+      t("Ming e Qing", "Ming and Qing"),
+      [
+        t("Qin e Han", "Qin and Han"),
+        t("Ming e Qing", "Ming and Qing"),
+        t("Tang e Song apenas", "Tang and Song only"),
+      ],
+      t("Ming antes de Qing; fim do sistema imperial em 1911/12.", "Ming before Qing; end of the imperial system in 1911/12."),
+      conceptId,
+      "guided_application"
+    ),
+    pairs(
+      t("Ming e Qing", "Ming and Qing"),
+      t("Combine sem entrar em política contemporânea profunda.", "Match without entering deep contemporary politics."),
+      [
+        { left: t("Ming", "Ming"), right: t("Forbidden City / muralha visitável", "Forbidden City / visitable wall") },
+        { left: t("Qing", "Qing"), right: t("última dinastia imperial", "last imperial dynasty") },
+        { left: t("1911/12", "1911/12"), right: t("fim do sistema imperial", "end of the imperial system") },
+      ],
+      t("Esta lesson para no fim do império — sem deep dive político moderno.", "This lesson stops at the end of empire — no modern political deep dive."),
       conceptId,
       "independent_application"
     ),
@@ -1111,7 +1541,7 @@ function buildCultureLesson(item: CultureItem, track: CultureLessonTrack): Lesso
   };
 }
 
-export const CULTURE_NATIVE_LESSONS: Lesson[] = CULTURE_JOURNEY_PLACEMENT.map((row) => {
+export const CULTURE_NATIVE_LESSONS: Lesson[] = CULTURE_LESSON_ENTRIES.map((row) => {
   const item = getCultureItem(row.itemId) ?? CULTURE_ITEMS.find((entry) => entry.id === row.itemId);
   if (!item) throw new Error(`CultureItem missing for native lesson: ${row.itemId}`);
   return buildCultureLesson(item, row.track);

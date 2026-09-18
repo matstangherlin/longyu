@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import { Card, ButtonLink } from "../../components/ui/primitives";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
+import { FEEDBACK_EMAIL } from "../../lib/feedback";
 import { useTranslation } from "../../i18n/useTranslation";
 
 export function PrivacyPage() {
@@ -25,21 +27,30 @@ export function PrivacyPage() {
       </HubSection>
 
       <HubSection id="politica" title={t("settings.privacyPolicy")}>
-        <Card className="space-y-3 rounded-xl border-line/70 p-4 shadow-none text-sm leading-6 text-ink-soft" data-legal-later="">
-          <p>
-            O Longyu processa progresso de aprendizagem neste dispositivo e, se você criar conta na
-            nuvem, sincroniza esse progresso no Supabase com proteção por login e regras de acesso.
-          </p>
-          <p>
-            Dados pedagógicos de melhoria (erros, pulos, abandonos) só são enviados com o seu
-            consentimento explícito. Feedback que você envia manualmente é independente da telemetria.
-          </p>
-          <p>
-            Você pode revogar o consentimento, limpar a fila local, exportar seus dados ou solicitar
-            exclusão da conta em Ajustes → Privacidade e dados.
+        <Card
+          className="space-y-3 rounded-xl border-line/70 p-4 shadow-none text-sm leading-6 text-ink-soft"
+          data-privacy-notice="public-beta"
+        >
+          <p>{t("privacyNotice.local")}</p>
+          <p>{t("privacyNotice.cloud")}</p>
+          <p>{t("privacyNotice.progress")}</p>
+          <p>{t("privacyNotice.telemetry")}</p>
+          <p>{t("privacyNotice.feedback")}</p>
+          <p>{t("privacyNotice.diagnostics")}</p>
+          <p>{t("privacyNotice.export")}</p>
+          <p>{t("privacyNotice.deletion")}</p>
+          <p>{t("privacyNotice.consent")}</p>
+          <p className="text-xs text-ink-faint">
+            {t("privacyNotice.contact", { email: FEEDBACK_EMAIL })}
           </p>
           <p className="text-xs text-ink-faint">
-            Contato: beta@longyu.app · Versão beta pública.
+            <Link to="/termos" className="underline-offset-2 hover:underline hover:text-ink-soft">
+              {t("marketing.terms")}
+            </Link>
+            {" · "}
+            <Link to="/sobre" className="underline-offset-2 hover:underline hover:text-ink-soft">
+              {t("marketing.about")}
+            </Link>
           </p>
         </Card>
       </HubSection>

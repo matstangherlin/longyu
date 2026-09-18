@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
 import {
+  advancePastGuideDialogue,
   clickStable,
   dismissBlockingOverlays,
   seedFoundationThrough,
@@ -276,7 +277,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
-    await page.getByRole("button", { name: "Entendi" }).click();
+    await advancePastGuideDialogue(page);
     await clickFirstVisible(page, [/^Não posso falar agora$/]);
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });
@@ -299,7 +300,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await expect(page.getByRole("heading", { name: /Peças visuais, não desenhos aleatórios|Monte peça por peça/ })).toBeVisible({
       timeout: 20_000,
     });
-    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await advancePastGuideDialogue(page);
     // Chromium expõe reconhecimento de fala e oferece o atalho abaixo; Firefox/WebKit
     // seguem pelo fallback sem microfone. Ambos precisam preservar a mesma exposição
     // pedagógica e chegar ao Builder real, que é o contrato que esta sentinela prova.
@@ -310,7 +311,7 @@ test.describe("beta smoke — aprendizagem", () => {
     ]);
     expect(leftExposure).toBe(true);
     await expect(page.getByRole("heading", { name: /Note a forma de 木/ })).toBeVisible();
-    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await advancePastGuideDialogue(page);
     await expect(page.locator("[data-hanzi-builder]")).toBeVisible();
   });
 
@@ -359,9 +360,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/l2/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    if (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)) {
-      await page.getByRole("button", { name: "Entendi" }).click();
-    }
+    await advancePastGuideDialogue(page);
 
     // Pipeline no bundle (code-splitting espalha fase/cena em chunks).
     const hasPostConversationPipeline = await page.evaluate(async () => {
@@ -417,7 +416,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
-    await page.getByRole("button", { name: "Entendi" }).click();
+    await advancePastGuideDialogue(page);
     await clickFirstVisible(page, [/^Não posso falar agora$/]);
 
     const correct = page.getByRole("button", { name: /你好/ }).first();

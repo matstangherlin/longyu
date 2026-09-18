@@ -48,6 +48,12 @@ async function skipIntros(page: import("@playwright/test").Page, max = 12) {
   for (let i = 0; i < max; i += 1) {
     const kind = await page.locator("[data-current-step-kind]").getAttribute("data-current-step-kind");
     if (kind && kind !== "intro") return kind;
+    const guideContinue = page.getByTestId("guide-continue");
+    if (await guideContinue.isVisible().catch(() => false) && !(await guideContinue.isDisabled().catch(() => true))) {
+      await guideContinue.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
     const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ }).first();
     if (await entendi.isVisible().catch(() => false) && !(await entendi.isDisabled().catch(() => true))) {
       await entendi.click().catch(() => undefined);
@@ -91,6 +97,8 @@ test.describe("V4.9.8A.2 Culture playability", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // Topic list (with culture-save) lives under the secondary hub section.
+    await page.getByTestId("culture-toggle-secondary").click();
     const show = page.getByTestId("culture-show-categories");
     if (await show.isVisible().catch(() => false)) await show.click().catch(() => undefined);
     const filterAll = page.getByTestId("culture-filter-all");

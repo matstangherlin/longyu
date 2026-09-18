@@ -64,6 +64,8 @@ const NAMESPACES = [
   "shell",
   "hub",
   "feedback",
+  "privacyNotice",
+  "terms",
   "achievements",
   "culture",
   "familia",

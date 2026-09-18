@@ -18,8 +18,8 @@ const crashTitle = /Algo saiu do prumo|Something went off track|Unexpected Appli
 
 test.describe("RC1 launch surfaces", () => {
   test("freeze contract still matches the shipped Journey", () => {
-    expect(CURRICULUM_FREEZE).toBe("RC1");
-    expect(RC_BASE_FINGERPRINT).toBe("7c054f2255e7");
+    expect(CURRICULUM_FREEZE).toBe("RC2_CONTENT_FREEZE");
+    expect(RC_BASE_FINGERPRINT).toBe("516692632525");
     expect(ALL_LESSONS).toHaveLength(RC1_EXPECTED_LESSON_COUNT);
     expect(
       ALL_LESSONS.filter((lesson) => !lesson.isReview && !lesson.reviewMasteryMode)
@@ -54,9 +54,11 @@ test.describe("RC1 launch surfaces", () => {
     const kind = page.locator("[data-current-step-kind]");
     await expect(kind).toHaveAttribute("data-current-step-kind", /^[a-z][a-z0-9_]*$/);
 
-    const cta = page.locator(
-      "[data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible"
-    ).first();
+    // First-step CTA may be GuideDialogue, docked sticky, or an inline Continuar/Falar.
+    const cta = page
+      .locator("[data-testid=guide-continue], [data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible")
+      .or(page.getByRole("button", { name: /^(Continuar|Entendi|Falar|Não posso falar agora)/i }))
+      .first();
     await expect(cta).toBeVisible();
   });
 });

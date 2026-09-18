@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
+  advancePastGuideDialogue,
   clickStable,
   dismissBlockingOverlays,
   seedFreshJourneySession,
@@ -29,7 +30,7 @@ test.describe("lição", () => {
     await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
-    await page.getByRole("button", { name: "Entendi" }).click();
+    await advancePastGuideDialogue(page);
     await expect(page.getByRole("button", { name: /你好|Não posso falar agora/ }).first()).toBeVisible();
     // Palavras em português do prompt não viram botões de glossário.
     await expect(page.getByRole("button", { name: /combina/i })).toHaveCount(0);

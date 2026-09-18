@@ -34,8 +34,8 @@ const envSrc = read("src/lib/appEnvironment.ts");
 if (!envSrc.includes("export function isTestFixturesAllowed")) {
   fail("appEnvironment deve exportar isTestFixturesAllowed");
 }
-if (!envSrc.includes("isProductionBetaEnv(env)) return false")) {
-  fail("isTestFixturesAllowed deve recusar production_beta mesmo com a flag");
+if (!envSrc.includes("isProductionLikeEnv(env)) return false")) {
+  fail("isTestFixturesAllowed deve recusar ambiente production-like mesmo com a flag");
 }
 
 const assertNetlify = read("scripts/assert-netlify-env.mjs");

@@ -1,19 +1,20 @@
 import {
   isDevelopmentEnv,
   isPreviewEnv,
-  isProductionBetaEnv,
+  isProductionLikeEnv,
   type AppEnvironmentInput,
 } from "../appEnvironment";
 
 const E2E_LOCAL_SESSION_KEY = "longyu:e2e-allow-local";
 
 /**
- * Bypass explícito para DEV/E2E. Nunca vale em Production Beta.
- * Hard fail se a flag estiver ativa num build de produção.
+ * Bypass explícito para DEV/E2E. Nunca vale em ambiente production-like
+ * (Production Beta ou QA Candidate). Hard fail se a flag estiver ativa num
+ * build desses ambientes.
  */
 export function isDevLocalAuthAllowed(env: AppEnvironmentInput = import.meta.env): boolean {
   const flag = String((env as { VITE_DEV_ALLOW_LOCAL_AUTH?: string }).VITE_DEV_ALLOW_LOCAL_AUTH ?? "") === "1";
-  if (isProductionBetaEnv(env)) {
+  if (isProductionLikeEnv(env)) {
     if (flag) {
       throw new Error("VITE_DEV_ALLOW_LOCAL_AUTH cannot be enabled in production builds");
     }

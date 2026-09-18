@@ -206,7 +206,12 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 20/);
+    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
+    await page.getByTestId("culture-toggle-secondary").click();
+    const show = page.getByTestId("culture-show-categories");
+    if (await show.isVisible().catch(() => false)) await show.click().catch(() => undefined);
+    const filterAll = page.getByTestId("culture-filter-all");
+    if (await filterAll.isVisible().catch(() => false)) await filterAll.click().catch(() => undefined);
     await expect(page.locator('[data-culture-id="hotel-checkin-register"]').first()).toHaveAttribute(
       "data-culture-status",
       "completed"

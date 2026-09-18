@@ -33,6 +33,10 @@ const FalaPage = lazyNamed(() => import("./features/fala/FalaPage"), "FalaPage")
 const LeituraPage = lazyNamed(() => import("./features/leitura/LeituraPage"), "LeituraPage");
 const RevisaoPage = lazyNamed(() => import("./features/revisao/RevisaoPage"), "RevisaoPage");
 const CultureHubPage = lazyNamed(() => import("./features/culture/CultureHubPage"), "CultureHubPage");
+const CultureCollectionPage = lazyNamed(
+  () => import("./features/culture/CultureCollectionPage"),
+  "CultureCollectionPage"
+);
 const CultureItemPage = lazyNamed(() => import("./features/culture/CultureItemPage"), "CultureItemPage");
 const CultureReviewPage = lazyNamed(() => import("./features/culture/CultureReviewPage"), "CultureReviewPage");
 const BibliotecaPage = lazyNamed(() => import("./features/biblioteca/BibliotecaPage"), "BibliotecaPage");
@@ -41,6 +45,7 @@ const ProfilePage = lazyNamed(() => import("./features/perfil/ProfilePage"), "Pr
 const ContaRoute = lazyNamed(() => import("./features/conta/ContaRoute"), "ContaRoute");
 const DadosLocaisPage = lazyNamed(() => import("./features/dados/DadosLocaisPage"), "DadosLocaisPage");
 const PrivacyPage = lazyNamed(() => import("./features/privacy/PrivacyPage"), "PrivacyPage");
+const TermsPage = lazyNamed(() => import("./features/privacy/TermsPage"), "TermsPage");
 const LessonDetailPage = lazyNamed(() => import("./features/lesson/LessonDetailPage"), "LessonDetailPage");
 const LessonPlayer = lazyNamed(() => import("./features/lesson/LessonPlayer"), "LessonPlayer");
 const ModuleChallengePage = lazyNamed(() => import("./features/challenge/ModuleChallengePage"), "ModuleChallengePage");
@@ -118,6 +123,7 @@ export const routes: RouteObject[] = [
       { path: "finalizar-cadastro", element: <FinalizeCadastroPage /> },
       { path: "salvar-progresso", element: <LegacyLocalMigrationPage /> },
       { path: "privacidade", element: <PrivacyPage /> },
+      { path: "termos", element: <TermsPage /> },
       { path: "sobre", element: <AboutPage /> },
     ],
   },
@@ -157,6 +163,7 @@ export const routes: RouteObject[] = [
       { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },
       { path: "cultura", element: <CultureHubPage /> },
       { path: "cultura/revisao", element: <CultureReviewPage /> },
+      { path: "cultura/colecao/:collectionId", element: <CultureCollectionPage /> },
       { path: "cultura/:id", element: <CultureItemPage /> },
       { path: "biblioteca", element: <BibliotecaPage /> },
       { path: "imersao", element: <JourneyNodeGate><ImmersionPage /></JourneyNodeGate> },
