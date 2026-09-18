@@ -7,7 +7,6 @@ import {
 } from "../src/lib/curriculumFreeze";
 import { ALL_LESSONS } from "../src/data/journey";
 import {
-  advancePastGuideDialogue,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedLessonPlayerReady,
