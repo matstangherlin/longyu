@@ -121,4 +121,4 @@ Dedupe / MAX_QUEUE / flush queue **reused** (not replaced).
 
 ## FINAL_HEAD
 
-Filled after gates green on branch tip.
+`441c3bff1fedd901b61e7c7135fed6039ea20970` — `gate:public-beta-operations` PASS · fingerprint `516692632525` · verdict NO-GO.
