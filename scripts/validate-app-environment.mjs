@@ -22,6 +22,16 @@ assert(envSrc.includes("production_beta"), "appEnvironment deve definir producti
 assert(envSrc.includes("isProPreviewBuildAllowed"), "appEnvironment deve expor isProPreviewBuildAllowed");
 assert(envSrc.includes("isTestFixturesAllowed"), "appEnvironment deve expor isTestFixturesAllowed");
 assert(envSrc.includes("isQaFastPathAllowed"), "appEnvironment deve expor isQaFastPathAllowed");
+// RC2.2 — o candidate QA precisa ser um ambiente próprio e production-like.
+assert(envSrc.includes('"qa_candidate"'), "appEnvironment deve definir qa_candidate");
+assert(envSrc.includes("isProductionLikeEnv"), "appEnvironment deve expor isProductionLikeEnv");
+
+const netlifyCandidate = read("netlify.toml").split('[context."rc2-candidate".environment]')[1]?.split("\n[")[0] ?? "";
+assert(netlifyCandidate.includes('VITE_APP_ENV = "qa_candidate"'), "netlify deve ter contexto candidate qa_candidate");
+assert(
+  netlifyCandidate.includes('VITE_BACKEND_MODE = "supabase"'),
+  "contexto candidate deve usar Supabase (deploy-preview local não é candidate)"
+);
 
 const entitlements = read("src/lib/entitlements.ts");
 assert(entitlements.includes("isProPreviewBuildAllowed"), "entitlements deve usar isProPreviewBuildAllowed");
@@ -67,6 +77,10 @@ const assertNetlify = read("scripts/assert-netlify-env.mjs");
 assert(assertNetlify.includes("VITE_ALLOW_PRO_PREVIEW"), "assert-netlify-env deve bloquear Pro Preview em prod");
 assert(assertNetlify.includes("VITE_USE_TEST_FIXTURES"), "assert-netlify-env deve bloquear fixtures em prod");
 assert(assertNetlify.includes("VITE_DEV_ALLOW_LOCAL_AUTH"), "assert-netlify-env deve bloquear auth local em prod");
+assert(
+  assertNetlify.includes("validateQaCandidateEnv"),
+  "assert-netlify-env deve exigir o contrato do candidate QA"
+);
 
 const pkg = JSON.parse(read("package.json"));
 assert(pkg.version === "0.2.0-beta.1", `package.json version deve ser 0.2.0-beta.1 (obtido ${pkg.version})`);
