@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
   advancePastGuideDialogue,
+  advanceToChoiceOptions,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedLessonPlayerReady,
@@ -22,10 +23,8 @@ test.describe("QA regression guard — player mobile", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    // GuideDialogue has no sticky bar — leave intro, then land on a graded step.
-    await advancePastGuideDialogue(page);
-    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
-    if (await skipSpeak.isVisible().catch(() => false)) await skipSpeak.click();
+    // WebKit/Firefox often land on listen-imitate before graded choice — wait for options.
+    await advanceToChoiceOptions(page, 30_000);
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
     if (!(await sticky.isVisible().catch(() => false))) {
@@ -79,7 +78,13 @@ test.describe("QA regression guard — player mobile", () => {
     expect(Math.abs(before.height - before.vv)).toBeLessThan(8);
 
     await advancePastGuideDialogue(page);
-    await expect(page.getByRole("button", { name: /你好|Não posso falar agora/ }).first()).toBeVisible();
+    // Prefer speak-skip OR graded choice — not a hard 你好-only assert (WebKit interstitial).
+    await expect(
+      page
+        .getByRole("button", { name: /你好|Não posso falar agora|Opção \d+:/i })
+        .or(page.locator("[data-option-index]"))
+        .first()
+    ).toBeVisible({ timeout: 15_000 });
 
     const after = await page.evaluate(() => {
       const el = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;

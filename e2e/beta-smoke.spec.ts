@@ -360,9 +360,7 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/l2/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    if (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)) {
-      await page.getByRole("button", { name: "Entendi" }).click();
-    }
+    await advancePastGuideDialogue(page);
 
     // Pipeline no bundle (code-splitting espalha fase/cena em chunks).
     const hasPostConversationPipeline = await page.evaluate(async () => {
