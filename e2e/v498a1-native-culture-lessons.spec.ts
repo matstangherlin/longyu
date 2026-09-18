@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  advancePastGuideDialogue,
   dismissBlockingOverlays,
   seedInstructionLocale,
   seedInterfaceLocale,
@@ -94,14 +95,28 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
     const wrong = page.getByRole("button", {
       name: /Circular a casa|Sentar na cama|Walk the whole house|Sit on the bedroom/i,
     });
-    for (let i = 0; i < 8; i += 1) {
+    for (let i = 0; i < 12; i += 1) {
       if (await wrong.first().isVisible().catch(() => false)) break;
-      await page.getByRole("button", { name: /^(Entendi|Got it)$/ }).click().catch(() => undefined);
+      await advancePastGuideDialogue(page);
+      const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ }).first();
+      if (await entendi.isVisible().catch(() => false)) {
+        await entendi.click().catch(() => undefined);
+        await page.waitForTimeout(150);
+        continue;
+      }
+      const guideContinue = page.getByTestId("guide-continue");
+      if (await guideContinue.isVisible().catch(() => false)) {
+        await guideContinue.click().catch(() => undefined);
+        await page.waitForTimeout(150);
+        continue;
+      }
       await page.waitForTimeout(150);
     }
     await expect(wrong.first()).toBeVisible({ timeout: 10_000 });
     await wrong.first().click();
-    await page.getByRole("button", { name: /^(Verificar|Check)$/ }).click();
+    const check = page.getByRole("button", { name: /^(Verificar|Check)$/ }).first();
+    await expect(check).toBeEnabled({ timeout: 10_000 });
+    await check.click();
     const mistake = page.getByRole("heading", { name: /Quer tentar de novo|Want to try again/i });
     await expect(mistake).toBeVisible({ timeout: 8_000 });
     await page.getByRole("dialog", { name: /Quer tentar de novo|Want to try again/i }).getByRole("button", { name: /^(Continuar|Continue)$/ }).click();
@@ -202,7 +217,8 @@ test.describe("V4.9.8A.1 Native Culture Lessons 390×844", () => {
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "greetings-nihao");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= 392)).toBe(true);
-    const cta = page.locator("[data-lesson-action-region] button").first();
+    // First step is GuideDialogue — CTA lives on guide-continue until advance.
+    const cta = page.locator("[data-testid=guide-continue], [data-lesson-action-region] button").first();
     await expect(cta).toBeVisible();
     expect((await cta.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(40);
   });

@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import {
+  advancePastGuideDialogue,
   dismissBlockingOverlays,
   seedInstructionLocale,
   seedCompletedJourneyNodes,
@@ -186,13 +187,18 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { name: "Reconheça os quatro" })).toBeVisible();
-    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await advancePastGuideDialogue(page);
     // RC1.3 · P16 — teach-before-test: antes do primeiro item pontuado que cobra
     // o contraste, a aula agora apresenta o par (mesma sílaba-base, outro tom,
     // outra palavra). O cartão é `intro`, não vale nota, e sai com "Entendi".
     const contrastCard = page.locator("[data-tone-contrast-set]");
     await expect(contrastCard).toHaveCount(1);
-    await page.getByRole("button", { name: /^Entendi$/ }).click();
+    await advancePastGuideDialogue(page);
+    // Plain intro ContinueBtn (no GuideDialogue) still uses a single Entendi.
+    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.click();
+    }
     await expect(page.locator("[data-tone-simple='1'] button[aria-label*='Opção']")).toHaveCount(4);
     await expect(page.locator("[data-tone-simple='1'] [data-tone-contour]")).toHaveCount(0);
     await page.screenshot({ path: path.join(SHOTS, "tone-four-contours-assessment-desktop-pt.png"), fullPage: true });

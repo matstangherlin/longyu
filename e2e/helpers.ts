@@ -279,6 +279,32 @@ export async function waitForLazyPage(page: Page) {
 }
 
 /**
+ * GuideDialogue (#269/#270): first Continuar/Entendi completes typewriter;
+ * second advances. Loop until the dialogue unmounts.
+ * Specs that only need to leave the guide intro should call this instead of a
+ * single `.click()` on Entendi.
+ */
+export async function advancePastGuideDialogue(page: Page, timeoutMs = 20_000) {
+  const dialogue = page.getByTestId("guide-dialogue");
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline && (await dialogue.isVisible().catch(() => false))) {
+    const cont = page.getByTestId("guide-continue");
+    if (await cont.isVisible().catch(() => false)) {
+      await cont.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
+    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
+    if (await entendi.isVisible().catch(() => false)) {
+      await entendi.click().catch(() => undefined);
+      await page.waitForTimeout(120);
+      continue;
+    }
+    break;
+  }
+}
+
+/**
  * Firefox costuma mostrar "Ouça e imite" (你好) antes do listen_select.
  * Avança Entendi / Não posso falar / Continuar até `[data-option-index]`.
  */

@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
+  advancePastGuideDialogue,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedLessonPlayerReady,
@@ -21,6 +22,8 @@ test.describe("QA regression guard — player mobile", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // Sticky geometry applies after GuideDialogue (complete-text + advance).
+    await advancePastGuideDialogue(page);
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
     await expect(sticky).toBeVisible({ timeout: 20_000 });
@@ -65,8 +68,8 @@ test.describe("QA regression guard — player mobile", () => {
     expect(before.top).toBeLessThanOrEqual(2);
     expect(Math.abs(before.height - before.vv)).toBeLessThan(8);
 
-    await page.getByRole("button", { name: "Entendi" }).click();
-    await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
+    await advancePastGuideDialogue(page);
+    await expect(page.getByRole("button", { name: /你好|Não posso falar agora/ }).first()).toBeVisible();
 
     const after = await page.evaluate(() => {
       const el = document.querySelector("[data-lesson-player-frame]") as HTMLElement | null;

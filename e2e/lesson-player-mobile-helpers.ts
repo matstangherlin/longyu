@@ -1,5 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import {
+  advancePastGuideDialogue as clickThroughGuideDialogue,
   dismissBlockingOverlays,
   dismissJourneyCultureBridgeIfOpen,
   seedFreshJourneySession,
@@ -8,6 +9,8 @@ import {
   waitForLazyPage,
 } from "./helpers";
 import { advanceConversationIfOpen, advanceOneStep, clickFirstVisible, continueIfSkipCardOrListenImitate } from "./lesson-player-helpers";
+
+/** Specs can import the base click-through from `./helpers` as `advancePastGuideDialogue`. */
 
 /** Viewports reais do QA mobile (B001). Emulação — não substitui aparelho físico. */
 export const MOBILE_VIEWPORTS = [
@@ -404,25 +407,10 @@ export async function openPlayer(page: Page, lessonId = "p1-o-que-e-mandarim") {
 /**
  * GuideDialogue (#269/#270): first Continuar/Entendi completes typewriter;
  * second advances. Sticky CTA geometry only applies after the guide step.
+ * Prefer importing the base helper from `./helpers` in lesson specs.
  */
 export async function advancePastGuideDialogue(page: Page, timeoutMs = 20_000) {
-  const dialogue = page.getByTestId("guide-dialogue");
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline && (await dialogue.isVisible().catch(() => false))) {
-    const cont = page.getByTestId("guide-continue");
-    if (await cont.isVisible().catch(() => false)) {
-      await cont.click().catch(() => undefined);
-      await page.waitForTimeout(120);
-      continue;
-    }
-    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
-    if (await entendi.isVisible().catch(() => false)) {
-      await entendi.click().catch(() => undefined);
-      await page.waitForTimeout(120);
-      continue;
-    }
-    break;
-  }
+  await clickThroughGuideDialogue(page, timeoutMs);
   // Prefer landing on a docked action / choice step for sticky geometry tests.
   if (await page.locator("[data-lesson-action-region]").isVisible().catch(() => false)) return;
   if (await page.locator("[data-option-index]").first().isVisible().catch(() => false)) return;

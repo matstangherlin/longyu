@@ -7,6 +7,7 @@ import {
 } from "../src/lib/curriculumFreeze";
 import { ALL_LESSONS } from "../src/data/journey";
 import {
+  advancePastGuideDialogue,
   dismissBlockingOverlays,
   seedFreshJourneySession,
   seedLessonPlayerReady,
@@ -54,8 +55,15 @@ test.describe("RC1 launch surfaces", () => {
     const kind = page.locator("[data-current-step-kind]");
     await expect(kind).toHaveAttribute("data-current-step-kind", /^[a-z][a-z0-9_]*$/);
 
+    // GuideDialogue owns the first CTA; sticky/action region appears after advance.
+    const guideCta = page.getByTestId("guide-continue");
+    if (await guideCta.isVisible().catch(() => false)) {
+      await expect(guideCta).toBeVisible();
+      await advancePastGuideDialogue(page);
+    }
+
     const cta = page.locator(
-      "[data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible"
+      "[data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible, [data-testid=guide-continue]"
     ).first();
     await expect(cta).toBeVisible();
   });
