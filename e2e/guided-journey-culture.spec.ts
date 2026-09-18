@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import {
   dismissBlockingOverlays,
+  seedCompletedJourneyNodes,
   seedFreshJourneySession,
+  seedInstructionLocale,
   seedLessonPlayerReady,
   seedUnlockedLessonSession,
   waitForLazyPage,
@@ -142,5 +144,163 @@ test.describe("RC2.1.1 Journey Culture Moments", () => {
     const again = await readCulturePersist(page);
     expect(again.cultureCompletedIds.filter((id) => id === "china-history-timeline")).toHaveLength(1);
     expect(again.points).toBeGreaterThanOrEqual(mid.points);
+  });
+});
+
+test.describe("RC2.2.5 Journey Dragon Teacher handoffs", () => {
+  const TONE_HANDOFF = "booster:tone-contour-1-3:v1";
+  const TONE_NODE = "node:instruction:foundation:tone";
+
+  test("Tone Trainer handoff: typing → complete → dismiss → card navigates", async ({ page }) => {
+    test.setTimeout(90_000);
+    await seedUnlockedLessonSession(page, "p1-o-que-e-hanzi", {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      learnedChunks: ["nihao"],
+      learnedChars: ["ni", "hao"],
+    });
+    await seedCompletedJourneyNodes(page, [TONE_NODE]);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expandJourneyMap(page);
+
+    const handoff = page.locator(`[data-journey-handoff="${TONE_HANDOFF}"]`);
+    await handoff.scrollIntoViewIfNeeded();
+    await expect(handoff).toBeVisible({ timeout: 20_000 });
+
+    const dialogue = handoff.getByTestId("journey-guide-dialogue");
+    await expect(dialogue).toBeVisible();
+    await expect(handoff.getByTestId("guide-mascot-slot")).toBeVisible();
+    await expect(handoff.getByTestId("guide-speech-box")).toBeVisible();
+    await expect(dialogue).toHaveAttribute("data-guide-phase", /typing|complete/);
+
+    // Activity card remains clickable while guide is visible (no overlay block).
+    const card = handoff.locator(`[data-journey-inline-node="${TONE_HANDOFF}"]`);
+    await expect(card).toBeVisible();
+    await expect(card).toHaveAttribute("href", /.+/);
+
+    // First Continuar during typing completes text only — does not open node.
+    const urlBefore = page.url();
+    await handoff.getByTestId("guide-continue").click();
+    await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect(handoff.getByTestId("guide-visible-text")).toContainText("1º e o 3º tom");
+    expect(page.url()).toBe(urlBefore);
+    await expect(dialogue).toBeVisible();
+
+    // Second Continuar dismisses guide; Tone Trainer card remains.
+    await page.waitForTimeout(120);
+    await handoff.getByTestId("guide-continue").click();
+    await expect(handoff.getByTestId("journey-guide-dialogue")).toHaveCount(0, { timeout: 10_000 });
+    await expect(card).toBeVisible();
+    expect(page.url()).toBe(urlBefore);
+
+    // Explicit card click navigates.
+    await card.click();
+    await waitForLazyPage(page);
+    await expect(page).not.toHaveURL(urlBefore);
+  });
+
+  test("Tone handoff reduced motion + EN copy", async ({ page }) => {
+    test.setTimeout(60_000);
+    await seedInstructionLocale(page, "en");
+    await seedUnlockedLessonSession(page, "p1-o-que-e-hanzi", {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      learnedChunks: ["nihao"],
+      learnedChars: ["ni", "hao"],
+    });
+    await seedCompletedJourneyNodes(page, [TONE_NODE]);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expandJourneyMap(page);
+
+    const handoff = page.locator(`[data-journey-handoff="${TONE_HANDOFF}"]`);
+    await handoff.scrollIntoViewIfNeeded();
+    const dialogue = handoff.getByTestId("journey-guide-dialogue");
+    await expect(dialogue).toBeVisible({ timeout: 20_000 });
+    await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect(dialogue).toHaveAttribute("data-guide-motion", "ready");
+    await expect(handoff.getByTestId("guide-visible-text")).toContainText(
+      "1st and 3rd tones"
+    );
+  });
+
+  test("Pinyin / Hanzi / Conversation handoffs use GuideDialogue", async ({ page }) => {
+    test.setTimeout(90_000);
+    await seedUnlockedLessonSession(page, "p1-engine-2-lab", {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      learnedChunks: ["nihao"],
+      learnedChars: ["ni", "hao", "mu", "ren"],
+    });
+    await seedCompletedJourneyNodes(page, [
+      "node:instruction:foundation:pinyin",
+      "node:instruction:foundation:hanzi-components",
+      "node:instruction:foundation:mandarin",
+      "node:capsule:pinyin-foundation:v1",
+    ]);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expandJourneyMap(page);
+
+    const cases = [
+      {
+        id: "booster:pinyin-practice:v1",
+        snippet: "o pinyin faz",
+      },
+      {
+        id: "booster:hanzi-builder-foundations:v1",
+        snippet: "feitos de peças",
+      },
+      {
+        id: "booster:first-conversation:v1",
+        snippet: "你好",
+      },
+    ] as const;
+
+    for (const row of cases) {
+      const handoff = page.locator(`[data-journey-handoff="${row.id}"]`);
+      await handoff.scrollIntoViewIfNeeded();
+      await expect(handoff).toBeVisible({ timeout: 20_000 });
+      await expect(handoff.getByTestId("journey-guide-dialogue")).toBeVisible();
+      await expect(handoff.getByTestId("guide-mascot-slot")).toBeVisible();
+      await expect(handoff.getByTestId("guide-visible-text")).toContainText(row.snippet);
+    }
+  });
+
+  test("WebKit: Tone handoff Continuar completes then dismisses", async ({ page, browserName }) => {
+    test.skip(browserName !== "webkit", "WebKit-only contract");
+    test.setTimeout(90_000);
+    await seedUnlockedLessonSession(page, "p1-o-que-e-hanzi", {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      learnedChunks: ["nihao"],
+      learnedChars: ["ni", "hao"],
+    });
+    await seedCompletedJourneyNodes(page, [TONE_NODE]);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expandJourneyMap(page);
+
+    const handoff = page.locator(`[data-journey-handoff="${TONE_HANDOFF}"]`);
+    await handoff.scrollIntoViewIfNeeded();
+    const dialogue = handoff.getByTestId("journey-guide-dialogue");
+    await expect(dialogue).toBeVisible({ timeout: 20_000 });
+    await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await handoff.getByTestId("guide-continue").click();
+    await expect(handoff.getByTestId("journey-guide-dialogue")).toHaveCount(0, { timeout: 10_000 });
+    await expect(handoff.locator(`[data-journey-inline-node="${TONE_HANDOFF}"]`)).toBeVisible();
   });
 });

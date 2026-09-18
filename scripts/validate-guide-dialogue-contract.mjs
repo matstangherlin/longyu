@@ -24,6 +24,15 @@ assert.doesNotMatch(component, /GuideLessonPlayer/, "must not create GuideLesson
 assert.match(steps, /GuideDialogue/, "StepIntro / lesson steps must consume GuideDialogue");
 assert.doesNotMatch(steps, /GuideLessonPlayer/, "must not couple a GuideLessonPlayer");
 
+const journeyInline = fs.readFileSync(path.join(root, "src/features/journey/JourneyInlineNode.tsx"), "utf8");
+const journeyGuide = fs.readFileSync(
+  path.join(root, "src/features/journey/JourneyGuideExplanation.tsx"),
+  "utf8"
+);
+assert.match(journeyGuide, /GuideDialogue/, "Journey handoffs must reuse GuideDialogue");
+assert.match(journeyInline, /JourneyGuideExplanation/, "Journey inline nodes must use JourneyGuideExplanation");
+assert.doesNotMatch(journeyGuide, /GuideLessonPlayer|GuideDialogue2|DragonDialogue/);
+
 const mascot = fs.readFileSync(path.join(root, "src/components/brand/Mascot.tsx"), "utf8");
 assert.match(mascot, /\/longyu-mascot\.png/, "canonical guide asset must remain longyu-mascot.png");
 assert.match(mascot, /data-mascot-motion="eyes-only"/, "body remains static; blink is eyes-only");
