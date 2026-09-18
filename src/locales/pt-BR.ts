@@ -1547,7 +1547,7 @@ export const ptBR = {
     collectedData: "Dados coletados",
     consentTitle: "Ajude a melhorar o Longyu",
     consentBody:
-      "O Longyu pode coletar dados anônimos de uso, como lições concluídas, tipos de exercício com mais erros e telas abandonadas. Não coletamos senhas nem o texto livre das suas respostas.",
+      "O Longyu pode coletar dados pedagógicos e de uso, como lições concluídas, tipos de exercício com mais erros e telas abandonadas. Quando você tem conta, isso pode incluir um identificador de conta/perfil. Não coletamos senhas nem o texto livre das suas respostas.",
     allowImprovement: "Permitir dados de melhoria",
     notNow: "Agora não",
     seeDetails: "Ver detalhes",
@@ -1682,6 +1682,8 @@ export const ptBR = {
     publicNav: "Conteúdo público",
     learnMore: "Aprenda mais",
     privacy: "Privacidade",
+    terms: "Termos",
+    trustLinks: "Privacidade, termos e contato",
     about: "Sobre",
     method: "Método",
     howItWorks: "Como funciona",
@@ -1722,10 +1724,11 @@ export const ptBR = {
     aboutLead: "Transparência sobre o estado atual da beta pública.",
     aboutTagline: "龙语 · mandarim pela lógica",
     aboutIntro:
-      "Você está testando uma versão antecipada do Longyu. Algumas partes são experimentais, outras ainda são placeholders — e tudo isso é esperado nesta fase.",
+      "Você está testando uma versão antecipada do Longyu. Algumas atividades ainda estão sendo aprimoradas — e isso é esperado nesta fase. Beta não significa que seu progresso pode sumir sem aviso.",
+    aboutFooterAudio: "áudio via Web Speech API",
     aboutInDevTitle: "App em desenvolvimento",
     aboutInDevDesc:
-      "O Longyu ainda está em construção. Conteúdo, exercícios e recursos podem mudar entre versões do beta.",
+      "O Longyu ainda está em construção. Conteúdo, exercícios e recursos podem mudar entre versões do beta. Seu progresso local e na nuvem (quando houver conta) continua sob seu controle — exportação e exclusão estão em Ajustes.",
     aboutProgressCloudTitle: "Progresso local e na nuvem",
     aboutProgressLocalTitle: "Progresso salvo localmente",
     aboutProgressCloudDesc:
@@ -1996,6 +1999,8 @@ export const ptBR = {
     activityProblem: "Esta atividade está com problema",
     includeTechnical: "Incluir contexto técnico (rota, versão, ambiente, navegador, viewport)",
     thanks: "Obrigado. Seu feedback foi enviado.",
+    thanksQueued:
+      "Feedback salvo neste dispositivo e será enviado quando a conexão estiver disponível.",
     techCapture: "Erro técnico automaticamente capturado:\n{diagnostics}\n\n(O que você estava fazendo?)",
     lesson: "Lição {id}",
     question: "pergunta {n}",
@@ -2017,6 +2022,50 @@ export const ptBR = {
     needCloudHistory: "Entre com uma conta na nuvem para ver o histórico dos feedbacks que você enviou.",
     loadingMine: "Carregando seus envios…",
     noneYet: "Você ainda não enviou feedback nesta conta.",
+  },
+  privacyNotice: {
+    local:
+      "Dados locais: progresso de aprendizagem, preferências e filas ficam neste dispositivo até você exportar, limpar dados locais ou solicitar exclusão.",
+    cloud:
+      "Dados na nuvem: se você criar uma conta, o progresso pode sincronizar no backend do Longyu com proteção por login e regras de acesso. Sem conta, o app continua só local.",
+    progress:
+      "Progresso: lições concluídas, revisão, preferências de exibição e estado da jornada fazem parte do seu perfil de estudo.",
+    telemetry:
+      "Telemetria pedagógica: eventos como lição, tipo de exercício, acerto/erro e abandono só são enviados com consentimento explícito. Podem incluir identificador de conta/perfil quando aplicável — não são “100% anônimos”.",
+    feedback:
+      "Feedback manual: mensagens que você envia pelo formulário são uma ação explícita, independente da telemetria pedagógica.",
+    diagnostics:
+      "Diagnósticos técnicos: ficam em sessionStorage neste aparelho, em volume pequeno e sanitizados. Não são enviados automaticamente — só entram no feedback se você incluir contexto técnico.",
+    export:
+      "Exportação: em Ajustes → Privacidade e dados (ou Dados locais) você pode baixar um pacote com os dados do seu contexto atual neste dispositivo.",
+    deletion:
+      "Exclusão: com conta na nuvem, você pode solicitar exclusão da conta (confirmação obrigatória). Em modo só local, use Dados locais para apagar dados deste aparelho — isso não é exclusão na nuvem.",
+    consent:
+      "Consentimento e revogação: “Agora não” não é consentimento. Revogar desliga novos envios e limpa a fila pedagógica local. Você controla isso em Ajustes.",
+    contact: "Contato de suporte da beta: {email}",
+  },
+  terms: {
+    eyebrow: "Beta",
+    title: "Termos da beta pública",
+    desc: "Condições mínimas do serviço enquanto o Longyu está em beta.",
+    sectionTitle: "Condições",
+    beta:
+      "O Longyu é oferecido em beta pública. Recursos, conteúdo e disponibilidade podem evoluir; beta não autoriza perda silenciosa do seu progresso.",
+    availability:
+      "A disponibilidade do serviço pode mudar (manutenção, incidentes ou limites técnicos). Faremos o razoável para comunicar interrupções relevantes.",
+    acceptableUse:
+      "Uso aceitável: não abuse do serviço, não tente acessar dados de outras contas, não envie malware nem conteúdo ilegal, e não contorne proteções de segurança.",
+    account:
+      "Responsabilidades da conta: você é responsável pelas credenciais e pelo uso da sua conta. Não compartilhe senha. Mantenha um e-mail válido se usar autenticação na nuvem.",
+    ip:
+      "Propriedade intelectual: o conteúdo pedagógico, marca e software do Longyu pertencem aos titulares respectivos. Você mantém direitos sobre o feedback que envia; podemos usá-lo para melhorar o produto.",
+    feedback:
+      "Feedback: envios manuais podem ser analisados pela equipe. Não envie senhas, tokens nem dados sensíveis de terceiros.",
+    changes:
+      "Mudanças no serviço: podemos ajustar funcionalidades, limites e estes termos da beta. Alterações relevantes serão refletidas nesta página.",
+    termination:
+      "Encerramento e exclusão: você pode solicitar exclusão da conta na nuvem ou limpar dados locais. Podemos suspender contas que violem o uso aceitável.",
+    contact: "Contato: {email}",
   },
   achievements: {
     unlocked: "Desbloqueada",

@@ -124,13 +124,48 @@ assert(watcher.includes("accountSetupComplete"), "watcher após cadastro/painel"
 const privacyPage = read("src/features/privacy/PrivacyPage.tsx");
 assert(privacyPage.includes("dados-coletados"), "página de privacidade lista dados");
 assert(privacyPage.includes("politica"), "página inclui política");
+assert(!privacyPage.includes("data-legal-later"), "política pública não pode ficar com data-legal-later");
+assert(privacyPage.includes("privacyNotice."), "política deve vir do catálogo i18n (PT/EN)");
+assert(privacyPage.includes("FEEDBACK_EMAIL"), "contato deve usar FEEDBACK_EMAIL canônico");
+
+const termsPage = read("src/features/privacy/TermsPage.tsx");
+assert(termsPage.includes("data-terms-notice"), "página de termos deve existir");
+assert(termsPage.includes("terms."), "termos devem usar i18n");
+assert(!/LGPD compliant|fully compliant|legally certified/i.test(termsPage), "termos não podem falsificar certificação jurídica");
 
 const routes = read("src/routes.tsx");
 assert(routes.includes('path: "privacidade"'), "rota /privacidade registrada");
+assert(routes.includes('path: "termos"'), "rota /termos registrada");
 
 const copy = read("src/lib/privacyCopy.ts");
 assert(copy.includes("texto digitado livre"), "copy lista o que não é coletado");
 assert(copy.includes("identificador da conta/perfil"), "copy lista o que é coletado");
+assert(
+  !/dados anônimos|anonymous usage/i.test(copy),
+  "copy não pode chamar telemetria de anônima se lista identificador de conta/perfil"
+);
+assert(copy.includes("dados pedagógicos e de uso"), "copy deve usar linguagem pedagógica/uso");
+
+assert(
+  !/dados anônimos de uso|anonymous usage data/i.test(ptCatalog),
+  "catálogo pt-BR não deve chamar telemetria de anônima"
+);
+const enCatalog = read("src/locales/en.ts");
+assert(
+  !/anonymous usage data/i.test(enCatalog),
+  "catálogo en não deve chamar telemetria de anônima"
+);
+assert(ptCatalog.includes("privacyNotice:"), "pt-BR deve ter privacyNotice");
+assert(enCatalog.includes("privacyNotice:"), "en deve ter privacyNotice");
+assert(ptCatalog.includes("terms:"), "pt-BR deve ter terms");
+assert(enCatalog.includes("terms:"), "en deve ter terms");
+assert(ptCatalog.includes("thanksQueued:"), "pt-BR: feedback queued copy");
+assert(enCatalog.includes("thanksQueued:"), "en: feedback queued copy");
+
+const feedbackModal = read("src/components/feedback/FeedbackModal.tsx");
+assert(feedbackModal.includes("result.queued"), "FeedbackModal deve distinguir queued");
+assert(feedbackModal.includes("feedback.thanksQueued"), "FeedbackModal deve mostrar thanksQueued");
+assert(feedbackModal.includes('data-feedback-delivery'), "delivery state deve ser observável");
 
 // Garante que o default antigo (true) não voltou em pedagogyEvents re-export
 assert(

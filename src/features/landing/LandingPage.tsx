@@ -207,6 +207,12 @@ export function LandingPage() {
           <Link to="/privacidade" className="hover:text-ink-soft">
             {t("marketing.privacy")}
           </Link>
+          <Link to="/termos" className="hover:text-ink-soft">
+            {t("marketing.terms")}
+          </Link>
+          <Link to="/sobre" className="hover:text-ink-soft">
+            {t("marketing.about")}
+          </Link>
         </nav>
         <p className="text-[11px] text-ink-faint">
           Longyu · <AppVersionLabel />

@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { MyFeedbackList } from "../../components/feedback/MyFeedbackList";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
 import { Card, SectionTitle } from "../../components/ui/primitives";
-import { BETA_LABEL } from "../../lib/feedback";
+import { BETA_LABEL, FEEDBACK_EMAIL } from "../../lib/feedback";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useTranslation } from "../../i18n/useTranslation";
 
@@ -57,6 +57,20 @@ export function AboutPage() {
         <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">{BETA_LABEL}</h2>
         <p className="mt-2 text-sm leading-7 text-ink-soft">{t("marketing.aboutIntro")}</p>
         <BetaNotice className="mt-3" />
+        <nav
+          aria-label={t("marketing.trustLinks")}
+          className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-faint"
+        >
+          <Link to="/privacidade" className="hover:text-ink-soft underline-offset-2 hover:underline">
+            {t("marketing.privacy")}
+          </Link>
+          <Link to="/termos" className="hover:text-ink-soft underline-offset-2 hover:underline">
+            {t("marketing.terms")}
+          </Link>
+          <a href={`mailto:${FEEDBACK_EMAIL}`} className="hover:text-ink-soft underline-offset-2 hover:underline">
+            {FEEDBACK_EMAIL}
+          </a>
+        </nav>
       </Card>
 
       <section className="grid gap-3">
@@ -79,7 +93,7 @@ export function AboutPage() {
 
       <p className="text-center text-xs text-ink-faint">
         Longyu (龙语) · <AppVersionLabel /> ·{" "}
-        {cloud ? t("marketing.cloudAvailable") : t("marketing.savedOnDevice")} · áudio via Web Speech API
+        {cloud ? t("marketing.cloudAvailable") : t("marketing.savedOnDevice")} · {t("marketing.aboutFooterAudio")}
       </p>
     </div>
   );

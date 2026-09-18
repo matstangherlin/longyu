@@ -11,6 +11,7 @@ export const PUBLIC_APP_PATHS = [
   "/business",
   "/business/login",
   "/privacidade",
+  "/termos",
   "/sobre",
   "/salvar-progresso",
   "/pro",

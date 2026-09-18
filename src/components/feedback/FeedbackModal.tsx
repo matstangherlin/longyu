@@ -45,7 +45,8 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
   const [includeTechnical, setIncludeTechnical] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
+  /** SENT = backend confirmed · QUEUED = saved locally for later flush · never conflate. */
+  const [delivery, setDelivery] = useState<"sent" | "queued" | null>(null);
 
   useEffect(() => {
     if (!preferTechnical) return;
@@ -84,7 +85,7 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
       setError(localizeUserMessage(result.error));
       return;
     }
-    setDone(true);
+    setDelivery(result.queued ? "queued" : "sent");
   }
 
   return (
@@ -104,10 +105,10 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
           </button>
         </div>
 
-        {done ? (
-          <div className="mt-6 space-y-4">
+        {delivery ? (
+          <div className="mt-6 space-y-4" data-feedback-delivery={delivery}>
             <p className="rounded-2xl border border-[rgb(var(--good)/0.35)] bg-[rgb(var(--good)/0.12)] px-4 py-3 text-sm font-medium text-ink">
-              {t("feedback.thanks")}
+              {delivery === "queued" ? t("feedback.thanksQueued") : t("feedback.thanks")}
             </p>
             <Button type="button" className="w-full" onClick={onClose}>
               {t("common.close")}

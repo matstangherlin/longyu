@@ -1547,7 +1547,7 @@ export const en: MessageCatalog = {
     collectedData: "Collected data",
     consentTitle: "Help improve Longyu",
     consentBody:
-      "Longyu can collect anonymous usage data such as completed lessons, exercise types with more mistakes, and abandoned screens. We do not collect passwords or the free-text of your answers.",
+      "Longyu can collect pedagogical and usage data such as completed lessons, exercise types with more mistakes, and abandoned screens. When you have an account, this may include an account/profile identifier. We do not collect passwords or the free-text of your answers.",
     allowImprovement: "Allow improvement data",
     notNow: "Not now",
     seeDetails: "See details",
@@ -1678,6 +1678,8 @@ export const en: MessageCatalog = {
     publicNav: "Public pages",
     learnMore: "Learn more",
     privacy: "Privacy",
+    terms: "Terms",
+    trustLinks: "Privacy, terms, and contact",
     about: "About",
     method: "Method",
     howItWorks: "How it works",
@@ -1717,10 +1719,11 @@ export const en: MessageCatalog = {
     aboutLead: "Transparency about the current state of the public beta.",
     aboutTagline: "龙语 · Mandarin by logic",
     aboutIntro:
-      "You are testing an early version of Longyu. Some parts are experimental, others are still placeholders — and that is expected at this stage.",
+      "You are testing an early version of Longyu. Some activities are still being refined — and that is expected at this stage. Beta does not mean your progress can disappear without notice.",
+    aboutFooterAudio: "audio via Web Speech API",
     aboutInDevTitle: "App in development",
     aboutInDevDesc:
-      "Longyu is still being built. Content, exercises, and features can change between beta versions.",
+      "Longyu is still being built. Content, exercises, and features can change between beta versions. Your local and cloud progress (when you have an account) stays under your control — export and deletion live in Settings.",
     aboutProgressCloudTitle: "Progress on device and in the cloud",
     aboutProgressLocalTitle: "Progress saved locally",
     aboutProgressCloudDesc:
@@ -1990,6 +1993,8 @@ export const en: MessageCatalog = {
     activityProblem: "This activity has a problem",
     includeTechnical: "Include technical context (route, version, environment, browser, viewport)",
     thanks: "Thanks. Your feedback was sent.",
+    thanksQueued:
+      "Feedback saved on this device and will be sent when a connection is available.",
     techCapture: "Technical error captured automatically:\n{diagnostics}\n\n(What were you doing?)",
     lesson: "Lesson {id}",
     question: "question {n}",
@@ -2011,6 +2016,50 @@ export const en: MessageCatalog = {
     needCloudHistory: "Sign in with a cloud account to see feedback you have sent.",
     loadingMine: "Loading your submissions…",
     noneYet: "You have not sent feedback from this account yet.",
+  },
+  privacyNotice: {
+    local:
+      "Local data: learning progress, preferences, and queues stay on this device until you export, clear local data, or request deletion.",
+    cloud:
+      "Cloud data: if you create an account, progress may sync to Longyu’s backend behind login and access rules. Without an account, the app stays local-only.",
+    progress:
+      "Progress: completed lessons, review, display preferences, and journey state are part of your study profile.",
+    telemetry:
+      "Pedagogical telemetry: events such as lesson, exercise type, correct/incorrect, and abandon are sent only with explicit consent. They may include an account/profile identifier when applicable — they are not “100% anonymous”.",
+    feedback:
+      "Manual feedback: messages you send through the form are an explicit action, independent of pedagogical telemetry.",
+    diagnostics:
+      "Technical diagnostics: stored in sessionStorage on this device, small and sanitized. They are not uploaded automatically — they only join feedback if you include technical context.",
+    export:
+      "Export: in Settings → Privacy and data (or Local data) you can download a bundle of data for your current context on this device.",
+    deletion:
+      "Deletion: with a cloud account you can request account deletion (confirmation required). In local-only mode, use Local data to erase this device — that is not a cloud account deletion.",
+    consent:
+      "Consent and revocation: “Not now” is not consent. Revoking stops new sends and clears the local pedagogy queue. You control this in Settings.",
+    contact: "Beta support contact: {email}",
+  },
+  terms: {
+    eyebrow: "Beta",
+    title: "Public beta terms",
+    desc: "Minimum conditions of the service while Longyu is in public beta.",
+    sectionTitle: "Conditions",
+    beta:
+      "Longyu is offered as a public beta. Features, content, and availability may evolve; beta does not authorize silent loss of your progress.",
+    availability:
+      "Service availability may change (maintenance, incidents, or technical limits). We will make reasonable efforts to communicate relevant outages.",
+    acceptableUse:
+      "Acceptable use: do not abuse the service, attempt to access other accounts’ data, send malware or illegal content, or bypass security controls.",
+    account:
+      "Account responsibilities: you are responsible for your credentials and account use. Do not share your password. Keep a valid email if you use cloud auth.",
+    ip:
+      "Intellectual property: Longyu’s pedagogical content, brand, and software belong to their respective owners. You retain rights to feedback you send; we may use it to improve the product.",
+    feedback:
+      "Feedback: manual submissions may be reviewed by the team. Do not send passwords, tokens, or third-party sensitive data.",
+    changes:
+      "Service changes: we may adjust features, limits, and these beta terms. Material updates will be reflected on this page.",
+    termination:
+      "Termination and deletion: you may request cloud account deletion or clear local data. We may suspend accounts that violate acceptable use.",
+    contact: "Contact: {email}",
   },
   achievements: {
     unlocked: "Unlocked",

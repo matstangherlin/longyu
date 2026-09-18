@@ -45,6 +45,7 @@ const ProfilePage = lazyNamed(() => import("./features/perfil/ProfilePage"), "Pr
 const ContaRoute = lazyNamed(() => import("./features/conta/ContaRoute"), "ContaRoute");
 const DadosLocaisPage = lazyNamed(() => import("./features/dados/DadosLocaisPage"), "DadosLocaisPage");
 const PrivacyPage = lazyNamed(() => import("./features/privacy/PrivacyPage"), "PrivacyPage");
+const TermsPage = lazyNamed(() => import("./features/privacy/TermsPage"), "TermsPage");
 const LessonDetailPage = lazyNamed(() => import("./features/lesson/LessonDetailPage"), "LessonDetailPage");
 const LessonPlayer = lazyNamed(() => import("./features/lesson/LessonPlayer"), "LessonPlayer");
 const ModuleChallengePage = lazyNamed(() => import("./features/challenge/ModuleChallengePage"), "ModuleChallengePage");
@@ -122,6 +123,7 @@ export const routes: RouteObject[] = [
       { path: "finalizar-cadastro", element: <FinalizeCadastroPage /> },
       { path: "salvar-progresso", element: <LegacyLocalMigrationPage /> },
       { path: "privacidade", element: <PrivacyPage /> },
+      { path: "termos", element: <TermsPage /> },
       { path: "sobre", element: <AboutPage /> },
     ],
   },
