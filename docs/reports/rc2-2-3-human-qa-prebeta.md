@@ -135,7 +135,7 @@ Automation marks human PASS · Playwright as tester · seeded L1–L20 · fake 5
 
 ## Remaining blockers (next phases)
 
-1. **Return to RC2.2.1 / #273** — unlock `longyu-preview` / Supabase QA / Netlify candidate → `cloud_auth` / `cloud_sync` / `feedback_backend`.
+1. **Return to RC2.2.1 / #273** — unlock QA candidate project / Supabase QA / Netlify candidate → `cloud_auth` / `cloud_sync` / `feedback_backend`.
 2. **RC2.2.2B** — formal Android / iPhone / PWA N→N+1 / Netlify rollback.
 3. Founder L1–L20 + B002 on local when human available; external batch when shareable build exists.
 4. **RC2.3** — squash → capture final `main` SHA → redeploy sensitive evidence → `gate:public-beta-core`.

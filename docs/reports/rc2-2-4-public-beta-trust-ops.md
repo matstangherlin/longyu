@@ -110,7 +110,7 @@ Dedupe / MAX_QUEUE / flush queue **reused** (not replaced).
 
 ## Remaining blockers (next)
 
-1. **Return to #273 / RC2.2.1** — Supabase slot, `longyu-preview`, Netlify candidate, cloud_auth/sync/feedback_backend.
+1. **Return to #273 / RC2.2.1** — Supabase slot, QA candidate project, Netlify candidate, cloud_auth/sync/feedback_backend.
 2. RC2.2.2B — physical devices + real PWA/rollback.
 3. Founder L1–L20 + external testers when shareable build exists.
 4. RC2.3 — squash to main SHA → final evidence → `gate:public-beta-core`.
