@@ -182,9 +182,13 @@ test.describe("RC2.2.5 Journey Dragon Teacher handoffs", () => {
     await expect(card).toBeVisible();
     await expect(card).toHaveAttribute("href", /.+/);
 
-    // First Continuar during typing completes text only — does not open node.
+    // Continuar while typing completes text only; if already complete (fast
+    // machines / WebKit), do not click yet — one click must never complete+dismiss.
     const urlBefore = page.url();
-    await handoff.getByTestId("guide-continue").click();
+    const phase = (await dialogue.getAttribute("data-guide-phase")) ?? "";
+    if (phase === "typing") {
+      await handoff.getByTestId("guide-continue").click();
+    }
     await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
     await expect(handoff.getByTestId("guide-visible-text")).toContainText("1º e o 3º tom");
     expect(page.url()).toBe(urlBefore);
