@@ -22,11 +22,19 @@ test.describe("QA regression guard — player mobile", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    // Sticky geometry applies after GuideDialogue (complete-text + advance).
+    // GuideDialogue has no sticky bar — leave intro, then land on a graded step.
     await advancePastGuideDialogue(page);
+    const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
+    if (await skipSpeak.isVisible().catch(() => false)) await skipSpeak.click();
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
-    await expect(sticky).toBeVisible({ timeout: 20_000 });
+    if (!(await sticky.isVisible().catch(() => false))) {
+      // Comprehend/listen_select mount StickyActionBar after a choice (Continuar/Verificar).
+      const option = page.locator("[data-option-index]").first();
+      await expect(option).toBeVisible({ timeout: 15_000 });
+      await option.click();
+    }
+    await expect(sticky).toBeVisible({ timeout: 10_000 });
     const cta = sticky.locator("button:visible").first();
     await expect(cta).toBeVisible();
 
