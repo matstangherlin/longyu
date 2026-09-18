@@ -55,16 +55,11 @@ test.describe("RC1 launch surfaces", () => {
     const kind = page.locator("[data-current-step-kind]");
     await expect(kind).toHaveAttribute("data-current-step-kind", /^[a-z][a-z0-9_]*$/);
 
-    // GuideDialogue owns the first CTA; sticky/action region appears after advance.
-    const guideCta = page.getByTestId("guide-continue");
-    if (await guideCta.isVisible().catch(() => false)) {
-      await expect(guideCta).toBeVisible();
-      await advancePastGuideDialogue(page);
-    }
-
-    const cta = page.locator(
-      "[data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible, [data-testid=guide-continue]"
-    ).first();
+    // First-step CTA may be GuideDialogue, docked sticky, or an inline Continuar/Falar.
+    const cta = page
+      .locator("[data-testid=guide-continue], [data-lesson-sticky-actions] button:visible, [data-lesson-action-region] button:visible")
+      .or(page.getByRole("button", { name: /^(Continuar|Entendi|Falar|Não posso falar agora)/i }))
+      .first();
     await expect(cta).toBeVisible();
   });
 });

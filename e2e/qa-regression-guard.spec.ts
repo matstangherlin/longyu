@@ -29,10 +29,12 @@ test.describe("QA regression guard — player mobile", () => {
 
     const sticky = page.locator("[data-lesson-sticky-actions]");
     if (!(await sticky.isVisible().catch(() => false))) {
-      // Comprehend/listen_select mount StickyActionBar after a choice (Continuar/Verificar).
-      const option = page.locator("[data-option-index]").first();
-      await expect(option).toBeVisible({ timeout: 15_000 });
-      await option.click();
+      // Pick the correct meaning so AnswerFeedback mounts Continuar in StickyActionBar
+      // (a wrong pick opens the recovery dialog instead).
+      const correct = page.getByRole("button", { name: /Opção \d+: Olá/i }).first();
+      if (await correct.isVisible().catch(() => false)) await correct.click();
+      else await page.locator("[data-option-index]").first().click();
+      await dismissBlockingOverlays(page);
     }
     await expect(sticky).toBeVisible({ timeout: 10_000 });
     const cta = sticky.locator("button:visible").first();
