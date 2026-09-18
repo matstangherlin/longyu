@@ -419,7 +419,7 @@ preservados. Product truth inalterado.
 |---|---|
 | `build` | ✅ PASS (exit 0) — `dist/version.json` com SHA de 40 hex, `sw.js` e `manifest.webmanifest` emitidos |
 | `validate:frontend-secrets` (pós-build) | ✅ PASS — nenhum segredo no `dist/` |
-| `validate:beta` | ⚠️ **não concluído neste ambiente** — ver nota abaixo |
+| `validate:beta` | ✅ **PASS no CI** (`Portão de qualidade`, PR #271) — não concluído localmente, ver nota |
 | `validate:security-boundaries` | ✅ PASS |
 | `validate:public-beta-core` | ✅ PASS (**NO-GO**, como esperado) |
 | `validate:public-beta-feature-freeze` | ✅ PASS |
@@ -454,9 +454,9 @@ individualmente e passam: `validate:app-environment`, `test:entitlements`,
 `validate:public-beta-feature-freeze`, `validate:security-boundaries`,
 `typecheck`.
 
-**A autoridade sobre `validate:beta` é o CI da PR**, que roda a cadeia completa
-mais `build` e `validate:frontend-secrets`. O DoD só está fechado quando o
-workflow ficar verde.
+**A autoridade sobre `validate:beta` é o CI da PR.** Resultado: o job
+`Portão de qualidade (validate:beta + build)` da PR #271 **passou** ✅.
+Este item do DoD está fechado.
 
 Contrato do candidate também exercitado de verdade contra
 `scripts/assert-netlify-env.mjs` com env simulada de Netlify:
@@ -467,9 +467,37 @@ Contrato do candidate também exercitado de verdade contra
 | candidate com `VITE_BACKEND_MODE=local` | ✅ exit 1 · `LOCAL_BACKEND` |
 | candidate apontando para o Supabase de **produção** | ✅ exit 1 · `PRODUCTION_REF` |
 
-**P39 — CI:** Chromium, WebKit, Firefox e Security rodam no CI da PR. WebKit é
-bloqueante desde RC2 P2.1. Este relatório não declara CI verde por conta própria
-— o resultado é o do workflow na PR.
+### P39 — CI da PR #271 (medido)
+
+| Check | Resultado |
+|---|---|
+| Portão de qualidade (`validate:beta` + `build`) | ✅ success |
+| Secret scan (gitleaks) | ✅ success |
+| CodeQL / CodeQL (javascript-typescript) | ✅ success |
+| npm audit (prod + dev) | ✅ success |
+| Ephemeral backend contract | ✅ success |
+| Netlify header/redirect rules | ✅ success |
+| Testes E2E (Playwright) | ❌ failure — **herdado do #270** |
+| E2E cross-engine (WebKit + Firefox) | ❌ failure — **herdado do #270** |
+
+**Os dois jobs de E2E já estão vermelhos no #270**, a base desta stack, com
+resultado idêntico: 37 failed · 1 flaky · 5 skipped · 601 passed, mesma lista de
+testes e mesma asserção (`mobile-device.spec.ts:77`, `/你好/`).
+
+Não é falha desta remessa: o E2E roda com `VITE_APP_ENV=preview`
+(`playwright.config.ts:41`) e as mudanças de runtime daqui só alteram
+`qa_candidate` — em `preview` todas as funções tocadas devolvem exatamente o que
+devolviam antes.
+
+As 37 falhas se concentram em "primeira lição abre / avança do passo
+introdutório" (`beta-smoke`, `lesson-player-mobile`, `sticky-actions-overlap`,
+`pedagogy`, `mobile-device` `Entendi → opção`, `v490-pedagogical-spine`) — o
+avanço a partir do passo de intro do GuideDialogue, território do #270.
+
+**A correção pertence ao #270**, não a esta PR; consertá-la aqui violaria a stop
+condition da RC2.2. Registrado em comentário na PR #271. Enquanto o #270 estiver
+vermelho, esta stack continua vermelha por herança — e o DoD "Chromium/WebKit/
+Firefox verdes" **não** está fechado.
 
 ---
 
