@@ -108,14 +108,25 @@ No capability status flipped. No Tone Transfer content added.
 
 ## Gates / tests
 
-| Script | Role |
-|---|---|
-| `validate:journey-guide-explanations` | Static Teacher Layer contract |
-| `test:journey-guide-explanations` | HANDOFF_LINES + machine + fingerprint + PARTIAL honesty |
-| `validate:guide-dialogue-contract` | Extended to assert Journey reuses GuideDialogue |
-| E2E `e2e/guided-journey-culture.spec.ts` | Tone handoff Continuar×2, EN+reduced motion, Pinyin/Hanzi/Conversation, WebKit |
+| Script | Role | Result |
+|---|---|---|
+| `validate:journey-guide-explanations` | Static Teacher Layer contract | PASS |
+| `test:journey-guide-explanations` | HANDOFF_LINES + machine + fingerprint + PARTIAL honesty | PASS |
+| `validate:guide-dialogue-contract` | Extended to assert Journey reuses GuideDialogue | PASS |
+| `test:guide-dialogue` / motion | Canonical machine | PASS |
+| `validate:journey-culture-moments` | Culture moments unchanged | PASS |
+| `typecheck` | | PASS |
+| `build` | | PASS |
+| `validate:beta` | Full beta gate (includes new journey-guide scripts) | PASS |
+| `validate:rc2-content-freeze` / feature freeze | fingerprint `516692632525` | PASS |
+| `gate:mobile-pwa-preflight` | | PASS |
+| `gate:human-qa-prebeta` | | PASS |
+| `gate:public-beta-operations` | | PASS |
+| `validate:security-boundaries` | | PASS |
+| E2E Chromium RC2.2.5 handoffs | Tone / Pinyin / Hanzi / Conversation + Continue contract | PASS |
+| E2E WebKit RC2.2.5 handoffs | Same + WebKit Continuar dismiss | PASS |
 
-Also expected in CI: `typecheck`, `validate:beta`, `build`, `test:guide-dialogue`, `validate:journey-culture-moments`, `gate:mobile-pwa-preflight`, `gate:human-qa-prebeta`, `gate:public-beta-operations`, Security.
+Manual: 390×844 / 360×640 / 375×667 / desktop screenshots + demo video of Continuar dismiss → card navigate.
 
 ---
 
