@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Mascot } from "../../components/brand/Mascot";
 import {
   routeForJourneyNode,
   type JourneyNode,
@@ -23,6 +22,7 @@ import {
   IconSound,
   IconTarget,
 } from "../../components/ui/Icon";
+import { JourneyGuideExplanation } from "./JourneyGuideExplanation";
 
 const ICON_BY_TYPE = {
   LESSON_CAPSULE: IconPlay,
@@ -161,15 +161,22 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
   // ela, o aluno sabe POR QUE está indo para lá e o que acabou de destravar.
   // Só aparece depois da aula correspondente: antes disso, prometeria uma
   // continuidade que ainda não existe.
+  //
+  // RC2.2.5 — PEDAGOGICAL_HANDOFF usa o GuideDialogue canônico (mesmo professor
+  // da LessonPlayer). O card da atividade permanece clicável durante a fala;
+  // DONE só colapsa o balão — nunca navega sozinho.
   const handoff = HANDOFF_LINES[node.id];
   if (!handoff || !isJourneyNodeComplete(handoff.afterNodeId)) return link;
 
   return (
-    <div className="flex w-full flex-col items-center gap-1.5" data-journey-handoff={node.id}>
-      <p className="flex max-w-[17rem] items-start gap-2 px-1 text-left text-[11px] leading-4 text-ink-soft">
-        <Mascot size={22} variant="wave" className="mt-0.5 shrink-0" />
-        <span>{en ? handoff.en : handoff.pt}</span>
-      </p>
+    <div
+      className="flex w-full flex-col items-center gap-2"
+      data-journey-handoff={node.id}
+    >
+      <JourneyGuideExplanation
+        id={node.id}
+        message={en ? handoff.en : handoff.pt}
+      />
       {link}
     </div>
   );
@@ -182,8 +189,13 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
  * é o reconhecimento que faz a próxima etapa parecer consequência e não tarefa
  * avulsa. `afterNodeId` amarra a frase à aula que a torna verdadeira: prometer
  * "você já sabe como os tons se movem" a quem não viu a aula seria mentira.
+ *
+ * Autoridade de copy para JourneyGuideExplanation — não duplicar no wrapper.
  */
-const HANDOFF_LINES: Record<string, { afterNodeId: string; pt: string; en: string }> = {
+export const HANDOFF_LINES: Record<
+  string,
+  { afterNodeId: string; pt: string; en: string }
+> = {
   "booster:tone-contour-1-3:v1": {
     afterNodeId: "node:instruction:foundation:tone",
     pt: "Você já sabe como o 1º e o 3º tom se movem. Vamos testar seu ouvido?",
