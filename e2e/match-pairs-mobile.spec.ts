@@ -2,12 +2,31 @@ import { expect, test, type Page } from "@playwright/test";
 import { dismissBlockingOverlays, seedLessonPlayerReady, waitForLazyPage } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 
-async function openMatchPairs(page: Page) {
+async function openMatchPairs(page: Page, options: { theme?: "dark" } = {}) {
   await seedLessonPlayerReady(page, "p1-o-que-e-mandarim", {
     masteryLevel: 1,
     isPremium: true,
     folego: 20,
   });
+  // `.theme-transition *` anima background-color por 220ms (src/index.css), então
+  // trocar o tema com o quadro já na tela abre uma janela em que getComputedStyle
+  // devolve a cor no meio do fade — e o assert de luminância vira loteria de
+  // timing. Semeando no próprio store, o quadro nasce no tema pedido: não há
+  // troca de atributo nem transição para amostrar.
+  if (options.theme) {
+    const theme = options.theme;
+    await page.addInitScript((value: string) => {
+      const raw = localStorage.getItem("longyu-v1");
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        parsed.state = { ...parsed.state, theme: value };
+        localStorage.setItem("longyu-v1", JSON.stringify(parsed));
+      } catch {
+        /* payload inválido: o teste falha adiante por conta própria */
+      }
+    }, theme);
+  }
   await page.goto("/licao/p1-o-que-e-mandarim/player");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
@@ -94,8 +113,7 @@ for (const viewport of [
     });
 
     test("usa superfície e texto escuros no tema dark", async ({ page }) => {
-      await openMatchPairs(page);
-      await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+      await openMatchPairs(page, { theme: "dark" });
       await assertTwoColumnBoard(page);
 
       // O avanço automático até o quadro pode entrar no próprio quadro e deixar
