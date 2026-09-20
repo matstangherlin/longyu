@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { CultureCategory, CultureItem } from "../../data/culture";
+import { cultureProgressionGateForItem } from "../../data/cultureProgressionGates";
 import { cultureCardStatus, type CultureCardStatus } from "../../lib/cultureProgress";
 import { cultureLessonIdForItem } from "../../data/cultureNative";
 import { Card, Pill } from "../../components/ui/primitives";
@@ -57,9 +58,17 @@ export function CultureCard({
   cta: string;
   onSave?: (itemId: string) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const status = cultureCardStatus(item.id, completedIds, savedIds, startedIds);
   const saved = savedIds.includes(item.id);
+  // RC2.2.6 — item que participa de um marco da Jornada diz isso. Etiqueta
+  // discreta, tom de utilidade: é "serve para", não "você precisa pagar".
+  const gate = cultureProgressionGateForItem(item.id);
+  const gateLabel = gate
+    ? locale === "en"
+      ? `Part of the ${gate.titleEn}`
+      : `Faz parte do ${gate.titlePt}`
+    : undefined;
   return (
     <div
       className="relative"
@@ -80,6 +89,14 @@ export function CultureCard({
             <Pill tone={STATUS_TONE[status]}>{t(STATUS_KEYS[status])}</Pill>
           </div>
           <h3 className="mt-2 text-balance font-serif text-base font-semibold leading-snug text-ink">{title}</h3>
+          {gateLabel && (
+            <p
+              className="mt-1.5 text-[10px] font-medium leading-4 text-ink-soft"
+              data-culture-gate-item-label={gate?.id}
+            >
+              🐉 {gateLabel}
+            </p>
+          )}
           <p className="mt-auto pt-3 text-xs text-ink-soft">
             {t("culture.minutes", { n: item.estimatedMinutes })}
             <span className="ml-2 font-medium text-accent">{cta}</span>

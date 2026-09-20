@@ -781,3 +781,46 @@ export async function seedLegacyLocalProgress(page: Page) {
     currentAccountId: "local",
   }));
 }
+
+/**
+ * RC2.2.6 — aluno parado exatamente num marco cultural.
+ *
+ * Conclui tudo ANTES do tópico guardado e nada a partir dele: assim o marco fica
+ * genuinamente pendente, sem acionar a política de grandfather (que liberaria o
+ * tópico para quem já esteve além dele).
+ */
+export async function seedAtCultureGate(
+  page: Page,
+  gateTargetId: string,
+  options: { cultureDoneItemIds?: string[]; cultureSeals?: string[]; isPremium?: boolean } = {}
+) {
+  await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
+  const gateIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === gateTargetId);
+  if (gateIndex < 0) throw new Error(`tópico ${gateTargetId} ausente de ALL_LESSONS`);
+  const completedLessons = ALL_LESSONS.slice(0, gateIndex).map((lesson) => lesson.id);
+  const done = options.cultureDoneItemIds ?? [];
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons,
+    lessonStarsById: Object.fromEntries(completedLessons.map((id) => [id, 3])),
+    lessonMasteryById: topicPathMasteryById(completedLessons),
+    isPremium: options.isPremium ?? true,
+    serverIsPro: options.isPremium ?? true,
+    folego: 20,
+    holdAchievementModals: true,
+    toneTrainer: buildCompletedToneTrainer(),
+    achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+    cultureCompletedIds: done,
+    cultureStartedIds: done,
+    cultureSeals: options.cultureSeals ?? [],
+    cultureMasteryById: Object.fromEntries(
+      done.map((id) => [
+        id,
+        { itemId: id, completed: true, stars: 1, bestScore: 0.8, attempts: 1, reviewDueAt: null, reviewStage: 1 },
+      ])
+    ),
+  }));
+}

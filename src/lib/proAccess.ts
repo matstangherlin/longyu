@@ -4,6 +4,10 @@ import { getPlanFeature } from "../data/planFeatures";
 import { ALL_LESSONS, JOURNEY, getLesson, getPhaseById } from "../data/journey";
 import { isJourneyTopicComplete, isTopicMasteryLesson } from "../data/topicMastery";
 import { effectivePremium } from "./entitlements";
+import {
+  cultureGateForTopic,
+  type CultureProgressionProgress,
+} from "./cultureProgressionGate";
 import { useStore } from "./store";
 
 /** Mínimo para a aula contar como concluída (libera próxima aula). */
@@ -44,6 +48,7 @@ export type AccessReasonCode =
   | "free_limited"
   | "missing_lesson"
   | "premium_required"
+  | "culture_gate_required"
   | "unknown_lesson"
   | "unknown_module";
 
@@ -55,6 +60,10 @@ export interface ProAccessContext {
   lessonPendingStars?: Record<string, string[]>;
   /** V4.6 — path unlock lê mastery 4/4, não só completedLessons. */
   lessonMasteryById?: Record<string, { level: number }>;
+  /** RC2.2.6 — progresso cultural canônico para os marcos de progressão. */
+  cultureCompletedIds?: readonly string[];
+  cultureMasteryById?: Record<string, import("../data/cultureQuest").CultureMasteryRecord>;
+  cultureSeals?: readonly string[];
 }
 
 export interface AccessDecision {
@@ -98,6 +107,20 @@ function lessonStarsFrom(context?: ProAccessContext): Record<string, number> {
 function lessonPendingStarsFrom(context?: ProAccessContext): Record<string, string[]> {
   return context?.lessonPendingStars ?? useStore.getState().lessonPendingStars;
 }
+/**
+ * RC2.2.6 — progresso cultural para os marcos. Mesma origem do Hub e da Jornada:
+ * concluir por qualquer um dos dois caminhos conta aqui.
+ */
+function cultureProgressFrom(context?: ProAccessContext): CultureProgressionProgress {
+  const state = useStore.getState();
+  return {
+    cultureCompletedIds: context?.cultureCompletedIds ?? state.cultureCompletedIds,
+    cultureMasteryById: context?.cultureMasteryById ?? state.cultureMasteryById,
+    cultureSeals: context?.cultureSeals ?? state.cultureSeals,
+    completedLessons: completedFrom(context),
+  };
+}
+
 function lessonMasteryFrom(context?: ProAccessContext): Record<string, { level: number }> {
   return context?.lessonMasteryById ?? useStore.getState().lessonMasteryById ?? {};
 }
@@ -356,6 +379,20 @@ export function canStartLesson(lessonId: string, context?: ProAccessContext): Ac
       pro,
       reasonCode: "allowed",
       reason: "Lição já adquirida; você pode continuar o tema ou praticar.",
+    };
+  }
+
+  // RC2.2.6 — marco cultural. Fica DEPOIS do "já concluída" de propósito: quem
+  // já passou por aqui nunca é trancado retroativamente. E fica aqui, e não só
+  // na Journey UI, porque bloquear o card sem bloquear a URL direta não é gate.
+  const cultureGate = cultureGateForTopic(lessonId, cultureProgressFrom(context));
+  if (cultureGate && !cultureGate.ready) {
+    return {
+      allowed: false,
+      pro,
+      reasonCode: "culture_gate_required",
+      reason: cultureGate.gate.reasonPt,
+      cta: "Continuar pela Cultura",
     };
   }
 
