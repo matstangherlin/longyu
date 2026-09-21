@@ -21,6 +21,7 @@ import {
 import { inferCurriculumRole, type CurriculumRole } from "./curriculumRole";
 import type { CommunicativeGoal, PatternSlot, RepairDirection, RepairStrategy } from "./productionTasks";
 import type { PedagogicalStepEvidence } from "./pedagogicalSpine";
+import { toneTransferKnowledgeTargetIds, toneTransferTaskById } from "./toneTransfer";
 import {
   currentJourneyLessonId,
   isJourneyTopicComplete,
@@ -758,6 +759,50 @@ const freeProduction = (opts: {
   helpMode: "disabled",
   isNoHint: true,
 });
+/**
+ * RC2.2.7 — transferência tonal.
+ *
+ * Reusa o motor de produção fechada que já existe (`free_production`): mesma
+ * mecânica, mesmo renderer, mesma entrada por voz do `FreeAnswerField`. Nada de
+ * StepKind novo — o que muda é o degrau pedagógico declarado.
+ *
+ * `productionGoal` fica de fora de propósito: o enum de objetivos comunicativos
+ * é de sobrevivência (pedir, recusar, contar) e nenhum de seus valores descreve
+ * cumprimentar, agradecer ou pedir reparo. Inventar um rótulo que não serve
+ * seria pior do que não ter rótulo — e ele só é exigido em produção ABERTA.
+ *
+ * A evidência é montada inline em vez de `withPedagogicalEvidence`: esse helper
+ * mora em `pedagogicalSpine.ts`, que importa `ALL_LESSONS` daqui. Chamá-lo
+ * criaria ciclo de runtime; o objeto é idêntico ao que ele produziria.
+ */
+const toneTransfer = (taskId: string): LessonStep => {
+  const task = toneTransferTaskById(taskId);
+  return {
+    kind: "free_production",
+    title: task.titlePt,
+    situationPt: task.situationPt,
+    correctAnswer: task.targetHanzi,
+    answer: task.targetHanzi,
+    accepts: [task.targetHanzi, ...(task.accepts ?? [])],
+    productionAssist: "guided",
+    productionHelpInitial: 1,
+    helpMode: "disabled",
+    isNoHint: true,
+    // Lembrete do alvo tonal, mostrado DEPOIS da tentativa. Não é avaliação:
+    // `analyzePronunciation` compara sílabas e não mede contorno nenhum.
+    explanation: task.toneReminderPt,
+    pedagogicalEvidence: {
+      rung: "TRANSFER",
+      knowledgeTargetIds: toneTransferKnowledgeTargetIds(task),
+      exposureStrength: "GUIDED_PRACTICE",
+      primaryDifficulty: "SOUND",
+      hiddenSkillRequirements: [],
+      distractorSafety: "NOT_APPLICABLE",
+      graded: true,
+      role: "independent_application",
+    },
+  };
+};
 const mapDirection = (
   title: string,
   fromLabel: string,
@@ -1860,6 +1905,8 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
         ["Não sei falar chinês", "Estou bem", "Olá", "Até logo"]
       ),
       conversationScene("nao-falo-chinês"),
+      toneTransfer("tt-p3wbh-nao-sei-falar"),
+      toneTransfer("tt-p3wbh-cumprimente"),
       dialogue(
         "Proteção",
         "A pessoa fala rápido demais. Qual frase protege você?",
@@ -1893,6 +1940,8 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
         ["Repita, por favor", "Não entendi", "Não sei falar chinês", "Estou bem"]
       ),
       conversationScene("pedir-repeticao"),
+      toneTransfer("tt-p3qzs-repita"),
+      toneTransfer("tt-p3qzs-estou-bem"),
       dialogue(
         "Qual intenção?",
         "Você ouviu, mas não entendeu. Escolha entre pedir repetição ou dizer que não entendeu.",
@@ -2682,6 +2731,8 @@ export const JOURNEY: JourneyPhase[] = [
                 "你呢？ devolve a pergunta: “e você?”."
               ),
               conversationScene("perguntando-se-esta-bem"),
+              toneTransfer("tt-l3-estou-bem"),
+              toneTransfer("tt-l3-devolva-pergunta"),
               listenSelect(
                 "Ouça a resposta",
                 "我很好",
@@ -2765,6 +2816,8 @@ export const JOURNEY: JourneyPhase[] = [
                 "谢谢 agradece de forma natural."
               ),
               conversationScene("agradecendo"),
+              toneTransfer("tt-l4-de-nada"),
+              toneTransfer("tt-l4-obrigado"),
               dialogue(
                 "Responda com cortesia",
                 "Pessoa diz: 谢谢. O que você responde?",
@@ -3573,6 +3626,8 @@ export const JOURNEY: JourneyPhase[] = [
                 "Use 我叫 + seu nome para responder."
               ),
               conversationScene("me-apresentando"),
+              toneTransfer("tt-l9-meu-nome"),
+              toneTransfer("tt-l9-sente-se"),
               // LEX-008 — escada de apresentação (país entra cedo)
               listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),
               listen("我是巴西人", "wǒ shì Bāxī rén", "Sou brasileiro"),
@@ -3583,6 +3638,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我是巴西人", "我叫Matheus", "谢谢", "再见"],
                 "我是巴西人 diz de onde você é."
               ),
+              toneTransfer("tt-l9-sou-brasileiro"),
               dialogue(
                 "Receba com cortesia",
                 "A pessoa entra na sala. Qual convite combina?",
@@ -3849,6 +3905,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "听不懂 = ouvir sem entender; 再说一遍 = repita; 不会说 = não sei falar."
               ),
               conversationScene("nao-entendi-reparo"),
+              toneTransfer("tt-l11-repita"),
               dialogue(
                 "Primeiro reparo",
                 "Você não entendeu o que ouviu. Qual frase comunica isso?",
@@ -3872,6 +3929,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["请慢一点", "再见", "太贵了", "我很好"],
                 "请慢一点 pede para falar mais devagar — reparo essencial."
               ),
+              toneTransfer("tt-l11-mais-devagar"),
               // LEX-009 — 等一下
               listen("等一下", "děng yíxià", "Espere um pouco"),
               dialogue(
@@ -3959,6 +4017,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我会说一点中文", "我不会说中文", "再见", "不客气"],
                 "Essa frase ajuda a ajustar a expectativa da conversa."
               ),
+              toneTransfer("tt-l11fp-falo-um-pouco"),
               // Quem fala pouco precisa do reparo tanto quanto da frase: 请再说一遍
               // está nos itens desta lição e não era pedido em lugar nenhum.
               dialogue(
@@ -3978,6 +4037,7 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               listen("你是学生吗？", "nǐ shì xuésheng ma?", "Você é estudante?"),
               listen("我学习中文", "wǒ xuéxí Zhōngwén", "Eu estudo chinês"),
+              toneTransfer("tt-l11fp-estudo-chines"),
               listen("我在学校学习", "wǒ zài xuéxiào xuéxí", "Eu estudo na escola"),
               flash("nishixueshengma"),
               flash("shiwoshixuesheng"),
