@@ -235,6 +235,13 @@ test.describe("RC2.2.6 — voz do dragão (contrato, não qualidade sonora)", ()
     await expect(speech).toBeVisible();
 
     await speech.click(); // completa o texto
+    // A máquina tem um guard (GUIDE_ADVANCE_GUARD_MS) para que um clique físico
+    // nunca complete E avance de uma vez. Dois cliques dentro dessa janela fazem
+    // o segundo ser ignorado — respeitar o guard é o contrato, não uma gambiarra.
+    const guardMs = Number(
+      (await page.locator("[data-guide-guard-ms]").first().getAttribute("data-guide-guard-ms")) ?? 80
+    );
+    await page.waitForTimeout(guardMs + 60);
     await gate.getByTestId("guide-continue").click(); // dispensa
 
     // Guia sai, marco permanece: progresso e CTA seguem disponíveis.

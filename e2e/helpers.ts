@@ -1,6 +1,10 @@
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
+import {
+  CULTURE_PROGRESSION_GATES,
+  requiredCultureItemIdsForGate,
+} from "../src/data/cultureProgressionGates";
 import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
 
 /** V4.8.6 pricing chrome — locale-keyed, no hardcoded trial price. */
@@ -18,6 +22,38 @@ type SeedState = Record<string, unknown>;
 
 function buildStorePayload(state: SeedState) {
   return JSON.stringify({ state, version: STORE_VERSION });
+}
+
+/**
+ * RC2.2.6 — progresso cultural que um aluno teria ao chegar em `lessonId`.
+ *
+ * Os marcos culturais valem também para quem abre a lição por URL, então um
+ * seed que destranca um tópico guardado precisa de um aluno que realmente fez a
+ * Cultura pelo caminho — e não do bypass que o deep link tinha antes. Vale todo
+ * marco em `lessonId` OU antes dele; os que vêm depois seguem pendentes.
+ *
+ * `seedAtCultureGate` existe justamente para o caso oposto (parar NO marco) e
+ * de propósito não usa isto.
+ */
+function cultureProgressThroughLesson(lessonId: string) {
+  const targetIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  if (targetIndex < 0) return { cultureCompletedIds: [], cultureSeals: [], cultureMasteryById: {} };
+  const satisfied = CULTURE_PROGRESSION_GATES.filter((gate) => {
+    const gateIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === gate.beforeTopicId);
+    return gateIndex >= 0 && gateIndex <= targetIndex;
+  });
+  const itemIds = [...new Set(satisfied.flatMap((gate) => requiredCultureItemIdsForGate(gate)))];
+  return {
+    cultureCompletedIds: itemIds,
+    cultureStartedIds: itemIds,
+    cultureSeals: satisfied.map((gate) => gate.requiredSealId),
+    cultureMasteryById: Object.fromEntries(
+      itemIds.map((id) => [
+        id,
+        { itemId: id, completed: true, stars: 1, bestScore: 0.8, attempts: 1, reviewDueAt: null, reviewStage: 1 },
+      ])
+    ),
+  };
 }
 
 /** V4.6 — temas já em completedLessons atrás do ponteiro viram 4/4 (não relocka). */
@@ -432,6 +468,7 @@ export async function seedUnlockedLessonSession(
     folego: 20,
     holdAchievementModals: true,
     toneTrainer: buildCompletedToneTrainer(),
+    ...cultureProgressThroughLesson(lessonId),
     ...extra,
   }));
 }
@@ -530,6 +567,7 @@ export async function seedLessonPlayerReady(
     holdAchievementModals: true,
     toneTrainer: options.completeToneTrainer === false ? {} : buildCompletedToneTrainer(),
     achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+    ...cultureProgressThroughLesson(lessonId),
   }));
 }
 
