@@ -581,12 +581,12 @@ export const PRECOMPUTED_STRUCTURE_EXPOSURE: Record<string, PrecomputedLessonExp
     "free": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_wozai": 15
+      "frame_wozai": 7
     },
     "transfer": {
       "frame_nijiaoshenme": 15,
       "frame_qingwennijiaoshenme": 9,
-      "frame_wozai": 15
+      "frame_wozai": 7
     },
     "priorTransferred": [
       "frame_qingwennijiaoshenme"
