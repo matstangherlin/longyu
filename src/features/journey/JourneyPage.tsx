@@ -43,6 +43,8 @@ import { displayInstruction, displayLessonTitle, localizedReviewPendingLabel, lo
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
+import { cultureGateForTopic, type CultureProgressionProgress } from "../../lib/cultureProgressionGate";
+import { JourneyCultureGate } from "./JourneyCultureGate";
 import {
   auxiliaryJourneyNodesAfterTopic,
   PINYIN_CAPSULE_NODE,
@@ -169,10 +171,25 @@ function lockedLessonMessage(
   toneTrainer: ToneTrainerProgress,
   lessonMasteryById: Record<string, { level?: number } | undefined>,
   t: TranslateFn,
-  locale: SupportedLocale
+  locale: SupportedLocale,
+  cultureProgress?: CultureProgressionProgress
 ): string {
   if (state === "premium" || lesson.premium) {
     return t("journey.proArea");
+  }
+
+  // RC2.2.6 — se o que trava é o marco cultural, dizer isso. Repetir "complete o
+  // módulo anterior" aqui mandaria o aluno para o lugar errado.
+  if (cultureProgress) {
+    const gate = cultureGateForTopic(lesson.id, cultureProgress);
+    if (gate && !gate.ready) {
+      const base = locale === "en" ? gate.gate.reasonEn : gate.gate.reasonPt;
+      const tally =
+        locale === "en"
+          ? `${gate.completed} of ${gate.total} done.`
+          : `${gate.completed} de ${gate.total} concluídas.`;
+      return `${base} ${tally}`;
+    }
   }
 
   const pathCtx = { completedLessons: completed, lessonMasteryById };
@@ -231,6 +248,16 @@ export function JourneyPage() {
   const lessonMasteryById = useStore((s) => s.lessonMasteryById) ?? {};
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress) ?? {};
   const toneTrainer = useStore((s) => s.toneTrainer) ?? {};
+  // RC2.2.6 — progresso cultural canônico para a dica do nó trancado.
+  const pageCultureCompletedIds = useStore((s) => s.cultureCompletedIds);
+  const pageCultureMasteryById = useStore((s) => s.cultureMasteryById);
+  const pageCultureSeals = useStore((s) => s.cultureSeals);
+  const pageCultureProgress: CultureProgressionProgress = {
+    cultureCompletedIds: pageCultureCompletedIds,
+    cultureMasteryById: pageCultureMasteryById,
+    cultureSeals: pageCultureSeals,
+    completedLessons: completed,
+  };
   const isPremium = useIsPro();
   const today = useStore((s) => s.today);
   const journeyChestsOpened = useStore((s) => s.journeyChestsOpened ?? []);
@@ -314,7 +341,12 @@ export function JourneyPage() {
       setProPaywallOpen(true);
       return;
     }
-    setLockedHint(lockedLessonMessage(lesson, state, completed, lessonTaskProgress, lessonStarsById, toneTrainer, lessonMasteryById, t, locale));
+    setLockedHint(
+      lockedLessonMessage(
+        lesson, state, completed, lessonTaskProgress, lessonStarsById, toneTrainer,
+        lessonMasteryById, t, locale, pageCultureProgress
+      )
+    );
     clearTimeout(lockedTimer.current);
     lockedTimer.current = setTimeout(() => setLockedHint(null), 3200);
   }
@@ -508,9 +540,19 @@ export function JourneyPage() {
       {lockedHint && (
         <div
           className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--app-bottom-nav-height)+1rem)] z-40 flex justify-center px-4 lg:bottom-8"
+          data-journey-locked-hint
+          role="status"
+          aria-live="polite"
         >
-          <div className="animate-pop rounded-full bg-ink px-4 py-2 text-sm font-medium text-bg shadow-lift">
-            {displayInstruction(lockedHint, locale)}
+          {/*
+            SYSTEM_GUIDANCE — temporary, non-blocking. Visual aligned to Guide
+            (mascot + bubble) without dialogue Continuar / typewriter machine.
+          */}
+          <div className="animate-pop flex max-w-[min(100%,22rem)] items-end gap-2 rounded-2xl border border-line bg-surface px-3 py-2.5 text-sm leading-5 text-ink shadow-lift">
+            <Mascot size={40} variant="still" animated={false} className="shrink-0" />
+            <span className="min-w-0 pt-0.5 font-medium">
+              {displayInstruction(lockedHint, locale)}
+            </span>
           </div>
         </div>
       )}
@@ -857,6 +899,15 @@ function ModuleBlock({
   const moduleSkipUsage = useStore((s) => s.moduleSkipUsage);
   const inventory = useStore((s) => s.inventory);
   const points = useStore((s) => s.points);
+  // RC2.2.6 — progresso cultural canônico. Mesma fonte que o Hub escreve, então
+  // concluir por lá aparece aqui sem nenhum passo extra.
+  const cultureCompletedIds = useStore((s) => s.cultureCompletedIds);
+  const cultureMasteryById = useStore((s) => s.cultureMasteryById);
+  const cultureSeals = useStore((s) => s.cultureSeals);
+  const cultureProgress = useMemo(
+    () => ({ cultureCompletedIds, cultureMasteryById, cultureSeals, completedLessons: completed }),
+    [cultureCompletedIds, cultureMasteryById, cultureSeals, completed]
+  );
   const { done, total } = unitProgress(unit, completed, lessonMasteryById);
   const hasPremium = unit.lessons.some((lesson) => lesson.premium);
   const moduleComplete = done >= total;
@@ -1033,7 +1084,11 @@ function ModuleBlock({
             requiredTonePack &&
             !toneTrainerPackCompleted(toneTrainer, requiredTonePack.id)
           );
-          const state: LessonState = toneLocked ? "locked" : baseState;
+          // O marco cultural decora o estado do card. A mesma avaliação roda em
+          // `canStartLesson`, para a URL direta não passar por cima do marco.
+          const cultureGate = cultureGateForTopic(lesson.id, cultureProgress);
+          const cultureLocked = Boolean(cultureGate && !cultureGate.ready && baseState !== "done");
+          const state: LessonState = toneLocked || cultureLocked ? "locked" : baseState;
           const stars = Math.max(0, Math.min(3, lessonStarsById[lesson.id] ?? (state === "done" ? 3 : 0)));
           const masteryLevel = Math.max(0, Math.min(4, lessonMasteryById?.[lesson.id]?.level ?? 0));
           const topicNode = isTopicMasteryLesson(lesson);
@@ -1078,7 +1133,10 @@ function ModuleBlock({
           // é antes dele que ela acontece. Renderizá-la depois seria desenhar
           // a ordem errada e ensinar o aluno a ignorá-la.
           const instruction = instructionNodesBeforeTopic(lesson.id);
-          if (!inline.length && !instruction.length && !cultureMoments.length) return node;
+          const gateMarker = cultureGate && !cultureGate.ready ? cultureGate : undefined;
+          if (!inline.length && !instruction.length && !cultureMoments.length && !gateMarker) {
+            return node;
+          }
           return (
             <div key={lesson.id} className="flex w-full flex-col items-center gap-3">
               {instruction.length > 0 && (
@@ -1089,6 +1147,14 @@ function ModuleBlock({
                   {instruction.map((slotNode) => (
                     <JourneyInlineNode key={slotNode.id} node={slotNode} />
                   ))}
+                </div>
+              )}
+              {gateMarker && (
+                <div
+                  className="flex w-full flex-col items-center gap-2"
+                  data-journey-culture-gate-before={lesson.id}
+                >
+                  <JourneyCultureGate evaluation={gateMarker} />
                 </div>
               )}
               {node}

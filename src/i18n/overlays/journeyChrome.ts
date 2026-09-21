@@ -5,6 +5,7 @@ import { resolveInstructionText } from "./instructionGloss";
 import { localizeLessonTitle } from "./localizeLesson";
 import type { SupportedLocale } from "../config";
 import { getInstructionLocale } from "../instructionLocale";
+import { CULTURE_PROGRESSION_GATES } from "../../data/cultureProgressionGates";
 
 type TFn = (key: string, vars?: TranslateVars) => string;
 
@@ -96,6 +97,15 @@ const UNLOCK_STATIC: Record<string, string> = {
   "Módulo já iniciado.": "journey.moduleAlreadyStarted",
 };
 
+/**
+ * RC2.2.6 — razões de marco cultural. Derivado do registry, não uma segunda
+ * lista de copy: o par PT→EN já vive em `CULTURE_PROGRESSION_GATES`, e é ele que
+ * alimenta a tela de bloqueio por deep link.
+ */
+const CULTURE_GATE_REASON_EN: Record<string, string> = Object.fromEntries(
+  CULTURE_PROGRESSION_GATES.map((gate) => [gate.reasonPt, gate.reasonEn])
+);
+
 /** Display helper for canStartLesson().reason — canonical PT stays in proAccess. */
 export function localizeUnlockReason(
   reason: string,
@@ -105,6 +115,9 @@ export function localizeUnlockReason(
   if (!reason || locale === "pt-BR") return reason;
   const staticKey = UNLOCK_STATIC[reason];
   if (staticKey) return translate(staticKey);
+
+  const gateReasonEn = CULTURE_GATE_REASON_EN[reason];
+  if (gateReasonEn) return gateReasonEn;
 
   let match = reason.match(
     /^Complete as 4 lições de "(.+)" para manter a ordem pedagógica da Jornada\. O Pro abre ferramentas extras, mas a sequência das aulas continua guiada\.$/

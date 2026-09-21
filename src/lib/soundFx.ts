@@ -942,3 +942,186 @@ declare global {
     webkitAudioContext?: typeof AudioContext;
   }
 }
+
+// ============================================================================
+// RC2.2.6 — Guide text voice (dragon blips)
+//
+// Som curtíssimo que acompanha o typewriter do GuideDialogue. Vibe de diálogo
+// de RPG, mas assinatura ORIGINAL do Longyu: madeira/jade filtrado sobre a mesma
+// cadeia master, sem nenhum arquivo de áudio e sem sample de terceiros.
+//
+// Três exigências moldam o desenho:
+//   - barato: uma voz minúscula por blip, sobre o AudioContext compartilhado;
+//   - interrompível: antecipar o texto corta o som no mesmo instante;
+//   - discreto: nunca em todo caractere, nunca em espaço.
+// ============================================================================
+
+/** Alturas próximas e determinísticas — nunca notas aleatórias. */
+const GUIDE_BLIP_PITCHES = [PENTA.c5, PENTA.d5, PENTA.e5] as const;
+
+/**
+ * Ritmo do blip: passos alternados de 2 e 3 graphemes elegíveis (média 2.5).
+ * Regular o bastante para soar intencional, espaçado o bastante para não virar
+ * metralhadora.
+ */
+const GUIDE_BLIP_STRIDE_CYCLE = 5;
+const GUIDE_BLIP_STRIDE_OFFSETS = new Set([0, 2]);
+
+/** Espaço e quebra de linha nunca soam. */
+export function isGuideBlipWhitespace(grapheme: string): boolean {
+  return /^\s+$/u.test(grapheme);
+}
+
+/** Pontuação cria pausa no typewriter, mas não ganha blip próprio. */
+export function isGuideBlipPunctuation(grapheme: string): boolean {
+  return /^[.,!?;:…、，。！？；：·—–\-"'“”‘’()[\]{}《》〈〉「」『』]+$/u.test(grapheme);
+}
+
+/** Grapheme que pode soar: nem espaço, nem pontuação. */
+export function isGuideBlipEligible(grapheme: string): boolean {
+  if (!grapheme) return false;
+  return !isGuideBlipWhitespace(grapheme) && !isGuideBlipPunctuation(grapheme);
+}
+
+/**
+ * Índices de grapheme que devem tocar, para uma mensagem inteira. Puro e
+ * determinístico: a UI calcula uma vez por mensagem e o tick só consulta.
+ */
+export function planGuideTextBlips(graphemes: readonly string[]): Set<number> {
+  const plan = new Set<number>();
+  let eligible = 0;
+  graphemes.forEach((grapheme, index) => {
+    if (!isGuideBlipEligible(grapheme)) return;
+    if (GUIDE_BLIP_STRIDE_OFFSETS.has(eligible % GUIDE_BLIP_STRIDE_CYCLE)) {
+      plan.add(index);
+    }
+    eligible += 1;
+  });
+  return plan;
+}
+
+type GuideBlipVoice = { gain: GainNode; osc: OscillatorNode; noise?: AudioBufferSourceNode };
+
+const activeGuideVoices = new Set<GuideBlipVoice>();
+
+/**
+ * Corta toda voz do guia agora. Usado quando o usuário antecipa o texto, quando
+ * o diálogo termina e no unmount. Faz fade de poucos ms em vez de corte seco,
+ * para não estalar.
+ */
+export function stopGuideTextVoice(): void {
+  if (!sharedContext || sharedContext.state === "closed") {
+    activeGuideVoices.clear();
+    return;
+  }
+  const now = sharedContext.currentTime;
+  for (const voice of activeGuideVoices) {
+    try {
+      voice.gain.gain.cancelScheduledValues(now);
+      voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
+      voice.gain.gain.linearRampToValueAtTime(0.0001, now + 0.008);
+      voice.osc.stop(now + 0.012);
+      voice.noise?.stop(now + 0.012);
+    } catch {
+      /* voz já encerrada pelo próprio agendamento */
+    }
+  }
+  activeGuideVoices.clear();
+}
+
+/**
+ * Toca um blip para o grapheme de índice `graphemeIndex`.
+ *
+ * Silencioso e inofensivo quando não deve soar: som desligado, aba em segundo
+ * plano, Web Audio indisponível ou contexto ainda suspenso pela política de
+ * autoplay. Em nenhum desses casos o Guide é bloqueado — o texto segue igual.
+ */
+export function guideTextBlip(graphemeIndex: number): void {
+  if (typeof window === "undefined") return;
+  // Aba escondida: nada soa.
+  if (typeof document !== "undefined" && document.hidden) return;
+
+  const AudioContextCtor = window.AudioContext ?? window.webkitAudioContext;
+  if (!AudioContextCtor) return;
+
+  const state = useStore.getState();
+  if (!state.soundEffects) return;
+
+  const context = getSharedContext(AudioContextCtor);
+  if (!context) return;
+  if (context.state === "suspended") {
+    // Tenta liberar, mas não espera nem bloqueia: sem gesto ainda, fica mudo.
+    void context.resume();
+    if (context.state === "suspended") return;
+  }
+
+  const theme = state.soundTheme ?? "longyu_classic";
+  const themeSettings = THEME_SETTINGS[theme] ?? THEME_SETTINGS.longyu_classic;
+  const preference = state.soundFxVolume ?? 0.85;
+  // Teto deliberadamente baixo: isto acompanha a leitura, não a pontua.
+  const volume = Math.max(0, Math.min(0.06, 0.052 * preference * themeSettings.gain));
+  if (volume === 0) return;
+
+  const graph = getAudioGraph(context);
+  const t0 = context.currentTime + 0.004;
+  const duration = 0.052;
+  const end = t0 + duration;
+
+  const pitch = GUIDE_BLIP_PITCHES[Math.abs(graphemeIndex) % GUIDE_BLIP_PITCHES.length];
+
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.linearRampToValueAtTime(volume, t0 + 0.005);
+  gain.gain.exponentialRampToValueAtTime(0.0001, end);
+
+  // Triângulo filtrado = madeira/jade macio, sem o bip agudo de 8-bit.
+  const tone = context.createBiquadFilter();
+  tone.type = "lowpass";
+  tone.frequency.value = 2100 * themeSettings.brightness;
+  tone.Q.value = 0.7;
+
+  const osc = context.createOscillator();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(pitch, t0);
+
+  osc.connect(tone);
+  tone.connect(gain);
+  gain.connect(graph.input);
+  osc.start(t0);
+  osc.stop(end + 0.01);
+
+  const voice: GuideBlipVoice = { gain, osc };
+
+  // Transiente de madeira quase inaudível: dá corpo à batida sem virar clique.
+  let noise: AudioBufferSourceNode | undefined;
+  try {
+    noise = context.createBufferSource();
+    const noiseFilter = context.createBiquadFilter();
+    const noiseGain = context.createGain();
+    noise.buffer = getNoiseBuffer(context);
+    noiseFilter.type = "bandpass";
+    noiseFilter.frequency.value = 1800 * themeSettings.brightness;
+    noiseFilter.Q.value = 9;
+    noiseGain.gain.setValueAtTime(volume * 0.32, t0);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.02);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(graph.input);
+    noise.start(t0, 0, 0.03);
+    voice.noise = noise;
+  } catch {
+    /* sem transiente: o tom sozinho já cumpre o papel */
+  }
+
+  activeGuideVoices.add(voice);
+  osc.onended = () => {
+    activeGuideVoices.delete(voice);
+    try {
+      gain.disconnect();
+    } catch {
+      /* já desconectado */
+    }
+  };
+
+  scheduleIdleClose(context, duration + 0.1);
+}

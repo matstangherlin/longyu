@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Mascot } from "../brand/Mascot";
 import { Button } from "../ui/primitives";
 import { IconChevron } from "../ui/Icon";
@@ -19,6 +19,7 @@ import {
   initialGuideMotion,
   type GuideMotionPhase,
 } from "../../lib/guideDialogueMotion";
+import { guideTextBlip, planGuideTextBlips, stopGuideTextVoice } from "../../lib/soundFx";
 
 export type GuideDialogueProps = {
   messages: readonly string[];
@@ -63,6 +64,12 @@ export function GuideDialogue({
   const mascotSize = size === "compact" ? 56 : 72;
   const reduced = prefersReducedMotion();
   const messageIdentity = cleaned.join("\u0001");
+  const currentMessage = cleaned[Math.min(state.messageIndex, Math.max(0, cleaned.length - 1))] ?? "";
+  // Quais graphemes ganham voz. Calculado uma vez por mensagem: o tick só consulta.
+  const blipPlan = useMemo(
+    () => planGuideTextBlips(segmentGraphemes(currentMessage)),
+    [currentMessage]
+  );
 
   useEffect(() => {
     const instant = prefersReducedMotion();
@@ -86,6 +93,7 @@ export function GuideDialogue({
       if (tickTimer.current != null) window.clearTimeout(tickTimer.current);
       if (entranceTimer.current != null) window.clearTimeout(entranceTimer.current);
       if (settleTimer.current != null) window.clearTimeout(settleTimer.current);
+      stopGuideTextVoice();
     };
     // Entrance only when dialogue identity changes — not per message.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,6 +105,7 @@ export function GuideDialogue({
         doneFiredRef.current = true;
         onCompleteRef.current();
       }
+      stopGuideTextVoice();
       return;
     }
     if (state.phase !== "typing") return;
@@ -104,13 +113,17 @@ export function GuideDialogue({
     const graphemes = segmentGraphemes(current);
     const last = graphemes[Math.max(0, state.visibleCount - 1)] ?? "";
     const delay = GUIDE_TYPEWRITER_MS + pauseAfterGrapheme(last);
+    // O grapheme que este tick vai revelar. A voz nasce do tick real da máquina —
+    // sem segundo typewriter e sem estimar a animação por CSS.
+    const revealIndex = state.visibleCount;
     tickTimer.current = window.setTimeout(() => {
+      if (blipPlan.has(revealIndex)) guideTextBlip(revealIndex);
       setState((prev) => reduceGuideDialogue(prev, { type: "TICK", now: Date.now() }, cleaned));
     }, delay);
     return () => {
       if (tickTimer.current != null) window.clearTimeout(tickTimer.current);
     };
-  }, [state.phase, state.messageIndex, state.visibleCount, cleaned]);
+  }, [state.phase, state.messageIndex, state.visibleCount, cleaned, blipPlan]);
 
   useEffect(() => {
     if (state.messageIndex === prevMessageIndex.current) return;
@@ -125,6 +138,9 @@ export function GuideDialogue({
         instant: prefersReducedMotion(),
         now: Date.now(),
       });
+      // Antecipou: o texto aparece inteiro e a voz para AGORA. Nenhum blip
+      // pendente sobrevive ao reveal instantâneo.
+      if (wasTyping) stopGuideTextVoice();
       if (wasTyping && next.phase === "complete" && !prefersReducedMotion()) {
         setSettle(true);
         if (settleTimer.current != null) window.clearTimeout(settleTimer.current);

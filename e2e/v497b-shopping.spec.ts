@@ -6,6 +6,32 @@ import {
   waitForLazyPage,
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
+import { ALL_LESSONS } from "../src/data/journey";
+import {
+  CULTURE_PROGRESSION_GATES,
+  requiredCultureItemIdsForGate,
+} from "../src/data/cultureProgressionGates";
+
+/**
+ * RC2.2.6 — quantos CultureItems o seed já concede ao destrancar `lessonId`.
+ *
+ * `seedUnlockedLessonSession` satisfaz os marcos culturais em `lessonId` ou antes,
+ * porque sem isso o guard de marco bloquearia o próprio deep link do teste. Logo
+ * "0 / 30" deixou de ser um estado realista para uma lição adiante de um marco:
+ * um aluno que chegou ali legitimamente já fechou aquele selo. Derivar o número
+ * do registry mantém a garantia que este teste realmente quer — que JOGAR a lição
+ * não concluiu nenhuma cultura extra — sem cravar uma constante que envelhece.
+ */
+function seededCultureItemCount(lessonId: string): number {
+  const targetIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  const ids = new Set(
+    CULTURE_PROGRESSION_GATES.filter((gate) => {
+      const gateIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === gate.beforeTopicId);
+      return gateIndex >= 0 && gateIndex <= targetIndex;
+    }).flatMap((gate) => requiredCultureItemIdsForGate(gate))
+  );
+  return ids.size;
+}
 import { expectCultureLessonPlayer, playCultureLessonToVictory, readCulturePersist } from "./culture-lesson-helpers";
 
 type PersistSlice = {
@@ -79,7 +105,11 @@ test.describe("V4.9.7B shopping survival", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 30/);
+    // Nada de cultura EXTRA pode ter sido concluído por jogar p6-compras: o total
+    // tem de ser exatamente o que o seed já concedeu pelos marcos anteriores.
+    await expect(page.getByTestId("culture-progress")).toContainText(
+      new RegExp(`${seededCultureItemCount("p6-compras")} / 30`)
+    );
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-all").click();
