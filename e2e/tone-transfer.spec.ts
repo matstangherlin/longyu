@@ -106,12 +106,17 @@ async function openToneTransferStep(page: Page, locale: "pt-BR" | "en" = "pt-BR"
     .filter({ hasText: situationHead })
     .first();
 
-  // `advanceUntilVisible` tem deadline interno de 25 s. O WebKit no CI roda
-  // ~1,7× mais lento que os outros engines, e percorrer a lição inteira passa disso
-  // — então chamamos em rodadas, cada uma retomando de onde a anterior parou.
-  // Aumentar o timeout do teste não bastaria: quem desiste é o helper.
+  // `advanceUntilVisible` tem deadline interno de 25 s, então uma chamada só não
+  // atravessa a lição num engine lento — o WebKit no CI roda ~1,7× mais lento que
+  // os outros. Chamamos em rodadas, cada uma retomando de onde a anterior parou.
+  //
+  // O limite é de RELÓGIO, não de contagem de rodadas: com 4 rodadas fixas o T6
+  // esgotava o orçamento no WebKit e só passava no retry do CI — verde por retry
+  // não é verde. Quem pode desistir é o timeout do teste (150 s), não um número
+  // que eu escolhi sem saber quanto cada rodada rende no engine mais lento.
+  const deadline = Date.now() + 100_000;
   let reached = false;
-  for (let round = 0; round < 4 && !reached; round += 1) {
+  while (!reached && Date.now() < deadline) {
     reached = await advanceUntilVisible(page, production, 12);
   }
   expect(reached, `a tarefa de transferência tonal não foi alcançada em ${TASK.lessonId}`).toBe(true);
