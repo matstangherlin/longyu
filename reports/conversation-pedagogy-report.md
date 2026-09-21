@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 4125145c1d6bc3e875a172ef3d5c16673bf01793 |
+| Commit | 5c79cc5c79c4885991911217eac49582e8d9463b |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T19:00:42.408Z |
+| Gerado em | 2026-09-21T11:26:49.713Z |
 | Lições | 134 |
-| Hash da Jornada | 7c054f2255e7 |
+| Hash da Jornada | 327de1df0f33 |
 
 ## Resumo
 
@@ -23,7 +23,7 @@
 | Vocabulário coberto por tarefas posteriores (plano ou SRS) | 165 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.52 |
+| Média de reutilizações por ref exibida | 7.53 |
 
 ## Cenas mais curtas
 
@@ -53,14 +53,14 @@
 |------|-----:|
 | como-se-chama | 9 |
 | encontro-amanha | 9 |
-| me-apresentando | 8 |
 | nao-falo-chinês | 8 |
-| packet-exchange-introductions | 7 |
-| falar-de-estudo | 7 |
-| cortesia-loja | 6 |
+| falar-de-estudo | 8 |
+| me-apresentando | 7 |
 | packet-exchange-basic_questions | 6 |
-| pedir-repeticao | 5 |
-| pedir-agua | 5 |
+| pedir-agua | 6 |
+| fale-de-novo | 5 |
+| apontar-natureza | 5 |
+| cortesia-loja | 4 |
 
 ## Cenas por cenário
 
@@ -146,4 +146,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:266d13ceba27d702 -->
+<!-- integridade:d34672607395e0ea -->

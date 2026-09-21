@@ -83,7 +83,12 @@ export function assertHumanQaPrebeta(root = process.cwd()) {
   const manifest = JSON.parse(read(root, "docs/release/human-qa-prebeta.json"));
   push(ALLOWED_STATUS.has(manifest.status), `status must be one of ${[...ALLOWED_STATUS].join("|")}`);
   push(manifest.kind === "PRE_CERTIFICATION_HUMAN", "kind must be PRE_CERTIFICATION_HUMAN");
-  push(manifest.fingerprint === "516692632525", "fingerprint must stay 516692632525");
+  // RC2.2.7 — o manifesto aponta para o currículo ATUAL, e pode fazer isso sem
+  // mentir porque nada do QA humano começou: founderQa/l1ToL20 NOT_STARTED,
+  // zero testadores externos, veredito NO-GO. Não há evidência a invalidar.
+  // `docs/release/device-preflight.json` é o caso oposto — lá há execução real
+  // datada contra 516692632525, e por isso ele NÃO foi retargetado.
+  push(manifest.fingerprint === "327de1df0f33", "fingerprint must stay 327de1df0f33");
   push(manifest.featureFreeze === "PUBLIC_BETA", "featureFreeze PUBLIC_BETA");
   push(manifest.curriculumFreeze === "RC2_CONTENT_FREEZE", "curriculumFreeze RC2_CONTENT_FREEZE");
   push(manifest.verdict === "NO-GO", "Public Beta verdict must remain NO-GO");

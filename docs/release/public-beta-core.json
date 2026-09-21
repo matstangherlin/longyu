@@ -3,7 +3,7 @@
   "profile": "PUBLIC_BETA_CORE",
   "featureFreeze": "PUBLIC_BETA",
   "curriculumFreeze": "RC2_CONTENT_FREEZE",
-  "fingerprint": "516692632525",
+  "fingerprint": "327de1df0f33",
   "verdict": "NO-GO",
   "verdictReason": "Core operational checks and release_candidate_sha are still empty/false. RC2.2 built the candidate infrastructure (qa_candidate env contract, build guard, deploy context, deploy identity, identity/drift/infra gates) but no candidate has been published: BLOCKED_CREDENTIALS. Free public beta does not require Stripe while Pro/Family stay planned and checkout cannot complete publicly.",
   "roadmap": [

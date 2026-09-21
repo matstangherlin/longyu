@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7c054f2255e7 |
-| HEAD no instante da geração | 4125145c1d6bc3e875a172ef3d5c16673bf01793 |
+| Hash da Jornada | 327de1df0f33 |
+| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T19:11:29.026Z |
+| Gerado em | 2026-09-21T11:24:40.732Z |
 | Lições | 134 |
 
 
@@ -36,7 +36,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | labTransferCount | — | 0 |
 | domainMismatchCount (soft) | — | 0 |
 | unknownComponentViolations | — | 0 |
-| onboardingSteps (L1–20) | ~206 | 206 |
+| onboardingSteps (L1–20) | ~206 | 207 |
 | gap 1ª→2ª transfer (lições) | — | 33 |
 
 ## Densidade de transferência
@@ -247,4 +247,4 @@ com todo o plano; agora supported aparece quando a exceção pedagógica se apli
 - **combinational_transfer:** contado acima — alvo inédito montado de componentes já ensinados.
 - **contextual_transfer:** reutilizar frase conhecida em situação nova (métrica separada; não infla novelTargets).
 
-<!-- integridade:fc0d31d9817a32df -->
+<!-- integridade:38b6b0527d4cd922 -->

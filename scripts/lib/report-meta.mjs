@@ -50,6 +50,10 @@ export const CURRICULUM_SOURCES = [
   "src/data/capstoneSurvivalPlans.ts",
   "src/data/cultureNative.ts",
   "src/data/cultureLessons.ts",
+  // RC2.2.7 — o registro de transferência tonal é currículo: as frases, as
+  // situações e os lembretes que o aluno lê moram nele. Fora daqui, mexer nessa
+  // copy não moveria o fingerprint e o relatório mentiria por omissão.
+  "src/data/toneTransfer.ts",
   "src/data/topicMasteryBonus.ts",
   "src/data/exerciseFeasibility.ts",
   "src/features/lesson/lessonTasks.ts",

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7c054f2255e7 |
-| HEAD no instante da geração | 4125145c1d6bc3e875a172ef3d5c16673bf01793 |
+| Hash da Jornada | 327de1df0f33 |
+| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T19:09:48.792Z |
+| Gerado em | 2026-09-21T11:23:16.252Z |
 | Lições | 134 |
 
 ## Resumo
@@ -23,7 +23,7 @@ Produção **não** é um único interruptor. Montar `你 + 好` com peças à v
 | lessonToFirstConversation | 2 |
 | lessonToFirstAssistedAssembly | 1 |
 | lessonToFirstGuidedRecall | 4 |
-| lessonToFirstIndependentProduction | 12 |
+| lessonToFirstIndependentProduction | 11 |
 | lessonToFirstTransfer | 15 |
 | estimatedTimeToFirstConversation | 6 min |
 | estimatedTimeToFirstAssistedAssembly | 3 min |
@@ -45,7 +45,7 @@ Primeira montagem assistida (`sentence_build` / `produce` com banco): **1. O que
 
 Primeiro recall guiado: **4. O que é hànzì?** (`p1-o-que-e-hanzi`).
 
-Primeira produção independente (`free_production`): **12. Até logo** (`p1-ate-logo`).
+Primeira produção independente (`free_production`): **11. Obrigado** (`l4`).
 
 ## 20 primeiras lições
 
@@ -61,10 +61,10 @@ Primeira produção independente (`free_production`): **12. Até logo** (`p1-ate
 | 8 | acquisition | Olá | sim | sim | sim | sim | não | sim | 6 |
 | 9 | acquisition | Tudo bem? | sim | sim | sim | sim | não | sim | 5 |
 | 10 | review | Revisão do módulo | sim | não | sim | não | não | sim | 3 |
-| 11 | acquisition | Obrigado | sim | sim | sim | sim | não | sim | 6 |
+| 11 | acquisition | Obrigado | sim | sim | sim | sim | sim | sim | 6 |
 | 12 | acquisition | Até logo | sim | sim | sim | não | sim | sim | 6 |
 | 13 | acquisition | Primeira conversa | sim | sim | sim | sim | sim | sim | 5 |
-| 14 | acquisition | Com licença | sim | sim | sim | sim | não | sim | 4 |
+| 14 | acquisition | Com licença | sim | sim | sim | sim | sim | sim | 4 |
 | 15 | review | Revisão do módulo | sim | sim | sim | sim | não | sim | 4 |
 | 16 | perception_lab | 1º tom com ma | não | não | não | sim | não | não | 4 |
 | 17 | perception_lab | 2º tom com ma | não | não | não | não | não | não | 3 |
@@ -80,4 +80,4 @@ IDs das lições de fundação e da parede de tons **não mudaram**. Progresso a
 
 Nenhuma.
 
-<!-- integridade:76721c347eec5a58 -->
+<!-- integridade:28bd1427ebe98644 -->

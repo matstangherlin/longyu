@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7c054f2255e7 |
-| HEAD no instante da geração | 4125145c1d6bc3e875a172ef3d5c16673bf01793 |
+| Hash da Jornada | 327de1df0f33 |
+| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T19:08:39.728Z |
+| Gerado em | 2026-09-21T11:22:18.945Z |
 | Lições | 134 |
 
 ## Resumo
@@ -18,10 +18,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Indicador | Valor |
 |-----------|------:|
 | Lições auditadas | 20 |
-| Passos somados | 206 |
+| Passos somados | 207 |
 | Média de passos por lição | 10.3 |
 | Minutos estimados até a lição 20 | 86 |
-| Passos de digitação na entrada inteira | 3 |
+| Passos de digitação na entrada inteira | 5 |
 | Lições sem nada para ouvir | 1 |
 
 > Medido no plano REAL de um aluno **novo**: nada completado, nenhum erro,
@@ -42,10 +42,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | 8 | Olá | 15 | 14 | 0 | 3 | 12 | 6 |
 | 9 | Tudo bem? | 14 | 13 | 0 | 2 | 11 | 5 |
 | 10 | Revisão do módulo (revisão) | 9 | 7 | 0 | 2 | 7 | 3 |
-| 11 | Obrigado | 16 | 15 | 0 | 2 | 10 | 6 |
-| 12 | Até logo | 15 | 14 | 1 | 3 | 12 | 6 |
+| 11 | Obrigado | 16 | 15 | 1 | 2 | 11 | 6 |
+| 12 | Até logo | 15 | 14 | 1 | 2 | 11 | 6 |
 | 13 | Primeira conversa | 13 | 12 | 1 | 1 | 10 | 5 |
-| 14 | Com licença | 15 | 14 | 0 | 3 | 10 | 4 |
+| 14 | Com licença | 16 | 15 | 1 | 2 | 10 | 4 |
 | 15 | Revisão do módulo (revisão) | 12 | 10 | 1 | 2 | 11 | 4 |
 | 16 | 1º tom com ma | 8 | 5 | 0 | 4 | 6 | 4 |
 | 17 | 2º tom com ma | 5 | 3 | 0 | 3 | 5 | 3 |
@@ -76,7 +76,7 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 | 4 | image_choice |
 | 8 | produce |
 | 9 | listen |
-| 12 | free_production |
+| 11 | free_production |
 | 15 | transfer_task |
 
 ## Avisos
@@ -87,4 +87,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:fabbf1b42aa81472 -->
+<!-- integridade:8cc6c945f483ffba -->
