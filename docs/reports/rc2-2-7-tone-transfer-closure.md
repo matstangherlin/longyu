@@ -5,7 +5,7 @@
 | Base | `#279` (RC2.2.6) — não esperou merge |
 | Branch | `cursor/rc2-2-7-tone-transfer-5b4f` |
 | Fingerprint antes | `516692632525` |
-| Fingerprint depois | **`4ad604bd850c`** |
+| Fingerprint depois | **`327de1df0f33`** |
 | Lições / tópicos / CultureItems | 134 / 113 / 30 — **inalterados** |
 | Exceção de freeze | `CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION` |
 | Verdict Public Beta | **NO-GO** (inalterado) |
@@ -68,7 +68,7 @@ Duas decisões de implementação que valem registro:
 | --- | --- | --- | --- | --- | --- |
 | `p1-ate-logo` | `tt-p1ate-ate-logo` | 再见 | 4 | — | **conversa** |
 | `p1-qingwen-cortesia` | `tt-p1qw-com-licenca` | 请问 | 3,4 | — | **conversa** |
-| `l3` | `tt-l3-estou-bem` | 我很好 | 3 | 3º+3º | **conversa** |
+| `p1-primeira-conversa` | `tt-p1pc-cumprimente` | 你好 | 3 | 3º+3º | **conversa** |
 | `l4` | `tt-l4-sem-problema` | 没关系 | 1,2 | — | situação |
 | `p3-wobuhui-shuo-zhongwen` | `tt-p3wbh-nao-sei-falar` | 我不会说中文 | 1,2,3,4 | 不 | **conversa** |
 | `p3-qing-zai-shuo-yibian` | `tt-p3qzs-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
@@ -178,7 +178,7 @@ começar: com a regra nova e nenhuma tarefa nova, as métricas continuaram
 “transferência” e degrau errado **não** conta; degrau certo sem alvo tonal
 **não** conta).
 
-## Fingerprint: `516692632525` → `4ad604bd850c`
+## Fingerprint: `516692632525` → `327de1df0f33`
 
 Não foi mantido artificialmente. Congelar identidade é registrar o que mudou,
 não fingir que nada mudou.
@@ -187,7 +187,7 @@ A propagação separou **gate** de **evidência**, e essa distinção é o ponto
 
 | | tratamento |
 | --- | --- |
-| Gates de freeze, fixtures, manifests de release | retargetados para `4ad604bd850c` |
+| Gates de freeze, fixtures, manifests de release | retargetados para `327de1df0f33` |
 | `docs/release/human-qa-prebeta.json` | retargetado — ver abaixo |
 | **`docs/release/device-preflight.json`** | **intocado** |
 | Relatórios históricos (`docs/reports/*`) | **intocados** |
@@ -272,7 +272,7 @@ meia-verdade.
   conversa de verdade” é julgamento humano. O que está provado é contrato:
   ancoragem, ausência de apoio, honestidade de copy, fallbacks de fala.
 - **O preflight de dispositivo agora é anterior ao currículo atual.** Ele
-  permanece verdadeiro sobre `516692632525` e **não** cobre `4ad604bd850c`.
+  permanece verdadeiro sobre `516692632525` e **não** cobre `327de1df0f33`.
 - **Reconhecimento de fala é falsificado no E2E.** O navegador do CI não tem
   microfone. Prova-se a affordance e os fallbacks, nunca a qualidade do
   reconhecedor.

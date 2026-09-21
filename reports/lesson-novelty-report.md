@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7c054f2255e7 |
-| HEAD no instante da geração | 4125145c1d6bc3e875a172ef3d5c16673bf01793 |
+| Hash da Jornada | 327de1df0f33 |
+| HEAD no instante da geração | 13a64a5d0b406d4a88a988ab9ce25b4d0181e230 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T19:01:51.040Z |
+| Gerado em | 2026-09-21T11:03:26.075Z |
 | Lições | 134 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 134 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1025 |
-| Pares com transformação cognitiva | 817 (80%) |
+| Pares de repetição semântica | 1029 |
+| Pares com transformação cognitiva | 837 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -40,12 +40,12 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-engine-2-lab | 6 | 6 | 13 | 0 | 0 | 4 | — |
 | l1 | 10 | 9 | 21 | 4 | 4 | 4 | phrase:你好 × 2 |
 | l2 | 15 | 14 | 25 | 14 | 14 | 5 | intent:identify-concept × 4 |
-| l3 | 14 | 13 | 23 | 12 | 8 | 8 | action:assemble-phrase × 3 |
+| l3 | 15 | 14 | 26 | 16 | 12 | 10 | phrase:我很好 × 3 |
 | l1-rev | 9 | 7 | 11 | 4 | 3 | 4 | action:assemble-hanzi × 2 |
-| l4 | 16 | 15 | 30 | 12 | 9 | 8 | intent:identify-concept × 2 |
-| p1-ate-logo | 15 | 14 | 23 | 14 | 11 | 8 | phrase:再见 × 3 |
+| l4 | 16 | 15 | 30 | 11 | 8 | 9 | phrase:谢谢 × 2 |
+| p1-ate-logo | 15 | 14 | 23 | 15 | 12 | 9 | intent:greet × 3 |
 | p1-primeira-conversa | 13 | 12 | 27 | 9 | 9 | 9 | phrase:你好 × 3 |
-| p1-qingwen-cortesia | 15 | 14 | 30 | 12 | 9 | 8 | phrase:你好 × 3 |
+| p1-qingwen-cortesia | 16 | 15 | 34 | 12 | 9 | 10 | phrase:你好 × 3 |
 | l2-rev | 12 | 10 | 20 | 11 | 9 | 7 | intent:thank × 3 |
 | p2-ma-primeiro-tom | 8 | 5 | 5 | 1 | 1 | 2 | char:山 × 2 |
 | p2-ma-segundo-tom | 5 | 3 | 1 | 1 | 1 | 1 | char:麻 × 2 |
@@ -66,16 +66,16 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p2-sons-brasileiros | 16 | 15 | 26 | 13 | 12 | 6 | intent:identify-concept × 4 |
 | p2-numeros-1-5 | 11 | 5 | 4 | 0 | 0 | 0 | — |
 | l4-rev | 12 | 11 | 25 | 7 | 6 | 6 | intent:identify-concept × 3 |
-| l9 | 19 | 18 | 42 | 16 | 16 | 13 | action:assemble-phrase × 3 |
-| l9-tudo-bem | 18 | 17 | 34 | 24 | 17 | 12 | phrase:这是水 × 3 |
+| l9 | 18 | 17 | 35 | 19 | 16 | 14 | action:assemble-phrase × 3 |
+| l9-tudo-bem | 18 | 17 | 37 | 21 | 20 | 12 | phrase:这是水 × 3 |
 | l9-qual-nome | 14 | 13 | 29 | 12 | 12 | 9 | intent:ask-name × 3 |
-| l10 | 17 | 16 | 32 | 18 | 10 | 13 | intent:ask-origin × 3 |
-| p3-wobuhui-shuo-zhongwen | 16 | 15 | 33 | 15 | 11 | 11 | intent:cannot-speak × 4 |
-| p3-qing-zai-shuo-yibian | 13 | 12 | 32 | 7 | 7 | 9 | phrase:请再说一遍 × 3 |
-| l11 | 17 | 16 | 37 | 14 | 9 | 12 | phrase:你叫什么 × 2 |
-| l11-falo-pouco | 26 | 14 | 26 | 12 | 11 | 10 | action:assemble-phrase × 4 |
+| l10 | 17 | 16 | 31 | 18 | 17 | 13 | intent:ask-origin × 3 |
+| p3-wobuhui-shuo-zhongwen | 13 | 12 | 27 | 11 | 11 | 8 | intent:cannot-speak × 3 |
+| p3-qing-zai-shuo-yibian | 13 | 12 | 29 | 10 | 10 | 9 | phrase:请再说一遍 × 4 |
+| l11 | 17 | 16 | 37 | 10 | 8 | 11 | action:produce-unaided × 2 |
+| l11-falo-pouco | 27 | 15 | 27 | 14 | 13 | 11 | action:assemble-phrase × 4 |
 | l12 | 20 | 19 | 45 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
-| l13 | 19 | 18 | 42 | 13 | 12 | 16 | action:assemble-phrase × 3 |
+| l13 | 19 | 18 | 39 | 16 | 14 | 16 | action:assemble-phrase × 3 |
 | l13-dialogo-ola | 18 | 17 | 34 | 16 | 10 | 13 | intent:state-wellbeing × 3 |
 | l13-dialogo-nome | 15 | 9 | 26 | 3 | 2 | 7 | intent:identify-concept × 2 |
 | p3-ordem-das-palavras | 14 | 13 | 31 | 11 | 7 | 10 | phrase:你叫什么 × 2 |
@@ -171,4 +171,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:8553ae0f5ea03389 -->
+<!-- integridade:2cbc64e6511d3b57 -->

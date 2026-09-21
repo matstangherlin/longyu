@@ -20,11 +20,11 @@ import { CULTURE_PROGRESSION_GATES } from "../src/data/cultureProgressionGates";
  * mede contorno nenhum.
  */
 
-// `l3` é lição de mastery loop: `applyMasteryPassToPlan` penaliza produção e
+// `p1-primeira-conversa` é lição de mastery loop: `applyMasteryPassToPlan` penaliza produção e
 // transferência nas passadas iniciais (`pass <= 1`), então a tarefa só entra no
 // plano a partir do nível 2. Semear nível 0 mediria a ausência correta do
 // degrau, não a tarefa — foi assim que a primeira versão deste spec reprovou.
-const TASK = TONE_TRANSFER_TASKS.find((task) => task.id === "tt-l3-estou-bem")!;
+const TASK = TONE_TRANSFER_TASKS.find((task) => task.id === "tt-p1pc-cumprimente")!;
 const TRANSFER_MASTERY_LEVEL = 2;
 
 async function installFakeRecognition(page: Page, transcript: string) {
@@ -82,7 +82,7 @@ async function denyMicPermission(page: Page) {
 }
 
 /**
- * Abre l3 e caminha até ESTA tarefa de transferência tonal.
+ * Abre a lição da tarefa e caminha até ESTE passo de transferência tonal.
  *
  * O filtro pela situação é proposital: o planner adaptativo também gera
  * `free_production` em runtime, e pegar "a primeira" faria o teste medir um
@@ -107,14 +107,14 @@ async function openToneTransferStep(page: Page, locale: "pt-BR" | "en" = "pt-BR"
     .first();
 
   // `advanceUntilVisible` tem deadline interno de 25 s. O WebKit no CI roda
-  // ~1,7× mais lento que os outros engines, e percorrer l3 inteira passa disso
+  // ~1,7× mais lento que os outros engines, e percorrer a lição inteira passa disso
   // — então chamamos em rodadas, cada uma retomando de onde a anterior parou.
   // Aumentar o timeout do teste não bastaria: quem desiste é o helper.
   let reached = false;
   for (let round = 0; round < 4 && !reached; round += 1) {
     reached = await advanceUntilVisible(page, production, 12);
   }
-  expect(reached, "a tarefa de transferência tonal não foi alcançada em l3").toBe(true);
+  expect(reached, `a tarefa de transferência tonal não foi alcançada em ${TASK.lessonId}`).toBe(true);
   return production;
 }
 

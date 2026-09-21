@@ -2729,7 +2729,6 @@ export const JOURNEY: JourneyPhase[] = [
                 "你呢？ devolve a pergunta: “e você?”."
               ),
               conversationScene("perguntando-se-esta-bem"),
-              toneTransfer("tt-l3-estou-bem"),
               listenSelect(
                 "Ouça a resposta",
                 "我很好",
@@ -2976,6 +2975,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "你叫什么？ pergunta o nome."
               ),
               conversationScene("como-se-chama"),
+              toneTransfer("tt-p1pc-cumprimente"),
               dialogue(
                 "Bom dia de novo",
                 "É de manhã na segunda conversa. Qual cumprimento combina?",

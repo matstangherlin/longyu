@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 7c054f2255e7 |
-| HEAD no instante da geração | 4125145c1d6bc3e875a172ef3d5c16673bf01793 |
+| Hash da Jornada | 327de1df0f33 |
+| HEAD no instante da geração | 13a64a5d0b406d4a88a988ab9ce25b4d0181e230 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-16T19:06:08.621Z |
+| Gerado em | 2026-09-21T11:07:07.898Z |
 | Lições | 134 |
 
 ## Política
@@ -27,7 +27,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições | 134 |
 | Lições com transfer_task | 20 |
-| Lições com free_production guiada | 80 |
+| Lições com free_production guiada | 85 |
 | Lições com produção aberta (estruturalmente elegível) | 51 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
@@ -61,7 +61,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | `frame_wobuchi` | 我不吃 ___ | — | — | — |
 | `frame_huijia_action` | 我回家 ___ | p7-imersao-casa-amigo | — | — |
 | `frame_zuofeijiqu` | 我坐飞机去 ___ | — | — | — |
-| `frame_wozai` | 我在 ___ | l11-falo-pouco | l11-falo-pouco | l26 |
+| `frame_wozai` | 我在 ___ | l11-falo-pouco | l12 | l26 |
 | `frame_wo_le` | 我 ___ 了 | l26 | l28 | p6-cidade-lugares |
 
 ## Primeiras transferências (por frame)
@@ -107,4 +107,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-mercado** · objetivo `ask_price` · modelo `多少钱？` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:b257beaf8b03a0e0 -->
+<!-- integridade:365215816945a50c -->

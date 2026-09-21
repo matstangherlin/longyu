@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 4ad604bd850c |
-| HEAD no instante da geração | e1dc050049024e4e19655b6af25329fc1497a454 |
+| Hash da Jornada | 327de1df0f33 |
+| HEAD no instante da geração | 13a64a5d0b406d4a88a988ab9ce25b4d0181e230 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T10:14:55.416Z |
+| Gerado em | 2026-09-21T11:14:14.011Z |
 | Lições | 134 |
 
 ## Resumo
@@ -954,7 +954,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Passos no plano | 13 |
 | Tipos de exercício | 10 |
 | Respostas únicas | 9 |
-| Hànzì únicos | 11 |
+| Hànzì únicos | 9 |
 | Chunks únicos | 10 |
 | Frases reais | 7 |
 | Contexto | 8 |
@@ -1589,16 +1589,16 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 15 |
+| Passos no plano | 14 |
 | Tipos de exercício | 11 |
-| Respostas únicas | 8 |
-| Hànzì únicos | 16 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 15 |
 | Chunks únicos | 5 |
-| Frases reais | 7 |
-| Contexto | 9 |
+| Frases reais | 5 |
+| Contexto | 8 |
 | Visuais | 2 |
 | Conversas | 1 |
-| Produção sem apoio | 1 |
+| Produção sem apoio | 0 |
 | Transferência | 0 |
 
 **Problemas:**
@@ -2998,4 +2998,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:19f54af8ab834232 -->
+<!-- integridade:d3422735f7fa7b28 -->

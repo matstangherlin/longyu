@@ -113,26 +113,31 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     toneReminderEn: `qǐng dips; wèn falls. It is the same pair of contours as qǐng zuò. ${SPEECH_HONESTY_EN}`,
   },
 
-  // ── l3 · Tudo bem? ──────────────────────────────────────────────────────
+  // ── p1-primeira-conversa · Primeira conversa ────────────────────────────
   {
-    id: "tt-l3-estou-bem",
-    lessonId: "l3",
+    // Esta tarefa nasceu em `l3`, que é a 9ª lição da entrada — e
+    // `validate:onboarding-pace` recusa `free_production` antes da 10ª, com
+    // razão: ali o aluno mal tem repertório para produzir uma frase sem apoio.
+    // `p1-primeira-conversa` é a 12ª, tem cena própria e nenhum alvo saturado,
+    // então o terceiro-terceiro continua coberto sem forçar o ritmo da entrada.
+    id: "tt-p1pc-cumprimente",
+    lessonId: "p1-primeira-conversa",
     context: "conversation",
-    sceneId: "perguntando-se-esta-bem",
-    titlePt: "Diga que está bem",
-    titleEn: "Say you are well",
+    sceneId: "como-se-chama",
+    titlePt: "Cumprimente antes de se apresentar",
+    titleEn: "Greet before introducing yourself",
     situationPt:
-      "A conversa acabou e outra pessoa chega perguntando como você está. Responda em voz alta que você está bem.",
+      "Mais alguém chega para conversar e ainda não trocou uma palavra com você. Cumprimente em voz alta antes de dizer seu nome.",
     situationEn:
-      "The conversation is over and someone else comes up asking how you are. Say out loud that you are well.",
-    targetHanzi: "我很好",
-    targetPinyin: "wǒ hěn hǎo",
-    meaningPt: "Estou bem",
-    accepts: ["我很好。"],
+      "One more person comes over to talk and has not exchanged a word with you yet. Greet them out loud before saying your name.",
+    targetHanzi: "你好",
+    targetPinyin: "nǐ hǎo",
+    meaningPt: "Olá",
+    accepts: ["你好。"],
     tones: [3],
     sandhi: ["third-third"],
-    toneReminderPt: `Na fala, hěn hǎo sai hén hǎo: dois terceiros tons seguidos e o primeiro sobe. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `In speech, hěn hǎo comes out as hén hǎo: two third tones in a row and the first one rises. ${SPEECH_HONESTY_EN}`,
+    toneReminderPt: `nǐ hǎo são dois terceiros tons seguidos: na fala sai ní hǎo. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `nǐ hǎo is two third tones in a row: in speech it comes out as ní hǎo. ${SPEECH_HONESTY_EN}`,
   },
 
   // ── l4 · Obrigado ───────────────────────────────────────────────────────
