@@ -26,7 +26,7 @@ Uma linha por problema.
 | STACK_BASE_SHA | `d9c7887e60442013cab1d54f15eee7ce6fdb9390` |
 | URL / ambiente | `LOCAL_PREVIEW_ONLY` — sem build compartilhável externo |
 | Feature freeze | `PUBLIC_BETA` |
-| Curriculum freeze | `RC2_CONTENT_FREEZE` · fingerprint `34b3ef326ce5` |
+| Curriculum freeze | `RC2_CONTENT_FREEZE` · fingerprint `ef3d300ef2b9` |
 | Cloud | `DEFERRED_UNTIL_QA_CANDIDATE` (`BLOCKED_CREDENTIALS`) |
 | Stripe / Family / Business | **NOT REQUIRED** Free Public Beta |
 | Executor | Humano (founder / batch) — agente só prepara kit |

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 34b3ef326ce5 |
-| HEAD no instante da geração | fb65da459edbe85736bd4c527cf78e50b8c13601 |
+| Hash da Jornada | ef3d300ef2b9 |
+| HEAD no instante da geração | 5f0e6fe75cd2809bc5063f44a746e682b8057fb5 |
 | Árvore de trabalho | limpa |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T08:32:08.940Z |
+| Gerado em | 2026-09-21T08:40:37.086Z |
 | Lições | 134 |
 
 ## Contrato
@@ -406,4 +406,4 @@ Lacunas globais de arcos anteriores entram no relatório e não reescrevem o cur
 | pedir-repeticao | chunk:wojiao | (none) | p2-sons-brasileiros |
 | o-que-e-isto | chunk:woxianghe | (none) | l26 |
 
-<!-- integridade:171eb970f612f95e -->
+<!-- integridade:edc627774acd949f -->

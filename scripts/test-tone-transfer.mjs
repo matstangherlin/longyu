@@ -14,6 +14,7 @@ import assert from "node:assert/strict";
 import { require } from "./lib/v495a-runtime.mjs";
 
 const { ALL_LESSONS } = require("../../src/data/journey.ts");
+const { lessonRoundStepsFor } = require("../../src/features/lesson/lessonTasks.ts");
 const {
   TONE_TRANSFER_TASKS,
   TONE_SANDHI_TARGET_IDS,
@@ -236,6 +237,56 @@ it("o id de sandhi sozinho não classifica: o tom concreto precisa estar lá", (
     }),
     false
   );
+});
+
+// ── Alcançabilidade em runtime ───────────────────────────────────────────────
+
+/** Níveis de maestria (0–3) em que o planner realmente inclui cada tarefa. */
+function playedLevels() {
+  const byTitle = new Map(TONE_TRANSFER_TASKS.map((task) => [task.titlePt, task]));
+  const result = new Map(TONE_TRANSFER_TASKS.map((task) => [task.id, new Set()]));
+  for (const lessonId of new Set(TONE_TRANSFER_TASKS.map((task) => task.lessonId))) {
+    const lesson = ALL_LESSONS.find((item) => item.id === lessonId);
+    for (const masteryLevel of [0, 1, 2, 3]) {
+      let plan = [];
+      try {
+        plan = lessonRoundStepsFor(lesson, { masteryLevel, silent: true }) ?? [];
+      } catch {
+        plan = [];
+      }
+      for (const step of plan) {
+        const task = byTitle.get(step.title);
+        if (task && task.lessonId === lessonId) result.get(task.id).add(masteryLevel);
+      }
+    }
+  }
+  return result;
+}
+
+it("toda tarefa registrada é jogada em alguma passada — nada de conteúdo morto", () => {
+  const levels = playedLevels();
+  const dead = [...levels].filter(([, set]) => set.size === 0).map(([id]) => id);
+  assert.deepEqual(dead, [], `nunca jogadas: ${dead.join(", ")}`);
+});
+
+it("a contagem que vale é a JOGADA, e ela cumpre os mínimos", () => {
+  const levels = playedLevels();
+  const played = TONE_TRANSFER_TASKS.filter((task) => levels.get(task.id).size > 0);
+  assert.ok(played.length >= 12, `apenas ${played.length} jogadas`);
+  assert.ok(new Set(played.map((task) => task.lessonId)).size >= 6);
+  assert.ok(played.filter((task) => task.context === "conversation").length >= 4);
+});
+
+it("transferência não é cobrada na primeira passada — é o degrau mais alto", () => {
+  // `applyMasteryPassToPlan` penaliza produção/transferência em `pass <= 1`.
+  // Exigir transferência logo na estreia contradiria a espinha de apoio, então
+  // aqui o esperado é justamente que a maioria só apareça nas passadas tardias.
+  const levels = playedLevels();
+  const lateOnly = TONE_TRANSFER_TASKS.filter((task) => {
+    const set = levels.get(task.id);
+    return set.size > 0 && !set.has(0);
+  });
+  assert.ok(lateOnly.length > 0, "nenhuma tarefa respeita o adiamento do degrau TRANSFER");
 });
 
 // ── Ensinar antes de cobrar ──────────────────────────────────────────────────

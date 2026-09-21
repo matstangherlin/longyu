@@ -57,7 +57,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
 } as const;
 
 /**
- * RC2.2.7 avançou 516692632525 → 34b3ef326ce5.
+ * RC2.2.7 avançou 516692632525 → ef3d300ef2b9.
  *
  * Mudaram `src/data/journey.ts` (14 passos de transferência tonal),
  * `src/features/lesson/lessonTasks.ts` e o novo `src/data/toneTransfer.ts`,
@@ -68,7 +68,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * existe mais. Congelar identidade é registrar o que mudou, não fingir que
  * nada mudou.
  */
-export const RC_BASE_FINGERPRINT = "34b3ef326ce5";
+export const RC_BASE_FINGERPRINT = "ef3d300ef2b9";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

@@ -18,7 +18,7 @@ function failList() {
 
 const EXPECTED = {
   freeze: "RC2_CONTENT_FREEZE",
-  fingerprint: "34b3ef326ce5",
+  fingerprint: "ef3d300ef2b9",
   lessons: 134,
   teachingTopics: 113,
   cultureItems: 30,

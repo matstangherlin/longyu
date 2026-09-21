@@ -38,7 +38,7 @@ function mutation(label, edit, expectCode) {
   const checks = structuredClone(allPass);
   let league = false;
   let sha = "abc123";
-  let fingerprint = "34b3ef326ce5";
+  let fingerprint = "ef3d300ef2b9";
   edit({ truth, checks, setLeague: (v) => (league = v), setSha: (v) => (sha = v), setFp: (v) => (fingerprint = v) });
   const result = evaluatePublicBetaCore({
     checks,
@@ -108,7 +108,7 @@ mutation("empty candidate sha", ({ setSha }) => {
     leaguePubliclyEnabled: false,
     productTruth: PRODUCT_TRUTH,
     releaseCandidateSha: "deadbeefcafef00d",
-    fingerprint: "34b3ef326ce5",
+    fingerprint: "ef3d300ef2b9",
   });
   assert.equal(result.go, true, JSON.stringify(result.failures));
   assert.ok(result.skippedCommercial.includes("stripe_test_mode_e2e"));
@@ -124,7 +124,7 @@ mutation("empty candidate sha", ({ setSha }) => {
     leaguePubliclyEnabled: false,
     productTruth: PRODUCT_TRUTH,
     releaseCandidateSha: "deadbeefcafef00d",
-    fingerprint: "34b3ef326ce5",
+    fingerprint: "ef3d300ef2b9",
   });
   assert.equal(result.go, true);
   console.log("PASS Stripe false does not block free beta");

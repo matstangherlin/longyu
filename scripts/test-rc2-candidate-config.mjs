@@ -24,7 +24,7 @@ kill("deploy-preview local", {
   fixtures: false,
   environment: "qa",
   contentFreezeSha: "x",
-  fingerprint: "34b3ef326ce5",
+  fingerprint: "ef3d300ef2b9",
 }, "LOCAL_BACKEND");
 
 kill("fixtures true", {
@@ -35,7 +35,7 @@ kill("fixtures true", {
   fixtures: true,
   environment: "qa",
   contentFreezeSha: "x",
-  fingerprint: "34b3ef326ce5",
+  fingerprint: "ef3d300ef2b9",
 }, "FIXTURES_ON");
 
 kill("environment production", {
@@ -46,7 +46,7 @@ kill("environment production", {
   fixtures: false,
   environment: "production",
   contentFreezeSha: "x",
-  fingerprint: "34b3ef326ce5",
+  fingerprint: "ef3d300ef2b9",
 }, "PROD_QA");
 
 kill("missing sha when deployed", {
@@ -56,7 +56,7 @@ kill("missing sha when deployed", {
   fixtures: false,
   environment: "qa",
   contentFreezeSha: "x",
-  fingerprint: "34b3ef326ce5",
+  fingerprint: "ef3d300ef2b9",
 }, "MISSING_SHA");
 
 console.log("PASS test:rc2-candidate-config");

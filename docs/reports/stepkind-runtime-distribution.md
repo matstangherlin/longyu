@@ -10,45 +10,40 @@ Simulates plans for the first 30 journey lessons × mastery levels 0–3.
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 50% | conversation |
 | intro | 1 | 17% | other |
-| listen_select | 1 | 17% | listening |
-| dialogue_choice | 1 | 17% | conversation |
-| sentence_build | 1 | 17% | construction |
-| match_pairs | 1 | 17% | other |
+| listen | 1 | 17% | listening |
 | comprehend | 1 | 17% | recognition |
 
 ### Pass ~2 (masteryLevel=1) — 6 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 50% | conversation |
 | intro | 1 | 17% | other |
-| listen_select | 1 | 17% | listening |
-| dialogue_choice | 1 | 17% | conversation |
-| sentence_build | 1 | 17% | construction |
 | match_pairs | 1 | 17% | other |
-| comprehend | 1 | 17% | recognition |
+| listen_select | 1 | 17% | listening |
 
 ### Pass ~3 (masteryLevel=2) — 6 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
 | intro | 1 | 17% | other |
-| listen_select | 1 | 17% | listening |
-| dialogue_choice | 1 | 17% | conversation |
+| contextual_choice | 1 | 17% | recognition |
+| reverse_recall | 1 | 17% | production |
+| free_production | 1 | 17% | production |
 | sentence_build | 1 | 17% | construction |
-| match_pairs | 1 | 17% | other |
-| comprehend | 1 | 17% | recognition |
+| dialogue_choice | 1 | 17% | conversation |
 
-### Pass ~4 (masteryLevel=3) — 6 steps
+### Pass ~4 (masteryLevel=3) — 5 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| intro | 1 | 17% | other |
-| listen_select | 1 | 17% | listening |
-| dialogue_choice | 1 | 17% | conversation |
-| sentence_build | 1 | 17% | construction |
-| match_pairs | 1 | 17% | other |
-| comprehend | 1 | 17% | recognition |
+| conversation_scene | 1 | 20% | conversation |
+| match_pairs | 1 | 20% | other |
+| reverse_recall | 1 | 20% | production |
+| dialogue_choice | 1 | 20% | conversation |
+| contextual_choice | 1 | 20% | recognition |
 
 ## p1-o-que-e-pinyin — O que é pinyin?
 
@@ -56,1738 +51,1390 @@ Simulates plans for the first 30 journey lessons × mastery levels 0–3.
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| match_pairs | 2 | 29% | other |
-| dialogue_choice | 2 | 29% | conversation |
+| dialogue_choice | 3 | 43% | conversation |
 | intro | 1 | 14% | other |
-| sentence_build | 1 | 14% | construction |
-| comprehend | 1 | 14% | recognition |
+| listen | 1 | 14% | listening |
+| match_pairs | 1 | 14% | other |
+| listen_select | 1 | 14% | listening |
 
 ### Pass ~2 (masteryLevel=1) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| match_pairs | 2 | 29% | other |
+| dialogue_choice | 3 | 43% | conversation |
+| listen_select | 2 | 29% | listening |
+| intro | 1 | 14% | other |
+| match_pairs | 1 | 14% | other |
+
+### Pass ~3 (masteryLevel=2) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 33% | conversation |
+| intro | 1 | 17% | other |
+| match_pairs | 1 | 17% | other |
+| listen_select | 1 | 17% | listening |
+| reverse_recall | 1 | 17% | production |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
 | dialogue_choice | 2 | 29% | conversation |
 | intro | 1 | 14% | other |
+| contextual_choice | 1 | 14% | recognition |
+| match_pairs | 1 | 14% | other |
+| listen_select | 1 | 14% | listening |
+| reverse_recall | 1 | 14% | production |
+
+## p1-o-que-e-tom — O que é tom?
+
+### Pass ~1 (masteryLevel=0) — 10 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 20% | other |
+| listen | 2 | 20% | listening |
+| tone | 2 | 20% | tone |
+| listen_select | 2 | 20% | listening |
+| dialogue_choice | 2 | 20% | conversation |
+
+### Pass ~2 (masteryLevel=1) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 22% | other |
+| listen | 2 | 22% | listening |
+| tone | 2 | 22% | tone |
+| listen_select | 2 | 22% | listening |
+| dialogue_choice | 1 | 11% | conversation |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 4 | 44% | tone |
+| intro | 3 | 33% | other |
+| dialogue_choice | 1 | 11% | conversation |
+| listen | 1 | 11% | listening |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 2 | 29% | tone |
+| intro | 1 | 14% | other |
+| listen_select | 1 | 14% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| listen | 1 | 14% | listening |
+| reverse_recall | 1 | 14% | production |
+
+## p1-o-que-e-hanzi — O que é hànzì?
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 43% | conversation |
+| intro | 1 | 14% | other |
+| listen | 1 | 14% | listening |
+| match_pairs | 1 | 14% | other |
+| listen_select | 1 | 14% | listening |
+
+### Pass ~2 (masteryLevel=1) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 50% | conversation |
+| match_pairs | 2 | 33% | other |
+| intro | 1 | 17% | other |
+
+### Pass ~3 (masteryLevel=2) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 50% | conversation |
+| intro | 1 | 17% | other |
+| sentence_build | 1 | 17% | construction |
+| listen_select | 1 | 17% | listening |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 43% | conversation |
+| intro | 1 | 14% | other |
+| listen_select | 1 | 14% | listening |
+| contextual_choice | 1 | 14% | recognition |
+| match_pairs | 1 | 14% | other |
+
+## p1-primeiros-hanzi — Montando primeiros hànzì
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 3 | 43% | other |
+| listen | 2 | 29% | listening |
+| hanzi_build | 2 | 29% | construction |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 3 | 38% | other |
+| listen | 2 | 25% | listening |
+| hanzi_build | 2 | 25% | construction |
+| match_pairs | 1 | 13% | other |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 3 | 33% | other |
+| hanzi_build | 3 | 33% | construction |
+| listen | 2 | 22% | listening |
+| match_pairs | 1 | 11% | other |
+
+### Pass ~4 (masteryLevel=3) — 14 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 5 | 36% | other |
+| listen | 4 | 29% | listening |
+| hanzi_build | 4 | 29% | construction |
+| match_pairs | 1 | 7% | other |
+
+## p1-engine-2-lab — Laboratório de exercícios
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 2 | 29% | listening |
+| intro | 1 | 14% | other |
+| dialogue_choice | 1 | 14% | conversation |
+| fill_blank | 1 | 14% | construction |
+| match_pairs | 1 | 14% | other |
 | sentence_build | 1 | 14% | construction |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 3 | 43% | conversation |
+| listen_select | 1 | 14% | listening |
+| fill_blank | 1 | 14% | construction |
+| match_pairs | 1 | 14% | other |
+| sentence_build | 1 | 14% | construction |
+
+### Pass ~3 (masteryLevel=2) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 25% | conversation |
+| listen_select | 1 | 13% | listening |
+| fill_blank | 1 | 13% | construction |
+| match_pairs | 1 | 13% | other |
+| sentence_build | 1 | 13% | construction |
+| hanzi_build | 1 | 13% | construction |
+| reverse_recall | 1 | 13% | production |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 29% | conversation |
+| listen_select | 1 | 14% | listening |
+| fill_blank | 1 | 14% | construction |
+| match_pairs | 1 | 14% | other |
+| sentence_build | 1 | 14% | construction |
+| contextual_choice | 1 | 14% | recognition |
+
+## l1 — Mandarim, pinyin e tom
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen_select | 2 | 25% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| dialogue_choice | 1 | 13% | conversation |
+| image_choice | 1 | 13% | recognition |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 25% | conversation |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| image_choice | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+| tone | 1 | 13% | tone |
+| listen_select | 1 | 13% | listening |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| image_choice | 1 | 11% | recognition |
+| reverse_recall | 1 | 11% | production |
+| tone | 1 | 11% | tone |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| dialogue_choice | 1 | 11% | conversation |
+| hanzi_build | 1 | 11% | construction |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| image_choice | 1 | 11% | recognition |
+| tone | 1 | 11% | tone |
+| sentence_build | 1 | 11% | construction |
+| listen_select | 1 | 11% | listening |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| dialogue_choice | 1 | 11% | conversation |
+| hanzi_build | 1 | 11% | construction |
+| contextual_choice | 1 | 11% | recognition |
+
+## l2 — Olá
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| comprehend | 2 | 25% | recognition |
+| audio_to_action | 1 | 13% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| fill_blank | 1 | 13% | construction |
+| image_choice | 1 | 13% | recognition |
+| match_pairs | 1 | 13% | other |
+| contextual_choice | 1 | 13% | recognition |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| comprehend | 2 | 25% | recognition |
+| dialogue_completion | 1 | 13% | conversation |
+| conversation_scene | 1 | 13% | conversation |
+| fill_blank | 1 | 13% | construction |
+| contextual_choice | 1 | 13% | recognition |
+| audio_discrimination | 1 | 13% | listening |
+| image_choice | 1 | 13% | recognition |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| image_choice | 1 | 11% | recognition |
+| reverse_recall | 1 | 11% | production |
+| sentence_transform | 1 | 11% | transfer |
+| produce | 1 | 11% | production |
+| hanzi_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| image_choice | 1 | 11% | recognition |
+| dialogue_completion | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+| listen_select | 1 | 11% | listening |
+| produce | 1 | 11% | production |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+
+## l3 — Tudo bem?
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| contextual_choice | 1 | 13% | recognition |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| dialogue_choice | 1 | 13% | conversation |
+| listen | 1 | 13% | listening |
+| image_choice | 1 | 13% | recognition |
+| match_pairs | 1 | 13% | other |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| substitution_drill | 1 | 13% | transfer |
+| dialogue_completion | 1 | 13% | conversation |
+| listen | 1 | 13% | listening |
+| image_choice | 1 | 13% | recognition |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| dialogue_choice | 1 | 13% | conversation |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| reverse_recall | 2 | 22% | production |
+| produce | 1 | 11% | production |
+| free_production | 1 | 11% | production |
+| sentence_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 1 | 11% | listening |
+| reverse_recall | 1 | 11% | production |
+| dialogue_completion | 1 | 11% | conversation |
+| free_production | 1 | 11% | production |
+| produce | 1 | 11% | production |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+
+## l4 — Obrigado
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| audio_to_action | 1 | 13% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| sentence_build | 1 | 13% | construction |
+| image_choice | 1 | 13% | recognition |
+| match_pairs | 1 | 13% | other |
+| contextual_choice | 1 | 13% | recognition |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| contextual_choice | 1 | 13% | recognition |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| sentence_build | 1 | 13% | construction |
+| image_choice | 1 | 13% | recognition |
+| match_pairs | 1 | 13% | other |
+| dialogue_completion | 1 | 13% | conversation |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| sentence_transform | 1 | 11% | transfer |
+| free_production | 1 | 11% | production |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| reverse_recall | 2 | 22% | production |
+| free_production | 1 | 11% | production |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+
+## p1-ate-logo — Até logo
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| audio_to_action | 1 | 13% | listening |
+| contextual_choice | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| match_pairs | 1 | 13% | other |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+| image_choice | 1 | 13% | recognition |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_completion | 1 | 13% | conversation |
+| contextual_choice | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+| image_choice | 1 | 13% | recognition |
+| audio_discrimination | 1 | 13% | listening |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| produce | 1 | 11% | production |
+| dialogue_completion | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+| hanzi_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| sentence_build | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+| free_production | 1 | 11% | production |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 1 | 11% | listening |
+| dialogue_completion | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+| produce | 1 | 11% | production |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| sentence_build | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+| free_production | 1 | 11% | production |
+
+## p1-primeira-conversa — Primeira conversa
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 1 | 13% | other |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| dialogue_choice | 1 | 13% | conversation |
+| image_choice | 1 | 13% | recognition |
+| contextual_choice | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| substitution_drill | 1 | 13% | transfer |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| dialogue_choice | 1 | 13% | conversation |
+| image_choice | 1 | 13% | recognition |
+| dialogue_completion | 1 | 13% | conversation |
+| listen_select | 1 | 13% | listening |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| produce | 1 | 11% | production |
+| reverse_recall | 1 | 11% | production |
+| sentence_transform | 1 | 11% | transfer |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+| hanzi_build | 1 | 11% | construction |
+| free_production | 1 | 11% | production |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 1 | 11% | listening |
+| dialogue_completion | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+| free_production | 1 | 11% | production |
+| produce | 1 | 11% | production |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+
+## p1-qingwen-cortesia — Com licença
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| audio_to_action | 1 | 13% | listening |
+| contextual_choice | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| image_choice | 1 | 13% | recognition |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| sentence_build | 1 | 13% | construction |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| substitution_drill | 1 | 13% | transfer |
+| contextual_choice | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| tone_pair | 1 | 13% | tone |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| image_choice | 1 | 13% | recognition |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| reverse_recall | 1 | 11% | production |
+| hanzi_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+| sentence_transform | 1 | 11% | transfer |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| listen_select | 1 | 11% | listening |
+| dialogue_completion | 1 | 11% | conversation |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+
+## p2-ma-primeiro-tom — 1º tom com ma
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen | 2 | 25% | listening |
+| listen_select | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| dialogue_choice | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 29% | conversation |
+| listen | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| comprehend | 1 | 14% | recognition |
+| fill_blank | 1 | 14% | construction |
+
+### Pass ~3 (masteryLevel=2) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| dialogue_choice | 1 | 14% | conversation |
+| comprehend | 1 | 14% | recognition |
+| fill_blank | 1 | 14% | construction |
+| reverse_recall | 1 | 14% | production |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| dialogue_choice | 1 | 14% | conversation |
+| comprehend | 1 | 14% | recognition |
+| fill_blank | 1 | 14% | construction |
+| contextual_choice | 1 | 14% | recognition |
+
+## p2-ma-segundo-tom — 2º tom com ma
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 29% | other |
+| listen_select | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| listen | 1 | 14% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+
+### Pass ~2 (masteryLevel=1) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 33% | conversation |
+| intro | 1 | 17% | other |
+| tone | 1 | 17% | tone |
+| listen | 1 | 17% | listening |
+| listen_select | 1 | 17% | listening |
+
+### Pass ~3 (masteryLevel=2) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 1 | 17% | other |
+| tone | 1 | 17% | tone |
+| listen | 1 | 17% | listening |
+| dialogue_choice | 1 | 17% | conversation |
+| listen_select | 1 | 17% | listening |
+| reverse_recall | 1 | 17% | production |
+
+### Pass ~4 (masteryLevel=3) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 1 | 17% | other |
+| contextual_choice | 1 | 17% | recognition |
+| tone | 1 | 17% | tone |
+| listen | 1 | 17% | listening |
+| dialogue_choice | 1 | 17% | conversation |
+| listen_select | 1 | 17% | listening |
+
+## p3-wohenhao — 我很好 — Estou bem
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| audio_to_action | 1 | 13% | listening |
+| image_choice | 1 | 13% | recognition |
+| contextual_choice | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+| dialogue_choice | 1 | 13% | conversation |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| contextual_choice | 1 | 13% | recognition |
+| image_choice | 1 | 13% | recognition |
+| dialogue_completion | 1 | 13% | conversation |
+| listen | 1 | 13% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+| dialogue_choice | 1 | 13% | conversation |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| fill_blank | 1 | 11% | construction |
+| sentence_transform | 1 | 11% | transfer |
+| sentence_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| listen_select | 1 | 11% | listening |
+| dialogue_choice | 1 | 11% | conversation |
+| hanzi_build | 1 | 11% | construction |
+| reverse_recall | 1 | 11% | production |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen | 1 | 11% | listening |
+| sentence_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| listen_select | 1 | 11% | listening |
+| dialogue_choice | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+| image_choice | 1 | 11% | recognition |
+| dialogue_completion | 1 | 11% | conversation |
+
+## p2-ma-terceiro-tom — 3º tom com ma
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 29% | other |
+| listen_select | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| listen | 1 | 14% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+
+### Pass ~2 (masteryLevel=1) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 33% | conversation |
+| intro | 1 | 17% | other |
+| tone | 1 | 17% | tone |
+| listen | 1 | 17% | listening |
+| listen_select | 1 | 17% | listening |
+
+### Pass ~3 (masteryLevel=2) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 1 | 17% | other |
+| tone | 1 | 17% | tone |
+| listen | 1 | 17% | listening |
+| dialogue_choice | 1 | 17% | conversation |
+| listen_select | 1 | 17% | listening |
+| reverse_recall | 1 | 17% | production |
+
+### Pass ~4 (masteryLevel=3) — 6 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 1 | 17% | other |
+| contextual_choice | 1 | 17% | recognition |
+| tone | 1 | 17% | tone |
+| listen | 1 | 17% | listening |
+| dialogue_choice | 1 | 17% | conversation |
+| listen_select | 1 | 17% | listening |
+
+## p2-ma-quarto-tom — 4º tom com ma
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 3 | 38% | other |
+| listen_select | 2 | 25% | listening |
+| dialogue_choice | 1 | 13% | conversation |
+| listen | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 2 | 29% | listening |
+| dialogue_choice | 2 | 29% | conversation |
+| intro | 1 | 14% | other |
+| tone | 1 | 14% | tone |
+| listen | 1 | 14% | listening |
+
+### Pass ~3 (masteryLevel=2) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 2 | 29% | listening |
+| intro | 1 | 14% | other |
+| dialogue_choice | 1 | 14% | conversation |
+| listen | 1 | 14% | listening |
+| reverse_recall | 1 | 14% | production |
+| tone | 1 | 14% | tone |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen_select | 2 | 29% | listening |
+| intro | 1 | 14% | other |
+| tone | 1 | 14% | tone |
+| dialogue_choice | 1 | 14% | conversation |
+| listen | 1 | 14% | listening |
+| contextual_choice | 1 | 14% | recognition |
+
+## p2-tons-nihao — Tons em 你好
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen_select | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+| fill_blank | 1 | 13% | construction |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 25% | construction |
+| dialogue_choice | 1 | 13% | conversation |
+| tone | 1 | 13% | tone |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| tone_pair | 1 | 13% | tone |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| tone | 1 | 11% | tone |
+| reverse_recall | 1 | 11% | production |
+| dialogue_choice | 1 | 11% | conversation |
+| hanzi_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| tone | 1 | 11% | tone |
+| dialogue_choice | 1 | 11% | conversation |
+| hanzi_build | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| fill_blank | 1 | 11% | construction |
+| contextual_choice | 1 | 11% | recognition |
+
+## p2-comparar-tom-1-4 — Comparar 1º e 4º tom
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen_select | 2 | 25% | listening |
+| listen | 2 | 25% | listening |
+| tone | 1 | 13% | tone |
+| match_pairs | 1 | 13% | other |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 29% | conversation |
+| tone | 2 | 29% | tone |
+| match_pairs | 1 | 14% | other |
+| listen | 1 | 14% | listening |
+| listen_select | 1 | 14% | listening |
+
+### Pass ~3 (masteryLevel=2) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 2 | 29% | tone |
+| listen | 2 | 29% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| listen_select | 1 | 14% | listening |
+| reverse_recall | 1 | 14% | production |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 2 | 29% | tone |
+| listen | 2 | 29% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| listen_select | 1 | 14% | listening |
+| contextual_choice | 1 | 14% | recognition |
+
+## p2-comparar-tom-2-3 — Comparar 2º e 3º tom
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen | 2 | 25% | listening |
+| listen_select | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| dialogue_choice | 1 | 13% | conversation |
+| match_pairs | 1 | 13% | other |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 29% | conversation |
+| tone | 2 | 29% | tone |
+| listen | 2 | 29% | listening |
+| match_pairs | 1 | 14% | other |
+
+### Pass ~3 (masteryLevel=2) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 2 | 29% | tone |
+| listen | 2 | 29% | listening |
+| dialogue_choice | 2 | 29% | conversation |
+| reverse_recall | 1 | 14% | production |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 2 | 29% | tone |
+| listen | 2 | 29% | listening |
+| dialogue_choice | 2 | 29% | conversation |
+| contextual_choice | 1 | 14% | recognition |
+
+## p2-tons-xiexie — Tons em 谢谢
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen_select | 2 | 25% | listening |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+| dialogue_choice | 1 | 13% | conversation |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 25% | conversation |
+| sentence_build | 2 | 25% | construction |
+| tone_pair | 1 | 13% | tone |
+| conversation_scene | 1 | 13% | conversation |
+| comprehend | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+
+### Pass ~3 (masteryLevel=2) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| tone | 1 | 11% | tone |
+| fill_blank | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| listen_select | 1 | 11% | listening |
+| dialogue_choice | 1 | 11% | conversation |
+| reverse_recall | 1 | 11% | production |
+
+### Pass ~4 (masteryLevel=3) — 9 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| sentence_build | 2 | 22% | construction |
+| tone | 1 | 11% | tone |
+| fill_blank | 1 | 11% | construction |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| listen_select | 1 | 11% | listening |
+| dialogue_choice | 1 | 11% | conversation |
+| contextual_choice | 1 | 11% | recognition |
+
+## l5 — Quatro tons
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 29% | other |
+| listen | 2 | 29% | listening |
+| listen_select | 1 | 14% | listening |
+| tone | 1 | 14% | tone |
+| match_pairs | 1 | 14% | other |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 3 | 43% | tone |
+| listen | 2 | 29% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| match_pairs | 1 | 14% | other |
+
+### Pass ~3 (masteryLevel=2) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 3 | 43% | tone |
+| listen | 3 | 43% | listening |
+| reverse_recall | 1 | 14% | production |
+
+### Pass ~4 (masteryLevel=3) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 3 | 43% | tone |
+| listen | 3 | 43% | listening |
+| contextual_choice | 1 | 14% | recognition |
+
+## l6 — Treino guiado
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen_select | 2 | 25% | listening |
+| tone | 1 | 13% | tone |
+| listen | 1 | 13% | listening |
+| dialogue_choice | 1 | 13% | conversation |
+| fill_blank | 1 | 13% | construction |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 2 | 29% | conversation |
+| tone | 2 | 29% | tone |
+| listen | 1 | 14% | listening |
+| fill_blank | 1 | 14% | construction |
+| listen_select | 1 | 14% | listening |
+
+### Pass ~3 (masteryLevel=2) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 3 | 38% | tone |
+| listen | 1 | 13% | listening |
+| dialogue_choice | 1 | 13% | conversation |
+| fill_blank | 1 | 13% | construction |
+| listen_select | 1 | 13% | listening |
+| reverse_recall | 1 | 13% | production |
+
+### Pass ~4 (masteryLevel=3) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 3 | 38% | tone |
+| contextual_choice | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| dialogue_choice | 1 | 13% | conversation |
+| fill_blank | 1 | 13% | construction |
+| listen_select | 1 | 13% | listening |
+
+## l7 — A sílaba yao
+
+### Pass ~1 (masteryLevel=0) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 25% | other |
+| listen_select | 2 | 25% | listening |
+| comprehend | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| match_pairs | 1 | 13% | other |
+
+### Pass ~2 (masteryLevel=1) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| dialogue_choice | 1 | 13% | conversation |
+| listen | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| match_pairs | 1 | 13% | other |
+| fill_blank | 1 | 13% | construction |
+| listen_select | 1 | 13% | listening |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+
+### Pass ~3 (masteryLevel=2) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen | 2 | 25% | listening |
+| reverse_recall | 1 | 13% | production |
+| tone | 1 | 13% | tone |
+| comprehend | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+| fill_blank | 1 | 13% | construction |
+| sentence_build | 1 | 13% | construction |
+
+### Pass ~4 (masteryLevel=3) — 8 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| listen | 2 | 25% | listening |
+| tone | 1 | 13% | tone |
+| comprehend | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+| fill_blank | 1 | 13% | construction |
+| sentence_build | 1 | 13% | construction |
+| contextual_choice | 1 | 13% | recognition |
+
+## l8 — Tons em 好 e 谢
+
+### Pass ~1 (masteryLevel=0) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| intro | 2 | 29% | other |
+| listen_select | 1 | 14% | listening |
+| tone | 1 | 14% | tone |
+| comprehend | 1 | 14% | recognition |
+| listen | 1 | 14% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+
+### Pass ~2 (masteryLevel=1) — 7 steps
+
+| kind | count | % | cognitiveFamily |
+| --- | ---: | ---: | --- |
+| tone | 2 | 29% | tone |
+| dialogue_choice | 2 | 29% | conversation |
+| intro | 1 | 14% | other |
+| listen | 1 | 14% | listening |
 | comprehend | 1 | 14% | recognition |
 
 ### Pass ~3 (masteryLevel=2) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| match_pairs | 2 | 29% | other |
-| dialogue_choice | 2 | 29% | conversation |
+| tone | 2 | 29% | tone |
 | intro | 1 | 14% | other |
-| sentence_build | 1 | 14% | construction |
 | comprehend | 1 | 14% | recognition |
+| listen | 1 | 14% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| reverse_recall | 1 | 14% | production |
 
 ### Pass ~4 (masteryLevel=3) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| match_pairs | 2 | 29% | other |
-| dialogue_choice | 2 | 29% | conversation |
+| tone | 2 | 29% | tone |
 | intro | 1 | 14% | other |
-| sentence_build | 1 | 14% | construction |
 | comprehend | 1 | 14% | recognition |
-
-## p1-o-que-e-tom — O que é tom?
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 27% | recognition |
-| match_pairs | 2 | 18% | other |
-| intro | 1 | 9% | other |
-| tone | 1 | 9% | tone |
-| sentence_build | 1 | 9% | construction |
-| dialogue_choice | 1 | 9% | conversation |
-| audio_discrimination | 1 | 9% | listening |
-| tone_pair | 1 | 9% | tone |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 27% | recognition |
-| match_pairs | 2 | 18% | other |
-| intro | 1 | 9% | other |
-| tone | 1 | 9% | tone |
-| sentence_build | 1 | 9% | construction |
-| dialogue_choice | 1 | 9% | conversation |
-| audio_discrimination | 1 | 9% | listening |
-| tone_pair | 1 | 9% | tone |
-
-### Pass ~3 (masteryLevel=2) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 27% | recognition |
-| match_pairs | 2 | 18% | other |
-| intro | 1 | 9% | other |
-| tone | 1 | 9% | tone |
-| sentence_build | 1 | 9% | construction |
-| dialogue_choice | 1 | 9% | conversation |
-| audio_discrimination | 1 | 9% | listening |
-| tone_pair | 1 | 9% | tone |
-
-### Pass ~4 (masteryLevel=3) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 27% | recognition |
-| match_pairs | 2 | 18% | other |
-| intro | 1 | 9% | other |
-| tone | 1 | 9% | tone |
-| sentence_build | 1 | 9% | construction |
-| dialogue_choice | 1 | 9% | conversation |
-| audio_discrimination | 1 | 9% | listening |
-| tone_pair | 1 | 9% | tone |
-
-## p1-o-que-e-hanzi — O que é hànzì?
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| dialogue_choice | 2 | 18% | conversation |
-| comprehend | 2 | 18% | recognition |
-| intro | 1 | 9% | other |
-| fill_blank | 1 | 9% | construction |
-| hanzi_build | 1 | 9% | construction |
-| audio_discrimination | 1 | 9% | listening |
-| match_pairs | 1 | 9% | other |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| dialogue_choice | 2 | 18% | conversation |
-| comprehend | 2 | 18% | recognition |
-| intro | 1 | 9% | other |
-| fill_blank | 1 | 9% | construction |
-| hanzi_build | 1 | 9% | construction |
-| audio_discrimination | 1 | 9% | listening |
-| match_pairs | 1 | 9% | other |
-
-### Pass ~3 (masteryLevel=2) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| dialogue_choice | 2 | 18% | conversation |
-| comprehend | 2 | 18% | recognition |
-| intro | 1 | 9% | other |
-| fill_blank | 1 | 9% | construction |
-| hanzi_build | 1 | 9% | construction |
-| audio_discrimination | 1 | 9% | listening |
-| match_pairs | 1 | 9% | other |
-
-### Pass ~4 (masteryLevel=3) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| dialogue_choice | 2 | 18% | conversation |
-| comprehend | 2 | 18% | recognition |
-| intro | 1 | 9% | other |
-| fill_blank | 1 | 9% | construction |
-| hanzi_build | 1 | 9% | construction |
-| audio_discrimination | 1 | 9% | listening |
-| match_pairs | 1 | 9% | other |
-
-## p1-primeiros-hanzi — Montando primeiros hànzì
-
-### Pass ~1 (masteryLevel=0) — 10 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| hanzi_build | 5 | 50% | construction |
-| dialogue_choice | 3 | 30% | conversation |
-| intro | 1 | 10% | other |
-| image_choice | 1 | 10% | recognition |
-
-### Pass ~2 (masteryLevel=1) — 10 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| hanzi_build | 5 | 50% | construction |
-| dialogue_choice | 3 | 30% | conversation |
-| intro | 1 | 10% | other |
-| image_choice | 1 | 10% | recognition |
-
-### Pass ~3 (masteryLevel=2) — 10 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| hanzi_build | 5 | 50% | construction |
-| dialogue_choice | 3 | 30% | conversation |
-| intro | 1 | 10% | other |
-| image_choice | 1 | 10% | recognition |
-
-### Pass ~4 (masteryLevel=3) — 10 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| hanzi_build | 5 | 50% | construction |
-| dialogue_choice | 3 | 30% | conversation |
-| intro | 1 | 10% | other |
-| image_choice | 1 | 10% | recognition |
-
-## p1-engine-2-lab — Laboratório de exercícios
-
-### Pass ~1 (masteryLevel=0) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| fill_blank | 6 | 43% | construction |
-| comprehend | 2 | 14% | recognition |
-| image_choice | 2 | 14% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| hanzi_build | 1 | 7% | construction |
-
-### Pass ~2 (masteryLevel=1) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| fill_blank | 6 | 43% | construction |
-| comprehend | 2 | 14% | recognition |
-| image_choice | 2 | 14% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| hanzi_build | 1 | 7% | construction |
-
-### Pass ~3 (masteryLevel=2) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| fill_blank | 6 | 43% | construction |
-| comprehend | 2 | 14% | recognition |
-| image_choice | 2 | 14% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| hanzi_build | 1 | 7% | construction |
-
-### Pass ~4 (masteryLevel=3) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| fill_blank | 6 | 43% | construction |
-| comprehend | 2 | 14% | recognition |
-| image_choice | 2 | 14% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| hanzi_build | 1 | 7% | construction |
-
-## l1 — Mandarim, pinyin e tom
-
-### Pass ~1 (masteryLevel=0) — 16 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 19% | recognition |
-| sentence_build | 2 | 13% | construction |
-| image_choice | 2 | 13% | recognition |
-| intro | 1 | 6% | other |
-| tone | 1 | 6% | tone |
-| listen_select | 1 | 6% | listening |
-| conversation_scene | 1 | 6% | conversation |
-| fill_blank | 1 | 6% | construction |
-| dialogue_choice | 1 | 6% | conversation |
-| hanzi_build | 1 | 6% | construction |
-| match_pairs | 1 | 6% | other |
-| audio_discrimination | 1 | 6% | listening |
-
-### Pass ~2 (masteryLevel=1) — 16 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 19% | recognition |
-| sentence_build | 2 | 13% | construction |
-| image_choice | 2 | 13% | recognition |
-| intro | 1 | 6% | other |
-| tone | 1 | 6% | tone |
-| listen_select | 1 | 6% | listening |
-| conversation_scene | 1 | 6% | conversation |
-| fill_blank | 1 | 6% | construction |
-| dialogue_choice | 1 | 6% | conversation |
-| hanzi_build | 1 | 6% | construction |
-| match_pairs | 1 | 6% | other |
-| audio_discrimination | 1 | 6% | listening |
-
-### Pass ~3 (masteryLevel=2) — 16 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 19% | recognition |
-| sentence_build | 2 | 13% | construction |
-| image_choice | 2 | 13% | recognition |
-| intro | 1 | 6% | other |
-| tone | 1 | 6% | tone |
-| listen_select | 1 | 6% | listening |
-| conversation_scene | 1 | 6% | conversation |
-| fill_blank | 1 | 6% | construction |
-| dialogue_choice | 1 | 6% | conversation |
-| hanzi_build | 1 | 6% | construction |
-| match_pairs | 1 | 6% | other |
-| audio_discrimination | 1 | 6% | listening |
-
-### Pass ~4 (masteryLevel=3) — 16 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 3 | 19% | recognition |
-| sentence_build | 2 | 13% | construction |
-| image_choice | 2 | 13% | recognition |
-| intro | 1 | 6% | other |
-| tone | 1 | 6% | tone |
-| listen_select | 1 | 6% | listening |
-| conversation_scene | 1 | 6% | conversation |
-| fill_blank | 1 | 6% | construction |
-| dialogue_choice | 1 | 6% | conversation |
-| hanzi_build | 1 | 6% | construction |
-| match_pairs | 1 | 6% | other |
-| audio_discrimination | 1 | 6% | listening |
-
-## l2 — Olá
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| audio_to_action | 1 | 9% | listening |
-| contextual_choice | 1 | 9% | recognition |
-| intro | 1 | 9% | other |
-| comprehend | 1 | 9% | recognition |
-| hanzi_build | 1 | 9% | construction |
-| match_pairs | 1 | 9% | other |
-| listen_select | 1 | 9% | listening |
-| fill_blank | 1 | 9% | construction |
-| sentence_build | 1 | 9% | construction |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| dialogue_completion | 1 | 9% | conversation |
-| contextual_choice | 1 | 9% | recognition |
-| sentence_build | 1 | 9% | construction |
-| comprehend | 1 | 9% | recognition |
-| fill_blank | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| produce | 1 | 9% | production |
-| match_pairs | 1 | 9% | other |
-| hanzi_build | 1 | 9% | construction |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 17% | recognition |
-| produce | 1 | 8% | production |
-| hanzi_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| sentence_transform | 1 | 8% | transfer |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| reverse_recall | 1 | 8% | production |
-| dialogue_choice | 1 | 8% | conversation |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 17% | recognition |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| produce | 1 | 8% | production |
-| dialogue_choice | 1 | 8% | conversation |
-| hanzi_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| sentence_build | 1 | 8% | construction |
-| reverse_recall | 1 | 8% | production |
-| dialogue_completion | 1 | 8% | conversation |
-
-## l3 — Tudo bem?
-
-### Pass ~1 (masteryLevel=0) — 10 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 20% | recognition |
-| contextual_choice | 1 | 10% | recognition |
-| comprehend | 1 | 10% | recognition |
-| listen | 1 | 10% | listening |
-| dialogue_choice | 1 | 10% | conversation |
-| sentence_build | 1 | 10% | construction |
-| listen_select | 1 | 10% | listening |
-| fill_blank | 1 | 10% | construction |
-| hanzi_build | 1 | 10% | construction |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 18% | construction |
-| image_choice | 2 | 18% | recognition |
-| substitution_drill | 1 | 9% | transfer |
-| dialogue_completion | 1 | 9% | conversation |
-| comprehend | 1 | 9% | recognition |
-| listen_select | 1 | 9% | listening |
-| fill_blank | 1 | 9% | construction |
-| listen | 1 | 9% | listening |
-| dialogue_choice | 1 | 9% | conversation |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 17% | construction |
-| image_choice | 2 | 17% | recognition |
-| reverse_recall | 2 | 17% | production |
-| produce | 1 | 8% | production |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| listen | 1 | 8% | listening |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| image_choice | 2 | 17% | recognition |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| produce | 1 | 8% | production |
-| comprehend | 1 | 8% | recognition |
-| listen | 1 | 8% | listening |
-| sentence_build | 1 | 8% | construction |
-| dialogue_completion | 1 | 8% | conversation |
-| reverse_recall | 1 | 8% | production |
-
-## l4 — Obrigado
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| audio_to_action | 1 | 9% | listening |
-| contextual_choice | 1 | 9% | recognition |
-| intro | 1 | 9% | other |
-| comprehend | 1 | 9% | recognition |
-| sentence_build | 1 | 9% | construction |
-| match_pairs | 1 | 9% | other |
-| fill_blank | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| dialogue_choice | 1 | 9% | conversation |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 18% | construction |
-| image_choice | 2 | 18% | recognition |
-| contextual_choice | 1 | 9% | recognition |
-| dialogue_completion | 1 | 9% | conversation |
-| comprehend | 1 | 9% | recognition |
-| fill_blank | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| match_pairs | 1 | 9% | other |
-| dialogue_choice | 1 | 9% | conversation |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 17% | construction |
-| fill_blank | 2 | 17% | construction |
-| image_choice | 2 | 17% | recognition |
-| comprehend | 1 | 8% | recognition |
-| reverse_recall | 1 | 8% | production |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| sentence_transform | 1 | 8% | transfer |
-| dialogue_choice | 1 | 8% | conversation |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| image_choice | 2 | 17% | recognition |
-| reverse_recall | 2 | 17% | production |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| sentence_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-
-## p1-ate-logo — Até logo
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| audio_to_action | 1 | 9% | listening |
-| contextual_choice | 1 | 9% | recognition |
-| listen | 1 | 9% | listening |
-| comprehend | 1 | 9% | recognition |
-| image_choice | 1 | 9% | recognition |
-| sentence_build | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| dialogue_choice | 1 | 9% | conversation |
-| fill_blank | 1 | 9% | construction |
-| audio_discrimination | 1 | 9% | listening |
-| produce | 1 | 9% | production |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_completion | 1 | 9% | conversation |
-| contextual_choice | 1 | 9% | recognition |
-| sentence_build | 1 | 9% | construction |
-| comprehend | 1 | 9% | recognition |
-| image_choice | 1 | 9% | recognition |
-| fill_blank | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| audio_discrimination | 1 | 9% | listening |
-| dialogue_choice | 1 | 9% | conversation |
-| listen | 1 | 9% | listening |
-| produce | 1 | 9% | production |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| produce | 1 | 8% | production |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| image_choice | 1 | 8% | recognition |
-| conversation_scene | 1 | 8% | conversation |
-| listen | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| dialogue_choice | 1 | 8% | conversation |
-| audio_discrimination | 1 | 8% | listening |
-| reverse_recall | 1 | 8% | production |
-| dialogue_completion | 1 | 8% | conversation |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| produce | 1 | 8% | production |
-| comprehend | 1 | 8% | recognition |
-| listen | 1 | 8% | listening |
-| image_choice | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| dialogue_completion | 1 | 8% | conversation |
-| reverse_recall | 1 | 8% | production |
-
-## p1-primeira-conversa — Primeira conversa
-
-### Pass ~1 (masteryLevel=0) — 10 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 20% | construction |
-| contextual_choice | 1 | 10% | recognition |
-| comprehend | 1 | 10% | recognition |
-| intro | 1 | 10% | other |
-| image_choice | 1 | 10% | recognition |
-| listen_select | 1 | 10% | listening |
-| dialogue_choice | 1 | 10% | conversation |
-| hanzi_build | 1 | 10% | construction |
-| produce | 1 | 10% | production |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 18% | construction |
-| substitution_drill | 1 | 9% | transfer |
-| dialogue_completion | 1 | 9% | conversation |
-| comprehend | 1 | 9% | recognition |
-| image_choice | 1 | 9% | recognition |
-| listen_select | 1 | 9% | listening |
-| dialogue_choice | 1 | 9% | conversation |
-| produce | 1 | 9% | production |
-| hanzi_build | 1 | 9% | construction |
-| conversation_scene | 1 | 9% | conversation |
-
-### Pass ~3 (masteryLevel=2) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 18% | construction |
-| produce | 1 | 9% | production |
-| comprehend | 1 | 9% | recognition |
-| hanzi_build | 1 | 9% | construction |
-| image_choice | 1 | 9% | recognition |
-| conversation_scene | 1 | 9% | conversation |
-| sentence_transform | 1 | 9% | transfer |
-| listen_select | 1 | 9% | listening |
-| dialogue_choice | 1 | 9% | conversation |
-| reverse_recall | 1 | 9% | production |
-
-### Pass ~4 (masteryLevel=3) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 18% | conversation |
-| conversation_scene | 1 | 9% | conversation |
-| sentence_build | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| produce | 1 | 9% | production |
-| comprehend | 1 | 9% | recognition |
-| image_choice | 1 | 9% | recognition |
-| hanzi_build | 1 | 9% | construction |
-| reverse_recall | 1 | 9% | production |
-| dialogue_completion | 1 | 9% | conversation |
-
-## p1-qingwen-cortesia — Com licença
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 2 | 18% | recognition |
-| audio_to_action | 1 | 9% | listening |
-| contextual_choice | 1 | 9% | recognition |
-| listen | 1 | 9% | listening |
-| image_choice | 1 | 9% | recognition |
-| sentence_build | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| hanzi_build | 1 | 9% | construction |
-| tone_pair | 1 | 9% | tone |
-| conversation_scene | 1 | 9% | conversation |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 2 | 18% | recognition |
-| sentence_build | 2 | 18% | construction |
-| substitution_drill | 1 | 9% | transfer |
-| contextual_choice | 1 | 9% | recognition |
-| image_choice | 1 | 9% | recognition |
-| listen_select | 1 | 9% | listening |
-| listen | 1 | 9% | listening |
-| hanzi_build | 1 | 9% | construction |
-| conversation_scene | 1 | 9% | conversation |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| sentence_build | 2 | 17% | construction |
-| comprehend | 2 | 17% | recognition |
-| hanzi_build | 1 | 8% | construction |
-| image_choice | 1 | 8% | recognition |
-| listen | 1 | 8% | listening |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-| sentence_transform | 1 | 8% | transfer |
-| reverse_recall | 1 | 8% | production |
-
-### Pass ~4 (masteryLevel=3) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| comprehend | 2 | 18% | recognition |
-| conversation_scene | 1 | 9% | conversation |
-| listen_select | 1 | 9% | listening |
-| listen | 1 | 9% | listening |
-| image_choice | 1 | 9% | recognition |
-| sentence_build | 1 | 9% | construction |
-| hanzi_build | 1 | 9% | construction |
-| tone_pair | 1 | 9% | tone |
-| reverse_recall | 1 | 9% | production |
-| dialogue_completion | 1 | 9% | conversation |
-
-## p2-ma-primeiro-tom — 1º tom com ma
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| fill_blank | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-## p2-ma-segundo-tom — 2º tom com ma
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-## p2-ma-terceiro-tom — 3º tom com ma
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-## p2-ma-quarto-tom — 4º tom com ma
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 33% | conversation |
-| listen_select | 2 | 17% | listening |
-| intro | 1 | 8% | other |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-
-## p2-comparar-tom-1-4 — Comparar 1º e 4º tom
-
-### Pass ~1 (masteryLevel=0) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 3 | 21% | recognition |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~2 (masteryLevel=1) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 3 | 21% | recognition |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~3 (masteryLevel=2) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 3 | 21% | recognition |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~4 (masteryLevel=3) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 3 | 21% | recognition |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| audio_discrimination | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-## p2-comparar-tom-2-3 — Comparar 2º e 3º tom
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-## l5 — Quatro tons
-
-### Pass ~1 (masteryLevel=0) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 29% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~2 (masteryLevel=1) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 29% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~3 (masteryLevel=2) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 29% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~4 (masteryLevel=3) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 4 | 29% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| match_pairs | 1 | 7% | other |
-
-## l6 — Treino guiado
-
-### Pass ~1 (masteryLevel=0) — 13 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 15% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| fill_blank | 1 | 8% | construction |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~2 (masteryLevel=1) — 13 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 15% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| fill_blank | 1 | 8% | construction |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~3 (masteryLevel=2) — 13 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 15% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| fill_blank | 1 | 8% | construction |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-### Pass ~4 (masteryLevel=3) — 13 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 15% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| fill_blank | 1 | 8% | construction |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| sentence_build | 1 | 8% | construction |
-| listen_select | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
-
-## l7 — A sílaba yao
-
-### Pass ~1 (masteryLevel=0) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| listen_select | 2 | 14% | listening |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~2 (masteryLevel=1) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| listen_select | 2 | 14% | listening |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~3 (masteryLevel=2) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| listen_select | 2 | 14% | listening |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
-
-### Pass ~4 (masteryLevel=3) — 14 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| listen_select | 2 | 14% | listening |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| dialogue_choice | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
-
-## l8 — Tons em 好 e 谢
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| audio_discrimination | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| audio_discrimination | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| audio_discrimination | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| audio_discrimination | 1 | 8% | listening |
-| tone_pair | 1 | 8% | tone |
+| listen | 1 | 14% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| contextual_choice | 1 | 14% | recognition |
 
 ## l8-compare — Compare tons
 
-### Pass ~1 (masteryLevel=0) — 12 steps
+### Pass ~1 (masteryLevel=0) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| intro | 2 | 29% | other |
+| listen_select | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| sentence_build | 1 | 14% | construction |
+| match_pairs | 1 | 14% | other |
 
-### Pass ~2 (masteryLevel=1) — 12 steps
+### Pass ~2 (masteryLevel=1) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| tone | 3 | 43% | tone |
+| dialogue_choice | 1 | 14% | conversation |
+| match_pairs | 1 | 14% | other |
+| sentence_build | 1 | 14% | construction |
+| listen_select | 1 | 14% | listening |
 
-### Pass ~3 (masteryLevel=2) — 12 steps
+### Pass ~3 (masteryLevel=2) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| tone | 4 | 57% | tone |
+| listen_select | 1 | 14% | listening |
+| sentence_build | 1 | 14% | construction |
+| reverse_recall | 1 | 14% | production |
 
-### Pass ~4 (masteryLevel=3) — 12 steps
+### Pass ~4 (masteryLevel=3) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| audio_discrimination | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| tone | 4 | 57% | tone |
+| listen_select | 1 | 14% | listening |
+| sentence_build | 1 | 14% | construction |
+| contextual_choice | 1 | 14% | recognition |
 
 ## l8-shi — A sílaba shi
 
-### Pass ~1 (masteryLevel=0) — 14 steps
+### Pass ~1 (masteryLevel=0) — 8 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 14% | conversation |
-| fill_blank | 2 | 14% | construction |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
+| intro | 2 | 25% | other |
+| listen_select | 2 | 25% | listening |
+| comprehend | 1 | 13% | recognition |
+| listen | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| recognize | 1 | 13% | recognition |
 
-### Pass ~2 (masteryLevel=1) — 14 steps
+### Pass ~2 (masteryLevel=1) — 8 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 14% | conversation |
-| fill_blank | 2 | 14% | construction |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
+| dialogue_choice | 1 | 13% | conversation |
+| listen | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| recognize | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| listen_select | 1 | 13% | listening |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
 
-### Pass ~3 (masteryLevel=2) — 14 steps
+### Pass ~3 (masteryLevel=2) — 8 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 14% | conversation |
-| fill_blank | 2 | 14% | construction |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
+| listen | 1 | 13% | listening |
+| tone | 1 | 13% | tone |
+| recognize | 1 | 13% | recognition |
+| fill_blank | 1 | 13% | construction |
+| listen_select | 1 | 13% | listening |
+| comprehend | 1 | 13% | recognition |
+| sentence_build | 1 | 13% | construction |
+| reverse_recall | 1 | 13% | production |
 
-### Pass ~4 (masteryLevel=3) — 14 steps
+### Pass ~4 (masteryLevel=3) — 8 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 14% | conversation |
-| fill_blank | 2 | 14% | construction |
-| sentence_build | 2 | 14% | construction |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| conversation_scene | 1 | 7% | conversation |
-| comprehend | 1 | 7% | recognition |
-| tone_pair | 1 | 7% | tone |
-| audio_discrimination | 1 | 7% | listening |
-| hanzi_build | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
-
-## p2-tons-nihao — Tons em 你好
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-
-## p2-tons-xiexie — Tons em 谢谢
-
-### Pass ~1 (masteryLevel=0) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| fill_blank | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-
-### Pass ~2 (masteryLevel=1) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| fill_blank | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| fill_blank | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 25% | conversation |
-| sentence_build | 2 | 17% | construction |
-| fill_blank | 2 | 17% | construction |
-| intro | 1 | 8% | other |
-| tone | 1 | 8% | tone |
-| tone_pair | 1 | 8% | tone |
-| conversation_scene | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
+| listen | 2 | 25% | listening |
+| tone | 1 | 13% | tone |
+| comprehend | 1 | 13% | recognition |
+| listen_select | 1 | 13% | listening |
+| fill_blank | 1 | 13% | construction |
+| sentence_build | 1 | 13% | construction |
+| contextual_choice | 1 | 13% | recognition |
 
 ## p2-sons-brasileiros — Sons que brasileiros confundem
 
-### Pass ~1 (masteryLevel=0) — 12 steps
+### Pass ~1 (masteryLevel=0) — 8 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| comprehend | 2 | 17% | recognition |
-| intro | 1 | 8% | other |
-| listen_select | 1 | 8% | listening |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| comprehend | 2 | 25% | recognition |
+| listen_select | 1 | 13% | listening |
+| intro | 1 | 13% | other |
+| conversation_scene | 1 | 13% | conversation |
+| audio_discrimination | 1 | 13% | listening |
+| fill_blank | 1 | 13% | construction |
+| match_pairs | 1 | 13% | other |
 
-### Pass ~2 (masteryLevel=1) — 12 steps
+### Pass ~2 (masteryLevel=1) — 8 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| comprehend | 2 | 17% | recognition |
-| intro | 1 | 8% | other |
-| listen_select | 1 | 8% | listening |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| dialogue_choice | 2 | 25% | conversation |
+| comprehend | 2 | 25% | recognition |
+| tone_pair | 1 | 13% | tone |
+| conversation_scene | 1 | 13% | conversation |
+| audio_discrimination | 1 | 13% | listening |
+| fill_blank | 1 | 13% | construction |
 
-### Pass ~3 (masteryLevel=2) — 12 steps
+### Pass ~3 (masteryLevel=2) — 9 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| comprehend | 2 | 17% | recognition |
-| intro | 1 | 8% | other |
-| listen_select | 1 | 8% | listening |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| hanzi_build | 1 | 11% | construction |
+| reverse_recall | 1 | 11% | production |
+| listen_select | 1 | 11% | listening |
+| tone_pair | 1 | 11% | tone |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| audio_discrimination | 1 | 11% | listening |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
 
-### Pass ~4 (masteryLevel=3) — 12 steps
+### Pass ~4 (masteryLevel=3) — 9 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 2 | 17% | conversation |
-| comprehend | 2 | 17% | recognition |
-| intro | 1 | 8% | other |
-| listen_select | 1 | 8% | listening |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| sentence_build | 1 | 8% | construction |
-| tone_pair | 1 | 8% | tone |
-| audio_discrimination | 1 | 8% | listening |
-| match_pairs | 1 | 8% | other |
+| hanzi_build | 1 | 11% | construction |
+| contextual_choice | 1 | 11% | recognition |
+| listen_select | 1 | 11% | listening |
+| tone_pair | 1 | 11% | tone |
+| conversation_scene | 1 | 11% | conversation |
+| comprehend | 1 | 11% | recognition |
+| audio_discrimination | 1 | 11% | listening |
+| fill_blank | 1 | 11% | construction |
+| dialogue_choice | 1 | 11% | conversation |
 
 ## p2-numeros-1-5 — Números por som
 
-### Pass ~1 (masteryLevel=0) — 14 steps
+### Pass ~1 (masteryLevel=0) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
+| intro | 2 | 29% | other |
+| listen_select | 2 | 29% | listening |
+| tone | 1 | 14% | tone |
+| listen | 1 | 14% | listening |
+| match_pairs | 1 | 14% | other |
 
-### Pass ~2 (masteryLevel=1) — 14 steps
+### Pass ~2 (masteryLevel=1) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
+| listen_select | 2 | 29% | listening |
+| listen | 2 | 29% | listening |
+| dialogue_choice | 1 | 14% | conversation |
+| match_pairs | 1 | 14% | other |
+| tone | 1 | 14% | tone |
 
-### Pass ~3 (masteryLevel=2) — 14 steps
+### Pass ~3 (masteryLevel=2) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
+| listen | 4 | 57% | listening |
+| listen_select | 1 | 14% | listening |
+| reverse_recall | 1 | 14% | production |
+| tone | 1 | 14% | tone |
 
-### Pass ~4 (masteryLevel=3) — 14 steps
+### Pass ~4 (masteryLevel=3) — 7 steps
 
 | kind | count | % | cognitiveFamily |
 | --- | ---: | ---: | --- |
-| dialogue_choice | 3 | 21% | conversation |
-| comprehend | 2 | 14% | recognition |
-| intro | 1 | 7% | other |
-| tone | 1 | 7% | tone |
-| listen_select | 1 | 7% | listening |
-| sentence_build | 1 | 7% | construction |
-| audio_discrimination | 1 | 7% | listening |
-| conversation_scene | 1 | 7% | conversation |
-| tone_pair | 1 | 7% | tone |
-| fill_blank | 1 | 7% | construction |
-| match_pairs | 1 | 7% | other |
-
-## l9 — Me apresentar
-
-### Pass ~1 (masteryLevel=0) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| audio_to_action | 1 | 9% | listening |
-| contextual_choice | 1 | 9% | recognition |
-| listen | 1 | 9% | listening |
-| comprehend | 1 | 9% | recognition |
-| fill_blank | 1 | 9% | construction |
-| listen_select | 1 | 9% | listening |
-| translation_build | 1 | 9% | construction |
-| dialogue_choice | 1 | 9% | conversation |
-| hanzi_build | 1 | 9% | construction |
-
-### Pass ~2 (masteryLevel=1) — 11 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 18% | recognition |
-| fill_blank | 2 | 18% | construction |
-| contextual_choice | 1 | 9% | recognition |
-| substitution_drill | 1 | 9% | transfer |
-| comprehend | 1 | 9% | recognition |
-| listen_select | 1 | 9% | listening |
-| spot_error | 1 | 9% | other |
-| listen | 1 | 9% | listening |
-| translation_build | 1 | 9% | construction |
-
-### Pass ~3 (masteryLevel=2) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| fill_blank | 2 | 17% | construction |
-| image_choice | 2 | 17% | recognition |
-| translation_build | 1 | 8% | construction |
-| comprehend | 1 | 8% | recognition |
-| hanzi_build | 1 | 8% | construction |
-| conversation_scene | 1 | 8% | conversation |
-| listen | 1 | 8% | listening |
-| listen_select | 1 | 8% | listening |
-| sentence_transform | 1 | 8% | transfer |
-| reverse_recall | 1 | 8% | production |
-
-### Pass ~4 (masteryLevel=3) — 12 steps
-
-| kind | count | % | cognitiveFamily |
-| --- | ---: | ---: | --- |
-| image_choice | 2 | 17% | recognition |
-| conversation_scene | 1 | 8% | conversation |
-| listen_select | 1 | 8% | listening |
-| listen | 1 | 8% | listening |
-| dialogue_choice | 1 | 8% | conversation |
-| comprehend | 1 | 8% | recognition |
-| fill_blank | 1 | 8% | construction |
-| translation_build | 1 | 8% | construction |
-| reverse_recall | 1 | 8% | production |
-| dialogue_completion | 1 | 8% | conversation |
-| hanzi_build | 1 | 8% | construction |
+| listen | 3 | 43% | listening |
+| listen_select | 2 | 29% | listening |
+| contextual_choice | 1 | 14% | recognition |
+| tone | 1 | 14% | tone |
 
 ## Global totals
 
 | kind | count | cognitiveFamily |
 | --- | ---: | --- |
-| dialogue_choice | 252 | conversation |
-| comprehend | 164 | recognition |
-| sentence_build | 145 | construction |
-| fill_blank | 98 | construction |
-| listen_select | 95 | listening |
-| intro | 91 | other |
-| conversation_scene | 89 | conversation |
-| hanzi_build | 77 | construction |
-| audio_discrimination | 75 | listening |
-| match_pairs | 72 | other |
-| image_choice | 72 | recognition |
-| tone | 56 | tone |
-| tone_pair | 55 | tone |
-| reverse_recall | 16 | production |
-| listen | 16 | listening |
-| produce | 13 | production |
-| contextual_choice | 12 | recognition |
-| dialogue_completion | 12 | conversation |
+| dialogue_choice | 126 | conversation |
+| listen | 102 | listening |
+| tone | 99 | tone |
+| listen_select | 97 | listening |
+| intro | 81 | other |
+| comprehend | 65 | recognition |
+| sentence_build | 52 | construction |
+| fill_blank | 48 | construction |
+| conversation_scene | 45 | conversation |
+| reverse_recall | 39 | production |
+| match_pairs | 35 | other |
+| contextual_choice | 34 | recognition |
+| hanzi_build | 23 | construction |
+| image_choice | 21 | recognition |
+| dialogue_completion | 13 | conversation |
+| free_production | 9 | production |
+| produce | 8 | production |
+| audio_discrimination | 6 | listening |
+| tone_pair | 6 | tone |
 | audio_to_action | 5 | listening |
 | sentence_transform | 5 | transfer |
-| substitution_drill | 4 | transfer |
-| translation_build | 4 | construction |
-| spot_error | 1 | other |
+| substitution_drill | 3 | transfer |
+| recognize | 3 | recognition |
 
-Consecutive hanzi_build pairs found: **4**
+Consecutive hanzi_build pairs found: **0**

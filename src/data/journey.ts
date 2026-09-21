@@ -1906,7 +1906,6 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
       ),
       conversationScene("nao-falo-chinês"),
       toneTransfer("tt-p3wbh-nao-sei-falar"),
-      toneTransfer("tt-p3wbh-cumprimente"),
       dialogue(
         "Proteção",
         "A pessoa fala rápido demais. Qual frase protege você?",
@@ -1941,7 +1940,6 @@ const PHASE3_SURVIVAL_MICROTASKS: Lesson[] = [
       ),
       conversationScene("pedir-repeticao"),
       toneTransfer("tt-p3qzs-repita"),
-      toneTransfer("tt-p3qzs-estou-bem"),
       dialogue(
         "Qual intenção?",
         "Você ouviu, mas não entendeu. Escolha entre pedir repetição ou dizer que não entendeu.",
@@ -2732,7 +2730,6 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               conversationScene("perguntando-se-esta-bem"),
               toneTransfer("tt-l3-estou-bem"),
-              toneTransfer("tt-l3-devolva-pergunta"),
               listenSelect(
                 "Ouça a resposta",
                 "我很好",
@@ -2817,7 +2814,6 @@ export const JOURNEY: JourneyPhase[] = [
               ),
               conversationScene("agradecendo"),
               toneTransfer("tt-l4-de-nada"),
-              toneTransfer("tt-l4-obrigado"),
               dialogue(
                 "Responda com cortesia",
                 "Pessoa diz: 谢谢. O que você responde?",
@@ -2890,6 +2886,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "再见 fecha a conversa: até logo."
               ),
               conversationScene("despedida"),
+              toneTransfer("tt-p1ate-ate-logo"),
               // LEX-007 — despedidas do Atlas além de 再见
               listen("明天见", "míngtiān jiàn", "Até amanhã"),
               comp("明天见", "míngtiān jiàn", "Até amanhã", ["Até amanhã", "Bom dia", "De nada", "Estou bem"]),
@@ -3045,6 +3042,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["Com licença, posso perguntar?", "De nada", "Obrigado(a)", "Até logo"]
               ),
               conversationScene("cortesia-loja"),
+              toneTransfer("tt-p1qw-com-licenca"),
               dialogue(
                 "Quando usar",
                 "Você quer pedir informação na loja ou na rua. O que abre a pergunta?",
@@ -3637,7 +3635,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我是巴西人", "我叫Matheus", "谢谢", "再见"],
                 "我是巴西人 diz de onde você é."
               ),
-              toneTransfer("tt-l9-sou-brasileiro"),
               dialogue(
                 "Receba com cortesia",
                 "A pessoa entra na sala. Qual convite combina?",
@@ -3716,6 +3713,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "怎么样？ é outra pergunta social — mais aberta que 你好吗？"
               ),
               conversationScene("perguntando-se-esta-bem"),
+              toneTransfer("tt-l9tb-pergunte-de-volta"),
               match(
                 "Pergunta e resposta",
                 "Combine cada frase com o sentido.",
@@ -3805,6 +3803,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "我 + 是 + 巴西人 monta sua origem. 人 já apareceu antes."
               ),
               conversationScene("de-onde-sou"),
+              toneTransfer("tt-l10-sou-brasileiro"),
               sentenceBuild(
                 "Sou brasileiro",
                 "Como você diria: “Eu sou brasileiro”?",
@@ -3928,7 +3927,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["请慢一点", "再见", "太贵了", "我很好"],
                 "请慢一点 pede para falar mais devagar — reparo essencial."
               ),
-              toneTransfer("tt-l11-mais-devagar"),
               // LEX-009 — 等一下
               listen("等一下", "děng yíxià", "Espere um pouco"),
               dialogue(

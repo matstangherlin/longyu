@@ -20,7 +20,12 @@ import { CULTURE_PROGRESSION_GATES } from "../src/data/cultureProgressionGates";
  * mede contorno nenhum.
  */
 
-const L3_TASK = TONE_TRANSFER_TASKS.find((task) => task.id === "tt-l3-estou-bem")!;
+// `l3` é lição de mastery loop: `applyMasteryPassToPlan` penaliza produção e
+// transferência nas passadas iniciais (`pass <= 1`), então a tarefa só entra no
+// plano a partir do nível 2. Semear nível 0 mediria a ausência correta do
+// degrau, não a tarefa — foi assim que a primeira versão deste spec reprovou.
+const TASK = TONE_TRANSFER_TASKS.find((task) => task.id === "tt-l3-estou-bem")!;
+const TRANSFER_MASTERY_LEVEL = 2;
 
 async function installFakeRecognition(page: Page, transcript: string) {
   await page.addInitScript((text: string) => {
@@ -84,12 +89,18 @@ async function denyMicPermission(page: Page) {
  * passo gerado em vez do passo autoral. A situação é a identidade da tarefa.
  */
 async function openToneTransferStep(page: Page, locale: "pt-BR" | "en" = "pt-BR") {
-  await seedLessonPlayerReady(page, L3_TASK.lessonId);
-  await page.goto(`/licao/${L3_TASK.lessonId}/player`);
+  // Fôlego alto de propósito: o crawler avança PULANDO passos, e pular custa
+  // fôlego. Com o padrão (3) ele trava no quarto passo e o teste mediria a
+  // economia de energia, não a tarefa.
+  await seedLessonPlayerReady(page, TASK.lessonId, {
+    masteryLevel: TRANSFER_MASTERY_LEVEL,
+    folego: 60,
+  });
+  await page.goto(`/licao/${TASK.lessonId}/player`);
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
 
-  const situationHead = (locale === "en" ? L3_TASK.situationEn : L3_TASK.situationPt).slice(0, 40);
+  const situationHead = (locale === "en" ? TASK.situationEn : TASK.situationPt).slice(0, 40);
   const production = page
     .locator('[data-production-step="free_production"]')
     .filter({ hasText: situationHead })
@@ -110,7 +121,7 @@ async function openToneTransferStep(page: Page, locale: "pt-BR" | "en" = "pt-BR"
 test.describe("RC2.2.7 — transferência tonal na lição", () => {
   test("T1 — a tarefa existe, pede produção e a situação não entrega a frase", async ({ page }) => {
     test.setTimeout(150_000);
-    await installFakeRecognition(page, L3_TASK.targetHanzi);
+    await installFakeRecognition(page, TASK.targetHanzi);
     const production = await openToneTransferStep(page);
 
     await expect(production).toBeVisible();
@@ -127,7 +138,7 @@ test.describe("RC2.2.7 — transferência tonal na lição", () => {
 
   test("T2 — a tarefa aceita voz: microfone ao lado do campo", async ({ page }) => {
     test.setTimeout(150_000);
-    await installFakeRecognition(page, L3_TASK.targetHanzi);
+    await installFakeRecognition(page, TASK.targetHanzi);
     const production = await openToneTransferStep(page);
 
     await expect(production.getByTestId("free-answer-mic")).toBeVisible();
@@ -146,7 +157,7 @@ test.describe("RC2.2.7 — transferência tonal na lição", () => {
 
   test("T4 — microfone negado não trava a tarefa", async ({ page }) => {
     test.setTimeout(150_000);
-    await installFakeRecognition(page, L3_TASK.targetHanzi);
+    await installFakeRecognition(page, TASK.targetHanzi);
     await denyMicPermission(page);
     const production = await openToneTransferStep(page);
 
@@ -160,15 +171,15 @@ test.describe("RC2.2.7 — transferência tonal na lição", () => {
 
   test("T5 — o lembrete tonal vem DEPOIS da tentativa e não julga o tom", async ({ page }) => {
     test.setTimeout(150_000);
-    await installFakeRecognition(page, L3_TASK.targetHanzi);
+    await installFakeRecognition(page, TASK.targetHanzi);
     const production = await openToneTransferStep(page);
 
     // Antes de responder, o lembrete não pode estar na tela: seria a resposta.
-    const reminderHead = L3_TASK.toneReminderPt.slice(0, 30);
+    const reminderHead = TASK.toneReminderPt.slice(0, 30);
     await expect(page.getByText(reminderHead, { exact: false })).toHaveCount(0);
 
     const field = production.locator("textarea, input[type='text']").first();
-    await field.fill(L3_TASK.targetHanzi);
+    await field.fill(TASK.targetHanzi);
     await field.press("Enter");
 
     await expect(page.getByText(reminderHead, { exact: false }).first()).toBeVisible({
@@ -184,12 +195,12 @@ test.describe("RC2.2.7 — transferência tonal na lição", () => {
   test("T6 — EN: a mesma tarefa aparece em inglês, sem português sobrando", async ({ page }) => {
     test.setTimeout(150_000);
     await seedInstructionLocale(page, "en");
-    await installFakeRecognition(page, L3_TASK.targetHanzi);
+    await installFakeRecognition(page, TASK.targetHanzi);
     const production = await openToneTransferStep(page, "en");
 
     const situation = production.locator("[data-production-situation]");
-    await expect(situation).toContainText(L3_TASK.situationEn.slice(0, 40));
-    await expect(situation).not.toContainText(L3_TASK.situationPt.slice(0, 40));
+    await expect(situation).toContainText(TASK.situationEn.slice(0, 40));
+    await expect(situation).not.toContainText(TASK.situationPt.slice(0, 40));
   });
 });
 

@@ -11,6 +11,7 @@
 import { require } from "./lib/v495a-runtime.mjs";
 
 const { ALL_LESSONS } = require("../../src/data/journey.ts");
+const { lessonRoundStepsFor } = require("../../src/features/lesson/lessonTasks.ts");
 const {
   TONE_TRANSFER_TASKS,
   TONE_SANDHI_TARGET_IDS,
@@ -136,6 +137,71 @@ for (const task of TONE_TRANSFER_TASKS) {
   }
 }
 
+/**
+ * ALCANÇABILIDADE EM RUNTIME — o gate que impede a mentira mais cara aqui.
+ *
+ * Estar em `ALL_LESSONS` não significa ser jogado. Lições de mastery loop
+ * passam por `applyMasteryPassToPlan`, que pontua os passos e corta pelo
+ * orçamento da passada; produção e transferência ainda levam penalidade nas
+ * passadas iniciais (`pass <= 1`), o que é correto — TRANSFER é o degrau mais
+ * alto e cobrá-lo cedo contradiria a própria espinha de apoio.
+ *
+ * A consequência prática é dura: autorar DUAS tarefas numa lição de loop faz o
+ * planner guardar uma e descartar a outra para sempre. Sem esta verificação, o
+ * relatório contaria 14 transferências tonais enquanto o aluno encontraria 8.
+ * Aqui, conteúdo que nunca é jogado é erro de build, não número bonito.
+ */
+const playedLevelsByTask = new Map();
+for (const task of TONE_TRANSFER_TASKS) playedLevelsByTask.set(task.id, []);
+const taskByTitle = new Map(TONE_TRANSFER_TASKS.map((task) => [task.titlePt, task]));
+
+for (const lessonId of new Set(TONE_TRANSFER_TASKS.map((task) => task.lessonId))) {
+  const lesson = ALL_LESSONS.find((item) => item.id === lessonId);
+  if (!lesson) continue;
+  for (const masteryLevel of [0, 1, 2, 3]) {
+    let plan = [];
+    try {
+      plan = lessonRoundStepsFor(lesson, { masteryLevel, silent: true }) ?? [];
+    } catch (error) {
+      fail("PLAN_FAILED", lessonId, `lessonRoundStepsFor(level ${masteryLevel}) lançou: ${error?.message}`);
+      continue;
+    }
+    for (const step of plan) {
+      const task = taskByTitle.get(step.title);
+      if (task && task.lessonId === lessonId) playedLevelsByTask.get(task.id).push(masteryLevel);
+    }
+  }
+}
+
+const neverPlayed = [...playedLevelsByTask.entries()].filter(([, levels]) => levels.length === 0);
+for (const [taskId] of neverPlayed) {
+  fail(
+    "NEVER_PLAYED",
+    taskId,
+    "nenhuma passada de maestria (0–3) inclui esta tarefa — conteúdo morto, não transferência"
+  );
+}
+
+const playedTasks = TONE_TRANSFER_TASKS.filter((task) => playedLevelsByTask.get(task.id).length > 0);
+const playedConversation = playedTasks.filter((task) => task.context === "conversation").length;
+const playedLessons = new Set(playedTasks.map((task) => task.lessonId));
+
+// Os mínimos valem sobre o que é JOGADO. Contar o que só existe no arquivo
+// transformaria o gate num contador de linhas.
+if (playedTasks.length < MIN_TASKS) {
+  fail("TOO_FEW_PLAYED", "toneTransfer", `${playedTasks.length} tarefas jogadas, mínimo ${MIN_TASKS}`);
+}
+if (playedLessons.size < MIN_LESSONS) {
+  fail("TOO_FEW_PLAYED_LESSONS", "toneTransfer", `${playedLessons.size} lições jogadas, mínimo ${MIN_LESSONS}`);
+}
+if (playedConversation < MIN_CONVERSATION_TASKS) {
+  fail(
+    "TOO_FEW_PLAYED_CONVERSATION",
+    "toneTransfer",
+    `${playedConversation} em conversa jogadas, mínimo ${MIN_CONVERSATION_TASKS}`
+  );
+}
+
 // Passo TRANSFER tonal na Jornada sem tarefa no registro = segunda lista.
 if (materialized.size !== TONE_TRANSFER_TASKS.length) {
   fail(
@@ -174,6 +240,13 @@ console.log(
       tasks: TONE_TRANSFER_TASKS.length,
       lessons: [...lessonsWithTasks].sort(),
       conversationTasks,
+      played: playedTasks.length,
+      playedConversation,
+      playedLessons: [...playedLessons].sort(),
+      neverPlayed: neverPlayed.map(([id]) => id),
+      playedLevelsByTask: Object.fromEntries(
+        [...playedLevelsByTask].map(([id, levels]) => [id, [...new Set(levels)].sort()])
+      ),
       toneCoverage,
       sandhiCoverage,
       materialized: materialized.size,

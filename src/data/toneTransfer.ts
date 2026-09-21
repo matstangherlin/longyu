@@ -69,6 +69,50 @@ const SPEECH_HONESTY_PT = "O app confere as sílabas, não o tom — ouça o mod
 const SPEECH_HONESTY_EN = "The app checks the syllables, not the tone — listen to the model and compare.";
 
 export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
+  // ── p1-ate-logo · Até logo ──────────────────────────────────────────────
+  {
+    id: "tt-p1ate-ate-logo",
+    lessonId: "p1-ate-logo",
+    context: "conversation",
+    sceneId: "despedida",
+    titlePt: "Despeça-se em voz alta",
+    titleEn: "Say goodbye out loud",
+    situationPt:
+      "A conversa terminou e a pessoa já está saindo. Despeça-se em voz alta antes que ela vá.",
+    situationEn:
+      "The conversation is over and the person is already leaving. Say goodbye out loud before they go.",
+    targetHanzi: "再见",
+    targetPinyin: "zàijiàn",
+    meaningPt: "Até logo",
+    accepts: ["再见。"],
+    tones: [4],
+    sandhi: [],
+    toneReminderPt: `zài e jiàn caem os dois: quarto tom seguido de quarto tom. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `zài and jiàn both fall: a fourth tone followed by a fourth tone. ${SPEECH_HONESTY_EN}`,
+  },
+
+  // ── p1-qingwen-cortesia · Com licença ───────────────────────────────────
+  {
+    id: "tt-p1qw-com-licenca",
+    lessonId: "p1-qingwen-cortesia",
+    context: "conversation",
+    sceneId: "cortesia-loja",
+    titlePt: "Peça licença em voz alta",
+    titleEn: "Excuse yourself out loud",
+    situationPt:
+      "Saindo da loja, você precisa interromper alguém para perguntar uma coisa. Peça licença em voz alta antes de falar.",
+    situationEn:
+      "On your way out of the shop, you need to interrupt someone to ask something. Excuse yourself out loud before speaking.",
+    targetHanzi: "请问",
+    targetPinyin: "qǐng wèn",
+    meaningPt: "Com licença, posso perguntar?",
+    accepts: ["请问。", "请问，"],
+    tones: [3, 4],
+    sandhi: [],
+    toneReminderPt: `qǐng desce e volta; wèn cai. É a mesma dupla de contornos de qǐng zuò. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `qǐng dips; wèn falls. It is the same pair of contours as qǐng zuò. ${SPEECH_HONESTY_EN}`,
+  },
+
   // ── l3 · Tudo bem? ──────────────────────────────────────────────────────
   {
     id: "tt-l3-estou-bem",
@@ -89,25 +133,6 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     sandhi: ["third-third"],
     toneReminderPt: `Na fala, hěn hǎo sai hén hǎo: dois terceiros tons seguidos e o primeiro sobe. ${SPEECH_HONESTY_PT}`,
     toneReminderEn: `In speech, hěn hǎo comes out as hén hǎo: two third tones in a row and the first one rises. ${SPEECH_HONESTY_EN}`,
-  },
-  {
-    id: "tt-l3-devolva-pergunta",
-    lessonId: "l3",
-    context: "situation",
-    titlePt: "Devolva a pergunta em voz alta",
-    titleEn: "Ask it back out loud",
-    situationPt:
-      "Você já disse que está bem. Agora pergunte à pessoa, em voz alta, se ela está bem.",
-    situationEn:
-      "You already said you are well. Now ask the other person, out loud, whether they are well.",
-    targetHanzi: "你好吗？",
-    targetPinyin: "nǐ hǎo ma?",
-    meaningPt: "Tudo bem?",
-    accepts: ["你好吗"],
-    tones: [3],
-    sandhi: ["third-third"],
-    toneReminderPt: `nǐ hǎo tem a mesma dupla de terceiros tons de hěn hǎo: sai ní hǎo ma. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `nǐ hǎo has the same pair of third tones as hěn hǎo: it comes out as ní hǎo ma. ${SPEECH_HONESTY_EN}`,
   },
 
   // ── l4 · Obrigado ───────────────────────────────────────────────────────
@@ -131,25 +156,6 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     toneReminderPt: `bù sobe para bú porque kè é quarto tom — a mesma regra que você viu nesta lição. ${SPEECH_HONESTY_PT}`,
     toneReminderEn: `bù rises to bú because kè is a fourth tone — the same rule you saw in this lesson. ${SPEECH_HONESTY_EN}`,
   },
-  {
-    id: "tt-l4-obrigado",
-    lessonId: "l4",
-    context: "situation",
-    titlePt: "Agradeça em voz alta",
-    titleEn: "Thank them out loud",
-    situationPt:
-      "Alguém segura a porta para você passar. Agradeça em voz alta, com a forma curta.",
-    situationEn:
-      "Someone holds the door open for you. Thank them out loud, using the short form.",
-    targetHanzi: "谢谢",
-    targetPinyin: "xièxie",
-    meaningPt: "Obrigado(a)",
-    accepts: ["谢谢。"],
-    tones: [4],
-    sandhi: [],
-    toneReminderPt: `xiè é quarto tom: a voz cai. O segundo xie sai leve e curto, sem marca. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `xiè is a fourth tone: the voice falls. The second xie stays light and short, with no mark. ${SPEECH_HONESTY_EN}`,
-  },
 
   // ── p3-wobuhui-shuo-zhongwen · 我不会说中文 ─────────────────────────────
   {
@@ -171,24 +177,6 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     sandhi: ["bu"],
     toneReminderPt: `bù sobe para bú antes de huì, que é quarto tom; logo depois shuō volta ao primeiro, alto e reto. ${SPEECH_HONESTY_PT}`,
     toneReminderEn: `bù rises to bú before huì, a fourth tone; right after it shuō goes back to the first tone, high and level. ${SPEECH_HONESTY_EN}`,
-  },
-  {
-    id: "tt-p3wbh-cumprimente",
-    lessonId: "p3-wobuhui-shuo-zhongwen",
-    context: "situation",
-    titlePt: "Cumprimente antes de explicar",
-    titleEn: "Greet before you explain",
-    situationPt:
-      "Antes de explicar que não fala chinês, cumprimente a pessoa em voz alta.",
-    situationEn: "Before explaining that you cannot speak Chinese, greet the person out loud.",
-    targetHanzi: "你好",
-    targetPinyin: "nǐ hǎo",
-    meaningPt: "Olá",
-    accepts: ["你好。"],
-    tones: [3],
-    sandhi: ["third-third"],
-    toneReminderPt: `nǐ hǎo são dois terceiros tons: na fala sai ní hǎo. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `nǐ hǎo is two third tones: in speech it comes out as ní hǎo. ${SPEECH_HONESTY_EN}`,
   },
 
   // ── p3-qing-zai-shuo-yibian · 请再说一遍 ────────────────────────────────
@@ -212,48 +200,8 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     toneReminderPt: `yī vira yí porque biàn é quarto tom — por isso o fim sai yí biàn. ${SPEECH_HONESTY_PT}`,
     toneReminderEn: `yī becomes yí because biàn is a fourth tone — that is why the ending comes out as yí biàn. ${SPEECH_HONESTY_EN}`,
   },
-  {
-    // 我听不懂 seria o contraste natural aqui, mas esta lição vem ANTES de l11,
-    // onde a frase é ensinada. Cobrar produção dela aqui seria teste-surpresa.
-    id: "tt-p3qzs-estou-bem",
-    lessonId: "p3-qing-zai-shuo-yibian",
-    context: "situation",
-    titlePt: "Responda antes de pedir a repetição",
-    titleEn: "Answer before asking for the repeat",
-    situationPt:
-      "Antes de perder o fio da conversa, a pessoa tinha perguntado como você está. Responda em voz alta.",
-    situationEn:
-      "Before you lost the thread of the conversation, the person had asked how you are. Answer out loud.",
-    targetHanzi: "我很好",
-    targetPinyin: "wǒ hěn hǎo",
-    meaningPt: "Estou bem",
-    accepts: ["我很好。"],
-    tones: [3],
-    sandhi: ["third-third"],
-    toneReminderPt: `Mesma dupla de terceiros tons, conversa diferente: hěn hǎo sai hén hǎo. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `Same pair of third tones, different conversation: hěn hǎo comes out as hén hǎo. ${SPEECH_HONESTY_EN}`,
-  },
 
   // ── l9 · Meu nome é ─────────────────────────────────────────────────────
-  {
-    id: "tt-l9-sou-brasileiro",
-    lessonId: "l9",
-    context: "situation",
-    titlePt: "Diga de onde você é",
-    titleEn: "Say where you are from",
-    situationPt:
-      "Logo depois da apresentação, a pessoa quer saber de que país você é. Responda em voz alta.",
-    situationEn:
-      "Right after the introduction, the person wants to know which country you are from. Answer out loud.",
-    targetHanzi: "我是巴西人",
-    targetPinyin: "wǒ shì Bāxī rén",
-    meaningPt: "Sou brasileiro",
-    accepts: ["我是巴西人。"],
-    tones: [1, 2, 3, 4],
-    sandhi: [],
-    toneReminderPt: `Os quatro contornos cabem nesta frase: wǒ desce e volta, shì cai, Bā e xī ficam altos e retos, rén sobe. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `All four contours fit in this sentence: wǒ dips, shì falls, Bā and xī stay high and level, rén rises. ${SPEECH_HONESTY_EN}`,
-  },
   {
     // Âncora de conversa em l9. `我叫Matheus` seria o alvo óbvio logo depois da
     // cena, mas a situação diria "alguém quer saber o SEU nome" e só aceitaria
@@ -279,6 +227,50 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     toneReminderEn: `qǐng dips; zuò falls. Two different contours in two syllables. ${SPEECH_HONESTY_EN}`,
   },
 
+  // ── l9-tudo-bem · Tudo bem? ─────────────────────────────────────────────
+  {
+    id: "tt-l9tb-pergunte-de-volta",
+    lessonId: "l9-tudo-bem",
+    context: "conversation",
+    sceneId: "perguntando-se-esta-bem",
+    titlePt: "Pergunte de volta em voz alta",
+    titleEn: "Ask them back out loud",
+    situationPt:
+      "A pessoa contou como está e ficou esperando. Pergunte em voz alta se ela está bem.",
+    situationEn:
+      "The person told you how they are and is waiting. Ask out loud whether they are well.",
+    targetHanzi: "你好吗？",
+    targetPinyin: "nǐ hǎo ma?",
+    meaningPt: "Tudo bem?",
+    accepts: ["你好吗"],
+    tones: [3],
+    sandhi: ["third-third"],
+    toneReminderPt: `nǐ hǎo são dois terceiros tons seguidos: sai ní hǎo ma. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `nǐ hǎo is two third tones in a row: it comes out as ní hǎo ma. ${SPEECH_HONESTY_EN}`,
+  },
+
+  // ── l10 · De onde sou ───────────────────────────────────────────────────
+  {
+    id: "tt-l10-sou-brasileiro",
+    lessonId: "l10",
+    context: "conversation",
+    sceneId: "de-onde-sou",
+    titlePt: "Diga de onde você é",
+    titleEn: "Say where you are from",
+    situationPt:
+      "Terminada a cena, outra pessoa entra na roda e quer saber de que país você é. Responda em voz alta.",
+    situationEn:
+      "Once the scene ends, another person joins the circle and wants to know which country you are from. Answer out loud.",
+    targetHanzi: "我是巴西人",
+    targetPinyin: "wǒ shì Bāxī rén",
+    meaningPt: "Sou brasileiro",
+    accepts: ["我是巴西人。"],
+    tones: [1, 2, 3, 4],
+    sandhi: [],
+    toneReminderPt: `Os quatro contornos cabem nesta frase: wǒ desce e volta, shì cai, Bā e xī ficam altos e retos, rén sobe. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `All four contours fit in this sentence: wǒ dips, shì falls, Bā and xī stay high and level, rén rises. ${SPEECH_HONESTY_EN}`,
+  },
+
   // ── l11 · Não entendi ───────────────────────────────────────────────────
   {
     id: "tt-l11-repita",
@@ -299,25 +291,6 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     sandhi: ["yi"],
     toneReminderPt: `Mesmo pedido, conversa diferente: yī continua virando yí antes de biàn, quarto tom. ${SPEECH_HONESTY_PT}`,
     toneReminderEn: `Same request, different conversation: yī still becomes yí before biàn, a fourth tone. ${SPEECH_HONESTY_EN}`,
-  },
-  {
-    id: "tt-l11-mais-devagar",
-    lessonId: "l11",
-    context: "situation",
-    titlePt: "Peça mais devagar",
-    titleEn: "Ask them to slow down",
-    situationPt:
-      "A pessoa repetiu, mas continua rápido demais. Peça em voz alta que ela fale mais devagar.",
-    situationEn:
-      "The person repeated it, but they are still too fast. Ask out loud for them to speak more slowly.",
-    targetHanzi: "请慢一点",
-    targetPinyin: "qǐng màn yìdiǎn",
-    meaningPt: "Por favor, mais devagar",
-    accepts: ["请慢一点。"],
-    tones: [3, 4],
-    sandhi: ["yi"],
-    toneReminderPt: `Aqui yī vira yì, e não yí, porque diǎn é terceiro tom. Compare com yí biàn, onde o que vem depois é quarto. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `Here yī becomes yì, not yí, because diǎn is a third tone. Compare it with yí biàn, where what follows is a fourth. ${SPEECH_HONESTY_EN}`,
   },
 
   // ── l11-falo-pouco · Falo um pouco ──────────────────────────────────────

@@ -5,7 +5,7 @@
 | Base | `#279` (RC2.2.6) — não esperou merge |
 | Branch | `cursor/rc2-2-7-tone-transfer-5b4f` |
 | Fingerprint antes | `516692632525` |
-| Fingerprint depois | **`34b3ef326ce5`** |
+| Fingerprint depois | **`ef3d300ef2b9`** |
 | Lições / tópicos / CultureItems | 134 / 113 / 30 — **inalterados** |
 | Exceção de freeze | `CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION` |
 | Verdict Public Beta | **NO-GO** (inalterado) |
@@ -21,8 +21,8 @@ O currículo tinha **190 tarefas com consciência tonal** e **zero transferênci
 | `toneNumberTasks` | 42 | 42 |
 | `toneMarkTasks` | 13 | 13 |
 | `toneProductionTasks` | 5 | 5 |
-| **`toneTransferTasks`** | **0** | **14** |
-| `toneTasksTotal` | 190 | 204 |
+| **`toneTransferTasks`** | **0** | **12** |
+| `toneTasksTotal` | 190 | 202 |
 
 As cinco primeiras linhas ficaram **intactas de propósito**. Se elas tivessem
 mexido, significaria que a remessa reclassificou conteúdo existente em vez de
@@ -62,26 +62,25 @@ Duas decisões de implementação que valem registro:
   `journey.ts`. Chamá-lo de dentro de `journey.ts` criaria ciclo de runtime. O
   objeto produzido é idêntico ao que o helper produziria.
 
-## As 14 tarefas
+## As 12 tarefas
 
 | lição | tarefa | alvo | tons | sandhi | contexto |
 | --- | --- | --- | --- | --- | --- |
+| `p1-ate-logo` | `tt-p1ate-ate-logo` | 再见 | 4 | — | **conversa** |
+| `p1-qingwen-cortesia` | `tt-p1qw-com-licenca` | 请问 | 3,4 | — | **conversa** |
 | `l3` | `tt-l3-estou-bem` | 我很好 | 3 | 3º+3º | **conversa** |
-| `l3` | `tt-l3-devolva-pergunta` | 你好吗？ | 3 | 3º+3º | situação |
 | `l4` | `tt-l4-de-nada` | 不客气 | 2,4 | 不 | **conversa** |
-| `l4` | `tt-l4-obrigado` | 谢谢 | 4 | — | situação |
 | `p3-wobuhui-shuo-zhongwen` | `tt-p3wbh-nao-sei-falar` | 我不会说中文 | 1,2,3,4 | 不 | **conversa** |
-| `p3-wobuhui-shuo-zhongwen` | `tt-p3wbh-cumprimente` | 你好 | 3 | 3º+3º | situação |
 | `p3-qing-zai-shuo-yibian` | `tt-p3qzs-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
-| `p3-qing-zai-shuo-yibian` | `tt-p3qzs-estou-bem` | 我很好 | 3 | 3º+3º | situação |
 | `l9` | `tt-l9-sente-se` | 请坐 | 3,4 | — | **conversa** |
-| `l9` | `tt-l9-sou-brasileiro` | 我是巴西人 | 1,2,3,4 | — | situação |
+| `l9-tudo-bem` | `tt-l9tb-pergunte-de-volta` | 你好吗？ | 3 | 3º+3º | **conversa** |
+| `l10` | `tt-l10-sou-brasileiro` | 我是巴西人 | 1,2,3,4 | — | **conversa** |
 | `l11` | `tt-l11-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
-| `l11` | `tt-l11-mais-devagar` | 请慢一点 | 3,4 | 一 | situação |
 | `l11-falo-pouco` | `tt-l11fp-falo-um-pouco` | 我会说一点中文 | 1,3,4 | 一 | situação |
 | `l11-falo-pouco` | `tt-l11fp-estudo-chines` | 我学习中文 | 1,2,3 | — | situação |
 
-**14 tarefas · 7 lições · 6 em conversa** — contra os mínimos de 12 / 6 / 4.
+**12 tarefas · 11 lições · 10 em conversa** — contra os mínimos de 12 / 6 / 4.
+E, o que importa mais: **as 12 são jogadas**. Ver a seção de alcançabilidade.
 
 Cobertura: tons **1, 2, 3, 4** · sandhi **3º+3º**, **不**, **一**.
 
@@ -91,6 +90,51 @@ Cobertura: tons **1, 2, 3, 4** · sandhi **3º+3º**, **不**, **一**.
 própria `conversation_scene` que a tarefa diz retomar. O gate compara o
 `sceneId` dos dois (`NOT_AFTER_CONVERSATION`, `SCENE_MISMATCH`). Declarar
 contexto de conversa sem estar depois de uma conversa é erro de build.
+
+## Alcançabilidade: o número quase saiu falso
+
+Esta é a correção mais importante da remessa, e ela veio do E2E reprovando.
+
+Estar em `ALL_LESSONS` **não significa ser jogado**. Lições de mastery loop
+passam por `applyMasteryPassToPlan`, que pontua cada passo e corta pelo
+orçamento da passada. E há uma regra explícita em `lessonTasks.ts:7154`:
+
+```ts
+if (pass <= 1 && isProductionOrTransferKind(step.kind)) score -= 1;
+```
+
+Produção e transferência são penalizadas nas passadas iniciais. Isso está
+**certo**: TRANSFER é o degrau mais alto da espinha, e cobrá-lo na estreia
+contradiria o próprio "ensinar antes de cobrar". O planner não é o defeito.
+
+O defeito era meu: eu havia autorado **duas** tarefas por lição de loop. O
+orçamento guarda uma e descarta a outra — para sempre, em todos os níveis. A
+medição contra o runtime foi esta:
+
+| | autoradas | jogadas | nunca jogadas |
+| --- | ---: | ---: | ---: |
+| Primeira tentativa (2 por lição) | 14 | **8** | **6** |
+| Depois da correção (1 por lição de loop) | 12 | **12** | **0** |
+
+Ou seja: o relatório teria anunciado `0 → 14` enquanto o aluno encontraria 8.
+Seis tarefas seriam conteúdo morto — presentes no arquivo, contadas pelo gate
+estático, invisíveis na prática.
+
+A correção foi reduzir para uma tarefa por lição de loop e **espalhar por mais
+lições** (7 → 11) em vez de empilhar na mesma. Como efeito colateral bom, todas
+as 10 âncoras de conversa passaram a sobreviver, contra 4 de 6 antes.
+
+E a proteção permanente: `validate:tone-transfer-coverage` agora **executa o
+planner** (`lessonRoundStepsFor`) nos níveis 0–3 de cada lição e falha com
+`NEVER_PLAYED` se qualquer tarefa registrada não aparecer em nenhum plano. Os
+mínimos (12 / 6 / 4) passaram a ser aferidos sobre o que é **jogado**, não sobre
+o que está escrito — senão o gate seria um contador de linhas.
+
+Consequência honesta que fica registrada: as 10 tarefas ancoradas em conversa
+só aparecem a partir da **terceira passada** (`masteryLevel` 2 e 3). Duas
+(`l11-falo-pouco`) aparecem desde a primeira. Isso não é limitação disfarçada —
+é o degrau TRANSFER chegando quando deve chegar, e há caso de teste que afirma
+exatamente isso.
 
 ## Honestidade de fala (P0)
 
@@ -134,7 +178,7 @@ começar: com a regra nova e nenhuma tarefa nova, as métricas continuaram
 “transferência” e degrau errado **não** conta; degrau certo sem alvo tonal
 **não** conta).
 
-## Fingerprint: `516692632525` → `34b3ef326ce5`
+## Fingerprint: `516692632525` → `ef3d300ef2b9`
 
 Não foi mantido artificialmente. Congelar identidade é registrar o que mudou,
 não fingir que nada mudou.
@@ -143,7 +187,7 @@ A propagação separou **gate** de **evidência**, e essa distinção é o ponto
 
 | | tratamento |
 | --- | --- |
-| Gates de freeze, fixtures, manifests de release | retargetados para `34b3ef326ce5` |
+| Gates de freeze, fixtures, manifests de release | retargetados para `ef3d300ef2b9` |
 | `docs/release/human-qa-prebeta.json` | retargetado — ver abaixo |
 | **`docs/release/device-preflight.json`** | **intocado** |
 | Relatórios históricos (`docs/reports/*`) | **intocados** |
@@ -215,7 +259,7 @@ meia-verdade.
   conversa de verdade” é julgamento humano. O que está provado é contrato:
   ancoragem, ausência de apoio, honestidade de copy, fallbacks de fala.
 - **O preflight de dispositivo agora é anterior ao currículo atual.** Ele
-  permanece verdadeiro sobre `516692632525` e **não** cobre `34b3ef326ce5`.
+  permanece verdadeiro sobre `516692632525` e **não** cobre `ef3d300ef2b9`.
 - **Reconhecimento de fala é falsificado no E2E.** O navegador do CI não tem
   microfone. Prova-se a affordance e os fallbacks, nunca a qualidade do
   reconhecedor.
