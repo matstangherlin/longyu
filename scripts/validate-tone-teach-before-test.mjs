@@ -30,11 +30,29 @@ function toneNumbers(step) {
   return [...result];
 }
 
+/**
+ * RC2.2.7 — alvo tonal declarado na evidência pedagógica.
+ *
+ * `concept:tone-system` ou `concept:tone-1..4`. É isto que faz uma tarefa contar
+ * como tonal: o metadado, não a palavra que o aluno lê.
+ */
+function hasToneKnowledgeTarget(step) {
+  const ids = step?.pedagogicalEvidence?.knowledgeTargetIds ?? [];
+  return ids.some((id) => id === "concept:tone-system" || /^concept:tone-[1-4]$/u.test(id));
+}
+
 function classify(step) {
   const text = surface(step);
+  // RC2.2.7 — TONE_TRANSFER passa a ser SEMÂNTICO. A classificação anterior
+  // procurava a palavra "transfer" na copy, o que é frágil por dois lados: a copy
+  // do aluno não deve dizer "esta é uma transferência tonal" (ela quebraria a
+  // ilusão de comunicação real), e qualquer texto que mencionasse transferência
+  // passaria a contar sem ser transfer. Agora o degrau pedagógico decide.
+  if (step.pedagogicalEvidence?.rung === "TRANSFER" && hasToneKnowledgeTarget(step)) {
+    return "TONE_TRANSFER";
+  }
   if (step.kind === "tone" && step.assist === "guided") return "TONE_AWARENESS";
   if (step.kind === "tone") return "TONE_NUMBER_RECOGNITION";
-  if (/transfer/iu.test(text) && /tom|tone/iu.test(text)) return "TONE_TRANSFER";
   if ((step.kind === "reverse_recall" || /produ|diga|fale|say|speak/iu.test(text)) && /tom|tone|contorno|contour/iu.test(text)) return "TONE_PRODUCTION";
   if (/marca|mark|ˉ|´|ˇ|`/iu.test(text)) return step.kind === "intro" ? "TONE_AWARENESS" : "TONE_MARK_RECOGNITION";
   if (/curva|contorno|contour|reto|level|sobe|rising|vale|dip|cai|falling/iu.test(text)) return "TONE_CONTOUR_DISCRIMINATION";
