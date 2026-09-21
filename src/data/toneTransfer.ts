@@ -203,7 +203,7 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
 
   // ── l9 · Meu nome é ─────────────────────────────────────────────────────
   {
-    // Âncora de conversa em l9. `我叫Matheus` seria o alvo óbvio logo depois da
+    // A âncora de conversa de l9. `我叫Matheus` seria o alvo óbvio logo depois da
     // cena, mas a situação diria "alguém quer saber o SEU nome" e só aceitaria
     // um nome fixo — e, em modo de fala, o trecho latino não sobreviveria ao
     // reconhecimento em zh-CN. 请坐 é do módulo 1, cabe na cena e é honesto.
