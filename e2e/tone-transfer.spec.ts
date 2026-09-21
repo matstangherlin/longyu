@@ -94,7 +94,15 @@ async function openToneTransferStep(page: Page, locale: "pt-BR" | "en" = "pt-BR"
     .locator('[data-production-step="free_production"]')
     .filter({ hasText: situationHead })
     .first();
-  const reached = await advanceUntilVisible(page, production, 30);
+
+  // `advanceUntilVisible` tem deadline interno de 25 s. O WebKit no CI roda
+  // ~1,7× mais lento que os outros engines, e percorrer l3 inteira passa disso
+  // — então chamamos em rodadas, cada uma retomando de onde a anterior parou.
+  // Aumentar o timeout do teste não bastaria: quem desiste é o helper.
+  let reached = false;
+  for (let round = 0; round < 4 && !reached; round += 1) {
+    reached = await advanceUntilVisible(page, production, 12);
+  }
   expect(reached, "a tarefa de transferência tonal não foi alcançada em l3").toBe(true);
   return production;
 }

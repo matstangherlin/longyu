@@ -88,7 +88,7 @@ export function assertHumanQaPrebeta(root = process.cwd()) {
   // zero testadores externos, veredito NO-GO. Não há evidência a invalidar.
   // `docs/release/device-preflight.json` é o caso oposto — lá há execução real
   // datada contra 516692632525, e por isso ele NÃO foi retargetado.
-  push(manifest.fingerprint === "acef3d8707a8", "fingerprint must stay acef3d8707a8");
+  push(manifest.fingerprint === "34b3ef326ce5", "fingerprint must stay 34b3ef326ce5");
   push(manifest.featureFreeze === "PUBLIC_BETA", "featureFreeze PUBLIC_BETA");
   push(manifest.curriculumFreeze === "RC2_CONTENT_FREEZE", "curriculumFreeze RC2_CONTENT_FREEZE");
   push(manifest.verdict === "NO-GO", "Public Beta verdict must remain NO-GO");

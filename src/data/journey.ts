@@ -3626,7 +3626,6 @@ export const JOURNEY: JourneyPhase[] = [
                 "Use 我叫 + seu nome para responder."
               ),
               conversationScene("me-apresentando"),
-              toneTransfer("tt-l9-meu-nome"),
               toneTransfer("tt-l9-sente-se"),
               // LEX-008 — escada de apresentação (país entra cedo)
               listen("你是哪国人？", "nǐ shì nǎ guó rén?", "De que país você é?"),

@@ -236,26 +236,6 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
 
   // ── l9 · Meu nome é ─────────────────────────────────────────────────────
   {
-    id: "tt-l9-meu-nome",
-    lessonId: "l9",
-    context: "conversation",
-    sceneId: "me-apresentando",
-    titlePt: "Apresente-se em voz alta",
-    titleEn: "Introduce yourself out loud",
-    situationPt:
-      "Assim que a cena acaba, mais alguém se aproxima e quer saber seu nome. Apresente-se em voz alta.",
-    situationEn:
-      "As soon as the scene ends, one more person comes over and wants to know your name. Introduce yourself out loud.",
-    targetHanzi: "我叫Matheus",
-    targetPinyin: "wǒ jiào Matheus",
-    meaningPt: "Meu nome é Matheus",
-    accepts: ["我叫Matheus。"],
-    tones: [3, 4],
-    sandhi: [],
-    toneReminderPt: `wǒ desce e volta; jiào cai do alto. Duas sílabas, dois contornos opostos. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `wǒ dips; jiào falls from high. Two syllables, two opposite contours. ${SPEECH_HONESTY_EN}`,
-  },
-  {
     id: "tt-l9-sou-brasileiro",
     lessonId: "l9",
     context: "situation",
@@ -275,9 +255,14 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     toneReminderEn: `All four contours fit in this sentence: wǒ dips, shì falls, Bā and xī stay high and level, rén rises. ${SPEECH_HONESTY_EN}`,
   },
   {
+    // Âncora de conversa em l9. `我叫Matheus` seria o alvo óbvio logo depois da
+    // cena, mas a situação diria "alguém quer saber o SEU nome" e só aceitaria
+    // um nome fixo — e, em modo de fala, o trecho latino não sobreviveria ao
+    // reconhecimento em zh-CN. 请坐 é do módulo 1, cabe na cena e é honesto.
     id: "tt-l9-sente-se",
     lessonId: "l9",
-    context: "situation",
+    context: "conversation",
+    sceneId: "me-apresentando",
     titlePt: "Convide a pessoa a sentar",
     titleEn: "Invite them to sit",
     situationPt:

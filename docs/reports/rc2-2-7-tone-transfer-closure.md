@@ -5,7 +5,7 @@
 | Base | `#279` (RC2.2.6) — não esperou merge |
 | Branch | `cursor/rc2-2-7-tone-transfer-5b4f` |
 | Fingerprint antes | `516692632525` |
-| Fingerprint depois | **`acef3d8707a8`** |
+| Fingerprint depois | **`34b3ef326ce5`** |
 | Lições / tópicos / CultureItems | 134 / 113 / 30 — **inalterados** |
 | Exceção de freeze | `CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION` |
 | Verdict Public Beta | **NO-GO** (inalterado) |
@@ -21,8 +21,8 @@ O currículo tinha **190 tarefas com consciência tonal** e **zero transferênci
 | `toneNumberTasks` | 42 | 42 |
 | `toneMarkTasks` | 13 | 13 |
 | `toneProductionTasks` | 5 | 5 |
-| **`toneTransferTasks`** | **0** | **15** |
-| `toneTasksTotal` | 190 | 205 |
+| **`toneTransferTasks`** | **0** | **14** |
+| `toneTasksTotal` | 190 | 204 |
 
 As cinco primeiras linhas ficaram **intactas de propósito**. Se elas tivessem
 mexido, significaria que a remessa reclassificou conteúdo existente em vez de
@@ -62,7 +62,7 @@ Duas decisões de implementação que valem registro:
   `journey.ts`. Chamá-lo de dentro de `journey.ts` criaria ciclo de runtime. O
   objeto produzido é idêntico ao que o helper produziria.
 
-## As 15 tarefas
+## As 14 tarefas
 
 | lição | tarefa | alvo | tons | sandhi | contexto |
 | --- | --- | --- | --- | --- | --- |
@@ -74,15 +74,14 @@ Duas decisões de implementação que valem registro:
 | `p3-wobuhui-shuo-zhongwen` | `tt-p3wbh-cumprimente` | 你好 | 3 | 3º+3º | situação |
 | `p3-qing-zai-shuo-yibian` | `tt-p3qzs-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
 | `p3-qing-zai-shuo-yibian` | `tt-p3qzs-estou-bem` | 我很好 | 3 | 3º+3º | situação |
-| `l9` | `tt-l9-meu-nome` | 我叫… | 3,4 | — | **conversa** |
-| `l9` | `tt-l9-sente-se` | 请坐 | 3,4 | — | situação |
+| `l9` | `tt-l9-sente-se` | 请坐 | 3,4 | — | **conversa** |
 | `l9` | `tt-l9-sou-brasileiro` | 我是巴西人 | 1,2,3,4 | — | situação |
 | `l11` | `tt-l11-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
 | `l11` | `tt-l11-mais-devagar` | 请慢一点 | 3,4 | 一 | situação |
 | `l11-falo-pouco` | `tt-l11fp-falo-um-pouco` | 我会说一点中文 | 1,3,4 | 一 | situação |
 | `l11-falo-pouco` | `tt-l11fp-estudo-chines` | 我学习中文 | 1,2,3 | — | situação |
 
-**15 tarefas · 7 lições · 6 em conversa** — contra os mínimos de 12 / 6 / 4.
+**14 tarefas · 7 lições · 6 em conversa** — contra os mínimos de 12 / 6 / 4.
 
 Cobertura: tons **1, 2, 3, 4** · sandhi **3º+3º**, **不**, **一**.
 
@@ -135,7 +134,7 @@ começar: com a regra nova e nenhuma tarefa nova, as métricas continuaram
 “transferência” e degrau errado **não** conta; degrau certo sem alvo tonal
 **não** conta).
 
-## Fingerprint: `516692632525` → `acef3d8707a8`
+## Fingerprint: `516692632525` → `34b3ef326ce5`
 
 Não foi mantido artificialmente. Congelar identidade é registrar o que mudou,
 não fingir que nada mudou.
@@ -144,7 +143,7 @@ A propagação separou **gate** de **evidência**, e essa distinção é o ponto
 
 | | tratamento |
 | --- | --- |
-| Gates de freeze, fixtures, manifests de release | retargetados para `acef3d8707a8` |
+| Gates de freeze, fixtures, manifests de release | retargetados para `34b3ef326ce5` |
 | `docs/release/human-qa-prebeta.json` | retargetado — ver abaixo |
 | **`docs/release/device-preflight.json`** | **intocado** |
 | Relatórios históricos (`docs/reports/*`) | **intocados** |
@@ -193,6 +192,14 @@ qualquer commit:
 - `我听不懂` seria o contraste natural de 不 em `p3-qing-zai-shuo-yibian`, mas
   essa lição vem **antes** de `l11`, onde a frase é ensinada. Foi trocada.
 
+Uma terceira foi corrigida na releitura adversarial do próprio diff, antes do
+push: `l9` tinha uma tarefa ancorada na conversa cujo alvo era `我叫Matheus`. A
+situação dizia “alguém quer saber **o seu** nome”, mas a tarefa só aceitaria um
+nome fixo — e, em modo de fala, o trecho latino não sobreviveria ao
+reconhecimento em `zh-CN`. A âncora de conversa de `l9` passou a ser `请坐`
+(módulo 1, cabe na cena, sem nome pessoal), e a tarefa do nome saiu. Por isso
+são 14 tarefas, não 15.
+
 Esse segundo caso tinha ainda um problema de honestidade: em `听不懂`, 不 é um
 complemento potencial e costuma sair átono (`tīngbudǒng`), não “bù que não sobe
 porque 懂 é 3º tom”. Afirmar a regra ali seria ensinar algo contestável — e a
@@ -208,7 +215,7 @@ meia-verdade.
   conversa de verdade” é julgamento humano. O que está provado é contrato:
   ancoragem, ausência de apoio, honestidade de copy, fallbacks de fala.
 - **O preflight de dispositivo agora é anterior ao currículo atual.** Ele
-  permanece verdadeiro sobre `516692632525` e **não** cobre `acef3d8707a8`.
+  permanece verdadeiro sobre `516692632525` e **não** cobre `34b3ef326ce5`.
 - **Reconhecimento de fala é falsificado no E2E.** O navegador do CI não tem
   microfone. Prova-se a affordance e os fallbacks, nunca a qualidade do
   reconhecedor.

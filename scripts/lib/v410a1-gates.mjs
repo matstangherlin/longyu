@@ -477,7 +477,7 @@ export function validateBusinessProgressPrivacy(input) {
  */
 export function validateV410a1Freeze(input) {
   const failures = [];
-  const EXPECTED = { fingerprint: "acef3d8707a8", lessons: 134, topics: 113 };
+  const EXPECTED = { fingerprint: "34b3ef326ce5", lessons: 134, topics: 113 };
 
   if (input.fingerprint && input.fingerprint !== EXPECTED.fingerprint) {
     fail(failures, "FINGERPRINT", `fingerprint ${input.fingerprint} ≠ ${EXPECTED.fingerprint}`);
