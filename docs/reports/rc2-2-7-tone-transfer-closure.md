@@ -5,7 +5,7 @@
 | Base | `#279` (RC2.2.6) — não esperou merge |
 | Branch | `cursor/rc2-2-7-tone-transfer-5b4f` |
 | Fingerprint antes | `516692632525` |
-| Fingerprint depois | **`a2ed1a0c1c6d`** |
+| Fingerprint depois | **`4ad604bd850c`** |
 | Lições / tópicos / CultureItems | 134 / 113 / 30 — **inalterados** |
 | Exceção de freeze | `CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION` |
 | Verdict Public Beta | **NO-GO** (inalterado) |
@@ -69,17 +69,17 @@ Duas decisões de implementação que valem registro:
 | `p1-ate-logo` | `tt-p1ate-ate-logo` | 再见 | 4 | — | **conversa** |
 | `p1-qingwen-cortesia` | `tt-p1qw-com-licenca` | 请问 | 3,4 | — | **conversa** |
 | `l3` | `tt-l3-estou-bem` | 我很好 | 3 | 3º+3º | **conversa** |
-| `l4` | `tt-l4-de-nada` | 不客气 | 2,4 | 不 | **conversa** |
+| `l4` | `tt-l4-sem-problema` | 没关系 | 1,2 | — | situação |
 | `p3-wobuhui-shuo-zhongwen` | `tt-p3wbh-nao-sei-falar` | 我不会说中文 | 1,2,3,4 | 不 | **conversa** |
 | `p3-qing-zai-shuo-yibian` | `tt-p3qzs-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
 | `l9` | `tt-l9-sente-se` | 请坐 | 3,4 | — | **conversa** |
 | `l9-tudo-bem` | `tt-l9tb-pergunte-de-volta` | 你好吗？ | 3 | 3º+3º | **conversa** |
 | `l10` | `tt-l10-sou-brasileiro` | 我是巴西人 | 1,2,3,4 | — | **conversa** |
 | `l11` | `tt-l11-repita` | 请再说一遍 | 1,3,4 | 一 | **conversa** |
-| `l11-falo-pouco` | `tt-l11fp-falo-um-pouco` | 我会说一点中文 | 1,3,4 | 一 | situação |
+| `l13` | `tt-l13-ate-amanha` | 明天见 | 1,2,4 | — | **conversa** |
 | `l11-falo-pouco` | `tt-l11fp-estudo-chines` | 我学习中文 | 1,2,3 | — | situação |
 
-**12 tarefas · 11 lições · 10 em conversa** — contra os mínimos de 12 / 6 / 4.
+**12 tarefas · 12 lições · 10 em conversa** — contra os mínimos de 12 / 6 / 4.
 E, o que importa mais: **as 12 são jogadas**. Ver a seção de alcançabilidade.
 
 Cobertura: tons **1, 2, 3, 4** · sandhi **3º+3º**, **不**, **一**.
@@ -121,7 +121,7 @@ Seis tarefas seriam conteúdo morto — presentes no arquivo, contadas pelo gate
 estático, invisíveis na prática.
 
 A correção foi reduzir para uma tarefa por lição de loop e **espalhar por mais
-lições** (7 → 11) em vez de empilhar na mesma. Como efeito colateral bom, todas
+lições** (7 → 12) em vez de empilhar na mesma. Como efeito colateral bom, todas
 as 10 âncoras de conversa passaram a sobreviver, contra 4 de 6 antes.
 
 E a proteção permanente: `validate:tone-transfer-coverage` agora **executa o
@@ -178,7 +178,7 @@ começar: com a regra nova e nenhuma tarefa nova, as métricas continuaram
 “transferência” e degrau errado **não** conta; degrau certo sem alvo tonal
 **não** conta).
 
-## Fingerprint: `516692632525` → `a2ed1a0c1c6d`
+## Fingerprint: `516692632525` → `4ad604bd850c`
 
 Não foi mantido artificialmente. Congelar identidade é registrar o que mudou,
 não fingir que nada mudou.
@@ -187,7 +187,7 @@ A propagação separou **gate** de **evidência**, e essa distinção é o ponto
 
 | | tratamento |
 | --- | --- |
-| Gates de freeze, fixtures, manifests de release | retargetados para `a2ed1a0c1c6d` |
+| Gates de freeze, fixtures, manifests de release | retargetados para `4ad604bd850c` |
 | `docs/release/human-qa-prebeta.json` | retargetado — ver abaixo |
 | **`docs/release/device-preflight.json`** | **intocado** |
 | Relatórios históricos (`docs/reports/*`) | **intocados** |
@@ -236,6 +236,19 @@ qualquer commit:
 - `我听不懂` seria o contraste natural de 不 em `p3-qing-zai-shuo-yibian`, mas
   essa lição vem **antes** de `l11`, onde a frase é ensinada. Foi trocada.
 
+Uma quarta veio de `validate:exercise-depth --beta`, que recusa a mesma resposta
+correta mais de duas vezes numa lição — repetir demais transforma produção em
+decoreba. Minhas tarefas empurravam 不客气 (`l4`) e 我会说一点中文
+(`l11-falo-pouco`) para a terceira ocorrência. Ambas já eram respostas de outros
+passos **antes** desta remessa, então a saída não era reescrever a lição para
+abrir espaço para mim:
+
+- `l4` trocou o alvo para 没关系, usado uma única vez ali. Como 没关系 só é
+  ensinado **depois** da cena, essa tarefa perdeu a âncora de conversa e virou
+  situação. Preferi perder a âncora a empurrar repetição.
+- A tarefa de `l11-falo-pouco` saiu e virou `l13` / 明天见 (míngtiān jiàn —
+  três contornos em três sílabas), ancorada na cena `encontro-amanha`.
+
 Uma terceira foi corrigida na releitura adversarial do próprio diff, antes do
 push: `l9` tinha uma tarefa ancorada na conversa cujo alvo era `我叫Matheus`. A
 situação dizia “alguém quer saber **o seu** nome”, mas a tarefa só aceitaria um
@@ -259,7 +272,7 @@ meia-verdade.
   conversa de verdade” é julgamento humano. O que está provado é contrato:
   ancoragem, ausência de apoio, honestidade de copy, fallbacks de fala.
 - **O preflight de dispositivo agora é anterior ao currículo atual.** Ele
-  permanece verdadeiro sobre `516692632525` e **não** cobre `a2ed1a0c1c6d`.
+  permanece verdadeiro sobre `516692632525` e **não** cobre `4ad604bd850c`.
 - **Reconhecimento de fala é falsificado no E2E.** O navegador do CI não tem
   microfone. Prova-se a affordance e os fallbacks, nunca a qualidade do
   reconhecedor.

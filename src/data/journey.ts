@@ -2813,7 +2813,6 @@ export const JOURNEY: JourneyPhase[] = [
                 "谢谢 agradece de forma natural."
               ),
               conversationScene("agradecendo"),
-              toneTransfer("tt-l4-de-nada"),
               dialogue(
                 "Responda com cortesia",
                 "Pessoa diz: 谢谢. O que você responde?",
@@ -2837,6 +2836,7 @@ export const JOURNEY: JourneyPhase[] = [
                 ["没关系", "再见", "早上好", "我很好"],
                 "没关系 = não tem problema — fecha o pedido de desculpas."
               ),
+              toneTransfer("tt-l4-sem-problema"),
               listenSelect(
                 "Ouça de novo",
                 "不客气",
@@ -4014,7 +4014,6 @@ export const JOURNEY: JourneyPhase[] = [
                 ["我会说一点中文", "我不会说中文", "再见", "不客气"],
                 "Essa frase ajuda a ajustar a expectativa da conversa."
               ),
-              toneTransfer("tt-l11fp-falo-um-pouco"),
               // Quem fala pouco precisa do reparo tanto quanto da frase: 请再说一遍
               // está nos itens desta lição e não era pedido em lugar nenhum.
               dialogue(
@@ -4184,6 +4183,7 @@ export const JOURNEY: JourneyPhase[] = [
                 "明天见 no texto reforça a despedida com plano."
               ),
               conversationScene("encontro-amanha"),
+              toneTransfer("tt-l13-ate-amanha"),
               match(
                 "Reconheça no texto",
                 "Combine as frases do microtexto.",

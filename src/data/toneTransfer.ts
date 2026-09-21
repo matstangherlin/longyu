@@ -137,24 +137,29 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
 
   // ── l4 · Obrigado ───────────────────────────────────────────────────────
   {
-    id: "tt-l4-de-nada",
+    // 不客气 já era resposta correta três vezes nesta lição antes desta remessa:
+    // uma quarta ocorrência transformaria produção em decoreba, e
+    // `validate:exercise-depth` recusa com razão. 没关系 é ensinado aqui e usado
+    // como resposta uma única vez — mas só DEPOIS da cena, então esta tarefa
+    // deixa de ser ancorada em conversa. Preferi perder a âncora a empurrar
+    // repetição, e a lição não foi reescrita para abrir espaço para mim.
+    id: "tt-l4-sem-problema",
     lessonId: "l4",
-    context: "conversation",
-    sceneId: "agradecendo",
-    titlePt: "Responda ao agradecimento",
-    titleEn: "Answer the thanks",
+    context: "situation",
+    titlePt: "Acalme quem pediu desculpa",
+    titleEn: "Reassure someone who apologised",
     situationPt:
-      "A cena terminou e a pessoa agradece mais uma vez, agora olhando para você. Responda em voz alta que não foi nada.",
+      "A pessoa esbarra em você e pede desculpa, visivelmente sem graça. Diga em voz alta que não tem problema.",
     situationEn:
-      "The scene is over and the person thanks you once more, now looking right at you. Say out loud that it was nothing.",
-    targetHanzi: "不客气",
-    targetPinyin: "bú kèqi",
-    meaningPt: "De nada",
-    accepts: ["不客气。"],
-    tones: [2, 4],
-    sandhi: ["bu"],
-    toneReminderPt: `bù sobe para bú porque kè é quarto tom — a mesma regra que você viu nesta lição. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `bù rises to bú because kè is a fourth tone — the same rule you saw in this lesson. ${SPEECH_HONESTY_EN}`,
+      "Someone bumps into you and apologises, clearly embarrassed. Say out loud that it is not a problem.",
+    targetHanzi: "没关系",
+    targetPinyin: "méi guānxi",
+    meaningPt: "Não tem problema",
+    accepts: ["没关系。"],
+    tones: [1, 2],
+    sandhi: [],
+    toneReminderPt: `méi sobe, guān fica alto e reto, e xi sai leve e curto, sem marca. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `méi rises, guān stays high and level, and xi comes out light and short, with no mark. ${SPEECH_HONESTY_EN}`,
   },
 
   // ── p3-wobuhui-shuo-zhongwen · 我不会说中文 ─────────────────────────────
@@ -293,26 +298,29 @@ export const TONE_TRANSFER_TASKS: readonly ToneTransferTask[] = [
     toneReminderEn: `Same request, different conversation: yī still becomes yí before biàn, a fourth tone. ${SPEECH_HONESTY_EN}`,
   },
 
-  // ── l11-falo-pouco · Falo um pouco ──────────────────────────────────────
+  // ── l13 · Combinar de novo ──────────────────────────────────────────────
   {
-    id: "tt-l11fp-falo-um-pouco",
-    lessonId: "l11-falo-pouco",
-    context: "situation",
-    titlePt: "Ajuste a expectativa em voz alta",
-    titleEn: "Set the expectation out loud",
+    id: "tt-l13-ate-amanha",
+    lessonId: "l13",
+    context: "conversation",
+    sceneId: "encontro-amanha",
+    titlePt: "Combine o reencontro em voz alta",
+    titleEn: "Agree on meeting again, out loud",
     situationPt:
-      "A pessoa pergunta se você fala chinês e espera a resposta. Diga em voz alta que você fala um pouco.",
+      "Ficou combinado que vocês se veem no dia seguinte. Encerre a conversa em voz alta dizendo isso.",
     situationEn:
-      "The person asks whether you speak Chinese and waits for the answer. Say out loud that you speak a little.",
-    targetHanzi: "我会说一点中文",
-    targetPinyin: "wǒ huì shuō yìdiǎn Zhōngwén",
-    meaningPt: "Sei falar um pouco de chinês",
-    accepts: ["我会说一点中文。"],
-    tones: [1, 3, 4],
-    sandhi: ["yi"],
-    toneReminderPt: `yī vira yì antes de diǎn, terceiro tom; e Zhōng volta ao primeiro, alto e reto. ${SPEECH_HONESTY_PT}`,
-    toneReminderEn: `yī becomes yì before diǎn, a third tone; and Zhōng goes back to the first tone, high and level. ${SPEECH_HONESTY_EN}`,
+      "You have agreed to see each other the next day. Close the conversation out loud by saying so.",
+    targetHanzi: "明天见",
+    targetPinyin: "míngtiān jiàn",
+    meaningPt: "Até amanhã",
+    accepts: ["明天见。"],
+    tones: [1, 2, 4],
+    sandhi: [],
+    toneReminderPt: `Três contornos em três sílabas: míng sobe, tiān fica alto e reto, jiàn cai. ${SPEECH_HONESTY_PT}`,
+    toneReminderEn: `Three contours in three syllables: míng rises, tiān stays high and level, jiàn falls. ${SPEECH_HONESTY_EN}`,
   },
+
+  // ── l11-falo-pouco · Falo um pouco ──────────────────────────────────────
   {
     id: "tt-l11fp-estudo-chines",
     lessonId: "l11-falo-pouco",

@@ -29,7 +29,7 @@ launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
 | Field | Value |
 | --- | --- |
 | Freeze | `CURRICULUM_FREEZE=RC2_CONTENT_FREEZE` |
-| Base fingerprint | `a2ed1a0c1c6d` |
+| Base fingerprint | `4ad604bd850c` |
 | Real merge SHA (#254 on `main`) | `c4441b68ae2388027d72e3af748417ef7caf2bb6` |
 | Forbidden SHA | `241386c8fc814ebdfa166dde1035bc3d7ca195f5` (9B feature-branch tip, never a release SHA) |
 | Lessons | 134 |
@@ -38,7 +38,7 @@ launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
 | Health plans | `saudeSurvivalPlanFor` / `saudePlan` only |
 
 The Journey fingerprint is the curriculum identity. **RC2.2.7** advanced it from
-`516692632525` → `a2ed1a0c1c6d`: tone transfer landed 14 new tasks inside seven
+`516692632525` → `4ad604bd850c`: tone transfer landed 14 new tasks inside seven
 existing lessons (`journey.ts`), and the new `toneTransfer.ts` registry joined
 `CURRICULUM_SOURCES` so that editing that copy cannot move silently. Lessons 134
 / teaching topics 113 / CultureItems 30 / Journey Culture nodes 20 all unchanged
