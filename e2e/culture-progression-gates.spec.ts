@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
   seedAtCultureGate,
@@ -24,6 +24,32 @@ async function openJourneyAtGate(
   // O módulo do tópico guardado pode vir recolhido; expandir todos garante o marco visível.
   const expandAll = page.getByRole("button", { name: /Expandir tudo|Expand all/i });
   if (await expandAll.count()) await expandAll.first().click().catch(() => {});
+}
+
+/**
+ * Antecipa o typewriter SE ele ainda estiver digitando, e devolve se antecipou.
+ *
+ * Ler a fase e clicar precisam acontecer no MESMO tick do navegador. O mesmo
+ * clique tem dois significados na máquina (`guideDialogueMachine.ts`): em
+ * `typing` ele completa o texto; em `complete` ele AVANÇA — e, com uma mensagem
+ * só, avançar dispensa o dragão e desmonta o diálogo. Entre dois round-trips do
+ * Playwright o typewriter pode terminar sozinho (161 grafemas ≈ 4,5 s, e o
+ * WebKit no CI roda ~1,7× mais lento que os outros engines), e aí o teste
+ * mediria o gesto errado. Dentro de um `evaluate` não há esse intervalo: o
+ * `setTimeout` do typewriter não pode disparar entre a leitura e o clique.
+ */
+async function skipGuideTypingIfStillTyping(dialogue: Locator): Promise<boolean> {
+  return dialogue.evaluate(async (el) => {
+    const deadline = Date.now() + 5_000;
+    // "idle" existe por um render antes do efeito de START; esperar aqui dentro
+    // evita gastar um round-trip que reabriria a janela de corrida.
+    while (el.getAttribute("data-guide-phase") === "idle" && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 16));
+    }
+    if (el.getAttribute("data-guide-phase") !== "typing") return false;
+    el.querySelector<HTMLElement>("[data-testid='guide-speech-box']")?.click();
+    return true;
+  });
 }
 
 test.describe("RC2.2.6 — marcos culturais na Jornada", () => {
@@ -190,16 +216,10 @@ test.describe("RC2.2.6 — marco cultural no mobile", () => {
 
 test.describe("RC2.2.6 — voz do dragão (contrato, não qualidade sonora)", () => {
   test("C5 — antecipar completa o texto e nenhum blip sobra depois", async ({ page }) => {
-    await openJourneyAtGate(page);
-
-    const gate = page.locator(`[data-journey-culture-gate="${SOCIAL.id}"]`);
-    await expect(gate).toBeVisible();
-
-    const dialogue = gate.locator("[data-testid='journey-guide-dialogue']");
-    await expect(dialogue).toBeVisible();
-
-    // Instrumenta o contrato observável: quantas vozes o engine iniciou.
-    await page.evaluate(() => {
+    // Instrumenta ANTES de qualquer script da página: quantas vozes o engine
+    // iniciou. Instalar isto depois custaria um round-trip justamente no
+    // intervalo em que o typewriter pode terminar sozinho.
+    await page.addInitScript(() => {
       const scope = window as unknown as Record<string, unknown> & { __blips?: number };
       const Ctor = (scope.AudioContext ?? scope.webkitAudioContext) as
         | { prototype: Record<string, unknown> }
@@ -214,32 +234,46 @@ test.describe("RC2.2.6 — voz do dragão (contrato, não qualidade sonora)", ()
       };
     });
 
-    const speech = gate.getByTestId("guide-speech-box");
-    // Antecipa enquanto ainda digita.
-    await speech.click();
+    await openJourneyAtGate(page);
+
+    const gate = page.locator(`[data-journey-culture-gate="${SOCIAL.id}"]`);
+    await expect(gate).toBeVisible();
+
+    const dialogue = gate.locator("[data-testid='journey-guide-dialogue']");
+    await expect(dialogue).toBeVisible();
+
+    const skipped = await skipGuideTypingIfStillTyping(dialogue);
     await expect(dialogue).toHaveAttribute("data-guide-phase", /complete|done/);
 
-    const full = await speech.getAttribute("aria-label");
-    await expect(gate.getByTestId("guide-visible-text")).toHaveText(String(full ?? ""));
+    const full = await gate.getByTestId("guide-speech-box").getAttribute("aria-label");
+    // Antecipou: o texto inteiro está na tela AGORA, não no tempo que faltava
+    // digitar. 161 grafemas a 28 ms levariam ~4,5 s — 1,5 s é prova de corte.
+    await expect(gate.getByTestId("guide-visible-text")).toHaveText(String(full ?? ""), {
+      timeout: skipped ? 1_500 : 10_000,
+    });
 
     const afterCut = await page.evaluate(() => (window as unknown as { __blips?: number }).__blips ?? 0);
     await page.waitForTimeout(600);
     const later = await page.evaluate(() => (window as unknown as { __blips?: number }).__blips ?? 0);
-    expect(later, "nenhuma voz nova depois do reveal instantâneo").toBe(afterCut);
+    expect(later, "nenhuma voz nova depois do texto completo").toBe(afterCut);
   });
 
   test("C5.2 — segundo avanço dispensa o guia e o marco continua utilizável", async ({ page }) => {
     await openJourneyAtGate(page);
     const gate = page.locator(`[data-journey-culture-gate="${SOCIAL.id}"]`);
-    const speech = gate.getByTestId("guide-speech-box");
-    await expect(speech).toBeVisible();
+    const dialogue = gate.locator("[data-testid='journey-guide-dialogue']");
+    await expect(gate.getByTestId("guide-speech-box")).toBeVisible();
 
-    await speech.click(); // completa o texto
+    await skipGuideTypingIfStillTyping(dialogue); // leva o texto a "complete"
+    await expect(dialogue).toHaveAttribute("data-guide-phase", /complete|done/);
+
     // A máquina tem um guard (GUIDE_ADVANCE_GUARD_MS) para que um clique físico
     // nunca complete E avance de uma vez. Dois cliques dentro dessa janela fazem
     // o segundo ser ignorado — respeitar o guard é o contrato, não uma gambiarra.
+    // O guard vale também quando o texto terminou sozinho: o TICK que completa
+    // arma o mesmo `advanceReadyAt`.
     const guardMs = Number(
-      (await page.locator("[data-guide-guard-ms]").first().getAttribute("data-guide-guard-ms")) ?? 80
+      (await dialogue.locator("[data-guide-guard-ms]").first().getAttribute("data-guide-guard-ms")) ?? 80
     );
     await page.waitForTimeout(guardMs + 60);
     await gate.getByTestId("guide-continue").click(); // dispensa
