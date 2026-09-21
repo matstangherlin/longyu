@@ -15,7 +15,7 @@
  * ["new context", "known structural frame"]`).
  *
  * HONESTIDADE (RC2.2.7 P0): `analyzePronunciation` compara sílabas em ordem e
- * NÃO mede altura nem contorno. Por isso nenhum texto daqui afirma que o tom do
+ * não mede altura nem contorno. Por isso nenhum texto daqui afirma que o tom do
  * aluno está certo. `toneReminderPt`/`toneReminderEn` são LEMBRETE do alvo,
  * mostrados depois da tentativa — nunca avaliação. `validate:tone-transfer-honesty`
  * recusa qualquer frase que reivindique medição de tom.

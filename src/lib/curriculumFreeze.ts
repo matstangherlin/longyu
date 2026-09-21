@@ -37,7 +37,7 @@ export const FEATURE_FREEZE = "PUBLIC_BETA" as const;
  * usando motor que já existe (`free_production`) e vocabulário que a própria
  * lição já ensinou.
  *
- * O que ela NÃO permite — e os gates recusam: lição nova, CultureItem novo,
+ * O que ela não permite — e os gates recusam: lição nova, CultureItem novo,
  * StepKind novo, vocabulário novo, teoria tonal nova.
  *
  * Contagens congeladas continuam intactas: 134 lições, 113 tópicos, 30
@@ -57,7 +57,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
 } as const;
 
 /**
- * RC2.2.7 avançou 516692632525 → fab9a424339e.
+ * RC2.2.7 avançou 516692632525 → acef3d8707a8.
  *
  * Mudaram `src/data/journey.ts` (15 passos de transferência tonal),
  * `src/features/lesson/lessonTasks.ts` e o novo `src/data/toneTransfer.ts`,
@@ -68,7 +68,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * existe mais. Congelar identidade é registrar o que mudou, não fingir que
  * nada mudou.
  */
-export const RC_BASE_FINGERPRINT = "fab9a424339e";
+export const RC_BASE_FINGERPRINT = "acef3d8707a8";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

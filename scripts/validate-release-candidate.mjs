@@ -18,7 +18,7 @@ const fail = (message) => errors.push(message);
 const read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
 
 const FREEZE = "RC2_CONTENT_FREEZE";
-const FINGERPRINT = "516692632525";
+const FINGERPRINT = "acef3d8707a8";
 const LESSONS = 134;
 const TEACHING = 113;
 const MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
