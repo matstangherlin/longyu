@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 13a64a5d0b406d4a88a988ab9ce25b4d0181e230 |
+| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T11:07:07.898Z |
+| Gerado em | 2026-09-21T11:20:10.725Z |
 | Lições | 134 |
 
 ## Política
@@ -27,7 +27,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições | 134 |
 | Lições com transfer_task | 20 |
-| Lições com free_production guiada | 85 |
+| Lições com free_production guiada | 84 |
 | Lições com produção aberta (estruturalmente elegível) | 51 |
 | Transfers precoces | 0 |
 | Opens precoces (sem guided do objetivo) | 0 |
@@ -44,7 +44,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-------|--------|---------|--------|----------|
 | `frame_woyao` | 我要 ___ | l26b | l26c | p6-clima |
 | `frame_woxianghe` | 我想喝 ___ | l26 | p6-cidade-lugares | p7-imersao-casa-amigo |
-| `frame_nijiaoshenme` | 你叫什么？ | p1-primeira-conversa | p1-primeira-conversa | — |
+| `frame_nijiaoshenme` | 你叫什么？ | p1-primeira-conversa | l9-qual-nome | — |
 | `frame_qingwennijiaoshenme` | 请问，你叫什么？ | — | — | l2-rev |
 | `frame_zainali` | ___ 在哪里？ | l25 | p6-china-ruas | p6-natureza |
 | `frame_qingwenzainali` | 请问，___ 在哪里？ | l25 | — | — |
@@ -81,7 +81,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Primeiras free_production guiadas
 
-- **p1-primeira-conversa** · `frame_nijiaoshenme` · `你叫什么？`
+- **l9-qual-nome** · `frame_nijiaoshenme` · `你叫什么？`
 - **l12** · `frame_wozai` · `我在学中文。`
 - **p3-ordem-das-palavras** · `frame_woyouge` · `我有三个朋友。`
 - **l26** · `frame_woxihuan` · `我喜欢中文。`
@@ -107,4 +107,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - **l30** · objetivo `buy_item` · modelo `我想买牛奶。` _(elegibilidade estrutural — ver semântica acima)_
 - **p7-imersao-mercado** · objetivo `ask_price` · modelo `多少钱？` _(elegibilidade estrutural — ver semântica acima)_
 
-<!-- integridade:365215816945a50c -->
+<!-- integridade:f41a7a1009bcab3e -->

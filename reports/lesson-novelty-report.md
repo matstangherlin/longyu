@@ -7,10 +7,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Campo | Valor |
 |-------|-------|
 | Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 13a64a5d0b406d4a88a988ab9ce25b4d0181e230 |
+| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T11:03:26.075Z |
+| Gerado em | 2026-09-21T11:16:28.070Z |
 | Lições | 134 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 134 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1029 |
-| Pares com transformação cognitiva | 837 (81%) |
+| Pares de repetição semântica | 1025 |
+| Pares com transformação cognitiva | 833 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -40,7 +40,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-engine-2-lab | 6 | 6 | 13 | 0 | 0 | 4 | — |
 | l1 | 10 | 9 | 21 | 4 | 4 | 4 | phrase:你好 × 2 |
 | l2 | 15 | 14 | 25 | 14 | 14 | 5 | intent:identify-concept × 4 |
-| l3 | 15 | 14 | 26 | 16 | 12 | 10 | phrase:我很好 × 3 |
+| l3 | 14 | 13 | 23 | 12 | 8 | 8 | action:assemble-phrase × 3 |
 | l1-rev | 9 | 7 | 11 | 4 | 3 | 4 | action:assemble-hanzi × 2 |
 | l4 | 16 | 15 | 30 | 11 | 8 | 9 | phrase:谢谢 × 2 |
 | p1-ate-logo | 15 | 14 | 23 | 15 | 12 | 9 | intent:greet × 3 |
@@ -171,4 +171,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:2cbc64e6511d3b57 -->
+<!-- integridade:9fc841049cef060d -->
