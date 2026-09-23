@@ -1,5 +1,180 @@
 # RC2.2.9 — Conversation Capability Closure & Beta Pedagogy Freeze
 
+> Public Beta continua **NO-GO**. Esta remessa fecha dívida pedagógica; não
+> certifica nada operacional (ver "Não verificado").
+
+## Base
+
+```text
+BASE_MAIN_SHA
+700aa83264cee8429313ad0e52881e90b09fa2e8   (#281 mergeado)
+```
+
+Preflight: `main` estava exatamente em `700aa83`. A branch de trabalho é
+`claude/admiring-cray-4fx10i` (a sessão só pode publicar nessa branch; o nome
+`cursor/rc2-2-9-capability-closure-beta-freeze` do plano não foi usado),
+recriada a partir de `origin/main` depois do merge do #281. #273 não foi
+tocada; nenhum projeto Supabase, credencial Netlify ou check operacional foi
+mexido.
+
+## Antes
+
+- 11 capacidades declaradas `PARTIAL` em `src/data/conversationCapabilities.ts`:
+  talk_family, order_food, order_drink, negotiate_basic, pay, use_metro,
+  use_train, ask_for_help, ask_repeat, express_preference, make_simple_plan.
+- O mapa gerado (`conversation-capability-map.md`) mostrava **31/31 READY**:
+  `scoreCapability` dava `listeningCoverage = journeyLessons.length > 0 ? 0.8 : 0`,
+  `conversationCoverage = hasConversation ? 1 : 0`,
+  `transferCoverage = transferScenarios.length > 0 ? 1 : 0`,
+  `productiveCoverage = hasProductivePractice ? 1 : 0`, e READY saía de
+  `readinessScore >= 0.85`. Metadado preenchido bastava.
+
+## O que a auditoria de runtime encontrou
+
+A evidência agora vem dos planos que `lessonRoundStepsFor` entrega a um aluno
+que seguiu a Jornada (lições anteriores concluídas, chunks aprendidos, rodadas
+de maestria M1–M4 como o LessonPlayer pede). Passo autoral que o planner
+descarta não conta.
+
+| Capacidade | Resultado da auditoria | Causa real |
+| --- | --- | --- |
+| talk_family | REAL GAP | 我没有… só exposto (sem produção/uso); nenhuma transferência fora da foto; 弟弟/妹妹 exigidos mas nunca ensinados; a cena `packet-exchange-family` existe em l25 mas o plano de maestria nunca a entrega |
+| order_food | REAL GAP | 不要辣 nunca chegava ao aluno; 我想吃米饭 cobrado (l26c) sem ensino; 肉/鱼 cobrados sem ensino; `chunk:woyaofan` (我要饭) exigido — 要饭 é "pedir esmola" no uso corrente |
+| order_drink | REAL GAP | 我想喝水 e 我要水 cobrados em l26b M3/M4 sem nenhum ensino em runtime |
+| negotiate_basic | REAL GAP | 便宜一点 só ouvido: sem produção, sem escuta com decisão; 太贵了 produzido antes de ensinado |
+| pay | REAL GAP | 微信支付 / 现金 / 可以刷卡吗 cobrados sem ensino (a apresentação de p6-survival-mandarin é descartada pelo recorte de maestria); 支付宝 nunca ensinado |
+| use_metro | REAL GAP | 我坐地铁 sem produção; estrutura "我要一张票" usa 张, que nenhuma lição ensina |
+| use_train | REAL GAP | nenhuma escuta; 我要票 nunca produzido num contexto de trem |
+| ask_for_help | REAL GAP | 我需要帮助 cobrado em p6-survival-mandarin M4 antes do primeiro ensino (p7-imersao-aeroporto); nenhuma escuta |
+| ask_repeat | **PASS existing content** | as seis dimensões já tinham evidência de runtime (escuta, reparo, conversa `pedir-repeticao`, transferência); só o status declarado estava errado |
+| express_preference | REAL GAP | 我不喜欢… inexistente; nenhuma conversa e nenhuma escuta de preferência |
+| make_simple_plan | REAL GAP | 我们走吧 cobrado por áudio em l28 antes do ensino; 我要去北京 cobrado sem ensino; plano só como despedida |
+
+Também apareceram buracos nas 20 capacidades que já eram READY (dimensão
+ausente, ou chunk exigido que nunca chega ao aluno): talk_routine (escuta 0;
+我吃早饭 nunca ensinado), tell_time (下午三点 / 九点十分 nunca ensinados),
+ask_directions (nenhuma conversa em que o aluno pede o caminho), use_taxi e
+health_basic (escuta 0), airport_basic (我坐飞机 / 飞机场在哪里 / 我的航班在哪里
+nunca ensinados), weather_smalltalk (天气很热/冷 nunca ensinados; transferência 0).
+Foram fechados na mesma remessa, porque o Gate 1 vale para todo READY
+declarado.
+
+Achado registrado, não corrigido: o bônus de maestria autoral de `l24` em
+`src/data/masteryPilot.ts` nunca roda — o plano de identidade tem precedência
+em `lessonRoundStepsFor`. É conteúdo morto; não afeta nenhuma capacidade
+(a família é provada pelo plano de identidade) e fica para limpeza posterior.
+
+## O que mudou
+
+Prioridade usada (parte H do plano): conectar conteúdo existente → corrigir
+metadado → pequeno número de passos → conteúdo novo só se inevitável.
+
+1. **Conteúdo existente conectado ao runtime.** 21 flashcards de chunks que já
+   estavam no registry, cada um na lição que `lexicalLifecycleEntries.ts` já
+   declarava como `introduceAt` (不要辣, 我想吃米饭, 我想喝水, 我要水, 我要肉,
+   我要鱼 em l26b; 微信支付, 现金, 可以刷卡吗, 太贵了 em l27; 我需要帮助 em l4;
+   我们走吧 em l11; 我要去北京, 我坐飞机, 飞机场在哪里 em p6-cidade-lugares; …).
+   Nenhum chunk novo.
+2. **Metadado corrigido.** `talk_family` sem 弟弟/妹妹; `order_food` sem
+   `chunk:woyaofan`; `pay` sem `chunk:zhifubao` (nenhum meio de pagamento é
+   apresentado como universal); `use_metro` com a estrutura "我要票" no lugar de
+   "我要一张票".
+3. **Passos pequenos em lições existentes** (`src/data/capabilityClosureSteps.ts`):
+   escutas `audio_to_action` sem a resposta escrita antes, montagens
+   `sentence_build`, produções/transferências `reverse_recall` em situações
+   novas, e as tarefas pós-conversa das cenas novas. Aplicados num ponto único
+   de `lessonRoundStepsFor`, no fim da rodada, para qualquer tipo de plano.
+4. **Conteúdo novo inevitável:** duas cenas dedicadas em
+   `src/data/conversationScenes.ts` — `gostos-na-casa` (preferência: intenção,
+   reação, progressão, fechamento) e `perguntar-o-caminho` (o aluno pede o
+   caminho, entende a instrução e agradece). Só palavras já ensinadas; marcadas
+   `dedicatedLesson` para não entrarem na seleção genérica de outras lições.
+
+Nenhuma lição, tópico, CultureItem, StepKind, motor de capacidade ou motor de
+conversa novo.
+
+## Motor de capacidade (evoluído, não duplicado)
+
+- `scoreCapability` / `computeCapabilityStatus` continuam em
+  `src/data/conversationCapabilities.ts` e agora recebem
+  `CapabilityRuntimeEvidence`. Sem evidência, a dimensão é 0. `journeyLessons`,
+  `hasConversation`, `hasProductivePractice` e `transferScenarios` não entram
+  mais na pontuação — viraram declarações que o gate G3 confere.
+- READY não sai de média. Contrato **estrito** para as 11: léxico e estrutura
+  em 1.00 (ensinado antes de cobrado) e produção, escuta, conversa e
+  transferência com evidência. Contrato de **presença** para as 20 que já eram
+  READY: nenhuma dimensão ausente e todo chunk exigido chega ao aluno.
+- `src/lib/capabilityRuntimeEvidence.ts` só responde "qual lição, qual passo,
+  qual cena, qual texto, é alcançável" para cada dimensão; não decide status.
+
+## Depois
+
+- **11/11** capacidades desta remessa READY em runtime no contrato estrito.
+- **31/31** READY em runtime (11 no contrato estrito + 20 no contrato de
+  presença). Declarado = calculado para todas (gate K1).
+- China Survival: **9/9** cenários com todas as capacidades READY em runtime;
+  os 10 passos do caminho simulado idem.
+
+Dívida registrada (não escondida): 13 das 20 capacidades de presença ainda não
+passariam no contrato estrito — ordem de ensino dentro das rodadas de
+maestria ou estrutura sem as três fases. Os números por capacidade estão na
+tabela de presença abaixo (colunas Léxico/Estrutura < 1.00). Nenhuma delas tem
+dimensão ausente.
+
+## Contagens
+
+| Item | Antes | Depois |
+| --- | ---: | ---: |
+| Lições | 134 | 134 |
+| Teaching topics | 113 | 113 |
+| CultureItems | 30 | 30 |
+| Culture Native Lessons | 30 | 30 |
+| Journey Culture nodes | 20 | 20 |
+| Culture Moments | 5 | 5 |
+| Tone Transfer jogáveis | 12 | 12 |
+| Cenas de conversa no catálogo | 50 | 52 |
+| Capacidades declaradas READY | 20/31 | 31/31 |
+| Capacidades READY em runtime (sem proxy) | não medido (o mapa usava proxies) | 31/31 |
+
+## Fingerprint
+
+`327de1df0f33` → `a4ca4594a2e5`.
+
+Mudaram `src/data/conversationScenes.ts` (duas cenas),
+`src/features/lesson/lessonTasks.ts` (ponto único que aplica os passos de
+fechamento) e o novo `src/data/capabilityClosureSteps.ts`, que passou a ser
+`CURRICULUM_SOURCE` — sem isso, mudar essas tarefas não moveria o fingerprint.
+O valor novo foi registrado em `RC_BASE_FINGERPRINT`, nos freezes e manifestos
+de release; relatórios históricos mantêm o valor da época.
+
+## Gates novos (em `validate:beta`, via `gate:rc2-2-9-capability-closure`)
+
+| Script | O que prova |
+| --- | --- |
+| `validate:capability-runtime-evidence` | G1 READY sem dimensão · G3 metadado sem runtime · G4 passo inalcançável · G5 escuta com resposta escrita · G6 transferência só declarada · G7 conversa sem turno · K1 declarado ≠ calculado · A1 ensino depois da cobrança · A3 hànzì novo numa prova · U copy sem EN · J segundo motor / proxy de metadado. Regenera o JSON e o bloco abaixo |
+| `test:capability-runtime-evidence` | 19 mutações (as 18 do plano + reintroduzir o proxy de escuta), todas mortas |
+| `validate:partial-capability-closure` | auditoria G1–G11 capacidade a capacidade + China Survival exigindo READY de runtime |
+| `test:partial-capability-closure` | 14 mutações (trem = metrô com outra palavra, plano que é só despedida, preferência sobre um objeto só, benchmark sem pagar…) |
+| `validate:beta-pedagogy-freeze` / `test:beta-pedagogy-freeze` | BETA_PEDAGOGY_FREEZE + 12 mutações (lição, tópico, CultureItem, moeda, SRS, motor de desafio/conquista, progressão, feature pública, fingerprint) |
+
+Artefato de máquina: `docs/release/rc2-capability-closure.json` (regenerado
+pelo validator; nada preenchido à mão).
+
+## BETA_PEDAGOGY_FREEZE
+
+`src/lib/curriculumFreeze.ts` registra: 134 lições · 113 teaching topics · 30
+CultureItems · 30 Culture Native Lessons · 20 Journey Culture nodes · 5 Culture
+Moments · 12 Tone Transfers jogáveis · 31/31 capacidades READY em runtime
+(11 estrito + 20 presença) · fingerprint `a4ca4594a2e5`, além da lista de
+módulos de progressão/economia/SRS/desafio/conquista, dos exports da economia e
+das features públicas de `featureTruth.ts`. Bloqueia sem atualização explícita:
+lição, tópico, CultureItem, sistema de progressão, moeda, SRS, motor de
+desafio, motor de conquistas, feature pública. Livre: bug fix,
+acessibilidade, performance, compatibilidade Android, segurança, engenharia de
+release, correções de QA, copy.
+
+## Evidência por capacidade
+
 <!-- evidencia:inicio -->
 Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `a4ca4594a2e5` · base `700aa83264ce`.
 
@@ -232,3 +407,72 @@ Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato est
 
 Léxico/estrutura abaixo de 1.00 nas capacidades de presença são dívida registrada (ordem de ensino dentro das rodadas de maestria), não dimensão ausente: toda dimensão tem evidência de runtime.
 <!-- evidencia:fim -->
+
+## E2E
+
+`e2e/rc2-2-9-capability-closure.spec.ts` (Chromium, como o crawler da RC1 —
+caminha por rodadas inteiras; a UI entre motores já é coberta pelos specs de
+player/mobile). Por capacidade, uma interação produtiva e uma de conversa ou
+transferência no player real; amostra de escuta em order_food,
+negotiate_basic, use_train e ask_for_help. O seed só leva ao ponto pedagógico
+(lições anteriores concluídas, rodada de maestria e o cursor de retomada que o
+próprio player usa).
+
+## Regressão do #281
+
+`npm run gate:rc2-2-8-learning-gamification` — resultado na seção Validação.
+
+## Validação
+
+Ver a seção "Resultados" ao final (preenchida com o que foi de fato executado).
+
+## Human QA (checklist — NÃO executado; nenhuma evidência humana é afirmada)
+
+Para cada uma das 11: talk_family, order_food, order_drink, negotiate_basic,
+pay, use_metro, use_train, ask_for_help, ask_repeat, express_preference,
+make_simple_plan.
+
+```text
+[ ] parece natural?
+[ ] está claro o que responder?
+[ ] áudio ajuda?
+[ ] produção é significativa?
+[ ] conversa parece plausível?
+[ ] transferência exige pensar?
+[ ] há vocabulário surpresa?
+[ ] tarefa ficou repetitiva?
+```
+
+Pontos de atenção para o julgamento humano: a ordem 我要米饭不要辣 montada sem
+vírgula; o volume de flashcards em l26b M1 (quatro de uma vez); se
+`gostos-na-casa` soa natural para quem não come carne; se 我要票 no guichê do
+trem fica distinto o bastante do bilhete de metrô.
+
+## Não verificado
+
+```text
+cloud real
+QA candidate
+sync real Supabase
+Android physical
+iOS physical
+formal Human QA
+PWA production upgrade
+production rollback
+```
+
+Nenhum preflight foi promovido a PASS formal. Checks operacionais
+(cloud_auth, cloud_sync, feedback_backend, android_real_device,
+ios_real_device, pwa_upgrade, rollback_drill) continuam falsos.
+
+## Public Beta
+
+```text
+PUBLIC BETA = NO-GO
+```
+
+enquanto os checks operacionais obrigatórios não forem certificados. Não é
+falha desta remessa: o objetivo era fechar o lado pedagógico antes da
+engenharia Android (RC2.2.10) e da certificação operacional.
+
+## Resultados

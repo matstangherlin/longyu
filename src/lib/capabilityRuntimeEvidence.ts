@@ -470,11 +470,7 @@ function planContext(plan: EvidencePlan, registry: RegistryInput): string {
   return text;
 }
 
-/**
- * O texto expressa a capacidade? Frase exclusiva basta; frase compartilhada
- * só conta se o contexto do passo tiver algo exclusivo desta capacidade; a
- * combinação estrutura + vocabulário do domínio conta como uso transformado.
- */
+/** O contexto tem algo que só esta capacidade usa (frase ou palavra do domínio)? */
 function hasExclusiveContext(matcher: Matcher, context: string): boolean {
   return (
     matcher.exclusive.some((anchor) => context.includes(anchor)) ||
@@ -482,6 +478,11 @@ function hasExclusiveContext(matcher: Matcher, context: string): boolean {
   );
 }
 
+/**
+ * O texto expressa a capacidade? Frase exclusiva basta; frase compartilhada
+ * só conta se o contexto do passo tiver algo exclusivo desta capacidade; a
+ * combinação estrutura + vocabulário do domínio conta como uso transformado.
+ */
 function expresses(matcher: Matcher, text: string, context: string, lessonContext = ""): boolean {
   if (matcher.exclusive.some((anchor) => text.includes(anchor))) return true;
   // Frase compartilhada ("我要票" serve a metrô e a trem) só conta quando o
