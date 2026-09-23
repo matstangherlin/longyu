@@ -6,7 +6,7 @@
  * chave já ouvida não volta. Trocar filtro, abrir card ou reabrir a aba não
  * gera fala nova, porque nada disso muda as entradas desta função.
  *
- * Selo novo NÃO passa por aqui: tem cerimônia própria (CultureSealReveal).
+ * Selo novo não passa por aqui: tem cerimônia própria (CultureSealReveal).
  * Esta função é pura; a UI resolve o texto pelo catálogo.
  */
 

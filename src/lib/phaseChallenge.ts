@@ -36,7 +36,7 @@ import { cultureGateForTopic, type CultureProgressionProgress } from "./cultureP
 
 export type PhaseChallengeKind = "next" | "advanced";
 
-/** K5.1 / K5.2 — custo em Fôlego. Fôlego, NÃO Carga diária. */
+/** K5.1 / K5.2 — custo em Fôlego (e não em Carga diária). */
 export const PHASE_CHALLENGE_FOLEGO_COST: Readonly<Record<PhaseChallengeKind, number>> = {
   next: 3,
   advanced: 4,
