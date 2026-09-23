@@ -4,26 +4,26 @@
 
 | Campo | Valor |
 |-------|-------|
-| Commit | 5c79cc5c79c4885991911217eac49582e8d9463b |
+| Commit | 700aa83264cee8429313ad0e52881e90b09fa2e8 |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T11:26:49.713Z |
+| Gerado em | 2026-09-23T22:12:23.433Z |
 | Lições | 134 |
-| Hash da Jornada | 327de1df0f33 |
+| Hash da Jornada | e8f26325416d |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Número de cenas | 50 |
-| Média de falas | 9.46 |
-| Média de intervenções | 3.42 |
-| Número de ramificações | 173 |
-| Número de finais | 59 |
-| Vocabulário total exibido (refs únicas no plano real) | 165 |
-| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 165 |
+| Número de cenas | 52 |
+| Média de falas | 9.37 |
+| Média de intervenções | 3.40 |
+| Número de ramificações | 179 |
+| Número de finais | 61 |
+| Vocabulário total exibido (refs únicas no plano real) | 170 |
+| Vocabulário coberto por tarefas posteriores (plano ou SRS) | 170 |
 | Porcentagem de cobertura | 100.0% |
 | Palavras novas (refs únicas) | 3 |
-| Média de reutilizações por ref exibida | 7.53 |
+| Média de reutilizações por ref exibida | 7.37 |
 
 ## Cenas mais curtas
 
@@ -56,7 +56,7 @@
 | nao-falo-chinês | 8 |
 | falar-de-estudo | 8 |
 | me-apresentando | 7 |
-| packet-exchange-basic_questions | 6 |
+| packet-exchange-basic_questions | 7 |
 | pedir-agua | 6 |
 | fale-de-novo | 5 |
 | apontar-natureza | 5 |
@@ -69,12 +69,12 @@
 | airport | 1 |
 | classroom | 6 |
 | clinic | 1 |
-| home | 6 |
+| home | 7 |
 | hotel | 1 |
 | park | 7 |
 | school | 5 |
 | shop | 10 |
-| street | 13 |
+| street | 14 |
 
 ## Cenas por intenção
 
@@ -87,6 +87,7 @@
 | ask-origin | 1 |
 | ask-quantity | 1 |
 | ask-repeat | 1 |
+| ask-route | 1 |
 | ask-slow-repeat | 1 |
 | ask-tea | 1 |
 | ask-time | 1 |
@@ -119,6 +120,7 @@
 | plan-tomorrow | 1 |
 | point-nature | 1 |
 | polite-question | 1 |
+| preference | 1 |
 | repair-not-understood | 1 |
 | restaurant-review | 1 |
 | shop-chat | 1 |
@@ -146,4 +148,4 @@ Nenhum.
 
 - Manter o portão na cadeia validate:beta e revisar tendências do relatório a cada mudança curricular.
 
-<!-- integridade:d34672607395e0ea -->
+<!-- integridade:1491c329522871f1 -->

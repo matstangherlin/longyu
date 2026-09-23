@@ -163,7 +163,7 @@ for (const id of EXPECTED_IDS) {
 {
   const fp = journeyFingerprint(root);
   assert.equal(fp, RC_BASE_FINGERPRINT);
-  assert.equal(fp, "327de1df0f33");
+  assert.equal(fp, "a4ca4594a2e5");
   console.log(`PASS fingerprint ${fp}`);
 }
 

@@ -8,6 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
+import { buildJourneyPlans, buildRegistry, loadCapabilityModules } from "./lib/capability-evidence-runtime.mjs";
 
 const require = createRequire(import.meta.url);
 const root = process.cwd();
@@ -129,13 +130,20 @@ async function main() {
       ...CHUNKS.map((c) => `chunk:${c.id}`),
       ...LEXICAL_LIFECYCLE_V37_EXTRA.map((e) => e.ref),
     ]);
-    const coverage = capabilityCoverage(available);
+    // RC2.2.9 — READY vem de evidência de runtime, não de metadados.
+    const runtime = loadCapabilityModules();
+    const evidenceById = runtime.evidence.deriveCapabilityRuntimeEvidence({
+      capabilities: runtime.capabilities.CONVERSATION_CAPABILITIES,
+      plans: buildJourneyPlans().plans,
+      registry: buildRegistry(),
+    });
+    const coverage = capabilityCoverage(available, evidenceById);
     const ready = coverage.filter((c) => c.computedStatus === "READY");
     if (ready.length < 29) {
       errors.push(`CAP: READY ${ready.length}/31 (need ≥29)`);
     }
 
-    const survival = evaluateChinaSurvivalV2(available);
+    const survival = evaluateChinaSurvivalV2(available, evidenceById);
     const totals = chinaSurvivalV2Totals(survival);
     if (totals.lexicalReady < 9) {
       errors.push(`BENCH-022 lexicalReady ${totals.lexicalReady}/9`);

@@ -1,7 +1,15 @@
 /**
  * Pedagogia V3.7 — mapa de capacidades conversacionais (COMM-001/002/019/020).
  * READY só com vocabulário + pergunta + resposta + prática produtiva + conversa + transferência.
+ *
+ * RC2.2.9 — o status é calculado a partir de evidência de runtime (lições e
+ * passos que o planner real entrega), nunca de metadados. `hasConversation`,
+ * `hasProductivePractice` e `transferScenarios` continuam aqui como
+ * DECLARAÇÕES: validate:capability-runtime-evidence falha se o runtime não as
+ * confirmar.
  */
+
+import type { CapabilityRuntimeEvidence } from "../lib/capabilityRuntimeEvidence";
 
 export type CapabilityStatus = "READY" | "PARTIAL" | "PLANNED" | "MISSING";
 
@@ -12,7 +20,7 @@ export interface CapabilityCoverageScores {
   listeningCoverage: number;
   conversationCoverage: number;
   transferCoverage: number;
-  /** Média 0–1 das seis dimensões. */
+  /** Média 0–1 das seis dimensões — informativa; READY nunca sai da média. */
   readinessScore: number;
 }
 
@@ -35,11 +43,11 @@ export interface ConversationCapability {
   domain: string;
   survivalChina?: boolean;
   multiIntentBundle?: string[];
-  /** Explicit transfer scenarios (COMM-020). */
+  /** Explicit transfer scenarios (COMM-020). Declaração: o runtime precisa provar. */
   transferScenarios: string[];
-  /** Has authored conversation scene covering this capability. */
+  /** Declara cena de conversa; validate:capability-runtime-evidence exige a cena real. */
   hasConversation: boolean;
-  /** Has productive practice (sentence_build / produce / dialogue). */
+  /** Declara prática produtiva; validate:capability-runtime-evidence exige a tarefa real. */
   hasProductivePractice: boolean;
 }
 
@@ -196,7 +204,9 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
   cap({
     id: "talk_family",
     labelPt: "Falar da família",
-    requiredVocabulary: ["爸爸", "妈妈", "哥哥", "姐姐", "弟弟", "妹妹", "家"],
+    // RC2.2.9 — 弟弟/妹妹 saíram: nenhuma lição os ensina, e o núcleo que a
+    // Jornada realmente pratica é pai, mãe, irmão/irmã mais velhos e casa.
+    requiredVocabulary: ["爸爸", "妈妈", "哥哥", "姐姐", "家"],
     requiredStructures: ["这是我…", "我有…", "我没有…"],
     requiredChunks: [
       "chunk:zheshibaba",
@@ -211,7 +221,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["l24", "l25"],
     intents: ["identify_family"],
     readyAt: "l24",
-    status: "PARTIAL",
+    status: "READY",
     domain: "family",
     transferScenarios: ["show-photo", "visit-home"],
     hasConversation: true,
@@ -309,8 +319,9 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     labelPt: "Pedir comida",
     requiredVocabulary: ["饭", "米饭", "菜", "肉", "鱼", "面", "辣"],
     requiredStructures: ["我要…", "我想吃…", "不要辣"],
+    // RC2.2.9 — chunk:woyaofan saiu: 要饭 é "pedir esmola" no uso corrente;
+    // o pedido natural que a Jornada ensina é 我要米饭.
     requiredChunks: [
-      "chunk:woyaofan",
       "chunk:woyaomifan",
       "chunk:woxiangchimifan",
       "chunk:buyaola",
@@ -322,7 +333,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["l26b"],
     intents: ["order-food"],
     readyAt: "l26b",
-    status: "PARTIAL",
+    status: "READY",
     domain: "restaurant",
     survivalChina: true,
     multiIntentBundle: ["greet", "order_drink", "ask_price", "pay"],
@@ -341,7 +352,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["l26b"],
     intents: ["order-drink"],
     readyAt: "l26b",
-    status: "PARTIAL",
+    status: "READY",
     domain: "restaurant",
     survivalChina: true,
     transferScenarios: ["cafe", "restaurant"],
@@ -395,7 +406,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["l27"],
     intents: ["bargain"],
     readyAt: "l27",
-    status: "PARTIAL",
+    status: "READY",
     domain: "shopping",
     survivalChina: true,
     transferScenarios: ["market"],
@@ -407,13 +418,16 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     labelPt: "Pagar / pedir conta",
     requiredVocabulary: ["买单", "微信支付", "现金"],
     requiredStructures: ["买单", "可以刷卡吗？"],
-    requiredChunks: ["chunk:maidan", "chunk:weixinzhifu", "chunk:zhifubao", "chunk:keyishuaka", "chunk:xianjin"],
+    // RC2.2.9 — chunk:zhifubao saiu: nenhuma lição da Jornada o ensina; a
+    // capacidade básica é pedir a conta e escolher entre WeChat, dinheiro ou
+    // cartão. Nenhum meio de pagamento é apresentado como universal.
+    requiredChunks: ["chunk:maidan", "chunk:weixinzhifu", "chunk:keyishuaka", "chunk:xianjin"],
     requiredQuestions: ["可以刷卡吗？"],
     requiredAnswers: ["买单", "微信支付"],
     journeyLessons: ["l26b", "p6-survival-mandarin"],
     intents: ["pay", "ask-bill"],
     readyAt: "p6-survival-mandarin",
-    status: "PARTIAL",
+    status: "READY",
     domain: "payment",
     survivalChina: true,
     transferScenarios: ["checkout", "restaurant"],
@@ -467,14 +481,16 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     id: "use_metro",
     labelPt: "Usar metrô",
     requiredVocabulary: ["地铁", "站", "票"],
-    requiredStructures: ["我坐地铁", "地铁站在哪里？", "我要一张票"],
+    // RC2.2.9 — "我要一张票" virou "我要票": o classificador 张 não é ensinado
+    // em nenhuma lição; o pedido de bilhete da Jornada é 我要票.
+    requiredStructures: ["我坐地铁", "地铁站在哪里？", "我要票"],
     requiredChunks: ["chunk:ditie", "chunk:wozuoditie", "chunk:ditiezhan", "chunk:ditiezhanzainali", "chunk:woyaopiao"],
     requiredQuestions: ["地铁站在哪里？", "票多少钱？"],
     requiredAnswers: ["我坐地铁", "我要票"],
     journeyLessons: ["p7-imersao-estacao", "p6-china-cidades-2"],
     intents: ["transport-metro"],
     readyAt: "p7-imersao-estacao",
-    status: "PARTIAL",
+    status: "READY",
     domain: "transport",
     survivalChina: true,
     transferScenarios: ["subway"],
@@ -492,7 +508,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["p7-imersao-estacao", "l30"],
     intents: ["transport-train"],
     readyAt: "p7-imersao-estacao",
-    status: "PARTIAL",
+    status: "READY",
     domain: "transport",
     survivalChina: true,
     transferScenarios: ["train-station"],
@@ -575,7 +591,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["p6-survival-mandarin", "p6-saude"],
     intents: ["ask-help"],
     readyAt: "p6-survival-mandarin",
-    status: "PARTIAL",
+    status: "READY",
     domain: "repair",
     survivalChina: true,
     transferScenarios: ["street-emergency"],
@@ -611,7 +627,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["l11"],
     intents: ["ask-repeat"],
     readyAt: "l11",
-    status: "PARTIAL",
+    status: "READY",
     domain: "repair",
     survivalChina: true,
     transferScenarios: ["fast-speech"],
@@ -664,7 +680,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["l28"],
     intents: ["preference"],
     readyAt: "l28",
-    status: "PARTIAL",
+    status: "READY",
     domain: "preferences",
     survivalChina: true,
     transferScenarios: ["likes"],
@@ -682,7 +698,7 @@ export const CONVERSATION_CAPABILITIES: ConversationCapability[] = [
     journeyLessons: ["p1-ate-logo", "p6-china-cidades"],
     intents: ["plan-tomorrow"],
     readyAt: "p6-china-cidades",
-    status: "PARTIAL",
+    status: "READY",
     domain: "plans",
     transferScenarios: ["make-plan"],
     hasConversation: true,
@@ -703,18 +719,66 @@ export const SIMULATED_CHINA_JOURNEY = [
   { step: 10, scene: "emergência simples", capabilityIds: ["health_basic", "ask_for_help"] },
 ] as const;
 
+/**
+ * RC2.2.9 — capacidades que saíram de PARTIAL nesta remessa. Para elas o
+ * contrato é o estrito: as seis dimensões em 1, sem média escondendo buraco.
+ */
+export const RC2_2_9_CLOSURE_CAPABILITY_IDS = [
+  "talk_family",
+  "order_food",
+  "order_drink",
+  "negotiate_basic",
+  "pay",
+  "use_metro",
+  "use_train",
+  "ask_for_help",
+  "ask_repeat",
+  "express_preference",
+  "make_simple_plan",
+] as const;
+
+/**
+ * Contrato de READY em runtime:
+ * - `strict`: léxico e estruturas 100% (ensinados antes de cobrados) e as
+ *   quatro dimensões de uso com evidência real;
+ * - `presence`: capacidades READY antes da RC2.2.9 — cada dimensão precisa de
+ *   evidência de runtime (nenhuma ausente) e todo chunk exigido precisa
+ *   aparecer na Jornada. Dívidas de ordem/cobertura parcial ficam no relatório.
+ */
+export type CapabilityRuntimeContract = "strict" | "presence";
+
+export function capabilityRuntimeContract(cap: Pick<ConversationCapability, "id">): CapabilityRuntimeContract {
+  return (RC2_2_9_CLOSURE_CAPABILITY_IDS as readonly string[]).includes(cap.id) ? "strict" : "presence";
+}
+
+/**
+ * Pontua a capacidade a partir da evidência de runtime (ver
+ * src/lib/capabilityRuntimeEvidence.ts). Metadados como `hasConversation`,
+ * `hasProductivePractice`, `transferScenarios` ou `journeyLessons` não entram
+ * na conta: sem evidência, a dimensão é 0.
+ */
 export function scoreCapability(
   cap: ConversationCapability,
-  availableRefs: ReadonlySet<string>
+  availableRefs: ReadonlySet<string>,
+  evidence?: CapabilityRuntimeEvidence
 ): CapabilityCoverageScores {
-  const lexicalNeeded = cap.requiredChunks;
-  const lexicalHit = lexicalNeeded.filter((r) => availableRefs.has(r)).length;
-  const lexicalCoverage = lexicalNeeded.length ? lexicalHit / lexicalNeeded.length : 0;
-  const structuralCoverage = cap.requiredStructures.length > 0 ? 1 : 0;
-  const productiveCoverage = cap.hasProductivePractice ? 1 : 0;
-  const listeningCoverage = cap.journeyLessons.length > 0 ? 0.8 : 0;
-  const conversationCoverage = cap.hasConversation ? 1 : 0;
-  const transferCoverage = cap.transferScenarios.length > 0 ? 1 : 0;
+  const lexicalRows = evidence?.lexical ?? [];
+  const vocabularyRows = evidence?.vocabulary ?? [];
+  const lexicalNeeded = cap.requiredChunks.length + cap.requiredVocabulary.length;
+  const lexicalHit =
+    lexicalRows.filter((row) => row.ok && availableRefs.has(row.ref)).length +
+    vocabularyRows.filter((row) => row.ok).length;
+  const lexicalCoverage = evidence && lexicalNeeded ? lexicalHit / lexicalNeeded : 0;
+  const structuralRows = evidence?.structural ?? [];
+  const structuralCoverage =
+    evidence && cap.requiredStructures.length
+      ? structuralRows.filter((row) => row.ok).length / cap.requiredStructures.length
+      : 0;
+  const present = (refs: readonly unknown[] | undefined) => (refs && refs.length > 0 ? 1 : 0);
+  const productiveCoverage = present(evidence?.productive);
+  const listeningCoverage = present(evidence?.listening);
+  const conversationCoverage = present(evidence?.conversation);
+  const transferCoverage = present(evidence?.transfer);
   const readinessScore =
     (lexicalCoverage +
       structuralCoverage +
@@ -734,47 +798,78 @@ export function scoreCapability(
   };
 }
 
-/** READY only when all COMM-020 gates pass (not vocab alone). */
+/** Dimensões faltantes para READY, segundo o contrato da capacidade. */
+export function capabilityReadyGaps(
+  cap: ConversationCapability,
+  availableRefs: ReadonlySet<string>,
+  evidence?: CapabilityRuntimeEvidence
+): string[] {
+  if (!evidence) return ["runtime-evidence"];
+  const scores = scoreCapability(cap, availableRefs, evidence);
+  const gaps: string[] = [];
+  if (!evidence.reachable) gaps.push("reachable");
+  if (capabilityRuntimeContract(cap) === "strict") {
+    if (scores.lexicalCoverage < 1) gaps.push("lexical");
+    if (scores.structuralCoverage < 1) gaps.push("structural");
+  } else {
+    // Presença: todo chunk exigido existe no registry e aparece na Jornada;
+    // toda estrutura tem ao menos um passo real.
+    const lexicalPresent = evidence.lexical.every(
+      (row) => row.inRegistry && availableRefs.has(row.ref) && (row.firstTeach != null || row.firstTest != null)
+    );
+    if (!lexicalPresent) gaps.push("lexical");
+    const structuralPresent = evidence.structural.every(
+      (row) => row.fragments.length > 0 && (row.teach != null || row.productive != null || row.use != null)
+    );
+    if (!structuralPresent || cap.requiredStructures.length === 0) gaps.push("structural");
+  }
+  if (scores.productiveCoverage < 1) gaps.push("productive");
+  if (scores.listeningCoverage < 1) gaps.push("listening");
+  if (scores.conversationCoverage < 1) gaps.push("conversation");
+  if (scores.transferCoverage < 1) gaps.push("transfer");
+  return gaps;
+}
+
+/** READY só com evidência de runtime em todas as dimensões — nunca por média. */
 export function computeCapabilityStatus(
   cap: ConversationCapability,
-  availableRefs: ReadonlySet<string>
+  availableRefs: ReadonlySet<string>,
+  evidence?: CapabilityRuntimeEvidence
 ): CapabilityStatus {
-  const scores = scoreCapability(cap, availableRefs);
   const missing = cap.requiredChunks.filter((r) => !availableRefs.has(r));
-  if (missing.length === cap.requiredChunks.length) return "MISSING";
-  const readyGates =
-    missing.length === 0 &&
-    cap.requiredQuestions.length + cap.requiredAnswers.length > 0 &&
-    cap.hasProductivePractice &&
-    cap.hasConversation &&
-    cap.transferScenarios.length > 0 &&
-    scores.readinessScore >= 0.85;
-  if (readyGates) return "READY";
-  if (missing.length === 0 && scores.readinessScore >= 0.5) return "PARTIAL";
-  if (cap.status === "PLANNED") return "PLANNED";
-  return missing.length ? "PARTIAL" : cap.status;
+  if (cap.requiredChunks.length > 0 && missing.length === cap.requiredChunks.length) return "MISSING";
+  if (capabilityReadyGaps(cap, availableRefs, evidence).length === 0) return "READY";
+  const scores = scoreCapability(cap, availableRefs, evidence);
+  if (scores.readinessScore > 0) return "PARTIAL";
+  return cap.status === "PLANNED" ? "PLANNED" : "PARTIAL";
 }
 
 export function capabilityCoverage(
-  availableRefs: ReadonlySet<string>
+  availableRefs: ReadonlySet<string>,
+  evidenceById?: ReadonlyMap<string, CapabilityRuntimeEvidence>
 ): Array<
   ConversationCapability & {
     coveredRequired: number;
     missingRefs: string[];
     scores: CapabilityCoverageScores;
     computedStatus: CapabilityStatus;
+    declaredStatus: CapabilityStatus;
+    readyGaps: string[];
   }
 > {
   return CONVERSATION_CAPABILITIES.map((capability) => {
+    const evidence = evidenceById?.get(capability.id);
     const missing = capability.requiredChunks.filter((ref) => !availableRefs.has(ref));
-    const scores = scoreCapability(capability, availableRefs);
-    const computedStatus = computeCapabilityStatus(capability, availableRefs);
+    const scores = scoreCapability(capability, availableRefs, evidence);
+    const computedStatus = computeCapabilityStatus(capability, availableRefs, evidence);
     return {
       ...capability,
       coveredRequired: capability.requiredChunks.length - missing.length,
       missingRefs: missing,
       scores,
       computedStatus,
+      declaredStatus: capability.status,
+      readyGaps: capabilityReadyGaps(capability, availableRefs, evidence),
       status: computedStatus,
     };
   });
@@ -790,13 +885,15 @@ export interface SurvivalScenarioReadiness {
 }
 
 /**
- * BENCH-020/021 — lexicalReady = refs taught; communicativeReady = READY gates
- * (taught + structures + productive + conversation + transfer).
+ * BENCH-020/021 — lexicalReady = refs taught; communicativeReady = READY em
+ * runtime (RC2.2.9: evidência real, não metadado) para todas as capacidades
+ * do cenário.
  */
 export function evaluateChinaSurvivalV2(
-  availableRefs: ReadonlySet<string>
+  availableRefs: ReadonlySet<string>,
+  evidenceById?: ReadonlyMap<string, CapabilityRuntimeEvidence>
 ): SurvivalScenarioReadiness[] {
-  const coverage = capabilityCoverage(availableRefs);
+  const coverage = capabilityCoverage(availableRefs, evidenceById);
   return CHINA_SURVIVAL_SCENARIOS.map((scenario) => {
     const capabilityIds = [...(LONGYU_MINIMAL_CHINA_CONVERSATION[scenario] ?? [])];
     const rows = capabilityIds.map((id) => coverage.find((c) => c.id === id));

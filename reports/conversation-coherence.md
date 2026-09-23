@@ -1,6 +1,6 @@
 # Conversation coherence audit
 
-Cenas: 50.
+Cenas: 52.
 
 ## primeiro-cumprimento
 
@@ -2352,4 +2352,88 @@ Cenas: 50.
 - NEXT_TURN: 好。
 - REPAIR: 这里？
 - speechAct: acknowledge → request_stop (clarify)
+- CLASS: OK
+
+## gostos-na-casa
+
+- intent: preference
+- ending: 不客气！
+- last interaction: choose_reply
+
+### gosto-1
+
+- NPC_UTTERANCE: 你喜欢喝茶吗？
+- MEANING: Você gosta de beber chá?
+- PROMPT: Mei quer saber se você gosta de chá. Você gosta. Responda.
+- EXPECTED_RESPONSE: 我喜欢茶
+- ACCEPTS: (none)
+- NEXT_TURN: 我也喜欢茶！你喜欢吃肉吗？
+- REPAIR: 请再说一遍。你喜欢茶吗？
+- speechAct: (undeclared) → (undeclared) (no repairType)
+- CLASS: ANSWER_TOO_NARROW
+
+### gosto-4
+
+- NPC_UTTERANCE: 我也喜欢茶！你喜欢吃肉吗？
+- MEANING: Eu também gosto de chá! Você gosta de comer carne?
+- PROMPT: Você não gosta de carne. Diga isso a Mei.
+- EXPECTED_RESPONSE: 我不喜欢肉
+- ACCEPTS: (none)
+- NEXT_TURN: 好，我们吃米饭吧！
+- REPAIR: 你喜欢肉吗？请再说一遍。
+- speechAct: (undeclared) → (undeclared) (no repairType)
+- CLASS: ANSWER_TOO_NARROW
+
+### gosto-7
+
+- NPC_UTTERANCE: 好，我们吃米饭吧！
+- MEANING: Tudo bem, vamos comer arroz!
+- PROMPT: Mei muda a proposta por sua causa. Aceite e agradeça.
+- EXPECTED_RESPONSE: 好！谢谢！
+- ACCEPTS: (none)
+- NEXT_TURN: 不客气！
+- REPAIR: 米饭，好吗？
+- speechAct: (undeclared) → (undeclared) (no repairType)
+- CLASS: ANSWER_TOO_NARROW
+
+## perguntar-o-caminho
+
+- intent: ask-route
+- ending: 不客气！
+- last interaction: choose_reply
+
+### caminho-2
+
+- NPC_UTTERANCE: 你好！
+- MEANING: Olá! Pois não?
+- PROMPT: Você quer ir ao metrô e não sabe o caminho. Pergunte como chegar.
+- EXPECTED_RESPONSE: 地铁站怎么走？
+- ACCEPTS: (none)
+- NEXT_TURN: 一直走，左转。
+- REPAIR: 请再说一遍。你去哪里？
+- speechAct: (undeclared) → (undeclared) (no repairType)
+- CLASS: ANSWER_TOO_NARROW
+
+### caminho-5
+
+- NPC_UTTERANCE: 一直走，左转。
+- MEANING: Siga em frente e vire à esquerda.
+- PROMPT: O que Wang mandou você fazer?
+- EXPECTED_RESPONSE: Seguir em frente e virar à esquerda
+- ACCEPTS: (none)
+- NEXT_TURN: 谢谢！
+- REPAIR: 一直走。左转。
+- speechAct: (undeclared) → (undeclared) (no repairType)
+- CLASS: ANSWER_TOO_NARROW
+
+### caminho-7
+
+- NPC_UTTERANCE: 地铁站在那里。
+- MEANING: A estação fica ali.
+- PROMPT: Agradeça pela ajuda.
+- EXPECTED_RESPONSE: 谢谢！
+- ACCEPTS: (none)
+- NEXT_TURN: 不客气！
+- REPAIR: 地铁站在那里。请再说一遍？
+- speechAct: (undeclared) → (undeclared) (no repairType)
 - CLASS: OK

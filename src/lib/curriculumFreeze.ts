@@ -67,8 +67,18 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * Não restaurar o fingerprint anterior: ele descreveria um currículo que não
  * existe mais. Congelar identidade é registrar o que mudou, não fingir que
  * nada mudou.
+ *
+ * RC2.2.9 avançou 327de1df0f33 → a4ca4594a2e5.
+ *
+ * Mudaram `src/data/conversationScenes.ts` (duas cenas dedicadas:
+ * gostos-na-casa, perguntar-o-caminho), `src/features/lesson/lessonTasks.ts`
+ * (ponto único que aplica os passos de fechamento ao plano real) e o novo
+ * `src/data/capabilityClosureSteps.ts`, que passou a ser CURRICULUM_SOURCE.
+ * Nenhuma lição, tópico, CultureItem ou StepKind novo; nenhum chunk novo — os
+ * passos apontam para chunks que já estavam no registry e que o ciclo lexical
+ * já declarava, mas que o planner nunca entregava ao aluno.
  */
-export const RC_BASE_FINGERPRINT = "327de1df0f33";
+export const RC_BASE_FINGERPRINT = "a4ca4594a2e5";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -87,3 +97,123 @@ export const RC2_CONTENT_FREEZE_SHA = "24ba129d79e61124c7d6dd3aaa3756eb9a6adf40"
 
 /** Intentionally empty until a real public-beta deploy candidate exists. */
 export const RELEASE_CANDIDATE_SHA = "";
+
+/**
+ * RC2.2.9 — BETA_PEDAGOGY_FREEZE.
+ *
+ * Depois do fechamento das capacidades conversacionais, o escopo pedagógico
+ * da Public Beta está congelado. Qualquer lição, tópico, CultureItem, sistema
+ * de progressão, moeda, SRS, motor de desafio, motor de conquistas ou feature
+ * pública nova precisa ATUALIZAR este registro de propósito — o gate
+ * validate:beta-pedagogy-freeze recusa a adição silenciosa.
+ *
+ * Continuam livres (não mexem no que está congelado): correção de bug,
+ * acessibilidade, performance, compatibilidade Android, segurança, engenharia
+ * de release, correções de QA e correção de copy.
+ */
+export const BETA_PEDAGOGY_FREEZE = {
+  id: "RC2_2_9_BETA_PEDAGOGY_FREEZE",
+  since: "RC2.2.9",
+  fingerprint: RC_BASE_FINGERPRINT,
+  counts: {
+    lessons: 134,
+    teachingTopics: 113,
+    cultureItems: 30,
+    cultureNativeLessons: 30,
+    journeyCultureNodes: 20,
+    cultureMoments: 5,
+    toneTransferPlayable: 12,
+    conversationCapabilities: 31,
+    conversationCapabilitiesRuntimeReady: 31,
+  },
+  blocks: [
+    "new lesson",
+    "new teaching topic",
+    "new CultureItem",
+    "new major progression system",
+    "new currency",
+    "new SRS",
+    "new challenge engine",
+    "new achievement engine",
+    "new public Beta feature",
+  ],
+  allows: [
+    "bug fix",
+    "accessibility",
+    "performance",
+    "Android compatibility",
+    "security",
+    "release engineering",
+    "QA fixes",
+    "copy correction",
+  ],
+  /**
+   * Módulos de progressão, economia, SRS, desafio e conquista existentes
+   * (src/lib, src/data, src/features/challenge). Arquivo novo com esse papel
+   * = sistema novo = atualização explícita do freeze.
+   */
+  systemModules: [
+    "src/data/achievements.ts",
+    "src/data/cultureProgressionGates.ts",
+    "src/data/economy.ts",
+    "src/data/lexicalProgression.ts",
+    "src/data/masteryCoverage.ts",
+    "src/data/masteryLoop.ts",
+    "src/data/masteryPassSpacing.ts",
+    "src/data/masteryPilot.ts",
+    "src/data/masteryQuality.ts",
+    "src/data/masteryWave1Bonus.ts",
+    "src/data/pearlMilestones.ts",
+    "src/data/reviewExamples.ts",
+    "src/data/reviewMastery.ts",
+    "src/data/topicMastery.ts",
+    "src/data/topicMasteryBonus.ts",
+    "src/data/topicMasterySpecs.ts",
+    "src/features/challenge/ModuleChallengePage.tsx",
+    "src/features/challenge/PhaseChallengePage.tsx",
+    "src/features/challenge/examBuilder.ts",
+    "src/lib/cloudPearlProActivation.ts",
+    "src/lib/conversationVocabularySrs.ts",
+    "src/lib/cultureMastery.ts",
+    "src/lib/cultureProgressionGate.ts",
+    "src/lib/domainMastery.ts",
+    "src/lib/economyIntentQueue.ts",
+    "src/lib/economyServerBridge.ts",
+    "src/lib/economyTypes.ts",
+    "src/lib/leagueLiveFixture.ts",
+    "src/lib/leagueLiveView.ts",
+    "src/lib/leagueXpKeys.ts",
+    "src/lib/leagueXpSync.ts",
+    "src/lib/leagues.ts",
+    "src/lib/pearlEconomy.ts",
+    "src/lib/pearlPro.ts",
+    "src/lib/phaseChallenge.ts",
+    "src/lib/srs.ts",
+    "src/lib/streak.ts",
+    "src/lib/streakRecoveryPrompt.ts",
+  ],
+  /** Superfície da economia (src/data/economy.ts): export novo = moeda/regra nova. */
+  economyExports: [
+    "DAILY_CHARGES_FREE", "CHARGE_COST_ACTIVITY", "STORY_ENERGY_DAILY_CAP", "CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD",
+    "CONSECUTIVE_MISTAKE_CHARGE_COST", "FREE_REVIEW_SESSION_LIMIT", "REVIEW_DAILY_SESSION_TARGET", "BREATH_LIVES",
+    "BREATH_RECOVERY_QI", "FOLEGO_START", "FOLEGO_MAX_FREE", "FOLEGO_SKIP_COST", "FOLEGO_PERFECT_ROUND_REWARD",
+    "FOLEGO_PERFECT_EARN_CHANCE", "FOLEGO_DAILY_EARN_CAP", "FOLEGO_PENDING_MASTERY_REPS", "RETRY_QUESTION_QI",
+    "MODULE_RETRY_QI", "THREE_STAR_ACCURACY", "THREE_STAR_SHORT_ACCURACY", "PASS_ACCURACY", "MODULE_REVIEW_PASS_ACCURACY",
+    "LESSON_BASE_XP", "LESSON_PASS_XP", "LESSON_PASS_PRACTICE_XP", "LESSON_TOPIC_MASTERED_XP_BONUS",
+    "LESSON_THREE_STAR_XP_BONUS", "LESSON_THREE_STAR_QI", "LESSON_NO_SKIP_QI", "PRO_LESSON_QI_BONUS",
+    "PRO_CHEST_QI_MULTIPLIER", "PRO_MISSION_QI_MULTIPLIER", "PRO_CHEST_RARE_BONUS", "PRO_CHEST_FOCUS_PASS_CHANCE",
+    "DAILY_GOAL_QI", "CHARGE_FREE_ACTIVITIES", "ECONOMY_SUMMARY", "MODULE_PASS_QI", "MODULE_SKIP_VALIDATION_QI",
+    "SHOP_PRICES", "QI_PACK_AMOUNT", "FOCUS_PASS_HOURS", "PEARL_PRICES", "PEARL_PRO_PASS_DAYS", "PEARL_PRO_COOLDOWN_DAYS",
+    "PEARL_PRO_COST", "FOCUS_PASS_48H_HOURS", "PEARL_STREAK_MILESTONES", "PearlMilestoneDef", "PEARL_ERROR_MILESTONES",
+    "PEARL_HANZI_MILESTONES", "PEARL_AUDIO_MILESTONES", "PEARL_PRODUCTION_MILESTONES", "PEARL_JOURNEY_PHASE_MASTER_PEARLS",
+    "PEARL_JOURNEY_MAJOR_PEARLS", "PEARL_MONTHLY_CHALLENGE_PEARLS", "PEARL_ECONOMY_SUMMARY", "ChestRarity",
+    "CHEST_RARITY_META",
+  ],
+  /** Features públicas registradas em src/product/featureTruth.ts. */
+  featureTruthIds: [
+    "journey_learning", "review_remediation", "tone_contrast_training", "tts_playback", "phrase_chunk_training",
+    "hanzi_lab", "pinyin_lab", "immersion_audio", "interactive_stories", "daily_energy", "qi_economy",
+    "focused_training", "error_insights", "weak_spot_plan", "progress_reports", "leagues", "speech_recognition",
+    "family_management", "business_dashboard", "ai_roleplay", "pronunciation_feedback", "tone_scoring",
+  ],
+} as const;
