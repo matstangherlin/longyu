@@ -56,6 +56,13 @@ Source of truth: `src/data/conversationCapabilities.ts`
 These remain PARTIAL until a later remessa (Pedagogy Wave 3) audits and closes
 gaps with real curriculum — not status flips.
 
+> **Atualização RC2.2.9 (histórico acima preservado):** as 11 foram auditadas
+> contra o runtime e fechadas com conteúdo real — ver
+> `docs/reports/rc2-2-9-capability-closure.md` e
+> `docs/release/rc2-capability-closure.json`. O status READY agora é calculado
+> a partir de evidência de runtime (`validate:capability-runtime-evidence`),
+> não declarado.
+
 ---
 
 ## Tone task baseline
