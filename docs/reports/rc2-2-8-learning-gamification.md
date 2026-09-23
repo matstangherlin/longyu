@@ -314,7 +314,7 @@ código real e exigida como FAIL do gate); a 32 (fingerprint) é o
 
 ## E2E — `e2e/rc2-2-8-learning-gamification.spec.ts`
 
-**Chromium: 22/22 PASS.**
+**Chromium: 19/19 PASS.**
 
 | cenário | o que prova |
 | --- | --- |

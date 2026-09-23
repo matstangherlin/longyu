@@ -377,8 +377,13 @@ test.describe("RC2.2.8 — A Cultura com o dragão", () => {
 });
 
 test.describe("RC2.2.8 — D3/E5 mobile", () => {
-  test("D3 — toque no Hànzì abre o gloss no mobile e registra a consulta", async ({ browser }) => {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  test("D3 — toque no Hànzì abre o gloss no mobile e registra a consulta", async ({ browser, browserName }) => {
+    // Firefox não suporta `isMobile` no Playwright; o toque (hasTouch) basta para o contrato.
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      ...(browserName === "firefox" ? {} : { isMobile: true }),
+    });
     const page = await context.newPage();
     await seed(page, {
       learnedChars: ["ni", "hao", "wo"],
