@@ -13,6 +13,7 @@ import {
   QI_PACK_AMOUNT,
   SHOP_PRICES,
 } from "./economy";
+import { PROFILE_COSMETICS } from "./profileCosmetics";
 
 export type ShopCategory = "qi" | "perolas" | "pro";
 
@@ -61,6 +62,20 @@ export interface ShopItem {
   pro?: boolean;
   /** Duração exibida no feedback (horas ou dias). */
   durationLabel?: string;
+}
+
+/**
+ * H6 — o que o aluno leva: consumível (gasta ao usar), com prazo (vale por
+ * horas/dias) ou permanente (fica na conta). Derivado do tipo, nunca digitado
+ * à mão item a item — assim um item novo não nasce sem essa resposta.
+ */
+export type ShopItemLifetime = "consumable" | "timed" | "permanent" | "link";
+
+export function shopItemLifetime(item: Pick<ShopItem, "kind" | "cosmetic">): ShopItemLifetime {
+  if (item.kind === "pro_link") return "link";
+  if (item.cosmetic || item.kind === "cosmetic") return "permanent";
+  if (item.kind === "focus_pass" || item.kind === "focus_pass_48h" || item.kind === "pearl_pro_pass") return "timed";
+  return "consumable";
 }
 
 export const CATEGORY_META: Record<ShopCategory, { label: string; desc: string }> = {
@@ -160,28 +175,9 @@ export const SHOP_ITEMS: ShopItem[] = [
     kind: "shield",
     usableInShop: true,
   },
-  {
-    id: "shop-theme",
-    name: "Tema visual",
-    desc: "Um tema cosmético para o Longyu (em breve).",
-    category: "qi",
-    currency: "qi",
-    cost: SHOP_PRICES.cosmetic,
-    iconKey: "theme",
-    kind: "cosmetic",
-    cosmetic: true,
-  },
-  {
-    id: "shop-avatar",
-    name: "Avatar do dragão",
-    desc: "Um visual alternativo para o seu dragão (em breve).",
-    category: "qi",
-    currency: "qi",
-    cost: SHOP_PRICES.cosmetic,
-    iconKey: "avatar",
-    kind: "cosmetic",
-    cosmetic: true,
-  },
+  // Os cosméticos de Qi "Tema visual" e "Avatar do dragão" saíram da vitrine
+  // na RC2.2.8: eram placeholders sem efeito que cobravam 500 Qi por nada.
+  // Cosmético agora é item real, pago com Pérola e com efeito no Perfil.
 
   // ——— Pérolas ———
   {
@@ -230,17 +226,21 @@ export const SHOP_ITEMS: ShopItem[] = [
     kind: "shield",
     usableInShop: true,
   },
-  {
-    id: "shop-pearl-cosmetic",
-    name: "Cosmético especial",
-    desc: "Visual raro do dragão (2–6 Pérolas). Em breve.",
-    category: "perolas",
-    currency: "pearl",
-    cost: PEARL_PRICES.cosmeticSpecial,
-    iconKey: "avatar",
-    kind: "cosmetic",
-    cosmetic: true,
-  },
+  // H2/H3 — cosméticos de perfil reais. Catálogo e efeito em profileCosmetics.
+  ...PROFILE_COSMETICS.map(
+    (cosmetic): ShopItem => ({
+      id: cosmetic.id,
+      name: cosmetic.namePt,
+      desc: cosmetic.effectPt,
+      category: "perolas",
+      currency: "pearl",
+      cost: cosmetic.cost,
+      iconKey: "avatar",
+      kind: "cosmetic",
+      cosmetic: true,
+      usageHint: "Permanente. Equipe ou troque em Perfil → Personalizar perfil.",
+    })
+  ),
   {
     id: "shop-qi-pack",
     name: `Pacote de Qi (${QI_PACK_AMOUNT})`,

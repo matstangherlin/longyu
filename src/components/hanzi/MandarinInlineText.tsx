@@ -5,7 +5,7 @@ import {
   type PhraseGlossary,
   type RichGlossPart,
 } from "../../data/gloss";
-import { MandarinToken } from "./MandarinToken";
+import { MandarinToken, type MandarinTokenActivation } from "./MandarinToken";
 import { useMandarinHelpSettings, type MandarinHelpMode } from "./helpMode";
 
 type Segment = { kind: "gloss"; text: string } | { kind: "plain"; text: string };
@@ -28,7 +28,9 @@ export function MandarinInlineText({
   examMode = false,
   helpMode,
   disabled = false,
+  activation,
 }: {
+  activation?: MandarinTokenActivation;
   text: string;
   pinyin?: string;
   meaning?: string;
@@ -88,6 +90,7 @@ export function MandarinInlineText({
             showPinyinRuby={ruby}
             helpMode={helpDisabled ? "disabled" : mode}
             disabled={helpDisabled}
+            activation={activation}
           />
         )
       )}

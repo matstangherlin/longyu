@@ -7,6 +7,8 @@ import {
 } from "../../data/achievements";
 import { freshLifetimeStats, useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
+import { holdCelebration, useOtherCelebrationActive } from "../../lib/celebrationLock";
+import { pendingCultureSealReveals } from "../../lib/profileShowcase";
 import { Button } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -31,6 +33,9 @@ export function useAchievementSnapshot(): AchievementSnapshot {
   const rewardHistory = useStore((s) => s.rewardHistory);
   const mandarinDisplayMode = useStore((s) => s.mandarinDisplayMode);
   const validatedModules = useStore((s) => s.validatedModules);
+  const cultureCompletedIds = useStore((s) => s.cultureCompletedIds);
+  const cultureSeals = useStore((s) => s.cultureSeals);
+  const cultureKnowledgeById = useStore((s) => s.cultureKnowledgeById);
   return {
     completedLessons: completedLessons ?? [],
     longestStreak,
@@ -44,6 +49,9 @@ export function useAchievementSnapshot(): AchievementSnapshot {
     rewardHistory: rewardHistory ?? [],
     mandarinDisplayMode,
     validatedModules: validatedModules ?? [],
+    cultureCompletedIds: cultureCompletedIds ?? [],
+    cultureSeals: cultureSeals ?? [],
+    cultureKnowledgeById: cultureKnowledgeById ?? {},
   };
 }
 
@@ -62,6 +70,12 @@ export function AchievementsWatcher() {
 
   const [queue, setQueue] = useState<AchievementDef[]>([]);
   const [pendingShow, setPendingShow] = useState<AchievementDef[]>([]);
+  // RC2.2.8 — reveal de Selo e modal de medalha nunca se empilham.
+  const otherCelebration = useOtherCelebrationActive("achievement-unlock");
+  // O selo tem a vez: quando os dois nascem juntos, a medalha espera o reveal.
+  const sealRevealPending = useStore(
+    (s) => pendingCultureSealReveals(s.cultureSeals, s.cultureSealsRevealed).length > 0
+  );
 
   useEffect(() => {
     if (!accountSetupComplete) return;
@@ -84,6 +98,9 @@ export function AchievementsWatcher() {
     achievementsUnlocked,
     holdAchievementModals,
     snapshot.completedLessons,
+    snapshot.cultureCompletedIds,
+    snapshot.cultureKnowledgeById,
+    snapshot.cultureSeals,
     snapshot.learnedChars,
     snapshot.learnedChunks,
     snapshot.lifetimeStats,
@@ -106,7 +123,7 @@ export function AchievementsWatcher() {
   }, [holdAchievementModals, pendingShow, soundEffects]);
 
   const current = queue[0];
-  if (!current || holdAchievementModals) return null;
+  if (!current || holdAchievementModals || otherCelebration || sealRevealPending) return null;
 
   return (
     <AchievementUnlockModal
@@ -125,6 +142,7 @@ function AchievementUnlockModal({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
+  useEffect(() => holdCelebration("achievement-unlock"), []);
   // Tela cheia no mobile (momento de recompensa); card centrado no desktop.
   return (
     <ModalOverlay

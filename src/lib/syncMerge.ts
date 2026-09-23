@@ -7,6 +7,7 @@ import { FOLEGO_START, FOLEGO_MAX_FREE } from "../data/economy";
 import { mergeItemDimensionScores, mergeLessonMasteryRecords } from "../data/masteryLoop";
 import { mergeStreakRecovery } from "./streak";
 import { mergeCultureKnowledge, mergeCultureMastery, mergeCultureMemory } from "./cultureMastery";
+import { mergePhaseChallengeState } from "./phaseChallenge";
 
 /**
  * Une as estrelas pendentes de dois dispositivos. Lições já dominadas (3★ no
@@ -141,6 +142,18 @@ export function mergeRemoteProgress(local: ProgressSlice, remote: ProgressSlice)
     cultureMemoryById: mergeCultureMemory(local.cultureMemoryById, remote.cultureMemoryById),
     cultureKnowledgeById: mergeCultureKnowledge(local.cultureKnowledgeById, remote.cultureKnowledgeById),
     ownedCosmetics: unionUnique([...(local.ownedCosmetics ?? []), ...(remote.ownedCosmetics ?? [])]),
+    // RC2.2.8 — reveal visto em qualquer aparelho não se repete no outro; um
+    // lado sem o campo (cliente antigo) não apaga o que o outro já viu.
+    ...(local.cultureSealsRevealed || remote.cultureSealsRevealed
+      ? {
+          cultureSealsRevealed: unionUnique([
+            ...(local.cultureSealsRevealed ?? local.cultureSeals ?? []),
+            ...(remote.cultureSealsRevealed ?? remote.cultureSeals ?? []),
+          ]),
+        }
+      : {}),
+    // K7 — o cooldown mais longo vence: trocar de aparelho não zera a espera.
+    ...mergePhaseChallengeState(local, remote),
     journeyChestsOpened: unionUnique([...(local.journeyChestsOpened ?? []), ...(remote.journeyChestsOpened ?? [])]),
     validatedModules: unionUnique([...(local.validatedModules ?? []), ...(remote.validatedModules ?? [])]),
     lessonStarsById,

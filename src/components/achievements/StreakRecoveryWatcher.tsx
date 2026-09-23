@@ -1,10 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { Button } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { IconFlame, IconRefresh } from "../ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
+import { todayKey } from "../../lib/storage";
+import {
+  isStreakRecoveryPromptEligible,
+  markStreakRecoveryPromptShown,
+  streakRecoveryEventKey,
+  wasStreakRecoveryPromptShown,
+} from "../../lib/streakRecoveryPrompt";
+
+/** Chaves já apresentadas nesta carga da página (vale mesmo sem sessionStorage). */
+const promptedThisLoad = new Set<string>();
 
 /**
  * Modal de recuperação de ofensiva: aparece assim que a tela abre depois de
@@ -20,22 +30,51 @@ export function StreakRecoveryWatcher() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const pending = useStore((s) => s.pendingStreakRecovery);
+  const recovery = useStore((s) => s.streakRecovery);
+  const accountId = useStore((s) => s.currentAccountId);
   const clear = useStore((s) => s.clearStreakRecovery);
   const hold = useStore((s) => s.holdAchievementModals);
+  // A chave aberta vive no watcher (que mora no AppShell e sobrevive à troca
+  // de rota). Sem ela, marcar "já mostrado" esconderia o aviso no próprio frame.
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const [openStreak, setOpenStreak] = useState<number | null>(null);
 
-  if (pending == null || hold) return null;
+  const eligible = isStreakRecoveryPromptEligible({ pending, recovery, today: todayKey() });
+  const eventKey = eligible && recovery ? streakRecoveryEventKey(accountId, recovery) : null;
 
-  const daysLabel = pending === 1 ? t("shell.dayCountOne") : t("shell.dayCountMany", { count: pending });
+  useEffect(() => {
+    if (hold || openKey || !eventKey) return;
+    if (promptedThisLoad.has(eventKey) || wasStreakRecoveryPromptShown(eventKey)) return;
+    // B2.1 — marca na sessão ANTES de mostrar: Journey, Cultura, Revisão,
+    // Atlas, Loja e Perfil não reapresentam este mesmo evento.
+    promptedThisLoad.add(eventKey);
+    markStreakRecoveryPromptShown(eventKey);
+    setOpenKey(eventKey);
+    setOpenStreak(pending);
+  }, [eventKey, hold, openKey, pending]);
+
+  if (!openKey || openStreak == null || hold) return null;
+
+  // B3 — fecha SOMENTE o aviso. `clearStreakRecovery` apaga o pendente, não a
+  // janela: quem vai estudar depois recupera do mesmo jeito (B3.1/B3.2).
+  const dismiss = () => {
+    setOpenKey(null);
+    clear();
+  };
+  const pendingDays = openStreak;
+
+  const daysLabel =
+    pendingDays === 1 ? t("shell.dayCountOne") : t("shell.dayCountMany", { count: pendingDays });
 
   // O CTA não abre modo especial nenhum: ele só encurta o caminho até estudar.
   // Quem fecha esta tela e vai para a Jornada por conta própria recupera do
   // mesmo jeito — o que recupera é concluir, não passar por aqui.
   const goReview = () => {
-    clear();
+    dismiss();
     navigate("/revisao");
   };
   const goJourney = () => {
-    clear();
+    dismiss();
     navigate("/jornada");
   };
 
@@ -43,9 +82,11 @@ export function StreakRecoveryWatcher() {
     <ModalOverlay
       className="items-stretch p-0 sm:items-center sm:p-4"
       label={t("shell.recoverStreak")}
-      onBackdropClick={clear}
+      onBackdropClick={dismiss}
     >
       <div
+        data-testid="streak-recovery-prompt"
+        data-streak-event-key={openKey}
         className="flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.22),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
         onClick={(event) => event.stopPropagation()}
       >
@@ -91,7 +132,13 @@ export function StreakRecoveryWatcher() {
           >
             {t("shell.recoverStreakJourney")}
           </Button>
-          <Button variant="text" size="md" className="w-full" onClick={clear}>
+          <Button
+            variant="text"
+            size="md"
+            className="w-full"
+            data-testid="streak-recovery-not-now"
+            onClick={dismiss}
+          >
             {t("pro.notNow")}
           </Button>
         </div>

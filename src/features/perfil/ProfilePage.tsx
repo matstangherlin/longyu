@@ -13,6 +13,14 @@ import { ACHIEVEMENTS } from "../../data/achievements";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useLeagueData } from "../../hooks/useLeagueData";
 import { Mascot } from "../../components/brand/Mascot";
+import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
+import {
+  CulturePassportCard,
+  CustomizeProfileCard,
+  FeaturedMedals,
+  useProfileFrameClass,
+  useProfileTitle,
+} from "./ProfileShowcase";
 import { Card, ProgressBar, Pill } from "../../components/ui/primitives";
 import { PageShell, CompactCard, StatTile, RightRail, EmptyState, ActionButton } from "../../components/ui/page";
 import { localizedAchievementDesc, localizedAchievementTitle, localizedRewardSource } from "../../i18n/achievements";
@@ -106,6 +114,8 @@ export function ProfilePage() {
   const dailyMissions = useStore((s) => s.dailyMissions);
   const aggregates = useStore((s) => s.getMissionAggregates());
   const league = useLeagueData();
+  const frameClass = useProfileFrameClass();
+  const profileTitle = useProfileTitle();
 
   const account = accounts[currentAccountId];
   const name = account?.name?.trim() || t("hub.defaultLearner");
@@ -234,7 +244,11 @@ export function ProfilePage() {
       {/* 1 · Header do perfil — identidade do aluno. */}
       <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="relative mx-auto h-20 w-20 shrink-0 sm:mx-0">
-          <div className="grid h-20 w-20 place-items-center rounded-2xl bg-surface-2">
+          <div
+            className={["grid h-20 w-20 place-items-center rounded-2xl bg-surface-2", frameClass].join(" ")}
+            data-testid="profile-avatar"
+            data-profile-frame={frameClass ? "equipped" : "none"}
+          >
             <Mascot size={66} variant={streak > 0 ? "celebrate" : "wave"} />
           </div>
           <span className="absolute -bottom-1.5 -right-1.5 rounded-full border-2 border-surface bg-accent px-2 py-0.5 text-[11px] font-bold text-white">
@@ -243,9 +257,18 @@ export function ProfilePage() {
         </div>
         <div className="min-w-0 flex-1 text-center sm:text-left">
           <h1 className="font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">{name}</h1>
+          {profileTitle && (
+            <span
+              data-testid="profile-title"
+              className={["mt-1 inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold", profileTitle.className].join(" ")}
+            >
+              {profileTitle.text}
+            </span>
+          )}
           <div className="mt-0.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs text-ink-faint sm:justify-start">
             {nickname && <span className="font-medium text-ink-soft">{nickname}</span>}
             {since && <span>· {t("hub.studyingSince", { date: since })}</span>}
+            <SyncStatusChip className="ml-1" />
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
             <Pill tone="accent">{`${locale === "en" ? "EN" : "PT-BR"} → ${t("settings.targetLanguageName")}`}</Pill>
@@ -269,6 +292,14 @@ export function ProfilePage() {
           <StatTile key={s.label} icon={s.icon} value={s.value} label={s.label} tone={s.tone} />
         ))}
       </div>
+
+      {/* 2a · RC2.2.8 — vitrine: medalhas (achievement) e passaporte (selos) são
+          blocos separados de propósito. Selo ≠ medalha. */}
+      <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+        <FeaturedMedals />
+        <CulturePassportCard />
+      </div>
+      <CustomizeProfileCard />
 
       {/* 2b · Ofensiva — calendário de desempenho (fuso local). */}
       <div id="ofensiva" className="scroll-mt-20">

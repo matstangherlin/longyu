@@ -59,7 +59,7 @@ interface ChallengeMistake {
   kind: ExamQuestion["kind"];
 }
 
-interface AnsweredState {
+export interface AnsweredState {
   correct: boolean;
   chosen?: string;
 }
@@ -765,7 +765,7 @@ function ChallengeContinueHotkeys({ onContinue }: { onContinue: () => void }) {
 // Estímulo (antes da resposta): apenas conteúdo neutro, sem tooltip com dica.
 // ---------------------------------------------------------------------------
 
-function QuestionStimulus({ question }: { question: ExamQuestion }) {
+export function QuestionStimulus({ question }: { question: ExamQuestion }) {
   const { display } = question;
   const hasStimulus = display.hanzi || display.pt || display.pinyin || display.audioText;
   return (
@@ -874,6 +874,12 @@ interface QuestionViewProps<T extends ExamQuestion> {
   question: T;
   answered: AnsweredState | null;
   onAnswer: (result: AnsweredState) => void;
+  /**
+   * RC2.2.8 · K13.1 — no Phase Challenge a prova não entrega o gabarito: depois
+   * de responder, só a escolha do aluno é marcada (certa/errada). O teste de
+   * módulo mantém o comportamento de sempre (true).
+   */
+  revealAnswer?: boolean;
 }
 
 function optionButtonClass(state: "idle" | "right" | "wrong", disabled: boolean): string {
@@ -888,7 +894,7 @@ function optionButtonClass(state: "idle" | "right" | "wrong", disabled: boolean)
     .join(" ");
 }
 
-function ChoiceQuestionView({ question, answered, onAnswer }: QuestionViewProps<ChoiceExamQuestion>) {
+export function ChoiceQuestionView({ question, answered, onAnswer, revealAnswer = true }: QuestionViewProps<ChoiceExamQuestion>) {
   const chosen = answered?.chosen ?? null;
 
   useExerciseHotkeys({
@@ -906,7 +912,15 @@ function ChoiceQuestionView({ question, answered, onAnswer }: QuestionViewProps<
       <KeyboardShortcutHint />
       {question.options.map((option, index) => {
         const state: "idle" | "right" | "wrong" =
-          answered == null ? "idle" : option === question.answer ? "right" : option === chosen ? "wrong" : "idle";
+          answered == null
+            ? "idle"
+            : option === chosen
+              ? answered.correct
+                ? "right"
+                : "wrong"
+              : revealAnswer && option === question.answer
+                ? "right"
+                : "idle";
         return (
           <button
             key={option}
@@ -926,7 +940,7 @@ function ChoiceQuestionView({ question, answered, onAnswer }: QuestionViewProps<
   );
 }
 
-function ClozeQuestionView({ question, answered, onAnswer }: QuestionViewProps<ClozeExamQuestion>) {
+export function ClozeQuestionView({ question, answered, onAnswer, revealAnswer = true }: QuestionViewProps<ClozeExamQuestion>) {
   const chosen = answered?.chosen ?? null;
 
   useExerciseHotkeys({
@@ -963,7 +977,15 @@ function ClozeQuestionView({ question, answered, onAnswer }: QuestionViewProps<C
       <div className="mt-4 flex flex-wrap justify-center gap-2.5">
         {question.options.map((option, index) => {
           const state: "idle" | "right" | "wrong" =
-            answered == null ? "idle" : option === question.answer ? "right" : option === chosen ? "wrong" : "idle";
+            answered == null
+            ? "idle"
+            : option === chosen
+              ? answered.correct
+                ? "right"
+                : "wrong"
+              : revealAnswer && option === question.answer
+                ? "right"
+                : "idle";
           return (
             <button
               key={option}
@@ -989,7 +1011,7 @@ function ClozeQuestionView({ question, answered, onAnswer }: QuestionViewProps<C
   );
 }
 
-function OrderQuestionView({ question, answered, onAnswer }: QuestionViewProps<OrderExamQuestion>) {
+export function OrderQuestionView({ question, answered, onAnswer }: QuestionViewProps<OrderExamQuestion>) {
   const [placed, setPlaced] = useState<string[]>([]);
   const bank = useMemo(() => shuffleValues(question.pieces), [question]);
   const remaining = bank.filter((piece) => !placed.includes(piece));
@@ -1051,7 +1073,7 @@ function OrderQuestionView({ question, answered, onAnswer }: QuestionViewProps<O
   );
 }
 
-function MatchQuestionView({ question, answered, onAnswer }: QuestionViewProps<MatchExamQuestion>) {
+export function MatchQuestionView({ question, answered, onAnswer }: QuestionViewProps<MatchExamQuestion>) {
   const lefts = useMemo(() => shuffleValues(question.pairs.map((pair) => pair.left)), [question]);
   const rights = useMemo(() => shuffleValues(question.pairs.map((pair) => pair.right)), [question]);
   const rightByLeft = useMemo(

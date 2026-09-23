@@ -5,6 +5,7 @@ import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
+import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
 import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { IconChevron, IconShield, IconStar, IconLibrary, IconGear } from "../../components/ui/Icon";
@@ -126,22 +127,20 @@ export function ContaPage() {
         subtitle={displayInstruction("Login, email e sessão. Seu progresso e estatísticas ficam no Perfil.")}
       />
 
-      {cloudSyncState.status !== "idle" && syncCopy ? (
+      {/* RC2.2.8 · C — só erro ganha faixa. pending/loading/synced viram o
+          estado discreto do cartão abaixo (SyncStatusChip), sem toast. */}
+      {cloudSyncState.status === "error" && syncCopy ? (
         <div
           data-cloud-sync-status={cloudSyncState.status}
           data-cloud-sync-banner=""
           role="status"
-          className={
-            cloudSyncState.status === "error"
-              ? "rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-3 text-sm font-medium text-ink"
-              : cloudSyncState.status === "loading"
-                ? "rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-medium text-ink"
-                : "rounded-2xl border border-line/70 bg-surface-2 px-4 py-3 text-sm font-medium text-ink"
-          }
+          className="rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-3 text-sm font-medium text-ink"
         >
           {syncCopy}
         </div>
-      ) : null}
+      ) : (
+        <span className="sr-only" data-cloud-sync-status={cloudSyncState.status} />
+      )}
 
       {/* Status da conta */}
       <CompactCard>
@@ -150,6 +149,7 @@ export function ContaPage() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-ink">{account?.name?.trim() || t("hub.defaultLearner")}</span>
               <Pill tone={status.tone}>{status.label}</Pill>
+              <SyncStatusChip />
             </div>
             {account?.email && <div className="mt-0.5 truncate text-xs text-ink-soft">{account.email}</div>}
           </div>

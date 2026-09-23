@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   CULTURE_ITEMS,
@@ -24,6 +24,13 @@ import { CultureCard } from "./CultureCard";
 import { pickNextCultureMissionId } from "../../lib/cultureMastery";
 import { dueCultureMemoryTargets, visibleKnowledgeState } from "../../lib/cultureMastery";
 import { conceptIdForItem } from "../../lib/cultureMastery";
+import { GuideDialogue } from "../../components/guide/GuideDialogue";
+import {
+  pickCultureGuideMessage,
+  readCultureGuideSeen,
+  writeCultureGuideSeen,
+  type CultureGuideMessage,
+} from "../../lib/cultureGuide";
 
 const CATEGORY_FILTERS: Array<{ id: "all" | CultureCategory; key: MessageKey }> = [
   { id: "all", key: "culture.filterAll" },
@@ -104,6 +111,8 @@ export function CultureHubPage() {
   return (
     <HubPage data-testid="culture-hub">
       <HubHeader eyebrow={t("culture.eyebrow")} title={t("culture.title")} desc={t("culture.atlasTagline")} />
+
+      <CultureHubGuide />
 
       <Card className="p-3" data-testid="culture-progress" data-passport="true">
         <div className="flex items-start justify-between gap-3">
@@ -330,6 +339,76 @@ export function CultureHubPage() {
         </Link>
       </p>
     </HubPage>
+  );
+}
+
+/**
+ * RC2.2.8 · A1/A2 — o professor-dragão na aba Cultura.
+ *
+ * Decide UMA vez, ao montar: filtro, "ver extras" e cards não re-renderizam
+ * uma fala nova (A2.1/A2.2). Cada fala tem chave; chave ouvida não volta. Sem
+ * novidade, o dragão fica quieto. A voz é a do GuideDialogue canônico
+ * (guideTextBlip): mesmo corte ao antecipar, mesmo silêncio com efeitos
+ * desligados ou movimento reduzido.
+ */
+function CultureHubGuide() {
+  const { t, instructionLocale } = useTranslation();
+  const accountId = useStore((s) => s.currentAccountId);
+  const cultureCompletedIds = useStore((s) => s.cultureCompletedIds);
+  const cultureMasteryById = useStore((s) => s.cultureMasteryById);
+  const cultureSeals = useStore((s) => s.cultureSeals);
+  const completedLessons = useStore((s) => s.completedLessons);
+  const [message, setMessage] = useState<CultureGuideMessage | null>(() =>
+    pickCultureGuideMessage({
+      progress: { cultureCompletedIds, cultureMasteryById, cultureSeals, completedLessons },
+      seenKeys: readCultureGuideSeen(accountId),
+    })
+  );
+
+  useEffect(() => {
+    if (!message) return;
+    const seen = readCultureGuideSeen(accountId);
+    seen.add(message.key);
+    writeCultureGuideSeen(accountId, seen);
+  }, [accountId, message]);
+
+  if (!message) return null;
+
+  const lines =
+    message.kind === "intro"
+      ? [t("culture.guideIntro1"), t("culture.guideIntro2")]
+      : message.kind === "collection_done"
+        ? [
+            t("culture.guideCollectionDone", {
+              title: t(CULTURE_COLLECTIONS.find((row) => row.id === message.collectionId)!.titleKey as MessageKey),
+            }),
+          ]
+        : [
+            t("culture.guideGateMission", {
+              gate: instructionLocale === "en" ? message.gateTitleEn : message.gateTitlePt,
+              item: localizedCultureTitle(message.itemId, instructionLocale),
+            }),
+          ];
+
+  return (
+    <Card className="p-3" data-testid="culture-hub-guide" data-guide-message={message.kind}>
+      <GuideDialogue
+        size="compact"
+        messages={lines}
+        continueLabel={message.kind === "gate_mission" ? t("culture.guideOpenMission") : t("common.continue")}
+        onComplete={() => setMessage(null)}
+        data-testid="culture-hub-guide-dialogue"
+      />
+      {message.kind === "gate_mission" ? (
+        <Link
+          to={`/cultura/${message.itemId}`}
+          className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-accent"
+          data-testid="culture-hub-guide-cta"
+        >
+          {localizedCultureTitle(message.itemId, instructionLocale)} ›
+        </Link>
+      ) : null}
+    </Card>
   );
 }
 

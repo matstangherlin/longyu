@@ -8,13 +8,26 @@ import {
   type RefObject,
 } from "react";
 import { Link } from "react-router-dom";
+import { getInterfaceLocale } from "../../i18n/locale";
 import type { GlossaryEntry, PhraseGlossary } from "../../data/gloss";
 import { isTTSAvailable, speak } from "../../lib/tts";
 import { IconChevron, IconSound } from "../ui/Icon";
 import { MandarinGlossaryPopover } from "./MandarinGlossaryPopover";
 import { MandarinHelpTooltip } from "./MandarinHelpTooltip";
 import { Pinyin } from "./Pinyin";
-import { useMandarinHelpSettings, type MandarinHelpMode } from "./helpMode";
+import { useGlossLookup, useMandarinHelpSettings, type MandarinHelpMode } from "./helpMode";
+import { atlasHrefForHanzi } from "../../lib/reviewLookup";
+
+/**
+ * Como o termo abre a ajuda.
+ * - "default": hover/focus no desktop, clique fixa, toque abre sheet.
+ * - "hover-hold": o termo está DENTRO de um controle (opção, peça, par). Clique
+ *   pertence ao controle — selecionar a resposta. A ajuda abre com hover
+ *   demorado (desktop) ou segurar (toque), e o toque que segurou não seleciona.
+ */
+export type MandarinTokenActivation = "default" | "hover-hold";
+const HOVER_DWELL_MS = 450;
+const LONG_PRESS_MS = 450;
 
 type TokenView = "term" | "details" | "phrase";
 const GLOSS_OPEN_EVENT = "longyu:mandarin-gloss-open";
@@ -32,6 +45,7 @@ export function MandarinToken({
   showPinyinRuby = false,
   helpMode,
   disabled,
+  activation = "default",
 }: {
   text: string;
   entry: GlossaryEntry | null;
@@ -42,6 +56,7 @@ export function MandarinToken({
   showPinyinRuby?: boolean;
   helpMode?: MandarinHelpMode;
   disabled?: boolean;
+  activation?: MandarinTokenActivation;
 }) {
   const [open, setOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
@@ -52,6 +67,10 @@ export function MandarinToken({
   const tokenId = useId();
   const help = useMandarinHelpSettings({ helpMode, disabled });
   const helpDisabled = help.disabled || help.helpMode === "disabled";
+  const lookup = useGlossLookup();
+  const holdTimer = useRef<number | null>(null);
+  const suppressClickRef = useRef(false);
+  const atlasHref = lookup.atlasLink ? atlasHrefForHanzi(text, entry?.charId) : null;
 
   const canShowPhrase = !helpDisabled && help.helpMode === "sentence" && Boolean(phrase && phrase.parts.length > 1);
   const canSpeak = !helpDisabled && speakOnClick && isTTSAvailable();
@@ -74,7 +93,17 @@ export function MandarinToken({
     }, 140);
   }
 
-  useEffect(() => cancelClose, []);
+  function cancelHold() {
+    if (holdTimer.current !== null) {
+      window.clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
+  }
+
+  useEffect(() => () => {
+    cancelClose();
+    cancelHold();
+  }, []);
 
   useEffect(() => {
     const closeWhenAnotherTokenOpens = (event: Event) => {
@@ -110,6 +139,8 @@ export function MandarinToken({
       if (!wasOpen) onHintOpen?.();
       return true;
     });
+    // RC2.2.8 · D6 — a revisão registra a consulta (aprendizagem assistida).
+    lookup.onLookup?.(text);
   }
 
   function closeHint() {
@@ -133,6 +164,89 @@ export function MandarinToken({
           .join(" ")}
       >
         <span className="hanzi">{text}</span>
+      </span>
+    );
+  }
+
+  const popover = open ? (
+    <MandarinGlossaryPopoverContent
+      anchorRef={ref}
+      open={open}
+      mobile={mobile}
+      onClose={closeHint}
+      view={view}
+      text={text}
+      entry={entry}
+      phrase={phrase ?? null}
+      disabled={false}
+      canShowPhrase={canShowPhrase}
+      canSpeak={canSpeak}
+      atlasHref={atlasHref}
+      onViewDetails={() => setView("details")}
+      onViewPhrase={() => setView("phrase")}
+      onBackToTerm={() => setView("term")}
+      onPanelPointerEnter={cancelClose}
+      onPanelPointerLeave={() => {
+        if (!pinned) scheduleClose();
+      }}
+    />
+  ) : null;
+
+  if (activation === "hover-hold") {
+    // Sem role=button: o termo vive dentro de um <button> e não pode ser um
+    // segundo controle interativo aninhado.
+    return (
+      <span
+        ref={ref}
+        data-gloss-activation="hover-hold"
+        className={[
+          "select-none transition-colors border-b border-dotted",
+          showPinyinRuby ? "inline-flex flex-col items-center leading-none" : "inline-block",
+          open ? "border-accent text-accent" : "border-ink-faint/45",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        onPointerEnter={(event) => {
+          if (event.pointerType !== "mouse") return;
+          cancelHold();
+          holdTimer.current = window.setTimeout(() => openHint({ event }), HOVER_DWELL_MS);
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType !== "mouse") return;
+          cancelHold();
+          if (!pinned) scheduleClose();
+        }}
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse") return;
+          cancelHold();
+          suppressClickRef.current = false;
+          holdTimer.current = window.setTimeout(() => {
+            suppressClickRef.current = true;
+            openHint({ pin: true, event });
+          }, LONG_PRESS_MS);
+        }}
+        onPointerUp={cancelHold}
+        onPointerCancel={cancelHold}
+        onContextMenu={(event) => {
+          if (open || holdTimer.current !== null) event.preventDefault();
+        }}
+        onClickCapture={(event) => {
+          // O toque que segurou para consultar não seleciona a opção.
+          if (!suppressClickRef.current) return;
+          suppressClickRef.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+        aria-label={entry ? `${text}: ${entry.meaningPt}` : text}
+      >
+        <span className="hanzi">{text}</span>
+        {showPinyinRuby && entry?.pinyin && (
+          <span className="mt-1 pinyin leading-none" style={{ fontSize: "0.42em" }}>
+            <Pinyin text={entry.pinyin} />
+          </span>
+        )}
+        {popover}
       </span>
     );
   }
@@ -188,28 +302,7 @@ export function MandarinToken({
         </span>
       )}
 
-      {open && (
-        <MandarinGlossaryPopoverContent
-          anchorRef={ref}
-          open={open}
-          mobile={mobile}
-          onClose={closeHint}
-          view={view}
-          text={text}
-          entry={entry}
-          phrase={phrase ?? null}
-          disabled={false}
-          canShowPhrase={canShowPhrase}
-          canSpeak={canSpeak}
-          onViewDetails={() => setView("details")}
-          onViewPhrase={() => setView("phrase")}
-          onBackToTerm={() => setView("term")}
-          onPanelPointerEnter={cancelClose}
-          onPanelPointerLeave={() => {
-            if (!pinned) scheduleClose();
-          }}
-        />
-      )}
+      {popover}
     </span>
   );
 }
@@ -226,12 +319,14 @@ function MandarinGlossaryPopoverContent({
   disabled,
   canShowPhrase,
   canSpeak,
+  atlasHref,
   onViewDetails,
   onViewPhrase,
   onBackToTerm,
   onPanelPointerEnter,
   onPanelPointerLeave,
 }: {
+  atlasHref: string | null;
   anchorRef: RefObject<HTMLElement | null>;
   open: boolean;
   mobile: boolean;
@@ -267,6 +362,7 @@ function MandarinGlossaryPopoverContent({
         <TermView
           text={text}
           entry={entry}
+          atlasHref={atlasHref}
           canSpeak={canSpeak}
           canShowPhrase={canShowPhrase}
           details={view === "details"}
@@ -281,6 +377,7 @@ function MandarinGlossaryPopoverContent({
 function TermView({
   text,
   entry,
+  atlasHref,
   canSpeak,
   canShowPhrase,
   details,
@@ -289,6 +386,7 @@ function TermView({
 }: {
   text: string;
   entry: GlossaryEntry | null;
+  atlasHref: string | null;
   canSpeak: boolean;
   canShowPhrase: boolean;
   details: boolean;
@@ -308,6 +406,7 @@ function TermView({
         )}
         {!details && canSpeak && <DetailLink onClick={onViewDetails} />}
         {canShowPhrase && <PhraseLink onClick={onViewPhrase} />}
+        {atlasHref && <AtlasLink href={atlasHref} />}
       </div>
     );
   }
@@ -348,7 +447,23 @@ function TermView({
 
       {!details && hasDetails && <DetailLink onClick={onViewDetails} />}
       {canShowPhrase && <PhraseLink onClick={onViewPhrase} />}
+      {atlasHref && <AtlasLink href={atlasHref} />}
     </div>
+  );
+}
+
+/** F4 — da consulta na revisão direto para o caractere no Atlas. */
+function AtlasLink({ href }: { href: string }) {
+  return (
+    <Link
+      to={href}
+      data-testid="gloss-atlas-link"
+      onClick={(event) => event.stopPropagation()}
+      className="mt-3 flex w-full items-center justify-between gap-2 rounded-xl border border-line bg-surface-2 px-3 py-2 text-xs font-semibold text-accent transition hover:border-accent-soft"
+    >
+      {getInterfaceLocale() === "en" ? "See in the Atlas" : "Ver no Atlas"}
+      <IconChevron width={14} height={14} />
+    </Link>
   );
 }
 

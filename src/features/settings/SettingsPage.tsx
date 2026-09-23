@@ -1,3 +1,4 @@
+import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore, type MandarinDisplayMode, type SoundTheme, type ThemeName, type TranslationMode } from "../../lib/store";
@@ -278,6 +279,10 @@ export function SettingsPage() {
 
       <HubSection id="dados" className="scroll-mt-6" title={t("settings.accountProgress")} desc={t("settings.accountProgressLead")}>
         <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none">
+          <div className="flex items-center justify-between gap-2 text-xs text-ink-soft">
+            <span>{t("shell.syncStatusLabel")}</span>
+            <SyncStatusChip />
+          </div>
           <div className="grid gap-2">
             {accountList.map((account) => {
               const isCurrent = account.id === currentAccountId;
