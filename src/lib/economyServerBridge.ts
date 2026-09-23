@@ -137,8 +137,14 @@ async function invokeRpc<T extends EconomyRpcResult>(
   return { data: data as T, error: null };
 }
 
-function setSyncing(message: string): void {
-  useStore.getState().setEconomySyncMessage(message);
+/**
+ * RC2.2.8 · C6.1 — sync de economia em andamento é silencioso. O banner global
+ * fica para erro real (Qi/Carga não confirmados, Pro pendente); "Sincronizando…"
+ * não interrompe mais a tela. O parâmetro fica para documentar o que está em
+ * voo quando alguém depurar.
+ */
+function setSyncing(_message: string): void {
+  /* intencionalmente silencioso */
 }
 
 export async function fetchServerEconomy(): Promise<EconomyRpcResult | null> {

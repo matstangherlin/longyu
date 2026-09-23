@@ -44,3 +44,33 @@ export function useMandarinHelpSettings(
   return { disabled, helpMode };
 }
 
+
+/**
+ * RC2.2.8 · D — consulta de Hànzì na revisão.
+ *
+ * Fora de um provider nada muda (o default é neutro). Dentro dele, cada termo
+ * aberto avisa `onLookup` — é assim que a revisão registra
+ * `reviewAssistanceUsed` — e o popover ganha "Ver no Atlas".
+ */
+export interface GlossLookupSettings {
+  onLookup?: (text: string) => void;
+  atlasLink: boolean;
+}
+
+const GlossLookupContext = createContext<GlossLookupSettings>({ atlasLink: false });
+
+export function GlossLookupProvider({
+  onLookup,
+  atlasLink = true,
+  children,
+}: {
+  onLookup?: (text: string) => void;
+  atlasLink?: boolean;
+  children: ReactNode;
+}) {
+  return <GlossLookupContext.Provider value={{ onLookup, atlasLink }}>{children}</GlossLookupContext.Provider>;
+}
+
+export function useGlossLookup(): GlossLookupSettings {
+  return useContext(GlossLookupContext);
+}

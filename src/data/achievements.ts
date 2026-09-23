@@ -1,6 +1,8 @@
 import { JOURNEY } from "./journey";
 import { charById } from "./characters";
 import { isSrsItem, type SRSItem } from "../lib/srs";
+import { CULTURE_SEALS, type CultureKnowledgeRecord } from "./cultureQuest";
+import { cultureCollectionProgress } from "./cultureCollections";
 import type {
   AchievementReward,
   LifetimeStats,
@@ -23,7 +25,9 @@ export type AchievementCategory =
   | "fala"
   | "leitura"
   | "revisao"
-  | "missoes";
+  | "missoes"
+  | "cultura"
+  | "atlas";
 
 export type AchievementTier = "small" | "medium" | "large";
 
@@ -46,6 +50,11 @@ export interface AchievementSnapshot {
   rewardHistory: RewardHistoryEntry[];
   mandarinDisplayMode: MandarinDisplayMode;
   validatedModules?: string[];
+  // RC2.2.8 · M — só dados que já existem na store. Opcionais: um snapshot
+  // antigo sem eles simplesmente não progride as medalhas culturais.
+  cultureCompletedIds?: string[];
+  cultureSeals?: string[];
+  cultureKnowledgeById?: Record<string, CultureKnowledgeRecord>;
 }
 
 export interface AchievementDef {
@@ -70,6 +79,8 @@ export const ACHIEVEMENT_CATEGORY_META: Record<AchievementCategory, { label: str
   leitura: { label: "Leitura", glyph: "读" },
   revisao: { label: "Revisão", glyph: "复" },
   missoes: { label: "Missões", glyph: "章" },
+  cultura: { label: "Cultura", glyph: "礼" },
+  atlas: { label: "Atlas de Hànzì", glyph: "典" },
 };
 
 // Recompensas por porte (a medalha mensal continua especial, fora deste catálogo):
@@ -170,6 +181,41 @@ function phrasesPracticed(s: AchievementSnapshot): number {
     s.lifetimeStats.phrasesSpoken,
     s.learnedChunks.length
   );
+}
+
+// ——— RC2.2.8 · G2 — Cultura (derivado de cultureSeals/cultureCompletedIds/
+// cultureKnowledgeById; nenhum contador novo). Selo ≠ medalha: o selo continua
+// sendo progresso cultural; a medalha só reconhece o marco.
+function cultureSealCount(s: AchievementSnapshot): number {
+  const known = new Set<string>(CULTURE_SEALS.map((seal) => seal.id));
+  return new Set((s.cultureSeals ?? []).filter((id) => known.has(id))).size;
+}
+
+function historyCollectionProgress(s: AchievementSnapshot): { done: number; total: number } {
+  const row = cultureCollectionProgress(s.cultureCompletedIds ?? []).find((entry) => entry.id === "china_history");
+  return { done: row?.done ?? 0, total: row?.total ?? 0 };
+}
+
+/** Conceitos culturais encontrados na própria Jornada (não no Hub). */
+function cultureSeenOnJourney(s: AchievementSnapshot): number {
+  return Object.values(s.cultureKnowledgeById ?? {}).filter(
+    (record) => record?.source === "journey" && record.state !== "unseen"
+  ).length;
+}
+
+// ——— RC2.2.8 · G3/L2 — Atlas / Hànzì revisados (mesmo SRS de sempre).
+function distinctCharsReviewed(srs: Record<string, SRSItem> | null | undefined): number {
+  return new Set(
+    Object.values(srs ?? {})
+      .filter(isSrsItem)
+      .filter((item) => item.type === "char" && item.reps + item.lapses > 0)
+      .map((item) => item.itemId)
+  ).size;
+}
+
+/** Item que já falhou (lapso) e voltou a acertar duas vezes seguidas. */
+function weakItemsRecovered(srs: Record<string, SRSItem> | null | undefined): number {
+  return srsCount(srs, (item) => item.lapses > 0 && item.reps >= 2);
 }
 
 function dailyMissionsClaimed(s: AchievementSnapshot): number {
@@ -554,6 +600,113 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     desc: "Revise em 7 dias diferentes.",
     reward: REWARD_MEDIUM,
     progress: (s) => capped(s.lifetimeStats.reviewDays.length, 7),
+  },
+
+  // 8b. Hànzì / Atlas (RC2.2.8) --------------------------------------------
+  {
+    id: "hanzi-150",
+    category: "hanzi",
+    tier: "large",
+    glyph: "千",
+    title: "Cento e cinquenta formas",
+    desc: "Reconheça 150 hànzì.",
+    reward: REWARD_LARGE_QI,
+    progress: (s) => capped(s.learnedChars.length, 150),
+  },
+  {
+    id: "atlas-10-revisados",
+    category: "atlas",
+    tier: "small",
+    glyph: "典",
+    title: "Leitor do Atlas",
+    desc: "Revise 10 hànzì diferentes.",
+    reward: REWARD_SMALL,
+    progress: (s) => capped(distinctCharsReviewed(s.srs), 10),
+  },
+  {
+    id: "atlas-50-revisados",
+    category: "atlas",
+    tier: "medium",
+    glyph: "册",
+    title: "Atlas em uso",
+    desc: "Revise 50 hànzì diferentes.",
+    reward: REWARD_MEDIUM,
+    progress: (s) => capped(distinctCharsReviewed(s.srs), 50),
+  },
+  {
+    id: "atlas-10-fracos-recuperados",
+    category: "atlas",
+    tier: "medium",
+    glyph: "复",
+    title: "Ponto fraco, ponto forte",
+    desc: "Recupere 10 itens fracos: errou, revisou e acertou duas vezes seguidas.",
+    reward: REWARD_MEDIUM,
+    progress: (s) => capped(weakItemsRecovered(s.srs), 10),
+  },
+  {
+    id: "atlas-25-fracos-recuperados",
+    category: "atlas",
+    tier: "large",
+    glyph: "固",
+    title: "Memória reconstruída",
+    desc: "Recupere 25 itens fracos na revisão.",
+    reward: REWARD_LARGE_QI,
+    progress: (s) => capped(weakItemsRecovered(s.srs), 25),
+  },
+
+  // 8c. Cultura (RC2.2.8) ---------------------------------------------------
+  {
+    id: "cultura-primeiro-selo",
+    category: "cultura",
+    tier: "small",
+    glyph: "印",
+    title: "Primeiro Selo Cultural",
+    desc: "Conquiste seu primeiro Selo Cultural.",
+    reward: REWARD_SMALL,
+    progress: (s) => capped(cultureSealCount(s), 1),
+  },
+  {
+    id: "cultura-3-selos",
+    category: "cultura",
+    tier: "medium",
+    glyph: "章",
+    title: "Passaporte carimbado",
+    desc: "Conquiste 3 Selos Culturais.",
+    reward: REWARD_MEDIUM,
+    progress: (s) => capped(cultureSealCount(s), 3),
+  },
+  {
+    id: "cultura-todos-selos",
+    category: "cultura",
+    tier: "large",
+    glyph: "玺",
+    title: "Todos os selos",
+    desc: "Conquiste todos os Selos Culturais disponíveis.",
+    reward: REWARD_LARGE_QI,
+    progress: (s) => capped(cultureSealCount(s), CULTURE_SEALS.length),
+  },
+  {
+    id: "cultura-historia",
+    category: "cultura",
+    tier: "medium",
+    glyph: "史",
+    title: "Explorador da História",
+    desc: "Conclua todos os conteúdos da coleção História da China.",
+    reward: REWARD_MEDIUM,
+    progress: (s) => {
+      const { done, total } = historyCollectionProgress(s);
+      return capped(done, Math.max(1, total));
+    },
+  },
+  {
+    id: "cultura-na-jornada",
+    category: "cultura",
+    tier: "small",
+    glyph: "路",
+    title: "Cultura na Jornada",
+    desc: "Encontre 3 conceitos culturais dentro da própria Jornada.",
+    reward: REWARD_SMALL,
+    progress: (s) => capped(cultureSeenOnJourney(s), 3),
   },
 
   // 9. Missões -------------------------------------------------------------

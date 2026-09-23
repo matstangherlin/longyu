@@ -47,8 +47,11 @@ function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promis
 }
 
 function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
+  // O estado vai para a store (Conta/Perfil/Ajustes o leem como estado
+  // discreto). Só o erro vira aviso global, deduplicado (RC2.2.8 · C3/C5).
   useStore.getState().setCloudSyncState(status, message);
   if (status === "error") {
+    useStore.getState().setEconomySyncMessage(message);
     const correlationId = newOpsCorrelationId();
     noteOps("sync", correlationId, "error", { code: "sync_error" });
     recordClientDiagnostic({

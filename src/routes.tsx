@@ -49,6 +49,7 @@ const TermsPage = lazyNamed(() => import("./features/privacy/TermsPage"), "Terms
 const LessonDetailPage = lazyNamed(() => import("./features/lesson/LessonDetailPage"), "LessonDetailPage");
 const LessonPlayer = lazyNamed(() => import("./features/lesson/LessonPlayer"), "LessonPlayer");
 const ModuleChallengePage = lazyNamed(() => import("./features/challenge/ModuleChallengePage"), "ModuleChallengePage");
+const PhaseChallengePage = lazyNamed(() => import("./features/challenge/PhaseChallengePage"), "PhaseChallengePage");
 const ImmersionPage = lazyNamed(() => import("./features/immersion/ImmersionPage"), "ImmersionPage");
 const ProPage = lazyNamed(() => import("./features/pro/ProPage"), "ProPage");
 const LigasPage = lazyNamed(() => import("./features/ligas/LigasPage"), "LigasPage");
@@ -186,6 +187,7 @@ export const routes: RouteObject[] = [
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },
       { path: "teste/:unitId", element: <ModuleChallengePage /> },
+      { path: "teste/fase/:phaseId", element: <PhaseChallengePage /> },
     ],
   },
   { path: "*", element: <NotFoundPage /> },

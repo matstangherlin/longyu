@@ -118,6 +118,7 @@ import {
 } from "../data/economy";
 import {
   applyPearlEarn,
+  applyPearlSpend,
   blankPearlEconomyFields,
   claimablePearlMilestone,
   listMasteredPhaseIds,
@@ -143,6 +144,25 @@ import { confirmCloudPearlProActivation } from "./cloudPearlProActivation";
 import { mergeWithoutPersistedServerEntitlement } from "./persistenceSecurity";
 import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
 import type { ModuleSkipUsageWeek } from "./moduleSkipAccess";
+import { admitSyncNotice } from "./syncUx";
+import {
+  applyPhaseChallengeDebit,
+  applyPhaseChallengeResult,
+  type PhaseChallengeAttempt,
+  type PhaseChallengeStartBlock,
+  type PhaseChallengeTarget,
+} from "./phaseChallenge";
+import {
+  markCultureSealRevealed as markSealRevealedList,
+  normalizeFeaturedAchievementIds,
+  toggleFeaturedAchievement as toggleFeaturedList,
+} from "./profileShowcase";
+import {
+  equipAfterPurchase,
+  getProfileCosmetic,
+  resolveEquippedCosmetic,
+  type ProfileCosmeticSlot,
+} from "../data/profileCosmetics";
 
 export type ThemeName = "clay" | "china" | "dark";
 export type SoundTheme = "longyu_classic" | "longyu_soft" | "longyu_game";
@@ -1379,6 +1399,19 @@ interface AccountSnapshot extends XpBuckets {
   validatedModules: string[];
   /** Tentativas de teste de pular por módulo na semana corrente. */
   moduleSkipUsage: Record<string, ModuleSkipUsageWeek>;
+  // ——— RC2.2.8 · campos opcionais (migração com default seguro) ———
+  /** G5.3 — medalhas escolhidas para a vitrine do Perfil (só desbloqueadas, até 3). */
+  featuredAchievementIds?: string[];
+  /** H4 — cosmético de moldura equipado (id de `ownedCosmetics`). */
+  profileFrameId?: string | null;
+  /** H4 — cosmético de título equipado (id de `ownedCosmetics`). */
+  profileTitleId?: string | null;
+  /** A4.3 — selos culturais cujo reveal já foi mostrado. */
+  cultureSealsRevealed?: string[];
+  /** K7.1 — nextPhaseChallengeAt[targetPhaseId] (ms). */
+  phaseChallengeCooldowns?: Record<string, number>;
+  /** K5.3 — tentativas do Phase Challenge; o id é a chave do débito único. */
+  phaseChallengeAttempts?: PhaseChallengeAttempt[];
 }
 
 /**
@@ -1490,6 +1523,12 @@ function blankSnapshot(): AccountSnapshot {
     focusPassUntil: null,
     validatedModules: [],
     moduleSkipUsage: {},
+    featuredAchievementIds: [],
+    profileFrameId: null,
+    profileTitleId: null,
+    cultureSealsRevealed: [],
+    phaseChallengeCooldowns: {},
+    phaseChallengeAttempts: [],
   };
 }
 
@@ -1624,6 +1663,13 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     focusPassUntil: s.focusPassUntil,
     validatedModules: s.validatedModules,
     moduleSkipUsage: s.moduleSkipUsage ?? {},
+    featuredAchievementIds: s.featuredAchievementIds ?? [],
+    profileFrameId: s.profileFrameId ?? null,
+    profileTitleId: s.profileTitleId ?? null,
+    // undefined = conta anterior ao campo; o baseline é feito na hidratação.
+    cultureSealsRevealed: s.cultureSealsRevealed ?? [...(s.cultureSeals ?? [])],
+    phaseChallengeCooldowns: s.phaseChallengeCooldowns ?? {},
+    phaseChallengeAttempts: s.phaseChallengeAttempts ?? [],
   };
 }
 
@@ -1775,6 +1821,37 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     validatedModules: account.validatedModules ?? [],
     moduleSkipUsage: account.moduleSkipUsage ?? {},
     ...normalizeAchievementState(account.achievementsUnlocked, account.achievementHistory),
+    ...normalizeGamificationFields(account),
+  };
+}
+
+/**
+ * RC2.2.8 · N — defaults seguros para os campos novos. Nada aqui apaga XP, Qi,
+ * Pérolas, medalhas, cultura ou Hànzì: só preenche o que a conta antiga não tinha.
+ * - vitrine só com medalhas desbloqueadas;
+ * - cosmético equipado só se possuído;
+ * - selos já ganhos contam como revelados (sem enxurrada de reveals na
+ *   primeira abertura depois da atualização).
+ */
+function normalizeGamificationFields(
+  account: Partial<AccountSnapshot>
+): Pick<
+  AccountSnapshot,
+  | "featuredAchievementIds"
+  | "profileFrameId"
+  | "profileTitleId"
+  | "cultureSealsRevealed"
+  | "phaseChallengeCooldowns"
+  | "phaseChallengeAttempts"
+> {
+  const unlocked = normalizeAchievementState(account.achievementsUnlocked, account.achievementHistory).achievementsUnlocked;
+  return {
+    featuredAchievementIds: normalizeFeaturedAchievementIds(account.featuredAchievementIds, unlocked),
+    profileFrameId: resolveEquippedCosmetic(account.profileFrameId, "frame", account.ownedCosmetics),
+    profileTitleId: resolveEquippedCosmetic(account.profileTitleId, "title", account.ownedCosmetics),
+    cultureSealsRevealed: account.cultureSealsRevealed ?? [...(account.cultureSeals ?? [])],
+    phaseChallengeCooldowns: { ...(account.phaseChallengeCooldowns ?? {}) },
+    phaseChallengeAttempts: [...(account.phaseChallengeAttempts ?? [])],
   };
 }
 
@@ -2136,6 +2213,12 @@ interface AppState {
   focusPassUntil: number | null;
   validatedModules: string[];
   moduleSkipUsage: Record<string, ModuleSkipUsageWeek>;
+  featuredAchievementIds?: string[];
+  profileFrameId?: string | null;
+  profileTitleId?: string | null;
+  cultureSealsRevealed?: string[];
+  phaseChallengeCooldowns?: Record<string, number>;
+  phaseChallengeAttempts?: PhaseChallengeAttempt[];
 
   setTheme: (t: ThemeName) => void;
   setTtsRate: (r: number) => void;
@@ -2391,6 +2474,21 @@ interface AppState {
   validateModule: (unitId: string) => void;
   /** Registra uma tentativa de teste de pular módulo na semana corrente. */
   recordModuleSkipAttempt: (unitId: string) => void;
+  /** G5 — alterna uma medalha na vitrine do Perfil (só desbloqueadas, até 3). */
+  toggleFeaturedAchievement: (id: string) => { changed: boolean; reason?: "locked" | "full" };
+  /** H5 — equipa (ou remove, com null) um cosmético possuído. */
+  equipProfileCosmetic: (slot: ProfileCosmeticSlot, id: string | null) => boolean;
+  /** A4 — marca o reveal do selo como mostrado (idempotente). */
+  markCultureSealRevealed: (sealId: string) => void;
+  /** A4.3 — contas anteriores ao campo: selos já ganhos contam como vistos. */
+  ensureCultureSealRevealBaseline: () => void;
+  /** K5.3 — debita Fôlego uma vez por attemptId. */
+  startPhaseChallengeAttempt: (
+    attemptId: string,
+    target: PhaseChallengeTarget
+  ) => { ok: true; charged: boolean } | { ok: false; reason: PhaseChallengeStartBlock };
+  /** K7/K10 — fecha a tentativa; reprovar abre 48h; passar marca só o escopo provado. */
+  finishPhaseChallengeAttempt: (attemptId: string, passed: boolean, provenLessonIds: readonly string[]) => boolean;
 }
 
 function cultureLessonCompletionPatch(s: {
@@ -2588,6 +2686,14 @@ export const useStore = create<AppState>()(
       focusPassUntil: null,
       validatedModules: [],
       moduleSkipUsage: {},
+      featuredAchievementIds: [],
+      profileFrameId: null,
+      profileTitleId: null,
+      // cultureSealsRevealed fica indefinido de propósito: o baseline é
+      // decidido na hidratação (ensureCultureSealRevealBaseline), para que o
+      // default de um campo novo nunca vire enxurrada de reveals antigos.
+      phaseChallengeCooldowns: {},
+      phaseChallengeAttempts: [],
       inventory: {},
       ownedCosmetics: [],
       purchaseHistory: [],
@@ -2638,7 +2744,12 @@ export const useStore = create<AppState>()(
             updatedAt: Date.now(),
           },
         }),
-      setEconomySyncMessage: (message) => set({ economySyncMessage: message }),
+      // RC2.2.8 · C — progresso rotineiro ("Sincronizando…") nunca chega à UI
+      // global, e o mesmo erro não reaparece a cada ciclo de 30 s.
+      setEconomySyncMessage: (message) => {
+        if (!admitSyncNotice(message)) return;
+        set({ economySyncMessage: message });
+      },
       applyCloudProgressSnapshot: (body) =>
         set((s) => {
           const id = s.currentAccountId;
@@ -4672,21 +4783,51 @@ export const useStore = create<AppState>()(
           };
 
           if (item.cosmetic) {
-            const ownedCosmetics = (s.ownedCosmetics ?? []).includes(item.id)
-              ? s.ownedCosmetics
-              : [...(s.ownedCosmetics ?? []), item.id];
+            if ((s.ownedCosmetics ?? []).includes(item.id)) return {};
+            const ownedCosmetics = [...(s.ownedCosmetics ?? []), item.id];
+            // H7 — Pérola gasta passa pelo ledger idempotente. A chave é o próprio
+            // cosmético: o mesmo item nunca é debitado duas vezes.
+            let spendPatch: Partial<AppState> = currencyPatch;
+            if (item.currency === "pearl") {
+              const spent = applyPearlSpend(
+                { dragonPearls: s.dragonPearls, pearlLedger: s.pearlLedger ?? [] },
+                {
+                  amount: item.cost,
+                  source: `Cosmético: ${item.name}`,
+                  purchaseId: purchase.id,
+                  idempotencyKey: `cosmetic:${item.id}`,
+                }
+              );
+              if (!spent) return {};
+              spendPatch = spent;
+            }
+            // H4.2 — comprar equipa só se o slot estiver vazio.
+            const cosmetic = getProfileCosmetic(item.id);
+            const equipPatch: Partial<AppState> = cosmetic
+              ? cosmetic.slot === "frame"
+                ? { profileFrameId: equipAfterPurchase(s.profileFrameId, item.id) }
+                : { profileTitleId: equipAfterPurchase(s.profileTitleId, item.id) }
+              : {};
+            const cosmeticFeedback: ShopPurchaseFeedback = {
+              ...feedback,
+              balanceAfter: (spendPatch.dragonPearls ?? spendPatch.points ?? balanceAfter) as number,
+              benefit: cosmetic?.effectPt ?? item.name,
+              durationLabel: "Permanente",
+            };
             const next = {
               ...s,
-              ...currencyPatch,
+              ...spendPatch,
+              ...equipPatch,
               ownedCosmetics,
               purchaseHistory,
-              lastShopPurchaseFeedback: feedback,
+              lastShopPurchaseFeedback: cosmeticFeedback,
             };
             return {
-              ...currencyPatch,
+              ...spendPatch,
+              ...equipPatch,
               ownedCosmetics,
               purchaseHistory,
-              lastShopPurchaseFeedback: feedback,
+              lastShopPurchaseFeedback: cosmeticFeedback,
               accounts: saveCurrentAccount(next),
             };
           }
@@ -4964,6 +5105,98 @@ export const useStore = create<AppState>()(
           const next = { ...s, validatedModules };
           return { validatedModules, accounts: saveCurrentAccount(next) };
         }),
+
+      toggleFeaturedAchievement: (id) => {
+        let outcome: { changed: boolean; reason?: "locked" | "full" } = { changed: false };
+        set((s) => {
+          const result = toggleFeaturedList(s.featuredAchievementIds, id, s.achievementsUnlocked);
+          outcome = { changed: result.changed, reason: result.reason };
+          if (!result.changed) return {};
+          const next = { ...s, featuredAchievementIds: result.ids };
+          return { featuredAchievementIds: result.ids, accounts: saveCurrentAccount(next) };
+        });
+        return outcome;
+      },
+
+      equipProfileCosmetic: (slot, id) => {
+        let ok = false;
+        set((s) => {
+          const key = slot === "frame" ? "profileFrameId" : "profileTitleId";
+          const value = id === null ? null : resolveEquippedCosmetic(id, slot, s.ownedCosmetics);
+          if (id !== null && !value) return {};
+          ok = true;
+          const next = { ...s, [key]: value };
+          return { [key]: value, accounts: saveCurrentAccount(next) } as Partial<AppState>;
+        });
+        return ok;
+      },
+
+      markCultureSealRevealed: (sealId) =>
+        set((s) => {
+          if (!sealId || !(s.cultureSeals ?? []).includes(sealId)) return {};
+          if ((s.cultureSealsRevealed ?? []).includes(sealId)) return {};
+          const cultureSealsRevealed = markSealRevealedList(s.cultureSealsRevealed, s.cultureSeals, sealId);
+          const next = { ...s, cultureSealsRevealed };
+          return { cultureSealsRevealed, accounts: saveCurrentAccount(next) };
+        }),
+
+      ensureCultureSealRevealBaseline: () =>
+        set((s) => {
+          if (s.cultureSealsRevealed !== undefined) return {};
+          const cultureSealsRevealed = [...(s.cultureSeals ?? [])];
+          const next = { ...s, cultureSealsRevealed };
+          return { cultureSealsRevealed, accounts: saveCurrentAccount(next) };
+        }),
+
+      startPhaseChallengeAttempt: (attemptId, target) => {
+        let outcome: { ok: true; charged: boolean } | { ok: false; reason: PhaseChallengeStartBlock } = {
+          ok: false,
+          reason: "not_eligible",
+        };
+        set((s) => {
+          const result = applyPhaseChallengeDebit(
+            {
+              folego: s.folego,
+              phaseChallengeAttempts: s.phaseChallengeAttempts ?? [],
+              phaseChallengeCooldowns: s.phaseChallengeCooldowns ?? {},
+            },
+            { attemptId, target, now: Date.now() }
+          );
+          if (!result.ok) {
+            outcome = { ok: false, reason: result.reason };
+            return {};
+          }
+          outcome = { ok: true, charged: result.charged };
+          if (!result.charged) return {};
+          const next = { ...s, ...result.patch };
+          return { ...result.patch, accounts: saveCurrentAccount(next) };
+        });
+        return outcome;
+      },
+
+      finishPhaseChallengeAttempt: (attemptId, passed, provenLessonIds) => {
+        let closed = false;
+        set((s) => {
+          const patch = applyPhaseChallengeResult(
+            {
+              folego: s.folego,
+              phaseChallengeAttempts: s.phaseChallengeAttempts ?? [],
+              phaseChallengeCooldowns: s.phaseChallengeCooldowns ?? {},
+            },
+            { attemptId, passed, now: Date.now() }
+          );
+          if (!patch) return {};
+          closed = true;
+          const next = { ...s, ...patch };
+          return { ...patch, accounts: saveCurrentAccount(next) };
+        });
+        // K10 — passar marca SÓ as lições provadas, pela via de teste que já
+        // existia (1 estrela, sem XP de lição, sem selo, sem 3ª estrela).
+        if (closed && passed) {
+          for (const lessonId of provenLessonIds) get().completeLessonViaTest(lessonId);
+        }
+        return closed;
+      },
 
       recordModuleSkipAttempt: (unitId) =>
         set((s) => {

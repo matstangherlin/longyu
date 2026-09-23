@@ -1,5 +1,6 @@
 import { MandarinInlineText } from "./MandarinInlineText";
 import type { MandarinHelpMode } from "./helpMode";
+import type { MandarinTokenActivation } from "./MandarinToken";
 
 // Texto chinês com ajuda de leitura em três níveis (caractere · chunk · frase).
 // Mantém a assinatura antiga: os call sites não mudam. A lógica vive em
@@ -17,7 +18,9 @@ export function GlossText({
   examMode = false,
   helpMode,
   disabled = false,
+  activation,
 }: {
+  activation?: MandarinTokenActivation;
   text: string;
   pinyin?: string;
   meaning?: string;
@@ -43,6 +46,7 @@ export function GlossText({
       examMode={examMode}
       helpMode={helpMode}
       disabled={disabled}
+      activation={activation}
     />
   );
 }

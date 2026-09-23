@@ -74,7 +74,16 @@ jobs:
           version: 2.109.1
 
       - name: Start ephemeral Supabase
-        run: supabase start
+        # ghcr.io rate-limits anonymous pulls (toomanyrequests); retry and
+        # fall back to Supabase's public ECR mirror of the same images.
+        run: |
+          for registry in ghcr.io public.ecr.aws public.ecr.aws; do
+            if SUPABASE_INTERNAL_IMAGE_REGISTRY="$registry" supabase start; then exit 0; fi
+            echo "::warning::supabase start failed via $registry; retrying"
+            supabase stop --no-backup || true
+            sleep 20
+          done
+          exit 1
 
       - name: Rehearse schema / RLS / RPC
         run: node scripts/rehearse-ephemeral-backend.mjs --skip-start --skip-edge
@@ -119,7 +128,16 @@ jobs:
           version: 2.109.1
 
       - name: Start ephemeral Supabase
-        run: supabase start
+        # ghcr.io rate-limits anonymous pulls (toomanyrequests); retry and
+        # fall back to Supabase's public ECR mirror of the same images.
+        run: |
+          for registry in ghcr.io public.ecr.aws public.ecr.aws; do
+            if SUPABASE_INTERNAL_IMAGE_REGISTRY="$registry" supabase start; then exit 0; fi
+            echo "::warning::supabase start failed via $registry; retrying"
+            supabase stop --no-backup || true
+            sleep 20
+          done
+          exit 1
 
       - name: Rehearse including local Edge Functions
         run: node scripts/rehearse-ephemeral-backend.mjs --skip-start

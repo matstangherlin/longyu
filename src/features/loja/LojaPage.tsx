@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useStore, type ChestType, type ShopPurchaseFeedback } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import {
   CATEGORY_ORDER,
+  shopItemLifetime,
   shopItemsByCategory,
   type ShopIconKey,
   type ShopItem,
@@ -471,12 +472,17 @@ function ShopItemCard({
   const { t } = useTranslation();
   const Icon = SHOP_ICONS[item.iconKey];
   const currencyLabel = item.currency === "qi" ? "Qi" : t("hub.pearls");
-  const insufficient = !item.cosmetic && item.kind !== "pro_link" && balance < item.cost;
+  const insufficient = item.kind !== "pro_link" && !(item.cosmetic && owned) && balance < item.cost;
+  const lifetime = shopItemLifetime(item);
   const chestType: ChestType | null =
     item.iconKey === "chest" ? "small" : item.iconKey === "chest_dragon" ? "dragon" : null;
 
   return (
-    <Card className="flex min-h-36 flex-col rounded-xl border-line/70 p-3 shadow-none" data-commercial-later="">
+    <Card
+      className="flex min-h-36 flex-col rounded-xl border-line/70 p-3 shadow-none"
+      data-commercial-later=""
+      data-testid={`shop-item-${item.id}`}
+    >
       <div className="flex items-start justify-between gap-2">
         {chestType ? (
           <LongyuChest type={chestType} state="unlocked" size="sm" title={item.name} />
@@ -496,6 +502,18 @@ function ShopItemCard({
 
       <h3 className="mt-3 text-sm font-semibold text-ink">{item.name}</h3>
       <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft">{item.desc}</p>
+      {/* RC2.2.8 · H6 — efeito, duração e se é consumível ou permanente. */}
+      {lifetime !== "link" && (
+        <p className="mt-1.5 text-[11px] font-medium text-ink-faint" data-testid={`shop-lifetime-${item.id}`} data-lifetime={lifetime}>
+          {lifetime === "permanent"
+            ? t("hub.shopLifetimePermanent")
+            : lifetime === "timed"
+              ? item.durationLabel
+                ? t("hub.shopLifetimeTimed", { d: displayInstruction(item.durationLabel) })
+                : t("hub.shopLifetimeTimedNoLabel")
+              : t("hub.shopLifetimeConsumable")}
+        </p>
+      )}
 
       {item.usageHint && count > 0 && (
         <p className="mt-2 text-xs leading-5 text-ink-faint">{item.usageHint}</p>
@@ -514,12 +532,21 @@ function ShopItemCard({
             {isPremium ? t("hub.proActiveCta") : t("settings.seeProPlans")}
           </Button>
         ) : item.cosmetic && owned ? (
-          <Button size="sm" variant="outline" className="w-full" disabled>
-            {t("hub.acquired")}
-          </Button>
+          <div className="grid gap-2">
+            <Button size="sm" variant="outline" className="w-full" disabled data-testid={`shop-owned-${item.id}`}>
+              {t("hub.acquired")}
+            </Button>
+            <Link
+              to="/perfil"
+              className="text-center text-xs font-semibold text-accent hover:underline"
+              data-testid={`shop-equip-link-${item.id}`}
+            >
+              {t("hub.shopEquipInProfile")}
+            </Link>
+          </div>
         ) : (
           <div className="grid gap-2">
-            <Button size="sm" className="w-full" disabled={!canBuy} onClick={onBuy}>
+            <Button size="sm" className="w-full" disabled={!canBuy} onClick={onBuy} data-testid={`shop-buy-${item.id}`}>
               {insufficient ? (
                 <>
                   <IconLock width={14} height={14} />{" "}

@@ -12,7 +12,15 @@ import { HANZI_EVOLUTION_CORE_IDS, HANZI_EVOLUTIONS, HANZI_LOGIC_CARDS } from ".
 import { radicalById, RADICALS } from "../../data/radicals";
 import { REVIEW_DOMAIN_ORDER } from "../../data/reviewDomains";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
-import { makeKey, type SRSItem } from "../../lib/srs";
+import { describeNextDue, makeKey, type SRSItem } from "../../lib/srs";
+import {
+  ATLAS_STUDY_SET_MAX,
+  atlasSmartSetItems,
+  atlasStudySetHref,
+  buildAtlasStudySet,
+  isMasteredAtlasChar,
+  type AtlasSmartSet,
+} from "../../lib/atlasStudySet";
 import { todayKey } from "../../lib/storage";
 import { useStore } from "../../lib/store";
 import { formatNumber } from "../../i18n/format";
@@ -79,6 +87,15 @@ const DOMAIN_OPTIONS: Array<[DomainFilter, string]> = [
   ["vida", "Vida real"],
 ];
 
+// RC2.2.8 · F2 — atalhos de conjunto. Cada um parte de progresso real.
+const SMART_SET_OPTIONS: Array<[AtlasSmartSet, string]> = [
+  ["weak", "Meus fracos"],
+  ["favorites", "Favoritos"],
+  ["recent", "Aprendidos recentemente"],
+  ["unreviewed", "Não revisados"],
+  ["top50", "Top 50 disponíveis"],
+];
+
 const SORT_OPTIONS: Array<[SortMode, string]> = [
   ["frequency", "Frequência"],
   ["recent", "Recentes"],
@@ -109,6 +126,8 @@ export function HanziAtlasPage() {
   const gradeSrs = useStore((s) => s.gradeSrs);
 
   const [filters, setFilters] = useState<AtlasFilters>(DEFAULT_FILTERS);
+  const [smartSet, setSmartSet] = useState<AtlasSmartSet | null>(null);
+  const [reviewNotice, setReviewNotice] = useState<{ id: string; text: string } | null>(null);
   const [selected, setSelected] = useState<HanziAtlasItem | null>(() => findAtlasFromParam(requestedChar));
   const [showWords, setShowWords] = useState(false);
   const [shown, setShown] = useState(PAGE_SIZE);
@@ -122,12 +141,31 @@ export function HanziAtlasPage() {
     [srs]
   );
 
-  const visible = useMemo(
+  const filtered = useMemo(
     () => passesAtlasFilters(filters, completedLessons, learnedSet, favoriteSet, srs),
     [completedLessons, favoriteSet, filters, learnedSet, srs]
   );
+  // O atalho de conjunto, quando ativo, substitui o filtro (mesma lista, outra lente).
+  const visible = useMemo(
+    () =>
+      smartSet
+        ? atlasSmartSetItems(smartSet, HANZI_ATLAS, {
+            completedLessons,
+            learnedSet,
+            favoriteSet,
+            srs,
+            now: Date.now(),
+          })
+        : filtered,
+    [completedLessons, favoriteSet, filtered, learnedSet, smartSet, srs]
+  );
+  const studySetIds = useMemo(
+    () => buildAtlasStudySet(visible, { completedLessons, learnedSet }),
+    [completedLessons, learnedSet, visible]
+  );
+  const smartSetLabel = SMART_SET_OPTIONS.find(([id]) => id === smartSet)?.[1];
   // Novo filtro recomeça do primeiro lote: senão a lista abre já gigante.
-  useEffect(() => setShown(PAGE_SIZE), [filters]);
+  useEffect(() => setShown(PAGE_SIZE), [filters, smartSet]);
   const page = useMemo(() => visible.slice(0, shown), [visible, shown]);
   const remaining = visible.length - page.length;
 
@@ -142,20 +180,27 @@ export function HanziAtlasPage() {
     const availableCount = HANZI_ATLAS.filter((item) =>
       ["available", "learned"].includes(atlasContentAvailability(item, completedLessons, learnedSet))
     ).length;
+    const masteredCount = [...reviewedCharIds].filter((charId) => isMasteredAtlasChar(charId, srs)).length;
     return {
       known: learnedSet.size,
       available: availableCount,
-      top300: HANZI_ATLAS.filter((item) => item.freqRank <= 300).length,
-      top1000: HANZI_ATLAS.filter((item) => item.freqRank <= 1000).length,
+      mastered: masteredCount,
+      favorites: HANZI_ATLAS.filter((item) => favoriteSet.has(`char:${item.id}`)).length,
       review: reviewedCharIds.size,
       weak: weakCount,
       reviewedToday: reviewedTodayCount,
     };
-  }, [completedLessons, learnedSet, reviewedCharIds.size, srs]);
+  }, [completedLessons, favoriteSet, learnedSet, reviewedCharIds, srs]);
   const sortLabel = SORT_OPTIONS.find(([value]) => value === filters.sort)?.[1] ?? "Frequência";
 
   function updateFilter<K extends keyof AtlasFilters>(key: K, value: AtlasFilters[K]) {
+    setSmartSet(null);
     setFilters((current) => ({ ...current, [key]: value }));
+  }
+
+  function trainThisSet() {
+    if (studySetIds.length === 0) return;
+    navigate(atlasStudySetHref(studySetIds, smartSetLabel ? `Atlas · ${smartSetLabel}` : "Atlas · filtro atual"));
   }
 
   function addToReview(item: HanziAtlasItem) {
@@ -173,6 +218,13 @@ export function HanziAtlasPage() {
         grade: "good",
       });
     }
+    // F3 — o botão agora diz o que aconteceu e quando o caractere volta.
+    const scheduled = useStore.getState().srs[makeKey("char", itemId, "significado")];
+    const when = scheduled ? describeNextDue(scheduled) : null;
+    setReviewNotice({
+      id: item.id,
+      text: when ? `Adicionado ao treino · próxima revisão: ${when}` : "Adicionado ao treino",
+    });
   }
 
   function openDetail(item: HanziAtlasItem) {
@@ -345,18 +397,46 @@ export function HanziAtlasPage() {
         </div>
       </section>
 
-      {/* Os mesmos seis números, numa faixa compacta em vez de seis cartões. */}
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-        <AtlasStat label="Conhecidos" value={stats.known} detail="no seu repertório" />
-        <AtlasStat label="Disponíveis" value={stats.available} detail="liberados agora" />
-        <AtlasStat label="Top 300" value={stats.top300} detail="alta frequência" />
-        <AtlasStat label="Top 1000" value={stats.top1000} detail="consulta ampliada" />
+      {/* RC2.2.8 · F6 — metas do Atlas. Cada número é também um atalho: tocar
+          filtra a lista para aquele conjunto (nada de coleção vazia de números). */}
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6" data-testid="atlas-goals">
+        <AtlasStat label="Conhecidos" value={stats.known} detail="no seu repertório" onClick={() => updateFilter("learned", "learned")} />
+        <AtlasStat label="Dominados" value={stats.mastered} detail="3+ acertos seguidos" />
+        <AtlasStat label="Fracos" value={stats.weak} detail="pedem treino" onClick={() => setSmartSet("weak")} />
         <AtlasStat label="Em revisão" value={stats.review} detail={`${stats.reviewedToday} hoje`} />
-        <AtlasStat label="Fracos" value={stats.weak} detail="pedem treino" />
+        <AtlasStat label="Favoritos" value={stats.favorites} detail="sua seleção" onClick={() => setSmartSet("favorites")} />
+        <AtlasStat label="Disponíveis" value={stats.available} detail="liberados agora" />
       </div>
+
+      {/* F1/F2 — conjuntos de estudo: atalho + "Treinar este conjunto" pela Revisão. */}
+      <section className="space-y-3 rounded-2xl border border-accent/25 bg-accent-soft/40 p-4" data-testid="atlas-study-sets">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+          {SMART_SET_OPTIONS.map(([id, label]) => (
+            <FilterChip
+              key={id}
+              active={smartSet === id}
+              onClick={() => setSmartSet((current) => (current === id ? null : id))}
+              testId={`atlas-smart-set-${id}`}
+            >
+              {label}
+            </FilterChip>
+          ))}
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-ink-soft" data-testid="atlas-study-set-count" data-study-set-size={studySetIds.length}>
+            {studySetIds.length > 0
+              ? `${studySetIds.length} hànzì aprendidos prontos para treinar${studySetIds.length >= ATLAS_STUDY_SET_MAX ? ` (máx. ${ATLAS_STUDY_SET_MAX})` : ""}.`
+              : "Nenhum hànzì aprendido neste conjunto — só o que você já aprendeu entra no treino."}
+          </p>
+          <Button onClick={trainThisSet} disabled={studySetIds.length === 0} data-testid="atlas-train-set">
+            <IconRefresh width={17} height={17} /> Treinar este conjunto
+          </Button>
+        </div>
+      </section>
 
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm text-ink-soft">
+          {smartSetLabel ? `${smartSetLabel} · ` : ""}
           {formatNumber(visible.length)} caracteres chineses encontrados ·{" "}
           {formatNumber(stats.available)} liberados agora
         </div>
@@ -382,6 +462,7 @@ export function HanziAtlasPage() {
               onToggleFavorite={() => toggleFavoriteItem(`char:${item.id}`)}
               onDetail={() => openDetail(item)}
               onAddReview={() => addToReview(item)}
+              reviewNotice={reviewNotice?.id === item.id ? reviewNotice.text : null}
             />
           );
         })}
@@ -414,19 +495,39 @@ export function HanziAtlasPage() {
           onToggleFavorite={() => toggleFavoriteItem(`char:${selected.id}`)}
           onAddReview={() => addToReview(selected)}
           onLearn={() => navigate(`/hanzi?char=${selected.id}`)}
+          reviewNotice={reviewNotice?.id === selected.id ? reviewNotice.text : null}
+          onOpenRelated={openDetail}
         />
       )}
     </div>
   );
 }
 
-function AtlasStat({ label, value, detail }: { label: string; value: number; detail: string }) {
-  return (
-    <div className="rounded-xl border border-line bg-surface px-3 py-2 shadow-card">
+function AtlasStat({
+  label,
+  value,
+  detail,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  detail: string;
+  onClick?: () => void;
+}) {
+  const body = (
+    <>
       <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-faint">{label}</div>
       <div className="font-serif text-lg font-semibold tabular-nums text-ink">{formatNumber(value)}</div>
       <div className="truncate text-[11px] text-ink-soft" title={detail}>{detail}</div>
-    </div>
+    </>
+  );
+  const className = "rounded-xl border border-line bg-surface px-3 py-2 text-left shadow-card";
+  return onClick ? (
+    <button type="button" onClick={onClick} className={`${className} transition hover:border-accent/50`}>
+      {body}
+    </button>
+  ) : (
+    <div className={className}>{body}</div>
   );
 }
 
@@ -489,11 +590,23 @@ function SegmentedButton({ active, children, onClick }: { active: boolean; child
   );
 }
 
-function FilterChip({ active, children, onClick }: { active: boolean; children: string; onClick: () => void }) {
+function FilterChip({
+  active,
+  children,
+  onClick,
+  testId,
+}: {
+  active: boolean;
+  children: string;
+  onClick: () => void;
+  testId?: string;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
+      data-testid={testId}
+      aria-pressed={active}
       className={[
         "h-9 shrink-0 rounded-full border px-3 text-xs font-semibold transition",
         active
@@ -515,6 +628,7 @@ function HanziCard({
   onToggleFavorite,
   onDetail,
   onAddReview,
+  reviewNotice,
 }: {
   item: HanziAtlasItem;
   weak: boolean;
@@ -524,6 +638,7 @@ function HanziCard({
   onToggleFavorite: () => void;
   onDetail: () => void;
   onAddReview: () => void;
+  reviewNotice: string | null;
 }) {
   return (
     <article className="group rounded-[24px] border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
@@ -567,6 +682,11 @@ function HanziCard({
           Detalhes <IconChevron width={17} height={17} />
         </Button>
       </div>
+      {reviewNotice && (
+        <p role="status" className="mt-2 text-xs font-medium text-good" data-testid="atlas-review-notice">
+          {reviewNotice}
+        </p>
+      )}
     </article>
   );
 }
@@ -583,6 +703,8 @@ function HanziDetailModal({
   onToggleFavorite,
   onAddReview,
   onLearn,
+  reviewNotice,
+  onOpenRelated,
 }: {
   item: HanziAtlasItem;
   weak: boolean;
@@ -595,7 +717,10 @@ function HanziDetailModal({
   onToggleFavorite: () => void;
   onAddReview: () => void;
   onLearn: () => void;
+  reviewNotice: string | null;
+  onOpenRelated: (item: HanziAtlasItem) => void;
 }) {
+  const related = relatedAtlasCharacters(item);
   const radical = item.radical ? radicalById[item.radical] : undefined;
   const phonetic = item.phonetic ? radicalById[item.phonetic] : undefined;
   const components = item.components ?? [];
@@ -693,6 +818,34 @@ function HanziDetailModal({
                 {item.mnemonicPt}
               </div>
             )}
+
+            {/* F5 — família de componentes: só relações que o dataset já
+                registra (radical, peça de som, peça de sentido). Sem etimologia inventada. */}
+            {related.length > 0 && (
+              <div data-testid="atlas-related">
+                <div className="text-sm font-semibold text-ink">Caracteres relacionados</div>
+                <div className="mt-2 space-y-2">
+                  {related.map((group) => (
+                    <div key={group.kind}>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{group.label}</div>
+                      <div className="mt-1 flex flex-wrap gap-2">
+                        {group.items.map((relatedItem) => (
+                          <button
+                            key={relatedItem.id}
+                            type="button"
+                            onClick={() => onOpenRelated(relatedItem)}
+                            className="min-h-11 rounded-xl bg-surface-2 px-3 py-1.5 text-left transition hover:bg-line/60"
+                          >
+                            <span className="hanzi text-2xl text-ink">{relatedItem.hanzi}</span>
+                            <span className="ml-2 text-xs text-ink-soft">{relatedItem.meaningPt}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         </div>
 
@@ -710,6 +863,11 @@ function HanziDetailModal({
             <Button variant="soft" onClick={onAddReview} disabled={!canAddReview}>
               <IconRefresh width={17} height={17} /> {canAddReview ? "Adicionar à revisão" : "Aprenda antes"}
             </Button>
+            {reviewNotice && (
+              <span role="status" className="self-center text-xs font-medium text-good" data-testid="atlas-review-notice">
+                {reviewNotice}
+              </span>
+            )}
             <Button variant="outline" onClick={onToggleFavorite}>
               <IconStar width={17} height={17} fill={favorite ? "currentColor" : "none"} /> Favoritar
             </Button>
@@ -850,4 +1008,31 @@ function atlasDomain(item: HanziAtlasItem): DomainFilter {
   if (item.meaningPt.match(/falar|ouvir|perguntar|boca|palavra|língua/i)) return "fala";
   if (item.meaningPt.match(/árvore|água|fogo|sol|lua|montanha|terra|planta/i)) return "natureza";
   return "vida";
+}
+
+type RelatedGroup = { kind: "radical" | "phonetic" | "semantic"; label: string; items: HanziAtlasItem[] };
+const RELATED_LIMIT = 8;
+
+/** F5 — relações que o dataset já traz: mesmo radical, mesma peça de som, peça de sentido em comum. */
+function relatedAtlasCharacters(item: HanziAtlasItem): RelatedGroup[] {
+  const groups: RelatedGroup[] = [];
+  const others = HANZI_ATLAS.filter((candidate) => candidate.id !== item.id);
+  if (item.radical) {
+    const radical = radicalById[item.radical];
+    const items = others.filter((candidate) => candidate.radical === item.radical).slice(0, RELATED_LIMIT);
+    if (items.length) groups.push({ kind: "radical", label: `Mesmo radical${radical ? ` · ${radical.glyph}` : ""}`, items });
+  }
+  if (item.phonetic) {
+    const phonetic = radicalById[item.phonetic];
+    const items = others.filter((candidate) => candidate.phonetic === item.phonetic).slice(0, RELATED_LIMIT);
+    if (items.length) groups.push({ kind: "phonetic", label: `Mesma peça de som${phonetic ? ` · ${phonetic.glyph}` : ""}`, items });
+  }
+  const semantic = (item.components ?? []).filter((componentId) => componentId !== item.phonetic && componentId !== item.radical);
+  if (semantic.length) {
+    const items = others
+      .filter((candidate) => (candidate.components ?? []).some((componentId) => semantic.includes(componentId)))
+      .slice(0, RELATED_LIMIT);
+    if (items.length) groups.push({ kind: "semantic", label: "Peça de sentido em comum", items });
+  }
+  return groups;
 }

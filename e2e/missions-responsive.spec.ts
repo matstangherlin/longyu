@@ -162,7 +162,9 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
       await openMissions(page);
       const injected = await page.evaluate(() => {
         if (typeof window.__longyuSetEconomySyncMessage !== "function") return false;
-        window.__longyuSetEconomySyncMessage("Sincronizando Qi...");
+        // RC2.2.8 · C — "Sincronizando…" é silencioso; o banner existe para
+        // erro real de economia, então o layout é testado com um.
+        window.__longyuSetEconomySyncMessage("Qi não confirmado pelo servidor.");
         return true;
       });
       test.skip(!injected, "fixture de banner indisponível neste ambiente");

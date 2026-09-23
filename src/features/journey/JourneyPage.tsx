@@ -34,6 +34,7 @@ import {
 } from "../../data/toneTrainer";
 import { buildModuleSkipTest } from "../challenge/examBuilder";
 import { getModuleSkipAccessInfo } from "../../lib/moduleSkipAccess";
+import { listPhaseChallengeTargets } from "../../lib/phaseChallenge";
 import { useIsPro } from "../../lib/proAccess";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
@@ -259,6 +260,12 @@ export function JourneyPage() {
     completedLessons: completed,
   };
   const isPremium = useIsPro();
+  // RC2.2.8 · K3 — fases desafiáveis. A própria prévia explica cooldown/Fôlego.
+  const phaseChallengeKinds = new Map(
+    listPhaseChallengeTargets({ ...pageCultureProgress, completedLessons: completed, isPremium })
+      .filter((target) => target.kind && (target.eligible || target.reason === "culture_gate"))
+      .map((target) => [target.phase.id, target.kind as string])
+  );
   const today = useStore((s) => s.today);
   const journeyChestsOpened = useStore((s) => s.journeyChestsOpened ?? []);
   const aggregates = useStore((s) => s.getMissionAggregates());
@@ -476,7 +483,22 @@ export function JourneyPage() {
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
                     {t("journey.phaseN", { n: phase.order })}
                   </div>
-                  <h2 className="font-serif text-base font-semibold text-ink sm:text-lg">{displayInstruction(phase.title, locale)}</h2>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="font-serif text-base font-semibold text-ink sm:text-lg">{displayInstruction(phase.title, locale)}</h2>
+                    {/* RC2.2.8 · K3 — só em fases futuras elegíveis (próxima ou uma além). */}
+                    {phaseChallengeKinds.get(phase.id) ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs"
+                        data-testid={`phase-challenge-cta-${phase.id}`}
+                        data-challenge-kind={phaseChallengeKinds.get(phase.id)}
+                        onClick={() => navigate(`/teste/fase/${phase.id}`)}
+                      >
+                        {t("phaseChallenge.testThisPhase")}
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
 
                 {phase.units.map((unit) => {

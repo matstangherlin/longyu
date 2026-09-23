@@ -70,6 +70,7 @@ const NAMESPACES = [
   "culture",
   "familia",
   "business",
+  "phaseChallenge",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));

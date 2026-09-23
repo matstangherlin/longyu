@@ -19,6 +19,16 @@ import { HubHeader, HubNavGrid, HubPage, HubSection } from "../../components/lay
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { GlossText } from "../../components/hanzi/GlossText";
+import { GlossLookupProvider } from "../../components/hanzi/helpMode";
+import type { MandarinTokenActivation } from "../../components/hanzi/MandarinToken";
+import { capAssistedGrade, reviewSuggestedGrade } from "../../lib/reviewLookup";
+import {
+  atlasStudySetSrsItems,
+  isAtlasItemEligibleForTraining,
+  parseAtlasStudySet,
+  reviewCharIdForAtlasItem,
+} from "../../lib/atlasStudySet";
+import { HANZI_ATLAS } from "../../data/hanziAtlas";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -488,11 +498,9 @@ function optionTone(option: ReviewOption, selected: string | null, revealed: boo
   return "neutral";
 }
 
-function gradeSuggestion(correct: boolean, elapsedMs: number): Grade {
-  if (!correct) return "again";
-  if (elapsedMs <= 8000) return "easy";
-  if (elapsedMs >= 22000) return "hard";
-  return "good";
+// RC2.2.8 · D7 — consulta antes da resposta nunca sugere Easy (teto: Hard).
+function gradeSuggestion(correct: boolean, elapsedMs: number, assisted = false): Grade {
+  return reviewSuggestedGrade({ correct, elapsedMs, assisted });
 }
 
 function isExerciseComplete(
@@ -525,23 +533,30 @@ function isExerciseCorrect(
   return scoredAnswersMatch(selectedOption ?? "", exercise.answer);
 }
 
-// examMode: esconde a dica interativa (popover de pinyin/significado e áudio ao
-// tocar). Usado antes de revelar a resposta para não entregar o gabarito.
+// RC2.2.8 · D — revisão é aprendizagem: a consulta (pinyin, significado,
+// áudio, Atlas) fica disponível ANTES da resposta. Quem consulta tem a
+// tentativa marcada como assistida (GlossLookupProvider → reviewAssistanceUsed)
+// e a nota sugerida para no teto de Hard. `examMode` continua existindo para
+// superfícies de prova, mas a revisão não o usa mais.
+// `activation="hover-hold"`: o valor está dentro de um botão (opção/peça/par);
+// o clique seleciona, e a consulta abre com hover demorado ou segurando.
 function TypedValue({
   value,
   type,
   className = "",
   examMode = false,
+  activation,
 }: {
   value: string;
   type?: ReviewTextType;
   className?: string;
   examMode?: boolean;
+  activation?: MandarinTokenActivation;
 }) {
   const cjk = type === "hanzi" || isHanziText(value);
   if (type === "audio") return <SpeakButton text={value} size="sm" label={catalogT("common.listen")} />;
   if (type === "pinyin") return <Pinyin text={value} className={["font-serif", className].filter(Boolean).join(" ")} />;
-  if (cjk) return <GlossText text={value} className={className} examMode={examMode} />;
+  if (cjk) return <GlossText text={value} className={className} examMode={examMode} activation={activation} />;
   return <span className={[cjk ? "hanzi" : "", className].filter(Boolean).join(" ")}>{formatPinyinForDisplay(value)}</span>;
 }
 
@@ -580,10 +595,15 @@ function ChoiceButton({
         scoredAnswersMatch(option.value, answer) ? "1" : "0"
       }
       aria-label={shortcut ? `Opção ${shortcut}: ${option.label}` : option.label}
-      className={["relative min-h-12 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
+      className={["relative min-h-14 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
     >
       {shortcut && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
-      <TypedValue value={option.label} type={option.type} className={isHanziText(option.label) ? "text-2xl" : ""} examMode={!revealed} />
+      <TypedValue
+        value={option.label}
+        type={option.type}
+        className={isHanziText(option.label) ? "text-3xl leading-tight sm:text-4xl" : ""}
+        activation="hover-hold"
+      />
       {option.detail && revealed && <span className="mt-0.5 block text-xs font-normal opacity-75">{formatPinyinForDisplay(option.detail)}</span>}
     </button>
   );
@@ -627,8 +647,11 @@ function ReviewExercisePanel({
           <TypedValue
             value={exercise.displayText}
             type={exercise.displayType}
-            className={isHanziText(exercise.displayText) ? "text-3xl text-ink" : "text-2xl font-semibold text-ink"}
-            examMode={!revealed}
+            className={
+              isHanziText(exercise.displayText)
+                ? "text-5xl leading-tight text-ink sm:text-6xl"
+                : "text-2xl font-semibold text-ink"
+            }
           />
         </div>
       )}
@@ -752,8 +775,7 @@ function SentenceBuildExercise({
         {selectedPieces.length ? (
           <GlossText
             text={selectedPieces.map((piece) => piece.value).join("")}
-            className="text-2xl font-semibold text-ink"
-            examMode={!revealed}
+            className="text-3xl font-semibold text-ink"
           />
         ) : (
           <span className="text-sm text-ink-faint">{catalogT("review.tapPieces")}</span>
@@ -775,13 +797,13 @@ function SentenceBuildExercise({
                   : piece.value
               }
               className={[
-                "relative min-h-11 rounded-xl border px-4 py-2 text-sm font-semibold transition",
+                "relative min-h-14 rounded-xl border px-4 py-2 text-sm font-semibold transition",
                 used ? "border-line bg-surface-2 text-ink-faint opacity-55" : "border-line bg-surface text-ink hover:border-accent hover:bg-accent-soft",
-                isHanziText(piece.value) ? "text-xl" : "",
+                isHanziText(piece.value) ? "text-2xl sm:text-3xl" : "",
               ].join(" ")}
             >
               {index < 10 && <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>}
-              <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} examMode={!revealed} />
+              <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} activation="hover-hold" />
             </button>
           );
         })}
@@ -880,8 +902,8 @@ function MatchPairsExercise({
                 <TypedValue
                   value={pair.left}
                   type={pair.leftType}
-                  className={isHanziText(pair.left) ? "hanzi text-[26px] leading-tight sm:text-[30px]" : "text-base"}
-                  examMode={!revealed}
+                  className={isHanziText(pair.left) ? "hanzi text-3xl leading-tight sm:text-4xl" : "text-base"}
+                  activation="hover-hold"
                 />
                 {matched && (
                   <span className="flex items-center gap-1 text-xs font-medium text-ink-soft">
@@ -908,7 +930,7 @@ function MatchPairsExercise({
                 onClick={() => onMatchPair(right)}
                 className={[
                   assemblyTileClass({ muted: used }),
-                  "relative flex min-h-12 w-full min-w-0 items-center overflow-hidden text-left text-[15px]",
+                  "relative flex min-h-14 w-full min-w-0 items-center overflow-hidden text-left text-[15px]",
                 ].join(" ")}
               >
                 <ShortcutBadge className="shrink-0">{rightPairShortcut(index)}</ShortcutBadge>
@@ -1231,6 +1253,10 @@ export function RevisaoPage() {
   const requestedMode = reviewModeFromSearch(searchParams.get("modo"));
   const wantsCorrectionSession = searchParams.get("sessao") === "corrigir";
   const moduleUnitId = searchParams.get("modulo") ?? undefined;
+  // RC2.2.8 · F1 — "Treinar este conjunto" do Atlas: a lista vem na URL, os
+  // itens são do MESMO srs. Só entra quem ainda é elegível (aprendido).
+  const atlasStudySet = useMemo(() => parseAtlasStudySet(searchParams), [searchParams]);
+  const learnedCharsForStudySet = useStore((s) => s.learnedChars);
   const moduleUnit = moduleUnitId ? findUnitById(moduleUnitId) : undefined;
   const suggestedModuleId = useMemo(() => latestReviewableModuleId(completedLessons), [completedLessons]);
   const detailedErrorsAccess = canAccessDetailedErrors({ isPremium });
@@ -1245,6 +1271,20 @@ export function RevisaoPage() {
   // reidratar depois do primeiro paint (evita sessão vazia com dados locais).
   const sessionQueueRef = useRef<ReviewQueueEntry[] | null>(null);
   const fullQueue = useMemo(() => {
+    if (atlasStudySet) {
+      if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
+      const learnedSet = new Set(learnedCharsForStudySet);
+      const allowed = new Set(
+        HANZI_ATLAS.filter((atlasItem) => isAtlasItemEligibleForTraining(atlasItem, { completedLessons, learnedSet })).map(
+          reviewCharIdForAtlasItem
+        )
+      );
+      const studyEntries: ReviewQueueEntry[] = atlasStudySetSrsItems(atlasStudySet, srs, allowed, Date.now()).map(
+        (studyItem) => ({ kind: "srs", id: `atlas:${studyItem.id}`, item: studyItem })
+      );
+      sessionQueueRef.current = studyEntries;
+      return studyEntries;
+    }
     const built = buildReviewQueue(srs, detailedErrorsAllowed ? activeActivityErrors : [], {
       includeRecentWeakItems: detailedErrorsAllowed,
     });
@@ -1257,7 +1297,7 @@ export function RevisaoPage() {
       sessionQueueRef.current = scoped;
     }
     return sessionQueueRef.current;
-  }, [activeActivityErrors, completedLessons, detailedErrorsAllowed, moduleUnitId, srs]);
+  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, moduleUnitId, srs]);
   // Modos de revisão: recuperar erros da tentativa/recentes, reforçar itens
   // fracos ou percorrer a fila inteligente inteira. O modo só filtra a fila já
   // congelada — não reconstrói SRS nem duplica nada.
@@ -1361,6 +1401,14 @@ export function RevisaoPage() {
   const [activePairId, setActivePairId] = useState<string | null>(null);
   const [exerciseCorrect, setExerciseCorrect] = useState<boolean | null>(null);
   const [suggestedGrade, setSuggestedGrade] = useState<Grade | null>(null);
+  // RC2.2.8 · D6 — consultou o Hànzì ANTES de responder nesta tentativa.
+  const [reviewAssistanceUsed, setReviewAssistanceUsed] = useState(false);
+  const revealedRef = useRef(false);
+  revealedRef.current = revealed;
+  const markReviewLookup = useCallback(() => {
+    // Consultar depois de responder é estudar o feedback, não assistência.
+    if (!revealedRef.current) setReviewAssistanceUsed(true);
+  }, []);
   const gradedReviewKeysRef = useRef(new Set<string>());
   const exerciseStartedAtRef = useRef(Date.now());
   const continueReviewRef = useRef<() => void>(() => undefined);
@@ -1408,6 +1456,7 @@ export function RevisaoPage() {
     setActivePairId(null);
     setExerciseCorrect(null);
     setSuggestedGrade(null);
+    setReviewAssistanceUsed(false);
     exerciseStartedAtRef.current = Date.now();
   }, [pos, entry?.id, item?.id, exercise?.kind]);
 
@@ -1746,7 +1795,7 @@ export function RevisaoPage() {
     const correct = isExerciseCorrect(activeExercise, selectedOption, selectedPieceIds, pairMatches);
     gradeMatchPairReinforcements(activeExercise, pairMatches);
     setExerciseCorrect(correct);
-    setSuggestedGrade(gradeSuggestion(correct, elapsed));
+    setSuggestedGrade(gradeSuggestion(correct, elapsed, reviewAssistanceUsed));
     setRevealed(true);
     playSoundFx(correct ? "success" : "error", soundEffects);
   }
@@ -1785,7 +1834,10 @@ export function RevisaoPage() {
     if (gradedReviewKeysRef.current.has(reviewKey)) return;
     gradedReviewKeysRef.current.add(reviewKey);
     const isLast = pos + 1 >= queue.length;
-    const effectiveGrade = exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : g;
+    // D6.2/D7 — acerto com consulta é aprendizagem assistida: nunca vale como
+    // recordação independente, então a nota efetiva para no teto de Hard.
+    const effectiveGrade =
+      exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : capAssistedGrade(g, reviewAssistanceUsed);
     const xp = reviewXpForGrade(effectiveGrade);
     const qi = reviewQiForGrade(effectiveGrade);
     const itemLabelText = data?.hanzi ?? itemLabel(item);
@@ -2097,6 +2149,16 @@ export function RevisaoPage() {
                 ? displayInstruction(domainMeta.helper)
                 : t("review.answerCheckNext")}
           </div>
+          {atlasStudySet ? (
+            <div
+              className="mb-3 flex flex-wrap items-center justify-center gap-2 text-xs text-ink-soft"
+              data-review-study-set="atlas"
+              data-review-study-set-size={queue.length}
+            >
+              <Pill tone="accent">{t("review.atlasStudySet", { n: queue.length })}</Pill>
+              {searchParams.get("rotulo") ? <span>{searchParams.get("rotulo")}</span> : null}
+            </div>
+          ) : null}
           <div className="mb-4 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint">
             {correctionDrill ? t("review.taskOf", { label: displayInstruction(domainMeta.shortLabel) }) : t("review.reviewOf", { label: describeNextDue(item) === "agora" ? t("review.dueNow") : describeNextDue(item) })} ·{" "}
             {activeExercise.fallback ? t("review.fallbackFlashcard") : t("review.activeTask")}
@@ -2122,6 +2184,11 @@ export function RevisaoPage() {
             />
           ) : (
           <>
+          <GlossLookupProvider onLookup={markReviewLookup} atlasLink>
+          <div
+            data-review-lookup="enabled"
+            data-review-assistance-used={reviewAssistanceUsed ? "true" : "false"}
+          >
           <ReviewExercisePanel
             exercise={activeExercise}
             selectedOption={selectedOption}
@@ -2135,6 +2202,13 @@ export function RevisaoPage() {
             onSetActivePair={setActivePairId}
             onMatchPair={matchActivePair}
           />
+          {reviewAssistanceUsed && !revealed ? (
+            <p className="mt-2 text-center text-xs text-ink-faint" data-review-assistance-note>
+              {t("review.assistedNote")}
+            </p>
+          ) : null}
+          </div>
+          </GlossLookupProvider>
 
           {revealed ? (
             <>
@@ -2175,6 +2249,8 @@ export function RevisaoPage() {
                           key={g}
                           variant={variant}
                           size="sm"
+                          disabled={capAssistedGrade(g, reviewAssistanceUsed) !== g}
+                          data-review-grade={g}
                           className={[
                             "h-auto min-h-12 flex-col gap-0.5 py-2",
                             suggestedGrade === g ? "ring-2 ring-accent ring-offset-2 ring-offset-[rgb(var(--surface))]" : "",

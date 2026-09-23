@@ -1,3 +1,4 @@
+import { isDevLocalAuthAllowed } from "../../lib/auth/localAuthPolicy";
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { DOMAIN_META, type DomainTrack } from "../../data/domains";
@@ -1426,30 +1427,12 @@ function getAccountStatus(authMode: AuthMode): {
 }
 
 function cloudSyncBanner(sync: CloudSyncState): { className: string; label: string } | null {
-  switch (sync.status) {
-    case "loading":
-      return {
-        className: "rounded-2xl border border-accent/20 bg-accent/10 px-4 py-4 text-sm font-medium text-ink",
-        label: displayInstruction(sync.message || "Carregando progresso da nuvem..."),
-      };
-    case "synced":
-      return {
-        className: "rounded-2xl border border-good/25 bg-good-soft px-4 py-4 text-sm font-medium text-ink",
-        label: displayInstruction(sync.message || "Progresso sincronizado"),
-      };
-    case "pending":
-      return {
-        className: "rounded-2xl border border-gold/25 bg-gold-soft px-4 py-4 text-sm font-medium text-ink",
-        label: displayInstruction(sync.message || "Sincronização pendente"),
-      };
-    case "error":
-      return {
-        className: "rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-4 text-sm font-medium text-ink",
-        label: displayInstruction(sync.message || "Erro ao sincronizar — seu progresso local está seguro"),
-      };
-    default:
-      return null;
-  }
+  // RC2.2.8 · C — rotina (pending/loading/synced) é silenciosa; só erro vira faixa.
+  if (sync.status !== "error") return null;
+  return {
+    className: "rounded-2xl border border-wrong/25 bg-wrong-soft px-4 py-4 text-sm font-medium text-ink",
+    label: displayInstruction(sync.message || "Erro ao sincronizar — seu progresso local está seguro"),
+  };
 }
 
 import { getAccountFreeBenefitLines, getAccountProBenefitLines } from "../../data/planFeatures";
@@ -1924,6 +1907,8 @@ export function AccountPage() {
   }
 
   function handleSkipAccount() {
+    // RC2.2.8 · J3.2 — "continuar sem conta" só existe em DEV/E2E.
+    if (!isDevLocalAuthAllowed()) return;
     if (isFinishingOnboarding || name.trim().length < 2) return;
     setIsFinishingOnboarding(true);
     // Conta é opcional: segue como perfil local neste dispositivo, com o nome informado.
@@ -1994,6 +1979,7 @@ export function AccountPage() {
 
   function handleCreateProfile(event: FormEvent) {
     event.preventDefault();
+    if (!isDevLocalAuthAllowed()) return;
     if (newProfileName.trim().length < 2) return;
     createAccount(newProfileName);
     setNewProfileName("");
@@ -2953,6 +2939,10 @@ export function AccountPage() {
         <Card className="border-line/80 p-5 sm:p-6">
           <h3 className="font-serif text-lg font-semibold text-ink">{t("hub.localProfilesHere")}</h3>
           <p className="mt-1 text-sm text-ink-soft">Cada perfil guarda progresso local separado.</p>
+          {/* RC2.2.8 · J3.1 — perfil local é LEGACY_ONLY. Criar um novo só existe
+              em DEV/E2E (VITE_DEV_ALLOW_LOCAL_AUTH); em produção e QA Candidate
+              a conta de aprendizagem exige email. */}
+          {isDevLocalAuthAllowed() ? (
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <form className="flex-1" onSubmit={handleCreateProfile} id="longyu-local-account-form">
               <label className="block">
@@ -2971,6 +2961,7 @@ export function AccountPage() {
               Criar perfil local
             </Button>
           </div>
+          ) : null}
 
           <div className="mt-4 grid gap-2">
             {accountList.map((account) => (

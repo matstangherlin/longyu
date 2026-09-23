@@ -22,6 +22,7 @@ import { ErrorBoundary } from "../system/ErrorBoundary";
 import { QaTestStateBanner } from "../qa/QaTestStateBanner";
 import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
+import { CultureSealRevealWatcher } from "../../features/culture/CultureSealReveal";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
@@ -118,6 +119,7 @@ export function AppShell() {
       <EntitlementBootstrap />
       <TelemetryConsentBootstrap />
       <EconomyBootstrap />
+      <CultureSealRevealWatcher suspended={focusMode} />
       <AchievementsWatcher />
       <StreakWatcher />
       <StreakRecoveryWatcher />

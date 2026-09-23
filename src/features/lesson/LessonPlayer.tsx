@@ -100,6 +100,10 @@ import {
 } from "../../services/referralLearningAttestation";
 import { IconCheck, IconChevron, IconFlame, IconLock, IconRefresh, IconShield, IconSound, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { Pinyin } from "../../components/hanzi/Pinyin";
+import { GlossText } from "../../components/hanzi/GlossText";
+import { GlossLookupProvider } from "../../components/hanzi/helpMode";
+import { capAssistedGrade } from "../../lib/reviewLookup";
+import type { Grade } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionRegionProvider } from "./LessonActionRegion";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
@@ -1176,7 +1180,7 @@ function ErrorReviewQuestion({
   /** 1 = item planejado · 2 = retry atrasado do mesmo conhecimento (P1.4). */
   occurrence?: 1 | 2;
   canRecover: boolean;
-  onCorrect: (error: ActivityError) => void;
+  onCorrect: (error: ActivityError, meta?: { assisted?: boolean }) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onNext: () => void;
   /** P2.2 — sair da revisão é sempre possível; ela não é uma prisão. */
@@ -1202,6 +1206,10 @@ function ErrorReviewQuestion({
   const feedbackAudioPlayedRef = useRef(new Set<string>());
   const [usedHints, setUsedHints] = useState<HelpAffordance[]>([]);
   const [revealed, setRevealed] = useState(false);
+  // RC2.2.8 · D8 — a remediação da Jornada também permite consultar o Hànzì.
+  // Consultar antes de responder = aprendizagem assistida (não recordação
+  // independente): o acerto corrige o erro, mas o SRS recebe Hard, não Good.
+  const [reviewAssistanceUsed, setReviewAssistanceUsed] = useState(false);
 
   // P8 — quando a integridade falha, o diagnóstico sai para quem investiga; o
   // aluno só vê que aquela correção não está disponível.
@@ -1375,7 +1383,7 @@ function ErrorReviewQuestion({
     setSelected(option.id);
     const correct = optionSet ? evaluateCanonicalChoice(option.id, optionSet) : false;
     setFeedback(correct ? "correct" : "wrong");
-    if (correct) onCorrect(error);
+    if (correct) onCorrect(error, { assisted: reviewAssistanceUsed });
     else onNeedsMoreReview(error);
   }
 
@@ -1386,7 +1394,7 @@ function ErrorReviewQuestion({
       answeredRef.current = true;
       setFeedback("correct");
       setAssemblyHint(null);
-      onCorrect(error);
+      onCorrect(error, { assisted: reviewAssistanceUsed });
       return;
     }
     const hint = buildAssemblyFeedback({
@@ -1441,6 +1449,8 @@ function ErrorReviewQuestion({
       data-review-occurrence={occurrence ?? 1}
       data-review-integrity={integrityOk ? "ok" : "blocked"}
       data-review-mode={canRecover ? (isLastItem ? "last_chance" : "recovery") : "review"}
+      data-review-lookup="enabled"
+      data-review-assistance-used={reviewAssistanceUsed ? "true" : "false"}
     >
       <div className="flex flex-wrap items-center justify-between gap-2" data-review-progress>
         <div className="inline-flex rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
@@ -1509,8 +1519,21 @@ function ErrorReviewQuestion({
            humano viu no card de 请问. */
         <section className="mt-4 rounded-2xl border border-line bg-surface-2 p-4 text-center" data-review-stimulus>
           {displayIsHanzi ? (
-            <div className="hanzi text-4xl text-ink" data-review-display>
-              {exercise.display}
+            <div className="text-5xl leading-tight text-ink sm:text-6xl" data-review-display>
+              {/* P5 preservado: em escuta/tom/pinyin o alvo escrito não ganha
+                  consulta antes da resposta (entregaria o áudio). */}
+              {pinyinWouldCueAnswer && !answered ? (
+                <span className="hanzi">{exercise.display}</span>
+              ) : (
+                <GlossLookupProvider
+                  atlasLink
+                  onLookup={() => {
+                    if (!answeredRef.current) setReviewAssistanceUsed(true);
+                  }}
+                >
+                  <GlossText text={exercise.display ?? ""} />
+                </GlossLookupProvider>
+              )}
             </div>
           ) : (
             <div className="mt-0 text-base font-medium leading-6 text-ink" data-review-display>
@@ -1764,7 +1787,7 @@ function ImmediateErrorReviewSession({
 }: {
   errors: ActivityError[];
   canRecover: boolean;
-  onCorrect: (error: ActivityError) => void;
+  onCorrect: (error: ActivityError, meta?: { assisted?: boolean }) => void;
   onNeedsMoreReview: (error: ActivityError) => void;
   onDone: (outcome: { unresolvedLogicalIds: string[]; aborted: boolean }) => void;
 }) {
@@ -1839,9 +1862,9 @@ function ImmediateErrorReviewSession({
         total={progress.total}
         occurrence={item.occurrence}
         canRecover={canRecover}
-        onCorrect={(activityError) => {
+        onCorrect={(activityError, meta) => {
           setSession((state) => answerReviewItem(state, { reviewItemId: item.reviewItemId, correct: true }));
-          onCorrect(activityError);
+          onCorrect(activityError, meta);
         }}
         onNeedsMoreReview={(activityError) => {
           // P1.2 — errar NUNCA cria uma revisão dentro da revisão. No máximo um
@@ -2933,7 +2956,7 @@ export function LessonPlayer() {
     return error;
   }
 
-  function gradeErrorTargets(error: ActivityError, grade: "again" | "good") {
+  function gradeErrorTargets(error: ActivityError, grade: Grade) {
     if (lesson.lessonDomain === "culture") return;
     for (const target of error.targets) {
       gradeReviewDomain({
@@ -2992,13 +3015,15 @@ export function LessonPlayer() {
     playSoundFx("lessonComplete", soundEffects);
   }
 
-  function markErrorCorrected(error: ActivityError) {
+  function markErrorCorrected(error: ActivityError, meta?: { assisted?: boolean }) {
     if (correctedErrorIds.includes(error.id)) return;
     const nextCorrected = [...correctedErrorIds, error.id];
     setCorrectedErrorIds(nextCorrected);
     markActivityErrorCorrected(error.id);
     markMistakeRecovered(error.id);
-    gradeErrorTargets(error, "good");
+    // RC2.2.8 · D6.2 — com consulta, corrige (é aprendizagem), mas não conta
+    // como recordação independente: Hard em vez de Good.
+    gradeErrorTargets(error, capAssistedGrade("good", Boolean(meta?.assisted)));
     recordDailyTask("reviewsDone");
     recordDailyTask("errorsCorrected");
     playSoundFx("success", soundEffects);
