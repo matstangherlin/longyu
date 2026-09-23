@@ -34,7 +34,7 @@ assert.equal(beta.FEATURE_FREEZE, "PUBLIC_BETA");
 assert.equal(freeze.CURRICULUM_FREEZE, "RC2_CONTENT_FREEZE");
 
 const fp = journeyFingerprint(root);
-assert.equal(fp, "a4ca4594a2e5", `fingerprint drift: ${fp}`);
+assert.equal(fp, "49bd51b6a6a5", `fingerprint drift: ${fp}`);
 assert.equal(freeze.RC_BASE_FINGERPRINT, fp);
 
 const teaching = ALL_LESSONS.filter((l) => !l.isReview && !l.reviewMasteryMode).length;
@@ -53,7 +53,7 @@ const manifest = JSON.parse(
   fs.readFileSync(path.join(root, "docs/release/public-beta-core.json"), "utf8")
 );
 assert.equal(manifest.featureFreeze, "PUBLIC_BETA");
-assert.equal(manifest.fingerprint, "a4ca4594a2e5");
+assert.equal(manifest.fingerprint, "49bd51b6a6a5");
 
 console.log(
   `PASS validate:public-beta-feature-freeze — FEATURE_FREEZE=${freeze.FEATURE_FREEZE} · fp ${fp}`

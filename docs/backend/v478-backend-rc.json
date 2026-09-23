@@ -5,7 +5,7 @@
   "remessa_status": "READY_FOR_CONTROLLED_UPGRADE",
   "main_sha_at_freeze": "0f2dfe453a10902449adaa262748d368839dce3a",
   "v477_head": "1823d7d6a96c021eb7a55a5c94cf480ce4590a1d",
-  "journey_fingerprint": "a4ca4594a2e5",
+  "journey_fingerprint": "49bd51b6a6a5",
   "placement_version": 2,
   "migration_chain_sha256": "d15c77418972cdc3c422967e8adb5dbd45e9d3220378c85159cec718160ffee6",
   "migration_manifest_sha256": "0591f160b1a4076ea503fe58a04c38afee1bc2047725abf5eaf924fdd4a3b727",

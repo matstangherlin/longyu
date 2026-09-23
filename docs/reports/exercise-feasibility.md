@@ -6,17 +6,17 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | dcb3f96e9298 |
-| HEAD no instante da geração | 700aa83264cee8429313ad0e52881e90b09fa2e8 |
+| Hash da Jornada | a4ca4594a2e5 |
+| HEAD no instante da geração | a38dcba97159734610ccae9ee2e26effafadcb11 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-23T22:18:16.376Z |
+| Gerado em | 2026-09-23T23:39:20.969Z |
 | Lições | 134 |
 
 
 Auditoria do plano real (`lessonRoundStepsFor`) × pass de mastery. Meta: invalid = 0, mismatch = 0, leak = 0, IME-only = 0, dead screen = 0.
 
-**Resultado: FAIL**
+**Resultado: PASS**
 
 ## Totais
 
@@ -27,20 +27,14 @@ Auditoria do plano real (`lessonRoundStepsFor`) × pass de mastery. Meta: invali
 | passive | 429 |
 | intentional reflection | 0 |
 | invalid interaction | 0 |
-| instruction mismatch | 1 |
+| instruction mismatch | 0 |
 | answer leak | 0 |
 | IME-only block | 0 |
 | dead screen | 0 |
-
-## Falhas
-
-| lesson | pass | # | kind | title | issues |
-|---|---:|---:|---|---|---|
-| l28 | 3 | 10 | sentence_build | Diga que não gosta | instruction_mismatch |
 
 ## Fundação (Mandarim / Pinyin / Tom / Hànzì)
 
 Cada pass precisa de topic fidelity DIRECT ≥ 70% **e** feasibility = 0 falhas.
 
-<!-- integridade:33a0db45002d04b0 -->
+<!-- integridade:2c611e39c3939abf -->
 

@@ -2428,12 +2428,12 @@ Cenas: 52.
 
 ### caminho-7
 
-- NPC_UTTERANCE: 地铁站在那里。
-- MEANING: A estação fica ali.
+- NPC_UTTERANCE: 地铁站在左边。
+- MEANING: A estação fica à esquerda.
 - PROMPT: Agradeça pela ajuda.
 - EXPECTED_RESPONSE: 谢谢！
 - ACCEPTS: (none)
 - NEXT_TURN: 不客气！
-- REPAIR: 地铁站在那里。请再说一遍？
+- REPAIR: 地铁站在左边。请再说一遍？
 - speechAct: (undeclared) → (undeclared) (no repairType)
 - CLASS: OK

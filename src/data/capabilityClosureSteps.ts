@@ -201,14 +201,14 @@ export const CAPABILITY_CLOSURE_STEPS: readonly CapabilityClosureEntry[] = [
   },
   {
     lessonId: "l26b",
-    passes: [2],
+    passes: [1],
     capabilityIds: ["order_food"],
     reason: "ensino de 肉 (cobrado depois em opções e transferências)",
     step: flashcard("woyaorou"),
   },
   {
     lessonId: "l26b",
-    passes: [2],
+    passes: [1],
     capabilityIds: ["order_food"],
     reason: "ensino de 鱼 (cobrado depois em 我想吃鱼)",
     step: flashcard("woyaoyu"),
@@ -436,14 +436,14 @@ export const CAPABILITY_CLOSURE_STEPS: readonly CapabilityClosureEntry[] = [
   },
   {
     lessonId: "p6-horarios",
-    passes: [2],
+    passes: [1],
     capabilityIds: ["weather_smalltalk"],
     reason: "ensino de 天气很热 onde o ciclo lexical o declara",
     step: flashcard("tianqihenre"),
   },
   {
     lessonId: "p6-horarios",
-    passes: [2],
+    passes: [1],
     capabilityIds: ["weather_smalltalk"],
     reason: "ensino de 天气很冷 onde o ciclo lexical o declara",
     step: flashcard("tianqihenleng"),

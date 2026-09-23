@@ -19,7 +19,7 @@ Instruções externas: [`docs/release/beta-tester-instructions.md`](./release/be
 | --- | --- |
 | FEATURE_FREEZE | `PUBLIC_BETA` |
 | CURRICULUM_FREEZE | `RC2_CONTENT_FREEZE` |
-| Fingerprint | `a4ca4594a2e5` |
+| Fingerprint | `49bd51b6a6a5` |
 | Lessons / topics | 134 / 113 |
 | CultureItems / Native / Journey nodes | 30 / 30 / 20 |
 | Cloud candidate | `BLOCKED_CREDENTIALS` → **DEFERRED_UNTIL_QA_CANDIDATE** |

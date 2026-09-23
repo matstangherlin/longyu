@@ -138,7 +138,7 @@ dimensão ausente.
 
 ## Fingerprint
 
-`327de1df0f33` → `a4ca4594a2e5`.
+`327de1df0f33` → `49bd51b6a6a5`.
 
 Mudaram `src/data/conversationScenes.ts` (duas cenas),
 `src/features/lesson/lessonTasks.ts` (ponto único que aplica os passos de
@@ -165,7 +165,7 @@ pelo validator; nada preenchido à mão).
 `src/lib/curriculumFreeze.ts` registra: 134 lições · 113 teaching topics · 30
 CultureItems · 30 Culture Native Lessons · 20 Journey Culture nodes · 5 Culture
 Moments · 12 Tone Transfers jogáveis · 31/31 capacidades READY em runtime
-(11 estrito + 20 presença) · fingerprint `a4ca4594a2e5`, além da lista de
+(11 estrito + 20 presença) · fingerprint `49bd51b6a6a5`, além da lista de
 módulos de progressão/economia/SRS/desafio/conquista, dos exports da economia e
 das features públicas de `featureTruth.ts`. Bloqueia sem atualização explícita:
 lição, tópico, CultureItem, sistema de progressão, moeda, SRS, motor de
@@ -176,7 +176,7 @@ release, correções de QA, copy.
 ## Evidência por capacidade
 
 <!-- evidencia:inicio -->
-Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `a4ca4594a2e5` · base `700aa83264ce`.
+Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `49bd51b6a6a5` · base `700aa83264ce`.
 
 Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato estrito.
 
@@ -210,12 +210,12 @@ Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato est
 | Lexical evidence | 5/5 chunks ensinados antes de cobrados · 7/7 palavras (我要米饭, 我想吃米饭, 不要辣, 服务员！, 菜单) |
 | Structural evidence | 我要… → ensino l26b·M1, produção l26b·M3, uso l26b·M1; 我想吃… → ensino l26b·M1, produção l26c·M1, uso l26b·M1; 不要辣 → ensino l26b·M1, produção l26b·M3, uso l26b·M4 |
 | Productive task | l26b · M3 · passo 10 · sentence_build — 我要米饭不要辣 (17 no total) |
-| Listening task | l26b · M2 · passo 11 · audio_to_action — 不要辣 (5 no total) |
+| Listening task | l26b · M2 · passo 9 · audio_to_action — 不要辣 (5 no total) |
 | Conversation scene | l26b · M1 · passo 2 · conversation_scene · cena pedir-cardapio/cardapio-3 — 我要菜单 (26 turnos) |
 | Transfer task | l26c · M1 · passo 8 · conversation_scene · cena imersao-restaurante — 服务员 (17 no total) |
 | Reachable | sim — todos os passos vêm de lessonRoundStepsFor na Jornada normal |
 | First teach position | l26b · M1 · passo 2 · conversation_scene · cena pedir-cardapio — 我要米饭 |
-| First test position | l26b · M2 · passo 11 · audio_to_action — 不要辣 |
+| First test position | l26b · M2 · passo 9 · audio_to_action — 不要辣 |
 | Final verdict | **READY** |
 
 #### order_drink — Pedir bebida

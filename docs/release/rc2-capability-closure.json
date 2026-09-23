@@ -3,7 +3,7 @@
   "generatedBy": "npm run validate:capability-runtime-evidence",
   "baseMainSha": "700aa83264cee8429313ad0e52881e90b09fa2e8",
   "fingerprintBefore": "327de1df0f33",
-  "fingerprint": "a4ca4594a2e5",
+  "fingerprint": "49bd51b6a6a5",
   "contract": {
     "strict": "RC2.2.9 closure: lexical=1, structural=1, productive/listening/conversation/transfer com evidência de runtime",
     "presence": "READY anteriores: nenhuma dimensão ausente em runtime; todo chunk exigido chega ao aluno"
@@ -3046,7 +3046,7 @@
         "lessonId": "l26b",
         "lessonIndex": 105,
         "pass": 2,
-        "step": 11,
+        "step": 9,
         "kind": "audio_to_action",
         "text": "不要辣"
       },
@@ -3111,7 +3111,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 2,
-              "step": 11,
+              "step": 9,
               "kind": "audio_to_action",
               "text": "不要辣"
             }
@@ -3280,7 +3280,7 @@
             "lessonId": "l26b",
             "lessonIndex": 105,
             "pass": 2,
-            "step": 11,
+            "step": 9,
             "kind": "audio_to_action",
             "text": "不要辣"
           },
@@ -8363,8 +8363,8 @@
       "firstTeach": {
         "lessonId": "p6-horarios",
         "lessonIndex": 115,
-        "pass": 2,
-        "step": 8,
+        "pass": 1,
+        "step": 13,
         "kind": "flashcard",
         "text": "天气很热"
       },
@@ -8407,8 +8407,8 @@
             "firstTeach": {
               "lessonId": "p6-horarios",
               "lessonIndex": 115,
-              "pass": 2,
-              "step": 8,
+              "pass": 1,
+              "step": 13,
               "kind": "flashcard",
               "text": "天气很热"
             },
@@ -8428,8 +8428,8 @@
             "firstTeach": {
               "lessonId": "p6-horarios",
               "lessonIndex": 115,
-              "pass": 2,
-              "step": 9,
+              "pass": 1,
+              "step": 14,
               "kind": "flashcard",
               "text": "天气很冷"
             },
@@ -8545,8 +8545,8 @@
             "teach": {
               "lessonId": "p6-horarios",
               "lessonIndex": 115,
-              "pass": 2,
-              "step": 8,
+              "pass": 1,
+              "step": 13,
               "kind": "flashcard",
               "text": "天气很热"
             },

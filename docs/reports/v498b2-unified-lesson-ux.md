@@ -10,11 +10,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 9bfc17237f59ca321194fe84870a481e35b16cb2 |
+| Hash da Jornada | a4ca4594a2e5 |
+| HEAD no instante da geração | a38dcba97159734610ccae9ee2e26effafadcb11 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T09:31:39.708Z |
+| Gerado em | 2026-09-23T23:08:03.291Z |
 | Lições | 134 |
 
 ## Base
@@ -24,7 +24,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | SHA obrigatória (`main` após merge #250) | `ddc08aa57a7dad11a1033b3611e63618fd786a57` |
 | #250 | V4.9.8B.1 — Conversation phrase builder + Hanzi fill + lexical bridge |
 | Branch | `cursor/v498b2-unified-lesson-ux-6ae2` |
-| Fingerprint da Jornada | `327de1df0f33` |
+| Fingerprint da Jornada | `a4ca4594a2e5` |
 | Tópicos de ensino | 113 (imersões continuam `isReview` + `curriculumRole: "immersion"`) |
 
 ## O que esta remessa não faz
@@ -108,4 +108,4 @@ Preservados (#250 e anteriores): conversation-lexical-bridge, production-scaffol
 
 
 
-<!-- integridade:f2f8173ecdf1d3dc -->
+<!-- integridade:ca583d58462d48c7 -->

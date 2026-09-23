@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 14dd75fd2b6dad5d8ef4c60df4ce2ff232cc0660 |
-| Árvore de trabalho | limpa |
+| Hash da Jornada | a4ca4594a2e5 |
+| HEAD no instante da geração | a38dcba97159734610ccae9ee2e26effafadcb11 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T09:54:09.308Z |
+| Gerado em | 2026-09-23T23:38:00.595Z |
 | Lições | 134 |
 
 
@@ -30,8 +30,8 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 | Exceções (review/checkpoint) | 21 |
 | Specs autoradas | 38 |
 | Sessões estimadas | 473 |
-| Horas estimadas | 21.3 |
-| Média de passos/pass | 8.2 |
+| Horas estimadas | 21.5 |
+| Média de passos/pass | 8.3 |
 
 ## Primeira vitória (sessão + minutos)
 
@@ -109,12 +109,14 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 - p1-primeiros-hanzi M4: 14 passos (alvo 6–9)
 - l18 M4: 3 passos (alvo 6–9)
+- p6-cidade-lugares M1: 14 passos (alvo 5–8)
 - p6-china-ruas M1: 14 passos (alvo 5–8)
 - p6-direcoes M1: 14 passos (alvo 5–8)
 - p7-imersao-estacao M1: 14 passos (alvo 5–8)
+- p7-imersao-estacao M2: 13 passos (alvo 6–8)
 
 ## Falhas
 
 Nenhuma.
 
-<!-- integridade:74111ce004535649 -->
+<!-- integridade:d855b10c92c0c507 -->
