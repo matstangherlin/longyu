@@ -85,7 +85,7 @@ export function PhaseChallengePage() {
   useEffect(() => {
     if (!target) return;
     for (const attempt of useStore.getState().phaseChallengeAttempts ?? []) {
-      if (attempt.targetPhaseId === target.phase.id && !attempt.finishedAt) {
+      if (attempt.targetPhaseId === target.phase.id && attempt.finishedAt == null) {
         finishAttempt(attempt.id, false, []);
       }
     }

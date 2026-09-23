@@ -328,7 +328,7 @@ export function applyPhaseChallengeResult(
 ): Partial<PhaseChallengeLedger> | null {
   const attempts = state.phaseChallengeAttempts ?? [];
   const attempt = attempts.find((candidate) => candidate.id === input.attemptId);
-  if (!attempt || attempt.finishedAt) return null;
+  if (!attempt || attempt.finishedAt != null) return null;
   const finished: PhaseChallengeAttempt = { ...attempt, finishedAt: input.now, passed: input.passed };
   const phaseChallengeAttempts = attempts.map((candidate) => (candidate.id === attempt.id ? finished : candidate));
   if (input.passed) return { phaseChallengeAttempts };
@@ -354,7 +354,7 @@ export function mergePhaseChallengeState(
   for (const attempt of [...(remote.phaseChallengeAttempts ?? []), ...(local.phaseChallengeAttempts ?? [])]) {
     const previous = byId.get(attempt.id);
     // Uma tentativa finalizada vence a mesma tentativa ainda aberta.
-    if (!previous || (!previous.finishedAt && attempt.finishedAt)) byId.set(attempt.id, attempt);
+    if (!previous || (previous.finishedAt == null && attempt.finishedAt != null)) byId.set(attempt.id, attempt);
   }
   return {
     phaseChallengeCooldowns: cooldowns,
