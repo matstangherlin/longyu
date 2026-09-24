@@ -68,7 +68,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * existe mais. Congelar identidade é registrar o que mudou, não fingir que
  * nada mudou.
  *
- * RC2.2.9 avançou 327de1df0f33 → 49bd51b6a6a5.
+ * RC2.2.9 avançou 327de1df0f33 → c48b008c9c1e.
  *
  * Mudaram `src/data/conversationScenes.ts` (duas cenas dedicadas:
  * gostos-na-casa, perguntar-o-caminho), `src/features/lesson/lessonTasks.ts`
@@ -78,7 +78,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * passos apontam para chunks que já estavam no registry e que o ciclo lexical
  * já declarava, mas que o planner nunca entregava ao aluno.
  */
-export const RC_BASE_FINGERPRINT = "49bd51b6a6a5";
+export const RC_BASE_FINGERPRINT = "c48b008c9c1e";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

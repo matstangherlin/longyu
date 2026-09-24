@@ -117,17 +117,20 @@ function scene(sceneId: string): LessonStep {
 }
 
 export const CAPABILITY_CLOSURE_STEPS: readonly CapabilityClosureEntry[] = [
-  // ——— ask_for_help: o ciclo lexical introduz 我需要帮助 em l4; o runtime só
-  // cobrava a frase em p6-survival-mandarin (M4), antes de qualquer ensino.
+  // ——— ask_for_help: o runtime só cobrava 我需要帮助 em p6-survival-mandarin
+  // (M4), antes de qualquer ensino. O ciclo lexical o declara em l4, mas l4 está
+  // na entrada (primeiras 20 lições), cujo ritmo é travado por
+  // validate:onboarding-pace; entra em l11, a lição de reparo de comunicação —
+  // pedir ajuda é a estratégia seguinte a "não falo chinês".
   {
-    lessonId: "l4",
+    lessonId: "l11",
     passes: [1],
     capabilityIds: ["ask_for_help"],
-    reason: "ensino de 我需要帮助 onde o ciclo lexical o declara (antes: cobrado sem ensino)",
+    reason: "ensino de 我需要帮助 antes da cobrança (antes: cobrado sem ensino)",
     step: flashcard("woxuyaobangzhu"),
   },
   {
-    lessonId: "l4",
+    lessonId: "l11",
     passes: [2],
     capabilityIds: ["ask_for_help"],
     reason: "escuta: entender um pedido de ajuda pelo áudio",

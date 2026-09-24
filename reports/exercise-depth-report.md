@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
-| Árvore de trabalho | limpa |
+| Hash da Jornada | 49bd51b6a6a5 |
+| HEAD no instante da geração | 9e3f8426ac1be5e3b085d7c76c459cd75df18c89 |
+| Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T11:16:01.211Z |
+| Gerado em | 2026-09-24T00:46:56.380Z |
 | Lições | 134 |
 
 ## Resumo
@@ -687,20 +687,20 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 28 |
-| Tipos de exercício | 10 |
-| Respostas únicas | 10 |
+| Passos no plano | 30 |
+| Tipos de exercício | 11 |
+| Respostas únicas | 12 |
 | Hànzì únicos | 40 |
 | Chunks únicos | 18 |
-| Frases reais | 6 |
-| Contexto | 8 |
+| Frases reais | 7 |
+| Contexto | 9 |
 | Visuais | 3 |
 | Conversas | 1 |
 | Produção sem apoio | 0 |
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 这, 是, 我
+- hànzì muito repetido: 是, 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -775,9 +775,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 28 |
-| Tipos de exercício | 12 |
-| Respostas únicas | 10 |
+| Passos no plano | 30 |
+| Tipos de exercício | 13 |
+| Respostas únicas | 11 |
 | Hànzì únicos | 29 |
 | Chunks únicos | 13 |
 | Frases reais | 7 |
@@ -819,10 +819,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 9 |
-| Tipos de exercício | 7 |
-| Respostas únicas | 5 |
-| Hànzì únicos | 17 |
+| Passos no plano | 11 |
+| Tipos de exercício | 8 |
+| Respostas únicas | 7 |
+| Hànzì únicos | 22 |
 | Chunks únicos | 14 |
 | Frases reais | 5 |
 | Contexto | 5 |
@@ -832,7 +832,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 你, 好, 天, 我, 很
+- hànzì muito repetido: 好, 天, 我, 很
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1281,9 +1281,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 17 |
-| Tipos de exercício | 14 |
-| Respostas únicas | 15 |
+| Passos no plano | 18 |
+| Tipos de exercício | 15 |
+| Respostas únicas | 16 |
 | Hànzì únicos | 42 |
 | Chunks únicos | 23 |
 | Frases reais | 9 |
@@ -1413,7 +1413,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 32 |
+| Passos no plano | 36 |
 | Tipos de exercício | 13 |
 | Respostas únicas | 14 |
 | Hànzì únicos | 27 |
@@ -1449,28 +1449,6 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 **Problemas:**
 - hànzì muito repetido: 我
-
-**Sugestões:**
-- reutilizar vocabulário antigo em frases novas, não só reconhecimento
-
-### l4 — Obrigado (score 99)
-
-| Métrica | Valor |
-|---------|------:|
-| Passos no plano | 16 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 10 |
-| Hànzì únicos | 17 |
-| Chunks únicos | 6 |
-| Frases reais | 7 |
-| Contexto | 10 |
-| Visuais | 2 |
-| Conversas | 1 |
-| Produção sem apoio | 1 |
-| Transferência | 0 |
-
-**Problemas:**
-- hànzì muito repetido: 你
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -1606,6 +1584,28 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
+
+### l4 — Obrigado (score 100)
+
+| Métrica | Valor |
+|---------|------:|
+| Passos no plano | 18 |
+| Tipos de exercício | 13 |
+| Respostas únicas | 11 |
+| Hànzì únicos | 21 |
+| Chunks únicos | 6 |
+| Frases reais | 7 |
+| Contexto | 10 |
+| Visuais | 2 |
+| Conversas | 1 |
+| Produção sem apoio | 1 |
+| Transferência | 0 |
+
+**Problemas:**
+- (nenhum crítico)
+
+**Sugestões:**
+- manter variedade atual
 
 ### p1-ate-logo — Até logo (score 100)
 
@@ -1765,8 +1765,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 17 |
-| Tipos de exercício | 12 |
+| Passos no plano | 18 |
+| Tipos de exercício | 13 |
 | Respostas únicas | 12 |
 | Hànzì únicos | 29 |
 | Chunks únicos | 7 |
@@ -1778,7 +1778,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Transferência | 0 |
 
 **Problemas:**
-- hànzì muito repetido: 我, 好, 请
+- hànzì muito repetido: 我
 
 **Sugestões:**
 - reutilizar vocabulário antigo em frases novas, não só reconhecimento
@@ -2535,13 +2535,13 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 26 |
-| Tipos de exercício | 15 |
-| Respostas únicas | 17 |
-| Hànzì únicos | 37 |
+| Passos no plano | 35 |
+| Tipos de exercício | 18 |
+| Respostas únicas | 20 |
+| Hànzì únicos | 38 |
 | Chunks únicos | 34 |
-| Frases reais | 10 |
-| Contexto | 10 |
+| Frases reais | 11 |
+| Contexto | 11 |
 | Visuais | 9 |
 | Conversas | 1 |
 | Produção sem apoio | 4 |
@@ -2579,13 +2579,13 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 17 |
-| Tipos de exercício | 12 |
-| Respostas únicas | 14 |
-| Hànzì únicos | 36 |
+| Passos no plano | 24 |
+| Tipos de exercício | 15 |
+| Respostas únicas | 16 |
+| Hànzì únicos | 39 |
 | Chunks únicos | 10 |
-| Frases reais | 11 |
-| Contexto | 13 |
+| Frases reais | 12 |
+| Contexto | 14 |
 | Visuais | 2 |
 | Conversas | 1 |
 | Produção sem apoio | 5 |
@@ -2601,15 +2601,15 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 16 |
-| Tipos de exercício | 11 |
-| Respostas únicas | 13 |
-| Hànzì únicos | 31 |
-| Chunks únicos | 9 |
-| Frases reais | 11 |
-| Contexto | 12 |
+| Passos no plano | 22 |
+| Tipos de exercício | 14 |
+| Respostas únicas | 15 |
+| Hànzì únicos | 43 |
+| Chunks únicos | 18 |
+| Frases reais | 14 |
+| Contexto | 15 |
 | Visuais | 1 |
-| Conversas | 2 |
+| Conversas | 3 |
 | Produção sem apoio | 4 |
 | Transferência | 1 |
 
@@ -2623,8 +2623,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 21 |
-| Tipos de exercício | 13 |
+| Passos no plano | 24 |
+| Tipos de exercício | 14 |
 | Respostas únicas | 14 |
 | Hànzì únicos | 45 |
 | Chunks únicos | 16 |
@@ -2645,13 +2645,13 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 19 |
+| Passos no plano | 20 |
 | Tipos de exercício | 12 |
 | Respostas únicas | 15 |
 | Hànzì únicos | 52 |
 | Chunks únicos | 23 |
-| Frases reais | 13 |
-| Contexto | 15 |
+| Frases reais | 14 |
+| Contexto | 16 |
 | Visuais | 1 |
 | Conversas | 2 |
 | Produção sem apoio | 4 |
@@ -2667,8 +2667,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 17 |
-| Tipos de exercício | 12 |
+| Passos no plano | 18 |
+| Tipos de exercício | 13 |
 | Respostas únicas | 13 |
 | Hànzì únicos | 51 |
 | Chunks únicos | 25 |
@@ -2689,9 +2689,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 19 |
-| Tipos de exercício | 10 |
-| Respostas únicas | 13 |
+| Passos no plano | 20 |
+| Tipos de exercício | 11 |
+| Respostas únicas | 14 |
 | Hànzì únicos | 37 |
 | Chunks únicos | 16 |
 | Frases reais | 13 |
@@ -2755,15 +2755,15 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 18 |
-| Tipos de exercício | 12 |
-| Respostas únicas | 12 |
-| Hànzì únicos | 50 |
-| Chunks únicos | 23 |
-| Frases reais | 12 |
-| Contexto | 13 |
+| Passos no plano | 21 |
+| Tipos de exercício | 13 |
+| Respostas únicas | 14 |
+| Hànzì únicos | 54 |
+| Chunks únicos | 25 |
+| Frases reais | 14 |
+| Contexto | 15 |
 | Visuais | 1 |
-| Conversas | 2 |
+| Conversas | 3 |
 | Produção sem apoio | 4 |
 | Transferência | 1 |
 
@@ -2865,9 +2865,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 34 |
-| Tipos de exercício | 16 |
-| Respostas únicas | 22 |
+| Passos no plano | 36 |
+| Tipos de exercício | 18 |
+| Respostas únicas | 24 |
 | Hànzì únicos | 65 |
 | Chunks únicos | 29 |
 | Frases reais | 12 |
@@ -2975,10 +2975,10 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Métrica | Valor |
 |---------|------:|
-| Passos no plano | 29 |
-| Tipos de exercício | 15 |
-| Respostas únicas | 21 |
-| Hànzì únicos | 45 |
+| Passos no plano | 31 |
+| Tipos de exercício | 16 |
+| Respostas únicas | 23 |
+| Hànzì únicos | 53 |
 | Chunks únicos | 21 |
 | Frases reais | 15 |
 | Contexto | 15 |
@@ -2998,4 +2998,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 _Portão beta: falha com lição comum < 60, revisão de módulo < 70, média global < 78 ou resposta correta repetida mais de 2 vezes. Warning entre 60–69 (comum) e 70–77 (revisão)._
 
-<!-- integridade:84da15b104111ee7 -->
+<!-- integridade:cf02b18fc44eca20 -->

@@ -72,8 +72,7 @@ metadado → pequeno número de passos → conteúdo novo só se inevitável.
 1. **Conteúdo existente conectado ao runtime.** 21 flashcards de chunks que já
    estavam no registry, cada um na lição que `lexicalLifecycleEntries.ts` já
    declarava como `introduceAt` (不要辣, 我想吃米饭, 我想喝水, 我要水, 我要肉,
-   我要鱼 em l26b; 微信支付, 现金, 可以刷卡吗, 太贵了 em l27; 我需要帮助 em l4;
-   我们走吧 em l11; 我要去北京, 我坐飞机, 飞机场在哪里 em p6-cidade-lugares; …).
+   我要鱼 em l26b; 微信支付, 现金, 可以刷卡吗, 太贵了 em l27; 我们走吧 em l11; 我要去北京, 我坐飞机, 飞机场在哪里 em p6-cidade-lugares; …).
    Nenhum chunk novo.
 2. **Metadado corrigido.** `talk_family` sem 弟弟/妹妹; `order_food` sem
    `chunk:woyaofan`; `pay` sem `chunk:zhifubao` (nenhum meio de pagamento é
@@ -138,7 +137,7 @@ dimensão ausente.
 
 ## Fingerprint
 
-`327de1df0f33` → `49bd51b6a6a5`.
+`327de1df0f33` → `c48b008c9c1e`.
 
 Mudaram `src/data/conversationScenes.ts` (duas cenas),
 `src/features/lesson/lessonTasks.ts` (ponto único que aplica os passos de
@@ -165,7 +164,7 @@ pelo validator; nada preenchido à mão).
 `src/lib/curriculumFreeze.ts` registra: 134 lições · 113 teaching topics · 30
 CultureItems · 30 Culture Native Lessons · 20 Journey Culture nodes · 5 Culture
 Moments · 12 Tone Transfers jogáveis · 31/31 capacidades READY em runtime
-(11 estrito + 20 presença) · fingerprint `49bd51b6a6a5`, além da lista de
+(11 estrito + 20 presença) · fingerprint `c48b008c9c1e`, além da lista de
 módulos de progressão/economia/SRS/desafio/conquista, dos exports da economia e
 das features públicas de `featureTruth.ts`. Bloqueia sem atualização explícita:
 lição, tópico, CultureItem, sistema de progressão, moeda, SRS, motor de
@@ -176,7 +175,7 @@ release, correções de QA, copy.
 ## Evidência por capacidade
 
 <!-- evidencia:inicio -->
-Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `49bd51b6a6a5` · base `700aa83264ce`.
+Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `c48b008c9c1e` · base `700aa83264ce`.
 
 Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato estrito.
 

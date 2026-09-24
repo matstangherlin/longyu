@@ -37,7 +37,7 @@
   "l1ToL20Seeded": false,
   "formalChecksRemainFalse": true,
   "verdict": "NO-GO",
-  "fingerprint": "49bd51b6a6a5",
+  "fingerprint": "c48b008c9c1e",
   "featureFreeze": "PUBLIC_BETA",
   "curriculumFreeze": "RC2_CONTENT_FREEZE",
   "note": "Automation and agents must not mark founderQa/l1ToL20/external testers as PASS. Status BLOCKED_EXTERNAL until shareable non-production build exists; founder local QA may proceed without inventing PASS.",

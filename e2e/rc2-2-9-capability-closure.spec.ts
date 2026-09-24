@@ -221,7 +221,7 @@ test.describe("RC2.2.9 — capacidades conversacionais fechadas em runtime", () 
   });
 
   test("ask_for_help — escuta: entende o pedido de ajuda", async ({ page }) => {
-    await openNearEnd(page, "l4", 2);
+    await openNearEnd(page, "l11", 2);
     await hearAndChoose(page, "O que a pessoa precisa?", "我需要帮助", "Preciso de ajuda");
   });
 

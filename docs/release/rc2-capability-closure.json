@@ -3,7 +3,7 @@
   "generatedBy": "npm run validate:capability-runtime-evidence",
   "baseMainSha": "700aa83264cee8429313ad0e52881e90b09fa2e8",
   "fingerprintBefore": "327de1df0f33",
-  "fingerprint": "49bd51b6a6a5",
+  "fingerprint": "c48b008c9c1e",
   "contract": {
     "strict": "RC2.2.9 closure: lexical=1, structural=1, productive/listening/conversation/transfer com evidência de runtime",
     "presence": "READY anteriores: nenhuma dimensão ausente em runtime; todo chunk exigido chega ao aluno"
