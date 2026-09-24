@@ -1,0 +1,43 @@
+{
+  "schema": "longyu-android-release-readiness/1",
+  "wave": "RC2.2.12",
+  "baseBranch": "claude/rc2-2-11-experience-coherence",
+  "baseNote": "Empilhada sobre o RC2.2.11 (#285 aberto) por instrução do owner ('não precisa esperar mergear'). Rebasear/mergear main quando #285 entrar.",
+  "fingerprint": "c48b008c9c1e",
+  "applicationId": "com.longyu.app",
+  "versionName": "0.2.0-beta.1",
+  "versionCodeFloor": 1,
+  "apiLevels": { "compileSdk": 36, "targetSdk": 36, "minSdk": 24 },
+  "toolchain": { "java": 21, "gradle": "8.14.3", "androidGradlePlugin": "8.13.0" },
+  "status": {
+    "ANDROID_CODE_READY": true,
+    "SIGNED_AAB_READY": false,
+    "PHYSICAL_QA_PASS": false,
+    "PLAY_CONSOLE_READY": false,
+    "INTERNAL_TESTING_READY": false,
+    "INTERNAL_TESTING_UPLOADED": false,
+    "CLOSED_TESTING_READY": false,
+    "PRODUCTION_READY": false
+  },
+  "blockers": {
+    "signing": "BLOCKED_SIGNING_SECRETS",
+    "physical": "CODE_READY_AWAITING_PHYSICAL_DEVICE",
+    "playConsole": "BLOCKED_PLAY_CONSOLE_SETUP",
+    "playCredentials": "BLOCKED_PLAY_CREDENTIALS",
+    "featureGraphic": "PLAY_STORE_FEATURE_GRAPHIC_REQUIRED",
+    "monochromeIcon": "ANDROID_BRAND_ASSET_REQUIRED",
+    "speechOnAndroid": "ANDROID_SPEECH_RECOGNITION_UNVERIFIED"
+  },
+  "signedAab": null,
+  "signatureEvidence": null,
+  "playUpload": null,
+  "localAndroidBuild": "BLOCKED_LOCAL_ANDROID_SDK (container sem Android SDK; dl.google.com bloqueado pela política de rede). APK/AAB debug vêm do workflow Android do CI.",
+  "internalTrackOnly": true,
+  "productionManual": true,
+  "ota": false,
+  "usernameLoginCloudEnabled": false,
+  "cloudDeferred": true,
+  "androidRealDevice": false,
+  "androidBetaReady": false,
+  "publicBetaVerdict": "NO-GO"
+}

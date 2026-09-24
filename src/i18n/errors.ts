@@ -39,6 +39,10 @@ const PATTERNS: MessagePattern[] = [
     key: "auth.errors.invalidCredentials",
   },
   {
+    test: (m) => includesAny(m, ["assinar pelo app android ainda não", "subscribing from the android app"]),
+    key: "auth.errors.androidCheckoutUnavailable",
+  },
+  {
     test: (m) => includesAny(m, ["informe seu email ou nome de usuário", "enter your email or username"]),
     key: "auth.errors.invalidIdentifierPassword",
   },

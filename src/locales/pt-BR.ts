@@ -192,6 +192,7 @@ export const ptBR = {
       passwordMismatch: "Use uma senha de pelo menos 6 caracteres e confirme igual nos dois campos.",
       passwordTooShort: "A nova senha precisa ter pelo menos 6 caracteres.",
       invalidCredentials: "Usuário/email ou senha incorretos.",
+      androidCheckoutUnavailable: "Assinar pelo app Android ainda não está disponível. Seu plano atual continua valendo.",
       invalidIdentifierPassword: "Informe seu email ou nome de usuário e uma senha com pelo menos 6 caracteres.",
       usernameLoginUnavailable: "Entrar com nome de usuário ainda não está disponível. Use seu email por enquanto.",
       loginRateLimited: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
@@ -2090,7 +2091,7 @@ export const ptBR = {
   },
   privacyNotice: {
     account:
-      "Dados da conta: para criar conta pedimos email, nome, data de nascimento, país e, opcionalmente, como conheceu o Longyu e se aceita emails. Servem para login, idade mínima, idioma e comunicação que você autorizou.",
+      "Dados da conta: para criar conta pedimos email e nome; data de nascimento, país, como conheceu o Longyu e se aceita emails são opcionais. Servem para login, perfil, idioma e a comunicação que você autorizou.",
     identity:
       "Nome de usuário: o @nome que você escolhe é a sua identidade social (amigos e ligas encontram você por ele). Ele pode aparecer para outros alunos; o email nunca aparece e nunca é usado para encontrar você.",
     microphone:

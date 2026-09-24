@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
+import { isNativeApp } from "../lib/platform/nativePlatform";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { isDevPreviewAllowed } from "../lib/entitlements";
 import { fetchServerSubscription, subscriptionGrantsPro } from "./entitlementService";
@@ -43,6 +44,15 @@ export function isBillingPortalAvailable(): boolean {
 const MANAGE_PENDING_MESSAGE =
   "Assinaturas reais ainda não estão ativas nesta versão. Quando o pagamento for integrado, você poderá gerenciar seu plano aqui.";
 
+/**
+ * RC2.2.12 — política de Pagamentos do Google Play: bem digital vendido DENTRO
+ * do app Android precisa do Google Play Billing. Até ele existir, o app
+ * Android não abre checkout externo (Stripe) nem portal de cobrança. Quem já é
+ * Pro continua Pro (a checagem de plano segue no servidor).
+ */
+export const ANDROID_CHECKOUT_UNAVAILABLE_MESSAGE =
+  "Assinar pelo app Android ainda não está disponível. Seu plano atual continua valendo.";
+
 const CHECKOUT_PENDING_MESSAGE =
   "Assinaturas reais ainda não estão ativas nesta versão. Quando o Stripe for integrado, o checkout abrirá aqui de forma segura.";
 
@@ -63,6 +73,7 @@ export function subscriptionStateFor(
 export async function createCheckoutSession(
   request: CheckoutRequest
 ): Promise<SubscriptionServiceResult<Partial<CheckoutResponse>>> {
+  if (isNativeApp()) return { status: "not_implemented", message: ANDROID_CHECKOUT_UNAVAILABLE_MESSAGE };
   if (!isSupabaseBackendEnabled()) {
     return { status: "not_implemented", message: CHECKOUT_PENDING_MESSAGE };
   }
@@ -124,6 +135,7 @@ export async function getSubscription(): Promise<SubscriptionServiceResult<Serve
 }
 
 export async function openBillingPortal(): Promise<SubscriptionServiceResult<{ url?: string }>> {
+  if (isNativeApp()) return { status: "not_implemented", message: ANDROID_CHECKOUT_UNAVAILABLE_MESSAGE };
   if (!isBillingPortalAvailable()) {
     return { status: "not_implemented", message: MANAGE_PENDING_MESSAGE };
   }

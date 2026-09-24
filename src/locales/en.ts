@@ -194,6 +194,7 @@ export const en: MessageCatalog = {
       passwordMismatch: "Use a password with at least 6 characters and confirm it matches.",
       passwordTooShort: "The new password must have at least 6 characters.",
       invalidCredentials: "Incorrect username/email or password.",
+      androidCheckoutUnavailable: "Subscribing from the Android app isn't available yet. Your current plan stays active.",
       invalidIdentifierPassword: "Enter your email or username and a password with at least 6 characters.",
       usernameLoginUnavailable: "Signing in with a username isn't available yet. Use your email for now.",
       loginRateLimited: "Too many attempts. Wait a few minutes and try again.",
@@ -2084,7 +2085,7 @@ export const en: MessageCatalog = {
   },
   privacyNotice: {
     account:
-      "Account data: to create an account we ask for email, name, birth date, country and, optionally, how you found Longyu and whether you accept emails. They are used for login, minimum age, language, and communication you authorized.",
+      "Account data: to create an account we ask for email and name; birth date, country, how you found Longyu, and whether you accept emails are optional. They are used for login, profile, language, and the communication you authorized.",
     identity:
       "Username: the @name you choose is your social identity (friends and leagues find you by it). It may be visible to other learners; your email is never shown and is never used to find you.",
     microphone:
