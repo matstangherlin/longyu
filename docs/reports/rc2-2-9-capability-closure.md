@@ -315,14 +315,14 @@ Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato est
 | Declared status before | PARTIAL |
 | Declared status after | READY |
 | Lexical evidence | 1/1 chunks ensinados antes de cobrados · 2/2 palavras (我需要帮助) |
-| Structural evidence | 我需要帮助 → ensino l4·M1, produção p6-survival-mandarin·M4, uso p6-survival-mandarin·M4 |
+| Structural evidence | 我需要帮助 → ensino l11·M1, produção p6-survival-mandarin·M4, uso p6-survival-mandarin·M4 |
 | Productive task | p6-survival-mandarin · M4 · passo 2 · reverse_recall — 我需要帮助 (9 no total) |
-| Listening task | l4 · M2 · passo 9 · audio_to_action — 我需要帮助 (1 no total) |
+| Listening task | l11 · M2 · passo 9 · audio_to_action — 我需要帮助 (1 no total) |
 | Conversation scene | p7-imersao-aeroporto · M1 · passo 12 · conversation_scene · cena no-aeroporto/aero-close — 我需要帮助 (10 turnos) |
 | Transfer task | p7-imersao-aeroporto · M1 · passo 4 · free_production — 我需要帮助 (18 no total) |
 | Reachable | sim — todos os passos vêm de lessonRoundStepsFor na Jornada normal |
-| First teach position | l4 · M1 · passo 9 · flashcard — 我需要帮助 |
-| First test position | l4 · M2 · passo 9 · audio_to_action — 我需要帮助 |
+| First teach position | l11 · M1 · passo 9 · flashcard — 我需要帮助 |
+| First test position | l11 · M2 · passo 9 · audio_to_action — 我需要帮助 |
 | Final verdict | **READY** |
 
 #### ask_repeat — Pedir para repetir
@@ -475,3 +475,26 @@ falha desta remessa: o objetivo era fechar o lado pedagógico antes da
 engenharia Android (RC2.2.10) e da certificação operacional.
 
 ## Resultados
+
+Executado localmente na fingerprint final `c48b008c9c1e` (o CI do PR é a
+confirmação independente):
+
+| Comando | Resultado |
+| --- | --- |
+| `npm run validate:beta` (cadeia completa, inclui typecheck, i18n, paridade EN, conversation-*, listening/modality, transfer-*, china-survival-*, capstone-*, productive-*, feature-truth/product-claims/ghost-features, public-beta-feature-freeze, rc2-content-freeze, `gate:rc2-2-8-learning-gamification` e `gate:rc2-2-9-capability-closure`) | PASS |
+| `npm run build` + `validate:frontend-secrets` | PASS |
+| `npm run gate:rc2-2-8-learning-gamification` (regressão do #281) | PASS |
+| `validate:capability-runtime-evidence` | PASS — 31/31 READY em runtime, 11/11 no contrato estrito |
+| `test:capability-runtime-evidence` | PASS — 19/19 mutações mortas |
+| `validate:partial-capability-closure` | PASS — China Survival 9/9 |
+| `test:partial-capability-closure` | PASS — 14 mutações |
+| `validate:beta-pedagogy-freeze` / `test:beta-pedagogy-freeze` | PASS — 12 mutações |
+| `e2e/rc2-2-9-capability-closure.spec.ts` (Chromium) | 17/17 PASS |
+
+Correções feitas durante a validação (todas registradas nos commits):
+`test-journey-guide-explanations` fixava a linha de base 20 READY / 11 PARTIAL
+e agora exige as 11 no contrato estrito; flashcards movidos da M2 para a M1
+(M2+ desencoraja flashcard — `test:mastery-coverage:strict`); o ensino de
+我需要帮助 saiu de l4 para l11 (o ritmo das 20 lições de entrada é travado por
+`validate:onboarding-pace`); `rc1-launch-readiness.md` cita a fingerprint nova.
+

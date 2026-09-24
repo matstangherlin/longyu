@@ -29,7 +29,7 @@ launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
 | Field | Value |
 | --- | --- |
 | Freeze | `CURRICULUM_FREEZE=RC2_CONTENT_FREEZE` |
-| Base fingerprint | `327de1df0f33` |
+| Base fingerprint | `c48b008c9c1e` |
 | Real merge SHA (#254 on `main`) | `c4441b68ae2388027d72e3af748417ef7caf2bb6` |
 | Forbidden SHA | `241386c8fc814ebdfa166dde1035bc3d7ca195f5` (9B feature-branch tip, never a release SHA) |
 | Lessons | 134 |
@@ -37,7 +37,14 @@ launch. Green CI is `CODE_READY`, not `READY_TO_LAUNCH`.
 | New lessons / chunks / arcs in this remessa | 0 |
 | Health plans | `saudeSurvivalPlanFor` / `saudePlan` only |
 
-The Journey fingerprint is the curriculum identity. **RC2.2.7** advanced it from
+The Journey fingerprint is the curriculum identity. **RC2.2.9** advanced it from
+`327de1df0f33` → `c48b008c9c1e`: the 11 PARTIAL conversation capabilities were
+closed with runtime evidence — canonical flashcards wired where the lexical
+lifecycle already declared them, small tasks inside existing lessons (the new
+`capabilityClosureSteps.ts` joined `CURRICULUM_SOURCES`) and two dedicated
+scenes in `conversationScenes.ts`. Lessons 134 / teaching topics 113 /
+CultureItems 30 / Journey Culture nodes 20 unchanged; no new chunk.
+**RC2.2.7** advanced it from
 `516692632525` → `327de1df0f33`: tone transfer landed 12 new tasks inside twelve
 existing lessons (`journey.ts`), and the new `toneTransfer.ts` registry joined
 `CURRICULUM_SOURCES` so that editing that copy cannot move silently. Lessons 134
