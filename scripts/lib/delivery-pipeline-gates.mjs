@@ -143,7 +143,8 @@ export function validateDeliveryPipeline(s) {
     if (!/"\$GITHUB_REF" != "refs\/heads\/main"/.test(release) || !/SOURCE_NOT_MAIN/.test(release)) {
       fail("SOURCE_NOT_MAIN", "android-release.yml", "release precisa recusar ref ≠ refs/heads/main");
     }
-    const defaultChannel = release.match(/channel:\s*\n(?:\s+.*\n)*?\s+default:\s*(\w+)/)?.[1];
+    // Uma linha por repetição (indentada ou em branco): sem backtracking exponencial.
+    const defaultChannel = release.match(/channel:[ \t]*\n(?:[ \t]+\S.*\n|[ \t]*\n)*?[ \t]+default:[ \t]*(\w+)/)?.[1];
     if (defaultChannel !== "internal") fail("PRODUCTION_DEFAULT", "android-release.yml", `canal padrão ${defaultChannel} ≠ internal`);
     if (!/PUBLICAR-PRODUCAO/.test(release) || !/android-production/.test(release)) {
       fail("PRODUCTION_DEFAULT", "android-release.yml", "produção exige opt-in PUBLICAR-PRODUCAO + environment android-production");
@@ -378,7 +379,7 @@ export function validateAndroidReleaseSafety(s) {
       if (/debug\.keystore|signingConfigs\.debug/.test(code)) fail("RELEASE_USES_DEBUG_KEY", where, "release nunca com debug keystore");
     });
     // Artefatos: só APK/AAB + proveniência/registro. Nada de keystore, properties, RUNNER_TEMP.
-    for (const match of String(text).matchAll(/uses:\s*actions\/upload-artifact@[^\n]*\n(?:\s+.*\n)*?\s+path:\s*([\s\S]*?)(?=\n\s+[a-z-]+:\s|\n\s*-\s|$)/g)) {
+    for (const match of String(text).matchAll(/uses:[ \t]*actions\/upload-artifact@[^\n]*\n(?:[ \t]+\S.*\n|[ \t]*\n)*?[ \t]+path:\s*([\s\S]*?)(?=\n\s+[a-z-]+:\s|\n\s*-\s|$)/g)) {
       const paths = match[1];
       if (/runner[._]temp|\.jks|keystore|\.properties|secrets\.|(^|\s)\.\/?\s*$|\*\*\/\*\s*$/im.test(paths)) fail("KEYSTORE_BASE64_EXPOSED", name, `artifact inclui caminho sensível: ${paths.trim().split("\n")[0]}`);
     }
