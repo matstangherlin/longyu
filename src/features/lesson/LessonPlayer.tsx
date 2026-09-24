@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
@@ -1906,6 +1907,21 @@ export function LessonPlayer() {
    */
   const isPlusRoundSession = searchParams.get("reforco") === "1";
   const navigate = useNavigate();
+  // RC2.2.11 — VOLTAR (Android/casca) sai pela saída da própria lição
+  // (registra abandono, volta para Cultura/Jornada certa). O progresso da
+  // sessão já está salvo no store; nada se perde em silêncio.
+  const exitLessonRef = useRef<(() => void) | null>(null);
+  exitLessonRef.current = null;
+  useEffect(
+    () =>
+      registerBackGuard(() => {
+        const exit = exitLessonRef.current;
+        if (!exit) return false;
+        exit();
+        return true;
+      }),
+    []
+  );
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
 
   const completeLesson = useStore((s) => s.completeLesson);
@@ -3471,6 +3487,7 @@ export function LessonPlayer() {
     handleDone(undefined);
   }
 
+  exitLessonRef.current = exitLesson;
   function exitLesson() {
     if (!finished) {
       const currentStep = lesson.steps[idx];

@@ -1,5 +1,6 @@
 import { SystemBars, SystemBarsStyle } from "@capacitor/core";
-import { BACK_HOME_PATH, decideBackAction, dismissTopOverlay, isOverlayOpen, routerCanGoBack } from "./backNavigation";
+import { decideBackAction, dismissTopOverlay, isOverlayOpen, routerCanGoBack } from "./backNavigation";
+import { previousInAppPath, runBackGuard, smartBackFallback } from "../navigation/smartBack";
 import { resolveDeepLink } from "./deepLinks";
 import { classifyLink } from "./externalLinks";
 import { getPlatform, isNativeApp } from "./nativePlatform";
@@ -37,15 +38,21 @@ async function installAppListeners(router: NativeShellRouter): Promise<void> {
 
     // Registrar um listener de backButton DESLIGA o comportamento padrão do
     // Capacitor (voltar a WebView / fechar o app). A decisão fica aqui.
+    // RC2.2.11 — mesma política do SmartBackButton: histórico só quando a
+    // trilha in-app confirma; senão o pai lógico da rota (não "a Jornada").
     await App.addListener("backButton", () => {
+      const overlayOpen = isOverlayOpen();
+      // Prova/lição em andamento: a tela decide (pergunta antes de perder).
+      if (!overlayOpen && runBackGuard()) return;
+      const pathname = router.pathname();
       const action = decideBackAction({
-        overlayOpen: isOverlayOpen(),
-        canGoBack: routerCanGoBack(),
-        pathname: router.pathname(),
+        overlayOpen,
+        canGoBack: routerCanGoBack() && previousInAppPath(pathname) !== null,
+        pathname,
       });
       if (action === "dismiss-overlay") dismissTopOverlay();
       else if (action === "history-back") void router.navigate(-1);
-      else if (action === "navigate-home") void router.navigate(BACK_HOME_PATH, { replace: true });
+      else if (action === "navigate-home") void router.navigate(smartBackFallback(pathname), { replace: true });
       else void App.minimizeApp();
     });
 

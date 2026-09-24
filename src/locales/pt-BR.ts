@@ -45,6 +45,7 @@ export const ptBR = {
     pro: "Pro",
   },
   navigation: {
+    backTo: "Voltar para {target}",
     primary: "Principal",
     journey: "Jornada",
     practice: "Praticar",
@@ -2356,6 +2357,7 @@ export const ptBR = {
     },
   },
   phaseChallenge: {
+    leaveConfirm: "Sair agora encerra a prova e conta como tentativa. Sair mesmo?",
     eyebrow: "Desafio de fase",
     testThisPhase: "Testar esta fase",
     title: "Testar a fase: {phase}",

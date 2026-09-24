@@ -47,6 +47,7 @@ export const en: MessageCatalog = {
     pro: "Pro",
   },
   navigation: {
+    backTo: "Back to {target}",
     primary: "Main",
     journey: "Journey",
     practice: "Practice",
@@ -2350,6 +2351,7 @@ export const en: MessageCatalog = {
     },
   },
   phaseChallenge: {
+    leaveConfirm: "Leaving now ends the test and counts as an attempt. Leave anyway?",
     eyebrow: "Phase challenge",
     testThisPhase: "Test this phase",
     title: "Test the phase: {phase}",
