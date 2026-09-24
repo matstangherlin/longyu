@@ -41,6 +41,11 @@ export interface InteractiveStory {
   level: InteractiveStoryLevel;
   moduleId?: string;
   descriptionPt: string;
+  /**
+   * RC2.2.11 — cartão de contexto antes da cena: onde, com quem, objetivo.
+   * Só apresentação; não ensina vocabulário novo.
+   */
+  context?: { wherePt: string; goalPt: string };
   estimatedMinutes?: number;
   steps: StoryStep[];
   rewards?: {
@@ -54,6 +59,7 @@ export interface InteractiveStory {
 export const INTERACTIVE_STORIES: InteractiveStory[] = [
   {
     id: "primeiro-encontro",
+    context: { wherePt: "Primeiro dia do curso, na porta da sala. Lin, sua colega de estudos, puxa conversa.", goalPt: "Cumprimentar, dizer seu nome e agradecer." },
     title: "Primeiro encontro",
     level: "iniciante",
     moduleId: "immersion-stories",
@@ -153,6 +159,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
   },
   {
     id: "pedindo-agua",
+    context: { wherePt: "Intervalo da aula, com sede. Lin está perto do bebedouro.", goalPt: "Pedir água e agradecer quando alguém ajudar." },
     title: "Pedindo água",
     level: "iniciante",
     moduleId: "immersion-stories",
@@ -256,6 +263,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
   },
   {
     id: "sala-de-aula",
+    context: { wherePt: "Começo da aula de chinês. Hua Laoshi, a professora, cumprimenta a turma.", goalPt: "Entender o cumprimento da professora e dizer que você é estudante." },
     title: "Na sala de aula",
     level: "basico",
     moduleId: "immersion-stories",
@@ -266,7 +274,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
       {
         id: "entrada",
         type: "dialogue",
-        speaker: "Professor",
+        speaker: "Hua Laoshi",
         hanzi: "同学们好。",
         pinyin: "tóngxuémen hǎo",
         translationPt: "Olá, turma.",
@@ -328,7 +336,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
         hanzi: "学生",
         pinyin: "xuésheng",
         translationPt: "Estudante",
-        promptPt: "Quem responde ao professor na sala?",
+        promptPt: "Quem responde à professora na sala?",
         options: ["学生", "水", "谢谢", "中文"],
         answer: "学生",
         explanationPt: "学生 significa estudante ou aluno.",
@@ -358,6 +366,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
   },
   {
     id: "despedida-amigos",
+    context: { wherePt: "Fim da tarde. Chen Mei, sua amiga, precisa ir embora.", goalPt: "Despedir-se e combinar de se ver amanhã." },
     title: "Despedida entre amigos",
     level: "iniciante",
     moduleId: "immersion-stories",
@@ -368,7 +377,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
       {
         id: "cumprimento-final",
         type: "dialogue",
-        speaker: "Ana",
+        speaker: "Chen Mei",
         hanzi: "我要走了。",
         pinyin: "wǒ yào zǒu le",
         translationPt: "Vou embora agora.",
@@ -392,7 +401,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
         hanzi: "再见！",
         pinyin: "zàijiàn",
         translationPt: "Até logo!",
-        promptPt: "Ana disse que vai embora. Como você se despede?",
+        promptPt: "Chen Mei disse que vai embora. Como você se despede?",
         options: ["再见！", "你好！", "我很好。", "多少钱？"],
         answer: "再见！",
         explanationPt: "再见 responde naturalmente a uma despedida.",
@@ -414,7 +423,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
       {
         id: "amanha",
         type: "dialogue",
-        speaker: "Ana",
+        speaker: "Chen Mei",
         hanzi: "明天见！",
         pinyin: "míngtiān jiàn",
         translationPt: "Até amanhã!",
@@ -448,6 +457,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
   },
   {
     id: "bom-dia-em-casa",
+    context: { wherePt: "Manhã na casa da família anfitriã. Zhang Ayi prepara o café.", goalPt: "Responder ao bom-dia e dizer que você está bem." },
     title: "Bom dia em casa",
     level: "basico",
     moduleId: "immersion-stories",
@@ -459,7 +469,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
       {
         id: "mae-cumprimento",
         type: "dialogue",
-        speaker: "Mãe",
+        speaker: "Zhang Ayi",
         hanzi: "早上好！",
         pinyin: "zǎoshang hǎo",
         translationPt: "Bom dia!",
@@ -483,7 +493,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
         hanzi: "早上好！",
         pinyin: "zǎoshang hǎo",
         translationPt: "Bom dia!",
-        promptPt: "Sua mãe disse 早上好. Como você responde?",
+        promptPt: "Zhang Ayi, a mãe da família anfitriã, disse 早上好. Como você responde?",
         options: ["早上好！", "再见！", "我饿了。", "太贵了。"],
         answer: "早上好！",
         explanationPt: "Você pode repetir o mesmo cumprimento de manhã.",
@@ -492,7 +502,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
       {
         id: "pergunta-como-esta",
         type: "dialogue",
-        speaker: "Mãe",
+        speaker: "Zhang Ayi",
         hanzi: "你好吗？",
         pinyin: "nǐ hǎo ma?",
         translationPt: "Tudo bem?",
@@ -538,6 +548,7 @@ export const INTERACTIVE_STORIES: InteractiveStory[] = [
   },
   {
     id: "hora-de-comer",
+    context: { wherePt: "Hora do almoço. Lin chama você para comer junto.", goalPt: "Aceitar o convite, elogiar a comida e agradecer." },
     title: "Hora de comer",
     level: "basico",
     moduleId: "immersion-stories",
