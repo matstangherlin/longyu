@@ -57,7 +57,8 @@ export function androidSdkLocation(env = process.env, dir = androidDir) {
   const localProps = path.join(dir, "local.properties");
   if (fs.existsSync(localProps)) {
     const match = fs.readFileSync(localProps, "utf8").match(/^sdk\.dir\s*=\s*(.+)$/m);
-    const sdkDir = match?.[1]?.trim().replace(/\\\\/g, "\\").replace(/\\:/g, ":");
+    // Escape de .properties numa passada só (C\:\\Users → C:\Users); duas passadas desescapam em dobro.
+    const sdkDir = match?.[1]?.trim().replace(/\\(.)/g, "$1");
     if (sdkDir && fs.existsSync(sdkDir)) return sdkDir;
   }
   return null;
