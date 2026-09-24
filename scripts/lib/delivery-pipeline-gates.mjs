@@ -53,7 +53,7 @@ function listSrc(root, dir) {
 
 function gitGrep(root, pattern) {
   try {
-    return execFileSync("git", ["grep", "-l", "-I", "-E", pattern], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+    return execFileSync("git", ["grep", "-l", "-I", "-E", "-e", pattern], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
       .split("\n")
       .filter(Boolean);
   } catch {
@@ -87,7 +87,9 @@ export function loadDeliveryState(root = process.cwd()) {
     rootGitignore: foundation.rootGitignore,
     srcTexts,
     trackedFiles: foundation.trackedFiles,
-    secretContentHits: gitGrep(root, 'BEGIN (RSA |EC )?PRIVATE KEY|"type"[[:space:]]*:[[:space:]]*"service_account"'),
+    // Cabeçalho PEM real (com os traços) ou JSON de service account — não a
+    // simples menção ao nome em documentação.
+    secretContentHits: gitGrep(root, '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|"type"[[:space:]]*:[[:space:]]*"service_account"'),
     lib: { ...identityLib },
   };
 }
