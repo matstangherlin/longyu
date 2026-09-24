@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
+import { shouldRegisterServiceWorker, unregisterNativeServiceWorkers } from "../../lib/platform/serviceWorkerPolicy";
 
 /**
  * Avisa quando há bundle novo do service worker.
@@ -13,6 +14,14 @@ export function PwaUpdateBanner() {
 
   useEffect(() => {
     let cancelled = false;
+
+    // RC2.2.10 — no app Android os assets vêm do APK; SW do PWA só no web.
+    if (!shouldRegisterServiceWorker()) {
+      void unregisterNativeServiceWorkers();
+      return () => {
+        cancelled = true;
+      };
+    }
 
     void import("virtual:pwa-register")
       .then(({ registerSW }) => {

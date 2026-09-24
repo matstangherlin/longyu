@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { isQaTestStateActive } from "../../lib/qaFastPathAccess";
+import { subscribeAppLifecycle } from "../../lib/platform/appLifecycle";
 import { useStore } from "../../lib/store";
 import { flushCloudProgressPush, scheduleCloudProgressPush } from "../../services/cloudSyncCoordinator";
 
@@ -26,17 +27,17 @@ export function CloudSyncBootstrap() {
       }
     });
 
-    const onVisibility = () => {
-      if (document.visibilityState === "hidden") void flushCloudProgressPush();
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
+    // Aba escondida (web) ou app em background (Android): empurra antes de
+    // o sistema poder encerrar o processo. Nada é resetado aqui.
+    const unsubLifecycle = subscribeAppLifecycle((state) => {
+      if (state === "background") void flushCloudProgressPush();
+    });
     const interval = window.setInterval(() => void flushCloudProgressPush(), AUTO_SYNC_INTERVAL_MS);
     void flushCloudProgressPush();
 
     return () => {
       unsub();
-      document.removeEventListener("visibilitychange", onVisibility);
+      unsubLifecycle();
       window.clearInterval(interval);
     };
   }, [authMode, accountId]);

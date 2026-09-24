@@ -10,6 +10,7 @@ import { SeoHead } from "./components/seo/SeoHead";
 import { PageFallback } from "./components/system/PageFallback";
 
 import { I18nProvider } from "./i18n/provider";
+import { initNativeShell } from "./lib/platform/nativeShell";
 import { bootstrapInterfaceLocale } from "./i18n/locale";
 
 bootstrapInterfaceLocale();
@@ -64,6 +65,13 @@ const router = createBrowserRouter([
     children: routes,
   },
 ]);
+
+// RC2.2.10 — Android (Capacitor): BACK, deep links, links externos, teclado,
+// barras e splash entram pelo MESMO router. No web é no-op.
+initNativeShell({
+  navigate: (to, options) => (typeof to === "number" ? router.navigate(to) : router.navigate(to, options)),
+  pathname: () => router.state.location.pathname,
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

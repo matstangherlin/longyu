@@ -1724,6 +1724,7 @@ export const ptBR = {
     aboutDocumentTitle: "Sobre o Longyu",
     privacyDocumentTitle: "Privacidade — Longyu",
     aboutLead: "Transparência sobre o estado atual da beta pública.",
+    aboutBuild: "{platform} · build {build}",
     aboutTagline: "龙语 · mandarim pela lógica",
     aboutIntro:
       "Você está testando uma versão antecipada do Longyu. Algumas atividades ainda estão sendo aprimoradas — e isso é esperado nesta fase. Beta não significa que seu progresso pode sumir sem aviso.",

@@ -1,0 +1,68 @@
+name: Android
+
+# RC2.2.10 — fundação Android (Capacitor). Sem segredos: valida os contratos
+# estáticos, prova que o release SEM assinatura termina em
+# BLOCKED_SIGNING_SECRETS e compila APK/AAB DEBUG com o Android SDK do runner.
+# Release assinado só existirá quando o owner cadastrar os secrets
+# LONGYU_ANDROID_* (docs/ANDROID_SIGNING.md) — nenhum valor é definido aqui.
+# Build verde aqui NÃO é android_real_device: isso exige aparelho físico.
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-foundation:
+    name: Android foundation (contratos + debug APK/AAB)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Contratos Android (foundation + signing + boundaries)
+        run: npm run gate:android-native-foundation
+
+      - name: Release sem segredos bloqueia honestamente
+        run: |
+          set +e
+          node scripts/android-cli.mjs bundle:release
+          code=$?
+          set -e
+          if [ "$code" -ne 4 ]; then
+            echo "esperado exit 4 (BLOCKED_SIGNING_SECRETS), veio $code"
+            exit 1
+          fi
+
+      - name: Debug APK (build web + cap sync + assembleDebug)
+        run: npm run android:debug
+
+      - name: Debug AAB
+        working-directory: android
+        run: ./gradlew bundleDebug
+
+      - name: Upload debug APK/AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: longyu-android-debug
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            android/app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: error
+          retention-days: 7

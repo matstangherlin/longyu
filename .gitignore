@@ -41,3 +41,20 @@ docs/reports/v477-backend-contract-freeze.ci.md
 * - Copy.*
 **/* - Copy/
 **/* - Copy.*
+# RC2.2.10 — Android: segredos de assinatura e caminhos locais NUNCA vão ao Git.
+# validate:android-signing-contract confere estas linhas (e o git check-ignore).
+*.jks
+*.keystore
+*.p12
+*.pfx
+keystore.properties
+key.properties
+android/keystore.properties
+android/key.properties
+android/local.properties
+local.properties
+android/app/release/
+android/app/debug/
+android/.gradle/
+android/app/build/
+android/build/
