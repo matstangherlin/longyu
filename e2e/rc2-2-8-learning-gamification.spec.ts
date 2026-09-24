@@ -190,17 +190,26 @@ test.describe("RC2.2.8 — P5 sync silencioso", () => {
 });
 
 test.describe("RC2.2.8 — P6 medalhas no Perfil", () => {
-  test("medalha desbloqueada é destacável; bloqueada não aparece; passaporte separado", async ({ page }) => {
+  // RC2.2.11 — a vitrine aceita só MEDALHA. "Primeiro selo" e "primeira lição"
+  // continuam desbloqueados, mas são marcos: não entram no seletor.
+  test("medalha desbloqueada é destacável; bloqueada e marco não aparecem; passaporte separado", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const now = Date.now();
     await seed(page, {
       cultureSeals: ["social-etiquette"],
       cultureCompletedIds: ["greetings-nihao", "thanks-keqi", "qingwen-ask"],
-      achievementsUnlocked: { "cultura-primeiro-selo": now - 1000, "jornada-primeira-licao": now - 2000 },
+      achievementsUnlocked: {
+        "sequencia-30": now - 500,
+        "cultura-primeiro-selo": now - 1000,
+        "jornada-primeira-licao": now - 2000,
+      },
       achievementHistory: [
+        { id: "sequencia-30", unlockedAt: now - 500 },
         { id: "cultura-primeiro-selo", unlockedAt: now - 1000 },
         { id: "jornada-primeira-licao", unlockedAt: now - 2000 },
       ],
+      // Destaque antigo (RC2.2.8) de um marco: sai da vitrine na leitura, sem crash.
+      featuredAchievementIds: ["cultura-primeiro-selo"],
     }, { once: true });
     await page.goto("/perfil");
     await waitForLazyPage(page);
@@ -209,9 +218,11 @@ test.describe("RC2.2.8 — P6 medalhas no Perfil", () => {
     await expect(featured).toHaveAttribute("data-featured-count", "0");
     await page.getByTestId("profile-choose-medals").click();
     await expect(page.getByTestId("profile-medal-toggle-cultura-todos-selos")).toHaveCount(0);
-    await page.getByTestId("profile-medal-toggle-cultura-primeiro-selo").click();
+    await expect(page.getByTestId("profile-medal-toggle-cultura-primeiro-selo")).toHaveCount(0);
+    await expect(page.getByTestId("profile-medal-toggle-jornada-primeira-licao")).toHaveCount(0);
+    await page.getByTestId("profile-medal-toggle-sequencia-30").click();
     await expect(featured).toHaveAttribute("data-featured-count", "1");
-    await expect(page.getByTestId("profile-featured-cultura-primeiro-selo")).toBeVisible();
+    await expect(page.getByTestId("profile-featured-sequencia-30")).toBeVisible();
     await expect(page.getByTestId("profile-culture-passport")).toHaveAttribute("data-seal-count", "1");
     await expect(page.getByTestId("profile-see-all-medals")).toHaveAttribute("href", "/conquistas");
     await page.reload();

@@ -10,6 +10,8 @@ import { PasswordField, PasswordRequirements } from "../../components/auth/Passw
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { canRegisterWithCredentials } from "../../lib/authForm";
+import { checkUsername, storePendingUsername, USERNAME_REJECTION_KEY } from "../../lib/username";
+import type { MessageKey } from "../../locales/pt-BR";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
 import { confirmEmailPath, storePendingConfirmEmail } from "../../lib/authRedirect";
@@ -139,6 +141,7 @@ export function ComecarPage() {
   const [askedIds, setAskedIds] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -218,6 +221,11 @@ export function ComecarPage() {
   async function handleSignup(event: FormEvent) {
     event.preventDefault();
     if (busy || name.trim().length < 2) return;
+    const usernameCheck = checkUsername(username);
+    if (!usernameCheck.ok) {
+      setError(t(USERNAME_REJECTION_KEY[usernameCheck.reason] as MessageKey));
+      return;
+    }
     if (!canRegisterWithCredentials(email, password, passwordConfirm)) {
       setError(t("onboarding.invalidEmailPassword"));
       return;
@@ -246,6 +254,9 @@ export function ComecarPage() {
       setBusy(false);
       return;
     }
+    // Username fica pendente neste aparelho e vira "a confirmar" no primeiro
+    // login (CODE_READY_AWAITING_CLOUD_APPLY) — nada de "disponível" falso.
+    storePendingUsername(usernameCheck.username);
     storePendingConfirmEmail(email);
     trackFunnelEvent("email_confirmation_pending");
     navigate(confirmEmailPath(email));
@@ -393,6 +404,7 @@ export function ComecarPage() {
           <MandatoryAccount
             name={name}
             email={email}
+            username={username}
             password={password}
             passwordConfirm={passwordConfirm}
             birthDate={birthDate}
@@ -403,6 +415,7 @@ export function ComecarPage() {
             busy={busy}
             onName={setName}
             onEmail={setEmail}
+            onUsername={setUsername}
             onPassword={setPassword}
             onPasswordConfirm={setPasswordConfirm}
             onBirthDate={setBirthDate}
@@ -739,6 +752,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 function MandatoryAccount({
   name,
   email,
+  username,
   password,
   passwordConfirm,
   birthDate,
@@ -749,6 +763,7 @@ function MandatoryAccount({
   busy,
   onName,
   onEmail,
+  onUsername,
   onPassword,
   onPasswordConfirm,
   onBirthDate,
@@ -759,6 +774,7 @@ function MandatoryAccount({
 }: {
   name: string;
   email: string;
+  username: string;
   password: string;
   passwordConfirm: string;
   birthDate: string;
@@ -769,6 +785,7 @@ function MandatoryAccount({
   busy: boolean;
   onName: (value: string) => void;
   onEmail: (value: string) => void;
+  onUsername: (value: string) => void;
   onPassword: (value: string) => void;
   onPasswordConfirm: (value: string) => void;
   onBirthDate: (value: string) => void;
@@ -794,6 +811,7 @@ function MandatoryAccount({
         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
         <input type="email" value={email} onChange={(event) => onEmail(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder={t("auth.emailPlaceholder")} />
       </label>
+      <UsernameField value={username} onChange={onUsername} />
       <div className="mt-3">
         <PasswordField
           label={t("auth.password")}
@@ -874,4 +892,41 @@ export function ComecarRoute() {
     return <Navigate to={finalizeOnboardingPath()} replace />;
   }
   return <ComecarPage />;
+}
+
+/**
+ * RC2.2.11 · AR — campo de nome de usuário no cadastro. Valida só a
+ * ESTRUTURA, localmente; disponibilidade é do servidor (sem "disponível" falso).
+ */
+function UsernameField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const { t } = useTranslation();
+  const check = checkUsername(value);
+  const touched = value.trim().length > 0;
+  const problem = touched && !check.ok ? t(USERNAME_REJECTION_KEY[check.reason] as MessageKey) : null;
+  return (
+    <label className="mt-3 block">
+      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.username")}</span>
+      <div className="mt-1 flex h-12 w-full items-center rounded-xl border border-line px-4 focus-within:border-accent/40 focus-within:ring-2 focus-within:ring-accent/20">
+        <span aria-hidden className="mr-1 text-ink-faint">@</span>
+        <input
+          name="username"
+          data-testid="signup-username"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          maxLength={32}
+          aria-invalid={problem ? true : undefined}
+          aria-describedby="signup-username-hint"
+          className="h-full min-w-0 flex-1 bg-transparent outline-none"
+          placeholder={t("auth.usernamePlaceholder")}
+        />
+      </div>
+      <p id="signup-username-hint" data-testid="signup-username-hint" className={`mt-1 text-xs ${problem ? "text-wrong" : "text-ink-soft"}`} aria-live="polite">
+        {problem ?? (touched ? `${t("auth.usernameValidShape")} ${t("auth.usernameAvailabilityNote")}` : t("auth.usernameHint"))}
+      </p>
+    </label>
+  );
 }

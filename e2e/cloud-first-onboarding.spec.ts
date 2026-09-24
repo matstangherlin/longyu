@@ -51,8 +51,9 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
     await expect(page.getByRole("button", { name: /Deixar para depois|Continuar sem conta/i })).toHaveCount(0);
     await page.getByTestId("create-account-cta").click();
     await expect(page.getByRole("heading", { name: /Crie sua conta para salvar o resultado/i })).toBeVisible();
-    await page.getByPlaceholder("Ex.: Matheus").fill("Ana Teste");
+    await page.getByPlaceholder("Ex.: Matheus", { exact: true }).fill("Ana Teste");
     await page.locator('input[type="email"]').fill("ana.teste@example.com");
+    await page.getByTestId("signup-username").fill("ana_teste");
     await page.locator('input[type="password"]').first().fill("senha123");
     await page.locator('input[type="password"]').nth(1).fill("senha123");
     await page.getByRole("button", { name: /Criar minha conta e salvar o resultado/i }).click();

@@ -19,7 +19,8 @@ export type OpsName =
   | "webhook"
   | "anon_ingestion"
   | "delete_account"
-  | "business_lead";
+  | "business_lead"
+  | "login";
 
 export type OpsPhase = "start" | "ok" | "error";
 

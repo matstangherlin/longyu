@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   ACHIEVEMENTS,
+  achievementPresentationKind,
   isAchievementComplete,
   type AchievementDef,
   type AchievementSnapshot,
@@ -143,25 +144,46 @@ function AchievementUnlockModal({
 }) {
   const { t } = useTranslation();
   useEffect(() => holdCelebration("achievement-unlock"), []);
-  // Tela cheia no mobile (momento de recompensa); card centrado no desktop.
+  // RC2.2.11 — o peso do momento segue a raridade: MEDALHA ganha a tela cheia
+  // (mobile); CONQUISTA e MARCO viram um card compacto. Nada de "Nova
+  // medalha!" para o primeiro áudio.
+  const kind = achievementPresentationKind(achievement);
+  const copy =
+    kind === "medal"
+      ? { label: "shell.newMedalUnlocked", headline: "shell.newMedal" }
+      : kind === "achievement"
+        ? { label: "shell.newAchievementUnlocked", headline: "shell.newAchievement" }
+        : { label: "shell.newMilestoneUnlocked", headline: "shell.newMilestone" };
+  const fullScreen = kind === "medal";
   return (
     <ModalOverlay
-      className="items-stretch p-0 sm:items-center sm:p-4"
-      label={t("shell.newMedalUnlocked")}
+      className={fullScreen ? "items-stretch p-0 sm:items-center sm:p-4" : "items-center p-4"}
+      label={t(copy.label)}
       onBackdropClick={onClose}
     >
       <div
-        className="flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
+        data-achievement-kind={kind}
+        className={
+          fullScreen
+            ? "flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
+            : "flex w-full max-w-sm flex-col rounded-[26px] border border-line bg-surface px-5 py-5 text-center shadow-lift"
+        }
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="my-auto sm:my-0">
+        <div className={fullScreen ? "my-auto sm:my-0" : ""}>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-            {t("shell.newMedal")}
+            {t(copy.headline)}
           </div>
-          <div className="longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-[30px] bg-accent text-white shadow-lift sm:mt-4 sm:h-20 sm:w-20 sm:rounded-[26px]">
-            <span aria-hidden className="hanzi text-5xl leading-none sm:text-4xl">{achievement.glyph}</span>
+          <div
+            className={
+              fullScreen
+                ? "longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-[30px] bg-gold text-white shadow-lift ring-4 ring-gold/25 sm:mt-4 sm:h-20 sm:w-20 sm:rounded-[26px]"
+                : "mx-auto mt-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent"
+            }
+          >
+            <span aria-hidden className={["hanzi leading-none", fullScreen ? "text-5xl sm:text-4xl" : "text-3xl"].join(" ")}>{achievement.glyph}</span>
           </div>
-          <h2 className="mt-5 font-serif text-3xl font-semibold text-ink sm:mt-4 sm:text-2xl">{localizedAchievementTitle(achievement.id, achievement.title)}</h2>
+          <h2 className={["font-serif font-semibold text-ink", fullScreen ? "mt-5 text-3xl sm:mt-4 sm:text-2xl" : "mt-3 text-xl"].join(" ")}>{localizedAchievementTitle(achievement.id, achievement.title)}</h2>
           <p className="mt-2 text-sm leading-6 text-ink-soft sm:mt-1">{localizedAchievementDesc(achievement.id, achievement.desc)}</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs sm:mt-3">
             <span className="rounded-full bg-surface-2 px-2.5 py-1 font-medium text-ink-soft">

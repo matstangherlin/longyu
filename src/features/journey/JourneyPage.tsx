@@ -52,6 +52,7 @@ import {
 } from "../../data/journeyOrchestrator";
 import { cultureMomentsAfterTopic } from "../../data/journeyCultureMoments";
 import { JourneyCultureMomentCard } from "./JourneyCultureMomentCard";
+import { JourneyCultureRecallCard, useCultureJourneyRecall } from "./JourneyCultureRecallCard";
 import { PINYIN_FOUNDATION_CAPSULE } from "../../data/lessonCapsules";
 import {
   instructionNodesBeforeTopic,
@@ -930,6 +931,8 @@ function ModuleBlock({
     () => ({ cultureCompletedIds, cultureMasteryById, cultureSeals, completedLessons: completed }),
     [cultureCompletedIds, cultureMasteryById, cultureSeals, completed]
   );
+  // RC2.2.11 — lembrete de Cultura espaçado, na fronteira do aluno.
+  const cultureRecall = useCultureJourneyRecall();
   const { done, total } = unitProgress(unit, completed, lessonMasteryById);
   const hasPremium = unit.lessons.some((lesson) => lesson.premium);
   const moduleComplete = done >= total;
@@ -1156,7 +1159,8 @@ function ModuleBlock({
           // a ordem errada e ensinar o aluno a ignorá-la.
           const instruction = instructionNodesBeforeTopic(lesson.id);
           const gateMarker = cultureGate && !cultureGate.ready ? cultureGate : undefined;
-          if (!inline.length && !instruction.length && !cultureMoments.length && !gateMarker) {
+          const recallHere = cultureRecall?.anchorLessonId === lesson.id ? cultureRecall : null;
+          if (!inline.length && !instruction.length && !cultureMoments.length && !gateMarker && !recallHere) {
             return node;
           }
           return (
@@ -1198,6 +1202,11 @@ function ModuleBlock({
                   {cultureMoments.map((moment) => (
                     <JourneyCultureMomentCard key={moment.id} moment={moment} />
                   ))}
+                </div>
+              )}
+              {recallHere && (
+                <div className="flex w-full flex-col items-center gap-2" data-journey-culture-recall-after={lesson.id}>
+                  <JourneyCultureRecallCard key={recallHere.task.id} recall={recallHere} />
                 </div>
               )}
             </div>

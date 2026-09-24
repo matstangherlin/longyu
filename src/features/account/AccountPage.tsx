@@ -2055,7 +2055,7 @@ export function AccountPage() {
   async function handleCloudSignIn(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     const form = event ? new FormData(event.currentTarget) : null;
-    const formEmail = String(form?.get("email") ?? email).trim();
+    const formEmail = String(form?.get("identifier") ?? email).trim();
     const formPassword = String(form?.get("password") ?? password);
     setEmail(formEmail);
     setPassword(formPassword);

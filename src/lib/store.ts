@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { checkUsername, type UsernameRejection } from "./username";
 import {
   ACTIVITY_MEMORY_LIMIT,
   rememberActivity,
@@ -1439,6 +1440,13 @@ export interface LearningAccount extends AccountSnapshot {
   id: string;
   name: string;
   email?: string;
+  /**
+   * RC2.2.11 — nome de usuário público (normalizado, sem @). É a identidade
+   * social: amigos encontram por aqui, nunca pelo email.
+   */
+  username?: string;
+  /** Escolhido localmente e ainda não confirmado pelo servidor (sem cloud apply). */
+  usernamePendingClaim?: boolean;
   authMode: AuthMode;
   createdAt: number;
   updatedAt: number;
@@ -1563,6 +1571,8 @@ function buildCloudAccount(
     id,
     name: identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu",
     email: identity.email ?? existing?.email ?? fallback?.email,
+    username: existing?.username ?? fallback?.username,
+    usernamePendingClaim: existing?.usernamePendingClaim ?? fallback?.usernamePendingClaim,
     authMode: "cloud",
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
@@ -2302,6 +2312,12 @@ interface AppState {
   markLocalMigrated: () => void;
   switchAccount: (id: string) => void;
   renameAccount: (id: string, name: string) => void;
+  /** RC2.2.11 — valida pelo contrato de username; nunca salva forma inválida. */
+  setAccountUsername: (
+    id: string,
+    username: string,
+    options?: { pendingClaim?: boolean }
+  ) => { ok: true; username: string } | { ok: false; reason: UsernameRejection };
   updateAccount: (id: string, data: { name?: string; email?: string }) => void;
   applyPlacement: (completedLessonIds: string[], placement: PlacementResult) => void;
   /**
@@ -2386,7 +2402,7 @@ interface AppState {
     event: "introduced" | "practiced" | "mastered",
     source: "journey" | "mission"
   ) => void;
-  reviewCultureMemory: (targetId: string, correct: boolean) => void;
+  reviewCultureMemory: (targetId: string, correct: boolean, source?: "journey" | "mission") => void;
   claimReward: (reward: RewardGrant) => boolean;
   grantLessonReward: (input: {
     lessonId: string;
@@ -2475,7 +2491,11 @@ interface AppState {
   /** Registra uma tentativa de teste de pular módulo na semana corrente. */
   recordModuleSkipAttempt: (unitId: string) => void;
   /** G5 — alterna uma medalha na vitrine do Perfil (só desbloqueadas, até 3). */
-  toggleFeaturedAchievement: (id: string) => { changed: boolean; reason?: "locked" | "full" };
+  /** RC2.2.11 — `isMedal`: só MEDALHA entra na vitrine (predicado injetado pela UI; a store não importa o catálogo). */
+  toggleFeaturedAchievement: (
+    id: string,
+    isMedal?: (id: string) => boolean
+  ) => { changed: boolean; reason?: "locked" | "full" | "not_medal" };
   /** H5 — equipa (ou remove, com null) um cosmético possuído. */
   equipProfileCosmetic: (slot: ProfileCosmeticSlot, id: string | null) => boolean;
   /** A4 — marca o reveal do selo como mostrado (idempotente). */
@@ -3195,6 +3215,26 @@ export const useStore = create<AppState>()(
             accounts: nextAccounts,
           };
         }),
+      setAccountUsername: (id, rawUsername, options) => {
+        const check = checkUsername(rawUsername);
+        if (!check.ok) return check;
+        set((s) => {
+          const account = s.accounts[id];
+          if (!account) return {};
+          return {
+            accounts: {
+              ...s.accounts,
+              [id]: {
+                ...account,
+                username: check.username,
+                usernamePendingClaim: options?.pendingClaim ?? account.usernamePendingClaim ?? false,
+                updatedAt: Date.now(),
+              },
+            },
+          };
+        });
+        return check;
+      },
       renameAccount: (id, rawName) =>
         set((s) => {
           const name = rawName.trim();
@@ -4153,7 +4193,7 @@ export const useStore = create<AppState>()(
         });
       },
 
-      reviewCultureMemory: (targetId, correct) => {
+      reviewCultureMemory: (targetId, correct, source = "mission") => {
         set((s) => {
           const cultureMemoryById = applyCultureMemoryReview(s.cultureMemoryById ?? {}, targetId, correct);
           const row = cultureMemoryById[targetId];
@@ -4162,7 +4202,7 @@ export const useStore = create<AppState>()(
                 conceptId: targetId,
                 cultureItemId: row.cultureItemId,
                 event: correct ? "mastered" : "practiced",
-                source: "mission",
+                source,
               })
             : s.cultureKnowledgeById ?? {};
           const next = { ...s, cultureMemoryById, cultureKnowledgeById };
@@ -5106,10 +5146,11 @@ export const useStore = create<AppState>()(
           return { validatedModules, accounts: saveCurrentAccount(next) };
         }),
 
-      toggleFeaturedAchievement: (id) => {
-        let outcome: { changed: boolean; reason?: "locked" | "full" } = { changed: false };
+      toggleFeaturedAchievement: (id, isMedal) => {
+        let outcome: { changed: boolean; reason?: "locked" | "full" | "not_medal" } = { changed: false };
         set((s) => {
-          const result = toggleFeaturedList(s.featuredAchievementIds, id, s.achievementsUnlocked);
+          // RC2.2.11 — só MEDALHA vai para a vitrine (marco/conquista não).
+          const result = toggleFeaturedList(s.featuredAchievementIds, id, s.achievementsUnlocked, isMedal);
           outcome = { changed: result.changed, reason: result.reason };
           if (!result.changed) return {};
           const next = { ...s, featuredAchievementIds: result.ids };

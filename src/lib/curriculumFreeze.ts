@@ -217,3 +217,43 @@ export const BETA_PEDAGOGY_FREEZE = {
     "family_management", "business_dashboard", "ai_roleplay", "pronunciation_feedback", "tone_scoring",
   ],
 } as const;
+
+/**
+ * RC2.2.11 — exceção controlada ao BETA_PEDAGOGY_FREEZE (BY).
+ *
+ * Coerência de experiência, não expansão: nenhuma lição, tópico, CultureItem,
+ * StepKind, moeda, SRS ou motor novo. As áreas abaixo mexem só em
+ * apresentação, navegação, identidade e na ligação entre sistemas que já
+ * existem. O fingerprint continua c48b008c9c1e (nenhuma CURRICULUM_SOURCE
+ * mudou) e as contagens do freeze não se movem.
+ */
+export const RC2_2_11_EXPERIENCE_COHERENCE_EXCEPTION = {
+  id: "RC2_2_11_EXPERIENCE_COHERENCE",
+  scope: "presentation, navigation, identity and wiring of existing systems",
+  areas: [
+    "culture gloss (existing GlossText)",
+    "culture Dragon contract (existing GuideDialogue)",
+    "culture → journey recall (existing culture memory)",
+    "immersion bubbles + canonical cast (existing stories)",
+    "sync notice policy (existing sync)",
+    "league fast path (existing league)",
+    "achievement presentation (existing engine)",
+    "profile layout",
+    "username + identifier login (profiles.username)",
+    "SmartBack (existing router)",
+  ],
+  forbids: [
+    "new lessons",
+    "new teaching topics",
+    "new CultureItems",
+    "new StepKind",
+    "new SRS",
+    "new achievement/medal engine",
+    "new culture engine",
+    "new navigation engine",
+    "new league sync",
+    "new currency",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-11-experience-coherence",
+} as const;

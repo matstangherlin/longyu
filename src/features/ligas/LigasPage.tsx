@@ -36,8 +36,8 @@ export function LigasPage() {
     userWeeklyXp,
     userRank,
     allStandingsZero,
-    isXpSyncing,
     lastSyncError,
+    firstContent,
     lastUpdatedLabel,
     resetAt,
     lastWeek,
@@ -81,7 +81,12 @@ export function LigasPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0">
+    <div
+      className="mx-auto max-w-6xl space-y-4 px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0"
+      data-testid="league-page"
+      data-league-first-content={firstContent?.source ?? "pending"}
+      data-league-first-content-ms={firstContent?.ms ?? ""}
+    >
       {/* A oferta automática desta página é pedida como "card" (discreta), mas
           vinha saindo como modal — interrompia quem só queria ver o ranking.
           Agora a força escolhe o formato: card vira faixa aqui no topo, strong
@@ -154,11 +159,8 @@ export function LigasPage() {
         <p className="mt-0.5 text-xs text-ink-faint sm:text-sm">{meta.description}</p>
       </header>
 
-      {isLive && isXpSyncing && (
-        <p className="rounded-xl border border-accent/25 bg-accent-soft/30 px-3 py-2 text-center text-[11px] text-ink-soft">
-          Sincronizando XP com a liga…
-        </p>
-      )}
+      {/* RC2.2.11 — XP pendente reconcilia em silêncio (sem faixa de rotina);
+          a pontuação do aluno já aparece otimista no card e na tabela. */}
 
       {import.meta.env.DEV && lastSyncError && (
         <p className="rounded-xl border border-wrong/30 bg-wrong-soft px-3 py-2 text-[11px] text-wrong">

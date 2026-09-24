@@ -20,6 +20,7 @@ import {
   type GuideMotionPhase,
 } from "../../lib/guideDialogueMotion";
 import { guideTextBlip, planGuideTextBlips, stopGuideTextVoice } from "../../lib/soundFx";
+import { ProseGlossText } from "../hanzi/ProseGlossText";
 
 export type GuideDialogueProps = {
   messages: readonly string[];
@@ -30,6 +31,12 @@ export type GuideDialogueProps = {
   size?: "default" | "compact";
   className?: string;
   continueLabel?: string;
+  /**
+   * RC2.2.11 — com o texto completo, Hànzì conhecidos viram consultáveis
+   * (hover/foco no desktop, toque no mobile). Durante o typewriter nada muda.
+   * Nunca ligar em prova.
+   */
+  gloss?: boolean;
   /** test hook */
   "data-testid"?: string;
 };
@@ -46,6 +53,7 @@ export function GuideDialogue({
   size = "default",
   className = "",
   continueLabel,
+  gloss = false,
   "data-testid": testId = "guide-dialogue",
 }: GuideDialogueProps) {
   const { t } = useTranslation();
@@ -154,7 +162,7 @@ export function GuideDialogue({
     const target = event.target as HTMLElement | null;
     if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
     if (event.key !== "Enter" && event.key !== " ") return;
-    if (target?.closest("button")) return;
+    if (event.defaultPrevented || target?.closest('button, [role="button"]')) return;
     event.preventDefault();
     continueDialogue();
   }
@@ -197,6 +205,31 @@ export function GuideDialogue({
       </div>
 
       <div className="min-w-0 flex-1">
+        {gloss && state.phase === "complete" ? (
+          // Texto completo + gloss: a caixa deixa de ser <button> para os termos
+          // serem controles próprios (sem botão dentro de botão). Clique fora de
+          // um termo continua avançando, como antes.
+          <div
+            role="group"
+            aria-label={fullCurrent}
+            className="relative w-full cursor-pointer rounded-2xl border border-line bg-surface px-4 py-3 text-left text-sm leading-6 text-ink shadow-card sm:text-base"
+            data-testid="guide-speech-box"
+            data-guide-gloss="on"
+            onClick={(event) => {
+              const target = event.target as HTMLElement | null;
+              if (target?.closest('[role="button"], [role="dialog"], a, button')) return;
+              continueDialogue();
+            }}
+          >
+            <span
+              className="absolute -left-1.5 top-5 hidden h-3 w-3 rotate-45 border-b border-l border-line bg-surface sm:block"
+              aria-hidden
+            />
+            <span data-testid="guide-visible-text">
+              <ProseGlossText text={fullCurrent} />
+            </span>
+          </div>
+        ) : (
         <button
           type="button"
           className={[
@@ -227,6 +260,7 @@ export function GuideDialogue({
             {state.phase === "complete" || state.phase === "done" ? fullCurrent : ""}
           </span>
         </button>
+        )}
 
         <div className={["mt-3", playEntrance ? "guide-continue-enter" : ""].join(" ")}>
           <Button
