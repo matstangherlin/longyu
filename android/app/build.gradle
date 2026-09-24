@@ -8,7 +8,15 @@ def longyuPackageJson = new groovy.json.JsonSlurper().parse(rootProject.file('..
 def longyuVersionProps = new Properties()
 rootProject.file('version.properties').withInputStream { longyuVersionProps.load(it) }
 def longyuVersionName = longyuPackageJson.version.toString()
-def longyuVersionCode = Integer.parseInt(longyuVersionProps.getProperty('versionCode').trim())
+def longyuVersionFloor = Integer.parseInt(longyuVersionProps.getProperty('versionCode').trim())
+// RC2.2.10B — builds oficiais (CI/release) recebem o versionCode calculado por
+// scripts/lib/release-identity.mjs (floor + commits first-parent de main) em
+// LONGYU_ANDROID_VERSION_CODE. Nunca abaixo do floor; sem env, vale o floor.
+def longyuVersionCodeEnv = System.getenv('LONGYU_ANDROID_VERSION_CODE')?.trim()
+def longyuVersionCode = longyuVersionCodeEnv ? Integer.parseInt(longyuVersionCodeEnv) : longyuVersionFloor
+if (longyuVersionCode < longyuVersionFloor) {
+    throw new GradleException("LONGYU_ANDROID_VERSION_CODE ${longyuVersionCode} abaixo do floor ${longyuVersionFloor} (android/version.properties)")
+}
 
 android {
     namespace = "com.longyu.app"

@@ -1,0 +1,5 @@
+{
+  "schema": "longyu-android-release-ledger/1",
+  "note": "Registro de uploads REAIS ao Google Play (um item por upload bem-sucedido, copiado do play-upload-record.json do run). versionCode estritamente crescente. Vazio = nenhum upload aconteceu.",
+  "releases": []
+}

@@ -29,6 +29,23 @@ jobs:
       - name: Frontend secrets (post-build)
         run: npm run validate:frontend-secrets
 
+      # RC2.2.10B — o web releaseável sai do MESMO SHA que o Android. Só chega
+      # aqui se validate:beta, build e secrets passaram (build quebrado = nenhum
+      # artefato web). O deploy continua sendo o do Netlify (integração Git);
+      # este job não publica nada.
+      - name: Web build identity (SHA pós-merge)
+        id: web
+        run: node scripts/release-identity.mjs web --expect-sha "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload web dist (longyu-web-<sha>)
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.web.outputs.artifact }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
+
       # Relatórios de qualidade regenerados pela cadeia beta (com procedência
       # e hash de integridade) — sempre anexados, mesmo em falha, para triagem.
       - name: Upload quality reports

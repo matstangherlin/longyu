@@ -1719,6 +1719,7 @@ export const en: MessageCatalog = {
     aboutDocumentTitle: "About Longyu",
     privacyDocumentTitle: "Privacy — Longyu",
     aboutLead: "Transparency about the current state of the public beta.",
+    aboutVersionCode: "versionCode {code}",
     aboutBuild: "{platform} · build {build}",
     aboutTagline: "龙语 · Mandarin by logic",
     aboutIntro:
