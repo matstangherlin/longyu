@@ -30,8 +30,8 @@
   "releaseSigningEvidence": false,
   "signedReleaseResult": "BLOCKED_SIGNING_SECRETS",
   "localAndroidBuildResult": "BLOCKED_LOCAL_ANDROID_SDK",
-  "debugApkGenerated": false,
-  "debugAabGenerated": false,
+  "debugApkGenerated": true,
+  "debugAabGenerated": true,
   "physicalDevicePass": false,
   "playConsoleConfigured": false,
   "brandAssets": {
@@ -43,5 +43,13 @@
     "playStoreListingAssets": "ANDROID_BRAND_ASSET_REQUIRED"
   },
   "publicBetaVerdict": "NO-GO",
-  "notes": "Fundação de código. Emulador/Playwright/Gradle não substituem android_real_device (dispositivo físico + evidência humana). Cloud (#273) segue adiada: cloud_auth/cloud_sync/feedback_backend continuam false."
+  "notes": "Fundação de código. Emulador/Playwright/Gradle não substituem android_real_device (dispositivo físico + evidência humana). Cloud (#273) segue adiada: cloud_auth/cloud_sync/feedback_backend continuam false.",
+  "debugBuildEvidence": {
+    "where": "GitHub Actions (ubuntu-latest, Android SDK do runner, Temurin 21)",
+    "workflow": ".github/workflows/android.yml",
+    "run": "https://github.com/matstangherlin/longyu/actions/runs/35956823842",
+    "commit": "8149bf5d",
+    "result": "assembleDebug + bundleDebug BUILD SUCCESSFUL; artifact longyu-android-debug (APK + AAB)",
+    "releaseWithoutSecrets": "BLOCKED_SIGNING_SECRETS (exit 4, verificado no mesmo job)"
+  }
 }

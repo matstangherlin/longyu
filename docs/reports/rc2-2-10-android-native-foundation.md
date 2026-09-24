@@ -241,8 +241,8 @@ TTS (`speechSynthesis`) são as mesmas superfícies web dentro da WebView.
 | --- | --- |
 | Signed release gerado? | **FALSE** — `BLOCKED_SIGNING_SECRETS` (sem keystore/senhas do owner; nenhum keystore fake foi criado) |
 | Android SDK disponível neste ambiente? | **FALSE** — `dl.google.com` (SDK e Google Maven/AGP) negado pela política de rede do ambiente (HTTP 403). JDK 21 e Gradle 8.14.3 existem. |
-| Debug build (APK) gerado? | **FALSE** localmente — `BLOCKED_LOCAL_ANDROID_SDK` (exit 3) |
-| AAB debug gerado? | **FALSE** localmente — mesmo bloqueio |
+| Debug build (APK) gerado? | **TRUE no CI** ([run 35956823842](https://github.com/matstangherlin/longyu/actions/runs/35956823842), `assembleDebug` BUILD SUCCESSFUL, commit `8149bf5d`); localmente `BLOCKED_LOCAL_ANDROID_SDK` (exit 3) |
+| AAB debug gerado? | **TRUE no CI** (mesmo run, `bundleDebug` BUILD SUCCESSFUL; artifact `longyu-android-debug` com APK + AAB, 7 dias); localmente mesmo bloqueio |
 | `cap sync android` | **PASS** (web build + cópia de assets + 5 plugins) |
 | Aparelho Android físico testado? | **FALSE** |
 | `android_real_device` formal PASS? | **FALSE** — continua `pass: false` em `docs/release/rc1-operational-checks.json` |
@@ -250,9 +250,12 @@ TTS (`speechSynthesis`) são as mesmas superfícies web dentro da WebView.
 Novo workflow `.github/workflows/android.yml` (sem segredos): gates
 estáticos; prova que `bundle:release` sem segredos sai com exit 4; compila
 **APK e AAB debug** com o Android SDK do runner do GitHub e anexa os artefatos
-por 7 dias. Ele roda em `pull_request`, então a **primeira evidência real de
-compilação** aparece quando o owner abrir o PR. Build verde ali continua não
-sendo `android_real_device`.
+por 7 dias. Primeira execução real, no PR
+[matstangherlin/longyu#283](https://github.com/matstangherlin/longyu/pull/283):
+job "Android foundation (contratos + debug APK/AAB)" **success** — AGP 8.13.0
++ Gradle 8.14.3 + SDK 36 compilaram o projeto, inclusive o
+`longyu-signing.gradle` e o versionamento lido do `package.json`. Build verde
+ali continua não sendo `android_real_device`.
 
 ## 29. Cloud
 
@@ -282,7 +285,19 @@ continua ativo e sem alteração.
 ## 32. Gates
 
 <!-- resultados:inicio -->
-(preenchido ao final da validação)
+| Gate / comando | Resultado | Onde |
+| --- | --- | --- |
+| `npm run typecheck` | **PASS** | local |
+| `npm run build` (web/PWA) | **PASS**: SW gerado, 0 `registerSW` injetado no HTML | local |
+| `npm run android:sync` | **PASS**: 5 plugins | local |
+| `gate:android-native-foundation` | **PASS**: 3 validators + 74 mutações + `validate:beta-pedagogy-freeze` | local + CI (job Android) |
+| `validate:beta-pedagogy-freeze` | **PASS**: 134 · 113 · 30 · 30 · 20 · 5 · 12 · 31/31 READY · fp `c48b008c9c1e` | local |
+| `validate:public-beta-feature-freeze`, `validate:rc15-freeze`, `validate:mobile-beta-readiness`, `validate:pwa-release-readiness`, `test:pwa-upgrade-preflight` e demais | **PASS**: 182 linhas PASS, 0 FAIL até o ponto em que a execução local de `validate:beta` foi interrompida pelo owner | local (parcial) |
+| `validate:beta` completo (inclui `gate:rc2-2-8-learning-gamification`, `gate:rc2-2-9-capability-closure`, `gate:android-native-foundation`) + `build` + `validate:frontend-secrets` | em execução no job "Portão de qualidade" do PR [matstangherlin/longyu#283](https://github.com/matstangherlin/longyu/pull/283); o resultado vale de lá | CI |
+| Android debug APK + AAB | **PASS**: `assembleDebug` + `bundleDebug` | CI ([run 35956823842](https://github.com/matstangherlin/longyu/actions/runs/35956823842)) |
+| `android:bundle:release` sem segredos | **BLOCKED_SIGNING_SECRETS** (exit 4), como esperado | local + CI |
+| `npm audit --audit-level=moderate` · gitleaks · CodeQL | **PASS** | CI |
+| E2E Chromium + mobile-chrome (7 specs: beta-smoke, en-core-surfaces, i18n-shell, journey-redesign, mobile-device, topic-mastery-hardening, rc2-2-9-capability-closure) | **87 passed**, 4 skipped, 2 failed. As 2 falhas (`journey-redesign`: botão 64.125 px vs `< 64`, 322 px vs `< 300`) **reproduzem idênticas no commit base `e65b527e`**: métrica de fonte deste sandbox, não regressão do RC2.2.10 | local |
 <!-- resultados:fim -->
 
 ## 33. Mutações
