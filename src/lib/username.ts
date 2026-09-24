@@ -156,7 +156,7 @@ export const LOGIN_RATE_LIMIT = {
 
 /**
  * Estado do login por nome de usuário na nuvem. A migration e a Edge Function
- * existem no repositório mas NÃO foram aplicadas/deployadas: até o owner
+ * existem no repositório mas não foram aplicadas/deployadas: até o owner
  * aplicar, o cliente não chama a função e orienta a entrar com email.
  */
 export const USERNAME_LOGIN_CLOUD_STATUS = "CODE_READY_AWAITING_CLOUD_APPLY" as const;

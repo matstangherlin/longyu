@@ -768,7 +768,7 @@ export function achievementRewardLabel(reward: AchievementReward): string {
 // ── RC2.2.11 — raridade: MARCO · CONQUISTA · MEDALHA ─────────────────────────
 //
 // Um único motor (ACHIEVEMENTS + unlockAchievement). O que muda é a
-// APRESENTAÇÃO: "primeira lição", "primeiro áudio", "primeiro radical",
+// Apresentação: "primeira lição", "primeiro áudio", "primeiro radical",
 // "primeira frase", "10 revisões" e "primeiro selo" são marcos da evolução,
 // não medalhas. Medalha fica para o que é raro: fase inteira, módulo
 // perfeito, sequência longa, grande domínio, coleção cultural relevante,
