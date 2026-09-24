@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore, type DailyStudyRecord } from "../../lib/store";
+import { formatUsernameHandle } from "../../lib/username";
 import { formatDate } from "../../i18n/format";
 import { t } from "../../i18n/catalog";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -35,12 +36,6 @@ import {
   IconTrophy,
   IconUser,
 } from "../../components/ui/Icon";
-
-const RESERVED_NAMES = new Set(["aluno", "novo", "longyu", "aluno longyu"]);
-
-function firstName(name?: string): string {
-  return (name ?? "").trim().split(/\s+/)[0] ?? "";
-}
 
 function initials(name?: string): string {
   const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
@@ -123,11 +118,9 @@ export function ProfilePage() {
 
   const account = accounts[currentAccountId];
   const name = account?.name?.trim() || t("hub.defaultLearner");
-  const nickname = useMemo(() => {
-    const first = firstName(name);
-    if (!first || RESERVED_NAMES.has(name.toLowerCase()) || RESERVED_NAMES.has(first.toLowerCase())) return undefined;
-    return `@${first.toLowerCase()}`;
-  }, [name]);
+  // RC2.2.11 — só o nome de usuário REAL (nunca um apelido derivado do nome,
+  // nunca o email). Sem username, não inventamos um.
+  const handle = formatUsernameHandle(account?.username);
   const since = memberSinceLabel(account?.createdAt);
   const tier = normalizeLeagueTier(league.leagueTier);
   const leagueName = LEAGUE_META[tier]?.name ?? "Liga Bronze";
@@ -271,7 +264,12 @@ export function ProfilePage() {
             </span>
           )}
           <div className="mt-0.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs text-ink-faint sm:justify-start">
-            {nickname && <span className="font-medium text-ink-soft">{nickname}</span>}
+            {handle && (
+              <span data-testid="profile-username" className="max-w-full truncate font-medium text-ink-soft">
+                {handle}
+                {account?.usernamePendingClaim && <span className="ml-1 font-normal text-ink-faint">({t("hub.usernamePending")})</span>}
+              </span>
+            )}
             {since && <span>· {t("hub.studyingSince", { date: since })}</span>}
             <SyncStatusChip className="ml-1" />
           </div>

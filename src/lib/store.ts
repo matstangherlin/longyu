@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { checkUsername, type UsernameRejection } from "./username";
 import {
   ACTIVITY_MEMORY_LIMIT,
   rememberActivity,
@@ -1439,6 +1440,13 @@ export interface LearningAccount extends AccountSnapshot {
   id: string;
   name: string;
   email?: string;
+  /**
+   * RC2.2.11 — nome de usuário público (normalizado, sem @). É a identidade
+   * social: amigos encontram por aqui, nunca pelo email.
+   */
+  username?: string;
+  /** Escolhido localmente e ainda não confirmado pelo servidor (sem cloud apply). */
+  usernamePendingClaim?: boolean;
   authMode: AuthMode;
   createdAt: number;
   updatedAt: number;
@@ -1563,6 +1571,8 @@ function buildCloudAccount(
     id,
     name: identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu",
     email: identity.email ?? existing?.email ?? fallback?.email,
+    username: existing?.username ?? fallback?.username,
+    usernamePendingClaim: existing?.usernamePendingClaim ?? fallback?.usernamePendingClaim,
     authMode: "cloud",
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
@@ -2302,6 +2312,12 @@ interface AppState {
   markLocalMigrated: () => void;
   switchAccount: (id: string) => void;
   renameAccount: (id: string, name: string) => void;
+  /** RC2.2.11 — valida pelo contrato de username; nunca salva forma inválida. */
+  setAccountUsername: (
+    id: string,
+    username: string,
+    options?: { pendingClaim?: boolean }
+  ) => { ok: true; username: string } | { ok: false; reason: UsernameRejection };
   updateAccount: (id: string, data: { name?: string; email?: string }) => void;
   applyPlacement: (completedLessonIds: string[], placement: PlacementResult) => void;
   /**
@@ -3199,6 +3215,26 @@ export const useStore = create<AppState>()(
             accounts: nextAccounts,
           };
         }),
+      setAccountUsername: (id, rawUsername, options) => {
+        const check = checkUsername(rawUsername);
+        if (!check.ok) return check;
+        set((s) => {
+          const account = s.accounts[id];
+          if (!account) return {};
+          return {
+            accounts: {
+              ...s.accounts,
+              [id]: {
+                ...account,
+                username: check.username,
+                usernamePendingClaim: options?.pendingClaim ?? account.usernamePendingClaim ?? false,
+                updatedAt: Date.now(),
+              },
+            },
+          };
+        });
+        return check;
+      },
       renameAccount: (id, rawName) =>
         set((s) => {
           const name = rawName.trim();

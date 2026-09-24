@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { canSignInWithCredentials } from "../../lib/authForm";
+import { canSignInWithIdentifier } from "../../lib/authForm";
 import { Button } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import { PasswordField } from "./PasswordField";
@@ -30,7 +30,7 @@ export function CloudLoginForm({
 }) {
   const { t } = useTranslation();
   const resolvedSubmit = submitLabel ?? t("auth.signIn");
-  const canSubmit = canSignInWithCredentials(email, password) && !loading;
+  const canSubmit = canSignInWithIdentifier(email, password) && !loading;
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4">
@@ -40,14 +40,20 @@ export function CloudLoginForm({
         </p>
       )}
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
+        {/* RC2.2.11 — um campo só: email OU nome de usuário. */}
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.identifier")}</span>
         <input
-          name="email"
-          type="email"
-          autoComplete="email"
+          name="identifier"
+          type="text"
+          inputMode="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          autoComplete="username"
+          data-testid="login-identifier"
           value={email}
           onChange={(event) => onEmail(event.target.value)}
-          placeholder={t("auth.emailPlaceholder")}
+          placeholder={t("auth.identifierPlaceholder")}
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none transition focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
         />
       </label>

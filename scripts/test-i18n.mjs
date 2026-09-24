@@ -126,7 +126,8 @@ try {
 
   locale.setInterfaceLocale("en");
   const mapped = errorsMod.localizeUserMessage("Invalid login credentials");
-  assert(mapped === "Incorrect email or password.", "known supabase error maps in EN");
+  // RC2.2.11 — anti-enumeração: mesma frase para usuário/email inexistente e senha errada.
+  assert(mapped === "Incorrect username/email or password.", "known supabase error maps in EN");
   const mappedPt = errorsMod.localizeUserMessage("Informe um email válido e senha com pelo menos 6 caracteres.");
   assert(mappedPt === catalog.t("auth.errors.invalidEmailPassword"), "known PT error maps in EN");
   const mappedDeletion = errorsMod.localizeUserMessage("Não foi possível excluir a conta.");
