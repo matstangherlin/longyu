@@ -1,11 +1,13 @@
 import { useMemo, useRef, useState } from "react";
 import { ALL_LESSONS } from "../../data/journey";
+import { CULTURE_NATIVE_LESSONS } from "../../data/cultureLessons";
 import { CULTURE_ITEMS } from "../../data/culture";
 import { cultureText } from "../../data/cultureQuest";
 import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import {
   dismissCultureRecall,
+  hanziIn,
   planCultureJourneyRecall,
   readDismissedCultureRecall,
   type CultureJourneyRecall,
@@ -26,8 +28,15 @@ export function useCultureJourneyRecall(): CultureJourneyRecall | null {
   const lastRef = useRef<CultureJourneyRecall | null>(null);
   const plan = useMemo(() => {
     const done = new Set(completedLessons ?? []);
-    const ordered = ALL_LESSONS.filter((lesson) => done.has(lesson.id) && lesson.lessonDomain !== "culture").map((lesson) => lesson.id);
+    const doneLessons = ALL_LESSONS.filter((lesson) => done.has(lesson.id) && lesson.lessonDomain !== "culture");
+    const ordered = doneLessons.map((lesson) => lesson.id);
+    const taught = new Set(cultureCompletedIds ?? []);
+    const knownHanzi = new Set([
+      ...hanziIn(doneLessons.map((lesson) => lesson.steps)),
+      ...hanziIn(CULTURE_NATIVE_LESSONS.filter((lesson) => taught.has(lesson.cultureItemId ?? "")).map((lesson) => lesson.steps)),
+    ]);
     return planCultureJourneyRecall({
+      knownHanzi,
       cultureMemoryById: cultureMemoryById ?? {},
       cultureCompletedIds: cultureCompletedIds ?? [],
       completedJourneyLessonIds: ordered,

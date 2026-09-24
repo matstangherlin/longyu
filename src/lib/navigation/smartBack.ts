@@ -118,8 +118,10 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
 ];
 
 function normalizePath(pathname: string): string {
-  const clean = pathname.split(/[?#]/)[0] ?? "/";
-  return clean.replace(/\/+$/, "") || "/";
+  let clean = String(pathname ?? "/").split(/[?#]/)[0] ?? "/";
+  // Laço em vez de /\/+$/ (regex com âncora final em entrada de URL = ReDoS polinomial).
+  while (clean.length > 1 && clean.endsWith("/")) clean = clean.slice(0, -1);
+  return clean || "/";
 }
 
 function patternMatches(pattern: string, path: string): boolean {

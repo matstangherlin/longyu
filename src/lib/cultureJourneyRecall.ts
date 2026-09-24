@@ -31,6 +31,11 @@ export function planCultureJourneyRecall(input: {
   /** Lições de mandarim concluídas em ordem da Jornada. */
   completedJourneyLessonIds: readonly string[];
   dismissedTargetIds?: ReadonlySet<string>;
+  /**
+   * Hànzì que o aluno já viu (aulas de mandarim concluídas + aulas de Cultura
+   * concluídas). Pergunta com Hànzì fora daqui é pulada: sem poluição lexical.
+   */
+  knownHanzi?: ReadonlySet<string>;
   now?: number;
 }): CultureJourneyRecall | null {
   const anchorLessonId = input.completedJourneyLessonIds[input.completedJourneyLessonIds.length - 1];
@@ -42,9 +47,21 @@ export function planCultureJourneyRecall(input: {
     if (input.dismissedTargetIds?.has(row.targetId)) continue;
     eligible[id] = row;
   }
-  const [task] = buildCultureReviewSession(eligible, input.now ?? Date.now(), 3);
+  const tasks = buildCultureReviewSession(eligible, input.now ?? Date.now(), 7);
+  const task = tasks.find((candidate) => !input.knownHanzi || unknownHanziIn(candidate, input.knownHanzi).length === 0);
   if (!task) return null;
   return { task, anchorLessonId };
+}
+
+const CJK_CHAR_RE = /[\u3400-\u9fff\uf900-\ufaff]/gu;
+
+export function hanziIn(value: unknown): string[] {
+  return Array.from(new Set(JSON.stringify(value ?? "").match(CJK_CHAR_RE) ?? []));
+}
+
+/** Hànzì da pergunta (enunciado, opções, feedback) que o aluno ainda não viu. */
+export function unknownHanziIn(task: CultureReviewTask, known: ReadonlySet<string>): string[] {
+  return hanziIn(task.step).filter((ch) => !known.has(ch));
 }
 
 const DISMISS_KEY = "longyu:culture-recall-dismissed:v1";
