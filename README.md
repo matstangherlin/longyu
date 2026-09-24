@@ -101,6 +101,24 @@ npm run preview
 
 Use o preview para testar rotas internas, reload de página e comportamento mobile antes do deploy.
 
+## Android (Capacitor)
+
+O Android é o **mesmo** Longyu empacotado em `android/` (Capacitor 8, target
+API 36): mesmo frontend, store, SRS e conta. Precisa de JDK 21 e Android SDK
+(Android Studio).
+
+```bash
+npm run android:sync          # build web + cap sync
+npm run android:open          # sync + abre no Android Studio
+npm run android:debug         # APK debug
+npm run android:bundle:debug  # AAB debug
+npm run android:bundle:release  # AAB assinado — exige os 4 valores LONGYU_ANDROID_*
+```
+
+Assinatura (upload key, senhas, backup): [`docs/ANDROID_SIGNING.md`](docs/ANDROID_SIGNING.md).
+Nunca versione `.jks`, `.keystore`, `keystore.properties` ou `local.properties`.
+Estado e bloqueios: [`docs/reports/rc2-2-10-android-native-foundation.md`](docs/reports/rc2-2-10-android-native-foundation.md).
+
 ## Deploy beta (Netlify)
 
 O deploy é estático. Conecte o repositório Git e deixe o Netlify instalar dependências e gerar `dist/` no build.
@@ -156,6 +174,7 @@ Esse redirect SPA garante que rotas do React Router (`/jornada`, `/revisao`, `/p
 - ZIPs de entrega na raiz do repositório
 - `.env`, `.env.local` ou backups (`*.bak`, `*.old`)
 - `node_modules` extraído de ZIP (quebra binários do Rollup no Linux)
+- keystore Android (`*.jks`, `*.keystore`), `android/keystore.properties`, `android/local.properties`
 
 ## Segurança
 

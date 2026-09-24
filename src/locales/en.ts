@@ -1719,6 +1719,7 @@ export const en: MessageCatalog = {
     aboutDocumentTitle: "About Longyu",
     privacyDocumentTitle: "Privacy — Longyu",
     aboutLead: "Transparency about the current state of the public beta.",
+    aboutBuild: "{platform} · build {build}",
     aboutTagline: "龙语 · Mandarin by logic",
     aboutIntro:
       "You are testing an early version of Longyu. Some activities are still being refined — and that is expected at this stage. Beta does not mean your progress can disappear without notice.",

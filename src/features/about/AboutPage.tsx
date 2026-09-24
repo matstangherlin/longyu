@@ -4,6 +4,7 @@ import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { MyFeedbackList } from "../../components/feedback/MyFeedbackList";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
+import { BuildIdentityLabel } from "../../components/system/BuildIdentityLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
 import { Card, SectionTitle } from "../../components/ui/primitives";
 import { BETA_LABEL, FEEDBACK_EMAIL } from "../../lib/feedback";
@@ -52,6 +53,7 @@ export function AboutPage() {
         <div className="flex flex-wrap items-center gap-2">
           <BetaBadge />
           <AppVersionLabel className="text-xs" />
+          <BuildIdentityLabel className="text-xs" />
           <span className="text-xs text-ink-faint">{t("marketing.aboutTagline")}</span>
         </div>
         <h2 className="mt-4 font-serif text-2xl font-semibold text-ink">{BETA_LABEL}</h2>

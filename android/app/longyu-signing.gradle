@@ -1,0 +1,73 @@
+// RC2.2.10 — contrato de assinatura de RELEASE do Longyu Android.
+//
+// Arquitetura: Google Play App Signing. O que assina localmente é a UPLOAD KEY
+// do owner; a chave de distribuição fica com o Google. Ver docs/ANDROID_SIGNING.md.
+//
+// Os quatro valores vêm de variáveis de ambiente (CI / shell do owner) ou, como
+// alternativa local, de android/keystore.properties (GITIGNORED; modelo sem
+// segredos em android/keystore.properties.example). Env tem precedência.
+//
+//   LONGYU_ANDROID_KEYSTORE_PATH      ↔ storeFile
+//   LONGYU_ANDROID_KEYSTORE_PASSWORD  ↔ storePassword
+//   LONGYU_ANDROID_KEY_ALIAS          ↔ keyAlias
+//   LONGYU_ANDROID_KEY_PASSWORD       ↔ keyPassword
+//
+// Regras:
+// - nenhum valor é impresso, nunca; só os NOMES do que falta;
+// - debug continua funcionando sem nada disso (debug key padrão do SDK);
+// - release NUNCA cai na debug key: sem os quatro valores + keystore existente,
+//   qualquer tarefa de release termina em BLOCKED_SIGNING_SECRETS.
+
+def longyuSigningKeys = [
+    [env: 'LONGYU_ANDROID_KEYSTORE_PATH', prop: 'storeFile'],
+    [env: 'LONGYU_ANDROID_KEYSTORE_PASSWORD', prop: 'storePassword'],
+    [env: 'LONGYU_ANDROID_KEY_ALIAS', prop: 'keyAlias'],
+    [env: 'LONGYU_ANDROID_KEY_PASSWORD', prop: 'keyPassword'],
+]
+
+def longyuSigningProps = new Properties()
+def longyuSigningPropsFile = rootProject.file('keystore.properties')
+if (longyuSigningPropsFile.isFile()) {
+    longyuSigningPropsFile.withInputStream { longyuSigningProps.load(it) }
+}
+
+def longyuSigning = [:]
+longyuSigningKeys.each { key ->
+    def value = System.getenv(key.env) ?: longyuSigningProps.getProperty(key.prop)
+    longyuSigning[key.env] = value?.trim() ? value.trim() : null
+}
+
+def longyuSigningMissing = longyuSigningKeys.findAll { !longyuSigning[it.env] }.collect { it.env }
+def longyuKeystoreFile = longyuSigning.LONGYU_ANDROID_KEYSTORE_PATH ? rootProject.file(longyuSigning.LONGYU_ANDROID_KEYSTORE_PATH) : null
+if (longyuKeystoreFile != null && !longyuKeystoreFile.isFile()) {
+    longyuSigningMissing << 'LONGYU_ANDROID_KEYSTORE_PATH (arquivo não encontrado)'
+}
+def longyuReleaseSigningReady = longyuSigningMissing.isEmpty()
+
+android {
+    signingConfigs {
+        if (longyuReleaseSigningReady) {
+            longyuRelease {
+                storeFile longyuKeystoreFile
+                storePassword longyuSigning.LONGYU_ANDROID_KEYSTORE_PASSWORD
+                keyAlias longyuSigning.LONGYU_ANDROID_KEY_ALIAS
+                keyPassword longyuSigning.LONGYU_ANDROID_KEY_PASSWORD
+            }
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig longyuReleaseSigningReady ? signingConfigs.longyuRelease : null
+        }
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    def releaseTasks = graph.allTasks.findAll { it.project == project && it.name ==~ /(assemble|bundle|package|sign|install).*Release.*/ }
+    if (!releaseTasks.isEmpty() && !longyuReleaseSigningReady) {
+        throw new GradleException(
+            "BLOCKED_SIGNING_SECRETS: release do Longyu exige assinatura. Faltando: ${longyuSigningMissing.join(', ')}. " +
+            "Preencha via variáveis de ambiente ou android/keystore.properties (docs/ANDROID_SIGNING.md). Nenhum valor foi impresso."
+        )
+    }
+}
