@@ -2108,6 +2108,13 @@ interface AppState {
   toneColors: boolean;
   toneColorIntensity: number;
   autoPlayAudio: boolean;
+  /**
+   * RC2.2.13 — preferências dos lembretes locais (Android). O que vale para
+   * disparar é a permissão do SO; isto é só a escolha do aluno.
+   */
+  notificationPrefs: { enabled: boolean; streak: boolean; comeback: boolean };
+  /** RC2.2.13 — versão da tela "Prepare o Longyu" já mostrada (0 = nunca). */
+  nativePermissionIntroVersion: number;
   slowAudio: boolean;
   accountSetupComplete: boolean;
   /** Durante exercícios da lição: desbloqueia medalhas sem mostrar o modal. */
@@ -2242,6 +2249,8 @@ interface AppState {
   setToneColors: (enabled: boolean) => void;
   setToneColorIntensity: (intensity: number) => void;
   setAutoPlayAudio: (enabled: boolean) => void;
+  setNotificationPrefs: (patch: Partial<{ enabled: boolean; streak: boolean; comeback: boolean }>) => void;
+  markNativePermissionIntroSeen: (version: number) => void;
   setSlowAudio: (enabled: boolean) => void;
   setAccountSetupComplete: (v: boolean) => void;
   setHoldAchievementModals: (v: boolean) => void;
@@ -2632,6 +2641,8 @@ export const useStore = create<AppState>()(
       toneColors: true,
       toneColorIntensity: 1,
       autoPlayAudio: true,
+      notificationPrefs: { enabled: true, streak: true, comeback: true },
+      nativePermissionIntroVersion: 0,
       slowAudio: false,
       accountSetupComplete: false,
       holdAchievementModals: false,
@@ -2737,6 +2748,10 @@ export const useStore = create<AppState>()(
       setToneColors: (enabled) => set({ toneColors: enabled }),
       setToneColorIntensity: (intensity) => set({ toneColorIntensity: clamp01(intensity) }),
       setAutoPlayAudio: (enabled) => set({ autoPlayAudio: enabled }),
+      setNotificationPrefs: (patch) =>
+        set((s) => ({ notificationPrefs: { ...(s.notificationPrefs ?? { enabled: true, streak: true, comeback: true }), ...patch } })),
+      markNativePermissionIntroSeen: (version) =>
+        set((s) => ({ nativePermissionIntroVersion: Math.max(s.nativePermissionIntroVersion ?? 0, version) })),
       setSlowAudio: (enabled) => set({ slowAudio: enabled }),
       setAccountSetupComplete: (v) =>
         set((s) => {

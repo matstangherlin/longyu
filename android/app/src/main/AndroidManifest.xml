@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
@@ -55,4 +56,23 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- RC2.2.13 — lembretes locais (Android 13+ pede em tempo de execução).
+         O plugin @capacitor/local-notifications também traz RECEIVE_BOOT_COMPLETED
+         (reagendar após reiniciar) e WAKE_LOCK. SCHEDULE_EXACT_ALARM é REMOVIDO:
+         lembrete de estudo não é alarme e usa agendamento inexato. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:node="remove" />
+
+    <!-- RC2.2.13 — visibilidade de pacotes (Android 11+): sem isto o app não
+         enxerga o serviço de voz (TTS) nem o de reconhecimento de fala. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
 </manifest>

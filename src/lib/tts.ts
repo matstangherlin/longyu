@@ -2,6 +2,7 @@
 // Trocável por um TTS na nuvem depois sem mexer nas telas: basta
 // reimplementar speak() mantendo a assinatura.
 
+import { hasNativeSpeech, nativeSpeak, nativeStopSpeaking, nativeTtsStatus } from "./platform/nativeSpeech";
 import { unlockAudio } from "./soundFx";
 import { useStore } from "./store";
 import { speakableProperNames } from "./personalize";
@@ -94,7 +95,39 @@ export function installTTSGestureUnlock(): () => void {
   };
 }
 
+// ── RC2.2.13 — voz nativa no Android ─────────────────────────────────────
+//
+// No app Android a voz é o TextToSpeech do sistema (plugin LongyuSpeech via
+// src/lib/platform/nativeSpeech.ts). `window.speechSynthesis` pode nem
+// existir no WebView, e isso não pode desligar o áudio do aluno. As telas
+// continuam chamando speak()/stopSpeaking(): só o motor muda.
+
+/** Último motivo de "não tocou" no Android (null = tocou / ainda não tentou). */
+let nativeTtsUnavailableReason: string | null = null;
+let nativeTtsKnownAvailable: boolean | null = null;
+
+/** Consulta o SO (zh-CN instalado?) e guarda o resultado desta sessão. */
+export async function refreshNativeTtsStatus(): Promise<{ available: boolean; status: string } | null> {
+  if (!hasNativeSpeech()) return null;
+  const status = await nativeTtsStatus();
+  nativeTtsKnownAvailable = status.available;
+  nativeTtsUnavailableReason = status.available ? null : status.status;
+  return { available: status.available, status: status.status };
+}
+
+/** O áudio deste runtime é a voz nativa do Android? */
+export function usesNativeVoice(): boolean {
+  return hasNativeSpeech();
+}
+
+/** Código honesto do último problema de voz nativa (TTS_LANGUAGE_MISSING_DATA…). */
+export function getNativeTtsUnavailableReason(): string | null {
+  return nativeTtsUnavailableReason;
+}
+
 export function isTTSAvailable(): boolean {
+  // Android: disponível até o SO dizer o contrário — nunca por falta de speechSynthesis.
+  if (hasNativeSpeech()) return nativeTtsKnownAvailable !== false;
   // `"speechSynthesis" in window` respondia "sim" para uma propriedade que
   // existe valendo `undefined` — e aí a fala ia adiante e estourava ao chamar
   // `.speak`. Perguntar pelo objeto e pelo método é a pergunta que interessa:
@@ -106,6 +139,8 @@ export function isTTSAvailable(): boolean {
 
 /** Carrega vozes (algumas plataformas só preenchem após o evento). */
 export function warmUpVoices(): Promise<void> {
+  // Android: "aquecer" = perguntar ao SO se a voz chinesa existe.
+  if (hasNativeSpeech()) return refreshNativeTtsStatus().then(() => undefined);
   if (!isTTSAvailable() || warmed) return Promise.resolve();
   return new Promise((resolve) => {
     let settled = false;
@@ -286,6 +321,10 @@ function defaultSpeakableProperNames(): string[] {
 }
 
 export function speak(text: string, opts: SpeakOptions = {}): void {
+  if (hasNativeSpeech()) {
+    speakNative(text, opts);
+    return;
+  }
   if (!isTTSAvailable()) {
     opts.onerror?.();
     opts.onend?.();
@@ -356,7 +395,33 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   }
 }
 
+/** Android: mesmo contrato de speak() (onend sempre; onerror quando não tocou). */
+function speakNative(text: string, opts: SpeakOptions): void {
+  const spoken = mandarinSpeechText(text, { properNames: opts.properNames ?? defaultSpeakableProperNames() });
+  if (!spoken.trim()) {
+    opts.onend?.();
+    return;
+  }
+  const preferences = useStore.getState();
+  const rate = opts.rate ?? (preferences.slowAudio ? Math.min(preferences.ttsRate ?? 0.85, 0.65) : preferences.ttsRate ?? 0.85);
+  void nativeSpeak(spoken, { rate, pitch: opts.pitch ?? 1 }).then((result) => {
+    if (result.ok) {
+      nativeTtsKnownAvailable = true;
+      nativeTtsUnavailableReason = null;
+    } else {
+      if (/^TTS_(LANGUAGE|UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
+      nativeTtsUnavailableReason = result.code;
+      opts.onerror?.();
+    }
+    opts.onend?.();
+  });
+}
+
 export function stopSpeaking(): void {
+  if (hasNativeSpeech()) {
+    void nativeStopSpeaking();
+    return;
+  }
   clearPendingSpeak();
   clearChromeResumeWatchdog();
   if (isTTSAvailable()) window.speechSynthesis.cancel();
@@ -385,6 +450,11 @@ export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?:
 
   const run = () => {
     if (cancelled) return;
+    // Android: TTS nativo não depende de gesto nem de carregar vozes do navegador.
+    if (hasNativeSpeech()) {
+      speak(clean, speakOpts);
+      return;
+    }
     // Com gesto recente, fala na hora (sem await de vozes) para não sair da
     // janela de user activation do Safari.
     if (warmed || recentGesture) {
@@ -413,5 +483,6 @@ export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?:
 
 /** Há uma voz chinesa dedicada disponível? (para avisar o usuário) */
 export function hasChineseVoice(): boolean {
+  if (hasNativeSpeech()) return nativeTtsKnownAvailable !== false;
   return Boolean(cachedVoice || pickChineseVoice());
 }

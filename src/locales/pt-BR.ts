@@ -1,5 +1,6 @@
 export const ptBR = {
   common: {
+    mandarinVoiceMissing: "Voz mandarim indisponível neste aparelho. Instale a voz chinesa nos ajustes de voz do Android.",
     appName: "Longyu",
     appNameZh: "龙语",
     back: "Voltar",
@@ -594,6 +595,8 @@ export const ptBR = {
     moduleAlreadyStarted: "Módulo já iniciado.",
   },
   player: {
+    micAllow: "🎙 Permitir microfone",
+    micOpenSettings: "Abrir configurações do Android",
     continue: "Continuar",
     check: "Verificar",
     skip: "Pular",

@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { usesNativeVoice } from "../../lib/tts";
+import { openNativeAppSettings } from "../../lib/platform/nativeSpeech";
 import {
   analyzePronunciation,
+  cancelRecognition,
   ensureMicPermission,
   isRecognitionAvailable,
+  nativeMicPermissionState,
+  refreshNativeSpeechStatus,
   isSecureMicContext,
   recognizeOnce,
   speechErrorMessage,
@@ -69,8 +74,25 @@ export function PronunciationPractice({
    */
   const attemptKeyRef = useRef<string | null>(null);
 
+  // RC2.2.13 — Android: estado real do microfone no SO ("Permitir" / "Ajustes").
+  const nativeVoice = usesNativeVoice();
+  const [micState, setMicState] = useState(() => nativeMicPermissionState());
+  useEffect(() => {
+    if (!nativeVoice) return;
+    let alive = true;
+    const refresh = () => void refreshNativeSpeechStatus().then((status) => alive && status && setMicState(status.microphone));
+    refresh();
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      alive = false;
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [nativeVoice]);
+
   useEffect(() => {
     return () => {
+      // Sair da tela nunca deixa o microfone aberto.
+      cancelRecognition();
       handleRef.current?.stop();
       if (recorderRef.current?.state === "recording") {
         try {
@@ -172,6 +194,7 @@ export function PronunciationPractice({
 
     // 1) Prime da permissão + libera o stream (obrigatório no Chrome Android).
     const permission = await ensureMicPermission();
+    if (nativeVoice) setMicState(nativeMicPermissionState());
     if (permission === "denied") {
       finishError("not-allowed");
       return;
@@ -182,7 +205,7 @@ export function PronunciationPractice({
     }
 
     // 2) Playback só no desktop, e só DEPOIS do prime (stream do prime já foi parado).
-    if (!touchUi) {
+    if (!touchUi && !nativeVoice) {
       await startRecording();
     }
 
@@ -300,11 +323,19 @@ export function PronunciationPractice({
   }
 
   // idle
+  const micBlocked = nativeVoice && micState === "denied";
+  const micNeedsAsk = nativeVoice && micState != null && micState !== "granted" && !micBlocked;
   return (
     <div className="mt-6 space-y-2">
-      <Button className="w-full" size="lg" onClick={start} disabled={busy}>
-        {t("player.speak")}
-      </Button>
+      {micBlocked ? (
+        <Button className="w-full" size="lg" data-testid="speech-open-settings" onClick={() => void openNativeAppSettings()}>
+          {t("player.micOpenSettings")}
+        </Button>
+      ) : (
+        <Button className="w-full" size="lg" data-testid="speech-start" onClick={start} disabled={busy}>
+          {micNeedsAsk ? t("player.micAllow") : t("player.speak")}
+        </Button>
+      )}
       <button
         onClick={onContinue}
         className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"

@@ -2,6 +2,7 @@ import type { MessageCatalog } from "./pt-BR";
 
 export const en: MessageCatalog = {
   common: {
+    mandarinVoiceMissing: "Mandarin voice unavailable on this device. Install the Chinese voice in Android text-to-speech settings.",
     appName: "Longyu",
     appNameZh: "龙语",
     back: "Back",
@@ -596,6 +597,8 @@ export const en: MessageCatalog = {
     moduleAlreadyStarted: "Module already started.",
   },
   player: {
+    micAllow: "🎙 Allow microphone",
+    micOpenSettings: "Open Android settings",
     continue: "Continue",
     check: "Check",
     skip: "Skip",
