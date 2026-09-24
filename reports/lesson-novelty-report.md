@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 49bd51b6a6a5 |
-| HEAD no instante da geração | 9e3f8426ac1be5e3b085d7c76c459cd75df18c89 |
+| Hash da Jornada | c48b008c9c1e |
+| HEAD no instante da geração | 26697ccf401ab8fce83a228966fe10ce0de24417 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-24T00:47:38.892Z |
+| Gerado em | 2026-09-24T02:02:18.593Z |
 | Lições | 134 |
 
 ## Resumo
@@ -42,7 +42,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l2 | 15 | 14 | 25 | 14 | 14 | 5 | intent:identify-concept × 4 |
 | l3 | 14 | 13 | 23 | 12 | 8 | 8 | action:assemble-phrase × 3 |
 | l1-rev | 9 | 7 | 11 | 4 | 3 | 4 | action:assemble-hanzi × 2 |
-| l4 | 18 | 15 | 30 | 11 | 8 | 9 | phrase:谢谢 × 2 |
+| l4 | 16 | 15 | 30 | 11 | 8 | 9 | phrase:谢谢 × 2 |
 | p1-ate-logo | 15 | 14 | 23 | 15 | 12 | 9 | intent:greet × 3 |
 | p1-primeira-conversa | 13 | 12 | 27 | 9 | 9 | 9 | phrase:你好 × 3 |
 | p1-qingwen-cortesia | 16 | 15 | 34 | 12 | 9 | 10 | phrase:你好 × 3 |
@@ -72,7 +72,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l10 | 17 | 16 | 31 | 18 | 17 | 13 | intent:ask-origin × 3 |
 | p3-wobuhui-shuo-zhongwen | 13 | 12 | 27 | 11 | 11 | 8 | intent:cannot-speak × 3 |
 | p3-qing-zai-shuo-yibian | 13 | 12 | 29 | 10 | 10 | 9 | phrase:请再说一遍 × 4 |
-| l11 | 18 | 16 | 37 | 10 | 8 | 11 | action:produce-unaided × 2 |
+| l11 | 20 | 16 | 37 | 10 | 8 | 11 | action:produce-unaided × 2 |
 | l11-falo-pouco | 27 | 15 | 27 | 14 | 13 | 11 | action:assemble-phrase × 4 |
 | l12 | 20 | 19 | 45 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
 | l13 | 19 | 18 | 39 | 16 | 14 | 16 | action:assemble-phrase × 3 |
@@ -171,4 +171,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:b4bbab68761d75cd -->
+<!-- integridade:d550925d272c105c -->
