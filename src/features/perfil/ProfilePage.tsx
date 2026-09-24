@@ -96,6 +96,10 @@ interface HistoryEvent {
   time: string;
 }
 
+/** RC2.2.11 — o Perfil não tenta mostrar tudo. */
+export const PROFILE_RECENT_ACHIEVEMENTS_MAX = 3;
+export const PROFILE_RECENT_HISTORY_MAX = 3;
+
 export function ProfilePage() {
   const { t, instructionLocale: locale } = useTranslation();
   const location = useLocation();
@@ -134,7 +138,8 @@ export function ProfilePage() {
     () =>
       ACHIEVEMENTS.filter((def) => achievementsUnlocked[def.id])
         .sort((a, b) => (achievementsUnlocked[b.id] ?? 0) - (achievementsUnlocked[a.id] ?? 0))
-        .slice(0, 4),
+        // RC2.2.11 — densidade: o Perfil mostra pouco; o completo mora em /conquistas.
+        .slice(0, PROFILE_RECENT_ACHIEVEMENTS_MAX),
     [achievementsUnlocked]
   );
   const unlockedCount = useMemo(
@@ -153,7 +158,7 @@ export function ProfilePage() {
   const history: HistoryEvent[] = useMemo(() => {
     return [...(rewardHistory ?? [])]
       .sort((a, b) => b.claimedAt - a.claimedAt)
-      .slice(0, 3)
+      .slice(0, PROFILE_RECENT_HISTORY_MAX)
       .map((entry) => {
         const isXp = entry.type === "xp";
         return {
@@ -405,9 +410,13 @@ export function ProfilePage() {
         </div>
       </CompactCard>
 
-      {/* 4 + 5 · Conquistas e histórico (lado a lado no desktop, recolhíveis no mobile). */}
-      <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+      {/* 4 + 5 · Conquistas e histórico (lado a lado no desktop, recolhíveis no mobile).
+          RC2.2.11 — cada coluna é min-w-0 e recorta o próprio conteúdo: um
+          título/badge longo não empurra a coluna vizinha nem a invade (grid
+          blowout), e o <details> tem contexto de empilhamento próprio. */}
+      <div className="grid gap-3 lg:grid-cols-2 lg:items-start [&>*]:min-w-0" data-testid="profile-recent-grid">
       <ResponsiveCollapsible
+        testId="profile-recent-achievements"
         title={t("hub.recentAchievements")}
         badge={unlockedCount === 1 ? t("hub.unlockedCountBadge", { count: unlockedCount }) : t("hub.unlockedCountBadgeMany", { count: unlockedCount })}
       >
@@ -441,7 +450,7 @@ export function ProfilePage() {
       </ResponsiveCollapsible>
 
       {/* 5 · Histórico recente (recolhível no mobile). */}
-      <ResponsiveCollapsible title={t("hub.recentHistory")} badge={lastLessonTitle ? t("hub.lastLesson", { title: lastLessonTitle }) : undefined}>
+      <ResponsiveCollapsible testId="profile-recent-history" title={t("hub.recentHistory")} badge={lastLessonTitle ? t("hub.lastLesson", { title: lastLessonTitle }) : undefined}>
         {history.length > 0 ? (
           <div className="grid gap-2">
             {history.map((event, i) => (
@@ -463,7 +472,7 @@ export function ProfilePage() {
 
       {/* 6 · Social — sem amigos falsos: só um card honesto de "em breve". */}
       <CompactCard className="border-dashed">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" data-testid="profile-friends-card">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-2 text-ink-faint">
             <IconUser width={18} height={18} />
           </span>
@@ -478,7 +487,17 @@ export function ProfilePage() {
 }
 
 // Bloco recolhível: aberto por padrão no desktop, fechado no mobile.
-function ResponsiveCollapsible({ title, badge, children }: { title: string; badge?: string; children: ReactNode }) {
+function ResponsiveCollapsible({
+  title,
+  badge,
+  testId,
+  children,
+}: {
+  title: string;
+  badge?: string;
+  testId?: string;
+  children: ReactNode;
+}) {
   const [open, setOpen] = useState(true);
   useEffect(() => {
     if (typeof window !== "undefined") setOpen(window.matchMedia("(min-width: 1024px)").matches);
@@ -486,11 +505,12 @@ function ResponsiveCollapsible({ title, badge, children }: { title: string; badg
   return (
     <details
       open={open}
+      data-testid={testId}
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-      className="rounded-xl border border-line/50 bg-surface p-3 shadow-card sm:p-3.5"
+      className="relative isolate min-w-0 overflow-hidden rounded-xl border border-line/50 bg-surface p-3 shadow-card sm:p-3.5"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
+      <summary className="flex min-w-0 cursor-pointer list-none items-center justify-between gap-2">
+        <span className="flex min-w-0 items-center gap-1.5 truncate text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
           <IconRefresh width={12} height={12} /> {title}
         </span>
         <span className="flex items-center gap-1.5">
@@ -498,7 +518,7 @@ function ResponsiveCollapsible({ title, badge, children }: { title: string; badg
           <IconChevron width={14} height={14} className="text-ink-faint transition group-open:rotate-90" />
         </span>
       </summary>
-      <div className="mt-3">{children}</div>
+      <div className="mt-3 min-w-0">{children}</div>
     </details>
   );
 }

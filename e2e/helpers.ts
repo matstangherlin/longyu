@@ -253,7 +253,7 @@ export async function dismissBlockingOverlays(page: Page) {
       await page.waitForTimeout(120);
       continue;
     }
-    const achievement = page.getByRole("dialog", { name: /medalha|conquista|medal|achievement/i });
+    const achievement = page.getByRole("dialog", { name: /medalha|conquista|marco|medal|achievement|milestone/i });
     if (await achievement.isVisible().catch(() => false)) {
       const continueBtn = achievement.getByRole("button", { name: /Continuar|Fechar|Ok|Continue|Close/i }).first();
       if (await continueBtn.isVisible().catch(() => false)) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../../lib/store";
-import { ACHIEVEMENTS } from "../../data/achievements";
+import { ACHIEVEMENTS, isMedalAchievementId } from "../../data/achievements";
 import { CULTURE_SEALS, cultureText } from "../../data/cultureQuest";
 import { PROFILE_COSMETICS, getProfileCosmetic, type ProfileCosmeticSlot } from "../../data/profileCosmetics";
 import { FEATURED_ACHIEVEMENTS_MAX, normalizeFeaturedAchievementIds } from "../../lib/profileShowcase";
@@ -23,17 +23,26 @@ export function FeaturedMedals() {
   const toggleFeatured = useStore((s) => s.toggleFeaturedAchievement);
   const [choosing, setChoosing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const featured = normalizeFeaturedAchievementIds(featuredRaw, unlocked);
+  // RC2.2.11 — vitrine só de MEDALHAS (marcos e conquistas ficam em /conquistas).
+  const featured = normalizeFeaturedAchievementIds(featuredRaw, unlocked, undefined, isMedalAchievementId);
   const featuredDefs = featured
     .map((id) => ACHIEVEMENTS.find((def) => def.id === id))
     .filter((def): def is (typeof ACHIEVEMENTS)[number] => Boolean(def));
-  const unlockedDefs = ACHIEVEMENTS.filter((def) => unlocked[def.id]).sort(
+  const unlockedDefs = ACHIEVEMENTS.filter((def) => unlocked[def.id] && isMedalAchievementId(def.id)).sort(
     (a, b) => (unlocked[b.id] ?? 0) - (unlocked[a.id] ?? 0)
   );
 
   function toggle(id: string) {
-    const result = toggleFeatured(id);
-    setNotice(result.reason === "full" ? t("hub.featuredFull") : result.reason === "locked" ? t("hub.featuredLockedHint") : null);
+    const result = toggleFeatured(id, isMedalAchievementId);
+    setNotice(
+      result.reason === "full"
+        ? t("hub.featuredFull")
+        : result.reason === "locked"
+          ? t("hub.featuredLockedHint")
+          : result.reason === "not_medal"
+            ? t("hub.featuredNotMedal")
+            : null
+    );
   }
 
   return (

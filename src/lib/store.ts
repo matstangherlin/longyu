@@ -2475,7 +2475,11 @@ interface AppState {
   /** Registra uma tentativa de teste de pular módulo na semana corrente. */
   recordModuleSkipAttempt: (unitId: string) => void;
   /** G5 — alterna uma medalha na vitrine do Perfil (só desbloqueadas, até 3). */
-  toggleFeaturedAchievement: (id: string) => { changed: boolean; reason?: "locked" | "full" };
+  /** RC2.2.11 — `isMedal`: só MEDALHA entra na vitrine (predicado injetado pela UI; a store não importa o catálogo). */
+  toggleFeaturedAchievement: (
+    id: string,
+    isMedal?: (id: string) => boolean
+  ) => { changed: boolean; reason?: "locked" | "full" | "not_medal" };
   /** H5 — equipa (ou remove, com null) um cosmético possuído. */
   equipProfileCosmetic: (slot: ProfileCosmeticSlot, id: string | null) => boolean;
   /** A4 — marca o reveal do selo como mostrado (idempotente). */
@@ -5106,10 +5110,11 @@ export const useStore = create<AppState>()(
           return { validatedModules, accounts: saveCurrentAccount(next) };
         }),
 
-      toggleFeaturedAchievement: (id) => {
-        let outcome: { changed: boolean; reason?: "locked" | "full" } = { changed: false };
+      toggleFeaturedAchievement: (id, isMedal) => {
+        let outcome: { changed: boolean; reason?: "locked" | "full" | "not_medal" } = { changed: false };
         set((s) => {
-          const result = toggleFeaturedList(s.featuredAchievementIds, id, s.achievementsUnlocked);
+          // RC2.2.11 — só MEDALHA vai para a vitrine (marco/conquista não).
+          const result = toggleFeaturedList(s.featuredAchievementIds, id, s.achievementsUnlocked, isMedal);
           outcome = { changed: result.changed, reason: result.reason };
           if (!result.changed) return {};
           const next = { ...s, featuredAchievementIds: result.ids };

@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import {
   ACHIEVEMENTS,
+  achievementPresentationKind,
   type AchievementDef,
+  type AchievementPresentationKind,
 } from "../../data/achievements";
 import { useAchievementSnapshot } from "../../components/achievements/AchievementsWatcher";
 import { useStore } from "../../lib/store";
@@ -106,13 +108,38 @@ export function AchievementsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_300px] lg:items-start">
-        <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 xl:grid-cols-3">
-          {visible.map((view) => (
-            <AchievementCard key={view.def.id} view={view} />
-          ))}
+        {/* RC2.2.11 — MEDALHAS (raras) · CONQUISTAS · MARCOS: o mesmo motor,
+            três pesos visuais. Nada some; a poluição vira hierarquia. */}
+        <div className="min-w-0 space-y-6" data-testid="achievement-sections">
+          {KIND_ORDER.map((kind) => {
+            const items = visible.filter((view) => achievementPresentationKind(view.def) === kind);
+            if (items.length === 0) return null;
+            return (
+              <section key={kind} data-testid={`achievement-section-${kind}`} data-achievement-kind={kind} aria-labelledby={`achievement-section-${kind}-title`}>
+                <div className="mb-2.5 flex items-baseline justify-between gap-2">
+                  <h2 id={`achievement-section-${kind}-title`} className="font-serif text-lg font-semibold text-ink">
+                    {t(KIND_COPY[kind].title)}
+                  </h2>
+                  <span className="text-xs text-ink-faint">{t(KIND_COPY[kind].desc)}</span>
+                </div>
+                <div
+                  className={
+                    kind === "medal"
+                      ? "grid grid-cols-1 gap-3 sm:grid-cols-2"
+                      : kind === "achievement"
+                        ? "grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 xl:grid-cols-3"
+                        : "grid grid-cols-1 gap-2 min-[390px]:grid-cols-2 xl:grid-cols-3"
+                  }
+                >
+                  {items.map((view) => (
+                    <AchievementCard key={view.def.id} view={view} kind={kind} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
           {visible.length === 0 && (
             <EmptyState
-              className="col-span-full"
               title={t("hub.emptyFilterTitle")}
               desc={t("hub.emptyFilterDesc")}
             />
@@ -162,29 +189,65 @@ export function AchievementsPage() {
   );
 }
 
-function AchievementCard({ view }: { view: AchievementView }) {
+const KIND_ORDER: readonly AchievementPresentationKind[] = ["medal", "achievement", "milestone"];
+
+const KIND_COPY: Record<AchievementPresentationKind, { title: string; desc: string; label: string }> = {
+  medal: { title: "hub.achievementKindMedals", desc: "hub.achievementKindMedalsDesc", label: "hub.achievementKindMedal" },
+  achievement: {
+    title: "hub.achievementKindAchievements",
+    desc: "hub.achievementKindAchievementsDesc",
+    label: "hub.achievementKindAchievement",
+  },
+  milestone: { title: "hub.achievementKindMilestones", desc: "hub.achievementKindMilestonesDesc", label: "hub.achievementKindMilestone" },
+};
+
+function AchievementCard({ view, kind }: { view: AchievementView; kind: AchievementPresentationKind }) {
   const { t } = useTranslation();
   const { def, current, target, unlockedAt } = view;
   const unlocked = Boolean(unlockedAt);
+  const medal = kind === "medal";
+  const milestone = kind === "milestone";
 
   return (
     <Card
+      data-testid={`achievement-card-${def.id}`}
+      data-achievement-kind={kind}
       className={[
-        "flex min-h-40 flex-col p-3.5 transition sm:p-4",
-        unlocked ? "border-accent-soft bg-surface" : "border-line bg-surface-2/70",
+        "flex min-w-0 flex-col transition",
+        medal ? "min-h-44 p-4 sm:p-5" : milestone ? "min-h-0 p-3" : "min-h-40 p-3.5 sm:p-4",
+        unlocked
+          ? medal
+            ? "border-gold/50 bg-[radial-gradient(circle_at_100%_0%,rgb(var(--gold)/0.14),rgb(var(--surface))_60%)] shadow-card"
+            : "border-accent-soft bg-surface"
+          : "border-line bg-surface-2/70",
       ].join(" ")}
     >
       <div className="flex items-start justify-between gap-2">
         <span
           className={[
-            "hanzi flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl",
-            unlocked ? "bg-accent text-white shadow-card" : "bg-surface-2 text-ink-faint grayscale",
+            "hanzi flex shrink-0 items-center justify-center",
+            medal ? "h-14 w-14 rounded-2xl text-3xl" : milestone ? "h-8 w-8 rounded-lg text-lg" : "h-11 w-11 rounded-xl text-2xl",
+            unlocked
+              ? medal
+                ? "bg-gold text-white shadow-lift ring-2 ring-gold/30"
+                : milestone
+                  ? "bg-accent-soft text-accent"
+                  : "bg-accent text-white shadow-card"
+              : "bg-surface-2 text-ink-faint grayscale",
           ].join(" ")}
         >
           {def.glyph}
         </span>
-        <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
-          {localizedAchievementCategory(def.category)}
+        <span className="flex flex-col items-end gap-1">
+          <span
+            className={[
+              "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+              medal ? "bg-gold/15 text-gold" : "bg-surface-2 text-ink-faint",
+            ].join(" ")}
+          >
+            {t(KIND_COPY[kind].label)}
+          </span>
+          <span className="text-[10px] font-medium text-ink-faint">{localizedAchievementCategory(def.category)}</span>
         </span>
       </div>
       <h3 className="mt-3 text-sm font-semibold leading-tight text-ink">{localizedAchievementTitle(def.id, def.title)}</h3>

@@ -2,7 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { seedOnboardedSession } from "./helpers";
 
 async function dismissAchievementModal(page: Page) {
-  const rewardDialog = page.getByRole("dialog", { name: "Nova medalha desbloqueada" });
+  // RC2.2.11 — o modal segue a raridade: medalha, conquista ou marco.
+  const rewardDialog = page.getByRole("dialog", { name: /Nova medalha desbloqueada|Nova conquista desbloqueada|Novo marco desbloqueado/ });
   for (let index = 0; index < 8; index += 1) {
     const appeared = await rewardDialog
       .waitFor({ state: "visible", timeout: index === 0 ? 1_500 : 500 })
