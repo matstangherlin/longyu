@@ -1724,6 +1724,7 @@ export const ptBR = {
     aboutDocumentTitle: "Sobre o Longyu",
     privacyDocumentTitle: "Privacidade — Longyu",
     aboutLead: "Transparência sobre o estado atual da beta pública.",
+    aboutVersionCode: "versionCode {code}",
     aboutBuild: "{platform} · build {build}",
     aboutTagline: "龙语 · mandarim pela lógica",
     aboutIntro:

@@ -331,7 +331,7 @@ export function validateAndroidSigningContract(s) {
       if (/^\s*(storePassword|keyPassword)\s*[=:]\s*(?!CHANGE_ME\s*$)\S+/.test(code) && /\.(properties|example)$/.test(rel)) {
         fail("PASSWORD_LITERAL", where, "senha literal em properties rastreado (só CHANGE_ME é aceito)");
       }
-      const envAssign = code.match(/LONGYU_ANDROID_(KEYSTORE_PASSWORD|KEY_PASSWORD|KEY_ALIAS|KEYSTORE_PATH)\s*[:=]\s*(.+)$/);
+      const envAssign = code.match(/LONGYU_ANDROID_(KEYSTORE_PASSWORD|KEY_PASSWORD|KEY_ALIAS|KEYSTORE_BASE64)\s*[:=]\s*(.+)$/);
       if (envAssign && !/^\s*\$\{\{\s*secrets\.[A-Z0-9_]+\s*\}\}\s*$/.test(envAssign[2]) && /\.ya?ml$/.test(rel)) {
         fail("PASSWORD_LITERAL", where, "workflow define valor de assinatura sem ${{ secrets.* }}");
       }

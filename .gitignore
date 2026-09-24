@@ -58,3 +58,9 @@ android/app/debug/
 android/.gradle/
 android/app/build/
 android/build/
+release-artifacts/
+# RC2.2.10B — credencial do Google Play (service account) nunca vai ao Git.
+*service-account*.json
+*service_account*.json
+google-play*.json
+play-credentials*.json

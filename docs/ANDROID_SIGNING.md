@@ -126,12 +126,22 @@ completa falha, e o release **nunca** cai na debug key. Debug
 (`npm run android:debug`, `npm run android:bundle:debug`) continua funcionando
 sem nenhum segredo.
 
-## 7. CI (quando houver)
+## 7. CI (RC2.2.10B)
 
-No GitHub, crie *repository/environment secrets* com os quatro nomes; o `.jks`
-vai como base64 em um secret e é decodificado para um arquivo temporário no
-runner. O workflow referencia só `${{ secrets.NOME }}`; o validator recusa
-valores literais. O CI público desta remessa **não** assina nada.
+O CI não tem acesso ao caminho local do keystore. No GitHub, os quatro valores
+viram *repository/environment secrets*, e o arquivo vai como base64:
+
+| Secret do GitHub | Equivale a |
+| --- | --- |
+| `LONGYU_ANDROID_KEYSTORE_BASE64` | conteúdo do `.jks` em base64 (o workflow decodifica para `$RUNNER_TEMP` e define `LONGYU_ANDROID_KEYSTORE_PATH`) |
+| `LONGYU_ANDROID_KEYSTORE_PASSWORD` | `LONGYU_ANDROID_KEYSTORE_PASSWORD` |
+| `LONGYU_ANDROID_KEY_ALIAS` | `LONGYU_ANDROID_KEY_ALIAS` |
+| `LONGYU_ANDROID_KEY_PASSWORD` | `LONGYU_ANDROID_KEY_PASSWORD` |
+
+Só `.github/workflows/android-release.yml` (manual) usa esses secrets. O
+keystore temporário é apagado ao fim (`if: always()`) e nunca entra em
+artefato. PR e `main` não assinam nada. Pipeline completa, canais e Play
+Console: [`docs/RELEASE_PIPELINE.md`](RELEASE_PIPELINE.md).
 
 ## 8. Play Console
 

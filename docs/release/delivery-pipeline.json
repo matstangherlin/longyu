@@ -1,0 +1,66 @@
+{
+  "id": "main-delivery-pipeline",
+  "wave": "RC2.2.10B",
+  "status": "PIPELINE_READY_AWAITING_CREDENTIALS",
+  "sourceOfTruth": "main",
+  "sameShaForWebAndAndroid": true,
+  "webAutoBuild": true,
+  "webArtifact": "longyu-web-<shortSha> (ci.yml, push em main, 30 dias)",
+  "webAutoDeploy": false,
+  "webHostingDeploy": {
+    "provider": "netlify",
+    "mode": "netlify-git-integration",
+    "deployPreviewsObservedOnPRs": true,
+    "productionBranchVerifiedFromRepo": false,
+    "note": "O deploy web é do Netlify (integração Git + netlify.toml). Este repositório NÃO tem um segundo sistema de deploy; o CI só valida, builda e guarda o artefato com o SHA."
+  },
+  "androidAutoBuild": true,
+  "androidAutoArtifacts": true,
+  "androidAutomaticDestination": "ARTIFACT_ONLY",
+  "androidAutoUpload": false,
+  "androidAutoProduction": false,
+  "androidInternalUploadPrepared": true,
+  "androidInternalUpload": false,
+  "androidSignedReleaseReady": false,
+  "signingCredentialsConfigured": false,
+  "playCredentialsConfigured": false,
+  "defaultChannel": "internal",
+  "channels": {
+    "dev": "desenvolvimento local; nunca sobe para o Play",
+    "internal": "Internal Testing — equipe / aparelhos próprios",
+    "closed": "Closed testing (track alpha) — grupo de testers; sobe como rascunho",
+    "production": "usuários públicos; opt-in explícito + environment protegido; sobe como rascunho, rollout humano no Play Console"
+  },
+  "productionRequires": [
+    "workflow_dispatch em .github/workflows/android-release.yml",
+    "ref = refs/heads/main",
+    "confirm_production = PUBLICAR-PRODUCAO",
+    "environment android-production (aprovadores configurados pelo owner)",
+    "rollout final manual no Play Console (release criada como draft)"
+  ],
+  "githubEnvironments": {
+    "android-internal": "NOT_CONFIGURED",
+    "android-production": "NOT_CONFIGURED"
+  },
+  "secrets": {
+    "LONGYU_ANDROID_KEYSTORE_BASE64": "NOT_CONFIGURED",
+    "LONGYU_ANDROID_KEYSTORE_PASSWORD": "NOT_CONFIGURED",
+    "LONGYU_ANDROID_KEY_ALIAS": "NOT_CONFIGURED",
+    "LONGYU_ANDROID_KEY_PASSWORD": "NOT_CONFIGURED",
+    "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON": "NOT_CONFIGURED"
+  },
+  "workflows": {
+    "web": ".github/workflows/ci.yml",
+    "androidBuild": ".github/workflows/android-build.yml",
+    "androidRelease": ".github/workflows/android-release.yml"
+  },
+  "versionCodeStrategy": "floor (android/version.properties) + git rev-list --count --first-parent HEAD na main; conferido > todo versionCode já presente nas tracks do Play e no ledger",
+  "versionNameStrategy": "package.json version (legível, ex.: 0.2.0-beta.1); SHA só como metadata",
+  "tagConvention": "android-v<versionName>+<versionCode> (criada só após upload real; nenhuma tag criada nesta remessa)",
+  "lastUploadedVersionCode": null,
+  "liveUpdate": "DEFERRED_POST_BETA",
+  "cloudDeferred": true,
+  "pwaProductionUpgradeVerified": false,
+  "androidRealDevice": false,
+  "publicBetaVerdict": "NO-GO"
+}

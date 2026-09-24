@@ -1,0 +1,94 @@
+name: Android build
+
+# RC2.2.10 / RC2.2.10B — build Android derivado da MESMA `main` do web.
+#
+# Roda em PR e em push na main (validação pós-merge: PR verde não certifica a
+# main sozinho). Sem segredos de produção: valida contratos, prova que release
+# sem assinatura = BLOCKED_SIGNING_SECRETS e que o Play sem credencial =
+# BLOCKED_PLAY_CREDENTIALS, e compila APK + AAB DEBUG com nomes identificáveis
+# e .provenance.json (SHA, versão, versionCode, workflow run).
+#
+# Este workflow NUNCA publica no Google Play. Publicação é só pelo
+# android-release.yml (workflow_dispatch, main, internal por padrão).
+# Build verde aqui NÃO é android_real_device (exige aparelho físico).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-build:
+    name: Android foundation (contratos + debug APK/AAB)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # versionCode = floor + commits first-parent de main (release-identity.mjs).
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Contratos Android + pipeline de entrega
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline
+
+      - name: Release sem segredos bloqueia honestamente
+        run: |
+          set +e
+          node scripts/android-cli.mjs bundle:release
+          code=$?
+          set -e
+          if [ "$code" -ne 4 ]; then
+            echo "esperado exit 4 (BLOCKED_SIGNING_SECRETS), veio $code"
+            exit 1
+          fi
+
+      - name: Play Console (sonda, sem upload)
+        run: node scripts/play-upload.mjs --probe
+
+      - name: Debug APK + AAB (build web + cap sync + Gradle)
+        run: |
+          node scripts/android-cli.mjs debug
+          node scripts/android-cli.mjs bundle:debug
+
+      - name: Identidade do artefato
+        id: identity
+        run: |
+          base=$(ls release-artifacts/*.provenance.json | head -n1 | xargs -n1 basename | sed 's/\.provenance\.json$//')
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Android build — $base"
+            echo ""
+            echo "| Item | Resultado |"
+            echo "| --- | --- |"
+            echo "| Fonte | \`${GITHUB_SHA}\` ($GITHUB_EVENT_NAME) |"
+            echo "| Android debug APK/AAB | PASS |"
+            echo "| Signed release | BLOCKED_SIGNING_SECRETS |"
+            echo "| Play internal upload | BLOCKED_PLAY_CREDENTIALS (este workflow nunca publica) |"
+            echo "| Play production | NOT_REQUESTED |"
+            echo "| android_real_device | false (build ≠ aparelho físico) |"
+            echo "| Public Beta | NO-GO |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload debug APK/AAB + proveniência
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.identity.outputs.base }}
+          path: release-artifacts/
+          if-no-files-found: error
+          retention-days: ${{ github.event_name == 'push' && 30 || 7 }}

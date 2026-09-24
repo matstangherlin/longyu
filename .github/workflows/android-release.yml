@@ -1,0 +1,194 @@
+name: Android release (manual)
+
+# RC2.2.10B — ÚNICO caminho de publicação Android.
+#
+# - Só workflow_dispatch: push/merge na main NUNCA publica no Google Play.
+# - Só a partir de `main` (source of truth); o SHA publicado é o HEAD da main
+#   no momento do acionamento, conferido contra `expected_sha` quando informado.
+# - Canal padrão: internal (Internal Testing). closed e production sobem como
+#   RASCUNHO; production exige confirm_production=PUBLICAR-PRODUCAO e o
+#   environment protegido android-production (aprovadores configurados pelo
+#   owner em Settings → Environments; este arquivo não finge aprovação).
+# - Segredos (nomes em docs/RELEASE_PIPELINE.md): LONGYU_ANDROID_KEYSTORE_BASE64,
+#   LONGYU_ANDROID_KEYSTORE_PASSWORD, LONGYU_ANDROID_KEY_ALIAS,
+#   LONGYU_ANDROID_KEY_PASSWORD, GOOGLE_PLAY_SERVICE_ACCOUNT_JSON.
+#   Nunca impressos; o keystore vive só em $RUNNER_TEMP e é apagado no fim.
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Canal (internal = equipe/devices próprios; closed = testers; production = público)"
+        type: choice
+        options: [internal, closed, production]
+        default: internal
+      release_notes:
+        description: "Notas da versão (pt-BR, até 500 caracteres, sem detalhe técnico sensível)"
+        type: string
+        required: false
+      expected_sha:
+        description: "SHA da main que você validou (opcional; recusa se a main tiver andado)"
+        type: string
+        required: false
+      confirm_production:
+        description: "Para production, digite PUBLICAR-PRODUCAO"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Android release → ${{ inputs.channel }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.channel == 'production' && 'android-production' || 'android-internal' }}
+    steps:
+      - name: Guard — só main, só manual, production com opt-in
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          CONFIRM: ${{ inputs.confirm_production }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "SOURCE_NOT_MAIN: release Android só sai de main (veio $GITHUB_REF)"; exit 6
+          fi
+          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then
+            echo "AUTO_RELEASE_FORBIDDEN"; exit 6
+          fi
+          if [ "$CHANNEL" = "production" ] && [ "$CONFIRM" != "PUBLICAR-PRODUCAO" ]; then
+            echo "PRODUCTION_NOT_CONFIRMED: digite PUBLICAR-PRODUCAO em confirm_production"; exit 6
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Guard — SHA esperado (stale build)
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          head=$(git rev-parse HEAD)
+          if [ -n "$EXPECTED_SHA" ] && [ "${head#"$EXPECTED_SHA"}" = "$head" ]; then
+            echo "STALE_BUILD: main está em $head, release pedida para $EXPECTED_SHA"; exit 6
+          fi
+          echo "LONGYU_RELEASE_SHA=$head" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Gates (Android + pipeline de entrega + freeze)
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline
+
+      - name: Credenciais presentes? (só nomes, nunca valores)
+        id: creds
+        env:
+          KS_B64: ${{ secrets.LONGYU_ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.LONGYU_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.LONGYU_ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.LONGYU_ANDROID_KEY_PASSWORD }}
+          PLAY_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          missing=""
+          [ -n "$KS_B64" ] || missing="$missing LONGYU_ANDROID_KEYSTORE_BASE64"
+          [ -n "$KS_PASS" ] || missing="$missing LONGYU_ANDROID_KEYSTORE_PASSWORD"
+          [ -n "$KEY_ALIAS" ] || missing="$missing LONGYU_ANDROID_KEY_ALIAS"
+          [ -n "$KEY_PASS" ] || missing="$missing LONGYU_ANDROID_KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "signing=blocked" >> "$GITHUB_OUTPUT"
+            echo "BLOCKED_SIGNING_SECRETS (credencial externa ausente, não é falha de código):$missing" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "signing=ready" >> "$GITHUB_OUTPUT"
+          fi
+          play=blocked
+          [ -n "$PLAY_JSON" ] && play=ready
+          echo "play=$play" >> "$GITHUB_OUTPUT"
+
+      - name: Sem assinatura não há release
+        if: steps.creds.outputs.signing != 'ready'
+        run: |
+          echo "BLOCKED_SIGNING_SECRETS: cadastre os secrets LONGYU_ANDROID_* (docs/RELEASE_PIPELINE.md). Nenhum AAB foi gerado."
+          exit 4
+
+      - name: Keystore temporário (fora do workspace)
+        env:
+          KS_B64: ${{ secrets.LONGYU_ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          umask 077
+          ks="$RUNNER_TEMP/longyu-upload.jks"
+          printf '%s' "$KS_B64" | base64 --decode > "$ks"
+          echo "LONGYU_ANDROID_KEYSTORE_PATH=$ks" >> "$GITHUB_ENV"
+
+      - name: AAB release assinado (build web + cap sync + bundleRelease)
+        env:
+          LONGYU_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.LONGYU_ANDROID_KEYSTORE_PASSWORD }}
+          LONGYU_ANDROID_KEY_ALIAS: ${{ secrets.LONGYU_ANDROID_KEY_ALIAS }}
+          LONGYU_ANDROID_KEY_PASSWORD: ${{ secrets.LONGYU_ANDROID_KEY_PASSWORD }}
+        run: node scripts/android-cli.mjs bundle:release
+
+      - name: Remove keystore temporário
+        if: always()
+        run: rm -f "$RUNNER_TEMP/longyu-upload.jks"
+
+      - name: Notas da versão (texto do owner)
+        env:
+          NOTES: ${{ inputs.release_notes }}
+        run: printf '%s' "$NOTES" > "$RUNNER_TEMP/release-notes.txt"
+
+      - name: Upload para o Google Play (${{ inputs.channel }})
+        if: steps.creds.outputs.play == 'ready'
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          CHANNEL: ${{ inputs.channel }}
+          CONFIRM: ${{ inputs.confirm_production }}
+        run: |
+          aab=$(ls release-artifacts/*.aab)
+          prov=$(ls release-artifacts/*.provenance.json)
+          node scripts/play-upload.mjs --aab "$aab" --provenance "$prov" --channel "$CHANNEL" \
+            --confirm-production "$CONFIRM" --notes-file "$RUNNER_TEMP/release-notes.txt" \
+            --out release-artifacts/play-upload-record.json
+
+      - name: Play sem credencial
+        if: steps.creds.outputs.play != 'ready'
+        run: echo "BLOCKED_PLAY_CREDENTIALS — AAB assinado disponível como artifact; nenhum upload feito." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Resumo
+        if: always()
+        run: |
+          {
+            echo "### Android release — ${{ inputs.channel }}"
+            echo "| Item | Valor |"
+            echo "| --- | --- |"
+            echo "| SHA (main) | \`$(git rev-parse HEAD)\` |"
+            for f in release-artifacts/*.provenance.json; do
+              [ -f "$f" ] && echo "| Proveniência | $(basename "$f") |"
+            done
+            [ -f release-artifacts/play-upload-record.json ] && echo "| Registro Play | $(cat release-artifacts/play-upload-record.json | tr -d '\n') |"
+            echo "| android_real_device | false (release ≠ QA em aparelho físico) |"
+            echo "| Public Beta | NO-GO |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload AAB assinado + proveniência (sem segredos)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: longyu-android-release-${{ github.run_number }}
+          path: |
+            release-artifacts/*.aab
+            release-artifacts/*.provenance.json
+            release-artifacts/play-upload-record.json
+          if-no-files-found: error
+          retention-days: 90

@@ -54,9 +54,18 @@ if ((result.status ?? 1) !== 0) {
 try {
   const dist = path.join(root, "dist");
   fs.mkdirSync(dist, { recursive: true });
+  // RC2.2.10B — mesma identidade canônica do Android (SHA é a autoridade;
+  // builtAt é só informativo). Ver scripts/lib/release-identity.mjs.
+  const commitSha = process.env.VITE_COMMIT_SHA || "";
+  const branchName = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { cwd: root, encoding: "utf8" });
   const identity = {
-    commitSha: process.env.VITE_COMMIT_SHA || "",
+    schema: "longyu-build-identity/1",
+    authority: "sha",
+    commitSha,
+    shortSha: /^[0-9a-f]{7,40}$/.test(commitSha) ? commitSha.slice(0, 7) : "",
+    branch: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || process.env.BRANCH || (branchName.status === 0 ? branchName.stdout.trim() : ""),
     appVersion: process.env.VITE_APP_VERSION || "",
+    platform: "web",
     environment: process.env.VITE_APP_ENV || "",
     builtAt: new Date().toISOString(),
   };
