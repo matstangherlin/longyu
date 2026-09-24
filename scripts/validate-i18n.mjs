@@ -71,6 +71,7 @@ const NAMESPACES = [
   "familia",
   "business",
   "phaseChallenge",
+  "nativeApp",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));

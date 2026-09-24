@@ -3,7 +3,7 @@
  *
  * Sem push, sem Firebase, sem backend: lembretes agendados no próprio
  * aparelho. Sem alarme exato (SCHEDULE_EXACT_ALARM é removido no manifesto;
- * `isExactNotification: false`). Esta camada NÃO decide nada: recebe o plano
+ * `isExactNotification: false`). Esta camada não decide nada: recebe o plano
  * pronto de src/lib/studyReminderPlan.ts e o aplica de forma idempotente
  * (cancela os IDs conhecidos e agenda o conjunto novo).
  */
