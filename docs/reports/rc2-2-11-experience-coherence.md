@@ -319,9 +319,9 @@ Jornada · 5 momentos · 12 tone transfers · 52 cenas · 31/31 capacidades READ
 | `gate:main-delivery-pipeline` (RC2.2.10B) | PASS |
 | `validate:beta-pedagogy-freeze` | PASS (fp c48b008c9c1e) |
 | typecheck / build | PASS |
-| `validate:beta` | VALIDATE_BETA_RESULT |
+| `validate:beta` (inclui os gates acima) | PASS (local, exit 0) |
 | `validate:frontend-secrets` | PASS |
-| E2E RC2.2.11 (Chromium) | E2E_RESULT |
+| E2E RC2.2.11 (Chromium) | PASS: 19/19 (perfil 6, imersão 6, SmartBack 4, login 2, liga 1) + RC2.2.8 25/25 |
 
 As 46 mutações, por área:
 
@@ -341,6 +341,11 @@ As 46 mutações, por área:
 
 Os `test:*` também rodam fixtures de runtime: fala repetida, exclamação, aluno do
 lado errado, personagem sem Hànzì, história sem contexto e cena de uma fala só.
+
+O contrato de tipos do backend efêmero (`scripts/lib/ephemeral-backend.mjs`) passou
+a tratar as RPCs declaradas em `supabase/pending/` como pendentes, e não como
+ausentes (commit `f30802e9`). Elas existem só no SQL não aplicado, como
+esperado.
 
 Três ajustes em testes antigos, todos por mudança de contrato pedida, sem enfraquecer nada:
 
