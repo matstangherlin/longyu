@@ -2391,6 +2391,7 @@ export const en: MessageCatalog = {
     continueJourney: "Continue the Journey",
   },
   culture: {
+    dragonRecall: "That is the cue the dragon showed in “{title}”.",
     eyebrow: "Culture",
     title: "Culture",
     tagline: "Understand the language inside real life.",

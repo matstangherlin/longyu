@@ -3,6 +3,7 @@ import { canSignInWithIdentifier } from "../lib/authForm";
 import { storePendingConfirmEmail } from "../lib/authRedirect";
 import { useStore } from "../lib/store";
 import { claimOwnUsername, login as authLogin } from "../services/authService";
+import { takePendingUsername } from "../lib/username";
 import { syncAuthSessionProgress } from "../services/cloudSyncCoordinator";
 
 export function useCloudSignIn() {
@@ -34,7 +35,11 @@ export function useCloudSignIn() {
         // RC2.2.11 — nome escolhido no cadastro: confirma no servidor quando o
         // backend estiver aplicado. Falha aqui nunca bloqueia o login.
         const state = useStore.getState();
-        const account = state.accounts[state.currentAccountId];
+        const pending = takePendingUsername();
+        if (pending && !state.accounts[state.currentAccountId]?.username) {
+          state.setAccountUsername(state.currentAccountId, pending, { pendingClaim: true });
+        }
+        const account = useStore.getState().accounts[state.currentAccountId];
         if (account?.username && account.usernamePendingClaim) {
           const claim = await claimOwnUsername(account.username).catch(() => null);
           if (claim?.status === "ok" && claim.data) {

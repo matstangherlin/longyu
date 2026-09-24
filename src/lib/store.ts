@@ -2402,7 +2402,7 @@ interface AppState {
     event: "introduced" | "practiced" | "mastered",
     source: "journey" | "mission"
   ) => void;
-  reviewCultureMemory: (targetId: string, correct: boolean) => void;
+  reviewCultureMemory: (targetId: string, correct: boolean, source?: "journey" | "mission") => void;
   claimReward: (reward: RewardGrant) => boolean;
   grantLessonReward: (input: {
     lessonId: string;
@@ -4193,7 +4193,7 @@ export const useStore = create<AppState>()(
         });
       },
 
-      reviewCultureMemory: (targetId, correct) => {
+      reviewCultureMemory: (targetId, correct, source = "mission") => {
         set((s) => {
           const cultureMemoryById = applyCultureMemoryReview(s.cultureMemoryById ?? {}, targetId, correct);
           const row = cultureMemoryById[targetId];
@@ -4202,7 +4202,7 @@ export const useStore = create<AppState>()(
                 conceptId: targetId,
                 cultureItemId: row.cultureItemId,
                 event: correct ? "mastered" : "practiced",
-                source: "mission",
+                source,
               })
             : s.cultureKnowledgeById ?? {};
           const next = { ...s, cultureMemoryById, cultureKnowledgeById };

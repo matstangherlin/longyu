@@ -2397,6 +2397,7 @@ export const ptBR = {
     continueJourney: "Continuar na Jornada",
   },
   culture: {
+    dragonRecall: "É o sinal que o dragão mostrou em «{title}».",
     eyebrow: "Cultura",
     title: "Cultura",
     tagline: "Entenda a língua dentro da vida real.",

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
@@ -4497,7 +4498,8 @@ export function LessonPlayer() {
     );
   }
 
-  const step = lesson.steps[idx];
+  // RC2.2.11 — explicação que repete a fala do dragão vira lembrete curto.
+  const step = cultureStepForDisplay(lesson, idx, (title) => t("culture.dragonRecall", { title }));
   const canSkipStep = isGradedStep(step);
   const canPayRetry = isPremium || points >= RETRY_COST_QI;
   const activeRoundProgress = lessonRoundProgressForStep(lesson.steps, idx, lessonTasks.length);

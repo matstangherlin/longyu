@@ -568,6 +568,8 @@ function StepIntro({ step, onDone }: StepProps) {
             onComplete={() => onDone()}
             size={canSpeak ? "compact" : "default"}
             continueLabel={t("player.gotIt")}
+            // RC2.2.11 — Cultura: Hànzì citado pelo dragão é consultável.
+            gloss={step.pedagogicalEvidence?.domain === "culture"}
           />
         </div>
       ) : (

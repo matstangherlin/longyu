@@ -10,8 +10,7 @@ import { PasswordField, PasswordRequirements } from "../../components/auth/Passw
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { canRegisterWithCredentials } from "../../lib/authForm";
-import { checkUsername, USERNAME_REJECTION_KEY } from "../../lib/username";
-import { useStore } from "../../lib/store";
+import { checkUsername, storePendingUsername, USERNAME_REJECTION_KEY } from "../../lib/username";
 import type { MessageKey } from "../../locales/pt-BR";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../../lib/auth/localAuthPolicy";
@@ -143,8 +142,6 @@ export function ComecarPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const currentAccountId = useStore((s) => s.currentAccountId);
-  const setAccountUsername = useStore((s) => s.setAccountUsername);
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -257,9 +254,9 @@ export function ComecarPage() {
       setBusy(false);
       return;
     }
-    // Username fica local e marcado como "a confirmar" até o servidor aplicar
-    // o contrato (CODE_READY_AWAITING_CLOUD_APPLY) — nada de "disponível" falso.
-    setAccountUsername(currentAccountId, usernameCheck.username, { pendingClaim: true });
+    // Username fica pendente neste aparelho e vira "a confirmar" no primeiro
+    // login (CODE_READY_AWAITING_CLOUD_APPLY) — nada de "disponível" falso.
+    storePendingUsername(usernameCheck.username);
     storePendingConfirmEmail(email);
     trackFunnelEvent("email_confirmation_pending");
     navigate(confirmEmailPath(email));

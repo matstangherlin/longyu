@@ -164,3 +164,32 @@ export const USERNAME_LOGIN_CLOUD_STATUS = "CODE_READY_AWAITING_CLOUD_APPLY" as 
 export function usernameLoginCloudEnabled(env: Record<string, unknown> = import.meta.env ?? {}): boolean {
   return env.VITE_USERNAME_LOGIN_ENABLED === "true";
 }
+
+// ── Nome escolhido no cadastro, antes de existir conta ─────────────────────
+// O cadastro não grava aluno anônimo no store (RC2.2.8 · J6). O nome fica
+// pendente neste aparelho e vira `account.username` no primeiro login.
+
+const PENDING_USERNAME_KEY = "longyu:pending-username:v1";
+
+export function storePendingUsername(raw: string): void {
+  const check = checkUsername(raw);
+  if (!check.ok) return;
+  try {
+    localStorage.setItem(PENDING_USERNAME_KEY, check.username);
+  } catch {
+    // sem storage: o aluno escolhe de novo no Perfil depois
+  }
+}
+
+/** Lê e apaga o nome pendente (só formato válido volta). */
+export function takePendingUsername(): string | null {
+  try {
+    const raw = localStorage.getItem(PENDING_USERNAME_KEY);
+    localStorage.removeItem(PENDING_USERNAME_KEY);
+    if (!raw) return null;
+    const check = checkUsername(raw);
+    return check.ok ? check.username : null;
+  } catch {
+    return null;
+  }
+}
