@@ -117,7 +117,10 @@ test.describe("RC2.2.13 — TopBar compacta", () => {
   });
 
   test("≥ 390px: contadores compactos com Qi", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+    // WebKit/desktop Playwright reserva barra de rolagem; em 390px exatos o
+    // `min-[390px]` pode ver < 390 e esconder o Qi. 414px (iPhone Plus típico)
+    // fica claramente acima do breakpoint sem mudar o contrato do produto.
+    await page.setViewportSize({ width: 414, height: 896 });
     await seed(page);
     await open(page, "/jornada");
     await expect(page.getByTestId("topbar-qi")).toBeVisible();
