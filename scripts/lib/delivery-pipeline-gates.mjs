@@ -94,15 +94,69 @@ export function loadDeliveryState(root = process.cwd()) {
   };
 }
 
+// Parsing de YAML por linhas (sem regex com quantificadores aninhados — ReDoS).
+function indentOf(line) {
+  return line.length - line.trimStart().length;
+}
+
+/** Linhas do bloco filho de `lines[index]` (mais indentadas; linhas vazias entram). */
+function childBlock(lines, index) {
+  const base = indentOf(lines[index]);
+  const out = [];
+  for (let i = index + 1; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (line.trim() === "") {
+      out.push(line);
+      continue;
+    }
+    if (indentOf(line) <= base) break;
+    out.push(line);
+  }
+  return out;
+}
+
 function workflowTriggers(text) {
-  const onBlock = String(text).match(/^on:\s*\n((?:[ \t]+.*\n|\s*\n)+)/m)?.[1] ?? String(text).match(/^on:\s*(.+)$/m)?.[1] ?? "";
+  const lines = String(text).split(/\r?\n/);
+  const onIndex = lines.findIndex((line) => /^on:/.test(line));
+  const inline = onIndex >= 0 ? lines[onIndex].slice(3).trim() : "";
+  const keys = onIndex >= 0
+    ? childBlock(lines, onIndex).filter((line) => indentOf(line) === 2).map((line) => line.trim().replace(/:.*$/, ""))
+    : [];
+  const has = (name) => keys.includes(name) || new RegExp(`\\b${name}\\b`).test(inline);
   return {
-    push: /(^|\n)\s{2}push:/.test(onBlock) || /\bpush\b/.test(onBlock.split("\n")[0] ?? ""),
-    pullRequest: /(^|\n)\s{2}pull_request(_target)?:/.test(onBlock),
-    dispatch: /(^|\n)\s{2}workflow_dispatch:/.test(onBlock),
-    schedule: /(^|\n)\s{2}schedule:/.test(onBlock),
-    other: /(^|\n)\s{2}(release|workflow_run|repository_dispatch|create):/.test(onBlock),
+    push: has("push"),
+    pullRequest: has("pull_request") || has("pull_request_target"),
+    dispatch: has("workflow_dispatch"),
+    schedule: has("schedule"),
+    other: ["release", "workflow_run", "repository_dispatch", "create"].some(has),
   };
+}
+
+/** `default:` do input `name` em workflow_dispatch. */
+function dispatchInputDefault(text, name) {
+  const lines = String(text).split(/\r?\n/);
+  const index = lines.findIndex((line) => line.trim() === `${name}:`);
+  if (index < 0) return undefined;
+  const hit = childBlock(lines, index).find((line) => line.trim().startsWith("default:"));
+  return hit?.trim().slice("default:".length).trim();
+}
+
+/** Caminhos de cada `uses: actions/upload-artifact@…` (valor inline + linhas do bloco). */
+function uploadArtifactPaths(text) {
+  const lines = String(text).split(/\r?\n/);
+  const out = [];
+  lines.forEach((line, index) => {
+    if (!line.includes("actions/upload-artifact@")) return;
+    const withIndex = lines.findIndex((candidate, i) => i > index && candidate.trim() === "with:");
+    if (withIndex < 0 || withIndex - index > 3) return;
+    const withBlock = childBlock(lines, withIndex);
+    const pathLine = withBlock.findIndex((candidate) => candidate.trim().startsWith("path:"));
+    if (pathLine < 0) return;
+    const inlineValue = withBlock[pathLine].trim().slice("path:".length).trim().replace(/^\|$/, "");
+    const nested = childBlock(withBlock, pathLine).map((candidate) => candidate.trim()).filter(Boolean);
+    out.push([inlineValue, ...nested].filter(Boolean).join("\n"));
+  });
+  return out;
 }
 
 function throws(fn) {
@@ -143,8 +197,7 @@ export function validateDeliveryPipeline(s) {
     if (!/"\$GITHUB_REF" != "refs\/heads\/main"/.test(release) || !/SOURCE_NOT_MAIN/.test(release)) {
       fail("SOURCE_NOT_MAIN", "android-release.yml", "release precisa recusar ref ≠ refs/heads/main");
     }
-    // Uma linha por repetição (indentada ou em branco): sem backtracking exponencial.
-    const defaultChannel = release.match(/channel:[ \t]*\n(?:[ \t]+\S.*\n|[ \t]*\n)*?[ \t]+default:[ \t]*(\w+)/)?.[1];
+    const defaultChannel = dispatchInputDefault(release, "channel");
     if (defaultChannel !== "internal") fail("PRODUCTION_DEFAULT", "android-release.yml", `canal padrão ${defaultChannel} ≠ internal`);
     if (!/PUBLICAR-PRODUCAO/.test(release) || !/android-production/.test(release)) {
       fail("PRODUCTION_DEFAULT", "android-release.yml", "produção exige opt-in PUBLICAR-PRODUCAO + environment android-production");
@@ -379,8 +432,7 @@ export function validateAndroidReleaseSafety(s) {
       if (/debug\.keystore|signingConfigs\.debug/.test(code)) fail("RELEASE_USES_DEBUG_KEY", where, "release nunca com debug keystore");
     });
     // Artefatos: só APK/AAB + proveniência/registro. Nada de keystore, properties, RUNNER_TEMP.
-    for (const match of String(text).matchAll(/uses:[ \t]*actions\/upload-artifact@[^\n]*\n(?:[ \t]+\S.*\n|[ \t]*\n)*?[ \t]+path:\s*([\s\S]*?)(?=\n\s+[a-z-]+:\s|\n\s*-\s|$)/g)) {
-      const paths = match[1];
+    for (const paths of uploadArtifactPaths(text)) {
       if (/runner[._]temp|\.jks|keystore|\.properties|secrets\.|(^|\s)\.\/?\s*$|\*\*\/\*\s*$/im.test(paths)) fail("KEYSTORE_BASE64_EXPOSED", name, `artifact inclui caminho sensível: ${paths.trim().split("\n")[0]}`);
     }
     if (/KEYSTORE_BASE64/.test(text)) {
