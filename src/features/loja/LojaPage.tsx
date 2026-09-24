@@ -184,7 +184,7 @@ export function LojaPage() {
   return (
     <HubPage className="relative space-y-4">
       {burst && (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
+        <div className="pointer-events-none fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)] z-50 flex justify-center px-4">
           <div className="longyu-claim-float rounded-full bg-[rgb(var(--good)/0.16)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--good))] shadow-lift">
             {burst}
           </div>

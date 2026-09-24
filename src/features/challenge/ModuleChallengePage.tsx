@@ -504,7 +504,7 @@ export function ModuleChallengePage() {
     }
 
     return (
-      <div className="mx-auto max-w-xl space-y-6 pt-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+      <div className="mx-auto max-w-xl space-y-6 pt-6 pb-[calc(var(--app-safe-bottom)+1rem)]">
         <Card className="p-6 text-center sm:p-8">
           <div className={passed ? "text-[rgb(var(--good))]" : "text-accent"}>
             {passed ? <IconCheck width={42} height={42} className="mx-auto" /> : <IconX width={42} height={42} className="mx-auto" />}
@@ -685,7 +685,7 @@ export function ModuleChallengePage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-xl space-y-5 pb-[calc(var(--app-safe-bottom)+1rem)]">
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">

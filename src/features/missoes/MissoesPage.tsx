@@ -521,7 +521,7 @@ function MissionCompleteModal({
     <ModalOverlay className="items-stretch p-0 sm:items-center sm:p-4" onBackdropClick={onClose} label={t("missions.missionComplete")}>
       <div
         data-mission-celebration=""
-        className="flex min-h-[100dvh] w-full max-w-none flex-col overflow-y-auto bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-2xl sm:border sm:border-line sm:p-6"
+        className="flex min-h-[100dvh] w-full max-w-none flex-col overflow-y-auto bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_52%,rgb(var(--bg))_100%)] p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-[calc(var(--app-safe-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-2xl sm:border sm:border-line sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-accent text-white shadow-lift longyu-success-bloom sm:h-16 sm:w-16">

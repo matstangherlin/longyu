@@ -38,7 +38,7 @@ export function useWorkspaceOrganizationId(): string | null {
 export function BusinessWorkspaceShell({ title, children }: { title: string; children: ReactNode }) {
   const { t } = useTranslation();
   return (
-    <div className="mx-auto max-w-4xl space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" data-business-workspace>
+    <div className="mx-auto max-w-4xl space-y-4 pb-[calc(var(--app-safe-bottom)+1rem)]" data-business-workspace>
       <PageHeader eyebrow={t("business.eyebrow")} title={title} />
       {children}
       <Card className="p-4">

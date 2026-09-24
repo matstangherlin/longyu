@@ -428,7 +428,7 @@ export function ComecarPage() {
       </div>
 
       {step !== "welcome" && step !== "quiz" && step !== "result" && step !== "account" && (
-        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-6">
+        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,var(--app-safe-bottom))] pt-6">
           <Button
             size="lg"
             className="w-full"
@@ -443,7 +443,7 @@ export function ComecarPage() {
         </div>
       )}
       {step === "quiz" && question && (
-        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-6">
+        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,var(--app-safe-bottom))] pt-6">
           <Button size="lg" className="w-full" disabled={!picked} onClick={answerCurrent}>
             {t("placement.confirm")} <IconChevron width={18} height={18} />
           </Button>

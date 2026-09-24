@@ -39,7 +39,7 @@ export function BusinessPage() {
 
   return (
     <PublicMarketingLayout eyebrow="Para empresas">
-      <article data-business-page className="space-y-10 overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+      <article data-business-page className="space-y-10 overflow-x-hidden pb-[calc(var(--app-safe-bottom)+1rem)]">
         <section className="relative overflow-hidden rounded-2xl border border-gold/20 bg-[linear-gradient(160deg,rgb(var(--gold)/0.12)_0%,rgb(var(--surface))_45%,rgb(var(--bg))_100%)] p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <Pill tone="gold">{BUSINESS_HERO.eyebrow}</Pill>

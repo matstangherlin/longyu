@@ -240,20 +240,22 @@ export function ProfilePage() {
   return (
     <PageShell width="wide" rail={rail}>
       {/* 1 · Header do perfil — identidade do aluno. */}
-      <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
-        <div className="relative mx-auto h-20 w-20 shrink-0 sm:mx-0">
+      {/* RC2.2.13 — no celular o cabeçalho é horizontal (avatar ao lado do nome):
+          as estatísticas e medalhas sobem para a primeira dobra. */}
+      <Card className="flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap sm:gap-4 sm:p-5" data-testid="profile-header">
+        <div className="relative h-16 w-16 shrink-0 sm:h-20 sm:w-20">
           <div
-            className={["grid h-20 w-20 place-items-center rounded-2xl bg-surface-2", frameClass].join(" ")}
+            className={["grid h-16 w-16 place-items-center rounded-2xl bg-surface-2 sm:h-20 sm:w-20", frameClass].join(" ")}
             data-testid="profile-avatar"
             data-profile-frame={frameClass ? "equipped" : "none"}
           >
-            <Mascot size={66} variant={streak > 0 ? "celebrate" : "wave"} />
+            <Mascot size={54} variant={streak > 0 ? "celebrate" : "wave"} />
           </div>
           <span className="absolute -bottom-1.5 -right-1.5 rounded-full border-2 border-surface bg-accent px-2 py-0.5 text-[11px] font-bold text-white">
             {initials(name)}
           </span>
         </div>
-        <div className="min-w-0 flex-1 text-center sm:text-left">
+        <div className="min-w-0 flex-1 text-left">
           <h1 className="font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">{name}</h1>
           {profileTitle && (
             <span
@@ -263,7 +265,7 @@ export function ProfilePage() {
               {profileTitle.text}
             </span>
           )}
-          <div className="mt-0.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs text-ink-faint sm:justify-start">
+          <div className="mt-0.5 flex flex-wrap items-center justify-start gap-x-2 gap-y-0.5 text-xs text-ink-faint">
             {handle && (
               <span data-testid="profile-username" className="max-w-full truncate font-medium text-ink-soft">
                 {handle}
@@ -273,7 +275,7 @@ export function ProfilePage() {
             {since && <span>· {t("hub.studyingSince", { date: since })}</span>}
             <SyncStatusChip className="ml-1" />
           </div>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
+          <div className="mt-1.5 flex flex-wrap items-center justify-start gap-1.5">
             <Pill tone="accent">{`${locale === "en" ? "EN" : "PT-BR"} → ${t("settings.targetLanguageName")}`}</Pill>
             {streak > 0 && (
               <Pill tone="muted">
@@ -282,7 +284,7 @@ export function ProfilePage() {
             )}
           </div>
         </div>
-        <div className="shrink-0">
+        <div className="w-full shrink-0 sm:w-auto [&>*]:w-full sm:[&>*]:w-auto">
           <ActionButton to="/conta" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />}>
             {t("hub.editProfile")}
           </ActionButton>

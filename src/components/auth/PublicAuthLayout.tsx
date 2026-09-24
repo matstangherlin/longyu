@@ -15,7 +15,7 @@ export function PublicAuthLayout({ children }: { children?: ReactNode }) {
   }, [theme]);
 
   return (
-    <div className="theme-transition min-h-screen overflow-x-clip bg-bg px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-6">
+    <div className="theme-transition min-h-screen overflow-x-clip bg-bg px-4 pb-[max(1.5rem,var(--app-safe-bottom))] pt-[max(1.5rem,var(--app-safe-top))] sm:px-6">
       <ErrorBoundary resetKey={location.pathname} area="auth">
         {children ?? <Outlet />}
       </ErrorBoundary>

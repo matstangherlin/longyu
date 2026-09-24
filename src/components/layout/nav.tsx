@@ -97,14 +97,21 @@ export const NAV: Record<string, NavItem> = {
   mais: { to: "/mais", label: "Mais", labelKey: "navigation.more", icon: IconMore, matches: MORE_MATCHES },
 };
 
-/** Barra inferior mobile: no máximo 5 destinos (navegação completa). */
+/**
+ * Barra inferior mobile — RC2.2.13: exatamente 5 destinos, Cultura é
+ * navegação PRIMÁRIA (não fica escondida em Mais). Perfil sai da barra: o
+ * acesso é pelo avatar da TopBar (e pelo catálogo completo em /mais).
+ * Nunca 6+ itens.
+ */
+export const MOBILE_PRIMARY_NAV_ROUTES = ["/jornada", "/treino", "/cultura", "/missoes", "/mais"] as const;
+
 export function mobileNavForStage(_stage: LearnerStage): NavItem[] {
   return [
     NAV.jornada,
     NAV.treino,
+    NAV.cultura,
     NAV.missoes,
-    NAV.perfil,
-    { ...NAV.mais, matches: [...MORE_MATCHES, "/cultura"] },
+    NAV.mais,
   ];
 }
 
@@ -123,12 +130,12 @@ export function practiceFlyoutItems(): NavItem[] {
 }
 
 /**
- * Sheet mobile de Praticar: mesmos hubs do desktop + Revisão quando ela
- * não está na barra inferior (estágio recorrente).
+ * Sheet mobile de Praticar (2 colunas, compacta): Revisão, Hànzì, Pinyin,
+ * Fala, Leitura, Imersão, Biblioteca. Revisão só sai daqui se estiver na barra.
  */
 export function practiceMobileSheetItems(primaryNav: NavItem[]): NavItem[] {
   const onBar = new Set(primaryNav.map((item) => item.to));
-  const items = practiceFlyoutItems();
+  const items = [NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.imersao, NAV.biblioteca];
   return onBar.has("/revisao") ? items : [NAV.revisao, ...items];
 }
 
@@ -181,7 +188,8 @@ export function moreMobileSheetGroups(primaryNav: NavItem[]): NavGroup[] {
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to);
 
-  const explore = [NAV.cultura, NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
+  // Cultura é aba da barra (RC2.2.13): não se repete aqui.
+  const explore = [NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
   const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
   const groups: NavGroup[] = [];
   if (explore.length) groups.push({ id: "explore", title: "Explorar", titleKey: "navigation.groupExplore", items: explore });
@@ -204,9 +212,9 @@ export const DESKTOP_NAV: NavItem[] = [
 export const NAV_MOBILE: NavItem[] = [
   NAV.jornada,
   NAV.treino,
-  NAV.imersao,
+  NAV.cultura,
   NAV.missoes,
-  { ...NAV.mais, matches: [...MORE_MATCHES, ...PROFILE_MATCHES, ...IDEOGRAM_MATCHES, "/loja", "/ligas", "/cultura"] },
+  { ...NAV.mais, matches: [...MORE_MATCHES, "/loja", "/ligas"] },
 ];
 
 export const MORE_NAV: NavItem = NAV.mais;

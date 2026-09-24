@@ -82,7 +82,7 @@ export function LigasPage() {
 
   return (
     <div
-      className="mx-auto max-w-6xl space-y-4 px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-0"
+      className="mx-auto max-w-6xl space-y-4 px-1 pb-[calc(var(--app-safe-bottom)+1rem)] sm:px-0"
       data-testid="league-page"
       data-league-first-content={firstContent?.source ?? "pending"}
       data-league-first-content-ms={firstContent?.ms ?? ""}

@@ -178,7 +178,7 @@ export function BibliotecaPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-6xl space-y-6 pb-[calc(var(--app-safe-bottom)+1rem)]">
       <SectionTitle
         eyebrow="Caderno inteligente"
         title="Minha biblioteca"

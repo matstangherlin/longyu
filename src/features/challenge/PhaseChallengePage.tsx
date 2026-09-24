@@ -161,7 +161,7 @@ export function PhaseChallengePage() {
   // ——— Resultado ————————————————————————————————————————————————
   if (grade) {
     return (
-      <div className="mx-auto max-w-xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4" data-testid="phase-challenge-result" data-passed={grade.passed ? "true" : "false"}>
+      <div className="mx-auto max-w-xl space-y-5 pb-[calc(var(--app-safe-bottom)+1rem)] pt-4" data-testid="phase-challenge-result" data-passed={grade.passed ? "true" : "false"}>
         <Card className="p-6 text-center sm:p-8">
           <div className={grade.passed ? "text-good" : "text-accent"}>
             {grade.passed ? <IconCheck width={42} height={42} className="mx-auto" /> : <IconX width={42} height={42} className="mx-auto" />}
@@ -202,7 +202,7 @@ export function PhaseChallengePage() {
     return (
       // K12 — prova: nenhum termo abre glossário, nem por hover nem por toque.
       <MandarinHelpProvider disabled>
-        <div className="mx-auto max-w-xl space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2" data-testid="phase-challenge-exam" data-gloss-lookup="disabled">
+        <div className="mx-auto max-w-xl space-y-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2" data-testid="phase-challenge-exam" data-gloss-lookup="disabled">
           <div className="flex items-center gap-3 text-sm text-ink-faint">
             <ProgressBar value={pos + 1} max={questions.length} className="flex-1" />
             <span className="tabular-nums">{t("phaseChallenge.progress", { n: pos + 1, total: questions.length })}</span>
@@ -254,7 +254,7 @@ export function PhaseChallengePage() {
 
   return (
     <div
-      className="mx-auto max-w-xl space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4"
+      className="mx-auto max-w-xl space-y-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-4"
       data-testid="phase-challenge-preview"
       data-phase-id={target.phase.id}
       data-challenge-kind={target.kind ?? "none"}

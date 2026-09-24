@@ -30,7 +30,7 @@ export function PageShell({
   children: ReactNode;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
-  const pad = "pb-[calc(env(safe-area-inset-bottom)+1rem)]";
+  const pad = "pb-[calc(var(--app-safe-bottom)+1rem)]";
   if (rail) {
     return (
       <div
@@ -147,9 +147,10 @@ export function StatTile({
   }[tone];
   return (
     <div className="min-w-0 rounded-xl border border-line/50 bg-surface px-3 py-2.5 shadow-card">
-      <div className="flex items-center gap-1.5 text-ink-faint">
-        {Icon && <Icon width={13} height={13} />}
-        <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em]">{label}</span>
+      <div className="flex items-start gap-1.5 text-ink-faint">
+        {Icon && <Icon width={13} height={13} className="mt-px shrink-0" />}
+        {/* RC2.2.13 — rótulo quebra em vez de cortar ("DIAS DE SEQUÊ…" em 360px). */}
+        <span className="min-w-0 break-words text-[10px] font-semibold uppercase leading-tight tracking-[0.06em] sm:tracking-[0.12em]">{label}</span>
       </div>
       <div className={cx("mt-1 truncate font-serif text-lg font-semibold sm:text-xl", toneText)}>{value}</div>
     </div>

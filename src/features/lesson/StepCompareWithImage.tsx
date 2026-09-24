@@ -155,8 +155,8 @@ export function StepCompareWithImage({ step, onDone, onSkip, onMistake }: StepPr
           className={[
             "z-10 grid gap-2 sm:flex sm:flex-wrap",
             actionRegion
-              ? "relative px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4"
-              : "sticky bottom-0 -mx-2 mt-5 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-4",
+              ? "relative px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 sm:px-4"
+              : "sticky bottom-0 -mx-2 mt-5 bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-2 pb-[calc(var(--app-safe-bottom)+0.5rem)] pt-4",
           ].join(" ")}
         >
         {!answered && (

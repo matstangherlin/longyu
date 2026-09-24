@@ -51,7 +51,7 @@ function kill(label, mutate) {
 
 kill("sticky CTA loses safe-area", (tmp) => {
   const p = path.join(tmp, "src/features/lesson/steps.tsx");
-  fs.writeFileSync(p, fs.readFileSync(p, "utf8").replaceAll("safe-area-inset-bottom", "SAFE_AREA_REMOVED"));
+  fs.writeFileSync(p, fs.readFileSync(p, "utf8").replaceAll("safe-area-inset-bottom", "SAFE_AREA_REMOVED").replaceAll("--app-safe-bottom", "SAFE_AREA_REMOVED"));
 });
 
 kill("speech unavailable keeps dead CTA contract", (tmp) => {

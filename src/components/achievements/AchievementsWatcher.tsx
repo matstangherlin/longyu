@@ -165,7 +165,7 @@ function AchievementUnlockModal({
         data-achievement-kind={kind}
         className={
           fullScreen
-            ? "flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
+            ? "flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-[calc(var(--app-safe-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
             : "flex w-full max-w-sm flex-col rounded-[26px] border border-line bg-surface px-5 py-5 text-center shadow-lift"
         }
         onClick={(event) => event.stopPropagation()}

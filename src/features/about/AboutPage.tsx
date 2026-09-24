@@ -42,7 +42,7 @@ export function AboutPage() {
   }, [location.hash]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-3xl space-y-6 pb-[calc(var(--app-safe-bottom)+1rem)]">
       <SectionTitle
         eyebrow={t("marketing.aboutEyebrow")}
         title={t("marketing.aboutTitle")}

@@ -5,7 +5,6 @@ import {
   mobileNavForStage,
   moreMobileSheetGroups,
   practiceMobileSheetItems,
-  profileFlyoutItems,
   navLabel,
   type NavGroup,
   type NavItem,
@@ -20,14 +19,12 @@ import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 
-type SheetKind = "praticar" | "perfil" | "mais";
+type SheetKind = "praticar" | "mais";
 
 export function TabBar() {
   const { t } = useTranslation();
   const navRef = useMeasuredHeightCssVar<HTMLElement>("--app-bottom-nav-height");
   const location = useLocation();
-  const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
-  const canUseReferral = authMode === "cloud";
   const srs = useStore((s) => s.srs);
   const chests = useStore((s) => s.chests);
   const aggregates = useStore((s) => s.getMissionAggregates());
@@ -56,7 +53,6 @@ export function TabBar() {
 
   function sheetForItem(item: NavItem): SheetKind | null {
     if (item.to === "/treino") return "praticar";
-    if (item.to === "/perfil") return "perfil";
     if (item.to === "/mais") return "mais";
     return null;
   }
@@ -67,20 +63,6 @@ export function TabBar() {
           title: t("navigation.practice"),
           groups: [{ id: "practice", title: t("navigation.practice"), titleKey: "navigation.practice", items: practiceMobileSheetItems(items) }] as NavGroup[],
           footer: { to: "/treino", label: t("navigation.openPractice") },
-        },
-        perfil: {
-          title: t("navigation.profile"),
-          groups: [
-            {
-              id: "profile",
-              title: t("navigation.profile"),
-              titleKey: "navigation.profile",
-              items: canUseReferral
-                ? profileFlyoutItems()
-                : profileFlyoutItems().filter((item) => item.to !== "/convide"),
-            },
-          ] as NavGroup[],
-          footer: { to: "/perfil", label: t("navigation.openProfile") },
         },
         mais: {
           title: t("navigation.moreOptions"),
@@ -260,7 +242,7 @@ function TabSheet({
                       to={item.to}
                       onClick={onClose}
                       className={[
-                        "flex min-h-14 items-center gap-2.5 rounded-2xl border px-3 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                        "flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
                         active
                           ? "border-accent/50 bg-accent-soft text-accent"
                           : "border-line/60 bg-surface-2/80 text-ink hover:bg-surface-2",

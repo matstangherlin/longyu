@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { IconFlame, IconShield, IconStar, IconUser } from "../ui/Icon";
 import { BrandWordmark } from "./Brand";
@@ -14,20 +14,27 @@ function StatPill({
   value,
   label,
   className,
+  outerClassName,
+  testId,
 }: {
   to?: string;
   icon: typeof IconShield;
   value: ReactNode;
   label: string;
   className?: string;
+  /** Classe no elemento mais externo (ex.: esconder abaixo de 390px). */
+  outerClassName?: string;
+  testId?: string;
 }) {
   const inner = (
     <span
       className={[
-        "inline-flex min-h-11 items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs",
+        "inline-flex min-h-12 items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs",
         className,
+        to ? "" : outerClassName,
       ].join(" ")}
       aria-label={label}
+      data-testid={to ? undefined : testId}
     >
       <Icon width={13} height={13} className="shrink-0 text-accent sm:h-3.5 sm:w-3.5" />
       <span className="text-accent">{value}</span>
@@ -35,7 +42,11 @@ function StatPill({
   );
   if (!to) return inner;
   return (
-    <Link to={to} className="rounded-full transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+    <Link
+      to={to}
+      data-testid={testId}
+      className={["rounded-full transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45", outerClassName].filter(Boolean).join(" ")}
+    >
       {inner}
     </Link>
   );
@@ -52,15 +63,17 @@ export function TopBar() {
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts?.[currentAccountId];
   const { signOut, canSignOut } = useCloudSignOut();
+  // RC2.2.13 — Perfil saiu da TabBar: o avatar é a porta de entrada e mostra onde o aluno está.
+  const onProfile = /^\/(perfil|conta|amigos)(\/|$)/.test(useLocation().pathname);
 
   return (
     <header
       ref={headerRef}
       data-app-header
-      className="sticky top-0 z-20 flex min-h-[var(--app-header-height)] items-center justify-between gap-2 border-b border-line/60 bg-bg/90 px-3 pt-[var(--app-safe-top)] backdrop-blur-md sm:px-5"
+      className="sticky top-0 z-20 flex min-h-[var(--app-header-height)] items-center justify-between gap-2 border-b border-line/60 bg-bg/90 pl-[max(0.75rem,var(--app-safe-left))] pr-[max(0.75rem,var(--app-safe-right))] pt-[var(--app-safe-top)] backdrop-blur-md sm:px-5"
     >
       <div className="min-w-0 shrink lg:hidden">
-        <Link to="/jornada" aria-label="Longyu" className="flex min-h-11 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+        <Link to="/jornada" aria-label="Longyu" className="flex min-h-12 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
           <BrandWordmark className="text-[1.2rem] sm:text-[1.3rem]" />
         </Link>
       </div>
@@ -71,22 +84,29 @@ export function TopBar() {
           icon={IconShield}
           value={isPremium ? "∞" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
           label={isPremium ? t("shell.chargesInfinite") : t("shell.chargesCount", { current: dailyEnergy.charges, max: dailyEnergy.maxCharges })}
+          testId="topbar-energy"
         />
+        {/* RC2.2.13 — abaixo de 390px a TopBar fica em logo + Fôlego + Ofensiva + Avatar. */}
         <StatPill
           to="/loja"
           icon={IconStar}
           value={points}
           label={t("shell.qi", { points })}
+          testId="topbar-qi"
+          outerClassName="hidden min-[390px]:inline-flex"
         />
         <StatPill
           to="/perfil#ofensiva"
           icon={IconFlame}
           value={streak}
           label={t("shell.streak", { streak, days: streak === 1 ? t("shell.day") : t("shell.days") })}
+          testId="topbar-streak"
         />
         <Link
           to="/perfil"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          data-testid="topbar-avatar"
+          aria-current={onProfile ? "page" : undefined}
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition aria-[current=page]:border-accent aria-[current=page]:bg-accent-soft hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           aria-label={account?.name ? t("auth.accountNamed", { name: account.name }) : t("auth.accountAria")}
         >
           <IconUser width={15} height={15} className="sm:h-4 sm:w-4" />
