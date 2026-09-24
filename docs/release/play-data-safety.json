@@ -1,6 +1,6 @@
 {
   "schema": "longyu-play-data-safety/1",
-  "wave": "RC2.2.12",
+  "wave": "RC2.2.13",
   "status": "INVENTORY_READY_NOT_SUBMITTED",
   "note": "Inventário factual do código atual para preencher o formulário Data Safety do Play Console À MÃO. Nada é enviado automaticamente. 'collected' segue a definição da Play: dado transmitido para fora do aparelho. Dado só local não é coletado. Revisar sempre que o código mudar.",
   "encryptedInTransit": true,
@@ -181,7 +181,7 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "Reconhecimento pela Web Speech API do navegador/aparelho; gravação para ouvir a si mesmo fica só na memória (desktop). O Longyu não envia nem guarda áudio. Declarar a permissão RECORD_AUDIO, não coleta."
+      "detail": "Android: SpeechRecognizer do sistema (on-device quando o aparelho oferece, API 31+); Web: Web Speech API. O Longyu não armazena a gravação e não envia áudio a servidor próprio; o reconhecimento pode ser processado pelo serviço de fala configurado no dispositivo. Declarar a permissão RECORD_AUDIO, não coleta."
     },
     {
       "data": "securityChallenge (Cloudflare Turnstile)",
@@ -212,6 +212,22 @@
       "shared": false,
       "purpose": [],
       "detail": "Sem anúncios e sem AD_ID."
+    },
+    {
+      "data": "localNotifications",
+      "playCategory": "— (não é dado coletado)",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "RC2.2.13: lembretes locais (@capacitor/local-notifications) agendados no aparelho a partir da ofensiva local. Sem push, sem Firebase, sem token de dispositivo, nada sai do aparelho. POST_NOTIFICATIONS; sem alarme exato."
+    },
+    {
+      "data": "textToSpeech",
+      "playCategory": "— (não é dado coletado)",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "RC2.2.13: áudio mandarim pelo TextToSpeech do Android (motor configurado no aparelho). Só o texto da lição vai ao motor local; nada do aluno."
     }
   ],
   "ads": false,

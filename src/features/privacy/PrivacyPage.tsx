@@ -48,6 +48,7 @@ export function PrivacyPage() {
           <p>{t("privacyNotice.feedback")}</p>
           <p>{t("privacyNotice.diagnostics")}</p>
           <p>{t("privacyNotice.microphone")}</p>
+          <p>{t("privacyNotice.notifications")}</p>
           <p>{t("privacyNotice.export")}</p>
           <p>{t("privacyNotice.deletion")}</p>
           <p>{t("privacyNotice.consent")}</p>

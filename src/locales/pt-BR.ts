@@ -2151,7 +2151,9 @@ export const ptBR = {
     identity:
       "Nome de usuário: o @nome que você escolhe é a sua identidade social (amigos e ligas encontram você por ele). Ele pode aparecer para outros alunos; o email nunca aparece e nunca é usado para encontrar você.",
     microphone:
-      "Microfone: só é pedido quando você toca em “Falar”. O reconhecimento usa o serviço de voz do próprio navegador ou aparelho; no computador, a gravação fica só na memória para você se ouvir e some ao sair. O Longyu não envia nem guarda o áudio. Recusar mantém o resto do app funcionando.",
+      "Microfone: só é pedido quando você toca em “Falar” (no app Android, também na tela inicial “Prepare o Longyu”, sempre opcional). Longyu não armazena a gravação. O reconhecimento pode ser processado pelo serviço de fala configurado no dispositivo (no Android, o SpeechRecognizer do sistema; no navegador, o serviço de voz dele). No computador, a gravação para você se ouvir fica só na memória e some ao sair. Recusar mantém o resto do app funcionando.",
+    notifications:
+      "Notificações (app Android): lembretes locais da ofensiva e de retorno, agendados no próprio aparelho — sem servidor de push e sem enviar dados. No máximo um por dia, nunca entre 22:00 e 08:00. Desligue em Configurações → Notificações ou nos ajustes do Android.",
     deletionTitle: "Como excluir sua conta",
     deletionSteps:
       "No app: Conta → Excluir conta na nuvem (ou Ajustes → Privacidade e dados) e confirme. Sem acesso ao app: escreva para {email} a partir do email da conta pedindo a exclusão. Excluímos a conta e o progresso na nuvem; dados deste aparelho você apaga em Dados locais. Registros exigidos por lei (por exemplo, pagamentos) podem ser mantidos pelo prazo legal.",

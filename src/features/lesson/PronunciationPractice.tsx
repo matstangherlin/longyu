@@ -240,6 +240,10 @@ export function PronunciationPractice({
         <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-accent text-2xl text-white ring-4 ring-accent-soft">
           ···
         </div>
+        {/* RC2.2.13 — estado explícito de escuta (mesmo texto na Web e no Android). */}
+        <p className="text-sm font-semibold text-accent" role="status" data-testid="speech-listening">
+          {t("player.listening")}
+        </p>
         <p className="text-sm font-medium text-accent">{t("player.speakNow")}</p>
         <p className="max-w-xs text-center text-xs text-ink-faint">
           {t("player.stopWhenDone")}

@@ -2145,7 +2145,9 @@ export const en: MessageCatalog = {
     identity:
       "Username: the @name you choose is your social identity (friends and leagues find you by it). It may be visible to other learners; your email is never shown and is never used to find you.",
     microphone:
-      "Microphone: requested only when you tap “Speak”. Recognition uses the browser's or device's own speech service; on desktop, a recording stays in memory only so you can hear yourself and is gone when you leave. Longyu never uploads or stores the audio. Declining keeps the rest of the app working.",
+      "Microphone: requested only when you tap “Speak” (in the Android app, also on the optional “Set up Longyu” screen). Longyu does not store the recording. Recognition may be processed by the speech service configured on the device (on Android, the system SpeechRecognizer; in the browser, its own speech service). On desktop, the recording you can play back stays in memory only and is gone when you leave. Declining keeps the rest of the app working.",
+    notifications:
+      "Notifications (Android app): local streak and comeback reminders scheduled on the device itself — no push server and no data sent. At most one a day, never between 22:00 and 08:00. Turn them off in Settings → Notifications or in Android settings.",
     deletionTitle: "How to delete your account",
     deletionSteps:
       "In the app: Account → Delete cloud account (or Settings → Privacy and data) and confirm. Without app access: email {email} from your account's address asking for deletion. We delete the account and cloud progress; you erase this device's data in Local data. Records required by law (for example, payments) may be kept for the legal period.",
