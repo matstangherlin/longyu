@@ -97,7 +97,7 @@
       "source": "cadastro"
     },
     {
-      "data": "learningProgress (lições, XP, liga, conquistas, economia)",
+      "data": "learningProgress",
       "playCategory": "App activity → App interactions / Other user-generated content",
       "collected": true,
       "shared": false,
@@ -107,7 +107,8 @@
       "required": true,
       "optional": false,
       "deletion": "apagado com a conta; cópia local apagável em Dados locais",
-      "source": "sync da nuvem (user_progress)"
+      "source": "sync da nuvem (user_progress)",
+      "detail": "lições, XP, liga, conquistas, economia (snapshot user_progress)"
     },
     {
       "data": "srsReviewState",
