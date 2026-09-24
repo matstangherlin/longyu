@@ -273,7 +273,7 @@ export async function login(
     }
     user = data.user;
   } else {
-    // CODE_READY_AWAITING_CLOUD_APPLY: sem a função deployada, não chamamos.
+    // Flag desligada (CLOUD_APPLIED_FLAG_OFF): backend aplicado, login por username ainda não liberado.
     if (!usernameLoginCloudEnabled()) {
       return {
         status: "error",

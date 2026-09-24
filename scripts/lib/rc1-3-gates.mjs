@@ -876,7 +876,7 @@ export function validateCompletionLayout(data = {}) {
     fail("MARKER", "LessonVictory", "P24: falta o marcador de compactação para o e2e");
   }
   // P24.3 — o mobile mantém o CTA colado embaixo.
-  if (!/pb-\[max\(0\.75rem,env\(safe-area-inset-bottom\)\)\]/.test(victory)) {
+  if (!/pb-\[max\(0\.75rem,(?:env\(safe-area-inset-bottom\)|var\(--app-safe-bottom\))\)\]/.test(victory)) {
     fail("MOBILE_CTA", "LessonVictory", "P24.3: o CTA mobile perdeu o safe-area");
   }
   // P24.1 — sem redesenho: a hierarquia da RC1.1 continua.

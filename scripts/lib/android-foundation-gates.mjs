@@ -43,6 +43,8 @@ export const ALLOWED_PERMISSIONS = [
   "android.permission.INTERNET",
   "android.permission.RECORD_AUDIO",
   "android.permission.MODIFY_AUDIO_SETTINGS",
+  // RC2.2.13 — lembretes locais de estudo (Android 13+).
+  "android.permission.POST_NOTIFICATIONS",
 ];
 /** Plugins nativos que só existem se houver consumidor em src/lib/platform/. */
 export const RUNTIME_ONLY_PACKAGES = ["@capacitor/core", "@capacitor/android", "@capacitor/cli"];
@@ -442,8 +444,11 @@ export function validateAndroidPlatformBoundaries(s) {
     }
   }
   for (const [rel, text] of Object.entries(s.javaSources ?? {})) {
-    if (/SharedPreferences|SQLite|Room|DataStore|FileOutputStream/.test(text) || !/extends BridgeActivity/.test(text)) {
-      fail("NATIVE_SECOND_ACCOUNT_STORE", rel, "código Java/Kotlin não guarda estado próprio; é só a BridgeActivity");
+    // RC2.2.13 — além da BridgeActivity, só plugins Capacitor internos (sem estado próprio).
+    const isBridge = /extends BridgeActivity/.test(text);
+    const isPlugin = /@CapacitorPlugin\(/.test(text) && /extends Plugin\b/.test(text);
+    if (/SharedPreferences|SQLite|Room|DataStore|FileOutputStream/.test(text) || !(isBridge || isPlugin)) {
+      fail("NATIVE_SECOND_ACCOUNT_STORE", rel, "código Java/Kotlin não guarda estado próprio; é só a BridgeActivity ou plugin interno");
     }
   }
 
@@ -548,7 +553,10 @@ export function validateAndroidPlatformBoundaries(s) {
   }
 
   // Permissões: mínimo necessário.
-  const permissions = [...String(s.androidManifestXml ?? "").matchAll(/uses-permission\s+android:name="([^"]+)"/g)].map((match) => match[1]);
+  // `tools:node="remove"` é uma remoção (ex.: SCHEDULE_EXACT_ALARM trazida por plugin), não um pedido.
+  const permissions = [...String(s.androidManifestXml ?? "").matchAll(/<uses-permission\s+android:name="([^"]+)"([^>]*)>/g)]
+    .filter((match) => !/tools:node="remove"/.test(match[2]))
+    .map((match) => match[1]);
   for (const permission of permissions) {
     if (!ALLOWED_PERMISSIONS.includes(permission)) fail("UNNEEDED_PERMISSION", permission, "permissão sem necessidade real");
   }

@@ -395,7 +395,7 @@ export function ImmersionPage() {
   }
 
   return (
-    <HubPage>
+    <HubPage compact data-testid="immersion-hub">
       <HubHeader
         eyebrow={t("hub.eyebrow")}
         title={t("navigation.immersion")}
@@ -420,8 +420,9 @@ export function ImmersionPage() {
       )}
 
       <Card className="rounded-xl border-line/70 p-3 shadow-none">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2.5">
+        {/* RC2.2.13 — uma linha também no celular (antes empilhava e empurrava as histórias). */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
               <IconHeadphones width={16} height={16} />
             </span>
@@ -430,7 +431,7 @@ export function ImmersionPage() {
               <div className="text-xs text-ink-faint">{t("hub.repeatNoCharge")}</div>
             </div>
           </div>
-          <div className="min-w-36 sm:w-40">
+          <div className="w-28 shrink-0 sm:w-40">
             {/* A barra sozinha era um traço sem significado: nada dizia o que
                 ela media nem quanto restava. */}
             <div className="mb-1 flex justify-between text-[10px] font-medium text-ink-faint">
@@ -445,7 +446,7 @@ export function ImmersionPage() {
       </Card>
 
       {missionFocus && (
-        <Card className="rounded-xl border-line/70 p-4 shadow-none">
+        <Card className="rounded-xl border-line/70 p-3 shadow-none sm:p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Missão em andamento</div>

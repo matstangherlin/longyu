@@ -109,7 +109,7 @@ export function AppShell() {
               ? isLessonPlayer
                 ? // Lesson Player dono do viewport (100dvh / visualViewport).
                   "flex h-full min-h-0 flex-col overflow-hidden p-0"
-                : "px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 sm:px-5 sm:pt-3 lg:px-6 lg:pb-6"
+                : "px-3 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2 sm:px-5 sm:pt-3 lg:px-6 lg:pb-6"
               : "px-3 pb-[calc(var(--app-bottom-nav-height)+1rem)] pt-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-12",
           ].join(" ")}
         >

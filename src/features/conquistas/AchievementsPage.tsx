@@ -74,7 +74,7 @@ export function AchievementsPage() {
       : views;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+    <div className="mx-auto max-w-5xl space-y-5 pb-[calc(var(--app-safe-bottom)+1rem)]">
       <SectionTitle
         eyebrow={t("hub.achievementsEyebrow")}
         title={t("navigation.achievements")}

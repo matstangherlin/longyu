@@ -81,7 +81,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main className="relative z-[1] mx-auto flex w-full max-w-6xl flex-1 items-center px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-0 sm:px-8 lg:py-8 xl:py-10">
+      <main className="relative z-[1] mx-auto flex w-full max-w-6xl flex-1 items-center px-4 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-0 sm:px-8 lg:py-8 xl:py-10">
         <div
           data-testid="landing-hero"
           className="grid w-full items-center gap-6 lg:grid-cols-[minmax(420px,0.96fr)_minmax(0,1.04fr)] lg:gap-14 xl:gap-20"
@@ -183,7 +183,7 @@ export function LandingPage() {
         </div>
       </main>
 
-      <footer className="relative z-[1] mx-auto w-full max-w-6xl space-y-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-2 text-center sm:px-8 lg:text-left">
+      <footer className="relative z-[1] mx-auto w-full max-w-6xl space-y-1.5 px-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2 text-center sm:px-8 lg:text-left">
         <BetaNotice />
         <nav
           aria-label={t("marketing.learnMore")}

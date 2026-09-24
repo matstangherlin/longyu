@@ -109,22 +109,25 @@ export function CultureHubPage() {
   );
 
   return (
-    <HubPage data-testid="culture-hub">
+    <HubPage compact data-testid="culture-hub">
       <HubHeader eyebrow={t("culture.eyebrow")} title={t("culture.title")} desc={t("culture.atlasTagline")} />
 
       <CultureHubGuide />
 
       <Card className="p-3" data-testid="culture-progress" data-passport="true">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">{t("culture.passportEyebrow")}</p>
-            <p className="mt-0.5 font-serif text-lg font-semibold text-ink">{t("culture.passportTitle")}</p>
-            <p className="mt-1 text-sm font-semibold text-ink">{t("culture.progressCount", { done, total })}</p>
-            <p className="text-xs text-ink-soft" data-testid="culture-seal-count">
-              {t("culture.sealCount", { n: seals.length })}
-            </p>
-          </div>
-        </div>
+        {/* RC2.2.13 — passaporte compacto: o conteúdo de Cultura sobe para a primeira dobra no celular. */}
+        <p className="font-serif text-base font-semibold text-ink sm:text-lg">
+          <span className="mr-1.5 align-middle font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+            {t("culture.passportEyebrow")}
+          </span>
+          {t("culture.passportTitle")}
+        </p>
+        <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-sm font-semibold text-ink">
+          <span>{t("culture.progressCount", { done, total })}</span>
+          <span className="text-xs font-normal text-ink-soft" data-testid="culture-seal-count">
+            {t("culture.sealCount", { n: seals.length })}
+          </span>
+        </p>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
           <div className="h-full bg-accent" style={{ width: `${Math.round((done / Math.max(total, 1)) * 100)}%` }} />
         </div>

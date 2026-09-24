@@ -44,7 +44,7 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
   return (
     <ModalOverlay className="items-stretch sm:items-center" onBackdropClick={() => closable && onClose()}>
       <div
-        className="relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-y-auto border border-line bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_48%,rgb(var(--bg))_100%)] px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-6 text-center shadow-lift sm:min-h-0 sm:rounded-2xl sm:p-6"
+        className="relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-y-auto border border-line bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_48%,rgb(var(--bg))_100%)] px-5 pb-[calc(var(--app-safe-bottom)+1rem)] pt-6 text-center shadow-lift sm:min-h-0 sm:rounded-2xl sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
         {closable && (

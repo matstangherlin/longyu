@@ -1,8 +1,9 @@
 // RC2.2.11 · AU–AX — login por nome de usuário.
 //
-// STATUS: CODE_READY_AWAITING_CLOUD_APPLY. Não está em LONGYU_EDGE_FUNCTIONS
-// (scripts/lib/edge-functions.mjs), então nenhum deploy automático a publica.
-// Depende de supabase/pending/rc2-2-11-username-identifier.sql aplicado.
+// STATUS: CLOUD_APPLIED_FLAG_OFF. Publicada em produção (verify_jwt = true) com
+// a migration de supabase/pending/rc2-2-11-username-identifier.sql aplicada.
+// Fora de LONGYU_EDGE_FUNCTIONS (scripts/lib/edge-functions.mjs) até a #273
+// reabrir; o app só a chama com VITE_USERNAME_LOGIN_ENABLED=true.
 //
 // Contrato:
 //   POST { identifier: "<username>", password }

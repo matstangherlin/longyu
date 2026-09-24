@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, symlink } from "node:fs/promises";
 import os from "node:os";
 import process from "node:process";
 import ts from "typescript";
@@ -23,6 +23,9 @@ try {
   });
   const emit = program.emit();
   assert.equal(emit.emitSkipped, false, "emit speech.ts");
+  // speech.ts → nativeSpeech → @capacitor/core. O emit vai para /tmp, então
+  // o require não sobe até o node_modules do repo sem este link.
+  await symlink(path.join(rootDir, "node_modules"), path.join(outDir, "node_modules"));
   const { normalizeHan, scorePronunciation, analyzePronunciation, speechErrorMessage } = require(
     path.join(outDir, "src/lib/speech.js")
   );

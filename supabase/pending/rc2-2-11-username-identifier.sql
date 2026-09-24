@@ -1,11 +1,13 @@
 -- RC2.2.11 · AP–BC — nome de usuário + login por identificador.
 --
--- STATUS: CODE_READY_AWAITING_CLOUD_APPLY
---   Este arquivo NÃO está em supabase/migrations/ de propósito: nada o aplica
---   automaticamente (nem `db:apply-api`, nem o rehearsal efêmero). O owner o
---   promove para supabase/migrations/<timestamp>_username_identifier_login.sql,
---   registra no manifest (docs/backend/migration-manifest.json) e aplica.
---   Não foi aplicado em produção nem em QA.
+-- STATUS: CLOUD_APPLIED_FLAG_OFF
+--   Aplicado em PRODUÇÃO (MandarimProject) em 2026-09-24, com autorização do
+--   owner, como a migration remota `rc2_2_11_username_identifier_login` (mesmo
+--   corpo deste arquivo). NÃO aplicado no QA (#273, projeto inativo).
+--   Continua fora de supabase/migrations/ de propósito: entrar lá mudaria a
+--   contagem de 52 migrations do candidate congelado da #273 e os hashes de
+--   identidade v478/v489. Promover quando a #273 for reaberta.
+--   O login por username no app segue DESLIGADO (VITE_USERNAME_LOGIN_ENABLED).
 --
 -- Reusa public.profiles como autoridade (005_social.sql já criou
 -- `profiles.username` + índice único em lower(username)). Nenhuma segunda

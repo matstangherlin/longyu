@@ -87,7 +87,7 @@ export function StreakRecoveryWatcher() {
       <div
         data-testid="streak-recovery-prompt"
         data-streak-event-key={openKey}
-        className="flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.22),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
+        className="flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.22),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-[calc(var(--app-safe-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="my-auto sm:my-0">
@@ -173,7 +173,7 @@ export function StreakRecoveredBanner() {
       role="status"
       aria-live="polite"
       data-testid="streak-recovered"
-      className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.75rem)] z-50 flex justify-center px-4"
+      className="pointer-events-none fixed inset-x-0 top-[calc(var(--app-safe-top)+0.75rem)] z-50 flex justify-center px-4"
     >
       <div className="animate-pop flex items-center gap-2 rounded-full border border-accent-soft bg-surface px-4 py-2.5 text-sm font-semibold text-accent shadow-lift">
         <IconFlame width={16} height={16} fill="currentColor" />

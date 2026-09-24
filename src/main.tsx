@@ -10,6 +10,7 @@ import { SeoHead } from "./components/seo/SeoHead";
 import { PageFallback } from "./components/system/PageFallback";
 
 import { I18nProvider } from "./i18n/provider";
+import { NativeExperienceBootstrap } from "./components/native/NativeExperienceBootstrap";
 import { initNativeShell } from "./lib/platform/nativeShell";
 import { bootstrapInterfaceLocale } from "./i18n/locale";
 
@@ -57,6 +58,8 @@ const router = createBrowserRouter([
     element: (
       <>
         <SeoHead />
+        {/* RC2.2.13 — Android: lembretes, toque em notificação, intro de permissões. Web: nada. */}
+        <NativeExperienceBootstrap />
         <Suspense fallback={<PageFallback />}>
           <Outlet />
         </Suspense>

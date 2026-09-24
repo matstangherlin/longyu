@@ -3707,7 +3707,7 @@ function OnboardingShell({
   const progress = Math.max(1, index + 1);
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh_-_3rem_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] w-full max-w-2xl flex-col">
+    <div className="mx-auto flex min-h-[calc(100dvh_-_3rem_-_var(--app-safe-top)_-_var(--app-safe-bottom))] w-full max-w-2xl flex-col">
       <header className="flex items-center gap-3 pb-4 sm:pb-6">
         <button
           type="button"
@@ -3737,7 +3737,7 @@ function OnboardingShell({
       <div className="flex flex-1 flex-col justify-start pt-4 sm:pt-10">{children}</div>
 
       {footer && (
-        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-6">
+        <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,var(--app-safe-bottom))] pt-6">
           {footer}
         </div>
       )}

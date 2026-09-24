@@ -10,6 +10,7 @@ import {
   recognizeOnce,
   speechErrorMessage,
   type RecognizeHandle,
+  cancelRecognition,
 } from "../../lib/speech";
 
 type SpeechUiState = "idle" | "listening" | "processing";
@@ -50,7 +51,14 @@ export function FreeAnswerField({
   const speechSupported = isRecognitionAvailable() && isSecureMicContext();
   const listening = speechState === "listening";
 
-  useEffect(() => () => handleRef.current?.stop(), []);
+  // Sair da tela nunca deixa o microfone aberto (Android: cancela o SpeechRecognizer).
+  useEffect(
+    () => () => {
+      cancelRecognition();
+      handleRef.current?.stop();
+    },
+    []
+  );
 
   function stopListening() {
     handleRef.current?.stop();

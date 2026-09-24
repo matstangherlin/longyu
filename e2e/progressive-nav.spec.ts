@@ -68,7 +68,7 @@ test.describe("navegação progressiva — mobile", () => {
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
 
     // Sem overflow horizontal.
     const overflow = await page.evaluate(
@@ -84,7 +84,7 @@ test.describe("navegação progressiva — mobile", () => {
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
   });
 
   test("usuário recorrente mantém Missões na barra principal", async ({ page }) => {
@@ -98,10 +98,10 @@ test.describe("navegação progressiva — mobile", () => {
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
     expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Perfil", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
   });
 
-  test("toque em Praticar/Perfil/Mais abre sheet com atalhos (estilo Duolingo)", async ({ page }) => {
+  test("toque em Praticar/Mais abre sheet com atalhos; Perfil pelo avatar (RC2.2.13)", async ({ page }) => {
     await seedStage(page, {
       completedLessons: ["l1", "l2", "l1-rev"],
       streak: 5,
@@ -122,14 +122,9 @@ test.describe("navegação progressiva — mobile", () => {
     await page.keyboard.press("Escape");
     await expect(practiceSheet).toHaveCount(0);
 
-    await tabBar.getByRole("button", { name: /^Perfil$/i }).click();
-    const profileSheet = page.getByRole("dialog", { name: "Perfil" });
-    await expect(profileSheet).toBeVisible();
-    await expect(profileSheet.getByRole("link", { name: "Amigos" })).toBeVisible();
-    await expect(profileSheet.getByRole("link", { name: "Conta" })).toBeVisible();
-    await expect(profileSheet.getByRole("link", { name: "Abrir Perfil" })).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(profileSheet).toHaveCount(0);
+    // RC2.2.13 — Perfil não é aba: a entrada é o avatar da TopBar.
+    await expect(tabBar.getByRole("button", { name: /^Perfil$/i })).toHaveCount(0);
+    await expect(page.getByTestId("topbar-avatar")).toBeVisible();
 
     await tabBar.getByRole("button", { name: /^Mais$/i }).click();
     const moreSheet = page.getByRole("dialog", { name: "Mais opções" });
@@ -139,6 +134,8 @@ test.describe("navegação progressiva — mobile", () => {
     await expect(moreSheet.getByRole("link", { name: "Ver menu completo" })).toBeVisible();
     await expect(moreSheet.getByRole("link", { name: "Hànzì" })).toHaveCount(0);
     await expect(moreSheet.getByRole("link", { name: "Amigos" })).toHaveCount(0);
+    // Cultura é aba da barra: não se repete no sheet Mais.
+    await expect(moreSheet.getByRole("link", { name: "Cultura" })).toHaveCount(0);
   });
 
   test("rota direta funciona mesmo quando não está na barra do estágio", async ({ page }) => {

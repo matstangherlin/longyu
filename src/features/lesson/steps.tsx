@@ -156,8 +156,8 @@ function StickyActionBar({
       data-lesson-action-mode={actionRegion ? "docked" : "sticky"}
       className={cx(
         actionRegion
-          ? "relative z-20 px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4"
-          : "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-5",
+          ? "relative z-20 px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 sm:px-4"
+          : "sticky bottom-0 z-20 -mx-4 mt-auto bg-gradient-to-t from-[rgb(var(--bg))] via-[rgb(var(--bg)/0.96)] to-transparent px-4 pb-[calc(var(--app-safe-bottom)+0.75rem)] pt-5",
         className
       )}
     >

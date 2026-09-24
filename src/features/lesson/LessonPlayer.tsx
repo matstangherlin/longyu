@@ -1028,7 +1028,7 @@ function ImmediateErrorReviewOffer({
 }) {
   return (
     <div
-      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(var(--app-safe-bottom)+1rem)]"
       data-review-offer
       data-review-can-recover={canRecover ? "true" : "false"}
     >
@@ -1087,7 +1087,7 @@ function ImmediateErrorReviewSummary({
   const stillMissing = remaining > 0;
   return (
     <div
-      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(var(--app-safe-bottom)+1rem)]"
       data-review-summary
       data-review-summary-complete={stillMissing ? "false" : "true"}
     >
@@ -1849,7 +1849,7 @@ function ImmediateErrorReviewSession({
 
   return (
     <div
-      className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      className="mx-auto max-w-2xl pb-[calc(var(--app-safe-bottom)+1rem)]"
       data-review-session
       data-review-session-id={session.plan.reviewSessionId}
       data-review-planned={session.plan.plannedItems.length}
@@ -4094,7 +4094,7 @@ export function LessonPlayer() {
 
     if (finishReason === "out_of_lives") {
       return (
-        <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        <div className="mx-auto max-w-2xl pb-[calc(var(--app-safe-bottom)+1rem)]">
           {recoveryDebugPanel}
           <section className="rounded-[30px] border border-line bg-surface px-4 pb-5 pt-7 text-center shadow-lift sm:px-7">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
@@ -4181,7 +4181,7 @@ export function LessonPlayer() {
 
     if (!passed) {
       return (
-        <div className="mx-auto max-w-2xl pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        <div className="mx-auto max-w-2xl pb-[calc(var(--app-safe-bottom)+1rem)]">
           {recoveryDebugPanel}
           <section className="rounded-[30px] border border-line bg-surface px-4 pb-5 pt-7 text-center shadow-lift sm:px-7">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
@@ -4360,7 +4360,7 @@ export function LessonPlayer() {
       const nextMilestone = nextStreakMilestone(streak);
       const daysLeft = Math.max(0, nextMilestone - streak);
       return (
-        <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col px-1 pb-[calc(env(safe-area-inset-bottom)+1rem)] text-center">
+        <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col px-1 pb-[calc(var(--app-safe-bottom)+1rem)] text-center">
           <div className="flex flex-1 flex-col rounded-[34px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.24),rgb(var(--surface))_50%,rgb(var(--bg))_100%)] p-5 shadow-lift sm:p-6">
             <div className="mx-auto mt-5 flex h-28 w-28 items-center justify-center rounded-[34px] bg-accent text-white shadow-lift longyu-success-bloom">
               <IconFlame width={54} height={54} fill="currentColor" />
@@ -4728,7 +4728,7 @@ export function LessonPlayer() {
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
       {pendingMistake && (
         <ModalOverlay label={t("player.retryTitle")}>
-          <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
+          <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
               <IconX width={24} height={24} />
             </div>

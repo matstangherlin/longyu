@@ -258,7 +258,7 @@ export function HanziBuilderExercise({
     <div
       data-hanzi-builder
       data-builder-id={builder.id}
-      className="pb-[calc(env(safe-area-inset-bottom)+0.5rem)]"
+      className="pb-[calc(var(--app-safe-bottom)+0.5rem)]"
     >
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
         {modeLabelFor(builder)}
@@ -493,7 +493,7 @@ export function HanziBuilderExercise({
             className={[
               "z-20 flex items-center justify-center gap-2 p-2",
               actionRegion
-                ? "relative px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-4"
+                ? "relative px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 sm:px-4"
                 : "sticky bottom-0 -mx-1 mt-5 rounded-2xl border border-line bg-bg/90 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none",
             ].join(" ")}
           >

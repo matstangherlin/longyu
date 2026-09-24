@@ -159,7 +159,7 @@ export const LOGIN_RATE_LIMIT = {
  * existem no repositório mas não foram aplicadas/deployadas: até o owner
  * aplicar, o cliente não chama a função e orienta a entrar com email.
  */
-export const USERNAME_LOGIN_CLOUD_STATUS = "CODE_READY_AWAITING_CLOUD_APPLY" as const;
+export const USERNAME_LOGIN_CLOUD_STATUS = "CLOUD_APPLIED_FLAG_OFF" as const;
 
 export function usernameLoginCloudEnabled(env: Record<string, unknown> = import.meta.env ?? {}): boolean {
   return env.VITE_USERNAME_LOGIN_ENABLED === "true";

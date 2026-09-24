@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { scheduleAutoSpeak, speak, noteUserGesture, isTTSAvailable, mandarinSpeechText } from "../../lib/tts";
+import {
+  getNativeTtsUnavailableReason,
+  isTTSAvailable,
+  mandarinSpeechText,
+  noteUserGesture,
+  scheduleAutoSpeak,
+  speak,
+  usesNativeVoice,
+} from "../../lib/tts";
 import { useStore } from "../../lib/store";
 import { noteAudioManualPlay } from "../../lib/lessonSessionMetrics";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -53,7 +61,9 @@ export function SpeakButton({
   function play() {
     const clean = String(text ?? "").trim();
     if (!clean) return;
-    if (!isTTSAvailable()) {
+    // Android: o botão nunca morre por falta de speechSynthesis; um toque
+    // pergunta de novo ao TTS nativo (a voz chinesa pode ter sido instalada).
+    if (!isTTSAvailable() && !usesNativeVoice()) {
       setUnavailable(true);
       return;
     }
@@ -66,7 +76,10 @@ export function SpeakButton({
     speak(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
       onend: () => setPlaying(false),
-      onerror: () => setFailed(true),
+      onerror: () => {
+        setFailed(true);
+        if (usesNativeVoice() && /^TTS_(LANGUAGE|UNAVAILABLE)/.test(getNativeTtsUnavailableReason() ?? "")) setUnavailable(true);
+      },
     });
   }
 
@@ -100,7 +113,7 @@ export function SpeakButton({
       }
       title={unavailable ? unavailableLabel : resolvedLabel}
       onClick={play}
-      disabled={unavailable}
+      disabled={unavailable && !usesNativeVoice()}
       data-audio-failed={failed ? "true" : undefined}
       /*
        * RC1.1 P31 — o payload REAL que iria para o TTS, observável.
@@ -129,7 +142,14 @@ export function SpeakButton({
 
   // Um toque que não produz som precisa produzir uma frase. O botão continua
   // ativo: "tentar de novo" é o conselho e também a ação.
-  const note = failed ? t("common.audioFailed") : unavailable ? unavailableLabel : null;
+  const nativeVoiceMissing = usesNativeVoice() && /^TTS_(LANGUAGE|UNAVAILABLE)/.test(getNativeTtsUnavailableReason() ?? "");
+  const note = nativeVoiceMissing
+    ? t("common.mandarinVoiceMissing")
+    : failed
+      ? t("common.audioFailed")
+      : unavailable
+        ? unavailableLabel
+        : null;
   return (
     <span className="inline-flex flex-col items-center gap-1">
       {button}

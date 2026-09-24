@@ -257,3 +257,40 @@ export const RC2_2_11_EXPERIENCE_COHERENCE_EXCEPTION = {
   fingerprint: "c48b008c9c1e",
   gate: "gate:rc2-2-11-experience-coherence",
 } as const;
+
+/**
+ * RC2.2.13 — exceção controlada ao BETA_PEDAGOGY_FREEZE para a experiência
+ * nativa do Android: navegação/densidade mobile, voz (TTS + reconhecimento)
+ * pelas MESMAS funções speak()/recognizeOnce(), permissões e lembretes locais
+ * derivados da ofensiva que já existe. Nenhum conteúdo, tópico, lição,
+ * CultureItem, StepKind, SRS, mastery ou regra de ofensiva muda; o
+ * fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_13_ANDROID_NATIVE_UX_EXCEPTION = {
+  id: "RC2_2_13_ANDROID_NATIVE_UX",
+  scope: "Android shell, voice adapters, permissions and local reminders over existing systems",
+  areas: [
+    "safe-area tokens (--app-safe-*)",
+    "compact TopBar + TabBar Jornada/Praticar/Cultura/Missões/Mais",
+    "mobile density (Culture, Immersion, Profile)",
+    "native TTS adapter behind speak()",
+    "native SpeechRecognizer adapter behind recognizeOnce()",
+    "first-launch permission intro",
+    "Settings: permissions, notifications, audio and speech",
+    "local streak/comeback reminders derived from existing streak + lastStudyDate",
+  ],
+  forbids: [
+    "new lessons",
+    "new teaching topics",
+    "new CultureItems",
+    "new StepKind",
+    "new SRS or mastery rule",
+    "new streak engine",
+    "tone accuracy claims",
+    "push server / Firebase",
+    "exact alarms",
+    "location, camera or contacts permissions",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-13-native-mobile-experience",
+} as const;

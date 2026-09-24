@@ -94,7 +94,7 @@ O Longyu exige conta. A Play precisa de uma conta de teste que funcione.
 5. Troque a senha depois de cada ciclo de revisão, e apague a conta quando não precisar mais.
 
 Login por **nome de usuário** está desligado (`VITE_USERNAME_LOGIN_ENABLED=false`,
-`CODE_READY_AWAITING_CLOUD_APPLY`). O revisor entra com **email**.
+`CLOUD_APPLIED_FLAG_OFF`: backend aplicado, flag desligada). O revisor entra com **email**.
 
 ## 7. Internal Testing: primeiro upload (AK–AM)
 

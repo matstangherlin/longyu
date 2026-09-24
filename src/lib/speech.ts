@@ -7,7 +7,50 @@
 // 2) manter MediaRecorder/getUserMedia ABERTO enquanto reconhece (disputa o mic);
 // 3) continuous:false + onend imediato → "no-speech" antes do aluno terminar.
 
+import {
+  cancelNativeRecognition,
+  hasNativeSpeech,
+  nativeRecognitionStatus,
+  nativeRecognize,
+  requestNativeMicrophone,
+  stopNativeRecognition,
+  type NativePermission,
+} from "./platform/nativeSpeech";
+
+// ── RC2.2.13 — fala do aluno no Android ────────────────────────────────────
+//
+// O WebView do Android não expõe `SpeechRecognition`. No app, a fala usa o
+// `android.speech.SpeechRecognizer` (plugin LongyuSpeech, via
+// src/lib/platform/nativeSpeech.ts) pelas MESMAS funções abaixo:
+// ensureMicPermission() e recognizeOnce(). A Web segue igual.
+//
+// Produto: o reconhecedor devolve TEXTO. Ele não mede tom; nada aqui afirma
+// "seu 3º tom está perfeito".
+
+/** Estado do microfone no Android: "denied" = só pelos ajustes do sistema. */
+let nativeMicState: NativePermission | null = null;
+let nativeRecognitionKnownAvailable: boolean | null = null;
+
+export async function refreshNativeSpeechStatus(): Promise<{ available: boolean; microphone: NativePermission } | null> {
+  if (!hasNativeSpeech()) return null;
+  const status = await nativeRecognitionStatus();
+  nativeRecognitionKnownAvailable = status.available;
+  nativeMicState = status.microphone;
+  return { available: status.available, microphone: status.microphone };
+}
+
+/** Android: o microfone foi negado de vez (só os ajustes do Android liberam). */
+export function isNativeMicBlocked(): boolean {
+  return hasNativeSpeech() && nativeMicState === "denied";
+}
+
+export function nativeMicPermissionState(): NativePermission | null {
+  return hasNativeSpeech() ? nativeMicState : null;
+}
+
 export function isRecognitionAvailable(): boolean {
+  // Android: não depende da Web Speech API; só o SO diz que não há reconhecedor.
+  if (hasNativeSpeech()) return nativeRecognitionKnownAvailable !== false;
   if (typeof window === "undefined" || !window.isSecureContext) return false;
   // V4.9.5A.1 — a chave existir não basta. Um navegador que expõe
   // `SpeechRecognition` com valor indefinido nos dava um microfone na tela que
@@ -20,6 +63,7 @@ export function isRecognitionAvailable(): boolean {
 }
 
 export function isSecureMicContext(): boolean {
+  if (hasNativeSpeech()) return true;
   return typeof window !== "undefined" && Boolean(window.isSecureContext);
 }
 
@@ -32,6 +76,13 @@ export type MicPermission = "granted" | "denied" | "unavailable";
  * Nunca deixe o stream aberto ao iniciar o reconhecimento.
  */
 export async function ensureMicPermission(): Promise<MicPermission> {
+  if (hasNativeSpeech()) {
+    // Permissão do SO (RECORD_AUDIO). Pedido em contexto, no toque em "Falar".
+    const current = (await nativeRecognitionStatus()).microphone;
+    const state = current === "granted" ? current : await requestNativeMicrophone();
+    nativeMicState = state;
+    return state === "granted" ? "granted" : "denied";
+  }
   if (typeof window === "undefined" || !window.isSecureContext) return "unavailable";
   if (!navigator.mediaDevices?.getUserMedia) return "unavailable";
   try {
@@ -65,6 +116,8 @@ export type RecognizeErrorCode =
   | "network"
   | "aborted"
   | "start-failed"
+  | "busy"
+  | "language-unavailable"
   | "error";
 
 function mapError(code?: string): RecognizeErrorCode {
@@ -86,19 +139,59 @@ function mapError(code?: string): RecognizeErrorCode {
       return "insecure";
     case "unsupported":
       return "unsupported";
+    case "busy":
+      return "busy";
+    case "language-unavailable":
+      return "language-unavailable";
+    default:
+      return "error";
+  }
+}
+
+/** Códigos do SpeechRecognizer nativo → códigos do Longyu. Nunca "ERROR_CLIENT = 5". */
+export function mapNativeRecognitionError(code: string): RecognizeErrorCode {
+  switch (code) {
+    case "NO_MATCH":
+    case "SPEECH_TIMEOUT":
+      return "no-speech";
+    case "AUDIO":
+      return "audio-capture";
+    case "NETWORK":
+    case "NETWORK_TIMEOUT":
+      return "network";
+    case "RECOGNIZER_BUSY":
+      return "busy";
+    case "INSUFFICIENT_PERMISSIONS":
+      return "not-allowed";
+    case "LANGUAGE_NOT_SUPPORTED":
+    case "LANGUAGE_UNAVAILABLE":
+      return "language-unavailable";
+    case "RECOGNITION_UNAVAILABLE":
+      return "unsupported";
+    case "CANCELLED":
+      return "aborted";
     default:
       return "error";
   }
 }
 
 export function speechErrorMessage(code: RecognizeErrorCode | string): string {
+  const native = hasNativeSpeech();
   switch (mapError(code)) {
     case "not-allowed":
-      return "Mic bloqueado. Autorize nas configurações do navegador.";
+      return native
+        ? "Microfone bloqueado. Permita o microfone para praticar a fala."
+        : "Mic bloqueado. Autorize nas configurações do navegador.";
+    case "busy":
+      return "O reconhecimento ainda está ocupado. Espere um instante e tente de novo.";
+    case "language-unavailable":
+      return "O reconhecimento de mandarim não está disponível neste aparelho.";
     case "insecure":
       return "O microfone só funciona em HTTPS.";
     case "unsupported":
-      return "Este navegador não reconhece voz. Use Chrome ou Edge.";
+      return native
+        ? "Este aparelho não tem serviço de reconhecimento de fala."
+        : "Este navegador não reconhece voz. Use Chrome ou Edge.";
     case "network":
       return "Sem conexão com o serviço de voz. Confira a internet.";
     case "audio-capture":
@@ -163,6 +256,8 @@ export function recognizeOnce(
     typeof langOrOptions === "string" ? { lang: langOrOptions } : langOrOptions;
   const lang = options.lang ?? "zh-CN";
   const timeoutMs = options.timeoutMs ?? 12000;
+
+  if (hasNativeSpeech()) return recognizeOnceNative(onResult, onError, timeoutMs);
 
   if (typeof window === "undefined" || !window.isSecureContext) {
     onError("insecure");
@@ -288,6 +383,44 @@ export function recognizeOnce(
       }
     },
   };
+}
+
+/**
+ * Android: uma escuta do SpeechRecognizer nativo (timeout no nativo, sem
+ * escuta contínua, reconhecedor destruído ao fim). O resultado volta pelo
+ * mesmo `onResult` que a Web usa, e o exercício segue igual.
+ */
+function recognizeOnceNative(
+  onResult: (transcript: string) => void,
+  onError: (err: RecognizeErrorCode) => void,
+  timeoutMs: number
+): RecognizeHandle {
+  let settled = false;
+  const settle = (fn: () => void) => {
+    if (settled) return;
+    settled = true;
+    fn();
+  };
+  void nativeRecognize(Math.min(timeoutMs, 15_000)).then((result) => {
+    if (result.ok) {
+      const best = result.matches.find((match) => match.trim()) ?? "";
+      settle(() => (best ? onResult(best.trim()) : onError("no-speech")));
+    } else {
+      if (result.code === "INSUFFICIENT_PERMISSIONS") nativeMicState = "denied";
+      settle(() => onError(mapNativeRecognitionError(result.code)));
+    }
+  });
+  return {
+    // "Parar" = o aluno terminou de falar: o SO entrega o que ouviu.
+    stop: () => {
+      void stopNativeRecognition();
+    },
+  };
+}
+
+/** Cancela a escuta nativa (sair da tela, app em background). */
+export function cancelRecognition(): void {
+  if (hasNativeSpeech()) void cancelNativeRecognition();
 }
 
 const HAN = /[一-鿿]/g;

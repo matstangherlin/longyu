@@ -190,7 +190,7 @@ export function ProPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 pb-[calc(env(safe-area-inset-bottom)+1rem)]" data-pro-page>
+    <div className="mx-auto max-w-5xl space-y-6 pb-[calc(var(--app-safe-bottom)+1rem)]" data-pro-page>
       <section className="rounded-2xl border border-gold/20 bg-[linear-gradient(160deg,rgb(var(--gold)/0.12)_0%,rgb(var(--surface))_48%,rgb(var(--bg))_100%)] p-5 text-center shadow-card sm:p-7">
         <Mascot size={88} variant="celebrate" className="mx-auto" />
         <Pill tone="gold" className="mt-3">{t("pro.badge")}</Pill>

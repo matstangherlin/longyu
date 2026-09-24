@@ -45,7 +45,7 @@ export function StreakWatcher() {
       onBackdropClick={clear}
     >
       <div
-        className="flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.28),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[calc(env(safe-area-inset-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
+        className="flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.28),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-[calc(var(--app-safe-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="my-auto sm:my-0">

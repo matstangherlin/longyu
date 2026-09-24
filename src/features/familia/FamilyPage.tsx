@@ -124,7 +124,7 @@ export function FamilyPage() {
   const seatsFree = Math.max(0, overview.seatsTotal - overview.seatsUsed);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]" data-family-page>
+    <div className="mx-auto max-w-3xl space-y-4 pb-[calc(var(--app-safe-bottom)+1rem)]" data-family-page>
       <PageHeader eyebrow={t("familia.eyebrow")} title={t("familia.title")} desc={t("familia.lead")} />
 
       <Card className="p-4">

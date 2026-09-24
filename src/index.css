@@ -8,8 +8,14 @@
    ============================================================ */
 :root,
 [data-theme="clay"] {
-  --app-safe-top: env(safe-area-inset-top, 0px);
-  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* RC2.2.13 — safe area única do app. No Android (Capacitor, edge-to-edge)
+     o WebView pode devolver env() = 0 e o Capacitor injeta
+     --safe-area-inset-*; na Web/iOS vale env(). Usa-se o maior dos dois.
+     Nenhum componente lê env(safe-area-inset-*) direto: só estes tokens. */
+  --app-safe-top: max(var(--safe-area-inset-top, 0px), env(safe-area-inset-top, 0px));
+  --app-safe-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
+  --app-safe-left: max(var(--safe-area-inset-left, 0px), env(safe-area-inset-left, 0px));
+  --app-safe-right: max(var(--safe-area-inset-right, 0px), env(safe-area-inset-right, 0px));
   --app-header-height: calc(3.5rem + var(--app-safe-top));
   --app-bottom-nav-height: calc(4.5rem + var(--app-safe-bottom));
   /* V4.3 · camadas (ver src/components/ui/layers.ts) */
@@ -213,7 +219,7 @@ textarea {
 
 @supports (padding: max(0px)) {
   [aria-modal="true"] {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: var(--app-safe-bottom);
   }
 }
 

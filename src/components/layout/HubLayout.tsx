@@ -11,11 +11,18 @@ function cx(...parts: (string | false | undefined)[]): string {
 export function HubPage({
   children,
   className,
+  compact = false,
   ...rest
-}: { children: ReactNode; className?: string } & HTMLAttributes<HTMLDivElement>) {
+}: {
+  children: ReactNode;
+  className?: string;
+  /** RC2.2.13 — densidade mobile: blocos mais próximos no celular, iguais no desktop. */
+  compact?: boolean;
+} & HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cx("mx-auto min-w-0 max-w-5xl space-y-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]", className)}
+      data-hub-density={compact ? "compact" : undefined}
+      className={cx("mx-auto min-w-0 max-w-5xl pb-[calc(var(--app-safe-bottom)+1rem)]", compact ? "space-y-3.5 sm:space-y-5" : "space-y-5", className)}
       {...rest}
     >
       {children}

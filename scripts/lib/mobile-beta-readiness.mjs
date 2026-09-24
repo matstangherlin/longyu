@@ -17,7 +17,7 @@ export function assertMobileBetaReadiness(root = process.cwd()) {
 
   const sticky = read(root, "src/features/lesson/steps.tsx");
   push(
-    /safe-area-inset-bottom/.test(sticky) && /data-lesson-sticky-actions|StickyActionBar/.test(sticky),
+    /safe-area-inset-bottom|--app-safe-bottom/.test(sticky) && /data-lesson-sticky-actions|StickyActionBar/.test(sticky),
     "sticky CTA must remain safe-area aware"
   );
   push(

@@ -5,6 +5,8 @@ import { useStore, type MandarinDisplayMode, type SoundTheme, type ThemeName, ty
 import { hasChineseVoice, isTTSAvailable, speak } from "../../lib/tts";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { Card, Button, ButtonLink } from "../../components/ui/primitives";
+import { SettingSwitch } from "../../components/ui/SettingSwitch";
+import { NativeSettingsSections } from "../../components/native/NativeSettingsSections";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
@@ -498,7 +500,7 @@ export function SettingsPage() {
       {showDataDetails && (
         <ModalOverlay label={t("settings.collectedData")} onBackdropClick={() => setShowDataDetails(false)}>
           <div
-            className="max-h-[calc(100dvh_-_env(safe-area-inset-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
+            className="max-h-[calc(100dvh_-_var(--app-safe-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,var(--app-safe-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <TelemetryDataDetails />
@@ -764,6 +766,9 @@ export function SettingsPage() {
         </Card>
       </HubSection>
 
+      {/* RC2.2.13 — só no Android: permissões, notificações, áudio e fala. */}
+      <NativeSettingsSections />
+
       <HubSection id="sons" className="scroll-mt-6" title={t("settings.audioAndQi")}>
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
           <div className="flex items-center justify-between gap-4 border-b border-line pb-4">
@@ -932,49 +937,5 @@ export function SettingsPage() {
         {t("settings.footer")}
       </p>
     </HubPage>
-  );
-}
-
-function SettingSwitch({
-  label,
-  desc,
-  checked,
-  onChange,
-}: {
-  label: string;
-  desc: string;
-  checked: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div>
-        <div className="font-medium text-ink">{label}</div>
-        <div className="mt-0.5 text-sm leading-5 text-ink-soft">{desc}</div>
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        onClick={onChange}
-        className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-      >
-        <span
-          aria-hidden="true"
-          className={[
-            "relative block h-7 w-12 rounded-full transition",
-            checked ? "bg-accent" : "bg-line",
-          ].join(" ")}
-        >
-          <span
-            className={[
-              "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
-              checked ? "translate-x-5" : "translate-x-0",
-            ].join(" ")}
-          />
-        </span>
-      </button>
-    </div>
   );
 }

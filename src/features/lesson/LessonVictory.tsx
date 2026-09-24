@@ -130,7 +130,7 @@ export function LessonVictory({
      * causou: o CTA saía do card recortado e não dava mais para sair da tela.
      */
     <div
-      className={`mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[env(safe-area-inset-bottom)] roomy:h-auto roomy:justify-start roomy:py-4 ${LESSON_UI_CLASS.frame}`}
+      className={`mx-auto flex h-full min-h-0 w-full max-w-xl flex-col pb-[var(--app-safe-bottom)] roomy:h-auto roomy:justify-start roomy:py-4 ${LESSON_UI_CLASS.frame}`}
       data-lesson-victory
       data-lesson-victory-shell="minimal"
       data-lesson-victory-compact="desktop"
@@ -267,7 +267,7 @@ export function LessonVictory({
         {/* P24.3 — sticky no mobile; com folga vertical o CTA só segue o conteúdo. */}
         <div
           data-lesson-victory-actions
-          className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-6 roomy:border-t-0 roomy:pb-4"
+          className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,var(--app-safe-bottom))] pt-2.5 sm:px-6 roomy:border-t-0 roomy:pb-4"
         >
           <Button className={`min-h-12 w-full shadow-lift ${LESSON_UI_CLASS.cta}`} size="lg" data-testid={primaryTestId} data-victory-primary onClick={onPrimary}>
             {primaryLabel}
