@@ -151,7 +151,12 @@ fs.mkdirSync(path.dirname(jsonPath), { recursive: true });
 fs.writeFileSync(jsonPath, `${JSON.stringify(machine, null, 2)}\n`, "utf8");
 
 // ——— bloco do relatório ———
-const cell = (text) => String(text ?? "—").replace(/\|/g, "\\|").replace(/\n/g, " ");
+// Célula de tabela markdown: barra invertida primeiro, depois o pipe.
+const cell = (text) =>
+  String(text ?? "—")
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\n/g, " ");
 const lexicalLine = (row) => {
   const ok = row.evidence.lexical.filter((item) => item.ok).length;
   const vocab = row.evidence.vocabulary.filter((item) => item.ok).length;
