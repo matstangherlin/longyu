@@ -15,6 +15,10 @@ const DEVICE_SPEC = "**/mobile-device.spec.ts";
 const RUNBOOK_SPEC = "**/runbook-20-lessons.spec.ts";
 // 134 first-step crawl — Chromium only (Firefox/WebKit ignore). Dedicated project: rc1-crawler.
 const RC1_CRAWLER_SPEC = "**/rc1-lesson-crawler.spec.ts";
+// RC2.2.9 — caminha por rodadas inteiras de lição para provar conteúdo
+// pedagógico (independente de motor). Como o crawler da RC1, roda no Chromium;
+// a cobertura de UI entre motores fica nos specs de player/mobile.
+const CAPABILITY_CLOSURE_SPEC = "**/rc2-2-9-capability-closure.spec.ts";
 // Captura de evidências (docs/screenshots) — só no projeto `screenshots`.
 const SCREENSHOT_SPEC = "**/screenshots.spec.ts";
 
@@ -58,13 +62,13 @@ export default defineConfig({
     // Gecko real (Firefox). Exige `npx playwright install firefox`.
     {
       name: "firefox",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
       use: { ...devices["Desktop Firefox"] },
     },
     // WebKit ≈ motor do Safari (macOS e iOS). Exige `npx playwright install webkit`.
     {
       name: "webkit",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
       use: { ...devices["Desktop Safari"] },
     },
 

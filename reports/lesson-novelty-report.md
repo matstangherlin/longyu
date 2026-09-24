@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
+| Hash da Jornada | c48b008c9c1e |
+| HEAD no instante da geração | 26697ccf401ab8fce83a228966fe10ce0de24417 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T11:16:28.070Z |
+| Gerado em | 2026-09-24T02:02:18.593Z |
 | Lições | 134 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 134 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1025 |
-| Pares com transformação cognitiva | 833 (81%) |
+| Pares de repetição semântica | 1037 |
+| Pares com transformação cognitiva | 840 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -72,7 +72,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l10 | 17 | 16 | 31 | 18 | 17 | 13 | intent:ask-origin × 3 |
 | p3-wobuhui-shuo-zhongwen | 13 | 12 | 27 | 11 | 11 | 8 | intent:cannot-speak × 3 |
 | p3-qing-zai-shuo-yibian | 13 | 12 | 29 | 10 | 10 | 9 | phrase:请再说一遍 × 4 |
-| l11 | 17 | 16 | 37 | 10 | 8 | 11 | action:produce-unaided × 2 |
+| l11 | 20 | 16 | 37 | 10 | 8 | 11 | action:produce-unaided × 2 |
 | l11-falo-pouco | 27 | 15 | 27 | 14 | 13 | 11 | action:assemble-phrase × 4 |
 | l12 | 20 | 19 | 45 | 13 | 8 | 15 | intent:state-wellbeing × 3 |
 | l13 | 19 | 18 | 39 | 16 | 14 | 16 | action:assemble-phrase × 3 |
@@ -134,23 +134,23 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l22 | 15 | 14 | 31 | 10 | 7 | 12 | action:assemble-phrase × 4 |
 | l23 | 14 | 14 | 27 | 10 | 7 | 9 | action:assemble-phrase × 3 |
 | l9-rev | 12 | 12 | 27 | 8 | 7 | 9 | action:assemble-phrase × 3 |
-| l24 | 28 | 13 | 21 | 16 | 10 | 8 | intent:introduce-family × 4 |
+| l24 | 30 | 14 | 23 | 17 | 10 | 9 | intent:introduce-family × 4 |
 | l25 | 18 | 17 | 42 | 9 | 9 | 15 | action:produce-unaided × 3 |
 | l26 | 15 | 14 | 37 | 9 | 9 | 10 | phrase:我喜欢中文 × 3 |
-| l26b | 26 | 24 | 67 | 6 | 6 | 11 | intent:identify-concept × 3 |
+| l26b | 35 | 25 | 68 | 7 | 7 | 12 | intent:identify-concept × 3 |
 | l26c | 26 | 25 | 52 | 12 | 10 | 12 | intent:identify-concept × 3 |
-| l27 | 17 | 16 | 45 | 5 | 5 | 14 | action:produce-unaided × 3 |
-| l28 | 16 | 16 | 43 | 6 | 5 | 14 | action:assemble-phrase × 3 |
-| p6-rotina-trabalho | 28 | 14 | 21 | 7 | 4 | 9 | action:assemble-phrase × 3 |
-| p6-cidade-lugares | 21 | 19 | 54 | 4 | 4 | 12 | action:assemble-phrase × 2 |
-| p6-china-cidades | 19 | 18 | 43 | 9 | 6 | 16 | action:assemble-phrase × 3 |
-| p6-china-cidades-2 | 17 | 16 | 43 | 6 | 3 | 12 | action:produce-unaided × 3 |
-| p6-china-ruas | 17 | 16 | 38 | 7 | 6 | 13 | action:produce-unaided × 3 |
-| p6-saude | 19 | 18 | 36 | 13 | 9 | 14 | action:produce-unaided × 4 |
-| p6-horarios | 32 | 20 | 23 | 10 | 4 | 12 | action:write × 7 |
+| l27 | 24 | 17 | 46 | 6 | 6 | 15 | action:produce-unaided × 3 |
+| l28 | 22 | 19 | 46 | 10 | 7 | 17 | action:assemble-phrase × 5 |
+| p6-rotina-trabalho | 30 | 14 | 21 | 7 | 4 | 9 | action:assemble-phrase × 3 |
+| p6-cidade-lugares | 24 | 19 | 54 | 4 | 4 | 12 | action:assemble-phrase × 2 |
+| p6-china-cidades | 20 | 19 | 43 | 12 | 8 | 17 | action:assemble-phrase × 4 |
+| p6-china-cidades-2 | 18 | 16 | 43 | 6 | 3 | 12 | action:produce-unaided × 3 |
+| p6-china-ruas | 18 | 16 | 38 | 7 | 6 | 13 | action:produce-unaided × 3 |
+| p6-saude | 20 | 18 | 36 | 13 | 9 | 14 | action:produce-unaided × 4 |
+| p6-horarios | 36 | 20 | 23 | 10 | 4 | 12 | action:write × 7 |
 | p6-natureza | 18 | 17 | 41 | 4 | 4 | 12 | action:produce-unaided × 2 |
 | p6-clima | 19 | 18 | 40 | 7 | 6 | 16 | action:assemble-phrase × 3 |
-| p6-direcoes | 18 | 17 | 35 | 9 | 7 | 14 | action:assemble-phrase × 3 |
+| p6-direcoes | 21 | 19 | 38 | 11 | 8 | 16 | action:assemble-phrase × 4 |
 | p6-compras | 20 | 19 | 51 | 9 | 8 | 12 | intent:identify-concept × 3 |
 | p6-survival-mandarin | 19 | 18 | 54 | 9 | 8 | 12 | intent:identify-concept × 4 |
 | l10-rev | 12 | 12 | 25 | 8 | 7 | 8 | char:水 × 2 |
@@ -158,17 +158,17 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | l30 | 15 | 14 | 38 | 5 | 5 | 11 | action:produce-unaided × 2 |
 | l11-rev | 12 | 12 | 23 | 8 | 4 | 8 | action:assemble-phrase × 2 |
 | p7-imersao-mercado | 31 | 30 | 62 | 22 | 17 | 17 | action:produce-unaided × 5 |
-| p7-imersao-estacao | 34 | 32 | 74 | 13 | 10 | 14 | action:assemble-phrase × 3 |
+| p7-imersao-estacao | 36 | 32 | 74 | 13 | 10 | 14 | action:assemble-phrase × 3 |
 | p7-imersao-hotel | 26 | 25 | 51 | 10 | 8 | 14 | intent:identify-concept × 4 |
 | p7-imersao-aeroporto | 22 | 21 | 43 | 10 | 8 | 13 | action:produce-unaided × 3 |
 | p7-imersao-saude | 28 | 26 | 48 | 19 | 13 | 16 | action:produce-unaided × 7 |
-| p7-conversa-cotidiana | 9 | 6 | 18 | 0 | 0 | 5 | — |
+| p7-conversa-cotidiana | 11 | 6 | 18 | 0 | 0 | 5 | — |
 | p7-china-survival | 10 | 9 | 28 | 3 | 3 | 8 | phrase:我要这个 × 2 |
 | p7-imersao-viagem | 24 | 22 | 46 | 13 | 9 | 14 | action:produce-unaided × 4 |
-| p7-imersao-casa-amigo | 29 | 28 | 59 | 24 | 21 | 17 | action:repair-conversation × 3 |
+| p7-imersao-casa-amigo | 31 | 28 | 59 | 24 | 21 | 17 | action:repair-conversation × 3 |
 
 ---
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:9fc841049cef060d -->
+<!-- integridade:d550925d272c105c -->

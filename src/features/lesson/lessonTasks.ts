@@ -39,6 +39,7 @@ import { capstoneSurvivalPlanFor } from "../../data/capstoneSurvivalPlans";
 import { identityPeoplePlanFor } from "../../data/identityPeoplePlans";
 import { routineTimePlanFor } from "../../data/routineTimePlans";
 import { isEvaluableQuestionStep, withEvaluableQuestionNumbers } from "../../data/exerciseFeasibility";
+import { capabilityClosureStepsFor } from "../../data/capabilityClosureSteps";
 import {
   isReviewMasteryLesson,
   reviewMasteryStepsFor,
@@ -7278,7 +7279,50 @@ export function resolveMasteryPassForContext(
   return nextMasteryPass(context.masteryLevel ?? 0, { recoveryPending: context.recoveryPending });
 }
 
+/**
+ * RC2.2.9 — passos que fecham buracos reais de runtime nas capacidades
+ * conversacionais (ver src/data/capabilityClosureSteps.ts). Ponto único:
+ * vale para qualquer plano (identidade, mobilidade, maestria, base) e entra
+ * no fim da rodada, para não reordenar o que a lição já apresenta.
+ */
+function withCapabilityClosureSteps(
+  planned: LessonRoundStep[],
+  lesson: Lesson,
+  context: LessonPracticePlanContext
+): LessonRoundStep[] {
+  if (lesson.lessonDomain === "culture") return planned;
+  const aggregate = context.silent === true && context.masteryPass == null && context.masteryLevel == null;
+  const passes: MasteryPass[] = aggregate ? [1, 2, 3, 4] : [resolveMasteryPassForContext(lesson, context) ?? 1];
+  const seen = new Set<string>();
+  const extra: LessonRoundStep[] = [];
+  for (const pass of passes) {
+    for (const step of capabilityClosureStepsFor(lesson.id, pass)) {
+      const key = JSON.stringify(step);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const teaching = step.kind === "flashcard" || step.kind === "listen" || step.kind === "audio_to_action";
+      extra.push({
+        ...step,
+        generated: false,
+        lessonStageId: step.postConversationPhase
+          ? ("post_conversation" as const)
+          : teaching
+            ? ("recognition" as const)
+            : ("usage" as const),
+        practiceVariant: practiceVariantForAttempt(context.attemptNumber ?? 0),
+        ...(aggregate ? {} : { masteryPass: passes[0] }),
+      } as LessonRoundStep);
+    }
+  }
+  if (extra.length === 0) return planned;
+  return withDirectAudioDiscriminationCopy(withEvaluableQuestionNumbers([...planned, ...extra]));
+}
+
 export function lessonRoundStepsFor(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
+  return withCapabilityClosureSteps(plannedLessonRoundSteps(lesson, context), lesson, context);
+}
+
+function plannedLessonRoundSteps(lesson: Lesson, context: LessonPracticePlanContext = {}): LessonRoundStep[] {
   if (lesson.lessonDomain === "culture") {
     const steps = lesson.steps ?? [];
     return withDirectAudioDiscriminationCopy(

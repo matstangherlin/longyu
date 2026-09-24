@@ -29,7 +29,12 @@ const {
   GUIDE_ADVANCE_GUARD_MS,
 } = require("../src/lib/guideDialogueMachine.ts");
 
-const { CONVERSATION_CAPABILITIES } = require("../src/data/conversationCapabilities.ts");
+const {
+  CONVERSATION_CAPABILITIES,
+  RC2_2_9_CLOSURE_CAPABILITY_IDS,
+  capabilityRuntimeContract,
+  computeCapabilityStatus,
+} = require("../src/data/conversationCapabilities.ts");
 const { RC_BASE_FINGERPRINT } = require("../src/lib/curriculumFreeze.ts");
 
 const root = process.cwd();
@@ -135,14 +140,16 @@ for (const id of EXPECTED_IDS) {
   console.log("PASS reduced-motion instant complete");
 }
 
-// Pedagogy gap baseline honesty — do not invent READY
+// Pedagogy gap baseline honesty — do not invent READY.
+// RC2.2.9 fechou as 11 que eram PARTIAL com evidência de runtime: o status
+// declarado só pode ser READY porque RC2_2_9_CLOSURE_CAPABILITY_IDS está sob o
+// contrato estrito e validate:capability-runtime-evidence (K1) exige que
+// declarado = calculado a partir do runtime.
 {
   assert.equal(CONVERSATION_CAPABILITIES.length, 31);
   const ready = CONVERSATION_CAPABILITIES.filter((c) => c.status === "READY");
-  const partial = CONVERSATION_CAPABILITIES.filter((c) => c.status === "PARTIAL");
-  assert.equal(ready.length, 20);
-  assert.equal(partial.length, 11);
-  const expectedPartial = [
+  assert.equal(ready.length, 31);
+  const closed = [
     "talk_family",
     "order_food",
     "order_drink",
@@ -155,15 +162,23 @@ for (const id of EXPECTED_IDS) {
     "express_preference",
     "make_simple_plan",
   ];
-  assert.deepEqual(partial.map((c) => c.id).sort(), expectedPartial.slice().sort());
-  console.log("PASS conversation capability baseline 20 READY / 11 PARTIAL");
+  assert.deepEqual([...RC2_2_9_CLOSURE_CAPABILITY_IDS].sort(), closed.slice().sort());
+  for (const id of closed) {
+    const cap = CONVERSATION_CAPABILITIES.find((c) => c.id === id);
+    assert.equal(capabilityRuntimeContract(cap), "strict", `${id} precisa do contrato estrito`);
+  }
+  // Sem evidência de runtime, nenhuma capacidade é READY (metadado não basta).
+  for (const cap of CONVERSATION_CAPABILITIES) {
+    assert.notEqual(computeCapabilityStatus(cap, new Set(cap.requiredChunks)), "READY", `${cap.id} READY sem evidência`);
+  }
+  console.log("PASS conversation capabilities 31 READY — 11 closed in RC2.2.9 under the strict runtime contract");
 }
 
 // Fingerprint freeze
 {
   const fp = journeyFingerprint(root);
   assert.equal(fp, RC_BASE_FINGERPRINT);
-  assert.equal(fp, "327de1df0f33");
+  assert.equal(fp, "c48b008c9c1e");
   console.log(`PASS fingerprint ${fp}`);
 }
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-21T09:39:37.155Z",
+  "generatedAt": "2026-09-24T01:21:35.356Z",
   "topicIds": [
     "p1-o-que-e-mandarim",
     "p1-o-que-e-pinyin",
@@ -22,7 +22,7 @@
     "p2-tons-nihao",
     "p2-comparar-tom-1-4"
   ],
-  "uniqueStrings": 1224,
+  "uniqueStrings": 1233,
   "missingCount": 0,
   "leakCount": 0,
   "fingerprintDrift": 0,

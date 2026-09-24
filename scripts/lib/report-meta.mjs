@@ -54,6 +54,9 @@ export const CURRICULUM_SOURCES = [
   // situações e os lembretes que o aluno lê moram nele. Fora daqui, mexer nessa
   // copy não moveria o fingerprint e o relatório mentiria por omissão.
   "src/data/toneTransfer.ts",
+  // RC2.2.9 — os passos que fecham as capacidades conversacionais são
+  // currículo: flashcards, escutas, produções e transferências que o aluno faz.
+  "src/data/capabilityClosureSteps.ts",
   "src/data/topicMasteryBonus.ts",
   "src/data/exerciseFeasibility.ts",
   "src/features/lesson/lessonTasks.ts",

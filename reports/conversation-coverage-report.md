@@ -6,33 +6,33 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 327de1df0f33 |
-| HEAD no instante da geração | 5c79cc5c79c4885991911217eac49582e8d9463b |
+| Hash da Jornada | c48b008c9c1e |
+| HEAD no instante da geração | 26697ccf401ab8fce83a228966fe10ce0de24417 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-21T11:25:56.753Z |
+| Gerado em | 2026-09-24T01:59:17.703Z |
 | Lições | 134 |
 
 ## Resumo
 
 | Indicador | Valor |
 |-----------|------:|
-| Cenas no catálogo | 50 |
-| Cenas V2 (nós/ramificação) | 50 |
+| Cenas no catálogo | 52 |
+| Cenas V2 (nós/ramificação) | 52 |
 | Cenas V1 autorais (sem nós) | 0 |
-| Fallback V1 derivado (lines/checkpoint) | 50 |
-| Intenções distintas | 49 |
+| Fallback V1 derivado (lines/checkpoint) | 52 |
+| Intenções distintas | 51 |
 | Passos autorais na jornada | 63 |
 | Lições com cena gerada no plano | 99 |
 | Cenas geradas distintas | 42 |
-| Cenas nunca usadas (autoral ou plano) | 0 |
+| Cenas nunca usadas (autoral ou plano) | 2 |
 | Rotação sob contexto (anti "primeira cena") | OK |
 
 ## Cenas por papel
 
 | Papel | Cenas |
 |-------|------:|
-| common | 33 |
+| common | 35 |
 | module_review | 9 |
 | immersion | 8 |
 
@@ -43,9 +43,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | school | 5 |
 | park | 7 |
 | shop | 10 |
-| street | 13 |
+| street | 14 |
 | classroom | 6 |
-| home | 6 |
+| home | 7 |
 | hotel | 1 |
 | airport | 1 |
 | clinic | 1 |
@@ -104,19 +104,26 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | no-aeroporto | immersion | airport | 17 | 7 | sim | 2 | 2 | 0 |
 | na-clinica | immersion | health | 15 | 6 | sim | 2 | 2 | 0 |
 | pegar-taxi | common | taxi | 7 | 2 | sim | 1 | 3 | 0 |
+| gostos-na-casa | common | preference | 7 | 3 | sim | 1 | 0 | 0 |
+| perguntar-o-caminho | common | ask-route | 7 | 3 | sim | 1 | 0 | 0 |
 
 ## Cenas nunca usadas
 
-Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
+| Cena | Intenção | Refs necessários |
+|------|----------|------------------|
+| gostos-na-casa | preference | chunk:woxihuan, chunk:woyeshi, chunk:nihaoma, chunk:woxianghe, chunk:woxiangchimifan, chunk:woyaomifan, chunk:woyaorou, chunk:xiexie, chunk:bukeqi, chunk:qingzaishuoyibian, chunk:womenzouba |
+| perguntar-o-caminho | ask-route | chunk:nihao, chunk:qingwen, chunk:ditiezhan, chunk:zenmezou, chunk:yizhizou, chunk:zuozhuan, chunk:zuobian, chunk:zaina, chunk:woqubeijing, chunk:xiexie, chunk:bukeqi, chunk:qingzaishuoyibian |
+
+_Cena não usada = nenhum foco de lição cobre todos os refs dela ainda; ela fica disponível para os próximos módulos._
 
 ## Conversation Vocabulary Loop (cobertura reversa)
 
 | Indicador | Valor |
 |-----------|------:|
-| Variantes com manifesto gerado | 51 |
-| Itens de vocabulário mapeados | 728 |
+| Variantes com manifesto gerado | 53 |
+| Itens de vocabulário mapeados | 772 |
 | Textos exibidos sem referência canônica (aviso) | 0 |
-| Refs declarados nunca exibidos (aviso) | 14 |
+| Refs declarados nunca exibidos (aviso) | 24 |
 
 ### Refs declarados que não aparecem no texto exibido (over-declaração)
 
@@ -134,10 +141,20 @@ Nenhuma — todas as cenas aparecem na jornada (autoral) ou em planos gerados.
 - conversa-cotidiana (advanced): ref declarado nunca exibido → chunk:wobushufu
 - conversa-cotidiana (advanced): ref declarado nunca exibido → chunk:woyeshi
 - checkin-hotel (advanced): ref declarado nunca exibido → chunk:woxuyaobangzhu
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:nihaoma
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:womenzouba
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:woxiangchimifan
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:woxianghe
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:woxihuan
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:woyaomifan
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:woyaorou
+- gostos-na-casa (advanced): ref declarado nunca exibido → chunk:woyeshi
+- perguntar-o-caminho (advanced): ref declarado nunca exibido → chunk:woqubeijing
+- perguntar-o-caminho (advanced): ref declarado nunca exibido → chunk:zaina
 
 
 ---
 
 _Falas contadas no caminho principal (entry → correctNextNodeId). Ramos de erro (wrongNextNodeId) também são validados quanto a vocabulário e alcançabilidade. O Vocabulary Loop mapeia o vocabulário realmente exibido em cada variante para reúso em atividades e revisões._
 
-<!-- integridade:51082d1604c2746f -->
+<!-- integridade:b0088083883b92ca -->
