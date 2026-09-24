@@ -764,3 +764,47 @@ export function achievementRewardLabel(reward: AchievementReward): string {
   if (reward.qi) return `+${reward.qi} Qi`;
   return "Medalha";
 }
+
+// ── RC2.2.11 — raridade: MARCO · CONQUISTA · MEDALHA ─────────────────────────
+//
+// Um único motor (ACHIEVEMENTS + unlockAchievement). O que muda é a
+// Apresentação: "primeira lição", "primeiro áudio", "primeiro radical",
+// "primeira frase", "10 revisões" e "primeiro selo" são marcos da evolução,
+// não medalhas. Medalha fica para o que é raro: fase inteira, módulo
+// perfeito, sequência longa, grande domínio, coleção cultural relevante,
+// medalha mensal, desafio importante. Nada é revogado: quem desbloqueou
+// continua desbloqueado; só muda o peso visual e quem pode ir para a vitrine.
+
+export type AchievementPresentationKind = "milestone" | "achievement" | "medal";
+
+/** Porte → apresentação (padrão). */
+export const PRESENTATION_BY_TIER: Record<AchievementTier, AchievementPresentationKind> = {
+  small: "milestone",
+  medium: "achievement",
+  large: "medal",
+};
+
+/** Exceções explícitas ao padrão do porte (sempre justificadas). */
+export const ACHIEVEMENT_PRESENTATION_OVERRIDES: Readonly<Record<string, AchievementPresentationKind>> = {
+  // Medalha mensal: o modelo de raridade do Longyu.
+  "missoes-medalha-mensal": "medal",
+  // Coleção cultural relevante inteira (História da China).
+  "cultura-historia": "medal",
+  // Desafio importante: a missão "Um dia na China".
+  "jornada-china-survival": "medal",
+};
+
+export function achievementPresentationKind(def: Pick<AchievementDef, "id" | "tier">): AchievementPresentationKind {
+  return ACHIEVEMENT_PRESENTATION_OVERRIDES[def.id] ?? PRESENTATION_BY_TIER[def.tier];
+}
+
+const PRESENTATION_BY_ID = new Map(ACHIEVEMENTS.map((def) => [def.id, achievementPresentationKind(def)]));
+
+/** Só MEDALHA pode ir para a vitrine do Perfil. */
+export function isMedalAchievementId(id: string): boolean {
+  return PRESENTATION_BY_ID.get(id) === "medal";
+}
+
+export function achievementPresentationKindById(id: string): AchievementPresentationKind | undefined {
+  return PRESENTATION_BY_ID.get(id);
+}

@@ -1,4 +1,4 @@
-# Assinatura Android do Longyu (RC2.2.10)
+# Assinatura Android do Longyu (RC2.2.10 · RC2.2.12)
 
 > **Status atual:** o contrato de assinatura está pronto; **nenhuma chave real
 > existe no repositório** e nenhum release assinado foi gerado.
@@ -37,6 +37,23 @@ exatamente estes nomes. Quando algo falta, eles imprimem **só os nomes**
 faltando — nunca um valor.
 
 ## 3. Criar a upload key (uma vez, na máquina do owner)
+
+**Caminho recomendado (RC2.2.12):** o helper seguro, que chama o `keytool` por você.
+
+```bash
+# 1) modo explicação: mostra o que faria, sem criar nada
+npm run android:keystore:init -- --path ~/secure/longyu/longyu-upload.jks --alias longyu-upload
+# 2) criar de verdade (o keytool pergunta as DUAS senhas no terminal)
+npm run android:keystore:init -- --path ~/secure/longyu/longyu-upload.jks --alias longyu-upload --confirm CRIAR-UPLOAD-KEY
+```
+
+O helper recusa:
+- rodar sem `--confirm CRIAR-UPLOAD-KEY`;
+- caminho dentro do repositório;
+- sobrescrever um arquivo que já existe;
+- qualquer senha passada por argumento.
+
+Ele nunca gera, guarda ou imprime senha. O `keytool` manual abaixo continua valendo.
 
 Use o `keytool` que vem com o JDK (o Android Studio traz um JDK). Rode **fora**
 da pasta do repositório. Deixe o `keytool` **perguntar** as senhas
@@ -149,3 +166,57 @@ Na criação do app no Play Console, mantenha **Play App Signing** ativado (padr
 e envie o primeiro AAB assinado com a upload key. Nada disso foi feito nesta
 remessa (`playConsoleConfigured: false` em
 `docs/release/android-native-foundation.json`).
+
+## 9. Checklist de backup da upload key (RC2.2.12 · V)
+
+Marque cada item **antes** do primeiro upload para a Play:
+
+- [ ] keystore criado (`npm run android:keystore:init` ou `keytool`)
+- [ ] backup offline 1 (ex.: pendrive criptografado guardado fora de casa)
+- [ ] backup offline 2 (ex.: anexo no gerenciador de senhas)
+- [ ] alias registrado no gerenciador de senhas
+- [ ] store password guardada no gerenciador de senhas
+- [ ] key password guardada no gerenciador de senhas
+- [ ] o `.jks` **NÃO** está no Git (`git check-ignore -v` e `git status` limpos)
+- [ ] o `.jks` **NÃO** está apenas no PC principal
+
+## 10. Upload key ≠ Play App Signing key (RC2.2.12 · W)
+
+| | Upload key | App signing key |
+|---|---|---|
+| Quem tem | o owner (este keystore) | o Google (Play App Signing) |
+| Assina | o **AAB** que enviamos à Play | o **APK** que chega aos aparelhos |
+| Se perder/vazar | pedir reset da upload key no Play Console | não se aplica: nunca sai do Google |
+| No Longyu | `LONGYU_ANDROID_*` / secrets do GitHub | nada no repositório |
+
+O Longyu envia **sempre** o AAB assinado com a upload key. Os aparelhos recebem
+o app assinado com a app signing key do Google. O fingerprint que o Play Console
+mostra em "App signing key certificate" é **diferente** do da upload key, e isso é
+esperado. Para links verificados (App Links) no futuro, use o fingerprint da **app
+signing key** (Play Console), não o da upload key.
+
+## 11. Verificar a assinatura do AAB (RC2.2.12 · X/Y)
+
+`npm run android:bundle:release` verifica o AAB depois do build:
+
+- chama `scripts/android-verify-signature.mjs`, que usa `keytool -printcert -jarfile`;
+- grava `release-artifacts/<nome>.signature.json` com o **SHA-256 público** do certificado;
+- falha com `DEBUG_KEY_IN_RELEASE` se for a debug key e com `UNSIGNED` se não houver assinatura.
+
+O workflow de release não envia nada à Play sem esse arquivo marcando
+`SIGNED_WITH_UPLOAD_KEY`. Manualmente:
+
+```bash
+node scripts/android-verify-signature.mjs release-artifacts/longyu-android-<versão>-<sha>.aab --out /tmp/signature.json
+```
+
+O SHA-256 do certificado **não é segredo** e pode ir para o relatório. Senhas, nunca.
+
+## 12. versionCode
+
+`versionCode` = piso (`android/version.properties`) + commits first-parent de
+`main`. Ele sobe sozinho a cada merge. O `play-upload.mjs` recusa qualquer
+versionCode que não supere todos os já presentes nos tracks
+(`VERSION_CODE_NOT_INCREASING`). O ledger `docs/release/android-release-ledger.json`
+registra só uploads **reais**. `npm run android:version:check` mostra o versionCode
+desta árvore e compara com o ledger.

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBackGuard } from "../../components/navigation/SmartBackButton";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { useIsPro } from "../../lib/proAccess";
@@ -80,6 +81,8 @@ export function PhaseChallengePage() {
   const [results, setResults] = useState<Record<string, boolean>>({});
   const [grade, setGrade] = useState<PhaseChallengeGrade | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  // RC2.2.11 — sair no meio conta como tentativa: o voltar pergunta antes.
+  useBackGuard(Boolean(attemptId) && !grade, t("phaseChallenge.leaveConfirm"));
 
   // Tentativa aberta desta fase ao abrir a tela = saída no meio: reprova.
   useEffect(() => {

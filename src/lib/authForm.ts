@@ -1,3 +1,4 @@
+import { classifyLoginIdentifier } from "./username";
 /** Valida email + senha para login (sem confirmação de senha). */
 export function isValidEmail(email: string): boolean {
   const cleanEmail = email.trim();
@@ -6,6 +7,11 @@ export function isValidEmail(email: string): boolean {
 
 export function canSignInWithCredentials(email: string, password: string): boolean {
   return isValidEmail(email) && password.length >= 6;
+}
+
+/** RC2.2.11 — login por um campo só: email OU nome de usuário. */
+export function canSignInWithIdentifier(identifier: string, password: string): boolean {
+  return classifyLoginIdentifier(identifier).kind !== "invalid" && password.length >= 6;
 }
 
 /** Valida email + senha + confirmação para registro. */

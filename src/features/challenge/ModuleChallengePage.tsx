@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBackGuard } from "../../components/navigation/SmartBackButton";
+import { t as translate } from "../../i18n/catalog";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
@@ -197,6 +199,8 @@ export function ModuleChallengePage() {
   const [activityReady, setActivityReady] = useState(false);
   const [energyBlocked, setEnergyBlocked] = useState(false);
   const [attemptPaid, setAttemptPaid] = useState(false);
+  // RC2.2.11 — prova em andamento: o voltar pergunta antes de descartar respostas.
+  useBackGuard(attemptPaid && !finished, translate("phaseChallenge.leaveConfirm"));
 
   useEffect(() => {
     if (!found || !skipAccess || questions.length === 0 || (moduleAccess && !moduleAccess.allowed) || activityReady || energyBlocked) {

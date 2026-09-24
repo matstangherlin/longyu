@@ -8,6 +8,12 @@ import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
 import { requestAccountDeletion } from "./privacyService";
 import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
+import {
+  classifyLoginIdentifier,
+  GENERIC_LOGIN_ERROR,
+  LOGIN_RATE_LIMITED,
+  usernameLoginCloudEnabled,
+} from "../lib/username";
 
 export type AuthServiceStatus = "ok" | "error" | "not_implemented" | "pending_confirmation";
 
@@ -224,8 +230,18 @@ export async function createAccount(
   };
 }
 
+function isInvalidCredentialsError(message: string): boolean {
+  return /invalid (login )?credentials|invalid_credentials|invalid_grant|user not found/i.test(message);
+}
+
+/**
+ * RC2.2.11 — login por identificador (email OU nome de usuário), um campo só.
+ * Anti-enumeração: usuário inexistente, email inexistente e senha errada dão a
+ * MESMA frase (`GENERIC_LOGIN_ERROR`). O nome de usuário é resolvido só no
+ * servidor (`sign-in-identifier`), que devolve sessão e nunca o email.
+ */
 export async function login(
-  email: string,
+  identifier: string,
   password: string,
   profile?: ProfileDetails
 ): Promise<AuthServiceResult<FutureAuthUser>> {
@@ -233,20 +249,66 @@ export async function login(
   const client = getSupabaseClient();
   if (!client) return notImplemented();
 
-  const cleanEmail = email.trim();
-  const { data, error } = await client.auth.signInWithPassword({ email: cleanEmail, password });
-  if (error) {
-    if (isUnconfirmedEmailError(error.message)) {
-      return {
-        status: "pending_confirmation",
-        message: "Confirme seu email antes de entrar. Reenvie o link se precisar.",
-        data: { id: "", email: cleanEmail, name: profile?.name },
-      };
-    }
-    return { status: "error", message: error.message };
+  const parsed = classifyLoginIdentifier(identifier);
+  if (parsed.kind === "invalid") {
+    return { status: "error", message: "Informe seu email ou nome de usuário e a senha." };
   }
 
-  const user = data.user;
+  let user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } | null = null;
+  const cleanEmail = parsed.kind === "email" ? parsed.value : "";
+
+  if (parsed.kind === "email") {
+    const { data, error } = await client.auth.signInWithPassword({ email: cleanEmail, password });
+    if (error) {
+      if (isUnconfirmedEmailError(error.message)) {
+        return {
+          status: "pending_confirmation",
+          message: "Confirme seu email antes de entrar. Reenvie o link se precisar.",
+          data: { id: "", email: cleanEmail, name: profile?.name },
+        };
+      }
+      if (/429|rate.?limit|too many/i.test(error.message)) return { status: "error", message: LOGIN_RATE_LIMITED };
+      if (isInvalidCredentialsError(error.message)) return { status: "error", message: GENERIC_LOGIN_ERROR };
+      return { status: "error", message: error.message };
+    }
+    user = data.user;
+  } else {
+    // CODE_READY_AWAITING_CLOUD_APPLY: sem a função deployada, não chamamos.
+    if (!usernameLoginCloudEnabled()) {
+      return {
+        status: "error",
+        message: "Entrar com nome de usuário ainda não está disponível. Use seu email por enquanto.",
+      };
+    }
+    const ops = edgeOpsInit("login");
+    const { data, error } = await client.functions.invoke<{
+      ok?: boolean;
+      code?: string;
+      session?: { access_token: string; refresh_token: string };
+    }>("sign-in-identifier", { headers: ops.headers, body: { identifier: parsed.value, password } });
+    let body = data;
+    if (!body && error) {
+      try {
+        const ctx = (error as { context?: Response }).context;
+        if (ctx && typeof ctx.json === "function") body = (await ctx.json()) as typeof data;
+      } catch {
+        // ignore
+      }
+    }
+    noteOps("login", ops.correlationId, body?.ok ? "ok" : "error", body?.ok ? undefined : { code: body?.code || "invoke_error" });
+    if (body?.code === "rate_limited") return { status: "error", message: LOGIN_RATE_LIMITED };
+    if (body?.code === "email_not_confirmed") {
+      return { status: "pending_confirmation", message: "Confirme seu email antes de entrar. Reenvie o link se precisar." };
+    }
+    if (!body?.ok || !body.session) {
+      if (!body && error) return { status: "error", message: "Não foi possível entrar agora. Tente de novo em instantes." };
+      return { status: "error", message: GENERIC_LOGIN_ERROR };
+    }
+    const { data: sessionData, error: sessionError } = await client.auth.setSession(body.session);
+    if (sessionError) return { status: "error", message: GENERIC_LOGIN_ERROR };
+    user = sessionData.user;
+  }
+
   if (!user) return { status: "error", message: "Sessão não iniciada." };
 
   const fallbackName = (user.user_metadata?.name as string | undefined) ?? profile?.name;
@@ -365,4 +427,31 @@ export async function deleteAccount(confirmationText: string): Promise<AuthServi
     status: result.ok ? "ok" : "error",
     message: result.message,
   };
+}
+
+/**
+ * RC2.2.11 — confirma no servidor o nome escolhido no cadastro
+ * (`claim_own_username`, migration pendente). Enquanto o backend não foi
+ * aplicado (`usernameLoginCloudEnabled()` falso), não chama nada e o nome
+ * continua marcado como "a confirmar" — sem fingir disponibilidade.
+ */
+export async function claimOwnUsername(
+  username: string
+): Promise<AuthServiceResult<{ username: string }>> {
+  if (!isSupabaseBackendEnabled() || !usernameLoginCloudEnabled()) return notImplemented();
+  const client = getSupabaseClient();
+  if (!client) return notImplemented();
+  const { data, error } = await client.rpc("claim_own_username", { p_username: username });
+  if (error) return { status: "error", message: "Não foi possível confirmar o nome de usuário agora." };
+  const body = data as { ok?: boolean; code?: string; username?: string } | null;
+  if (!body?.ok || !body.username) {
+    return {
+      status: "error",
+      message:
+        body?.code === "username_unavailable"
+          ? "Esse nome de usuário não está disponível. Escolha outro."
+          : "Nome de usuário inválido.",
+    };
+  }
+  return { status: "ok", message: "Nome de usuário confirmado.", data: { username: body.username } };
 }

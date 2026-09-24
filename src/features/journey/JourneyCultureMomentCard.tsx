@@ -8,6 +8,7 @@ import {
   type JourneyCultureMoment,
 } from "../../data/journeyCultureMoments";
 import { IconCheck, IconLantern } from "../../components/ui/Icon";
+import { ProseGlossText } from "../../components/hanzi/ProseGlossText";
 
 const EYEBROW: Record<NonNullable<JourneyCultureMoment["eyebrowKind"]>, { pt: string; en: string }> = {
   culture: { pt: "Momento cultural", en: "Culture moment" },
@@ -66,7 +67,9 @@ export function JourneyCultureMomentCard({ moment }: { moment: JourneyCultureMom
               {[moment.teaserZh, moment.teaserPinyin].filter(Boolean).join(" · ")}
             </p>
           ) : null}
-          <p className="mt-1.5 line-clamp-3 text-[12px] leading-4 text-ink-soft">{summary}</p>
+          <p className="mt-1.5 line-clamp-3 text-[12px] leading-4 text-ink-soft">
+            <ProseGlossText text={summary} />
+          </p>
           <div className="mt-2.5 flex items-center gap-2">
             <Link
               to={href}

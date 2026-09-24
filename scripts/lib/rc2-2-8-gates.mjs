@@ -225,7 +225,7 @@ export function gateAchievementCulture(src) {
     [/cultureSeals: cultureSeals \?\? \[\]/.test(src.achievementsWatcher), "M: snapshot com cultureSeals"],
     [!/achievementsById2|AchievementStore|MedalEngineV2/.test(src.store + src.achievements), "M1: sem segundo store de achievements"],
     [/if \(!unlocked\?\.\[id\]\) continue;/.test(src.profileShowcaseLib), "G5.4 mutação 14: medalha bloqueada não pode ser destacada"],
-    [/toggleFeaturedList\(s\.featuredAchievementIds, id, s\.achievementsUnlocked\)/.test(src.store), "G5.4: a store valida o destaque"],
+    [/toggleFeaturedList\(s\.featuredAchievementIds, id, s\.achievementsUnlocked(?:, isMedal)?\)/.test(src.store), "G5.4: a store valida o destaque"],
     [/FEATURED_ACHIEVEMENTS_MAX = 3/.test(src.profileShowcaseLib), "G5.1: até 3 medalhas"],
     [/<FeaturedMedals \/>/.test(src.profilePage) && /<CulturePassportCard \/>/.test(src.profilePage), "G5/G7: vitrine e passaporte no Perfil"],
     [/profile-see-all-medals/.test(src.profileShowcase), "G6: link Ver todas as medalhas"],

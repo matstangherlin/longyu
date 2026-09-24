@@ -119,6 +119,7 @@ expectMutationCaught(cases, "13. medalha cultural com contador falso", gateAchie
 expectMutationCaught(cases, "14. medalha bloqueada destacável", gateAchievementCulture,
   mutate(src, "profileShowcaseLib", "    if (!unlocked?.[id]) continue;\n", ""));
 expectMutationCaught(cases, "15. selo tratado como medalha", gateAchievementCulture,
-  mutate(src, "profileShowcase", "const featured = normalizeFeaturedAchievementIds(featuredRaw, unlocked);", "const featured = [...normalizeFeaturedAchievementIds(featuredRaw, unlocked), ...useStore.getState().cultureSeals];"));
+  // RC2.2.11 — a vitrine agora também filtra por medalha (isMedalAchievementId).
+  mutate(src, "profileShowcase", "const featured = normalizeFeaturedAchievementIds(featuredRaw, unlocked, undefined, isMedalAchievementId);", "const featured = [...normalizeFeaturedAchievementIds(featuredRaw, unlocked, undefined, isMedalAchievementId), ...useStore.getState().cultureSeals];"));
 
 runCases("test:profile-medal-showcase", cases);

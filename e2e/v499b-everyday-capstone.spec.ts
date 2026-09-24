@@ -52,7 +52,7 @@ function masteryThrough(lessonId: string) {
 
 async function dismissLessonChrome(page: Page) {
   await dismissBlockingOverlays(page);
-  const medal = page.getByText(/Nova medalha|New medal|Primeira voz|First voice/i).first();
+  const medal = page.getByText(/Nova medalha|Nova conquista|Novo marco|New medal|New achievement|New milestone|Primeira voz|First voice/i).first();
   if (await medal.isVisible().catch(() => false)) {
     await page.getByRole("button", { name: /^(Continuar|Continue)$/i }).last().click().catch(() => undefined);
     await page.waitForTimeout(200);

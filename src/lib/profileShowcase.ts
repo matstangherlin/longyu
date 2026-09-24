@@ -17,13 +17,20 @@ export const FEATURED_ACHIEVEMENTS_MAX = 3;
 export function normalizeFeaturedAchievementIds(
   ids: readonly string[] | undefined,
   unlocked: Readonly<Record<string, number>> | undefined,
-  knownIds?: ReadonlySet<string>
+  knownIds?: ReadonlySet<string>,
+  /**
+   * RC2.2.11 — só MEDALHA vai para a vitrine. Um destaque antigo que hoje é
+   * marco/conquista sai da vitrine na leitura (sem crash, sem perder o
+   * desbloqueio: `achievementsUnlocked` não é tocado).
+   */
+  isMedal?: (id: string) => boolean
 ): string[] {
   const result: string[] = [];
   for (const id of ids ?? []) {
     if (!id || result.includes(id)) continue;
     if (!unlocked?.[id]) continue;
     if (knownIds && !knownIds.has(id)) continue;
+    if (isMedal && !isMedal(id)) continue;
     result.push(id);
     if (result.length >= FEATURED_ACHIEVEMENTS_MAX) break;
   }
@@ -34,11 +41,13 @@ export function normalizeFeaturedAchievementIds(
 export function toggleFeaturedAchievement(
   current: readonly string[] | undefined,
   id: string,
-  unlocked: Readonly<Record<string, number>> | undefined
-): { ids: string[]; changed: boolean; reason?: "locked" | "full" } {
-  const list = normalizeFeaturedAchievementIds(current, unlocked);
+  unlocked: Readonly<Record<string, number>> | undefined,
+  isMedal?: (id: string) => boolean
+): { ids: string[]; changed: boolean; reason?: "locked" | "full" | "not_medal" } {
+  const list = normalizeFeaturedAchievementIds(current, unlocked, undefined, isMedal);
   if (list.includes(id)) return { ids: list.filter((item) => item !== id), changed: true };
   if (!unlocked?.[id]) return { ids: list, changed: false, reason: "locked" };
+  if (isMedal && !isMedal(id)) return { ids: list, changed: false, reason: "not_medal" };
   if (list.length >= FEATURED_ACHIEVEMENTS_MAX) return { ids: list, changed: false, reason: "full" };
   return { ids: [...list, id], changed: true };
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSmartBack } from "../../components/navigation/SmartBackButton";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
 import { IconCheck, IconLock } from "../../components/ui/Icon";
@@ -49,7 +49,7 @@ const COMPANY_PLANS: readonly ProductPlan[] = ["business", "enterprise"];
 
 export function ProPage() {
   const { t, locale } = useTranslation();
-  const navigate = useNavigate();
+  const goBack = useSmartBack();
   const serverIsPro = useStore((state) => state.serverIsPro);
   const checkingPlan = useEntitlementStatus((state) => state.checking);
   const [billingCountry, setBillingCountry] = useState<"BR" | "US">("BR");
@@ -339,7 +339,7 @@ export function ProPage() {
 
       <section className="rounded-xl border border-line/50 bg-surface p-4 text-center">
         <p className="text-xs text-ink-soft">{t("pro.existingTerms")}</p>
-        <Button variant="ghost" className="mt-2" onClick={() => navigate(-1)}>{t("common.back")}</Button>
+        <Button variant="ghost" className="mt-2" onClick={goBack}>{t("common.back")}</Button>
       </section>
     </div>
   );

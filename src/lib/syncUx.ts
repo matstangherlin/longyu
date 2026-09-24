@@ -92,3 +92,90 @@ export function admitSyncNotice(message: string | null, now = Date.now()): boole
 export function resetSyncNoticeHistory(): void {
   noticeHistory = {};
 }
+
+// ── RC2.2.11 — syncNoticePolicy: a política ÚNICA de aviso de sync ──────────
+//
+// O RC2.2.8 silenciou a rotina, mas uma única falha transitória (timeout,
+// rede oscilando) ainda virava `error` na hora e aparecia como faixa global
+// "Erro ao sincronizar…" no meio da aula. Agora:
+// - rotina (idle/pending/loading/synced) → silencioso;
+// - falha transitória → continua "pending" (silencioso) e é re-tentada
+//   sozinha; se recuperar, o aluno nunca vê nada;
+// - falha persistente (N tentativas seguidas OU janela de tempo) → UM aviso
+//   calmo, deduplicado por tipo de erro + recurso + janela;
+// - falha que ameaça perder/confirmar uma ação → visível na hora.
+// Nenhum componente decide isso sozinho: todos passam por aqui.
+
+export type SyncNoticeSurface = "silent" | "discrete" | "global";
+
+export const SYNC_PERSISTENT_FAILURES = 3;
+export const SYNC_PERSISTENT_WINDOW_MS = 2 * 60 * 1000;
+export const SYNC_TRANSIENT_RETRY_MS = 5_000;
+export const PERSISTENT_SYNC_MESSAGE = "Seu progresso está salvo neste dispositivo. Tentaremos sincronizar novamente.";
+
+export type SyncFailureTrack = { count: number; firstAt: number; notifiedAt: number | null };
+export type SyncNoticePolicyState = Readonly<Record<string, SyncFailureTrack>>;
+
+export type SyncNoticeEvent =
+  | { kind: "routine"; resource: string; status: Exclude<CloudSyncStatus, "error">; now: number }
+  | { kind: "success"; resource: string; now: number }
+  | { kind: "failure"; resource: string; errorKind: string; now: number; threatensLoss?: boolean };
+
+export type SyncNoticeDecision = {
+  /** Estado que a store deve registrar (transitório fica "pending"). */
+  status: CloudSyncStatus;
+  surface: SyncNoticeSurface;
+  message: string | null;
+  /** Falha transitória: agendar nova tentativa silenciosa. */
+  retry: boolean;
+  state: Record<string, SyncFailureTrack>;
+};
+
+/** Chave de dedupe: tipo de erro + recurso + janela. */
+export function syncNoticeKey(errorKind: string, resource: string, now: number): string {
+  return `${errorKind}:${resource}:${Math.floor(now / SYNC_ERROR_DEDUPE_MS)}`;
+}
+
+export function syncNoticePolicy(state: SyncNoticePolicyState, event: SyncNoticeEvent): SyncNoticeDecision {
+  const next: Record<string, SyncFailureTrack> = { ...state };
+  if (event.kind === "routine") {
+    return { status: event.status, surface: "silent", message: null, retry: false, state: next };
+  }
+  if (event.kind === "success") {
+    delete next[event.resource];
+    return { status: "synced", surface: "silent", message: null, retry: false, state: next };
+  }
+  const previous = next[event.resource];
+  const track: SyncFailureTrack = previous
+    ? { ...previous, count: previous.count + 1 }
+    : { count: 1, firstAt: event.now, notifiedAt: null };
+  next[event.resource] = track;
+  if (event.threatensLoss) {
+    track.notifiedAt = event.now;
+    return { status: "error", surface: "global", message: PERSISTENT_SYNC_MESSAGE, retry: false, state: next };
+  }
+  const persistent = track.count >= SYNC_PERSISTENT_FAILURES || event.now - track.firstAt >= SYNC_PERSISTENT_WINDOW_MS;
+  if (!persistent) {
+    return { status: "pending", surface: "silent", message: null, retry: true, state: next };
+  }
+  const alreadyNotified = track.notifiedAt != null && event.now - track.notifiedAt < SYNC_ERROR_DEDUPE_MS;
+  if (alreadyNotified) {
+    return { status: "error", surface: "discrete", message: PERSISTENT_SYNC_MESSAGE, retry: false, state: next };
+  }
+  track.notifiedAt = event.now;
+  return { status: "error", surface: "global", message: PERSISTENT_SYNC_MESSAGE, retry: false, state: next };
+}
+
+let policyState: Record<string, SyncFailureTrack> = {};
+
+/** Porteiro stateful usado pelo coordenador de sync (vive por carga da página). */
+export function applySyncNoticePolicy(event: SyncNoticeEvent): SyncNoticeDecision {
+  const decision = syncNoticePolicy(policyState, event);
+  policyState = decision.state;
+  return decision;
+}
+
+/** Só para testes. */
+export function resetSyncNoticePolicy(): void {
+  policyState = {};
+}

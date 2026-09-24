@@ -29,8 +29,10 @@ import {
 import {
   formatLeagueClock,
   publicDisplayName,
+  readPersistedLeagueCache,
   resolveLeagueAuthIntent,
   resolveLeagueSurface,
+  writePersistedLeagueCache,
 } from "../lib/leagueLiveView";
 import { leagueFixtureToPayload, readLeagueLiveFixture } from "../lib/leagueLiveFixture";
 import { getSupabaseClient } from "../lib/supabaseClient";
@@ -50,14 +52,19 @@ function serverStandingToRow(row: ServerLeagueStanding): LeagueStandingRow {
   };
 }
 
+/**
+ * RC2.2.11 — sessão local (getSession lê o armazenamento do cliente), não
+ * getUser (ida ao servidor antes de qualquer standings). Um token vencido é
+ * renovado pelo cliente; se falhar, o fetch da liga responde com erro.
+ */
 async function detectCloudSession(): Promise<boolean> {
   if (!isCloudLeagueAvailable()) return false;
   const client = getSupabaseClient();
   if (!client) return false;
   const {
-    data: { user },
-  } = await client.auth.getUser();
-  return Boolean(user?.id);
+    data: { session },
+  } = await client.auth.getSession();
+  return Boolean(session?.user?.id);
 }
 
 export function useLeagueData() {
@@ -68,11 +75,19 @@ export function useLeagueData() {
   const leagueBots = useStore((s) => s.leagueBots);
   const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name ?? "Você");
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
+  const accountKey = useStore((s) => s.currentAccountId);
 
+  // RC2.2.11 — cache-first: a última liga real desta conta aparece no primeiro
+  // render, antes de sessão, flush de XP ou fetch.
+  const [persisted] = useState(() => readPersistedLeagueCache(accountKey));
+  const mountedAtRef = useRef(typeof performance !== "undefined" ? performance.now() : Date.now());
+  const [firstContent, setFirstContent] = useState<{ source: "cache" | "live" | "demo" | "error"; ms: number } | null>(
+    () => (persisted ? { source: "cache", ms: 0 } : null)
+  );
   const [now, setNow] = useState(() => new Date());
   const [live, setLive] = useState<LeagueDataPayload | null>(null);
-  const [cachedLive, setCachedLive] = useState<LeagueDataPayload | null>(null);
-  const [liveFetchedAt, setLiveFetchedAt] = useState<number | null>(null);
+  const [cachedLive, setCachedLive] = useState<LeagueDataPayload | null>(() => persisted?.payload ?? null);
+  const [liveFetchedAt, setLiveFetchedAt] = useState<number | null>(() => persisted?.savedAt ?? null);
   const cloudBackend = isCloudLeagueAvailable();
   const [hasCloudSession, setHasCloudSession] = useState(authMode === "cloud");
   const [sessionResolved, setSessionResolved] = useState(authMode === "cloud" || !cloudBackend);
@@ -82,7 +97,15 @@ export function useLeagueData() {
   const [syncTick, setSyncTick] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [lastSyncError, setLastSyncError] = useState<string | null>(null);
-  const cacheRef = useRef<LeagueDataPayload | null>(null);
+  const cacheRef = useRef<LeagueDataPayload | null>(persisted?.payload ?? null);
+
+  const markFirstContent = useCallback((source: "cache" | "live" | "demo" | "error") => {
+    setFirstContent((current) => {
+      if (current) return current;
+      const elapsed = (typeof performance !== "undefined" ? performance.now() : Date.now()) - mountedAtRef.current;
+      return { source, ms: Math.round(elapsed) };
+    });
+  }, []);
 
   const fixture = readLeagueLiveFixture();
   const pendingCloudCheck = cloudBackend && !sessionResolved && !fixture;
@@ -116,6 +139,7 @@ export function useLeagueData() {
       setLoading(false);
       setSyncing(false);
       setPendingCount(getPendingLeagueXpCount());
+      markFirstContent("live");
       return;
     }
 
@@ -129,11 +153,15 @@ export function useLeagueData() {
       setLoading(false);
       setSyncing(false);
       setPendingCount(0);
+      markFirstContent("demo");
       return;
     }
     setLoading(true);
     setSyncing(true);
-    await flushPendingLeagueXpSync();
+    // RC2.2.11 — o flush de XP pendente roda EM PARALELO com o fetch: o
+    // ranking não espera. Quando o flush confirmar XP, onLeagueXpSynced
+    // dispara um refetch silencioso (syncTick) que reconcilia a pontuação.
+    const pendingFlush = flushPendingLeagueXpSync().catch(() => 0);
     const data = await fetchLiveLeagueData();
     if (data.mode === "live") {
       setLive(data);
@@ -141,6 +169,8 @@ export function useLeagueData() {
       cacheRef.current = data;
       setLiveFetchedAt(Date.now());
       setLiveStatusMessage(null);
+      writePersistedLeagueCache(accountKey, data);
+      markFirstContent("live");
     } else if (data.mode === "error") {
       setLive(null);
       setLiveStatusMessage(data.message ?? "Não foi possível carregar a liga.");
@@ -153,8 +183,12 @@ export function useLeagueData() {
     }
     setPendingCount(getPendingLeagueXpCount());
     setLoading(false);
-    setSyncing(false);
-  }, [authMode, cloudBackend, weeklyXp]);
+    if (data.mode !== "live") markFirstContent(cacheRef.current ? "cache" : "error");
+    void pendingFlush.then(() => {
+      setSyncing(false);
+      setPendingCount(getPendingLeagueXpCount());
+    });
+  }, [accountKey, authMode, cloudBackend, markFirstContent, weeklyXp]);
 
   useEffect(() => {
     syncLeagueWeek();
@@ -266,6 +300,8 @@ export function useLeagueData() {
     isXpSyncing,
     pendingXpCount: pendingCount,
     lastSyncError: import.meta.env.DEV ? lastSyncError : null,
+    /** RC2.2.11 — de onde veio o primeiro conteúdo e em quantos ms (medição local). */
+    firstContent,
     lastUpdatedLabel: formatLeagueClock(liveFetchedAt, now),
     resetAt: activeLive ? activeLive.resetAt ?? null : null,
     lastWeek: activeLive ? activeLive.lastWeek ?? null : null,

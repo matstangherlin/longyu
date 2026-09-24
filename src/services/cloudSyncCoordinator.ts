@@ -19,12 +19,23 @@ import { attributeStoredReferralCode, processReferralPipeline } from "./referral
 import { recordClientDiagnostic } from "../lib/clientDiagnostics";
 import { isQaTestStateActive } from "../lib/qaFastPathAccess";
 import { noteOps, newOpsCorrelationId } from "../lib/opsCorrelation";
+import { applySyncNoticePolicy, SYNC_TRANSIENT_RETRY_MS } from "../lib/syncUx";
 
 const CLOUD_SYNC_TIMEOUT_MS = 12_000;
 const SYNC_TIMEOUT_MESSAGE =
   "A sincronização demorou demais. Seu progresso local está seguro — tente de novo.";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let transientRetryTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Falha transitória: uma nova tentativa silenciosa logo, sem esperar os 30 s. */
+function scheduleTransientRetry(): void {
+  if (transientRetryTimer) return;
+  transientRetryTimer = setTimeout(() => {
+    transientRetryTimer = null;
+    void flushCloudProgressPush();
+  }, SYNC_TRANSIENT_RETRY_MS);
+}
 let syncInFlight = false;
 let pendingPush = false;
 
@@ -46,12 +57,25 @@ function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promis
   });
 }
 
-function markCloudSync(status: "loading" | "synced" | "pending" | "error", message: string): void {
+function markCloudSync(rawStatus: "loading" | "synced" | "pending" | "error", rawMessage: string): void {
+  // RC2.2.11 — toda decisão de aviso passa pela syncNoticePolicy (syncUx.ts):
+  // rotina é silenciosa; falha transitória continua "pending" e é re-tentada
+  // sozinha; só falha persistente vira "error" com UM aviso calmo e deduplicado.
+  const now = Date.now();
+  const decision =
+    rawStatus === "error"
+      ? applySyncNoticePolicy({ kind: "failure", resource: "cloud-progress", errorKind: "progress-push", now })
+      : rawStatus === "synced"
+        ? applySyncNoticePolicy({ kind: "success", resource: "cloud-progress", now })
+        : applySyncNoticePolicy({ kind: "routine", resource: "cloud-progress", status: rawStatus, now });
+  const status = decision.status;
+  const message = decision.message ?? rawMessage;
+  if (decision.retry) scheduleTransientRetry();
   // O estado vai para a store (Conta/Perfil/Ajustes o leem como estado
-  // discreto). Só o erro vira aviso global, deduplicado (RC2.2.8 · C3/C5).
+  // discreto). Só o erro persistente vira aviso global, deduplicado (RC2.2.8 · C3/C5).
   useStore.getState().setCloudSyncState(status, message);
   if (status === "error") {
-    useStore.getState().setEconomySyncMessage(message);
+    if (decision.surface === "global") useStore.getState().setEconomySyncMessage(message);
     const correlationId = newOpsCorrelationId();
     noteOps("sync", correlationId, "error", { code: "sync_error" });
     recordClientDiagnostic({

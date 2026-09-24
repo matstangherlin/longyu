@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { castNameForSceneCharacter } from "../../data/storyCast";
 import type {
   ConversationCharacter,
   ConversationCheckpoint,
@@ -77,7 +78,9 @@ function CharacterAvatar({
   emotion?: ConversationLine["emotion"];
 }) {
   const tone = AVATAR_TONES[character.avatar] ?? AVATAR_TONES.default;
-  const letter = character.name.trim().charAt(0).toUpperCase() || "?";
+  // RC2.2.11 — nome canônico do elenco (storyCast), sem tocar nos dados da cena.
+  const display = castNameForSceneCharacter(character);
+  const letter = display.nameLatin.trim().charAt(0).toUpperCase() || "?";
   const emotionMark =
     emotion === "happy" ? "´▽`" : emotion === "confused" ? "・_・" : emotion === "thinking" ? "…" : null;
 
@@ -105,7 +108,8 @@ function CharacterAvatar({
         )}
       </div>
       <span className={["text-xs font-semibold", active ? "text-ink" : "text-ink-faint"].join(" ")}>
-        {character.name}
+        {display.nameLatin}
+        {display.nameHanzi ? <span className="hanzi ml-1 font-normal text-ink-faint">{display.nameHanzi}</span> : null}
       </span>
       {character.role ? (
         <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-faint">

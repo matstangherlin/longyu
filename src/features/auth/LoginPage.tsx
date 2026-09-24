@@ -61,7 +61,7 @@ export function LoginPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const formEmail = String(form.get("email") ?? email).trim();
+    const formEmail = String(form.get("identifier") ?? email).trim();
     const formPassword = String(form.get("password") ?? password);
     setEmail(formEmail);
     setPassword(formPassword);
@@ -74,8 +74,8 @@ export function LoginPage() {
     const result = await signIn(formEmail, formPassword);
     if (!result.ok) {
       setLoading(false);
-      if (result.pendingConfirmation) {
-        navigate(confirmEmailPath(formEmail), { replace: true });
+      if (result.pendingConfirmation && result.email) {
+        navigate(confirmEmailPath(result.email), { replace: true });
         return;
       }
       setError(localizeUserMessage(result.message));

@@ -1,5 +1,5 @@
 import { useEffect, Suspense } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { PageFallback } from "../system/PageFallback";
 import { warmUpVoices, installTTSGestureUnlock } from "../../lib/tts";
@@ -23,12 +23,15 @@ import { QaTestStateBanner } from "../qa/QaTestStateBanner";
 import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 import { CultureSealRevealWatcher } from "../../features/culture/CultureSealReveal";
+import { SmartBackButton } from "../navigation/SmartBackButton";
+import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
 
 export function AppShell() {
   const theme = useStore((s) => s.theme);
   const registerActivity = useStore((s) => s.registerActivity);
   const reconcileStreak = useStore((s) => s.reconcileStreak);
   const location = useLocation();
+  const navigationType = useNavigationType();
   const isLessonPlayer = /^\/licao\/[^/]+\/player$/.test(location.pathname);
   const focusMode = isLessonPlayer || location.pathname.startsWith("/teste/");
 
@@ -50,6 +53,12 @@ export function AppShell() {
     markSessionStart();
     return removeTTSUnlock;
   }, [registerActivity, reconcileStreak]);
+
+  // RC2.2.11 — trilha in-app: o SmartBack só volta no histórico quando ela
+  // confirma que a entrada anterior é deste app, nesta aba.
+  useEffect(() => {
+    recordNavigation(location.pathname, navigationType);
+  }, [location.pathname, navigationType]);
 
   // Rola para o topo ao trocar de rota.
   useEffect(() => {
@@ -104,6 +113,11 @@ export function AppShell() {
               : "px-3 pb-[calc(var(--app-bottom-nav-height)+1rem)] pt-4 sm:px-5 sm:pt-5 lg:px-6 lg:pb-12",
           ].join(" ")}
         >
+          {!focusMode && shouldShowShellBack(location.pathname) && (
+            <div className="-ml-2 mb-2 sm:mb-3" data-testid="shell-back-row">
+              <SmartBackButton />
+            </div>
+          )}
           <ErrorBoundary resetKey={location.pathname} area="page">
             <Suspense fallback={<PageFallback />}>
               <Outlet />

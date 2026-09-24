@@ -28,8 +28,31 @@ const PATTERNS: MessagePattern[] = [
     key: "errors.backendUnavailable",
   },
   {
-    test: (m) => includesAny(m, ["invalid login credentials", "email ou senha incorretos", "incorrect email or password"]),
+    test: (m) =>
+      includesAny(m, [
+        "invalid login credentials",
+        "email ou senha incorretos",
+        "incorrect email or password",
+        "usuário/email ou senha incorretos",
+        "incorrect username/email or password",
+      ]),
     key: "auth.errors.invalidCredentials",
+  },
+  {
+    test: (m) => includesAny(m, ["assinar pelo app android ainda não", "subscribing from the android app"]),
+    key: "auth.errors.androidCheckoutUnavailable",
+  },
+  {
+    test: (m) => includesAny(m, ["informe seu email ou nome de usuário", "enter your email or username"]),
+    key: "auth.errors.invalidIdentifierPassword",
+  },
+  {
+    test: (m) => includesAny(m, ["entrar com nome de usuário ainda não", "signing in with a username isn't"]),
+    key: "auth.errors.usernameLoginUnavailable",
+  },
+  {
+    test: (m) => includesAny(m, ["aguarde alguns minutos e tente de novo", "wait a few minutes and try again"]),
+    key: "auth.errors.loginRateLimited",
   },
   {
     test: (m) => includesAny(m, ["email not confirmed", "email_not_confirmed", "confirme seu email antes de entrar"]),

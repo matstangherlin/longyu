@@ -1,0 +1,223 @@
+{
+  "schema": "longyu-play-data-safety/1",
+  "wave": "RC2.2.12",
+  "status": "INVENTORY_READY_NOT_SUBMITTED",
+  "note": "Inventário factual do código atual para preencher o formulário Data Safety do Play Console À MÃO. Nada é enviado automaticamente. 'collected' segue a definição da Play: dado transmitido para fora do aparelho. Dado só local não é coletado. Revisar sempre que o código mudar.",
+  "encryptedInTransit": true,
+  "encryptedInTransitDetail": "Todo tráfego do app vai por HTTPS (Supabase, Edge Functions). allowMixedContent=false no Capacitor.",
+  "userCanRequestDeletion": true,
+  "deletionPaths": {
+    "inApp": "Conta → Excluir conta na nuvem · Ajustes → Privacidade e dados (Edge Function delete-account)",
+    "web": "https://singular-meringue-7838cd.netlify.app/privacidade#excluir-conta (produção atual; migra para https://longyu.com.br/privacidade#excluir-conta quando o domínio for apontado)",
+    "backendStatus": "delete-account já existe no backend de produção; username/identifier login seguem CODE_READY_AWAITING_CLOUD_APPLY"
+  },
+  "items": [
+    {
+      "data": "email",
+      "playCategory": "Personal info → Email address",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "account management",
+        "app functionality"
+      ],
+      "required": true,
+      "optional": false,
+      "deletion": "apagado com a conta (auth.users)",
+      "source": "cadastro / login"
+    },
+    {
+      "data": "username",
+      "playCategory": "Personal info → User IDs",
+      "collected": true,
+      "shared": false,
+      "visibleToOtherUsers": true,
+      "purpose": [
+        "app functionality (amigos, ligas)"
+      ],
+      "required": false,
+      "optional": true,
+      "deletion": "apagado com a conta (profiles.username)",
+      "source": "cadastro (@nome); confirmação no servidor pendente de cloud apply"
+    },
+    {
+      "data": "displayName",
+      "playCategory": "Personal info → Name",
+      "collected": true,
+      "shared": false,
+      "visibleToOtherUsers": true,
+      "purpose": [
+        "app functionality",
+        "personalization"
+      ],
+      "required": true,
+      "optional": false,
+      "deletion": "apagado com a conta",
+      "source": "cadastro"
+    },
+    {
+      "data": "birthDate",
+      "playCategory": "Personal info → Other info",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "personalization (perfil)"
+      ],
+      "required": false,
+      "optional": true,
+      "deletion": "apagado com a conta",
+      "source": "cadastro (ProfileDetailsFields)",
+      "note": "Opcional no cadastro; o app NÃO verifica idade hoje."
+    },
+    {
+      "data": "country",
+      "playCategory": "Location → Approximate location (declarado pelo usuário, não GPS)",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "app functionality (idioma/lançamento)"
+      ],
+      "required": false,
+      "optional": true,
+      "deletion": "apagado com a conta",
+      "source": "cadastro"
+    },
+    {
+      "data": "marketingOptIn / signupSource",
+      "playCategory": "Personal info → Other info",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "developer communications (só com opt-in)",
+        "analytics (origem do cadastro)"
+      ],
+      "required": false,
+      "optional": true,
+      "deletion": "apagado com a conta",
+      "source": "cadastro"
+    },
+    {
+      "data": "learningProgress",
+      "playCategory": "App activity → App interactions / Other user-generated content",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "app functionality (sincronizar progresso)"
+      ],
+      "required": true,
+      "optional": false,
+      "deletion": "apagado com a conta; cópia local apagável em Dados locais",
+      "source": "sync da nuvem (user_progress)",
+      "detail": "lições, XP, liga, conquistas, economia (snapshot user_progress)"
+    },
+    {
+      "data": "srsReviewState",
+      "playCategory": "App activity → Other actions",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "app functionality"
+      ],
+      "required": true,
+      "optional": false,
+      "deletion": "apagado com a conta",
+      "source": "parte do snapshot de progresso"
+    },
+    {
+      "data": "pedagogyTelemetry",
+      "playCategory": "App activity → App interactions",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "analytics (melhorar o ensino)"
+      ],
+      "required": false,
+      "optional": true,
+      "consentRequired": true,
+      "deletion": "revogar consentimento limpa a fila local; eventos enviados seguem a retenção do backend",
+      "source": "pedagogyEvents com consentimento explícito"
+    },
+    {
+      "data": "funnelEvents",
+      "playCategory": "—",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "CustomEvent só no aparelho (src/services/funnelEvents.ts); não é transmitido"
+    },
+    {
+      "data": "diagnostics",
+      "playCategory": "App info and performance → Diagnostics",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "sessionStorage local e sanitizado; só sai se o usuário anexar ao feedback. Nesse caso entra em 'feedback'."
+    },
+    {
+      "data": "feedback",
+      "playCategory": "App activity → Other user-generated content",
+      "collected": true,
+      "shared": false,
+      "purpose": [
+        "app functionality (suporte)",
+        "analytics"
+      ],
+      "required": false,
+      "optional": true,
+      "deletion": "sob pedido pelo email de suporte",
+      "source": "formulário de feedback (ação explícita)"
+    },
+    {
+      "data": "purchases",
+      "playCategory": "Financial info → Purchase history",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "No app Android não há compra (checkout bloqueado até existir Google Play Billing). Na web, o checkout Stripe é externo; declarar quando o Play Billing entrar."
+    },
+    {
+      "data": "microphoneAudio",
+      "playCategory": "Audio → Voice or sound recordings",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "Reconhecimento pela Web Speech API do navegador/aparelho; gravação para ouvir a si mesmo fica só na memória (desktop). O Longyu não envia nem guarda áudio. Declarar a permissão RECORD_AUDIO, não coleta."
+    },
+    {
+      "data": "securityChallenge (Cloudflare Turnstile)",
+      "playCategory": "Device or other IDs / App info",
+      "collected": true,
+      "shared": true,
+      "sharedWith": "Cloudflare (desafio anti-abuso no cadastro)",
+      "purpose": [
+        "fraud prevention, security"
+      ],
+      "required": true,
+      "optional": false,
+      "deletion": "retenção do provedor",
+      "source": "cadastro (src/lib/turnstile.ts)"
+    },
+    {
+      "data": "crashLogs",
+      "playCategory": "App info and performance → Crash logs",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "Sem SDK de crash/analytics de terceiros no app."
+    },
+    {
+      "data": "advertisingId",
+      "playCategory": "Device or other IDs",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "detail": "Sem anúncios e sem AD_ID."
+    }
+  ],
+  "ads": false,
+  "thirdPartyProcessors": [
+    "Supabase (backend/auth, operador)",
+    "Cloudflare Turnstile (segurança no cadastro)",
+    "Netlify (hospedagem web; não participa do app Android)"
+  ]
+}

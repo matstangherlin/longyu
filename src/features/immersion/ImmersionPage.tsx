@@ -34,6 +34,7 @@ import {
   type StoryStep,
 } from "../../data/interactiveStories";
 import { playSoundFx } from "../../lib/soundFx";
+import { castForStorySpeaker, learnerDisplayName, type StoryCastMember } from "../../data/storyCast";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
 import { beginStoryEnergyAttestation } from "../../services/storyEnergyAttestation";
@@ -826,6 +827,11 @@ function InteractiveStoryPlayer({
   } | null>(null);
 
   const studentName = useStudentFirstName();
+  const username = useStore((state) => state.accounts?.[state.currentAccountId]?.username);
+  // RC2.2.11 — linha do aluno: nome de exibição, senão @username, senão "Você".
+  const learnerName = learnerDisplayName({ firstName: studentName, username });
+  // Cartão de contexto antes da primeira fala (onde, com quem, objetivo).
+  const [contextOpen, setContextOpen] = useState(() => currentIndex === 0 && Boolean(story.context));
   const step = personalizeStoryStep(story.steps[currentIndex], studentName);
   const interactiveTotal = story.steps.filter(storyStepIsInteractive).length;
 
@@ -1010,6 +1016,8 @@ function InteractiveStoryPlayer({
           Você praticou em contexto e mandou os pontos fracos para revisão.
         </p>
 
+        <StoryRecap story={story} learnerName={learnerName} studentName={studentName} />
+
         <div className="mx-auto mt-6 grid max-w-sm grid-cols-3 gap-2">
           <StoryStat label="Acertos" value={`${victory.score}/${victory.total}`} />
           <StoryStat label="XP" value={victory.awarded ? `+${victory.xp}` : "—"} tone="accent" />
@@ -1040,13 +1048,23 @@ function InteractiveStoryPlayer({
             <IconPath width={18} height={18} /> Voltar à Jornada
           </Button>
         </div>
-        <button
-          type="button"
-          onClick={repeatStory}
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ink-faint transition hover:text-ink-soft"
-        >
-          <IconRefresh width={14} height={14} /> Repetir história
-        </button>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => navigate("/revisao")}
+            data-testid="story-recap-review"
+            className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-accent transition hover:underline"
+          >
+            Rever palavras da cena
+          </button>
+          <button
+            type="button"
+            onClick={repeatStory}
+            className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-ink-faint transition hover:text-ink-soft"
+          >
+            <IconRefresh width={14} height={14} /> Repetir história
+          </button>
+        </div>
       </div>
     );
   }
@@ -1082,23 +1100,27 @@ function InteractiveStoryPlayer({
         <ProgressBar value={completedValue} max={story.steps.length} />
       </div>
 
-      <Card className="overflow-hidden rounded-xl border-line/70 p-0 shadow-none">
-        <div className="space-y-3 p-3.5 sm:p-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
-              {(step.speaker ?? (interactive ? "V" : "N")).slice(0, 1).toUpperCase()}
-            </span>
-            <div className="text-sm font-semibold text-ink">{step.speaker ?? (interactive ? "Sua vez" : "Narrador")}</div>
-          </div>
+      {contextOpen && story.context ? (
+        <StoryContextCard story={story} onStart={() => setContextOpen(false)} />
+      ) : (
+      <>
+      <StoryTranscript
+        story={story}
+        currentIndex={currentIndex}
+        learnerName={learnerName}
+        studentName={studentName}
+        mode={storyTranscriptMode(step, interactive, revealed)}
+      />
+      <StoryTurn cast={castForStorySpeaker(step.speaker)} learnerName={learnerName} interactive={interactive}>
 
           {step.promptPt && (
-            <div className="ml-6 rounded-[22px] rounded-tl-md bg-surface-2 px-4 py-3 text-sm font-medium leading-6 text-ink sm:ml-12">
+            <div className="rounded-2xl bg-surface-2 px-4 py-3 text-sm font-medium leading-6 text-ink">
               {step.promptPt}
             </div>
           )}
 
           {step.type === "listen_choice" && (
-            <div className="ml-6 flex items-center gap-3 rounded-[22px] rounded-tl-md bg-surface-2 px-4 py-3 sm:ml-12">
+            <div className="flex items-center gap-3 rounded-2xl bg-surface-2 px-4 py-3">
               <div>
                 <div className="text-sm font-semibold text-ink">Ouça a frase</div>
                 <p className="mt-1 text-xs text-ink-soft">Depois escolha o sentido.</p>
@@ -1108,7 +1130,7 @@ function InteractiveStoryPlayer({
           )}
 
           {showHanzi && step.hanzi && (
-            <div className="ml-6 rounded-[26px] rounded-tl-md border border-line/70 bg-surface px-4 py-5 text-center sm:ml-12">
+            <div className="min-w-0 rounded-2xl border border-line/70 bg-surface px-4 py-5 text-center">
               <div className="flex justify-center">
                 <GlossText
                   text={step.hanzi}
@@ -1203,9 +1225,11 @@ function InteractiveStoryPlayer({
               {step.explanationPt && <div className="mt-2 text-ink-soft">{step.explanationPt}</div>}
             </div>
           )}
-        </div>
-      </Card>
+      </StoryTurn>
+      </>
+      )}
 
+      {!contextOpen && (
       <div className="flex items-center justify-between gap-3">
         <Button
           variant="outline"
@@ -1219,6 +1243,7 @@ function InteractiveStoryPlayer({
           <IconChevron width={18} height={18} />
         </Button>
       </div>
+      )}
       <ProPaywall
         open={contextualOffer.open}
         kind={contextualOffer.offer?.paywallKind ?? "story"}
@@ -1226,6 +1251,223 @@ function InteractiveStoryPlayer({
         onClose={contextualOffer.dismiss}
       />
     </div>
+  );
+}
+
+// ── RC2.2.11 — cena em bolhas ───────────────────────────────────────────────
+
+function castLabel(cast: StoryCastMember, learnerName: string): string {
+  return cast.learner ? learnerName : cast.nameLatin;
+}
+
+function StoryAvatar({ cast, learnerName }: { cast: StoryCastMember; learnerName: string }) {
+  const glyph = cast.learner ? (learnerName.replace(/^@/, "").charAt(0).toUpperCase() || "你") : cast.avatarGlyph;
+  return (
+    <span
+      aria-hidden
+      className={[
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+        cast.learner ? "bg-accent text-white" : "bg-surface-2 text-ink border border-line",
+        /[\u3400-\u9fff]/u.test(glyph) ? "hanzi text-sm" : "",
+      ].join(" ")}
+    >
+      {glyph}
+    </span>
+  );
+}
+
+/** Quem fala: avatar + nome latino + (opcional) nome em Hànzì. */
+function StorySpeakerLabel({ cast, learnerName }: { cast: StoryCastMember; learnerName: string }) {
+  return (
+    <div className={["flex min-w-0 items-center gap-2", cast.side === "right" ? "flex-row-reverse text-right" : ""].join(" ")}>
+      <StoryAvatar cast={cast} learnerName={learnerName} />
+      <div className="min-w-0 leading-tight">
+        <div className="truncate text-sm font-semibold text-ink" data-testid="story-speaker-name">
+          {castLabel(cast, learnerName)}
+          {cast.nameHanzi ? <span className="hanzi ml-1.5 text-xs font-normal text-ink-faint">{cast.nameHanzi}</span> : null}
+        </div>
+        {!cast.learner ? <div className="truncate text-[11px] text-ink-faint">{cast.rolePt}</div> : null}
+      </div>
+    </div>
+  );
+}
+
+function StoryContextCard({ story, onStart }: { story: InteractiveStory; onStart: () => void }) {
+  const cast = Array.from(
+    new Set(story.steps.map((storyStep) => storyStep.speaker).filter((speaker): speaker is string => Boolean(speaker)))
+  )
+    .map((speaker) => castForStorySpeaker(speaker))
+    .filter((member): member is StoryCastMember => Boolean(member && !member.learner && !member.narrator));
+  return (
+    <Card className="rounded-2xl border-line/70 p-4 shadow-none sm:p-5" data-testid="story-context-card">
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Antes da cena</div>
+      <p className="mt-2 text-sm leading-6 text-ink">{story.context?.wherePt}</p>
+      {cast.length > 0 && (
+        <ul className="mt-3 grid gap-2" data-testid="story-context-cast">
+          {cast.map((member) => (
+            <li key={member.id} className="flex min-w-0 items-center gap-2 text-sm">
+              <StoryAvatar cast={member} learnerName="" />
+              <span className="min-w-0 truncate">
+                <span className="font-semibold text-ink">{member.nameLatin}</span>
+                {member.nameHanzi ? <span className="hanzi ml-1.5 text-ink-faint">{member.nameHanzi}</span> : null}
+                <span className="text-ink-soft"> · {member.rolePt}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">
+        <span className="font-semibold text-ink">Objetivo:</span> {story.context?.goalPt}
+      </p>
+      <Button className="mt-4 w-full" data-testid="story-context-start" onClick={onStart}>
+        Começar a cena <IconChevron width={18} height={18} />
+      </Button>
+    </Card>
+  );
+}
+
+/**
+ * O histórico da cena não pode entregar a resposta da pergunta aberta (uma
+ * fala anterior pode conter o Hànzì, o pinyin ou a tradução pedidos agora;
+ * no listen_choice, entregaria o áudio). Pergunta aberta → histórico oculto;
+ * respondida ou fala → histórico completo. `no-meaning` fica para quem quiser
+ * um meio-termo explícito.
+ */
+export type StoryTranscriptMode = "full" | "no-meaning" | "hidden";
+
+export function storyTranscriptMode(_step: StoryStep, interactive: boolean, revealed: boolean): StoryTranscriptMode {
+  if (!interactive || revealed) return "full";
+  return "hidden";
+}
+
+/** Falas já passadas desta cena, em bolhas compactas (multi-turno). */
+function StoryTranscript({
+  story,
+  currentIndex,
+  learnerName,
+  studentName,
+  mode,
+}: {
+  story: InteractiveStory;
+  currentIndex: number;
+  learnerName: string;
+  studentName?: string;
+  mode: StoryTranscriptMode;
+}) {
+  if (mode === "hidden") return null;
+  const showMeaning = mode === "full";
+  const turns = story.steps
+    .slice(0, currentIndex)
+    .map((storyStep) => ({ storyStep: personalizeStoryStep(storyStep, studentName), cast: castForStorySpeaker(storyStep.speaker) }))
+    .filter((turn): turn is { storyStep: StoryStep; cast: StoryCastMember } => Boolean(turn.cast && !turn.cast.narrator && turn.storyStep.hanzi));
+  if (!turns.length) return null;
+  return (
+    <ol className="space-y-2" data-testid="story-transcript" data-mode={mode} aria-label="Conversa até aqui">
+      {turns.map(({ storyStep, cast }) => (
+        <li
+          key={storyStep.id}
+          className={["flex min-w-0", cast.side === "right" ? "justify-end" : "justify-start"].join(" ")}
+          data-testid="story-bubble"
+          data-side={cast.side}
+          data-speaker={cast.id}
+        >
+          <div
+            className={[
+              "min-w-0 max-w-[85%] rounded-2xl px-3 py-2 text-sm sm:max-w-md",
+              cast.side === "right" ? "rounded-br-md bg-accent-soft" : "rounded-bl-md border border-line/70 bg-surface",
+            ].join(" ")}
+          >
+            <div className="text-[11px] font-semibold text-ink-faint">{castLabel(cast, learnerName)}</div>
+            <div className="break-words">
+              <GlossText
+                text={storyStep.hanzi!}
+                pinyin={storyStep.pinyin}
+                meaning={showMeaning ? storyStep.translationPt : undefined}
+                className="hanzi text-lg text-ink"
+                speakOnClick
+                examMode={!showMeaning}
+                disabled={!showMeaning}
+              />
+            </div>
+            {storyStep.pinyin ? <Pinyin text={storyStep.pinyin} className="block text-xs text-ink-soft" /> : null}
+            {showMeaning && storyStep.translationPt ? <div className="text-xs text-ink-soft">{storyStep.translationPt}</div> : null}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
+ * A vez atual. Com personagem: bolha do lado dele (aluno à direita, os outros
+ * à esquerda — sempre o mesmo lado na cena). Sem personagem: cartão neutro de
+ * prática (exercício não é fala de ninguém).
+ */
+function StoryTurn({
+  cast,
+  learnerName,
+  interactive,
+  children,
+}: {
+  cast: StoryCastMember | null;
+  learnerName: string;
+  interactive: boolean;
+  children: React.ReactNode;
+}) {
+  if (!cast || cast.narrator) {
+    return (
+      <Card className="overflow-hidden rounded-xl border-line/70 p-0 shadow-none" data-testid="story-practice-card">
+        <div className="space-y-3 p-3.5 sm:p-4">
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
+            {cast?.narrator ? "Contexto" : interactive ? "Prática" : "Leia e ouça"}
+          </div>
+          {children}
+        </div>
+      </Card>
+    );
+  }
+  return (
+    <div
+      className={["flex min-w-0 flex-col gap-2", cast.side === "right" ? "items-end" : "items-start"].join(" ")}
+      data-testid="story-current-turn"
+      data-side={cast.side}
+      data-speaker={cast.id}
+    >
+      <StorySpeakerLabel cast={cast} learnerName={learnerName} />
+      <div
+        className={[
+          "w-full min-w-0 space-y-3 rounded-2xl p-3.5 sm:max-w-xl sm:p-4",
+          cast.side === "right" ? "rounded-tr-md bg-accent-soft/60" : "rounded-tl-md border border-line/70 bg-surface",
+        ].join(" ")}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Depois da cena: as falas, com quem disse o quê, para rever. */
+function StoryRecap({ story, learnerName, studentName }: { story: InteractiveStory; learnerName: string; studentName?: string }) {
+  const lines = story.steps
+    .map((storyStep) => ({ storyStep: personalizeStoryStep(storyStep, studentName), cast: castForStorySpeaker(storyStep.speaker) }))
+    .filter((line): line is { storyStep: StoryStep; cast: StoryCastMember } => Boolean(line.cast && line.storyStep.hanzi));
+  if (!lines.length) return null;
+  return (
+    <section className="mx-auto mt-6 max-w-md text-left" data-testid="story-recap">
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Recapitulando a cena</div>
+      <ul className="mt-2 divide-y divide-line/60 rounded-2xl border border-line/70 bg-surface">
+        {lines.map(({ storyStep, cast }) => (
+          <li key={storyStep.id} className="flex min-w-0 items-start gap-3 px-3 py-2">
+            <span className="w-20 shrink-0 truncate pt-1 text-[11px] font-semibold text-ink-faint">{castLabel(cast, learnerName)}</span>
+            <div className="min-w-0">
+              <GlossText text={storyStep.hanzi!} pinyin={storyStep.pinyin} meaning={storyStep.translationPt} className="hanzi text-base text-ink" speakOnClick />
+              {storyStep.pinyin ? <Pinyin text={storyStep.pinyin} className="block text-xs text-ink-soft" /> : null}
+              {storyStep.translationPt ? <div className="text-xs text-ink-soft">{storyStep.translationPt}</div> : null}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
