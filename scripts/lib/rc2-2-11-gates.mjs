@@ -353,7 +353,7 @@ export function gateUsername(src) {
     [!/ilike[^;]*email|where[^;]*email\s*=/i.test(src.pendingSql), "BA: sem endpoint que liste perfis por email"],
     [!(src.__files ?? []).some((f) => /^supabase\/migrations\/.*username/i.test(f)), "BB: migration NÃO aplicada (fora de supabase/migrations)"],
     [!/"sign-in-identifier"/.test(src.edgeCatalog), "BB: Edge fora do catálogo de deploy"],
-    [/USERNAME_LOGIN_CLOUD_STATUS = "CODE_READY_AWAITING_CLOUD_APPLY"/.test(src.username) && /env\.VITE_USERNAME_LOGIN_ENABLED === "true"/.test(src.username), "BB: status CODE_READY_AWAITING_CLOUD_APPLY + flag desligada por padrão"],
+    [/USERNAME_LOGIN_CLOUD_STATUS = "CLOUD_APPLIED_FLAG_OFF"/.test(src.username) && /env\.VITE_USERNAME_LOGIN_ENABLED === "true"/.test(src.username), "BB: status CLOUD_APPLIED_FLAG_OFF + flag desligada por padrão"],
     [/if \(!usernameLoginCloudEnabled\(\)\)/.test(src.authService), "BB: sem backend aplicado, o cliente não chama a Edge"],
     noNewEngine(src, ["SocialAccountStore"]),
   ]);

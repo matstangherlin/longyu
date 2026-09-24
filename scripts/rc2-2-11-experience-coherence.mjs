@@ -365,9 +365,9 @@ const TESTS = {
       assert.equal(u.classifyLoginIdentifier("a").kind, "invalid");
       assert.equal(u.classifyLoginIdentifier("ana@").kind, "invalid");
     });
-    it(cases, "flag desligada por padrão (CODE_READY_AWAITING_CLOUD_APPLY)", () => {
+    it(cases, "flag desligada por padrão (CLOUD_APPLIED_FLAG_OFF)", () => {
       assert.equal(u.usernameLoginCloudEnabled({}), false);
-      assert.equal(u.USERNAME_LOGIN_CLOUD_STATUS, "CODE_READY_AWAITING_CLOUD_APPLY");
+      assert.equal(u.USERNAME_LOGIN_CLOUD_STATUS, "CLOUD_APPLIED_FLAG_OFF");
     });
     it(cases, "@handle nunca é email", () => {
       assert.equal(u.formatUsernameHandle("ana_li"), "@ana_li");

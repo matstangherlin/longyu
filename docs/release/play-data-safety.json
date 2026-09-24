@@ -9,7 +9,7 @@
   "deletionPaths": {
     "inApp": "Conta → Excluir conta na nuvem · Ajustes → Privacidade e dados (Edge Function delete-account)",
     "web": "https://singular-meringue-7838cd.netlify.app/privacidade#excluir-conta (produção atual; migra para https://longyu.com.br/privacidade#excluir-conta quando o domínio for apontado)",
-    "backendStatus": "delete-account já existe no backend de produção; username/identifier login seguem CODE_READY_AWAITING_CLOUD_APPLY"
+    "backendStatus": "delete-account já existe no backend de produção; username/identifier login: backend aplicado em produção (RC2.2.13), login por username desligado no app (CLOUD_APPLIED_FLAG_OFF)"
   },
   "items": [
     {

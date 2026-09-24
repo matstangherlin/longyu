@@ -5,20 +5,23 @@ script (`db:apply-api`, `apply-staging-migrations`, rehearsal efêmero) os aplic
 
 | Arquivo | Remessa | Status |
 |---|---|---|
-| `rc2-2-11-username-identifier.sql` | RC2.2.11 (username + login por identificador) | `CODE_READY_AWAITING_CLOUD_APPLY` |
+| `rc2-2-11-username-identifier.sql` | RC2.2.11 (username + login por identificador) | `CLOUD_APPLIED_FLAG_OFF`: aplicado em produção em 2026-09-24 (migration remota `rc2_2_11_username_identifier_login`) + Edge `sign-in-identifier` publicada; QA (#273) não; flag do app desligada |
 
-Para ativar o login por nome de usuário (owner):
+Estado em 2026-09-24 (RC2.2.13, autorizado pelo owner):
 
-1. Copiar `rc2-2-11-username-identifier.sql` para
-   `supabase/migrations/<timestamp>_username_identifier_login.sql`, registrar no
-   `docs/backend/migration-manifest.json` e regenerar os contratos
-   (`npm run generate:backend-contracts` / fluxo da v489).
-2. Aplicar no QA real (#273) e só depois em produção.
-3. Adicionar `sign-in-identifier` a `LONGYU_EDGE_FUNCTIONS`
-   (`scripts/lib/edge-functions.mjs`) e publicar a função.
-4. Definir `VITE_USERNAME_LOGIN_ENABLED=true` no build.
-5. Rodar a verificação ao vivo (email path + username path + erro genérico +
-   rate limit). Até lá o login por username **não** está certificado.
+- [x] SQL aplicado em **produção** (MandarimProject) como migration remota
+  `rc2_2_11_username_identifier_login` (mesmo corpo deste arquivo). Conferido:
+  `resolve_login_identity` e `check_and_record_login_rate` só para
+  `service_role`, `claim_own_username` só para `authenticated`, RLS ligada nas
+  duas tabelas novas, 80 nomes reservados, índice único e constraint v2.
+- [x] Edge `sign-in-identifier` publicada em produção (`verify_jwt = true`).
+- [ ] QA (#273): **não** aplicado (projeto inativo, fora do escopo).
+- [ ] Promover para `supabase/migrations/` + manifest + contratos: **adiado**
+  até a #273 reabrir (mudaria as 52 migrations do candidate congelado e os
+  hashes v478/v489).
+- [ ] `VITE_USERNAME_LOGIN_ENABLED=true`: **desligado**. Antes de ligar, rodar a
+  verificação ao vivo (email path + username path + erro genérico + rate limit).
+  Até lá o login por username **não** está certificado.
 
 Garantias do contrato: nunca existe endpoint público `username → email`;
 `resolve_login_identity` devolve só o id e só para `service_role`; a função
