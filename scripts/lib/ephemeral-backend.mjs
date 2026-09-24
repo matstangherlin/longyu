@@ -358,9 +358,21 @@ export function compareFrontendContracts(types, root) {
   const fromTables = [...joined.matchAll(/\.from\("([a-z0-9_]+)"\)/g)].map((match) => match[1]);
   const rpcNames = [...joined.matchAll(/\.rpc\("([a-z0-9_]+)"/g)].map((match) => match[1]);
   const missingTables = [...new Set(fromTables)].filter((name) => !types.tables?.[name]);
-  const missingRpcs = [...new Set(rpcNames)].filter(
+  // RPC declarada em supabase/pending/*.sql (código pronto, NÃO aplicado — o rehearsal
+  // não aplica pending de propósito) fica como pendente, não ausente. RPC que não existe
+  // em lugar nenhum continua falhando.
+  const pendingDir = path.join(root, "supabase", "pending");
+  const pendingSql = fs.existsSync(pendingDir)
+    ? fs.readdirSync(pendingDir).filter((name) => name.endsWith(".sql")).map((name) => fs.readFileSync(path.join(pendingDir, name), "utf8")).join("\n")
+    : "";
+  const pendingDefined = new Set(
+    [...pendingSql.matchAll(/create\s+(?:or\s+replace\s+)?function\s+public\.([a-z0-9_]+)\s*\(/gi)].map((match) => match[1])
+  );
+  const absentRpcs = [...new Set(rpcNames)].filter(
     (name) => !(types.rpcs ?? []).some((row) => row.name === name)
   );
+  const pendingRpcs = absentRpcs.filter((name) => pendingDefined.has(name));
+  const missingRpcs = absentRpcs.filter((name) => !pendingDefined.has(name));
   const ensure = (types.rpcs ?? []).find((row) => row.name === "ensure_own_profile");
   const ensureArgs = String(ensure?.args ?? "");
   const requiredEnsure = ["p_name", "p_birth_date", "p_country", "p_signup_source", "p_marketing_opt_in"];
@@ -370,7 +382,7 @@ export function compareFrontendContracts(types, root) {
       `TYPES FAIL missing_tables=${missingTables.join(",") || "-"} missing_rpcs=${missingRpcs.join(",") || "-"} ensure_args=${missingEnsureArgs.join(",") || "-"}`
     );
   }
-  return { tablesChecked: new Set(fromTables).size, rpcsChecked: new Set(rpcNames).size };
+  return { tablesChecked: new Set(fromTables).size, rpcsChecked: new Set(rpcNames).size, pendingRpcs };
 }
 
 export function auditSecurityDefiner(env) {
