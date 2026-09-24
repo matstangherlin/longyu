@@ -206,7 +206,7 @@ como afirmar "P0 = 0 / P1 = 0" no Android real.
 | `gate:rc2-2-11-experience-coherence` | PASS |
 | `gate:rc2-2-8-learning-gamification` / `gate:rc2-2-9-capability-closure` | PASS (dentro do `validate:beta`) |
 | typecheck / build | PASS |
-| `validate:beta` | VALIDATE_BETA_RESULT |
+| `validate:beta` | PASS — CI "Portão de qualidade (validate:beta + build)" on PR head `c6cc995d` (job 107636849053, 2026-09-24) |
 
 As 45 mutações, por área:
 
