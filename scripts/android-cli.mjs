@@ -228,7 +228,18 @@ const COMMANDS = {
     sync();
     requireBuildMatchesRelease(git);
     gradle("bundleRelease");
-    collectArtifacts(git, "release", [["aab", "app/build/outputs/bundle/release/app-release.aab"]], guard);
+    const provenance = collectArtifacts(git, "release", [["aab", "app/build/outputs/bundle/release/app-release.aab"]], guard);
+    // RC2.2.12 · Y — AAB assinado sem evidência de assinatura não existe:
+    // verifica (nunca debug key) e grava o SHA-256 público ao lado do AAB.
+    for (const file of provenance.files ?? provenance.artifacts ?? []) {
+      const aab = path.join(artifactsDir, file.name);
+      run(process.execPath, [
+        path.join(root, "scripts", "android-verify-signature.mjs"),
+        aab,
+        "--out",
+        aab.replace(/\.aab$/, ".signature.json"),
+      ]);
+    }
   },
 };
 

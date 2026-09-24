@@ -2083,6 +2083,15 @@ export const en: MessageCatalog = {
     noneYet: "You have not sent feedback from this account yet.",
   },
   privacyNotice: {
+    account:
+      "Account data: to create an account we ask for email, name, birth date, country and, optionally, how you found Longyu and whether you accept emails. They are used for login, minimum age, language, and communication you authorized.",
+    identity:
+      "Username: the @name you choose is your social identity (friends and leagues find you by it). It may be visible to other learners; your email is never shown and is never used to find you.",
+    microphone:
+      "Microphone: requested only when you tap “Speak”. Recognition uses the browser's or device's own speech service; on desktop, a recording stays in memory only so you can hear yourself and is gone when you leave. Longyu never uploads or stores the audio. Declining keeps the rest of the app working.",
+    deletionTitle: "How to delete your account",
+    deletionSteps:
+      "In the app: Account → Delete cloud account (or Settings → Privacy and data) and confirm. Without app access: email {email} from your account's address asking for deletion. We delete the account and cloud progress; you erase this device's data in Local data. Records required by law (for example, payments) may be kept for the legal period.",
     local:
       "Local data: learning progress, preferences, and queues stay on this device until you export, clear local data, or request deletion.",
     cloud:

@@ -1,0 +1,57 @@
+{
+  "schema": "longyu-android-physical-qa/1",
+  "wave": "RC2.2.12",
+  "status": "CODE_READY_AWAITING_PHYSICAL_DEVICE",
+  "note": "Preenchido SÓ por um humano com o aparelho na mão (docs/ANDROID_PHYSICAL_QA.md). Automação nunca escreve PASS aqui. Serial mascarado; nada de email, token ou gravação com dado pessoal.",
+  "sha": null,
+  "versionName": null,
+  "versionCode": null,
+  "artifact": null,
+  "deviceModel": null,
+  "deviceSerialMasked": null,
+  "androidVersion": null,
+  "isEmulator": null,
+  "testedAt": null,
+  "tester": null,
+  "debugOrRelease": null,
+  "coldStart": "NOT_RUN",
+  "splashIcon": "NOT_RUN",
+  "safeArea": "NOT_RUN",
+  "backNavigation": "NOT_RUN",
+  "keyboard": "NOT_RUN",
+  "audio": "NOT_RUN",
+  "microphone": "NOT_RUN",
+  "permissionDenial": "NOT_RUN",
+  "backgroundResume": "NOT_RUN",
+  "processDeath": "NOT_RUN",
+  "deepLinks": "NOT_RUN",
+  "externalLinks": "NOT_RUN",
+  "networkLoss": "NOT_RUN",
+  "fontScale": "NOT_RUN",
+  "talkback": "NOT_RUN",
+  "upgrade": "NOT_RUN",
+  "playInstall": "NOT_RUN",
+  "performance": {
+    "coldStartMs": null,
+    "firstInteractiveMs": null,
+    "lessonOpenMs": null,
+    "immersionOpenMs": null,
+    "atlasOpenMs": null
+  },
+  "knownRisks": [
+    {
+      "id": "ANDROID_SPEECH_RECOGNITION_UNVERIFIED",
+      "severity": "P1_CANDIDATE",
+      "detail": "A prática de fala usa a Web Speech API (SpeechRecognition). O Android System WebView costuma NÃO expor SpeechRecognition; nesse caso o botão Falar fica indisponível dentro do app Android. Verificar no aparelho; se confirmado, abrir P1 e decidir entre plugin nativo de fala ou esconder a prática no Android."
+    },
+    {
+      "id": "DEBUG_UPGRADE_KEY_MISMATCH",
+      "severity": "INFO",
+      "detail": "APKs debug de runs diferentes do CI têm debug keys diferentes: adb install -r de N+1 falha com INSTALL_FAILED_UPDATE_INCOMPATIBLE. O teste N→N+1 usa builds da MESMA máquina ou builds release assinados com a upload key."
+    }
+  ],
+  "p0Open": null,
+  "p1Open": null,
+  "bugs": [],
+  "formalPass": false
+}

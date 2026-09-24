@@ -2089,6 +2089,15 @@ export const ptBR = {
     noneYet: "Você ainda não enviou feedback nesta conta.",
   },
   privacyNotice: {
+    account:
+      "Dados da conta: para criar conta pedimos email, nome, data de nascimento, país e, opcionalmente, como conheceu o Longyu e se aceita emails. Servem para login, idade mínima, idioma e comunicação que você autorizou.",
+    identity:
+      "Nome de usuário: o @nome que você escolhe é a sua identidade social (amigos e ligas encontram você por ele). Ele pode aparecer para outros alunos; o email nunca aparece e nunca é usado para encontrar você.",
+    microphone:
+      "Microfone: só é pedido quando você toca em “Falar”. O reconhecimento usa o serviço de voz do próprio navegador ou aparelho; no computador, a gravação fica só na memória para você se ouvir e some ao sair. O Longyu não envia nem guarda o áudio. Recusar mantém o resto do app funcionando.",
+    deletionTitle: "Como excluir sua conta",
+    deletionSteps:
+      "No app: Conta → Excluir conta na nuvem (ou Ajustes → Privacidade e dados) e confirme. Sem acesso ao app: escreva para {email} a partir do email da conta pedindo a exclusão. Excluímos a conta e o progresso na nuvem; dados deste aparelho você apaga em Dados locais. Registros exigidos por lei (por exemplo, pagamentos) podem ser mantidos pelo prazo legal.",
     local:
       "Dados locais: progresso de aprendizagem, preferências e filas ficam neste dispositivo até você exportar, limpar dados locais ou solicitar exclusão.",
     cloud:

@@ -157,6 +157,8 @@ jobs:
         run: |
           aab=$(ls release-artifacts/*.aab)
           prov=$(ls release-artifacts/*.provenance.json)
+          # RC2.2.12 — sem evidência de assinatura (upload key, nunca debug) não há upload.
+          grep -q '"result": "SIGNED_WITH_UPLOAD_KEY"' release-artifacts/*.signature.json || { echo "SIGNATURE_EVIDENCE_MISSING"; exit 8; }
           node scripts/play-upload.mjs --aab "$aab" --provenance "$prov" --channel "$CHANNEL" \
             --confirm-production "$CONFIRM" --notes-file "$RUNNER_TEMP/release-notes.txt" \
             --out release-artifacts/play-upload-record.json
@@ -189,6 +191,7 @@ jobs:
           path: |
             release-artifacts/*.aab
             release-artifacts/*.provenance.json
+            release-artifacts/*.signature.json
             release-artifacts/play-upload-record.json
           if-no-files-found: error
           retention-days: 90
