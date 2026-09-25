@@ -233,7 +233,7 @@ adb install longyu-android-<N>.apk            # versão N
 # no app: criar progresso (lições, Review, Culture, streak), anotar estado
 adb install -r longyu-android-<N+1>.apk       # atualiza mantendo dados
 # conferir: progresso, SRS, conta, pérolas preservados; sem tela em branco
-adb shell dumpsys package com.longyu.app | grep versionCode
+adb shell dumpsys package longyu.noba.com | grep versionCode
 ```
 
 Registrar em `docs/release/evidence/` com aparelho, Android, versionCodes e

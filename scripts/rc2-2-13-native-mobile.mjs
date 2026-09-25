@@ -169,7 +169,7 @@ const MUTATIONS = {
     )],
     ["DL9. marco de 7 dias sem cópia própria", "STREAK_COPY_WRONG", src("reminderPlan", '  7: { title: "🔥 Uma semana de ofensiva"', '  70: { title: "🔥 Uma semana de ofensiva"')],
     ["DL10. risco genérico sem N", "STREAK_COPY_WRONG", src("reminderPlan", "{ title: `🔥 Sua ofensiva de ${n} dias está em risco`", '{ title: "🔥 Sua ofensiva está acesa"')],
-    ["DL11. toque fora da allowlist", "DEEP_LINK_NOT_ALLOWED", src("reminderPlan", 'REMINDER_URL_COMEBACK = "longyu.noba.com://revisao"', 'REMINDER_URL_COMEBACK = "com.longyu.app://admin"')],
+    ["DL11. toque fora da allowlist", "DEEP_LINK_NOT_ALLOWED", src("reminderPlan", 'REMINDER_URL_COMEBACK = "longyu.noba.com://revisao"', 'REMINDER_URL_COMEBACK = "longyu.noba.com://admin"')],
     ["DL12. alarme exato no agendamento", "EXACT_ALARM_SCHEDULE", src("nativeNotifications", "      // Lembrete de estudo não é alarme: agendamento inexato.\n      isExactNotification: false,", "      isExactNotification: true,")],
     ["DL13. reagendar sem cancelar", "DUPLICATE_REMINDERS", src("nativeNotifications", "  await cancelAllReminders();\n  if (!plan.length) return 0;", "  if (!plan.length) return 0;")],
     ["DL14. toque ignora o resolvedor", "TAP_BYPASSES_DEEP_LINK", src("bootstrap", "const route = url ? resolveDeepLink(url) : null;", "const route = url;")],

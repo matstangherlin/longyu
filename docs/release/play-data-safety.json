@@ -1,7 +1,7 @@
 {
   "schema": "longyu-play-data-safety/1",
-  "wave": "RC2.2.13",
-  "status": "INVENTORY_READY_NOT_SUBMITTED",
+  "wave": "RC2.2.16",
+  "status": "INVENTORY_READY_OWNER_SUBMITS",
   "note": "Inventário factual do código atual para preencher o formulário Data Safety do Play Console À MÃO. Nada é enviado automaticamente. 'collected' segue a definição da Play: dado transmitido para fora do aparelho. Dado só local não é coletado. Revisar sempre que o código mudar.",
   "encryptedInTransit": true,
   "encryptedInTransitDetail": "Todo tráfego do app vai por HTTPS (Supabase, Edge Functions). allowMixedContent=false no Capacitor.",
@@ -24,7 +24,10 @@
       "required": true,
       "optional": false,
       "deletion": "apagado com a conta (auth.users)",
-      "source": "cadastro / login"
+      "source": "cadastro / login",
+      "evidence": "src/services/authService.ts · supabase/functions/create-account",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "username",
@@ -38,7 +41,10 @@
       "required": false,
       "optional": true,
       "deletion": "apagado com a conta (profiles.username)",
-      "source": "cadastro (@nome); confirmação no servidor pendente de cloud apply"
+      "source": "cadastro (@nome); confirmação no servidor pendente de cloud apply",
+      "evidence": "src/lib/username.ts · supabase/functions/create-account",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "displayName",
@@ -53,7 +59,10 @@
       "required": true,
       "optional": false,
       "deletion": "apagado com a conta",
-      "source": "cadastro"
+      "source": "cadastro",
+      "evidence": "src/services/authService.ts (cadastro) · src/services/socialService.ts (perfil público)",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "birthDate",
@@ -67,7 +76,10 @@
       "optional": true,
       "deletion": "apagado com a conta",
       "source": "cadastro (ProfileDetailsFields)",
-      "note": "Opcional no cadastro; o app NÃO verifica idade hoje."
+      "note": "Opcional no cadastro; o app NÃO verifica idade hoje.",
+      "evidence": "src/components/auth/ProfileDetailsFields.tsx · supabase/functions/create-account",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "country",
@@ -80,7 +92,10 @@
       "required": false,
       "optional": true,
       "deletion": "apagado com a conta",
-      "source": "cadastro"
+      "source": "cadastro",
+      "evidence": "src/components/auth/ProfileDetailsFields.tsx · supabase/functions/create-account",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "marketingOptIn / signupSource",
@@ -94,7 +109,10 @@
       "required": false,
       "optional": true,
       "deletion": "apagado com a conta",
-      "source": "cadastro"
+      "source": "cadastro",
+      "evidence": "supabase/functions/create-account",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "learningProgress",
@@ -108,7 +126,10 @@
       "optional": false,
       "deletion": "apagado com a conta; cópia local apagável em Dados locais",
       "source": "sync da nuvem (user_progress)",
-      "detail": "lições, XP, liga, conquistas, economia (snapshot user_progress)"
+      "detail": "lições, XP, liga, conquistas, economia (snapshot user_progress)",
+      "evidence": "src/services/cloudSyncCoordinator.ts · src/services/syncService.ts (user_progress)",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "srsReviewState",
@@ -121,7 +142,10 @@
       "required": true,
       "optional": false,
       "deletion": "apagado com a conta",
-      "source": "parte do snapshot de progresso"
+      "source": "parte do snapshot de progresso",
+      "evidence": "src/lib/srs.ts (estado) · src/services/syncService.ts (snapshot)",
+      "encryptedInTransit": true,
+      "deletable": true
     },
     {
       "data": "pedagogyTelemetry",
@@ -135,7 +159,11 @@
       "optional": true,
       "consentRequired": true,
       "deletion": "revogar consentimento limpa a fila local; eventos enviados seguem a retenção do backend",
-      "source": "pedagogyEvents com consentimento explícito"
+      "source": "pedagogyEvents com consentimento explícito",
+      "evidence": "src/services/pedagogyEvents.ts · src/services/telemetryConsent.ts · supabase/migrations/20260808073233_erase_account_personal_data.sql",
+      "encryptedInTransit": true,
+      "deletable": true,
+      "deletableDetail": "apagados com a conta (trigger longyu_erase_personal_data_before_auth_delete remove beta_pedagogy_events); revogar o consentimento interrompe o envio"
     },
     {
       "data": "funnelEvents",
@@ -143,7 +171,12 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "CustomEvent só no aparelho (src/services/funnelEvents.ts); não é transmitido"
+      "detail": "CustomEvent só no aparelho (src/services/funnelEvents.ts); não é transmitido",
+      "evidence": "src/services/funnelEvents.ts (CustomEvent local)",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
     },
     {
       "data": "diagnostics",
@@ -151,7 +184,12 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "sessionStorage local e sanitizado; só sai se o usuário anexar ao feedback. Nesse caso entra em 'feedback'."
+      "detail": "sessionStorage local e sanitizado; só sai se o usuário anexar ao feedback. Nesse caso entra em 'feedback'.",
+      "evidence": "src/lib/clientDiagnostics.ts (sessionStorage local)",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
     },
     {
       "data": "feedback",
@@ -165,7 +203,11 @@
       "required": false,
       "optional": true,
       "deletion": "sob pedido pelo email de suporte",
-      "source": "formulário de feedback (ação explícita)"
+      "source": "formulário de feedback (ação explícita)",
+      "evidence": "src/services/feedbackService.ts · src/lib/feedback.ts · supabase/migrations/20260808073233_erase_account_personal_data.sql",
+      "encryptedInTransit": true,
+      "deletable": true,
+      "deletableDetail": "apagado com a conta (mesmo trigger remove beta_feedback) ou sob pedido pelo email de suporte"
     },
     {
       "data": "purchases",
@@ -173,7 +215,12 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "No app Android não há compra (checkout bloqueado até existir Google Play Billing). Na web, o checkout Stripe é externo; declarar quando o Play Billing entrar."
+      "detail": "No app Android não há compra (checkout bloqueado até existir Google Play Billing). Na web, o checkout Stripe é externo; declarar quando o Play Billing entrar.",
+      "evidence": "src/services/subscriptionService.ts (checkout bloqueado no nativo) · docs/release/android-billing-audit.json",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
     },
     {
       "data": "microphoneAudio",
@@ -181,7 +228,15 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "Android: SpeechRecognizer do sistema (on-device quando o aparelho oferece, API 31+); Web: Web Speech API. O Longyu não armazena a gravação e não envia áudio a servidor próprio; o reconhecimento pode ser processado pelo serviço de fala configurado no dispositivo. Declarar a permissão RECORD_AUDIO, não coleta."
+      "detail": "Android: SpeechRecognizer do sistema (on-device quando o aparelho oferece, API 31+); Web: Web Speech API. O Longyu não armazena a gravação e não envia áudio a servidor próprio; o reconhecimento pode ser processado pelo serviço de fala configurado no dispositivo. Declarar a permissão RECORD_AUDIO, não coleta.",
+      "evidence": "src/lib/speech.ts · android/app/src/main/java/longyu/noba/com/LongyuSpeechPlugin.java (SpeechRecognizer, sem gravação em arquivo)",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null,
+      "audioStored": false,
+      "microphoneUsed": true,
+      "speechRecognitionService": "serviço de reconhecimento de fala do dispositivo (SpeechRecognizer; on-device quando disponível, API 31+). O Longyu recebe só o texto reconhecido, usado na hora para corrigir o exercício."
     },
     {
       "data": "securityChallenge (Cloudflare Turnstile)",
@@ -195,7 +250,11 @@
       "required": true,
       "optional": false,
       "deletion": "retenção do provedor",
-      "source": "cadastro (src/lib/turnstile.ts)"
+      "source": "cadastro (src/lib/turnstile.ts)",
+      "evidence": "src/lib/turnstile.ts",
+      "encryptedInTransit": true,
+      "deletable": false,
+      "deletableDetail": "token efêmero; retenção do provedor"
     },
     {
       "data": "crashLogs",
@@ -203,7 +262,12 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "Sem SDK de crash/analytics de terceiros no app."
+      "detail": "Sem SDK de crash/analytics de terceiros no app.",
+      "evidence": "package.json (sem SDK de crash/analytics)",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
     },
     {
       "data": "advertisingId",
@@ -211,7 +275,12 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "Sem anúncios e sem AD_ID."
+      "detail": "Sem anúncios e sem AD_ID.",
+      "evidence": "package.json (sem SDK de anúncios) · AndroidManifest.xml (sem AD_ID)",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
     },
     {
       "data": "localNotifications",
@@ -219,7 +288,12 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "RC2.2.13: lembretes locais (@capacitor/local-notifications) agendados no aparelho a partir da ofensiva local. Sem push, sem Firebase, sem token de dispositivo, nada sai do aparelho. POST_NOTIFICATIONS; sem alarme exato."
+      "detail": "RC2.2.13: lembretes locais (@capacitor/local-notifications) agendados no aparelho a partir da ofensiva local. Sem push, sem Firebase, sem token de dispositivo, nada sai do aparelho. POST_NOTIFICATIONS; sem alarme exato.",
+      "evidence": "src/lib/platform/nativeNotifications.ts · src/lib/studyReminderPlan.ts",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
     },
     {
       "data": "textToSpeech",
@@ -227,13 +301,83 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "RC2.2.13: áudio mandarim pelo TextToSpeech do Android (motor configurado no aparelho). Só o texto da lição vai ao motor local; nada do aluno."
+      "detail": "RC2.2.13: áudio mandarim pelo TextToSpeech do Android (motor configurado no aparelho). Só o texto da lição vai ao motor local; nada do aluno.",
+      "evidence": "src/lib/platform/nativeSpeech.ts · LongyuSpeechPlugin.java (TextToSpeech local)",
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null
+    },
+    {
+      "data": "streak",
+      "playCategory": "App activity → Other actions",
+      "collected": true,
+      "shared": false,
+      "visibleToOtherUsers": true,
+      "purpose": [
+        "app functionality (ofensiva, ligas, amigos)"
+      ],
+      "required": true,
+      "optional": false,
+      "encryptedInTransit": true,
+      "deletable": true,
+      "deletion": "apagado com a conta",
+      "source": "snapshot de progresso · profiles.public_streak",
+      "evidence": "src/lib/streak.ts · supabase/migrations/005_social.sql (public_streak)"
+    },
+    {
+      "data": "achievements",
+      "playCategory": "App activity → Other actions",
+      "collected": true,
+      "shared": false,
+      "visibleToOtherUsers": true,
+      "purpose": [
+        "app functionality (medalhas no perfil)"
+      ],
+      "required": true,
+      "optional": false,
+      "encryptedInTransit": true,
+      "deletable": true,
+      "deletion": "apagado com a conta",
+      "source": "user_achievements / snapshot de progresso",
+      "evidence": "supabase/migrations/001_initial_schema.sql (user_achievements) · src/lib/profileShowcase.ts"
+    },
+    {
+      "data": "entitlementStatus",
+      "playCategory": "— (leitura do plano, não coleta de compra)",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null,
+      "detail": "O app Android só LÊ do servidor se a conta é Pro (compra feita na web). Não transmite dado de pagamento. Se o Play Billing entrar, declarar Purchase history.",
+      "evidence": "src/services/entitlementService.ts · src/lib/entitlements.ts"
+    },
+    {
+      "data": "notificationPreferences",
+      "playCategory": "— (fica no aparelho)",
+      "collected": false,
+      "shared": false,
+      "purpose": [],
+      "required": false,
+      "optional": false,
+      "encryptedInTransit": null,
+      "deletable": null,
+      "detail": "Preferências de lembrete ficam no store local; lembretes são locais (sem token de push).",
+      "evidence": "src/lib/studyReminderPlan.ts (DEFAULT_REMINDER_PREFS)"
     }
   ],
-  "ads": false,
+  "ads": {
+    "containsAds": false,
+    "evidence": "package.json sem SDK de anúncios (AdMob/Ads/Mediation); AndroidManifest.xml sem com.google.android.gms.permission.AD_ID",
+    "note": "Promoções internas (Ver Pro, ofertas do Longyu) não são anúncios de terceiros para a declaração da Play."
+  },
   "thirdPartyProcessors": [
     "Supabase (backend/auth, operador)",
     "Cloudflare Turnstile (segurança no cadastro)",
     "Netlify (hospedagem web; não participa do app Android)"
-  ]
+  ],
+  "schemaNote": "RC2.2.16: toda entrada declara collected, shared, purpose, required, optional, encryptedInTransit, deletable e evidence (arquivo do código que justifica a resposta). Nada foi respondido por suposição; o owner transcreve à mão no Play Console."
 }

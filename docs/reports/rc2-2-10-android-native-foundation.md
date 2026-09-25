@@ -1,5 +1,9 @@
 # RC2.2.10 — Android Native Foundation & Signing Readiness
 
+> **SUPERSEDED (RC2.2.16):** este relatório é histórico. O package Android
+> `com.longyu.app` citado abaixo foi substituído por `longyu.noba.com`, o package
+> do app no Google Play Console (`docs/release/android-package-identity.json`).
+
 > Public Beta continua **NO-GO**. Esta remessa cria a fundação Android
 > (Capacitor) do MESMO Longyu. Não certifica aparelho físico, release assinado,
 > Play Console nem nada de cloud (#273 intocada).

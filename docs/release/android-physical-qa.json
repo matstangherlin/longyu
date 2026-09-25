@@ -92,5 +92,113 @@
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.14B"
+  "extendedBy": "RC2.2.16",
+  "playBuild": {
+    "note": "RC2.2.16 — QA repetido no build DISTRIBUÍDO PELA PLAY (Internal testing), nunca só debug/adb. PASS exige: instalação pela Play Store (installer com.android.vending), aparelho físico, testedAt e evidência por teste.",
+    "packageName": "longyu.noba.com",
+    "legacyPackageUninstalled": "NOT_RUN",
+    "installedFromPlay": "NOT_RUN",
+    "installSource": null,
+    "installEvidence": null,
+    "playTrack": null,
+    "playVersionCode": null,
+    "playVersionName": null,
+    "playSigningFingerprint": null,
+    "uploadSigningFingerprint": null,
+    "firstPlayInstall": "NOT_RUN",
+    "playUpgrade": "NOT_RUN",
+    "playUpgradeFromVersionCode": null,
+    "playUpgradeToVersionCode": null,
+    "billingSurfaceAudit": "NOT_RUN",
+    "tests": {
+      "firstLaunch": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "safeArea": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "keyboard": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "tts": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "speech": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "haptics": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "hapticsToggleOff": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "notifications": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "courseDirection": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "culture": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "review": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "hanzi": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "backgroundResume": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "processDeath": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "offline": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "crashFree": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "anr": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      }
+    },
+    "dailyVocabulary": "DAILY_VOCABULARY_DEFERRED",
+    "p0Open": null,
+    "p1Open": null
+  }
 }

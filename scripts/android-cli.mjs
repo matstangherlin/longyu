@@ -230,6 +230,14 @@ function collectArtifacts(git, buildType, outputs, extra = {}) {
   return { ...provenance, provenancePath };
 }
 
+/** RC2.2.16 · AF — depois de registrada, a upload key é a ÚNICA aceita (google-play-internal.json). */
+function registeredUploadCert() {
+  const fromEnv = process.env.LONGYU_ANDROID_UPLOAD_CERT_SHA256?.trim();
+  if (fromEnv) return fromEnv;
+  const file = path.join(root, "docs", "release", "google-play-internal.json");
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")).uploadCertificateSha256 || null : null;
+}
+
 const DEBUG_OUTPUTS = [
   ["apk", "app/build/outputs/apk/debug/app-debug.apk"],
   ["aab", "app/build/outputs/bundle/debug/app-debug.aab"],
@@ -280,7 +288,8 @@ const COMMANDS = {
     for (const file of provenance.files ?? []) {
       const aab = path.join(artifactsDir, file.name);
       const signaturePath = aab.replace(/\.aab$/, ".signature.json");
-      run(process.execPath, [path.join(root, "scripts", "android-verify-signature.mjs"), aab, "--out", signaturePath]);
+      const pin = registeredUploadCert();
+      run(process.execPath, [path.join(root, "scripts", "android-verify-signature.mjs"), aab, "--out", signaturePath, ...(pin ? ["--expect-cert", pin] : [])]);
       // RC2.2.16 · AH — proveniência completa: package, SHA, versão, builtAt, SHA-256 do arquivo e do certificado.
       const signature = JSON.parse(fs.readFileSync(signaturePath, "utf8"));
       recorded.signingCertificateSha256 = signature.certificateSha256;

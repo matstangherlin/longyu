@@ -2,7 +2,7 @@
 /**
  * RC2.2.12 · X/Y — verifica a assinatura de um AAB/APK de release.
  *
- *   node scripts/android-verify-signature.mjs <arquivo.aab|apk> [--out <evidência.json>]
+ *   node scripts/android-verify-signature.mjs <arquivo.aab|apk> [--out <evidência.json>] [--expect-cert <SHA-256>]
  *
  * Usa `keytool -printcert -jarfile` (JDK; funciona para AAB, que é assinado no
  * esquema JAR). Registra só o que é PÚBLICO: dono do certificado e SHA-256.
@@ -10,6 +10,8 @@
  *   - não houver assinatura                      → UNSIGNED
  *   - a assinatura for a debug key do Android    → DEBUG_KEY_IN_RELEASE
  *   - o arquivo não existir                      → MISSING_ARTIFACT
+ *   - RC2.2.16: o certificado não for o da upload key registrada
+ *     (--expect-cert / LONGYU_ANDROID_UPLOAD_CERT_SHA256)  → UPLOAD_CERT_MISMATCH
  * Nunca lê nem imprime senha.
  */
 import fs from "node:fs";
@@ -31,9 +33,10 @@ export function parsePrintcert(output) {
   return { owner, sha256, unsigned, debugKey };
 }
 
-export function signatureVerdict(parsed) {
+export function signatureVerdict(parsed, expectedCertSha256 = null) {
   if (parsed.unsigned) return { ok: false, code: "UNSIGNED" };
   if (parsed.debugKey) return { ok: false, code: "DEBUG_KEY_IN_RELEASE" };
+  if (expectedCertSha256 && parsed.sha256 !== String(expectedCertSha256).toUpperCase()) return { ok: false, code: "UPLOAD_CERT_MISMATCH" };
   return { ok: true, code: "SIGNED_WITH_UPLOAD_KEY" };
 }
 
@@ -42,19 +45,22 @@ if (isMain) {
   const file = process.argv[2];
   const outIndex = process.argv.indexOf("--out");
   const out = outIndex > 0 ? process.argv[outIndex + 1] : null;
+  const certIndex = process.argv.indexOf("--expect-cert");
+  const expectedCert = (certIndex > 0 ? process.argv[certIndex + 1] : process.env.LONGYU_ANDROID_UPLOAD_CERT_SHA256)?.trim() || null;
   if (!file || !fs.existsSync(file)) {
     console.error("MISSING_ARTIFACT: informe um .aab/.apk existente");
     process.exit(2);
   }
   const result = spawnSync("keytool", ["-printcert", "-jarfile", file], { encoding: "utf8" });
   const parsed = parsePrintcert(`${result.stdout ?? ""}\n${result.stderr ?? ""}`);
-  const verdict = signatureVerdict(parsed);
+  const verdict = signatureVerdict(parsed, expectedCert);
   const evidence = {
     schema: SIGNATURE_SCHEMA,
     artifact: path.basename(file),
     artifactSha256: createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
     certificateOwner: parsed.owner,
     certificateSha256: parsed.sha256,
+    expectedUploadCertSha256: expectedCert,
     result: verdict.code,
     checkedAt: new Date().toISOString(),
   };

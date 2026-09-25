@@ -1,14 +1,21 @@
-# Play Console: checklist operacional (RC2.2.12)
+# Play Console: checklist operacional (RC2.2.12 · RC2.2.16)
 
-> **Status:** `BLOCKED_PLAY_CONSOLE_SETUP`. O app ainda não existe no Play Console.
-> Nada aqui foi enviado ou publicado. Production é **sempre** manual.
+> **Status (RC2.2.16):** o owner informou que o app existe no Play Console com o
+> package `longyu.noba.com`. Nenhum AAB foi enviado, nenhuma release interna foi
+> criada e nada foi publicado. Production é **sempre** manual.
+> Estado conferido pelo owner: `docs/release/play-console-status.json`.
+> Estado do Internal testing: `docs/release/google-play-internal.json`.
+
+**Estados separados (não confundir):** app criado ≠ identidade do desenvolvedor
+verificada ≠ package registrado ≠ Play App Signing configurado ≠ release interna
+criada ≠ AAB enviado ≠ app instalado pela Play. Cada um é conferido à parte.
 
 ## 1. Ficha do app
 
 | Campo | Valor |
 |---|---|
 | App name | **Longyu** |
-| Package | `com.longyu.app` (não muda nunca; ver `docs/ANDROID_UPGRADE.md`) |
+| Package | `longyu.noba.com` (package do app no Play; congelado em `docs/release/android-package-identity.json`) |
 | Idioma padrão | Português (Brasil), pt-BR |
 | App ou jogo / categoria | App · **Educação** |
 | Contato do desenvolvedor | email de suporte `beta@longyu.app` (confirmar que recebe) · site: domínio de produção |
@@ -75,12 +82,18 @@ placeholders, "Pro" que não dá para comprar no Android.
 `PLAY_STORE_FEATURE_GRAPHIC_REQUIRED`**: não existe arte final e não será
 inventada. O ícone monocromático segue `ANDROID_BRAND_ASSET_REQUIRED`.
 
-## 5. Pagamentos (política da Play)
+## 5. Pagamentos (política da Play): `ANDROID_IN_APP_PURCHASE = DISABLED_FOR_BETA`
 
 Bem digital vendido **dentro** do app Android exige Google Play Billing. Até ele
 existir, o app Android **não** abre checkout externo (Stripe) nem portal de
 cobrança (`ANDROID_CHECKOUT_UNAVAILABLE_MESSAGE` em `subscriptionService.ts`).
 Assinantes Pro continuam Pro, porque o plano é verificado no servidor. A web não muda.
+
+RC2.2.16: no Android, a página de planos não mostra preço, botão de assinar nem
+portal de cobrança; mostra "Nesta Beta, o app Android não vende assinaturas nem
+itens pagos". Qi, Pérolas, passes e cosméticos só se ganham no app (nenhuma
+moeda é vendida por dinheiro). Catálogo completo das superfícies:
+`docs/release/android-billing-audit.json`.
 
 ## 6. Acesso para revisores da Play (AJ)
 
@@ -96,40 +109,86 @@ O Longyu exige conta. A Play precisa de uma conta de teste que funcione.
 Login por **nome de usuário** está desligado (`VITE_USERNAME_LOGIN_ENABLED=false`,
 `CLOUD_APPLIED_FLAG_OFF`: backend aplicado, flag desligada). O revisor entra com **email**.
 
-## 7. Internal Testing: primeiro upload (AK–AM)
+## 7. Internal Testing: primeiro upload (RC2.2.16)
 
-Pré-requisitos, todos reais e sem simulação:
+**HARD STOP antes de qualquer upload:**
 
-- [ ] app criado no Play Console com o package `com.longyu.app` e **Play App Signing** ativado
-- [ ] upload key criada e com backup (`docs/ANDROID_SIGNING.md` §9)
-- [ ] secrets do GitHub: `LONGYU_ANDROID_KEYSTORE_BASE64`, `LONGYU_ANDROID_KEYSTORE_PASSWORD`, `LONGYU_ANDROID_KEY_ALIAS`, `LONGYU_ANDROID_KEY_PASSWORD`
-- [ ] service account com acesso ao app e secret `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`
-- [ ] **primeiro AAB enviado à mão** no Play Console (a API do Play não cria o app, e a primeira versão costuma precisar do upload manual)
-- [ ] lista de testers internos (emails) cadastrada
+- [ ] package confirmado **visualmente** no Play Console = `longyu.noba.com`
+      (se aparecer outro: não enviar, não criar segundo app)
+- [ ] upload key criada pelo owner (`npm run android:keystore:init -- --path <fora do repo>/longyu-upload.jks --alias longyu-upload --confirm CRIAR-UPLOAD-KEY`)
+- [ ] backup checklist completo (`docs/ANDROID_SIGNING.md` §9 e `google-play-internal.json` → `backupChecklist`):
+      keystore local, backup seguro 1, backup seguro 2, alias, senha do store, senha da chave, Git ignore, `git status` limpo
+- [ ] AAB release assinado e verificado: `SIGNED_WITH_UPLOAD_KEY`, package `longyu.noba.com` lido do bundle
+- [ ] SHA + versionName + versionCode + package registrados em `google-play-internal.json` → `releaseIdentity` **antes** do upload
 
-Depois: Actions → **Android release (manual)** → `channel = internal`. O workflow:
+Se qualquer item faltar: **STOP FIRST PLAY UPLOAD**.
 
-- recusa tudo que não venha de `main` por acionamento manual;
-- verifica a assinatura (`*.signature.json` = `SIGNED_WITH_UPLOAD_KEY`);
-- recusa versionCode repetido;
-- envia para o track **internal**;
-- grava `play-upload-record.json`.
+**Play App Signing (primeiro release):** escolha a chave de assinatura do app
+**gerada e gerenciada pelo Google**. O owner guarda só a **upload key**.
+Depois, registre os dois fingerprints públicos (Play Console → Integridade do
+app → Assinatura do app):
 
-Copie esse registro para `docs/release/android-release-ledger.json`.
+| Certificado | Quem guarda | Onde registrar |
+|---|---|---|
+| Upload certificate SHA-256 | owner (upload key) | `google-play-internal.json` → `uploadCertificateSha256` |
+| App signing certificate SHA-256 | Google | `google-play-internal.json` → `appSigningCertificateSha256` |
+
+São **diferentes**, e isso é o esperado. App Links HTTPS futuros
+(`assetlinks.json`) usam o fingerprint da **app signing key do Play**, não só o
+da upload key. Depois de registrado, `android:bundle:release` só aceita AAB
+assinado com aquele upload certificate (`UPLOAD_CERT_MISMATCH`).
+
+**Caminho A: primeiro upload MANUAL (permitido).** Se a Play API ainda não
+estiver pronta, o owner envia o `.aab` pelo Play Console (Testes → Teste
+interno → Criar versão). Registre no ledger (`docs/release/android-release-ledger.json`)
+**só depois** do upload real:
+
+```json
+{ "packageName": "longyu.noba.com", "versionCode": 0, "versionName": "0.2.0-beta.1",
+  "sha": "<SHA completo>", "track": "internal", "uploadedAt": "<ISO 8601>",
+  "source": "MANUAL_INTERNAL_UPLOAD" }
+```
+
+**Caminho B: workflow.** Com `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` válido no
+environment `android-internal`: Actions → **Android release (manual)** →
+`channel = internal`. O workflow recusa tudo que não venha de `main` por
+acionamento manual, confere o package do AAB, verifica a assinatura, recusa
+versionCode repetido, envia ao track **internal** e grava
+`play-upload-record.json` (copie para o ledger com `source: "PLAY_API_UPLOAD"`).
+Sem a service account o status é `PLAY_API_AUTOMATION_BLOCKED`, **não**
+`APP_RELEASE_BLOCKED`: o caminho A continua valendo.
+
+**GitHub Environments** (Settings → Environments; hoje não existem):
+
+- `android-internal`: `LONGYU_ANDROID_KEYSTORE_BASE64`, `LONGYU_ANDROID_KEYSTORE_PASSWORD`,
+  `LONGYU_ANDROID_KEY_ALIAS`, `LONGYU_ANDROID_KEY_PASSWORD` e, opcional,
+  `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`. O base64 do keystore é **só secret**, nunca artifact.
+- `android-production`: criado agora, **não usado nesta onda**, com required reviewer.
+
+**Testers internos:** owner + contas de QA confiáveis (emails só no Play Console).
+Internal testing é smoke antes do teste fechado, não o substitui.
+
+**Notas da versão (curtas, sem segredo, sem SHA completo, sem infra):**
+
+> Primeira versão de teste interno do Longyu para Android.
 
 | Faltando | Resultado honesto |
 |---|---|
 | secrets de assinatura | `BLOCKED_SIGNING_SECRETS` (exit 4, nenhum AAB) |
-| service account | `BLOCKED_PLAY_CREDENTIALS` (AAB assinado vira artifact; nenhum upload) |
-| app no Play Console | `BLOCKED_PLAY_CONSOLE_SETUP` |
+| service account | `PLAY_API_AUTOMATION_BLOCKED` (upload manual continua possível) |
+| package não confirmado no Console | STOP (nenhum upload) |
 
-## 8. Instalar pela Play (AN/AO)
+## 8. Instalar pela Play (RC2.2.16)
 
 Depois do **primeiro upload real** para internal:
 
-1. No aparelho físico, aceite o convite de tester (link do Play Console) com a conta Google do tester.
-2. Instale pela **Play Store** (não por `adb`) e repita o smoke de `docs/ANDROID_PHYSICAL_QA.md` §2. Registre `playInstall`.
-3. **Upgrade pela Play:** publique N+1 no internal, atualize pela Play Store e confirme que o estado de N sobreviveu (`docs/ANDROID_UPGRADE.md` §2.6). É o teste de upgrade mais importante.
+1. No aparelho físico, desinstale qualquer Longyu de desenvolvimento antigo (outro package).
+2. Aceite o convite de tester com a conta Google do tester e instale pela **Play Store** (não por `adb`).
+3. `npm run android:play-install:verify`: precisa dar `INSTALLED_FROM_PLAY` (package, versão, installer
+   `com.android.vending`, certificado = app signing key da Play).
+4. Repita o QA essencial no build da Play: `docs/ANDROID_PHYSICAL_QA.md` §6.
+5. **Upgrade pela Play:** publique N+1 no internal, atualize pela Play Store e confirme que o estado de N
+   sobreviveu (`docs/ANDROID_UPGRADE.md`). Rollback = correção + versionCode maior, nunca downgrade.
 
 ## 9. Production
 
