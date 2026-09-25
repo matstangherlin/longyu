@@ -100,16 +100,17 @@ Columns:
 ## 6. Mobile landing (A–I)
 
 - The Android app always gets `MobileWelcome`; the web gets it below `lg`.
-- Header: `--app-safe-top`, 🐉 Longyu and "🌐 PT-BR" (opens a language sheet).
+- Header: `--app-safe-top` and 🐉 Longyu. The first 2.2.14 commit had a "🌐 PT-BR" language sheet here. **RC2.2.14B removed it**: the interface now follows the system language, and the course is chosen on `/curso`. See `docs/reports/rc2-2-14b-locale-course-direction.md`.
 - Order: dragon → short promise → **"Fazer teste guiado · 2 min"** → discreet "Já tenho uma conta".
 - Out of the first fold: the 4 benefit cards, the long BetaNotice, the theme toggle (now in Settings › Aparência) and the footer. Legal links and the version stay below the fold.
 - Desktop keeps the two-column landing and adds a guided-try link.
-- E2E: 5 viewports (360×740, 360×800, 390×844, 412×915, 432×960) confirm the first fold holds everything above and none of the removed items; the language sheet switches to EN.
+- E2E: 5 viewports (360×740, 360×800, 390×844, 412×915, 432×960) confirm the first fold holds everything above and none of the removed items, and that the landing has no language control (RC2.2.14B).
 
 ## 7. Guided Mandarin Try (J–P)
 
 - `/teste-guiado` has 5 micro-steps built from Lesson 1 data (`chunkById.nihao`, `charById.ni/hao/nv/zi`): hear 你好 → 你 + 好 → question → pinyin/tones (nǐ hǎo → ní hǎo) → build 好 = 女 + 子.
 - End screen: "O que você acabou de aprender" and "Criar conta e continuar" (→ `/comecar`).
+- Since RC2.2.14B, `/teste-guiado` needs a chosen course; without one it redirects to `/curso`. Teaching copy follows the course, and the chrome follows the interface language.
 - It is not Placement and writes nothing. The E2E checks `localStorage` before and after: no account, completion, XP, streak or SRS.
 - Haptics: light on selection/piece, success on correct and finish (Android only).
 
