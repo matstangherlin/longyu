@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DailyWordTodayCard } from "../../components/vocabulary/DailyWordCards";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
@@ -449,6 +450,9 @@ export function JourneyPage() {
             completedCount={doneCount}
             totalLessons={ALL_LESSONS.length}
           />
+
+          {/* RC2.2.15 — Palavra de hoje: pequena, depois de Continuar e Revisão. */}
+          <DailyWordTodayCard />
 
           <div className="flex justify-end">
             <Button

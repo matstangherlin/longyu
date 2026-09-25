@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { DailyDiscoveries } from "../../components/vocabulary/DailyWordCards";
+import { hanziOriginNote } from "../../data/hanziOrigins";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { HANZI_ATLAS, filterAtlas, type HanziAtlasItem } from "../../data/hanziAtlas";
 import {
@@ -249,6 +251,9 @@ export function HanziAtlasPage() {
         </ButtonLink>
         </div>
       </div>
+
+      {/* RC2.2.15 — Descobertas da Palavra do dia (só aparece quando há). */}
+      <DailyDiscoveries />
 
       {/* Cabeçalho de uma linha: a busca do dicionário fica acima da dobra.
           Todo o conteúdo didático continua aqui dentro, a um toque. */}
@@ -723,6 +728,7 @@ function HanziDetailModal({
   const related = relatedAtlasCharacters(item);
   const radical = item.radical ? radicalById[item.radical] : undefined;
   const phonetic = item.phonetic ? radicalById[item.phonetic] : undefined;
+  const origin = hanziOriginNote(item.hanzi);
   const components = item.components ?? [];
   const senseParts = components
     .filter((componentId) => componentId !== item.phonetic)
@@ -813,9 +819,18 @@ function HanziDetailModal({
               </div>
             )}
 
+            {/* RC2.2.15 · R–T — origem só com fonte; mnemônico é "Dica para lembrar". */}
+            {origin && (
+              <div className="rounded-2xl border border-line bg-surface px-4 py-3 text-sm" data-testid="atlas-origin" data-story-status="VERIFIED_HISTORICAL">
+                <div className="font-semibold text-ink">Origem do caractere</div>
+                <p className="mt-1 text-ink-soft">{origin.notePt}</p>
+                <p className="mt-1 text-xs text-ink-faint">Fonte: {origin.sources.map((source) => `${source.title} — ${source.detail}`).join("; ")}</p>
+              </div>
+            )}
             {item.mnemonicPt && (
-              <div className="rounded-2xl bg-accent-soft/55 px-4 py-3 text-sm text-ink">
-                {item.mnemonicPt}
+              <div className="rounded-2xl bg-accent-soft/55 px-4 py-3 text-sm text-ink" data-testid="atlas-mnemonic" data-story-status="PEDAGOGICAL_MNEMONIC">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Dica para lembrar</div>
+                <p className="mt-1">{item.mnemonicPt}</p>
               </div>
             )}
 

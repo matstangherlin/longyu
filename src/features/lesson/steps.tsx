@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LessonStep, StepTextType } from "../../data/journey";
 import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
@@ -194,6 +194,22 @@ function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }
   );
 }
 
+/**
+ * RC2.2.15 — "+Qi" só onde Qi é pago de verdade (lição). A Palavra do dia
+ * reusa os passos sem Qi: o feedback diz só "Certo!"/"Boa!".
+ */
+const StepQiContext = createContext(true);
+export function StepQiProvider({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  return <StepQiContext.Provider value={enabled}>{children}</StepQiContext.Provider>;
+}
+function useQiFeedback() {
+  const qi = useContext(StepQiContext);
+  return {
+    correct: () => (qi ? t("player.correct") : t("player.correctPlain")),
+    nice: () => (qi ? t("player.almostQi") : t("player.nicePlain")),
+  };
+}
+
 function SkipStepButton({ onSkip, className = "mt-3" }: { onSkip?: () => void; className?: string }) {
   if (!onSkip) return null;
   return (
@@ -286,6 +302,7 @@ function AnswerFeedback({
   hint?: string;
   onContinue: () => void;
 }) {
+  const qiFeedback = useQiFeedback();
   useFeedbackTargetAudio({ stepId: `answer:${hanzi}`, correct, target: hanzi });
   return (
     <div
@@ -304,7 +321,7 @@ function AnswerFeedback({
           ].join(" ")}
         >
           {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-          {correct ? t("player.correct") : t("player.almost")}
+          {correct ? qiFeedback.correct() : t("player.almost")}
         </div>
         <MandarinText
           hanzi={hanzi}
@@ -1128,6 +1145,7 @@ function isWriteAnswerCorrect(
 }
 
 function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
+  const qiFeedback = useQiFeedback();
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState<WriteStatus>(null);
   const [modelVisible, setModelVisible] = useState(false);
@@ -1421,7 +1439,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
             ].join(" ")}
           >
             {status === "correct" ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
-            {status === "correct" ? t("player.almostQi") : t("player.almost")}
+            {status === "correct" ? qiFeedback.nice() : t("player.almost")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {status === "correct"
@@ -1826,6 +1844,7 @@ function EngineFeedbackPanel({
   onRetry: () => void;
   onContinue: () => void;
 }) {
+  const qiFeedback = useQiFeedback();
   if (!status) return null;
   if (status === "wrong" && deferMistakeToParent) return null;
 
@@ -1856,7 +1875,7 @@ function EngineFeedbackPanel({
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : unrecognized ? null : <IconX width={18} height={18} />}
-        {correct ? t("player.almostQi") : unrecognized ? t("player.unrecognizedForm") : t("player.almost")}
+        {correct ? qiFeedback.nice() : unrecognized ? t("player.unrecognizedForm") : t("player.almost")}
       </div>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
         {correct

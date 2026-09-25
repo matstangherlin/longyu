@@ -35,6 +35,11 @@ export function PracticeCompletion({
   formsReviewed,
   onContinue,
   hubTo = "/ideogramas",
+  title,
+  reviewNote,
+  xpCappedNote,
+  continueLabel,
+  hubLabel,
 }: {
   roundKey: string;
   correct: number;
@@ -46,6 +51,12 @@ export function PracticeCompletion({
   formsReviewed: number;
   onContinue: () => void;
   hubTo?: string;
+  /** RC2.2.15 — reuso fora do Hànzì (Palavra do dia): textos da tela, nunca recompensa. */
+  title?: string;
+  reviewNote?: string | null;
+  xpCappedNote?: string;
+  continueLabel?: string;
+  hubLabel?: string;
 }) {
   const { t, instructionLocale } = useTranslation();
   const rewards: ChestRewardItem[] = [
@@ -69,7 +80,7 @@ export function PracticeCompletion({
       <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]">
         <IconCheck width={26} height={26} />
       </div>
-      <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">{t("hanziHub.roundDone")}</h2>
+      <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">{title ?? t("hanziHub.roundDone")}</h2>
       <p className="mt-1 font-serif text-3xl font-semibold tabular-nums text-ink" data-practice-score>
         {correct}/{total}
       </p>
@@ -81,7 +92,7 @@ export function PracticeCompletion({
       )}
       {xp === 0 && xpCapped && (
         <p className="mt-4 w-full rounded-2xl bg-surface-2 px-4 py-3 text-sm text-ink-soft" data-practice-xp-capped>
-          {t("hanziHub.xpCapped")}
+          {xpCappedNote ?? t("hanziHub.xpCapped")}
         </p>
       )}
 
@@ -106,19 +117,21 @@ export function PracticeCompletion({
         </ul>
       )}
 
-      {formsReviewed > 0 && (
-        <p className="mt-3 text-sm text-ink-soft">{t("hanziHub.formsReviewed", { count: formsReviewed })}</p>
+      {reviewNote ? (
+        <p className="mt-3 text-sm text-ink-soft" data-practice-review-note>{reviewNote}</p>
+      ) : (
+        formsReviewed > 0 && <p className="mt-3 text-sm text-ink-soft">{t("hanziHub.formsReviewed", { count: formsReviewed })}</p>
       )}
 
       <div className="mt-6 grid w-full gap-2">
         <Button size="lg" className="w-full shadow-lift" onClick={onContinue} data-practice-continue>
-          {t("hanziHub.keepTraining")}
+          {continueLabel ?? t("hanziHub.keepTraining")}
         </Button>
         <Link
           to={hubTo}
           className="inline-flex min-h-12 items-center justify-center text-sm font-semibold text-ink-soft hover:text-ink"
         >
-          {t("hanziHub.changeMode")}
+          {hubLabel ?? t("hanziHub.changeMode")}
         </Link>
       </div>
     </section>

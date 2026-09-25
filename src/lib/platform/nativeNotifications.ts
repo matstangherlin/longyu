@@ -10,6 +10,12 @@
 import { LocalNotifications, type PermissionStatus } from "@capacitor/local-notifications";
 import type { PluginListenerHandle } from "@capacitor/core";
 import { ALL_REMINDER_IDS, type PlannedReminder } from "../studyReminderPlan";
+import {
+  DAILY_VOCABULARY_CHANNEL,
+  DAILY_VOCABULARY_DEV_ID,
+  DAILY_VOCABULARY_IDS,
+  type PlannedVocabularyNotification,
+} from "../dailyVocabularyPlan";
 import { isAndroid } from "./nativePlatform";
 
 export type NotificationPermission = "granted" | "denied" | "prompt" | "unavailable";
@@ -18,6 +24,15 @@ export const REMINDER_CHANNELS = [
   { id: "streak", name: "Ofensiva", description: "Lembretes para manter sua sequência de estudo." },
   { id: "study", name: "Lembretes de estudo", description: "Avisos para voltar a praticar." },
 ] as const;
+
+/**
+ * RC2.2.15 · A/DD — canal próprio da Palavra do dia (não mistura com ofensiva
+ * nem estudo). Importância padrão, sem vibração: discreto, nunca alarme.
+ */
+export const VOCABULARY_CHANNEL_COPY = {
+  "pt-BR": { name: "Palavra do dia", description: "Descubra uma palavra curta em mandarim por dia." },
+  en: { name: "Daily vocabulary", description: "Discover one short Mandarin word a day." },
+} as const;
 
 /** Ícone monocromático da barra de status (res/drawable/ic_stat_longyu.xml). */
 export const NOTIFICATION_SMALL_ICON = "ic_stat_longyu";
@@ -64,6 +79,59 @@ export async function ensureReminderChannels(): Promise<void> {
   channelsReady = true;
 }
 
+let vocabularyChannelLocale: "pt-BR" | "en" | null = null;
+
+export async function ensureVocabularyChannel(locale: "pt-BR" | "en" = "pt-BR"): Promise<void> {
+  if (!hasNativeNotifications() || vocabularyChannelLocale === locale) return;
+  const copy = VOCABULARY_CHANNEL_COPY[locale];
+  await LocalNotifications.createChannel({ id: DAILY_VOCABULARY_CHANNEL, name: copy.name, description: copy.description, importance: 3, vibration: false });
+  vocabularyChannelLocale = locale;
+}
+
+/** Cancela SÓ as palavras do dia (toggle off, janela nova). Ofensiva/retorno ficam. */
+export async function cancelVocabularyNotifications(): Promise<void> {
+  if (!hasNativeNotifications()) return;
+  try {
+    await LocalNotifications.cancel({ notifications: DAILY_VOCABULARY_IDS.map((id) => ({ id })) });
+  } catch {
+    /* nada pendente */
+  }
+}
+
+/**
+ * Aplica o plano da Palavra do dia: cancela os 7 IDs de vocabulário e agenda
+ * o conjunto recebido. Nunca toca nos IDs de ofensiva/retorno.
+ */
+export async function applyVocabularyPlan(plan: readonly PlannedVocabularyNotification[], locale: "pt-BR" | "en" = "pt-BR"): Promise<number> {
+  if (!hasNativeNotifications()) return 0;
+  await cancelVocabularyNotifications();
+  if (!plan.length) return 0;
+  await ensureVocabularyChannel(locale);
+  await LocalNotifications.schedule({ notifications: plan.map(vocabularyNotification) });
+  return plan.length;
+}
+
+/** DEV/QA: uma palavra em +60 s (ID próprio, fora dos 7 do plano). */
+export async function scheduleDevVocabularyNotification(notification: PlannedVocabularyNotification, locale: "pt-BR" | "en" = "pt-BR"): Promise<void> {
+  if (!hasNativeNotifications()) return;
+  await ensureVocabularyChannel(locale);
+  await LocalNotifications.schedule({ notifications: [vocabularyNotification({ ...notification, id: DAILY_VOCABULARY_DEV_ID })] });
+}
+
+function vocabularyNotification(item: PlannedVocabularyNotification) {
+  return {
+    id: item.id,
+    title: item.title,
+    body: item.body,
+    channelId: DAILY_VOCABULARY_CHANNEL,
+    smallIcon: NOTIFICATION_SMALL_ICON,
+    schedule: { at: new Date(item.at), allowWhileIdle: false },
+    isExactNotification: false,
+    // O toque valida `lexicalId` contra o pool; nenhuma URL do extra é confiada.
+    extra: { kind: item.kind, lexicalId: item.lexicalId },
+  };
+}
+
 /** Cancela TODOS os lembretes do Longyu (toggle off, permissão negada). */
 export async function cancelAllReminders(): Promise<void> {
   if (!hasNativeNotifications()) return;
@@ -103,7 +171,9 @@ export async function pendingReminderIds(): Promise<number[]> {
   if (!hasNativeNotifications()) return [];
   try {
     const { notifications } = await LocalNotifications.getPending();
-    return notifications.map((notification) => notification.id).filter((id) => ALL_REMINDER_IDS.includes(id) || id === 7999);
+    return notifications
+      .map((notification) => notification.id)
+      .filter((id) => ALL_REMINDER_IDS.includes(id) || id === 7999 || DAILY_VOCABULARY_IDS.includes(id) || id === DAILY_VOCABULARY_DEV_ID);
   } catch {
     return [];
   }
@@ -134,11 +204,20 @@ export async function scheduleSingleReminder(reminder: PlannedReminder): Promise
  * passa a URL pelo resolveDeepLink (allowlist do RC2.2.10); rota fora da
  * lista é ignorada. Registrar UMA vez; devolve o "remover".
  */
-export async function onReminderTap(handler: (url: string | null) => void): Promise<() => void> {
+export interface ReminderTapExtra {
+  kind: string | null;
+  lexicalId: string | null;
+}
+
+export async function onReminderTap(handler: (url: string | null, extra: ReminderTapExtra) => void): Promise<() => void> {
   if (!hasNativeNotifications()) return () => {};
   const handle: PluginListenerHandle = await LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
-    const url = action?.notification?.extra?.url;
-    handler(typeof url === "string" ? url : null);
+    const extra = action?.notification?.extra ?? {};
+    const url = extra.url;
+    handler(typeof url === "string" ? url : null, {
+      kind: typeof extra.kind === "string" ? extra.kind : null,
+      lexicalId: typeof extra.lexicalId === "string" ? extra.lexicalId : null,
+    });
   });
   return () => {
     void handle.remove();

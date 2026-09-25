@@ -48,6 +48,7 @@ export const SETTINGS_HASH_TO_CATEGORY: Record<string, SettingsCategoryId> = {
   "audio-fala": "som",
   notificacoes: "notificacoes",
   permissoes: "notificacoes",
+  "vocabulario-diario": "notificacoes",
   tema: "aparencia",
   "privacidade-dados": "privacidade",
   "diagnostico-nativo": "avancado",

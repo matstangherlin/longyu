@@ -16,6 +16,7 @@ import { bootstrapInterfaceLocale, refreshSystemInterfaceLocale, setSystemLangua
 import { onSystemLanguageChange, systemLanguageTags } from "./lib/platform/systemLocale";
 import { bootstrapCourseDirection } from "./lib/courseDirectionState";
 import { CourseDirectionBootstrap } from "./components/i18n/CourseDirectionBootstrap";
+import { DailyVocabularyBootstrap } from "./components/vocabulary/DailyVocabularyBootstrap";
 
 // RC2.2.14B — interface começa no idioma do sistema (Web e WebView do Android).
 setSystemLanguageProvider(systemLanguageTags);
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
         {/* RC2.2.13 — Android: lembretes, toque em notificação, intro de permissões. Web: nada. */}
         <NativeExperienceBootstrap />
         <CourseDirectionBootstrap />
+        <DailyVocabularyBootstrap />
         <Suspense fallback={<PageFallback />}>
           <Outlet />
         </Suspense>

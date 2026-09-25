@@ -363,3 +363,32 @@ export const RC2_2_14B_LOCALE_COURSE_DIRECTION_EXCEPTION = {
   fingerprint: "c48b008c9c1e",
   gate: "gate:rc2-2-14b-locale-course-direction",
 } as const;
+
+/**
+ * RC2.2.15 — exceção controlada para a Palavra do dia. Descoberta diária de
+ * vocabulário (notificação local opt-in + página + micro-prática) derivada do
+ * VOCABULARY/CHUNKS/CHARACTERS/HANZI_ATLAS existentes; revisão pelo SRS
+ * existente; Atlas ganha "Descobertas" e origem verificada separada de
+ * mnemônico. Nenhuma lição, tópico, CultureItem, StepKind ou item de SRS novo;
+ * fingerprint c48b008c9c1e.
+ */
+export const RC2_2_15_DAILY_VOCABULARY_EXCEPTION = {
+  id: "RC2_2_15_DAILY_VOCABULARY",
+  scope: "Daily Word: local vocabulary notification, word page, micro practice, Atlas discoveries and history truth",
+  areas: [
+    "DailyVocabularyCandidate derived from VOCABULARY + CHUNKS/CHARACTERS (review target) + HANZI_ATLAS",
+    "planDailyVocabularyNotifications (window, quiet hours, budget, spacing, 7-day horizon, day IDs)",
+    "vocabulary notification channel (local only)",
+    "/palavra-do-dia/:id page + 4-step micro practice with existing StepRenderer",
+    "Atlas: Descobertas, verified origin with source, mnemonic labeled as memory tip",
+  ],
+  forbids: [
+    "second SRS or vocabulary database",
+    "Firebase, push backend, cron or worker",
+    "mastery, learned or XP from opening a notification",
+    "Pearl or medal per word, separate streak",
+    "generated etymology or mnemonic presented as history",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-15-daily-vocabulary",
+} as const;

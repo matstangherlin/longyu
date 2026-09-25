@@ -85,6 +85,16 @@ import {
 } from "../services/storyEnergyAttestation";
 import { isAvailableCourseDirection, type CourseDirectionId } from "../i18n/courseDirection";
 import {
+  DAILY_VOCABULARY_DEFAULT_PREFS,
+  DAILY_VOCABULARY_HISTORY_LIMIT,
+  DAILY_VOCABULARY_XP,
+  dailyVocabularyRewardKey,
+  mergeDailyVocabularyAssignments,
+  type DailyVocabularyAssignment,
+  type DailyVocabularyPrefs,
+  type DailyVocabularyState,
+} from "./dailyVocabularyPlan";
+import {
   leagueXpKeyActivity,
   leagueXpKeyImmersion,
   leagueXpKeyMission,
@@ -1293,6 +1303,11 @@ interface AccountSnapshot extends XpBuckets {
    * troca o curso; nunca vaza para outra. Só muda a camada de instrução.
    */
   courseDirection: CourseDirectionId | null;
+  /**
+   * RC2.2.15 — Palavra do dia desta conta: semente opaca + histórico de
+   * exposições (agendada/aberta/praticada). Sem PII; não é mastery.
+   */
+  dailyVocabulary: DailyVocabularyState;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -1469,6 +1484,41 @@ export interface LearningAccount extends AccountSnapshot {
   localMigratedAt?: number;
 }
 
+/** RC2.2.15 · H — semente opaca local; nunca derivada de e-mail, nome ou username. */
+function opaqueSeed(): string {
+  try {
+    const bytes = new Uint8Array(8);
+    globalThis.crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  } catch {
+    return `${Date.now().toString(36)}${Math.floor(Math.random() * 1e9).toString(36)}`;
+  }
+}
+
+function freshDailyVocabulary(): DailyVocabularyState {
+  return { seed: opaqueSeed(), exposures: [] };
+}
+
+function normalizeDailyVocabulary(value: Partial<DailyVocabularyState> | null | undefined): DailyVocabularyState {
+  if (value && typeof value.seed === "string" && value.seed.length >= 8 && Array.isArray(value.exposures)) return value as DailyVocabularyState;
+  return {
+    seed: typeof value?.seed === "string" && value.seed.length >= 8 ? value.seed : opaqueSeed(),
+    exposures: Array.isArray(value?.exposures)
+      ? value.exposures
+          .filter((entry) => entry && typeof entry.dateKey === "string" && typeof entry.lexicalId === "string")
+          .slice(-DAILY_VOCABULARY_HISTORY_LIMIT)
+      : [],
+  };
+}
+
+function findLatestExposure(exposures: readonly { lexicalId: string; dateKey: string }[], lexicalId: string): number {
+  const today = todayKey();
+  for (let i = exposures.length - 1; i >= 0; i -= 1) {
+    if (exposures[i].lexicalId === lexicalId && exposures[i].dateKey <= today) return i;
+  }
+  return -1;
+}
+
 function blankSnapshot(): AccountSnapshot {
   return {
     ...freshXp(),
@@ -1477,6 +1527,7 @@ function blankSnapshot(): AccountSnapshot {
     learnedChunks: [],
     hanziBuilderProgressByChar: {},
     courseDirection: null,
+    dailyVocabulary: freshDailyVocabulary(),
     completedLessons: [],
     lessonStarsById: {},
     lessonAttemptsById: {},
@@ -1612,6 +1663,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     learnedChunks: s.learnedChunks,
     hanziBuilderProgressByChar: s.hanziBuilderProgressByChar,
     courseDirection: s.courseDirection ?? null,
+    dailyVocabulary: normalizeDailyVocabulary(s.dailyVocabulary),
     completedLessons: s.completedLessons,
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
@@ -1767,6 +1819,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     learnedChunks: account.learnedChunks ?? [],
     hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
     courseDirection: isAvailableCourseDirection(account.courseDirection) ? account.courseDirection : null,
+    dailyVocabulary: normalizeDailyVocabulary(account.dailyVocabulary),
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
@@ -2138,6 +2191,8 @@ interface AppState {
   nativePermissionIntroVersion: number;
   /** RC2.2.14 — feedback tátil (Android). Independente dos sons. */
   hapticsEnabled: boolean;
+  /** RC2.2.15 — Palavra do dia: opt-in e janela (do aparelho, como os lembretes). */
+  dailyVocabularyPrefs: DailyVocabularyPrefs;
   slowAudio: boolean;
   accountSetupComplete: boolean;
   /** Durante exercícios da lição: desbloqueia medalhas sem mostrar o modal. */
@@ -2150,6 +2205,7 @@ interface AppState {
   learnedChunks: string[];
   hanziBuilderProgressByChar: HanziBuilderProgressMap;
   courseDirection: CourseDirectionId | null;
+  dailyVocabulary: DailyVocabularyState;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -2281,6 +2337,20 @@ interface AppState {
    * mastery, SRS, XP e ofensiva continuam os mesmos.
    */
   setCourseDirection: (id: CourseDirectionId) => void;
+  setDailyVocabularyPrefs: (patch: Partial<DailyVocabularyPrefs>) => void;
+  /** Grava a palavra definida para cada dia (plano) sem apagar o que foi aberto/praticado. */
+  syncDailyVocabularyAssignments: (assignments: readonly DailyVocabularyAssignment[], today: string) => void;
+  /** Abrir a palavra: só `openedAt`. Não é aprendizado, não dá XP. */
+  markDailyVocabularyOpened: (lexicalId: string) => void;
+  /**
+   * Micro-prática concluída: entra na Revisão (SRS existente, sem marcar como
+   * aprendida) e, só na primeira prática do dia, um XP pequeno e idempotente.
+   */
+  completeDailyVocabularyPractice: (input: {
+    lexicalId: string;
+    srsRef: { type: "chunk" | "char"; itemId: string };
+    domains: readonly ReviewDomain[];
+  }) => { xp: number; reviewAdded: number };
   setSlowAudio: (enabled: boolean) => void;
   setAccountSetupComplete: (v: boolean) => void;
   setHoldAchievementModals: (v: boolean) => void;
@@ -2680,6 +2750,7 @@ export const useStore = create<AppState>()(
       notificationPrefs: { enabled: true, streak: true, comeback: true },
       nativePermissionIntroVersion: 0,
       hapticsEnabled: true,
+      dailyVocabularyPrefs: { ...DAILY_VOCABULARY_DEFAULT_PREFS },
       slowAudio: false,
       accountSetupComplete: false,
       holdAchievementModals: false,
@@ -2690,6 +2761,7 @@ export const useStore = create<AppState>()(
       learnedChunks: [],
       hanziBuilderProgressByChar: {},
       courseDirection: null,
+      dailyVocabulary: freshDailyVocabulary(),
       completedLessons: [],
       lessonStarsById: {},
       lessonAttemptsById: {},
@@ -2798,6 +2870,66 @@ export const useStore = create<AppState>()(
           const next = { ...s, courseDirection: id };
           return { courseDirection: id, accounts: saveCurrentAccount(next) };
         });
+      },
+      setDailyVocabularyPrefs: (patch) =>
+        set((s) => ({ dailyVocabularyPrefs: { ...DAILY_VOCABULARY_DEFAULT_PREFS, ...(s.dailyVocabularyPrefs ?? {}), ...patch } })),
+      syncDailyVocabularyAssignments: (assignments, today) =>
+        set((s) => {
+          const current = normalizeDailyVocabulary(s.dailyVocabulary);
+          const exposures = mergeDailyVocabularyAssignments(current.exposures, assignments, today, s.courseDirection ?? null);
+          if (JSON.stringify(exposures) === JSON.stringify(current.exposures) && current === s.dailyVocabulary) return {};
+          const dailyVocabulary = { ...current, exposures };
+          const next = { ...s, dailyVocabulary };
+          return { dailyVocabulary, accounts: saveCurrentAccount(next) };
+        }),
+      markDailyVocabularyOpened: (lexicalId) =>
+        set((s) => {
+          const current = normalizeDailyVocabulary(s.dailyVocabulary);
+          const index = findLatestExposure(current.exposures, lexicalId);
+          if (index < 0 || current.exposures[index].openedAt != null) return {};
+          const exposures = current.exposures.map((entry, i) => (i === index ? { ...entry, openedAt: Date.now() } : entry));
+          const dailyVocabulary = { ...current, exposures };
+          const next = { ...s, dailyVocabulary };
+          return { dailyVocabulary, accounts: saveCurrentAccount(next) };
+        }),
+      completeDailyVocabularyPractice: ({ lexicalId, srsRef, domains }) => {
+        const state = get();
+        const current = normalizeDailyVocabulary(state.dailyVocabulary);
+        const index = findLatestExposure(current.exposures, lexicalId);
+        const exposure = index >= 0 ? current.exposures[index] : null;
+        const today = todayKey();
+        // SRS existente, sem gradeSrs/markLearned: entra na fila de revisão sem
+        // virar "conhecimento assumido" para provas.
+        let reviewAdded = 0;
+        for (const domain of domains) {
+          const key = makeKey(srsRef.type, srsRef.itemId, domain);
+          if (!get().srs[key]) {
+            get().ensureSrs(srsRef.type, srsRef.itemId, undefined, domain);
+            if (get().srs[key]) reviewAdded += 1;
+          }
+        }
+        const alreadyPracticed = exposure?.practicedAt != null;
+        const practicedToday = current.exposures.some((entry) => entry.practicedAt != null && todayKey(new Date(entry.practicedAt)) === today);
+        let xp = 0;
+        if (exposure && !alreadyPracticed && !practicedToday) {
+          const key = dailyVocabularyRewardKey(state.currentAccountId, exposure.dateKey, lexicalId);
+          if (get().grantPracticeRoundXp(key, DAILY_VOCABULARY_XP)) xp = DAILY_VOCABULARY_XP;
+        }
+        if (exposure && !alreadyPracticed) {
+          set((s) => {
+            const latest = normalizeDailyVocabulary(s.dailyVocabulary);
+            const now = Date.now();
+            const exposures = latest.exposures.map((entry, i) =>
+              i === index
+                ? { ...entry, practicedAt: now, ...(reviewAdded > 0 || entry.reviewAddedAt != null ? { reviewAddedAt: entry.reviewAddedAt ?? now } : {}) }
+                : entry
+            );
+            const dailyVocabulary = { ...latest, exposures };
+            const next = { ...s, dailyVocabulary };
+            return { dailyVocabulary, accounts: saveCurrentAccount(next) };
+          });
+        }
+        return { xp, reviewAdded };
       },
       setSlowAudio: (enabled) => set({ slowAudio: enabled }),
       setAccountSetupComplete: (v) =>

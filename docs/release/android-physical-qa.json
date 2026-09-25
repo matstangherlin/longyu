@@ -59,6 +59,11 @@
   "systemLocaleDetection": "NOT_RUN",
   "systemLocaleChange": "NOT_RUN",
   "coursePicker": "NOT_RUN",
+  "dailyVocabularyNotification": "NOT_RUN",
+  "dailyVocabularyAppClosed": "NOT_RUN",
+  "dailyVocabularyReboot": "NOT_RUN",
+  "dailyVocabularyTap": "NOT_RUN",
+  "dailyVocabularyPractice": "NOT_RUN",
   "performance": {
     "coldStartMs": null,
     "firstInteractiveMs": null,
@@ -86,11 +91,16 @@
       "id": "ANDROID_HAPTICS_UNVERIFIED",
       "severity": "P2_CANDIDATE",
       "detail": "RC2.2.14: vibração via @capacitor/haptics (impacto leve em seleção/peça, notificação de sucesso/aviso em acerto/erro/conclusão, impacto médio em conquista/ofensiva/baú), uma por ação, desligável em Configurações › Som e vibração. Código pronto e testado na Web (no-op); intensidade e ausência de vibração em toque comum, navegação, rolagem e áudio precisam de um aparelho real."
+    },
+    {
+      "id": "ANDROID_DAILY_VOCABULARY_UNVERIFIED",
+      "severity": "P2_CANDIDATE",
+      "detail": "RC2.2.15: a Palavra do dia usa notificação local inexata (@capacitor/local-notifications, canal vocabulary). Entrega com o app fechado, após reboot e o toque abrindo a palavra certa só contam com aparelho real; sem reboot preservado, o próximo abrir do app reconcilia os 7 dias."
     }
   ],
   "p0Open": null,
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.14B"
+  "extendedBy": "RC2.2.15"
 }

@@ -60,6 +60,8 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/hanzi", parent: "/ideogramas", ownBack: true },
   { pattern: "/ideogramas", parent: "/treino" },
   { pattern: "/hanzi/atlas", parent: "/ideogramas" },
+  // RC2.2.15 — Palavra do dia (toque na notificação, card da Jornada, Atlas).
+  { pattern: "/palavra-do-dia/:id", parent: "/jornada", ownBack: true },
   { pattern: "/fala", parent: "/treino" },
   { pattern: "/leitura", parent: "/treino" },
   { pattern: "/biblioteca", parent: "/treino" },

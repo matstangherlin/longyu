@@ -17,6 +17,7 @@ function lazyNamed<T extends Record<string, unknown>>(
   );
 }
 
+const DailyWordPage = lazyNamed(() => import("./features/vocabulary/DailyWordPage"), "DailyWordPage");
 const CoursePickerPage = lazyNamed(() => import("./features/landing/CoursePickerPage"), "CoursePickerPage");
 const GuidedTryPage = lazyNamed(() => import("./features/landing/GuidedTryPage"), "GuidedTryPage");
 const JourneyPage = lazyNamed(() => import("./features/journey/JourneyPage"), "JourneyPage");
@@ -165,6 +166,7 @@ export const routes: RouteObject[] = [
       { path: "hanzi", element: <JourneyNodeGate><HanziPage /></JourneyNodeGate> },
       { path: "ideogramas", element: <IdeogramasPage /> },
       { path: "hanzi/atlas", element: <HanziAtlasPage /> },
+      { path: "palavra-do-dia/:id", element: <DailyWordPage /> },
       { path: "fala", element: <FalaPage /> },
       { path: "leitura", element: <LeituraPage /> },
       { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },

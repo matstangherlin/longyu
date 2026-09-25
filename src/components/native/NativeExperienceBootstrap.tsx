@@ -10,6 +10,7 @@ import {
   onReminderTap,
 } from "../../lib/platform/nativeNotifications";
 import { resolveDeepLink } from "../../lib/platform/deepLinks";
+import { dailyVocabularyRouteFor } from "../../lib/dailyVocabularyRuntime";
 import { subscribeAppLifecycle } from "../../lib/platform/appLifecycle";
 import { refreshNativeTtsStatus } from "../../lib/tts";
 import { refreshNativeSpeechStatus } from "../../lib/speech";
@@ -47,7 +48,13 @@ export function NativeExperienceBootstrap() {
     if (!android) return undefined;
     let disposed = false;
     let remove: (() => void) | null = null;
-    void onReminderTap((url) => {
+    void onReminderTap((url, extra) => {
+      // RC2.2.15 · BX–BY — Palavra do dia: só um lexicalId que existe no pool.
+      if (extra.kind === "daily_vocabulary") {
+        const wordRoute = dailyVocabularyRouteFor(extra.lexicalId);
+        if (wordRoute) navigateRef.current(wordRoute);
+        return;
+      }
       const route = url ? resolveDeepLink(url) : null;
       if (route) navigateRef.current(route);
     }).then((remover) => {

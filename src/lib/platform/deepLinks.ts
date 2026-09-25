@@ -33,6 +33,8 @@ export const DEEP_LINK_ROUTE_PREFIXES: readonly string[] = [
   "/perfil",
   "/ligas",
   "/config",
+  // RC2.2.15 — a página valida o lexicalId contra o pool (id desconhecido → "não encontrada").
+  "/palavra-do-dia",
   "/sobre",
 ];
 

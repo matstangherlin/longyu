@@ -11,6 +11,7 @@ import { IconChevron } from "../../components/ui/Icon";
 import { haptic } from "../../lib/haptics";
 import { useWideLayout } from "../../lib/useWideLayout";
 import { hasNativeHaptics } from "../../lib/platform/nativeHaptics";
+import { DailyVocabularySettings } from "../../components/vocabulary/DailyVocabularySettings";
 import { hasNativeNotifications } from "../../lib/platform/nativeNotifications";
 import {
   isSettingsCategory,
@@ -723,6 +724,7 @@ export function SettingsPage() {
     notificacoes: (
       <>
         <NativeSettingsSections parts={["permissions", "notifications"]} />
+        <DailyVocabularySettings />
         {!hasNativeNotifications() && (
           <HubSection id="notificacoes" className="scroll-mt-6" title={t("settings.catNotifications")}>
             <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="settings-notifications-web">
