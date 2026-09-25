@@ -91,6 +91,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/qa/audio-discrimination", parent: "/qa" },
   { pattern: "/qa/hanzi-builder", parent: "/qa" },
   { pattern: "/qa/conversation-scene", parent: "/qa" },
+  { pattern: "/qa/step-lab", parent: "/qa" },
   { pattern: "/qa/:scenario", parent: "/qa" },
 
   // Público / auth (fora da casca; o Android ainda usa o mapa).
