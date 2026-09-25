@@ -36,6 +36,9 @@ for (const viewport of VIEWPORTS) {
 
       const transfer = page.locator('[data-production-step="transfer_task"]');
       await expect(transfer).toBeVisible();
+      // RC2.2.14 tap-through guard: o Continuar do passo anterior cai no mesmo
+      // ponto do Verificar (~350ms). Esperar a janela fechar antes de digitar.
+      await page.waitForTimeout(450);
       await expect(page.locator("[data-production-learned]")).toBeVisible();
       await expect(page.locator("[data-production-situation]")).toBeVisible();
       // Âncora conhecida visível; supported pode mostrar a seta de transformação
@@ -48,12 +51,13 @@ for (const viewport of VIEWPORTS) {
       await input.fill("请问，你叫什么？");
 
       const verify = page.getByRole("button", { name: /^Verificar$/ });
-      await expect(verify).toBeVisible();
+      await expect(verify).toBeEnabled();
       await verify.click();
 
+      await expect(page.locator("[data-lesson-feedback]")).toBeVisible({ timeout: 15_000 });
       await expect(
-        page.getByText(/Certo|\+Qi|Continue|Próximo|Boa/i).first()
-      ).toBeVisible({ timeout: 10_000 });
+        page.getByText(/Certo|\+Qi|Continue|Continuar|Próximo|Boa|Estrutura certa/i).first()
+      ).toBeVisible({ timeout: 5_000 });
     });
   });
 }
