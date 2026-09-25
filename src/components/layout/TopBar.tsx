@@ -29,7 +29,7 @@ function StatPill({
   const inner = (
     <span
       className={[
-        "inline-flex min-h-12 items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs",
+        "inline-flex min-h-12 items-center gap-1 rounded-full border border-line/50 bg-surface/90 px-2 text-[11px] font-semibold tabular-nums text-ink sm:gap-1.5 sm:px-2.5 sm:text-xs min-w-12 justify-center",
         className,
         to ? "" : outerClassName,
       ].join(" ")}

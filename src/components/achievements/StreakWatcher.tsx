@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hapticOnce } from "../../lib/haptics";
 import { PEARL_STREAK_MILESTONES } from "../../data/economy";
 import { useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
@@ -30,6 +31,7 @@ export function StreakWatcher() {
   useEffect(() => {
     if (pending == null || hold) return;
     playSoundFx("streak", soundEffects);
+    hapticOnce(`streak:${pending}`, "streakMilestone");
   }, [pending, hold, soundEffects]);
 
   if (pending == null || hold) return null;

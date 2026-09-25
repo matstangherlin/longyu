@@ -41,7 +41,6 @@ const srcFiles = [
   "src/routes.tsx",
   "src/components/layout/AppShell.tsx",
   "src/features/onboarding/ComecarPage.tsx",
-  "src/components/i18n/OnboardingLanguageSwitcher.tsx",
   "src/features/account/AccountPage.tsx",
   "src/lib/i18n/identity.ts",
 ];

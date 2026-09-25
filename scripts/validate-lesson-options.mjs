@@ -43,10 +43,10 @@ const isPinyinQuestion = (step) =>
 // o rótulo do tom ("nǐ hǎo — 3º + 3º tom"). Só aí opções que diferem só no tom
 // são permitidas.
 const isToneTrainingStep = (step, options) => {
-  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`.toLocaleLowerCase(
+  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""} ${step.explanation ?? ""}`.toLocaleLowerCase(
     "pt-BR"
   );
-  if (/\btom\b|\btons\b|\btone\b|\bacento\b/.test(label)) return true;
+  if (/\btom\b|\btons\b|\btone\b|\bacento\b|\b[1-5]º/.test(label)) return true;
   return options.some((option) => TONE_LABEL_RE.test(String(option)));
 };
 

@@ -32,6 +32,11 @@ export {
   applyDocumentLocale,
   readPersistedInterfaceLocale,
   resetInterfaceLocaleForTests,
+  resolvePreferredInterfaceLocale,
+  resolveSystemInterfaceLocale,
+  getInterfaceLocaleSource,
+  followSystemInterfaceLocale,
+  setSystemLanguageProvider,
 } from "./locale";
 
 export { t, interpolate, flattenCatalog, consumeMissingTranslationKeys, peekMissingTranslationKeys } from "./catalog";
@@ -54,7 +59,7 @@ export {
   localInterfaceLocaleAdapter,
   cloudInterfaceLocaleAdapter,
   activeInterfaceLocaleAdapter,
-  resolvePreferredInterfaceLocale,
+  resolveStoredInterfaceLocale,
 } from "./cloudAdapter";
 export type { InterfaceLocaleAdapter } from "./cloudAdapter";
 

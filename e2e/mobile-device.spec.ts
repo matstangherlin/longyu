@@ -25,9 +25,25 @@ test.describe("dispositivo — toque", () => {
       test.skip(true, "Sem toque neste projeto (motor de mesa).");
     }
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
-    await page.getByRole("link", { name: /Começar agora/i }).tap();
-    await page.waitForURL("**/comecar");
-    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+    // RC2.2.14 — celular: CTA principal. Desktop/tablet largo: link secundário.
+    // RC2.2.14B: sem curso, /teste-guiado redireciona para /curso (às vezes depois
+    // do primeiro paint) — esperar o picker OU o fluxo guiado, não só a URL.
+    const mobileCta = page.getByTestId("landing-guided-try");
+    const desktopCta = page.getByTestId("landing-guided-try-desktop");
+    if (await mobileCta.isVisible().catch(() => false)) {
+      await mobileCta.tap();
+    } else {
+      await expect(desktopCta).toBeVisible();
+      await desktopCta.tap();
+    }
+    const picker = page.getByTestId("course-picker");
+    const guided = page.getByTestId("guided-try");
+    await expect(picker.or(guided)).toBeVisible({ timeout: 15_000 });
+    if (await picker.isVisible().catch(() => false)) {
+      await page.locator('[data-course-choice="pt-zh"]').tap();
+      await page.getByTestId("course-picker-confirm").tap();
+    }
+    await expect(guided).toBeVisible({ timeout: 15_000 });
   });
 
   test("primeira lição avança por toque (Entendi → opção)", async ({ page }) => {
@@ -263,7 +279,8 @@ test.describe("dispositivo — rede lenta", () => {
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible({
       timeout: 45_000,
     });
-    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible({
+    // Celular: "Fazer teste guiado"; desktop: "Ou faça o teste guiado".
+    await expect(page.getByRole("link", { name: /teste guiado/i }).first()).toBeVisible({
       timeout: 45_000,
     });
     await client.detach().catch(() => undefined);

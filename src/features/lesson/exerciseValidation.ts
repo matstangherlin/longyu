@@ -103,10 +103,12 @@ const TONE_LABEL_RE = /\b[1-5]\s*º?\s*(?:tom|tone)s?\b|\btom\s*[1-5]\b|neutro/i
 // ou quando as próprias opções trazem o rótulo do tom ("nǐ hǎo — 3º + 3º tom").
 // Nesses casos opções que só diferem no tom são intencionais e permitidas.
 function isToneTrainingChoice(step: LessonStep, options: string[]): boolean {
-  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""}`.toLocaleLowerCase(
+  // RC2.2.14 — a explicação também conta ("3º + 3º → soa ní hǎo" em
+  // "Escrito vs. falado"): sandhi é treino de tom explícito, não look-alike.
+  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""} ${step.speaker ?? ""} ${step.explanation ?? ""}`.toLocaleLowerCase(
     "pt-BR"
   );
-  if (/\btom\b|\btons\b|\btone\b|\bacento\b/.test(label)) return true;
+  if (/\btom\b|\btons\b|\btone\b|\bacento\b|\b[1-5]º/.test(label)) return true;
   return options.some((option) => TONE_LABEL_RE.test(option));
 }
 
@@ -395,7 +397,9 @@ export function validateExercise(step: LessonStep | undefined | null): ExerciseV
 
     case "fill_blank": {
       if (!step.blankAnswer?.trim()) errors.push("fill_blank sem blankAnswer");
-      if (!step.sentenceBefore?.trim() && !step.sentenceAfter?.trim()) {
+      // Sem frase ao redor, a própria pergunta é o contexto (ex.: "Qual caractere
+      // é ma SEM contorno de tom?"). Sem frase E sem pergunta, não há contexto.
+      if (!step.sentenceBefore?.trim() && !step.sentenceAfter?.trim() && !/[?？]\s*$/.test(step.prompt?.trim() ?? "")) {
         errors.push("fill_blank sem contexto de frase");
       }
       if (!step.bank?.length) {

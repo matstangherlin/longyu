@@ -9,7 +9,6 @@ import {
 } from "./locale";
 import { activeInterfaceLocaleAdapter } from "./cloudAdapter";
 import {
-  followInterfaceLocale,
   getInstructionLocale,
   setInstructionLocale as commitInstructionLocale,
   subscribeInstructionLocale,
@@ -39,9 +38,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const locale = useSyncExternalStore(subscribe, getInterfaceLocale, getInterfaceLocale);
   const instructionLocale = useSyncExternalStore(subscribe, getInstructionLocale, getInstructionLocale);
 
+  // RC2.2.14B — trocar a interface NUNCA troca o curso (são duas escolhas).
   const setLocale = useCallback((next: SupportedLocale) => {
     commitInterfaceLocale(next);
-    followInterfaceLocale(next);
     void activeInterfaceLocaleAdapter.setInterfaceLocale(next);
   }, []);
 
@@ -77,7 +76,6 @@ export function useI18n(): I18nContextValue {
     instructionLocale: getInstructionLocale(),
     setLocale: (next) => {
       commitInterfaceLocale(next);
-      followInterfaceLocale(next);
       void activeInterfaceLocaleAdapter.setInterfaceLocale(next);
     },
     setInstructionLocale: (next) => commitInstructionLocale(next, { userOverride: true }),

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedLegacyLocalProgress, seedMissingDraftFinalize, seedOnboardedSession, seedPendingCloudOnboarding, waitForLazyPage } from "./helpers";
+import { chooseCourseIfAsked, seedCourseDirection, seedLegacyLocalProgress, seedMissingDraftFinalize, seedOnboardedSession, seedPendingCloudOnboarding, waitForLazyPage } from "./helpers";
 
 test.describe("TEST-032 — route guard cloud-first", () => {
   for (const path of ["/jornada", "/licao/p1-o-que-e-mandarim/player", "/treino", "/revisao", "/missoes"]) {
@@ -16,6 +16,7 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
   test("landing → começar → objetivo → self assessment, sem skip de conta", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: /Começar agora/i }).click();
+    await chooseCourseIfAsked(page, "pt-zh");
     await page.waitForURL("**/comecar");
     await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
     await page.getByRole("button", { name: /^Começar/i }).click();
@@ -32,6 +33,7 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
   });
 
   test("conta é obrigatória após o resultado; backend local falha fechado", async ({ page }) => {
+    await seedCourseDirection(page, "pt-zh");
     await page.goto("/comecar");
     await page.getByRole("button", { name: /^Começar/i }).click();
     await page.getByRole("button", { name: /Preparar uma viagem/i }).click();
@@ -131,8 +133,15 @@ test.describe("TEST-026 — draft ausente falha fechado", () => {
     await expect(page.getByRole("link", { name: /Refazer teste de nivelamento/i })).toBeVisible();
     await expect(page).not.toHaveURL(/\/jornada/);
     await page.getByRole("link", { name: /Refazer teste de nivelamento/i }).click();
-    await page.waitForURL(/\/comecar\?refazer=1/);
-    await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
+    // RC2.2.14B: sem curso, /comecar redireciona para /curso e volta com ?refazer=1.
+    await page.waitForURL(/\/(comecar|curso)/);
+    if (/\/curso/.test(page.url())) {
+      await page.locator('[data-course-choice="pt-zh"]').click();
+      await page.getByTestId("course-picker-confirm").click();
+      await page.waitForURL(/\/comecar/);
+    }
+    await expect(page).toHaveURL(/\/comecar\?refazer=1/);
+    await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible({ timeout: 15_000 });
   });
 });
 

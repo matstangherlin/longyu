@@ -57,7 +57,12 @@ const INITIAL: NativeStatus = { notifications: "prompt", microphone: "prompt", t
  * primeiro plano): o toggle do Longyu nunca finge que o Android permitiu.
  * Na Web não renderiza nada.
  */
-export function NativeSettingsSections() {
+export type NativeSettingsPart = "permissions" | "notifications" | "audio" | "diagnostics";
+const ALL_PARTS: readonly NativeSettingsPart[] = ["permissions", "notifications", "audio", "diagnostics"];
+
+/** `parts` escolhe as seções (RC2.2.14: cada uma mora na sua categoria). */
+export function NativeSettingsSections({ parts = ALL_PARTS }: { parts?: readonly NativeSettingsPart[] } = {}) {
+  const show = (part: NativeSettingsPart) => parts.includes(part);
   const android = hasNativeNotifications();
   const { t } = useI18n();
   const prefs = useStore((s) => s.notificationPrefs) ?? { enabled: true, streak: true, comeback: true };
@@ -129,6 +134,7 @@ export function NativeSettingsSections() {
 
   return (
     <>
+      {show("permissions") && (
       <HubSection id="permissoes" className="scroll-mt-6" title={t("nativeApp.permissionsTitle")} desc={t("nativeApp.permissionsLead")}>
         <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="native-permissions-card">
           <PermissionRow
@@ -149,7 +155,9 @@ export function NativeSettingsSections() {
           />
         </Card>
       </HubSection>
+      )}
 
+      {show("notifications") && (
       <HubSection id="notificacoes" className="scroll-mt-6" title={t("nativeApp.notificationsTitle")} desc={t("nativeApp.notificationsLead")}>
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="native-notifications-card">
           <div className="flex items-center justify-between gap-3 text-sm">
@@ -191,7 +199,9 @@ export function NativeSettingsSections() {
           <p className="text-xs text-ink-faint">{t("nativeApp.localOnlyNote")}</p>
         </Card>
       </HubSection>
+      )}
 
+      {show("audio") && (
       <HubSection id="audio-fala" className="scroll-mt-6" title={t("nativeApp.audioTitle")} desc={t("nativeApp.audioLead")}>
         <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="native-audio-card">
           <div className="flex items-center justify-between gap-3 text-sm">
@@ -254,7 +264,10 @@ export function NativeSettingsSections() {
           </p>
         </Card>
       </HubSection>
+      )}
 
+      {show("diagnostics") ? (
+      <>
       {!isProductionBetaEnv() && (
         <HubSection id="diagnostico-nativo" className="scroll-mt-6" title={t("nativeApp.diagnosticsTitle")}>
           <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="native-diagnostics-card">
@@ -273,6 +286,8 @@ export function NativeSettingsSections() {
           </Card>
         </HubSection>
       )}
+      </>
+      ) : null}
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedInterfaceLocale, seedOnboardedSession, waitForLazyPage } from "./helpers";
+import { seedInterfaceLocale, seedOnboardedSession, switchInterfaceLocaleInSettings, waitForLazyPage } from "./helpers";
 
 test.describe("i18n shell — V4.8.0", () => {
   test("Portuguese shell smoke (default locale)", async ({ page }) => {
@@ -61,17 +61,15 @@ test.describe("i18n shell — V4.8.0", () => {
     await page.goto("/ajustes");
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();
-    await expect(page.getByText(/Learn Mandarin from/i)).toBeVisible();
+    // RC2.2.14B — idioma e curso numa seção só; o alvo aparece no curso.
+    await expect(page.getByText(/Language and course/i)).toBeVisible();
     await expect(page.getByText("Theme", { exact: true })).toBeVisible();
     await expect(page.getByText(/How to see Mandarin/i)).toBeVisible();
     await expect(page.getByText(/Privacy and data/i)).toBeVisible();
     await expect(page.getByText(/Como ver o mandarim/)).toHaveCount(0);
-    const target = page.getByTestId("target-language-card");
-    await expect(target).toHaveAttribute("data-target-language", "zh-CN");
-    await expect(target).toContainText("中文");
-    await expect(target).toContainText("Mandarin");
-    await expect(target).not.toContainText("Mandarim");
-    await expect(page.getByTestId("current-course-focus")).toContainText("→ Mandarin");
+    const course = page.locator("[data-course-direction-value]");
+    await expect(course).toContainText("→ Mandarin");
+    await expect(course).not.toContainText("Mandarim");
   });
 
   test("Practice hub EN keeps Mandarin target", async ({ page }) => {
@@ -105,19 +103,17 @@ test.describe("i18n shell — V4.8.0", () => {
 
   test("locale switch does not change canonical hanzi", async ({ page }) => {
     await seedOnboardedSession(page, []);
-    await page.goto("/ajustes");
+    await page.goto("/config/aprendizagem");
     await waitForLazyPage(page);
-    const target = page.getByTestId("target-language-card");
-    await expect(target).toHaveAttribute("data-target-language", "zh-CN");
-    await expect(target).toContainText("中文");
+    // RC2.2.14B — o alvo aparece no curso ("… → Mandarim"); sem cartão redundante.
+    const course = page.locator("[data-course-direction-value]");
+    await expect(course).toHaveText("Português → Mandarim");
 
-    await page.getByTestId("interface-locale-select").selectOption("en");
+    await switchInterfaceLocaleInSettings(page, "en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByText(/Learn Mandarin from/i)).toBeVisible();
-    await expect(target).toHaveAttribute("data-target-language", "zh-CN");
-    await expect(target).toContainText("中文");
-    await expect(target).toContainText("Mandarin");
-    await expect(target).not.toContainText("Mandarim");
+    // Trocar a interface não troca o curso; só o rótulo segue a interface.
+    await expect(course).toHaveAttribute("data-course-direction-value", "pt-zh");
+    await expect(course).toHaveText("Portuguese → Mandarin");
 
     await page.goto("/jornada");
     await waitForLazyPage(page);

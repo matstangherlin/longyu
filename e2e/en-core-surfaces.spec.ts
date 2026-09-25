@@ -7,6 +7,7 @@ import {
   seedInterfaceLocale,
   seedOnboardedSession,
   waitForLazyPage,
+  switchInterfaceLocaleInSettings,
 } from "./helpers";
 import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
@@ -307,12 +308,12 @@ test.describe("V4.8.4 English core surfaces", () => {
     await page.goto("/ajustes");
     await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();
-    await page.getByTestId("interface-locale-select").selectOption("pt-BR");
+    await switchInterfaceLocaleInSettings(page, "pt-BR");
     await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
-    await expect(page.getByText(/Ajustes|Configurações/i).first()).toBeVisible();
-    await page.getByTestId("interface-locale-select").selectOption("en");
+    await expect(page.getByText(/Ajustes|Configurações|Idioma e curso/i).first()).toBeVisible();
+    await switchInterfaceLocaleInSettings(page, "en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByRole("heading", { name: /Settings/i })).toBeVisible();
+    await expect(page.getByText(/Language and course/i).first()).toBeVisible();
   });
 
   test("energy blocked and retry chrome can be opened in EN", async ({ page, browserName }) => {

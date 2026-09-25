@@ -83,7 +83,9 @@ import {
   awaitStoryEnergyAttestation,
   clearStoryEnergyAttestation,
 } from "../services/storyEnergyAttestation";
+import { isAvailableCourseDirection, type CourseDirectionId } from "../i18n/courseDirection";
 import {
+  leagueXpKeyActivity,
   leagueXpKeyImmersion,
   leagueXpKeyMission,
   leagueXpKeyReward,
@@ -252,6 +254,12 @@ export interface DailyTasks {
    * voltariam a chamar o registro. A chave é da tentativa, não da frase.
    */
   speechAttemptKeys?: string[];
+  /**
+   * RC2.2.14 — rodadas de treino que já pagaram XP hoje
+   * (`hanzi-practice:<conta>:<modo>:<dia>:<n>`). Repetir a mesma rodada, um
+   * re-render ou um toque duplo em "Concluir" nunca paga duas vezes.
+   */
+  practiceRewardKeys?: string[];
   claimedMissions: Record<string, boolean>;
 }
 
@@ -429,6 +437,7 @@ function freshDailyTasks(date = todayKey()): DailyTasks {
     threeStarLessons: 0,
     tonesTrained: 0,
     speechAttemptKeys: [],
+    practiceRewardKeys: [],
     claimedMissions: {},
   };
 }
@@ -849,6 +858,7 @@ function activeDailyTasks(tasks: DailyTasks | undefined, date = todayKey()): Dai
     // fala comprovada (seria inventar fala).
     phrasesReviewed: Math.max(0, tasks.phrasesReviewed ?? 0),
     speechAttemptKeys: tasks.speechAttemptKeys ?? [],
+    practiceRewardKeys: tasks.practiceRewardKeys ?? [],
     claimedMissions: tasks.claimedMissions ?? {},
   };
 }
@@ -1278,6 +1288,11 @@ interface AccountSnapshot extends XpBuckets {
   learnedChunks: string[];
   /** Domínio do HanziBuilder por caractere: guia dificuldade e silhueta. */
   hanziBuilderProgressByChar: HanziBuilderProgressMap;
+  /**
+   * RC2.2.14B — curso desta conta (pt-zh, en-zh…). Por conta: trocar de conta
+   * troca o curso; nunca vaza para outra. Só muda a camada de instrução.
+   */
+  courseDirection: CourseDirectionId | null;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -1461,6 +1476,7 @@ function blankSnapshot(): AccountSnapshot {
     learnedChars: [],
     learnedChunks: [],
     hanziBuilderProgressByChar: {},
+    courseDirection: null,
     completedLessons: [],
     lessonStarsById: {},
     lessonAttemptsById: {},
@@ -1573,6 +1589,9 @@ function buildCloudAccount(
     email: identity.email ?? existing?.email ?? fallback?.email,
     username: existing?.username ?? fallback?.username,
     usernamePendingClaim: existing?.usernamePendingClaim ?? fallback?.usernamePendingClaim,
+    // RC2.2.14B · W — o curso é DESTA conta: nunca herdado de outra conta
+    // (fallback) do aparelho. Sem valor, vem do perfil cloud.
+    courseDirection: isAvailableCourseDirection(existing?.courseDirection) ? existing.courseDirection : null,
     authMode: "cloud",
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
@@ -1592,6 +1611,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     learnedChars: s.learnedChars,
     learnedChunks: s.learnedChunks,
     hanziBuilderProgressByChar: s.hanziBuilderProgressByChar,
+    courseDirection: s.courseDirection ?? null,
     completedLessons: s.completedLessons,
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
@@ -1746,6 +1766,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     learnedChars: account.learnedChars ?? [],
     learnedChunks: account.learnedChunks ?? [],
     hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
+    courseDirection: isAvailableCourseDirection(account.courseDirection) ? account.courseDirection : null,
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
@@ -2115,6 +2136,8 @@ interface AppState {
   notificationPrefs: { enabled: boolean; streak: boolean; comeback: boolean };
   /** RC2.2.13 — versão da tela "Prepare o Longyu" já mostrada (0 = nunca). */
   nativePermissionIntroVersion: number;
+  /** RC2.2.14 — feedback tátil (Android). Independente dos sons. */
+  hapticsEnabled: boolean;
   slowAudio: boolean;
   accountSetupComplete: boolean;
   /** Durante exercícios da lição: desbloqueia medalhas sem mostrar o modal. */
@@ -2126,6 +2149,7 @@ interface AppState {
   learnedChars: string[];
   learnedChunks: string[];
   hanziBuilderProgressByChar: HanziBuilderProgressMap;
+  courseDirection: CourseDirectionId | null;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -2251,6 +2275,12 @@ interface AppState {
   setAutoPlayAudio: (enabled: boolean) => void;
   setNotificationPrefs: (patch: Partial<{ enabled: boolean; streak: boolean; comeback: boolean }>) => void;
   markNativePermissionIntroSeen: (version: number) => void;
+  setHapticsEnabled: (enabled: boolean) => void;
+  /**
+   * RC2.2.14B — grava o curso NA CONTA ATUAL. Não toca progresso: lições,
+   * mastery, SRS, XP e ofensiva continuam os mesmos.
+   */
+  setCourseDirection: (id: CourseDirectionId) => void;
   setSlowAudio: (enabled: boolean) => void;
   setAccountSetupComplete: (v: boolean) => void;
   setHoldAchievementModals: (v: boolean) => void;
@@ -2264,6 +2294,12 @@ interface AppState {
   spendPoints: (points: number) => boolean;
   /** XP = progresso de estudo (lições, revisão, prática, imersão, missões). Nunca é gasto. */
   addXp: (amount: number, sourceKey: string) => void;
+  /**
+   * RC2.2.14 — XP de uma rodada de treino, uma vez por chave de rodada.
+   * Usa o mesmo `addXp` (liga, missões, metas); só impede pagar de novo.
+   * Retorna true se pagou agora.
+   */
+  grantPracticeRoundXp: (roundKey: string, amount: number) => boolean;
   /** Qi = moeda acumulável (loja, recuperações, tentativas extras). */
   addQi: (amount: number, source: string) => void;
   /** Gasta Qi; retorna false se não houver saldo. Pro nunca fica sem Qi. */
@@ -2643,6 +2679,7 @@ export const useStore = create<AppState>()(
       autoPlayAudio: true,
       notificationPrefs: { enabled: true, streak: true, comeback: true },
       nativePermissionIntroVersion: 0,
+      hapticsEnabled: true,
       slowAudio: false,
       accountSetupComplete: false,
       holdAchievementModals: false,
@@ -2652,6 +2689,7 @@ export const useStore = create<AppState>()(
       learnedChars: [],
       learnedChunks: [],
       hanziBuilderProgressByChar: {},
+      courseDirection: null,
       completedLessons: [],
       lessonStarsById: {},
       lessonAttemptsById: {},
@@ -2752,6 +2790,15 @@ export const useStore = create<AppState>()(
         set((s) => ({ notificationPrefs: { ...(s.notificationPrefs ?? { enabled: true, streak: true, comeback: true }), ...patch } })),
       markNativePermissionIntroSeen: (version) =>
         set((s) => ({ nativePermissionIntroVersion: Math.max(s.nativePermissionIntroVersion ?? 0, version) })),
+      setHapticsEnabled: (enabled) => set({ hapticsEnabled: enabled }),
+      setCourseDirection: (id) => {
+        if (!isAvailableCourseDirection(id)) return;
+        set((s) => {
+          if (s.courseDirection === id) return {};
+          const next = { ...s, courseDirection: id };
+          return { courseDirection: id, accounts: saveCurrentAccount(next) };
+        });
+      },
       setSlowAudio: (enabled) => set({ slowAudio: enabled }),
       setAccountSetupComplete: (v) =>
         set((s) => {
@@ -2901,6 +2948,24 @@ export const useStore = create<AppState>()(
           return { ...leaguePatch, ...leagueJoin, ...nextXp, accounts: saveCurrentAccount(next) };
         });
         syncLeagueXpToServerAsync(inc, key);
+      },
+      grantPracticeRoundXp: (roundKey, amount) => {
+        const key = roundKey.trim();
+        const inc = Math.max(0, Math.round(amount));
+        if (key.length < 3 || inc <= 0) return false;
+        let granted = false;
+        set((s) => {
+          const date = todayKey();
+          const dailyTasks = activeDailyTasks(s.dailyTasks, date);
+          const seen = dailyTasks.practiceRewardKeys ?? [];
+          if (seen.includes(key)) return {};
+          granted = true;
+          const nextTasks: DailyTasks = { ...dailyTasks, practiceRewardKeys: [...seen, key].slice(-200) };
+          const next = { ...s, dailyTasks: nextTasks };
+          return { dailyTasks: nextTasks, accounts: saveCurrentAccount(next) };
+        });
+        if (granted) get().addXp(inc, leagueXpKeyActivity("practice", key));
+        return granted;
       },
       getTodayXp: () => activeXp(get()).xpToday,
       getWeeklyXp: () => activeXp(get()).weeklyXp,

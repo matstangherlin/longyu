@@ -3,10 +3,10 @@ import {
   seedInstructionLocale,
   seedInterfaceLocale,
   seedLessonPlayerReady,
+  switchCourseInSettings,
+  switchInterfaceLocaleInSettings,
   waitForLazyPage,
 } from "./helpers";
-
-const EVIDENCE = "docs/reports/v488-screenshots";
 const PEDAGOGY_KEYS = [
   "completedLessons",
   "lessonMasteryById",
@@ -28,13 +28,11 @@ async function pedagogySnapshot(page: Page) {
   }, PEDAGOGY_KEYS);
 }
 
-async function openSettings(page: Page) {
-  await page.goto("/ajustes");
-  await waitForLazyPage(page);
-  await expect(page.getByTestId("instruction-locale-select")).toBeVisible();
+async function courseValue(page: Page) {
+  return page.locator("[data-course-direction-value]").getAttribute("data-course-direction-value");
 }
 
-test.describe("V4.8.8 course language", () => {
+test.describe("V4.8.8 / RC2.2.14B course language", () => {
   test("course switch changes instruction, never canonical progress/SRS identity", async ({ page }) => {
     await seedInterfaceLocale(page, "pt-BR");
     await seedInstructionLocale(page, "pt-BR");
@@ -46,10 +44,9 @@ test.describe("V4.8.8 course language", () => {
     await expect(page.getByText("O que é mandarim?", { exact: true }).first()).toBeVisible();
     const before = await pedagogySnapshot(page);
 
-    await openSettings(page);
-    await page.getByTestId("instruction-locale-select").selectOption("en");
+    await switchCourseInSettings(page, "en-zh");
     await expect(page.locator("html")).toHaveAttribute("data-instruction-locale", "en");
-    await expect(page.getByTestId("current-course-focus")).toContainText("English → Mandarim");
+    await expect(page.locator("[data-course-direction-value]")).toHaveText("Inglês → Mandarim");
 
     await page.goto("/licao/p1-o-que-e-mandarim");
     await waitForLazyPage(page);
@@ -57,38 +54,29 @@ test.describe("V4.8.8 course language", () => {
     await expect(page.getByRole("heading", { name: "What is Mandarin?", exact: true })).toBeVisible();
     expect(await pedagogySnapshot(page)).toEqual(before);
 
-    await openSettings(page);
-    await page.getByTestId("instruction-locale-select").selectOption("pt-BR");
+    await switchCourseInSettings(page, "pt-zh");
     await page.goto("/licao/p1-o-que-e-mandarim");
     await waitForLazyPage(page);
     await expect(page.getByText("O que é mandarim?", { exact: true }).first()).toBeVisible();
     expect(await pedagogySnapshot(page)).toEqual(before);
   });
 
-  test("app and course languages remain independently understandable", async ({ page }) => {
+  test("app and course languages are separate choices (interface never moves the course)", async ({ page }) => {
     await seedLessonPlayerReady(page, "p1-o-que-e-mandarim", { masteryLevel: 1, isPremium: true });
-    await openSettings(page);
+    await page.goto("/config/aprendizagem");
+    await waitForLazyPage(page);
+    expect(await courseValue(page)).toBe("pt-zh");
 
-    await expect(page.getByTestId("current-course-focus")).toContainText("Português (Brasil) → Mandarim");
-    await page.screenshot({ path: `${EVIDENCE}/settings-pt-course-pt.png`, fullPage: true });
+    // Interface EN: menus in English, course stays Portuguese → Mandarin.
+    await switchInterfaceLocaleInSettings(page, "en");
+    await expect(page.getByTestId("settings-interface-locale-row")).toContainText("App language");
+    expect(await courseValue(page)).toBe("pt-zh");
+    await expect(page.locator("[data-course-direction-value]")).toHaveText("Portuguese → Mandarin");
 
-    // First app-language choice follows the course while no manual override exists.
-    await page.getByTestId("interface-locale-select").selectOption("en");
-    await expect(page.getByTestId("instruction-locale-select")).toHaveValue("en");
-    await expect(page.getByTestId("current-course-focus")).toContainText("English → Mandarin");
-    await page.screenshot({ path: `${EVIDENCE}/settings-en-course-en.png`, fullPage: true });
-
-    // A manual course choice becomes authoritative and is not overwritten later.
-    await page.getByTestId("instruction-locale-select").selectOption("pt-BR");
-    await expect(page.getByTestId("current-course-focus")).toContainText("Português (Brasil) → Mandarin");
-    await page.screenshot({ path: `${EVIDENCE}/settings-en-course-pt.png`, fullPage: true });
-
-    await page.getByTestId("interface-locale-select").selectOption("pt-BR");
-    await page.getByTestId("instruction-locale-select").selectOption("en");
-    await expect(page.getByTestId("current-course-focus")).toContainText("English → Mandarim");
-    await page.screenshot({ path: `${EVIDENCE}/settings-pt-course-en.png`, fullPage: true });
-
-    await page.getByTestId("interface-locale-select").selectOption("en");
-    await expect(page.getByTestId("instruction-locale-select")).toHaveValue("en");
+    // Course EN with interface EN, then interface back to PT: course stays EN.
+    await switchCourseInSettings(page, "en-zh");
+    await switchInterfaceLocaleInSettings(page, "pt-BR");
+    expect(await courseValue(page)).toBe("en-zh");
+    await expect(page.locator("[data-course-direction-value]")).toHaveText("Inglês → Mandarim");
   });
 });

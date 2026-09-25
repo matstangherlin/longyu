@@ -439,18 +439,30 @@ export function ephemeralClients(env) {
   };
 }
 
-export async function createUser(admin, label) {
+export async function createUser(admin, label, { attempts = 4 } = {}) {
   const nonce = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
   const email = `ephemeral-${label}-${nonce}@example.com`;
   const password = `Ly!${crypto.randomBytes(16).toString("base64url")}9a`;
-  const { data, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { name: `Ephemeral ${label}` },
-  });
-  if (error || !data.user?.id) throw new EphemeralError(`createUser ${label}: ${error?.message ?? "sem user"}`);
-  return { id: data.user.id, email, password };
+  let lastDetail = "sem user";
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name: `Ephemeral ${label}` },
+    });
+    if (!error && data?.user?.id) return { id: data.user.id, email, password };
+    // GoTrue no stack efêmero às vezes devolve erro vazio/`{}` logo após o boot
+    // (visto no job Edge enquanto o job DB passa). Repetir com backoff curto.
+    lastDetail =
+      (typeof error?.message === "string" && error.message.trim()) ||
+      (error ? JSON.stringify(error) : "") ||
+      "sem user";
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
+    }
+  }
+  throw new EphemeralError(`createUser ${label}: ${lastDetail}`);
 }
 
 export async function signIn(env, identity) {
