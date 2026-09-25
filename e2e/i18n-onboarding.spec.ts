@@ -62,8 +62,10 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
     await expect(page.getByText(/Ponto de partida recomendado/)).toHaveCount(0);
     await expect(page.getByText(/Criar minha conta e salvar o resultado/)).toHaveCount(0);
     await page.getByTestId("create-account-cta").click();
-    await expect(page.getByRole("heading", { name: /Create your account to save the result/i })).toBeVisible();
-    await expect(page.getByText(/Crie sua conta para salvar o resultado/)).toHaveCount(0);
+    // RC2.2.17 · CL — cadastro em duas etapas: identidade primeiro.
+    await expect(page.getByRole("heading", { name: /Who are you\?/i })).toBeVisible();
+    await expect(page.getByText(/Quem é você/)).toHaveCount(0);
+    await expect(page.getByPlaceholder("e.g. Alex", { exact: true })).toBeVisible();
   });
 
   // RC2.2.14B — não há mais seletor de idioma no onboarding: a interface
