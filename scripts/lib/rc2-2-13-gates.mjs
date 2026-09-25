@@ -35,6 +35,7 @@ export const ALLOWED_PERMISSIONS = [
   "android.permission.RECORD_AUDIO",
   "android.permission.MODIFY_AUDIO_SETTINGS",
   "android.permission.POST_NOTIFICATIONS",
+  "android.permission.VIBRATE",
 ];
 export const FORBIDDEN_PERMISSION_RE = /LOCATION|CAMERA|CONTACTS|READ_PHONE|SMS|CALL_LOG|BLUETOOTH_SCAN|BODY_SENSORS/;
 export const EXACT_ALARM_PERMISSIONS = ["android.permission.SCHEDULE_EXACT_ALARM", "android.permission.USE_EXACT_ALARM"];

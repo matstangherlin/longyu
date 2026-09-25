@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { haptic } from "../../lib/haptics";
 import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ALL_LESSONS, getLesson, POST_CONVERSATION_TASK_LABELS, type LessonStep, type Skill, type StepKind } from "../../data/journey";
+import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS } from "../../data/chunks";
 import {
@@ -108,10 +109,11 @@ import { capAssistedGrade } from "../../lib/reviewLookup";
 import type { Grade } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionRegionProvider } from "./LessonActionRegion";
+import { isTapThrough, stepIdentity } from "../../lib/lessonStepContract";
+import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
-  type LessonTask,
   lessonRoundProgressForStep,
   type LessonRoundStep,
   lessonRoundStepsFor,
@@ -395,47 +397,6 @@ function LessonSummaryStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function roundKindSet(step: LessonRoundStep, stage?: LessonTask): Set<StepKind> {
-  return new Set([...(step.exercises ?? []), ...(stage?.stepKinds ?? []), step.kind]);
-}
-
-function roundSummary(step: LessonRoundStep, stage?: LessonTask): string {
-  if (step.postConversationPhase) {
-    const label = displayInstruction(
-      (step.postConversationTaskType && POST_CONVERSATION_TASK_LABELS[step.postConversationTaskType]) ||
-        step.title ||
-        t("player.postConversation")
-    );
-    const progress =
-      step.postConversationIndex && step.postConversationCount
-        ? ` (${step.postConversationIndex}/${step.postConversationCount})`
-        : "";
-    return `${t("player.postConversation")}${progress}: ${label}`;
-  }
-  const kinds = roundKindSet(step, stage);
-  const hasOldVocabulary = Boolean(step.reusesPreviousVocabulary?.length);
-  const hasTone = kinds.has("tone") || kinds.has("tone_pair");
-  const hasPinyin = hasTone || kinds.has("dialogue_choice") || kinds.has("listen_select");
-  const hasHanzi = kinds.has("hanzi_build") || kinds.has("recognize") || kinds.has("decompose") || kinds.has("hanzi_evolution");
-  const hasAssembly = kinds.has("sentence_build") || kinds.has("translation_build") || kinds.has("fill_blank") || kinds.has("produce");
-  const hasUnaided = kinds.has("free_production") || kinds.has("transfer_task") || kinds.has("conversation_repair");
-
-  if (step.lessonStageId === "consolidation") {
-    if (hasTone && hasOldVocabulary) return t("player.roundMixTonesOld");
-    if (hasHanzi && hasOldVocabulary) return t("player.roundHanziOld");
-    if (hasOldVocabulary) return t("player.roundQuickReview");
-    return t("player.roundLockMain");
-  }
-  if (hasTone && hasOldVocabulary) return t("player.roundMixTonesOld");
-  if (hasTone) return t("player.roundListenContour");
-  if (hasPinyin) return t("player.roundPinyinBridge");
-  if (hasHanzi) return t("player.roundWatchForm");
-  if (hasUnaided) return t("player.roundUnaided");
-  if (hasAssembly) return t("player.roundAssemble");
-  if (kinds.has("dialogue_choice") || kinds.has("conversation_scene")) return t("player.roundSituation");
-  if (kinds.has("microread")) return t("player.roundMicroread");
-  return t("player.roundPractice");
-}
 
 const STREAK_MILESTONES = PEARL_STREAK_MILESTONES.map((m) => m.days);
 const DRAGON_BREATH_LIVES = BREATH_LIVES;
@@ -2015,6 +1976,10 @@ export function LessonPlayer() {
   const [idx, setIdx] = useState(0);
   const idxRef = useRef(0);
   idxRef.current = idx;
+  /** RC2.2.14 — o aluno já tocou/digitou no passo atual (o plano não troca mais sob ele). */
+  const stepInteractedRef = useRef(false);
+  /** Momento em que o passo atual montou (guarda contra toque que atravessa). */
+  const stepMountedAtRef = useRef(0);
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
@@ -2210,6 +2175,20 @@ export function LessonPlayer() {
     const authored = authoredEnrichedSteps;
     setAdaptiveSteps(authored);
     setPlanReady(true);
+    // RC2.2.14 · Q (P1 "lição não avança"): o plano trava JÁ na primeira
+    // exibição. Antes ele só travava se o planejador terminasse com o aluno
+    // ainda no passo 0; num celular lento o aluno tocava "Entendi" antes e o
+    // plano nunca travava — daí cada mudança de learnedChars/completedLessons/
+    // cultureKnowledge refazia os passos NO MEIO da lição (pares trocados sob o
+    // componente, intro removida deslocando índices) e a atividade concluída
+    // não avançava. O planejador abaixo só substitui este plano no passo 0,
+    // antes de qualquer toque.
+    sessionPlanRef.current = {
+      lessonId: foundLesson.id,
+      nonce: planNonce,
+      masteryLevel: masteryLevelNow,
+      steps: authored,
+    };
     firstPaintMarkedRef.current = false;
     const gen = ++planGenRef.current;
     const nonceAtStart = planNonce;
@@ -2288,7 +2267,11 @@ export function LessonPlayer() {
        */
       planned = withToneContrastTeaching(foundLesson, planned);
       if (gen !== planGenRef.current) return;
-      if (idxRef.current > 0) return;
+      if (idxRef.current > 0 || stepInteractedRef.current) {
+        // O aluno já está respondendo: o plano exibido (travado acima) fica.
+        traceLessonStep({ lessonId: lessonIdAtStart, stepIndex: idxRef.current, kind: "plan", attempt: 0, event: "plan_swap_skipped" });
+        return;
+      }
       const liveMasteryLevel =
         useStore.getState().lessonMasteryById?.[foundLesson.id]?.level ??
         lessonMasteryById?.[foundLesson.id]?.level ??
@@ -2422,6 +2405,26 @@ export function LessonPlayer() {
     if (!entryChecked || finished || energyBlocked) return undefined;
     return installLessonActivityClock();
   }, [energyBlocked, entryChecked, finished]);
+
+  useLayoutEffect(() => {
+    stepInteractedRef.current = false;
+    stepMountedAtRef.current = performance.now();
+  }, [idx, stepAttempt, planNonce]);
+
+  // RC2.2.14 · Z — toque duplo não pode concluir DOIS passos: o segundo toque
+  // cai no botão do passo novo (mesma posição). Descarta cliques no passo e na
+  // área de ação durante a janela logo após a montagem.
+  useEffect(() => {
+    const swallow = (event: MouseEvent) => {
+      if (!isTapThrough(stepMountedAtRef.current, performance.now())) return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest("[data-lesson-step-frame], [data-lesson-action-region]")) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    document.addEventListener("click", swallow, true);
+    return () => document.removeEventListener("click", swallow, true);
+  }, []);
 
   // Avançar N→N+1 (ou retry) nunca herda o scroll da atividade anterior.
   useLayoutEffect(() => {
@@ -3133,6 +3136,8 @@ export function LessonPlayer() {
 
     setAnswerStreak(0);
     playSoundFx("error", soundEffects);
+    // Erro com painel: UM feedback tátil aqui (o Continuar depois não vibra de novo).
+    haptic("answerWrong");
 
     // Penalidade já aplicada neste step: erros seguintes não cobram de novo
     // nem reabrem o painel (o step já está imperfeito).
@@ -3257,11 +3262,17 @@ export function LessonPlayer() {
   }
 
   function handleDone(wasCorrect?: boolean, meta?: { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number }) {
-    const completionKey = `${lesson.id}:${planNonce}:${idx}:${stepAttempt}`;
-    if (completedStepKeyRef.current === completionKey) return;
-    completedStepKeyRef.current = completionKey;
-    let nextStreak = answerStreak;
     const currentStep = lesson.steps[idx];
+    // RC2.2.14 · W — a chave inclui a identidade do CONTEÚDO do passo: um passo
+    // diferente no mesmo índice nunca herda a conclusão do anterior.
+    const completionKey = `${lesson.id}:${planNonce}:${idx}:${stepAttempt}:${currentStep ? stepIdentity(currentStep) : "none"}`;
+    if (completedStepKeyRef.current === completionKey) {
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "duplicate_completion" });
+      return;
+    }
+    completedStepKeyRef.current = completionKey;
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completed" });
+    let nextStreak = answerStreak;
     const currentStepIsGraded = isGradedStep(currentStep);
     // VAR-015/016/017 — memória de variedade entre modos. Só atividades
     // avaliadas contam; repetição por recuperação vai rotulada para não ser
@@ -3393,6 +3404,7 @@ export function LessonPlayer() {
       errorStreakRef.current = 0;
       nextStreak = answerStreak + 1;
       setAnswerStreak(nextStreak);
+      haptic("answerCorrect");
       setCorrectBurst(nextStreak % 2 === 0 ? "Boa!" : "Certo");
       window.setTimeout(() => setCorrectBurst(null), 820);
       if (nextStreak >= 3 && nextStreak % 3 === 0) {
@@ -3412,6 +3424,7 @@ export function LessonPlayer() {
       // Erro que chegou aqui sem passar pelo painel (ex.: pular a questão):
       // aplica a penalidade padrão uma única vez.
       if (!hadRecordedMistake) {
+        if (currentStepIsGraded) haptic("answerWrong");
         recordCommittedError(currentStep, idx, "Pulou ou respondeu incorretamente");
         if (currentStepIsGraded) rememberMistakeTargets(currentStep);
       }
@@ -3445,8 +3458,13 @@ export function LessonPlayer() {
       finish(nextCorrect, "out_of_lives");
       return;
     }
-    if (idx + 1 >= total) finish(nextCorrect);
-    else setIdx(idx + 1);
+    if (idx + 1 >= total) {
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep.kind, attempt: stepAttempt, event: "finished" });
+      finish(nextCorrect);
+    } else {
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx + 1, kind: currentStep.kind, attempt: stepAttempt, event: "advanced" });
+      setIdx(idx + 1);
+    }
   }
 
   // Pular com Fôlego: gasta 1 Fôlego (Pro pula sem gastar), sem contar como erro
@@ -3517,6 +3535,7 @@ export function LessonPlayer() {
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
+    if (reason === "completed") haptic("lessonComplete");
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
     const gradedDomains = new Set<string>();
@@ -4506,21 +4525,10 @@ export function LessonPlayer() {
   const activeStageIndex = Math.min(Math.max(0, lessonTasks.length - 1), activeRoundProgress.stageIndex);
   const activeStage = lessonTasks[activeStageIndex];
   // Linha única e discreta abaixo da barra: etapa + intenção + nº da pergunta.
+  // RC2.2.14 · DJ — a linha de etapa mostra só "Etapa 4/6". O resumo da
+  // rodada e o contador de perguntas competiam com o enunciado no celular.
   const stageLabel = activeStage
-    ? [
-        t("player.stageOf", { index: activeStageIndex + 1, total: lessonTasks.length }),
-        displayInstruction(roundSummary(step, activeStage), locale),
-        isGradedStep(step) &&
-        activeRoundProgress.questionCount > 1 &&
-        activeRoundProgress.questionIndex > 0
-          ? t("player.questionOf", {
-              index: activeRoundProgress.questionIndex,
-              total: activeRoundProgress.questionCount,
-            })
-          : "",
-      ]
-        .filter(Boolean)
-        .join(" · ")
+    ? t("player.stageOf", { index: activeStageIndex + 1, total: lessonTasks.length })
     : undefined;
   const cultureTeachSkipped =
     lesson.lessonDomain === "culture" &&
@@ -4702,11 +4710,17 @@ export function LessonPlayer() {
         data-lesson-task-body
         data-current-step-kind={step.kind}
         data-current-step-index={idx}
+        onPointerDownCapture={() => {
+          stepInteractedRef.current = true;
+        }}
+        onKeyDownCapture={() => {
+          stepInteractedRef.current = true;
+        }}
         data-testid={lesson.lessonDomain === "culture" && step.kind === "intro" ? "culture-teach" : undefined}
         className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
         <StepRenderer
-          key={`${idx}:${stepAttempt}`}
+          key={`${planNonce}:${idx}:${stepAttempt}:${stepIdentity(step)}`}
           step={step}
           lessonId={lesson.id}
           attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}

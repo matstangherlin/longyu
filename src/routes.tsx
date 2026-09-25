@@ -90,6 +90,7 @@ const QaAudioDiscriminationPage = lazyNamed(
   "QaAudioDiscriminationPage"
 );
 const QaHanziBuilderPage = lazyNamed(() => import("./features/qa/QaHanziBuilderPage"), "QaHanziBuilderPage");
+const QaStepLabPage = lazyNamed(() => import("./features/qa/QaStepLabPage"), "QaStepLabPage");
 const QaConversationScenePage = lazyNamed(
   () => import("./features/qa/QaConversationScenePage"),
   "QaConversationScenePage"
@@ -135,6 +136,7 @@ export const routes: RouteObject[] = [
       { path: "qa/player", element: <QaHubPage /> },
       { path: "qa/audio-discrimination", element: <QaAudioDiscriminationPage /> },
       { path: "qa/hanzi-builder", element: <QaHanziBuilderPage /> },
+      { path: "qa/step-lab", element: <QaStepLabPage /> },
       { path: "qa/conversation-scene", element: <QaConversationScenePage /> },
       { path: "qa/:scenario", element: <QaScenarioPage /> },
     ],

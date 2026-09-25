@@ -87,16 +87,18 @@ function CharacterAvatar({
   return (
     <div
       className={[
-        "flex flex-col items-center gap-1.5 transition-all duration-300",
-        active ? "scale-105 opacity-100" : "scale-95 opacity-45",
+        // RC2.2.14 · DM — quem não fala fica mais discreto, mas legível: só o
+        // avatar esmaece; nome e papel mantêm contraste de texto.
+        "flex flex-col items-center gap-1 transition-all duration-300",
+        active ? "scale-105" : "scale-95",
       ].join(" ")}
     >
       <div
         className={[
-          "relative flex h-14 w-14 items-center justify-center rounded-full border text-xl font-semibold shadow-card sm:h-16 sm:w-16",
+          "relative flex h-11 w-11 items-center justify-center rounded-full border text-lg font-semibold shadow-card transition-opacity sm:h-16 sm:w-16 sm:text-xl",
           tone.bg,
           tone.fg,
-          active ? "border-accent ring-2 ring-accent/20" : "border-line",
+          active ? "border-accent ring-2 ring-accent/20" : "border-line opacity-70",
         ].join(" ")}
         aria-hidden
       >
@@ -107,7 +109,7 @@ function CharacterAvatar({
           </span>
         )}
       </div>
-      <span className={["text-xs font-semibold", active ? "text-ink" : "text-ink-faint"].join(" ")}>
+      <span className={["text-xs font-semibold", active ? "text-ink" : "text-ink-soft"].join(" ")}>
         {display.nameLatin}
         {display.nameHanzi ? <span className="hanzi ml-1 font-normal text-ink-faint">{display.nameHanzi}</span> : null}
       </span>
@@ -1308,8 +1310,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         <SettingBackdrop setting={step.setting} />
       </div>
 
-      <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
-        <div className="mb-4 flex items-end justify-between gap-4 px-1">
+      <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-3 pt-4 sm:px-4 sm:pb-4 sm:pt-5">
+        <div className="mb-3 flex items-end justify-between gap-4 px-1 sm:mb-4" data-conversation-cast>
           {left && (
             <CharacterAvatar
               character={left}

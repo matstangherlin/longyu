@@ -45,6 +45,8 @@ export const ALLOWED_PERMISSIONS = [
   "android.permission.MODIFY_AUDIO_SETTINGS",
   // RC2.2.13 — lembretes locais de estudo (Android 13+).
   "android.permission.POST_NOTIFICATIONS",
+  // RC2.2.14 — @capacitor/haptics (vibração curta; sem dado coletado).
+  "android.permission.VIBRATE",
 ];
 /** Plugins nativos que só existem se houver consumidor em src/lib/platform/. */
 export const RUNTIME_ONLY_PACKAGES = ["@capacitor/core", "@capacitor/android", "@capacitor/cli"];

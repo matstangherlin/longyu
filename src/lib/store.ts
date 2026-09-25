@@ -2115,6 +2115,8 @@ interface AppState {
   notificationPrefs: { enabled: boolean; streak: boolean; comeback: boolean };
   /** RC2.2.13 — versão da tela "Prepare o Longyu" já mostrada (0 = nunca). */
   nativePermissionIntroVersion: number;
+  /** RC2.2.14 — feedback tátil (Android). Independente dos sons. */
+  hapticsEnabled: boolean;
   slowAudio: boolean;
   accountSetupComplete: boolean;
   /** Durante exercícios da lição: desbloqueia medalhas sem mostrar o modal. */
@@ -2251,6 +2253,7 @@ interface AppState {
   setAutoPlayAudio: (enabled: boolean) => void;
   setNotificationPrefs: (patch: Partial<{ enabled: boolean; streak: boolean; comeback: boolean }>) => void;
   markNativePermissionIntroSeen: (version: number) => void;
+  setHapticsEnabled: (enabled: boolean) => void;
   setSlowAudio: (enabled: boolean) => void;
   setAccountSetupComplete: (v: boolean) => void;
   setHoldAchievementModals: (v: boolean) => void;
@@ -2643,6 +2646,7 @@ export const useStore = create<AppState>()(
       autoPlayAudio: true,
       notificationPrefs: { enabled: true, streak: true, comeback: true },
       nativePermissionIntroVersion: 0,
+      hapticsEnabled: true,
       slowAudio: false,
       accountSetupComplete: false,
       holdAchievementModals: false,
@@ -2752,6 +2756,7 @@ export const useStore = create<AppState>()(
         set((s) => ({ notificationPrefs: { ...(s.notificationPrefs ?? { enabled: true, streak: true, comeback: true }), ...patch } })),
       markNativePermissionIntroSeen: (version) =>
         set((s) => ({ nativePermissionIntroVersion: Math.max(s.nativePermissionIntroVersion ?? 0, version) })),
+      setHapticsEnabled: (enabled) => set({ hapticsEnabled: enabled }),
       setSlowAudio: (enabled) => set({ slowAudio: enabled }),
       setAccountSetupComplete: (v) =>
         set((s) => {

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { haptic } from "../../lib/haptics";
 import type { HanziBuilder, HanziGlyphPiece, HanziGuideStrength, HanziStroke } from "../../data/hanziBuilder";
 import { isCharMastered, resolveGuideStrength } from "../../data/hanziBuilder";
 import { playSoundFx } from "../../lib/soundFx";
@@ -144,6 +145,7 @@ export function HanziBuilderExercise({
   function addPiece(piece: BuilderPiece) {
     if (locked || usedIds.has(piece.id)) return;
     playSoundFx("pieceSelect", soundEffects);
+    haptic("piecePlaced");
     setSelected((current) => [...current, piece.id]);
     if (status !== "idle") setStatus("idle");
   }
@@ -151,6 +153,7 @@ export function HanziBuilderExercise({
   function removePiece(id: string) {
     if (locked) return;
     playSoundFx("tap", soundEffects);
+    haptic("pieceRemoved");
     setSelected((current) => current.filter((pieceId) => pieceId !== id));
     if (status !== "idle") setStatus("idle");
   }
@@ -210,6 +213,7 @@ export function HanziBuilderExercise({
     if (ok) {
       setStatus("correct");
       playSoundFx("success", soundEffects);
+      haptic("answerCorrect");
       // Registra o domínio deste caractere (persiste na conta/nuvem). firstTry =
       // montou sem nenhum erro nesta rodada — vale mais para o domínio.
       recordHanziBuilderResult({
@@ -222,6 +226,7 @@ export function HanziBuilderExercise({
     }
     setStatus("wrong");
     setHadMistake(true);
+    haptic("answerWrong");
     onWrong?.();
     if (!externalRetry) playSoundFx("error", soundEffects);
   }

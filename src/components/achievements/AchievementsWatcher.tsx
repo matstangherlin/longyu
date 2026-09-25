@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { hapticOnce } from "../../lib/haptics";
 import {
   ACHIEVEMENTS,
   achievementPresentationKind,
@@ -124,6 +125,11 @@ export function AchievementsWatcher() {
   }, [holdAchievementModals, pendingShow, soundEffects]);
 
   const current = queue[0];
+  // RC2.2.14 · BO — um feedback tátil por conquista, quando ELA aparece (em
+  // sequência, nunca todas juntas; re-render não vibra de novo).
+  useEffect(() => {
+    if (current) hapticOnce(`achievement:${current.id}`, "achievementReveal");
+  }, [current]);
   if (!current || holdAchievementModals || otherCelebration || sealRevealPending) return null;
 
   return (
