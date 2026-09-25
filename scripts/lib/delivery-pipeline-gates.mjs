@@ -402,6 +402,12 @@ export function validateReleaseIdentity(s) {
 // ---------------------------------------------------------------- 3. android release safety
 
 const SECRET_FILE = /(\.(jks|keystore|p12|pfx)$)|((^|\/)(keystore|key)\.properties$)|(service[-_]?account.*\.json$)|(google-play.*\.json$)|(play-credentials.*\.json$)/i;
+/**
+ * RC2.2.16 — manifesto PÚBLICO do Internal testing (fingerprints e estados, sem
+ * credencial). Só este caminho exato escapa da regra por nome; a varredura de
+ * conteúdo (chave privada / tipo service account) continua valendo nele.
+ */
+const PUBLIC_PLAY_MANIFESTS = new Set(["docs/release/google-play-internal.json"]);
 
 export function validateAndroidReleaseSafety(s) {
   const failures = [];
@@ -409,7 +415,7 @@ export function validateAndroidReleaseSafety(s) {
 
   for (const file of s.trackedFiles ?? []) {
     if (/\.(jks|keystore|p12|pfx)$/i.test(file) || /(^|\/)(keystore|key)\.properties$/.test(file)) fail("KEYSTORE_TRACKED", file, "keystore/propriedades de assinatura no Git");
-    else if (SECRET_FILE.test(file)) fail("SERVICE_ACCOUNT_COMMITTED", file, "credencial do Play no Git");
+    else if (SECRET_FILE.test(file) && !PUBLIC_PLAY_MANIFESTS.has(file)) fail("SERVICE_ACCOUNT_COMMITTED", file, "credencial do Play no Git");
   }
   for (const file of s.secretContentHits ?? []) fail("SERVICE_ACCOUNT_COMMITTED", file, "chave privada / service account em arquivo rastreado");
   for (const pattern of ["*service-account*.json", "google-play*.json", "*.jks", "*.keystore"]) {
