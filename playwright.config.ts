@@ -34,6 +34,9 @@ export default defineConfig({
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173",
+    // RC2.2.14B — a interface segue o idioma do sistema. A suíte simula um
+    // aparelho brasileiro; os specs de idioma sobrescrevem com test.use({ locale }).
+    locale: "pt-BR",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },

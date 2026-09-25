@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { seedTelemetryDeclined, waitForLazyPage } from "./helpers";
+import { chooseCourseIfAsked, seedCourseDirection, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 
 /**
  * RC2.2.14 · J–P — teste guiado: 5 micro-passos com o conteúdo da Lição 1,
@@ -33,6 +33,8 @@ test("landing → teste guiado → aprende → criar conta, sem gravar progresso
   const before = await storeSnapshot(page);
 
   await page.getByTestId("landing-guided-try").click();
+  // RC2.2.14B — primeiro o curso (uma vez), depois o teste guiado.
+  await chooseCourseIfAsked(page, "pt-zh");
   await expect(page).toHaveURL(/\/teste-guiado$/);
   const flow = page.getByTestId("guided-try");
   const action = page.locator("[data-guided-action]");
@@ -96,6 +98,7 @@ test("landing → teste guiado → aprende → criar conta, sem gravar progresso
 test("sair do teste volta para o início", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await seedTelemetryDeclined(page);
+  await seedCourseDirection(page, "pt-zh");
   await page.goto("/teste-guiado");
   await waitForLazyPage(page);
   await page.getByRole("button", { name: "Sair do teste" }).click();

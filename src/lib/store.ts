@@ -83,6 +83,7 @@ import {
   awaitStoryEnergyAttestation,
   clearStoryEnergyAttestation,
 } from "../services/storyEnergyAttestation";
+import { isAvailableCourseDirection, type CourseDirectionId } from "../i18n/courseDirection";
 import {
   leagueXpKeyActivity,
   leagueXpKeyImmersion,
@@ -1287,6 +1288,11 @@ interface AccountSnapshot extends XpBuckets {
   learnedChunks: string[];
   /** Domínio do HanziBuilder por caractere: guia dificuldade e silhueta. */
   hanziBuilderProgressByChar: HanziBuilderProgressMap;
+  /**
+   * RC2.2.14B — curso desta conta (pt-zh, en-zh…). Por conta: trocar de conta
+   * troca o curso; nunca vaza para outra. Só muda a camada de instrução.
+   */
+  courseDirection: CourseDirectionId | null;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -1470,6 +1476,7 @@ function blankSnapshot(): AccountSnapshot {
     learnedChars: [],
     learnedChunks: [],
     hanziBuilderProgressByChar: {},
+    courseDirection: null,
     completedLessons: [],
     lessonStarsById: {},
     lessonAttemptsById: {},
@@ -1582,6 +1589,9 @@ function buildCloudAccount(
     email: identity.email ?? existing?.email ?? fallback?.email,
     username: existing?.username ?? fallback?.username,
     usernamePendingClaim: existing?.usernamePendingClaim ?? fallback?.usernamePendingClaim,
+    // RC2.2.14B · W — o curso é DESTA conta: nunca herdado de outra conta
+    // (fallback) do aparelho. Sem valor, vem do perfil cloud.
+    courseDirection: isAvailableCourseDirection(existing?.courseDirection) ? existing.courseDirection : null,
     authMode: "cloud",
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
@@ -1601,6 +1611,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     learnedChars: s.learnedChars,
     learnedChunks: s.learnedChunks,
     hanziBuilderProgressByChar: s.hanziBuilderProgressByChar,
+    courseDirection: s.courseDirection ?? null,
     completedLessons: s.completedLessons,
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
@@ -1755,6 +1766,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     learnedChars: account.learnedChars ?? [],
     learnedChunks: account.learnedChunks ?? [],
     hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
+    courseDirection: isAvailableCourseDirection(account.courseDirection) ? account.courseDirection : null,
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
@@ -2137,6 +2149,7 @@ interface AppState {
   learnedChars: string[];
   learnedChunks: string[];
   hanziBuilderProgressByChar: HanziBuilderProgressMap;
+  courseDirection: CourseDirectionId | null;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -2263,6 +2276,11 @@ interface AppState {
   setNotificationPrefs: (patch: Partial<{ enabled: boolean; streak: boolean; comeback: boolean }>) => void;
   markNativePermissionIntroSeen: (version: number) => void;
   setHapticsEnabled: (enabled: boolean) => void;
+  /**
+   * RC2.2.14B — grava o curso NA CONTA ATUAL. Não toca progresso: lições,
+   * mastery, SRS, XP e ofensiva continuam os mesmos.
+   */
+  setCourseDirection: (id: CourseDirectionId) => void;
   setSlowAudio: (enabled: boolean) => void;
   setAccountSetupComplete: (v: boolean) => void;
   setHoldAchievementModals: (v: boolean) => void;
@@ -2671,6 +2689,7 @@ export const useStore = create<AppState>()(
       learnedChars: [],
       learnedChunks: [],
       hanziBuilderProgressByChar: {},
+      courseDirection: null,
       completedLessons: [],
       lessonStarsById: {},
       lessonAttemptsById: {},
@@ -2772,6 +2791,14 @@ export const useStore = create<AppState>()(
       markNativePermissionIntroSeen: (version) =>
         set((s) => ({ nativePermissionIntroVersion: Math.max(s.nativePermissionIntroVersion ?? 0, version) })),
       setHapticsEnabled: (enabled) => set({ hapticsEnabled: enabled }),
+      setCourseDirection: (id) => {
+        if (!isAvailableCourseDirection(id)) return;
+        set((s) => {
+          if (s.courseDirection === id) return {};
+          const next = { ...s, courseDirection: id };
+          return { courseDirection: id, accounts: saveCurrentAccount(next) };
+        });
+      },
       setSlowAudio: (enabled) => set({ slowAudio: enabled }),
       setAccountSetupComplete: (v) =>
         set((s) => {

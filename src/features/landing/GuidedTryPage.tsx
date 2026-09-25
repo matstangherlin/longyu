@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { speak } from "../../lib/tts";
@@ -8,6 +8,9 @@ import { Button, ButtonLink, ProgressBar } from "../../components/ui/primitives"
 import { IconCheck, IconSound, IconX } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { useTranslation } from "../../i18n/useTranslation";
+import { t as translate, type TranslateVars } from "../../i18n/catalog";
+import type { MessageKey } from "../../locales/pt-BR";
+import { hasCourseDirection } from "../../lib/courseDirectionState";
 
 /**
  * RC2.2.14 · J–P — Teste guiado de mandarim (~2 min), antes de criar conta.
@@ -31,8 +34,19 @@ type GuidedStep = (typeof GUIDED_TRY_STEPS)[number] | "done";
 
 type Choice = { id: string; label: string; correct: boolean };
 
+/**
+ * RC2.2.14B · AS — sem curso escolhido não há teste guiado: vai para a
+ * escolha do curso e volta para cá.
+ */
 export function GuidedTryPage() {
-  const { t } = useTranslation();
+  if (!hasCourseDirection()) return <Navigate to="/curso?next=%2Fteste-guiado" replace />;
+  return <GuidedTryFlow />;
+}
+
+function GuidedTryFlow() {
+  const { t, instructionLocale } = useTranslation();
+  // Cópia de APRENDIZAGEM no idioma do curso; botões e navegação na interface.
+  const tc = (key: MessageKey, vars?: TranslateVars) => translate(key, vars, instructionLocale);
   const navigate = useNavigate();
   const [step, setStep] = useState<GuidedStep>("listen");
   const [heard, setHeard] = useState(false);
@@ -45,11 +59,12 @@ export function GuidedTryPage() {
 
   const meaningChoices: Choice[] = useMemo(
     () => [
-      { id: "hello", label: t("guidedTry.optHello"), correct: true },
-      { id: "thanks", label: t("guidedTry.optThanks"), correct: false },
-      { id: "bye", label: t("guidedTry.optBye"), correct: false },
+      { id: "hello", label: tc("guidedTry.optHello"), correct: true },
+      { id: "thanks", label: tc("guidedTry.optThanks"), correct: false },
+      { id: "bye", label: tc("guidedTry.optBye"), correct: false },
     ],
-    [t]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tc muda só com o curso
+    [instructionLocale]
   );
   const pinyinChoices: Choice[] = useMemo(
     () => [
@@ -141,7 +156,7 @@ export function GuidedTryPage() {
         {step === "listen" && (
           <section className="flex flex-1 flex-col items-center justify-center text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">{t("guidedTry.listenEyebrow")}</p>
-            <h1 className="mt-2 font-serif text-2xl font-semibold text-ink">{t("guidedTry.listenTitle")}</h1>
+            <h1 className="mt-2 font-serif text-2xl font-semibold text-ink">{tc("guidedTry.listenTitle")}</h1>
             <button
               type="button"
               onClick={listen}
@@ -155,7 +170,7 @@ export function GuidedTryPage() {
               <div className="mt-6 animate-pop">
                 <div className="hanzi text-5xl text-ink">{NIHAO.hanzi}</div>
                 <div className="pinyin mt-1 text-lg text-ink-soft">{NIHAO.pinyin}</div>
-                <div className="mt-1 text-sm text-ink-soft">{t("guidedTry.meaningHello")}</div>
+                <div className="mt-1 text-sm text-ink-soft">{tc("guidedTry.meaningHello")}</div>
               </div>
             )}
           </section>
@@ -163,12 +178,12 @@ export function GuidedTryPage() {
 
         {step === "explain" && (
           <section className="flex flex-1 flex-col justify-center">
-            <h1 className="font-serif text-2xl font-semibold text-ink">{t("guidedTry.explainTitle")}</h1>
+            <h1 className="font-serif text-2xl font-semibold text-ink">{tc("guidedTry.explainTitle")}</h1>
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <GlyphCard hanzi={NI.hanzi} pinyin={NI.pinyin} gloss={t("guidedTry.glossYou")} />
-              <GlyphCard hanzi={HAO.hanzi} pinyin={HAO.pinyin} gloss={t("guidedTry.glossGood")} />
+              <GlyphCard hanzi={NI.hanzi} pinyin={NI.pinyin} gloss={tc("guidedTry.glossYou")} />
+              <GlyphCard hanzi={HAO.hanzi} pinyin={HAO.pinyin} gloss={tc("guidedTry.glossGood")} />
             </div>
-            <p className="mt-4 text-sm leading-6 text-ink-soft">{t("guidedTry.explainLead")}</p>
+            <p className="mt-4 text-sm leading-6 text-ink-soft">{tc("guidedTry.explainLead")}</p>
           </section>
         )}
 
@@ -176,14 +191,14 @@ export function GuidedTryPage() {
           <section className="flex flex-1 flex-col justify-center">
             {step === "meaning" ? (
               <>
-                <h1 className="font-serif text-2xl font-semibold text-ink">{t("guidedTry.meaningQuestion")}</h1>
+                <h1 className="font-serif text-2xl font-semibold text-ink">{tc("guidedTry.meaningQuestion")}</h1>
                 <div className="hanzi mt-4 text-center text-5xl text-ink">{NIHAO.hanzi}</div>
               </>
             ) : (
               <>
-                <h1 className="font-serif text-2xl font-semibold text-ink">{t("guidedTry.tonesTitle")}</h1>
-                <p className="mt-2 text-sm leading-6 text-ink-soft">{t("guidedTry.tonesLead")}</p>
-                <p className="mt-4 text-center font-semibold text-ink">{t("guidedTry.tonesQuestion")}</p>
+                <h1 className="font-serif text-2xl font-semibold text-ink">{tc("guidedTry.tonesTitle")}</h1>
+                <p className="mt-2 text-sm leading-6 text-ink-soft">{tc("guidedTry.tonesLead")}</p>
+                <p className="mt-4 text-center font-semibold text-ink">{tc("guidedTry.tonesQuestion")}</p>
                 <div className="hanzi mt-2 text-center text-5xl text-ink">{HAO.hanzi}</div>
               </>
             )}
@@ -212,15 +227,15 @@ export function GuidedTryPage() {
               })}
             </div>
             <p className="mt-3 min-h-5 text-sm text-ink-soft" role="status" aria-live="polite">
-              {pickedChoice ? (pickedChoice.correct ? t("guidedTry.right") : t("guidedTry.tryAgain")) : ""}
+              {pickedChoice ? (pickedChoice.correct ? tc("guidedTry.right") : tc("guidedTry.tryAgain")) : ""}
             </p>
           </section>
         )}
 
         {step === "build" && (
           <section className="flex flex-1 flex-col justify-center">
-            <h1 className="font-serif text-2xl font-semibold text-ink">{t("guidedTry.buildTitle")}</h1>
-            <p className="mt-2 text-sm leading-6 text-ink-soft">{t("guidedTry.buildLead")}</p>
+            <h1 className="font-serif text-2xl font-semibold text-ink">{tc("guidedTry.buildTitle")}</h1>
+            <p className="mt-2 text-sm leading-6 text-ink-soft">{tc("guidedTry.buildLead")}</p>
             <div className="mt-5 flex items-center justify-center gap-2" data-guided-slots>
               {target.map((_, slot) => (
                 <span
@@ -253,7 +268,7 @@ export function GuidedTryPage() {
               ))}
             </div>
             <p className="mt-3 min-h-5 text-center text-sm text-ink-soft" role="status" aria-live="polite">
-              {buildDone ? t("guidedTry.buildDone") : buildWrong ? t("guidedTry.buildHint") : ""}
+              {buildDone ? tc("guidedTry.buildDone") : buildWrong ? tc("guidedTry.buildHint") : ""}
             </p>
           </section>
         )}
@@ -263,13 +278,13 @@ export function GuidedTryPage() {
             <div className="flex justify-center">
               <Mascot size={96} variant="wave" />
             </div>
-            <h1 className="mt-3 text-center font-serif text-2xl font-semibold text-ink">{t("guidedTry.doneTitle")}</h1>
+            <h1 className="mt-3 text-center font-serif text-2xl font-semibold text-ink">{tc("guidedTry.doneTitle")}</h1>
             <ul className="mt-5 grid gap-2">
               {[
-                t("guidedTry.learnedNihao"),
-                t("guidedTry.learnedParts"),
-                t("guidedTry.learnedTones"),
-                t("guidedTry.learnedBuild"),
+                tc("guidedTry.learnedNihao"),
+                tc("guidedTry.learnedParts"),
+                tc("guidedTry.learnedTones"),
+                tc("guidedTry.learnedBuild"),
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5 rounded-2xl border border-line/70 bg-surface px-3.5 py-3 text-sm text-ink">
                   <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]">

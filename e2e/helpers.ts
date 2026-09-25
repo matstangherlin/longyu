@@ -110,6 +110,51 @@ export async function seedInterfaceLocale(page: Page, locale: "pt-BR" | "en") {
   }, locale);
 }
 
+/**
+ * RC2.2.14B — curso já escolhido antes da conta (pula a tela "Seu curso").
+ * Para fluxos que passam por /comecar ou /teste-guiado sem testar a escolha.
+ */
+export async function seedCourseDirection(page: Page, id: "pt-zh" | "en-zh" = "pt-zh") {
+  await page.addInitScript((value) => {
+    if (localStorage.getItem("longyu:course-direction-pending") === null) localStorage.setItem("longyu:course-direction-pending", value);
+  }, id);
+}
+
+/** RC2.2.14B — responde a tela "Seu curso" se ela aparecer. */
+export async function chooseCourseIfAsked(page: Page, id: "pt-zh" | "en-zh" = "pt-zh") {
+  const picker = page.getByTestId("course-picker");
+  const shown = await picker.waitFor({ state: "visible", timeout: 8_000 }).then(() => true, () => false);
+  if (!shown) return false;
+  await page.locator(`[data-course-choice="${id}"]`).click();
+  await page.getByTestId("course-picker-confirm").click();
+  return true;
+}
+
+/** RC2.2.14B — troca a interface por Configurações › Aprendizagem › Idioma do aplicativo. */
+export async function switchInterfaceLocaleInSettings(page: Page, locale: "pt-BR" | "en" | "system") {
+  const row = page.getByTestId("settings-interface-locale-row");
+  if (!(await row.isVisible().catch(() => false))) {
+    await page.goto("/config/aprendizagem");
+    await waitForLazyPage(page);
+  }
+  await page.getByTestId("settings-interface-locale-row").click();
+  await page.locator(`[data-locale-choice="${locale}"]`).click();
+}
+
+/** RC2.2.14B — troca o curso por Configurações › Aprendizagem › Curso. */
+export async function switchCourseInSettings(page: Page, id: "pt-zh" | "en-zh") {
+  const row = page.getByTestId("settings-course-row");
+  if (!(await row.isVisible().catch(() => false))) {
+    await page.goto("/config/aprendizagem");
+    await waitForLazyPage(page);
+  }
+  await page.getByTestId("settings-course-row").click();
+  await page.locator(`[data-course-choice="${id}"]`).click();
+  const confirm = page.getByTestId("course-change-confirm");
+  if (await confirm.isEnabled().catch(() => false)) await confirm.click();
+  else await page.getByRole("button", { name: /^(Cancelar|Cancel)$/ }).click();
+}
+
 /** Course/instruction locale is independent from the app chrome locale. */
 export async function seedInstructionLocale(
   page: Page,

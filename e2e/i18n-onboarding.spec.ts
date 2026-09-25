@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedInterfaceLocale, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
+import { seedCourseDirection, seedInterfaceLocale, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 
 async function completePlacement(page: import("@playwright/test").Page) {
   for (let i = 0; i < 16; i += 1) {
@@ -17,6 +17,7 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
   });
 
   test("onboarding PT-BR: /comecar → goal → self-assessment → Placement → result", async ({ page }) => {
+    await seedCourseDirection(page, "pt-zh");
     await page.goto("/comecar");
     await waitForLazyPage(page);
     await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
@@ -38,6 +39,7 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
 
   test("onboarding EN: full funnel without Portuguese chrome leak", async ({ page }) => {
     await seedInterfaceLocale(page, "en");
+    await seedCourseDirection(page, "en-zh");
     await page.goto("/comecar");
     await waitForLazyPage(page);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -70,34 +72,23 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
     await expect(page.getByText(/Crie sua conta para salvar o resultado/)).toHaveCount(0);
   });
 
-  test("mid-flow language switch keeps goal, experience, and Placement progress", async ({ page }) => {
-    await page.goto("/comecar");
-    await waitForLazyPage(page);
-    await page.getByRole("button", { name: /^Começar$/i }).click();
-    await page.getByTestId("onboarding-choice-travel").click();
-    await page.getByRole("button", { name: /^Continuar$/i }).click();
-    await page.getByTestId("onboarding-choice-zero").click();
-    await page.getByRole("button", { name: /^Continuar$/i }).click();
-    await expect(page.getByTestId("placement-quiz")).toBeVisible();
-    await expect(page.getByText(/Pergunta 1/i)).toBeVisible();
-    const firstOption = page.locator("[data-testid^='placement-option-']").first();
-    const firstOptionId = await firstOption.getAttribute("data-testid");
-    await firstOption.click();
-
-    await page.getByTestId("interface-locale-select").selectOption("en");
-    await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByText(/Question 1/i)).toBeVisible();
-    await expect(page.getByText(/Pergunta 1/)).toHaveCount(0);
-    await expect(page.locator(`[data-testid="${firstOptionId}"]`)).toHaveAttribute("aria-pressed", "true");
-
-    await page.getByTestId("interface-locale-select").selectOption("pt-BR");
-    await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
-    await expect(page.getByText(/Pergunta 1/i)).toBeVisible();
-    await expect(page.locator(`[data-testid="${firstOptionId}"]`)).toHaveAttribute("aria-pressed", "true");
-
-    await page.getByLabel(/Voltar|Back/i).click();
-    await expect(page.getByTestId("onboarding-choice-zero")).toHaveAttribute("aria-pressed", "true");
-    await page.getByLabel(/Voltar|Back/i).click();
-    await expect(page.getByTestId("onboarding-choice-travel")).toHaveAttribute("aria-pressed", "true");
+  // RC2.2.14B — não há mais seletor de idioma no onboarding: a interface
+  // segue o sistema (aparelho em inglês → onboarding em inglês) e o curso
+  // escolhido aparece com "Alterar" discreto, sem perguntar de novo.
+  test.describe("EN device", () => {
+    test.use({ locale: "en-US" });
+    test("interface follows the system; the course is shown, not asked again", async ({ page }) => {
+      await seedCourseDirection(page, "pt-zh");
+      await page.goto("/comecar");
+      await waitForLazyPage(page);
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(page.getByRole("heading", { name: /find your starting point/i })).toBeVisible();
+      await expect(page.locator("select")).toHaveCount(0);
+      await expect(page.getByTestId("course-direction-chip")).toContainText("Portuguese → Mandarin");
+      await page.getByRole("button", { name: /^Get started$/i }).click();
+      await page.getByTestId("onboarding-choice-travel").click();
+      await page.getByRole("button", { name: /^Continue$/i }).click();
+      await expect(page.getByTestId("course-direction-chip")).toHaveAttribute("data-course-direction", "pt-zh");
+    });
   });
 });

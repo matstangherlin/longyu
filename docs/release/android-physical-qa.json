@@ -56,6 +56,9 @@
   "mobileSettings": "NOT_RUN",
   "haptics": "NOT_RUN",
   "practiceRewards": "NOT_RUN",
+  "systemLocaleDetection": "NOT_RUN",
+  "systemLocaleChange": "NOT_RUN",
+  "coursePicker": "NOT_RUN",
   "performance": {
     "coldStartMs": null,
     "firstInteractiveMs": null,
@@ -89,5 +92,5 @@
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.14"
+  "extendedBy": "RC2.2.14B"
 }

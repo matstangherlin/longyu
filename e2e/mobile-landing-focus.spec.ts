@@ -48,18 +48,16 @@ for (const [width, height] of VIEWPORTS) {
   });
 }
 
-test("idioma compacto abre folha e troca para EN", async ({ page }) => {
-  await openLanding(page, 390, 844);
-  const button = page.getByTestId("landing-locale-button");
-  await expect(button).toHaveText(/PT-BR/);
-  const box = await button.boundingBox();
-  expect(box!.height).toBeGreaterThanOrEqual(48);
-  await button.click();
-  await expect(page.getByTestId("landing-locale-sheet")).toBeVisible();
-  await page.locator('[data-locale-option="en"]').click();
-  await expect(page.getByTestId("landing-locale-sheet")).toHaveCount(0);
+test("sem seletor de idioma: a interface segue o sistema (RC2.2.14B)", async ({ browser }) => {
+  const context = await browser.newContext({ locale: "en-US", viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  await seedTelemetryDeclined(page);
+  await page.goto("/");
+  await waitForLazyPage(page);
+  await expect(page.getByTestId("mobile-welcome")).toBeVisible();
+  await expect(page.locator("select, [data-testid='landing-locale-button']")).toHaveCount(0);
   await expect(page.getByTestId("landing-guided-try")).toHaveText(/guided try/i);
-  await expect(button).toHaveText(/EN/);
+  await context.close();
 });
 
 test("desktop mantém a landing de duas colunas com o teste guiado como opção", async ({ page }) => {

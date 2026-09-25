@@ -36,7 +36,7 @@ export const SETTINGS_CATEGORIES: readonly SettingsCategory[] = [
 /** Limite do índice no celular. */
 export const SETTINGS_INDEX_MAX = 7;
 
-/** Âncoras antigas (`/config#sons`) → categoria nova. */
+/** Links antigos com âncora (`/config#sons`) → categoria nova. */
 export const SETTINGS_HASH_TO_CATEGORY: Record<string, SettingsCategoryId> = {
   dados: "conta",
   privacidade: "conta",

@@ -1,28 +1,25 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ButtonLink } from "../../components/ui/primitives";
 import { Mascot } from "../../components/brand/Mascot";
-import { ModalOverlay } from "../../components/ui/ModalOverlay";
-import { IconCheck } from "../../components/ui/Icon";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
-import { LOCALE_DISPLAY_NAME, SUPPORTED_LOCALES, type SupportedLocale } from "../../i18n/config";
+import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { useTranslation } from "../../i18n/useTranslation";
-
-/** Rótulo curto do botão de idioma ("PT-BR", "EN"). */
-const LOCALE_SHORT: Record<SupportedLocale, string> = { "pt-BR": "PT-BR", en: "EN" };
 
 /**
  * RC2.2.14 · A–I — boas-vindas do celular e do app Android.
  *
  * A primeira dobra responde "como eu começo a aprender?": marca → dragão →
  * promessa curta → teste guiado de 2 min → "Já tenho uma conta" discreto.
+ * RC2.2.14B: sem seletor de idioma — a interface segue o idioma do sistema
+ * (Configurações › Idioma do aplicativo para mudar) e o curso é escolhido
+ * na tela seguinte.
  * Cards de benefício, BetaNotice longo, tema e rodapé saem da primeira dobra
  * (o tema mora em Configurações; os links legais ficam abaixo da dobra).
  */
 export function MobileWelcome() {
-  const { t, locale, setLocale } = useTranslation();
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const current = (SUPPORTED_LOCALES as readonly string[]).includes(locale) ? (locale as SupportedLocale) : "pt-BR";
+  const { t } = useTranslation();
+  // RC2.2.14B · Q — sem curso escolhido, o teste guiado começa pela escolha do curso.
+  const guidedTo = hasCourseDirection() ? "/teste-guiado" : "/curso?next=%2Fteste-guiado";
 
   return (
     <div
@@ -37,17 +34,6 @@ export function MobileWelcome() {
           <span className="inline-flex items-center gap-1.5 font-serif text-xl font-semibold text-accent">
             <span aria-hidden="true">🐉</span> Longyu
           </span>
-          <button
-            type="button"
-            data-testid="landing-locale-button"
-            aria-haspopup="dialog"
-            aria-label={t("marketing.localeButtonAria", { locale: LOCALE_DISPLAY_NAME[current] })}
-            onClick={() => setSheetOpen(true)}
-            className="inline-flex min-h-12 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-sm font-semibold text-ink shadow-card transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-          >
-            <span aria-hidden="true">🌐</span>
-            {LOCALE_SHORT[current]}
-          </button>
         </header>
 
         <main className="flex flex-1 flex-col items-center justify-center px-5 pb-4 text-center">
@@ -64,7 +50,7 @@ export function MobileWelcome() {
         </main>
 
         <div className="px-5 pb-[calc(var(--app-safe-bottom)+0.75rem)]">
-          <ButtonLink to="/teste-guiado" size="lg" className="w-full shadow-lift" data-testid="landing-guided-try">
+          <ButtonLink to={guidedTo} size="lg" className="w-full shadow-lift" data-testid="landing-guided-try">
             {t("marketing.ctaGuidedTry")}
           </ButtonLink>
           <Link
@@ -88,39 +74,6 @@ export function MobileWelcome() {
         </span>
       </footer>
 
-      {sheetOpen && (
-        <ModalOverlay label={t("marketing.localeSheetTitle")} onBackdropClick={() => setSheetOpen(false)}>
-          <div
-            data-testid="landing-locale-sheet"
-            className="w-full max-w-md rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,var(--app-safe-bottom))] shadow-card sm:rounded-3xl"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <h2 className="font-serif text-lg font-semibold text-ink">{t("marketing.localeSheetTitle")}</h2>
-            <ul className="mt-3 grid gap-2">
-              {SUPPORTED_LOCALES.map((code) => (
-                <li key={code}>
-                  <button
-                    type="button"
-                    data-locale-option={code}
-                    aria-pressed={current === code}
-                    onClick={() => {
-                      setLocale(code);
-                      setSheetOpen(false);
-                    }}
-                    className={[
-                      "flex min-h-12 w-full items-center justify-between rounded-2xl border px-4 text-left font-semibold transition",
-                      current === code ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink hover:bg-surface",
-                    ].join(" ")}
-                  >
-                    {LOCALE_DISPLAY_NAME[code]}
-                    {current === code && <IconCheck width={16} height={16} />}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </ModalOverlay>
-      )}
     </div>
   );
 }

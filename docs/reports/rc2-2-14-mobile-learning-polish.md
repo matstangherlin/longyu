@@ -33,7 +33,54 @@ No P0 open.
 
 ## 4. StepKind progression matrix
 
-<!-- STEP_MATRIX -->
+| StepKind | renderer | interaction | graded | completion | retry | crawl | invalid | E2E correct | wrong | 2nd sample |
+|---|---|---|---|---|---|---|---|---|---|---|
+| intro | StepIntro | read | no | dialogue_complete | none | 271 | 0 | PASS | n/a | PASS |
+| listen | StepListen | listen_speak | no | continue_button | none | 459 | 0 | PASS | n/a | PASS |
+| tone | StepTone | tone_choice | yes | feedback_continue | player_modal | 159 | 0 | PASS | n/a | PASS |
+| comprehend | StepComprehend | choice | yes | feedback_continue | player_modal | 422 | 0 | PASS | seen | PASS |
+| produce | StepProduce | token_build | yes | feedback_continue | player_modal | 43 | 0 | PASS | seen | PASS |
+| write | StepWrite | typing | yes | feedback_continue | player_modal | 42 | 0 | PASS | seen | PASS |
+| recognize | StepRecognize | choice | yes | feedback_continue | player_modal | 152 | 3 | PASS | seen | PASS |
+| decompose | StepDecompose | read | no | continue_button | none | 40 | 0 | PASS | n/a | PASS |
+| flashcard | StepFlashcard | read | no | continue_button | none | 245 | 0 | PASS | n/a | PASS |
+| microread | StepMicroread | read | no | continue_button | none | 6 | 0 | PASS | n/a | PASS |
+| match_pairs | StepMatchPairs | pairs | yes | feedback_continue | player_modal | 100 | 0 | PASS | seen | PASS |
+| listen_select | StepListenSelect | audio_choice | yes | feedback_continue | player_modal | 393 | 0 | PASS | seen | PASS |
+| sentence_build | StepSentenceBuild | token_build | yes | feedback_continue | player_modal | 437 | 0 | PASS | seen | PASS |
+| translation_build | StepTranslationBuild | token_build | yes | feedback_continue | player_modal | 11 | 0 | PASS | seen | PASS |
+| fill_blank | StepFillBlank | choice | yes | feedback_continue | player_modal | 361 | 0 | PASS | seen | PASS |
+| dialogue_choice | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 471 | 0 | PASS | seen | PASS |
+| conversation_scene | ConversationSceneStep | conversation | yes | scene_complete | in_component | 429 | 0 | PASS | seen (solve) | PASS |
+| hanzi_evolution | StepHanziEvolution | read | no | continue_button | none | 1 | 0 | PASS | n/a | PASS |
+| hanzi_build | StepHanziBuild | hanzi_build | yes | builder_correct | in_component | 137 | 0 | PASS | n/a | PASS |
+| tone_pair | StepTonePair | pairs | yes | feedback_continue | player_modal | 11 | 0 | PASS | seen | PASS |
+| image_choice | StepImageChoice | image_choice | yes | feedback_continue | player_modal | 335 | 0 | PASS | seen | PASS |
+| compare_with_image | StepCompareWithImage | image_choice | yes | feedback_continue | player_modal | 9 | 0 | PASS | seen | PASS |
+| audio_discrimination | StepAudioDiscrimination | audio_choice | yes | feedback_continue | player_modal | 34 | 0 | PASS | seen | PASS |
+| dictation | StepDictation | token_build | yes | feedback_continue | player_modal | 35 | 0 | PASS | n/a | PASS |
+| odd_one_out | StepOddOneOut | choice | yes | feedback_continue | player_modal | 29 | 0 | PASS | seen | PASS |
+| spot_error | StepSpotError | choice | yes | feedback_continue | player_modal | 38 | 0 | PASS | seen | PASS |
+| free_production | StepFreeProduction | speech_or_typing | yes | feedback_continue | player_modal | 307 | 0 | PASS | seen | PASS |
+| transfer_task | StepFreeProduction | speech_or_typing | yes | feedback_continue | player_modal | 17 | 0 | PASS | seen | PASS |
+| conversation_repair | StepConversationRepair | choice | yes | feedback_continue | player_modal | 89 | 0 | PASS | seen | PASS |
+| contextual_choice | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 135 | 0 | PASS | seen | PASS |
+| audio_to_action | StepListenSelect | audio_choice | yes | feedback_continue | player_modal | 41 | 0 | PASS | seen | PASS |
+| sentence_transform | StepSentenceBuild | token_build | yes | feedback_continue | player_modal | 30 | 0 | PASS | seen | PASS |
+| substitution_drill | StepDialogueChoice|StepFillBlank | choice | yes | feedback_continue | player_modal | 19 | 0 | PASS | seen | PASS |
+| dialogue_completion | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 53 | 0 | PASS | seen | PASS |
+| reverse_recall | StepFreeProduction | speech_or_typing | yes | feedback_continue | player_modal | 153 | 0 | PASS | seen | PASS |
+| map_direction | StepMapDirection | map | yes | feedback_continue | player_modal | 17 | 0 | PASS | seen | PASS |
+| place_label | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 20 | 0 | PASS | seen | PASS |
+| address_build | StepAddressBuild | token_build | yes | feedback_continue | player_modal | 4 | 0 | PASS | seen | PASS |
+| city_context | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 21 | 0 | PASS | seen | PASS |
+| sign_reading | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 14 | 0 | PASS | seen | PASS |
+| menu_reading | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 3 | 0 | PASS | seen | PASS |
+| price_task | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 7 | 0 | PASS | seen | PASS |
+| route_sequence | StepAddressBuild | token_build | yes | feedback_continue | player_modal | 7 | 0 | PASS | seen | PASS |
+| schedule_reading | StepDialogueChoice | choice | yes | feedback_continue | player_modal | 1 | 0 | PASS | seen | PASS |
+
+Total: 44 StepKinds, 5608 steps crawled across 134 lessons, 3 invalid (the 3 known l14-char-rev steps; see P2-06). E2E: 44/44 correct path, 44/44 second sample.
 
 Columns:
 - **crawl**: steps in the 134 lessons, authored + every mastery pass (the plan the player receives).

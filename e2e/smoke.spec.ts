@@ -7,6 +7,8 @@ import {
   seedLeagueDemoSession,
   seedOnboardedSession,
   waitForLazyPage,
+  chooseCourseIfAsked,
+  seedCourseDirection,
 } from "./helpers";
 
 test.describe("smoke", () => {
@@ -80,6 +82,9 @@ test.describe("smoke", () => {
   test("landing: Começar agora vai para /comecar", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: /Começar agora/i }).click();
+    // RC2.2.14B — sem curso escolhido, primeiro "Seu curso"; depois /comecar.
+    await page.waitForURL(/\/curso\?next=%2Fcomecar/);
+    await chooseCourseIfAsked(page, "pt-zh");
     await page.waitForURL("**/comecar");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
   });
@@ -126,6 +131,7 @@ test.describe("smoke", () => {
   });
 
   test("rota de conta responde", async ({ page }) => {
+    await seedCourseDirection(page, "pt-zh");
     await page.goto("/conta");
     await page.waitForURL(/\/comecar/);
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();

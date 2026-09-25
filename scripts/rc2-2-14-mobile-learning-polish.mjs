@@ -49,11 +49,11 @@ const MUTATIONS = {
   "mobile-landing-focus": [
     ["DY1. app Android volta à landing de desktop", "NATIVE_WELCOME_MISSING", src("landing", "if (isNativeApp() || !wide) return <MobileWelcome />;", "if (!wide) return <MobileWelcome />;")],
     ["DY2. cabeçalho sem safe-area", "SAFE_TOP_MISSING", src("welcome", "pt-[calc(var(--app-safe-top)+0.5rem)]", "pt-3")],
-    ["DY3. CTA principal volta a criar conta", "GUIDED_TRY_CTA_MISSING", src("welcome", '<ButtonLink to="/teste-guiado" size="lg"', '<ButtonLink to="/comecar" size="lg"')],
+    ["DY3. CTA principal volta a criar conta", "GUIDED_TRY_CTA_MISSING", src("welcome", '"/teste-guiado" : "/curso?next=%2Fteste-guiado"', '"/comecar" : "/comecar"')],
     ["DY4. rótulo do teste guiado some", "GUIDED_TRY_CTA_MISSING", src("ptBR", 'ctaGuidedTry: "Fazer teste guiado · 2 min"', 'ctaGuidedTry: "Começar"')],
     ["DY5. Já tenho uma conta vira botão grande", "HAS_ACCOUNT_NOT_DISCREET", src("welcome", '<Link\n            to="/login"\n            data-testid="landing-has-account"', '<ButtonLink\n            to="/login"\n            data-testid="landing-has-account"')],
     ["DY6. cards de benefício na primeira dobra", "FIRST_FOLD_CLUTTER", src("welcome", '{t("marketing.heroPromise")}</p>', '{t("marketing.heroPromise")}</p>\n          <p>{t("marketing.bulletBasics")}</p>')],
-    ["DY7. seletor de idioma largo no lugar da folha", "LOCALE_NOT_COMPACT", src("welcome", "{LOCALE_SHORT[current]}", "{LOCALE_DISPLAY_NAME[current]}")],
+    ["DY7. seletor de idioma volta ao cabeçalho do celular", "LANDING_LANGUAGE_CONTROL", src("welcome", "<span aria-hidden=\"true\">🐉</span> Longyu\n          </span>", "<span aria-hidden=\"true\">🐉</span> Longyu\n          </span>\n          <LanguageSwitcher compact id=\"landing-interface-locale\" />")],
     ["DY8. dragão some da primeira dobra", "FIRST_FOLD_ORDER", src("welcome", '<Mascot size={132} variant="wave"', '<span data-size={132} data-variant="wave"')],
     ["DY9. rodapé sobe para a primeira dobra", "FIRST_FOLD_ORDER", src("welcome", 'className="flex min-h-dvh flex-col"', 'className="flex flex-col"')],
   ],

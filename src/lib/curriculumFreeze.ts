@@ -333,3 +333,33 @@ export const RC2_2_14_MOBILE_LEARNING_POLISH_EXCEPTION = {
   fingerprint: "c48b008c9c1e",
   gate: "gate:rc2-2-14-mobile-learning-polish",
 } as const;
+
+/**
+ * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
+ * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
+ * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).
+ * O instructionLocale é derivado do curso; o conteúdo é o mesmo (canônico +
+ * overlays). Nenhuma lição, tópico, CultureItem, StepKind, SRS ou progresso
+ * muda; o fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_14B_LOCALE_COURSE_DIRECTION_EXCEPTION = {
+  id: "RC2_2_14B_LOCALE_COURSE_DIRECTION",
+  scope: "System interface locale, explicit CourseDirection, course picker, onboarding/settings language UX",
+  areas: [
+    "resolvePreferredInterfaceLocale (manual > system > fallback EN)",
+    "COURSE_DIRECTIONS registry (pt-zh, en-zh; es/fr/de registered, unavailable)",
+    "course picker before the Guided Try and onboarding",
+    "per-account courseDirection + profiles.instruction_locale (existing column)",
+    "Settings: Idioma do aplicativo + Curso rows",
+  ],
+  forbids: [
+    "new lessons or duplicated curriculum per language",
+    "separate learner profile per course",
+    "progress, SRS, XP or mastery change on course switch",
+    "course inferred from the system language",
+    "language dropdown on the Android landing",
+    "Supabase migration for course direction",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-14b-locale-course-direction",
+} as const;

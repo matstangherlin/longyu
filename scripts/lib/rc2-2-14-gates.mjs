@@ -210,7 +210,7 @@ export async function validateMobileLandingFocus(s) {
   if (!/data-testid="mobile-welcome-header"[\s\S]{0,160}pt-\[calc\(var\(--app-safe-top\)/.test(welcome))
     fail("SAFE_TOP_MISSING", "MobileWelcome.tsx", "cabeçalho respeita --app-safe-top");
   if (!/🐉<\/span> Longyu/.test(welcome)) fail("BRAND_MISSING", "MobileWelcome.tsx", "🐉 Longyu no cabeçalho");
-  if (!/<ButtonLink to="\/teste-guiado" size="lg"[^>]*data-testid="landing-guided-try"/.test(welcome) || !/t\("marketing\.ctaGuidedTry"\)/.test(welcome))
+  if (!/const guidedTo = hasCourseDirection\(\) \? "\/teste-guiado" : "\/curso\?next=%2Fteste-guiado";/.test(welcome) || !/<ButtonLink to=\{guidedTo\} size="lg"[^>]*data-testid="landing-guided-try"/.test(welcome) || !/t\("marketing\.ctaGuidedTry"\)/.test(welcome))
     fail("GUIDED_TRY_CTA_MISSING", "MobileWelcome.tsx", "CTA principal = teste guiado");
   if (localeValue(s.src.ptBR, "marketing", "ctaGuidedTry") !== "Fazer teste guiado · 2 min")
     fail("GUIDED_TRY_CTA_MISSING", "pt-BR.ts", 'rótulo "Fazer teste guiado · 2 min"');
@@ -219,8 +219,10 @@ export async function validateMobileLandingFocus(s) {
   const firstFold = welcome.slice(0, Math.max(0, welcome.indexOf("<footer")));
   if (/bulletBasics|bulletTones|<BetaNotice|setTheme|IconSun|marketing\.noCard/.test(firstFold))
     fail("FIRST_FOLD_CLUTTER", "MobileWelcome.tsx", "sem cards de benefício, BetaNotice, tema ou letra miúda na primeira dobra");
-  if (!/data-testid="landing-locale-button"/.test(welcome) || !/🌐/.test(welcome) || !/LOCALE_SHORT\[current\]/.test(welcome) || !/<ModalOverlay label=\{t\("marketing\.localeSheetTitle"\)\}/.test(welcome))
-    fail("LOCALE_NOT_COMPACT", "MobileWelcome.tsx", 'botão "🌐 PT-BR" que abre uma folha');
+  // RC2.2.14B — sem seletor de idioma no celular/app: a interface segue o
+  // sistema e muda em Configurações › Idioma do aplicativo.
+  if (/LanguageSwitcher|<select|landing-locale|setLocale|interface-locale-select/.test(welcome))
+    fail("LANDING_LANGUAGE_CONTROL", "MobileWelcome.tsx", "sem seletor de idioma na landing do celular/app");
   const order = ["<Mascot", "<h1", 't("marketing.heroPromise")', 'data-testid="landing-guided-try"', 'data-testid="landing-has-account"', "<footer"].map((token) => welcome.indexOf(token));
   if (order.some((index) => index < 0) || order.some((index, i) => i > 0 && index < order[i - 1]))
     fail("FIRST_FOLD_ORDER", "MobileWelcome.tsx", "marca → dragão → promessa → teste guiado → Já tenho conta → (dobra) rodapé");
@@ -241,7 +243,7 @@ export async function validateGuidedLearningTry(s) {
   if (/placement/i.test(guided)) fail("GUIDED_IS_PLACEMENT", "GuidedTryPage.tsx", "não é Placement");
   for (const ref of ["const NIHAO = chunkById.nihao;", "const NI = charById.ni;", "const HAO = charById.hao;", "const NV = charById.nv;", "const ZI = charById.zi;"])
     if (!guided.includes(ref)) fail("GUIDED_NOT_LESSON1_DATA", "GuidedTryPage.tsx", `reusar dados da Lição 1 (${ref})`);
-  if (!/t\("guidedTry\.doneTitle"\)/.test(guided) || !/<ButtonLink to="\/comecar"/.test(guided) || !/t\("guidedTry\.createAccount"\)/.test(guided))
+  if (!/tc?\("guidedTry\.doneTitle"\)/.test(guided) || !/<ButtonLink to="\/comecar"/.test(guided) || !/t\("guidedTry\.createAccount"\)/.test(guided))
     fail("GUIDED_END_MISSING", "GuidedTryPage.tsx", '"O que você acabou de aprender" + "Criar conta e continuar"');
   if (localeValue(s.src.ptBR, "guidedTry", "doneTitle") !== "O que você acabou de aprender" || localeValue(s.src.ptBR, "guidedTry", "createAccount") !== "Criar conta e continuar")
     fail("GUIDED_END_MISSING", "pt-BR.ts", "cópia do fim do teste");

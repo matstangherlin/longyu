@@ -9,10 +9,12 @@
  * `activeInterfaceLocaleAdapter` to a cloud-backed adapter.
  */
 
-import { DEFAULT_LOCALE, type SupportedLocale } from "./config";
+import { type SupportedLocale } from "./config";
 import {
   getInterfaceLocale,
+  getInterfaceLocaleSource,
   parseInterfaceLocale,
+  resolvePreferredInterfaceLocale,
   readPersistedInterfaceLocale,
   setInterfaceLocale as setLocalInterfaceLocale,
 } from "./locale";
@@ -49,17 +51,14 @@ export const cloudInterfaceLocaleAdapter: InterfaceLocaleAdapter = {
 export const activeInterfaceLocaleAdapter: InterfaceLocaleAdapter = localInterfaceLocaleAdapter;
 
 /**
- * Resolution order for this remessa:
- *   stored user preference (adapter) → local preference → pt-BR
- *
- * Adapter and local are the same store today.
+ * RC2.2.14B — a ordem canônica mora em `resolvePreferredInterfaceLocale()`
+ * (src/i18n/locale.ts): escolha manual → sistema → padrão. O adapter só
+ * existe para quando a interface também for preferência da conta.
  */
-export async function resolvePreferredInterfaceLocale(): Promise<SupportedLocale> {
+export async function resolveStoredInterfaceLocale(): Promise<SupportedLocale> {
   const stored = await activeInterfaceLocaleAdapter.getInterfaceLocale();
-  if (stored) return parseInterfaceLocale(stored);
-  const local = readPersistedInterfaceLocale();
-  if (local) return local;
-  return DEFAULT_LOCALE;
+  if (stored && getInterfaceLocaleSource() === "user") return parseInterfaceLocale(stored);
+  return resolvePreferredInterfaceLocale();
 }
 
 export { getInterfaceLocale };

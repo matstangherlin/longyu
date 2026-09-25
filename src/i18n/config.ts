@@ -2,8 +2,10 @@
  * Interface / instruction locales vs the Mandarin target.
  *
  * SupportedLocale is the language of the product chrome (buttons, nav, errors).
- * TARGET_LANGUAGE is what the student is learning. They are never derived
- * from country, IP, or `navigator.language`.
+ * TARGET_LANGUAGE is what the student is learning. Never derived from country
+ * or IP. RC2.2.14B: the INTERFACE starts from the system language (through
+ * src/lib/platform/systemLocale.ts); the COURSE is always an explicit choice
+ * (src/i18n/courseDirection.ts).
  */
 
 export const SUPPORTED_LOCALES = ["pt-BR", "en"] as const;
@@ -47,6 +49,16 @@ export type I18nNamespace = (typeof I18N_NAMESPACES)[number];
 export const INTERFACE_LOCALE_STORAGE_KEY = "longyu:interface-locale";
 export const INSTRUCTION_LOCALE_STORAGE_KEY = "longyu:instruction-locale";
 export const INSTRUCTION_LOCALE_OVERRIDE_STORAGE_KEY = "longyu:instruction-locale-user-override";
+/** RC2.2.14B — "system" (segue o aparelho) ou "user" (escolha manual; nunca sobrescrita). */
+export const INTERFACE_LOCALE_SOURCE_STORAGE_KEY = "longyu:interface-locale-source";
+/** RC2.2.14B — curso escolhido antes de existir conta (só neste aparelho; não é perfil). */
+export const PENDING_COURSE_DIRECTION_STORAGE_KEY = "longyu:course-direction-pending";
+
+/** Interfaces que existem hoje. Separado dos cursos: nem todo idioma-fonte de curso tem interface. */
+export const SUPPORTED_INTERFACE_LOCALES = SUPPORTED_LOCALES;
+/** Sistema num idioma sem interface (es, fr, de, zh, ja…) → inglês. */
+export const SYSTEM_FALLBACK_INTERFACE_LOCALE: SupportedLocale = "en";
+export type InterfaceLocaleSource = "system" | "user";
 
 /** Product i18n wave. Independent of LONGYU_RC_VERSION. */
 export const LONGYU_I18N_VERSION = "v4.8.8";
