@@ -720,7 +720,18 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
                 audio
                 align="center"
               />
-              <ToneContour tone={answer} mode="EARLY" locale={instructionLocale} className="mt-5" />
+              {/* RC2.2.17 · BS–CA — contorno guiado: linha de pitch, ponto que
+                  percorre a curva a cada áudio, mão e coluna ALTO/BAIXO. */}
+              <ToneContour
+                tone={answer}
+                mode="EARLY"
+                guided
+                gesture
+                heightScale
+                playKey={listenCount}
+                locale={instructionLocale}
+                className="mt-5"
+              />
             </>
           )}
           {listenCount > 0 && answer === 3 && (
@@ -5151,7 +5162,11 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
     if (stallTimerRef.current != null) window.clearTimeout(stallTimerRef.current);
   }, []);
   const onDone = useCallback<StepProps["onDone"]>((correct, meta) => {
-    if (completionSentRef.current) return;
+    traceLessonStep({ lessonId: lessonId ?? "unknown", stepIndex: -1, kind: step.kind, attempt: 0, event: "renderer_onDone" });
+    if (completionSentRef.current) {
+      traceLessonStep({ lessonId: lessonId ?? "unknown", stepIndex: -1, kind: step.kind, attempt: 0, event: "renderer_latched" });
+      return;
+    }
     completionSentRef.current = true;
     lastCompletionRef.current = { correct, meta };
     try {
@@ -5169,6 +5184,7 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
       if (stallTimerRef.current != null) window.clearTimeout(stallTimerRef.current);
       stallTimerRef.current = window.setTimeout(() => setStalled(true), STALL_GUARD_MS);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- trace só lê o tipo/lição do passo montado
   }, [stallGuard]);
   useEffect(() => {
     if (!stalled) return;

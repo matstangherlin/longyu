@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { ComponentType, SVGProps } from "react";
 import { JOURNEY, currentLessonId } from "../../data/journey";
 import { ProgressBar } from "../../components/ui/primitives";
@@ -12,7 +13,7 @@ import {
 } from "../../components/ui/Icon";
 import { canAccessDetailedErrors, canUsePracticeTool, useIsPro, type PracticeToolId } from "../../lib/proAccess";
 import { dueItems } from "../../lib/srs";
-import { DAILY_GOAL_PER_TRACK, useStore } from "../../lib/store";
+import { dailyGoalMinutesFor, useStore } from "../../lib/store";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { TONE_SHORT_LABEL, weakestToneFromProgress, type MandarinTone } from "../../data/toneTrainer";
@@ -56,7 +57,8 @@ export function TreinoPage() {
     (item) => item.lapses > 0 && (item.reviewedAt ?? item.createdAt) >= Date.now() - RECENT_ERROR_WINDOW_MS
   ).length;
   const totalMin = today.som + today.fala + today.hanzi + today.leitura;
-  const goalMin = DAILY_GOAL_PER_TRACK * 4;
+  const chosenDailyGoal = useStore((s) => s.dailyGoalMinutes);
+  const goalMin = dailyGoalMinutesFor({ dailyGoalMinutes: chosenDailyGoal });
   const weakTone = weakestToneFromProgress(toneTrainer);
   const dailyViews = buildMissionViews("daily", aggregates, dailyClaimed);
   const reviewMission = dailyViews.find((mission) => mission.id === "daily-reviews" && !mission.claimed);
@@ -197,7 +199,16 @@ export function TreinoPage() {
         </HubSection>
       )}
 
-      <HubProStrip isPremium={isPremium} />
+      {/* RC2.2.17 · DU — replay do Teste guiado, sem recompensa, fora da TabBar. */}
+      <Link
+        to="/teste-guiado?replay=1"
+        data-testid="treino-guided-try-replay"
+        className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-accent hover:underline"
+      >
+        {t("hub.guidedTryReplay")}
+      </Link>
+
+            <HubProStrip isPremium={isPremium} />
       <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "errors"} onClose={() => setPaywallKind(null)} />
     </HubPage>
   );

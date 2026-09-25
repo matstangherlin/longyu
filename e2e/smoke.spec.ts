@@ -145,7 +145,7 @@ test.describe("mobile", () => {
     await page.goto("/");
     // RC2.2.14 — no celular: teste guiado + "Já tenho uma conta" na primeira dobra.
     await expect(page.getByTestId("mobile-welcome")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Fazer teste guiado · 2 min" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Fazer teste guiado · 3 min" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Já tenho uma conta" })).toBeVisible();
 
     const layout = await page.evaluate(() => {

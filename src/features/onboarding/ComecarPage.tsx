@@ -3,13 +3,13 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/primitives";
 import { Mascot } from "../../components/brand/Mascot";
 import { BrandWordmark } from "../../components/layout/Brand";
-import { SpeakButton } from "../../components/ui/SpeakButton";
-import { IconCheck, IconChevron } from "../../components/ui/Icon";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+import { IconCheck, IconChevron, IconSound } from "../../components/ui/Icon";
 import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
-import { canRegisterWithCredentials } from "../../lib/authForm";
+import { canRegisterWithCredentials, isValidEmail } from "../../lib/authForm";
 import { checkUsername, storePendingUsername, USERNAME_REJECTION_KEY } from "../../lib/username";
 import type { MessageKey } from "../../locales/pt-BR";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -31,11 +31,10 @@ import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
 import {
   appendPendingAnswer,
-  assessmentTier,
+  MAX_QUIZ_LENGTH,
   chooseNextQuestion,
   createPendingPlacement,
   evaluatePlacementEvidence,
-  quizDifficulty,
   readPendingPlacement,
   shouldStopPlacement,
   writePendingPlacement,
@@ -53,27 +52,50 @@ import {
   placementPrompt,
 } from "../../lib/placement/uiCopy";
 import { ALL_LESSONS, JOURNEY } from "../../data/journey";
+import {
+  readOnboardingDraft,
+  writeOnboardingDraft,
+  type DailyGoalMinutes,
+  type OnboardingPath,
+} from "../../lib/onboardingDraft";
 
-type FunnelStep = "welcome" | "goal" | "level" | "quiz" | "result" | "account";
+/**
+ * RC2.2.17 · AG–AP — UM fluxo de onboarding.
+ *
+ *   Iniciante:   curso → Teste guiado → meta diária → conta → Jornada
+ *   Experiente:  curso → "Já estudo" → meta diária → [Teste de nível | Começar do início] → conta
+ *
+ * O quiz de placement (motor, evidência, commit no servidor, banco de
+ * perguntas) continua intacto; só deixou de ser caminho OBRIGATÓRIO do
+ * iniciante. Cada coisa é perguntada uma vez: curso (picker), meta diária
+ * (CANONICAL_DAILY_GOAL_STEP) e nível (só para quem escolheu o teste).
+ */
+type FunnelStep = "welcome" | "dailyGoal" | "placementOffer" | "level" | "quiz" | "result" | "account";
 
-const GOAL_OPTIONS: Array<{ id: string; icon: string; labelKey: string }> = [
-  { id: "travel", icon: "✈", labelKey: "onboarding.goalTravel" },
-  { id: "study", icon: "📚", labelKey: "onboarding.goalStudy" },
-  { id: "habit", icon: "🧠", labelKey: "onboarding.goalHabit" },
-  { id: "career", icon: "💼", labelKey: "onboarding.goalCareer" },
-  { id: "people", icon: "🤝", labelKey: "onboarding.goalPeople" },
-  { id: "hanzi", icon: "字", labelKey: "onboarding.goalHanzi" },
+/** RC2.2.17 · AI — a etapa canônica de meta diária deste app. */
+export const CANONICAL_DAILY_GOAL_STEP = "dailyGoal" as const;
+
+const DAILY_GOAL_CHOICES: Array<{ minutes: DailyGoalMinutes; labelKey: MessageKey }> = [
+  { minutes: 5, labelKey: "onboarding.dailyGoalLight" },
+  { minutes: 10, labelKey: "onboarding.dailyGoalSteady" },
+  { minutes: 15, labelKey: "onboarding.dailyGoalFocused" },
+  { minutes: 20, labelKey: "onboarding.dailyGoalIntense" },
 ];
 
+/** Quem já estuda escolhe o próprio nível; "do zero" nunca entra no teste. */
 const EXPERIENCE_OPTIONS: Array<{ id: Experience; icon: string; labelKey: string; descKey: string }> = [
-  { id: "zero", icon: "▂", labelKey: "onboarding.expZero", descKey: "onboarding.expZeroDesc" },
   { id: "words", icon: "▂▅", labelKey: "onboarding.expWords", descKey: "onboarding.expWordsDesc" },
   { id: "studied", icon: "▂▅▇", labelKey: "onboarding.expStudied", descKey: "onboarding.expStudiedDesc" },
   { id: "phrases", icon: "▂▅▇", labelKey: "onboarding.expPhrases", descKey: "onboarding.expPhrasesDesc" },
   { id: "advanced", icon: "▂▅▇█", labelKey: "onboarding.expAdvanced", descKey: "onboarding.expAdvancedDesc" },
 ];
 
-const STEPS: FunnelStep[] = ["welcome", "goal", "level", "quiz", "result", "account"];
+function stepsFor(path: OnboardingPath | null, wantsPlacement: boolean): FunnelStep[] {
+  if (path === "experienced" && wantsPlacement) return ["welcome", "dailyGoal", "placementOffer", "level", "quiz", "result", "account"];
+  if (path === "experienced") return ["welcome", "dailyGoal", "placementOffer", "account"];
+  // Iniciante: o Teste guiado (outra rota) fica entre "welcome" e a meta.
+  return ["welcome", "dailyGoal", "account"];
+}
 
 function firstName(name: string, fallback: string): string {
   return name.trim().split(/\s+/)[0] || fallback;
@@ -81,16 +103,6 @@ function firstName(name: string, fallback: string): string {
 
 function containsCjkText(value: string): boolean {
   return /[\u3400-\u9fff]/.test(value);
-}
-
-function quizLayerLabel(question: QuizQuestion, t: (key: string) => string): string {
-  if (question.withClue) return t("placement.layerClue");
-  const tier = assessmentTier(question);
-  if (tier === "A") return t("placement.layerSupport");
-  if (tier === "E") return t("placement.layerProduction");
-  if (tier === "D") return t("placement.layerAudioTone");
-  if (tier === "C") return t("placement.layerNewPhrase");
-  return t("placement.layerNoHelp");
 }
 
 function categoryLabel(category: QuizCategory, t: (key: string) => string): string {
@@ -104,13 +116,6 @@ function categoryLabel(category: QuizCategory, t: (key: string) => string): stri
     speaking: "placement.categorySpeaking",
   };
   return t(keys[category]);
-}
-
-function difficultyLabel(difficulty: number, t: (key: string) => string): string {
-  if (difficulty === 1) return t("placement.difficultyBase");
-  if (difficulty === 2) return t("placement.difficultyCurrent");
-  if (difficulty === 3) return t("placement.difficultyProbe");
-  return t("placement.difficultyAdvanced");
 }
 
 function entryPointForLesson(lessonId: string): { phaseTitle: string; unitTitle: string } | undefined {
@@ -133,8 +138,13 @@ export function ComecarPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [step, setStep] = useState<FunnelStep>("welcome");
-  const [goal, setGoal] = useState<string>();
+  // RC2.2.17 · AT — quem terminou o Teste guiado cai direto na meta diária.
+  const [draft] = useState(() => readOnboardingDraft());
+  const [path, setPath] = useState<OnboardingPath | null>(() => (draft.guidedTryCompleted ? "beginner" : draft.path));
+  const [step, setStep] = useState<FunnelStep>(() => (draft.guidedTryCompleted ? "dailyGoal" : "welcome"));
+  const [dailyGoal, setDailyGoal] = useState<DailyGoalMinutes | null>(() => draft.dailyGoalMinutes);
+  const [wantsPlacement, setWantsPlacement] = useState(false);
+  const goal: string | undefined = undefined;
   const [experience, setExperience] = useState<Experience>();
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [picked, setPicked] = useState<string>();
@@ -184,6 +194,33 @@ export function ComecarPage() {
     setStep("quiz");
     trackFunnelEvent("self_assessment_selected", { experience: level });
     trackFunnelEvent("placement_started", { experience: level });
+  }
+
+  /**
+   * RC2.2.17 · DX — o áudio da pergunta não tocou por causa do APARELHO:
+   * a pergunta sai sem resposta (TECHNICAL_SKIP), nunca conta como erro.
+   */
+  function skipTechnical() {
+    if (!question || !experience) return;
+    const session = readPendingPlacement() ?? createPendingPlacement({ declaredExperience: experience, goal: goal ?? null });
+    const nextAsked = askedIds.includes(question.id) ? askedIds : [...askedIds, question.id];
+    trackFunnelEvent("placement_question_answered", { questionId: question.id, hintUsed: false, dimension: question.category, technicalSkip: true });
+    const nextQuestion = chooseNextQuestion(experience, session.answers, nextAsked);
+    if (!nextQuestion || shouldStopPlacement(experience, session.answers)) {
+      writePendingPlacement({ ...session, askedQuestionIds: nextAsked });
+      if (session.answers.length === 0) {
+        setStep("placementOffer");
+        return;
+      }
+      setStep("result");
+      return;
+    }
+    const asked = [...nextAsked, nextQuestion.id];
+    writePendingPlacement({ ...session, askedQuestionIds: asked });
+    setAskedIds(asked);
+    setQuestion(nextQuestion);
+    setPicked(undefined);
+    setHinted(false);
   }
 
   function answerCurrent() {
@@ -278,8 +315,33 @@ export function ComecarPage() {
     navigate("/jornada", { replace: true });
   }
 
+  const STEPS = stepsFor(path, wantsPlacement);
   const index = STEPS.indexOf(step);
   const progress = Math.max(1, index + 1);
+
+  function chooseDailyGoal(minutes: DailyGoalMinutes) {
+    setDailyGoal(minutes);
+    writeOnboardingDraft({ dailyGoalMinutes: minutes });
+    trackFunnelEvent("daily_goal_selected", { minutes });
+  }
+
+  function afterDailyGoal() {
+    if (!dailyGoal) return;
+    if (path === "experienced") {
+      setStep("placementOffer");
+      return;
+    }
+    goToAccount();
+  }
+
+  function goToAccount() {
+    if (cloudUserId) {
+      void handleAuthenticatedPlacementSave();
+      return;
+    }
+    trackFunnelEvent("signup_started");
+    setStep("account");
+  }
 
   return (
     <div className="mx-auto flex min-h-[calc(100dvh_-_3rem)] w-full max-w-2xl flex-col">
@@ -293,8 +355,11 @@ export function ComecarPage() {
             }
             const current = STEPS.indexOf(step);
             const previous = STEPS[current - 1];
-            if (previous && previous !== "quiz") setStep(previous);
-            if (previous === "level") setStep("level");
+            if (previous === "quiz" || previous === "result") {
+              setStep("level");
+              return;
+            }
+            if (previous) setStep(previous);
           }}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg text-ink-faint transition hover:bg-surface-2"
           aria-label={t("onboarding.back")}
@@ -328,19 +393,32 @@ export function ComecarPage() {
       <div className="flex flex-1 flex-col justify-start pt-4 sm:pt-8">
         {step === "welcome" && (
           <Welcome
-            onStart={() => {
-              setStep("goal");
+            onBeginner={() => {
+              // AN — "Estou começando do zero" → Teste guiado → meta → conta.
+              setPath("beginner");
+              writeOnboardingDraft({ path: "beginner" });
+              trackFunnelEvent("self_assessment_selected", { experience: "zero" });
+              navigate("/teste-guiado");
+            }}
+            onExperienced={() => {
+              setPath("experienced");
+              writeOnboardingDraft({ path: "experienced" });
+              setStep("dailyGoal");
             }}
           />
         )}
-        {step === "goal" && (
-          <ChoiceGrid
-            prompt={t("onboarding.goalPrompt")}
-            choices={GOAL_OPTIONS.map((choice) => ({ ...choice, label: t(choice.labelKey) }))}
-            value={goal}
-            onPick={(id) => {
-              setGoal(id);
-              trackFunnelEvent("goal_selected", { goal: id });
+        {step === "dailyGoal" && (
+          <DailyGoalStep value={dailyGoal} onPick={chooseDailyGoal} />
+        )}
+        {step === "placementOffer" && (
+          <PlacementOffer
+            onTakeTest={() => {
+              setWantsPlacement(true);
+              setStep("level");
+            }}
+            onStartFromBeginning={() => {
+              setWantsPlacement(false);
+              goToAccount();
             }}
           />
         )}
@@ -376,6 +454,7 @@ export function ComecarPage() {
             onPick={setPicked}
             onSubmit={answerCurrent}
             onUseHint={() => setHinted(true)}
+            onTechnicalSkip={skipTechnical}
           />
         )}
         {step === "result" && !analysis && (
@@ -430,14 +509,15 @@ export function ComecarPage() {
         )}
       </div>
 
-      {step !== "welcome" && step !== "quiz" && step !== "result" && step !== "account" && (
+      {(step === "dailyGoal" || step === "level") && (
         <div className="sticky bottom-0 z-10 -mx-4 mt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent px-4 pb-[max(0.25rem,var(--app-safe-bottom))] pt-6">
           <Button
             size="lg"
-            className="w-full"
-            disabled={step === "goal" ? !goal : !experience}
+            className="longyu-press-feedback w-full"
+            data-testid={step === "dailyGoal" ? "daily-goal-continue" : "level-continue"}
+            disabled={step === "dailyGoal" ? !dailyGoal : !experience || busy}
             onClick={() => {
-              if (step === "goal" && goal) setStep("level");
+              if (step === "dailyGoal") afterDailyGoal();
               else if (step === "level" && experience) startQuiz(experience);
             }}
           >
@@ -459,7 +539,7 @@ export function ComecarPage() {
   );
 }
 
-function Welcome({ onStart }: { onStart: () => void }) {
+function Welcome({ onBeginner, onExperienced }: { onBeginner: () => void; onExperienced: () => void }) {
   const { t } = useTranslation();
   return (
     <div className="mx-auto grid w-full max-w-3xl items-center gap-8 md:grid-cols-2" data-testid="onboarding-welcome">
@@ -486,10 +566,70 @@ function Welcome({ onStart }: { onStart: () => void }) {
           isso merece um fluxo próprio, não uma legenda preventiva na primeira
           tela de quem ainda não começou.
         */}
-        <Button size="lg" onClick={onStart} className="mt-6 w-full md:w-auto">
-          {t("onboarding.getStarted")} <IconChevron width={18} height={18} />
+        <div className="mt-6 grid gap-2 md:max-w-sm">
+          <Button size="lg" onClick={onBeginner} className="longyu-press-feedback w-full" data-testid="onboarding-path-beginner">
+            {t("onboarding.pathBeginner")} <IconChevron width={18} height={18} />
+          </Button>
+          <Button size="lg" variant="outline" onClick={onExperienced} className="w-full" data-testid="onboarding-path-experienced">
+            {t("onboarding.pathExperienced")}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * RC2.2.17 · AI–AK — CANONICAL_DAILY_GOAL_STEP. Uma pergunta, quatro
+ * opções, sem julgamento: a escolha vira a meta diária da conta.
+ */
+function DailyGoalStep({ value, onPick }: { value: DailyGoalMinutes | null; onPick: (minutes: DailyGoalMinutes) => void }) {
+  const { t } = useTranslation();
+  return (
+    <div data-testid="daily-goal-step" data-canonical-step={CANONICAL_DAILY_GOAL_STEP}>
+      <MascotPrompt prompt={t("onboarding.dailyGoalPrompt")} />
+      <div className="mx-auto grid max-w-md gap-2" role="radiogroup" aria-label={t("onboarding.dailyGoalPrompt")}>
+        {DAILY_GOAL_CHOICES.map((choice) => {
+          const active = value === choice.minutes;
+          return (
+            <button
+              key={choice.minutes}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              data-daily-goal={choice.minutes}
+              onClick={() => onPick(choice.minutes)}
+              className={[
+                "flex min-h-14 items-center justify-between rounded-2xl border px-5 py-3 text-left transition",
+                active ? "border-accent bg-accent-soft ring-1 ring-accent" : "border-line bg-surface hover:bg-surface-2",
+              ].join(" ")}
+            >
+              <span className="text-lg font-semibold text-ink">{t("onboarding.dailyGoalMinutes", { n: choice.minutes })}</span>
+              <span className="text-sm text-ink-soft">{t(choice.labelKey)}</span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="mx-auto mt-3 max-w-md text-center text-xs text-ink-faint">{t("onboarding.dailyGoalNote")}</p>
+    </div>
+  );
+}
+
+/** RC2.2.17 · AN — Placement é opt-in de quem já estuda. */
+function PlacementOffer({ onTakeTest, onStartFromBeginning }: { onTakeTest: () => void; onStartFromBeginning: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <div className="mx-auto max-w-md" data-testid="placement-offer">
+      <MascotPrompt prompt={t("onboarding.placementOfferPrompt")} />
+      <div className="grid gap-2">
+        <Button size="lg" className="longyu-press-feedback w-full" onClick={onTakeTest} data-testid="placement-offer-test">
+          {t("onboarding.placementOfferTest")}
+        </Button>
+        <Button size="lg" variant="outline" className="w-full" onClick={onStartFromBeginning} data-testid="placement-offer-skip">
+          {t("onboarding.placementOfferSkip")}
         </Button>
       </div>
+      <p className="mt-3 text-center text-xs text-ink-faint">{t("onboarding.placementOfferNote")}</p>
     </div>
   );
 }
@@ -572,6 +712,7 @@ function QuizCard({
   onPick,
   onSubmit,
   onUseHint,
+  onTechnicalSkip,
 }: {
   index: number;
   total: number;
@@ -582,9 +723,10 @@ function QuizCard({
   onPick: (answer: string) => void;
   onSubmit: () => void;
   onUseHint: () => void;
+  onTechnicalSkip: () => void;
 }) {
   const { t, instructionLocale: locale } = useTranslation();
-  const difficulty = quizDifficulty(question, declaredLevel);
+  const maxQuestions = MAX_QUIZ_LENGTH[declaredLevel];
   const allowHints = question.hasHint === true;
   const [hintOpen, setHintOpen] = useState(false);
   const displayOptions = useMemo(
@@ -615,25 +757,16 @@ function QuizCard({
   }
 
   return (
-    <div data-testid="placement-quiz">
-      <MascotPrompt prompt={t("placement.questionN", { n: index + 1 })} />
+    <div data-testid="placement-quiz" data-question-category={question.category}>
+      {/* RC2.2.17 · AP/DA/DB — conteúdo primeiro: "Pergunta N de M", o
+          enunciado e as opções. Categoria/fase/camada seguem internas. */}
       <div className="mx-auto max-w-2xl text-center">
-        <div className="flex flex-wrap justify-center gap-2">
-          <span className="rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-            {categoryLabel(question.category, t)}
-          </span>
-          <span className="rounded-full border border-line px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-            {difficultyLabel(difficulty, t)}
-          </span>
-          <span className="rounded-full border border-line px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {quizLayerLabel(question, t)}
-          </span>
-        </div>
-        <h1 className="mt-3 font-serif text-3xl font-semibold text-ink">{placementPrompt(question, locale)}</h1>
+        <p className="text-xs font-semibold tabular-nums text-ink-faint" data-testid="placement-question-of">
+          {t("placement.questionOf", { n: index + 1, total: Math.max(maxQuestions, index + 1) })}
+        </p>
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{placementPrompt(question, locale)}</h1>
         {question.audioText && (
-          <div className="mt-4 flex justify-center">
-            <SpeakButton text={question.audioText} size="lg" />
-          </div>
+          <PlacementAudio key={question.id} text={question.audioText} onTechnicalSkip={onTechnicalSkip} />
         )}
         {question.stimulus && (
           <div className="mt-4 rounded-[24px] border border-line bg-surface-2 px-4 py-5">
@@ -673,6 +806,46 @@ function QuizCard({
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * RC2.2.17 · DW–DX — áudio da pergunta com o contrato de reprodução. Se o
+ * aparelho não tocar, a pergunta pode ser pulada como TECHNICAL_SKIP (não é
+ * erro do aluno, não pesa no nível).
+ */
+function PlacementAudio({ text, onTechnicalSkip }: { text: string; onTechnicalSkip: () => void }) {
+  const { t } = useTranslation();
+  const [state, setState] = useState<"idle" | "playing" | "heard" | "failed">("idle");
+  function play() {
+    setState("playing");
+    void playMandarinAudio(text).then((outcome) => {
+      if (outcome.superseded) return;
+      setState(outcome.started ? "heard" : "failed");
+    });
+  }
+  return (
+    <div className="mt-4 flex flex-col items-center gap-2" data-testid="placement-audio" data-audio-state={state}>
+      <button
+        type="button"
+        onClick={play}
+        aria-label={t("common.listen")}
+        className={["grid h-14 w-14 place-items-center rounded-full bg-accent text-white shadow-sm transition active:scale-95", state === "playing" ? "ring-4 ring-accent-soft" : ""].join(" ")}
+      >
+        <IconSound width={26} height={26} />
+      </button>
+      {state === "failed" && (
+        <div className="text-sm text-ink-soft" role="status">
+          <p>{t("placement.audioFailed")}</p>
+          <div className="mt-2 flex justify-center gap-2">
+            <Button size="sm" variant="outline" onClick={play}>{t("guidedTry.audioRetry")}</Button>
+            <Button size="sm" variant="outline" onClick={onTechnicalSkip} data-testid="placement-technical-skip">
+              {t("placement.technicalSkip")}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -799,61 +972,113 @@ function MandatoryAccount({
 }) {
   const cloud = isSupabaseBackendEnabled();
   const { t } = useTranslation();
+  // RC2.2.17 · CK–CN — cadastro em duas etapas curtas: identidade, depois
+  // segurança. Nunca 6 campos + card de requisitos na mesma tela.
+  const [phase, setPhase] = useState<"identity" | "security">("identity");
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const usernameOk = checkUsername(username).ok;
+  const identityReady = name.trim().length >= 2 && isValidEmail(email) && usernameOk;
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-xl rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("onboarding.accountEyebrow")}</div>
-      <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{t("onboarding.accountTitle")}</h1>
-      <p className="mt-2 text-sm text-ink-soft">
-        {t("onboarding.accountLead")}
-      </p>
-      <label className="mt-5 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.name")}</span>
-        <input value={name} onChange={(event) => onName(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder={t("onboarding.namePlaceholder")} />
-      </label>
-      <label className="mt-3 block">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
-        <input type="email" value={email} onChange={(event) => onEmail(event.target.value)} className="mt-1 h-12 w-full rounded-xl border border-line px-4" placeholder={t("auth.emailPlaceholder")} />
-      </label>
-      <UsernameField value={username} onChange={onUsername} />
-      <div className="mt-3">
-        <PasswordField
-          label={t("auth.password")}
-          value={password}
-          onChange={(event) => onPassword(event.target.value)}
-          autoComplete="new-password"
-          placeholder={t("auth.passwordPlaceholder")}
-        />
+    <form
+      onSubmit={(event) => {
+        if (phase === "identity") {
+          event.preventDefault();
+          if (identityReady) setPhase("security");
+          return;
+        }
+        onSubmit(event);
+      }}
+      className="mx-auto w-full max-w-xl"
+      data-testid="signup-form"
+      data-signup-phase={phase}
+    >
+      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+        {t("onboarding.accountStepOf", { n: phase === "identity" ? 1 : 2 })}
       </div>
-      <div className="mt-3">
-        <PasswordField
-          label={t("auth.confirmPassword")}
-          value={passwordConfirm}
-          onChange={(event) => onPasswordConfirm(event.target.value)}
-          autoComplete="new-password"
-          placeholder={t("auth.confirmPasswordPlaceholder")}
-        />
-      </div>
-      <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-3" />
-      <div className="mt-3">
-        <ProfileDetailsFields
-          birthDate={birthDate}
-          country={country}
-          marketingOptIn={marketingOptIn}
-          signupSource={signupSource}
-          onBirthDate={onBirthDate}
-          onCountry={onCountry}
-          onMarketingOptIn={onMarketingOptIn}
-          onSignupSource={onSignupSource}
-          showSignupSource
-        />
-      </div>
-      {error && <p className="mt-3 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm text-wrong">{localizeUserMessage(error)}</p>}
-      {!cloud && (
-        <p className="mt-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft">{t("errors.backendUnavailable")}</p>
+      <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">
+        {phase === "identity" ? t("onboarding.accountIdentityTitle") : t("onboarding.accountSecurityTitle")}
+      </h1>
+      {phase === "identity" ? (
+        <>
+          <label className="mt-5 block">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.name")}</span>
+            <input
+              value={name}
+              onChange={(event) => onName(event.target.value)}
+              className="mt-1 h-12 w-full rounded-xl border border-line px-4"
+              placeholder={t("onboarding.namePlaceholder")}
+              autoComplete="given-name"
+              data-testid="signup-name"
+            />
+          </label>
+          <label className="mt-3 block">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => onEmail(event.target.value)}
+              className="mt-1 h-12 w-full rounded-xl border border-line px-4"
+              placeholder={t("auth.emailPlaceholder")}
+              autoComplete="email"
+              data-testid="signup-email"
+            />
+          </label>
+          <UsernameField value={username} onChange={onUsername} />
+          <Button type="submit" size="lg" className="longyu-press-feedback mt-5 w-full" disabled={!identityReady} data-testid="signup-identity-continue">
+            {t("onboarding.continue")} <IconChevron width={18} height={18} />
+          </Button>
+        </>
+      ) : (
+        <>
+          <div className="mt-5">
+            <PasswordField
+              label={t("auth.password")}
+              value={password}
+              onChange={(event) => onPassword(event.target.value)}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+              autoComplete="new-password"
+              placeholder={t("auth.passwordPlaceholder")}
+            />
+          </div>
+          <div className="mt-3">
+            <PasswordField
+              label={t("auth.confirmPassword")}
+              value={passwordConfirm}
+              onChange={(event) => onPasswordConfirm(event.target.value)}
+              autoComplete="new-password"
+              placeholder={t("auth.confirmPasswordPlaceholder")}
+            />
+          </div>
+          <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-2" progressive focused={passwordFocused} />
+          <details className="mt-3 rounded-xl border border-line/70 px-3 py-2" data-testid="signup-more-details">
+            <summary className="cursor-pointer text-sm font-semibold text-ink-soft">{t("onboarding.accountMoreDetails")}</summary>
+            <div className="mt-2">
+              <ProfileDetailsFields
+                birthDate={birthDate}
+                country={country}
+                marketingOptIn={marketingOptIn}
+                signupSource={signupSource}
+                onBirthDate={onBirthDate}
+                onCountry={onCountry}
+                onMarketingOptIn={onMarketingOptIn}
+                onSignupSource={onSignupSource}
+                showSignupSource
+              />
+            </div>
+          </details>
+          {error && <p className="mt-3 rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm text-wrong">{localizeUserMessage(error)}</p>}
+          {!cloud && (
+            <p className="mt-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink-soft">{t("errors.backendUnavailable")}</p>
+          )}
+          <Button type="submit" size="lg" className="longyu-press-feedback mt-5 w-full" disabled={busy || name.trim().length < 2} data-testid="signup-submit">
+            {busy ? t("onboarding.creatingAccount") : t("onboarding.createAccountCta")}
+          </Button>
+          <button type="button" className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-ink-soft" onClick={() => setPhase("identity")}>
+            {t("onboarding.back")}
+          </button>
+        </>
       )}
-      <Button type="submit" size="lg" className="mt-5 w-full" disabled={busy || name.trim().length < 2}>
-        {busy ? t("onboarding.creatingAccount") : t("onboarding.createAccountCta")}
-      </Button>
       <Link to="/login" className="mt-3 inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-accent hover:underline">
         {t("onboarding.alreadyHaveAccount")}
       </Link>

@@ -36,7 +36,7 @@ test.describe("PT device", () => {
 
   test("interface PT → escolher curso → Português → Mandarim → teste guiado", async ({ page }) => {
     await freshLanding(page);
-    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 2 min");
+    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 3 min");
     // Sem seletor de idioma na landing do celular.
     await expect(page.locator("select, [data-testid='landing-locale-button']")).toHaveCount(0);
     await page.getByTestId("landing-guided-try").click();
@@ -93,7 +93,7 @@ test.describe("PT device", () => {
     const context = await browser.newContext({ locale: "pt-PT" });
     const page = await context.newPage();
     await freshLanding(page);
-    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 2 min");
+    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 3 min");
     await context.close();
   });
 });

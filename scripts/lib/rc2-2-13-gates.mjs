@@ -289,7 +289,8 @@ export async function validateNativeTts(s) {
   if (!/if \(hasNativeSpeech\(\)\) return nativeTtsKnownAvailable !== false;/.test(available))
     fail("TTS_REQUIRES_WEB_SPEECH", "tts.ts isTTSAvailable()", "no Android não depende de speechSynthesis");
   const speakNative = fnBody(tts, "function speakNative(");
-  if (!/\} else \{[\s\S]*?opts\.onerror\?\.\(\);[\s\S]*?\}\s*opts\.onend\?\.\(\);/.test(speakNative))
+  // RC2.2.17 · C — onerror agora leva o código honesto do motor (result.code).
+  if (!/\} else \{[\s\S]*?opts\.onerror\?\.\((?:result\.code)?\);[\s\S]*?\}\s*opts\.onend\?\.\(\);/.test(speakNative))
     fail("TTS_FAKE_SUCCESS", "tts.ts speakNative()", "falha nativa chama onerror (nunca finge que tocou)");
   if (!/disabled=\{unavailable && !usesNativeVoice\(\)\}/.test(s.src.speakButton))
     fail("SPEAK_BUTTON_DISABLED_ON_ANDROID", "SpeakButton.tsx", "o botão não morre por falta de speechSynthesis");
