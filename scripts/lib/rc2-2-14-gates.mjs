@@ -209,7 +209,7 @@ export async function validateMobileLandingFocus(s) {
     fail("NATIVE_WELCOME_MISSING", "LandingPage.tsx", "app Android e celular usam a composição própria");
   if (!/data-testid="mobile-welcome-header"[\s\S]{0,160}pt-\[calc\(var\(--app-safe-top\)/.test(welcome))
     fail("SAFE_TOP_MISSING", "MobileWelcome.tsx", "cabeçalho respeita --app-safe-top");
-  if (!/🐉<\/span> Longyu/.test(welcome)) fail("BRAND_MISSING", "MobileWelcome.tsx", "🐉 Longyu no cabeçalho");
+  if (!/<BrandLockup\b/.test(welcome)) fail("BRAND_MISSING", "MobileWelcome.tsx", "logo oficial (mascote + Longyu) no cabeçalho");
   if (!/const guidedTo = hasCourseDirection\(\) \? "\/teste-guiado" : "\/curso\?next=%2Fteste-guiado";/.test(welcome) || !/<ButtonLink to=\{guidedTo\} size="lg"[^>]*data-testid="landing-guided-try"/.test(welcome) || !/t\("marketing\.ctaGuidedTry"\)/.test(welcome))
     fail("GUIDED_TRY_CTA_MISSING", "MobileWelcome.tsx", "CTA principal = teste guiado");
   if (localeValue(s.src.ptBR, "marketing", "ctaGuidedTry") !== "Fazer teste guiado · 2 min")

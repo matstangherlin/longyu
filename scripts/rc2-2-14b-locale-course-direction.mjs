@@ -84,7 +84,7 @@ const MUTATIONS = {
     }],
   ],
   "mobile-language-ux": [
-    ["BL1. landing Android volta a mostrar o dropdown de idioma", "LANDING_LANGUAGE_CONTROL", src("welcome", '<span aria-hidden="true">🐉</span> Longyu\n          </span>', '<span aria-hidden="true">🐉</span> Longyu\n          </span>\n          <LanguageSwitcher compact id="landing-interface-locale" />')],
+    ["BL1. landing Android volta a mostrar o dropdown de idioma", "LANDING_LANGUAGE_CONTROL", src("welcome", "<BrandLockup size={34} />", "<BrandLockup size={34} />\n          <LanguageSwitcher compact id=\"landing-interface-locale\" />")],
     ["AK. Configurações volta com dropdown", "SETTINGS_NOT_MINIMAL", src("languageSettings", '<ul className="divide-y divide-line/70', '<select data-testid="interface-locale-select" /><ul className="divide-y divide-line/70')],
     ["AL. 'Foco do curso' volta", "SETTINGS_NOT_MINIMAL", src("settingsPage", "        <LanguageAndCourseSettings />\n", '        <LanguageAndCourseSettings />\n        <div data-testid="current-course-focus" />\n')],
     ["AI. sem 'Usar idioma do sistema'", "SYSTEM_OPTION_MISSING", src("languageSettings", 'id="system"', 'id="auto"')],

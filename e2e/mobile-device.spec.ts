@@ -264,7 +264,8 @@ test.describe("dispositivo — rede lenta", () => {
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible({
       timeout: 45_000,
     });
-    await expect(page.getByRole("link", { name: /Fazer teste guiado/i })).toBeVisible({
+    // Celular: "Fazer teste guiado"; desktop: "Ou faça o teste guiado".
+    await expect(page.getByRole("link", { name: /teste guiado/i }).first()).toBeVisible({
       timeout: 45_000,
     });
     await client.detach().catch(() => undefined);

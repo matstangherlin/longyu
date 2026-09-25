@@ -100,7 +100,7 @@ Columns:
 ## 6. Mobile landing (A–I)
 
 - The Android app always gets `MobileWelcome`; the web gets it below `lg`.
-- Header: `--app-safe-top` and 🐉 Longyu. The first 2.2.14 commit had a "🌐 PT-BR" language sheet here. **RC2.2.14B removed it**: the interface now follows the system language, and the course is chosen on `/curso`. See `docs/reports/rc2-2-14b-locale-course-direction.md`.
+- Header: `--app-safe-top` and the official logo (`BrandLockup`: mascot + Longyu), the same as the existing start screen. An intermediate version used a 🐉 emoji wordmark; the owner asked to keep the mascot logo, and the gate now fails with `BRAND_MISSING` (mutation DY10) if it is swapped again. The first 2.2.14 commit had a "🌐 PT-BR" language sheet here. **RC2.2.14B removed it**: the interface now follows the system language, and the course is chosen on `/curso`. See `docs/reports/rc2-2-14b-locale-course-direction.md`.
 - Order: dragon → short promise → **"Fazer teste guiado · 2 min"** → discreet "Já tenho uma conta".
 - Out of the first fold: the 4 benefit cards, the long BetaNotice, the theme toggle (now in Settings › Aparência) and the footer. Legal links and the version stay below the fold.
 - Desktop keeps the two-column landing and adds a guided-try link.
@@ -174,14 +174,14 @@ Columns:
 
 | Pair | Mutations |
 |---|---|
-| mobile-landing-focus | DY1–DY9 (9) |
+| mobile-landing-focus | DY1–DY10 (10) |
 | guided-learning-try | DZ9–DZ15 (7) |
 | lesson-step-progression (crawler over 134 lessons × passes) | EA16–EA30 (15) |
 | hanzi-mobile-focus | EB26–EB35 (10) |
 | practice-reward-integrity | EC36–EC42 (7) |
 | native-haptics | ED41–ED48 (8) |
 | mobile-settings-density | ED49–ED55 (7) |
-| **Total** | **63** |
+| **Total** | **64** |
 
 ## 15. E2E added
 
@@ -223,7 +223,32 @@ The QA-only page `/qa/step-lab` (behind `QaFastPathGate`) renders the real StepR
 
 ## 20. Global regression
 
-<!-- REGRESSION -->
+Run on this branch (RC2.2.14 + RC2.2.14B), preview build with test fixtures.
+
+**`npm run validate:beta`** (407 steps, every gate from RC2.2.8 to RC2.2.14B): **PASS** (exit 0).
+
+**Full Chromium E2E suite** (`npx playwright test --project=chromium`, 3 workers): **773 passed, 40 skipped, 7 failed** (34 min). The 7 failures:
+
+| Test | Cause | Action |
+|---|---|---|
+| `journey-redesign` › "Rever lição mantém chevron…" | Pre-existing: also fails on base `0c5ad5ae` (height 64.125 vs limit) | Not caused by this wave; left for the owner |
+| `journey-redesign` › "Continuar e Rever lição não esticam…" | Pre-existing: also fails on base (width 322) | Same |
+| `lesson-step-progression` › `listen_select` / `audio_to_action` | Test driver: these steps call `onDone` from a 520 ms timer after the feedback; the driver remounted the step before it fired, which cancels the timer. The product works (checked by hand) | Driver now waits up to 1.5 s for a pending completion (44/44 pass) |
+| `pedagogy` › "primeiros hànzì começa com fragmentos simples" | The test found its text in the stage line's round summary ("Observe a forma…"), which RC2.2.14 cut to "Etapa X/Y". Same player behaviour as base: the first tap on "Entendi" only finishes the guide's typing | Test anchors on the next step (with 木) instead of the removed summary |
+| `mobile-device` › "landing fica utilizável em 3G" | The test looked for "Fazer teste guiado", but on desktop width the link reads "Ou faça o teste guiado" | Regex `/teste guiado/i` |
+| `v490-pedagogical-spine` › Pinyin capsule PT/EN | It switched the explanation language by writing `longyu:instruction-locale` to storage. Since RC2.2.14B, the account's **course** is the authority, so a write outside the product no longer changes it | Switches course through Settings › Curso (`switchCourseInSettings`) |
+| `rc1-4-generated-learning-integrity` › P24.1 | Timing under 3 workers; passes alone (38 s) | None (not a product failure) |
+
+**Product fix found by the regression.** The double-tap guard (`useTapThroughGuard`) also counted a click *outside* the lesson, such as closing a notice or modal. A tap on a step button right after that could be swallowed. The guard now arms only when the previous tap was also inside the lesson. The real double tap (Continue → the next step's button in the same spot) stays blocked, and the `lesson-player-advance` double-tap E2E still passes.
+
+**After the fixes**, rerun on the new build:
+- `lesson-step-progression` 44/44;
+- `pedagogy` 10/10;
+- `mobile-device` 3G, `v490`, `lesson-player-advance`, `mobile-landing-focus` and `locale-course-direction`: 44/44;
+- gates `gate:rc2-2-14-mobile-learning-polish` (64 mutations) and `gate:rc2-2-14b-locale-course-direction` (38): PASS;
+- `validate:i18n`, `test:i18n`, `validate:encoding` and `validate:frontend-secrets`: PASS.
+
+RC2.2.14B (interface locale and course) is in `docs/reports/rc2-2-14b-locale-course-direction.md`.
 
 ## 21. Android
 

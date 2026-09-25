@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ButtonLink } from "../../components/ui/primitives";
 import { Mascot } from "../../components/brand/Mascot";
+import { BrandLockup } from "../../components/layout/Brand";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -31,9 +32,8 @@ export function MobileWelcome() {
           data-testid="mobile-welcome-header"
           className="flex items-center justify-between gap-3 px-4 pb-2 pt-[calc(var(--app-safe-top)+0.5rem)]"
         >
-          <span className="inline-flex items-center gap-1.5 font-serif text-xl font-semibold text-accent">
-            <span aria-hidden="true">🐉</span> Longyu
-          </span>
+          {/* Logo oficial (mascote + nome), o mesmo da tela inicial de sempre. */}
+          <BrandLockup size={34} />
         </header>
 
         <main className="flex flex-1 flex-col items-center justify-center px-5 pb-4 text-center">

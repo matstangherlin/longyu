@@ -76,9 +76,21 @@ async function visibleButtons(page: Page): Promise<{ locator: Locator; label: st
   const count = await buttons.count();
   const out: { locator: Locator; label: string }[] = [];
   for (let i = 0; i < count; i += 1) {
-    const locator = buttons.nth(i);
-    const label = ((await locator.getAttribute("aria-label")) || (await locator.textContent()) || "").trim();
-    if (await locator.isEnabled().catch(() => false)) out.push({ locator, label });
+    const indexed = buttons.nth(i);
+    const aria = ((await indexed.getAttribute("aria-label")) || "").trim();
+    const text = ((await indexed.textContent()) || "").trim();
+    const label = aria || text;
+    if (!(await indexed.isEnabled().catch(() => false))) continue;
+    // Locator estável (por texto/nome), não por posição: um botão que some por
+    // um instante (animação, rerender) deslocava o índice e o clique caía em
+    // outro botão.
+    const escaped = (text || aria).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const locator = text
+      ? lab(page).locator("button").filter({ hasText: new RegExp(`^\\s*${escaped}\\s*$`) }).first()
+      : aria
+        ? lab(page).locator(`button[aria-label="${aria.replace(/"/g, '\\"')}"]`).first()
+        : indexed;
+    out.push({ locator, label });
   }
   return out;
 }
@@ -103,6 +115,13 @@ async function settle(page: Page, rounds = 12): Promise<LabState> {
     if (await clickByLabel(page, SUBMIT)) continue;
     if (await clickByLabel(page, CONTINUE_LIKE)) continue;
     break;
+  }
+  // Alguns passos concluem por timer depois do feedback (ex.: listen_select,
+  // 520 ms). Espera a conclusão pendente antes de remontar — remontar cancela o timer.
+  for (let waited = 0; waited < 1_500; waited += 150) {
+    const state = await labState(page);
+    if (state.done > 0) return state;
+    await page.waitForTimeout(150);
   }
   return labState(page);
 }

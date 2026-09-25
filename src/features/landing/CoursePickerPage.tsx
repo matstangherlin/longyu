@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { BrandLockup } from "../../components/layout/Brand";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/primitives";
 import { CourseDirectionCards } from "../../components/i18n/CourseDirectionCards";
@@ -30,12 +31,12 @@ export function CoursePickerPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg" data-testid="course-picker">
       <header className="flex items-center px-4 pb-2 pt-[calc(var(--app-safe-top)+0.5rem)]">
-        <Link to="/" className="inline-flex min-h-12 items-center gap-1.5 font-serif text-xl font-semibold text-accent">
-          <span aria-hidden="true">🐉</span> Longyu
+        <Link to="/" className="inline-flex min-h-12 items-center" aria-label="Longyu">
+          <BrandLockup size={34} />
         </Link>
       </header>
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">🐉 {t("course.pickerEyebrow")}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">{t("course.pickerEyebrow")}</p>
         <h1 className="mt-2 font-serif text-[1.7rem] font-semibold leading-tight text-ink">{t("course.pickerTitle")}</h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">{t("course.pickerLead")}</p>
         <div className="mt-5">
