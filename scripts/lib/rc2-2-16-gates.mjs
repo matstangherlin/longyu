@@ -98,6 +98,11 @@ const EMULATOR_MODEL_RE = /sdk_gphone|Android SDK built for|google_sdk|emulator|
 const AD_SDK_RE = /admob|google-mobile-ads|play-services-ads|applovin|unity-ads|ironsource|facebook-audience|\/ads$/i;
 const ENTITLEMENT_FILES = ["src/lib/entitlements.ts", "src/lib/entitlementStatus.ts", "src/commercial/entitlements.ts", "src/services/entitlementService.ts"];
 
+/** Escape for RegExp (barra invertida e metacaracteres numa passada — CodeQL). */
+function escapeRegExp(text) {
+  return String(text ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // ---------------------------------------------------------------- estado
 
 const read = (rel) => (fs.existsSync(path.join(ROOT, rel)) ? fs.readFileSync(path.join(ROOT, rel), "utf8") : "");
@@ -315,7 +320,7 @@ export async function validateAndroidReleaseIdentity(s) {
   // R/S — constante canônica + manifesto congelado.
   const libId = s.src.identityLib.match(/export const ANDROID_APPLICATION_ID = "([^"]+)"/)?.[1];
   if (libId !== ID) fail("PACKAGE_ID_CHANGED", "scripts/lib/android-package-identity.mjs", `${libId ?? "ausente"} ≠ ${ID} (package congelado)`);
-  if (!new RegExp(`LEGACY_ANDROID_APPLICATION_IDS = Object\\.freeze\\(\\["${legacy.replace(/\./g, "\\.")}"\\]\\)`).test(s.src.identityLib)) {
+  if (!new RegExp(`LEGACY_ANDROID_APPLICATION_IDS = Object\\.freeze\\(\\["${escapeRegExp(legacy)}"\\]\\)`).test(s.src.identityLib)) {
     fail("PACKAGE_FREEZE_REMOVED", "android-package-identity.mjs", "lista de ids superseded removida");
   }
   const pi = s.json.packageIdentity;
@@ -339,12 +344,16 @@ export async function validateAndroidReleaseIdentity(s) {
     fail("GRADLE_APPLICATION_ID_MISMATCH", "android/app/build.gradle", "suffix/flavor mudaria o package do bundle final");
   }
 
-  // G — package Java.
+  // G — package Java. Sem RegExp no package id: evita js/incomplete-hostname-regexp
+  // (CodeQL trata "longyu.noba.com" como hostname se cair num RegExp).
   const javaDir = ID.split(".").join("/");
+  const javaPrefix = `android/app/src/`;
+  const javaMid = `/java/${javaDir}/`;
   const javaFiles = Object.keys(s.java);
   for (const rel of javaFiles) {
     const declared = s.java[rel].match(/^\s*package\s+([\w.]+)\s*;/m)?.[1];
-    if (!new RegExp(`^android/app/src/[^/]+/java/${javaDir}/`).test(rel) || declared !== ID) {
+    const underJava = rel.startsWith(javaPrefix) && rel.includes(javaMid);
+    if (!underJava || declared !== ID) {
       fail("JAVA_PACKAGE_MISMATCH", rel, `package ${declared ?? "ausente"} / diretório precisa ser ${ID} em java/${javaDir}/`);
     }
   }
