@@ -25,9 +25,10 @@ test.describe("dispositivo — toque", () => {
       test.skip(true, "Sem toque neste projeto (motor de mesa).");
     }
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
-    await page.getByRole("link", { name: /Começar agora/i }).tap();
-    await page.waitForURL("**/comecar");
-    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+    // RC2.2.14 — no celular o CTA principal é o teste guiado de 2 min.
+    await page.getByRole("link", { name: /Fazer teste guiado/i }).tap();
+    await page.waitForURL("**/teste-guiado");
+    await expect(page.getByTestId("guided-try")).toBeVisible();
   });
 
   test("primeira lição avança por toque (Entendi → opção)", async ({ page }) => {
@@ -263,7 +264,7 @@ test.describe("dispositivo — rede lenta", () => {
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible({
       timeout: 45_000,
     });
-    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible({
+    await expect(page.getByRole("link", { name: /Fazer teste guiado/i })).toBeVisible({
       timeout: 45_000,
     });
     await client.detach().catch(() => undefined);

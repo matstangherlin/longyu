@@ -17,6 +17,7 @@ function lazyNamed<T extends Record<string, unknown>>(
   );
 }
 
+const GuidedTryPage = lazyNamed(() => import("./features/landing/GuidedTryPage"), "GuidedTryPage");
 const JourneyPage = lazyNamed(() => import("./features/journey/JourneyPage"), "JourneyPage");
 const LessonCapsulePage = lazyNamed(() => import("./features/journey/LessonCapsulePage"), "LessonCapsulePage");
 const JourneyBoosterPage = lazyNamed(() => import("./features/journey/JourneyBoosterPage"), "JourneyBoosterPage");
@@ -102,6 +103,7 @@ import { NotFoundPage } from "./features/system/NotFoundPage";
 
 export const routes: RouteObject[] = [
   { path: "/", element: <LandingPage /> },
+  { path: "/teste-guiado", element: <GuidedTryPage /> },
   { path: "/aprender-mandarim", element: <MarketingPage /> },
   { path: "/curso-de-mandarim-online", element: <MarketingPage /> },
   { path: "/tons-do-mandarim", element: <MarketingPage /> },

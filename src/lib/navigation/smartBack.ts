@@ -95,6 +95,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
 
   // Público / auth (fora da casca; o Android ainda usa o mapa).
   { pattern: "/comecar", parent: "/", public: true },
+  { pattern: "/teste-guiado", parent: "/", public: true, ownBack: true },
   { pattern: "/login", parent: "/", public: true, ownBack: true },
   { pattern: "/esqueci-senha", parent: "/login", public: true, ownBack: true },
   { pattern: "/redefinir-senha", parent: "/login", public: true, ownBack: true },

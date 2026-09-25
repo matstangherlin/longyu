@@ -9,6 +9,7 @@ import { SettingSwitch } from "../../components/ui/SettingSwitch";
 import { NativeSettingsSections } from "../../components/native/NativeSettingsSections";
 import { IconChevron } from "../../components/ui/Icon";
 import { haptic } from "../../lib/haptics";
+import { useWideLayout } from "../../lib/useWideLayout";
 import { hasNativeHaptics } from "../../lib/platform/nativeHaptics";
 import { hasNativeNotifications } from "../../lib/platform/nativeNotifications";
 import {
@@ -144,7 +145,8 @@ export function SettingsPage() {
   const params = useParams();
   const navigate = useNavigate();
   const category = isSettingsCategory(params.category) ? params.category : null;
-  const wide = useWideSettings();
+  // Desktop (≥1024px) continua com a página única.
+  const wide = useWideLayout();
 
   function testSoundSignature() {
     // Tour da assinatura sonora: interação -> recompensa -> clímax.
@@ -1063,19 +1065,4 @@ function SettingsIndex() {
       </ul>
     </nav>
   );
-}
-
-/** Desktop (≥1024px) continua com a página única. */
-function useWideSettings(): boolean {
-  const query = "(min-width: 1024px)";
-  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.matchMedia?.(query).matches === true);
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return undefined;
-    const media = window.matchMedia(query);
-    const update = () => setWide(media.matches);
-    update();
-    media.addEventListener?.("change", update);
-    return () => media.removeEventListener?.("change", update);
-  }, []);
-  return wide;
 }
