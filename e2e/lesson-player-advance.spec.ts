@@ -234,4 +234,33 @@ test.describe("RC2.2.14 — avanço do cursor no LessonPlayer", () => {
     }
     expect((await cursor(page)) !== start || (await finished(page)), "passo depois do reload sem saída").toBe(true);
   });
+
+  for (const scale of [100, 130, 150]) {
+    test(`escala de fonte ${scale}%: passo e ação principal visíveis, sem rolagem lateral`, async ({ page }) => {
+      test.setTimeout(90_000);
+      await page.setViewportSize({ width: 360, height: 740 });
+      await page.addInitScript((value) => {
+        document.addEventListener("DOMContentLoaded", () => {
+          document.documentElement.style.fontSize = `${value}%`;
+        });
+      }, scale);
+      await openLesson(page, WALK_LESSONS[0]!);
+      for (let i = 0; i < 6; i += 1) {
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        expect(overflow, `rolagem lateral em ${scale}%`).toBeLessThanOrEqual(1);
+        const stage = page.locator("[data-lesson-progress-label]");
+        await expect(stage).toBeVisible();
+        // Texto grande pode rolar dentro da atividade; a ação tem de ser alcançável.
+        const action = page.locator("[data-lesson-action-region] button:visible, [data-lesson-step-frame] button:visible").last();
+        await action.scrollIntoViewIfNeeded().catch(() => undefined);
+        const box = await action.boundingBox();
+        expect(box, "sem ação visível").not.toBeNull();
+        expect(box!.y + box!.height).toBeLessThanOrEqual(740 + 1);
+        if (i === 0) await page.screenshot({ path: `test-results/rc2-2-14/lesson-font-${scale}.png` });
+        await beat(page);
+        await page.waitForTimeout(160);
+        if (await finished(page)) break;
+      }
+    });
+  }
 });

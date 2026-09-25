@@ -266,7 +266,9 @@ export function NativeSettingsSections({ parts = ALL_PARTS }: { parts?: readonly
       </HubSection>
       )}
 
-      {show("diagnostics") && !isProductionBetaEnv() && (
+      {show("diagnostics") ? (
+      <>
+      {!isProductionBetaEnv() && (
         <HubSection id="diagnostico-nativo" className="scroll-mt-6" title={t("nativeApp.diagnosticsTitle")}>
           <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="native-diagnostics-card">
             <p className="text-sm text-ink-soft">{t("nativeApp.pendingReminders", { count: status.pending })}</p>
@@ -284,6 +286,8 @@ export function NativeSettingsSections({ parts = ALL_PARTS }: { parts?: readonly
           </Card>
         </HubSection>
       )}
+      </>
+      ) : null}
     </>
   );
 }

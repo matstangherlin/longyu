@@ -294,3 +294,42 @@ export const RC2_2_13_ANDROID_NATIVE_UX_EXCEPTION = {
   fingerprint: "c48b008c9c1e",
   gate: "gate:rc2-2-13-native-mobile-experience",
 } as const;
+
+/**
+ * RC2.2.14 — exceção controlada ao BETA_PEDAGOGY_FREEZE para foco mobile,
+ * confiabilidade da lição, treino de Hànzì, recompensas de treino e
+ * vibração. Tudo sobre sistemas que já existem: o contrato de avanço é
+ * documentação verificável do StepRenderer atual, o teste guiado reusa os
+ * dados da Lição 1 sem gravar nada, as rodadas de hànzì reusam builders,
+ * quizzes, SRS, addXp, missões e PEARL_HANZI_MILESTONES, e Configurações só
+ * agrupa as seções existentes. O fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_14_MOBILE_LEARNING_POLISH_EXCEPTION = {
+  id: "RC2_2_14_MOBILE_LEARNING_POLISH",
+  scope: "Mobile landing, guided try, lesson step reliability, Hànzì training focus, practice rewards, haptics and Settings grouping",
+  areas: [
+    "mobile/native welcome + compact language sheet",
+    "guided Mandarin try (no persistence) from Lesson 1 data",
+    "per-StepKind advance contract, plan lock, step identity keys, tap-through guard, stall fail-safe",
+    "Hànzì hub (train now, 2-column modes, Atlas secondary) + focused rounds of 8",
+    "practice round XP via existing addXp with idempotent round keys and a daily cap",
+    "@capacitor/haptics adapter + hapticsEnabled preference",
+    "Settings index with category subpages (same sections)",
+    "stage line 'Etapa X/Y', conversation cast density",
+  ],
+  forbids: [
+    "new lessons",
+    "new teaching topics",
+    "new CultureItems",
+    "new StepKind",
+    "new SRS or mastery rule",
+    "new currency or economy",
+    "new reward engine",
+    "new Hànzì engine",
+    "new Settings system",
+    "haptic on every tap, nav, scroll or audio",
+    "persistent learner from the guided try",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-14-mobile-learning-polish",
+} as const;
