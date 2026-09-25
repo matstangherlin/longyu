@@ -1,4 +1,4 @@
-package com.longyu.app;
+package longyu.noba.com;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;

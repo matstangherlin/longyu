@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- RC2.2.10 — deep link foundation: com.longyu.app://revisao etc.
+            <!-- RC2.2.10 — deep link foundation: longyu.noba.com://revisao etc. (RC2.2.16: esquema = package do Play)
                  O JS só navega para rotas aprovadas (src/lib/platform/deepLinks.ts).
                  App Links https (autoVerify + assetlinks.json) ficam para o
                  domínio definitivo. -->

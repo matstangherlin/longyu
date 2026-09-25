@@ -20,6 +20,13 @@
  * (SHA, versão, plataforma, buildType, workflow run) em release-artifacts/.
  * Release oficial recusa árvore suja (só `--allow-dirty` aceita, e marca
  * official=false) e compara HEAD ↔ bundle web ↔ LONGYU_RELEASE_SHA.
+ *
+ * RC2.2.16 — todo APK/AAB é inspecionado DEPOIS do Gradle
+ * (scripts/android-inspect-bundle.mjs): o package lido do manifesto compilado
+ * precisa ser o do Play (scripts/lib/android-package-identity.mjs), o
+ * versionCode/versionName precisam bater com a identidade e o id antigo não
+ * pode aparecer em nenhuma entrada — senão exit 10, sem artefato oficial.
+ * No release, o SHA-256 do certificado de assinatura entra na proveniência.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -28,6 +35,8 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { missingSigningValues } from "./lib/android-signing.mjs";
+import { ANDROID_APPLICATION_ID } from "./lib/android-package-identity.mjs";
+import { bundleVerdict, inspectAndroidArtifact } from "./android-inspect-bundle.mjs";
 import {
   artifactBaseName,
   assertBuildMatchesRelease,
@@ -46,6 +55,7 @@ const isWindows = process.platform === "win32";
 export const EXIT_BLOCKED_SDK = 3;
 export const EXIT_BLOCKED_SIGNING = 4;
 export const EXIT_RELEASE_GUARD = 6;
+export const EXIT_PACKAGE_MISMATCH = 10;
 const args = process.argv.slice(3);
 const artifactsDir = path.join(root, "release-artifacts");
 
@@ -150,6 +160,22 @@ function sha256(file) {
   return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
+/** RC2.2.16 · O — o artefato final precisa ter o package do Play e a versão da identidade. */
+function requireBundleIdentity(file, identity) {
+  const inspection = inspectAndroidArtifact(fs.readFileSync(file), path.basename(file));
+  const verdict = bundleVerdict(inspection, ANDROID_APPLICATION_ID);
+  const versionOk = inspection.versionCode === identity.versionCode && inspection.versionName === identity.versionName;
+  if (!verdict.ok || !versionOk) {
+    console.error(
+      `${verdict.ok ? "VERSION_MISMATCH" : verdict.code}: ${path.basename(file)} → package ${inspection.packageName}, ` +
+        `versionCode ${inspection.versionCode}, versionName ${inspection.versionName}, id antigo ${inspection.legacyIdFound ? "presente" : "ausente"} ` +
+        `(esperado ${ANDROID_APPLICATION_ID} · ${identity.versionCode} · ${identity.versionName})`
+    );
+    process.exit(EXIT_PACKAGE_MISMATCH);
+  }
+  return inspection;
+}
+
 /** Copia APK/AAB para release-artifacts/ com nome identificável + proveniência (sem segredo nenhum). */
 function collectArtifacts(git, buildType, outputs, extra = {}) {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
@@ -170,19 +196,38 @@ function collectArtifacts(git, buildType, outputs, extra = {}) {
   fs.mkdirSync(artifactsDir, { recursive: true });
   const base = artifactBaseName(identity);
   const files = [];
+  let bundleInspection = null;
   for (const [ext, rel] of outputs) {
     const source = path.join(androidDir, rel);
     if (!fs.existsSync(source)) continue;
+    const inspection = requireBundleIdentity(source, identity);
+    if (ext === "aab" || !bundleInspection) bundleInspection = inspection;
     const name = `${base}.${ext}`;
     const target = path.join(artifactsDir, name);
     fs.copyFileSync(source, target);
-    files.push({ name, sha256: sha256(target), bytes: fs.statSync(target).size });
+    files.push({ name, sha256: sha256(target), bytes: fs.statSync(target).size, packageName: inspection.packageName });
   }
   if (files.length === 0) releaseGuardFail(new Error(`android-cli: nenhum artefato ${buildType} encontrado`));
-  const provenance = { ...buildProvenance(identity, files), dirtyTree: git.dirty, ...extra };
-  fs.writeFileSync(path.join(artifactsDir, `${base}.provenance.json`), `${JSON.stringify(provenance, null, 2)}\n`);
-  console.log(`android: ${files.map((file) => file.name).join(" + ")} (+ ${base}.provenance.json) em release-artifacts/ · versionCode ${identity.versionCode} · ${identity.shortSha}`);
-  return provenance;
+  const provenance = {
+    ...buildProvenance(identity, files),
+    packageName: bundleInspection.packageName,
+    bundleInspection: {
+      kind: bundleInspection.kind,
+      packageName: bundleInspection.packageName,
+      versionCode: bundleInspection.versionCode,
+      versionName: bundleInspection.versionName,
+      providerAuthorities: bundleInspection.providerAuthorities,
+      legacyIdFound: bundleInspection.legacyIdFound,
+    },
+    dirtyTree: git.dirty,
+    ...extra,
+  };
+  const provenancePath = path.join(artifactsDir, `${base}.provenance.json`);
+  fs.writeFileSync(provenancePath, `${JSON.stringify(provenance, null, 2)}\n`);
+  console.log(
+    `android: ${files.map((file) => file.name).join(" + ")} (+ ${base}.provenance.json) em release-artifacts/ · ${provenance.packageName} · versionCode ${identity.versionCode} · ${identity.shortSha}`
+  );
+  return { ...provenance, provenancePath };
 }
 
 const DEBUG_OUTPUTS = [
@@ -231,15 +276,17 @@ const COMMANDS = {
     const provenance = collectArtifacts(git, "release", [["aab", "app/build/outputs/bundle/release/app-release.aab"]], guard);
     // RC2.2.12 · Y — AAB assinado sem evidência de assinatura não existe:
     // verifica (nunca debug key) e grava o SHA-256 público ao lado do AAB.
-    for (const file of provenance.files ?? provenance.artifacts ?? []) {
+    const { provenancePath, ...recorded } = provenance;
+    for (const file of provenance.files ?? []) {
       const aab = path.join(artifactsDir, file.name);
-      run(process.execPath, [
-        path.join(root, "scripts", "android-verify-signature.mjs"),
-        aab,
-        "--out",
-        aab.replace(/\.aab$/, ".signature.json"),
-      ]);
+      const signaturePath = aab.replace(/\.aab$/, ".signature.json");
+      run(process.execPath, [path.join(root, "scripts", "android-verify-signature.mjs"), aab, "--out", signaturePath]);
+      // RC2.2.16 · AH — proveniência completa: package, SHA, versão, builtAt, SHA-256 do arquivo e do certificado.
+      const signature = JSON.parse(fs.readFileSync(signaturePath, "utf8"));
+      recorded.signingCertificateSha256 = signature.certificateSha256;
+      recorded.signatureResult = signature.result;
     }
+    fs.writeFileSync(provenancePath, `${JSON.stringify(recorded, null, 2)}\n`);
   },
 };
 

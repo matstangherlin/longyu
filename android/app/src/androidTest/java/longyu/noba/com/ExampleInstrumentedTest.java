@@ -1,4 +1,4 @@
-package com.longyu.app;
+package longyu.noba.com;
 
 import static org.junit.Assert.*;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.longyu.app", appContext.getPackageName());
+        assertEquals("longyu.noba.com", appContext.getPackageName());
     }
 }

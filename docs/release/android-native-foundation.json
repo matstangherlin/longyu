@@ -5,7 +5,7 @@
   "platform": "android",
   "runtime": "capacitor",
   "capacitorVersion": "8.5.2",
-  "appId": "com.longyu.app",
+  "appId": "longyu.noba.com",
   "appName": "Longyu",
   "webDir": "dist",
   "versionName": "0.2.0-beta.1",
@@ -51,5 +51,11 @@
     "commit": "8149bf5d",
     "result": "assembleDebug + bundleDebug BUILD SUCCESSFUL; artifact longyu-android-debug (APK + AAB)",
     "releaseWithoutSecrets": "BLOCKED_SIGNING_SECRETS (exit 4, verificado no mesmo job)"
+  },
+  "appIdHistory": {
+    "current": "longyu.noba.com",
+    "since": "RC2.2.16",
+    "superseded": "com.longyu.app (SUPERSEDED — RC2.2.10–RC2.2.14B, nunca publicado)",
+    "manifest": "docs/release/android-package-identity.json"
   }
 }

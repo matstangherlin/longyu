@@ -50,8 +50,8 @@ export const QUIET_END_HOUR = 8;
 export const COMEBACK_DAYS = [2, 3, 4] as const;
 export const MIN_REMINDER_GAP_MS = 23 * 60 * 60 * 1000; // 24 h, com folga de 1 h para horário de verão
 export const LATE_RISK_DELAY_MS = 10 * 60 * 1000;
-export const REMINDER_URL_RISK = "com.longyu.app://jornada";
-export const REMINDER_URL_COMEBACK = "com.longyu.app://revisao";
+export const REMINDER_URL_RISK = "longyu.noba.com://jornada";
+export const REMINDER_URL_COMEBACK = "longyu.noba.com://revisao";
 export const DEFAULT_REMINDER_PREFS: ReminderPrefs = { enabled: true, streak: true, comeback: true };
 
 // ── Cópias ────────────────────────────────────────────────────────────────

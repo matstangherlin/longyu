@@ -8,9 +8,13 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * Não existe `server.url` aqui de propósito — o app nunca vira uma WebView
  * remota apontando para o site publicado. `validate:android-native-foundation`
  * recusa qualquer `server.url`.
+ *
+ * RC2.2.16 — `appId` é o package registrado no Google Play Console e está
+ * CONGELADO (docs/release/android-package-identity.json). Outro valor = outro
+ * app para o Android e para a Play; `validate:android-release-identity` recusa.
  */
 const config: CapacitorConfig = {
-  appId: "com.longyu.app",
+  appId: "longyu.noba.com",
   appName: "Longyu",
   webDir: "dist",
   android: {

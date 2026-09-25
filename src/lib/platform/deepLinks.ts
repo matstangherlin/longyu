@@ -2,14 +2,15 @@
  * RC2.2.10 — deep link foundation: URL nativa → rota interna do Longyu.
  *
  * Ponto canônico e ÚNICO. Só aceita:
- * - o esquema do app `com.longyu.app://<rota>` (intent-filter no AndroidManifest);
+ * - o esquema do app `longyu.noba.com://<rota>` (intent-filter no AndroidManifest;
+ *   igual ao package do Play desde o RC2.2.16);
  * - https em hosts Longyu aprovados (base para App Links futuros).
  * E só devolve rotas da allowlist abaixo. Qualquer outra coisa → null (o app
  * fica onde está). Nunca navega para URI arbitrária, nunca carrega origem
  * externa dentro da WebView.
  */
 
-export const LONGYU_APP_SCHEME = "com.longyu.app";
+export const LONGYU_APP_SCHEME = "longyu.noba.com";
 
 /** Hosts web do Longyu (produção atual + domínio planejado em seo.ts). */
 export const LONGYU_WEB_HOSTS: readonly string[] = [
@@ -68,7 +69,7 @@ export function resolveDeepLink(rawUrl: string): string | null {
   }
   let pathname: string;
   if (url.protocol === `${LONGYU_APP_SCHEME}:`) {
-    // com.longyu.app://hanzi/atlas?char=你 → host "hanzi" + path "/atlas"
+    // longyu.noba.com://hanzi/atlas?char=你 → host "hanzi" + path "/atlas"
     pathname = `/${url.hostname}${url.pathname === "/" ? "" : url.pathname}`;
   } else if (url.protocol === "https:" && LONGYU_WEB_HOSTS.includes(url.hostname) && !url.port) {
     pathname = url.pathname;

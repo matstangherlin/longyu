@@ -79,7 +79,7 @@ function walk(dir, out = []) {
   return out;
 }
 
-const JAVA = "android/app/src/main/java/com/longyu/app";
+const JAVA = "android/app/src/main/java/longyu/noba/com";
 
 export async function loadState() {
   const pkg = readJson("package.json");

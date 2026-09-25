@@ -19,10 +19,10 @@ if (longyuVersionCode < longyuVersionFloor) {
 }
 
 android {
-    namespace = "com.longyu.app"
+    namespace = "longyu.noba.com"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.longyu.app"
+        applicationId "longyu.noba.com"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode longyuVersionCode

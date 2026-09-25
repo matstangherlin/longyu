@@ -106,7 +106,7 @@ const MUTATIONS = {
   ],
   "android-upgrade-contract": [
     ["17. upgrade remove a persistência", "UPGRADE_LOSES_PERSISTENCE", src("store", 'name: "longyu-v1",', 'name: "longyu-v2",')],
-    ["appId trocado", "APP_ID_CHANGED", src("capacitorConfig", 'appId: "com.longyu.app"', 'appId: "com.longyu.app2"')],
+    ["appId trocado", "APP_ID_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "longyu.noba.com2"')],
     ["origem do WebView trocada", "WEBVIEW_ORIGIN_CHANGED", src("capacitorConfig", 'webDir: "dist",', 'webDir: "dist",\n  server: { hostname: "app.longyu.com", androidScheme: "https" },')],
     ["piso do versionCode desce", "VERSION_CODE_REPEATED", src("versionProperties", "versionCode=1", "versionCode=0")],
     ["upgrade PASS sem aparelho", "PHYSICAL_PASS_WITHOUT_EVIDENCE", (s) => { s.qa.upgrade = "PASS"; }],
