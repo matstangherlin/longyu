@@ -9,8 +9,7 @@ import {
   seedTelemetryDeclined,
   seedUnlockedLessonSession,
   waitForLazyPage,
-  seedCourseDirection,
-} from "./helpers";
+  seedCourseDirection, startExperiencedPlacement } from "./helpers";
 
 /** V4.9.6B inserts listen (and a short intro) before each guided contour. */
 async function advanceToToneGuidedNotice(page: Page, tone: 1 | 2 | 3 | 4) {
@@ -49,11 +48,7 @@ async function startPlacement(page: Page) {
   await seedCourseDirection(page, "pt-zh");
   await page.goto("/comecar");
   await waitForLazyPage(page);
-  await page.getByRole("button", { name: /^Começar$/i }).click();
-  await page.getByTestId("onboarding-choice-travel").click();
-  await page.getByRole("button", { name: /^Continuar$/i }).click();
-  await page.getByTestId("onboarding-choice-zero").click();
-  await page.getByRole("button", { name: /^Continuar$/i }).click();
+  await startExperiencedPlacement(page);
   await expect(page.getByTestId("placement-quiz")).toBeVisible();
 }
 

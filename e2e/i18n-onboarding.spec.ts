@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { seedCourseDirection, seedInterfaceLocale, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
+import { seedCourseDirection, seedInterfaceLocale, seedTelemetryDeclined, waitForLazyPage, startExperiencedPlacement } from "./helpers";
 
 async function completePlacement(page: import("@playwright/test").Page) {
   for (let i = 0; i < 16; i += 1) {
@@ -16,21 +16,16 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
     await seedTelemetryDeclined(page);
   });
 
-  test("onboarding PT-BR: /comecar → goal → self-assessment → Placement → result", async ({ page }) => {
+  test("onboarding PT-BR: /comecar → já estudo → meta → Placement opt-in → result", async ({ page }) => {
     await seedCourseDirection(page, "pt-zh");
     await page.goto("/comecar");
     await waitForLazyPage(page);
     await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
     await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
-    await page.getByRole("button", { name: /^Começar$/i }).click();
-    await expect(page.getByText(/Por que você quer aprender mandarim/i)).toBeVisible();
-    await page.getByTestId("onboarding-choice-travel").click();
-    await page.getByRole("button", { name: /^Continuar$/i }).click();
-    await expect(page.getByText(/Quanto mandarim você já sabe/i)).toBeVisible();
-    await page.getByTestId("onboarding-choice-zero").click();
-    await page.getByRole("button", { name: /^Continuar$/i }).click();
+    await expect(page.getByText("Quanto tempo você quer praticar por dia?")).toHaveCount(0);
+    await startExperiencedPlacement(page);
     await expect(page.getByTestId("placement-quiz")).toBeVisible();
-    await expect(page.getByText(/Pergunta 1/i)).toBeVisible();
+    await expect(page.getByText(/Pergunta 1 de/i)).toBeVisible();
     await completePlacement(page);
     await expect(page.getByTestId("placement-result")).toBeVisible({ timeout: 20_000 });
     await expect(page.getByText(/Ponto de partida recomendado/i)).toBeVisible();
@@ -46,18 +41,17 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
     await expect(page).toHaveTitle(/learn Mandarin/i);
     await expect(page.getByRole("heading", { name: /find your starting point/i })).toBeVisible();
     await expect(page.getByText(/encontrar seu ponto de partida/)).toHaveCount(0);
-    await page.getByRole("button", { name: /^Get started$/i }).click();
-    await expect(page.getByText(/Why do you want to learn Mandarin/i)).toBeVisible();
-    await expect(page.getByText(/Por que você quer aprender/)).toHaveCount(0);
-    await page.getByTestId("onboarding-choice-travel").click();
-    await page.getByRole("button", { name: /^Continue$/i }).click();
+    await page.getByTestId("onboarding-path-experienced").click();
+    await expect(page.getByText(/How long do you want to practice each day/i)).toBeVisible();
+    await expect(page.getByText(/Quanto tempo você quer praticar/)).toHaveCount(0);
+    await page.locator('[data-daily-goal="10"]').click();
+    await page.getByTestId("daily-goal-continue").click();
+    await page.getByTestId("placement-offer-test").click();
     await expect(page.getByText(/How much Mandarin do you already know/i)).toBeVisible();
-    await expect(page.getByText(/Nunca estudei mandarim/)).toHaveCount(0);
-    await page.getByTestId("onboarding-choice-zero").click();
-    await page.getByRole("button", { name: /^Continue$/i }).click();
+    await page.getByTestId("onboarding-choice-words").click();
+    await page.getByTestId("level-continue").click();
     await expect(page.getByTestId("placement-quiz")).toBeVisible();
-    await expect(page.getByText(/Question 1/i)).toBeVisible();
-    await expect(page.getByText(/Meaning|Sound and pinyin|Tones/i).first()).toBeVisible();
+    await expect(page.getByText(/Question 1 of/i)).toBeVisible();
     await expect(page.getByText(/Pergunta 1/)).toHaveCount(0);
     await expect(page.locator("[data-hanzi='你好'], .hanzi").first()).toBeVisible();
     await completePlacement(page);
@@ -85,9 +79,8 @@ test.describe("V4.8.1 onboarding + Placement i18n", () => {
       await expect(page.getByRole("heading", { name: /find your starting point/i })).toBeVisible();
       await expect(page.locator("select")).toHaveCount(0);
       await expect(page.getByTestId("course-direction-chip")).toContainText("Portuguese → Mandarin");
-      await page.getByRole("button", { name: /^Get started$/i }).click();
-      await page.getByTestId("onboarding-choice-travel").click();
-      await page.getByRole("button", { name: /^Continue$/i }).click();
+      await page.getByTestId("onboarding-path-experienced").click();
+      await expect(page.getByTestId("daily-goal-step")).toBeVisible();
       await expect(page.getByTestId("course-direction-chip")).toHaveAttribute("data-course-direction", "pt-zh");
     });
   });

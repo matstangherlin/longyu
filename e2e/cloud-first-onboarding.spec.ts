@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { chooseCourseIfAsked, seedCourseDirection, seedLegacyLocalProgress, seedMissingDraftFinalize, seedOnboardedSession, seedPendingCloudOnboarding, waitForLazyPage } from "./helpers";
+import { chooseCourseIfAsked, seedCourseDirection, seedLegacyLocalProgress, seedMissingDraftFinalize, seedOnboardedSession, seedPendingCloudOnboarding, waitForLazyPage, startExperiencedPlacement } from "./helpers";
 
 test.describe("TEST-032 — route guard cloud-first", () => {
   for (const path of ["/jornada", "/licao/p1-o-que-e-mandarim/player", "/treino", "/revisao", "/missoes"]) {
@@ -13,33 +13,23 @@ test.describe("TEST-032 — route guard cloud-first", () => {
 });
 
 test.describe("TEST-033 — funil fresco /comecar", () => {
-  test("landing → começar → objetivo → self assessment, sem skip de conta", async ({ page }) => {
+  test("landing → começar → já estudo → meta → teste de nível, sem skip de conta", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: /Começar agora/i }).click();
     await chooseCourseIfAsked(page, "pt-zh");
     await page.waitForURL("**/comecar");
     await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
-    await page.getByRole("button", { name: /^Começar/i }).click();
-    await expect(page.getByText(/Por que você quer aprender mandarim/i)).toBeVisible();
-    await page.getByRole("button", { name: /Preparar uma viagem/i }).click();
-    await page.getByRole("button", { name: /^Continuar/i }).click();
-    await expect(page.getByText(/Quanto mandarim você já sabe/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /Deixar para depois/i })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /Continuar sem conta/i })).toHaveCount(0);
-    await page.getByRole("button", { name: /Nunca estudei mandarim/i }).click();
-    await page.getByRole("button", { name: /^Continuar/i }).click();
-    await expect(page.getByText(/Pergunta 1/i)).toBeVisible();
+    await startExperiencedPlacement(page);
+    await expect(page.getByText(/Pergunta 1 de/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /Deixar para depois/i })).toHaveCount(0);
   });
 
   test("conta é obrigatória após o resultado; backend local falha fechado", async ({ page }) => {
     await seedCourseDirection(page, "pt-zh");
     await page.goto("/comecar");
-    await page.getByRole("button", { name: /^Começar/i }).click();
-    await page.getByRole("button", { name: /Preparar uma viagem/i }).click();
-    await page.getByRole("button", { name: /^Continuar/i }).click();
-    await page.getByRole("button", { name: /Nunca estudei mandarim/i }).click();
-    await page.getByRole("button", { name: /^Continuar/i }).click();
+    await startExperiencedPlacement(page);
 
     for (let i = 0; i < 12; i += 1) {
       const result = page.getByText(/Encontramos seu ponto de partida/i);
@@ -52,13 +42,15 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
     await expect(page.getByText(/Encontramos seu ponto de partida/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("button", { name: /Deixar para depois|Continuar sem conta/i })).toHaveCount(0);
     await page.getByTestId("create-account-cta").click();
-    await expect(page.getByRole("heading", { name: /Crie sua conta para salvar o resultado/i })).toBeVisible();
-    await page.getByPlaceholder("Ex.: Matheus", { exact: true }).fill("Ana Teste");
+    // RC2.2.17 · CL–CM — cadastro em duas etapas (identidade → segurança).
+    await expect(page.getByTestId("signup-form")).toHaveAttribute("data-signup-phase", "identity");
+    await page.getByPlaceholder("Ex.: Mariana", { exact: true }).fill("Ana Teste");
     await page.locator('input[type="email"]').fill("ana.teste@example.com");
     await page.getByTestId("signup-username").fill("ana_teste");
+    await page.getByTestId("signup-identity-continue").click();
     await page.locator('input[type="password"]').first().fill("senha123");
     await page.locator('input[type="password"]').nth(1).fill("senha123");
-    await page.getByRole("button", { name: /Criar minha conta e salvar o resultado/i }).click();
+    await page.getByTestId("signup-submit").click();
     await expect(
       page.getByText(
         /Não foi possível conectar ao Longyu agora|We could not reach Longyu right now|Não foi possível criar a conta agora|We could not create the account right now/i
@@ -80,7 +72,7 @@ test.describe("TEST-034 — migração local legado", () => {
     await expect(page.getByRole("heading", { name: /Jornada/i })).toHaveCount(0);
     await page.getByRole("button", { name: /Criar conta/i }).click();
     await page.waitForURL(/\/comecar/);
-    await expect(page.getByRole("heading", { name: /Crie sua conta para salvar o resultado/i })).toBeVisible();
+    await expect(page.getByTestId("signup-form")).toBeVisible();
   });
 });
 

@@ -907,3 +907,17 @@ export async function seedAtCultureGate(
     ),
   }));
 }
+
+/**
+ * RC2.2.17 · AN — o teste de nível agora é opt-in de quem já estuda:
+ * welcome → "Já estudo mandarim" → meta diária → "Fazer teste de nível" →
+ * nível → quiz. Iniciante nunca cai no placement.
+ */
+export async function startExperiencedPlacement(page: Page, level: "words" | "studied" | "phrases" | "advanced" = "words") {
+  await page.getByTestId("onboarding-path-experienced").click();
+  await page.locator('[data-daily-goal="10"]').click();
+  await page.getByTestId("daily-goal-continue").click();
+  await page.getByTestId("placement-offer-test").click();
+  await page.getByTestId(`onboarding-choice-${level}`).click();
+  await page.getByTestId("level-continue").click();
+}

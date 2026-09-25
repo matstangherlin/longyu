@@ -81,6 +81,7 @@ export function ToneContour({
     return (
       <GuidedContour
         tone={tone}
+        mode={mode}
         locale={locale}
         label={label}
         className={className}
@@ -131,6 +132,7 @@ export function ToneContour({
 
 function GuidedContour({
   tone,
+  mode,
   locale,
   label,
   className,
@@ -139,6 +141,7 @@ function GuidedContour({
   heightScale,
 }: {
   tone: MandarinToneNumber;
+  mode: ToneDisplayMode;
   locale: "pt-BR" | "en";
   label: string;
   className: string;
@@ -164,6 +167,7 @@ function GuidedContour({
   return (
     <figure
       data-tone-contour={tone}
+      data-tone-display-mode={mode}
       data-tone-guided="true"
       data-tone-heights={heights.join(",")}
       data-tone-animating={!reduced && runId > 0 ? "true" : undefined}

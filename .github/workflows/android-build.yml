@@ -45,7 +45,7 @@ jobs:
         run: npm ci
 
       - name: Contratos Android + pipeline de entrega
-        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability
 
       - name: Release sem segredos bloqueia honestamente
         run: |
