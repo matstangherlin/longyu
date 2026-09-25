@@ -872,8 +872,11 @@ export async function validatePlayBetaRegression(s) {
     if (!chain.includes("gate:rc2-2-14-mobile-learning-polish")) fail("LESSON_PROGRESSION_CONTRACT_REMOVED", where, "gate de progressão da lição fora da cadeia");
     if (!chain.includes("gate:rc2-2-16-play-internal-beta")) fail("GATE_INCOMPLETE", where, "gate:rc2-2-16-play-internal-beta fora da cadeia");
   }
-  if (!/validate:lesson-step-progression/.test(s.scripts["gate:rc2-2-14-mobile-learning-polish"] ?? "")) fail("LESSON_PROGRESSION_CONTRACT_REMOVED", "gate:rc2-2-14-mobile-learning-polish", "contrato de progressão removido do gate");
-  if (!/validate:course-direction/.test(s.scripts["gate:rc2-2-14b-locale-course-direction"] ?? "")) fail("LOCALE_COURSE_GATE_REMOVED", "gate:rc2-2-14b-locale-course-direction", "CourseDirection removido do gate");
+  if (!/npm run validate:lesson-step-progression(?= |$)/.test(s.scripts["gate:rc2-2-14-mobile-learning-polish"] ?? "")) fail("LESSON_PROGRESSION_CONTRACT_REMOVED", "gate:rc2-2-14-mobile-learning-polish", "contrato de progressão removido do gate");
+  const localeGate = s.scripts["gate:rc2-2-14b-locale-course-direction"] ?? "";
+  for (const part of ["validate:course-direction", "test:course-direction", "validate:interface-locale-resolution"]) {
+    if (!new RegExp(`npm run ${part}(?= |$)`).test(localeGate)) fail("LOCALE_COURSE_GATE_REMOVED", "gate:rc2-2-14b-locale-course-direction", `${part} removido do gate`);
+  }
   for (const part of ["validate:android-release-identity", "validate:signed-aab", "validate:play-internal-readiness", "validate:play-policy-readiness", "gate:android-native-foundation", "validate:beta-pedagogy-freeze"]) {
     if (!gate.includes(part)) fail("GATE_INCOMPLETE", "gate:rc2-2-16-play-internal-beta", `falta ${part}`);
   }
