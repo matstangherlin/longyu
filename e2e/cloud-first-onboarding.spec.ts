@@ -124,6 +124,8 @@ test.describe("TEST-025 — sessao cloud sem onboarding nao abre Journey", () =>
 test.describe("TEST-026 — draft ausente falha fechado", () => {
   test("nao marca onboarding e oferece refazer o teste", async ({ page }) => {
     await seedMissingDraftFinalize(page);
+    // RC2.2.14B — /comecar sem curso escolhido redireciona para /curso.
+    await seedCourseDirection(page, "pt-zh");
     await page.goto("/finalizar-cadastro");
     await expect(page.getByTestId("finalize-onboarding")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Precisamos finalizar seu ponto de partida/i })).toBeVisible({
@@ -134,7 +136,9 @@ test.describe("TEST-026 — draft ausente falha fechado", () => {
     await expect(page).not.toHaveURL(/\/jornada/);
     await page.getByRole("link", { name: /Refazer teste de nivelamento/i }).click();
     await page.waitForURL(/\/comecar\?refazer=1/);
-    await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible();
+    // O título da tela anterior também diz "ponto de partida": exige o da /comecar.
+    await expect(page.getByRole("heading", { name: /Vamos encontrar seu ponto de partida/i })).toBeVisible();
+    await expect(page).toHaveURL(/\/comecar\?refazer=1/);
   });
 });
 
