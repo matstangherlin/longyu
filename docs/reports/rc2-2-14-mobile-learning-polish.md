@@ -2,7 +2,7 @@
 
 - Base: `origin/main` `0c5ad5ae` (#287). Branch: `claude/admiring-cray-4fx10i`. No PR opened, no merge (the owner opens the PR).
 - Freeze: exception `RC2_2_14_MOBILE_LEARNING_POLISH_EXCEPTION`. Fingerprint `c48b008c9c1e` unchanged. Counts unchanged: 134 lessons, 113 topics, 30 CultureItems, 30 native, 20 nodes, 5 moments, 12 tone transfers, 52 scenes, 31 READY / 0 PARTIAL.
-- Not touched: #273, the QA Supabase (longyu-preview), candidate/hashes/releaseCandidateSha, Supabase production. Username flag stays false.
+- Not touched: #273, the QA Supabase, candidate/hashes/releaseCandidateSha, Supabase production. Username flag stays false.
 - Physical device: **not run**. Every RC2.2.14 field in `docs/release/android-physical-qa.json` is `NOT_RUN`.
 
 ## 1. P0 / P1

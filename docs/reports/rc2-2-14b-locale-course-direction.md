@@ -326,4 +326,4 @@ O gate `FINGERPRINT_DRIFT` / `CURRICULUM_COUNT_DRIFT` faz parte de
 
 **Bloqueios honestos**
 - **Aparelho físico** (idioma do Android, troca de idioma do sistema, háptico no picker): não verificado sem device. Os campos `systemLocaleDetection`, `systemLocaleChange` e `coursePicker` estão NOT_RUN em `docs/release/android-physical-qa.json`, e o gate recusa PASS sem aparelho físico.
-- **Sincronização cloud entre aparelhos:** verificada por código e gate, não contra um Supabase de QA. O longyu-preview segue pausado e a #273 intocada.
+- **Sincronização cloud entre aparelhos:** verificada por código e gate, não contra um Supabase de QA. O projeto de QA segue pausado e a #273 intocada.
