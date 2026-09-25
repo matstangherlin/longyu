@@ -109,7 +109,8 @@ import { capAssistedGrade } from "../../lib/reviewLookup";
 import type { Grade } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionRegionProvider } from "./LessonActionRegion";
-import { isTapThrough, stepIdentity } from "../../lib/lessonStepContract";
+import { stepIdentity } from "../../lib/lessonStepContract";
+import { useTapThroughGuard } from "../../lib/useTapThroughGuard";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
@@ -1978,8 +1979,6 @@ export function LessonPlayer() {
   idxRef.current = idx;
   /** RC2.2.14 — o aluno já tocou/digitou no passo atual (o plano não troca mais sob ele). */
   const stepInteractedRef = useRef(false);
-  /** Momento em que o passo atual montou (guarda contra toque que atravessa). */
-  const stepMountedAtRef = useRef(0);
   const [correct, setCorrect] = useState(0);
   const [lives, setLives] = useState(DRAGON_BREATH_LIVES);
   const [finished, setFinished] = useState(false);
@@ -2408,23 +2407,11 @@ export function LessonPlayer() {
 
   useLayoutEffect(() => {
     stepInteractedRef.current = false;
-    stepMountedAtRef.current = performance.now();
   }, [idx, stepAttempt, planNonce]);
 
   // RC2.2.14 · Z — toque duplo não pode concluir DOIS passos: o segundo toque
-  // cai no botão do passo novo (mesma posição). Descarta cliques no passo e na
-  // área de ação durante a janela logo após a montagem.
-  useEffect(() => {
-    const swallow = (event: MouseEvent) => {
-      if (!isTapThrough(stepMountedAtRef.current, performance.now())) return;
-      const target = event.target instanceof Element ? event.target : null;
-      if (!target?.closest("[data-lesson-step-frame], [data-lesson-action-region]")) return;
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    document.addEventListener("click", swallow, true);
-    return () => document.removeEventListener("click", swallow, true);
-  }, []);
+  // cai no botão do passo novo (mesma posição).
+  useTapThroughGuard(`${planNonce}:${idx}:${stepAttempt}`, "[data-lesson-step-frame], [data-lesson-action-region]");
 
   // Avançar N→N+1 (ou retry) nunca herda o scroll da atividade anterior.
   useLayoutEffect(() => {

@@ -84,6 +84,7 @@ import {
   clearStoryEnergyAttestation,
 } from "../services/storyEnergyAttestation";
 import {
+  leagueXpKeyActivity,
   leagueXpKeyImmersion,
   leagueXpKeyMission,
   leagueXpKeyReward,
@@ -252,6 +253,12 @@ export interface DailyTasks {
    * voltariam a chamar o registro. A chave é da tentativa, não da frase.
    */
   speechAttemptKeys?: string[];
+  /**
+   * RC2.2.14 — rodadas de treino que já pagaram XP hoje
+   * (`hanzi-practice:<conta>:<modo>:<dia>:<n>`). Repetir a mesma rodada, um
+   * re-render ou um toque duplo em "Concluir" nunca paga duas vezes.
+   */
+  practiceRewardKeys?: string[];
   claimedMissions: Record<string, boolean>;
 }
 
@@ -429,6 +436,7 @@ function freshDailyTasks(date = todayKey()): DailyTasks {
     threeStarLessons: 0,
     tonesTrained: 0,
     speechAttemptKeys: [],
+    practiceRewardKeys: [],
     claimedMissions: {},
   };
 }
@@ -849,6 +857,7 @@ function activeDailyTasks(tasks: DailyTasks | undefined, date = todayKey()): Dai
     // fala comprovada (seria inventar fala).
     phrasesReviewed: Math.max(0, tasks.phrasesReviewed ?? 0),
     speechAttemptKeys: tasks.speechAttemptKeys ?? [],
+    practiceRewardKeys: tasks.practiceRewardKeys ?? [],
     claimedMissions: tasks.claimedMissions ?? {},
   };
 }
@@ -2267,6 +2276,12 @@ interface AppState {
   spendPoints: (points: number) => boolean;
   /** XP = progresso de estudo (lições, revisão, prática, imersão, missões). Nunca é gasto. */
   addXp: (amount: number, sourceKey: string) => void;
+  /**
+   * RC2.2.14 — XP de uma rodada de treino, uma vez por chave de rodada.
+   * Usa o mesmo `addXp` (liga, missões, metas); só impede pagar de novo.
+   * Retorna true se pagou agora.
+   */
+  grantPracticeRoundXp: (roundKey: string, amount: number) => boolean;
   /** Qi = moeda acumulável (loja, recuperações, tentativas extras). */
   addQi: (amount: number, source: string) => void;
   /** Gasta Qi; retorna false se não houver saldo. Pro nunca fica sem Qi. */
@@ -2906,6 +2921,24 @@ export const useStore = create<AppState>()(
           return { ...leaguePatch, ...leagueJoin, ...nextXp, accounts: saveCurrentAccount(next) };
         });
         syncLeagueXpToServerAsync(inc, key);
+      },
+      grantPracticeRoundXp: (roundKey, amount) => {
+        const key = roundKey.trim();
+        const inc = Math.max(0, Math.round(amount));
+        if (key.length < 3 || inc <= 0) return false;
+        let granted = false;
+        set((s) => {
+          const date = todayKey();
+          const dailyTasks = activeDailyTasks(s.dailyTasks, date);
+          const seen = dailyTasks.practiceRewardKeys ?? [];
+          if (seen.includes(key)) return {};
+          granted = true;
+          const nextTasks: DailyTasks = { ...dailyTasks, practiceRewardKeys: [...seen, key].slice(-200) };
+          const next = { ...s, dailyTasks: nextTasks };
+          return { dailyTasks: nextTasks, accounts: saveCurrentAccount(next) };
+        });
+        if (granted) get().addXp(inc, leagueXpKeyActivity("practice", key));
+        return granted;
       },
       getTodayXp: () => activeXp(get()).xpToday,
       getWeeklyXp: () => activeXp(get()).weeklyXp,

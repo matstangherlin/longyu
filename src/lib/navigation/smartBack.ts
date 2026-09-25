@@ -57,7 +57,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   // Prática.
   { pattern: "/som", parent: "/treino", ownBack: true },
   { pattern: "/pinyin", parent: "/treino", ownBack: true },
-  { pattern: "/hanzi", parent: "/treino", ownBack: true },
+  { pattern: "/hanzi", parent: "/ideogramas", ownBack: true },
   { pattern: "/ideogramas", parent: "/treino" },
   { pattern: "/hanzi/atlas", parent: "/ideogramas" },
   { pattern: "/fala", parent: "/treino" },

@@ -24,6 +24,7 @@ import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 import { CultureSealRevealWatcher } from "../../features/culture/CultureSealReveal";
 import { SmartBackButton } from "../navigation/SmartBackButton";
+import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
 
 export function AppShell() {
@@ -33,7 +34,12 @@ export function AppShell() {
   const location = useLocation();
   const navigationType = useNavigationType();
   const isLessonPlayer = /^\/licao\/[^/]+\/player$/.test(location.pathname);
-  const focusMode = isLessonPlayer || location.pathname.startsWith("/teste/");
+  // RC2.2.14 · AL — treino de hànzì ativo (/hanzi?mode=…) também é modo foco:
+  // sem TopBar/TabBar, a sessão é dona do viewport como o player.
+  const isHanziTraining =
+    location.pathname === "/hanzi" && isHanziPracticeMode(new URLSearchParams(location.search).get("mode"));
+  const ownsViewport = isLessonPlayer || isHanziTraining;
+  const focusMode = ownsViewport || location.pathname.startsWith("/teste/");
 
   // Aplica o tema no <html> e prepara as vozes de TTS.
   useEffect(() => {
@@ -106,7 +112,7 @@ export function AppShell() {
           className={[
             "mx-auto min-w-0 w-full max-w-content flex-1",
             focusMode
-              ? isLessonPlayer
+              ? ownsViewport
                 ? // Lesson Player dono do viewport (100dvh / visualViewport).
                   "flex h-full min-h-0 flex-col overflow-hidden p-0"
                 : "px-3 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2 sm:px-5 sm:pt-3 lg:px-6 lg:pb-6"

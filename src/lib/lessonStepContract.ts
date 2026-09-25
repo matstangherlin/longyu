@@ -72,10 +72,12 @@ export const PLAYER_COMPLETION_KEY_PARTS = ["lessonId", "planNonce", "idx", "ste
 /**
  * Toque que "atravessa" para o passo seguinte: no celular, um toque duplo em
  * Continuar faz o segundo toque cair no botão do próximo passo, que nasce no
- * mesmo lugar — e a lição pulava um passo. Cliques no passo/área de ação logo
- * depois de um passo montar são descartados por esta janela (ms).
+ * mesmo lugar — e a lição pulava um passo. Um clique no MESMO ponto do
+ * anterior, logo depois de um passo montar, é descartado (ver useTapThroughGuard).
  */
 export const STEP_TAP_THROUGH_GUARD_MS = 350;
+/** Distância máxima (px) do toque anterior para contar como o mesmo toque duplo. */
+export const STEP_TAP_THROUGH_RADIUS_PX = 32;
 
 export function isTapThrough(stepMountedAt: number, now: number): boolean {
   return now - stepMountedAt >= 0 && now - stepMountedAt < STEP_TAP_THROUGH_GUARD_MS;

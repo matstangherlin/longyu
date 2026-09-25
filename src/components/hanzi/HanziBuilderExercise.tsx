@@ -50,6 +50,7 @@ export function HanziBuilderExercise({
   externalRetry = false,
   showContinue = true,
   continueLabel = t("player.continue"),
+  density = "regular",
 }: {
   builder: HanziBuilder;
   /** Erro cometido — sempre chamado (liga à economia/SRS do contexto). */
@@ -63,7 +64,13 @@ export function HanziBuilderExercise({
   externalRetry?: boolean;
   showContinue?: boolean;
   continueLabel?: string;
+  /**
+   * RC2.2.14 — "compact" no treino em foco do celular: carta, peças colocadas
+   * e bandeja mais próximas (menos rolagem até as peças e o Verificar).
+   */
+  density?: "regular" | "compact";
 }) {
+  const compact = density === "compact";
   const soundEffects = useStore((s) => s.soundEffects);
   const locale = getInstructionLocale();
   const prompt = resolveInstructionText(builder.promptPt, locale);
@@ -332,7 +339,7 @@ export function HanziBuilderExercise({
       )}
 
       {/* Carta central de montagem */}
-      <div className="mt-5 flex justify-center">
+      <div className={[compact ? "mt-3" : "mt-5", "flex justify-center"].join(" ")} data-builder-canvas-wrap>
         <BuildCanvas
           builder={builder}
           guideStrength={guideStrength}
@@ -347,7 +354,7 @@ export function HanziBuilderExercise({
 
       {/* Peças colocadas (toque devolve para a bandeja) */}
       {selectedPieces.length > 0 && status !== "correct" && (
-        <div className="mt-4" data-builder-placed>
+        <div className={compact ? "mt-2.5" : "mt-4"} data-builder-placed>
           <div className="mb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {totalAlreadyVisible
               ? t("player.builderProgress", {
@@ -395,7 +402,7 @@ export function HanziBuilderExercise({
 
       {/* Bandeja de peças disponíveis */}
       {status !== "correct" && availablePieces.length > 0 && (
-        <div className="mt-5">
+        <div className={compact ? "mt-3" : "mt-5"} data-builder-tray>
           <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {trayLabel(builder)}
           </div>
