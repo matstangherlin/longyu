@@ -895,7 +895,11 @@ export function ComecarRoute() {
     return <Navigate to={finalizeOnboardingPath()} replace />;
   }
   // RC2.2.14B · J/AT — antes do primeiro aprendizado, o curso.
-  if (!hasCourseDirection()) return <Navigate to="/curso?next=%2Fcomecar" replace />;
+  // Preserva ?refazer=1 / ?migrate=1 no retorno do picker (senão o redo some).
+  if (!hasCourseDirection()) {
+    const next = `/comecar${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+    return <Navigate to={`/curso?next=${encodeURIComponent(next)}`} replace />;
+  }
   return <ComecarPage />;
 }
 
