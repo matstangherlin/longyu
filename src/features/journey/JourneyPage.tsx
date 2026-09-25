@@ -764,7 +764,7 @@ function JourneyMobileChips({
     <div className="flex gap-1.5 overflow-x-auto xl:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <Link
         to="/missoes"
-        className="flex min-w-0 shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-2.5 py-1.5 shadow-card transition active:scale-[0.98]"
+        className="flex min-h-12 min-w-0 shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-3 py-1.5 shadow-card transition active:scale-[0.98]"
       >
         <IconTarget width={12} height={12} className="shrink-0 text-accent" />
         <span className="truncate text-[11px] font-semibold text-ink">
@@ -774,7 +774,7 @@ function JourneyMobileChips({
           <span className="text-[10px] tabular-nums text-ink-faint">{mission.progress}/{mission.goal}</span>
         )}
       </Link>
-      <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-2.5 py-1.5 shadow-card">
+      <div className="flex min-h-12 shrink-0 items-center gap-1.5 rounded-full border border-line/50 bg-surface px-3 py-1.5 shadow-card">
         <IconFlame width={12} height={12} className="text-accent" />
         <span className="text-[11px] font-semibold tabular-nums text-ink">{streak}d</span>
         <span className="text-[10px] text-ink-faint">·</span>

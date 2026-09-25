@@ -183,6 +183,7 @@ export const routes: RouteObject[] = [
       { path: "conta", element: <ContaRoute /> },
       { path: "dados-locais", element: <DadosLocaisPage /> },
       { path: "config", element: <SettingsPage /> },
+      { path: "config/:category", element: <SettingsPage /> },
       { path: "ajustes", element: <SettingsPage /> },
       { path: "mais", element: <MorePage /> },
       { path: "admin/feedback", element: <AdminFeedbackPage /> },

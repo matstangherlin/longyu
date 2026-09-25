@@ -21,6 +21,7 @@ const TARGET_LABEL: Record<string, MessageKey> = {
   "/cultura": "navigation.culture",
   "/ideogramas": "navigation.hanzi",
   "/ajustes": "navigation.settings",
+  "/config": "navigation.settings",
 };
 
 /**

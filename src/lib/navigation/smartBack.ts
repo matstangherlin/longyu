@@ -78,6 +78,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/pro", parent: "/jornada" },
   { pattern: "/plano", parent: "/jornada" },
   { pattern: "/config", parent: "/mais" },
+  { pattern: "/config/:category", parent: "/config" },
   { pattern: "/ajustes", parent: "/mais" },
   { pattern: "/dados-locais", parent: "/ajustes" },
   { pattern: "/admin/feedback", parent: "/mais", ownBack: true },
