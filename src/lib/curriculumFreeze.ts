@@ -313,7 +313,7 @@ export const RC2_2_14_MOBILE_LEARNING_POLISH_EXCEPTION = {
     "per-StepKind advance contract, plan lock, step identity keys, tap-through guard, stall fail-safe",
     "Hànzì hub (train now, 2-column modes, Atlas secondary) + focused rounds of 8",
     "practice round XP via existing addXp with idempotent round keys and a daily cap",
-    "@capacitor/haptics adapter + hapticsEnabled preference",
+    "native haptics adapter + hapticsEnabled preference",
     "Settings index with category subpages (same sections)",
     "stage line 'Etapa X/Y', conversation cast density",
   ],

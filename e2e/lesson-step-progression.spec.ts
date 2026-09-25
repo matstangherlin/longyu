@@ -88,7 +88,7 @@ async function visibleButtons(page: Page): Promise<{ locator: Locator; label: st
     const locator = text
       ? lab(page).locator("button").filter({ hasText: new RegExp(`^\\s*${escaped}\\s*$`) }).first()
       : aria
-        ? lab(page).locator(`button[aria-label="${aria.replace(/"/g, '\\"')}"]`).first()
+        ? lab(page).getByRole("button", { name: aria, exact: true }).first()
         : indexed;
     out.push({ locator, label });
   }
