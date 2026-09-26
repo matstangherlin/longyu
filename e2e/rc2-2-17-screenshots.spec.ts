@@ -1,8 +1,10 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "@playwright/test";
 import {
   chooseCourseIfAsked,
   dismissBlockingOverlays,
   seedCourseDirection,
+  seedInstructionLocale,
+  seedUnlockedLessonSession,
   seedLessonPlayerReady,
   seedOnboardedSession,
   seedTelemetryDeclined,
@@ -57,23 +59,60 @@ async function shot(page: Page, name: string, vp: { width: number; height: numbe
   await page.screenshot({ path: `${OUT}/${name}-${vp.width}x${vp.height}.jpg`, type: "jpeg", quality: 70 });
 }
 
-async function openToneStep(page: Page, lessonId: string, vp: { width: number; height: number }, name: string) {
-  await seedLessonPlayerReady(page, lessonId);
-  await page.goto(`/licao/${lessonId}/player`);
+/** /qa/tone: "Conheça a curva" de cada tom (mesma trilha do V4.9.1). */
+async function toneNoticeShots(browser: Browser, vp: { width: number; height: number }, masteryLevel = 0) {
+  // Estado limpo: /qa/tone mostra a 1ª passada (1º e 3º tom); com domínio 1,
+  // a 2ª passada apresenta o 2º e o 4º (mesma trilha do V4.9.1).
+  const context = await browser.newContext({ viewport: vp });
+  const page = await context.newPage();
+  await seedInstructionLocale(page, "pt-BR");
+  if (masteryLevel > 0) {
+    await seedUnlockedLessonSession(page, "p1-o-que-e-tom", { learnedChunks: ["nihao"], learnedChars: ["ni", "hao"] });
+    await page.addInitScript((level: number) => {
+      const raw = localStorage.getItem("longyu-v1");
+      if (!raw) return;
+      const payload = JSON.parse(raw);
+      payload.state.lessonMasteryById = {
+        ...(payload.state.lessonMasteryById ?? {}),
+        "p1-o-que-e-tom": { level, passCount: level, lastPass: level, recoveryPending: false, updatedAt: Date.now() },
+      };
+      localStorage.setItem("longyu-v1", JSON.stringify(payload));
+    }, masteryLevel);
+  }
+  await page.goto("/qa/tone");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
-  await page.waitForFunction(() => Boolean((window as Window & { __longyuLessonQa?: unknown }).__longyuLessonQa));
-  const index = await page.evaluate(() => {
-    const qa = (window as Window & { __longyuLessonQa?: { steps: () => Array<{ index: number; kind: string }> } }).__longyuLessonQa;
-    return qa?.steps().find((step) => step.kind === "tone")?.index ?? -1;
-  });
-  if (index < 0) return;
-  await page.evaluate((i) => (window as Window & { __longyuLessonQa?: { jumpTo: (n: number) => void } }).__longyuLessonQa?.jumpTo(i), index);
-  const first = page.locator("[data-tone-first-exposure]");
-  if (await first.isVisible().catch(() => false)) await first.click();
-  await expect(page.locator('[data-tone-guided="true"]').first()).toBeVisible();
-  await page.waitForTimeout(1200);
-  await shot(page, name, vp);
+  const intro = page.getByRole("button", { name: /^Entendi$/ });
+  if (await intro.isVisible({ timeout: 5_000 }).catch(() => false)) await intro.click();
+  const shotTones = new Set<string>();
+  const deadline = Date.now() + 25_000;
+  while (shotTones.size < 2 && Date.now() < deadline) {
+    const notice = page.locator("[data-tone-guided-notice]").first();
+    const tone = (await notice.isVisible().catch(() => false)) ? await notice.getAttribute("data-tone-guided-notice") : null;
+    if (tone && !shotTones.has(tone)) {
+      const first = notice.locator("[data-tone-first-exposure]");
+      if (await first.isVisible().catch(() => false)) await first.click();
+      await expect(notice.locator('[data-tone-guided="true"]')).toBeVisible();
+      await page.waitForTimeout(1200);
+      await shot(page, `${String(8 + Number(tone)).padStart(2, "0")}-tone-${tone}`, vp);
+      shotTones.add(tone);
+    }
+    const buttons = [
+      page.getByRole("button", { name: /Não posso falar agora/i }),
+      page.getByRole("button", { name: /^Percebi a curva$/ }),
+      page.getByRole("button", { name: /^Continuar$/ }),
+      page.getByRole("button", { name: /^Entendi$/ }),
+      page.getByRole("button", { name: /^Pular/ }),
+    ];
+    for (const button of buttons) {
+      if ((await button.isVisible().catch(() => false)) && !(await button.isDisabled().catch(() => true))) {
+        await button.click();
+        break;
+      }
+    }
+    await page.waitForTimeout(200);
+  }
+  await context.close();
 }
 
 test.describe("RC2.2.17 · matriz visual", () => {
@@ -120,7 +159,7 @@ test.describe("RC2.2.17 · matriz visual", () => {
       await shot(page, "06-signup-phase-2", vp);
     });
 
-    test(`lição, conversa, tons e ajustes ${vp.width}x${vp.height}`, async ({ page }) => {
+    test(`lição, conversa, tons e ajustes ${vp.width}x${vp.height}`, async ({ page, browser }) => {
       test.setTimeout(180_000);
       await page.setViewportSize(vp);
       await fakeSpeech(page);
@@ -139,13 +178,8 @@ test.describe("RC2.2.17 · matriz visual", () => {
         await expect(page.locator("[data-conversation-scene]").first()).toBeVisible();
         await shot(page, "08-conversation", vp);
       }
-      const tones: Array<[string, string]> = [
-        ["p2-ma-primeiro-tom", "09-tone-1"],
-        ["p2-ma-segundo-tom", "10-tone-2"],
-        ["p2-ma-terceiro-tom", "11-tone-3"],
-        ["p2-ma-quarto-tom", "12-tone-4"],
-      ];
-      for (const [lessonId, name] of tones) await openToneStep(page, lessonId, vp, name);
+      await toneNoticeShots(browser, vp, 0);
+      await toneNoticeShots(browser, vp, 1);
       await seedOnboardedSession(page);
       await page.goto("/config/conta");
       await waitForLazyPage(page);

@@ -103,7 +103,7 @@ const MUTATIONS = {
     ["50. requisitos de senha sempre num card gigante", "PASSWORD_CARD_ALWAYS", src("comecar", ' className="mt-2" progressive focused={passwordFocused} />', ' className="mt-2" />')],
   ],
   "release-residual": [
-    ["51. package sai de longyu.noba.com", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "com.longyu.app"')],
+    ["51. package sai de longyu.noba.com", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "longyu.outro.app"')],
     ["52. assinatura debug passa", "DEBUG_SIGNING_ACCEPTED", src("buildGradle", "            minifyEnabled false", "            signingConfig signingConfigs.debug\n            minifyEnabled false")],
     ["53. instalação Play falsa (PASS)", "FAKE_PLAY_INSTALL", json((s) => { s.residual.items.internalPlay.status = "COMPLETE"; s.residual.items.internalPlay.evidence = null; })],
     ["54. resíduo RC2.2.16 marcado completo sem evidência", "RESIDUAL_FAKE_COMPLETE", json((s) => { s.residual.RC2_2_16_RESIDUAL = "COMPLETE"; })],

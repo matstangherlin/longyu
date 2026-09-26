@@ -279,7 +279,15 @@ Para registrar ao rodar (modelo, versão do Android, SHA do build, package, orig
 - **E2E:**
   - `conversation-scene-advance` (56 testes: 3 caminhos do aparelho + caminho de erro + 52 lições com cena);
   - `rc2-2-17-guided-learning` (PT do zero, áudio degradado, EN, experiente, l2 guiada, Ajustes);
-  - `guided-learning-try` atualizado para o V2.
+  - `guided-learning-try` atualizado para o V2;
+  - onboarding, smoke e beta-smoke seguem o fluxo único (`onboarding-path-beginner/experienced`).
+  - Suíte completa antes da integração final: **833 passaram / 11 falharam**. As falhas eram de três tipos:
+    - corrigidas nesta branch: onboarding, smoke, beta-smoke;
+    - pré-existentes na base `28798067` (verificadas numa worktree limpa): lesson-player-mobile #7, v499a health, journey-redesign ×2, rc1-4;
+    - instáveis: compare-with-image (11/12 ao repetir), topic-pass-return (passou ao repetir).
+  - Depois do merge dos heads mais novos de #288 (`798ee999`) e #289 (`2ccf103a`), os gates 2.2.14B e 2.2.17, typecheck e account-deletion estão verdes. A suíte E2E **não foi rodada de novo** depois desse merge; o CI do PR confirma.
+- `validate:beta` completo passou, rodado em 3 segmentos (o comando único estoura o tempo limite deste ambiente).
+- Matriz visual: 43 capturas em `docs/reports/rc2-2-17-screenshots/`.
 
 ## 36. Bloqueios restantes
 

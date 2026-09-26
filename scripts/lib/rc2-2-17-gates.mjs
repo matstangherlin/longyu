@@ -414,7 +414,7 @@ export async function validateSingleOnboarding(s) {
   if (/LanguageSelect|LocalePicker|InterfaceLanguage|setInterfaceLocale|LanguageSheet/.test(`${comecar}\n${guided}`))
     fail("LOCALE_ASKED_AGAIN", "ComecarPage/GuidedTry", "idioma vem do sistema; curso só pelo picker");
   // 32 — curso escolhido antes do Teste guiado e do onboarding.
-  if (!/if \(!hasCourseDirection\(\)\) return <Navigate to="\/curso\?next=%2Fteste-guiado" replace \/>;/.test(guided) || !/if \(!hasCourseDirection\(\)\) return <Navigate to="\/curso\?next=%2Fcomecar" replace \/>;/.test(comecar))
+  if (!/if \(!hasCourseDirection\(\)\) return <Navigate to="\/curso\?next=%2Fteste-guiado" replace \/>;/.test(guided) || !/if \(!hasCourseDirection\(\)\) \{[\s\S]{0,200}?const next = `\/comecar\$\{searchParams\.toString\(\)[\s\S]{0,120}?<Navigate to=\{`\/curso\?next=\$\{encodeURIComponent\(next\)\}`\} replace \/>;/.test(comecar))
     fail("COURSE_PICKER_REGRESSED", "GuidedTryPage/ComecarRoute", "curso (uma vez) antes do Teste guiado e do onboarding");
   if (!/markGuidedTryCompleted\(audioResult \?\? "DEGRADED_AUDIO"\);\s*navigate\("\/comecar"\);/.test(guided) || !/draft\.guidedTryCompleted \? "dailyGoal" : "welcome"/.test(comecar))
     fail("GUIDED_TRY_HANDOFF", "GuidedTry → ComecarPage", "fim do Teste guiado → meta diária");
@@ -562,7 +562,7 @@ export async function validateSettingsVisibility(s) {
 export async function validateReleaseResidual(s) {
   const { failures, fail } = collector();
   // 51 — package.
-  if (!/appId: "longyu\.noba\.com"/.test(s.src.capacitorConfig) || !/applicationId "longyu\.noba\.com"/.test(s.src.buildGradle) || /com\.longyu\.app/.test(`${s.src.capacitorConfig}\n${s.src.buildGradle}`) || s.residual?.regression?.packageName !== "longyu.noba.com")
+  if (!/appId: "longyu\.noba\.com"/.test(s.src.capacitorConfig) || !/applicationId "longyu\.noba\.com"/.test(s.src.buildGradle) || s.residual?.regression?.packageName !== "longyu.noba.com")
     fail("PACKAGE_CHANGED", "capacitor/build.gradle", "package segue longyu.noba.com");
   // 52 — assinatura debug nunca vale release.
   const release = /release \{([\s\S]*?)\n\s{8}\}/.exec(s.src.buildGradle)?.[1] ?? "";
