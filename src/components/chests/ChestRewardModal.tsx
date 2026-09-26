@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { haptic } from "../../lib/haptics";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
 import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
 import { Button } from "../ui/primitives";
@@ -31,6 +32,7 @@ export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: 
     }
     setPhase("opening");
     playSoundFx(chestOpenSound(type), soundEffects);
+    haptic("chestOpen");
     window.setTimeout(() => {
       setRewards(result);
       setPhase("revealed");

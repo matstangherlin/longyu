@@ -10,6 +10,7 @@ import {
   seedOnboardedSession,
   waitForLazyPage,
   PRO_PRICING_HEADLINE,
+  seedCourseDirection,
 } from "./helpers";
 
 async function clickFirstVisible(page: Page, names: RegExp[]) {
@@ -215,6 +216,7 @@ test.describe("beta smoke — fluxos públicos", () => {
   });
 
   test("cadastro: /comecar inicia onboarding / teste de nível", async ({ page }) => {
+    await seedCourseDirection(page, "pt-zh");
     await page.goto("/comecar");
     await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
     await expect(page.getByText(/ponto de partida|jornada|conta/i).first()).toBeVisible();

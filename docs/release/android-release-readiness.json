@@ -4,11 +4,19 @@
   "baseBranch": "claude/rc2-2-11-experience-coherence",
   "baseNote": "Empilhada sobre o RC2.2.11 (#285 aberto) por instrução do owner ('não precisa esperar mergear'). Rebasear/mergear main quando #285 entrar.",
   "fingerprint": "c48b008c9c1e",
-  "applicationId": "com.longyu.app",
+  "applicationId": "longyu.noba.com",
   "versionName": "0.2.0-beta.1",
   "versionCodeFloor": 1,
-  "apiLevels": { "compileSdk": 36, "targetSdk": 36, "minSdk": 24 },
-  "toolchain": { "java": 21, "gradle": "8.14.3", "androidGradlePlugin": "8.13.0" },
+  "apiLevels": {
+    "compileSdk": 36,
+    "targetSdk": 36,
+    "minSdk": 24
+  },
+  "toolchain": {
+    "java": 21,
+    "gradle": "8.14.3",
+    "androidGradlePlugin": "8.13.0"
+  },
   "status": {
     "ANDROID_CODE_READY": true,
     "SIGNED_AAB_READY": false,

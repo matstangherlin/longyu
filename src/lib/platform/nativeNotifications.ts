@@ -130,7 +130,7 @@ export async function scheduleSingleReminder(reminder: PlannedReminder): Promise
 }
 
 /**
- * Toque na notificação → URL do lembrete (com.longyu.app://…). Quem chama
+ * Toque na notificação → URL do lembrete (longyu.noba.com://…). Quem chama
  * passa a URL pelo resolveDeepLink (allowlist do RC2.2.10); rota fora da
  * lista é ignorada. Registrar UMA vez; devolve o "remover".
  */

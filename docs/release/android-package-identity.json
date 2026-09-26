@@ -1,0 +1,23 @@
+{
+  "schema": "longyu-android-package-identity/1",
+  "wave": "RC2.2.16",
+  "applicationId": "longyu.noba.com",
+  "namespace": "longyu.noba.com",
+  "capacitorAppId": "longyu.noba.com",
+  "javaPackage": "longyu.noba.com",
+  "customUrlScheme": "longyu.noba.com",
+  "fileProviderAuthority": "longyu.noba.com.fileprovider",
+  "source": "PLAY_CONSOLE_PACKAGE_OWNER_REPORTED",
+  "sourceNote": "O owner informou que o app criado no Google Play Console usa o package longyu.noba.com. A confirmação VISUAL no Play Console continua obrigatória antes do primeiro upload (docs/release/play-console-status.json → packageName.ownerConfirmed).",
+  "frozen": true,
+  "frozenSince": "RC2.2.16",
+  "changePolicy": "Qualquer PR que altere o applicationId falha em validate:android-release-identity. Depois do primeiro upload real ao Play (android-release-ledger.json não vazio) a troca é impossível: a Play recusa outro package para o mesmo app.",
+  "superseded": [
+    {
+      "applicationId": "com.longyu.app",
+      "usedIn": "RC2.2.10–RC2.2.14B (somente builds de desenvolvimento/CI; nunca enviado ao Play)",
+      "status": "SUPERSEDED",
+      "qaNote": "Um APK com.longyu.app instalado em aparelho de QA é OUTRO aplicativo para o Android. Desinstale-o e instale longyu.noba.com do zero. Ausência de upgrade do package antigo não é bug."
+    }
+  ]
+}

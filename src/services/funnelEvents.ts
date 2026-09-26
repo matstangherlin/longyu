@@ -19,6 +19,7 @@ export const FUNNEL_EVENT_TYPES = [
   "pro_offer_shown",
   "checkout_started",
   "subscription_activated",
+  "course_direction_selected",
 ] as const;
 
 export type FunnelEventType = (typeof FUNNEL_EVENT_TYPES)[number];

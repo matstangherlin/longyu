@@ -17,6 +17,8 @@ runDeliveryMutations("test:android-release-safety", validateAndroidReleaseSafety
   ["#9 key password logada", (s) => R(s, '          [ -n "$KEY_PASS" ] ||', '          printf "%s" "${{ secrets.LONGYU_ANDROID_KEY_PASSWORD }}"\n          [ -n "$KEY_PASS" ] ||'), "KEY_PASSWORD_LOGGED"],
   ["#10 service account JSON commitado (nome)", (s) => { s.trackedFiles.push("ops/google-play-service-account.json"); }, "SERVICE_ACCOUNT_COMMITTED"],
   ["#10 service account JSON commitado (conteúdo)", (s) => { s.secretContentHits.push("docs/release/play.json"); }, "SERVICE_ACCOUNT_COMMITTED"],
+  ["#10 outro google-play*.json ao lado do manifesto público", (s) => { s.trackedFiles.push("docs/release/google-play-internal-key.json"); }, "SERVICE_ACCOUNT_COMMITTED"],
+  ["#10 credencial dentro do manifesto público", (s) => { s.secretContentHits.push("docs/release/google-play-internal.json"); }, "SERVICE_ACCOUNT_COMMITTED"],
   ["service account impressa no log", (s) => R(s, "          play=blocked\n", '          play=blocked\n          echo "$PLAY_JSON"\n'), "SERVICE_ACCOUNT_LOGGED"],
   ["play-upload loga o token", (s) => { s.playUpload = swap(s.playUpload, "  const token = await accessToken(account);\n", "  const token = await accessToken(account);\n  console.log(token);\n"); }, "SERVICE_ACCOUNT_LOGGED"],
   ["#11 release usa debug keystore (Gradle)", (s) => { s.foundation.signingGradle = swap(s.foundation.signingGradle, "signingConfig longyuReleaseSigningReady ? signingConfigs.longyuRelease : null", "signingConfig longyuReleaseSigningReady ? signingConfigs.longyuRelease : signingConfigs.debug"); }, "RELEASE_USES_DEBUG_KEY"],

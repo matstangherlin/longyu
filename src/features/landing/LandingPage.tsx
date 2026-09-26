@@ -15,6 +15,9 @@ import { AppVersionLabel } from "../../components/system/AppVersionLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
+import { isNativeApp } from "../../lib/platform/nativePlatform";
+import { useWideLayout } from "../../lib/useWideLayout";
+import { MobileWelcome } from "./MobileWelcome";
 
 // Landing pública em "/": primeira impressão para quem ainda não tem conta.
 // Sem sidebar/topbar/tab bar — só marca, proposta e dois CTAs. cloud_ready
@@ -25,6 +28,7 @@ export function LandingPage() {
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const [audience, setAudience] = useState<SessionAudience | null>(null);
+  const wide = useWideLayout();
   const isDark = theme === "dark";
 
   // A landing vive fora do AppShell, então aplica o tema por conta própria.
@@ -58,6 +62,10 @@ export function LandingPage() {
   if (audience === "legacy") {
     return <Navigate to="/salvar-progresso" replace />;
   }
+
+  // RC2.2.14 · A — o app Android sempre usa a composição de celular; na Web
+  // ela vale abaixo de lg e o desktop mantém a landing de duas colunas.
+  if (isNativeApp() || !wide) return <MobileWelcome />;
 
   return (
     <div className="theme-transition relative flex min-h-dvh flex-col overflow-x-hidden bg-[radial-gradient(circle_at_18%_34%,rgb(var(--accent)/0.07),transparent_32%),radial-gradient(circle_at_82%_24%,rgb(var(--accent-soft)/0.48),transparent_30%),rgb(var(--bg))]">
@@ -176,7 +184,15 @@ export function LandingPage() {
               </ButtonLink>
             </div>
 
-            <p className="mt-2.5 text-[11px] leading-4 text-ink-faint sm:text-xs">
+            <Link
+              to="/teste-guiado"
+              data-testid="landing-guided-try-desktop"
+              className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-accent underline-offset-4 hover:underline"
+            >
+              {t("marketing.orGuidedTry")}
+            </Link>
+
+            <p className="mt-1 text-[11px] leading-4 text-ink-faint sm:text-xs">
               {t("marketing.noCard")}
             </p>
           </section>

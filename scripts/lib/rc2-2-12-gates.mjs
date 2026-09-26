@@ -21,6 +21,7 @@ import { pathToFileURL } from "node:url";
 import { stripComments } from "./rc2-2-8-gates.mjs";
 import { validateBetaPedagogyFreeze } from "./beta-pedagogy-freeze.mjs";
 import { loadBetaPedagogyFreezeState } from "./beta-pedagogy-freeze-state.mjs";
+import { ANDROID_APPLICATION_ID } from "./android-package-identity.mjs";
 
 const ROOT = process.cwd();
 
@@ -375,8 +376,11 @@ export async function validatePlayInternalReadiness(s) {
 // ── AA–AB — upgrade ─────────────────────────────────────────────────────────
 export async function validateAndroidUpgradeContract(s) {
   const { failures, fail } = collector();
-  if (!/appId:\s*"com\.longyu\.app"/.test(s.src.capacitorConfig) || !/applicationId "com\.longyu\.app"/.test(s.src.appGradle)) {
-    fail("APP_ID_CHANGED", "capacitor/gradle", "com.longyu.app é permanente");
+  // RC2.2.16 — o package permanente é o do Play Console (android-package-identity.json).
+  const capId = s.src.capacitorConfig.match(/appId:\s*"([^"]+)"/)?.[1];
+  const gradleId = s.src.appGradle.match(/applicationId "([^"]+)"/)?.[1];
+  if (capId !== ANDROID_APPLICATION_ID || gradleId !== ANDROID_APPLICATION_ID) {
+    fail("APP_ID_CHANGED", "capacitor/gradle", `${ANDROID_APPLICATION_ID} é permanente (veio ${capId} / ${gradleId})`);
   }
   if (/\bhostname\s*:|androidScheme\s*:|server\s*:\s*\{/.test(s.src.capacitorConfig)) {
     fail("WEBVIEW_ORIGIN_CHANGED", "capacitor.config.ts", "mudar a origem do WebView perde o localStorage no update");

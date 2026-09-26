@@ -25,7 +25,12 @@ import {
   productAvailability,
   type ProductCapabilityId,
 } from "../../commercial/productTruth";
-import { createCheckoutSession, isBillingPortalAvailable, openBillingPortal } from "../../services/subscriptionService";
+import {
+  createCheckoutSession,
+  isBillingPortalAvailable,
+  isInAppPurchaseAvailable,
+  openBillingPortal,
+} from "../../services/subscriptionService";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
 
@@ -58,6 +63,8 @@ export function ProPage() {
   const [selectedCycle, setSelectedCycle] = useState<BillingCycle>("annual");
   const [notice, setNotice] = useState<string | null>(null);
   const qaMarketSwitch = isQaFastPathAllowed();
+  // Android sem Google Play Billing: nada de preço, compra ou portal (ANDROID_IN_APP_PURCHASE).
+  const purchasesAvailable = isInAppPurchaseAvailable();
   const billingMarket = qaMarketOverride ?? billingMarketFromCountry(billingCountry);
 
   const selectedPrice = PLAN_PRICE_MATRIX[selectedPlan][billingMarket][selectedCycle];
@@ -138,7 +145,7 @@ export function ProPage() {
         <p className="mt-1 min-h-10 text-xs leading-5 text-ink-soft">{planCopy[plan].lead}</p>
         {plan === "free" ? (
           <p className="mt-3 font-serif text-xl font-semibold text-ink">{t("pro.freeForever")}</p>
-        ) : sellable ? (
+        ) : sellable && purchasesAvailable ? (
           <div className="mt-3" data-plan-price={plan}>
             <p className="font-serif text-xl font-semibold text-ink">
               {priceFor(plan as CheckoutPlan, selectedCycle)}{" "}
@@ -162,7 +169,7 @@ export function ProPage() {
             <li>{t("pro.individualProgress")}</li>
           </ul>
         )}
-        {sellable ? (
+        {sellable && !purchasesAvailable ? null : sellable ? (
           <Button variant={active ? "primary" : "outline"} className="mt-4 w-full" onClick={() => setSelectedPlan(plan)}>
             {t("pro.selectPlan", { plan: planCopy[plan].title })}
           </Button>
@@ -199,75 +206,80 @@ export function ProPage() {
         {serverIsPro && !checkingPlan && (
           <div className="mx-auto mt-4 max-w-sm space-y-2">
             <div className="rounded-xl border border-good/30 bg-good/10 px-4 py-2.5 text-sm font-semibold text-good">{t("pro.activeThanks")}</div>
-            {isBillingPortalAvailable() && (
+            {purchasesAvailable && isBillingPortalAvailable() && (
               <Button variant="outline" className="w-full" onClick={() => void handlePortal()}>{t("pro.manageBilling")}</Button>
             )}
+            {!purchasesAvailable && <p className="text-xs text-ink-soft" data-android-manage-elsewhere>{t("pro.androidManageElsewhere")}</p>}
           </div>
         )}
       </section>
 
-      <section className="rounded-xl border border-line/60 bg-surface p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-semibold text-ink">{t("pro.billingRegion")}</h2>
-            <p className="mt-1 text-xs text-ink-soft">{t("pro.serverAuthority")}</p>
-            <label className="mt-3 block text-xs font-semibold text-ink" htmlFor="billing-country">{t("pro.billingCountry")}</label>
-            <select
-              id="billing-country"
-              value={billingCountry}
-              onChange={(event) => setBillingCountry(event.target.value === "BR" ? "BR" : "US")}
-              className="mt-1 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
-            >
-              <option value="BR">{t("pro.brazil")}</option>
-              <option value="US">{t("pro.outsideBrazil")}</option>
-            </select>
-          </div>
-          {qaMarketSwitch && (
+      {purchasesAvailable && (
+        <section className="rounded-xl border border-line/60 bg-surface p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="flex rounded-lg border border-line p-1" data-testid="qa-billing-market-switch">
-                {(["BR", "INTERNATIONAL"] as const).map((market) => (
-                  <button
-                    key={market}
-                    type="button"
-                    onClick={() => setQaMarketOverride(market)}
-                    aria-pressed={qaMarketOverride === market}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold ${billingMarket === market ? "bg-gold text-white" : "text-ink-soft"}`}
-                  >
-                    {market === "BR" ? t("pro.brazil") : t("pro.international")}
-                  </button>
-                ))}
-              </div>
-              <p className="mt-1 text-[10px] text-ink-faint">{t("pro.qaMarketSwitch")}</p>
+              <h2 className="font-semibold text-ink">{t("pro.billingRegion")}</h2>
+              <p className="mt-1 text-xs text-ink-soft">{t("pro.serverAuthority")}</p>
+              <label className="mt-3 block text-xs font-semibold text-ink" htmlFor="billing-country">{t("pro.billingCountry")}</label>
+              <select
+                id="billing-country"
+                value={billingCountry}
+                onChange={(event) => setBillingCountry(event.target.value === "BR" ? "BR" : "US")}
+                className="mt-1 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
+              >
+                <option value="BR">{t("pro.brazil")}</option>
+                <option value="US">{t("pro.outsideBrazil")}</option>
+              </select>
             </div>
-          )}
-        </div>
-      </section>
+            {qaMarketSwitch && (
+              <div>
+                <div className="flex rounded-lg border border-line p-1" data-testid="qa-billing-market-switch">
+                  {(["BR", "INTERNATIONAL"] as const).map((market) => (
+                    <button
+                      key={market}
+                      type="button"
+                      onClick={() => setQaMarketOverride(market)}
+                      aria-pressed={qaMarketOverride === market}
+                      className={`rounded-md px-3 py-1.5 text-xs font-semibold ${billingMarket === market ? "bg-gold text-white" : "text-ink-soft"}`}
+                    >
+                      {market === "BR" ? t("pro.brazil") : t("pro.international")}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1 text-[10px] text-ink-faint">{t("pro.qaMarketSwitch")}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <section>
         <div className="mb-3 text-center">
           <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("pro.forYou")}</div>
           <h2 className="font-serif text-xl font-semibold text-ink">{t("pro.fullCatalog")}</h2>
         </div>
-        <div
-          className="mx-auto mb-4 flex w-full max-w-xs rounded-xl border border-line p-1"
-          role="group"
-          aria-label={t("pro.billingCycle")}
-          data-testid="billing-cycle-switch"
-        >
-          {(["monthly", "annual"] as const).map((cycle) => (
-            <button
-              key={cycle}
-              type="button"
-              onClick={() => setSelectedCycle(cycle)}
-              aria-pressed={selectedCycle === cycle}
-              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold ${
-                selectedCycle === cycle ? "bg-gold text-white" : "text-ink-soft"
-              }`}
-            >
-              {cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}
-            </button>
-          ))}
-        </div>
+        {purchasesAvailable && (
+          <div
+            className="mx-auto mb-4 flex w-full max-w-xs rounded-xl border border-line p-1"
+            role="group"
+            aria-label={t("pro.billingCycle")}
+            data-testid="billing-cycle-switch"
+          >
+            {(["monthly", "annual"] as const).map((cycle) => (
+              <button
+                key={cycle}
+                type="button"
+                onClick={() => setSelectedCycle(cycle)}
+                aria-pressed={selectedCycle === cycle}
+                className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold ${
+                  selectedCycle === cycle ? "bg-gold text-white" : "text-ink-soft"
+                }`}
+              >
+                {cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="grid gap-3 md:grid-cols-3">
           {PERSONAL_PLANS.map((plan) => renderPlanCard(plan))}
         </div>
@@ -294,47 +306,54 @@ export function ProPage() {
           <p className="mt-3 text-xs leading-5 text-ink-faint">{t("pro.privacyNote")}</p>
         </Card>
 
+        {!purchasesAvailable ? (
+          <Card className="p-4" data-android-purchase-disabled>
+            <h2 className="font-serif text-lg font-semibold text-ink">{t("pro.androidPurchaseTitle")}</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-soft">{t("pro.androidPurchaseDisabled")}</p>
+          </Card>
+        ) : (
         <Card className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="font-serif text-lg font-semibold text-ink">{planCopy[selectedPlan].title}</h2>
-              <p className="mt-1 text-xs text-ink-soft">{currency}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-lg font-semibold text-ink">{planCopy[selectedPlan].title}</h2>
+                <p className="mt-1 text-xs text-ink-soft">{currency}</p>
+              </div>
+              <Pill tone="gold">{t("pro.approvedPrice")}</Pill>
             </div>
-            <Pill tone="gold">{t("pro.approvedPrice")}</Pill>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {(["monthly", "annual"] as const).map((cycle) => (
-              <button
-                key={cycle}
-                type="button"
-                onClick={() => setSelectedCycle(cycle)}
-                aria-pressed={selectedCycle === cycle}
-                className={`rounded-xl border p-3 text-left ${selectedCycle === cycle ? "border-gold/40 bg-gold/10" : "border-line"}`}
-              >
-                <span className="text-sm font-semibold text-ink">{cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}</span>
-                <span className="mt-1 block text-xs text-ink-faint" data-checkout-price={cycle}>
-                  {priceFor(selectedPlan, cycle)}
-                </span>
-              </button>
-            ))}
-          </div>
-          {selectedCycle === "annual" && annualCopyFor(selectedPlan).freeMonths && (
-            <p className="mt-3 text-xs font-semibold text-good">{annualCopyFor(selectedPlan).freeMonths}</p>
-          )}
-          <p className="mt-3 text-xs text-ink-soft">
-            {checkoutEnabled ? t("pro.serverAuthority") : t("pro.checkoutNotLive")}
-          </p>
-          <Button className="mt-3 w-full" disabled={!checkoutEnabled} onClick={() => void handleCheckout()}>
-            {checkoutEnabled ? (
-              t("pro.subscribeNow", { plan: planCopy[selectedPlan].title })
-            ) : (
-              <>
-                <IconLock width={14} height={14} /> {t("pro.unavailable")}
-              </>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {(["monthly", "annual"] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  type="button"
+                  onClick={() => setSelectedCycle(cycle)}
+                  aria-pressed={selectedCycle === cycle}
+                  className={`rounded-xl border p-3 text-left ${selectedCycle === cycle ? "border-gold/40 bg-gold/10" : "border-line"}`}
+                >
+                  <span className="text-sm font-semibold text-ink">{cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}</span>
+                  <span className="mt-1 block text-xs text-ink-faint" data-checkout-price={cycle}>
+                    {priceFor(selectedPlan, cycle)}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {selectedCycle === "annual" && annualCopyFor(selectedPlan).freeMonths && (
+              <p className="mt-3 text-xs font-semibold text-good">{annualCopyFor(selectedPlan).freeMonths}</p>
             )}
-          </Button>
-          {notice && <p className="mt-2 text-xs text-ink-soft">{notice}</p>}
-        </Card>
+            <p className="mt-3 text-xs text-ink-soft">
+              {checkoutEnabled ? t("pro.serverAuthority") : t("pro.checkoutNotLive")}
+            </p>
+            <Button className="mt-3 w-full" disabled={!checkoutEnabled} onClick={() => void handleCheckout()}>
+              {checkoutEnabled ? (
+                t("pro.subscribeNow", { plan: planCopy[selectedPlan].title })
+              ) : (
+                <>
+                  <IconLock width={14} height={14} /> {t("pro.unavailable")}
+                </>
+              )}
+            </Button>
+            {notice && <p className="mt-2 text-xs text-ink-soft">{notice}</p>}
+          </Card>
+        )}
       </section>
 
       <section className="rounded-xl border border-line/50 bg-surface p-4 text-center">

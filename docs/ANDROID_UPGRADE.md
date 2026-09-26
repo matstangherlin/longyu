@@ -9,12 +9,18 @@ dados se, e somente se, todos os pontos abaixo continuarem verdadeiros
 
 | Invariante | Onde | Por quê |
 |---|---|---|
-| `appId` / `applicationId` = `com.longyu.app` | `capacitor.config.ts`, `android/app/build.gradle` | outro id = outro app, com dados zerados |
+| `appId` / `applicationId` / `namespace` = `longyu.noba.com` (package do Play, congelado desde o RC2.2.16: `docs/release/android-package-identity.json`) | `capacitor.config.ts`, `android/app/build.gradle` | outro id = outro app, com dados zerados; a Play recusa outro package |
 | Sem `server.hostname`, `server.androidScheme` ou `server.url` | `capacitor.config.ts` | mudar a origem (`https://localhost`) deixa o `localStorage` antigo inacessível |
 | Persistência `longyu-v1` com `version` + `migrate` | `src/lib/store.ts` | a versão sobe com migração; nunca renomear a chave |
 | `versionCode` estritamente crescente | `android/version.properties` + `release-identity.mjs` + ledger | a Play (e o `adb install -r`) recusam versionCode menor |
 | Mesma chave de assinatura | Play App Signing / upload key | assinatura diferente = update recusado |
 | Sem `android:clearTaskOnLaunch` e sem limpar dados no boot | `AndroidManifest.xml`, `nativeShell.ts` | nada apaga estado ao abrir |
+
+> **RC2.2.16 — troca de package antes do primeiro upload.** Builds de
+> desenvolvimento antigos usavam `com.longyu.app` (SUPERSEDED, nunca publicado).
+> Para o Android esse é **outro aplicativo**: não existe upgrade dele para
+> `longyu.noba.com`. Em aparelho de QA, desinstale o antigo e instale o novo do
+> zero. A ausência desse upgrade não é bug.
 
 ## 2. Runbook físico N → N+1 (obrigatório)
 

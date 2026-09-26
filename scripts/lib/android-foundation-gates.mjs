@@ -16,9 +16,12 @@ import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 import { CURRICULUM_SOURCES } from "./report-meta.mjs";
+import { ANDROID_APPLICATION_ID, LEGACY_ANDROID_APPLICATION_IDS } from "./android-package-identity.mjs";
 
 export const EXPECTED_FINGERPRINT = "c48b008c9c1e";
-export const EXPECTED_APP_ID = "com.longyu.app";
+/** RC2.2.16 — package do app no Google Play Console (congelado). */
+export const EXPECTED_APP_ID = ANDROID_APPLICATION_ID;
+const LEGACY_SCHEME = LEGACY_ANDROID_APPLICATION_IDS[0];
 export const MIN_TARGET_SDK = 36;
 export const CAPACITOR_MIN_SDK = 24;
 export const SIGNING_ENV = [
@@ -45,6 +48,8 @@ export const ALLOWED_PERMISSIONS = [
   "android.permission.MODIFY_AUDIO_SETTINGS",
   // RC2.2.13 — lembretes locais de estudo (Android 13+).
   "android.permission.POST_NOTIFICATIONS",
+  // RC2.2.14 — @capacitor/haptics (vibração curta; sem dado coletado).
+  "android.permission.VIBRATE",
 ];
 /** Plugins nativos que só existem se houver consumidor em src/lib/platform/. */
 export const RUNTIME_ONLY_PACKAGES = ["@capacitor/core", "@capacitor/android", "@capacitor/cli"];
@@ -510,19 +515,22 @@ export function validateAndroidPlatformBoundaries(s) {
   // Deep links e links externos.
   const resolve = modules.deepLinks.resolveDeepLink;
   const linkCases = [
-    ["com.longyu.app://revisao", "/revisao"],
-    ["com.longyu.app://jornada", "/jornada"],
-    ["com.longyu.app://cultura", "/cultura"],
-    ["com.longyu.app://hanzi/atlas?char=%E4%BD%A0", "/hanzi/atlas?char=%E4%BD%A0"],
+    [`${EXPECTED_APP_ID}://revisao`, "/revisao"],
+    [`${EXPECTED_APP_ID}://jornada`, "/jornada"],
+    [`${EXPECTED_APP_ID}://cultura`, "/cultura"],
+    [`${EXPECTED_APP_ID}://hanzi/atlas?char=%E4%BD%A0`, "/hanzi/atlas?char=%E4%BD%A0"],
     ["https://singular-meringue-7838cd.netlify.app/revisao", "/revisao"],
-    ["com.longyu.app://admin/feedback", null],
-    ["com.longyu.app://qa/player", null],
+    [`${EXPECTED_APP_ID}://admin/feedback`, null],
+    [`${EXPECTED_APP_ID}://qa/player`, null],
     ["https://evil.example/revisao", null],
     ["http://singular-meringue-7838cd.netlify.app/revisao", null],
     ["javascript:alert(1)", null],
-    ["file:///data/data/com.longyu.app/revisao", null],
-    ["com.longyu.app://revisao/..%2F..%2Fadmin", null],
-    ["intent://revisao#Intent;scheme=com.longyu.app;end", null],
+    [`file:///data/data/${EXPECTED_APP_ID}/revisao`, null],
+    [`${EXPECTED_APP_ID}://revisao/..%2F..%2Fadmin`, null],
+    [`intent://revisao#Intent;scheme=${EXPECTED_APP_ID};end`, null],
+    // RC2.2.16 — o esquema de desenvolvimento antigo não abre mais nada.
+    [`${LEGACY_SCHEME}://revisao`, null],
+    [`${LEGACY_SCHEME}://jornada`, null],
   ];
   for (const [url, expected] of linkCases) {
     const got = resolve(url);
@@ -548,8 +556,9 @@ export function validateAndroidPlatformBoundaries(s) {
   if (!/App\.getLaunchUrl\(\)/.test(shell) || !/"appUrlOpen"/.test(shell) || (shell.match(/resolveDeepLink\(/g) ?? []).length < 2) {
     fail("DEEP_LINK_UNSAFE", "nativeShell.ts", "appUrlOpen e launch URL precisam passar por resolveDeepLink");
   }
-  if (!/android:scheme="@string\/custom_url_scheme"/.test(s.androidManifestXml ?? "") || !/name="custom_url_scheme">com\.longyu\.app</.test(s.stringsXml ?? "")) {
-    fail("DEEP_LINK_UNSAFE", "AndroidManifest.xml", "intent-filter do esquema com.longyu.app ausente");
+  const urlScheme = String(s.stringsXml ?? "").match(/name="custom_url_scheme">([^<]*)</)?.[1];
+  if (!/android:scheme="@string\/custom_url_scheme"/.test(s.androidManifestXml ?? "") || urlScheme !== EXPECTED_APP_ID) {
+    fail("DEEP_LINK_UNSAFE", "AndroidManifest.xml", `intent-filter do esquema ${EXPECTED_APP_ID} ausente (custom_url_scheme = ${urlScheme ?? "ausente"})`);
   }
 
   // Permissões: mínimo necessário.

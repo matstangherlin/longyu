@@ -9,6 +9,7 @@ import {
   seedTelemetryDeclined,
   seedUnlockedLessonSession,
   waitForLazyPage,
+  seedCourseDirection,
 } from "./helpers";
 
 /** V4.9.6B inserts listen (and a short intro) before each guided contour. */
@@ -45,6 +46,7 @@ const SHOTS = path.join(process.cwd(), "docs/reports/v491-screenshots");
 
 async function startPlacement(page: Page) {
   await seedTelemetryDeclined(page);
+  await seedCourseDirection(page, "pt-zh");
   await page.goto("/comecar");
   await waitForLazyPage(page);
   await page.getByRole("button", { name: /^Começar$/i }).click();
@@ -242,16 +244,15 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await page.screenshot({ path: path.join(SHOTS, "conversation-journey-booster-desktop-pt.png"), fullPage: true });
   });
 
-  test("Placement option order survives rerender, viewport changes, and PT to EN", async ({ page }) => {
-    await mkdir(SHOTS, { recursive: true });
+  // RC2.2.14B — o onboarding não tem mais seletor de idioma (a interface
+  // segue o sistema); a estabilidade entre re-render e viewport continua.
+  test("Placement option order survives rerender and viewport changes", async ({ page }) => {
     await startPlacement(page);
     const initial = await canonicalPlacementOrder(page);
     expect(initial.length).toBeGreaterThanOrEqual(3);
     await page.setViewportSize({ width: 390, height: 844 });
     expect(await canonicalPlacementOrder(page)).toEqual(initial);
-    await page.getByTestId("interface-locale-select").selectOption("en");
-    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await page.setViewportSize({ width: 1280, height: 800 });
     expect(await canonicalPlacementOrder(page)).toEqual(initial);
-    await page.screenshot({ path: path.join(SHOTS, "placement-stable-order-mobile-en.png"), fullPage: true });
   });
 });

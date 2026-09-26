@@ -13,23 +13,20 @@ import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, Pill, SectionTitle } from "../../components/ui/primitives";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
-import {
-  builderPrerequisitesMet,
-  COMPLETE_BUILDERS,
-  COMPONENT_BUILDERS,
-  FRAGMENT_BUILDERS,
-  SENTENCE_BUILDERS,
-  type HanziBuilder,
-} from "../../data/hanziBuilder";
+import { builderPrerequisitesMet, type HanziBuilder } from "../../data/hanziBuilder";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
-import { IconCheck, IconHanzi, IconLibrary, IconX } from "../../components/ui/Icon";
+import { IconHanzi, IconLibrary } from "../../components/ui/Icon";
 import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { HANZI_BUILDER_NODE, getJourneyNode } from "../../data/journeyOrchestrator";
 import { completeJourneyNode } from "../../lib/journeyNodeProgress";
 import { useTranslation } from "../../i18n/useTranslation";
+import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
+import { HanziTrainingSession } from "./HanziTrainingSession";
+import { HanziModeGrid } from "./IdeogramasPage";
+import { BUILDERS_BY_MODE, charIdByHanzi } from "./hanziTrainingModes";
 
 export function HanziPage() {
   const navigate = useNavigate();
@@ -42,12 +39,24 @@ export function HanziPage() {
   const [labNotice, setLabNotice] = useState<string | null>(null);
   const isPremium = useIsPro();
   const hanziLabAccess = canAccessHanziLab({ isPremium });
+  const completedLessons = useStore((s) => s.completedLessons);
+  const hanziTrainingAllowed = canAccessHanziLab({ isPremium, completedLessons }).allowed;
   const lesson = hanziLessonFor(selected);
 
   useEffect(() => {
     const next = CHARACTERS.find((char) => char.id === requestedCharId);
     if (next) setSelected(next);
   }, [requestedCharId]);
+
+  // RC2.2.14 — /hanzi?mode=… é o treino em foco (rodadas de 8).
+  const practiceMode = searchParams.get("mode");
+  if (!journeyNode && isHanziPracticeMode(practiceMode)) {
+    return (
+      <EngineGate track="hanzi">
+        <HanziTrainingSession key={practiceMode} mode={practiceMode} />
+      </EngineGate>
+    );
+  }
 
   if (journeyNode?.id === HANZI_BUILDER_NODE.id) {
     const allowedCharacterIds = (journeyNode.allowedKnowledgeTargetIds ?? [])
@@ -91,6 +100,8 @@ export function HanziPage() {
         title="Montar hànzì"
         desc="Forma, som e sentido em peças visuais."
       />
+
+      <HanziModeGrid allowed={hanziTrainingAllowed} />
 
       <section className="rounded-xl bg-surface px-4 py-3">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -276,46 +287,37 @@ export function HanziPage() {
         </div>
       </section>
 
-      {/* Montar hànzì (quebra-cabeça visual) */}
-      <HanziBuildTrainer />
-
-      {/* Quiz de reconhecimento */}
-      <RecognitionQuiz />
-      <DecompositionQuiz />
       <ProPaywall open={paywallOpen} kind="hanzi" onClose={() => setPaywallOpen(false)} />
     </div>
     </EngineGate>
   );
 }
 
-const ROUND = 8;
-
-const charIdByHanzi = new Map(CHARACTERS.map((char) => [char.hanzi, char.id]));
 
 const BUILD_MODES: { id: string; label: string; desc: string; builders: HanziBuilder[] }[] = [
   {
     id: "fragments",
     label: "Montar hànzì",
     desc: "Encaixe traços soltos para formar o caractere.",
-    builders: FRAGMENT_BUILDERS,
+    builders: BUILDERS_BY_MODE.fragments,
   },
   {
     id: "complete",
     label: "Reconhecer partes",
     desc: "Escolha o traço que falta na carta.",
-    builders: COMPLETE_BUILDERS,
+    builders: BUILDERS_BY_MODE.complete,
   },
   {
     id: "components",
     label: "Componentes frequentes",
     desc: "Combine componentes inteiros: 女 + 子 = 好.",
-    builders: COMPONENT_BUILDERS,
+    builders: BUILDERS_BY_MODE.components,
   },
   {
     id: "sentences",
     label: "Hànzì em frases",
     desc: "Monte o caractere que falta dentro de uma frase curta.",
-    builders: SENTENCE_BUILDERS,
+    builders: BUILDERS_BY_MODE.sentences,
   },
 ];
 
@@ -543,334 +545,4 @@ function recordBuilderActivityError(
     skill: "forma",
     targets: [{ type: "char", itemId, domain: "forma", track: "hanzi" }],
   });
-}
-
-function RecognitionQuiz() {
-  const ensureSrs = useStore((s) => s.ensureSrs);
-  const gradeSrs = useStore((s) => s.gradeSrs);
-  const addMinutes = useStore((s) => s.addMinutes);
-  const addXp = useStore((s) => s.addXp);
-  const soundEffects = useStore((s) => s.soundEffects);
-  const consumeCharge = useStore((s) => s.consumeCharge);
-
-  const pool = useMemo(() => CHARACTERS, []);
-  const [q, setQ] = useState(0);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const [picked, setPicked] = useState<string | null>(null);
-  const [round, setRound] = useState(() => makeQuestion(pool));
-  const [sessionCharged, setSessionCharged] = useState(false);
-  const [energyPaywallOpen, setEnergyPaywallOpen] = useState(false);
-
-  function ensureTrainingCharge(): boolean {
-    if (sessionCharged) return true;
-    if (!consumeCharge("extra_training")) {
-      setEnergyPaywallOpen(true);
-      return false;
-    }
-    setSessionCharged(true);
-    return true;
-  }
-
-  function answer(meaning: string) {
-    if (picked) return;
-    if (!ensureTrainingCharge()) return;
-    setPicked(meaning);
-    const correct = meaning === round.answer.meaningPt;
-    gradeReviewDomain({
-      ensureSrs,
-      gradeSrs,
-      type: "char",
-      itemId: round.answer.id,
-      track: "hanzi",
-      domain: "significado",
-      grade: correct ? "good" : "again",
-    });
-    playSoundFx(correct ? "success" : "task", soundEffects);
-    setTimeout(() => {
-      const ns = score + (correct ? 1 : 0);
-      if (q + 1 >= ROUND) {
-        setScore(ns);
-        setDone(true);
-        addXp(5 + (ns >= 7 ? 3 : 0), leagueXpKeyActivity("hanzi", `${todayKey()}:builder:${ns}`));
-        playSoundFx(ns >= 7 ? "streak" : "success", soundEffects);
-        addMinutes("hanzi", 5);
-        return;
-      }
-      setScore(ns);
-      setQ(q + 1);
-      setPicked(null);
-      setRound(makeQuestion(pool));
-    }, 850);
-  }
-
-  function restart() {
-    setQ(0);
-    setScore(0);
-    setDone(false);
-    setPicked(null);
-    setSessionCharged(false);
-    setRound(makeQuestion(pool));
-  }
-
-  if (done) {
-    return (
-      <Card className="p-6 text-center">
-        <div className="font-serif text-2xl font-semibold text-ink">
-          {score} / {ROUND}
-        </div>
-        <p className="mt-1 text-ink-soft">
-          Os caracteres reconhecidos entraram na sua fila de revisão espaçada.
-        </p>
-        <Button className="mt-4" onClick={restart}>
-          Jogar de novo
-        </Button>
-        <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-serif text-xl font-semibold text-ink">
-          O que significa?
-        </h2>
-        <Pill>
-          {q + 1} / {ROUND}
-        </Pill>
-      </div>
-      <div className="flex flex-col items-center gap-5">
-        <div className="flex flex-col items-center gap-2">
-          <div className="hanzi text-7xl text-ink">{round.answer.hanzi}</div>
-          <div className="flex items-center gap-2.5">
-            <Pinyin text={round.answer.pinyin} className="font-serif text-lg" />
-            <SpeakButton text={round.answer.hanzi} size="sm" />
-          </div>
-        </div>
-        <div className="grid w-full max-w-md gap-2.5">
-          {round.options.map((opt) => {
-            const state =
-              picked == null
-                ? "idle"
-                : opt === round.answer.meaningPt
-                ? "right"
-                : opt === picked
-                ? "wrong"
-                : "idle";
-            return (
-              <button
-                key={opt}
-                onClick={() => answer(opt)}
-                className={[
-                  "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition",
-                  state === "idle" && "border-line bg-surface hover:bg-surface-2",
-                  state === "right" &&
-                    "border-transparent bg-[rgb(var(--good)/0.15)] text-ink",
-                  state === "wrong" && "border-transparent bg-accent-soft text-ink",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <span>{opt}</span>
-                {state === "right" && (
-                  <IconCheck width={18} height={18} className="text-[rgb(var(--good))]" />
-                )}
-                {state === "wrong" && (
-                  <IconX width={18} height={18} className="text-accent" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
-    </Card>
-  );
-}
-
-function makeQuestion(pool: typeof CHARACTERS) {
-  const answer = pool[Math.floor(Math.random() * pool.length)];
-  const distractors = shuffle(pool.filter((c) => c.id !== answer.id)).slice(0, 3);
-  const options = shuffle([answer, ...distractors].map((c) => c.meaningPt));
-  return { answer, options };
-}
-
-function DecompositionQuiz() {
-  const ensureSrs = useStore((s) => s.ensureSrs);
-  const gradeSrs = useStore((s) => s.gradeSrs);
-  const addMinutes = useStore((s) => s.addMinutes);
-  const addXp = useStore((s) => s.addXp);
-  const soundEffects = useStore((s) => s.soundEffects);
-  const recordDailyTask = useStore((s) => s.recordDailyTask);
-  const consumeCharge = useStore((s) => s.consumeCharge);
-  const pool = useMemo(
-    () => DECOMPOSABLE.filter((char) => char.components.length > 0),
-    []
-  );
-  const [q, setQ] = useState(0);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const [picked, setPicked] = useState<string | null>(null);
-  const [round, setRound] = useState(() => makeDecompositionQuestion(pool));
-  const [sessionCharged, setSessionCharged] = useState(false);
-  const [energyPaywallOpen, setEnergyPaywallOpen] = useState(false);
-
-  function ensureTrainingCharge(): boolean {
-    if (sessionCharged) return true;
-    if (!consumeCharge("extra_training")) {
-      setEnergyPaywallOpen(true);
-      return false;
-    }
-    setSessionCharged(true);
-    return true;
-  }
-
-  function answer(option: string) {
-    if (picked) return;
-    if (!ensureTrainingCharge()) return;
-    setPicked(option);
-    const correct = option === round.answer;
-    gradeReviewDomain({
-      ensureSrs,
-      gradeSrs,
-      type: "char",
-      itemId: round.char.id,
-      track: "hanzi",
-      domain: "forma",
-      grade: correct ? "good" : "again",
-    });
-    recordDailyTask("hanziDecomposed");
-    playSoundFx(correct ? "success" : "task", soundEffects);
-    setTimeout(() => {
-      const ns = score + (correct ? 1 : 0);
-      if (q + 1 >= ROUND) {
-        setScore(ns);
-        setDone(true);
-        addXp(5 + (ns >= 7 ? 3 : 0), leagueXpKeyActivity("hanzi", `${todayKey()}:builder:${ns}`));
-        playSoundFx(ns >= 7 ? "streak" : "success", soundEffects);
-        addMinutes("hanzi", 5);
-        return;
-      }
-      setScore(ns);
-      setQ(q + 1);
-      setPicked(null);
-      setRound(makeDecompositionQuestion(pool));
-    }, 900);
-  }
-
-  function restart() {
-    setQ(0);
-    setScore(0);
-    setDone(false);
-    setPicked(null);
-    setSessionCharged(false);
-    setRound(makeDecompositionQuestion(pool));
-  }
-
-  if (done) {
-    return (
-      <Card className="p-6 text-center">
-        <div className="font-serif text-2xl font-semibold text-ink">
-          {score} / {ROUND}
-        </div>
-        <p className="mt-1 text-ink-soft">
-          Você treinou forma, sentido e pistas sonoras. Esses domínios entraram na revisão.
-        </p>
-        <Button className="mt-4" onClick={restart}>
-          Desmontar de novo
-        </Button>
-        <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-serif text-xl font-semibold text-ink">
-          Qual peça faz esse papel?
-        </h2>
-        <Pill>
-          {q + 1} / {ROUND}
-        </Pill>
-      </div>
-
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div>
-          <div className="hanzi text-7xl text-ink">{round.char.hanzi}</div>
-          <div className="mt-1 flex items-center justify-center gap-2">
-            <Pinyin text={round.char.pinyin} className="font-serif text-lg" />
-            <SpeakButton text={round.char.hanzi} size="sm" />
-          </div>
-        </div>
-        <p className="text-sm text-ink-soft">{round.prompt}</p>
-        <div className="grid w-full max-w-md gap-2.5">
-          {round.options.map((option) => {
-            const state =
-              picked == null
-                ? "idle"
-                : option === round.answer
-                ? "right"
-                : option === picked
-                ? "wrong"
-                : "idle";
-            return (
-              <button
-                key={option}
-                onClick={() => answer(option)}
-                disabled={picked != null}
-                className={[
-                  "flex items-center justify-between rounded-xl border px-4 py-3 text-left transition",
-                  state === "idle" && "border-line bg-surface hover:bg-surface-2",
-                  state === "right" && "border-transparent bg-[rgb(var(--good)/0.15)] text-ink",
-                  state === "wrong" && "border-transparent bg-accent-soft text-ink",
-                ].filter(Boolean).join(" ")}
-              >
-                <span>{option}</span>
-                {state === "right" && <IconCheck width={18} height={18} className="text-[rgb(var(--good))]" />}
-                {state === "wrong" && <IconX width={18} height={18} className="text-accent" />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
-    </Card>
-  );
-}
-
-function makeDecompositionQuestion(pool: typeof DECOMPOSABLE) {
-  const char = pool[Math.floor(Math.random() * pool.length)];
-  const lesson = hanziLessonFor(char);
-  const target =
-    lesson.components.find((part) => part.role === "som") ??
-    lesson.components[Math.floor(Math.random() * lesson.components.length)];
-  const radical = radicalById[target.componentId];
-  const answer = radical
-    ? `${radical.variant ?? radical.glyph} · ${radical.namePt}`
-    : target.componentId;
-  const distractors = shuffle(
-    RADICALS
-      .filter((candidate) => candidate.id !== target.componentId)
-      .map((candidate) => `${candidate.variant ?? candidate.glyph} · ${candidate.namePt}`)
-  ).slice(0, 3);
-
-  return {
-    char,
-    prompt: target.role === "som"
-      ? "Qual peça funciona principalmente como pista de som?"
-      : "Qual peça ajuda principalmente no sentido ou na forma visual?",
-    answer,
-    options: shuffle([answer, ...distractors]),
-  };
-}
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
 }

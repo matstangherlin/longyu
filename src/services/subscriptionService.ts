@@ -53,6 +53,17 @@ const MANAGE_PENDING_MESSAGE =
 export const ANDROID_CHECKOUT_UNAVAILABLE_MESSAGE =
   "Assinar pelo app Android ainda não está disponível. Seu plano atual continua valendo.";
 
+/**
+ * RC2.2.16 — decisão de monetização da Beta Android (docs/release/android-billing-audit.json).
+ * Sem Google Play Billing, o app Android não mostra preço, botão de compra nem
+ * portal de cobrança. O plano comprado na web continua reconhecido (serverIsPro).
+ */
+export const ANDROID_IN_APP_PURCHASE = "DISABLED_FOR_BETA" as const;
+
+export function isInAppPurchaseAvailable(): boolean {
+  return !isNativeApp();
+}
+
 const CHECKOUT_PENDING_MESSAGE =
   "Assinaturas reais ainda não estão ativas nesta versão. Quando o Stripe for integrado, o checkout abrirá aqui de forma segura.";
 

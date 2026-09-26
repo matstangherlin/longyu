@@ -25,9 +25,15 @@ test.describe("dispositivo — toque", () => {
       test.skip(true, "Sem toque neste projeto (motor de mesa).");
     }
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
-    await page.getByRole("link", { name: /Começar agora/i }).tap();
-    await page.waitForURL("**/comecar");
-    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+    // RC2.2.14 — no celular o CTA principal é o teste guiado de 2 min.
+    // RC2.2.14B — sem curso escolhido, o CTA passa antes pela escolha do curso.
+    // Tablet deitado (1112px) recebe a landing larga, com o link "Ou faça o teste guiado".
+    await page.locator('[data-testid="landing-guided-try"], [data-testid="landing-guided-try-desktop"]').first().tap();
+    await page.waitForURL(/\/curso\?next=%2Fteste-guiado/);
+    await page.locator('[data-course-choice="pt-zh"]').tap();
+    await page.getByTestId("course-picker-confirm").tap();
+    await page.waitForURL("**/teste-guiado");
+    await expect(page.getByTestId("guided-try")).toBeVisible();
   });
 
   test("primeira lição avança por toque (Entendi → opção)", async ({ page }) => {
@@ -263,7 +269,8 @@ test.describe("dispositivo — rede lenta", () => {
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible({
       timeout: 45_000,
     });
-    await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible({
+    // Celular: "Fazer teste guiado"; desktop: "Ou faça o teste guiado".
+    await expect(page.getByRole("link", { name: /teste guiado/i }).first()).toBeVisible({
       timeout: 45_000,
     });
     await client.detach().catch(() => undefined);

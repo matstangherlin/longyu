@@ -17,6 +17,8 @@ function lazyNamed<T extends Record<string, unknown>>(
   );
 }
 
+const CoursePickerPage = lazyNamed(() => import("./features/landing/CoursePickerPage"), "CoursePickerPage");
+const GuidedTryPage = lazyNamed(() => import("./features/landing/GuidedTryPage"), "GuidedTryPage");
 const JourneyPage = lazyNamed(() => import("./features/journey/JourneyPage"), "JourneyPage");
 const LessonCapsulePage = lazyNamed(() => import("./features/journey/LessonCapsulePage"), "LessonCapsulePage");
 const JourneyBoosterPage = lazyNamed(() => import("./features/journey/JourneyBoosterPage"), "JourneyBoosterPage");
@@ -90,6 +92,7 @@ const QaAudioDiscriminationPage = lazyNamed(
   "QaAudioDiscriminationPage"
 );
 const QaHanziBuilderPage = lazyNamed(() => import("./features/qa/QaHanziBuilderPage"), "QaHanziBuilderPage");
+const QaStepLabPage = lazyNamed(() => import("./features/qa/QaStepLabPage"), "QaStepLabPage");
 const QaConversationScenePage = lazyNamed(
   () => import("./features/qa/QaConversationScenePage"),
   "QaConversationScenePage"
@@ -101,6 +104,8 @@ import { NotFoundPage } from "./features/system/NotFoundPage";
 
 export const routes: RouteObject[] = [
   { path: "/", element: <LandingPage /> },
+  { path: "/teste-guiado", element: <GuidedTryPage /> },
+  { path: "/curso", element: <CoursePickerPage /> },
   { path: "/aprender-mandarim", element: <MarketingPage /> },
   { path: "/curso-de-mandarim-online", element: <MarketingPage /> },
   { path: "/tons-do-mandarim", element: <MarketingPage /> },
@@ -135,6 +140,7 @@ export const routes: RouteObject[] = [
       { path: "qa/player", element: <QaHubPage /> },
       { path: "qa/audio-discrimination", element: <QaAudioDiscriminationPage /> },
       { path: "qa/hanzi-builder", element: <QaHanziBuilderPage /> },
+      { path: "qa/step-lab", element: <QaStepLabPage /> },
       { path: "qa/conversation-scene", element: <QaConversationScenePage /> },
       { path: "qa/:scenario", element: <QaScenarioPage /> },
     ],
@@ -181,6 +187,7 @@ export const routes: RouteObject[] = [
       { path: "conta", element: <ContaRoute /> },
       { path: "dados-locais", element: <DadosLocaisPage /> },
       { path: "config", element: <SettingsPage /> },
+      { path: "config/:category", element: <SettingsPage /> },
       { path: "ajustes", element: <SettingsPage /> },
       { path: "mais", element: <MorePage /> },
       { path: "admin/feedback", element: <AdminFeedbackPage /> },

@@ -26,10 +26,11 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { assertVersionCodeIncreases, resolveReleaseTarget } from "./lib/release-identity.mjs";
+import { ANDROID_APPLICATION_ID } from "./lib/android-package-identity.mjs";
 
 export const EXIT_BLOCKED_PLAY = 5;
 export const EXIT_POLICY = 6;
-const PACKAGE_NAME = "com.longyu.app";
+const PACKAGE_NAME = ANDROID_APPLICATION_ID;
 const API = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
 const UPLOAD_API = "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
 const SCOPE = "https://www.googleapis.com/auth/androidpublisher";
@@ -112,9 +113,25 @@ async function main() {
   }
 
   const provenance = JSON.parse(fs.readFileSync(arg("provenance"), "utf8"));
-  const base = { versionCode: provenance.versionCode, versionName: provenance.versionName, sha: provenance.sha, channel, track: target.track };
+  const base = {
+    packageName: provenance.packageName,
+    versionCode: provenance.versionCode,
+    versionName: provenance.versionName,
+    sha: provenance.sha,
+    channel,
+    track: target.track,
+  };
   if (provenance.buildType !== "release" || provenance.official === false) {
     console.error("UNOFFICIAL_BUILD: só AAB release oficial (árvore limpa, SHA conferido) sobe para o Play");
+    process.exit(EXIT_POLICY);
+  }
+  // RC2.2.16 · B/O — o package lido do AAB compilado precisa ser o do app no Play.
+  if (provenance.packageName !== PACKAGE_NAME || provenance.bundleInspection?.legacyIdFound !== false) {
+    console.error(`PACKAGE_MISMATCH: AAB ${provenance.packageName ?? "sem package inspecionado"} ≠ Play ${PACKAGE_NAME}; nenhum upload feito`);
+    process.exit(EXIT_POLICY);
+  }
+  if (!/^[0-9A-F]{2}(?::[0-9A-F]{2}){31}$/.test(String(provenance.signingCertificateSha256 ?? "")) || provenance.signatureResult !== "SIGNED_WITH_UPLOAD_KEY") {
+    console.error("SIGNATURE_EVIDENCE_MISSING: proveniência sem certificado da upload key; nenhum upload feito");
     process.exit(EXIT_POLICY);
   }
   if (!account) {

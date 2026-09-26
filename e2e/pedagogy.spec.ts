@@ -98,10 +98,18 @@ test.describe("lição", () => {
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
     // Depois da introdução o balancer pode abrir num hanzi_build gerado
     // (fragmentos simples, ex. lua) ou numa associação visual — ainda sem 林/明/好.
-    await page.getByRole("button", { name: "Entendi" }).click();
+    // O balão do guia pode estar terminando de "digitar": o primeiro toque
+    // completa o texto, o seguinte avança.
+    for (let i = 0; i < 3 && (await page.getByRole("button", { name: "Entendi" }).isVisible().catch(() => false)); i += 1) {
+      await page.getByRole("button", { name: "Entendi" }).click();
+      await page.waitForTimeout(400);
+    }
+    // RC2.2.14 — a linha de etapa virou só "Etapa X/Y" (sem resumo da rodada);
+    // o primeiro passo depois da introdução tem de ser algo simples com 木.
     await expect(
-      page.getByText(/Monte o hànzì|Monte por fragmentos|Monte pelas peças|Associação visual|Observe a forma|Fixe com pares|Combine o conteúdo/i).first(),
+      page.getByText(/Monte o hànzì|Monte por fragmentos|Monte pelas peças|Associação visual|Observe a forma|Fixe com pares|Combine o conteúdo|Ouça e imite/i).first(),
     ).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator("[data-lesson-step-frame]").getByText("木").first()).toBeVisible();
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
   });
 });

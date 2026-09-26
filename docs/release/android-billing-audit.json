@@ -1,0 +1,133 @@
+{
+  "schema": "longyu-android-billing-audit/1",
+  "wave": "RC2.2.16",
+  "decision": "ANDROID_IN_APP_PURCHASE=DISABLED_FOR_BETA",
+  "decisionOption": "B",
+  "decisionDetail": "Opção B da RC2.2.16: sem Google Play Billing nesta Beta, o app Android não vende nada (nem assinatura, nem item digital) e não leva a checkout externo. Quem já é Pro (comprou na web) continua Pro no Android: o plano é lido do servidor (serverIsPro). Aprendizado gratuito não é afetado.",
+  "playBillingContract": null,
+  "codeGuards": {
+    "subscriptionService": "createCheckoutSession/openBillingPortal devolvem not_implemented em isNativeApp() (ANDROID_CHECKOUT_UNAVAILABLE_MESSAGE)",
+    "inAppPurchaseAvailability": "isInAppPurchaseAvailable() = !isNativeApp(); ANDROID_IN_APP_PURCHASE = DISABLED_FOR_BETA",
+    "proPage": "no Android: sem preço, sem ciclo, sem região de cobrança, sem 'Assinar agora', sem portal; mostra pro.androidPurchaseDisabled e, para quem já é Pro, pro.androidManageElsewhere",
+    "entitlement": "src/lib/entitlements.ts, src/lib/entitlementStatus.ts e src/commercial/entitlements.ts não dependem da plataforma: Pro web vale no Android"
+  },
+  "surfaces": [
+    {
+      "id": "subscribe_pro",
+      "label": "Assinar Longyu Pro (mensal/anual)",
+      "where": "src/features/pro/ProPage.tsx (checkout card)",
+      "realMoney": true,
+      "digitalGood": true,
+      "web": "Stripe Checkout (create-checkout-session)",
+      "androidAvailable": false,
+      "androidBehavior": "DISABLED: card substituído pelo aviso honesto; createCheckoutSession também recusa no nativo",
+      "paymentMethodOnAndroid": null
+    },
+    {
+      "id": "subscribe_family",
+      "label": "Assinar Plano Família",
+      "where": "src/features/pro/ProPage.tsx (mesmo checkout, plan=family)",
+      "realMoney": true,
+      "digitalGood": true,
+      "web": "Stripe Checkout",
+      "androidAvailable": false,
+      "androidBehavior": "DISABLED (mesmo guard do Pro)",
+      "paymentMethodOnAndroid": null
+    },
+    {
+      "id": "billing_portal",
+      "label": "Gerenciar ou cancelar assinatura",
+      "where": "ProPage (hero) · AccountPage",
+      "realMoney": true,
+      "digitalGood": true,
+      "web": "Stripe Billing Portal (create-billing-portal)",
+      "androidAvailable": false,
+      "androidBehavior": "DISABLED: botão escondido na ProPage; openBillingPortal recusa no nativo (AccountPage recebe a mensagem honesta)",
+      "paymentMethodOnAndroid": null
+    },
+    {
+      "id": "upgrade_pro_ctas",
+      "label": "Ver Pro / Ver planos (paywall, banners, Ajustes, Imersão, Ligas, Loja, Família, lição)",
+      "where": "ProPaywall, ProOfferBanner, SettingsPage, ImmersionPage, LigasPage, LojaPage (shop-pro), FamilyPage, LessonPlayer, EconomyExplainer, HubLayout",
+      "realMoney": false,
+      "digitalGood": false,
+      "web": "navegação interna para /pro",
+      "androidAvailable": true,
+      "androidBehavior": "INFO_ONLY: levam à ProPage, que no Android não vende nem mostra preço",
+      "paymentMethodOnAndroid": null
+    },
+    {
+      "id": "buy_qi",
+      "label": "Pacote de Qi",
+      "where": "src/data/shop.ts (shop-qi-pack) · LojaPage",
+      "realMoney": false,
+      "digitalGood": true,
+      "web": "troca por Pérolas GANHAS (moeda interna, sem compra com dinheiro)",
+      "androidAvailable": true,
+      "androidBehavior": "FREE_CURRENCY_ONLY",
+      "paymentMethodOnAndroid": "moeda interna ganha no app"
+    },
+    {
+      "id": "buy_pearls",
+      "label": "Comprar Pérolas",
+      "where": "não existe",
+      "realMoney": false,
+      "digitalGood": true,
+      "web": "Pérolas só são ganhas (marcos de maestria/missões); não há produto de dinheiro para Pérolas",
+      "androidAvailable": false,
+      "androidBehavior": "NOT_SOLD_ANYWHERE",
+      "paymentMethodOnAndroid": null
+    },
+    {
+      "id": "focus_pass",
+      "label": "Passe de foco / Passe de teste / Carga / Escudo / Baú",
+      "where": "src/data/shop.ts (shop-focus-pass, shop-pearl-focus-24/48, shop-module-retry, shop-charge, shop-shield, shop-chest-*)",
+      "realMoney": false,
+      "digitalGood": true,
+      "web": "Qi ou Pérolas ganhos",
+      "androidAvailable": true,
+      "androidBehavior": "FREE_CURRENCY_ONLY",
+      "paymentMethodOnAndroid": "moeda interna ganha no app"
+    },
+    {
+      "id": "cosmetics",
+      "label": "Cosméticos de perfil",
+      "where": "src/data/shop.ts (PROFILE_COSMETICS)",
+      "realMoney": false,
+      "digitalGood": true,
+      "web": "Pérolas ganhas",
+      "androidAvailable": true,
+      "androidBehavior": "FREE_CURRENCY_ONLY",
+      "paymentMethodOnAndroid": "moeda interna ganha no app"
+    },
+    {
+      "id": "pearl_pro_pass",
+      "label": "Dias de Longyu Pro com Pérolas",
+      "where": "src/data/shop.ts (shop-pearl-pro-pass) · src/lib/pearlPro.ts",
+      "realMoney": false,
+      "digitalGood": true,
+      "web": "Pérolas ganhas",
+      "androidAvailable": true,
+      "androidBehavior": "FREE_CURRENCY_ONLY",
+      "paymentMethodOnAndroid": "moeda interna ganha no app"
+    },
+    {
+      "id": "business_sales",
+      "label": "Business / Enterprise (falar com vendas)",
+      "where": "ProPage → /business, BusinessLeadForm (submit-business-lead)",
+      "realMoney": false,
+      "digitalGood": false,
+      "web": "formulário de contato B2B; nenhum pagamento no app",
+      "androidAvailable": true,
+      "androidBehavior": "LEAD_FORM_ONLY",
+      "paymentMethodOnAndroid": null
+    }
+  ],
+  "realMoneyCurrencies": [],
+  "shopCurrencies": ["qi", "pearl"],
+  "webEntitlementOnAndroid": "RECOGNIZED_VIA_BACKEND",
+  "storeListingRule": "Não prometer compra dentro do app Android.",
+  "reviewedBy": null,
+  "reviewedAt": null,
+  "ownerReview": "OWNER_REVIEW_REQUIRED"
+}

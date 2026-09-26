@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- RC2.2.10 — deep link foundation: com.longyu.app://revisao etc.
+            <!-- RC2.2.10 — deep link foundation: longyu.noba.com://revisao etc. (RC2.2.16: esquema = package do Play)
                  O JS só navega para rotas aprovadas (src/lib/platform/deepLinks.ts).
                  App Links https (autoVerify + assetlinks.json) ficam para o
                  domínio definitivo. -->
@@ -62,6 +62,8 @@
          (reagendar após reiniciar) e WAKE_LOCK. SCHEDULE_EXACT_ALARM é REMOVIDO:
          lembrete de estudo não é alarme e usa agendamento inexato. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- RC2.2.14 — @capacitor/haptics: feedback tátil curto (respostas e conquistas). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:node="remove" />
 

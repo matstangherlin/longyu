@@ -12,9 +12,17 @@ import { PageFallback } from "./components/system/PageFallback";
 import { I18nProvider } from "./i18n/provider";
 import { NativeExperienceBootstrap } from "./components/native/NativeExperienceBootstrap";
 import { initNativeShell } from "./lib/platform/nativeShell";
-import { bootstrapInterfaceLocale } from "./i18n/locale";
+import { bootstrapInterfaceLocale, refreshSystemInterfaceLocale, setSystemLanguageProvider } from "./i18n/locale";
+import { onSystemLanguageChange, systemLanguageTags } from "./lib/platform/systemLocale";
+import { bootstrapCourseDirection } from "./lib/courseDirectionState";
+import { CourseDirectionBootstrap } from "./components/i18n/CourseDirectionBootstrap";
 
+// RC2.2.14B — interface começa no idioma do sistema (Web e WebView do Android).
+setSystemLanguageProvider(systemLanguageTags);
 bootstrapInterfaceLocale();
+onSystemLanguageChange(refreshSystemInterfaceLocale);
+// RC2.2.14B — curso aplicado antes do primeiro render (sem piscar PT → EN).
+bootstrapCourseDirection();
 
 /**
  * RC1.2 P1 — promove a folha de fontes DEPOIS do boot.
@@ -60,6 +68,7 @@ const router = createBrowserRouter([
         <SeoHead />
         {/* RC2.2.13 — Android: lembretes, toque em notificação, intro de permissões. Web: nada. */}
         <NativeExperienceBootstrap />
+        <CourseDirectionBootstrap />
         <Suspense fallback={<PageFallback />}>
           <Outlet />
         </Suspense>

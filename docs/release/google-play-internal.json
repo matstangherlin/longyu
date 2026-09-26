@@ -1,0 +1,111 @@
+{
+  "schema": "longyu-google-play-internal/1",
+  "wave": "RC2.2.16",
+  "note": "Fonte de verdade do Internal Testing do Google Play. Cada estado é separado: AAB gerado ≠ AAB enviado; app criado ≠ release interna criada; release interna ≠ app instalado. Só evidência real promove um estado. Sem credencial, senha, base64 ou chave privada aqui: só fingerprints públicos.",
+  "packageName": "longyu.noba.com",
+  "appCreated": "OWNER_REPORTED",
+  "developerIdentityVerified": "OWNER_CONFIRMATION_REQUIRED",
+  "packageRegistered": "OWNER_CONFIRMATION_REQUIRED",
+  "playAppSigning": "OWNER_CONFIRMATION_REQUIRED",
+  "uploadCertificateSha256": null,
+  "appSigningCertificateSha256": null,
+  "releaseIdentity": {
+    "packageName": "longyu.noba.com",
+    "versionName": "0.2.0-beta.1",
+    "versionCode": null,
+    "sha": null,
+    "track": "internal",
+    "buildType": "release",
+    "versionCodeModel": "floor (android/version.properties = 1) + commits first-parent de main no SHA da release",
+    "candidate": {
+      "computedAt": "2026-09-25T09:40:00Z",
+      "mainSha": "0c5ad5ae",
+      "mainFirstParentCount": 536,
+      "versionCodeAtCurrentMain": 537,
+      "expectedAfterMerges": 539,
+      "detail": "539 se #288 e esta onda entrarem como dois squash-merges na main. O valor oficial é recalculado pelo android-release.yml no SHA da main no momento do disparo; registre SHA + versionCode + versionName aqui ANTES do upload."
+    }
+  },
+  "versionName": "0.2.0-beta.1",
+  "versionCode": null,
+  "sha": null,
+  "uploadKey": {
+    "status": "OWNER_ACTION_REQUIRED",
+    "suggestedAlias": "longyu-upload",
+    "command": "npm run android:keystore:init -- --path <caminho FORA do repo>/longyu-upload.jks --alias longyu-upload --confirm CRIAR-UPLOAD-KEY",
+    "detail": "A automação não cria a upload key, não gera nem conhece senha. O keytool pede as duas senhas no terminal do owner."
+  },
+  "backupChecklist": {
+    "keystoreLocal": false,
+    "backup1": false,
+    "backup2": false,
+    "aliasSaved": false,
+    "storePasswordSaved": false,
+    "keyPasswordSaved": false,
+    "gitIgnoreConfirmed": true,
+    "gitStatusClean": false,
+    "checkedBy": null,
+    "checkedAt": null,
+    "rule": "Qualquer item false = STOP FIRST PLAY UPLOAD. gitIgnoreConfirmed é verificado por validate:android-signing-contract; os demais só o owner confirma."
+  },
+  "signedAab": {
+    "status": "BLOCKED_SIGNING_SECRETS",
+    "artifact": null,
+    "artifactSha256": null,
+    "provenance": null,
+    "detail": "O caminho bundleRelease → inspeção do package → verificação de assinatura foi exercitado localmente pelo agente com uma chave de TESTE descartável (docs/reports/rc2-2-16-play-internal-beta.md §19). Isso NÃO é o AAB de upload e não entra aqui."
+  },
+  "internalTrackCreated": "OWNER_CONFIRMATION_REQUIRED",
+  "internalUploaded": false,
+  "internalUpload": null,
+  "installedFromPlay": false,
+  "testedAt": null,
+  "tester": null,
+  "internalTesters": {
+    "status": "OWNER_ACTION_REQUIRED",
+    "detail": "Owner + contas de QA confiáveis na lista de testers do Internal testing. Emails ficam no Play Console, não no Git."
+  },
+  "states": {
+    "PACKAGE_ALIGNED": false,
+    "SIGNING_READY": false,
+    "SIGNED_AAB_READY": false,
+    "PLAY_APP_SIGNING_READY": false,
+    "INTERNAL_UPLOAD_COMPLETE": false,
+    "PLAY_INSTALL_COMPLETE": false,
+    "PHYSICAL_QA_COMPLETE": false,
+    "CLOSED_BETA_READY": false
+  },
+  "stateNotes": {
+    "PACKAGE_ALIGNED": "Código, manifests e bundle = longyu.noba.com (provado por validate:android-release-identity). Fica false até o owner confirmar o package VISUALMENTE no Play Console (play-console-status.json).",
+    "SIGNING_READY": "Upload key criada + backup checklist completo.",
+    "SIGNED_AAB_READY": "AAB release assinado com a upload key, verificado (SIGNED_WITH_UPLOAD_KEY) e com proveniência.",
+    "PLAY_APP_SIGNING_READY": "Play App Signing ativo; app signing certificate SHA-256 registrado (≠ upload).",
+    "INTERNAL_UPLOAD_COMPLETE": "Linha real em android-release-ledger.json.",
+    "PLAY_INSTALL_COMPLETE": "Instalado PELA PLAY STORE num aparelho físico (installer com.android.vending).",
+    "PHYSICAL_QA_COMPLETE": "QA essencial repetido no build distribuído pela Play; P0 = P1 = 0.",
+    "CLOSED_BETA_READY": "Tudo acima + upgrade N→N+1 pela Play."
+  },
+  "billingDecision": "ANDROID_IN_APP_PURCHASE=DISABLED_FOR_BETA",
+  "billingAudit": "docs/release/android-billing-audit.json",
+  "dataSafetyStatus": "INVENTORY_READY_OWNER_SUBMITS",
+  "privacyStatus": "PUBLIC_HTTPS_NO_LOGIN",
+  "privacyPolicyUrl": "https://singular-meringue-7838cd.netlify.app/privacidade",
+  "accountDeletionStatus": "IN_APP_AND_WEB",
+  "appAccess": "INSTRUCTIONS_READY_OWNER_CREATES_REVIEW_ACCOUNT",
+  "adsDeclaration": "NO_ADS",
+  "contentRating": "OWNER_REVIEW_REQUIRED",
+  "targetAudience": "OWNER_DECISION_REQUIRED",
+  "storeListing": {
+    "text": "DRAFT_READY",
+    "appIcon": "DERIVED_FROM_PUBLIC_LOGO",
+    "featureGraphic": "PLAY_STORE_FEATURE_GRAPHIC_REQUIRED",
+    "phoneScreenshots": "STORE_SCREENSHOTS_REQUIRED_FROM_PLAY_BUILD"
+  },
+  "dailyVocabulary": "DAILY_VOCABULARY_DEFERRED",
+  "backendSmoke": "NOT_RUN",
+  "backendSmokeNote": "Um build interno pode falar com o backend de produção atual: isso é PRODUCTION_BACKEND_SMOKE, nunca RELEASE_CANDIDATE_CLOUD_CERTIFICATION (#273 segue congelada).",
+  "releaseCandidateCloudCertification": false,
+  "usernameLoginEnabled": false,
+  "closedBetaReady": false,
+  "publicBetaVerdict": "NO-GO"
+}

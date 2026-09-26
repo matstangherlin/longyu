@@ -42,6 +42,23 @@
   "streakNotification": "NOT_RUN",
   "notificationDeepLink": "NOT_RUN",
   "permissionFirstRun": "NOT_RUN",
+  "hapticsEnabled": "NOT_RUN",
+  "hapticSelection": "NOT_RUN",
+  "hapticCorrect": "NOT_RUN",
+  "hapticWrong": "NOT_RUN",
+  "hapticCompletion": "NOT_RUN",
+  "hapticAchievement": "NOT_RUN",
+  "landingMobile": "NOT_RUN",
+  "guidedTry": "NOT_RUN",
+  "lessonProgression": "NOT_RUN",
+  "hanziHub": "NOT_RUN",
+  "hanziBuilder": "NOT_RUN",
+  "mobileSettings": "NOT_RUN",
+  "haptics": "NOT_RUN",
+  "practiceRewards": "NOT_RUN",
+  "systemLocaleDetection": "NOT_RUN",
+  "systemLocaleChange": "NOT_RUN",
+  "coursePicker": "NOT_RUN",
   "performance": {
     "coldStartMs": null,
     "firstInteractiveMs": null,
@@ -64,11 +81,124 @@
       "id": "LOCAL_REMINDERS_INEXACT",
       "severity": "INFO",
       "detail": "Lembretes são locais e inexatos (sem SCHEDULE_EXACT_ALARM): Doze/economia de bateria podem atrasar; trocar de aparelho ou limpar dados apaga os agendamentos até o app abrir de novo. Sem push de servidor por decisão (sem Firebase)."
+    },
+    {
+      "id": "ANDROID_HAPTICS_UNVERIFIED",
+      "severity": "P2_CANDIDATE",
+      "detail": "RC2.2.14: vibração via @capacitor/haptics (impacto leve em seleção/peça, notificação de sucesso/aviso em acerto/erro/conclusão, impacto médio em conquista/ofensiva/baú), uma por ação, desligável em Configurações › Som e vibração. Código pronto e testado na Web (no-op); intensidade e ausência de vibração em toque comum, navegação, rolagem e áudio precisam de um aparelho real."
     }
   ],
   "p0Open": null,
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.13"
+  "extendedBy": "RC2.2.16",
+  "playBuild": {
+    "note": "RC2.2.16 — QA repetido no build DISTRIBUÍDO PELA PLAY (Internal testing), nunca só debug/adb. PASS exige: instalação pela Play Store (installer com.android.vending), aparelho físico, testedAt e evidência por teste.",
+    "packageName": "longyu.noba.com",
+    "legacyPackageUninstalled": "NOT_RUN",
+    "installedFromPlay": "NOT_RUN",
+    "installSource": null,
+    "installEvidence": null,
+    "playTrack": null,
+    "playVersionCode": null,
+    "playVersionName": null,
+    "playSigningFingerprint": null,
+    "uploadSigningFingerprint": null,
+    "firstPlayInstall": "NOT_RUN",
+    "playUpgrade": "NOT_RUN",
+    "playUpgradeFromVersionCode": null,
+    "playUpgradeToVersionCode": null,
+    "billingSurfaceAudit": "NOT_RUN",
+    "tests": {
+      "firstLaunch": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "safeArea": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "keyboard": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "tts": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "speech": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "haptics": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "hapticsToggleOff": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "notifications": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "courseDirection": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "culture": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "review": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "hanzi": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "backgroundResume": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "processDeath": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "offline": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "crashFree": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      },
+      "anr": {
+        "result": "NOT_RUN",
+        "testedAt": null,
+        "evidence": null
+      }
+    },
+    "dailyVocabulary": "DAILY_VOCABULARY_DEFERRED",
+    "p0Open": null,
+    "p1Open": null
+  }
 }

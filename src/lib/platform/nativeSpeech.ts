@@ -1,7 +1,7 @@
 /**
  * RC2.2.13 — adapter da voz nativa (Android). Único ponto do front-end que
  * fala com o plugin interno `LongyuSpeech`
- * (android/app/src/main/java/com/longyu/app/LongyuSpeechPlugin.java).
+ * (android/app/src/main/java/longyu/noba/com/LongyuSpeechPlugin.java).
  *
  *   Web     → tts.ts / speech.ts seguem com a Web Speech API (inalterados).
  *   Android → TextToSpeech + SpeechRecognizer nativos, pelos MESMOS

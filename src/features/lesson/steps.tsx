@@ -11,6 +11,7 @@ import { numericPinyinToDiacritics } from "../../lib/pinyin";
 import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
+import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { speak, scheduleAutoSpeak } from "../../lib/tts";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
@@ -129,6 +130,12 @@ export interface StepProps {
   lessonId?: string;
   /** Seed da tentativa (PED-015) — muda a ordem das peças sem reshuffle em rerender. */
   attemptSeed?: string;
+  /**
+   * RC2.2.14 · DI — no player, um passo que já sinalizou conclusão e continua
+   * na tela depois de STALL_GUARD_MS volta a oferecer o Continuar canônico.
+   * Fixtures (laboratório) desligam: lá o passo não sai da tela por design.
+   */
+  stallGuard?: boolean;
 }
 
 type ToneN = 1 | 2 | 3 | 4;
@@ -5123,7 +5130,10 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
   return text;
 }
 
-export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed }: StepProps) {
+/** Tempo depois de onDone em que um passo ainda montado é considerado travado. */
+export const STALL_GUARD_MS = 2000;
+
+export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed, stallGuard = true }: StepProps) {
   // A função do LessonPlayer muda de identidade sempre que o shell atualiza
   // (rede, áudio, streak, viewport etc.). Alguns exercícios concluem depois
   // de uma animação/timer; repassar essa identidade volátil pode cancelar o
@@ -5134,9 +5144,16 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
   const parentOnDoneRef = useRef(parentOnDone);
   parentOnDoneRef.current = parentOnDone;
   const completionSentRef = useRef(false);
+  const lastCompletionRef = useRef<{ correct?: boolean; meta?: StepDoneMeta } | null>(null);
+  const [stalled, setStalled] = useState(false);
+  const stallTimerRef = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (stallTimerRef.current != null) window.clearTimeout(stallTimerRef.current);
+  }, []);
   const onDone = useCallback<StepProps["onDone"]>((correct, meta) => {
     if (completionSentRef.current) return;
     completionSentRef.current = true;
+    lastCompletionRef.current = { correct, meta };
     try {
       parentOnDoneRef.current(correct, meta);
     } catch (error) {
@@ -5145,7 +5162,18 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
       completionSentRef.current = false;
       throw error;
     }
-  }, []);
+    if (stallGuard) {
+      // O player troca a chave deste componente ao avançar (desmonta). Se
+      // ainda estamos aqui depois do prazo, o avanço não aconteceu: oferecer
+      // de novo a ação canônica — nunca pular sozinho.
+      if (stallTimerRef.current != null) window.clearTimeout(stallTimerRef.current);
+      stallTimerRef.current = window.setTimeout(() => setStalled(true), STALL_GUARD_MS);
+    }
+  }, [stallGuard]);
+  useEffect(() => {
+    if (!stalled) return;
+    traceLessonStep({ lessonId: lessonId ?? "unknown", stepIndex: -1, kind: step.kind, attempt: 0, event: "stalled" });
+  }, [lessonId, stalled, step.kind]);
   const name = useStudentFirstName();
   const { instructionLocale } = useTranslation();
   const runtimeStep = useMemo(() => materializeRuntimeStep(step), [step]);
@@ -5404,6 +5432,22 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
     }
   })();
 
+  const stalledAction = stalled ? (
+    <div className="mt-4" data-testid="step-stalled-continue">
+      <Button
+        className="w-full"
+        onClick={() => {
+          const last = lastCompletionRef.current;
+          setStalled(false);
+          completionSentRef.current = false;
+          onDone(last?.correct, last?.meta);
+        }}
+      >
+        {t("player.continue")}
+      </Button>
+    </div>
+  ) : null;
+
   return (
     <MandarinHelpProvider
       helpMode={stepHelpMode}
@@ -5419,6 +5463,7 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
         data-step-reflection={isIntentionalFreeReflection(personalizedStep) ? "true" : "false"}
       >
         {rendered}
+        {stalledAction}
       </div>
     </MandarinHelpProvider>
   );

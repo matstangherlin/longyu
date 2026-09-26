@@ -400,8 +400,10 @@ textarea {
   }
 }
 
+/* RC2.2.14 · CS — revelação de recompensa curta (150–350ms por item; o
+   escalonamento vem do animationDelay). Reduced motion desliga abaixo. */
 .longyu-reward-rise {
-  animation: longyu-reward-rise 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: longyu-reward-rise 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @keyframes longyu-claim-float {

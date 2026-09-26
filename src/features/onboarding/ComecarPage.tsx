@@ -21,7 +21,8 @@ import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { createAccount as createAuthAccount } from "../../services/authService";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
-import { OnboardingLanguageSwitcher } from "../../components/i18n/OnboardingLanguageSwitcher";
+import { CourseDirectionChip } from "../../components/i18n/CourseDirectionChip";
+import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
 import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
@@ -319,7 +320,9 @@ export function ComecarPage() {
           pesam o topo sem dizer nada de novo. O Longyu segue no hero, onde
           ele é a primeira coisa que a pessoa lê.
         */}
-        <OnboardingLanguageSwitcher id="onboarding-interface-locale" />
+        {/* RC2.2.14B — a interface segue o sistema e o curso já foi
+            escolhido; aqui só se mostra o curso, com "Alterar" discreto. */}
+        <CourseDirectionChip next="/comecar" />
       </header>
 
       <div className="flex flex-1 flex-col justify-start pt-4 sm:pt-8">
@@ -891,6 +894,8 @@ export function ComecarRoute() {
   if (audience === "finalize") {
     return <Navigate to={finalizeOnboardingPath()} replace />;
   }
+  // RC2.2.14B · J/AT — antes do primeiro aprendizado, o curso.
+  if (!hasCourseDirection()) return <Navigate to="/curso?next=%2Fcomecar" replace />;
   return <ComecarPage />;
 }
 

@@ -57,7 +57,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   // Prática.
   { pattern: "/som", parent: "/treino", ownBack: true },
   { pattern: "/pinyin", parent: "/treino", ownBack: true },
-  { pattern: "/hanzi", parent: "/treino", ownBack: true },
+  { pattern: "/hanzi", parent: "/ideogramas", ownBack: true },
   { pattern: "/ideogramas", parent: "/treino" },
   { pattern: "/hanzi/atlas", parent: "/ideogramas" },
   { pattern: "/fala", parent: "/treino" },
@@ -78,6 +78,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/pro", parent: "/jornada" },
   { pattern: "/plano", parent: "/jornada" },
   { pattern: "/config", parent: "/mais" },
+  { pattern: "/config/:category", parent: "/config" },
   { pattern: "/ajustes", parent: "/mais" },
   { pattern: "/dados-locais", parent: "/ajustes" },
   { pattern: "/admin/feedback", parent: "/mais", ownBack: true },
@@ -90,10 +91,13 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/qa/audio-discrimination", parent: "/qa" },
   { pattern: "/qa/hanzi-builder", parent: "/qa" },
   { pattern: "/qa/conversation-scene", parent: "/qa" },
+  { pattern: "/qa/step-lab", parent: "/qa" },
   { pattern: "/qa/:scenario", parent: "/qa" },
 
   // Público / auth (fora da casca; o Android ainda usa o mapa).
   { pattern: "/comecar", parent: "/", public: true },
+  { pattern: "/teste-guiado", parent: "/", public: true, ownBack: true },
+  { pattern: "/curso", parent: "/", public: true, ownBack: true },
   { pattern: "/login", parent: "/", public: true, ownBack: true },
   { pattern: "/esqueci-senha", parent: "/login", public: true, ownBack: true },
   { pattern: "/redefinir-senha", parent: "/login", public: true, ownBack: true },

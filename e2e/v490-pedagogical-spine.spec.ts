@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { dismissBlockingOverlays, advancePastGuideDialogue, seedInstructionLocale, seedUnlockedLessonSession, waitForLazyPage } from "./helpers";
+import { dismissBlockingOverlays, advancePastGuideDialogue, seedInstructionLocale, seedUnlockedLessonSession, switchCourseInSettings, waitForLazyPage } from "./helpers";
 
 const SHOTS = path.join(process.cwd(), "docs/reports/v490-screenshots");
 
@@ -47,11 +47,11 @@ test.describe("V4.9.0 pedagogical spine", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= 390)).toBe(true);
     await page.screenshot({ path: path.join(SHOTS, "pinyin-capsule-mobile-pt.png"), fullPage: true });
 
-    await page.evaluate(() => {
-      localStorage.setItem("longyu:instruction-locale", "en");
-      localStorage.setItem("longyu:instruction-locale-user-override", "1");
-    });
-    await page.reload();
+    // RC2.2.14B — o idioma das explicações é o CURSO da conta: troca pelo
+    // caminho do produto (Configurações › Curso), não por localStorage.
+    await switchCourseInSettings(page, "en-zh");
+    await page.goto("/jornada/capsula/capsule%3Apinyin-foundation%3Av1");
+    await waitForLazyPage(page);
     await expect(page.getByRole("heading", { name: "Pinyin: a map of sound" })).toBeVisible();
     await expect(page.getByText("A map for your ears", { exact: true })).toBeVisible();
     await page.setViewportSize({ width: 1280, height: 900 });

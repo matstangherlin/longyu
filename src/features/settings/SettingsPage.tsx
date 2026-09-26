@@ -1,17 +1,28 @@
 import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useStore, type MandarinDisplayMode, type SoundTheme, type ThemeName, type TranslationMode } from "../../lib/store";
 import { hasChineseVoice, isTTSAvailable, speak } from "../../lib/tts";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { Card, Button, ButtonLink } from "../../components/ui/primitives";
 import { SettingSwitch } from "../../components/ui/SettingSwitch";
 import { NativeSettingsSections } from "../../components/native/NativeSettingsSections";
+import { IconChevron } from "../../components/ui/Icon";
+import { haptic } from "../../lib/haptics";
+import { useWideLayout } from "../../lib/useWideLayout";
+import { hasNativeHaptics } from "../../lib/platform/nativeHaptics";
+import { hasNativeNotifications } from "../../lib/platform/nativeNotifications";
+import {
+  isSettingsCategory,
+  SETTINGS_CATEGORIES,
+  SETTINGS_HASH_TO_CATEGORY,
+  SETTINGS_INDEX_MAX,
+  type SettingsCategoryId,
+} from "./settingsCategories";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { MandarinText } from "../../components/hanzi/MandarinText";
-import { COURSE_PROFILE } from "../../data/course";
 import { DOMAIN_META, DOMAIN_ORDER, type DomainTrack } from "../../data/domains";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { isDevLocalAuthAllowed } from "../../lib/auth/localAuthPolicy";
@@ -32,8 +43,7 @@ import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services
 import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
-import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
-import { CourseLanguageSwitcher } from "../../components/i18n/CourseLanguageSwitcher";
+import { LanguageAndCourseSettings } from "../../components/i18n/LanguageAndCourseSettings";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
 import type { MessageKey } from "../../locales/pt-BR";
@@ -98,7 +108,7 @@ const PRO_ENGINE_KEYS: Record<DomainTrack, { titleKey: "settings.proSomTitle" | 
 };
 
 export function SettingsPage() {
-  const { t, instructionLocale } = useTranslation();
+  const { t } = useTranslation();
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const accounts = useStore((s) => s.accounts);
@@ -128,6 +138,13 @@ export function SettingsPage() {
   const slowAudio = useStore((s) => s.slowAudio);
   const setSlowAudio = useStore((s) => s.setSlowAudio);
   const isPremium = useStore((s) => s.isPremium);
+  const hapticsEnabled = useStore((s) => s.hapticsEnabled) !== false;
+  const setHapticsEnabled = useStore((s) => s.setHapticsEnabled);
+  const params = useParams();
+  const navigate = useNavigate();
+  const category = isSettingsCategory(params.category) ? params.category : null;
+  // Desktop (≥1024px) continua com a página única.
+  const wide = useWideLayout();
 
   function testSoundSignature() {
     // Tour da assinatura sonora: interação -> recompensa -> clímax.
@@ -179,6 +196,14 @@ export function SettingsPage() {
     };
   }, [cloudReady, currentAccountId]);
 
+  // Celular: âncoras antigas (/config#sons) abrem a categoria certa.
+  useEffect(() => {
+    if (wide || category) return;
+    const id = location.hash.replace("#", "");
+    const target = SETTINGS_HASH_TO_CATEGORY[id];
+    if (target) navigate(`/config/${target}${location.hash}`, { replace: true });
+  }, [category, location.hash, navigate, wide]);
+
   // Permite que o hub Meu (/config#exibicao, #tema, #sons, #dados) role até a seção.
   useEffect(() => {
     const id = location.hash.replace("#", "");
@@ -224,475 +249,657 @@ export function SettingsPage() {
     setSocialUsername(suggestUsernameFromName(activeAccount?.name ?? "aluno"));
   }
 
-  return (
-    <HubPage className="space-y-5">
-      <HubHeader
-        eyebrow={t("settings.eyebrow")}
-        title={t("settings.title")}
-        desc={t("settings.lead")}
-        badge={<BetaBadge className="shrink-0" />}
-      />
+  const hapticsSection = hasNativeHaptics() ? (
+    <HubSection id="vibracao" className="scroll-mt-6" title={t("settings.haptics")}>
+      <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="settings-haptics-card">
+        <SettingSwitch
+          label={t("settings.haptics")}
+          desc={t("settings.hapticsLead")}
+          checked={hapticsEnabled}
+          onChange={() => {
+            const next = !hapticsEnabled;
+            setHapticsEnabled(next);
+            // Confirma o ligar com um toque leve (é a única vibração desta tela).
+            if (next) haptic("selection");
+          }}
+        />
+      </Card>
+    </HubSection>
+  ) : null;
 
-      <HubSection
-        id="idioma"
-        className="scroll-mt-6"
-        title={t("settings.language")}
-        desc={t("settings.languageLead")}
-      >
-        <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
-          <LanguageSwitcher id="settings-interface-locale" />
-        </Card>
-      </HubSection>
-
-      <HubSection
-        id="idioma-curso"
-        className="scroll-mt-6"
-        title={t("settings.course")}
-        desc={t("settings.courseLanguageLead")}
-      >
-        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none" data-testid="course-language-card">
-          <CourseLanguageSwitcher id="settings-instruction-locale" />
-          <div
-            className="border-t border-line/70 pt-3"
-            data-testid="target-language-card"
-            data-target-language={COURSE_PROFILE.targetLanguage.code}
-          >
-            <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
-              {t("settings.chineseTarget")}
-            </div>
-            <div className="mt-1 font-serif text-lg font-semibold text-ink">
-              {COURSE_PROFILE.targetLanguage.nativeName} · {t("settings.targetLanguageName")}
-            </div>
-          </div>
-        </Card>
-      </HubSection>
-
-      <HubSection title={t("settings.courseFocus")}>
-        <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="current-course-focus">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
-            {t("settings.courseFocus")}
-          </div>
-          <div className="mt-1 font-serif text-lg font-semibold text-ink">
-            {instructionLocale === "en" ? t("settings.sourceLanguageEn") : t("settings.sourceLanguagePt")} → {t("settings.targetLanguageName")}
-          </div>
-          <p className="mt-1 text-xs text-ink-soft">{t("settings.courseLanguagePromise")}</p>
-        </Card>
-      </HubSection>
-
-      <HubSection id="dados" className="scroll-mt-6" title={t("settings.accountProgress")} desc={t("settings.accountProgressLead")}>
-        <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none">
-          <div className="flex items-center justify-between gap-2 text-xs text-ink-soft">
-            <span>{t("shell.syncStatusLabel")}</span>
-            <SyncStatusChip />
-          </div>
-          <div className="grid gap-2">
-            {accountList.map((account) => {
-              const isCurrent = account.id === currentAccountId;
-              const lessons = isCurrent ? completedLessons.length : account.completedLessons.length;
-              const accountPoints = isCurrent ? points : account.points;
-              return (
-                <button key={account.id} onClick={() => switchAccount(account.id)} className="text-left">
-                  <div
-                    className={[
-                      "rounded-xl border px-3 py-2.5 transition",
-                      isCurrent ? "border-accent bg-accent-soft/60" : "border-line/70 bg-surface-2 hover:bg-surface",
-                    ].join(" ")}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="font-medium text-ink">{account.name}</div>
-                        <div className="text-xs text-ink-faint">
-                          {t("settings.lessonsQiStreak", { lessons, qi: accountPoints, streak: account.longestStreak })}
+  // RC2.2.14 — a mesma página, agrupada nas 7 categorias. Nada novo aqui:
+  // cada seção é a que já existia.
+  const sections: Record<SettingsCategoryId, ReactNode> = {
+    conta: (
+      <>
+          <HubSection id="dados" className="scroll-mt-6" title={t("settings.accountProgress")} desc={t("settings.accountProgressLead")}>
+            <Card className="space-y-3 rounded-xl border-line/70 p-3.5 shadow-none">
+              <div className="flex items-center justify-between gap-2 text-xs text-ink-soft">
+                <span>{t("shell.syncStatusLabel")}</span>
+                <SyncStatusChip />
+              </div>
+              <div className="grid gap-2">
+                {accountList.map((account) => {
+                  const isCurrent = account.id === currentAccountId;
+                  const lessons = isCurrent ? completedLessons.length : account.completedLessons.length;
+                  const accountPoints = isCurrent ? points : account.points;
+                  return (
+                    <button key={account.id} onClick={() => switchAccount(account.id)} className="text-left">
+                      <div
+                        className={[
+                          "rounded-xl border px-3 py-2.5 transition",
+                          isCurrent ? "border-accent bg-accent-soft/60" : "border-line/70 bg-surface-2 hover:bg-surface",
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-medium text-ink">{account.name}</div>
+                            <div className="text-xs text-ink-faint">
+                              {t("settings.lessonsQiStreak", { lessons, qi: accountPoints, streak: account.longestStreak })}
+                            </div>
+                          </div>
+                          {isCurrent && <span className="text-xs font-semibold text-accent">{t("common.active")}</span>}
                         </div>
                       </div>
-                      {isCurrent && <span className="text-xs font-semibold text-accent">{t("common.active")}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {isDevLocalAuthAllowed() ? (
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  value={newAccountName}
+                  onChange={(event) => setNewAccountName(event.target.value)}
+                  placeholder={t("settings.newStudentPlaceholder")}
+                  className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
+                />
+                <Button onClick={handleCreateAccount} disabled={newAccountName.trim().length < 2}>
+                  {t("settings.createTestProfile")}
+                </Button>
+              </div>
+              ) : null}
+
+              <Link
+                to="/conta"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-line px-4 text-[15px] font-medium text-ink transition hover:bg-surface-2"
+              >
+                {t("settings.openAccountHub")}
+              </Link>
+
+              <div className="rounded-lg bg-surface-2 px-3 py-2 text-[11px] text-ink-faint">
+                {isSupabaseBackendEnabled()
+                  ? t("settings.progressInAccount")
+                  : t("settings.progressOnDevice")}
+              </div>
+            </Card>
+          </HubSection>
+          <HubSection
+            id="privacidade"
+            className="scroll-mt-6"
+            title={t("settings.friendsPrivacy")}
+            desc={t("settings.friendsPrivacyLead")}
+          >
+            <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
+              {!cloudReady ? (
+                <p className="text-sm text-ink-soft">
+                  {t("settings.needCloudForFriends")}
+                </p>
+              ) : (
+                <>
+                  <div>
+                    <label htmlFor="social-username" className="text-sm font-medium text-ink">
+                      {t("settings.usernameLabel")}
+                    </label>
+                    <p className="mt-0.5 text-xs text-ink-soft">
+                      {t("settings.usernameHint", { username: socialUsername || t("settings.usernameFallback") })}
+                    </p>
+                    <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                      <input
+                        id="social-username"
+                        value={socialUsername}
+                        onChange={(event) => setSocialUsername(event.target.value.replace(/^@/, ""))}
+                        placeholder={t("settings.usernamePlaceholder")}
+                        className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
+                      />
+                      <Button type="button" variant="outline" onClick={handleSuggestUsername} disabled={socialLoading}>
+                        {t("common.suggested")}
+                      </Button>
+                      <Button type="button" onClick={() => void handleSaveUsername()} disabled={socialLoading || socialUsername.trim().length < 3}>
+                        {t("common.save")}
+                      </Button>
                     </div>
                   </div>
-                </button>
-              );
-            })}
-          </div>
 
-          {isDevLocalAuthAllowed() ? (
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              value={newAccountName}
-              onChange={(event) => setNewAccountName(event.target.value)}
-              placeholder={t("settings.newStudentPlaceholder")}
-              className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
-            />
-            <Button onClick={handleCreateAccount} disabled={newAccountName.trim().length < 2}>
-              {t("settings.createTestProfile")}
-            </Button>
-          </div>
-          ) : null}
-
-          <Link
-            to="/conta"
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-line px-4 text-[15px] font-medium text-ink transition hover:bg-surface-2"
-          >
-            {t("settings.openAccountHub")}
-          </Link>
-
-          <div className="rounded-lg bg-surface-2 px-3 py-2 text-[11px] text-ink-faint">
-            {isSupabaseBackendEnabled()
-              ? t("settings.progressInAccount")
-              : t("settings.progressOnDevice")}
-          </div>
-        </Card>
-      </HubSection>
-
-      <HubSection
-        id="privacidade"
-        className="scroll-mt-6"
-        title={t("settings.friendsPrivacy")}
-        desc={t("settings.friendsPrivacyLead")}
-      >
-        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
-          {!cloudReady ? (
-            <p className="text-sm text-ink-soft">
-              {t("settings.needCloudForFriends")}
-            </p>
-          ) : (
-            <>
-              <div>
-                <label htmlFor="social-username" className="text-sm font-medium text-ink">
-                  {t("settings.usernameLabel")}
-                </label>
-                <p className="mt-0.5 text-xs text-ink-soft">
-                  {t("settings.usernameHint", { username: socialUsername || t("settings.usernameFallback") })}
-                </p>
-                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                  <input
-                    id="social-username"
-                    value={socialUsername}
-                    onChange={(event) => setSocialUsername(event.target.value.replace(/^@/, ""))}
-                    placeholder={t("settings.usernamePlaceholder")}
-                    className="h-11 flex-1 rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-accent/25"
+                  <SettingSwitch
+                    label={t("settings.showInSearch")}
+                    desc={t("settings.showInSearchLead")}
+                    checked={socialShowInSearch}
+                    onChange={() => void handleToggleShowInSearch()}
                   />
-                  <Button type="button" variant="outline" onClick={handleSuggestUsername} disabled={socialLoading}>
-                    {t("common.suggested")}
-                  </Button>
-                  <Button type="button" onClick={() => void handleSaveUsername()} disabled={socialLoading || socialUsername.trim().length < 3}>
-                    {t("common.save")}
-                  </Button>
+
+                  {socialNotice && <p className="text-sm text-ink-soft">{socialNotice}</p>}
+                </>
+              )}
+            </Card>
+          </HubSection>
+          <HubSection
+            title={t("pro.badge")}
+            count={
+              <ButtonLink to="/pro" size="sm" variant="outline">
+                {t("settings.seePro")}
+              </ButtonLink>
+            }
+          >
+            <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
+              <div className="text-sm text-ink-soft">
+                {t("settings.proLead")}
+              </div>
+              <ButtonLink to="/pro" size="sm" className="mt-3">{t("settings.seeProPlans")}</ButtonLink>
+            </Card>
+
+
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {DOMAIN_ORDER.map((track) => {
+                const meta = DOMAIN_META[track];
+                const Icon = meta.icon;
+                const pro = PRO_ENGINE_KEYS[track];
+                return (
+                  <Card key={track} className="rounded-xl border-line/70 p-3 shadow-none">
+                    <div className="flex items-start gap-3">
+                      <span
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                        style={{ background: `${meta.color}1a`, color: meta.color }}
+                      >
+                        <Icon width={20} height={20} />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-ink">{meta.label} Pro</div>
+                        <div className="text-xs font-medium text-accent">{t(pro.titleKey)}</div>
+                        <p className="mt-1 text-xs text-ink-soft">{t(pro.featuresKey)}</p>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <Card className="mt-2 rounded-xl border-line/70 p-3 shadow-none">
+              <div className="text-sm font-semibold text-ink">{t("settings.reviewPro")}</div>
+              <p className="mt-1 text-xs text-ink-soft">
+                {t("settings.reviewProLead")}
+              </p>
+            </Card>
+          </HubSection>
+      </>
+    ),
+    aprendizagem: (
+      <>
+        <LanguageAndCourseSettings />
+          <HubSection
+            id="exibicao"
+            className="scroll-mt-6"
+            title={t("settings.howToSeeMandarin")}
+            desc={t("settings.howToSeeMandarinLead")}
+          >
+            <Card className="space-y-4 overflow-hidden rounded-xl border-line/70 p-3.5 shadow-none">
+              <div className="rounded-2xl bg-surface-2 p-4 text-center">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("settings.visualPreview")}</div>
+                <MandarinText
+                  hanzi="我们学汉语"
+                  pinyin="wǒ men xué hànyǔ"
+                  meaning={t("settings.previewGloss")}
+                  size="xl"
+                  audio
+                  align="center"
+                  className="mt-3"
+                />
+              </div>
+
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
+                  {t("settings.display")}
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {MANDARIN_DISPLAY_OPTIONS.filter((option) => option.id !== "hanzi_pinyin").map((option) => {
+                    const active = mandarinDisplayMode === option.id;
+                    const example = DISPLAY_OPTION_EXAMPLE[option.id] ?? option.example;
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => setMandarinDisplayMode(option.id)}
+                        className={[
+                          "min-h-[92px] rounded-2xl border px-4 py-3 text-left transition",
+                          active ? "border-accent bg-accent-soft ring-1 ring-accent" : "border-line bg-surface-2 hover:bg-surface",
+                        ].join(" ")}
+                      >
+                        <div className="font-medium text-ink">{t(option.labelKey)}</div>
+                        <div className="mt-1 font-serif text-sm text-ink-soft">{example}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              <SettingSwitch
-                label={t("settings.showInSearch")}
-                desc={t("settings.showInSearchLead")}
-                checked={socialShowInSearch}
-                onChange={() => void handleToggleShowInSearch()}
-              />
+              <div className="border-t border-line pt-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
+                  {t("settings.translation")}
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {TRANSLATION_OPTIONS.map((option) => {
+                    const active = translationMode === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => setTranslationMode(option.id)}
+                        className={[
+                          "h-11 rounded-xl border px-3 text-sm font-medium transition",
+                          active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink-soft hover:text-ink",
+                        ].join(" ")}
+                      >
+                        {t(option.labelKey)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-              {socialNotice && <p className="text-sm text-ink-soft">{socialNotice}</p>}
-            </>
-          )}
-        </Card>
-      </HubSection>
-
-      <HubSection
-        id="privacidade-dados"
-        className="scroll-mt-6"
-        title={t("settings.privacyData")}
-        desc={t("settings.privacyDataLead")}
-      >
-        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
-          <SettingSwitch
-            label={t("settings.pedagogyData")}
-            desc={t("settings.pedagogyDataLead")}
-            checked={telemetryConsent}
-            onChange={() => {
-              const next = !telemetryConsent;
-              void (async () => {
-                await setTelemetryConsent(next);
-                setTelemetryConsentState(next);
-                setQueueSize(pedagogyEventQueueSize());
-                setPrivacyNotice(next ? t("settings.consentOn") : t("settings.consentOff"));
-              })();
-            }}
-          />
-
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setShowDataDetails(true)}>
-              {t("settings.seeCollectedData")}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                clearPedagogyEventQueue();
-                setQueueSize(0);
-                setPrivacyNotice(t("settings.queueCleared"));
-              }}
-            >
-              {t("settings.clearEventQueue", { count: queueSize })}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={privacyBusy}
-              onClick={() => {
-                void (async () => {
-                  setPrivacyBusy(true);
-                  try {
-                    const bundle = await buildPrivacyExportBundle();
-                    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = `longyu-dados-${bundle.exportedAt.slice(0, 10)}.json`;
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
-                    URL.revokeObjectURL(url);
-                    setPrivacyNotice(t("settings.exportDownloaded"));
-                  } finally {
-                    setPrivacyBusy(false);
-                  }
-                })();
-              }}
-            >
-              {t("settings.requestExport")}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={privacyBusy}
-              onClick={() => {
-                void (async () => {
-                  const confirmationText = window.prompt(
-                    t("settings.deletionPrompt", { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT })
-                  );
-                  if (confirmationText === null) return;
-                  setPrivacyBusy(true);
-                  const result = await requestAccountDeletion(confirmationText);
-                  setPrivacyBusy(false);
-                  setPrivacyNotice(localizeUserMessage(result.message));
-                })();
-              }}
-            >
-              {t("settings.requestDeletion")}
-            </Button>
-          </div>
-
-          <Link
-            to="/privacidade#politica"
-            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-          >
-            {t("settings.privacyPolicy")}
-          </Link>
-          <Link
-            to="/termos"
-            className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-          >
-            {t("marketing.terms")}
-          </Link>
-
-          {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
-        </Card>
-      </HubSection>
-
-      {showDataDetails && (
-        <ModalOverlay label={t("settings.collectedData")} onBackdropClick={() => setShowDataDetails(false)}>
-          <div
-            className="max-h-[calc(100dvh_-_var(--app-safe-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,var(--app-safe-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <TelemetryDataDetails />
-            <Button type="button" className="mt-5 w-full" onClick={() => setShowDataDetails(false)}>
-              {t("common.close")}
-            </Button>
-          </div>
-        </ModalOverlay>
-      )}
-
-      <HubSection id="tema" className="scroll-mt-6" title={t("settings.theme")}>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {THEMES.map((themeOption) => (
-            <button
-              key={themeOption.id}
-              type="button"
-              onClick={() => setTheme(themeOption.id)}
-              aria-pressed={theme === themeOption.id}
-              className="group min-h-11 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-            >
-              <Card
-                variant="interactive"
-                className={[
-                  "flex items-center gap-4 p-4 transition",
-                  theme === themeOption.id ? "ring-2 ring-accent" : "hover:bg-surface-2",
-                ].join(" ")}
-              >
-                <div className="flex gap-1.5">
-                  {themeOption.swatch.map((c) => (
-                    <span
-                      key={c}
-                      className="h-9 w-9 rounded-lg border border-line"
-                      style={{ background: c }}
+              <div className="grid gap-5 border-t border-line pt-5 lg:grid-cols-2">
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3">
+                    <div className="font-medium text-ink">{t("settings.pinyinWithMarks")}</div>
+                    <div className="mt-0.5 text-sm leading-5 text-ink-soft">
+                      {t("settings.pinyinWithMarksLead")}
+                    </div>
+                  </div>
+                  <SettingSwitch
+                    label={t("settings.toneColors")}
+                    desc={t("settings.toneColorsLead")}
+                    checked={toneColors}
+                    onChange={() => setToneColors(!toneColors)}
+                  />
+                  <div className={toneColors ? "" : "opacity-45"}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-medium text-ink">{t("settings.pinyinColor")}</div>
+                      <div className="font-serif text-lg text-ink">{Math.round(toneColorIntensity * 100)}%</div>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      value={toneColorIntensity}
+                      disabled={!toneColors}
+                      onChange={(event) => setToneColorIntensity(Number(event.target.value))}
+                      className="mt-2 w-full accent-[rgb(var(--accent))]"
                     />
-                  ))}
+                  </div>
                 </div>
-                <div>
-                  <div className="font-medium text-ink">{t(themeOption.nameKey)}</div>
-                  <div className="text-sm text-ink-soft">{t(themeOption.descKey)}</div>
-                </div>
-              </Card>
-            </button>
-          ))}
-        </div>
-      </HubSection>
 
-      <HubSection
-        id="exibicao"
-        className="scroll-mt-6"
-        title={t("settings.howToSeeMandarin")}
-        desc={t("settings.howToSeeMandarinLead")}
-      >
-        <Card className="space-y-4 overflow-hidden rounded-xl border-line/70 p-3.5 shadow-none">
-          <div className="rounded-2xl bg-surface-2 p-4 text-center">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("settings.visualPreview")}</div>
-            <MandarinText
-              hanzi="我们学汉语"
-              pinyin="wǒ men xué hànyǔ"
-              meaning={t("settings.previewGloss")}
-              size="xl"
-              audio
-              align="center"
-              className="mt-3"
-            />
-          </div>
-
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              {t("settings.display")}
-            </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {MANDARIN_DISPLAY_OPTIONS.filter((option) => option.id !== "hanzi_pinyin").map((option) => {
-                const active = mandarinDisplayMode === option.id;
-                const example = DISPLAY_OPTION_EXAMPLE[option.id] ?? option.example;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => setMandarinDisplayMode(option.id)}
-                    className={[
-                      "min-h-[92px] rounded-2xl border px-4 py-3 text-left transition",
-                      active ? "border-accent bg-accent-soft ring-1 ring-accent" : "border-line bg-surface-2 hover:bg-surface",
-                    ].join(" ")}
-                  >
-                    <div className="font-medium text-ink">{t(option.labelKey)}</div>
-                    <div className="mt-1 font-serif text-sm text-ink-soft">{example}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="border-t border-line pt-5">
-            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              {t("settings.translation")}
-            </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {TRANSLATION_OPTIONS.map((option) => {
-                const active = translationMode === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => setTranslationMode(option.id)}
-                    className={[
-                      "h-11 rounded-xl border px-3 text-sm font-medium transition",
-                      active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink-soft hover:text-ink",
-                    ].join(" ")}
-                  >
-                    {t(option.labelKey)}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="grid gap-5 border-t border-line pt-5 lg:grid-cols-2">
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3">
-                <div className="font-medium text-ink">{t("settings.pinyinWithMarks")}</div>
-                <div className="mt-0.5 text-sm leading-5 text-ink-soft">
-                  {t("settings.pinyinWithMarksLead")}
+                <div className="space-y-4">
+                  <SettingSwitch
+                    label={t("settings.autoPlay")}
+                    desc={t("settings.autoPlayLead")}
+                    checked={autoPlayAudio}
+                    onChange={() => setAutoPlayAudio(!autoPlayAudio)}
+                  />
+                  <SettingSwitch
+                    label={t("settings.slowMode")}
+                    desc={t("settings.slowModeLead")}
+                    checked={slowAudio}
+                    onChange={() => setSlowAudio(!slowAudio)}
+                  />
                 </div>
               </div>
-              <SettingSwitch
-                label={t("settings.toneColors")}
-                desc={t("settings.toneColorsLead")}
-                checked={toneColors}
-                onChange={() => setToneColors(!toneColors)}
-              />
-              <div className={toneColors ? "" : "opacity-45"}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-medium text-ink">{t("settings.pinyinColor")}</div>
-                  <div className="font-serif text-lg text-ink">{Math.round(toneColorIntensity * 100)}%</div>
+
+              <div className="hidden">
+                <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+                  {t("settings.preview")}
+                </div>
+                <MandarinText
+                  hanzi="你好"
+                  pinyin="nǐ hǎo"
+                  meaning={t("settings.previewHello")}
+                  size="lg"
+                  audio
+                />
+              </div>
+            </Card>
+          </HubSection>
+      </>
+    ),
+    som: (
+      <>
+          <HubSection id="sons" className="scroll-mt-6" title={t("settings.audioAndQi")}>
+            <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
+              <div className="flex items-center justify-between gap-4 border-b border-line pb-4">
+                <div>
+                  <div className="font-medium text-ink">{t("settings.progressSounds")}</div>
+                  <div className="text-sm text-ink-soft">
+                    {t("settings.progressSoundsLead")}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={soundEffects}
+                  aria-label={t("settings.progressSounds")}
+                  onClick={() => setSoundEffects(!soundEffects)}
+                  className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={[
+                      "relative block h-7 w-12 rounded-full transition",
+                      soundEffects ? "bg-accent" : "bg-line",
+                    ].join(" ")}
+                  >
+                    <span className={[
+                      "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+                      soundEffects ? "translate-x-5" : "translate-x-0",
+                    ].join(" ")} />
+                  </span>
+                </button>
+              </div>
+
+              <div className="border-b border-line pb-4">
+                <div className="font-medium text-ink">{t("settings.soundTheme")}</div>
+                <div className="mt-1 text-sm text-ink-soft">
+                  {t("settings.soundThemeLead")}
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {SOUND_THEME_OPTIONS.map((option) => {
+                    const active = soundTheme === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => {
+                          setSoundTheme(option.id);
+                          window.setTimeout(() => playSoundFx("tap", soundEffects), 0);
+                        }}
+                        className={[
+                          "min-h-11 rounded-2xl border px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                          active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink hover:bg-surface",
+                        ].join(" ")}
+                      >
+                        <div className="text-sm font-semibold">{option.label}</div>
+                        <div className="mt-1 text-xs text-ink-soft">{t(option.descKey)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border-b border-line pb-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="font-medium text-ink">{t("settings.fxVolume")}</div>
+                    <div className="text-sm text-ink-soft">
+                      {t("settings.fxVolumeLead")}
+                    </div>
+                  </div>
+                  <span className="font-serif text-lg text-ink">{Math.round(soundFxVolume * 100)}%</span>
                 </div>
                 <input
                   type="range"
                   min={0}
                   max={1}
                   step={0.05}
-                  value={toneColorIntensity}
-                  disabled={!toneColors}
-                  onChange={(event) => setToneColorIntensity(Number(event.target.value))}
-                  className="mt-2 w-full accent-[rgb(var(--accent))]"
+                  value={soundFxVolume}
+                  disabled={!soundEffects}
+                  onChange={(e) => setSoundFxVolume(Number(e.target.value))}
+                  onMouseUp={() => playSoundFx("tap", soundEffects)}
+                  onTouchEnd={() => playSoundFx("tap", soundEffects)}
+                  className="mt-3 w-full accent-[rgb(var(--accent))] disabled:opacity-40"
                 />
               </div>
-            </div>
 
-            <div className="space-y-4">
-              <SettingSwitch
-                label={t("settings.autoPlay")}
-                desc={t("settings.autoPlayLead")}
-                checked={autoPlayAudio}
-                onChange={() => setAutoPlayAudio(!autoPlayAudio)}
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="font-medium text-ink">{t("settings.speechRate")}</div>
+                  <div className="text-sm text-ink-soft">
+                    {t("settings.speechRateLead")}
+                  </div>
+                </div>
+                <span className="font-serif text-lg text-ink">{ttsRate.toFixed(2)}×</span>
+              </div>
+              <input
+                type="range"
+                min={0.5}
+                max={1.2}
+                step={0.05}
+                value={ttsRate}
+                onChange={(e) => setTtsRate(Number(e.target.value))}
+                className="w-full accent-[rgb(var(--accent))]"
               />
-              <SettingSwitch
-                label={t("settings.slowMode")}
-                desc={t("settings.slowModeLead")}
-                checked={slowAudio}
-                onChange={() => setSlowAudio(!slowAudio)}
+
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="font-medium text-ink">{t("settings.voiceVolume")}</div>
+                  <div className="text-sm text-ink-soft">
+                    {t("settings.voiceVolumeLead")}
+                  </div>
+                </div>
+                <span className="font-serif text-lg text-ink">{Math.round(ttsVolume * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={ttsVolume}
+                onChange={(e) => setTtsVolume(Number(e.target.value))}
+                className="w-full accent-[rgb(var(--accent))]"
               />
+
+              <Button variant="outline" onClick={() => speak("你好，我在学中文", { rate: ttsRate, volume: ttsVolume })}>
+                {t("settings.testVoice")}
+              </Button>
+
+              <div className="rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">
+                {t("settings.qiExplainer")}
+              </div>
+
+              <p
+                className={[
+                  "rounded-xl px-3 py-2 text-sm",
+                  voiceOk
+                    ? "bg-[rgb(var(--good)/0.1)] text-[rgb(var(--good))]"
+                    : "bg-accent-soft text-accent",
+                ].join(" ")}
+              >
+                {voiceOk
+                  ? t("settings.voiceOk")
+                  : t("settings.voiceMissing")}
+              </p>
+            </Card>
+          </HubSection>
+        {hapticsSection}
+        <NativeSettingsSections parts={["audio"]} />
+      </>
+    ),
+    notificacoes: (
+      <>
+        <NativeSettingsSections parts={["permissions", "notifications"]} />
+        {!hasNativeNotifications() && (
+          <HubSection id="notificacoes" className="scroll-mt-6" title={t("settings.catNotifications")}>
+            <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="settings-notifications-web">
+              <p className="text-sm text-ink-soft">{t("settings.notificationsWebOnly")}</p>
+            </Card>
+          </HubSection>
+        )}
+      </>
+    ),
+    aparencia: (
+      <>
+          <HubSection id="tema" className="scroll-mt-6" title={t("settings.theme")}>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {THEMES.map((themeOption) => (
+                <button
+                  key={themeOption.id}
+                  type="button"
+                  onClick={() => setTheme(themeOption.id)}
+                  aria-pressed={theme === themeOption.id}
+                  className="group min-h-11 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                >
+                  <Card
+                    variant="interactive"
+                    className={[
+                      "flex items-center gap-4 p-4 transition",
+                      theme === themeOption.id ? "ring-2 ring-accent" : "hover:bg-surface-2",
+                    ].join(" ")}
+                  >
+                    <div className="flex gap-1.5">
+                      {themeOption.swatch.map((c) => (
+                        <span
+                          key={c}
+                          className="h-9 w-9 rounded-lg border border-line"
+                          style={{ background: c }}
+                        />
+                      ))}
+                    </div>
+                    <div>
+                      <div className="font-medium text-ink">{t(themeOption.nameKey)}</div>
+                      <div className="text-sm text-ink-soft">{t(themeOption.descKey)}</div>
+                    </div>
+                  </Card>
+                </button>
+              ))}
             </div>
-          </div>
+          </HubSection>
+      </>
+    ),
+    privacidade: (
+      <>
+          <HubSection
+            id="privacidade-dados"
+            className="scroll-mt-6"
+            title={t("settings.privacyData")}
+            desc={t("settings.privacyDataLead")}
+          >
+            <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
+              <SettingSwitch
+                label={t("settings.pedagogyData")}
+                desc={t("settings.pedagogyDataLead")}
+                checked={telemetryConsent}
+                onChange={() => {
+                  const next = !telemetryConsent;
+                  void (async () => {
+                    await setTelemetryConsent(next);
+                    setTelemetryConsentState(next);
+                    setQueueSize(pedagogyEventQueueSize());
+                    setPrivacyNotice(next ? t("settings.consentOn") : t("settings.consentOff"));
+                  })();
+                }}
+              />
 
-          <div className="hidden">
-            <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
-              {t("settings.preview")}
-            </div>
-            <MandarinText
-              hanzi="你好"
-              pinyin="nǐ hǎo"
-              meaning={t("settings.previewHello")}
-              size="lg"
-              audio
-            />
-          </div>
-        </Card>
-      </HubSection>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowDataDetails(true)}>
+                  {t("settings.seeCollectedData")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    clearPedagogyEventQueue();
+                    setQueueSize(0);
+                    setPrivacyNotice(t("settings.queueCleared"));
+                  }}
+                >
+                  {t("settings.clearEventQueue", { count: queueSize })}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={privacyBusy}
+                  onClick={() => {
+                    void (async () => {
+                      setPrivacyBusy(true);
+                      try {
+                        const bundle = await buildPrivacyExportBundle();
+                        const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = `longyu-dados-${bundle.exportedAt.slice(0, 10)}.json`;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        URL.revokeObjectURL(url);
+                        setPrivacyNotice(t("settings.exportDownloaded"));
+                      } finally {
+                        setPrivacyBusy(false);
+                      }
+                    })();
+                  }}
+                >
+                  {t("settings.requestExport")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={privacyBusy}
+                  onClick={() => {
+                    void (async () => {
+                      const confirmationText = window.prompt(
+                        t("settings.deletionPrompt", { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT })
+                      );
+                      if (confirmationText === null) return;
+                      setPrivacyBusy(true);
+                      const result = await requestAccountDeletion(confirmationText);
+                      setPrivacyBusy(false);
+                      setPrivacyNotice(localizeUserMessage(result.message));
+                    })();
+                  }}
+                >
+                  {t("settings.requestDeletion")}
+                </Button>
+              </div>
 
-      <HubSection
-        title={t("pro.badge")}
-        count={
-          <ButtonLink to="/pro" size="sm" variant="outline">
-            {t("settings.seePro")}
-          </ButtonLink>
-        }
-      >
-        <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
-          <div className="text-sm text-ink-soft">
-            {t("settings.proLead")}
-          </div>
-          <ButtonLink to="/pro" size="sm" className="mt-3">{t("settings.seeProPlans")}</ButtonLink>
-        </Card>
+              <Link
+                to="/privacidade#politica"
+                className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              >
+                {t("settings.privacyPolicy")}
+              </Link>
+              <Link
+                to="/termos"
+                className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              >
+                {t("marketing.terms")}
+              </Link>
 
+              {privacyNotice && <p className="text-sm text-ink-soft">{privacyNotice}</p>}
+            </Card>
+          </HubSection>
+      </>
+    ),
+    avancado: (
+      <>
+        <HubSection id="teste-sons" className="scroll-mt-6" title={t("settings.soundTests")} desc={t("settings.soundTestsLead")}>
+          <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="settings-sound-tests">
+                <Button className="mt-3 w-full" variant="soft" disabled={!soundEffects} onClick={testSoundSignature}>
+                  {t("settings.testSound")}
+                </Button>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {SOUND_TEST_ITEMS.map((item) => (
+                    <Button
+                      key={item.kind}
+                      variant="outline"
+                      disabled={!soundEffects}
+                      onClick={() => playSoundFx(item.kind, soundEffects)}
+                    >
+                      {t(item.labelKey)}
+                    </Button>
+                  ))}
+                </div>
+          </Card>
+        </HubSection>
         {/* Ferramenta interna: simular Pro sem assinatura real (só dev / flag explícita). */}
         {isDevPreviewAllowed() && (
           <Card className="mt-2 flex flex-col gap-3 rounded-xl border-dashed border-accent/40 p-3.5 shadow-none sm:flex-row sm:items-center sm:justify-between">
@@ -732,210 +939,86 @@ export function SettingsPage() {
             </div>
           </Card>
         )}
+        <NativeSettingsSections parts={["diagnostics"]} />
+      </>
+    ),
+  };
 
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {DOMAIN_ORDER.map((track) => {
-            const meta = DOMAIN_META[track];
-            const Icon = meta.icon;
-            const pro = PRO_ENGINE_KEYS[track];
-            return (
-              <Card key={track} className="rounded-xl border-line/70 p-3 shadow-none">
-                <div className="flex items-start gap-3">
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                    style={{ background: `${meta.color}1a`, color: meta.color }}
-                  >
-                    <Icon width={20} height={20} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold text-ink">{meta.label} Pro</div>
-                    <div className="text-xs font-medium text-accent">{t(pro.titleKey)}</div>
-                    <p className="mt-1 text-xs text-ink-soft">{t(pro.featuresKey)}</p>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+  const activeCategory = category ? SETTINGS_CATEGORIES.find((item) => item.id === category) : undefined;
 
-        <Card className="mt-2 rounded-xl border-line/70 p-3 shadow-none">
-          <div className="text-sm font-semibold text-ink">{t("settings.reviewPro")}</div>
-          <p className="mt-1 text-xs text-ink-soft">
-            {t("settings.reviewProLead")}
-          </p>
-        </Card>
-      </HubSection>
+  return (
+    <HubPage className="space-y-5" data-settings-view={activeCategory ? `category:${activeCategory.id}` : wide ? "full" : "index"}>
+      {activeCategory ? (
+        <h1 className="font-serif text-2xl font-semibold text-ink" data-testid="settings-category-title">
+          {t(activeCategory.titleKey)}
+        </h1>
+      ) : wide ? (
+        <HubHeader
+          eyebrow={t("settings.eyebrow")}
+          title={t("settings.title")}
+          desc={t("settings.lead")}
+          badge={<BetaBadge className="shrink-0" />}
+        />
+      ) : (
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("settings.title")}</h1>
+      )}
 
-      {/* RC2.2.13 — só no Android: permissões, notificações, áudio e fala. */}
-      <NativeSettingsSections />
+      {activeCategory ? (
+        sections[activeCategory.id]
+      ) : wide ? (
+        SETTINGS_CATEGORIES.map((item) => <Fragment key={item.id}>{sections[item.id]}</Fragment>)
+      ) : (
+        <SettingsIndex />
+      )}
 
-      <HubSection id="sons" className="scroll-mt-6" title={t("settings.audioAndQi")}>
-        <Card className="space-y-4 rounded-xl border-line/70 p-3.5 shadow-none">
-          <div className="flex items-center justify-between gap-4 border-b border-line pb-4">
-            <div>
-              <div className="font-medium text-ink">{t("settings.progressSounds")}</div>
-              <div className="text-sm text-ink-soft">
-                {t("settings.progressSoundsLead")}
-              </div>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={soundEffects}
-              aria-label={t("settings.progressSounds")}
-              onClick={() => setSoundEffects(!soundEffects)}
-              className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-            >
-              <span
-                aria-hidden="true"
-                className={[
-                  "relative block h-7 w-12 rounded-full transition",
-                  soundEffects ? "bg-accent" : "bg-line",
-                ].join(" ")}
-              >
-                <span className={[
-                  "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
-                  soundEffects ? "translate-x-5" : "translate-x-0",
-                ].join(" ")} />
-              </span>
-            </button>
-          </div>
-
-          <div className="border-b border-line pb-4">
-            <div className="font-medium text-ink">{t("settings.soundTheme")}</div>
-            <div className="mt-1 text-sm text-ink-soft">
-              {t("settings.soundThemeLead")}
-            </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {SOUND_THEME_OPTIONS.map((option) => {
-                const active = soundTheme === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => {
-                      setSoundTheme(option.id);
-                      window.setTimeout(() => playSoundFx("tap", soundEffects), 0);
-                    }}
-                    className={[
-                      "min-h-11 rounded-2xl border px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
-                      active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink hover:bg-surface",
-                    ].join(" ")}
-                  >
-                    <div className="text-sm font-semibold">{option.label}</div>
-                    <div className="mt-1 text-xs text-ink-soft">{t(option.descKey)}</div>
-                  </button>
-                );
-              })}
-            </div>
-            <Button className="mt-3 w-full" variant="soft" disabled={!soundEffects} onClick={testSoundSignature}>
-              {t("settings.testSound")}
-            </Button>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {SOUND_TEST_ITEMS.map((item) => (
-                <Button
-                  key={item.kind}
-                  variant="outline"
-                  disabled={!soundEffects}
-                  onClick={() => playSoundFx(item.kind, soundEffects)}
-                >
-                  {t(item.labelKey)}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-b border-line pb-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="font-medium text-ink">{t("settings.fxVolume")}</div>
-                <div className="text-sm text-ink-soft">
-                  {t("settings.fxVolumeLead")}
-                </div>
-              </div>
-              <span className="font-serif text-lg text-ink">{Math.round(soundFxVolume * 100)}%</span>
-            </div>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={soundFxVolume}
-              disabled={!soundEffects}
-              onChange={(e) => setSoundFxVolume(Number(e.target.value))}
-              onMouseUp={() => playSoundFx("tap", soundEffects)}
-              onTouchEnd={() => playSoundFx("tap", soundEffects)}
-              className="mt-3 w-full accent-[rgb(var(--accent))] disabled:opacity-40"
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="font-medium text-ink">{t("settings.speechRate")}</div>
-              <div className="text-sm text-ink-soft">
-                {t("settings.speechRateLead")}
-              </div>
-            </div>
-            <span className="font-serif text-lg text-ink">{ttsRate.toFixed(2)}×</span>
-          </div>
-          <input
-            type="range"
-            min={0.5}
-            max={1.2}
-            step={0.05}
-            value={ttsRate}
-            onChange={(e) => setTtsRate(Number(e.target.value))}
-            className="w-full accent-[rgb(var(--accent))]"
-          />
-
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="font-medium text-ink">{t("settings.voiceVolume")}</div>
-              <div className="text-sm text-ink-soft">
-                {t("settings.voiceVolumeLead")}
-              </div>
-            </div>
-            <span className="font-serif text-lg text-ink">{Math.round(ttsVolume * 100)}%</span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={ttsVolume}
-            onChange={(e) => setTtsVolume(Number(e.target.value))}
-            className="w-full accent-[rgb(var(--accent))]"
-          />
-
-          <Button variant="outline" onClick={() => speak("你好，我在学中文", { rate: ttsRate, volume: ttsVolume })}>
-            {t("settings.testVoice")}
-          </Button>
-
-          <div className="rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">
-            {t("settings.qiExplainer")}
-          </div>
-
-          <p
-            className={[
-              "rounded-xl px-3 py-2 text-sm",
-              voiceOk
-                ? "bg-[rgb(var(--good)/0.1)] text-[rgb(var(--good))]"
-                : "bg-accent-soft text-accent",
-            ].join(" ")}
+      {showDataDetails && (
+        <ModalOverlay label={t("settings.collectedData")} onBackdropClick={() => setShowDataDetails(false)}>
+          <div
+            className="max-h-[calc(100dvh_-_var(--app-safe-top))] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[max(1.25rem,var(--app-safe-bottom))] shadow-card sm:max-h-[90dvh] sm:rounded-3xl"
+            onMouseDown={(event) => event.stopPropagation()}
           >
-            {voiceOk
-              ? t("settings.voiceOk")
-              : t("settings.voiceMissing")}
+            <TelemetryDataDetails />
+            <Button type="button" className="mt-5 w-full" onClick={() => setShowDataDetails(false)}>
+              {t("common.close")}
+            </Button>
+          </div>
+        </ModalOverlay>
+      )}
+
+      {!activeCategory && (
+        <>
+          <FeedbackPrompt context={{ screen: "/config" }} compact />
+          <p className="text-center text-xs text-ink-faint">
+            {t("settings.footer")}
           </p>
-        </Card>
-      </HubSection>
-
-      <FeedbackPrompt context={{ screen: "/config" }} compact />
-
-      <p className="text-center text-xs text-ink-faint">
-        {t("settings.footer")}
-      </p>
+        </>
+      )}
     </HubPage>
+  );
+}
+
+/** Índice do celular: no máximo 7 categorias, a linha inteira é o alvo. */
+function SettingsIndex() {
+  const { t } = useTranslation();
+  return (
+    <nav aria-label={t("settings.title")} data-testid="settings-index" data-settings-count={SETTINGS_CATEGORIES.length}>
+      <ul className="divide-y divide-line/70 overflow-hidden rounded-2xl border border-line/70 bg-surface">
+        {SETTINGS_CATEGORIES.slice(0, SETTINGS_INDEX_MAX).map((item) => (
+          <li key={item.id}>
+            <Link
+              to={`/config/${item.id}`}
+              data-settings-category={item.id}
+              className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45"
+            >
+              <span className="min-w-0">
+                <span className="block font-medium text-ink">{t(item.titleKey)}</span>
+                <span className="block truncate text-xs text-ink-soft">{t(item.descKey)}</span>
+              </span>
+              <IconChevron width={16} height={16} className="shrink-0 text-ink-faint" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

@@ -7,9 +7,9 @@ const base = loadAndroidFoundationState();
 const check = (s) => s.operationalChecks.checks;
 
 runMutations("test:android-native-foundation", base, validateAndroidNativeFoundation, [
-  ["#1 appId removido", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'appId: "com.longyu.app",', ""); }, "APP_ID_MISSING"],
-  ["appId divergente", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'appId: "com.longyu.app"', 'appId: "br.com.longyu"'); }, "APP_ID_DIVERGENT"],
-  ["applicationId Gradle divergente", (s) => { s.appBuildGradle = swap(s.appBuildGradle, 'applicationId "com.longyu.app"', 'applicationId "com.longyu.beta"'); }, "APP_ID_DIVERGENT"],
+  ["#1 appId removido", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'appId: "longyu.noba.com",', ""); }, "APP_ID_MISSING"],
+  ["appId divergente", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'appId: "longyu.noba.com"', 'appId: "br.com.longyu"'); }, "APP_ID_DIVERGENT"],
+  ["applicationId Gradle divergente", (s) => { s.appBuildGradle = swap(s.appBuildGradle, 'applicationId "longyu.noba.com"', 'applicationId "com.longyu.beta"'); }, "APP_ID_DIVERGENT"],
   ["#2 appName diferente de Longyu", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'appName: "Longyu"', 'appName: "Longyu Android"'); }, "APP_NAME"],
   ["#3 webDir diferente de dist", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'webDir: "dist"', 'webDir: "build"'); }, "WEB_DIR"],
   ["#4 targetSdk < 36", (s) => { s.variablesGradle = swap(s.variablesGradle, "targetSdkVersion = 36", "targetSdkVersion = 35"); }, "TARGET_SDK"],

@@ -1,11 +1,24 @@
 import {
   DEFAULT_LOCALE,
+  INTERFACE_LOCALE_SOURCE_STORAGE_KEY,
   INTERFACE_LOCALE_STORAGE_KEY,
   LOCALE_HTML_LANG,
   LONGYU_I18N_VERSION,
+  SYSTEM_FALLBACK_INTERFACE_LOCALE,
   isSupportedLocale,
+  type InterfaceLocaleSource,
   type SupportedLocale,
 } from "./config";
+
+/**
+ * RC2.2.14B — quem lê o idioma do sistema é a camada de plataforma
+ * (src/lib/platform/systemLocale.ts), registrada em main.tsx antes do
+ * primeiro render. Sem registro (testes Node, pré-render) → lista vazia.
+ */
+let systemLanguageProvider: () => readonly string[] = () => [];
+export function setSystemLanguageProvider(provider: () => readonly string[]): void {
+  systemLanguageProvider = provider;
+}
 
 type LocaleListener = (locale: SupportedLocale) => void;
 
@@ -66,10 +79,63 @@ export function readPersistedInterfaceLocale(): SupportedLocale | null {
   return null;
 }
 
-function resolveInterfaceLocale(): SupportedLocale {
+function readSource(): InterfaceLocaleSource | null {
+  if (typeof localStorage === "undefined") return null;
+  try {
+    const value = localStorage.getItem(INTERFACE_LOCALE_SOURCE_STORAGE_KEY);
+    return value === "system" || value === "user" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeSource(source: InterfaceLocaleSource): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(INTERFACE_LOCALE_SOURCE_STORAGE_KEY, source);
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * RC2.2.14B · C/D — idioma do sistema → interface suportada.
+ * pt, pt-BR, pt-PT → pt-BR · en, en-US, en-GB → en · o primeiro idioma
+ * suportado da lista de preferência vence · nenhum suportado → EN.
+ * `null` quando não há como saber (fora do navegador).
+ */
+export function resolveSystemInterfaceLocale(tags: readonly string[] = systemLanguageProvider()): SupportedLocale | null {
+  if (tags.length === 0) return null;
+  for (const tag of tags) {
+    const primary = String(tag).replace(/_/g, "-").split("-")[0]?.toLowerCase() ?? "";
+    if (primary === "pt") return "pt-BR";
+    if (primary === "en") return "en";
+  }
+  return SYSTEM_FALLBACK_INTERFACE_LOCALE;
+}
+
+/** Como a interface foi decidida: escolha manual ou idioma do sistema. */
+export function getInterfaceLocaleSource(): InterfaceLocaleSource {
+  const source = readSource();
+  if (source) return source;
+  // Valor salvo antes da RC2.2.14B só existia por escolha manual no seletor.
+  return readPersistedInterfaceLocale() ? "user" : "system";
+}
+
+/**
+ * RC2.2.14B · AQ — resolvedor canônico da interface:
+ *   1. escolha manual (conta ou aparelho) — nunca sobrescrita pelo sistema;
+ *   2. idioma do sistema (acompanha mudanças do aparelho a cada abertura);
+ *   3. padrão do produto quando não há sistema para ler.
+ */
+export function resolvePreferredInterfaceLocale(): SupportedLocale {
   const persisted = readPersistedInterfaceLocale();
-  if (persisted) return persisted;
-  return DEFAULT_LOCALE;
+  if (getInterfaceLocaleSource() === "user" && persisted) return persisted;
+  return resolveSystemInterfaceLocale() ?? persisted ?? DEFAULT_LOCALE;
+}
+
+function resolveInterfaceLocale(): SupportedLocale {
+  return resolvePreferredInterfaceLocale();
 }
 
 export function applyDocumentLocale(locale: SupportedLocale): void {
@@ -103,11 +169,33 @@ function notify(locale: SupportedLocale): void {
 export function setInterfaceLocale(next: unknown): SupportedLocale {
   const locale = parseInterfaceLocale(next);
   writeStorage(locale);
+  writeSource("user");
   currentLocale = locale;
   bootstrapped = true;
   applyDocumentLocale(locale);
   notify(locale);
   return locale;
+}
+
+/** RC2.2.14B · AI — "Usar idioma do sistema": volta a acompanhar o aparelho. */
+export function followSystemInterfaceLocale(): SupportedLocale {
+  writeSource("system");
+  const locale = resolveSystemInterfaceLocale() ?? DEFAULT_LOCALE;
+  writeStorage(locale);
+  currentLocale = locale;
+  bootstrapped = true;
+  applyDocumentLocale(locale);
+  notify(locale);
+  return locale;
+}
+
+/**
+ * RC2.2.14B — o sistema mudou de idioma com o app aberto. Só acompanha quando
+ * a interface está em "idioma do sistema"; escolha manual nunca é tocada.
+ */
+export function refreshSystemInterfaceLocale(): SupportedLocale {
+  if (getInterfaceLocaleSource() === "user") return resolvePreferredInterfaceLocale();
+  return followSystemInterfaceLocale();
 }
 
 /** Sync bootstrap before first paint. Safe to call more than once. */
@@ -126,6 +214,7 @@ export function resetInterfaceLocaleForTests(): void {
   listeners.clear();
   if (typeof localStorage !== "undefined") {
     try {
+      localStorage.removeItem(INTERFACE_LOCALE_SOURCE_STORAGE_KEY);
       localStorage.removeItem(INTERFACE_LOCALE_STORAGE_KEY);
     } catch {
       // ignore

@@ -35,6 +35,7 @@ export const ALLOWED_PERMISSIONS = [
   "android.permission.RECORD_AUDIO",
   "android.permission.MODIFY_AUDIO_SETTINGS",
   "android.permission.POST_NOTIFICATIONS",
+  "android.permission.VIBRATE",
 ];
 export const FORBIDDEN_PERMISSION_RE = /LOCATION|CAMERA|CONTACTS|READ_PHONE|SMS|CALL_LOG|BLUETOOTH_SCAN|BODY_SENSORS/;
 export const EXACT_ALARM_PERMISSIONS = ["android.permission.SCHEDULE_EXACT_ALARM", "android.permission.USE_EXACT_ALARM"];
@@ -78,7 +79,7 @@ function walk(dir, out = []) {
   return out;
 }
 
-const JAVA = "android/app/src/main/java/com/longyu/app";
+const JAVA = "android/app/src/main/java/longyu/noba/com";
 
 export async function loadState() {
   const pkg = readJson("package.json");
@@ -400,7 +401,12 @@ export async function validateNativePermissions(s) {
     fail("STALE_PERMISSION_STATE", "NativeSettingsSections.tsx", "estado real do Android, relido ao voltar");
   if (!/openNativeAppSettings/.test(settings) || !/onClick=\{\(\) => void openNativeAppSettings\(\)\}/.test(stripComments(s.src.pronunciation)))
     fail("NO_SETTINGS_PATH", "microfone negado", "caminho para os ajustes do Android");
-  if (!/<NativeSettingsSections \/>/.test(s.src.settingsPage)) fail("SETTINGS_SECTIONS_MISSING", "SettingsPage.tsx", "Permissões/Notificações/Áudio e fala");
+  // RC2.2.14 — Configurações agrupa as seções por categoria (`parts`); a
+  // exigência continua: Permissões, Notificações e Áudio e fala renderizadas.
+  const nativeUses = [...String(s.src.settingsPage).matchAll(/<NativeSettingsSections(?:\s+parts=\{\[([^\]]*)\]\})?\s*\/>/g)];
+  const nativeParts = new Set(nativeUses.flatMap((use) => (use[1] == null ? ["permissions", "notifications", "audio"] : [...use[1].matchAll(/"([a-z]+)"/g)].map((m) => m[1]))));
+  if (!["permissions", "notifications", "audio"].every((part) => nativeParts.has(part)))
+    fail("SETTINGS_SECTIONS_MISSING", "SettingsPage.tsx", "Permissões/Notificações/Áudio e fala");
 
   // QA físico: nenhum PASS sem aparelho.
   const qa = s.qa;
