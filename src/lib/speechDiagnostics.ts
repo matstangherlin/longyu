@@ -10,7 +10,7 @@
  *   modelDownloadAvailable/State → recordingEngine → recordingStarted →
  *   recordingDuration → temporaryFileCreated → playbackReady → playbackPlayed
  *
- * Só em DEV, em builds de fixtures (E2E) ou num build que NÃO é production_beta
+ * Só em DEV, em builds de fixtures (E2E) ou num build que não é production_beta
  * com `localStorage longyu:qa-diagnostics=on`. Sem PII: nunca o áudio, nunca o
  * texto reconhecido, nunca o caminho do arquivo — só estados, códigos e números.
  */

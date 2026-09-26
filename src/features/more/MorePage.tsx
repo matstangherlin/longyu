@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { Link } from "react-router-dom";
-import { IconGear, IconShield, IconSun, IconUser } from "../../components/ui/Icon";
+import { IconShield, IconSun, IconUser } from "../../components/ui/Icon";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { isAdminEmail } from "../../lib/feedback";
 import { useStore } from "../../lib/store";
@@ -183,7 +183,7 @@ export function MorePage() {
 /**
  * RC2.2.19 — "Você": Perfil, Conta, Aparência e Sair logo no topo do Mais
  * (P2 PROFILE_ACCOUNT_DISCOVERABILITY / LOGOUT_DISCOVERABILITY). Excluir conta
- * NÃO fica aqui: mora separado, no fim de Conta, atrás de confirmação.
+ * não fica aqui: mora separado, no fim de Conta, atrás de confirmação.
  */
 function MoreYouBlock() {
   const { t } = useTranslation();
@@ -198,7 +198,7 @@ function MoreYouBlock() {
           <IconUser width={18} height={18} className="text-accent" /> {t("navigation.profile")}
         </Link>
         <Link to="/conta" className={tile} data-testid="more-account">
-          <IconGear width={18} height={18} className="text-accent" /> {t("navigation.account")}
+          <IconShield width={18} height={18} className="text-accent" /> {t("navigation.account")}
         </Link>
         <Link to="/config/aparencia" className={tile} data-testid="more-appearance">
           <IconSun width={18} height={18} className="text-accent" /> {t("navigation.appearance")}

@@ -41,7 +41,7 @@ export function setGuidanceSession(next: GuidanceSession): void {
 /**
  * RC2.2.19 — evidência de render. `visibleSince` só é preenchido pela própria
  * superfície quando ela está de fato na tela (posicionada, dentro da viewport,
- * não `invisible`). Escolher uma orientação NÃO é mostrá-la.
+ * não `invisible`). Escolher uma orientação não é mostrá-la.
  */
 let visibleSince: number | null = null;
 let evidenceCommitted = false;

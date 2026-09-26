@@ -2900,7 +2900,7 @@ export const ptBR = {
       body: "Toque em um caractere para ver som, significado e componentes.",
     },
     reviewSessionIntro: {
-      body: "A revisão vem em rodadas curtas de 5 a 8. Errou? O item volta mais tarde, de outro jeito. Toque num hànzì para abrir no Atlas.",
+      body: "Revisão em rodadas curtas. O que você errar volta depois, de outro jeito.",
     },
     profileEntry: {
       body: "Seu perfil fica aqui: foto, nome, medalhas e amigos. Conta e Sair também.",
