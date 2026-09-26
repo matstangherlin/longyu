@@ -91,7 +91,7 @@ jobs:
         run: npm ci
 
       - name: Gates (Android + pipeline de entrega + freeze)
-        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-18-progressive-discovery
 
       - name: Credenciais presentes? (só nomes, nunca valores)
         id: creds

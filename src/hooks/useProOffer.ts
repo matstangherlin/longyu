@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useIsPro } from "../lib/proAccess";
+import { useStore } from "../lib/store";
 import {
   evaluateProOffer,
   recordProOfferDismissed,
@@ -11,13 +12,14 @@ import {
 
 export function useProOffer() {
   const isPro = useIsPro();
+  const completedLessonsCount = useStore((s) => s.completedLessons?.length ?? 0);
   const [offer, setOffer] = useState<ProOfferCopy | null>(null);
   const shownRef = useRef<ProOfferCopy | null>(null);
 
   const consider = useCallback(
     (ctx: Omit<ProOfferContext, "isPro">, strength: ProOfferStrength = "strong") => {
       if (isPro) return;
-      const next = evaluateProOffer({ ...ctx, isPro }, strength);
+      const next = evaluateProOffer({ ...ctx, isPro, completedLessonsCount }, strength);
       if (!next) return;
       // Registra "shown" e atualiza os limites de frequência (banners e ofertas
       // solicitadas não contam contra o teto de modais — tratado no engine).
@@ -25,7 +27,7 @@ export function useProOffer() {
       shownRef.current = next;
       setOffer(next);
     },
-    [isPro]
+    [isPro, completedLessonsCount]
   );
 
   const dismiss = useCallback(() => {

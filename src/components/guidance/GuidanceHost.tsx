@@ -14,6 +14,7 @@ import {
   type GuidancePresentation,
 } from "../../lib/guidanceOrchestrator";
 import { featureForPath } from "../../lib/progressiveDiscovery";
+import { computeCoachmarkPosition, type CoachmarkPosition } from "../../lib/coachmarkPosition";
 import { holdCelebration, isCelebrationActive } from "../../lib/celebrationLock";
 import { isNativeApp } from "../../lib/platform/nativePlatform";
 import { notificationPermission, requestNotificationPermission } from "../../lib/platform/nativeNotifications";
@@ -408,39 +409,6 @@ function GuidanceRevealCard({ presentation, onAction, onOpenFeature }: SurfacePr
       <GuidanceButtons presentation={presentation} onAction={onAction} />
     </div>
   );
-}
-
-const VIEWPORT_GUTTER = 16;
-const COACHMARK_GAP = 10;
-
-interface CoachmarkPosition {
-  top: number;
-  left: number;
-  arrowLeft: number;
-  placement: "above" | "below";
-}
-
-/** PART DF — nunca fora da tela, nunca sob barras do sistema, nunca sobre o alvo. */
-export function computeCoachmarkPosition(input: {
-  target: { top: number; bottom: number; left: number; width: number };
-  card: { width: number; height: number };
-  viewport: { width: number; height: number };
-  safeTop: number;
-  safeBottom: number;
-}): CoachmarkPosition {
-  const { target, card, viewport, safeTop, safeBottom } = input;
-  const minTop = safeTop + VIEWPORT_GUTTER / 2;
-  const maxBottom = viewport.height - safeBottom - VIEWPORT_GUTTER / 2;
-  const spaceBelow = maxBottom - (target.bottom + COACHMARK_GAP);
-  const spaceAbove = target.top - COACHMARK_GAP - minTop;
-  const placement: "above" | "below" = spaceBelow >= card.height || spaceBelow >= spaceAbove ? "below" : "above";
-  let top = placement === "below" ? target.bottom + COACHMARK_GAP : target.top - COACHMARK_GAP - card.height;
-  top = Math.min(Math.max(top, minTop), Math.max(minTop, maxBottom - card.height));
-  const maxLeft = viewport.width - VIEWPORT_GUTTER - card.width;
-  const centered = target.left + target.width / 2 - card.width / 2;
-  const left = Math.min(Math.max(centered, VIEWPORT_GUTTER), Math.max(VIEWPORT_GUTTER, maxLeft));
-  const arrowLeft = Math.min(Math.max(target.left + target.width / 2 - left, 18), card.width - 18);
-  return { top, left, arrowLeft, placement };
 }
 
 function readCssPx(name: string): number {

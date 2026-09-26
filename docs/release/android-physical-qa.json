@@ -80,6 +80,18 @@
   "toneGuidedVisual": "NOT_RUN",
   "deleteAccountVisible": "NOT_RUN",
   "appearanceSystemMode": "NOT_RUN",
+  "freshAccountMinimalSurface": "NOT_RUN",
+  "welcomeGuidanceOnce": "NOT_RUN",
+  "firstLessonUnlockReveal": "NOT_RUN",
+  "cultureUnlockReveal": "NOT_RUN",
+  "guidanceNoRepeatAfterRestart": "NOT_RUN",
+  "guidanceSkipAll": "NOT_RUN",
+  "guidanceOffNoPopup": "NOT_RUN",
+  "coachmarkSmallDevice": "NOT_RUN",
+  "coachmarkAndroidBack": "NOT_RUN",
+  "lockedFeatureDeepLink": "NOT_RUN",
+  "micPrePermission": "NOT_RUN",
+  "notificationOfferAfterSession": "NOT_RUN",
   "performance": {
     "coldStartMs": null,
     "firstInteractiveMs": null,
@@ -113,13 +125,18 @@
       "severity": "P1_CANDIDATE",
       "detail": "Áudio real (Guided Try, Jornada, Tom), avanço da cena no caminho da captura (Etapa 4/6), suporte zh-CN do SpeechRecognizer, download do modelo e autoavaliação só são confirmados com o aparelho que revelou os bugs.",
       "status": "OPEN"
+    },
+    {
+      "id": "ANDROID_RC2_2_18_DISCOVERY_UNVERIFIED",
+      "severity": "P1_CANDIDATE",
+      "detail": "RC2.2.18: descoberta progressiva, coachmarks (360×740, barra de navegação, VOLTAR), anúncio de desbloqueio e permissões progressivas (microfone na fala, notificação após a 1ª sessão) só foram verificados na Web/E2E. Nenhum PASS sem aparelho real."
     }
   ],
   "p0Open": null,
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.17",
+  "extendedBy": "RC2.2.18",
   "playBuild": {
     "note": "RC2.2.16 — QA repetido no build DISTRIBUÍDO PELA PLAY (Internal testing), nunca só debug/adb. PASS exige: instalação pela Play Store (installer com.android.vending), aparelho físico, testedAt e evidência por teste.",
     "packageName": "longyu.noba.com",

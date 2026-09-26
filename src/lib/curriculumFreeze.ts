@@ -370,6 +370,36 @@ export const RC2_2_17_GUIDED_LEARNING_RELIABILITY_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.18 — Progressive Discovery, Guided Coachmarks & Feature Unlocks.
+ * Só APRESENTAÇÃO e navegação: a disponibilidade das áreas é derivada do
+ * progresso que já existe (nada salvo como "desbloqueado"), a descoberta
+ * guarda apenas visto/dispensado por conta. Nenhuma lição, tópico,
+ * CultureItem, StepKind, SRS, domínio, XP ou regra de progressão muda.
+ */
+export const RC2_2_18_PROGRESSIVE_DISCOVERY_EXCEPTION = {
+  id: "RC2_2_18_PROGRESSIVE_DISCOVERY",
+  scope: "Progressive disclosure of app areas, guided coachmarks/unlock reveals, derived navigation, progressive permissions",
+  areas: [
+    "FEATURE_AVAILABILITY registry + PROGRESSIVE_DISCOVERY_RULES (pure, derived)",
+    "GuidanceOrchestrator (one per session, never during learning, skip/now-not/skip-all)",
+    "TabBar/Sidebar/Mais/Praticar derived from the registry in stable order",
+    "FeatureUnavailablePage for Culture/Immersion/Phase Challenge deep links",
+    "Settings › Aprendizagem › Dicas guiadas (toggle + reset)",
+    "permissions: microphone in the speech step, notification offer after the first session",
+  ],
+  forbids: [
+    "new lessons, topics, CultureItems or StepKinds",
+    "saved unlock flags duplicating curriculum progress",
+    "XP, achievements, Qi or mastery for unlocking, opening or reading guidance",
+    "Pro bypass of pedagogical unlocks",
+    "random, clock or weekday unlock rules",
+    "locking account, settings, privacy, delete account, appearance, language, help or logout",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-18-progressive-discovery",
+} as const;
+
+/**
  * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
  * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
  * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).
