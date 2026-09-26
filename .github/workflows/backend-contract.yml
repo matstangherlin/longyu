@@ -63,7 +63,7 @@ jobs:
       TURNSTILE_ALLOW_SKIP: "1"
       STRIPE_SECRET_KEY: "sk_test_placeholder_not_live"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
