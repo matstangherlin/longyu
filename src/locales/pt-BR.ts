@@ -619,6 +619,11 @@ export const ptBR = {
   player: {
     speechPermissionNeeded: "O microfone está bloqueado. Libere nos ajustes do Android para falar; por enquanto, ouça o modelo e siga.",
     guidedAlmost: "Quase.",
+    speechRetry: "Tentar novamente",
+    speechGetSupport: "Baixar suporte",
+    speechRecordCompare: "Gravar e comparar",
+    speechContinueWithout: "Continuar sem falar",
+    speechFallbackTitle: "Não deu para ouvir você. Escolha como seguir:",
     cultureRecommendedNext: "Recomendado: a aula de Cultura deste tópico. Depois você volta para a Jornada.",
     cultureSkipForNow: "Agora não, voltar à Jornada",
     youLearned: "Você aprendeu",

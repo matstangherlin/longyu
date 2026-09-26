@@ -12,6 +12,7 @@ import {
   hasNativeSpeech,
 } from "../../lib/platform/nativeSpeech";
 import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
+import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -92,12 +93,22 @@ export function SelfComparePractice({
       URL.revokeObjectURL(webUrl);
       setWebUrl(null);
     }
+    updateSpeechDiagnostics({
+      recordingEngine: native ? "native" : "web",
+      recordingStarted: "unknown",
+      recordingDuration: null,
+      temporaryFileCreated: "unknown",
+      playbackReady: "unknown",
+      playbackPlayed: "unknown",
+    });
     if (native) {
       const result = await nativeStartPracticeRecording();
       if (!result.ok) {
+        updateSpeechDiagnostics({ recordingStarted: "no", lastErrorCode: result.code });
         setPhase("failed");
         return;
       }
+      updateSpeechDiagnostics({ recordingStarted: "yes" });
       startedAtRef.current = Date.now();
       setPhase("recording");
       return;
@@ -113,7 +124,13 @@ export function SelfComparePractice({
       recorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        if (blob.size > 0 && Date.now() - startedAtRef.current >= MIN_RECORDING_MS) {
+        const duration = Date.now() - startedAtRef.current;
+        updateSpeechDiagnostics({
+          recordingDuration: duration,
+          temporaryFileCreated: blob.size > 0 ? "yes" : "no",
+          playbackReady: blob.size > 0 && duration >= MIN_RECORDING_MS ? "yes" : "no",
+        });
+        if (blob.size > 0 && duration >= MIN_RECORDING_MS) {
           setWebUrl(URL.createObjectURL(blob));
           setPhase("recorded");
           countAttempt();
@@ -124,8 +141,10 @@ export function SelfComparePractice({
       recorder.start();
       recorderRef.current = recorder;
       startedAtRef.current = Date.now();
+      updateSpeechDiagnostics({ recordingStarted: "yes" });
       setPhase("recording");
     } catch {
+      updateSpeechDiagnostics({ recordingStarted: "no", lastErrorCode: "WEB_RECORDING_FAILED" });
       setPhase("failed");
     }
   }
@@ -133,6 +152,15 @@ export function SelfComparePractice({
   async function stopRecording() {
     if (native) {
       const result = await nativeStopPracticeRecording();
+      updateSpeechDiagnostics(
+        result.ok
+          ? {
+              recordingDuration: result.durationMs ?? 0,
+              temporaryFileCreated: result.fileExists && (result.fileBytes ?? 0) > 0 ? "yes" : result.fileExists === false ? "no" : "unknown",
+              playbackReady: result.fileExists && (result.durationMs ?? 0) >= MIN_RECORDING_MS ? "yes" : "no",
+            }
+          : { playbackReady: "no", lastErrorCode: result.code }
+      );
       if (result.ok && (result.durationMs ?? 0) >= MIN_RECORDING_MS) {
         setPhase("recorded");
         countAttempt();
@@ -154,14 +182,19 @@ export function SelfComparePractice({
 
   function playMine() {
     if (native) {
-      void nativePlayPracticeRecording();
+      // O plugin só resolve DEPOIS de tocar até o fim: é a prova de reprodução.
+      void nativePlayPracticeRecording().then((result) =>
+        updateSpeechDiagnostics(result.ok ? { playbackPlayed: "yes" } : { playbackPlayed: "no", lastErrorCode: result.code })
+      );
       return;
     }
     if (!webUrl) return;
     audioRef.current?.pause();
     const audio = new Audio(webUrl);
     audioRef.current = audio;
-    void audio.play().catch(() => undefined);
+    audio.onended = () => updateSpeechDiagnostics({ playbackPlayed: "yes" });
+    audio.onerror = () => updateSpeechDiagnostics({ playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_FAILED" });
+    void audio.play().catch(() => updateSpeechDiagnostics({ playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_BLOCKED" }));
   }
 
   return (

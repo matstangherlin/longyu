@@ -127,7 +127,7 @@ import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
 import { useTapThroughGuard } from "../../lib/useTapThroughGuard";
 import { guidanceLevelForLesson, guidedPhaseForStep, guidedTryBridgeApplies, showsPrepareLine } from "../../lib/guidedLesson";
 import { GuideLine } from "../../components/guide/GuideLine";
-import { traceLessonStep } from "../../lib/lessonStepTrace";
+import { setLessonTraceContext, traceLessonStep } from "../../lib/lessonStepTrace";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
@@ -2503,6 +2503,7 @@ export function LessonPlayer() {
   // cai no botão do passo novo (mesma posição).
   useTapThroughGuard(`${planNonce}:${idx}:${stepAttempt}`, "[data-lesson-step-frame], [data-lesson-action-region]");
 
+
   // Avançar N→N+1 (ou retry) nunca herda o scroll da atividade anterior.
   useLayoutEffect(() => {
     if (finished || energyBlocked || !entryChecked) return;
@@ -2633,6 +2634,30 @@ export function LessonPlayer() {
   }
   const lesson = adaptiveLesson;
   const total = lesson.steps.length;
+
+  // RC2.2.19 — trilha áudio/avanço (DEV/QA): contexto do passo + "visível"
+  // depois de pintar + toque na ação principal. Só metadados, nunca texto.
+  const traceStepKind = lesson.steps[idx]?.kind ?? "none";
+  useEffect(() => {
+    const context = { lessonId: lesson.id, stepIndex: idx, kind: traceStepKind, attempt: stepAttempt };
+    setLessonTraceContext(context);
+    const frame = requestAnimationFrame(() => traceLessonStep({ ...context, event: "step_visible" }));
+    const onClick = (event: MouseEvent) => {
+      const button = (event.target as Element | null)?.closest?.("button");
+      if (!button || button.disabled) return;
+      const primary =
+        button.closest("[data-lesson-action-region]") != null ||
+        button.hasAttribute("data-guided-primary") ||
+        (button.getAttribute("data-button-variant") === "primary" && button.closest("[data-lesson-step-frame]") != null);
+      if (primary) traceLessonStep({ ...context, event: "continue_pressed" });
+    };
+    document.addEventListener("click", onClick, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("click", onClick, true);
+      setLessonTraceContext(null);
+    };
+  }, [lesson.id, idx, stepAttempt, traceStepKind]);
   const lessonTasks = lessonTasksFor(lesson);
 
   // Métrica scene_shown: registra a cena exibida (com nível da variante e
@@ -3375,8 +3400,10 @@ export function LessonPlayer() {
     completedStepKeyRef.current = completionKey;
     traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_key" });
     traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completed" });
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_started" });
     try {
       completeCurrentStep(currentStep, wasCorrect, meta);
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_finished" });
     } catch (error) {
       // O toque em Continuar foi a confirmação do aluno: se a contabilidade
       // falhar, a chave é liberada (o "Continuar" de recuperação volta a

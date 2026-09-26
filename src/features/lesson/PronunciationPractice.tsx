@@ -20,6 +20,7 @@ import {
   checkMandarinRecognitionSupport,
   currentRecognitionCapability,
   mandarinRecognitionSupport,
+  recognitionDiagnosticsSnapshot,
   recognizeOnce,
   speechErrorMessage,
   type PronunciationAnalysis,
@@ -30,6 +31,8 @@ import { Button } from "../../components/ui/primitives";
 import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { t } from "../../i18n/catalog";
+import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
+import { SpeechDiagnosticsPanel } from "./SpeechDiagnosticsPanel";
 
 type Phase = "idle" | "listening" | "result";
 
@@ -122,6 +125,11 @@ export function PronunciationPractice({
       } else if (event.status === "ERROR") setDownload("failed");
     });
   }, [nativeVoice]);
+
+  // RC2.2.19 — cada elo do reconhecimento no diagnóstico (DEV/QA).
+  useEffect(() => {
+    updateSpeechDiagnostics({ ...recognitionDiagnosticsSnapshot(), modelDownloadState: download === "idle" ? "not_requested" : download });
+  }, [capability, micState, download, phase]);
 
   async function startModelDownload() {
     setDownload("preparing");
@@ -324,6 +332,7 @@ export function PronunciationPractice({
       <div data-speech-capability={capability} data-speaking-mode="self_compare">
         {downloadOffer}
         <SelfComparePractice target={target} onContinue={onContinue} onCannotSpeak={onContinue} reason={fallbackReason} />
+        <SpeechDiagnosticsPanel />
       </div>
     );
   }
@@ -425,16 +434,44 @@ export function PronunciationPractice({
             </div>
           )}
         </div>
-        <GuidedDock>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button variant="outline" onClick={start} disabled={busy}>
-              {t("player.speakAgain")}
-            </Button>
-            <Button onClick={onContinue}>
-              {t("player.continue")} <IconChevron width={18} height={18} />
-            </Button>
+        {heard ? (
+          <GuidedDock>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={start} disabled={busy}>
+                {t("player.speakAgain")}
+              </Button>
+              <Button onClick={onContinue}>
+                {t("player.continue")} <IconChevron width={18} height={18} />
+              </Button>
+            </div>
+          </GuidedDock>
+        ) : (
+          // RC2.2.19 — nada foi reconhecido: as quatro saídas, nunca um beco.
+          <div className="mt-3" data-testid="speech-fallback-options">
+            <p className="mb-2 text-center text-sm text-ink-soft">{t("player.speechFallbackTitle")}</p>
+            <GuidedDock>
+              <div className="flex flex-col gap-2">
+                <Button onClick={start} disabled={busy} data-testid="speech-fallback-retry" data-guided-primary>
+                  {t("player.speechRetry")}
+                </Button>
+                {canOfferModelDownload(capability, mandarinRecognitionSupport()) && (
+                  <Button variant="outline" onClick={() => void startModelDownload()} data-testid="speech-fallback-download">
+                    {t("player.speechGetSupport")}
+                  </Button>
+                )}
+                {recordingAvailable && (
+                  <Button variant="outline" onClick={() => { setForcedFallback(true); setPhase("idle"); }} data-testid="speech-fallback-record">
+                    {t("player.speechRecordCompare")}
+                  </Button>
+                )}
+                <Button variant="ghost" onClick={onContinue} data-testid="speech-fallback-continue">
+                  {t("player.speechContinueWithout")}
+                </Button>
+              </div>
+            </GuidedDock>
           </div>
-        </GuidedDock>
+        )}
+        <SpeechDiagnosticsPanel />
       </div>
     );
   }
@@ -467,6 +504,7 @@ export function PronunciationPractice({
           {t("player.cannotSpeakNow")}
         </button>
       </GuidedDock>
+      <SpeechDiagnosticsPanel />
     </div>
   );
 }

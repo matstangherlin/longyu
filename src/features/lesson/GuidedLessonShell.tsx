@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode, type Ref } from "react";
+import { createContext, useContext, useEffect, useRef, type ReactNode, type Ref } from "react";
 import { GuidedBottomAction, GuidedProgressHeader, GUIDED_CLASS } from "../../components/guided/GuidedPrimitives";
 import { Mascot } from "../../components/brand/Mascot";
 import { IconChat, IconFlame } from "../../components/ui/Icon";
@@ -201,9 +201,12 @@ export function GuidedStepSurface({
   children: ReactNode;
 } & Record<string, unknown>) {
   const contract = presentationContractFor(stepKind);
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  useKeepFocusedFieldAboveDock(surfaceRef);
   return (
     <div
       {...rest}
+      ref={surfaceRef}
       data-guided-step
       data-guided-layout={contract.layout}
       data-guided-action-placement={contract.actionPlacement}
@@ -218,6 +221,46 @@ export function GuidedStepSurface({
       <div className="w-full">{children}</div>
     </div>
   );
+}
+
+/**
+ * RC2.2.19 · DF — teclado aberto: o campo focado fica visível ACIMA do dock.
+ * Quando a viewport encolhe (teclado) ou o campo recebe foco, rola o campo
+ * para o centro do espaço útil. Sem medir o teclado: usa visualViewport.
+ */
+function useKeepFocusedFieldAboveDock(surfaceRef: { current: HTMLDivElement | null }) {
+  useEffect(() => {
+    // O div da superfície é re-chaveado a cada passo: resolve na hora do evento.
+    const isField = (element: Element | null): element is HTMLElement =>
+      element instanceof HTMLTextAreaElement ||
+      (element instanceof HTMLInputElement && !["button", "checkbox", "radio", "submit"].includes(element.type));
+    const reveal = () => {
+      const active = document.activeElement;
+      const surface = surfaceRef.current;
+      if (!surface || !isField(active) || !surface.contains(active)) return;
+      const dock = document.querySelector<HTMLElement>("[data-lesson-action-region]");
+      const viewportBottom = window.visualViewport ? window.visualViewport.offsetTop + window.visualViewport.height : window.innerHeight;
+      const limit = Math.min(viewportBottom, dock && dock.offsetHeight > 0 ? dock.getBoundingClientRect().top : viewportBottom);
+      const box = active.getBoundingClientRect();
+      if (box.bottom <= limit - 8 && box.top >= 0) return;
+      active.scrollIntoView({ block: "center" });
+      // Se o centro ainda cai atrás do dock, empurra o resto.
+      const after = active.getBoundingClientRect();
+      if (after.bottom > limit - 8) {
+        const scroller = active.closest<HTMLElement>("[data-lesson-scroll], main") ?? document.scrollingElement;
+        scroller?.scrollBy({ top: after.bottom - limit + 16 });
+      }
+    };
+    const onFocus = () => requestAnimationFrame(reveal);
+    document.addEventListener("focusin", onFocus);
+    window.addEventListener("resize", onFocus);
+    window.visualViewport?.addEventListener("resize", onFocus);
+    return () => {
+      document.removeEventListener("focusin", onFocus);
+      window.removeEventListener("resize", onFocus);
+      window.visualViewport?.removeEventListener("resize", onFocus);
+    };
+  }, [surfaceRef]);
 }
 
 // ── Dock (PART I/J) ───────────────────────────────────────────────────────

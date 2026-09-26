@@ -621,6 +621,11 @@ export const en: MessageCatalog = {
   player: {
     speechPermissionNeeded: "The microphone is blocked. Allow it in Android settings to speak; for now, listen to the model and continue.",
     guidedAlmost: "Almost.",
+    speechRetry: "Try again",
+    speechGetSupport: "Download support",
+    speechRecordCompare: "Record and compare",
+    speechContinueWithout: "Continue without speaking",
+    speechFallbackTitle: "We couldn't hear you. Choose how to continue:",
     cultureRecommendedNext: "Recommended: this topic's Culture lesson. Then you come back to the Journey.",
     cultureSkipForNow: "Not now, back to the Journey",
     youLearned: "You learned",

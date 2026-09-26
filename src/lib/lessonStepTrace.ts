@@ -23,7 +23,27 @@ export type LessonStepTraceEvent =
   | "player_handleDone"
   | "completion_key"
   | "side_effect_failed"
-  | "handle_done_failed";
+  | "handle_done_failed"
+  // RC2.2.19 — trilha curta áudio/avanço para o QA físico (DEV/QA apenas):
+  // passo visível → áudio pedido → áudio começou → Continuar tocado →
+  // conclusão começou → conclusão terminou → avançou.
+  | "step_visible"
+  | "audio_requested"
+  | "audio_started"
+  | "continue_pressed"
+  | "completion_started"
+  | "completion_finished";
+
+/** A sequência mínima que o QA físico compara (RC2.2.19). */
+export const AUDIO_ADVANCE_TRACE_EVENTS: readonly LessonStepTraceEvent[] = [
+  "step_visible",
+  "audio_requested",
+  "audio_started",
+  "continue_pressed",
+  "completion_started",
+  "completion_finished",
+  "advanced",
+];
 
 export interface LessonStepTraceEntry {
   at: number;
@@ -50,4 +70,20 @@ export function traceLessonStep(entry: Omit<LessonStepTraceEntry, "at">): void {
   if ((import.meta as { env?: Record<string, unknown> }).env?.DEV === true) {
     console.debug("[longyu:step]", entry.event, entry.lessonId, entry.stepIndex, entry.kind, entry.attempt);
   }
+}
+
+/**
+ * RC2.2.19 — contexto do passo na tela, para que eventos de fora do player
+ * (áudio, dock) caiam no passo certo. Só metadados; nunca texto nem resposta.
+ */
+type TraceContext = Omit<LessonStepTraceEntry, "at" | "event">;
+let traceContext: TraceContext | null = null;
+
+export function setLessonTraceContext(next: TraceContext | null): void {
+  traceContext = next;
+}
+
+export function traceCurrentLessonStep(event: LessonStepTraceEvent): void {
+  if (!traceContext) return;
+  traceLessonStep({ ...traceContext, event });
 }
