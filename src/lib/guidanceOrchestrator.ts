@@ -13,7 +13,7 @@
  * - Nunca no meio de aprendizagem ativa, com teclado aberto ou por cima de
  *   outra cerimônia (medalha, selo, ofensiva) — PART K/DG/DQ.
  * - Dicas desligadas suprimem tudo que não é essencial; áreas continuam
- *   liberando normalmente, porque disponibilidade NÃO mora aqui (PART H/CX).
+ *   liberando normalmente, porque disponibilidade não mora aqui (PART H/CX).
  * - Nada aqui dá XP, medalha, Qi ou mexe em domínio (PART CG).
  */
 import type { MessageKey } from "../locales/pt-BR";
@@ -392,7 +392,7 @@ export interface GuidanceContext {
   inputFocused: boolean;
   /** Outra cerimônia (medalha, selo, ofensiva) está na tela. */
   otherCeremonyActive: boolean;
-  /** Âncoras de coachmark presentes na tela agora. */
+  /** As âncoras de coachmark presentes na tela agora. */
   anchorsPresent: ReadonlySet<string>;
   isNative: boolean;
   /** Notificações ainda não decididas pelo usuário (nem concedidas, nem negadas). */

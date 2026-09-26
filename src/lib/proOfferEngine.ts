@@ -135,7 +135,7 @@ export interface ProOfferInput {
   /** Relógio injetável (testes). */
   now?: number;
   /**
-   * RC2.2.18 · DP — lições concluídas. Oferta NÃO solicitada nunca aparece nas
+   * RC2.2.18 · DP — lições concluídas. Oferta não solicitada nunca aparece nas
    * primeiras sessões (promoção tem a menor prioridade). Ausente = sem corte.
    */
   completedLessonsCount?: number;

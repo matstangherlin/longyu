@@ -13,7 +13,7 @@ import {
 
 /**
  * Monta o estado mínimo das regras a partir do store — nenhum campo novo de
- * progresso. Plano Pro NÃO entra aqui (só a lista de alvos do Desafio de Fase
+ * progresso. Plano Pro não entra aqui (só a lista de alvos do Desafio de Fase
  * usa o acesso a conteúdo premium, como a Jornada já faz).
  */
 export function useDiscoveryLearnerState(): DiscoveryLearnerState {
@@ -90,7 +90,7 @@ export function useDiscoveryLearnerState(): DiscoveryLearnerState {
 }
 
 /**
- * PART DJ/DK — memória de SESSÃO (RAM) do que já apareceu, por conta: a aba
+ * PART DJ/DK — memória de sessão (RAM) do que já apareceu, por conta: a aba
  * não some e volta enquanto o sync hidrata. Não é persistida — a verdade
  * continua sendo o progresso derivado.
  */

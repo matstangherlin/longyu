@@ -74,7 +74,8 @@ test.describe("RC2.2.18 · matriz visual", () => {
         if (stage.waitFor) await expect(page.locator(`[data-guidance-id="${stage.waitFor}"]`)).toBeVisible({ timeout: 8_000 });
         await shot(page, `${stage.id}-journey`, vp);
         const more = page.locator("[data-app-bottom-nav]").getByRole("button", { name: "Mais" });
-        await page.locator("[data-guidance-surface] [data-guidance-action]").first().click().catch(() => undefined);
+        const guidanceAction = page.locator("[data-guidance-surface] [data-guidance-action]").first();
+        if (await guidanceAction.isVisible().catch(() => false)) await guidanceAction.click({ timeout: 3_000 }).catch(() => undefined);
         await more.click();
         await shot(page, `${stage.id}-more`, vp);
       });

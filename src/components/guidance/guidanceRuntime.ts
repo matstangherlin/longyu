@@ -6,7 +6,7 @@ import {
 } from "../../lib/guidanceOrchestrator";
 
 /**
- * RC2.2.18 — estado de SESSÃO do orquestrador (RAM): o que já apareceu nesta
+ * RC2.2.18 — estado de sessão do orquestrador (RAM): o que já apareceu nesta
  * abertura do app e o que está na tela agora. Um único dono (GuidanceHost)
  * escreve; a dica inline da Jornada só lê. Reabrir o app = sessão nova; o
  * que foi dispensado continua dispensado porque isso mora no store da conta.

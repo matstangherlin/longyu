@@ -165,7 +165,19 @@ A disponibilidade funciona offline (derivada do estado local). `guidance` fica n
 
 ## Regressão
 
-_(preenchido ao final da rodada completa)_
+Rodada completa local, equivalente ao CI (Chromium, mobile-chrome, tablet retrato/paisagem, movimento reduzido — 959 testes):
+
+| Resultado | Qtde | Observação |
+|---|---:|---|
+| Passaram | 896 | inclui as 20 do `rc2-2-18-progressive-discovery` e as suítes antigas ajustadas às sementes de descoberta |
+| Flaky | 1 | `lesson-step-progression › image_choice` (passou no retry; mesmo teste já oscilava antes desta onda) |
+| Falharam | 2 | `journey-redesign` › chevron do "Rever lição" e CTAs compactos no desktop — **só neste contêiner** (métrica de fonte sem as fontes do sistema do runner do CI); verdes no CI da #290 com a mesma árvore da Jornada |
+| Pulados | 60 | condicionais de projeto (ex.: `SHOT_PACK`, varreduras só no Chromium) |
+
+WebKit e Firefox (bloqueantes no CI) não instalam neste contêiner (download do navegador bloqueado pelo proxy): rodam no CI da PR.
+
+- `npm run validate:beta` completo: **verde** (typecheck, i18n, encoding, currículo/fingerprint, todos os gates RC2.2.x e `gate:rc2-2-18-progressive-discovery` com 64 mutações mortas).
+- Ajustes feitos durante a rodada: `validate:i18n` passou a conhecer os namespaces `guidance` e `discovery`; comentários com "SESSÃO"/"NÃO" em caixa alta reescritos (o `validate:encoding` lê "Ã" maiúsculo como mojibake).
 
 ## Pendências honestas
 

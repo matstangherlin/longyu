@@ -75,6 +75,9 @@ const NAMESPACES = [
   "guidedTry",
   "hanziHub",
   "course",
+  // RC2.2.18 — descoberta progressiva (coachmarks, revelações, recursos em espera).
+  "guidance",
+  "discovery",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));

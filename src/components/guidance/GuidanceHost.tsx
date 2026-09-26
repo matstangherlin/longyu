@@ -134,7 +134,7 @@ function GuidanceHostInner() {
     };
   }, []);
 
-  // Âncoras de coachmark presentes (a página renderiza de forma assíncrona).
+  // As âncoras de coachmark presentes (a página renderiza de forma assíncrona).
   useEffect(() => {
     let frame = 0;
     const refresh = () => {

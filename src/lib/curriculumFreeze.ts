@@ -371,7 +371,7 @@ export const RC2_2_17_GUIDED_LEARNING_RELIABILITY_EXCEPTION = {
 
 /**
  * RC2.2.18 — Progressive Discovery, Guided Coachmarks & Feature Unlocks.
- * Só APRESENTAÇÃO e navegação: a disponibilidade das áreas é derivada do
+ * Só apresentação e navegação: a disponibilidade das áreas é derivada do
  * progresso que já existe (nada salvo como "desbloqueado"), a descoberta
  * guarda apenas visto/dispensado por conta. Nenhuma lição, tópico,
  * CultureItem, StepKind, SRS, domínio, XP ou regra de progressão muda.

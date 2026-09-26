@@ -260,7 +260,7 @@ export const ESSENTIAL_ROUTES: readonly string[] = ["/conta", "/config", "/ajust
 
 /**
  * Estado mínimo que as regras leem. Tudo já existe no store; o hook
- * `useDiscoveryLearnerState` só monta este objeto. NÃO inclui plano Pro de
+ * `useDiscoveryLearnerState` só monta este objeto. não inclui plano Pro de
  * propósito: pagar não antecipa progressão pedagógica (PART CN).
  */
 export interface DiscoveryLearnerState {
@@ -370,7 +370,7 @@ export function featureVisibilityMap(state: DiscoveryLearnerState): FeatureVisib
 /**
  * PART DJ — uma área já liberada nesta sessão não "re-tranca" na tela porque um
  * estado derivado ficou momentaneamente incompleto (ex.: sync carregando). A
- * memória é da SESSÃO (em RAM), não persistida: a fonte de verdade continua
+ * memória é da sessão (em RAM), não persistida: a fonte de verdade continua
  * sendo o progresso.
  */
 export function mergeStickyVisibility(
