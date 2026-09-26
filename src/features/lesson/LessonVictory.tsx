@@ -32,6 +32,8 @@ export function LessonVictory({
   primaryLabel,
   primaryTestId,
   onPrimary,
+  guided = false,
+  learned,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -51,6 +53,10 @@ export function LessonVictory({
   primaryLabel: string;
   primaryTestId: string;
   onPrimary: () => void;
+  /** RC2.2.17B · PART CR — mesmo shell da aula: sem card, recap antes das recompensas. */
+  guided?: boolean;
+  /** O que a lição ensinou (hànzì · pinyin · sentido), no máximo 3. */
+  learned?: Array<{ hanzi: string; pinyin?: string; meaning?: string }>;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const [motionReady, setMotionReady] = useState(false);
@@ -136,8 +142,15 @@ export function LessonVictory({
       data-lesson-victory-compact="desktop"
       data-testid={context === "culture" ? "culture-victory" : undefined}
       data-victory-context={context}
+      data-guided-recap={guided ? "true" : undefined}
     >
-      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none">
+      <section
+        className={
+          guided
+            ? "flex min-h-0 flex-1 flex-col overflow-hidden text-center roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
+            : "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
+        }
+      >
         <div
           data-lesson-activity-scroll
           data-lesson-scroll-region
@@ -182,6 +195,22 @@ export function LessonVictory({
                   {topicLines.remainingLine}
                 </p>
               ) : null}
+            </div>
+          ) : null}
+
+          {learned && learned.length > 0 ? (
+            // PART CR/CS — primeiro o que foi aprendido; XP e estrelas depois.
+            <div className="mx-auto mt-4 w-full max-w-sm text-left" data-victory-learned>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint">{t("player.youLearned")}</p>
+              <ul className="mt-2 grid gap-1.5">
+                {learned.map((item) => (
+                  <li key={item.hanzi} className="flex items-baseline gap-2">
+                    <span className="hanzi text-2xl text-ink">{item.hanzi}</span>
+                    {item.pinyin ? <span className="pinyin text-sm text-ink-soft">{item.pinyin}</span> : null}
+                    {item.meaning ? <span className="text-sm text-ink-soft">· {item.meaning}</span> : null}
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
 
@@ -267,7 +296,12 @@ export function LessonVictory({
         {/* P24.3 — sticky no mobile; com folga vertical o CTA só segue o conteúdo. */}
         <div
           data-lesson-victory-actions
-          className="shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,var(--app-safe-bottom))] pt-2.5 sm:px-6 roomy:border-t-0 roomy:pb-4"
+          className={
+            guided
+              ? "shrink-0 bg-bg/95 px-3 pb-[max(0.75rem,var(--app-safe-bottom))] pt-2.5 sm:px-6 roomy:pb-4"
+              : "shrink-0 border-t border-accent-soft/60 bg-[rgb(var(--surface)/0.98)] px-3 pb-[max(0.75rem,var(--app-safe-bottom))] pt-2.5 sm:px-6 roomy:border-t-0 roomy:pb-4"
+          }
+          data-guided-action-dock={guided ? true : undefined}
         >
           <Button className={`min-h-12 w-full shadow-lift ${LESSON_UI_CLASS.cta}`} size="lg" data-testid={primaryTestId} data-victory-primary onClick={onPrimary}>
             {primaryLabel}

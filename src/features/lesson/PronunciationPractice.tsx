@@ -8,6 +8,7 @@ import {
   type RecognitionCapability,
 } from "../../lib/recognitionCapability";
 import { SelfComparePractice, selfCompareRecordingAvailable } from "./SelfComparePractice";
+import { GuidedDock } from "./GuidedLessonShell";
 import {
   analyzePronunciation,
   cancelRecognition,
@@ -330,9 +331,11 @@ export function PronunciationPractice({
   if (!secure || !supported || mode === "model_only") {
     return (
       <div className="mt-6">
-        <Button className="w-full" onClick={onContinue}>
-          {t("player.continue")} <IconChevron width={18} height={18} />
-        </Button>
+        <GuidedDock>
+          <Button className="w-full" onClick={onContinue}>
+            {t("player.continue")} <IconChevron width={18} height={18} />
+          </Button>
+        </GuidedDock>
         <p className="mt-2 text-center text-xs text-ink-faint">
           {!secure ? t("player.micHttpsOnly") : capability === "PERMISSION_REQUIRED" ? t("player.speechPermissionNeeded") : t("player.voiceUnavailable")}
         </p>
@@ -354,9 +357,11 @@ export function PronunciationPractice({
         <p className="max-w-xs text-center text-xs text-ink-faint">
           {t("player.stopWhenDone")}
         </p>
-        <Button variant="outline" onClick={stopListening}>
-          {t("player.stopListening")}
-        </Button>
+        <GuidedDock>
+          <Button variant="outline" onClick={stopListening}>
+            {t("player.stopListening")}
+          </Button>
+        </GuidedDock>
       </div>
     );
   }
@@ -420,14 +425,16 @@ export function PronunciationPractice({
             </div>
           )}
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <Button variant="outline" onClick={start} disabled={busy}>
-            {t("player.speakAgain")}
-          </Button>
-          <Button onClick={onContinue}>
-            {t("player.continue")} <IconChevron width={18} height={18} />
-          </Button>
-        </div>
+        <GuidedDock>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button variant="outline" onClick={start} disabled={busy}>
+              {t("player.speakAgain")}
+            </Button>
+            <Button onClick={onContinue}>
+              {t("player.continue")} <IconChevron width={18} height={18} />
+            </Button>
+          </div>
+        </GuidedDock>
       </div>
     );
   }
@@ -443,21 +450,23 @@ export function PronunciationPractice({
           {t("player.micPrePermission")}
         </p>
       )}
-      {micBlocked ? (
-        <Button className="w-full" size="lg" data-testid="speech-open-settings" onClick={() => void openNativeAppSettings()}>
-          {t("player.micOpenSettings")}
-        </Button>
-      ) : (
-        <Button className="w-full" size="lg" data-testid="speech-start" onClick={start} disabled={busy}>
-          {micNeedsAsk ? t("player.micAllow") : t("player.speak")}
-        </Button>
-      )}
-      <button
-        onClick={onContinue}
-        className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
-      >
-        {t("player.cannotSpeakNow")}
-      </button>
+      <GuidedDock>
+        {micBlocked ? (
+          <Button className="w-full" size="lg" data-testid="speech-open-settings" onClick={() => void openNativeAppSettings()}>
+            {t("player.micOpenSettings")}
+          </Button>
+        ) : (
+          <Button className="w-full" size="lg" data-testid="speech-start" onClick={start} disabled={busy}>
+            {micNeedsAsk ? t("player.micAllow") : t("player.speak")}
+          </Button>
+        )}
+        <button
+          onClick={onContinue}
+          className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+        >
+          {t("player.cannotSpeakNow")}
+        </button>
+      </GuidedDock>
     </div>
   );
 }

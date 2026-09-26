@@ -92,7 +92,7 @@ async function expectAccepted(page: Page) {
     .or(page.getByText(/dia seguidos|day streak|Rodada concluída|Round complete|Vitória|Victory|Novo marco|New milestone|Nova conquista|New achievement/i))
     .first();
   await expect(accepted).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByRole("heading", { name: /Quer tentar de novo|Want to try again/i })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: /Quer tentar de novo|Want to try again|^Quase\.$|^Almost\.$/i })).toHaveCount(0);
 }
 
 async function reach(page: Page, target: Locator, label: string) {
@@ -151,7 +151,7 @@ async function replyInScene(scene: Locator, prompt: string, reply: string) {
   const promptText = scene.getByText(prompt).first();
   const deadline = Date.now() + 30_000;
   while (!(await promptText.isVisible().catch(() => false)) && Date.now() < deadline) {
-    const cta = scene.getByRole("button", { name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i }).first();
+    const cta = scene.or(scene.page().locator("[data-lesson-action-region]")).getByRole("button", { name: /^(Responder|Reply|Continuar|Continue)(?:\s*>)?$/i }).first();
     if (!(await clickIfEnabled(cta, 1_000))) await scene.page().waitForTimeout(200);
   }
   await expect(promptText).toBeVisible();

@@ -113,7 +113,7 @@ const MUTATIONS = {
   ],
   "mobile-information-budget": [
     ["M57. placement volta com 3 pílulas", "PLACEMENT_METADATA_PILLS", src("comecar", '      <div className="mx-auto max-w-2xl text-center">\n        <p className="text-xs font-semibold tabular-nums text-ink-faint" data-testid="placement-question-of">', '      <div className="mx-auto max-w-2xl text-center">\n        <span>{categoryLabel(question.category, t)}</span>\n        <p className="text-xs font-semibold tabular-nums text-ink-faint" data-testid="placement-question-of">')],
-    ["M58. Teste guiado ganha card dentro de card e 2ª CTA", "NESTED_CARDS_OR_CTAS", src("guided", '<main key={step} className="longyu-step-in', '<Card><Card /></Card>\n      <main data-guided-action key={step} className="longyu-step-in')],
+    ["M58. Teste guiado ganha card dentro de card e 2ª CTA", "NESTED_CARDS_OR_CTAS", src("guided", '<main key={step} className={`longyu-step-in', '<Card><Card /></Card>\n      <main data-guided-action key={step} className={`longyu-step-in')],
     ["M59. cadastro volta a 6 campos numa tela", "SIGNUP_TOO_LONG", src("comecar", '          <UsernameField value={username} onChange={onUsername} />\n          <Button type="submit"', '          <UsernameField value={username} onChange={onUsername} />\n          <PasswordField value={password} onChange={(event) => onPassword(event.target.value)} />\n          <Button type="submit"')],
   ],
 };

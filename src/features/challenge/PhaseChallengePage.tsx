@@ -15,8 +15,9 @@ import {
   type PhaseChallengeGrade,
 } from "../../lib/phaseChallenge";
 import { MandarinHelpProvider } from "../../components/hanzi/helpMode";
-import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Button, Card, Pill } from "../../components/ui/primitives";
 import { IconCheck, IconX } from "../../components/ui/Icon";
+import { GUIDED_CLASS, GuidedBottomAction, GuidedProgressHeader } from "../../components/guided/GuidedPrimitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { EXAM_PASS_RATIO, examKindLabel, type ExamQuestion } from "./examBuilder";
@@ -202,12 +203,25 @@ export function PhaseChallengePage() {
     return (
       // K12 — prova: nenhum termo abre glossário, nem por hover nem por toque.
       <MandarinHelpProvider disabled>
-        <div className="mx-auto max-w-xl space-y-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2" data-testid="phase-challenge-exam" data-gloss-lookup="disabled">
-          <div className="flex items-center gap-3 text-sm text-ink-faint">
-            <ProgressBar value={pos + 1} max={questions.length} className="flex-1" />
-            <span className="tabular-nums">{t("phaseChallenge.progress", { n: pos + 1, total: questions.length })}</span>
-          </div>
-          <Card className="p-5 sm:p-8">
+        {/* RC2.2.17B · PART BG/DB — prova no MESMO shell limpo da Jornada:
+            cabeçalho simples, sem card, ação no dock. Sem Dragão, sem ensino. */}
+        <div
+          className="-mx-3 -mt-2 flex min-h-full flex-col sm:-mx-5 sm:-mt-3 lg:-mx-6"
+          data-testid="phase-challenge-exam"
+          data-gloss-lookup="disabled"
+          data-guided-lesson-shell="true"
+          data-guided-assessment="true"
+          data-guidance-level="NONE"
+        >
+          <GuidedProgressHeader
+            onExit={() => {
+              if (typeof window === "undefined" || window.confirm(t("phaseChallenge.leaveConfirm"))) navigate("/jornada");
+            }}
+            exitLabel={t("player.exit")}
+            value={pos + 1}
+            max={questions.length}
+          />
+          <div className={`${GUIDED_CLASS.column} flex flex-1 flex-col justify-center px-4 py-4`} data-guided-step data-lesson-task-body>
             <QuestionStimulus question={question} />
             {question.format === "choice" && (
               <ChoiceQuestionView key={question.id} question={question} answered={answered} onAnswer={answer} revealAnswer={false} />
@@ -221,12 +235,14 @@ export function PhaseChallengePage() {
             {question.format === "match" && (
               <MatchQuestionView key={question.id} question={question} answered={answered} onAnswer={answer} />
             )}
-            {answered && (
-              <Button className="mt-5 w-full" onClick={next} data-testid="phase-challenge-next">
+          </div>
+          {answered && (
+            <GuidedBottomAction className={`sticky bottom-0 ${GUIDED_CLASS.column}`}>
+              <Button size="lg" className="longyu-press-feedback w-full shadow-lift" onClick={next} data-testid="phase-challenge-next">
                 {pos + 1 >= questions.length ? t("phaseChallenge.finish") : t("phaseChallenge.next")}
               </Button>
-            )}
-          </Card>
+            </GuidedBottomAction>
+          )}
         </div>
       </MandarinHelpProvider>
     );

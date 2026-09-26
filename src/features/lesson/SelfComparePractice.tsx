@@ -11,6 +11,7 @@ import {
   nativeStopPracticeRecording,
   hasNativeSpeech,
 } from "../../lib/platform/nativeSpeech";
+import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -54,6 +55,7 @@ export function SelfComparePractice({
   reason?: string | null;
 }) {
   const recordSpeechAttempt = useStore((s) => s.recordSpeechAttempt);
+  const guided = useGuidedPresentation();
   const native = hasNativeSpeech();
   const [phase, setPhase] = useState<Phase>("idle");
   const [webUrl, setWebUrl] = useState<string | null>(null);
@@ -163,7 +165,11 @@ export function SelfComparePractice({
   }
 
   return (
-    <div className="mt-5 rounded-2xl border border-line bg-surface p-4" data-testid="self-compare" data-self-compare-phase={phase}>
+    <div
+      className={guided ? "mt-5" : "mt-5 rounded-2xl border border-line bg-surface p-4"}
+      data-testid="self-compare"
+      data-self-compare-phase={phase}
+    >
       <p className="text-sm font-semibold text-ink">{t("player.selfCompareTitle")}</p>
       {reason && <p className="mt-1 text-xs leading-5 text-ink-soft" data-testid="self-compare-reason">{reason}</p>}
       <div className="mt-3 flex items-center justify-center gap-3">
@@ -173,15 +179,23 @@ export function SelfComparePractice({
         </Button>
       </div>
 
-      {phase === "idle" && (
-        <Button className="mt-4 w-full" size="lg" onClick={() => void startRecording()} data-testid="self-compare-record">
-          {t("player.selfCompareRecord")}
-        </Button>
-      )}
-      {phase === "recording" && (
-        <Button className="mt-4 w-full animate-pulse" size="lg" variant="danger" onClick={() => void stopRecording()} data-testid="self-compare-stop">
-          {t("player.selfCompareStop")}
-        </Button>
+      {(phase === "idle" || phase === "recording") && (
+        <GuidedDock>
+          {phase === "idle" ? (
+            <Button className={guided ? "w-full" : "mt-4 w-full"} size="lg" onClick={() => void startRecording()} data-testid="self-compare-record">
+              {t("player.selfCompareRecord")}
+            </Button>
+          ) : (
+            <Button className={guided ? "w-full animate-pulse" : "mt-4 w-full animate-pulse"} size="lg" variant="danger" onClick={() => void stopRecording()} data-testid="self-compare-stop">
+              {t("player.selfCompareStop")}
+            </Button>
+          )}
+          {guided && phase === "idle" && (
+            <button type="button" onClick={onCannotSpeak} className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink">
+              {t("player.cannotSpeakNow")}
+            </button>
+          )}
+        </GuidedDock>
       )}
       {phase === "recorded" && (
         <div className="mt-4 grid gap-2" data-testid="self-compare-recorded">
@@ -190,12 +204,14 @@ export function SelfComparePractice({
             <Button variant="outline" onClick={playMine} data-testid="self-compare-play-mine">{t("player.selfCompareListenMine")}</Button>
           </div>
           <p className="text-center text-sm text-ink-soft">{t("player.selfCompareHint")}</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" onClick={() => void startRecording()}>{t("player.selfCompareRepeat")}</Button>
-            <Button onClick={onContinue} data-testid="self-compare-continue">
-              {t("player.continue")} <IconChevron width={18} height={18} />
-            </Button>
-          </div>
+          <GuidedDock>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => void startRecording()}>{t("player.selfCompareRepeat")}</Button>
+              <Button onClick={onContinue} data-testid="self-compare-continue">
+                {t("player.continue")} <IconChevron width={18} height={18} />
+              </Button>
+            </div>
+          </GuidedDock>
         </div>
       )}
       {phase === "failed" && (
@@ -207,7 +223,7 @@ export function SelfComparePractice({
       <p className="mt-3 text-center text-[11px] leading-4 text-ink-faint" data-testid="self-compare-privacy">
         {t("player.selfComparePrivacy")}
       </p>
-      {phase !== "recorded" && (
+      {phase !== "recorded" && !(guided && phase === "idle") && (
         <button type="button" onClick={onCannotSpeak} className="mt-2 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink">
           {t("player.cannotSpeakNow")}
         </button>

@@ -618,6 +618,11 @@ export const ptBR = {
   },
   player: {
     speechPermissionNeeded: "O microfone está bloqueado. Libere nos ajustes do Android para falar; por enquanto, ouça o modelo e siga.",
+    guidedAlmost: "Quase.",
+    youLearned: "Você aprendeu",
+    guidedNowYou: "Agora tente você.",
+    guidedListenTitle: "Ouça a frase.",
+    guidedStart: "Começar",
     guidedPrepare: "Hoje: {title}. Vamos por partes.",
     guidedBridgeNihao: "Você já usou 你好 no início. Agora vamos transformar isso em algo que você reconhece sozinho.",
     selfCompareTitle: "Fale e compare com o modelo",

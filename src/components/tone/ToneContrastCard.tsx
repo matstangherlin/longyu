@@ -74,9 +74,12 @@ function Member({
 export function ToneContrastCard({
   set,
   locale = "pt-BR",
+  flat = false,
 }: {
   set: ToneContrastSet;
   locale?: "pt-BR" | "en";
+  /** RC2.2.17B · PART F — no shell guiado, sem moldura externa (sem card-em-card). */
+  flat?: boolean;
 }) {
   const timersRef = useRef<number[]>([]);
 
@@ -109,13 +112,16 @@ export function ToneContrastCard({
 
   return (
     <section
-      className="rounded-[22px] border border-accent-soft bg-surface-2 p-4"
+      className={flat ? "" : "rounded-[22px] border border-accent-soft bg-surface-2 p-4"}
       data-tone-contrast-set={set.id}
       data-tone-contrast-base={set.baseSyllable}
+      data-tone-contrast-flat={flat ? "true" : undefined}
     >
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
-        {locale === "en" ? "Same syllable, different tone" : "Mesma sílaba, outro tom"}
-      </div>
+      {!flat && (
+        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
+          {locale === "en" ? "Same syllable, different tone" : "Mesma sílaba, outro tom"}
+        </div>
+      )}
       <div className="mt-3 flex items-stretch gap-2">
         <Member member={set.a} locale={locale} onPlay={() => play(set.a.audioTarget)} />
         <div className="flex shrink-0 items-center text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">

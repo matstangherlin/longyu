@@ -400,6 +400,34 @@ export const RC2_2_18_PROGRESSIVE_DISCOVERY_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.17B — exceção controlada de APRESENTAÇÃO: a Jornada passa a usar o
+ * GuidedLessonShell (tela cheia, cabeçalho simples, sem o Card antigo, uma
+ * ação principal no dock, PREPARE como micro-passo visual, micro-páginas de
+ * ensino). O motor é o mesmo LessonPlayer/StepRenderer. Nenhuma lição, ordem,
+ * tópico, StepKind, resposta, referência de domínio, SRS ou XP muda; o
+ * fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_17B_GUIDED_JOURNEY_PARITY_EXCEPTION = {
+  id: "RC2_2_17B_GUIDED_JOURNEY_PARITY",
+  scope: "Journey lesson presentation parity with the Guided Try (shell, header, viewport, action dock, presentation-only stages)",
+  areas: [
+    "GuidedLessonShell / GuidedLessonHeader / GuidedStepSurface / GuidedLessonActionDock",
+    "STEP_PRESENTATION_CONTRACTS (layout, actionPlacement, alignment, scroll, feedback, interaction)",
+    "PREPARE presentation stage and teach micro-pages (presentation only)",
+    "shared guided primitives with GuidedTryPage",
+    "compact error sheet in the initial flow; phase challenge exam in the same shell",
+  ],
+  forbids: [
+    "LessonEngineV2 or a second StepRenderer",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "answer keys or mastery refs changed for layout",
+    "presentation stage counting as step, XP, mastery, task or SRS",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-17b-guided-journey-parity",
+} as const;
+
+/**
  * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
  * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
  * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).

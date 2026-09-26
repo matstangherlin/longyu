@@ -17,7 +17,7 @@ type TraceEntry = { lessonId: string; stepIndex: number; kind: string; attempt: 
 
 const CONTINUE_LIKE = /^(Entendi|Got it|Continuar|Continue|Concluir|Finish|Percebi a curva|I noticed the contour|Próximo|Next)(?:\s*>)?$/i;
 const SUBMIT = /^(Verificar|Check|Confirmar|Confirm|Conferir|Responder|Reply)(?:\s*>)?$/i;
-const RETRY_MODAL = /Quer tentar de novo\?|Want to try again\?/;
+const RETRY_MODAL = /Quer tentar de novo\?|Want to try again\?|^Quase\.$|^Almost\.$/;
 
 async function trace(page: Page): Promise<TraceEntry[]> {
   return page.evaluate(() => (window as unknown as { __longyuLessonTrace?: TraceEntry[] }).__longyuLessonTrace ?? []);
