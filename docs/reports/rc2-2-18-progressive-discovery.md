@@ -47,7 +47,7 @@ A spec pede executar depois do #290 mergeado **ou** com base definida pelo owner
 | Liga | Não | 3 lições concluídas ou já entrou na liga | anúncio (XP de estudo; Pro não muda ranking) | Sim | SOFT | Mais |
 | Loja | Não | 1º Qi/Pérola recebido ou gasto | anúncio "Você recebeu Qi" (nunca abre a Loja) | Sim | SOFT | Mais; chip de Qi na TopBar |
 | Imersão | Não | 1ª conversa guiada + 8 chunks (mesmo corte do nó de prontidão) | anúncio "conversa mais livre" | Sim | **Não** (HARD) | sheet Praticar |
-| Desafio de fase | Não | existe próxima fase válida E já há lição concluída | — | — | **Não** (HARD) | só na Jornada |
+| Desafio de fase | Não | existe próxima fase válida E já há lição concluída | — | — | a própria página do desafio valida (alvo, marco cultural, cooldown, custo; Pro não fura) — SOFT | botão só na Jornada, nunca desde o onboarding |
 
 `PREVIEW` ("perto do desbloqueio") aparece **só** em Mais › "Depois", no máximo 2 itens, com "🔒 Continue sua Jornada para descobrir." — nada de parede de cadeados (PART AN/AO).
 

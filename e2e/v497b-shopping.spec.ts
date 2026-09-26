@@ -4,6 +4,7 @@ import {
   seedUnlockedLessonSession,
   seedMissionsSession,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
@@ -129,7 +130,7 @@ test.describe("V4.9.7B shopping survival", () => {
 
   test("digital-pay lesson completes with stars without lexical SRS", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/digital-pay");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -147,7 +148,7 @@ test.describe("V4.9.7B shopping survival", () => {
 
   test("bargaining lesson teaches, uses standard tasks, and awards stars", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/bargaining-context");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

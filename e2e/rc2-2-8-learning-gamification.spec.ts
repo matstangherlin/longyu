@@ -6,8 +6,10 @@ import {
   seedInterfaceLocale,
   seedTelemetryDeclined,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import { ALL_LESSONS } from "../src/data/journey";
+import { ACHIEVEMENTS } from "../src/data/achievements";
 
 /**
  * RC2.2.8 — Learning Experience & Gamification Core (P1–P9).
@@ -129,6 +131,9 @@ test.describe("RC2.2.8 — P3 prova sem consulta", () => {
 test.describe("RC2.2.8 — P4 ofensiva sem spam", () => {
   const brokenState = () => ({
     holdAchievementModals: false,
+    // RC2.2.18 · DQ — medalha e recuperação de ofensiva não empilham: sem
+    // medalha pendente no seed, o aviso de recuperação é a única cerimônia.
+    achievementsUnlocked: Object.fromEntries(ACHIEVEMENTS.map((achievement) => [achievement.id, Date.now()])),
     streak: 9,
     longestStreak: 9,
     lastStudyDate: localDay(-2),
@@ -368,7 +373,7 @@ test.describe("RC2.2.8 — A Cultura com o dragão", () => {
   });
 
   test("Hub: o dragão fala na primeira visita e fica quieto ao trocar filtro", async ({ page }) => {
-    await seed(page, {}, { once: true });
+    await seed(page, { completedLessons: CULTURE_DISCOVERED_LESSONS }, { once: true });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     const guide = page.getByTestId("culture-hub-guide");

@@ -14,6 +14,27 @@ function allAchievementsUnlocked(): Record<string, number> {
   return Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, now]));
 }
 
+/**
+ * RC2.2.18 — conta "madura" para os testes de ESTRUTURA da navegação: já
+ * descobriu Cultura (l2), Hànzì/Atlas (caracteres), economia (Qi), Revisão
+ * (item no SRS) e Imersão (conversa + repertório). A descoberta progressiva
+ * em si é coberta abaixo e em rc2-2-18-progressive-discovery.spec.ts.
+ */
+function matureState(extra: SeedState = {}): SeedState {
+  const now = Date.now();
+  return {
+    completedLessons: ["l1", "l2", "l1-rev"],
+    learnedChars: ["你", "好", "我", "是", "中", "国", "人", "大", "小"],
+    learnedChunks: ["nihao", "xiexie", "zaijian", "wo", "ni", "hao", "shi", "bu", "ma"],
+    recentConversationSceneIds: ["primeiro-cumprimento"],
+    points: 40,
+    srs: {
+      "chunk:nihao": { id: "chunk:nihao", type: "chunk", itemId: "nihao", ease: 2.5, intervalDays: 1, due: now - 1000, reps: 1, lapses: 0, createdAt: now - 86_400_000 },
+    },
+    ...extra,
+  };
+}
+
 /** Semeia um estado de conta arbitrário antes do primeiro load. */
 async function seedStage(page: Page, state: SeedState) {
   await seedTelemetryDeclined(page);
@@ -60,15 +81,14 @@ async function bottomTabLabels(page: Page): Promise<string[]> {
 test.describe("navegação progressiva — mobile", () => {
   test.use({ viewport: { width: 360, height: 640 } });
 
-  test("usuário novo já vê a navegação completa na barra", async ({ page }) => {
+  test("usuário novo vê só Jornada · Praticar · Mais (RC2.2.18)", async ({ page }) => {
     await seedStage(page, { completedLessons: [] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
-    expect(labels.length).toBeLessThanOrEqual(5);
-    expect(labels).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Praticar", "Mais"]);
 
     // Sem overflow horizontal.
     const overflow = await page.evaluate(
@@ -77,7 +97,7 @@ test.describe("navegação progressiva — mobile", () => {
     expect(overflow).toBeLessThanOrEqual(2);
   });
 
-  test("após liberar o Treino, a barra continua completa", async ({ page }) => {
+  test("depois do primeiro nó de Cultura, a barra fica completa e na ordem final", async ({ page }) => {
     await seedStage(page, { completedLessons: ["l1", "l2", "l1-rev"] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
@@ -102,11 +122,10 @@ test.describe("navegação progressiva — mobile", () => {
   });
 
   test("toque em Praticar/Mais abre sheet com atalhos; Perfil pelo avatar (RC2.2.13)", async ({ page }) => {
-    await seedStage(page, {
-      completedLessons: ["l1", "l2", "l1-rev"],
+    await seedStage(page, matureState({
       streak: 5,
       medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
-    });
+    }));
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
 
@@ -138,87 +157,92 @@ test.describe("navegação progressiva — mobile", () => {
     await expect(moreSheet.getByRole("link", { name: "Cultura" })).toHaveCount(0);
   });
 
-  test("rota direta funciona mesmo quando não está na barra do estágio", async ({ page }) => {
+  test("RC2.2.18 · S/T — sheet Praticar da conta nova não tem modo vazio", async ({ page }) => {
+    await seedStage(page, { completedLessons: ["l1"] });
+    await page.goto("/jornada");
+    await dismissBlockingOverlays(page);
+    const tabBar = page.locator("nav.fixed").first();
+    await tabBar.getByRole("button", { name: /^Praticar$/i }).click();
+    const practiceSheet = page.getByRole("dialog", { name: "Praticar" });
+    await expect(practiceSheet).toBeVisible();
+    await expect(practiceSheet.getByRole("link", { name: "Revisão" })).toHaveCount(0);
+    await expect(practiceSheet.getByRole("link", { name: "Hànzì" })).toHaveCount(0);
+    await expect(practiceSheet.getByRole("link", { name: "Imersão" })).toHaveCount(0);
+  });
+
+  test("rota direta de área SOFT abre a própria página mesmo fora da barra", async ({ page }) => {
     await seedStage(page, { completedLessons: [] });
-    // Loja não aparece na barra do usuário novo, mas o deep link precisa abrir.
+    // Loja não aparece para o usuário novo, mas o deep link abre (SOFT).
     await page.goto("/loja");
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("[data-feature-unavailable]")).toHaveCount(0);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     );
     expect(overflow).toBeLessThanOrEqual(2);
   });
 
-  test("menu Mais lista tudo agrupado por objetivo", async ({ page }) => {
-    await seedStage(page, { completedLessons: ["l1"] });
+  test("menu Mais agrupa por objetivo e mostra no máximo 2 próximos (sem parede de cadeados)", async ({ page }) => {
+    await seedStage(page, { completedLessons: ["l1"], learnedChars: ["你"] });
     await page.goto("/mais");
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { level: 2, name: "Aprender" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "Motivação" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "Conta" })).toBeVisible();
-    // Área bloqueada por progressão aparece com marca "Depois" (explicada, não escondida).
-    await expect(page.getByText("Depois").first()).toBeVisible();
+    // RC2.2.18 · AN/AO — perto do desbloqueio: seção "Depois" discreta, ≤ 2 itens.
+    const upcoming = page.getByRole("heading", { level: 2, name: "Depois" });
+    await expect(upcoming).toBeVisible();
+    await expect(page.getByText("Continue sua Jornada para descobrir.")).toHaveCount(1);
+    await expect(page.getByText("🔒")).toHaveCount(1);
   });
 });
 
 test.describe("descoberta progressiva de recursos", () => {
   test.use({ viewport: { width: 360, height: 640 } });
 
-  test("anuncia área recém-liberada uma vez e não repete após dispensar", async ({ page }) => {
+  test("anuncia a área recém-liberada uma vez e não repete após dispensar", async ({ page }) => {
     test.slow();
     await establishOrigin(page);
+    await page.evaluate(() => localStorage.setItem("longyu:e2e-guidance", "on"));
 
-    // 1) Usuário novo: inicializa a memória de dicas, sem enxurrada.
-    await setStore(page, { completedLessons: ["l1"] });
+    // 1) Conta com boas-vindas já vistas, primeira lição concluída.
+    await setStore(page, {
+      completedLessons: ["p1-o-que-e-mandarim"],
+      guidance: { enabled: true, initialized: true, records: { welcome_journey_v1: { status: "SEEN", at: 1 } } },
+    });
     await page.goto("/jornada");
+    const reveal = page.locator('[data-guidance-id="new_features_v1"]');
+    await expect(reveal).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("[data-guidance-surface]")).toHaveCount(1);
+
+    // 2) Entendi → não reaparece após recarregar.
+    await reveal.getByRole("button", { name: "Entendi" }).click();
+    await page.reload();
     await dismissBlockingOverlays(page);
-    await expect(page.getByText("Você liberou o Treino")).toHaveCount(0);
-    // Estado determinístico: "memória de anúncios" inicializada, mas sem
-    // marcar o Treino como visto. Evita herdar ruído de seeds/migrações.
-    await page.evaluate(() => localStorage.setItem("longyu:seen-intros", JSON.stringify(["__init__"])));
-
-    // 2) Progride no mesmo aparelho → anuncia o Treino.
-    await setStore(page, { completedLessons: ["l1", "l2", "l1-rev"] });
-    await page.goto("/jornada");
-    // Medalha de "3 lições" pode cobrir o card no WebKit — drena antes de assertar.
-    for (let i = 0; i < 8; i += 1) {
-      await dismissBlockingOverlays(page);
-      if ((await page.locator('[role="dialog"][aria-modal="true"]').count()) === 0) break;
-      await page.waitForTimeout(150);
-    }
-    const card = page.getByText("Você liberou o Treino");
-    await expect(card).toBeVisible({ timeout: 10_000 });
-
-    // 3) Dispensa ("Depois") → não reaparece após recarregar.
-    for (let i = 0; i < 6; i += 1) {
-      await dismissBlockingOverlays(page);
-      if ((await page.getByRole("dialog").count()) === 0) break;
-      await page.waitForTimeout(200);
-    }
-    const depois = page.getByRole("button", { name: "Depois" });
-    await expect(depois).toBeVisible();
-    await depois.click();
-    await page.goto("/jornada");
-    await dismissBlockingOverlays(page);
-    await expect(page.getByText("Você liberou o Treino")).toHaveCount(0);
+    await page.waitForTimeout(1_200);
+    await expect(page.locator("[data-guidance-surface]")).toHaveCount(0);
   });
 
   test("usuário antigo não recebe enxurrada de anúncios após a atualização", async ({ page }) => {
-    // Primeiro acesso já em estágio avançado (Hànzì liberado): nada é anunciado.
+    // Primeiro acesso já em estágio avançado, sem estado de dicas: a semente
+    // marca como visto tudo o que ele já usa.
     await seedStage(page, {
       completedLessons: ["l1", "l2", "l1-rev", "l2-rev", "l3", "l4", "l5", "l5-rev"],
+      learnedChars: ["你", "好", "我", "是"],
     });
+    await page.addInitScript(() => localStorage.setItem("longyu:e2e-guidance", "on"));
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    await expect(page.getByText(/Você liberou/)).toHaveCount(0);
+    await page.waitForTimeout(1_500);
+    await expect(page.locator('[data-guidance-surface="reveal"]')).toHaveCount(0);
   });
 });
 
 test.describe("navegação progressiva — desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test("sidebar completa desde o início, sem esconder destinos por estágio", async ({ page }) => {
+  test("sidebar mínima no início, completa depois — sempre na mesma ordem", async ({ page }) => {
     test.slow();
     await establishOrigin(page);
     await setStore(page, { completedLessons: [] });
@@ -228,10 +252,9 @@ test.describe("navegação progressiva — desktop", () => {
     const earlyLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
     expect(earlyLabels).toContain("Jornada");
     expect(earlyLabels).toContain("Praticar");
-    expect(earlyLabels).toContain("Revisão");
-    expect(earlyLabels).toContain("Cultura");
-    expect(earlyLabels).toContain("Missões");
     expect(earlyLabels).toContain("Perfil");
+    // RC2.2.18 — conta nova: nada de Cultura, Missões, Liga, Loja ou Revisão vazia.
+    for (const label of ["Revisão", "Cultura", "Missões", "Ligas", "Loja"]) expect(earlyLabels).not.toContain(label);
     // Hànzì e Imersão não poluem a barra principal — ficam no hover de Praticar.
     expect(earlyLabels).not.toContain("Hànzì");
     expect(earlyLabels).not.toContain("Imersão");
@@ -249,6 +272,14 @@ test.describe("navegação progressiva — desktop", () => {
       els.map((el) => el.getBoundingClientRect().height)
     );
     expect(heights.every((h) => h >= 44)).toBe(true);
+
+    // Conta madura: a sidebar completa, na ordem canônica.
+    await setStore(page, matureState({ leagueJoinedAt: Date.now() }));
+    await page.goto("/jornada");
+    await dismissBlockingOverlays(page);
+    const matureLabels = (await sidebar.getByRole("link").allInnerTexts()).map((t) => t.trim());
+    const order = ["Jornada", "Praticar", "Revisão", "Cultura", "Missões", "Ligas", "Loja", "Perfil"];
+    expect(matureLabels.filter((label) => order.includes(label))).toEqual(order);
   });
 
   test("Mais abre popover curto no hover, só com atalhos de sistema", async ({ page }) => {
@@ -278,11 +309,10 @@ test.describe("navegação progressiva — desktop", () => {
   test("hover em Praticar mostra Hànzì e Pinyin Lab; Perfil mostra Amigos; Loja na barra", async ({
     page,
   }) => {
-    await seedStage(page, {
-      completedLessons: ["l1", "l2", "l1-rev"],
+    await seedStage(page, matureState({
       streak: 5,
       medals: [{ id: "2026-07", label: "Julho", emoji: "🏅", earnedAt: Date.now() }],
-    });
+    }));
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
 

@@ -216,7 +216,9 @@ export const FEATURE_AVAILABILITY: Readonly<Record<DiscoveryFeatureId, FeatureDe
     route: "/teste/fase",
     routes: ["/teste/fase"],
     navigationPlacement: "journey",
-    lockedBehavior: "HARD",
+    // A própria página do desafio é o portão (alvo válido, marco cultural,
+    // cooldown, custo) — um segundo portão aqui só duplicaria a regra.
+    lockedBehavior: "SOFT",
     unlockGuidanceId: null,
     firstUseGuidanceId: null,
     unlockEvidence: "a next phase that is valid to challenge",

@@ -195,7 +195,7 @@ export const routes: RouteObject[] = [
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },
       { path: "teste/:unitId", element: <ModuleChallengePage /> },
-      { path: "teste/fase/:phaseId", element: <FeatureRouteGate><PhaseChallengePage /></FeatureRouteGate> },
+      { path: "teste/fase/:phaseId", element: <PhaseChallengePage /> },
     ],
   },
   { path: "*", element: <NotFoundPage /> },

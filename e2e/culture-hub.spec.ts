@@ -7,6 +7,7 @@ import {
   seedMissionsSession,
   seedUnlockedLessonSession,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import { advanceUntilVisible } from "./lesson-player-helpers";
 import {
@@ -20,7 +21,7 @@ import {
 test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
   test("hub shows next mission, plays the canonical lesson, and persists", async ({ page }) => {
     test.setTimeout(120_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -86,7 +87,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
   test("PT-BR and EN catalogs render without crashing", async ({ page }) => {
     await seedInterfaceLocale(page, "pt-BR");
     await seedInstructionLocale(page, "pt-BR");
-    await seedOnboardedSession(page, ["l1"]);
+    await seedOnboardedSession(page, CULTURE_DISCOVERED_LESSONS);
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -106,7 +107,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
   });
 
   test("invalid culture id does not crash the route", async ({ page }) => {
-    await seedOnboardedSession(page, ["l1"]);
+    await seedOnboardedSession(page, CULTURE_DISCOVERED_LESSONS);
     await page.goto("/cultura/this-item-does-not-exist");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -152,6 +153,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     test.setTimeout(90_000);
     const due = Date.now() - 60_000;
     await seedMissionsSession(page, {
+      completedLessons: CULTURE_DISCOVERED_LESSONS,
       isPremium: true,
       serverIsPro: true,
       folego: 20,
@@ -194,7 +196,7 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
 test.describe("V4.9.8A.1 Culture teaching loop", () => {
   test("teaches before the first task", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/host-insistence");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -208,6 +210,7 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
 
   test("skips teach screens when the Journey already practiced the concept", async ({ page }) => {
     await seedMissionsSession(page, {
+      completedLessons: CULTURE_DISCOVERED_LESSONS,
       isPremium: true,
       serverIsPro: true,
       folego: 20,
@@ -249,6 +252,7 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
 
   test("Culture Hub marks a concept seen on the Journey", async ({ page }) => {
     await seedMissionsSession(page, {
+      completedLessons: CULTURE_DISCOVERED_LESSONS,
       cultureKnowledgeById: {
         "shared-dishes-core": {
           conceptId: "shared-dishes-core",
@@ -271,7 +275,7 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
 test.describe("V4.11A.2 Culture Atlas Hub", () => {
   test("collections, festivals shelf, and secondary topic filters", async ({ page }) => {
     test.setTimeout(120_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -321,7 +325,7 @@ test.describe("V4.11A.2 Culture Atlas Hub", () => {
 
   test("hub-only Journey to the West and Chinese Dragon lesson", async ({ page }) => {
     test.setTimeout(180_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
 
     await page.goto("/cultura/journey-to-the-west");
     await waitForLazyPage(page);
@@ -344,7 +348,7 @@ test.describe("V4.11A.2 Culture Atlas Hub", () => {
 test.describe("V4.11A.3 China History Essentials", () => {
   test("History shelf has 6 items; Wukong/Dragon stay out of History", async ({ page }) => {
     test.setTimeout(180_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -398,6 +402,7 @@ test.describe("V4.11A.3 China History Essentials", () => {
     test.setTimeout(90_000);
     const due = Date.now() - 60_000;
     await seedMissionsSession(page, {
+      completedLessons: CULTURE_DISCOVERED_LESSONS,
       isPremium: true,
       serverIsPro: true,
       folego: 20,
@@ -434,7 +439,7 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("hub and LessonPlayer CTA are tappable at 390×844", async ({ page }) => {
-    await seedOnboardedSession(page, ["l1"]);
+    await seedOnboardedSession(page, CULTURE_DISCOVERED_LESSONS);
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -458,7 +463,7 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
   });
 
   test("History timeline is vertical without horizontal scroll at 390×844", async ({ page }) => {
-    await seedOnboardedSession(page, ["l1"]);
+    await seedOnboardedSession(page, CULTURE_DISCOVERED_LESSONS);
     await page.goto("/cultura/colecao/china_history");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

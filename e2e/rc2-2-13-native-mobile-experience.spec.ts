@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { allowE2ELocalSession, dismissBlockingOverlays, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
+import { IMMERSION_DISCOVERED_STATE, allowE2ELocalSession, dismissBlockingOverlays, matureDiscoveryState, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 
 /**
  * RC2.2.13 — Android Native UX (parte verificável no navegador).
@@ -73,7 +73,8 @@ test.describe("RC2.2.13 — navegação mobile", () => {
 
   test("sheet Praticar: 2 colunas, ordem fixa, alvos ≥ 48px", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
-    await seed(page);
+    // RC2.2.18 — sheet completo = conta que já descobriu Revisão, Hànzì e Imersão.
+    await seed(page, matureDiscoveryState());
     await open(page, "/jornada");
     await tabBar(page).getByRole("button", { name: "Praticar" }).click();
     const sheet = page.getByRole("dialog", { name: "Praticar" });
@@ -206,7 +207,7 @@ test.describe("RC2.2.13 — densidade mobile", () => {
 
   test("Imersão compacta", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
-    await seed(page);
+    await seed(page, IMMERSION_DISCOVERED_STATE);
     await open(page, "/imersao");
     await expect(page.getByTestId("immersion-hub")).toHaveAttribute("data-hub-density", "compact");
     await noHorizontalOverflow(page);

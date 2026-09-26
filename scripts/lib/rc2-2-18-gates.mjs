@@ -480,13 +480,13 @@ export async function validateNavigationDisclosure(s) {
     if (merged.culture !== "AVAILABLE") fail("FEATURE_RELOCKS_DURING_SYNC", "mergeStickyVisibility", "última disponibilidade confirmada vence o vazio momentâneo");
     // AP/AQ — deep link: HARD bloqueia com página; SOFT abre a própria página.
     const blank = registry.featureVisibilityMap(registry.EMPTY_DISCOVERY_STATE);
-    for (const route of ["/cultura", "/cultura/greetings-nihao", "/imersao", "/teste/fase/p2"])
+    for (const route of ["/cultura", "/cultura/greetings-nihao", "/imersao"])
       if (!registry.routeAccess(route, blank).blocked) fail("DEEP_LINK_BYPASS", `routeAccess(${route})`, "URL manual não pula desbloqueio pedagógico");
   } catch (error) {
     fail("REGISTRY_NOT_EXECUTABLE", FILES.registry, String(error?.message ?? error).slice(0, 200));
   }
   const routes = stripComments(s.src.routes);
-  for (const path of ["cultura", "cultura/revisao", "cultura/colecao/:collectionId", "cultura/:id", "imersao", "teste/fase/:phaseId"])
+  for (const path of ["cultura", "cultura/revisao", "cultura/colecao/:collectionId", "cultura/:id", "imersao"])
     if (!new RegExp(`path: "${path.replace(/[/:]/g, (c) => `\\${c}`)}", element: <FeatureRouteGate>`).test(routes))
       fail("DEEP_LINK_BYPASS", `routes.tsx ${path}`, "rota de área HARD passa pelo FeatureRouteGate");
   const gate = stripComments(s.src.routeGate);

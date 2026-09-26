@@ -87,7 +87,9 @@ async function expectAccepted(page: Page) {
   const accepted = page
     .getByRole("status")
     .filter({ hasText: /Boa! \+Qi|Nice! \+Qi|Certo|Correct/ })
-    .or(page.getByText(/dia seguidos|day streak|Rodada concluída|Round complete|Vitória|Victory/i))
+    // RC2.2.18 · DQ — no fim da rodada as cerimônias não empilham: a medalha
+    // ("Novo marco") pode vir antes da ofensiva; qualquer uma prova o acerto.
+    .or(page.getByText(/dia seguidos|day streak|Rodada concluída|Round complete|Vitória|Victory|Novo marco|New milestone|Nova conquista|New achievement/i))
     .first();
   await expect(accepted).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("heading", { name: /Quer tentar de novo|Want to try again/i })).toHaveCount(0);
