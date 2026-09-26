@@ -25,8 +25,17 @@ export async function clickFirstVisible(page: Page, names: RegExp[]) {
 
 /** Content-skip card or listen-imitate without SpeechRecognition — Continuar, not Pular. */
 export async function continueIfSkipCardOrListenImitate(page: Page): Promise<boolean> {
+  // RC2.2.17B — "Ouça a frase" guiado: o Continuar só libera com áudio real;
+  // sem voz no navegador de teste, sai por "Continuar sem áudio" ou "Não posso ouvir agora".
+  if (await page.locator('[data-guided-listen-stage="listen"]').first().isVisible().catch(() => false)) {
+    return clickFirstVisible(page, [
+      /^Continuar sem áudio$|^Continue without audio$/,
+      /^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/,
+      /Não posso ouvir agora|I can't listen now/,
+    ]);
+  }
   const visible = await page
-    .getByText(/Ouça e imite|Listen and imitate|Exercício pulado|Skipped exercise|Voz não disponível|Voice isn't available/i)
+    .getByText(/Ouça e imite|Listen and imitate|Agora tente você|Now you try|Exercício pulado|Skipped exercise|Voz não disponível|Voice isn't available/i)
     .first()
     .isVisible()
     .catch(() => false);
@@ -72,9 +81,13 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
     }
   }
 
-  const cta = scene.getByRole("button", {
+  // RC2.2.17B — no shell guiado o avanço da fala mora no dock, fora da cena.
+  const sceneCta = scene.getByRole("button", {
     name: /^(Responder|Reply|Continuar|Continue|Concluir|Finish)(?:\s*>)?$/i,
   }).first();
+  const cta = (await sceneCta.isVisible().catch(() => false))
+    ? sceneCta
+    : page.locator("[data-lesson-action-region]").getByTestId("conversation-advance").first();
   if (!(await cta.isVisible().catch(() => false))) return false;
   await cta.scrollIntoViewIfNeeded().catch(() => undefined);
   if (await clickIfEnabled(cta, 2_000)) return true;

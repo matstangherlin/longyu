@@ -1,0 +1,15 @@
+<!--
+  RC2.2.19 — modelo de e-mail "Reset Password" com CÓDIGO de 6 dígitos.
+  NÃO é aplicado automaticamente. O owner cola este conteúdo em
+  Supabase Dashboard › Authentication › Emails › Reset Password.
+  Ver docs/release/rc2-2-19-recovery-template.md.
+  Variáveis: {{ .Token }} = código de 6 dígitos (OTP de recuperação);
+  {{ .ConfirmationURL }} = link equivalente (continua funcionando).
+-->
+<h2>Redefinir sua senha do Longyu</h2>
+<p>Use este código no app para criar uma nova senha:</p>
+<p style="font-size:28px;font-weight:700;letter-spacing:6px;font-family:monospace">{{ .Token }}</p>
+<p>O código vale por pouco tempo. Se você não pediu, ignore este e-mail — sua senha continua a mesma.</p>
+<p>Se preferir, toque no link: <a href="{{ .ConfirmationURL }}">redefinir senha</a>.</p>
+<hr>
+<p lang="en">Longyu password reset code: <strong>{{ .Token }}</strong>. If you didn't ask for it, ignore this email.</p>

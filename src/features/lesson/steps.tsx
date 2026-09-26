@@ -12,7 +12,8 @@ import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
-import { speak, scheduleAutoSpeak } from "../../lib/tts";
+import { speak, scheduleAutoSpeak, refreshNativeTtsStatus } from "../../lib/tts";
+import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
   personalizeConversationPrompt,
@@ -85,6 +86,10 @@ import { noteToneHintUse } from "../../lib/lessonSessionMetrics";
 import { StepImageChoice } from "./StepImageChoice";
 import { FreeAnswerField } from "./FreeAnswerField";
 import { StepCompareWithImage } from "./StepCompareWithImage";
+import { GuidedDock, InGuidedDockContext, useGuidedPresentation, useInGuidedDock } from "./GuidedLessonShell";
+import { GuidedAudioButton } from "../../components/guided/GuidedPrimitives";
+import { splitTeachPages } from "../../lib/guidedPresentation";
+import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
 import { MAP_DIRECTION_LABELS, type MapDirectionAction } from "../../data/chinaReal";
@@ -172,7 +177,11 @@ function StickyActionBar({
     </div>
   );
 
-  return <LessonActionPortal>{content}</LessonActionPortal>;
+  return (
+    <InGuidedDockContext.Provider value>
+      <LessonActionPortal>{content}</LessonActionPortal>
+    </InGuidedDockContext.Provider>
+  );
 }
 
 function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }) {
@@ -195,7 +204,18 @@ function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }
 }
 
 function SkipStepButton({ onSkip, className = "mt-3" }: { onSkip?: () => void; className?: string }) {
+  const guided = useGuidedPresentation();
+  const inDock = useInGuidedDock();
   if (!onSkip) return null;
+  // RC2.2.17B — no shell guiado, "Pular" é ação secundária do dock (nunca
+  // um botão solto no meio do passo). Dentro de um dock já portado, fica ali.
+  if (guided && !inDock) {
+    return (
+      <GuidedDock>
+        <SkipStepButton onSkip={onSkip} className="" />
+      </GuidedDock>
+    );
+  }
   return (
     <button
       type="button"
@@ -543,15 +563,24 @@ function StepIntro({ step, onDone }: StepProps) {
   const contrastSet = step.toneContrastSetId
     ? TONE_CONTRAST_SET_BY_ID.get(step.toneContrastSetId)
     : undefined;
+  const guided = useGuidedPresentation();
   const guideMessages = guideMessagesFromExistingBody(step.body);
   const useGuide = guideMessages.length > 0;
+  // RC2.2.17B · PART AM–AQ — no shell guiado, fala longa vira micro-páginas
+  // (só apresentação): o passo continua um só e `onDone` sai na última.
+  const pages = guided ? splitTeachPages(guideMessages) : guideMessages;
   return (
-    <div data-testid={speaker || canSpeak ? "culture-story-beat" : undefined}>
-      <Eyebrow>{speaker || t("player.understand")}</Eyebrow>
-      <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">{step.title}</h2>
+    <div
+      data-testid={speaker || canSpeak ? "culture-story-beat" : undefined}
+      data-guided-teach={guided ? "true" : undefined}
+      data-teach-pages={guided ? pages.length : undefined}
+    >
+      {/* PART CN — no shell guiado, a pílula "Entender" sai; só o narrador da cena fica. */}
+      {!guided || speaker ? <Eyebrow>{speaker || t("player.understand")}</Eyebrow> : null}
+      <h2 className={guided ? "font-serif text-xl font-semibold text-ink sm:text-2xl" : "mt-2 font-serif text-lg font-semibold sm:text-xl text-ink"}>{step.title}</h2>
       {contrastSet ? (
         <div className="mt-4">
-          <ToneContrastCard set={contrastSet} locale={getInstructionLocale() === "en" ? "en" : "pt-BR"} />
+          <ToneContrastCard set={contrastSet} locale={getInstructionLocale() === "en" ? "en" : "pt-BR"} flat={guided} />
         </div>
       ) : null}
       {canSpeak ? (
@@ -571,9 +600,11 @@ function StepIntro({ step, onDone }: StepProps) {
       {useGuide ? (
         <div className="mt-4">
           <GuideDialogue
-            messages={guideMessages}
+            messages={pages}
             onComplete={() => onDone()}
             size={canSpeak ? "compact" : "default"}
+            layout={guided ? "guided" : "default"}
+            renderAction={guided ? (action) => <StickyActionBar>{action}</StickyActionBar> : undefined}
             continueLabel={t("player.gotIt")}
             // RC2.2.11 — Cultura: Hànzì citado pelo dragão é consultável.
             gloss={step.pedagogicalEvidence?.domain === "culture"}
@@ -589,7 +620,153 @@ function StepIntro({ step, onDone }: StepProps) {
   );
 }
 
-function StepListen({ step, onDone }: StepProps) {
+function StepListen(props: StepProps) {
+  const guided = useGuidedPresentation();
+  return guided ? <GuidedStepListen {...props} /> : <LegacyStepListen {...props} />;
+}
+
+type GuidedListenState = "IDLE" | "STARTING" | "PLAYING" | "HEARD" | "FAILED" | "UNAVAILABLE";
+
+/** Mesmo fluxo do Teste guiado: abre a instalação da voz e revalida ao voltar. */
+async function installMandarinVoice() {
+  await installNativeTtsData();
+  const refresh = () => {
+    document.removeEventListener("visibilitychange", refresh);
+    void refreshNativeTtsStatus();
+  };
+  document.addEventListener("visibilitychange", refresh);
+}
+
+/**
+ * RC2.2.17B · PART T/U/BR — "Ouça a frase" como no Teste guiado: botão
+ * grande; o texto só aparece quando o MOTOR confirma que o áudio começou
+ * (clique ≠ ouviu) ou quando falhou — nesse caso a falha fica visível e o
+ * aluno segue explicitamente sem áudio. Depois, na MESMA etapa curricular,
+ * a micro-página de fala: modelo → Falar → retorno → Continuar. `onDone` só
+ * na última micro-página (PART AQ).
+ */
+function GuidedStepListen({ step, onDone }: StepProps) {
+  const { t: tr } = useTranslation();
+  const isNotice = step.pedagogicalEvidence?.rung === "NOTICE";
+  const [page, setPage] = useState<"listen" | "speak">("listen");
+  const [listen, setListen] = useState<GuidedListenState>("IDLE");
+  const [failReason, setFailReason] = useState<string | null>(null);
+  const alive = useRef(true);
+  useEffect(
+    () => () => {
+      alive.current = false;
+    },
+    []
+  );
+  const heard = listen === "PLAYING" || listen === "HEARD";
+  const failed = listen === "FAILED" || listen === "UNAVAILABLE";
+  const displayMode = step.hanziMode === "pinyin_first" ? "pinyin_only" : undefined;
+
+  function applyPlayback(state: PlaybackState) {
+    if (!alive.current) return;
+    if (state === "STARTING") setListen((prev) => (prev === "HEARD" ? prev : "STARTING"));
+    else if (state === "PLAYING") setListen("PLAYING");
+    else if (state === "ENDED") setListen("HEARD");
+    else if (state === "FAILED") setListen((prev) => (prev === "HEARD" ? prev : "FAILED"));
+    else if (state === "UNAVAILABLE") setListen((prev) => (prev === "HEARD" ? prev : "UNAVAILABLE"));
+  }
+
+  function play() {
+    setFailReason(null);
+    void playMandarinAudio(step.text!, { rate: 0.85, onState: applyPlayback }).then((outcome) => {
+      if (!alive.current || outcome.superseded || outcome.started) return;
+      setFailReason(outcome.reason);
+    });
+  }
+
+  if (page === "speak") {
+    return (
+      <div className="text-center" data-guided-listen-stage="speak" data-testid={isNotice ? "pedagogical-notice" : undefined}>
+        <h2 className="font-serif text-xl font-semibold text-ink">{tr("player.guidedNowYou")}</h2>
+        <div className="my-4">
+          <MandarinText
+            hanzi={step.text!}
+            pinyin={step.pinyin}
+            meaning={step.pt}
+            size="lg"
+            audio
+            align="center"
+            displayMode={displayMode}
+            revealMeaning
+          />
+        </div>
+        <PronunciationPractice target={step.text!} onContinue={() => onDone()} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex flex-col items-center text-center"
+      data-guided-listen-stage="listen"
+      data-guided-listen-state={listen}
+      data-testid={isNotice ? "pedagogical-notice" : undefined}
+    >
+      <Eyebrow>{t("player.listenAndImitate")}</Eyebrow>
+      <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{tr("player.guidedListenTitle")}</h2>
+      <GuidedAudioButton onPress={play} state={listen} failed={failed} label={tr("player.listen")} className="mt-6" data-guided-listen />
+      <p className="mt-3 min-h-5 text-sm font-medium text-ink-soft" role="status" aria-live="polite" data-testid="guided-listen-status">
+        {listen === "STARTING"
+          ? tr("guidedTry.audioStarting")
+          : listen === "PLAYING"
+            ? tr("guidedTry.audioPlaying")
+            : listen === "HEARD"
+              ? tr("guidedTry.audioHeard")
+              : ""}
+      </p>
+      {failed && (
+        // PART DG — o shell nunca esconde a falha de áudio.
+        <div className="mt-1 w-full text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
+          <p className="text-sm font-semibold text-ink">{tr("guidedTry.audioFailedTitle")}</p>
+          <p className="mt-1 text-xs leading-5 text-ink-soft">{tr("guidedTry.audioFailedLead")}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={play} data-testid="guided-audio-retry">
+              {tr("guidedTry.audioRetry")}
+            </Button>
+            {canOfferVoiceInstall(failReason) && (
+              <Button size="sm" variant="outline" onClick={() => void installMandarinVoice()} data-testid="guided-audio-install">
+                {tr("guidedTry.audioInstallVoice")}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+      {(heard || failed) && (
+        <div className="mt-5 animate-pop" data-testid="guided-reveal">
+          <MandarinText hanzi={step.text!} pinyin={step.pinyin} meaning={step.pt} size="lg" align="center" displayMode={displayMode} revealMeaning />
+        </div>
+      )}
+      <StickyActionBar>
+        <Button
+          size="lg"
+          className="longyu-press-feedback w-full shadow-lift"
+          disabled={!heard && !failed}
+          onClick={() => setPage("speak")}
+          data-guided-primary
+          data-testid={failed ? "listen-continue-degraded" : "listen-continue"}
+        >
+          {failed && !heard ? tr("guidedTry.continueWithoutAudio") : tr("player.continue")}
+        </Button>
+        {!heard && !failed && (
+          <button
+            type="button"
+            onClick={() => setPage("speak")}
+            className="mt-1 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+          >
+            {tr("player.cannotListenNow")}
+          </button>
+        )}
+      </StickyActionBar>
+    </div>
+  );
+}
+
+function LegacyStepListen({ step, onDone }: StepProps) {
   const isNotice = step.pedagogicalEvidence?.rung === "NOTICE";
   return (
     <div className="text-center" data-testid={isNotice ? "pedagogical-notice" : undefined}>
@@ -618,6 +795,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   const [picked, setPicked] = useState<ToneN | null>(null);
   const feedbackRef = useRef<HTMLDivElement>(null);
   const guided = step.assist !== "quiz";
+  const guidedShell = useGuidedPresentation();
   const [hintLevel, setHintLevel] = useState(0);
   const [listenCount, setListenCount] = useState(0);
   const answer = step.tone as ToneN;
@@ -694,12 +872,12 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
   if (guided) {
     const knowledge = toneKnowledge(answer);
     return (
-      <div className="text-center" data-tone-guided-notice={answer}>
+      <div className="text-center" data-tone-guided-notice={answer} data-tone-showcase={guidedShell ? "true" : undefined}>
         <Eyebrow>{displayPt("Conheça a curva")}</Eyebrow>
         <h2 className="mt-2 font-serif text-xl font-semibold text-ink">
           {instructionLocale === "en" ? "Listen first. No test yet." : "Primeiro ouça. Ainda não é teste."}
         </h2>
-        <div className="mx-auto mt-5 max-w-sm rounded-3xl border border-line bg-surface-2/70 p-5">
+        <div className={guidedShell ? "mx-auto mt-5 max-w-sm" : "mx-auto mt-5 max-w-sm rounded-3xl border border-line bg-surface-2/70 p-5"}>
           {listenCount === 0 ? (
             <button
               type="button"
@@ -1139,6 +1317,7 @@ function isWriteAnswerCorrect(
 }
 
 function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
+  const guidedShell = useGuidedPresentation();
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState<WriteStatus>(null);
   const [modelVisible, setModelVisible] = useState(false);
@@ -1386,9 +1565,11 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {isFreeReflection ? (
-        <Button className="mt-4 w-full" onClick={() => onDone()}>
-          {t("player.continue")} <IconChevron width={18} height={18} />
-        </Button>
+        <GuidedDock>
+          <Button className="mt-4 w-full" onClick={() => onDone()}>
+            {t("player.continue")} <IconChevron width={18} height={18} />
+          </Button>
+        </GuidedDock>
       ) : (
         <>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -1400,9 +1581,14 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
             </Button>
           </div>
 
-          <Button className="mt-3 w-full" disabled={!canCheck} onClick={checkAnswer}>
-            {t("player.check")}
-          </Button>
+          {(!guidedShell || !status) && (
+            // RC2.2.17B · PART J — Verificar mora no dock no shell guiado.
+            <GuidedDock>
+              <Button className="mt-3 w-full" disabled={!canCheck} onClick={checkAnswer} data-guided-primary>
+                {t("player.check")}
+              </Button>
+            </GuidedDock>
+          )}
         </>
       )}
 
@@ -1443,18 +1629,22 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
           </p>
 
           {status === "correct" ? (
-            <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(true)}>
-              {t("player.continue")} <IconChevron width={18} height={18} />
-            </Button>
+            <GuidedDock>
+              <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(true)}>
+                {t("player.continue")} <IconChevron width={18} height={18} />
+              </Button>
+            </GuidedDock>
           ) : (
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <Button variant="good" className="shadow-lift" onClick={retry}>
-                {t("player.tryAgain")}
-              </Button>
-              <Button variant="soft" onClick={() => setModelVisible(true)}>
-                {t("player.seeModelAnswer")}
-              </Button>
-            </div>
+            <GuidedDock>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <Button variant="good" className="shadow-lift" onClick={retry}>
+                  {t("player.tryAgain")}
+                </Button>
+                <Button variant="soft" onClick={() => setModelVisible(true)}>
+                  {t("player.seeModelAnswer")}
+                </Button>
+              </div>
+            </GuidedDock>
           )}
         </div>
       )}
@@ -1936,6 +2126,7 @@ function EngineActions({
         <Button
           size="lg"
           variant={canCheck ? "good" : "outline"}
+          data-guided-primary
           className="w-full shadow-lift"
           disabled={!canCheck}
           onClick={onCheck}
@@ -2356,6 +2547,7 @@ export function StepListenSelectLegacy({ step, onDone, onSkip, onMistake }: Step
 }
 
 function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
+  const guidedShell = useGuidedPresentation();
   const options = useMemo(() => [...(step.options ?? []), ...(step.distractors ?? [])], [step.options, step.distractors]);
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
@@ -2454,14 +2646,14 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       </p>
 
       {audioFallback ? (
-        <div className="mt-3 rounded-2xl border border-line bg-surface-2 p-4 text-center">
+        <div className={guidedShell ? "mt-3 text-center" : "mt-3 rounded-2xl border border-line bg-surface-2 p-4 text-center"}>
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
             {t("player.youWouldHear")}
           </div>
           <Pinyin text={fallbackPinyin} className="mt-2 block font-serif text-2xl" />
         </div>
       ) : (
-        <div className="mt-3 grid gap-2.5 rounded-2xl border border-line bg-surface-2 p-3 text-center">
+        <div className={guidedShell ? "mt-4 grid gap-2.5 text-center" : "mt-3 grid gap-2.5 rounded-2xl border border-line bg-surface-2 p-3 text-center"}>
           <button
             type="button"
             onClick={playNormal}
@@ -2564,6 +2756,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
           )}
           <Button
             variant={picked ? "good" : "outline"}
+            data-guided-primary
             className="shadow-lift"
             disabled={!picked}
             onClick={check}
@@ -5043,7 +5236,11 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
       {!locked && strategyLocked && (
         <EngineActions canCheck={draft.trim().length > 0} onCheck={check} onSkip={onSkip} />
       )}
-      {!strategyLocked && <SkipStepButton onSkip={onSkip} className="mt-4" />}
+      {!strategyLocked && (
+        <GuidedDock>
+          <SkipStepButton onSkip={onSkip} className="mt-4" />
+        </GuidedDock>
+      )}
     </div>
   );
 }

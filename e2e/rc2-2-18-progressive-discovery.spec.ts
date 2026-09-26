@@ -11,10 +11,10 @@ const STORE_VERSION = 21;
 const FIRST_LESSONS = ["p1-o-que-e-mandarim", "p1-o-que-e-pinyin", "p1-o-que-e-tom", "p1-o-que-e-hanzi", "p1-primeiros-hanzi", "p1-engine-2-lab", "l1"];
 const THROUGH_L2 = [...FIRST_LESSONS, "l2"];
 
-type Guidance = { enabled: boolean; initialized: boolean; records: Record<string, { status: string; at: number; snoozedUntil?: number }> };
+type Guidance = { version?: number; enabled: boolean; initialized: boolean; records: Record<string, { status: string; at: number; snoozedUntil?: number }> };
 
 function seen(...ids: string[]): Guidance["records"] {
-  return Object.fromEntries(ids.map((id) => [id, { status: "SEEN", at: 1 }]));
+  return Object.fromEntries(ids.map((id) => [id, { status: "DISMISSED", at: 1 }]));
 }
 
 function allAchievementsUnlocked(): Record<string, number> {
@@ -37,7 +37,7 @@ async function seed(
       accountSetupComplete: true,
       courseDirection: "pt-zh",
       holdAchievementModals: true,
-      ...(options.guidance === null ? {} : { guidance: options.guidance ?? { enabled: true, initialized: true, records: {} } }),
+      ...(options.guidance === null ? {} : { guidance: options.guidance ?? { version: 2, enabled: true, initialized: true, records: {} } }),
       ...state,
     },
     version: STORE_VERSION,
@@ -190,7 +190,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
 
   test("CU: primeira lição → Praticar e Missões num único anúncio, sem pilha", async ({ page }) => {
     await seed(page, { completedLessons: ["p1-o-que-e-mandarim"], achievementsUnlocked: allAchievementsUnlocked() }, {
-      guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1") },
+      guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1") },
     });
     await open(page, "/jornada");
     expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Missões", "Mais"]);
@@ -203,7 +203,10 @@ test.describe("RC2.2.18 · desbloqueios", () => {
     await page.reload();
     await waitForLazyPage(page);
     await page.waitForTimeout(1_200);
-    await expect(surfaces(page)).toHaveCount(0);
+    // RC2.2.19 — o anúncio dispensado não volta; a sessão nova pode trazer
+    // UMA outra orientação ainda não vista (ex.: onde fica o perfil).
+    await expect(batch).toHaveCount(0);
+    expect(await surfaces(page).count()).toBeLessThanOrEqual(1);
     // Nada de XP por abrir/ler (PART CG).
     const xp = await page.evaluate(() => JSON.parse(localStorage.getItem("longyu-v1") ?? "{}").state?.xpTotal ?? 0);
     expect(xp).toBe(0);
@@ -211,7 +214,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
 
   test("CV: Cultura — antes ausente; no marco UM anúncio; aba aparece; não repete", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
-      guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
+      guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
     });
     await open(page, "/jornada");
     expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
@@ -229,7 +232,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
 
   test("BD: Cultura e Liga liberadas juntas viram UM anúncio listando as duas", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
-      guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1") },
+      guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1") },
     });
     await open(page, "/jornada");
     const batch = page.locator('[data-guidance-id="new_features_v1"]');
@@ -241,7 +244,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
 
   test("CY: Agora não — não volta na mesma sessão nem ao recarregar (cooldown)", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
-      guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
+      guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
     });
     await open(page, "/jornada");
     const reveal = page.locator('[data-guidance-id="culture_unlocked_v1"]');
@@ -250,7 +253,8 @@ test.describe("RC2.2.18 · desbloqueios", () => {
     await open(page, "/mais");
     await open(page, "/jornada");
     await page.waitForTimeout(1_200);
-    await expect(surfaces(page)).toHaveCount(0);
+    await expect(reveal).toHaveCount(0);
+    expect(await surfaces(page).count()).toBeLessThanOrEqual(1);
     const record = (await storedGuidance(page))?.records?.culture_unlocked_v1;
     expect(record?.status).toBe("SNOOZED");
     expect((record?.snoozedUntil ?? 0) - Date.now()).toBeGreaterThan(23 * 3600 * 1000);
@@ -260,7 +264,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
 
   test("CX: Dicas desligadas — Cultura libera, nenhum popup", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
-      guidance: { enabled: false, initialized: true, records: {} },
+      guidance: { version: 2, enabled: false, initialized: true, records: {} },
     });
     await open(page, "/jornada");
     expect(await tabLabels(page)).toContain("Cultura");
@@ -276,6 +280,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
       guidance: {
         enabled: true,
+        version: 2,
         initialized: true,
         records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1", "culture_unlocked_v1"),
       },
@@ -294,7 +299,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
 
   test("Revisão só aparece com itens; Ajustes › Dicas guiadas liga, desliga e revê sem mexer no progresso", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
-      guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1", "culture_unlocked_v1") },
+      guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1", "culture_unlocked_v1") },
       optIn: false,
     });
     await open(page, "/treino");

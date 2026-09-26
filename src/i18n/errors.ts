@@ -133,6 +133,18 @@ const PATTERNS: MessagePattern[] = [
     key: "auth.errors.resetEmailSent",
   },
   {
+    test: (m) => includesAny(m, ["código inválido ou expirado", "invalid or expired code"]),
+    key: "auth.errors.recoveryCodeInvalid",
+  },
+  {
+    test: (m) => includesAny(m, ["código confirmado", "code confirmed"]),
+    key: "auth.errors.recoveryCodeOk",
+  },
+  {
+    test: (m) => includesAny(m, ["sem conexão. verifique a internet", "no connection. check the internet"]),
+    key: "auth.errors.offline",
+  },
+  {
     test: (m) => includesAny(m, ["novo link de confirmação", "new confirmation link"]),
     key: "auth.errors.confirmEmailSent",
   },

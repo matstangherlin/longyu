@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Mascot } from "../brand/Mascot";
 import { Button } from "../ui/primitives";
 import { IconChevron } from "../ui/Icon";
@@ -37,6 +37,16 @@ export type GuideDialogueProps = {
    * Nunca ligar em prova.
    */
   gloss?: boolean;
+  /**
+   * RC2.2.17B · PART N/AX — "guided": mascote + balão lado a lado (como o
+   * Teste guiado), em qualquer largura. "default": layout histórico.
+   */
+  layout?: "default" | "guided";
+  /**
+   * RC2.2.17B · PART I — quem hospeda decide onde mora o botão (ex.: dock do
+   * GuidedLessonShell). Sem isso, o botão fica logo abaixo do balão.
+   */
+  renderAction?: (action: ReactNode) => ReactNode;
   /** test hook */
   "data-testid"?: string;
 };
@@ -54,6 +64,8 @@ export function GuideDialogue({
   className = "",
   continueLabel,
   gloss = false,
+  layout = "default",
+  renderAction,
   "data-testid": testId = "guide-dialogue",
 }: GuideDialogueProps) {
   const { t } = useTranslation();
@@ -69,7 +81,8 @@ export function GuideDialogue({
   const settleTimer = useRef<number | null>(null);
   const prevMessageIndex = useRef(0);
   const [textSwapKey, setTextSwapKey] = useState(0);
-  const mascotSize = size === "compact" ? 56 : 72;
+  const guidedLayout = layout === "guided";
+  const mascotSize = size === "compact" || guidedLayout ? 56 : 72;
   const reduced = prefersReducedMotion();
   const messageIdentity = cleaned.join("\u0001");
   const currentMessage = cleaned[Math.min(state.messageIndex, Math.max(0, cleaned.length - 1))] ?? "";
@@ -175,11 +188,29 @@ export function GuideDialogue({
   // Blink uses existing eyes overlay only (static body) — not a fake wave.
   const blink = motion === "ready" && !reduced;
 
+  const continueButton = (
+    <div className={[renderAction ? "" : "mt-3", playEntrance ? "guide-continue-enter" : ""].join(" ")}>
+      <Button
+        className="w-full shadow-lift"
+        data-testid="guide-continue"
+        data-guide-continue={isTyping ? "complete-text" : "advance"}
+        onClick={continueDialogue}
+      >
+        {label}
+        <IconChevron width={18} height={18} aria-hidden="true" />
+      </Button>
+    </div>
+  );
+
   if (!cleaned.length) return null;
 
   return (
     <div
-      className={["guide-dialogue flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4", className].join(" ")}
+      className={[
+        guidedLayout ? "guide-dialogue flex flex-row items-end gap-3" : "guide-dialogue flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4",
+        className,
+      ].join(" ")}
+      data-guide-layout={layout}
       data-testid={testId}
       data-guide-phase={state.phase}
       data-guide-message-index={state.messageIndex}
@@ -262,17 +293,7 @@ export function GuideDialogue({
         </button>
         )}
 
-        <div className={["mt-3", playEntrance ? "guide-continue-enter" : ""].join(" ")}>
-          <Button
-            className="w-full shadow-lift"
-            data-testid="guide-continue"
-            data-guide-continue={isTyping ? "complete-text" : "advance"}
-            onClick={continueDialogue}
-          >
-            {label}
-            <IconChevron width={18} height={18} aria-hidden="true" />
-          </Button>
-        </div>
+        {renderAction ? renderAction(continueButton) : continueButton}
         <span className="sr-only" data-guide-guard-ms={GUIDE_ADVANCE_GUARD_MS} />
         <span className="sr-only" data-guide-entrance-ms={GUIDE_ENTRANCE_READY_MS} />
       </div>

@@ -283,6 +283,46 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     dragon: false,
   },
   {
+    // RC2.2.19 — primeira revisão: rodadas curtas, erro volta de outro jeito.
+    id: "review_session_intro_v1",
+    kind: "INLINE_TIP",
+    priority: "PEDAGOGICAL_TIP",
+    essential: false,
+    surfaces: ["/revisao"],
+    bodyKey: "guidance.reviewSessionIntro.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
+    // RC2.2.19 — onde fica o perfil (avatar do topo → /perfil).
+    id: "profile_entry_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: JOURNEY,
+    anchor: "topbar-profile",
+    bodyKey: "guidance.profileEntry.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
+    id: "immersion_first_use_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: ["/imersao"],
+    anchor: "immersion-first-scene",
+    bodyKey: "guidance.immersionFirstUse.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
     id: "notifications_offer_v1",
     kind: "UNLOCK_REVEAL",
     priority: "OPTIONAL_DISCOVERY",
@@ -306,44 +346,108 @@ export const GUIDANCE_BY_ID: ReadonlyMap<string, GuidanceDefinition> = new Map(
 // Estado persistido (por conta): só descoberta, nunca progresso (PART C).
 // ─────────────────────────────────────────────────────────────────────────
 
-export type GuidanceRecordStatus = "SEEN" | "SKIPPED" | "SNOOZED";
+/**
+ * RC2.2.19 — estados EXPLÍCITOS. Disponível ≠ mostrado:
+ * - AUTO_SEEDED: registrada pela semente/migração, NUNCA vista. Continua
+ *   elegível (1 por sessão em conta madura) — não é "vista".
+ * - SHOWN: a superfície ficou visível na tela por GUIDANCE_RENDER_EVIDENCE_MS
+ *   (evidência de render). Só o host grava, e só com essa evidência.
+ * - DISMISSED: "Entendi"/CTA — o próprio toque prova que estava na tela.
+ * - SNOOZED: "Agora não" (volta depois do cooldown).
+ * - SKIPPED: "Pular dica" (nunca mais esta).
+ * O RC2.2.18 gravava "SEEN" na semente e ao sair da tela sem evidência — por
+ * isso todo SEEN antigo migra para AUTO_SEEDED (ver normalizeGuidanceState).
+ */
+export type GuidanceRecordStatus = "AUTO_SEEDED" | "SHOWN" | "DISMISSED" | "SNOOZED" | "SKIPPED";
+
+/** De onde veio o registro (auditoria; nunca PII). */
+export type GuidanceEvidence = "seed" | "migration" | "render" | "action";
 
 export interface GuidanceRecord {
   status: GuidanceRecordStatus;
   at: number;
   /** "Agora não": volta só depois disto (e nunca na mesma sessão). */
   snoozedUntil?: number;
+  evidence?: GuidanceEvidence;
 }
 
+export const GUIDANCE_STATE_VERSION = 2;
+
 export interface GuidanceState {
+  version: typeof GUIDANCE_STATE_VERSION;
   /** "Dicas guiadas" em Ajustes › Aprendizagem. */
   enabled: boolean;
   records: Record<string, GuidanceRecord>;
-  /** Semente de migração já aplicada (contas antigas não recebem enxurrada). */
+  /** Semente de migração já aplicada. */
   initialized: boolean;
+  /**
+   * RC2.2.19 — nunca re-trancar: áreas que já estiveram disponíveis para esta
+   * conta. Só cresce. A 1ª liberação continua derivada do progresso; isto só
+   * impede que uma regra nova, um sync incompleto ou uma migração tranque de
+   * novo o que o aluno já usava.
+   */
+  availabilityMemory: DiscoveryFeatureId[];
 }
 
-export const DEFAULT_GUIDANCE_STATE: GuidanceState = { enabled: true, records: {}, initialized: false };
+export const DEFAULT_GUIDANCE_STATE: GuidanceState = {
+  version: GUIDANCE_STATE_VERSION,
+  enabled: true,
+  records: {},
+  initialized: false,
+  availabilityMemory: [],
+};
+
+/** Tempo mínimo visível para contar como SHOWN (evidência de render). */
+export const GUIDANCE_RENDER_EVIDENCE_MS = 1200;
+/** Se a superfície não ficar visível neste prazo, desiste sem gastar a sessão. */
+export const GUIDANCE_RENDER_TIMEOUT_MS = 4000;
+
+const RECORD_STATUSES: readonly GuidanceRecordStatus[] = ["AUTO_SEEDED", "SHOWN", "DISMISSED", "SNOOZED", "SKIPPED"];
 
 /** PART BB — "Agora não" volta no mínimo 24h depois. */
 export const GUIDANCE_SNOOZE_MS = 24 * 60 * 60 * 1000;
 
 export function normalizeGuidanceState(raw: unknown): GuidanceState {
-  const value = raw as Partial<GuidanceState> | null | undefined;
-  if (!value || typeof value !== "object") return { ...DEFAULT_GUIDANCE_STATE, records: {} };
+  const value = raw as (Partial<Omit<GuidanceState, "version">> & { version?: number }) | null | undefined;
+  if (!value || typeof value !== "object") return { ...DEFAULT_GUIDANCE_STATE, records: {}, availabilityMemory: [] };
+  const legacy = value.version !== GUIDANCE_STATE_VERSION;
   const records: Record<string, GuidanceRecord> = {};
   if (value.records && typeof value.records === "object") {
     for (const [id, record] of Object.entries(value.records)) {
-      const r = record as Partial<GuidanceRecord> | null;
-      if (!r || (r.status !== "SEEN" && r.status !== "SKIPPED" && r.status !== "SNOOZED")) continue;
+      const r = record as (Partial<Omit<GuidanceRecord, "status">> & { status?: string }) | null;
+      if (!r || typeof r.status !== "string") continue;
+      const at = typeof r.at === "number" ? r.at : 0;
+      // P1 GUIDANCE_UNLOCK_AUTO_MARKED_AS_SEEN — o SEEN do RC2.2.18 nunca teve
+      // evidência de render (vinha da semente ou de sair da tela): volta a ser
+      // elegível como AUTO_SEEDED. Pular/Agora não foram toques reais: ficam.
+      if (legacy && r.status === "SEEN") {
+        records[id] = { status: "AUTO_SEEDED", at, evidence: "migration" };
+        continue;
+      }
+      if (!RECORD_STATUSES.includes(r.status as GuidanceRecordStatus)) continue;
       records[id] = {
-        status: r.status,
-        at: typeof r.at === "number" ? r.at : 0,
+        status: r.status as GuidanceRecordStatus,
+        at,
         ...(typeof r.snoozedUntil === "number" ? { snoozedUntil: r.snoozedUntil } : {}),
+        ...(typeof r.evidence === "string" ? { evidence: r.evidence } : {}),
       };
     }
   }
-  return { enabled: value.enabled !== false, records, initialized: value.initialized === true };
+  const memory = Array.isArray(value.availabilityMemory)
+    ? DISCOVERY_FEATURE_ORDER.filter((id) => (value.availabilityMemory as unknown[]).includes(id))
+    : [];
+  return {
+    version: GUIDANCE_STATE_VERSION,
+    enabled: value.enabled !== false,
+    records,
+    initialized: value.initialized === true,
+    availabilityMemory: memory,
+  };
+}
+
+/** Só estes contam como "a pessoa viu" (evidência de render ou de toque). */
+export function guidanceRecordProvesRender(record: GuidanceRecord | undefined): boolean {
+  return record?.status === "SHOWN" || record?.status === "DISMISSED" || record?.status === "SKIPPED" || record?.status === "SNOOZED";
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -415,8 +519,15 @@ function isBlockedByRecord(id: string, ctx: GuidanceContext): boolean {
   if (ctx.session.snoozedIds.includes(id)) return true;
   const record = ctx.state.records[id];
   if (!record) return false;
+  // AVAILABLE ≠ SHOWN: semeada/migrada continua elegível.
+  if (record.status === "AUTO_SEEDED") return false;
   if (record.status === "SNOOZED") return (record.snoozedUntil ?? 0) > ctx.now;
   return true;
+}
+
+/** Nunca vista, mas registrada pela semente/migração (conta madura). */
+function isAutoSeeded(id: string, ctx: GuidanceContext): boolean {
+  return ctx.state.records[id]?.status === "AUTO_SEEDED";
 }
 
 function sessionBudget(ctx: GuidanceContext): number {
@@ -433,7 +544,8 @@ function candidateEligible(definition: GuidanceDefinition, ctx: GuidanceContext)
   if (definition.kind === "COACHMARK" && definition.anchor && !ctx.anchorsPresent.has(definition.anchor)) return false;
   switch (definition.id) {
     case "welcome_journey_v1":
-      return true;
+      // Boas-vindas são para quem ainda não começou; conta madura não precisa.
+      return ctx.learner.completedLessons.length === 0;
     case "new_features_v1":
       return false; // montado à parte (lote)
     case "tone_direction_tip_v1":
@@ -446,6 +558,13 @@ function candidateEligible(definition: GuidanceDefinition, ctx: GuidanceContext)
       return ctx.visibility.culture === "AVAILABLE";
     case "atlas_first_use_v1":
       return ctx.visibility.atlas === "AVAILABLE";
+    case "review_session_intro_v1":
+      return ctx.visibility.review === "AVAILABLE";
+    case "profile_entry_v1":
+      // Depois da primeira atividade: nunca disputa com as boas-vindas.
+      return ctx.learner.completedLessons.length > 0;
+    case "immersion_first_use_v1":
+      return ctx.visibility.immersion === "AVAILABLE";
     case "notifications_offer_v1":
       // PART BO — depois que o valor ficou claro (1ª sessão concluída), nunca junto do microfone.
       return ctx.notificationPermissionPromptable && ctx.learner.completedLessons.length > 0;
@@ -468,36 +587,46 @@ export function selectGuidance(ctx: GuidanceContext): GuidancePresentation | nul
   );
   if (eligible.length === 0) return null;
 
+  // Só liberações NOVAS (sem registro) entram no lote "Novos recursos": uma
+  // área que a conta madura já usa nunca é anunciada como "nova".
   const reveals = eligible
-    .filter((definition) => definition.kind === "UNLOCK_REVEAL" && definition.feature)
+    .filter((definition) => definition.kind === "UNLOCK_REVEAL" && definition.feature && !isAutoSeeded(definition.id, ctx))
     .sort(
       (a, b) => DISCOVERY_FEATURE_ORDER.indexOf(a.feature!) - DISCOVERY_FEATURE_ORDER.indexOf(b.feature!)
     );
 
+  // Novas antes de semeadas; depois prioridade e ordem do registro.
   const ranked = [...eligible].sort(
     (a, b) =>
+      Number(isAutoSeeded(a.id, ctx)) - Number(isAutoSeeded(b.id, ctx)) ||
       GUIDANCE_PRIORITY_RANK[a.priority] - GUIDANCE_PRIORITY_RANK[b.priority] ||
       GUIDANCE_DEFINITIONS.indexOf(a) - GUIDANCE_DEFINITIONS.indexOf(b)
   );
   const top = ranked[0];
 
-  if (top.kind === "UNLOCK_REVEAL" && top.feature && reveals.length > 1) {
+  if (top.kind === "UNLOCK_REVEAL" && top.feature && !isAutoSeeded(top.id, ctx) && reveals.length > 1) {
     // O lote não tem registro próprio: "Agora não"/"Entendi" caem sobre cada
     // anúncio coberto, então o lote nunca "fura" o cooldown deles.
+    // RC2.2.19 — o lote cobre SÓ o que ele lista: um anúncio que não
+    // apareceu na tela não pode virar "visto" (o resto continua elegível).
+    const listed = reveals.slice(0, PROGRESSIVE_DISCOVERY_RULES.unlockBatchMaxListed);
     return {
       definition: GUIDANCE_BY_ID.get("new_features_v1")!,
-      coveredIds: reveals.map((definition) => definition.id),
-      listedFeatures: reveals.slice(0, PROGRESSIVE_DISCOVERY_RULES.unlockBatchMaxListed).map((d) => d.feature!),
+      coveredIds: listed.map((definition) => definition.id),
+      listedFeatures: listed.map((d) => d.feature!),
     };
   }
   return { definition: top, coveredIds: [top.id], listedFeatures: top.feature ? [top.feature] : [] };
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Ações (PART AZ/BA): Entendi · Agora não · Pular · Pular dicas
+// Ações (PART AZ/BA): Entendi · Agora não · Pular dica · Pular dicas
 // ─────────────────────────────────────────────────────────────────────────
 
 export type GuidanceAction = "primary" | "now_not" | "skip" | "skip_all";
+
+/** Todas as saídas, em toda orientação (RC2.2.19). */
+export const GUIDANCE_ACTIONS: readonly GuidanceAction[] = ["primary", "now_not", "skip", "skip_all"];
 
 export function applyGuidanceAction(
   state: GuidanceState,
@@ -507,13 +636,42 @@ export function applyGuidanceAction(
 ): GuidanceState {
   const records = { ...state.records };
   for (const id of presentation.coveredIds) {
-    if (action === "now_not") records[id] = { status: "SNOOZED", at: now, snoozedUntil: now + GUIDANCE_SNOOZE_MS };
-    else if (action === "skip") records[id] = { status: "SKIPPED", at: now };
-    else records[id] = { status: "SEEN", at: now };
+    if (action === "now_not") records[id] = { status: "SNOOZED", at: now, snoozedUntil: now + GUIDANCE_SNOOZE_MS, evidence: "action" };
+    else if (action === "skip") records[id] = { status: "SKIPPED", at: now, evidence: "action" };
+    else records[id] = { status: "DISMISSED", at: now, evidence: "action" };
   }
   return { ...state, records, enabled: action === "skip_all" ? false : state.enabled };
 }
 
+/**
+ * Evidência de render: a superfície ficou visível ≥ GUIDANCE_RENDER_EVIDENCE_MS.
+ * Promove para SHOWN só o que ainda não tem toque registrado — nunca rebaixa
+ * DISMISSED/SKIPPED, nunca apaga um "Agora não" ainda válido.
+ */
+export function recordGuidanceRendered(
+  state: GuidanceState,
+  presentation: Pick<GuidancePresentation, "coveredIds">,
+  now: number
+): GuidanceState {
+  const records = { ...state.records };
+  for (const id of presentation.coveredIds) {
+    const previous = records[id];
+    if (previous && previous.status !== "AUTO_SEEDED" && previous.status !== "SNOOZED") continue;
+    if (previous?.status === "SNOOZED" && (previous.snoozedUntil ?? 0) > now) continue;
+    records[id] = { status: "SHOWN", at: now, evidence: "render" };
+  }
+  return { ...state, records };
+}
+
+/** Nunca re-trancar: memoriza (só cresce) o que já esteve disponível. */
+export function rememberAvailability(state: GuidanceState, visibility: FeatureVisibilityMap): GuidanceState {
+  const add = DISCOVERY_FEATURE_ORDER.filter((id) => visibility[id] === "AVAILABLE" && !state.availabilityMemory.includes(id));
+  if (add.length === 0) return state;
+  const merged = new Set([...state.availabilityMemory, ...add]);
+  return { ...state, availabilityMemory: DISCOVERY_FEATURE_ORDER.filter((id) => merged.has(id)) };
+}
+
+/** Sessão: conta só o que teve evidência de render (ou toque). */
 export function recordShownInSession(session: GuidanceSession, presentation: GuidancePresentation): GuidanceSession {
   const id = presentation.definition.id;
   return session.shownIds.includes(id) ? session : { ...session, shownIds: [...session.shownIds, id] };
@@ -524,9 +682,11 @@ export function recordSnoozedInSession(session: GuidanceSession, presentation: G
 }
 
 /**
- * Semente única por conta (PART DI): contas que já têm progresso não recebem
- * anúncio do que já usam — só o que for liberado DEPOIS. Conta nova (zero
- * lições) recebe as boas-vindas.
+ * Semente única por conta. RC2.2.19: o que a conta madura JÁ tem liberado é
+ * registrado como AUTO_SEEDED — nunca como visto. Continua elegível, uma por
+ * sessão e nunca no lote "Novos recursos" (não é novidade para ela). Conta
+ * nova (zero lições) recebe as boas-vindas. A disponibilidade atual entra na
+ * memória de "nunca re-trancar".
  */
 export function initializeGuidanceState(
   state: GuidanceState,
@@ -534,19 +694,18 @@ export function initializeGuidanceState(
   learner: DiscoveryLearnerState,
   now: number
 ): GuidanceState {
-  if (state.initialized) return state;
+  if (state.initialized) return rememberAvailability(state, visibility);
   const records = { ...state.records };
   const seed = (id: string) => {
-    if (!records[id]) records[id] = { status: "SEEN", at: now };
+    if (!records[id]) records[id] = { status: "AUTO_SEEDED", at: now, evidence: "seed" };
   };
-  if (learner.completedLessons.length > 0) seed("welcome_journey_v1");
   for (const definition of GUIDANCE_DEFINITIONS) {
     if (definition.feature && unlockRevealTriggered(definition.feature, visibility, learner)) seed(definition.id);
   }
-  return { ...state, records, initialized: true };
+  return rememberAvailability({ ...state, records, initialized: true }, visibility);
 }
 
-/** PART I — "Rever dicas do aplicativo": zera o visto, nunca o progresso. */
+/** PART I — "Rever dicas do aplicativo": zera o visto, nunca o progresso nem o acesso. */
 export function resetGuidanceState(state: GuidanceState): GuidanceState {
   return { ...state, enabled: true, records: {}, initialized: true };
 }

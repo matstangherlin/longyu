@@ -1,12 +1,17 @@
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 import {
+  GUIDANCE_RENDER_EVIDENCE_MS,
+  GUIDANCE_RENDER_TIMEOUT_MS,
   applyGuidanceAction,
+  guidanceRecordProvesRender,
   initializeGuidanceState,
+  recordGuidanceRendered,
   recordShownInSession,
   recordSnoozedInSession,
+  rememberAvailability,
   routeForFeature,
   selectGuidance,
   type GuidanceAction,
@@ -30,6 +35,9 @@ import { zLayerClass } from "../ui/layers";
 import {
   getCurrentGuidance,
   getGuidanceSession,
+  isGuidanceEvidenceCommitted,
+  markGuidanceEvidenceCommitted,
+  reportGuidanceVisible,
   setCurrentGuidance,
   setGuidanceSession,
   useGuidanceRuntime,
@@ -110,18 +118,24 @@ function GuidanceHostInner() {
   const updateGuidance = useStore((s) => s.updateGuidance);
   const soundEffects = useStore((s) => s.soundEffects);
   const recentToneConfusions = useRecentToneConfusions();
-  const { current } = useGuidanceRuntime();
+  const { current, visibleSince } = useGuidanceRuntime();
   const [inputFocused, setInputFocused] = useState(() => isTypingTarget(typeof document === "undefined" ? null : document.activeElement));
   const [anchors, setAnchors] = useState<Set<string>>(() => new Set());
   const [notificationPromptable, setNotificationPromptable] = useState(false);
   const [tick, setTick] = useState(0);
   const native = isNativeApp();
 
-  // Semente única por conta (contas antigas não recebem enxurrada).
+  // Semente única por conta: o que já está liberado vira AUTO_SEEDED (nunca "visto").
   useEffect(() => {
     if (!ready || guidance?.initialized) return;
     updateGuidance((state) => initializeGuidanceState(state, visibility, learner, Date.now()));
   }, [ready, guidance?.initialized, updateGuidance, visibility, learner]);
+
+  // RC2.2.19 — nunca re-trancar: memoriza (só cresce) o que já esteve disponível.
+  useEffect(() => {
+    if (!ready || !guidance?.initialized) return;
+    updateGuidance((state) => rememberAvailability(state, visibility));
+  }, [ready, guidance?.initialized, updateGuidance, visibility]);
 
   // PART DG — teclado/campo focado: nenhuma orientação.
   useEffect(() => {
@@ -165,20 +179,46 @@ function GuidanceHostInner() {
     };
   }, [native, pathname]);
 
-  // Sair da superfície com a orientação aberta = vista (não persegue o aluno).
+  // Sair da superfície com a orientação aberta: fecha SEM gravar "visto".
+  // Se ela ficou na tela tempo suficiente, o SHOWN já foi gravado com
+  // evidência de render; se não, continua elegível (P1 GUIDANCE_NEVER_ACTUALLY_SHOWN).
   useEffect(() => {
     const shown = getCurrentGuidance();
     if (!shown || shown.definition.surfaces.includes(pathname)) return;
-    updateGuidance((state) => applyGuidanceAction(state, shown, "primary", Date.now()));
     setCurrentGuidance(null);
-  }, [pathname, updateGuidance]);
+  }, [pathname]);
+
+  // Evidência de render: visível por GUIDANCE_RENDER_EVIDENCE_MS → SHOWN + conta na sessão.
+  useEffect(() => {
+    if (!current || visibleSince == null || isGuidanceEvidenceCommitted()) return undefined;
+    const wait = Math.max(0, visibleSince + GUIDANCE_RENDER_EVIDENCE_MS - Date.now());
+    const timer = window.setTimeout(() => {
+      if (getCurrentGuidance() !== current || isGuidanceEvidenceCommitted()) return;
+      markGuidanceEvidenceCommitted();
+      updateGuidance((state) => recordGuidanceRendered(state, current, Date.now()));
+      setGuidanceSession(recordShownInSession(getGuidanceSession(), current));
+      trackFunnelEvent("guidance_shown", { guidance_id: current.definition.id, kind: current.definition.kind, render_evidence: true });
+    }, wait);
+    return () => window.clearTimeout(timer);
+  }, [current, visibleSince, updateGuidance]);
+
+  // Nunca ficou visível (âncora sumiu, card fora da tela): desiste sem gastar a sessão.
+  useEffect(() => {
+    if (!current || visibleSince != null) return undefined;
+    const timer = window.setTimeout(() => {
+      if (getCurrentGuidance() !== current) return;
+      setCurrentGuidance(null);
+      trackFunnelEvent("guidance_render_failed", { guidance_id: current.definition.id, kind: current.definition.kind });
+    }, GUIDANCE_RENDER_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [current, visibleSince]);
 
   // PART CD — aberto depois do desbloqueio (sem PII).
   useEffect(() => {
     const feature = featureForPath(pathname);
     if (!feature || visibility[feature] !== "AVAILABLE") return;
     const record = guidance?.records?.[`${feature}_unlocked_v1`];
-    if (record?.status === "SEEN") trackFunnelEvent("feature_opened_after_unlock", { feature });
+    if (guidanceRecordProvesRender(record)) trackFunnelEvent("feature_opened_after_unlock", { feature });
   }, [pathname, visibility, guidance?.records]);
 
   const context = useMemo<GuidanceContext | null>(() => {
@@ -222,9 +262,8 @@ function GuidanceHostInner() {
         setTick((value) => value + 1);
         return;
       }
-      setGuidanceSession(recordShownInSession(getGuidanceSession(), fresh));
+      // Escolher não é mostrar: a sessão e o SHOWN só contam com evidência de render.
       setCurrentGuidance(fresh);
-      trackFunnelEvent("guidance_shown", { guidance_id: fresh.definition.id, kind: fresh.definition.kind });
       if (fresh.definition.priority === "FEATURE_UNLOCK") {
         for (const feature of fresh.listedFeatures) trackFunnelEvent("feature_unlocked", { feature });
         // PART CJ/CK — 1 haptic e um som discreto já existente; coachmark comum: nenhum.
@@ -247,6 +286,8 @@ function GuidanceHostInner() {
       if (!shown) return;
       const now = Date.now();
       updateGuidance((state) => applyGuidanceAction(state, shown, action, now));
+      // O toque prova que estava na tela: conta na sessão mesmo antes dos 1,2 s.
+      setGuidanceSession(recordShownInSession(getGuidanceSession(), shown));
       if (action === "now_not") setGuidanceSession(recordSnoozedInSession(getGuidanceSession(), shown));
       setCurrentGuidance(null);
       trackFunnelEvent("guidance_dismissed", { guidance_id: shown.definition.id, action });
@@ -293,44 +334,92 @@ function useEscapeDismiss(onAction: (action: GuidanceAction) => void, secondary:
   }, [onAction, secondary]);
 }
 
+/**
+ * RC2.2.19 — evidência de render: só conta quando o elemento está REALMENTE na
+ * tela (tamanho > 0, dentro da viewport, sem `invisible`, opacidade > 0).
+ * Confere a cada quadro até confirmar; nunca confia no simples "montou".
+ */
+function elementActuallyVisible(element: HTMLElement | null): boolean {
+  if (!element || !element.isConnected) return false;
+  const rect = element.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return false;
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+  if (rect.bottom <= 0 || rect.top >= viewportHeight || rect.right <= 0 || rect.left >= viewportWidth) return false;
+  const style = getComputedStyle(element);
+  return style.visibility !== "hidden" && style.display !== "none" && Number.parseFloat(style.opacity || "1") > 0;
+}
+
+function useRenderEvidence(presentation: GuidancePresentation, ref: RefObject<HTMLElement>, ready: boolean) {
+  useEffect(() => {
+    if (!ready) return undefined;
+    let frame = 0;
+    let alive = true;
+    const check = () => {
+      if (!alive) return;
+      if (elementActuallyVisible(ref.current)) {
+        reportGuidanceVisible(presentation);
+        return;
+      }
+      frame = requestAnimationFrame(check);
+    };
+    frame = requestAnimationFrame(check);
+    return () => {
+      alive = false;
+      cancelAnimationFrame(frame);
+    };
+  }, [presentation, ref, ready]);
+}
+
+/** DEV/QA: estado da evidência no DOM (`pending` → `visible` → `shown`). */
+function useEvidenceAttr(): "pending" | "visible" | "shown" {
+  const { visibleSince, evidenceCommitted } = useGuidanceRuntime();
+  if (evidenceCommitted) return "shown";
+  return visibleSince != null ? "visible" : "pending";
+}
+
 function focusPrimary(container: HTMLElement | null) {
   container?.querySelector<HTMLButtonElement>('[data-guidance-action="primary"]')?.focus({ preventScroll: true });
 }
 
+/**
+ * RC2.2.19 — as quatro saídas em toda orientação: Entendi (primário) ·
+ * Agora não · Pular dica · Pular dicas. As duas últimas são links discretos
+ * (alvo ≥ 44 px), para o card continuar leve.
+ */
 function GuidanceButtons({ presentation, onAction }: SurfaceProps) {
   const { t } = useTranslation();
   const { definition } = presentation;
-  const secondaryKey: MessageKey = definition.secondary === "skip" ? "guidance.common.skip" : "guidance.common.nowNot";
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2">
-      <Button
-        size="lg"
-        className="min-h-12 flex-1"
-        data-guidance-action="primary"
-        onClick={() => onAction("primary")}
-      >
-        {t(definition.primaryKey)}
-      </Button>
-      <Button
-        variant="ghost"
-        size="lg"
-        className="min-h-12"
-        data-guidance-action={definition.secondary}
-        onClick={() => onAction(definition.secondary)}
-      >
-        {t(secondaryKey)}
-      </Button>
-      {definition.offerSkipAll && (
+    <div className="mt-3">
+      <div className="flex items-center gap-2">
+        <Button
+          size="lg"
+          className="min-h-12 flex-1"
+          data-guidance-action="primary"
+          onClick={() => onAction("primary")}
+        >
+          {t(definition.primaryKey)}
+        </Button>
         <Button
           variant="ghost"
           size="lg"
-          className="min-h-12 w-full text-ink-soft"
-          data-guidance-action="skip_all"
-          onClick={() => onAction("skip_all")}
+          className="min-h-12"
+          data-guidance-action="now_not"
+          onClick={() => onAction("now_not")}
         >
-          {t("guidance.common.skipAll")}
+          {t("guidance.common.nowNot")}
         </Button>
-      )}
+      </div>
+      <div className="mt-1 flex items-center justify-center gap-1 text-xs text-ink-faint">
+        <button type="button" className="min-h-12 px-3 underline-offset-2 hover:underline" data-guidance-action="skip" onClick={() => onAction("skip")}>
+          {t("guidance.common.skip")}
+        </button>
+        <span aria-hidden>·</span>
+        <button type="button" className="min-h-12 px-3 underline-offset-2 hover:underline" data-guidance-action="skip_all" onClick={() => onAction("skip_all")}>
+          {t("guidance.common.skipAll")}
+        </button>
+      </div>
     </div>
   );
 }
@@ -348,12 +437,16 @@ function GuidanceRevealCard({ presentation, onAction, onOpenFeature }: SurfacePr
     focusPrimary(cardRef.current);
   }, []);
 
+  useRenderEvidence(presentation, cardRef, true);
+  const evidence = useEvidenceAttr();
+
   const unlock = definition.priority === "FEATURE_UNLOCK";
   return (
     <div
       ref={cardRef}
       data-guidance-surface="reveal"
       data-guidance-id={definition.id}
+      data-guidance-render-evidence={evidence}
       data-native-back-dismiss
       role="dialog"
       aria-modal="false"
@@ -464,11 +557,16 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
     if (position) focusPrimary(cardRef.current);
   }, [position !== null]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Só depois de posicionado (antes disso o card está `invisible`).
+  useRenderEvidence(presentation, cardRef, position !== null);
+  const evidence = useEvidenceAttr();
+
   return (
     <div
       ref={cardRef}
       data-guidance-surface="coachmark"
       data-guidance-id={definition.id}
+      data-guidance-render-evidence={evidence}
       data-coachmark-placement={position?.placement}
       data-native-back-dismiss
       role="dialog"
@@ -510,18 +608,28 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
 
 /** Dica inline (PART M.1): texto na própria página, sem sobrepor nada. */
 export function GuidanceInlineSlot({ surface }: { surface: string }) {
-  const { t } = useTranslation();
   const { current } = useGuidanceRuntime();
-  const updateGuidance = useStore((s) => s.updateGuidance);
   if (!current || current.definition.kind !== "INLINE_TIP" || !current.definition.surfaces.includes(surface)) return null;
+  return <GuidanceInlineTip presentation={current} />;
+}
+
+function GuidanceInlineTip({ presentation: current }: { presentation: GuidancePresentation }) {
+  const { t } = useTranslation();
+  const updateGuidance = useStore((s) => s.updateGuidance);
+  const ref = useRef<HTMLDivElement>(null);
+  useRenderEvidence(current, ref, true);
+  const evidence = useEvidenceAttr();
   const dismiss = (action: GuidanceAction) => {
     updateGuidance((state) => applyGuidanceAction(state, current, action, Date.now()));
+    setGuidanceSession(recordShownInSession(getGuidanceSession(), current));
     setCurrentGuidance(null);
     trackFunnelEvent("guidance_dismissed", { guidance_id: current.definition.id, action });
   };
   return (
     <div
+      ref={ref}
       data-guidance-surface="inline"
+      data-guidance-render-evidence={evidence}
       data-guidance-id={current.definition.id}
       role="status"
       className="flex items-start gap-3 rounded-2xl border border-line bg-surface-2 p-3 text-sm text-ink-soft longyu-guidance-in"

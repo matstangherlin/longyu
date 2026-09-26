@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { journeyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { CULTURE_ITEMS } from "../../data/culture";
 import { CULTURE_SEALS } from "../../data/cultureQuest";
 import { cultureLessonPlayerPath } from "../../data/cultureNative";
@@ -43,6 +44,7 @@ export function JourneyCultureGate({
       data-journey-culture-gate={gate.id}
       data-culture-gate-status={status}
       data-culture-gate-progress={`${completed}/${total}`}
+      data-culture-guidance-type={journeyCultureGuidanceType("progression_gate")}
     >
       <div className="flex items-center gap-2">
         <span aria-hidden className="text-xl leading-none">

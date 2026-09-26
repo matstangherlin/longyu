@@ -1,0 +1,207 @@
+{
+  "schema": "longyu-rc2-2-19/1",
+  "wave": "RC2.2.19",
+  "mission": "GUIDED · SIMPLE · PHYSICALLY VERIFIED LEARNING PRODUCT",
+  "RC2_2_19_BASE_SHA": "231adff6",
+  "base": {
+    "branch": "main",
+    "includes": [
+      "#290 (RC2.2.17)",
+      "#291 (RC2.2.18)"
+    ],
+    "foldedIn": "RC2.2.17B d76432b5 (claude/rc2-2-17b-guided-journey-parity)"
+  },
+  "rule": "AUTOMATED PASS != PRODUCT PASS. code/webE2E can be PASS from this repository; physical is NOT_RUN until a real device (Play build) produces evidence; ownerAction lists what only the owner can do.",
+  "states": [
+    "CODE_PASS",
+    "WEB_E2E_PASS",
+    "PHYSICAL_PASS",
+    "OWNER_ACTION_REQUIRED"
+  ],
+  "p1": {
+    "GUIDANCE_NEVER_ACTUALLY_SHOWN": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "SHOWN only after 1.2s visible (render evidence); selection no longer spends the session budget",
+      "e2e": "e2e/rc2-2-19-guided-simple.spec.ts, e2e/rc2-2-18-progressive-discovery.spec.ts"
+    },
+    "GUIDANCE_UNLOCK_AUTO_MARKED_AS_SEEN": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "seed writes AUTO_SEEDED; v1 SEEN migrates to AUTO_SEEDED; leaving the screen writes nothing"
+    },
+    "GUIDED_TRY_AUDIO_NOT_PLAYING_ON_DEVICE": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "audio_requested/audio_started trace per step (DEV/QA); honest playback contract from RC2.2.17"
+    },
+    "CONVERSATION_CONTINUE_STALL_ON_DEVICE": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "continue_pressed → completion_started → completion_finished → advanced trace"
+    },
+    "NATIVE_SPEECH_RECOGNITION_NOT_WORKING": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "speech diagnostics: permission, service, zh-CN support and model state as separate links; recognitionProven never from permission alone; 4-option fallback"
+    },
+    "SELF_COMPARE_RECORDING_NOT_PROVEN": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "recordingProven = started + duration + temp file (fileExists/fileBytes from the plugin) + finished playback"
+    },
+    "MOBILE_SIGNUP_FAILURE": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "8 signup stages traced; failures log stage/code/platform/build only; 25s/30s deadlines with actionable copy"
+    },
+    "PASSWORD_RECOVERY_FLOW_BROKEN_ON_MOBILE": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "REQUIRED",
+      "evidence": "in-app 6-digit code (verifyOtp recovery) + updateUser + Login; template needs {{ .Token }} — see docs/release/rc2-2-19-recovery-template.md"
+    },
+    "JOURNEY_NOT_USING_GUIDED_TRY_PRESENTATION": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "RC2.2.17B folded in: GuidedLessonShell, STEP_PRESENTATION_CONTRACTS, gate:rc2-2-17b-guided-journey-parity"
+    }
+  },
+  "p2": {
+    "REVIEW_TOO_DENSE": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "ReviewSessionComposer rounds of 5-8; simplified feedback"
+    },
+    "REVIEW_MONOTONOUS_REPETITION": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "no consecutive same target; repeated target → another format (formatShift)"
+    },
+    "HANZI_TOO_SMALL_IN_REVIEW": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "main 64-80px, options 48-60px, pairs 44-52px"
+    },
+    "TONE_LESSONS_VISUALLY_DENSE": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "17B flat tone surfaces; articulation diagrams separate from tone (no tongue for tone)"
+    },
+    "PROFILE_ACCOUNT_DISCOVERABILITY": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "TopBar avatar → /perfil + profile coachmark; first fold medals/Editar/Amigos; Mais › Você block"
+    },
+    "LOGOUT_DISCOVERABILITY": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "Sair in Mais › Você and in Conta; Excluir separated"
+    },
+    "IMMERSION_TOO_STATIC": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE",
+      "evidence": "StorySceneShell: ONDE/COM QUEM/OBJETIVO pre-screen, active speaker, recap 'Você conseguiu'"
+    }
+  },
+  "recoveryTemplate": {
+    "status": "RECOVERY_TEMPLATE_CODE_READY",
+    "ownerApplied": "NOT_RUN",
+    "physicallyVerified": "NOT_RUN",
+    "file": "supabase/templates/recovery.html",
+    "productionTemplateChangedByAgent": false
+  },
+  "localeExamples": {
+    "pt": "Mariana",
+    "en": "Alex",
+    "note": "Form placeholders keep the RC2.2.17 no-real-name rule (the RC2.2.17 gate rejects 'Matheus' as a placeholder). Matheus/Emily were NOT added to frozen teaching content; owner may approve them for new copy."
+  },
+  "rc2_2_16_residual": {
+    "status": "OWNER_ACTION_REQUIRED",
+    "items": {
+      "report": {
+        "status": "COMPLETE",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "fullValidation": {
+        "status": "PARTIAL_AGENT_RUN",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "playPackageConfirmation": {
+        "status": "OWNER_CONFIRMATION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "developerVerification": {
+        "status": "OWNER_CONFIRMATION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "uploadKey": {
+        "status": "OWNER_ACTION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "backups": {
+        "status": "OWNER_ACTION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "githubEnvironments": {
+        "status": "OWNER_ACTION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "realSignedAab": {
+        "status": "NOT_READY",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "internalPlay": {
+        "status": "PHYSICAL_ACTION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "playUpdateNtoN1": {
+        "status": "PHYSICAL_ACTION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      },
+      "storeAssets": {
+        "status": "OWNER_ACTION_REQUIRED",
+        "note": "carried forward from RC2.2.16 unchanged; closes only with owner/device evidence"
+      }
+    }
+  },
+  "regression": {
+    "packageName": "longyu.noba.com",
+    "androidInAppPurchase": "DISABLED_FOR_BETA",
+    "productionPlay": false,
+    "issue273Touched": false,
+    "fingerprint": "c48b008c9c1e"
+  },
+  "prOpenedAutomatically": false
+}

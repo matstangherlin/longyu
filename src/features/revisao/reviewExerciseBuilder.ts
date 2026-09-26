@@ -110,6 +110,11 @@ export interface ReviewExerciseBuildInput {
   activityErrors?: ActivityErrorRecord[];
   /** Domínio do HanziBuilder por caractere: revisão de forma segue o aluno. */
   hanziBuilderProgress?: HanziBuilderProgressMap;
+  /**
+   * RC2.2.19 — repetição transformada: quantas vezes o alvo já apareceu na
+   * sessão. Desloca a alternância de formatos (a 2ª vez pede outro formato).
+   */
+  formatShift?: number;
 }
 
 export interface MistakeReviewExerciseBuildInput {
@@ -620,7 +625,7 @@ function candidatesForDomain(
   entity: ReviewExerciseEntity,
   fallback: ReviewExercise
 ): (ReviewExercise | null)[] {
-  const reps = input.item.reps;
+  const reps = input.item.reps + (input.formatShift ?? 0);
   switch (input.domain) {
     case "fala":
       return [buildSpeakExercise(input, entity), fallback];

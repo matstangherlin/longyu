@@ -19,6 +19,24 @@ import { getCloudUserId } from "../../lib/auth/cloudSession";
 import { canEnterJourney, resolveSessionAudience } from "../../lib/auth/sessionAudience";
 import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { createAccount as createAuthAccount } from "../../services/authService";
+import {
+  SIGNUP_REQUEST_TIMEOUT_MS,
+  isSignupTimeout,
+  markSignupStage,
+  reportSignupFailure,
+  withSignupTimeout,
+} from "../../lib/signupTrace";
+
+/** Código curto e seguro a partir da mensagem do servidor (nunca a mensagem). */
+function signupErrorCodeFor(message: string | undefined): string {
+  const raw = String(message ?? "");
+  if (/muitas tentativas|rate.?limit|429/i.test(raw)) return "RATE_LIMITED";
+  if (/desafio de segurança|captcha/i.test(raw)) return "CAPTCHA_FAILED";
+  if (/failed to fetch|network|conectar|timeout/i.test(raw)) return "NETWORK";
+  if (/não foi possível criar a conta|edge function|non-2xx/i.test(raw)) return "EDGE_UNAVAILABLE";
+  if (/SIGNUP_REQUEST_THREW/.test(raw)) return "REQUEST_THREW";
+  return "SERVER_ERROR";
+}
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { CourseDirectionChip } from "../../components/i18n/CourseDirectionChip";
@@ -271,20 +289,34 @@ export function ComecarPage() {
     setBusy(true);
     setError(null);
     trackFunnelEvent("signup_submitted");
+    markSignupStage("signup_started");
     if (!isSupabaseBackendEnabled()) {
+      reportSignupFailure("signup_started", "BACKEND_DISABLED");
       setError(t("errors.backendUnavailable"));
       setBusy(false);
       return;
     }
-    const result = await createAuthAccount(email, password, {
-      name: firstName(name, t("onboarding.learnerFallback")),
-      birthDate: birthDate.trim() || null,
-      country: country.trim() || null,
-      signupSource: signupSource.trim() || null,
-      marketingOptIn,
-      onboardingCompleted: false,
-    });
+    // RC2.2.19 — prazo: nunca um "Criando conta…" girando para sempre.
+    const outcome = await withSignupTimeout(
+      createAuthAccount(email, password, {
+        name: firstName(name, t("onboarding.learnerFallback")),
+        birthDate: birthDate.trim() || null,
+        country: country.trim() || null,
+        signupSource: signupSource.trim() || null,
+        marketingOptIn,
+        onboardingCompleted: false,
+      }).catch(() => ({ status: "error" as const, message: "SIGNUP_REQUEST_THREW" })),
+      SIGNUP_REQUEST_TIMEOUT_MS
+    );
+    if (isSignupTimeout(outcome)) {
+      reportSignupFailure("signup_started", "SIGNUP_REQUEST_TIMEOUT");
+      setError(t("onboarding.signupTimeout"));
+      setBusy(false);
+      return;
+    }
+    const result = outcome;
     if (result.status === "error" || result.status === "not_implemented") {
+      reportSignupFailure("signup_started", result.status === "not_implemented" ? "NOT_IMPLEMENTED" : signupErrorCodeFor(result.message));
       const infra =
         /conectar ao Longyu|indisponível|failed to fetch|network|timeout|ainda não estão ativas|could not reach longyu|real accounts are not active/i;
       const raw = result.message || BACKEND_UNAVAILABLE_MESSAGE;
@@ -296,6 +328,8 @@ export function ComecarPage() {
     // login (CODE_READY_AWAITING_CLOUD_APPLY) — nada de "disponível" falso.
     storePendingUsername(usernameCheck.username);
     storePendingConfirmEmail(email);
+    markSignupStage("signup_request_success");
+    markSignupStage("confirmation_required");
     trackFunnelEvent("email_confirmation_pending");
     navigate(confirmEmailPath(email));
   }

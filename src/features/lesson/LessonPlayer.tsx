@@ -5,7 +5,8 @@ import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { CHARACTERS } from "../../data/characters";
-import { CHUNKS } from "../../data/chunks";
+import { CHUNKS, chunkById } from "../../data/chunks";
+import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
 import {
   charsInText,
   findChunkByText,
@@ -73,6 +74,7 @@ import { cultureItemIdFromLessonId } from "../../data/cultureNative";
 import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
 import { LessonVictory } from "./LessonVictory";
 import { resolveVictoryContinuePath, cultureReturnPath } from "./nextJourneyContinue";
+import { journeyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { studentFirstName } from "../../lib/personalize";
 import type { LessonCompletionSkill } from "./buildLessonCompletionSummary";
 import { t } from "../../i18n/catalog";
@@ -108,13 +110,24 @@ import { GlossLookupProvider } from "../../components/hanzi/helpMode";
 import { capAssistedGrade } from "../../lib/reviewLookup";
 import type { Grade } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
-import { LessonActionRegionProvider } from "./LessonActionRegion";
+import { LessonActionPortal, LessonActionRegionProvider } from "./LessonActionRegion";
+import {
+  GuidedLessonActionDock,
+  GuidedLessonHeader,
+  GuidedPrepareStage,
+  GuidedPresentationProvider,
+  GuidedStepSurface,
+  lessonShellMode,
+  prepareStageAllowed,
+} from "./GuidedLessonShell";
+import { presentationStageFor } from "../../lib/guidedPresentation";
+import { GUIDED_CLASS } from "../../components/guided/GuidedPrimitives";
 import { stepIdentity } from "../../lib/lessonStepContract";
 import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
 import { useTapThroughGuard } from "../../lib/useTapThroughGuard";
 import { guidanceLevelForLesson, guidedPhaseForStep, guidedTryBridgeApplies, showsPrepareLine } from "../../lib/guidedLesson";
 import { GuideLine } from "../../components/guide/GuideLine";
-import { traceLessonStep } from "../../lib/lessonStepTrace";
+import { setLessonTraceContext, traceLessonStep } from "../../lib/lessonStepTrace";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
@@ -194,6 +207,42 @@ import {
 } from "./PieceAssembly";
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
+
+const GUIDED_COLUMN = GUIDED_CLASS.column;
+
+/**
+ * RC2.2.17B · PART CR — "Você aprendeu": o que a lição declara como seu
+ * (libraryItems), no máximo 3; sem declaração, as frases de escuta.
+ * Só leitura de dados — não cria alvo, domínio nem SRS.
+ */
+function learnedItemsForLesson(
+  lesson: { libraryItems?: string[]; steps?: LessonStep[] },
+  locale: string
+): Array<{ hanzi: string; pinyin?: string; meaning?: string }> {
+  const out: Array<{ hanzi: string; pinyin?: string; meaning?: string }> = [];
+  const seen = new Set<string>();
+  const push = (hanzi: string | undefined, pinyin?: string, meaning?: string) => {
+    if (!hanzi || seen.has(hanzi) || out.length >= 3) return;
+    seen.add(hanzi);
+    out.push({ hanzi, pinyin, meaning: meaning ? resolveInstructionText(meaning, locale === "en" ? "en" : "pt-BR") : undefined });
+  };
+  for (const ref of lesson.libraryItems ?? []) {
+    const [type, id] = ref.split(":");
+    if (type === "chunk") {
+      const chunk = chunkById[id];
+      if (chunk) push(chunk.hanzi, chunk.pinyin, chunk.meaningPt);
+    } else if (type === "char") {
+      const char = charById.get(id);
+      if (char) push(char.hanzi, char.pinyin, char.meaningPt);
+    }
+  }
+  if (!out.length) {
+    for (const step of lesson.steps ?? []) {
+      if (step.kind === "listen" && step.text) push(step.text, step.pinyin, step.pt);
+    }
+  }
+  return out;
+}
 
 const SKILL_TRACK: Record<Skill, Track> = {
   som: "som",
@@ -1978,6 +2027,15 @@ export function LessonPlayer() {
   const { openFeedback } = useFeedbackUi();
 
   const [idx, setIdx] = useState(0);
+  /**
+   * RC2.2.17B · PART P — estágio de apresentação (PREPARE → passo 0). Estado
+   * de UI: não é passo do currículo, não muda `idx`, não dá XP nem domínio.
+   */
+  const [prepareDone, setPrepareDone] = useState(false);
+  /** PART BY — shell guiado (padrão) ou rollback visual de DEV/QA. */
+  const [shellMode] = useState(lessonShellMode);
+  const guidedShell = shellMode === "GUIDED";
+  const [prepareAllowed] = useState(prepareStageAllowed);
   // RC2.2.17 · AV — exposição do Teste guiado (só apresentação; nunca domínio).
   const guidedTryExposure = useStore((s) => s.guidedTryExposure);
   const idxRef = useRef(0);
@@ -2445,6 +2503,7 @@ export function LessonPlayer() {
   // cai no botão do passo novo (mesma posição).
   useTapThroughGuard(`${planNonce}:${idx}:${stepAttempt}`, "[data-lesson-step-frame], [data-lesson-action-region]");
 
+
   // Avançar N→N+1 (ou retry) nunca herda o scroll da atividade anterior.
   useLayoutEffect(() => {
     if (finished || energyBlocked || !entryChecked) return;
@@ -2575,6 +2634,30 @@ export function LessonPlayer() {
   }
   const lesson = adaptiveLesson;
   const total = lesson.steps.length;
+
+  // RC2.2.19 — trilha áudio/avanço (DEV/QA): contexto do passo + "visível"
+  // depois de pintar + toque na ação principal. Só metadados, nunca texto.
+  const traceStepKind = lesson.steps[idx]?.kind ?? "none";
+  useEffect(() => {
+    const context = { lessonId: lesson.id, stepIndex: idx, kind: traceStepKind, attempt: stepAttempt };
+    setLessonTraceContext(context);
+    const frame = requestAnimationFrame(() => traceLessonStep({ ...context, event: "step_visible" }));
+    const onClick = (event: MouseEvent) => {
+      const button = (event.target as Element | null)?.closest?.("button");
+      if (!button || button.disabled) return;
+      const primary =
+        button.closest("[data-lesson-action-region]") != null ||
+        button.hasAttribute("data-guided-primary") ||
+        (button.getAttribute("data-button-variant") === "primary" && button.closest("[data-lesson-step-frame]") != null);
+      if (primary) traceLessonStep({ ...context, event: "continue_pressed" });
+    };
+    document.addEventListener("click", onClick, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("click", onClick, true);
+      setLessonTraceContext(null);
+    };
+  }, [lesson.id, idx, stepAttempt, traceStepKind]);
   const lessonTasks = lessonTasksFor(lesson);
 
   // Métrica scene_shown: registra a cena exibida (com nível da variante e
@@ -3317,8 +3400,10 @@ export function LessonPlayer() {
     completedStepKeyRef.current = completionKey;
     traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_key" });
     traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completed" });
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_started" });
     try {
       completeCurrentStep(currentStep, wasCorrect, meta);
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_finished" });
     } catch (error) {
       // O toque em Continuar foi a confirmação do aluno: se a contabilidade
       // falhar, a chave é liberada (o "Continuar" de recuperação volta a
@@ -4396,6 +4481,10 @@ export function LessonPlayer() {
       preferJourney: isTopicMasteryLesson(lesson),
     });
 
+    // RC2.2.19 — Jornada → Cultura: o próximo passo é a aula CORE do tópico?
+    const victoryNextIsCulture =
+      lesson.lessonDomain !== "culture" && !isTopicMasteryLesson(lesson) && victoryContinuePath.startsWith("/licao/culture-");
+
     function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
       else navigate(victoryContinuePath);
@@ -4406,7 +4495,9 @@ export function LessonPlayer() {
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
-        return;
+        // RC2.2.19 / RC2.2.17B · CR — no shell guiado a recompensa é
+        // secundária: o CTA é "Continuar" e resgata no mesmo toque.
+        if (!guidedShell) return;
       }
       // P6/P15 — o único caso em que a Victory abre outra sessão: o Reforço +
       // pedido pela média das quatro rodadas. Continua sendo um CTA só.
@@ -4548,6 +4639,18 @@ export function LessonPlayer() {
           mistakesBySkill={mistakesBySkill}
           displayName={studentFirstName(accountName)}
           locale={locale === "en" ? "en" : "pt"}
+          guided={guidedShell}
+          learned={guidedShell ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
+          cultureNext={
+            victoryNextIsCulture && !hasUnclaimedRewards && !plusResult
+              ? {
+                  type: journeyCultureGuidanceType("core_after_topic"),
+                  line: t("player.cultureRecommendedNext"),
+                  skipLabel: t("player.cultureSkipForNow"),
+                  onSkip: () => navigate(cultureReturnPath(new URLSearchParams("src=jornada"), false)),
+                }
+              : undefined
+          }
           recovered={recovered}
           recoveredBanner={REVIEW_RECOVERED.banner}
           pendingStarsHint={pendingStarsHint}
@@ -4575,7 +4678,7 @@ export function LessonPlayer() {
                     }
                   : undefined
           }
-          primaryLabel={hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
+          primaryLabel={hasUnclaimedRewards && !guidedShell ? t("player.claimRewards") : journeyCta}
           primaryTestId={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
           onPrimary={handlePrimaryAction}
         />
@@ -4597,6 +4700,42 @@ export function LessonPlayer() {
   const stageLabel = activeStage
     ? t("player.stageOf", { index: activeStageIndex + 1, total: lessonTasks.length })
     : undefined;
+  // RC2.2.17 · AV / 2.2.17B · PART N — a fala de abertura do Dragão.
+  const bridge = guidedTryBridgeApplies(lesson.id, Boolean(guidedTryExposure));
+  const prepareLine = bridge
+    ? t("player.guidedBridgeNihao")
+    : t("player.guidedPrepare", { title: localizeLessonTitle(lesson.title, locale) });
+  const presentationStage =
+    guidedShell && prepareAllowed
+      ? presentationStageFor({
+          guidance,
+          stepIndex: idx,
+          firstStepKind: lesson.steps[0]?.kind,
+          bridge,
+          started: prepareDone,
+        })
+      : "STEP";
+  const reportCurrentStep = () =>
+    openFeedback({
+      screen: `/licao/${lesson.id}/player`,
+      route: `/licao/${lesson.id}/player`,
+      lessonId: lesson.id,
+      exerciseKind: lesson.steps[idx]?.kind,
+      exerciseIndex: idx,
+      activityProblem: true,
+    });
+  const stepRenderer = (
+    <StepRenderer
+      key={`${planNonce}:${idx}:${stepAttempt}:${stepIdentity(step)}`}
+      step={step}
+      lessonId={lesson.id}
+      attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
+      onDone={handleDone}
+      onSkip={canSkipStep ? skipCurrentStep : undefined}
+      onMistake={canSkipStep ? registerCurrentMistake : undefined}
+      onUnrecognized={registerUnrecognizedAnswer}
+    />
+  );
   const cultureTeachSkipped =
     lesson.lessonDomain === "culture" &&
     (foundLesson.steps ?? []).some((item) => item.kind === "intro") &&
@@ -4636,7 +4775,18 @@ export function LessonPlayer() {
             }
       }
     >
-    <div className="mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0">
+    <div
+      className={
+        guidedShell
+          ? "flex h-full w-full min-h-0 flex-col overflow-hidden"
+          : "mx-auto flex h-full w-full max-w-2xl min-h-0 flex-col overflow-hidden px-2 sm:px-0"
+      }
+      data-guided-lesson-shell={guidedShell ? "true" : "false"}
+      data-lesson-shell-mode={shellMode}
+      data-guidance-level={guidance}
+      data-presentation-stage={presentationStage}
+    >
+      <GuidedPresentationProvider guided={guidedShell}>
       <LessonActionRegionProvider target={lessonActionRegion}>
       {/* PERF-010 — números de abertura visíveis no próprio aparelho. */}
       <LessonPerfOverlay />
@@ -4661,6 +4811,23 @@ export function LessonPlayer() {
           </div>
         </div>
       )}
+      {guidedShell ? (
+        <GuidedLessonHeader
+          onExit={exitLesson}
+          exitTestId={lesson.lessonDomain === "culture" ? "culture-back" : undefined}
+          onReport={reportCurrentStep}
+          progressValue={idx + 1}
+          progressMax={total}
+          lives={lives}
+          maxLives={DRAGON_BREATH_LIVES}
+          unlimitedLives={hasUnlimitedLives}
+          stageLabel={
+            lesson.lessonDomain === "culture"
+              ? [t("culture.lessonEyebrow"), stageLabel].filter(Boolean).join(" · ")
+              : stageLabel
+          }
+        />
+      ) : (
       <LessonFocusHeader
         onExit={exitLesson}
         onReport={() =>
@@ -4686,8 +4853,22 @@ export function LessonPlayer() {
             : stageLabel
         }
       />
+      )}
 
-      {lesson.lessonDomain === "culture" ? (
+      {lesson.lessonDomain === "culture" && guidedShell ? (
+        // PART BU — Cultura no mesmo shell: sem pílula de tipo nem "Voltar"
+        // duplicado (o × já sai); fontes viram um link discreto.
+        <div className={`flex justify-end px-4 ${GUIDED_COLUMN}`}>
+          <button
+            type="button"
+            className="min-h-9 text-xs font-medium text-ink-faint underline-offset-2 hover:underline"
+            data-testid="culture-sources-open"
+            onClick={() => setCultureSourcesOpen((open) => !open)}
+          >
+            {t("culture.openSources")}
+          </button>
+        </div>
+      ) : lesson.lessonDomain === "culture" ? (
         <div className="flex items-center justify-between gap-2 px-2 pb-1 sm:px-0">
           <div className="flex min-w-0 items-center gap-2">
             <LessonKindLabel kind="culture" />
@@ -4772,11 +4953,8 @@ export function LessonPlayer() {
         </div>
       )}
 
-      {(() => {
-        // RC2.2.17 · AX–BF — camada guiada: PREPARE curto do Dragão só na
-        // abertura, com guia alto/médio, e só se o 1º passo já não traz o
-        // Dragão (intro) — nunca a mesma fala duas vezes.
-        const bridge = guidedTryBridgeApplies(lesson.id, Boolean(guidedTryExposure));
+      {!guidedShell && (() => {
+        // Rollback visual (PART BY): quadro antigo com a fala curta de abertura.
         const opening = idx === 0 && showsPrepareLine(guidance) && (bridge || lesson.steps[0]?.kind !== "intro");
         if (!opening) return null;
         return (
@@ -4784,10 +4962,48 @@ export function LessonPlayer() {
             className="mx-auto mb-3 max-w-2xl"
             size={44}
             data-testid="lesson-prepare-line"
-            text={bridge ? t("player.guidedBridgeNihao") : t("player.guidedPrepare", { title: localizeLessonTitle(lesson.title, locale) })}
+            text={prepareLine}
           />
         );
       })()}
+      {guidedShell && presentationStage === "PREPARE" ? (
+        <>
+          <GuidedPrepareStage title={localizeLessonTitle(lesson.title, locale)} line={prepareLine} />
+          <LessonActionPortal>
+            <div data-lesson-sticky-actions data-lesson-bottom-action className="px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 sm:px-4">
+              <Button
+                size="lg"
+                className="longyu-press-feedback w-full shadow-lift"
+                data-testid="lesson-prepare-start"
+                data-guided-primary
+                onClick={() => setPrepareDone(true)}
+              >
+                {t("player.guidedStart")}
+              </Button>
+            </div>
+          </LessonActionPortal>
+        </>
+      ) : guidedShell ? (
+        <GuidedStepSurface
+          stepKind={step.kind}
+          stepIndex={idx}
+          data-lesson-step-frame
+          data-lesson-task-body
+          data-current-step-kind={step.kind}
+          data-current-step-index={idx}
+          data-guidance-level={guidance}
+          data-guided-phase={guidedPhaseForStep(step.kind, idx)}
+          onPointerDownCapture={() => {
+            stepInteractedRef.current = true;
+          }}
+          onKeyDownCapture={() => {
+            stepInteractedRef.current = true;
+          }}
+          data-testid={lesson.lessonDomain === "culture" && step.kind === "intro" ? "culture-teach" : undefined}
+        >
+          {stepRenderer}
+        </GuidedStepSurface>
+      ) : (
       <Card
         data-lesson-step-frame
         data-lesson-task-body
@@ -4804,28 +5020,59 @@ export function LessonPlayer() {
         data-testid={lesson.lessonDomain === "culture" && step.kind === "intro" ? "culture-teach" : undefined}
         className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
       >
-        <StepRenderer
-          key={`${planNonce}:${idx}:${stepAttempt}:${stepIdentity(step)}`}
-          step={step}
-          lessonId={lesson.id}
-          attemptSeed={`${lesson.id}:${attemptIdRef.current ?? attemptStartedAtRef.current}:${idx}:${stepAttempt}`}
-          onDone={handleDone}
-          onSkip={canSkipStep ? skipCurrentStep : undefined}
-          onMistake={canSkipStep ? registerCurrentMistake : undefined}
-          onUnrecognized={registerUnrecognizedAnswer}
-        />
+        {stepRenderer}
       </Card>
+      )}
       </div>
 
-      <div
-        ref={setLessonActionRegion}
-        data-lesson-action-region
-        className="empty:hidden shrink-0 border-t border-line/70 bg-[rgb(var(--bg)/0.98)] shadow-[0_-10px_28px_rgb(0_0_0/0.16)] backdrop-blur"
-      />
+      {guidedShell ? (
+        <GuidedLessonActionDock dockRef={setLessonActionRegion} />
+      ) : (
+        <div
+          ref={setLessonActionRegion}
+          data-lesson-action-region
+          className="empty:hidden shrink-0 border-t border-line/70 bg-[rgb(var(--bg)/0.98)] shadow-[0_-10px_28px_rgb(0_0_0/0.16)] backdrop-blur"
+        />
+      )}
 
       {/* Painel de retry: pausa o avanço até o aluno decidir. Fica abaixo do
           {/* ProPaywall (z-50) abre por cima do overlay de erro. */}
-      {pendingMistake && (
+      {pendingMistake && guidedShell && (guidance === "HIGH" || guidance === "MEDIUM") ? (
+        // RC2.2.17B · PART Y/Z — no fluxo inicial, erro = retorno curto numa
+        // folha inferior: a correção + [ Continuar ]. Refazer por Qi fica como
+        // link discreto; nada de saldo, custo em grade ou três ofertas.
+        <ModalOverlay label={t("player.guidedAlmost")}>
+          <div
+            className="animate-pop w-full max-w-md rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-left shadow-lift sm:rounded-[28px]"
+            data-guided-retry-sheet="compact"
+          >
+            <div className="flex items-center gap-2 text-wrong">
+              <IconX width={20} height={20} />
+              <h2 className="font-serif text-xl font-semibold text-ink">{t("player.guidedAlmost")}</h2>
+            </div>
+            {pendingMistake.detail?.trim() ? <p className="mt-2 text-sm leading-6 text-ink-soft">{pendingMistake.detail}</p> : null}
+            <p className="mt-2 text-sm text-ink-soft">
+              {t("player.correctAnswer")}: <span className="font-semibold text-ink">{pendingMistake.correction}</span>
+            </p>
+            <div className="mt-4 grid gap-1" data-guided-action-dock>
+              <Button size="lg" className="w-full" onClick={continueWithMistake} data-guided-primary>
+                {t("player.continue")}
+              </Button>
+              {canPayRetry && (
+                <Button variant="ghost" className="w-full" onClick={retryWithQi}>
+                  {isPremium ? t("player.retryFree") : t("player.retryForQi", { n: RETRY_COST_QI })}
+                </Button>
+              )}
+            </div>
+            <div className="mt-1 flex items-center justify-between gap-2 text-xs text-ink-faint">
+              <span>{t("player.advanceCostsLife")}</span>
+              <button type="button" className="min-h-9 shrink-0 font-medium underline-offset-2 hover:underline" data-testid="lesson-report-question" onClick={reportCurrentStep}>
+                {t("common.reportProblem")}
+              </button>
+            </div>
+          </div>
+        </ModalOverlay>
+      ) : pendingMistake && (
         <ModalOverlay label={t("player.retryTitle")}>
           <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
@@ -4907,6 +5154,18 @@ export function LessonPlayer() {
             <p className="mt-3 text-xs leading-5 text-ink-faint">
               {t("player.advanceCostsLife")}
             </p>
+            {guidedShell && (
+              // RC2.2.17B · PART C — no celular, "reportar" sai do cabeçalho e
+              // mora aqui, onde a dúvida sobre a pergunta nasce.
+              <button
+                type="button"
+                className="mt-1 min-h-9 text-xs font-medium text-ink-faint underline-offset-2 hover:underline sm:hidden"
+                data-testid="lesson-report-question"
+                onClick={reportCurrentStep}
+              >
+                {t("common.reportProblem")}
+              </button>
+            )}
           </div>
         </ModalOverlay>
       )}
@@ -4918,6 +5177,7 @@ export function LessonPlayer() {
         onClose={contextualOffer.dismiss}
       />
       </LessonActionRegionProvider>
+      </GuidedPresentationProvider>
     </div>
     </div>
   );

@@ -58,6 +58,13 @@ import {
 } from "../../lib/proAccess";
 import { FREE_REVIEW_SESSION_LIMIT } from "../../data/economy";
 import { reviewSessionSplit } from "../../lib/reviewSession";
+import {
+  REVIEW_HANZI_CLASS,
+  composeReviewQueue,
+  reviewOccurrenceAt,
+  reviewRoundPosition,
+} from "../../lib/reviewSessionComposer";
+import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { scheduleAutoSpeak } from "../../lib/tts";
@@ -118,7 +125,10 @@ function personalizeReviewExercise(
 }
 
 /** Tamanho de cada rodada no drill de pontos fracos. */
-const WEAK_ROUND_SIZE = 5;
+/** RC2.2.19 — alvo pedagógico da entrada (mesmo hànzì/palavra em domínios diferentes = mesmo alvo). */
+function reviewTargetOf(entry: { item: SRSItem }): string {
+  return `${entry.item.type}:${entry.item.itemId}`;
+}
 interface Resolved {
   type: SRSItem["type"];
   itemId: string;
@@ -601,7 +611,7 @@ function ChoiceButton({
       <TypedValue
         value={option.label}
         type={option.type}
-        className={isHanziText(option.label) ? "text-3xl leading-tight sm:text-4xl" : ""}
+        className={isHanziText(option.label) ? REVIEW_HANZI_CLASS.option : ""}
         activation="hover-hold"
       />
       {option.detail && revealed && <span className="mt-0.5 block text-xs font-normal opacity-75">{formatPinyinForDisplay(option.detail)}</span>}
@@ -649,7 +659,7 @@ function ReviewExercisePanel({
             type={exercise.displayType}
             className={
               isHanziText(exercise.displayText)
-                ? "text-5xl leading-tight text-ink sm:text-6xl"
+                ? `${REVIEW_HANZI_CLASS.main} text-ink`
                 : "text-2xl font-semibold text-ink"
             }
           />
@@ -902,7 +912,7 @@ function MatchPairsExercise({
                 <TypedValue
                   value={pair.left}
                   type={pair.leftType}
-                  className={isHanziText(pair.left) ? "hanzi text-3xl leading-tight sm:text-4xl" : "text-base"}
+                  className={isHanziText(pair.left) ? `hanzi ${REVIEW_HANZI_CLASS.pair}` : "text-base"}
                   activation="hover-hold"
                 />
                 {matched && (
@@ -998,13 +1008,14 @@ function ExerciseFeedback({
           align="center"
         />
       </div>
-      <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>
+      {/* RC2.2.19 — feedback enxuto: acerto = confirmação + o item; a explicação só no erro. */}
+      {correct !== true && <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>}
       {correct && exercise.remediation && (
         <p className="mx-auto mt-2 max-w-sm text-xs font-semibold text-[rgb(var(--good))]">
           {catalogT("review.backToSpaced")}
         </p>
       )}
-      {showMistakeReason && exercise.mistakeReason && (
+      {correct === false && showMistakeReason && exercise.mistakeReason && (
         <p className="mx-auto mt-2 max-w-sm text-xs text-ink-faint">
           {catalogT("review.probableReason", { reason: displayInstruction(exercise.mistakeReason) })}
         </p>
@@ -1014,7 +1025,7 @@ function ExerciseFeedback({
           {catalogT("review.willReturnQueue")}
         </p>
       )}
-      {suggestedGrade && (
+      {suggestedGrade && correct !== true && (
         <div className="mx-auto mt-3 inline-flex rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">
           {catalogT("review.suggestion", { label: gradeLabel(suggestedGrade) })}
         </div>
@@ -1313,8 +1324,9 @@ export function RevisaoPage() {
     [detailedErrorsAllowed, fullQueue, mode]
   );
   const advancedReviewAccess = canAccessAdvancedReview({ isPremium });
+  // RC2.2.19 — mesma fila do SRS, só reordenada: o mesmo alvo nunca colado.
   const baseQueue = useMemo(
-    () => (advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue),
+    () => composeReviewQueue(advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue, reviewTargetOf),
     [advancedReviewAccess.limited, modeQueue]
   );
   const [retryQueue, setRetryQueue] = useState<ReviewQueueEntry[]>([]);
@@ -1436,6 +1448,8 @@ export function RevisaoPage() {
                   item: entry.item,
                   learnedItems,
                   domain,
+                  // RC2.2.19 — repetição transformada: 2ª aparição do alvo, outro formato.
+                  formatShift: reviewOccurrenceAt(queue, pos, reviewTargetOf),
                   errorHistory: detailedErrorsAllowed ? learnedItems.filter((learned) => learned.lapses > 0) : undefined,
                   activityErrors: detailedErrorsAllowed ? activeActivityErrors : undefined,
                   hanziBuilderProgress,
@@ -1445,7 +1459,7 @@ export function RevisaoPage() {
         ),
         studentName
       ),
-    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems, locale, studentName]
+    [activeActivityErrors, detailedErrorsAllowed, domain, entry, hanziBuilderProgress, item, learnedItems, locale, pos, queue, studentName]
   );
 
   useEffect(() => {
@@ -1924,10 +1938,12 @@ export function RevisaoPage() {
   continueReviewRef.current = () =>
     grade(exerciseCorrect === false && activeExercise.canAutoCheck ? "again" : suggestedGrade ?? "good");
 
-  const totalRounds = Math.max(1, Math.ceil(queue.length / WEAK_ROUND_SIZE));
-  const currentRound = Math.min(totalRounds, Math.floor(pos / WEAK_ROUND_SIZE) + 1);
-  const taskInRound = (pos % WEAK_ROUND_SIZE) + 1;
-  const roundProgress = ((pos % WEAK_ROUND_SIZE) / WEAK_ROUND_SIZE) * 100;
+  // RC2.2.19 — rodadas de 5 a 8 itens (ReviewSessionComposer).
+  const roundPosition = reviewRoundPosition(pos, queue.length);
+  const totalRounds = roundPosition.totalRounds;
+  const currentRound = roundPosition.round;
+  const taskInRound = roundPosition.indexInRound;
+  const roundProgress = ((roundPosition.indexInRound - 1) / roundPosition.roundSize) * 100;
 
   return (
     <HubPage data-review-page="">
@@ -1953,7 +1969,7 @@ export function RevisaoPage() {
                 </p>
               </div>
               <Pill tone="accent">
-                {taskInRound}/{Math.min(WEAK_ROUND_SIZE, queue.length - (currentRound - 1) * WEAK_ROUND_SIZE)} nesta rodada
+                {taskInRound}/{roundPosition.roundSize} nesta rodada
               </Pill>
             </div>
             <ProgressBar value={roundProgress} max={100} className="mt-4 h-2" />
@@ -1972,6 +1988,10 @@ export function RevisaoPage() {
           desc={detailedErrorsAllowed ? domainMeta.weaknessLabel : t("review.basicActionDesc")}
         />
       )}
+      {/* RC2.2.19 — primeira revisão: como a sessão funciona (orquestrada, 1x). */}
+      <div className="mb-3">
+        <GuidanceInlineSlot surface="/revisao" />
+      </div>
 
       {detailedErrorsAllowed && !correctionDrill && (
         <DetailedErrorsPanel

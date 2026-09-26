@@ -1,5 +1,6 @@
 import { clearPendingPlacement, readPendingPlacement, toServerPlacementEvidence, type PendingPlacementV2 } from "../lib/placement";
 import { finalizeOnboardingOnServer } from "./finalizeOnboarding";
+import { markSignupStage } from "../lib/signupTrace";
 import { commitPlacementToServer } from "./placementCommit";
 import { useStore } from "../lib/store";
 import { syncAuthSessionProgress } from "./cloudSyncCoordinator";
@@ -38,6 +39,8 @@ export async function completeAuthenticatedOnboarding(input?: {
   const migratingLocal =
     account?.authMode === "local" && isMeaningfulProgress(buildProgressSnapshot(account));
 
+  if (migratingLocal || input?.placement) markSignupStage("draft_restore_started");
+
   if (isSupabaseBackendEnabled()) {
     const client = getSupabaseClient();
     if (client) {
@@ -45,6 +48,7 @@ export async function completeAuthenticatedOnboarding(input?: {
         data: { user },
       } = await client.auth.getUser();
       if (user?.id) {
+        markSignupStage("profile_bootstrap_started");
         await client.rpc("ensure_own_profile", {
           p_name: account?.name ?? user.user_metadata?.name ?? "Aluno Longyu",
         });

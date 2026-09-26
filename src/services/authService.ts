@@ -9,6 +9,14 @@ import { profileDetailsPayload } from "./profileTypes";
 import { requestAccountDeletion } from "./privacyService";
 import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 import {
+  RECOVERY_CODE_INVALID_MESSAGE,
+  RECOVERY_MIN_PASSWORD_LENGTH,
+  RECOVERY_NEUTRAL_MESSAGE,
+  classifyRecoveryRequestError,
+  isRecoveryCodeComplete,
+  normalizeRecoveryCode,
+} from "../lib/passwordRecovery";
+import {
   classifyLoginIdentifier,
   GENERIC_LOGIN_ERROR,
   LOGIN_RATE_LIMITED,
@@ -355,15 +363,45 @@ export async function requestPasswordReset(email: string): Promise<AuthServiceRe
   if (!client) return notImplemented();
 
   const cleanEmail = email.trim();
-  const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
-    redirectTo: passwordRecoveryRedirectUrl(),
-  });
-  if (error) return { status: "error", message: error.message };
+  let outcome: ReturnType<typeof classifyRecoveryRequestError>;
+  try {
+    // O mesmo e-mail leva o código de 6 dígitos ({{ .Token }}) e o link.
+    const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
+      redirectTo: passwordRecoveryRedirectUrl(),
+    });
+    outcome = classifyRecoveryRequestError(error ? { status: error.status, code: (error as { code?: string }).code, message: error.message } : null);
+  } catch (error) {
+    outcome = classifyRecoveryRequestError({ message: String((error as Error)?.message ?? error) });
+  }
+  // RC2.2.19 — anti-enumeração: existir ou não a conta dá a MESMA resposta.
+  if (outcome === "RATE_LIMITED") return { status: "error", message: "Muitas tentativas. Aguarde alguns minutos e tente de novo." };
+  if (outcome === "OFFLINE") return { status: "error", message: "Sem conexão. Verifique a internet e tente de novo." };
+  return { status: "ok", message: RECOVERY_NEUTRAL_MESSAGE };
+}
 
-  return {
-    status: "ok",
-    message: "Se este email estiver cadastrado, você receberá um link para redefinir a senha em instantes.",
-  };
+/**
+ * RC2.2.19 — confere o código de 6 dígitos (verifyOtp type=recovery). Em caso
+ * de sucesso há uma sessão de recuperação; o código não é guardado em lugar
+ * nenhum (nem estado global, nem log, nem analytics).
+ */
+export async function verifyRecoveryCode(email: string, rawCode: string): Promise<AuthServiceResult> {
+  if (!isSupabaseBackendEnabled()) return notImplemented();
+  const client = getSupabaseClient();
+  if (!client) return notImplemented();
+  const token = normalizeRecoveryCode(rawCode);
+  if (!isRecoveryCodeComplete(token)) return { status: "error", message: RECOVERY_CODE_INVALID_MESSAGE };
+  try {
+    const { data, error } = await client.auth.verifyOtp({ email: email.trim(), token, type: "recovery" });
+    if (error || !data?.session) {
+      const outcome = classifyRecoveryRequestError(error ? { status: error.status, code: (error as { code?: string }).code, message: error.message } : null);
+      if (outcome === "OFFLINE") return { status: "error", message: "Sem conexão. Verifique a internet e tente de novo." };
+      if (outcome === "RATE_LIMITED") return { status: "error", message: "Muitas tentativas. Aguarde alguns minutos e tente de novo." };
+      return { status: "error", message: RECOVERY_CODE_INVALID_MESSAGE };
+    }
+    return { status: "ok", message: "Código confirmado. Crie sua nova senha." };
+  } catch {
+    return { status: "error", message: "Sem conexão. Verifique a internet e tente de novo." };
+  }
 }
 
 export async function updatePasswordAfterRecovery(password: string): Promise<AuthServiceResult> {
@@ -371,7 +409,7 @@ export async function updatePasswordAfterRecovery(password: string): Promise<Aut
   const client = getSupabaseClient();
   if (!client) return notImplemented();
 
-  if (password.length < 6) {
+  if (password.length < RECOVERY_MIN_PASSWORD_LENGTH) {
     return { status: "error", message: "A nova senha precisa ter pelo menos 6 caracteres." };
   }
 
@@ -389,6 +427,22 @@ export async function updatePasswordAfterRecovery(password: string): Promise<Aut
   if (error) return { status: "error", message: error.message };
 
   return { status: "ok", message: "Senha atualizada com sucesso. Você já pode entrar com a nova senha." };
+}
+
+/**
+ * RC2.2.19 — fecha a recuperação: grava a nova senha e encerra a sessão de
+ * recuperação, para o aluno entrar pelo Login com a senha nova.
+ */
+export async function completePasswordRecovery(password: string): Promise<AuthServiceResult> {
+  const result = await updatePasswordAfterRecovery(password);
+  if (result.status !== "ok") return result;
+  const client = getSupabaseClient();
+  try {
+    await client?.auth.signOut();
+  } catch {
+    /* a senha já mudou; o Login resolve o resto */
+  }
+  return result;
 }
 
 export async function logout(): Promise<AuthServiceResult> {
