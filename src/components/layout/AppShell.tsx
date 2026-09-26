@@ -27,6 +27,7 @@ import { CultureSealRevealWatcher } from "../../features/culture/CultureSealReve
 import { SmartBackButton } from "../navigation/SmartBackButton";
 import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
+import { GuidanceHost } from "../guidance/GuidanceHost";
 
 export function AppShell() {
   const theme = useResolvedTheme();
@@ -140,6 +141,8 @@ export function AppShell() {
       <EntitlementBootstrap />
       <TelemetryConsentBootstrap />
       <EconomyBootstrap />
+      {/* RC2.2.18 — único dono das orientações; nunca em lição, prova ou treino ativo. */}
+      {!focusMode && <GuidanceHost />}
       <CultureSealRevealWatcher suspended={focusMode} />
       <AchievementsWatcher />
       <StreakWatcher />

@@ -446,12 +446,12 @@ export function HanziAtlasPage() {
       </div>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {page.map((item) => {
+        {page.map((item, index) => {
           const favorite = favoriteSet.has(`char:${item.id}`);
           const weak = isWeakChar(item.id, srs);
           const availability = atlasContentAvailability(item, completedLessons, learnedSet);
           const canAddReview = canPromoteAtlasItemToReview(item, completedLessons, learnedSet);
-          return (
+          const card = (
             <HanziCard
               key={item.id}
               item={item}
@@ -464,6 +464,14 @@ export function HanziAtlasPage() {
               onAddReview={() => addToReview(item)}
               reviewNotice={reviewNotice?.id === item.id ? reviewNotice.text : null}
             />
+          );
+          // RC2.2.18 · BG — âncora do coachmark de primeiro uso do Atlas.
+          return index === 0 ? (
+            <div key={item.id} data-coachmark-target="atlas-first-char">
+              {card}
+            </div>
+          ) : (
+            card
           );
         })}
       </section>

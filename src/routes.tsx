@@ -5,6 +5,7 @@ import { PublicAuthLayout } from "./components/auth/PublicAuthLayout";
 import { RequireCloudSession } from "./components/auth/RequireCloudSession";
 import { importWithStaleBundleRetry } from "./lib/staleBundle";
 import { JourneyNodeGate } from "./components/journey/JourneyNodeGate";
+import { FeatureRouteGate } from "./components/guidance/FeatureRouteGate";
 
 function lazyNamed<T extends Record<string, unknown>>(
   importer: () => Promise<T>,
@@ -168,12 +169,12 @@ export const routes: RouteObject[] = [
       { path: "fala", element: <FalaPage /> },
       { path: "leitura", element: <LeituraPage /> },
       { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },
-      { path: "cultura", element: <CultureHubPage /> },
-      { path: "cultura/revisao", element: <CultureReviewPage /> },
-      { path: "cultura/colecao/:collectionId", element: <CultureCollectionPage /> },
-      { path: "cultura/:id", element: <CultureItemPage /> },
+      { path: "cultura", element: <FeatureRouteGate><CultureHubPage /></FeatureRouteGate> },
+      { path: "cultura/revisao", element: <FeatureRouteGate><CultureReviewPage /></FeatureRouteGate> },
+      { path: "cultura/colecao/:collectionId", element: <FeatureRouteGate><CultureCollectionPage /></FeatureRouteGate> },
+      { path: "cultura/:id", element: <FeatureRouteGate><CultureItemPage /></FeatureRouteGate> },
       { path: "biblioteca", element: <BibliotecaPage /> },
-      { path: "imersao", element: <JourneyNodeGate><ImmersionPage /></JourneyNodeGate> },
+      { path: "imersao", element: <FeatureRouteGate><JourneyNodeGate><ImmersionPage /></JourneyNodeGate></FeatureRouteGate> },
       { path: "ligas", element: <LigasPage /> },
       { path: "amigos", element: <AmigosPage /> },
       { path: "convide", element: <ReferralPage /> },
@@ -194,7 +195,7 @@ export const routes: RouteObject[] = [
       { path: "licao/:lessonId", element: <LessonDetailPage /> },
       { path: "licao/:lessonId/player", element: <LessonPlayer /> },
       { path: "teste/:unitId", element: <ModuleChallengePage /> },
-      { path: "teste/fase/:phaseId", element: <PhaseChallengePage /> },
+      { path: "teste/fase/:phaseId", element: <FeatureRouteGate><PhaseChallengePage /></FeatureRouteGate> },
     ],
   },
   { path: "*", element: <NotFoundPage /> },

@@ -121,7 +121,8 @@ test.describe("RC2.2.13 — TopBar compacta", () => {
     // `min-[390px]` pode ver < 390 e esconder o Qi. 414px (iPhone Plus típico)
     // fica claramente acima do breakpoint sem mudar o contrato do produto.
     await page.setViewportSize({ width: 414, height: 896 });
-    await seed(page);
+    // RC2.2.18 · AI — o Qi aparece depois que a economia foi apresentada.
+    await seed(page, { points: 40 });
     await open(page, "/jornada");
     await expect(page.getByTestId("topbar-qi")).toBeVisible();
     await noHorizontalOverflow(page);

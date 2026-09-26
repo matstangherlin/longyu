@@ -119,7 +119,9 @@ export async function loadState() {
       reminderPlan: srcFiles["src/lib/studyReminderPlan.ts"],
       deepLinks: srcFiles["src/lib/platform/deepLinks.ts"],
       bootstrap: srcFiles["src/components/native/NativeExperienceBootstrap.tsx"],
-      intro: srcFiles["src/components/native/NativePermissionIntro.tsx"],
+      // RC2.2.18 — o intro combinado saiu; o pedido progressivo mora aqui.
+      guidanceHost: srcFiles["src/components/guidance/GuidanceHost.tsx"],
+      guidanceOrchestrator: srcFiles["src/lib/guidanceOrchestrator.ts"],
       settings: srcFiles["src/components/native/NativeSettingsSections.tsx"],
       settingsPage: srcFiles["src/features/settings/SettingsPage.tsx"],
       main: srcFiles["src/main.tsx"],
@@ -227,7 +229,8 @@ export async function validateAndroidSafeArea(s) {
   if (!/pt-\[var\(--app-safe-top\)\]/.test(s.src.topBar)) fail("TOPBAR_SAFE_AREA_MISSING", "TopBar.tsx", "a TopBar desce abaixo da status bar");
   if (!/paddingBottom:\s*"var\(--app-safe-bottom\)"/.test(s.src.tabBar)) fail("TABBAR_SAFE_AREA_MISSING", "TabBar.tsx", "a TabBar sobe acima da barra de gestos");
   if (!/paddingBottom:\s*"max\(1rem, var\(--app-safe-bottom\)\)"/.test(s.src.tabBar)) fail("SHEET_SAFE_AREA_MISSING", "TabBar.tsx (TabSheet)", "sheet respeita a safe-area inferior");
-  if (!/--app-safe-bottom/.test(s.src.intro)) fail("MODAL_SAFE_AREA_MISSING", "NativePermissionIntro.tsx", "o intro encosta na barra de gestos");
+  // RC2.2.18 — o cartão de orientação (sucessor do intro) respeita a barra de gestos.
+  if (!/var\(--app-safe-bottom, 0px\) \+ 12px/.test(s.src.guidanceHost)) fail("MODAL_SAFE_AREA_MISSING", "GuidanceHost.tsx", "o cartão de orientação encosta na barra de gestos");
   if (!/pt-\[max\(0\.25rem,var\(--app-safe-top\)\)\]/.test(s.src.focusHeader)) fail("FOCUS_SAFE_AREA_MISSING", "LessonFocusHeader.tsx", "modo foco respeita a safe-area superior");
   if (!/viewport-fit=cover/.test(s.src.indexHtml)) fail("VIEWPORT_FIT_MISSING", "index.html", "viewport-fit=cover habilita as insets");
   if (/fixed inset-x-0 top-20\b/.test(s.src.loja)) fail("TOAST_UNDER_HEADER", "LojaPage.tsx", "toast fixo precisa ficar abaixo de --app-header-height");
@@ -381,16 +384,17 @@ export async function validateNativePermissions(s) {
   if (/firebase/i.test(stripComments(s.src.appGradle) + stripComments(s.src.rootGradle)) || s.files.googleServicesJson)
     fail("FIREBASE_ADDED", "android/", "sem Google Services / Firebase");
 
-  // Intro do primeiro launch.
-  const intro = stripComments(s.src.intro);
-  if (!/NATIVE_PERMISSION_INTRO_VERSION = 1;/.test(intro)) fail("INTRO_VERSION_WRONG", "NativePermissionIntro.tsx", "nativePermissionIntroVersion = 1");
-  const request = fnBody(intro, "const requestSequentially = async");
-  const notifAt = request.indexOf("await requestNotificationPermission()");
-  const micAt = request.indexOf("await requestNativeMicrophone()");
-  if (notifAt < 0 || micAt < 0 || notifAt > micAt) fail("PERMISSION_ORDER", "NativePermissionIntro.tsx", "1) notificações 2) microfone, em sequência");
-  if (!/finally \{[^}]*finish\(\);/.test(request)) fail("DENIAL_BLOCKS_APP", "NativePermissionIntro.tsx", "recusa (ou erro) também fecha o intro");
+  // RC2.2.18 · BM–BQ — permissões progressivas (substitui o intro do primeiro
+  // launch): microfone no toque, dentro da atividade de fala; notificação como
+  // oferta do orquestrador (só Android, só depois da 1ª sessão). Nunca juntos.
+  const host = stripComments(s.src.guidanceHost ?? "");
+  const orchestrator = stripComments(s.src.guidanceOrchestrator ?? "");
+  const offer = fnBody(host, "const act = useCallback(");
+  if (!/id: "notifications_offer_v1"[\s\S]{0,600}?nativeOnly: true/.test(orchestrator) || !/await requestNativeMicrophone\(\)/.test(fnBody(stripComments(s.src.speech), "export async function ensureMicPermission(")) || /requestNativeMicrophone/.test(offer))
+    fail("PERMISSION_ORDER", "GuidanceHost/speech.ts", "notificação e microfone pedidos separados, cada um no seu momento");
+  if (!/setNotificationPromptable\(permission === "prompt"\)/.test(host)) fail("DENIAL_BLOCKS_APP", "GuidanceHost.tsx", "negado não é pedido de novo a cada sessão");
   const boot = stripComments(s.src.bootstrap);
-  if (!/if \(!android \|\| introVersion >= NATIVE_PERMISSION_INTRO_VERSION\) return null;/.test(boot)) fail("INTRO_NOT_GATED", "NativeExperienceBootstrap.tsx", "intro só no Android e só uma vez");
+  if (/NativePermissionIntro/.test(boot)) fail("INTRO_NOT_GATED", "NativeExperienceBootstrap.tsx", "nada de intro de permissões no primeiro launch");
   if (!/nativePermissionIntroVersion: Math\.max\(s\.nativePermissionIntroVersion \?\? 0, version\)/.test(s.src.store)) fail("INTRO_REPEATS", "store.ts", "visto fica visto");
   if (/requestNotificationPermission|requestNativeMicrophone|requestPermissions/.test(boot)) fail("PERMISSION_ON_BOOT", "NativeExperienceBootstrap.tsx", "nada pedido sem o aluno tocar");
   if (!/<NativeExperienceBootstrap \/>/.test(s.src.main)) fail("INTRO_NOT_MOUNTED", "main.tsx", "bootstrap na raiz do router");

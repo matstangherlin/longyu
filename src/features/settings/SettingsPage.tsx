@@ -41,6 +41,7 @@ import {
 } from "../../services/telemetryConsent";
 import { buildPrivacyExportBundle } from "../../services/privacyService";
 import { DangerZone } from "../../components/account/DangerZone";
+import { GuidanceSettingsCard } from "../../components/guidance/GuidanceSettingsCard";
 import { appearanceModeOf, type AppearanceMode } from "../../lib/useResolvedTheme";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
@@ -571,6 +572,8 @@ export function SettingsPage() {
               </div>
             </Card>
           </HubSection>
+          {/* RC2.2.18 · H/I — dicas guiadas: ligar/desligar e rever. */}
+          <GuidanceSettingsCard />
       </>
     ),
     som: (

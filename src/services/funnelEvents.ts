@@ -22,6 +22,11 @@ export const FUNNEL_EVENT_TYPES = [
   "course_direction_selected",
   // RC2.2.17 · AI — meta diária escolhida no onboarding (só os minutos).
   "daily_goal_selected",
+  // RC2.2.18 · CD — descoberta progressiva (ids e áreas, nunca PII).
+  "guidance_shown",
+  "guidance_dismissed",
+  "feature_unlocked",
+  "feature_opened_after_unlock",
 ] as const;
 
 export type FunnelEventType = (typeof FUNNEL_EVENT_TYPES)[number];

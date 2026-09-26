@@ -639,6 +639,7 @@ export const ptBR = {
     speechReady: "Pronto. A próxima fala já usa o reconhecimento.",
     speechScheduled: "O Android vai preparar o reconhecimento. Você pode continuar estudando.",
     speechDownloadFailed: "O Android não conseguiu baixar agora. Continue com a autoavaliação.",
+    micPrePermission: "Para praticar sua fala, o Longyu precisa usar o microfone.",
     micAllow: "🎙 Permitir microfone",
     micOpenSettings: "Abrir configurações do Android",
     continue: "Continuar",
@@ -2790,6 +2791,114 @@ export const ptBR = {
     conversationRight: "Pronto: você cumprimentou alguém em mandarim.",
     doneLead: "Você já consegue cumprimentar alguém.",
     continueToGoal: "Continuar",
+  },
+  guidance: {
+    common: {
+      gotIt: "Entendi",
+      nowNot: "Agora não",
+      skip: "Pular",
+      skipAll: "Pular dicas",
+      dialogLabel: "Dica do Longyu",
+      newBadge: "Novo",
+    },
+    welcome: {
+      title: "Tudo pronto. Vamos começar sua Jornada.",
+      body: "Aqui começa sua Jornada: toque para abrir a primeira lição.",
+      primary: "Começar",
+    },
+    newFeatures: {
+      title: "Novos recursos disponíveis",
+      body: "Você avançou na Jornada e liberou:",
+    },
+    practiceUnlocked: {
+      title: "Praticar foi liberado",
+      body: "Use esta área para reforçar o que você já aprendeu.",
+      primary: "Conhecer",
+    },
+    missionsUnlocked: {
+      title: "Missões liberadas",
+      body: "As Missões ajudam você a manter uma rotina.",
+    },
+    cultureUnlocked: {
+      title: "✨ Cultura desbloqueada",
+      body: "Você já conhece o suficiente para começar a explorar a cultura por trás do idioma.",
+      primary: "Explorar",
+    },
+    hanziUnlocked: {
+      title: "Treino de Hànzì liberado",
+      body: "Você já aprendeu alguns caracteres. Agora pode treiná-los como peças lógicas.",
+      primary: "Treinar Hànzì",
+    },
+    atlasUnlocked: {
+      title: "Atlas liberado",
+      body: "Você já conhece alguns caracteres. Agora pode explorá-los no Atlas.",
+      primary: "Explorar Atlas",
+    },
+    leagueUnlocked: {
+      title: "Liga liberada",
+      body: "Agora você pode comparar seu ritmo semanal. A Liga usa XP de estudo; o Pro não muda o ranking.",
+    },
+    shopIntroduction: {
+      title: "Você recebeu Qi",
+      body: "Ele pode ser usado em recursos opcionais.",
+      primary: "Ver depois",
+    },
+    immersionUnlocked: {
+      title: "Imersão liberada",
+      body: "Agora você já consegue entrar em uma conversa mais livre. Os personagens podem responder de formas diferentes.",
+      primary: "Experimentar",
+    },
+    toneDirectionTip: {
+      body: "Dica: compare primeiro a direção da voz, não apenas o som da sílaba.",
+    },
+    practiceFirstUse: {
+      body: "O Longyu escolhe uma prática baseada no que você já estudou.",
+    },
+    reviewFirstUse: {
+      body: "A revisão traz de volta o que está começando a enfraquecer.",
+    },
+    cultureFirstUse: {
+      body: "Comece por esta recomendação.",
+    },
+    atlasFirstUse: {
+      body: "Toque em um caractere para ver som, significado e componentes.",
+    },
+    notificationsOffer: {
+      title: "Lembretes de estudo",
+      body: "Quer que o Longyu lembre você antes de perder a ofensiva?",
+      primary: "Ativar",
+    },
+    settings: {
+      title: "Dicas guiadas",
+      description: "Mostra orientações curtas quando novos recursos aparecem.",
+      reset: "Rever dicas do aplicativo",
+      resetDone: "Pronto: as dicas vão aparecer de novo, uma por vez. Seu progresso não mudou.",
+    },
+  },
+  discovery: {
+    features: {
+      journey: "Jornada",
+      practice: "Praticar",
+      review: "Revisão",
+      hanzi: "Treino de Hànzì",
+      atlas: "Atlas",
+      culture: "Cultura",
+      missions: "Missões",
+      achievements: "Conquistas",
+      league: "Liga",
+      shop: "Loja",
+      immersion: "Imersão",
+      phaseChallenge: "Desafio de fase",
+    },
+    unavailable: {
+      title: "Ainda não",
+      culture: "A Cultura será liberada conforme sua Jornada avança.",
+      immersion: "A Imersão será liberada conforme sua Jornada avança.",
+      phaseChallenge: "O Desafio de fase aparece quando houver uma próxima fase válida para desafiar.",
+      generic: "Esta área será liberada conforme sua Jornada avança.",
+      cta: "Continuar Jornada",
+    },
+    previewHint: "Continue sua Jornada para descobrir.",
   },
 } as const;
 

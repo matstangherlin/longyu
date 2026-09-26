@@ -38,7 +38,7 @@ import { listPhaseChallengeTargets } from "../../lib/phaseChallenge";
 import { useIsPro } from "../../lib/proAccess";
 import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
-import { FeatureDiscoveryCard } from "../../components/system/FeatureDiscoveryCard";
+import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction, displayLessonTitle, localizedReviewPendingLabel, localizedReviewSessionLabel } from "../../i18n/overlays/journeyChrome";
 import type { TranslateVars } from "../../i18n/catalog";
@@ -262,8 +262,9 @@ export function JourneyPage() {
   };
   const isPremium = useIsPro();
   // RC2.2.8 · K3 — fases desafiáveis. A própria prévia explica cooldown/Fôlego.
+  // RC2.2.18 · AM — nada de botão de desafio desde o onboarding.
   const phaseChallengeKinds = new Map(
-    listPhaseChallengeTargets({ ...pageCultureProgress, completedLessons: completed, isPremium })
+    (completed.length > 0 ? listPhaseChallengeTargets({ ...pageCultureProgress, completedLessons: completed, isPremium }) : [])
       .filter((target) => target.kind && (target.eligible || target.reason === "culture_gate"))
       .map((target) => [target.phase.id, target.kind as string])
   );
@@ -441,7 +442,8 @@ export function JourneyPage() {
             offline={!online}
           />
 
-          <FeatureDiscoveryCard />
+          {/* RC2.2.18 — dica inline decidida pelo GuidanceOrchestrator (uma por vez). */}
+          <GuidanceInlineSlot surface="/jornada" />
 
           <JourneyMobileChips
             mission={primaryMission}
@@ -708,6 +710,7 @@ function JourneyHeader({
             className="w-full border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:px-6"
             size="lg"
             onClick={onContinue}
+            data-coachmark-target="journey-continue"
           >
             <span className="leading-none">{continueLabel ?? (done === 0 ? t("journey.startFirstLesson") : t("journey.continue"))}</span>
             <IconChevron width={18} height={18} aria-hidden="true" />

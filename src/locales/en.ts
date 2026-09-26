@@ -641,6 +641,7 @@ export const en: MessageCatalog = {
     speechReady: "Ready. Your next speaking turn uses recognition.",
     speechScheduled: "Android will prepare recognition. You can keep studying.",
     speechDownloadFailed: "Android couldn't download it now. Keep going with self-check.",
+    micPrePermission: "To practice your speaking, Longyu needs to use the microphone.",
     micAllow: "🎙 Allow microphone",
     micOpenSettings: "Open Android settings",
     continue: "Continue",
@@ -2784,5 +2785,113 @@ export const en: MessageCatalog = {
     conversationRight: "Done: you greeted someone in Mandarin.",
     doneLead: "You can already greet someone.",
     continueToGoal: "Continue",
+  },
+  guidance: {
+    common: {
+      gotIt: "Got it",
+      nowNot: "Not now",
+      skip: "Skip",
+      skipAll: "Skip tips",
+      dialogLabel: "Longyu tip",
+      newBadge: "New",
+    },
+    welcome: {
+      title: "All set. Let's start your Journey.",
+      body: "Your Journey starts here: tap to open the first lesson.",
+      primary: "Start",
+    },
+    newFeatures: {
+      title: "New features available",
+      body: "You moved forward in your Journey and unlocked:",
+    },
+    practiceUnlocked: {
+      title: "Practice is unlocked",
+      body: "Use this area to reinforce what you have already learned.",
+      primary: "Take a look",
+    },
+    missionsUnlocked: {
+      title: "Missions unlocked",
+      body: "Missions help you keep a routine.",
+    },
+    cultureUnlocked: {
+      title: "✨ Culture unlocked",
+      body: "You already know enough to start exploring the culture behind the language.",
+      primary: "Explore",
+    },
+    hanziUnlocked: {
+      title: "Hànzì training unlocked",
+      body: "You have learned a few characters. Now you can train them as logical pieces.",
+      primary: "Train Hànzì",
+    },
+    atlasUnlocked: {
+      title: "Atlas unlocked",
+      body: "You already know a few characters. Now you can explore them in the Atlas.",
+      primary: "Explore Atlas",
+    },
+    leagueUnlocked: {
+      title: "League unlocked",
+      body: "Now you can compare your weekly pace. The League uses study XP; Pro does not change the ranking.",
+    },
+    shopIntroduction: {
+      title: "You received Qi",
+      body: "It can be used on optional features.",
+      primary: "See later",
+    },
+    immersionUnlocked: {
+      title: "Immersion unlocked",
+      body: "You can now join a freer conversation. Characters may answer in different ways.",
+      primary: "Try it",
+    },
+    toneDirectionTip: {
+      body: "Tip: compare the direction of the voice first, not only the sound of the syllable.",
+    },
+    practiceFirstUse: {
+      body: "Longyu picks a practice based on what you have already studied.",
+    },
+    reviewFirstUse: {
+      body: "Review brings back what is starting to fade.",
+    },
+    cultureFirstUse: {
+      body: "Start with this recommendation.",
+    },
+    atlasFirstUse: {
+      body: "Tap a character to see its sound, meaning and components.",
+    },
+    notificationsOffer: {
+      title: "Study reminders",
+      body: "Want Longyu to remind you before you lose your streak?",
+      primary: "Turn on",
+    },
+    settings: {
+      title: "Guided tips",
+      description: "Shows short guidance when new features appear.",
+      reset: "See app tips again",
+      resetDone: "Done: tips will show again, one at a time. Your progress did not change.",
+    },
+  },
+  discovery: {
+    features: {
+      journey: "Journey",
+      practice: "Practice",
+      review: "Review",
+      hanzi: "Hànzì training",
+      atlas: "Atlas",
+      culture: "Culture",
+      missions: "Missions",
+      achievements: "Achievements",
+      league: "League",
+      shop: "Shop",
+      immersion: "Immersion",
+      phaseChallenge: "Phase challenge",
+    },
+    unavailable: {
+      title: "Not yet",
+      culture: "Culture will unlock as your Journey moves forward.",
+      immersion: "Immersion will unlock as your Journey moves forward.",
+      phaseChallenge: "The phase challenge appears when there is a next phase you can challenge.",
+      generic: "This area will unlock as your Journey moves forward.",
+      cta: "Continue Journey",
+    },
+    previewHint: "Keep going on your Journey to discover it.",
   },
 };

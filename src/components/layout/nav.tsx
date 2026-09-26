@@ -20,6 +20,11 @@ import {
 } from "../ui/Icon";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
 import type { FeatureId, LearnerStage } from "../../lib/learnerStage";
+import {
+  DISCOVERY_FEATURE_ORDER,
+  type DiscoveryFeatureId,
+  type FeatureVisibilityMap,
+} from "../../lib/progressiveDiscovery";
 import type { MessageKey } from "../../locales/pt-BR";
 
 export interface NavItem {
@@ -105,14 +110,53 @@ export const NAV: Record<string, NavItem> = {
  */
 export const MOBILE_PRIMARY_NAV_ROUTES = ["/jornada", "/treino", "/cultura", "/missoes", "/mais"] as const;
 
-export function mobileNavForStage(_stage: LearnerStage): NavItem[] {
+/**
+ * RC2.2.18 — rota de navegação → área progressiva. Itens sem entrada aqui
+ * (Jornada, Praticar, Perfil, Ajustes, Conta, Ajuda, Sobre…) nunca somem.
+ */
+export const NAV_DISCOVERY_FEATURE: Readonly<Record<string, DiscoveryFeatureId>> = {
+  "/revisao": "review",
+  "/cultura": "culture",
+  "/ideogramas": "hanzi",
+  "/imersao": "immersion",
+  "/missoes": "missions",
+  "/conquistas": "achievements",
+  "/ligas": "league",
+  "/loja": "shop",
+};
+
+/** Conta madura: tudo disponível (comportamento anterior à RC2.2.18). */
+export const FULL_FEATURE_VISIBILITY: FeatureVisibilityMap = Object.fromEntries(
+  DISCOVERY_FEATURE_ORDER.map((id) => [id, "AVAILABLE"])
+) as FeatureVisibilityMap;
+
+export function isNavItemDiscovered(item: NavItem, visibility: FeatureVisibilityMap): boolean {
+  const feature = NAV_DISCOVERY_FEATURE[item.to];
+  return !feature || visibility[feature] === "AVAILABLE";
+}
+
+/** Itens PERTO do desbloqueio (máx. 2) — aparecem discretos em Mais (PART AN/AO). */
+export function previewNavItems(visibility: FeatureVisibilityMap, limit = 2): NavItem[] {
+  return Object.entries(NAV_DISCOVERY_FEATURE)
+    .filter(([, feature]) => visibility[feature] === "PREVIEW")
+    .sort(([, a], [, b]) => DISCOVERY_FEATURE_ORDER.indexOf(a) - DISCOVERY_FEATURE_ORDER.indexOf(b))
+    .slice(0, limit)
+    .map(([to]) => Object.values(NAV).find((item) => item.to === to))
+    .filter((item): item is NavItem => Boolean(item));
+}
+
+/**
+ * Barra mobile: a ordem final é SEMPRE esta (PART BU); a RC2.2.18 só filtra o
+ * que ainda não foi descoberto. Conta nova: Jornada · Praticar · Mais.
+ */
+export function mobileNavForStage(_stage: LearnerStage, visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY): NavItem[] {
   return [
     NAV.jornada,
     NAV.treino,
     NAV.cultura,
     NAV.missoes,
     NAV.mais,
-  ];
+  ].filter((item) => isNavItemDiscovered(item, visibility));
 }
 
 /**
@@ -120,23 +164,29 @@ export function mobileNavForStage(_stage: LearnerStage): NavItem[] {
  * - Praticar → Hànzì, Pinyin Lab, Fala, …
  * - Perfil → Amigos, Conta, …
  */
-export function desktopNavForStage(_stage: LearnerStage): NavItem[] {
-  return DESKTOP_NAV;
+export function desktopNavForStage(_stage: LearnerStage, visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY): NavItem[] {
+  return DESKTOP_NAV.filter((item) => isNavItemDiscovered(item, visibility));
 }
 
 /** Hover de Praticar: competências e hubs de estudo. */
-export function practiceFlyoutItems(): NavItem[] {
-  return [NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao];
+export function practiceFlyoutItems(visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY): NavItem[] {
+  return [NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao].filter((item) =>
+    isNavItemDiscovered(item, visibility)
+  );
 }
 
 /**
  * Sheet mobile de Praticar (2 colunas, compacta): Revisão, Hànzì, Pinyin,
  * Fala, Leitura, Imersão, Biblioteca. Revisão só sai daqui se estiver na barra.
  */
-export function practiceMobileSheetItems(primaryNav: NavItem[]): NavItem[] {
+export function practiceMobileSheetItems(
+  primaryNav: NavItem[],
+  visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY
+): NavItem[] {
   const onBar = new Set(primaryNav.map((item) => item.to));
   const items = [NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.imersao, NAV.biblioteca];
-  return onBar.has("/revisao") ? items : [NAV.revisao, ...items];
+  // RC2.2.18 · S/T — nada de modo vazio: Revisão só com itens; Hànzì/Imersão quando fazem sentido.
+  return (onBar.has("/revisao") ? items : [NAV.revisao, ...items]).filter((item) => isNavItemDiscovered(item, visibility));
 }
 
 /** Hover de Perfil: social e conta. */
@@ -166,11 +216,14 @@ export const MORE_CATALOG: NavGroup[] = [
 ];
 
 /** Popover Mais: só sistema — estudo/social já estão nos flyouts Praticar/Perfil. */
-export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
+export function moreFlyoutGroups(
+  primaryNav: NavItem[],
+  visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY
+): NavGroup[] {
   const primaryTos = new Set(
     primaryNav.filter((item) => item.to !== "/mais").map((item) => item.to)
   );
-  const keep = (item: NavItem) => !primaryTos.has(item.to);
+  const keep = (item: NavItem) => !primaryTos.has(item.to) && isNavItemDiscovered(item, visibility);
 
   const account = [NAV.conquistas, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
   return account.length
@@ -182,11 +235,14 @@ export function moreFlyoutGroups(primaryNav: NavItem[]): NavGroup[] {
  * Sheet mobile de Mais: atalhos que não cabem na barra (Loja, Ligas, …)
  * + sistema. O catálogo completo continua em `/mais`.
  */
-export function moreMobileSheetGroups(primaryNav: NavItem[]): NavGroup[] {
+export function moreMobileSheetGroups(
+  primaryNav: NavItem[],
+  visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY
+): NavGroup[] {
   const primaryTos = new Set(
     primaryNav.filter((item) => item.to !== "/mais").map((item) => item.to)
   );
-  const keep = (item: NavItem) => !primaryTos.has(item.to);
+  const keep = (item: NavItem) => !primaryTos.has(item.to) && isNavItemDiscovered(item, visibility);
 
   // Cultura é aba da barra (RC2.2.13): não se repete aqui.
   const explore = [NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);

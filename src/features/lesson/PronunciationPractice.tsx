@@ -437,6 +437,12 @@ export function PronunciationPractice({
   const micNeedsAsk = nativeVoice && micState != null && micState !== "granted" && !micBlocked;
   return (
     <div className="mt-6 space-y-2">
+      {/* RC2.2.18 · BN — pré-permissão: o porquê vem antes do diálogo do sistema. */}
+      {micNeedsAsk && (
+        <p className="text-center text-sm text-ink-soft" data-testid="speech-mic-pre-permission">
+          {t("player.micPrePermission")}
+        </p>
+      )}
       {micBlocked ? (
         <Button className="w-full" size="lg" data-testid="speech-open-settings" onClick={() => void openNativeAppSettings()}>
           {t("player.micOpenSettings")}

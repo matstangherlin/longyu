@@ -13,7 +13,6 @@ import { resolveDeepLink } from "../../lib/platform/deepLinks";
 import { subscribeAppLifecycle } from "../../lib/platform/appLifecycle";
 import { refreshNativeTtsStatus } from "../../lib/tts";
 import { refreshNativeSpeechStatus } from "../../lib/speech";
-import { NativePermissionIntro, NATIVE_PERMISSION_INTRO_VERSION } from "./NativePermissionIntro";
 
 /**
  * RC2.2.13 — experiência nativa do Android, montada UMA vez na raiz do router.
@@ -38,7 +37,6 @@ export function NativeExperienceBootstrap() {
   const streak = useStore((s) => s.streak);
   const lastStudyDate = useStore((s) => s.lastStudyDate);
   const prefs = useStore((s) => s.notificationPrefs);
-  const introVersion = useStore((s) => s.nativePermissionIntroVersion ?? 0);
   const [resumeTick, setResumeTick] = useState(0);
   const reconcileChain = useRef<Promise<unknown>>(Promise.resolve());
 
@@ -93,6 +91,9 @@ export function NativeExperienceBootstrap() {
       .catch(() => undefined);
   }, [android, streak, lastStudyDate, prefs, locale, resumeTick]);
 
-  if (!android || introVersion >= NATIVE_PERMISSION_INTRO_VERSION) return null;
-  return <NativePermissionIntro onFinished={() => setResumeTick((tick) => tick + 1)} />;
+  // RC2.2.18 · BM–BO — permissões progressivas: nada é pedido no primeiro
+  // launch. O microfone é pedido no toque em "Permitir microfone", dentro da
+  // primeira atividade de fala; o lembrete de notificação é uma oferta do
+  // GuidanceOrchestrator depois da primeira sessão. Nunca os dois juntos.
+  return null;
 }

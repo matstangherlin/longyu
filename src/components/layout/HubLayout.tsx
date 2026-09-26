@@ -80,6 +80,8 @@ export interface HubNavItem {
   featured?: boolean;
   disabled?: boolean;
   pro?: boolean;
+  /** RC2.2.18 — âncora de coachmark (`data-coachmark-target`). */
+  coachmarkTarget?: string;
 }
 
 export function HubNavGrid({
@@ -134,17 +136,18 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
     </Card>
   );
 
-  if (item.disabled) return <div aria-disabled="true">{inner}</div>;
+  const anchor = item.coachmarkTarget ? { "data-coachmark-target": item.coachmarkTarget } : {};
+  if (item.disabled) return <div aria-disabled="true" {...anchor}>{inner}</div>;
   if (item.onClick) {
     return (
-      <button type="button" onClick={item.onClick} className="group h-full w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+      <button type="button" onClick={item.onClick} className="group h-full w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45" {...anchor}>
         {inner}
       </button>
     );
   }
-  if (!item.to) return <div>{inner}</div>;
+  if (!item.to) return <div {...anchor}>{inner}</div>;
   return (
-    <Link to={item.to} className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+    <Link to={item.to} className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45" {...anchor}>
       {inner}
     </Link>
   );

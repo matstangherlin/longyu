@@ -148,6 +148,7 @@ import { mergeWithoutPersistedServerEntitlement } from "./persistenceSecurity";
 import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
 import type { ModuleSkipUsageWeek } from "./moduleSkipAccess";
 import { admitSyncNotice } from "./syncUx";
+import { normalizeGuidanceState, type GuidanceState } from "./guidanceOrchestrator";
 import {
   applyPhaseChallengeDebit,
   applyPhaseChallengeResult,
@@ -1328,6 +1329,11 @@ interface AccountSnapshot extends XpBuckets {
    * exposição: nunca lição concluída, domínio, XP ou estrela.
    */
   guidedTryExposure: GuidedTryExposure | null;
+  /**
+   * RC2.2.18 — descoberta (dicas vistas/dispensadas, "Dicas guiadas"). Só
+   * descoberta: a disponibilidade das áreas é DERIVADA do progresso.
+   */
+  guidance: GuidanceState;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -1514,6 +1520,7 @@ function blankSnapshot(): AccountSnapshot {
     courseDirection: null,
     dailyGoalMinutes: null,
     guidedTryExposure: null,
+    guidance: normalizeGuidanceState(null),
     completedLessons: [],
     lessonStarsById: {},
     lessonAttemptsById: {},
@@ -1651,6 +1658,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     courseDirection: s.courseDirection ?? null,
     dailyGoalMinutes: normalizeDailyGoalMinutes(s.dailyGoalMinutes),
     guidedTryExposure: normalizeGuidedTryExposure(s.guidedTryExposure),
+    guidance: normalizeGuidanceState(s.guidance),
     completedLessons: s.completedLessons,
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
@@ -1808,6 +1816,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     courseDirection: isAvailableCourseDirection(account.courseDirection) ? account.courseDirection : null,
     dailyGoalMinutes: normalizeDailyGoalMinutes(account.dailyGoalMinutes),
     guidedTryExposure: normalizeGuidedTryExposure(account.guidedTryExposure),
+    guidance: normalizeGuidanceState(account.guidance),
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
@@ -2195,6 +2204,7 @@ interface AppState {
   courseDirection: CourseDirectionId | null;
   dailyGoalMinutes: number | null;
   guidedTryExposure: GuidedTryExposure | null;
+  guidance: GuidanceState;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -2324,6 +2334,11 @@ interface AppState {
   setHapticsEnabled: (enabled: boolean) => void;
   /** RC2.2.17 · AI — meta diária (5/10/15/20 min) desta conta. */
   setDailyGoalMinutes: (minutes: number) => void;
+  /**
+   * RC2.2.18 — único escritor do estado de descoberta. Recebe uma função pura
+   * (guidanceOrchestrator) e grava na conta atual. Nunca toca progresso.
+   */
+  updateGuidance: (update: (current: GuidanceState) => GuidanceState) => void;
   /** RC2.2.17 · AU — só exposição ao Teste guiado; idempotente. */
   recordGuidedTryExposure: (input: { at: number; audio: "AUDIO_HEARD" | "DEGRADED_AUDIO" }) => void;
   /**
@@ -2743,6 +2758,7 @@ export const useStore = create<AppState>()(
       courseDirection: null,
       dailyGoalMinutes: null,
       guidedTryExposure: null,
+      guidance: normalizeGuidanceState(null),
       completedLessons: [],
       lessonStarsById: {},
       lessonAttemptsById: {},
@@ -2852,6 +2868,15 @@ export const useStore = create<AppState>()(
           if (s.dailyGoalMinutes === value) return {};
           const next = { ...s, dailyGoalMinutes: value };
           return { dailyGoalMinutes: value, accounts: saveCurrentAccount(next) };
+        });
+      },
+      updateGuidance: (update) => {
+        set((s) => {
+          const current = normalizeGuidanceState(s.guidance);
+          const guidance = normalizeGuidanceState(update(current));
+          if (JSON.stringify(guidance) === JSON.stringify(current)) return {};
+          const next = { ...s, guidance };
+          return { guidance, accounts: saveCurrentAccount(next) };
         });
       },
       recordGuidedTryExposure: ({ at, audio }) => {

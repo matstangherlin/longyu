@@ -7,6 +7,7 @@ import { Button } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { IconFlame, IconShield, IconStar } from "../ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useOtherCelebrationActive } from "../../lib/celebrationLock";
 
 function dayCountLabel(days: number, one: string, many: string): string {
   return days === 1 ? one : many.replace("{count}", String(days));
@@ -22,7 +23,9 @@ export function StreakWatcher() {
   const { t } = useTranslation();
   const pending = useStore((s) => s.pendingStreakCelebration);
   const clear = useStore((s) => s.clearStreakCelebration);
-  const hold = useStore((s) => s.holdAchievementModals);
+  // RC2.2.18 · DQ — nunca por cima de uma orientação/medalha/selo: espera a vez.
+  const otherCeremony = useOtherCelebrationActive("streak");
+  const hold = useStore((s) => s.holdAchievementModals) || otherCeremony;
   const soundEffects = useStore((s) => s.soundEffects);
   const streakShields = useStore((s) => s.streakShields);
   const activityByDay = useStore((s) => s.activityByDay);
