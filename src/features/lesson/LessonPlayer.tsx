@@ -74,6 +74,7 @@ import { cultureItemIdFromLessonId } from "../../data/cultureNative";
 import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
 import { LessonVictory } from "./LessonVictory";
 import { resolveVictoryContinuePath, cultureReturnPath } from "./nextJourneyContinue";
+import { journeyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { studentFirstName } from "../../lib/personalize";
 import type { LessonCompletionSkill } from "./buildLessonCompletionSummary";
 import { t } from "../../i18n/catalog";
@@ -4453,6 +4454,10 @@ export function LessonPlayer() {
       preferJourney: isTopicMasteryLesson(lesson),
     });
 
+    // RC2.2.19 — Jornada → Cultura: o próximo passo é a aula CORE do tópico?
+    const victoryNextIsCulture =
+      lesson.lessonDomain !== "culture" && !isTopicMasteryLesson(lesson) && victoryContinuePath.startsWith("/licao/culture-");
+
     function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
       else navigate(victoryContinuePath);
@@ -4607,6 +4612,16 @@ export function LessonPlayer() {
           locale={locale === "en" ? "en" : "pt"}
           guided={guidedShell}
           learned={guidedShell ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
+          cultureNext={
+            victoryNextIsCulture && !hasUnclaimedRewards && !plusResult
+              ? {
+                  type: journeyCultureGuidanceType("core_after_topic"),
+                  line: t("player.cultureRecommendedNext"),
+                  skipLabel: t("player.cultureSkipForNow"),
+                  onSkip: () => navigate(cultureReturnPath(new URLSearchParams("src=jornada"), false)),
+                }
+              : undefined
+          }
           recovered={recovered}
           recoveredBanner={REVIEW_RECOVERED.banner}
           pendingStarsHint={pendingStarsHint}

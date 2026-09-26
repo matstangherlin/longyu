@@ -38,6 +38,14 @@ export function setGuidanceSession(next: GuidanceSession): void {
   emit();
 }
 
+/**
+ * RC2.2.19 — evidência de render. `visibleSince` só é preenchido pela própria
+ * superfície quando ela está de fato na tela (posicionada, dentro da viewport,
+ * não `invisible`). Escolher uma orientação NÃO é mostrá-la.
+ */
+let visibleSince: number | null = null;
+let evidenceCommitted = false;
+
 export function getCurrentGuidance(): GuidancePresentation | null {
   return current;
 }
@@ -45,18 +53,48 @@ export function getCurrentGuidance(): GuidancePresentation | null {
 export function setCurrentGuidance(next: GuidancePresentation | null): void {
   if (next === current) return;
   current = next;
+  visibleSince = null;
+  evidenceCommitted = false;
   emit();
 }
 
-export function useGuidanceRuntime(): { session: GuidanceSession; current: GuidancePresentation | null } {
+/** Chamado pela superfície visível (coachmark posicionado, card na tela, dica inline). */
+export function reportGuidanceVisible(presentation: GuidancePresentation, now: number = Date.now()): void {
+  if (presentation !== current || visibleSince != null) return;
+  visibleSince = now;
+  emit();
+}
+
+export function getGuidanceVisibleSince(): number | null {
+  return visibleSince;
+}
+
+export function isGuidanceEvidenceCommitted(): boolean {
+  return evidenceCommitted;
+}
+
+export function markGuidanceEvidenceCommitted(): void {
+  if (evidenceCommitted) return;
+  evidenceCommitted = true;
+  emit();
+}
+
+export function useGuidanceRuntime(): {
+  session: GuidanceSession;
+  current: GuidancePresentation | null;
+  visibleSince: number | null;
+  evidenceCommitted: boolean;
+} {
   useSyncExternalStore(subscribe, () => version, () => 0);
-  return { session, current };
+  return { session, current, visibleSince, evidenceCommitted };
 }
 
 /** Sessão de orientação nova (ex.: "Rever dicas do aplicativo"). */
 export function startNewGuidanceSession(): void {
   session = EMPTY_GUIDANCE_SESSION;
   current = null;
+  visibleSince = null;
+  evidenceCommitted = false;
   emit();
 }
 

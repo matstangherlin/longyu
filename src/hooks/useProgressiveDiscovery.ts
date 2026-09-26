@@ -128,14 +128,18 @@ export function useFeatureVisibility(): FeatureVisibilityResult {
   const accountId = useStore((s) => s.currentAccountId) ?? "local";
   const ready = useStoreHydrated();
 
+  // RC2.2.19 — memória persistida por conta (só cresce): nunca re-trancar.
+  const availabilityMemory = useStore((s) => s.guidance?.availabilityMemory);
+
   const visibility = useMemo(() => {
     const derived = featureVisibilityMap(learner);
     const confirmed = confirmedFor(accountId);
     if (ready) {
       for (const id of DISCOVERY_FEATURE_ORDER) if (derived[id] === "AVAILABLE") confirmed.add(id);
     }
-    return mergeStickyVisibility(derived, confirmed);
-  }, [learner, accountId, ready]);
+    const remembered = ready ? availabilityMemory ?? [] : [];
+    return mergeStickyVisibility(derived, [...confirmed, ...remembered]);
+  }, [learner, accountId, ready, availabilityMemory]);
 
   return { visibility, ready, learner };
 }

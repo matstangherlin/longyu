@@ -12,7 +12,7 @@ const STORE_VERSION = 21;
 const FIRST = ["p1-o-que-e-mandarim"];
 const THROUGH_L2 = ["p1-o-que-e-mandarim", "p1-o-que-e-pinyin", "p1-o-que-e-tom", "p1-o-que-e-hanzi", "p1-primeiros-hanzi", "p1-engine-2-lab", "l1", "l2"];
 const achievements = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, 1]));
-const seen = (...ids: string[]) => Object.fromEntries(ids.map((id) => [id, { status: "SEEN", at: 1 }]));
+const seen = (...ids: string[]) => Object.fromEntries(ids.map((id) => [id, { status: "DISMISSED", at: 1 }]));
 
 async function seed(page: Page, state: Record<string, unknown>, guidance: Record<string, unknown>) {
   await seedTelemetryDeclined(page);
@@ -32,17 +32,17 @@ async function shot(page: Page, name: string, vp: { width: number; height: numbe
 
 const STAGES: Array<{ id: string; state: Record<string, unknown>; guidance: Record<string, unknown>; waitFor?: string }> = [
   { id: "01-fresh-account", state: { completedLessons: [] }, guidance: { enabled: true, initialized: false, records: {} }, waitFor: "welcome_journey_v1" },
-  { id: "02-after-first-lesson", state: { completedLessons: FIRST, achievementsUnlocked: achievements }, guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1") }, waitFor: "new_features_v1" },
+  { id: "02-after-first-lesson", state: { completedLessons: FIRST, achievementsUnlocked: achievements }, guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1") }, waitFor: "new_features_v1" },
   {
     id: "03-hanzi-milestone",
     state: { completedLessons: FIRST, achievementsUnlocked: achievements, learnedChars: ["你", "好", "我"] },
-    guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1") },
+    guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1") },
     waitFor: "hanzi_unlocked_v1",
   },
   {
     id: "04-culture-unlock",
     state: { completedLessons: THROUGH_L2, achievementsUnlocked: achievements },
-    guidance: { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
+    guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
     waitFor: "culture_unlocked_v1",
   },
   {
@@ -54,7 +54,7 @@ const STAGES: Array<{ id: string; state: Record<string, unknown>; guidance: Reco
       learnedChars: ["你", "好", "我", "是", "中", "国", "人", "大", "小"],
       medals: [],
     },
-    guidance: { enabled: false, initialized: true, records: {} },
+    guidance: { version: 2, enabled: false, initialized: true, records: {} },
   },
 ];
 
@@ -84,7 +84,7 @@ test.describe("RC2.2.18 · matriz visual", () => {
 
   test("locked culture deep link 390x844", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await seed(page, { completedLessons: [] }, { enabled: true, initialized: true, records: seen("welcome_journey_v1") });
+    await seed(page, { completedLessons: [] }, { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1") });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await expect(page.locator("[data-feature-unavailable]")).toBeVisible();
@@ -95,6 +95,7 @@ test.describe("RC2.2.18 · matriz visual", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: achievements }, {
       enabled: true,
+      version: 2,
       initialized: true,
       records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1", "culture_unlocked_v1"),
     });
@@ -106,7 +107,7 @@ test.describe("RC2.2.18 · matriz visual", () => {
 
   test("settings guided tips 390x844", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await seed(page, { completedLessons: FIRST }, { enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1") });
+    await seed(page, { completedLessons: FIRST }, { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1") });
     await page.goto("/config/aprendizagem");
     await waitForLazyPage(page);
     await page.getByTestId("guidance-settings").scrollIntoViewIfNeeded();

@@ -209,7 +209,7 @@ test.describe("descoberta progressiva de recursos", () => {
     // 1) Conta com boas-vindas já vistas, primeira lição concluída.
     await setStore(page, {
       completedLessons: ["p1-o-que-e-mandarim"],
-      guidance: { enabled: true, initialized: true, records: { welcome_journey_v1: { status: "SEEN", at: 1 } } },
+      guidance: { version: 2, enabled: true, initialized: true, records: { welcome_journey_v1: { status: "DISMISSED", at: 1 } } },
     });
     await page.goto("/jornada");
     const reveal = page.locator('[data-guidance-id="new_features_v1"]');
@@ -221,7 +221,10 @@ test.describe("descoberta progressiva de recursos", () => {
     await page.reload();
     await dismissBlockingOverlays(page);
     await page.waitForTimeout(1_200);
-    await expect(page.locator("[data-guidance-surface]")).toHaveCount(0);
+    // RC2.2.19 — o anúncio dispensado não volta; outra orientação nunca
+    // vista pode ocupar o único espaço da sessão nova.
+    await expect(reveal).toHaveCount(0);
+    expect(await page.locator("[data-guidance-surface]").count()).toBeLessThanOrEqual(1);
   });
 
   test("usuário antigo não recebe enxurrada de anúncios após a atualização", async ({ page }) => {

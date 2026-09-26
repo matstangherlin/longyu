@@ -594,6 +594,7 @@ function RecommendedStoryCard({
   return (
     <Card
       data-testid="recommended-story"
+      data-coachmark-target="immersion-first-scene"
       className="relative overflow-hidden rounded-2xl border-accent/25 bg-gradient-to-br from-accent-soft/60 via-surface to-surface p-4 shadow-card sm:p-5"
     >
       <div className="flex items-start justify-between gap-3">

@@ -621,6 +621,8 @@ export const en: MessageCatalog = {
   player: {
     speechPermissionNeeded: "The microphone is blocked. Allow it in Android settings to speak; for now, listen to the model and continue.",
     guidedAlmost: "Almost.",
+    cultureRecommendedNext: "Recommended: this topic's Culture lesson. Then you come back to the Journey.",
+    cultureSkipForNow: "Not now, back to the Journey",
     youLearned: "You learned",
     guidedNowYou: "Now you try.",
     guidedListenTitle: "Listen to the phrase.",
@@ -2795,7 +2797,7 @@ export const en: MessageCatalog = {
     common: {
       gotIt: "Got it",
       nowNot: "Not now",
-      skip: "Skip",
+      skip: "Skip tip",
       skipAll: "Skip tips",
       dialogLabel: "Longyu tip",
       newBadge: "New",
@@ -2861,6 +2863,12 @@ export const en: MessageCatalog = {
     },
     atlasFirstUse: {
       body: "Tap a character to see its sound, meaning and components.",
+    },
+    profileEntry: {
+      body: "Your profile lives here: photo, name, medals and friends. Account and Sign out too.",
+    },
+    immersionFirstUse: {
+      body: "Each scene shows where you are, who you talk to and the goal. Listen first, then answer.",
     },
     notificationsOffer: {
       title: "Study reminders",

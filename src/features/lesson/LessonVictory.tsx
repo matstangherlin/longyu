@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { journeyCultureAllowsSkip, type JourneyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
 import { IconChevron, IconStar } from "../../components/ui/Icon";
@@ -34,6 +35,7 @@ export function LessonVictory({
   onPrimary,
   guided = false,
   learned,
+  cultureNext,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -57,6 +59,11 @@ export function LessonVictory({
   guided?: boolean;
   /** O que a lição ensinou (hànzì · pinyin · sentido), no máximo 3. */
   learned?: Array<{ hanzi: string; pinyin?: string; meaning?: string }>;
+  /**
+   * RC2.2.19 — o "Continuar" leva à aula de Cultura RECOMENDADA do tópico:
+   * a tela diz isso e oferece voltar à Jornada (recomendação, não pedágio).
+   */
+  cultureNext?: { type: JourneyCultureGuidanceType; line: string; skipLabel: string; onSkip: () => void };
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const [motionReady, setMotionReady] = useState(false);
@@ -303,10 +310,20 @@ export function LessonVictory({
           }
           data-guided-action-dock={guided ? true : undefined}
         >
+          {cultureNext && (
+            <p className="mb-2 text-center text-sm leading-5 text-ink-soft" data-culture-guidance-type={cultureNext.type} data-testid="victory-culture-next">
+              {cultureNext.line}
+            </p>
+          )}
           <Button className={`min-h-12 w-full shadow-lift ${LESSON_UI_CLASS.cta}`} size="lg" data-testid={primaryTestId} data-victory-primary onClick={onPrimary}>
             {primaryLabel}
             <IconChevron width={18} height={18} />
           </Button>
+          {cultureNext && journeyCultureAllowsSkip(cultureNext.type) && (
+            <Button variant="ghost" size="lg" className="mt-1 min-h-11 w-full" data-testid="victory-culture-skip" onClick={cultureNext.onSkip}>
+              {cultureNext.skipLabel}
+            </Button>
+          )}
         </div>
       </section>
     </div>

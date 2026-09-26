@@ -619,6 +619,8 @@ export const ptBR = {
   player: {
     speechPermissionNeeded: "O microfone está bloqueado. Libere nos ajustes do Android para falar; por enquanto, ouça o modelo e siga.",
     guidedAlmost: "Quase.",
+    cultureRecommendedNext: "Recomendado: a aula de Cultura deste tópico. Depois você volta para a Jornada.",
+    cultureSkipForNow: "Agora não, voltar à Jornada",
     youLearned: "Você aprendeu",
     guidedNowYou: "Agora tente você.",
     guidedListenTitle: "Ouça a frase.",
@@ -2801,7 +2803,7 @@ export const ptBR = {
     common: {
       gotIt: "Entendi",
       nowNot: "Agora não",
-      skip: "Pular",
+      skip: "Pular dica",
       skipAll: "Pular dicas",
       dialogLabel: "Dica do Longyu",
       newBadge: "Novo",
@@ -2867,6 +2869,12 @@ export const ptBR = {
     },
     atlasFirstUse: {
       body: "Toque em um caractere para ver som, significado e componentes.",
+    },
+    profileEntry: {
+      body: "Seu perfil fica aqui: foto, nome, medalhas e amigos. Conta e Sair também.",
+    },
+    immersionFirstUse: {
+      body: "Cada cena mostra onde você está, com quem fala e o objetivo. Ouça primeiro, depois responda.",
     },
     notificationsOffer: {
       title: "Lembretes de estudo",
