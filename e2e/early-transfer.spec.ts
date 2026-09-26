@@ -11,6 +11,7 @@
 import { expect, test } from "@playwright/test";
 import { dismissBlockingOverlays, seedLessonPlayerReady, waitForLazyPage } from "./helpers";
 import { advanceUntilSelector, seedProOnTopOfSession } from "./lesson-player-mobile-helpers";
+import { STEP_TAP_THROUGH_GUARD_MS } from "../src/lib/lessonStepContract";
 
 const VIEWPORTS = [
   { label: "360×640", width: 360, height: 640 },
@@ -52,6 +53,10 @@ for (const viewport of VIEWPORTS) {
 
       const verify = page.getByRole("button", { name: /^Verificar$/ });
       await expect(verify).toBeEnabled();
+      // RC2.2.14 — "Verificar" nasce onde estava o "Continuar" que abriu este passo;
+      // um clique no mesmo ponto dentro da janela anti toque-duplo é descartado.
+      // Respeitar a janela é o contrato (como GUIDE_ADVANCE_GUARD_MS na cultura).
+      await page.waitForTimeout(STEP_TAP_THROUGH_GUARD_MS + 60);
       await verify.click();
 
       await expect(page.locator("[data-lesson-feedback]")).toBeVisible({ timeout: 15_000 });
