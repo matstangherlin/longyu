@@ -15,6 +15,13 @@ import { redoPlacementPath } from "../../lib/auth/publicRoutes";
 import { canEnterJourney, resolveSessionAudience } from "../../lib/auth/sessionAudience";
 import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { completeAuthenticatedOnboarding } from "../../services/postAuthOnboarding";
+import {
+  SIGNUP_FINALIZE_TIMEOUT_MS,
+  isSignupTimeout,
+  markSignupStage,
+  reportSignupFailure,
+  withSignupTimeout,
+} from "../../lib/signupTrace";
 import { localizeUserMessage } from "../../i18n/errors";
 import { useTranslation } from "../../i18n/useTranslation";
 
@@ -37,8 +44,10 @@ export function FinalizeCadastroPage() {
   const run = useCallback(async () => {
     setState("busy");
     setMessage(t("onboarding.pendingBusy"));
+    markSignupStage("finalize_started");
     const audience = await resolveSessionAudience();
     if (canEnterJourney(audience)) {
+      markSignupStage("journey_entered");
       navigate(postAuthPath, { replace: true });
       return;
     }
@@ -51,11 +60,24 @@ export function FinalizeCadastroPage() {
       return;
     }
 
-    const result = await completeAuthenticatedOnboarding();
+    // RC2.2.19 — prazo: "Preparando sua conta…" nunca gira para sempre.
+    const outcome = await withSignupTimeout(
+      completeAuthenticatedOnboarding().catch(() => ({ ok: false, code: "unavailable" as const, message: "" })),
+      SIGNUP_FINALIZE_TIMEOUT_MS
+    );
+    if (isSignupTimeout(outcome)) {
+      reportSignupFailure("finalize_started", "FINALIZE_TIMEOUT");
+      setState("temp_error");
+      setMessage(t("onboarding.finalizeTimeout"));
+      return;
+    }
+    const result = outcome;
     if (result.ok) {
+      markSignupStage("journey_entered");
       navigate(postAuthPath, { replace: true });
       return;
     }
+    reportSignupFailure("finalize_started", result.code ?? "FINALIZE_FAILED");
     if (result.code === "missing_draft") {
       setState("missing_draft");
       setMessage(localizeUserMessage(result.message || FINALIZE_ONBOARDING_MISSING_DRAFT));

@@ -28,6 +28,9 @@ export const FUNNEL_EVENT_TYPES = [
   "guidance_dismissed",
   "feature_unlocked",
   "feature_opened_after_unlock",
+  // RC2.2.19 — estágios do cadastro (estágio, código, plataforma, build; nunca PII).
+  "signup_stage",
+  "signup_failed",
 ] as const;
 
 export type FunnelEventType = (typeof FUNNEL_EVENT_TYPES)[number];

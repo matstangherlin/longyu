@@ -241,7 +241,7 @@ test.describe("beta smoke — fluxos públicos", () => {
     await page.goto("/esqueci-senha");
     await expect(page.getByRole("heading", { name: /Esqueci minha senha/i })).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /Enviar link de recuperação|Continuar no app/i })
+      page.getByRole("button", { name: /Enviar código|Enviar link de recuperação|Continuar no app/i })
     ).toBeVisible();
   });
 
