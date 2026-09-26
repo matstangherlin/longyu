@@ -80,6 +80,14 @@
   "toneGuidedVisual": "NOT_RUN",
   "deleteAccountVisible": "NOT_RUN",
   "appearanceSystemMode": "NOT_RUN",
+  "guidedJourneyL1": "NOT_RUN",
+  "guidedJourneyL2": "NOT_RUN",
+  "guidedJourneyTone": "NOT_RUN",
+  "guidedJourneySpeech": "NOT_RUN",
+  "guidedJourneyConversation": "NOT_RUN",
+  "guidedJourneyHanzi": "NOT_RUN",
+  "guidedJourneyIntermediate": "NOT_RUN",
+  "guidedJourneyAdvanced": "NOT_RUN",
   "performance": {
     "coldStartMs": null,
     "firstInteractiveMs": null,
@@ -113,13 +121,18 @@
       "severity": "P1_CANDIDATE",
       "detail": "Áudio real (Guided Try, Jornada, Tom), avanço da cena no caminho da captura (Etapa 4/6), suporte zh-CN do SpeechRecognizer, download do modelo e autoavaliação só são confirmados com o aparelho que revelou os bugs.",
       "status": "OPEN"
+    },
+    {
+      "id": "ANDROID_RC2_2_17B_GUIDED_JOURNEY_UNVERIFIED",
+      "note": "RC2.2.17B — shell guiado da Jornada (L1, L2, tom, fala, conversa, Hànzì, intermediária, avançada) ainda não executado em aparelho Android físico. Antes do Closed Beta, o QA físico da Jornada guiada precisa passar.",
+      "status": "OPEN"
     }
   ],
   "p0Open": null,
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.17",
+  "extendedBy": "RC2.2.17B",
   "playBuild": {
     "note": "RC2.2.16 — QA repetido no build DISTRIBUÍDO PELA PLAY (Internal testing), nunca só debug/adb. PASS exige: instalação pela Play Store (installer com.android.vending), aparelho físico, testedAt e evidência por teste.",
     "packageName": "longyu.noba.com",

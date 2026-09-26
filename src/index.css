@@ -259,6 +259,25 @@ textarea {
 .longyu-step-in {
   animation: longyu-step-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+/*
+ * RC2.2.17B · PART I/J/CM — dock guiado: UMA ação principal sólida. Ações
+ * secundárias (não posso ouvir agora, pular, limpar…) viram texto discreto —
+ * continuam alvos de toque de 44px, sem competir com o CTA.
+ */
+[data-guided-action-dock] button[data-button-variant="outline"]:not([data-guided-primary]),
+[data-guided-action-dock] button[data-button-variant="soft"]:not([data-guided-primary]),
+[data-guided-action-dock] button[data-button-variant="ghost"]:not([data-guided-primary]) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.875rem;
+  color: rgb(var(--text-soft));
+}
+[data-guided-action-dock] button[data-guided-primary]:disabled {
+  border-color: transparent;
+  background: rgb(var(--surface-2));
+  color: rgb(var(--text-faint));
+}
 /* RC2.2.17 · BN — o Continuar responde no toque ("será que clicou?"). */
 .longyu-press-feedback:active {
   transform: scale(0.97);

@@ -620,6 +620,11 @@ export const en: MessageCatalog = {
   },
   player: {
     speechPermissionNeeded: "The microphone is blocked. Allow it in Android settings to speak; for now, listen to the model and continue.",
+    guidedAlmost: "Almost.",
+    youLearned: "You learned",
+    guidedNowYou: "Now you try.",
+    guidedListenTitle: "Listen to the phrase.",
+    guidedStart: "Start",
     guidedPrepare: "Today: {title}. One step at a time.",
     guidedBridgeNihao: "You already used 你好 at the start. Now let's turn it into something you recognize on your own.",
     selfCompareTitle: "Speak and compare with the model",

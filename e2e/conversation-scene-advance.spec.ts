@@ -113,7 +113,7 @@ async function driveScene(page: Page, startIndex: number): Promise<void> {
     if ((await currentIndex(page)) !== startIndex) return;
     if (await page.getByTestId("lesson-victory").isVisible().catch(() => false)) return;
     if (await answerInteraction(page)) continue;
-    const advance = scene.getByTestId("conversation-advance");
+    const advance = scene.or(page.locator("[data-lesson-action-region]")).getByTestId("conversation-advance");
     if (await advance.isVisible().catch(() => false)) {
       await advance.tap();
       continue;
@@ -206,7 +206,7 @@ test.describe("RC2.2.17 · cenas de conversa avançam no LessonPlayer real", () 
         wrongs += 1;
         continue;
       }
-      const advance = scene.getByTestId("conversation-advance");
+      const advance = scene.or(page.locator("[data-lesson-action-region]")).getByTestId("conversation-advance");
       if (await advance.isVisible().catch(() => false)) await advance.tap();
       else await page.waitForTimeout(150);
     }

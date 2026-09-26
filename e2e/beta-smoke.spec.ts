@@ -176,6 +176,7 @@ async function advanceUntilVisible(page: Page, target: Locator, maxSteps = 14): 
       /^Responder$/,
       /^Concluir$/,
       /^Ouvir de novo$/,
+      /^Não posso ouvir agora$/,
       /^Não posso falar agora$/,
       /^Pular/,
     ]);
@@ -282,6 +283,7 @@ test.describe("beta smoke — aprendizagem", () => {
       timeout: 20_000,
     });
     await advancePastGuideDialogue(page);
+    await clickFirstVisible(page, [/^Não posso ouvir agora$/]);
     await clickFirstVisible(page, [/^Não posso falar agora$/]);
     await expect(page.getByRole("button", { name: /你好/ }).first()).toBeVisible();
   });
@@ -308,6 +310,9 @@ test.describe("beta smoke — aprendizagem", () => {
     // Chromium expõe reconhecimento de fala e oferece o atalho abaixo; Firefox/WebKit
     // seguem pelo fallback sem microfone. Ambos precisam preservar a mesma exposição
     // pedagógica e chegar ao Builder real, que é o contrato que esta sentinela prova.
+    // RC2.2.17B — "Ouça a frase" revela o hànzì só com áudio real; sem voz no
+    // navegador de teste, "Não posso ouvir agora" leva à micro-página de fala.
+    await clickFirstVisible(page, [/^Não posso ouvir agora$/]);
     await expect(page.getByText(/^木$/).first()).toBeVisible();
     const leftExposure = await clickFirstVisible(page, [
       /^Não posso falar agora$/,
@@ -421,6 +426,7 @@ test.describe("beta smoke — aprendizagem", () => {
       timeout: 20_000,
     });
     await advancePastGuideDialogue(page);
+    await clickFirstVisible(page, [/^Não posso ouvir agora$/]);
     await clickFirstVisible(page, [/^Não posso falar agora$/]);
 
     const correct = page.getByRole("button", { name: /你好/ }).first();

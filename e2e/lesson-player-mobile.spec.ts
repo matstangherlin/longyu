@@ -254,7 +254,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
         if (await page.locator("[data-review-offer]").isVisible().catch(() => false)) {
           await clickFirstVisible(page, [/^Continuar$/, /^Depois$/, /^Agora não$/, /^Pular revisão/i]);
         }
-        const skipped = await clickFirstVisible(page, [/^Pular/, /^Não posso falar agora$/]);
+        const skipped = await clickFirstVisible(page, [/^Pular/, /^Não posso ouvir agora$/, /^Não posso falar agora$/]);
         if (!skipped) {
           await clickFirstVisible(page, [/^Entendi$/, /^Continuar$/, /^Verificar$/, /Certo!|\+Qi/, /^Responder$/]);
         }
@@ -279,10 +279,14 @@ for (const viewport of MOBILE_VIEWPORTS) {
 
       const guideContinue = page.getByTestId("guide-continue");
       if (await guideContinue.isVisible().catch(() => false)) {
-        await guideContinue.click();
-        await page.waitForTimeout(120);
-        if (await guideContinue.isVisible().catch(() => false)) {
-          await guideContinue.click();
+        // RC2.2.17B — a fala do Dragão pode ter micro-páginas (mesmo passo):
+        // avança até o passo curricular mudar.
+        const startIndex = await page.locator("[data-current-step-index]").first().getAttribute("data-current-step-index");
+        for (let i = 0; i < 12; i += 1) {
+          const now = await page.locator("[data-current-step-index]").first().getAttribute("data-current-step-index").catch(() => startIndex);
+          if (now !== startIndex || !(await guideContinue.isVisible().catch(() => false))) break;
+          await guideContinue.click().catch(() => undefined);
+          await page.waitForTimeout(120);
         }
       } else {
         const entendi = page.getByRole("button", { name: /^(Entendi|Got it|Continuar)$/ }).first();

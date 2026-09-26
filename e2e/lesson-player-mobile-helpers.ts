@@ -409,8 +409,28 @@ export async function openPlayer(page: Page, lessonId = "p1-o-que-e-mandarim") {
  * second advances. Sticky CTA geometry only applies after the guide step.
  * Prefer importing the base helper from `./helpers` in lesson specs.
  */
+/**
+ * RC2.2.17B — "Ouça a frase" guiado (ouvir → falar, mesma etapa): sem voz no
+ * navegador de teste, sai por "Não posso ouvir agora" e "Não posso falar agora".
+ */
+export async function passGuidedListen(page: Page) {
+  await page.locator("[data-guided-listen-stage]").first().waitFor({ timeout: 1_500 }).catch(() => undefined);
+  for (let i = 0; i < 6; i += 1) {
+    const stageEl = page.locator("[data-guided-listen-stage]").first();
+    if ((await stageEl.count()) === 0) return;
+    const stage = await stageEl.getAttribute("data-guided-listen-stage", { timeout: 1_000 }).catch(() => null);
+    if (!stage) return;
+    const exit = page.getByRole("button", { name: stage === "listen" ? /Não posso ouvir agora|I can't listen now/ : /Não posso falar agora|I can't speak now|^Continuar$|^Continue$/ }).first();
+    if (!(await exit.isVisible().catch(() => false))) return;
+    await page.waitForTimeout(450); // guarda contra toque atravessado depois da troca de passo
+    await exit.click({ timeout: 2_000 }).catch(() => undefined);
+    await page.waitForTimeout(250);
+  }
+}
+
 export async function advancePastGuideDialogue(page: Page, timeoutMs = 20_000) {
   await clickThroughGuideDialogue(page, timeoutMs);
+  await passGuidedListen(page);
   // Prefer landing on a docked action / choice step for sticky geometry tests.
   if (await page.locator("[data-lesson-action-region]").isVisible().catch(() => false)) return;
   if (await page.locator("[data-option-index]").first().isVisible().catch(() => false)) return;

@@ -76,7 +76,7 @@ async function driveConversation(page: Page, steps: number) {
     await dismissBlockingOverlays(page);
     if (!(await scene.isVisible().catch(() => false))) return;
 
-    const continueBtn = scene.getByRole("button", { name: /Continuar|Continue|Concluir|Finish|Responder|Reply/i }).first();
+    const continueBtn = scene.or(page.locator("[data-lesson-action-region]")).getByRole("button", { name: /Continuar|Continue|Concluir|Finish|Responder|Reply/i }).first();
     if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
       await continueBtn.scrollIntoViewIfNeeded().catch(() => undefined);
       await continueBtn.click({ timeout: 2_000 }).catch(() => undefined);

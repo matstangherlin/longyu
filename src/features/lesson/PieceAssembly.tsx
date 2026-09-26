@@ -227,6 +227,7 @@ export function AssemblyCheckActions({
       <Button
         size="lg"
         variant={canCheck ? "good" : "outline"}
+        data-guided-primary
         className="w-full shadow-lift"
         disabled={!canCheck}
         onClick={onCheck}

@@ -1,0 +1,2468 @@
+{
+  "lessons": 134,
+  "guidedShell": 134,
+  "legacyCard": 0,
+  "runtimeDockShare": {
+    "total": 1241,
+    "dock": 1109,
+    "inline": 116,
+    "none": 16,
+    "share": 0.8936341659951652
+  },
+  "authoredDockShare": {
+    "total": 1565,
+    "dock": 1448,
+    "inline": 63,
+    "none": 54,
+    "share": 0.9252396166134186
+  },
+  "rows": [
+    {
+      "id": "p1-o-que-e-mandarim",
+      "position": 0,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "conversation_scene",
+        "match_pairs",
+        "reverse_recall",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p1-o-que-e-pinyin",
+      "position": 1,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "contextual_choice",
+        "match_pairs",
+        "listen_select",
+        "reverse_recall",
+        "dialogue_choice",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p1-o-que-e-tom",
+      "position": 2,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "intro",
+        "listen_select",
+        "tone",
+        "tone",
+        "dialogue_choice",
+        "listen",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "p1-o-que-e-hanzi",
+      "position": 3,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "listen_select",
+        "contextual_choice",
+        "dialogue_choice",
+        "dialogue_choice",
+        "dialogue_choice",
+        "match_pairs"
+      ]
+    },
+    {
+      "id": "p1-primeiros-hanzi",
+      "position": 4,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "listen",
+        "intro",
+        "hanzi_build",
+        "listen",
+        "intro",
+        "hanzi_build",
+        "listen",
+        "intro",
+        "hanzi_build",
+        "listen",
+        "intro",
+        "hanzi_build",
+        "match_pairs"
+      ]
+    },
+    {
+      "id": "p1-engine-2-lab",
+      "position": 5,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "dialogue_choice",
+        "listen_select",
+        "fill_blank",
+        "match_pairs",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l1",
+      "position": 6,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "image_choice",
+        "tone",
+        "sentence_build",
+        "listen_select",
+        "conversation_scene",
+        "comprehend",
+        "dialogue_choice",
+        "hanzi_build",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l2",
+      "position": 7,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "image_choice",
+        "dialogue_completion",
+        "reverse_recall",
+        "listen_select",
+        "produce",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l3",
+      "position": 8,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "listen_select",
+        "reverse_recall",
+        "produce",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "l1-rev",
+      "position": 9,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "image_choice",
+        "hanzi_build",
+        "listen",
+        "dialogue_choice",
+        "listen_select",
+        "produce",
+        "hanzi_build",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "l4",
+      "position": 10,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "sentence_build",
+        "reverse_recall",
+        "reverse_recall",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p1-ate-logo",
+      "position": 11,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "listen_select",
+        "dialogue_completion",
+        "reverse_recall",
+        "produce",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p1-primeira-conversa",
+      "position": 12,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "dialogue_choice",
+        "listen_select",
+        "reverse_recall",
+        "image_choice",
+        "conversation_scene",
+        "comprehend",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p1-qingwen-cortesia",
+      "position": 13,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "sentence_build",
+        "dialogue_completion",
+        "reverse_recall",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "l2-rev",
+      "position": 14,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "listen",
+        "dialogue_choice",
+        "listen_select",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "image_choice",
+        "transfer_task"
+      ]
+    },
+    {
+      "id": "p2-ma-primeiro-tom",
+      "position": 15,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "listen",
+        "intro",
+        "tone",
+        "dialogue_choice",
+        "listen",
+        "comprehend",
+        "fill_blank",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p2-ma-segundo-tom",
+      "position": 16,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "intro",
+        "contextual_choice",
+        "tone",
+        "listen",
+        "dialogue_choice",
+        "listen_select"
+      ]
+    },
+    {
+      "id": "p3-wohenhao",
+      "position": 17,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "listen",
+        "sentence_build",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "dialogue_choice",
+        "reverse_recall",
+        "image_choice",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "p2-ma-terceiro-tom",
+      "position": 18,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "intro",
+        "contextual_choice",
+        "tone",
+        "listen",
+        "dialogue_choice",
+        "listen_select"
+      ]
+    },
+    {
+      "id": "p2-ma-quarto-tom",
+      "position": 19,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "MEDIUM",
+      "kinds": [
+        "intro",
+        "intro",
+        "tone",
+        "listen_select",
+        "dialogue_choice",
+        "listen",
+        "listen_select",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p2-tons-nihao",
+      "position": 20,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "tone",
+        "dialogue_choice",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p2-comparar-tom-1-4",
+      "position": 21,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "tone",
+        "tone",
+        "listen",
+        "dialogue_choice",
+        "listen",
+        "listen_select",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p2-comparar-tom-2-3",
+      "position": 22,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "tone",
+        "contextual_choice",
+        "listen",
+        "dialogue_choice",
+        "listen",
+        "dialogue_choice",
+        "tone"
+      ]
+    },
+    {
+      "id": "p2-tons-xiexie",
+      "position": 23,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "tone",
+        "sentence_build",
+        "fill_blank",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l5",
+      "position": 24,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "tone",
+        "listen",
+        "tone",
+        "listen",
+        "tone",
+        "contextual_choice",
+        "listen"
+      ]
+    },
+    {
+      "id": "l6",
+      "position": 25,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "tone",
+        "contextual_choice",
+        "tone",
+        "listen",
+        "dialogue_choice",
+        "fill_blank",
+        "listen_select",
+        "tone"
+      ]
+    },
+    {
+      "id": "l3-rev",
+      "position": 26,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "listen",
+        "match_pairs",
+        "audio_discrimination",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "comprehend",
+        "comprehend",
+        "sentence_build",
+        "hanzi_build"
+      ]
+    },
+    {
+      "id": "l7",
+      "position": 27,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "listen",
+        "tone",
+        "comprehend",
+        "listen",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l8",
+      "position": 28,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "tone",
+        "tone",
+        "comprehend",
+        "listen",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l8-compare",
+      "position": 29,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "tone",
+        "tone",
+        "listen_select",
+        "tone",
+        "tone",
+        "sentence_build",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l8-shi",
+      "position": 30,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "listen",
+        "tone",
+        "comprehend",
+        "listen",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p2-sons-brasileiros",
+      "position": 31,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "listen_select",
+        "tone_pair",
+        "conversation_scene",
+        "comprehend",
+        "audio_discrimination",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p2-numeros-1-5",
+      "position": 32,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "listen",
+        "listen_select",
+        "listen",
+        "listen_select",
+        "contextual_choice",
+        "listen",
+        "tone"
+      ]
+    },
+    {
+      "id": "l4-rev",
+      "position": 33,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "listen",
+        "hanzi_build",
+        "comprehend",
+        "dialogue_choice",
+        "audio_discrimination",
+        "listen_select",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "comprehend",
+        "sentence_build",
+        "fill_blank"
+      ]
+    },
+    {
+      "id": "l9",
+      "position": 34,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "l9-tudo-bem",
+      "position": 35,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "dialogue_completion",
+        "free_production",
+        "sentence_build",
+        "conversation_scene",
+        "comprehend",
+        "odd_one_out",
+        "free_production",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "l9-qual-nome",
+      "position": 36,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dialogue_choice",
+        "reverse_recall",
+        "free_production",
+        "sentence_build",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "l10",
+      "position": 37,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "free_production",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p3-wobuhui-shuo-zhongwen",
+      "position": 38,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "sentence_build",
+        "dialogue_completion",
+        "reverse_recall",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "conversation_repair",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p3-qing-zai-shuo-yibian",
+      "position": 39,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "dialogue_choice",
+        "dictation",
+        "reverse_recall",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "l11",
+      "position": 40,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "conversation_scene",
+        "comprehend",
+        "dialogue_choice",
+        "fill_blank",
+        "image_choice",
+        "free_production",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "l11-falo-pouco",
+      "position": 41,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "dialogue_choice",
+        "sentence_build",
+        "write"
+      ]
+    },
+    {
+      "id": "l12",
+      "position": 42,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "contextual_choice",
+        "free_production",
+        "free_production",
+        "listen_select",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l13",
+      "position": 43,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "reverse_recall",
+        "dialogue_completion",
+        "free_production",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "l13-dialogo-ola",
+      "position": 44,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l13-dialogo-nome",
+      "position": 45,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "dialogue_choice",
+        "sentence_build",
+        "write"
+      ]
+    },
+    {
+      "id": "p3-ordem-das-palavras",
+      "position": 46,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_repair",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p3-nomes-da-frase",
+      "position": 47,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "transfer_task",
+        "contextual_choice",
+        "image_choice",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l5-rev",
+      "position": 48,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "match_pairs",
+        "image_choice",
+        "audio_discrimination",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "free_production",
+        "dialogue_choice",
+        "hanzi_build",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "l14",
+      "position": 49,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "transfer_task",
+        "contextual_choice",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-num-123",
+      "position": 50,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "produce",
+        "contextual_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-num-45",
+      "position": 51,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "contextual_choice",
+        "dictation",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-num-678",
+      "position": 52,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "produce",
+        "contextual_choice",
+        "free_production",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-num-910",
+      "position": 53,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-char-mu",
+      "position": 54,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-char-ren",
+      "position": 55,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-kou",
+      "position": 56,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-ri",
+      "position": 57,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "sentence_build",
+        "contextual_choice",
+        "free_production",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-yue",
+      "position": 58,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "free_production",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-shan",
+      "position": 59,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-shui",
+      "position": 60,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "dictation",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "conversation_repair",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-tian",
+      "position": 61,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "free_production",
+        "free_production",
+        "dictation",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-char-huo",
+      "position": 62,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "dictation",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-da",
+      "position": 63,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_repair",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-char-xiao",
+      "position": 64,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "p4-char-zhong",
+      "position": 65,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "contextual_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p4-char-bu",
+      "position": 66,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "contextual_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "p4-char-shi",
+      "position": 67,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "sentence_build",
+        "conversation_scene",
+        "fill_blank",
+        "dialogue_choice",
+        "sentence_build",
+        "dictation",
+        "contextual_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p4-char-wo",
+      "position": 68,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "dialogue_choice",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "p4-char-ni",
+      "position": 69,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l14-numeros-visuais",
+      "position": 70,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "produce",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "dictation",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l14-pecas-natureza",
+      "position": 71,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "contextual_choice",
+        "conversation_repair",
+        "free_production",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l14-frase-minima",
+      "position": 72,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "conversation_repair",
+        "free_production",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l14-char-rev",
+      "position": 73,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "recognize",
+        "recognize",
+        "recognize"
+      ]
+    },
+    {
+      "id": "l15",
+      "position": 74,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l6-rev",
+      "position": 75,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "decompose",
+        "image_choice",
+        "match_pairs",
+        "spot_error",
+        "conversation_scene",
+        "comprehend",
+        "comprehend",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "image_choice",
+        "hanzi_build",
+        "hanzi_build"
+      ]
+    },
+    {
+      "id": "l16",
+      "position": 76,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "l17",
+      "position": 77,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l18",
+      "position": 78,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "write",
+        "write",
+        "write"
+      ]
+    },
+    {
+      "id": "l7-rev",
+      "position": 79,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "decompose",
+        "hanzi_build",
+        "image_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "sentence_build",
+        "fill_blank",
+        "free_production",
+        "dialogue_choice",
+        "hanzi_build",
+        "spot_error",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "p4-checkpoint-fundamentos",
+      "position": 80,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "flashcard",
+        "flashcard",
+        "flashcard"
+      ]
+    },
+    {
+      "id": "p5-mu-mu-lin",
+      "position": 81,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "contextual_choice",
+        "conversation_repair",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p5-mu-mu-mu-sen",
+      "position": 82,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "contextual_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "p5-ri-yue-ming",
+      "position": 83,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p5-ren-mu-xiu",
+      "position": 84,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p5-nv-zi-hao",
+      "position": 85,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "image_choice",
+        "free_production",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p5-ren-ren-cong",
+      "position": 86,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p5-ren-ren-ren-zhong",
+      "position": 87,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "contextual_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p5-nv-ma-mae",
+      "position": 88,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dictation",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p5-kou-ma-pergunta",
+      "position": 89,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "contextual_choice",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "l19-logica-madeira",
+      "position": 90,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "dictation",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l19-logica-luz",
+      "position": 91,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dictation",
+        "contextual_choice",
+        "free_production",
+        "conversation_repair",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "dialogue_choice",
+        "free_production"
+      ]
+    },
+    {
+      "id": "l19-logica-pessoas",
+      "position": 92,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "free_production",
+        "audio_discrimination",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l19-logica-ma",
+      "position": 93,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "sentence_build",
+        "dialogue_choice",
+        "dictation",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "l19-logica-rev",
+      "position": 94,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "match_pairs"
+      ]
+    },
+    {
+      "id": "l19",
+      "position": 95,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "reverse_recall",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "dialogue_choice",
+        "free_production",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "l20",
+      "position": 96,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "produce",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l8-rev",
+      "position": 97,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "audio_discrimination",
+        "recognize",
+        "produce",
+        "conversation_scene",
+        "comprehend",
+        "comprehend",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "l21",
+      "position": 98,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "produce",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "fill_blank",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "l22",
+      "position": 99,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "produce",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "sentence_build",
+        "reverse_recall",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "l23",
+      "position": 100,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "comprehend",
+        "translation_build",
+        "dialogue_choice",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_completion",
+        "sentence_build",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "l9-rev",
+      "position": 101,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "audio_discrimination",
+        "produce",
+        "sentence_build",
+        "dialogue_choice",
+        "hanzi_build",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "hanzi_build",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "l24",
+      "position": 102,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "write",
+        "sentence_build",
+        "write"
+      ]
+    },
+    {
+      "id": "l25",
+      "position": 103,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "dialogue_completion",
+        "reverse_recall",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "free_production",
+        "free_production"
+      ]
+    },
+    {
+      "id": "l26",
+      "position": 104,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "fill_blank",
+        "dialogue_choice",
+        "transfer_task"
+      ]
+    },
+    {
+      "id": "l26b",
+      "position": 105,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "hanzi_build",
+        "reverse_recall",
+        "reverse_recall",
+        "contextual_choice",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "free_production",
+        "transfer_task",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "l26c",
+      "position": 106,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "listen_select",
+        "image_choice",
+        "fill_blank",
+        "listen_select",
+        "audio_discrimination",
+        "recognize",
+        "conversation_scene",
+        "comprehend",
+        "odd_one_out",
+        "listen_select",
+        "image_choice",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dictation",
+        "dialogue_choice",
+        "conversation_repair",
+        "image_choice",
+        "fill_blank",
+        "free_production",
+        "tone_pair",
+        "fill_blank",
+        "free_production",
+        "odd_one_out",
+        "free_production"
+      ]
+    },
+    {
+      "id": "l27",
+      "position": 107,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "reverse_recall",
+        "transfer_task",
+        "price_task",
+        "free_production",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_completion",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "l28",
+      "position": 108,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "dialogue_completion",
+        "reverse_recall",
+        "conversation_repair",
+        "free_production",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "transfer_task",
+        "conversation_scene",
+        "sentence_build",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p6-rotina-trabalho",
+      "position": 109,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "listen_select",
+        "sentence_build",
+        "write",
+        "write"
+      ]
+    },
+    {
+      "id": "p6-cidade-lugares",
+      "position": 110,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "sentence_build",
+        "reverse_recall",
+        "transfer_task",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "free_production",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "p6-china-cidades",
+      "position": 111,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "reverse_recall",
+        "city_context",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "free_production",
+        "transfer_task",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p6-china-cidades-2",
+      "position": 112,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "menu_reading",
+        "reverse_recall",
+        "fill_blank",
+        "free_production",
+        "transfer_task",
+        "sentence_build",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "city_context"
+      ]
+    },
+    {
+      "id": "p6-china-ruas",
+      "position": 113,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "free_production",
+        "free_production",
+        "listen_select"
+      ]
+    },
+    {
+      "id": "p6-saude",
+      "position": 114,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "listen_select",
+        "fill_blank",
+        "free_production",
+        "conversation_scene"
+      ]
+    },
+    {
+      "id": "p6-horarios",
+      "position": 115,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "listen_select",
+        "sentence_build",
+        "write",
+        "write",
+        "write",
+        "write",
+        "write",
+        "write",
+        "write"
+      ]
+    },
+    {
+      "id": "p6-natureza",
+      "position": 116,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "reverse_recall",
+        "dialogue_completion",
+        "transfer_task",
+        "conversation_scene",
+        "comprehend",
+        "listen_select",
+        "conversation_repair",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p6-clima",
+      "position": 117,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "dialogue_completion",
+        "reverse_recall",
+        "free_production",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "transfer_task",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p6-direcoes",
+      "position": 118,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "dialogue_choice",
+        "city_context",
+        "free_production",
+        "map_direction",
+        "conversation_scene",
+        "sentence_build",
+        "contextual_choice"
+      ]
+    },
+    {
+      "id": "p6-compras",
+      "position": 119,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "transfer_task",
+        "dialogue_completion",
+        "price_task",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "p6-survival-mandarin",
+      "position": 120,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "reverse_recall",
+        "free_production",
+        "sign_reading",
+        "transfer_task",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "l10-rev",
+      "position": 121,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "flashcard",
+        "flashcard",
+        "flashcard"
+      ]
+    },
+    {
+      "id": "l29",
+      "position": 122,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_repair",
+        "reverse_recall",
+        "free_production",
+        "transfer_task",
+        "sentence_build",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_completion"
+      ]
+    },
+    {
+      "id": "l30",
+      "position": 123,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "reverse_recall",
+        "dialogue_completion",
+        "conversation_scene",
+        "comprehend",
+        "sentence_build",
+        "free_production",
+        "transfer_task",
+        "conversation_repair"
+      ]
+    },
+    {
+      "id": "l11-rev",
+      "position": 124,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "image_choice",
+        "dialogue_choice",
+        "audio_discrimination",
+        "image_choice",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "sentence_build",
+        "fill_blank",
+        "dialogue_choice",
+        "hanzi_build",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "p7-imersao-mercado",
+      "position": 125,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "free_production",
+        "free_production",
+        "conversation_scene",
+        "comprehend",
+        "image_choice",
+        "free_production",
+        "price_task",
+        "free_production",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "p7-imersao-estacao",
+      "position": 126,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "conversation_scene",
+        "conversation_scene",
+        "conversation_scene",
+        "free_production",
+        "free_production",
+        "free_production",
+        "comprehend",
+        "sentence_build",
+        "dialogue_choice"
+      ]
+    },
+    {
+      "id": "p7-imersao-hotel",
+      "position": 127,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "spot_error",
+        "image_choice",
+        "listen_select",
+        "fill_blank",
+        "image_choice",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "odd_one_out",
+        "listen_select",
+        "recognize",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dictation",
+        "dialogue_choice",
+        "free_production",
+        "tone_pair",
+        "free_production",
+        "fill_blank",
+        "match_pairs",
+        "free_production",
+        "conversation_repair",
+        "image_choice"
+      ]
+    },
+    {
+      "id": "p7-imersao-aeroporto",
+      "position": 128,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "conversation_repair",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "listen_select",
+        "fill_blank",
+        "listen_select",
+        "image_choice",
+        "sentence_build",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "image_choice",
+        "odd_one_out",
+        "fill_blank",
+        "dictation",
+        "dialogue_choice",
+        "free_production",
+        "tone_pair",
+        "free_production",
+        "fill_blank"
+      ]
+    },
+    {
+      "id": "p7-imersao-saude",
+      "position": 129,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "free_production",
+        "free_production",
+        "image_choice",
+        "free_production",
+        "listen_select",
+        "decompose",
+        "listen_select",
+        "fill_blank",
+        "sentence_build",
+        "conversation_scene",
+        "comprehend",
+        "image_choice",
+        "odd_one_out",
+        "listen_select",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dictation",
+        "free_production",
+        "dialogue_choice",
+        "hanzi_build",
+        "free_production",
+        "conversation_repair",
+        "image_choice",
+        "free_production",
+        "tone_pair",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p7-conversa-cotidiana",
+      "position": 130,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "listen",
+        "listen_select",
+        "fill_blank",
+        "fill_blank",
+        "sentence_build",
+        "free_production",
+        "listen",
+        "conversation_scene",
+        "reverse_recall",
+        "reverse_recall"
+      ]
+    },
+    {
+      "id": "p7-china-survival",
+      "position": 131,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "listen_select",
+        "fill_blank",
+        "fill_blank",
+        "fill_blank",
+        "conversation_scene",
+        "conversation_scene",
+        "conversation_scene",
+        "conversation_scene",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p7-imersao-viagem",
+      "position": 132,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "intro",
+        "route_sequence",
+        "conversation_repair",
+        "listen_select",
+        "image_choice",
+        "hanzi_build",
+        "conversation_scene",
+        "comprehend",
+        "odd_one_out",
+        "comprehend",
+        "sentence_build",
+        "fill_blank",
+        "dictation",
+        "dialogue_choice",
+        "free_production",
+        "tone_pair",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "fill_blank",
+        "free_production",
+        "image_choice",
+        "fill_blank",
+        "free_production"
+      ]
+    },
+    {
+      "id": "p7-imersao-casa-amigo",
+      "position": 133,
+      "shell": "true",
+      "legacyCard": false,
+      "guidance": "LOW",
+      "kinds": [
+        "audio_to_action",
+        "conversation_scene",
+        "comprehend",
+        "image_choice",
+        "odd_one_out",
+        "audio_discrimination",
+        "image_choice",
+        "contextual_choice"
+      ]
+    }
+  ]
+}
