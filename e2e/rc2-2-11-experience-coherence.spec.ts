@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { allowE2ELocalSession, dismissBlockingOverlays, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
+import { IMMERSION_DISCOVERED_STATE, allowE2ELocalSession, dismissBlockingOverlays, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 
 /**
  * RC2.2.11 — Learning Coherence, Immersion, Identity & Navigation Hardening.
@@ -155,7 +155,7 @@ test.describe("RC2.2.11 — Imersão: cena em bolhas", () => {
   for (const width of IMMERSION_WIDTHS) {
     test(`Imersão ${width}px: contexto, lados fixos, histórico oculto na pergunta, recap`, async ({ page }) => {
       await page.setViewportSize({ width, height: width < 768 ? 844 : 900 });
-      await seed(page, {});
+      await seed(page, IMMERSION_DISCOVERED_STATE);
       await page.goto("/imersao");
       await waitForLazyPage(page);
       await dismissBlockingOverlays(page);
@@ -192,7 +192,7 @@ test.describe("RC2.2.11 — Imersão: cena em bolhas", () => {
 
   test("Imersão: recap no fim lista as falas e leva à revisão", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await seed(page, {});
+    await seed(page, IMMERSION_DISCOVERED_STATE);
     await page.goto("/imersao");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

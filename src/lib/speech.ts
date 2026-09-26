@@ -10,12 +10,15 @@
 import {
   cancelNativeRecognition,
   hasNativeSpeech,
+  nativeCheckRecognitionSupport,
   nativeRecognitionStatus,
   nativeRecognize,
   requestNativeMicrophone,
   stopNativeRecognition,
   type NativePermission,
+  type NativeRecognitionSupport,
 } from "./platform/nativeSpeech";
+import { deriveRecognitionCapability, type RecognitionCapability } from "./recognitionCapability";
 
 // ── RC2.2.13 — fala do aluno no Android ────────────────────────────────────
 //
@@ -40,6 +43,48 @@ export async function refreshNativeSpeechStatus(): Promise<{ available: boolean;
 }
 
 /** Android: o microfone foi negado de vez (só os ajustes do Android liberam). */
+// ── RC2.2.17 · U–V — suporte a MANDARIM (separado da permissão) ─────────────
+
+let mandarinSupport: NativeRecognitionSupport | null = null;
+let mandarinSupportChecked = false;
+/** Último código cru do reconhecedor (LANGUAGE_NOT_SUPPORTED…) nesta sessão. */
+let lastRecognitionErrorCode: string | null = null;
+
+/**
+ * Android 13+: pergunta ao serviço se zh-CN existe ANTES da primeira atividade
+ * de fala. Uma vez por sessão (o resultado muda só com download/instalação:
+ * `force` refaz depois de um download).
+ */
+export async function checkMandarinRecognitionSupport(force = false): Promise<NativeRecognitionSupport | null> {
+  if (!hasNativeSpeech()) return null;
+  if (mandarinSupportChecked && !force) return mandarinSupport;
+  mandarinSupport = await nativeCheckRecognitionSupport();
+  mandarinSupportChecked = true;
+  if (force) lastRecognitionErrorCode = null;
+  if (!mandarinSupport.serviceAvailable && !mandarinSupport.onDeviceAvailable) nativeRecognitionKnownAvailable = false;
+  return mandarinSupport;
+}
+
+export function mandarinRecognitionSupport(): NativeRecognitionSupport | null {
+  return mandarinSupport;
+}
+
+export function noteRecognitionErrorCode(code: string | null): void {
+  lastRecognitionErrorCode = code;
+}
+
+/** Capacidade atual (idioma ≠ permissão) — ver recognitionCapability.ts. */
+export function currentRecognitionCapability(): RecognitionCapability {
+  const native = hasNativeSpeech();
+  return deriveRecognitionCapability({
+    native,
+    recognizerPresent: native ? nativeRecognitionKnownAvailable !== false : isRecognitionAvailable(),
+    support: mandarinSupport,
+    microphone: native ? nativeMicState : null,
+    lastErrorCode: lastRecognitionErrorCode,
+  });
+}
+
 export function isNativeMicBlocked(): boolean {
   return hasNativeSpeech() && nativeMicState === "denied";
 }
@@ -142,6 +187,7 @@ function mapError(code?: string): RecognizeErrorCode {
     case "busy":
       return "busy";
     case "language-unavailable":
+    case "language-not-supported":
       return "language-unavailable";
     default:
       return "error";
@@ -332,6 +378,7 @@ export function recognizeOnce(
 
   rec.onerror = (event) => {
     const code = mapError(event.error);
+    if (event.error === "language-not-supported") noteRecognitionErrorCode("LANGUAGE_NOT_SUPPORTED");
     // "aborted"/"no-speech" no meio do caminho: se já temos transcript, usa.
     const heard = bestTranscript();
     if (heard && (code === "aborted" || code === "no-speech")) {
@@ -406,7 +453,10 @@ function recognizeOnceNative(
       const best = result.matches.find((match) => match.trim()) ?? "";
       settle(() => (best ? onResult(best.trim()) : onError("no-speech")));
     } else {
+      // Permissão e idioma são estados DIFERENTES: só INSUFFICIENT_PERMISSIONS
+      // mexe no microfone; LANGUAGE_* vira capacidade de idioma.
       if (result.code === "INSUFFICIENT_PERMISSIONS") nativeMicState = "denied";
+      if (/^(LANGUAGE_NOT_SUPPORTED|LANGUAGE_UNAVAILABLE|RECOGNITION_UNAVAILABLE)$/.test(result.code)) noteRecognitionErrorCode(result.code);
       settle(() => onError(mapNativeRecognitionError(result.code)));
     }
   });

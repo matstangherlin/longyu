@@ -473,6 +473,35 @@ export async function seedOnboardedSession(
   );
 }
 
+/**
+ * RC2.2.18 — aluno que já chegou ao primeiro nó CORE de Cultura da Jornada
+ * (o de 你好, depois de l2). É o pré-requisito honesto para abrir o Hub de
+ * Cultura e /cultura/:id por URL; antes disso a rota mostra "Ainda não".
+ */
+export const CULTURE_DISCOVERED_LESSONS = ["l1", "l2"];
+
+/** RC2.2.18 — já teve uma conversa guiada e tem o repertório do nó de prontidão da Imersão. */
+export const IMMERSION_DISCOVERED_STATE = {
+  recentConversationSceneIds: ["primeiro-cumprimento"],
+  learnedChunks: ["nihao", "xiexie", "zaijian", "bukeqi", "zaoshanghao", "wojiao", "nihaoma", "wohenhao"],
+};
+
+/**
+ * RC2.2.18 — conta madura para testes de ESTRUTURA (sheets, ordem, densidade):
+ * Revisão com item, Hànzì/Atlas com caracteres, economia apresentada e Imersão.
+ */
+export function matureDiscoveryState(): SeedState {
+  const now = Date.now();
+  return {
+    ...IMMERSION_DISCOVERED_STATE,
+    learnedChars: ["你", "好", "我", "是", "中", "国", "人", "大", "小"],
+    points: 40,
+    srs: {
+      "chunk:nihao": { id: "chunk:nihao", type: "chunk", itemId: "nihao", ease: 2.5, intervalDays: 1, due: now - 1000, reps: 1, lapses: 0, createdAt: now - 86_400_000 },
+    },
+  };
+}
+
 /** Sessão onboarded com estado extra (missões, baús, Pro). */
 export async function seedMissionsSession(page: Page, extra: SeedState = {}) {
   await seedTelemetryDeclined(page);
@@ -716,6 +745,11 @@ export async function seedLessonRecoverySession(
         // preview Pro. serverIsPro continua efêmero e nunca vem do navegador.
         isPremium,
         achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+        // Medalhas destravadas pelo próprio seed abriam um modal assíncrono
+        // ("Novo marco desbloqueado") depois do dismissBlockingOverlays e
+        // interceptavam "Corrigir agora" no WebKit. Como nos outros seeds, os
+        // desbloqueios ficam em espera — estes testes não exercitam medalhas.
+        holdAchievementModals: true,
         recentActivityErrors: [
           {
             id: "e2e-pending-error",
@@ -906,4 +940,18 @@ export async function seedAtCultureGate(
       ])
     ),
   }));
+}
+
+/**
+ * RC2.2.17 · AN — o teste de nível agora é opt-in de quem já estuda:
+ * welcome → "Já estudo mandarim" → meta diária → "Fazer teste de nível" →
+ * nível → quiz. Iniciante nunca cai no placement.
+ */
+export async function startExperiencedPlacement(page: Page, level: "words" | "studied" | "phrases" | "advanced" = "words") {
+  await page.getByTestId("onboarding-path-experienced").click();
+  await page.locator('[data-daily-goal="10"]').click();
+  await page.getByTestId("daily-goal-continue").click();
+  await page.getByTestId("placement-offer-test").click();
+  await page.getByTestId(`onboarding-choice-${level}`).click();
+  await page.getByTestId("level-continue").click();
 }

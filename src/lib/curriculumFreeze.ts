@@ -335,6 +335,71 @@ export const RC2_2_14_MOBILE_LEARNING_POLISH_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.17 — exceção controlada para a jornada guiada e a confiabilidade de
+ * mídia nativa. Tudo é apresentação e confiabilidade sobre os motores que já
+ * existem: contrato de reprodução sobre tts.ts, avanço resiliente no
+ * LessonPlayer atual, capacidade de reconhecimento + autoavaliação sobre o
+ * LongyuSpeechPlugin, onboarding único no ComecarPage + Teste guiado V2,
+ * camada guiada (guidanceLevelForLesson) sobre o LessonPlayer e ToneContour
+ * evoluído. Nenhuma lição, tópico, CultureItem, StepKind, cena ou regra de
+ * SRS/domínio muda; o fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_17_GUIDED_LEARNING_RELIABILITY_EXCEPTION = {
+  id: "RC2_2_17_GUIDED_LEARNING_RELIABILITY",
+  scope: "Guided journey presentation, native media reliability (audio/speech), single onboarding, tones guided visual, Settings visibility",
+  areas: [
+    "playMandarinAudio playback contract (no click = heard)",
+    "lesson advance resilience (side effects never block, no same-text loop, nested token tap selects)",
+    "RecognitionCapability (language != permission), model download, temporary local self-compare",
+    "single onboarding: Guided Try V2 → daily goal → account; placement opt-in",
+    "guided presentation layer + guided ToneContour (pitch, gesture, height)",
+    "danger zone in Account, Appearance System/Light/Dark, localized examples",
+  ],
+  forbids: [
+    "new lessons",
+    "new StepKind",
+    "LessonEngineV2 / GuidedJourneyEngine / OnboardingV3Engine / ToneEngineV2",
+    "new SRS or mastery rule",
+    "mastery, XP, stars or lesson completion from the guided try",
+    "tone or pronunciation score without a pitch analyzer",
+    "uploading or persisting learner recordings",
+    "tongue position as the cause of tone contour",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-17-guided-learning-reliability",
+} as const;
+
+/**
+ * RC2.2.18 — Progressive Discovery, Guided Coachmarks & Feature Unlocks.
+ * Só apresentação e navegação: a disponibilidade das áreas é derivada do
+ * progresso que já existe (nada salvo como "desbloqueado"), a descoberta
+ * guarda apenas visto/dispensado por conta. Nenhuma lição, tópico,
+ * CultureItem, StepKind, SRS, domínio, XP ou regra de progressão muda.
+ */
+export const RC2_2_18_PROGRESSIVE_DISCOVERY_EXCEPTION = {
+  id: "RC2_2_18_PROGRESSIVE_DISCOVERY",
+  scope: "Progressive disclosure of app areas, guided coachmarks/unlock reveals, derived navigation, progressive permissions",
+  areas: [
+    "FEATURE_AVAILABILITY registry + PROGRESSIVE_DISCOVERY_RULES (pure, derived)",
+    "GuidanceOrchestrator (one per session, never during learning, skip/now-not/skip-all)",
+    "TabBar/Sidebar/Mais/Praticar derived from the registry in stable order",
+    "FeatureUnavailablePage for Culture/Immersion/Phase Challenge deep links",
+    "Settings › Aprendizagem › Dicas guiadas (toggle + reset)",
+    "permissions: microphone in the speech step, notification offer after the first session",
+  ],
+  forbids: [
+    "new lessons, topics, CultureItems or StepKinds",
+    "saved unlock flags duplicating curriculum progress",
+    "XP, achievements, Qi or mastery for unlocking, opening or reading guidance",
+    "Pro bypass of pedagogical unlocks",
+    "random, clock or weekday unlock rules",
+    "locking account, settings, privacy, delete account, appearance, language, help or logout",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-18-progressive-discovery",
+} as const;
+
+/**
  * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
  * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
  * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).

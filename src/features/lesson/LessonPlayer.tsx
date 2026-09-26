@@ -20,7 +20,7 @@ import type { ItemType } from "../../data/types";
 import { canAccessLesson } from "../../lib/journeyUnlocks";
 import { canStartLesson, canUseUnlimitedRetry, useIsPro } from "../../lib/proAccess";
 import {
-  DAILY_GOAL_PER_TRACK,
+  dailyGoalMinutesFor,
   useStore,
   type ActivityErrorRecord,
   type ActivityErrorSkill,
@@ -110,7 +110,10 @@ import type { Grade } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionRegionProvider } from "./LessonActionRegion";
 import { stepIdentity } from "../../lib/lessonStepContract";
+import { localizeLessonTitle } from "../../i18n/overlays/localizeLesson";
 import { useTapThroughGuard } from "../../lib/useTapThroughGuard";
+import { guidanceLevelForLesson, guidedPhaseForStep, guidedTryBridgeApplies, showsPrepareLine } from "../../lib/guidedLesson";
+import { GuideLine } from "../../components/guide/GuideLine";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
@@ -1975,6 +1978,8 @@ export function LessonPlayer() {
   const { openFeedback } = useFeedbackUi();
 
   const [idx, setIdx] = useState(0);
+  // RC2.2.17 · AV — exposição do Teste guiado (só apresentação; nunca domínio).
+  const guidedTryExposure = useStore((s) => s.guidedTryExposure);
   const idxRef = useRef(0);
   idxRef.current = idx;
   /** RC2.2.14 — o aluno já tocou/digitou no passo atual (o plano não troca mais sob ele). */
@@ -2338,6 +2343,33 @@ export function LessonPlayer() {
     });
   }, [correctedErrorIds, foundLesson]);
 
+  // RC2.2.17 · L–N/S — gancho de QA (só DEV/fixtures, nunca produção): lista o
+  // plano REAL desta lição e posiciona o cursor num passo, para o teste de
+  // integração dirigir a cena dentro do LessonPlayer de verdade.
+  useEffect(() => {
+    const env = import.meta.env;
+    if (!(env.DEV || env.VITE_USE_TEST_FIXTURES === "true") || !foundLesson || !stepsForRender?.length) return undefined;
+    const target = window as Window & {
+      __longyuLessonQa?: {
+        lessonId: string;
+        steps: () => Array<{ index: number; kind: string; sceneId: string | null }>;
+        jumpTo: (index: number) => void;
+      };
+    };
+    target.__longyuLessonQa = {
+      lessonId: foundLesson.id,
+      steps: () => stepsForRender.map((step, index) => ({ index, kind: step.kind, sceneId: step.sceneId ?? null })),
+      jumpTo: (index: number) => {
+        setPendingMistake(null);
+        setStepAttempt(0);
+        setIdx(Math.max(0, Math.min(index, stepsForRender.length - 1)));
+      },
+    };
+    return () => {
+      delete target.__longyuLessonQa;
+    };
+  }, [foundLesson, stepsForRender]);
+
   // Segura o modal de medalha durante os exercícios; libera ao concluir (ou ao sair).
   useEffect(() => {
     setHoldAchievementModals(true);
@@ -2590,6 +2622,12 @@ export function LessonPlayer() {
     : [];
   const recoveryDebugRecovered = recoveryDebugErrors.filter((error) => correctedErrorIds.includes(error.id)).length;
   const lessonIndex = ALL_LESSONS.findIndex((item) => item.id === lesson.id);
+  const guidance = guidanceLevelForLesson({
+    position: Math.max(0, lessonIndex),
+    curriculumRole: lesson.curriculumRole,
+    isReview: lesson.isReview,
+    priorMastery: lessonMasteryById?.[lesson.id]?.level ?? 0,
+  });
   const nextLesson = lessonIndex >= 0 ? ALL_LESSONS[lessonIndex + 1] : undefined;
   const debugCompletedLessons =
     recovered && !completedLessons.includes(lesson.id) ? [...completedLessons, lesson.id] : completedLessons;
@@ -3248,8 +3286,27 @@ export function LessonPlayer() {
     handleDone(false);
   }
 
-  function handleDone(wasCorrect?: boolean, meta?: { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number }) {
+  type StepDoneMetaInput = { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number };
+
+  /**
+   * RC2.2.17 · O–Q — efeitos colaterais (telemetria, histórico de cena, SRS da
+   * conversa) NUNCA podem impedir o avanço. Antes, uma exceção aqui deixava a
+   * chave de conclusão gravada sem avançar: todo toque seguinte — inclusive o
+   * "Continuar" de recuperação do StepRenderer — virava duplicate_completion
+   * e a cena congelava.
+   */
+  function safeSideEffect(label: string, run: () => void) {
+    try {
+      run();
+    } catch (error) {
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: `${lesson.steps[idx]?.kind ?? "none"}:${label}`, attempt: stepAttempt, event: "side_effect_failed" });
+      if (import.meta.env.DEV) console.error("[longyu:step] side effect failed", label, error);
+    }
+  }
+
+  function handleDone(wasCorrect?: boolean, meta?: StepDoneMetaInput) {
     const currentStep = lesson.steps[idx];
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "player_handleDone" });
     // RC2.2.14 · W — a chave inclui a identidade do CONTEÚDO do passo: um passo
     // diferente no mesmo índice nunca herda a conclusão do anterior.
     const completionKey = `${lesson.id}:${planNonce}:${idx}:${stepAttempt}:${currentStep ? stepIdentity(currentStep) : "none"}`;
@@ -3258,13 +3315,35 @@ export function LessonPlayer() {
       return;
     }
     completedStepKeyRef.current = completionKey;
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completion_key" });
     traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "completed" });
+    try {
+      completeCurrentStep(currentStep, wasCorrect, meta);
+    } catch (error) {
+      // O toque em Continuar foi a confirmação do aluno: se a contabilidade
+      // falhar, a chave é liberada (o "Continuar" de recuperação volta a
+      // funcionar) e o passo avança mesmo assim. Nunca um beco sem saída.
+      completedStepKeyRef.current = null;
+      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "handle_done_failed" });
+      if (import.meta.env.DEV) console.error("[longyu:step] handleDone failed", error);
+      setPendingMistake(null);
+      setStepAttempt(0);
+      if (idx + 1 >= total) {
+        finish(correct);
+      } else {
+        traceLessonStep({ lessonId: lesson.id, stepIndex: idx + 1, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "advanced" });
+        setIdx(idx + 1);
+      }
+    }
+  }
+
+  function completeCurrentStep(currentStep: LessonStep, wasCorrect: boolean | undefined, meta: StepDoneMetaInput | undefined) {
     let nextStreak = answerStreak;
     const currentStepIsGraded = isGradedStep(currentStep);
     // VAR-015/016/017 — memória de variedade entre modos. Só atividades
     // avaliadas contam; repetição por recuperação vai rotulada para não ser
     // confundida com repetição acidental.
-    if (currentStepIsGraded) {
+    if (currentStepIsGraded) safeSideEffect("activity", () => {
       const identity = errorIdentityForStep(currentStep);
       recordActivityPlayed({
         mode: "journey",
@@ -3275,11 +3354,12 @@ export function LessonPlayer() {
         conversationIntent: currentStep.sceneIntent,
         recoveryReason: wasCorrect === false ? "erro_na_tentativa" : undefined,
       });
-    }
+    });
     // Cena concluída alimenta a seleção futura (histórico personalizado): a
     // rotação e o nível da variante seguem o histórico real do aluno. O
     // vocabulário entra no SRS com prioridade pelo desempenho.
-    if (currentStep.kind === "conversation_scene" && currentStep.sceneId) {
+    if (currentStep.kind === "conversation_scene" && currentStep.sceneId) safeSideEffect("conversation", () => {
+      if (!currentStep.sceneId) return;
       if (typeof meta?.attempts === "number" && meta.attempts > 0) {
         conversationAttemptsRef.current = Math.max(conversationAttemptsRef.current, meta.attempts);
       }
@@ -3330,8 +3410,8 @@ export function LessonPlayer() {
           metadata: conversationMeta,
         });
       }
-    }
-    if (currentStepIsGraded && wasCorrect !== undefined) {
+    });
+    if (currentStepIsGraded && wasCorrect !== undefined) safeSideEffect("pedagogy", () => {
       const lastError = [...activityErrorsRef.current]
         .reverse()
         .find((error) => error.questionId?.startsWith(`${lesson.id}:${idx}:`));
@@ -3373,7 +3453,7 @@ export function LessonPlayer() {
           },
         });
       }
-    }
+    });
     // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
     // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
     const hadRecordedMistake = currentStepHadMistakeRef.current;
@@ -3665,7 +3745,7 @@ export function LessonPlayer() {
       }
     }
     const minutesEarned = lesson.estimatedMinutes ?? 5;
-    const goalMin = DAILY_GOAL_PER_TRACK * 4;
+    const goalMin = dailyGoalMinutesFor(useStore.getState());
     const totalBefore = totalToday(today);
     addMinutes(track, minutesEarned);
     const hadRealMistakes = activityErrorsRef.current.length > 0;
@@ -4692,11 +4772,29 @@ export function LessonPlayer() {
         </div>
       )}
 
+      {(() => {
+        // RC2.2.17 · AX–BF — camada guiada: PREPARE curto do Dragão só na
+        // abertura, com guia alto/médio, e só se o 1º passo já não traz o
+        // Dragão (intro) — nunca a mesma fala duas vezes.
+        const bridge = guidedTryBridgeApplies(lesson.id, Boolean(guidedTryExposure));
+        const opening = idx === 0 && showsPrepareLine(guidance) && (bridge || lesson.steps[0]?.kind !== "intro");
+        if (!opening) return null;
+        return (
+          <GuideLine
+            className="mx-auto mb-3 max-w-2xl"
+            size={44}
+            data-testid="lesson-prepare-line"
+            text={bridge ? t("player.guidedBridgeNihao") : t("player.guidedPrepare", { title: localizeLessonTitle(lesson.title, locale) })}
+          />
+        );
+      })()}
       <Card
         data-lesson-step-frame
         data-lesson-task-body
         data-current-step-kind={step.kind}
         data-current-step-index={idx}
+        data-guidance-level={guidance}
+        data-guided-phase={guidedPhaseForStep(step.kind, idx)}
         onPointerDownCapture={() => {
           stepInteractedRef.current = true;
         }}

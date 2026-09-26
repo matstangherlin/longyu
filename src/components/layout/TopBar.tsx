@@ -7,6 +7,7 @@ import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useIsPro } from "../../lib/proAccess";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 
 function StatPill({
   to,
@@ -57,6 +58,7 @@ export function TopBar() {
   const headerRef = useMeasuredHeightCssVar<HTMLElement>("--app-header-height");
   const streak = useStore((s) => s.streak);
   const points = useStore((s) => s.points);
+  const shopAvailable = useFeatureVisibility().visibility.shop === "AVAILABLE";
   const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
   const isPremium = useIsPro();
   const accounts = useStore((s) => s.accounts);
@@ -86,15 +88,18 @@ export function TopBar() {
           label={isPremium ? t("shell.chargesInfinite") : t("shell.chargesCount", { current: dailyEnergy.charges, max: dailyEnergy.maxCharges })}
           testId="topbar-energy"
         />
-        {/* RC2.2.13 — abaixo de 390px a TopBar fica em logo + Fôlego + Ofensiva + Avatar. */}
-        <StatPill
-          to="/loja"
-          icon={IconStar}
-          value={points}
-          label={t("shell.qi", { points })}
-          testId="topbar-qi"
-          outerClassName="hidden min-[390px]:inline-flex"
-        />
+        {/* RC2.2.13 — abaixo de 390px a TopBar fica em logo + Fôlego + Ofensiva + Avatar.
+            RC2.2.18 · AI — Qi (e o atalho da Loja) só depois que a economia foi apresentada. */}
+        {shopAvailable && (
+          <StatPill
+            to="/loja"
+            icon={IconStar}
+            value={points}
+            label={t("shell.qi", { points })}
+            testId="topbar-qi"
+            outerClassName="hidden min-[390px]:inline-flex"
+          />
+        )}
         <StatPill
           to="/perfil#ofensiva"
           icon={IconFlame}

@@ -1,0 +1,92 @@
+{
+  "schema": "longyu-rc2-2-16-residual/1",
+  "wave": "RC2.2.17",
+  "note": "RC2.2.17 · Parte 0 — o que sobrou da RC2.2.16 (#289), sem falsificar conclusão. Cada item só vira COMPLETE com evidência real (owner, Play Console, aparelho). A automação não tem acesso ao Play Console, à chave de upload nem a um aparelho físico.",
+  "base": {
+    "stack": "#289 (cursor/rc2-2-16-play-internal-beta-5167 @ d3971c14) + #288 (claude/admiring-cray-4fx10i @ 22885244), ambos ABERTOS no momento desta onda",
+    "mainSha": "0c5ad5ae",
+    "strategy": "STACKED_PR (owner pediu o PR da RC2.2.17 antes do merge de #288/#289; os commits deles não foram duplicados — são os mesmos objetos git)"
+  },
+  "RC2_2_16_RESIDUAL": "OWNER_ACTION_REQUIRED",
+  "items": {
+    "report": {
+      "part": "0A",
+      "status": "COMPLETE",
+      "evidence": "docs/reports/rc2-2-16-play-internal-beta.md presente no #289 (Cursor); validado por gate:rc2-2-16-play-internal-beta"
+    },
+    "fullValidation": {
+      "part": "0B",
+      "status": "PARTIAL_AGENT_RUN",
+      "evidence": "gate:rc2-2-16-play-internal-beta (validate + test, 5 áreas) passa nesta branch; npm run validate completo: ver relatório RC2.2.17 (seção Gates)"
+    },
+    "playPackageConfirmation": {
+      "part": "0C",
+      "expected": "longyu.noba.com",
+      "status": "OWNER_CONFIRMATION_REQUIRED",
+      "evidence": null,
+      "source": "docs/release/play-console-status.json packageName.ownerConfirmed"
+    },
+    "developerVerification": {
+      "part": "0D",
+      "status": "OWNER_CONFIRMATION_REQUIRED",
+      "evidence": null
+    },
+    "uploadKey": {
+      "part": "0E",
+      "status": "OWNER_ACTION_REQUIRED",
+      "evidence": null,
+      "rule": "O owner cria a keystore real. Nunca senha automática, nunca commit."
+    },
+    "backups": {
+      "part": "0F",
+      "status": "OWNER_ACTION_REQUIRED",
+      "checklist": {
+        "keystoreLocal": false,
+        "backup1": false,
+        "backup2": false,
+        "aliasSaved": false,
+        "storePasswordSaved": false,
+        "keyPasswordSaved": false,
+        "gitIgnoreConfirmed": true,
+        "gitStatusClean": false
+      },
+      "evidence": null
+    },
+    "githubEnvironments": {
+      "part": "0G",
+      "status": "OWNER_ACTION_REQUIRED",
+      "required": ["android-internal", "android-production"],
+      "evidence": null,
+      "detail": "Não verificável pelo agente; não bloqueia desenvolvimento local."
+    },
+    "realSignedAab": {
+      "part": "0H",
+      "status": "NOT_READY",
+      "uploadKeyReal": false,
+      "evidence": null,
+      "detail": "A chave descartável usada pelo agente no #289 NÃO conta. SIGNED_AAB_READY só com a upload key real."
+    },
+    "internalPlay": {
+      "part": "0I",
+      "status": "PHYSICAL_ACTION_REQUIRED",
+      "installerExpected": "com.android.vending",
+      "evidence": null
+    },
+    "playUpdateNtoN1": {
+      "part": "0J",
+      "status": "PHYSICAL_ACTION_REQUIRED",
+      "evidence": null
+    },
+    "storeAssets": {
+      "part": "DoD",
+      "status": "OWNER_ACTION_REQUIRED",
+      "detail": "Feature graphic 1024×500 e screenshots finais do Play: ver android-release-readiness.json blockers.featureGraphic"
+    }
+  },
+  "regression": {
+    "packageName": "longyu.noba.com",
+    "androidInAppPurchase": "DISABLED_FOR_BETA",
+    "productionPlay": false,
+    "track": "internal"
+  }
+}

@@ -137,7 +137,7 @@ export function CultureHubPage() {
               <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">{t("culture.nextMissionLabel")} · </span>
               {nextTitle}
             </p>
-            <ButtonLink to={`/cultura/${nextMission.cultureItemId}`} className="min-h-11 shrink-0" data-testid="culture-next-cta">
+            <ButtonLink to={`/cultura/${nextMission.cultureItemId}`} className="min-h-11 shrink-0" data-testid="culture-next-cta" data-coachmark-target="culture-recommended">
               {t("culture.continueMission")}
             </ButtonLink>
           </div>

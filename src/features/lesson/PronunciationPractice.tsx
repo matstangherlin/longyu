@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { usesNativeVoice } from "../../lib/tts";
-import { openNativeAppSettings } from "../../lib/platform/nativeSpeech";
+import { nativeTriggerModelDownload, onNativeModelDownload, openNativeAppSettings } from "../../lib/platform/nativeSpeech";
+import {
+  canOfferModelDownload,
+  recognitionErrorForcesFallback,
+  speakingModeFor,
+  type RecognitionCapability,
+} from "../../lib/recognitionCapability";
+import { SelfComparePractice, selfCompareRecordingAvailable } from "./SelfComparePractice";
 import {
   analyzePronunciation,
   cancelRecognition,
@@ -9,6 +16,9 @@ import {
   nativeMicPermissionState,
   refreshNativeSpeechStatus,
   isSecureMicContext,
+  checkMandarinRecognitionSupport,
+  currentRecognitionCapability,
+  mandarinRecognitionSupport,
   recognizeOnce,
   speechErrorMessage,
   type PronunciationAnalysis,
@@ -77,6 +87,47 @@ export function PronunciationPractice({
   // RC2.2.13 — Android: estado real do microfone no SO ("Permitir" / "Ajustes").
   const nativeVoice = usesNativeVoice();
   const [micState, setMicState] = useState(() => nativeMicPermissionState());
+  /**
+   * RC2.2.17 · U–AE — capacidade de reconhecer MANDARIM (≠ permissão). Checada
+   * antes da primeira fala (API 33+). Sem mandarim: autoavaliação gravando;
+   * a lição nunca fica impossível.
+   */
+  const [capability, setCapability] = useState<RecognitionCapability>(() => currentRecognitionCapability());
+  const [forcedFallback, setForcedFallback] = useState(false);
+  const [download, setDownload] = useState<"idle" | "preparing" | "downloading" | "scheduled" | "ready" | "failed">("idle");
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void checkMandarinRecognitionSupport().then(() => {
+      if (alive) setCapability(currentRecognitionCapability());
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  useEffect(() => {
+    if (!nativeVoice) return undefined;
+    return onNativeModelDownload((event) => {
+      if (event.status === "DOWNLOADING") {
+        setDownload("downloading");
+        setDownloadProgress(typeof event.progress === "number" ? event.progress : null);
+      } else if (event.status === "SCHEDULED") setDownload("scheduled");
+      else if (event.status === "SUCCESS") {
+        setDownload("ready");
+        void checkMandarinRecognitionSupport(true).then(() => {
+          setCapability(currentRecognitionCapability());
+          setForcedFallback(false);
+        });
+      } else if (event.status === "ERROR") setDownload("failed");
+    });
+  }, [nativeVoice]);
+
+  async function startModelDownload() {
+    setDownload("preparing");
+    const result = await nativeTriggerModelDownload();
+    if (result.status === "UNSUPPORTED_API" || result.status === "ERROR") setDownload("failed");
+    else setDownload((current) => (current === "preparing" ? "scheduled" : current));
+  }
   useEffect(() => {
     if (!nativeVoice) return;
     let alive = true;
@@ -170,6 +221,12 @@ export function PronunciationPractice({
     // Permissão negada, navegador sem suporte, no-speech: nada foi capturado,
     // logo nada é contado (P5.2). O aluno continua a lição do mesmo jeito.
     attemptKeyRef.current = null;
+    // RC2.2.17 · Y — idioma/serviço indisponível: não insistir 10 vezes.
+    // Troca para a autoavaliação gravando (quando der para gravar).
+    if (recognitionErrorForcesFallback(code)) {
+      setCapability(currentRecognitionCapability());
+      setForcedFallback(true);
+    }
     setHeard("");
     setCorrect(false);
     setErrorHint(speechErrorMessage(code));
@@ -221,14 +278,63 @@ export function PronunciationPractice({
     handleRef.current?.stop();
   }
 
-  if (!secure || !supported) {
+  const recordingAvailable = selfCompareRecordingAvailable();
+  const mode = forcedFallback
+    ? recordingAvailable
+      ? "self_compare"
+      : "model_only"
+    : !supported
+      ? recordingAvailable
+        ? "self_compare"
+        : "model_only"
+      : speakingModeFor(capability, recordingAvailable);
+  const fallbackReason =
+    capability === "MODEL_DOWNLOAD_REQUIRED"
+      ? t("player.speechModelMissing")
+      : capability === "LANGUAGE_UNSUPPORTED" || capability === "LANGUAGE_TEMP_UNAVAILABLE"
+        ? t("player.speechLanguageUnavailable")
+        : t("player.speechServiceUnavailable");
+  const downloadOffer = canOfferModelDownload(capability, mandarinRecognitionSupport()) ? (
+    <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/35 p-3" data-testid="speech-model-download" data-download-state={download}>
+      <p className="text-sm font-semibold text-ink">{t("player.speechPrepareTitle")}</p>
+      {download === "idle" && (
+        <Button size="sm" className="mt-2" onClick={() => void startModelDownload()} data-testid="speech-model-download-start">
+          {t("player.speechDownload")}
+        </Button>
+      )}
+      {download !== "idle" && (
+        <p className="mt-1 text-xs text-ink-soft" role="status">
+          {download === "preparing"
+            ? t("player.speechPreparing")
+            : download === "downloading"
+              ? `${t("player.speechDownloading")}${downloadProgress != null ? ` ${downloadProgress}%` : ""}`
+              : download === "ready"
+                ? t("player.speechReady")
+                : download === "scheduled"
+                  ? t("player.speechScheduled")
+                  : t("player.speechDownloadFailed")}
+        </p>
+      )}
+    </div>
+  ) : null;
+
+  if (secure && mode === "self_compare" && phase !== "listening") {
+    return (
+      <div data-speech-capability={capability} data-speaking-mode="self_compare">
+        {downloadOffer}
+        <SelfComparePractice target={target} onContinue={onContinue} onCannotSpeak={onContinue} reason={fallbackReason} />
+      </div>
+    );
+  }
+
+  if (!secure || !supported || mode === "model_only") {
     return (
       <div className="mt-6">
         <Button className="w-full" onClick={onContinue}>
           {t("player.continue")} <IconChevron width={18} height={18} />
         </Button>
         <p className="mt-2 text-center text-xs text-ink-faint">
-          {!secure ? t("player.micHttpsOnly") : t("player.voiceUnavailable")}
+          {!secure ? t("player.micHttpsOnly") : capability === "PERMISSION_REQUIRED" ? t("player.speechPermissionNeeded") : t("player.voiceUnavailable")}
         </p>
       </div>
     );
@@ -331,6 +437,12 @@ export function PronunciationPractice({
   const micNeedsAsk = nativeVoice && micState != null && micState !== "granted" && !micBlocked;
   return (
     <div className="mt-6 space-y-2">
+      {/* RC2.2.18 · BN — pré-permissão: o porquê vem antes do diálogo do sistema. */}
+      {micNeedsAsk && (
+        <p className="text-center text-sm text-ink-soft" data-testid="speech-mic-pre-permission">
+          {t("player.micPrePermission")}
+        </p>
+      )}
       {micBlocked ? (
         <Button className="w-full" size="lg" data-testid="speech-open-settings" onClick={() => void openNativeAppSettings()}>
           {t("player.micOpenSettings")}

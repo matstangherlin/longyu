@@ -6,6 +6,7 @@ import {
   seedMissionsSession,
   seedUnlockedLessonSession,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import {
   expectCultureLessonPlayer,
@@ -68,7 +69,7 @@ async function skipIntros(page: import("@playwright/test").Page, max = 12) {
 test.describe("V4.9.8A.2 Culture playability", () => {
   test("qingwen-ask uses real sentence_build pieces and disables Verificar", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/qingwen-ask");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -119,7 +120,7 @@ test.describe("V4.9.8A.2 Culture stories + audio", () => {
     test(`${itemId} has Mandarin speech, audio replay, and can finish`, async ({ page }) => {
       test.setTimeout(120_000);
       await mockSpeech(page);
-      await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+      await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
       await page.goto(`/cultura/${itemId}`);
       await waitForLazyPage(page);
       await dismissBlockingOverlays(page);
@@ -187,6 +188,7 @@ test.describe("V4.9.8A.2 Live leagues", () => {
     // uma semana já virada, a store zera o acumulado e a asserção passa a
     // medir só o XP da lição — o teste quebra sozinho quando o calendário anda.
     await seedMissionsSession(page, {
+      completedLessons: CULTURE_DISCOVERED_LESSONS,
       isPremium: true,
       serverIsPro: true,
       folego: 20,
@@ -258,7 +260,7 @@ const CULTURE_ITEM_IDS = [
 test.describe("V4.9.8A.2 all culture lessons have a playable scored step", () => {
   test("every canonical culture lesson renders an interactive control", async ({ page }) => {
     test.setTimeout(240_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     for (const itemId of CULTURE_ITEM_IDS) {
       await page.goto(`/cultura/${itemId}`);
       await waitForLazyPage(page);
@@ -280,7 +282,7 @@ test.describe("V4.9.8A.2 mobile 390×844", () => {
 
   test("qingwen order pieces stay above sticky Verify", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/qingwen-ask");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

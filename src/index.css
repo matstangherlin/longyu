@@ -244,6 +244,69 @@ textarea {
   animation: pop-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* RC2.2.17 · BO/DL — micro-transição entre micro-passos guiados (180ms).
+   Só visual: a lógica já trocou de passo quando a animação começa. */
+@keyframes longyu-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.longyu-step-in {
+  animation: longyu-step-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* RC2.2.17 · BN — o Continuar responde no toque ("será que clicou?"). */
+.longyu-press-feedback:active {
+  transform: scale(0.97);
+}
+
+/* RC2.2.18 · CH/CI — orientação: entra discreta; desbloqueio ≤ 500 ms. */
+@keyframes longyu-guidance-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes longyu-unlock-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes longyu-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.longyu-guidance-in {
+  animation: longyu-guidance-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.longyu-unlock-reveal {
+  animation: longyu-unlock-reveal 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.longyu-tab-appear {
+  animation: longyu-guidance-in 300ms ease-out both;
+}
+
 @keyframes tone-rise {
   to {
     stroke-dashoffset: 0;
@@ -707,6 +770,7 @@ textarea {
   }
 
   .animate-pop,
+  .longyu-step-in,
   .mascot-eye-blink,
   .longyu-streak-burst,
   .longyu-correct-pop,
@@ -732,6 +796,13 @@ textarea {
   .guide-continue-enter,
   .guide-text-swap {
     animation: none !important;
+  }
+
+  /* RC2.2.18 · CI — com movimento reduzido, só um fade simples. */
+  .longyu-guidance-in,
+  .longyu-unlock-reveal,
+  .longyu-tab-appear {
+    animation: longyu-fade-in 150ms linear both !important;
   }
 
 .longyu-audio-bar {

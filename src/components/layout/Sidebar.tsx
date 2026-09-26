@@ -14,6 +14,7 @@ import { BrandLockup } from "./Brand";
 import { useLearnerProfile } from "../../hooks/useLearnerProfile";
 import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 
 const FLYOUT_FALLBACK_HEIGHT = 320;
 const FLYOUT_CLOSE_DELAY = 160;
@@ -34,7 +35,8 @@ export function Sidebar() {
   const profile = useLearnerProfile();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const canUseReferral = authMode === "cloud";
-  const items = desktopNavForStage(profile.stage);
+  const { visibility } = useFeatureVisibility();
+  const items = desktopNavForStage(profile.stage, visibility);
   const routeKey = `${location.pathname}${location.hash}`;
 
   // Perfil sempre imediatamente acima de Mais, fixos no rodapé da rail.
@@ -53,7 +55,7 @@ export function Sidebar() {
           pathname={location.pathname}
           routeKey={routeKey}
           menuLabel={t("navigation.practice")}
-          shortcuts={practiceFlyoutItems()}
+          shortcuts={practiceFlyoutItems(visibility)}
           footer={{ to: item.to, label: t("navigation.openPractice") }}
         />
       );
@@ -86,7 +88,7 @@ export function Sidebar() {
           pathname={location.pathname}
           routeKey={routeKey}
           menuLabel={t("navigation.moreOptions")}
-          groups={moreFlyoutGroups(items)}
+          groups={moreFlyoutGroups(items, visibility)}
           footer={{ to: item.to, label: t("navigation.seeFullMenu") }}
           triggerAsButton
         />

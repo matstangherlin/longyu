@@ -212,8 +212,9 @@ export async function validateMobileLandingFocus(s) {
   if (!/<BrandLockup\b/.test(welcome)) fail("BRAND_MISSING", "MobileWelcome.tsx", "logo oficial (mascote + Longyu) no cabeçalho");
   if (!/const guidedTo = hasCourseDirection\(\) \? "\/teste-guiado" : "\/curso\?next=%2Fteste-guiado";/.test(welcome) || !/<ButtonLink to=\{guidedTo\} size="lg"[^>]*data-testid="landing-guided-try"/.test(welcome) || !/t\("marketing\.ctaGuidedTry"\)/.test(welcome))
     fail("GUIDED_TRY_CTA_MISSING", "MobileWelcome.tsx", "CTA principal = teste guiado");
-  if (localeValue(s.src.ptBR, "marketing", "ctaGuidedTry") !== "Fazer teste guiado · 2 min")
-    fail("GUIDED_TRY_CTA_MISSING", "pt-BR.ts", 'rótulo "Fazer teste guiado · 2 min"');
+  // RC2.2.17 · AR — o Teste guiado V2 dura ~3–5 min; o rótulo acompanha.
+  if (localeValue(s.src.ptBR, "marketing", "ctaGuidedTry") !== "Fazer teste guiado · 3 min")
+    fail("GUIDED_TRY_CTA_MISSING", "pt-BR.ts", 'rótulo "Fazer teste guiado · 3 min"');
   if (!/<Link\s+to="\/login"\s+data-testid="landing-has-account"/.test(welcome))
     fail("HAS_ACCOUNT_NOT_DISCREET", "MobileWelcome.tsx", '"Já tenho uma conta" é link discreto, não botão grande');
   const firstFold = welcome.slice(0, Math.max(0, welcome.indexOf("<footer")));
@@ -237,15 +238,18 @@ export async function validateGuidedLearningTry(s) {
   if (!/path: "\/teste-guiado", element: <GuidedTryPage \/>/.test(s.src.routes) || !/lazyNamed\(\(\) => import\("\.\/features\/landing\/GuidedTryPage"\), "GuidedTryPage"\)/.test(s.src.routes))
     fail("GUIDED_ROUTE_MISSING", "routes.tsx", "/teste-guiado (lazy)");
   const steps = /export const GUIDED_TRY_STEPS = \[([^\]]*)\]/.exec(guided)?.[1]?.split(",").filter((item) => item.trim()) ?? [];
-  if (steps.length < 3 || steps.length > 5) fail("GUIDED_STEPS_RANGE", "GuidedTryPage.tsx", `3–5 micro-passos (tem ${steps.length})`);
+  // RC2.2.17 · AR–AS — Teste guiado V2: ~3–5 minutos, 5–9 micro-passos.
+  if (steps.length < 5 || steps.length > 9) fail("GUIDED_STEPS_RANGE", "GuidedTryPage.tsx", `5–9 micro-passos (tem ${steps.length})`);
   const persist = /useStore\b|addXp|addQi|completeLesson|gradeSrs|ensureSrs|recordDailyTask|claimPearl|\bcreateAccount\(|accountSetupComplete|localStorage|sessionStorage|recordSpeechAttempt|markLesson/.exec(guided);
   if (persist) fail("GUIDED_PERSISTS", "GuidedTryPage.tsx", `nada é gravado (achou ${persist[0]})`);
   if (/placement/i.test(guided)) fail("GUIDED_IS_PLACEMENT", "GuidedTryPage.tsx", "não é Placement");
   for (const ref of ["const NIHAO = chunkById.nihao;", "const NI = charById.ni;", "const HAO = charById.hao;", "const NV = charById.nv;", "const ZI = charById.zi;"])
     if (!guided.includes(ref)) fail("GUIDED_NOT_LESSON1_DATA", "GuidedTryPage.tsx", `reusar dados da Lição 1 (${ref})`);
-  if (!/tc?\("guidedTry\.doneTitle"\)/.test(guided) || !/<ButtonLink to="\/comecar"/.test(guided) || !/t\("guidedTry\.createAccount"\)/.test(guided))
-    fail("GUIDED_END_MISSING", "GuidedTryPage.tsx", '"O que você acabou de aprender" + "Criar conta e continuar"');
-  if (localeValue(s.src.ptBR, "guidedTry", "doneTitle") !== "O que você acabou de aprender" || localeValue(s.src.ptBR, "guidedTry", "createAccount") !== "Criar conta e continuar")
+  // RC2.2.17 · AH — o fim leva à META DIÁRIA do onboarding (/comecar), nunca
+  // direto à Jornada: curso → Teste guiado → meta → conta → Jornada.
+  if (!/tc?\("guidedTry\.doneTitle"\)/.test(guided) || !/markGuidedTryCompleted\([^)]*\);\s*navigate\("\/comecar"\);/.test(guided) || !/t\("guidedTry\.continueToGoal"\)/.test(guided))
+    fail("GUIDED_END_MISSING", "GuidedTryPage.tsx", '"O que você acabou de aprender" + Continuar → meta diária');
+  if (localeValue(s.src.ptBR, "guidedTry", "doneTitle") !== "O que você acabou de aprender")
     fail("GUIDED_END_MISSING", "pt-BR.ts", "cópia do fim do teste");
   if (!/haptic\(choice\.correct \? "answerCorrect" : "answerWrong"\)/.test(guided) || !/haptic\("practiceComplete"\)/.test(guided))
     fail("GUIDED_HAPTICS_MISSING", "GuidedTryPage.tsx", "leve na escolha, sucesso no acerto/fim");
@@ -305,7 +309,9 @@ export async function validateLessonStepProgression(s) {
   const guard = stripComments(s.src.tapGuard);
   if (!/STEP_TAP_THROUGH_RADIUS_PX/.test(guard) || !/isTapThrough\(mountedAtRef\.current, now\)/.test(guard))
     fail("TAP_THROUGH_UNGUARDED", "useTapThroughGuard.ts", "janela + mesmo ponto");
-  if (!/const onDone = useCallback<StepProps\["onDone"\]>\(\(correct, meta\) => \{\s*if \(completionSentRef\.current\) return;/.test(steps))
+  // RC2.2.17 · R — o latch pode registrar o rastro (renderer_onDone /
+  // renderer_latched) antes de devolver; continua concluindo uma vez só.
+  if (!/const onDone = useCallback<StepProps\["onDone"\]>\(\(correct, meta\) => \{\s*(?:traceLessonStep\([^;]*\);\s*)?if \(completionSentRef\.current\) (?:return;|\{\s*(?:traceLessonStep\([^;]*\);\s*)?return;\s*\})/.test(steps))
     fail("LATCH_MISSING", "steps.tsx", "StepRenderer conclui uma vez");
   const stalled = /const stalledAction = stalled \?([\s\S]*?) : null;/.exec(steps)?.[1] ?? "";
   if (!stalled || !/onDone\(last\?\.correct, last\?\.meta\)/.test(stalled) || /onSkip/.test(stalled))

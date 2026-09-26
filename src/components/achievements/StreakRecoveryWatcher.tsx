@@ -12,6 +12,7 @@ import {
   streakRecoveryEventKey,
   wasStreakRecoveryPromptShown,
 } from "../../lib/streakRecoveryPrompt";
+import { useOtherCelebrationActive } from "../../lib/celebrationLock";
 
 /** Chaves já apresentadas nesta carga da página (vale mesmo sem sessionStorage). */
 const promptedThisLoad = new Set<string>();
@@ -33,7 +34,9 @@ export function StreakRecoveryWatcher() {
   const recovery = useStore((s) => s.streakRecovery);
   const accountId = useStore((s) => s.currentAccountId);
   const clear = useStore((s) => s.clearStreakRecovery);
-  const hold = useStore((s) => s.holdAchievementModals);
+  // RC2.2.18 · DQ — espera a vez de qualquer outra cerimônia/orientação.
+  const otherCeremony = useOtherCelebrationActive("streak-recovery");
+  const hold = useStore((s) => s.holdAchievementModals) || otherCeremony;
   // A chave aberta vive no watcher (que mora no AppShell e sobrevive à troca
   // de rota). Sem ela, marcar "já mostrado" esconderia o aviso no próprio frame.
   const [openKey, setOpenKey] = useState<string | null>(null);

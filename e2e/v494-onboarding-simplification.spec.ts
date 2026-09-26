@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { seedCourseDirection, seedLessonPlayerReady, switchCourseInSettings, switchInterfaceLocaleInSettings, waitForLazyPage } from "./helpers";
+import { seedCourseDirection, seedLessonPlayerReady, switchCourseInSettings, switchInterfaceLocaleInSettings, waitForLazyPage, startExperiencedPlacement } from "./helpers";
 
 /**
  * V4.9.4 → RC2.2.14B — o primeiro contato decide idioma UMA vez, e agora sem
@@ -52,13 +52,9 @@ test.describe("V4.9.4 / RC2.2.14B — idioma decidido uma vez", () => {
     await expect(page).toHaveURL(/\/curso\?next=%2Fcomecar/);
   });
 
-  test("5 · a escolha atravessa welcome → goal → level → quiz sem perguntar de novo", async ({ page }) => {
+  test("5 · a escolha atravessa welcome → meta → teste de nível → quiz sem perguntar de novo", async ({ page }) => {
     await openOnboarding(page, "en-zh");
-    await page.getByRole("button", { name: /^Começar$/i }).click();
-    await page.getByTestId("onboarding-choice-travel").click();
-    await page.getByRole("button", { name: /^Continuar$/i }).click();
-    await page.getByTestId("onboarding-choice-zero").click();
-    await page.getByRole("button", { name: /^Continuar$/i }).click();
+    await startExperiencedPlacement(page);
     await expect(page.getByTestId("placement-quiz")).toBeVisible();
     await expect(page.locator("select")).toHaveCount(0);
     await expect(page.getByTestId("course-picker")).toHaveCount(0);

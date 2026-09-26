@@ -30,12 +30,13 @@ test.describe("QA regression guard — player mobile", () => {
     if (!(await sticky.isVisible().catch(() => false))) {
       // Pick the correct meaning so AnswerFeedback mounts Continuar in StickyActionBar
       // (a wrong pick opens the recovery dialog instead).
-      const correct = page.getByRole("button", { name: /Opção \d+: Olá/i }).first();
+      const correct = page.getByRole("button", { name: /Opção \d+:\s*Olá/i }).first();
       if (await correct.isVisible().catch(() => false)) await correct.click();
-      else await page.locator("[data-option-index]").first().click();
+      else await page.locator("[data-option-index]").filter({ hasText: /^Olá$/i }).first().click();
       await dismissBlockingOverlays(page);
+      await page.waitForTimeout(450);
     }
-    await expect(sticky).toBeVisible({ timeout: 10_000 });
+    await expect(sticky).toBeVisible({ timeout: 15_000 });
     const cta = sticky.locator("button:visible").first();
     await expect(cta).toBeVisible();
 

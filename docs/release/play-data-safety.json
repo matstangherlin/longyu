@@ -228,15 +228,24 @@
       "collected": false,
       "shared": false,
       "purpose": [],
-      "detail": "Android: SpeechRecognizer do sistema (on-device quando o aparelho oferece, API 31+); Web: Web Speech API. O Longyu não armazena a gravação e não envia áudio a servidor próprio; o reconhecimento pode ser processado pelo serviço de fala configurado no dispositivo. Declarar a permissão RECORD_AUDIO, não coleta.",
-      "evidence": "src/lib/speech.ts · android/app/src/main/java/longyu/noba/com/LongyuSpeechPlugin.java (SpeechRecognizer, sem gravação em arquivo)",
+      "detail": "Android: SpeechRecognizer do sistema (on-device quando o aparelho oferece, API 31+); Web: Web Speech API. O Longyu não armazena a gravação e não envia áudio a servidor próprio; o reconhecimento pode ser processado pelo serviço de fala configurado no dispositivo. RC2.2.17: quando o aparelho não reconhece mandarim, o aluno pode gravar a própria voz para comparar com o modelo (autoavaliação) — um único arquivo temporário no cache do app (Android) ou um Blob em memória (Web), apagado ao gravar de novo, ao sair da atividade e ao ir para o background; nunca enviado ao Longyu, à nuvem ou a analytics. Processamento só no dispositivo = não é coleta.",
+      "evidence": "src/lib/speech.ts · android/app/src/main/java/longyu/noba/com/LongyuSpeechPlugin.java (SpeechRecognizer; gravação de prática só em getCacheDir(), discardPracticeRecording em handleOnPause/handleOnDestroy) · src/features/lesson/SelfComparePractice.tsx (Blob local revogado ao sair)",
       "required": false,
       "optional": false,
       "encryptedInTransit": null,
       "deletable": null,
       "audioStored": false,
       "microphoneUsed": true,
-      "speechRecognitionService": "serviço de reconhecimento de fala do dispositivo (SpeechRecognizer; on-device quando disponível, API 31+). O Longyu recebe só o texto reconhecido, usado na hora para corrigir o exercício."
+      "speechRecognitionService": "serviço de reconhecimento de fala do dispositivo (SpeechRecognizer; on-device quando disponível, API 31+). O Longyu recebe só o texto reconhecido, usado na hora para corrigir o exercício.",
+      "temporaryLocalRecording": {
+        "purpose": "self-compare pronunciation practice",
+        "storage": "app cache (Android) / in-memory Blob (Web)",
+        "transmitted": false,
+        "deletedOnExit": true,
+        "deletedOnNewRecording": true,
+        "deletedOnBackground": true,
+        "since": "RC2.2.17"
+      }
     },
     {
       "data": "securityChallenge (Cloudflare Turnstile)",

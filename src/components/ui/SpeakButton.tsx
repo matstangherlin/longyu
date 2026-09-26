@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getNativeTtsUnavailableReason,
   isTTSAvailable,
   mandarinSpeechText,
-  noteUserGesture,
+  refreshNativeTtsStatus,
   scheduleAutoSpeak,
-  speak,
   usesNativeVoice,
 } from "../../lib/tts";
+import { canOfferVoiceInstall, playMandarinAudio } from "../../lib/audioPlayback";
+import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { useStore } from "../../lib/store";
 import { noteAudioManualPlay } from "../../lib/lessonSessionMetrics";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -53,6 +54,12 @@ export function SpeakButton({
   const [playing, setPlaying] = useState(false);
   const [unavailable, setUnavailable] = useState(() => !isTTSAvailable());
   const [failed, setFailed] = useState(false);
+  /** RC2.2.17 · J — motivo da última falha de um toque MANUAL (null = ok). */
+  const [failReason, setFailReason] = useState<string | null>(null);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+  }, []);
 
   const dims =
     size === "sm" ? "h-9 w-9" : size === "lg" ? "h-14 w-14" : "h-11 w-11";
@@ -67,20 +74,45 @@ export function SpeakButton({
       setUnavailable(true);
       return;
     }
-    noteUserGesture();
     setPlaying(true);
     setUnavailable(false);
     setFailed(false);
+    setFailReason(null);
     noteAudioManualPlay();
-    recordDailyTask("audioHeard");
-    speak(clean, {
+    // RC2.2.17 · B — "ouviu áudio" (tarefa diária) só quando o motor confirma
+    // que a fala COMEÇOU. O toque sozinho não conta.
+    void playMandarinAudio(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
-      onend: () => setPlaying(false),
-      onerror: () => {
-        setFailed(true);
-        if (usesNativeVoice() && /^TTS_(LANGUAGE|UNAVAILABLE)/.test(getNativeTtsUnavailableReason() ?? "")) setUnavailable(true);
+      onState: (state) => {
+        if (state === "PLAYING") recordDailyTask("audioHeard");
       },
+    }).then((outcome) => {
+      if (outcome.superseded) return;
+      setPlaying(false);
+      if (outcome.started) return;
+      // Part J — nunca "animou e não tocou" calado.
+      setFailed(true);
+      setFailReason(outcome.reason);
+      if (outcome.unavailable && usesNativeVoice() && /^TTS_(LANGUAGE|UNAVAILABLE)/.test(getNativeTtsUnavailableReason() ?? "")) setUnavailable(true);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+      if (!showStatus) hideTimer.current = setTimeout(() => setFailReason(null), 6000);
     });
+  }
+
+  async function installVoice() {
+    await installNativeTtsData();
+    // Part I — ao voltar do instalador, perguntar de novo ao SO.
+    const refresh = () => {
+      document.removeEventListener("visibilitychange", refresh);
+      void refreshNativeTtsStatus().then((status) => {
+        if (status?.available) {
+          setUnavailable(false);
+          setFailed(false);
+          setFailReason(null);
+        }
+      });
+    };
+    document.addEventListener("visibilitychange", refresh);
   }
 
   useEffect(() => {
@@ -94,11 +126,12 @@ export function SpeakButton({
     const clean = String(text ?? "").trim();
     if (!clean) return;
     setPlaying(true);
-    recordDailyTask("audioHeard");
     const playRate = slowAudio ? Math.min(rate, 0.65) : rate;
     return scheduleAutoSpeak(clean, {
       rate: playRate,
       delayMs: 140,
+      // RC2.2.17 · B — autoplay só conta como ouvido quando começa de verdade.
+      onstart: () => recordDailyTask("audioHeard"),
       onend: () => setPlaying(false),
     });
     // Só reage a texto/autoPlay — rate/slowAudio vêm do store no momento da fala.
@@ -138,7 +171,37 @@ export function SpeakButton({
     </button>
   );
 
-  if (!showStatus) return button;
+  const offerInstall = canOfferVoiceInstall(failReason ?? getNativeTtsUnavailableReason());
+  const installButton = offerInstall ? (
+    <button
+      type="button"
+      data-testid="speak-install-voice"
+      onClick={() => void installVoice()}
+      className="mt-1 text-xs font-semibold text-accent underline-offset-2 hover:underline"
+    >
+      {t("common.installVoice")}
+    </button>
+  ) : null;
+
+  if (!showStatus) {
+    if (!failReason) return button;
+    // Toque manual que não tocou: frase curta ao lado do botão, sem mudar o
+    // layout de quem usa o botão (bolha flutuante, some sozinha).
+    return (
+      <span className="relative inline-flex">
+        {button}
+        <span
+          role="status"
+          data-testid="speak-status"
+          data-audio-fail-reason={failReason}
+          className="absolute left-1/2 top-full z-20 mt-1 w-max max-w-[14rem] -translate-x-1/2 rounded-xl border border-line bg-surface px-2.5 py-1.5 text-center text-xs leading-4 text-ink-soft shadow-card"
+        >
+          {offerInstall ? t("common.mandarinVoiceMissing") : t("common.audioFailed")}
+          {installButton && <span className="block">{installButton}</span>}
+        </span>
+      </span>
+    );
+  }
 
   // Um toque que não produz som precisa produzir uma frase. O botão continua
   // ativo: "tentar de novo" é o conselho e também a ação.
@@ -154,10 +217,11 @@ export function SpeakButton({
     <span className="inline-flex flex-col items-center gap-1">
       {button}
       {note && (
-        <span role="status" data-testid="speak-status" className="text-xs leading-4 text-ink-soft">
+        <span role="status" data-testid="speak-status" data-audio-fail-reason={failReason ?? undefined} className="text-xs leading-4 text-ink-soft">
           {note}
         </span>
       )}
+      {note && installButton}
     </span>
   );
 }

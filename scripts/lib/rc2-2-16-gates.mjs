@@ -770,7 +770,20 @@ export async function validatePlayPolicyReadiness(s) {
   if (!mic || mic.collected !== false || mic.audioStored !== false || mic.microphoneUsed !== true || !/reconhecimento de fala do dispositivo/.test(String(mic.speechRecognitionService ?? ""))) {
     fail("AUDIO_PRIVACY_WRONG", "play-data-safety.json:microphoneAudio", "microfone usado, áudio NÃO armazenado, reconhecimento pelo serviço do dispositivo");
   }
-  if (/MediaRecorder\s*\(|FileOutputStream|AudioRecord\s*\(/.test(stripComments(`${s.src.speech}\n${s.src.speechPlugin}`)) && mic?.audioStored === false) {
+  // RC2.2.17 · AA–AC — gravação de PRÁTICA temporária e local é permitida só
+  // se a declaração a descreve (não transmitida, apagada ao sair) E o plugin
+  // prova a exclusão no background/fechamento. Qualquer outra gravação sem
+  // declaração continua reprovando.
+  const recordRe = /MediaRecorder\s*\(|FileOutputStream|AudioRecord\s*\(/;
+  // O módulo de RECONHECIMENTO nunca grava; só o gravador de prática do plugin.
+  const recordsInRecognition = recordRe.test(stripComments(s.src.speech));
+  const recordsAudio = recordsInRecognition || recordRe.test(stripComments(s.src.speechPlugin ?? ""));
+  const local = mic?.temporaryLocalRecording;
+  const localDeclared = Boolean(local && local.transmitted === false && local.deletedOnExit === true && local.deletedOnBackground === true);
+  const pluginDeletes =
+    /protected void handleOnPause\(\)[\s\S]{0,400}discardPracticeRecording\(\);/.test(s.src.speechPlugin ?? "") &&
+    /getCacheDir\(\)/.test(s.src.speechPlugin ?? "");
+  if (recordsAudio && mic?.audioStored === false && (recordsInRecognition || !(localDeclared && pluginDeletes))) {
     fail("AUDIO_PRIVACY_WRONG", "speech", "código grava áudio mas a declaração diz que não");
   }
 

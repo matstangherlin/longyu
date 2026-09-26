@@ -18,6 +18,15 @@ import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
+
+/**
+ * RC2.2.18 · Z — abas que já estavam na barra nesta sessão. Uma aba que
+ * aparece DEPOIS (área recém-descoberta) entra com animação discreta; a ordem
+ * final nunca muda.
+ */
+const tabsSeenThisSession = new Set<string>();
+let tabBarRendered = false;
 
 type SheetKind = "praticar" | "mais";
 
@@ -31,7 +40,16 @@ export function TabBar() {
   const dailyMissions = useStore((s) => s.dailyMissions);
   const isPro = useIsPro();
   const profile = useLearnerProfile();
-  const items = mobileNavForStage(profile.stage);
+  const { visibility } = useFeatureVisibility();
+  const items = mobileNavForStage(profile.stage, visibility);
+  const appearing = useRef<Set<string>>(new Set());
+  for (const item of items) {
+    if (!tabsSeenThisSession.has(item.to)) {
+      if (tabBarRendered) appearing.current.add(item.to);
+      tabsSeenThisSession.add(item.to);
+    }
+  }
+  tabBarRendered = true;
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const routeKey = `${location.pathname}${location.hash}`;
 
@@ -61,12 +79,12 @@ export function TabBar() {
     ? {
         praticar: {
           title: t("navigation.practice"),
-          groups: [{ id: "practice", title: t("navigation.practice"), titleKey: "navigation.practice", items: practiceMobileSheetItems(items) }] as NavGroup[],
+          groups: [{ id: "practice", title: t("navigation.practice"), titleKey: "navigation.practice", items: practiceMobileSheetItems(items, visibility) }] as NavGroup[],
           footer: { to: "/treino", label: t("navigation.openPractice") },
         },
         mais: {
           title: t("navigation.moreOptions"),
-          groups: moreMobileSheetGroups(items),
+          groups: moreMobileSheetGroups(items, visibility),
           footer: { to: "/mais", label: t("navigation.seeFullMenu") },
         },
       }[sheet]
@@ -93,6 +111,7 @@ export function TabBar() {
             const className = [
               "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1 text-[10px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45 active:scale-[0.98]",
               active || open ? "text-accent" : "text-ink-faint",
+              appearing.current.has(item.to) ? "longyu-tab-appear" : "",
             ].join(" ");
             const iconWrap = [
               "relative flex h-9 w-12 items-center justify-center rounded-full transition sm:w-14",

@@ -5,6 +5,7 @@ import {
   seedUnlockedLessonSession,
   seedMissionsSession,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 import { expectCultureLessonPlayer, playCultureLessonToVictory, readCulturePersist } from "./culture-lesson-helpers";
@@ -188,7 +189,7 @@ test.describe("V4.9.8B hotel + airport survival", () => {
 
   test("hotel culture lesson teaches before the task and Hub shares progress", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/hotel-checkin-register");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -220,7 +221,7 @@ test.describe("V4.9.8B hotel + airport survival", () => {
 
   test("hotel culture replay does not duplicate XP", async ({ page }) => {
     test.setTimeout(120_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/hotel-checkin-register");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

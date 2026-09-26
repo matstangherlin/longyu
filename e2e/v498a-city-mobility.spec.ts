@@ -5,6 +5,7 @@ import {
   seedUnlockedLessonSession,
   seedMissionsSession,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import { advanceUntilSelector } from "./lesson-player-mobile-helpers";
 import { expectCultureLessonPlayer, playCultureLessonToVictory, readCulturePersist } from "./culture-lesson-helpers";
@@ -121,7 +122,7 @@ test.describe("V4.9.8A city mobility", () => {
 
   test("metro-qr lesson teaches before the task and awards stars without lexical SRS", async ({ page }) => {
     test.setTimeout(90_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/metro-qr");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);

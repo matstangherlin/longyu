@@ -65,10 +65,19 @@ export function PasswordRequirements({
   password,
   confirmation,
   className,
+  progressive = false,
+  focused = false,
 }: {
   password: string;
   confirmation?: string;
   className?: string;
+  /**
+   * RC2.2.17 · CN — sem card permanente: a lista completa só aparece com o
+   * campo em foco ou enquanto um requisito obrigatório falta (depois de
+   * começar a digitar). Fora disso, uma linha compacta.
+   */
+  progressive?: boolean;
+  focused?: boolean;
 }) {
   const { t } = useTranslation();
   const rules = [
@@ -82,8 +91,24 @@ export function PasswordRequirements({
     { id: "special", required: false, ok: /[^A-Za-z0-9]/.test(password), label: t("auth.passwordRuleSpecial") },
   ];
 
+  if (progressive) {
+    const requiredOk = rules.filter((rule) => rule.required).every((rule) => rule.ok);
+    const expanded = focused || (password.length > 0 && !requiredOk);
+    if (!expanded) {
+      return (
+        <p
+          className={cx("text-xs", requiredOk ? "text-good" : "text-ink-soft", className)}
+          data-testid="password-requirements"
+          data-password-requirements="compact"
+        >
+          {requiredOk ? `✓ ${t("auth.passwordRequirementsMet")}` : t("auth.passwordRuleLength")}
+        </p>
+      );
+    }
+  }
+
   return (
-    <div className={cx("rounded-xl border border-line/70 bg-surface-2/60 px-3 py-2.5", className)} data-testid="password-requirements">
+    <div className={cx("rounded-xl border border-line/70 bg-surface-2/60 px-3 py-2.5", className)} data-testid="password-requirements" data-password-requirements="expanded">
       <p className="text-xs font-semibold text-ink">{t("auth.passwordRequirements")}</p>
       <ul className="mt-1.5 grid gap-1 text-xs" aria-live="polite">
         {rules.map((rule) => (

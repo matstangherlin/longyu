@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { IconShield } from "../../components/ui/Icon";
@@ -13,10 +13,15 @@ import {
   HubSection,
 } from "../../components/layout/HubLayout";
 import { useIsPro } from "../../lib/proAccess";
-import { useLearnerProfile } from "../../hooks/useLearnerProfile";
-import { MORE_CATALOG, navLabel, type NavItem } from "../../components/layout/nav";
-import { featureAvailability, isFeatureNewlyRelevant, type FeatureId } from "../../lib/learnerStage";
-import { getSeenIntros } from "../../lib/featureDiscovery";
+import {
+  MORE_CATALOG,
+  isNavItemDiscovered,
+  navLabel,
+  previewNavItems,
+  type NavItem,
+} from "../../components/layout/nav";
+import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
+import { featureAvailability, type FeatureId } from "../../lib/learnerStage";
 import { checkIsBetaAdmin } from "../../services/feedbackService";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
@@ -56,14 +61,13 @@ export function MorePage() {
   const completedLessons = useStore((s) => s.completedLessons);
   const srs = useStore((s) => s.srs);
   const isPremium = useIsPro();
-  const profile = useLearnerProfile();
+  const { visibility } = useFeatureVisibility();
 
   const account = accounts[currentAccountId];
   const isCloudAccount = account?.authMode === "cloud";
   const due = dueItems(srs).length;
   const [serverAdmin, setServerAdmin] = useState(false);
   const showAdmin = serverAdmin || isAdminEmail(account?.email);
-  const seen = useMemo(() => getSeenIntros(), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,11 +102,6 @@ export function MorePage() {
       return { ...base, desc: displayInstruction(info.reason ?? desc), status: t("navigation.statusLater"), statusTone: "muted" };
     }
 
-    // Recém-relevante e ainda não apresentada: destaque discreto "Nova".
-    if (isFeatureNewlyRelevant(feature, completedLessons, profile.learningStage) && !seen.has(feature)) {
-      return { ...base, featured: true, status: t("navigation.statusNew"), statusTone: "good" };
-    }
-
     // Estados dinâmicos úteis.
     if (feature === "revisao" && due > 0) {
       return { ...base, status: t("navigation.dueReady", { count: due }), statusTone: "accent", featured: true };
@@ -111,13 +110,32 @@ export function MorePage() {
     return base;
   }
 
+  // RC2.2.18 · AN/AO — sem parede de cadeados: some o que ainda não foi
+  // descoberto ou está trancado por progressão; no máximo 2 "próximos" discretos.
+  const isShown = (nav: NavItem) => {
+    if (!isNavItemDiscovered(nav, visibility)) return false;
+    const feature = nav.feature as FeatureId | undefined;
+    return !feature || feature === "plano" || !featureAvailability(feature, completedLessons).locked;
+  };
   const sections = MORE_CATALOG.map((group) => ({
     id: group.id,
     title: t(group.titleKey),
     items: group.items
       .filter((nav) => (isCloudAccount ? true : nav.to !== "/convide"))
+      .filter(isShown)
       .map(toHubItem),
+  })).filter((section) => section.items.length > 0);
+  const upcoming = previewNavItems(visibility).map<HubNavItem>((nav) => ({
+    title: navLabel(nav, t),
+    desc: t("discovery.previewHint"),
+    icon: nav.icon,
+    to: nav.to,
+    status: "🔒",
+    statusTone: "muted",
   }));
+  if (upcoming.length > 0) {
+    sections.splice(1, 0, { id: "upcoming", title: t("navigation.statusLater"), items: upcoming });
+  }
 
   // Admin (interno) fica fora do catálogo público.
   if (showAdmin) {

@@ -39,8 +39,10 @@ import {
   pedagogyEventQueueSize,
   setTelemetryConsent,
 } from "../../services/telemetryConsent";
-import { buildPrivacyExportBundle, requestAccountDeletion } from "../../services/privacyService";
-import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
+import { buildPrivacyExportBundle } from "../../services/privacyService";
+import { DangerZone } from "../../components/account/DangerZone";
+import { GuidanceSettingsCard } from "../../components/guidance/GuidanceSettingsCard";
+import { appearanceModeOf, type AppearanceMode } from "../../lib/useResolvedTheme";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import { TelemetryDataDetails } from "../../components/privacy/TelemetryDataDetails";
 import { LanguageAndCourseSettings } from "../../components/i18n/LanguageAndCourseSettings";
@@ -110,6 +112,8 @@ const PRO_ENGINE_KEYS: Record<DomainTrack, { titleKey: "settings.proSomTitle" | 
 export function SettingsPage() {
   const { t } = useTranslation();
   const theme = useStore((s) => s.theme);
+  const followSystemTheme = useStore((s) => s.followSystemTheme === true);
+  const setFollowSystemTheme = useStore((s) => s.setFollowSystemTheme);
   const setTheme = useStore((s) => s.setTheme);
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
@@ -431,6 +435,8 @@ export function SettingsPage() {
               </p>
             </Card>
           </HubSection>
+          {/* RC2.2.17 · CS — no FIM de Conta, fora de Avançado. */}
+          <DangerZone />
       </>
     ),
     aprendizagem: (
@@ -566,6 +572,8 @@ export function SettingsPage() {
               </div>
             </Card>
           </HubSection>
+          {/* RC2.2.18 · H/I — dicas guiadas: ligar/desligar e rever. */}
+          <GuidanceSettingsCard />
       </>
     ),
     som: (
@@ -735,6 +743,32 @@ export function SettingsPage() {
     aparencia: (
       <>
           <HubSection id="tema" className="scroll-mt-6" title={t("settings.theme")}>
+            {/* RC2.2.17 · CV — Sistema / Claro / Escuro, compacto e direto. */}
+            <div className="mb-3 grid grid-cols-3 gap-1 rounded-2xl bg-surface-2 p-1" role="radiogroup" aria-label={t("settings.appearanceMode")} data-testid="appearance-mode">
+              {(["system", "light", "dark"] as AppearanceMode[]).map((mode) => {
+                const active = appearanceModeOf(theme, followSystemTheme) === mode;
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    data-appearance-mode={mode}
+                    onClick={() => {
+                      if (mode === "system") setFollowSystemTheme(true);
+                      else if (mode === "dark") setTheme("dark");
+                      else setTheme(theme === "dark" ? "clay" : theme);
+                    }}
+                    className={[
+                      "min-h-11 rounded-xl text-sm font-semibold transition",
+                      active ? "bg-surface text-ink shadow-card" : "text-ink-soft hover:text-ink",
+                    ].join(" ")}
+                  >
+                    {mode === "system" ? t("settings.appearanceSystem") : mode === "light" ? t("settings.appearanceLight") : t("settings.appearanceDark")}
+                  </button>
+                );
+              })}
+            </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {THEMES.map((themeOption) => (
                 <button
@@ -839,26 +873,12 @@ export function SettingsPage() {
                 >
                   {t("settings.requestExport")}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={privacyBusy}
-                  onClick={() => {
-                    void (async () => {
-                      const confirmationText = window.prompt(
-                        t("settings.deletionPrompt", { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT })
-                      );
-                      if (confirmationText === null) return;
-                      setPrivacyBusy(true);
-                      const result = await requestAccountDeletion(confirmationText);
-                      setPrivacyBusy(false);
-                      setPrivacyNotice(localizeUserMessage(result.message));
-                    })();
-                  }}
+                <Link
+                  to="/config/conta#zona-de-perigo"
+                  className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-wrong hover:underline"
                 >
                   {t("settings.requestDeletion")}
-                </Button>
+                </Link>
               </div>
 
               <Link

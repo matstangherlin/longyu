@@ -134,6 +134,11 @@ export interface ProOfferInput {
   origin?: string;
   /** Relógio injetável (testes). */
   now?: number;
+  /**
+   * RC2.2.18 · DP — lições concluídas. Oferta não solicitada nunca aparece nas
+   * primeiras sessões (promoção tem a menor prioridade). Ausente = sem corte.
+   */
+  completedLessonsCount?: number;
 
   // Sinais adicionais (compat com os call sites atuais).
   lessonThreeStars?: boolean;
@@ -392,6 +397,9 @@ function deny(reason: string, cls?: Classification): ProOfferDecision {
  * Decisão central (§1). Lê o estado de frequência do storage e aplica todas as
  * regras. `input.now` permite injeção de relógio em teste.
  */
+/** RC2.2.18 · DP — promoção não solicitada só depois do primeiro ciclo real. */
+export const PROMO_MIN_COMPLETED_LESSONS = 3;
+
 export function decideProOffer(input: ProOfferInput): ProOfferDecision {
   const now = input.now ?? Date.now();
 
@@ -427,6 +435,10 @@ export function decideProOffer(input: ProOfferInput): ProOfferDecision {
 
   // 6) Regras específicas das ofertas não solicitadas (não modais banidos).
   if (!cls.solicited) {
+    // RC2.2.18 · DP — nada de promoção para quem acabou de chegar.
+    if ((input.completedLessonsCount ?? Number.POSITIVE_INFINITY) < PROMO_MIN_COMPLETED_LESSONS) {
+      return deny("first_sessions", cls);
+    }
     // Acabou de fechar uma oferta: não reoferecer logo em seguida.
     if (session.lastDismissAt > 0 && now - session.lastDismissAt < JUST_DISMISSED_MS) {
       return deny("recently_dismissed", cls);

@@ -1,3 +1,4 @@
+import { useResolvedTheme } from "../../lib/useResolvedTheme";
 import { useEffect, Suspense } from "react";
 import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { useStore } from "../../lib/store";
@@ -26,9 +27,10 @@ import { CultureSealRevealWatcher } from "../../features/culture/CultureSealReve
 import { SmartBackButton } from "../navigation/SmartBackButton";
 import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
+import { GuidanceHost } from "../guidance/GuidanceHost";
 
 export function AppShell() {
-  const theme = useStore((s) => s.theme);
+  const theme = useResolvedTheme();
   const registerActivity = useStore((s) => s.registerActivity);
   const reconcileStreak = useStore((s) => s.reconcileStreak);
   const location = useLocation();
@@ -139,6 +141,8 @@ export function AppShell() {
       <EntitlementBootstrap />
       <TelemetryConsentBootstrap />
       <EconomyBootstrap />
+      {/* RC2.2.18 — único dono das orientações; nunca em lição, prova ou treino ativo. */}
+      {!focusMode && <GuidanceHost />}
       <CultureSealRevealWatcher suspended={focusMode} />
       <AchievementsWatcher />
       <StreakWatcher />

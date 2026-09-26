@@ -288,7 +288,12 @@ export async function validateCourseDirection(s) {
   if (!/if \(!hasCourseDirection\(\)\) return <Navigate to="\/curso\?next=%2Fteste-guiado" replace \/>;/.test(stripComments(s.src.guided)))
     fail("GUIDED_WITHOUT_COURSE", "GuidedTryPage.tsx", "sem curso não entra no teste guiado");
   const comecar = stripComments(s.src.comecar);
-  if (!/if \(!hasCourseDirection\(\)\) return <Navigate to="\/curso\?next=%2Fcomecar" replace \/>;/.test(comecar))
+  // RC2.2.14B · J/AT — curso antes do onboarding; next preserva ?refazer=1 / ?migrate=1.
+  if (
+    !/if \(!hasCourseDirection\(\)\) \{/.test(comecar) ||
+    !/const next = `\/comecar\$\{searchParams\.toString\(\) \? `\?\$\{searchParams\.toString\(\)\}` : ""\}`;/.test(comecar) ||
+    !/return <Navigate to=\{`\/curso\?next=\$\{encodeURIComponent\(next\)\}`\} replace \/>;/.test(comecar)
+  )
     fail("ONBOARDING_WITHOUT_COURSE", "ComecarPage.tsx", "onboarding pede o curso antes");
   if (/<select|LanguageSwitcher|interface-locale-select|instruction-locale-select/.test(comecar) || !/<CourseDirectionChip next="\/comecar" \/>/.test(comecar))
     fail("SIGNUP_ASKS_TWICE", "ComecarPage.tsx", "onboarding/cadastro só mostram o curso (Alterar discreto)");

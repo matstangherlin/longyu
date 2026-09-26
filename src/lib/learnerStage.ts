@@ -164,7 +164,7 @@ export function featureAvailability(
 /**
  * A área é "recém-apresentável" quando já está disponível (sem lock real) e o
  * estágio de aprendizado alcançou o ponto em que ela passa a ser recomendada.
- * Combine com `featureDiscovery` (visto/não visto) para decidir o destaque.
+ * RC2.2.18: o anúncio de áreas novas é do GuidanceOrchestrator (progressiveDiscovery).
  */
 export function isFeatureNewlyRelevant(
   id: FeatureId,

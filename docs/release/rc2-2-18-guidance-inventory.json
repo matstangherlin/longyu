@@ -1,0 +1,45 @@
+{
+  "wave": "RC2.2.18",
+  "purpose": "Static inventory of every modal, sheet, popover and coachmark (PART DO). The gate fails when a file renders role=dialog / aria-modal / ModalOverlay without an entry here.",
+  "classes": ["ESSENTIAL", "GUIDANCE", "ERROR", "CONFIRMATION", "REWARD", "PROMO"],
+  "priority": {
+    "ESSENTIAL": "highest (account/security/privacy, user-invoked)",
+    "ERROR": "high (learning blocker)",
+    "CONFIRMATION": "user-initiated, never automatic",
+    "REWARD": "medium — waits for celebrationLock, never stacks",
+    "GUIDANCE": "medium-low — GuidanceOrchestrator only, 1 per session",
+    "PROMO": "lowest — never in the first sessions (PROMO_MIN_COMPLETED_LESSONS)"
+  },
+  "entries": [
+    { "file": "src/components/guidance/GuidanceHost.tsx", "surface": "coachmark / unlock reveal / inline tip", "class": "GUIDANCE", "automatic": true, "orchestrated": true },
+    { "file": "src/components/achievements/AchievementsWatcher.tsx", "surface": "medal reveal", "class": "REWARD", "automatic": true, "orchestrated": "celebrationLock" },
+    { "file": "src/features/culture/CultureSealReveal.tsx", "surface": "culture seal reveal", "class": "REWARD", "automatic": true, "orchestrated": "celebrationLock" },
+    { "file": "src/components/achievements/StreakWatcher.tsx", "surface": "streak day modal", "class": "REWARD", "automatic": true, "orchestrated": "celebrationLock" },
+    { "file": "src/components/achievements/StreakRecoveryWatcher.tsx", "surface": "streak recovery notice", "class": "REWARD", "automatic": true, "orchestrated": "celebrationLock" },
+    { "file": "src/components/privacy/TelemetryConsentModal.tsx", "surface": "telemetry consent", "class": "ESSENTIAL", "automatic": true, "orchestrated": "guidance waits while it is open" },
+    { "file": "src/components/chests/ChestRewardModal.tsx", "surface": "chest opening", "class": "REWARD", "automatic": false },
+    { "file": "src/features/missoes/MissoesPage.tsx", "surface": "mission complete", "class": "REWARD", "automatic": false },
+    { "file": "src/components/pro/ProPaywall.tsx", "surface": "Pro paywall (solicited)", "class": "PROMO", "automatic": false },
+    { "file": "src/components/account/DangerZone.tsx", "surface": "delete account confirmation", "class": "CONFIRMATION", "automatic": false },
+    { "file": "src/features/account/AccountPage.tsx", "surface": "redo placement confirmation", "class": "CONFIRMATION", "automatic": false },
+    { "file": "src/features/settings/SettingsPage.tsx", "surface": "collected data details", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/components/i18n/LanguageAndCourseSettings.tsx", "surface": "course change warning", "class": "CONFIRMATION", "automatic": false },
+    { "file": "src/features/familia/FamilyPage.tsx", "surface": "family invite", "class": "CONFIRMATION", "automatic": false },
+    { "file": "src/features/loja/LojaPage.tsx", "surface": "purchase confirmation", "class": "CONFIRMATION", "automatic": false },
+    { "file": "src/features/lesson/LessonPlayer.tsx", "surface": "out of breath / retry", "class": "ERROR", "automatic": true, "orchestrated": "inside the lesson, never guidance" },
+    { "file": "src/features/journey/JourneyPage.tsx", "surface": "lesson/culture preview sheet (user tap)", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/components/guide/GuideDialogue.tsx", "surface": "in-lesson dragon guide", "class": "GUIDANCE", "automatic": false, "orchestrated": "lesson content, not a promotional overlay" },
+    { "file": "src/components/feedback/FeedbackModal.tsx", "surface": "feedback form", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/components/hanzi/MandarinGlossaryPopover.tsx", "surface": "reading help popover", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/components/layout/TabBar.tsx", "surface": "Praticar / Mais sheets", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/features/biblioteca/BibliotecaPage.tsx", "surface": "item details", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/features/hanzi/HanziAtlasPage.tsx", "surface": "character details", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/lib/useExerciseHotkeys.tsx", "surface": "keyboard shortcuts help", "class": "ESSENTIAL", "automatic": false },
+    { "file": "src/components/ui/ModalOverlay.tsx", "surface": "shared modal primitive", "class": "ESSENTIAL", "automatic": false }
+  ],
+  "firstSessionAutomatic": {
+    "maxGuidance": 2,
+    "sequence": ["welcome_journey_v1 (Journey)", "one unlock reveal only after the first completed activity"],
+    "neverTogether": ["microphone permission", "notification permission"]
+  }
+}

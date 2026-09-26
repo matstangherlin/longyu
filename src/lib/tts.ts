@@ -2,7 +2,7 @@
 // Trocável por um TTS na nuvem depois sem mexer nas telas: basta
 // reimplementar speak() mantendo a assinatura.
 
-import { hasNativeSpeech, nativeSpeak, nativeStopSpeaking, nativeTtsStatus } from "./platform/nativeSpeech";
+import { hasNativeSpeech, nativeSpeak, nativeStopSpeaking, nativeTtsStatus, onNativeTtsStart } from "./platform/nativeSpeech";
 import { unlockAudio } from "./soundFx";
 import { useStore } from "./store";
 import { speakableProperNames } from "./personalize";
@@ -173,6 +173,12 @@ export interface SpeakOptions {
   volume?: number;
   onend?: () => void;
   /**
+   * RC2.2.17 · B — o MOTOR confirmou que a fala começou (Web: `onstart` da
+   * utterance; Android: `UtteranceProgressListener.onStart`). É o único sinal
+   * que autoriza dizer "tocou". Clique não é áudio.
+   */
+  onstart?: () => void;
+  /**
    * A fala não aconteceu: motor indisponível ou o navegador rejeitou.
    *
    * Separado de `onend` porque quem chama precisa saber a diferença entre
@@ -180,7 +186,7 @@ export interface SpeakOptions {
    * que falha fica silencioso nos dois sentidos — nada toca e nada é dito ao
    * aluno, que conclui que o botão está quebrado.
    */
-  onerror?: () => void;
+  onerror?: (reason?: string) => void;
   /** P3 — nomes latinos que podem ser falados dentro de uma fala mandarim. */
   properNames?: readonly string[];
 }
@@ -326,7 +332,7 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     return;
   }
   if (!isTTSAvailable()) {
-    opts.onerror?.();
+    opts.onerror?.("WEB_TTS_UNAVAILABLE");
     opts.onend?.();
     return;
   }
@@ -361,12 +367,13 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     clearChromeResumeWatchdog();
     opts.onend?.();
   };
+  u.onstart = () => opts.onstart?.();
   u.onend = settle;
   u.onerror = (event) => {
     // "interrupted"/"canceled" são fala trocada por outra (o aluno tocou de
     // novo, ou a tela mudou) — não são falha para quem ouve.
     const reason = (event as SpeechSynthesisErrorEvent)?.error;
-    if (reason && reason !== "interrupted" && reason !== "canceled") opts.onerror?.();
+    if (reason && reason !== "interrupted" && reason !== "canceled") opts.onerror?.(`WEB_TTS_${String(reason).toUpperCase().replace(/[^A-Z]+/g, "_")}`);
     settle();
   };
 
@@ -381,6 +388,7 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     try {
       synth.speak(u);
     } catch {
+      opts.onerror?.("WEB_TTS_SPEAK_THREW");
       settle();
       return;
     }
@@ -404,14 +412,29 @@ function speakNative(text: string, opts: SpeakOptions): void {
   }
   const preferences = useStore.getState();
   const rate = opts.rate ?? (preferences.slowAudio ? Math.min(preferences.ttsRate ?? 0.85, 0.65) : preferences.ttsRate ?? 0.85);
+  // RC2.2.17 · B — o início vem do evento nativo `onStart`, não do toque.
+  let started = false;
+  const release = onNativeTtsStart(() => {
+    if (started) return;
+    started = true;
+    opts.onstart?.();
+  });
   void nativeSpeak(spoken, { rate, pitch: opts.pitch ?? 1 }).then((result) => {
+    release();
     if (result.ok) {
       nativeTtsKnownAvailable = true;
       nativeTtsUnavailableReason = null;
+      // `onDone` só chega depois de a voz tocar: um plugin antigo sem o
+      // evento de início ainda prova que houve som. Interrompida sem início
+      // (o aluno tocou de novo) não prova nada, e também não é falha.
+      if (!started && !result.interrupted) {
+        started = true;
+        opts.onstart?.();
+      }
     } else {
       if (/^TTS_(LANGUAGE|UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
       nativeTtsUnavailableReason = result.code;
-      opts.onerror?.();
+      opts.onerror?.(result.code);
     }
     opts.onend?.();
   });

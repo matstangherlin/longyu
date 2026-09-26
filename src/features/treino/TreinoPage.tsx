@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { ComponentType, SVGProps } from "react";
 import { JOURNEY, currentLessonId } from "../../data/journey";
 import { ProgressBar } from "../../components/ui/primitives";
@@ -12,7 +13,7 @@ import {
 } from "../../components/ui/Icon";
 import { canAccessDetailedErrors, canUsePracticeTool, useIsPro, type PracticeToolId } from "../../lib/proAccess";
 import { dueItems } from "../../lib/srs";
-import { DAILY_GOAL_PER_TRACK, useStore } from "../../lib/store";
+import { dailyGoalMinutesFor, useStore } from "../../lib/store";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { TONE_SHORT_LABEL, weakestToneFromProgress, type MandarinTone } from "../../data/toneTrainer";
@@ -29,6 +30,7 @@ import {
 import { useTranslation } from "../../i18n/useTranslation";
 import type { TranslateVars } from "../../i18n/catalog";
 import type { MessageKey } from "../../locales/pt-BR";
+import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 
 const RECENT_ERROR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -56,7 +58,8 @@ export function TreinoPage() {
     (item) => item.lapses > 0 && (item.reviewedAt ?? item.createdAt) >= Date.now() - RECENT_ERROR_WINDOW_MS
   ).length;
   const totalMin = today.som + today.fala + today.hanzi + today.leitura;
-  const goalMin = DAILY_GOAL_PER_TRACK * 4;
+  const chosenDailyGoal = useStore((s) => s.dailyGoalMinutes);
+  const goalMin = dailyGoalMinutesFor({ dailyGoalMinutes: chosenDailyGoal });
   const weakTone = weakestToneFromProgress(toneTrainer);
   const dailyViews = buildMissionViews("daily", aggregates, dailyClaimed);
   const reviewMission = dailyViews.find((mission) => mission.id === "daily-reviews" && !mission.claimed);
@@ -73,7 +76,11 @@ export function TreinoPage() {
     t,
   });
 
-  const practiceItems: HubNavItem[] = [
+  const { visibility } = useFeatureVisibility();
+  // RC2.2.18 · S/T — sem modo vazio: Revisão só com itens revisáveis.
+  const reviewAvailable = visibility.review === "AVAILABLE";
+
+  const allPracticeItems: HubNavItem[] = [
     {
       title: "Mandarin Blitz",
       desc: t("hub.blitzDesc"),
@@ -89,6 +96,7 @@ export function TreinoPage() {
       to: "/revisao",
       status: due > 0 ? t("navigation.dueReady", { count: due }) : t("hub.caughtUp"),
       featured: due > 0,
+      coachmarkTarget: "practice-review",
     },
     {
       title: t("navigation.pinyinLab"),
@@ -131,6 +139,13 @@ export function TreinoPage() {
     },
   ];
 
+  const practiceItems = allPracticeItems.filter((item) => {
+    if (item.to?.startsWith("/revisao")) return reviewAvailable;
+    // Sem o que revisar, o teaser Pro de erros detalhados é só promoção (PART DP).
+    if (item.pro && !reviewAvailable) return false;
+    return true;
+  });
+
   // Treino completo: visível para todos; no grátis abre o paywall honesto em
   // vez de sumir da tela (a revisão essencial continua sempre livre).
   const extraReview: HubNavItem[] = detailedErrorsAccess.allowed
@@ -166,6 +181,7 @@ export function TreinoPage() {
 
       <EconomyExplainer isPro={isPremium} context="treino" />
 
+      <div data-coachmark-target="practice-recommended">
       <HubHeroCard
         title={recommendation.title}
         desc={recommendation.desc}
@@ -183,12 +199,13 @@ export function TreinoPage() {
           </div>
         }
       />
+      </div>
 
       <HubSection title={t("hub.practiceSection")} desc={t("hub.practiceSectionDesc")}>
         <HubNavGrid items={practiceItems} columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
       </HubSection>
 
-      {extraReview.length > 0 && (
+      {reviewAvailable && extraReview.length > 0 && (
         <HubSection
           title={t("hub.advancedReview")}
           desc={detailedErrorsAccess.allowed ? t("hub.advancedReviewPro") : t("hub.advancedReviewLocked")}
@@ -197,7 +214,16 @@ export function TreinoPage() {
         </HubSection>
       )}
 
-      <HubProStrip isPremium={isPremium} />
+      {/* RC2.2.17 · DU — replay do Teste guiado, sem recompensa, fora da TabBar. */}
+      <Link
+        to="/teste-guiado?replay=1"
+        data-testid="treino-guided-try-replay"
+        className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-accent hover:underline"
+      >
+        {t("hub.guidedTryReplay")}
+      </Link>
+
+            <HubProStrip isPremium={isPremium} />
       <ProPaywall open={paywallKind !== null} kind={paywallKind ?? "errors"} onClose={() => setPaywallKind(null)} />
     </HubPage>
   );

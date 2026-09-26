@@ -2,13 +2,18 @@ package longyu.noba.com;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.speech.ModelDownloadListener;
 import android.speech.RecognitionListener;
+import android.speech.RecognitionSupport;
+import android.speech.RecognitionSupportCallback;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
@@ -22,7 +27,9 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -32,9 +39,11 @@ import java.util.Locale;
  * Fala do aluno: android.speech.SpeechRecognizer, uma tentativa por toque,
  * com timeout, cancelada no background e destruída ao terminar.
  *
- * Sem estado próprio: nada é gravado em disco pelo plugin. O áudio
- * do microfone vai só para o serviço de reconhecimento do sistema; o Longyu não
- * o guarda. O front-end não chama este plugin direto: tudo passa por
+ * O áudio do microfone do reconhecimento vai só para o serviço do sistema; o
+ * Longyu não o guarda. RC2.2.17 · AA–AB: a gravação de PRÁTICA (autoavaliação)
+ * é um único arquivo no cache do app, apagado ao gravar de novo, ao apagar,
+ * ao ir para o background e ao fechar. Nunca é enviado a lugar nenhum.
+ * O front-end não chama este plugin direto: tudo passa por
  * src/lib/platform/nativeSpeech.ts.
  */
 @CapacitorPlugin(
@@ -54,10 +63,21 @@ public class LongyuSpeechPlugin extends Plugin {
     private int ttsInitStatus = -1;
     private PluginCall speakCall;
     private int utteranceSeq = 0;
+    /** RC2.2.17 — só a fala CORRENTE pode resolver/rejeitar speakCall. */
+    private String currentUtteranceId;
 
     private SpeechRecognizer recognizer;
     private PluginCall recognitionCall;
     private Runnable recognitionTimeout;
+
+    private SpeechRecognizer supportProbe;
+    private SpeechRecognizer modelDownloader;
+
+    private MediaRecorder practiceRecorder;
+    private MediaPlayer practicePlayer;
+    private PluginCall practicePlayCall;
+    private File practiceFile;
+    private long practiceStartedAt = 0L;
 
     // ── TTS ────────────────────────────────────────────────────────────────
 
@@ -107,6 +127,9 @@ public class LongyuSpeechPlugin extends Plugin {
             ret.put("available", "AVAILABLE".equals(status));
             ret.put("status", status);
             ret.put("engine", tts != null ? tts.getDefaultEngine() : null);
+            // RC2.2.17 · H — diagnóstico sem PII.
+            ret.put("initStatus", ttsInitStatus == TextToSpeech.SUCCESS ? "SUCCESS" : ttsInitStatus == -1 ? "PENDING" : "ERROR");
+            ret.put("requestedLocale", localeFor(language).toLanguageTag());
             call.resolve(ret);
         });
     }
@@ -136,10 +159,12 @@ public class LongyuSpeechPlugin extends Plugin {
             tts.setPitch(pitch == null ? 1.0f : Math.max(0.5f, Math.min(2.0f, pitch)));
             String id = UTTERANCE_PREFIX + (++utteranceSeq);
             speakCall = call;
+            currentUtteranceId = id;
             call.setKeepAlive(true);
             int result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
             if (result != TextToSpeech.SUCCESS) {
                 speakCall = null;
+                currentUtteranceId = null;
                 call.setKeepAlive(false);
                 call.reject("speak failed", "TTS_SPEAK_FAILED");
             }
@@ -147,19 +172,33 @@ public class LongyuSpeechPlugin extends Plugin {
     }
 
     private final UtteranceProgressListener progressListener = new UtteranceProgressListener() {
+        /** RC2.2.17 · B — o motor começou a falar: é isso que o app chama de "tocou". */
         @Override
-        public void onStart(String utteranceId) {}
+        public void onStart(String utteranceId) {
+            main.post(() -> {
+                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
+                JSObject event = new JSObject();
+                event.put("state", "start");
+                notifyListeners("ttsState", event);
+            });
+        }
 
         @Override
         public void onDone(String utteranceId) {
-            main.post(() -> finishSpeak(false));
+            main.post(() -> {
+                // O onStop/onDone atrasado da fala ANTERIOR não encerra a atual.
+                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
+                finishSpeak(false);
+            });
         }
 
         @Override
         public void onError(String utteranceId) {
             main.post(() -> {
+                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
                 PluginCall call = speakCall;
                 speakCall = null;
+                currentUtteranceId = null;
                 if (call != null) {
                     call.setKeepAlive(false);
                     call.reject("tts error", "TTS_SPEAK_FAILED");
@@ -169,13 +208,17 @@ public class LongyuSpeechPlugin extends Plugin {
 
         @Override
         public void onStop(String utteranceId, boolean interrupted) {
-            main.post(() -> finishSpeak(true));
+            main.post(() -> {
+                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
+                finishSpeak(true);
+            });
         }
     };
 
     private void finishSpeak(boolean interrupted) {
         PluginCall call = speakCall;
         speakCall = null;
+        currentUtteranceId = null;
         if (call == null) return;
         JSObject ret = new JSObject();
         ret.put("interrupted", interrupted);
@@ -209,7 +252,190 @@ public class LongyuSpeechPlugin extends Plugin {
         call.resolve();
     }
 
+    /** RC2.2.17 · I — "Instalar voz chinesa" pelo fluxo do próprio Android. */
+    @PluginMethod
+    public void installTtsData(PluginCall call) {
+        Intent install = new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+        install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            getContext().startActivity(install);
+            call.resolve();
+        } catch (ActivityNotFoundException e) {
+            call.reject("no tts installer", "TTS_INSTALL_UNAVAILABLE");
+        }
+    }
+
     // ── Reconhecimento de fala ────────────────────────────────────────────
+
+    private Intent recognitionIntent(String language) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language);
+        return intent;
+    }
+
+    /** zh-CN, zh_CN, cmn-Hans-CN, zh-Hans… contam como mandarim. */
+    static boolean listHasLanguage(List<String> languages, String language) {
+        if (languages == null) return false;
+        String wanted = language == null ? "zh-cn" : language.toLowerCase(Locale.ROOT).replace('_', '-');
+        for (String entry : languages) {
+            if (entry == null) continue;
+            String tag = entry.toLowerCase(Locale.ROOT).replace('_', '-');
+            if (tag.equals(wanted)) return true;
+            if (wanted.startsWith("zh") && (tag.equals("zh") || tag.startsWith("zh-cn") || tag.startsWith("zh-hans") || tag.startsWith("cmn-hans") || tag.equals("cmn"))) return true;
+        }
+        return false;
+    }
+
+    /**
+     * RC2.2.17 · V — Android 13+: pergunta ao serviço se o mandarim existe ANTES
+     * da primeira atividade de fala (não espera a escuta falhar).
+     * checked=false → API antiga ou sem serviço: o front-end trata como
+     * UNKNOWN_SUPPORT / SERVICE_UNAVAILABLE.
+     */
+    @PluginMethod
+    public void checkRecognitionSupport(PluginCall call) {
+        String language = call.getString("language", "zh-CN");
+        boolean service = SpeechRecognizer.isRecognitionAvailable(getContext());
+        boolean onDevice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && SpeechRecognizer.isOnDeviceRecognitionAvailable(getContext());
+        JSObject base = new JSObject();
+        base.put("serviceAvailable", service);
+        base.put("onDeviceAvailable", onDevice);
+        base.put("sdk", Build.VERSION.SDK_INT);
+        base.put("installedOnDevice", false);
+        base.put("pendingOnDevice", false);
+        base.put("supportedOnDevice", false);
+        base.put("online", false);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || (!service && !onDevice)) {
+            base.put("checked", false);
+            call.resolve(base);
+            return;
+        }
+        main.post(() -> {
+            releaseSupportProbe();
+            try {
+                supportProbe = onDevice ? SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext()) : SpeechRecognizer.createSpeechRecognizer(getContext());
+                supportProbe.checkRecognitionSupport(recognitionIntent(language), getContext().getMainExecutor(), new RecognitionSupportCallback() {
+                    @Override
+                    public void onSupportResult(RecognitionSupport support) {
+                        main.post(() -> {
+                            base.put("checked", true);
+                            base.put("installedOnDevice", listHasLanguage(support.getInstalledOnDeviceLanguages(), language));
+                            base.put("pendingOnDevice", listHasLanguage(support.getPendingOnDeviceLanguages(), language));
+                            base.put("supportedOnDevice", listHasLanguage(support.getSupportedOnDeviceLanguages(), language));
+                            base.put("online", listHasLanguage(support.getOnlineLanguages(), language));
+                            releaseSupportProbe();
+                            call.resolve(base);
+                        });
+                    }
+
+                    @Override
+                    public void onError(int error) {
+                        main.post(() -> {
+                            base.put("checked", false);
+                            base.put("error", errorCode(error));
+                            releaseSupportProbe();
+                            call.resolve(base);
+                        });
+                    }
+                });
+            } catch (RuntimeException e) {
+                base.put("checked", false);
+                base.put("error", "SUPPORT_CHECK_FAILED");
+                releaseSupportProbe();
+                call.resolve(base);
+            }
+        });
+    }
+
+    private void releaseSupportProbe() {
+        if (supportProbe != null) {
+            try {
+                supportProbe.destroy();
+            } catch (RuntimeException ignored) {}
+            supportProbe = null;
+        }
+    }
+
+    /**
+     * RC2.2.17 · W–X — o serviço suporta mandarim mas o modelo não está no
+     * aparelho: pede o download ao Android. API 34+ reporta progresso /
+     * agendado / pronto pelo evento `modelDownload`; API 33 só dispara.
+     */
+    @PluginMethod
+    public void triggerModelDownload(PluginCall call) {
+        String language = call.getString("language", "zh-CN");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            JSObject ret = new JSObject();
+            ret.put("status", "UNSUPPORTED_API");
+            call.resolve(ret);
+            return;
+        }
+        main.post(() -> {
+            releaseModelDownloader();
+            try {
+                boolean onDevice = SpeechRecognizer.isOnDeviceRecognitionAvailable(getContext());
+                modelDownloader = onDevice ? SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext()) : SpeechRecognizer.createSpeechRecognizer(getContext());
+                JSObject ret = new JSObject();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    modelDownloader.triggerModelDownload(recognitionIntent(language), getContext().getMainExecutor(), new ModelDownloadListener() {
+                        @Override
+                        public void onProgress(int completedPercent) {
+                            JSObject event = new JSObject();
+                            event.put("status", "DOWNLOADING");
+                            event.put("progress", completedPercent);
+                            notifyListeners("modelDownload", event);
+                        }
+
+                        @Override
+                        public void onSuccess() {
+                            modelDownloadEvent("SUCCESS");
+                        }
+
+                        @Override
+                        public void onScheduled() {
+                            modelDownloadEvent("SCHEDULED");
+                        }
+
+                        @Override
+                        public void onError(int error) {
+                            JSObject event = new JSObject();
+                            event.put("status", "ERROR");
+                            event.put("code", errorCode(error));
+                            notifyListeners("modelDownload", event);
+                            main.post(LongyuSpeechPlugin.this::releaseModelDownloader);
+                        }
+                    });
+                } else {
+                    modelDownloader.triggerModelDownload(recognitionIntent(language));
+                }
+                ret.put("status", "STARTED");
+                call.resolve(ret);
+            } catch (RuntimeException e) {
+                releaseModelDownloader();
+                JSObject ret = new JSObject();
+                ret.put("status", "ERROR");
+                ret.put("code", "MODEL_DOWNLOAD_FAILED");
+                call.resolve(ret);
+            }
+        });
+    }
+
+    private void modelDownloadEvent(String status) {
+        JSObject event = new JSObject();
+        event.put("status", status);
+        notifyListeners("modelDownload", event);
+        main.post(this::releaseModelDownloader);
+    }
+
+    private void releaseModelDownloader() {
+        if (modelDownloader != null) {
+            try {
+                modelDownloader.destroy();
+            } catch (RuntimeException ignored) {}
+            modelDownloader = null;
+        }
+    }
 
     @PluginMethod
     public void getRecognitionStatus(PluginCall call) {
@@ -251,9 +477,7 @@ public class LongyuSpeechPlugin extends Plugin {
                 return;
             }
             recognizer.setRecognitionListener(recognitionListener);
-            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language);
+            Intent intent = recognitionIntent(language);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
             intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getContext().getPackageName());
@@ -367,6 +591,156 @@ public class LongyuSpeechPlugin extends Plugin {
         recognitionCall = null;
     }
 
+    // ── RC2.2.17 · AA — gravação temporária de prática ────────────────────
+
+    private File practiceFile() {
+        return new File(getContext().getCacheDir(), "longyu-practice.m4a");
+    }
+
+    @PluginMethod
+    public void startPracticeRecording(PluginCall call) {
+        if (getPermissionState("microphone") != PermissionState.GRANTED) {
+            call.reject("microphone permission", "INSUFFICIENT_PERMISSIONS");
+            return;
+        }
+        if (recognitionCall != null) {
+            call.reject("recognizer busy", "RECOGNIZER_BUSY");
+            return;
+        }
+        main.post(() -> {
+            if (tts != null) tts.stop();
+            finishSpeak(true);
+            // Nova gravação apaga a anterior: nunca acumula áudio do aluno.
+            discardPracticeRecording();
+            practiceFile = practiceFile();
+            try {
+                practiceRecorder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? new MediaRecorder(getContext()) : new MediaRecorder();
+                practiceRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                practiceRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+                practiceRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                practiceRecorder.setAudioEncodingBitRate(64000);
+                practiceRecorder.setAudioSamplingRate(44100);
+                practiceRecorder.setMaxDuration(15000);
+                practiceRecorder.setOutputFile(practiceFile.getAbsolutePath());
+                practiceRecorder.prepare();
+                practiceRecorder.start();
+                practiceStartedAt = System.currentTimeMillis();
+                JSObject ret = new JSObject();
+                ret.put("recording", true);
+                call.resolve(ret);
+            } catch (Exception e) {
+                discardPracticeRecording();
+                call.reject("recording failed", "RECORDING_FAILED");
+            }
+        });
+    }
+
+    @PluginMethod
+    public void stopPracticeRecording(PluginCall call) {
+        main.post(() -> {
+            if (practiceRecorder == null) {
+                call.reject("not recording", "NOT_RECORDING");
+                return;
+            }
+            long duration = System.currentTimeMillis() - practiceStartedAt;
+            try {
+                practiceRecorder.stop();
+            } catch (RuntimeException e) {
+                // stop() logo após start(): nada gravado de verdade.
+                discardPracticeRecording();
+                call.reject("recording too short", "RECORDING_TOO_SHORT");
+                return;
+            }
+            practiceRecorder.release();
+            practiceRecorder = null;
+            JSObject ret = new JSObject();
+            ret.put("durationMs", duration);
+            call.resolve(ret);
+        });
+    }
+
+    @PluginMethod
+    public void playPracticeRecording(PluginCall call) {
+        main.post(() -> {
+            if (practiceRecorder != null || practiceFile == null || !practiceFile.exists()) {
+                call.reject("no recording", "NO_RECORDING");
+                return;
+            }
+            if (tts != null) tts.stop();
+            finishSpeak(true);
+            releasePracticePlayer();
+            try {
+                practicePlayer = new MediaPlayer();
+                practicePlayer.setDataSource(practiceFile.getAbsolutePath());
+                practicePlayCall = call;
+                call.setKeepAlive(true);
+                practicePlayer.setOnCompletionListener((player) -> finishPracticePlay(true));
+                practicePlayer.setOnErrorListener((player, what, extra) -> {
+                    finishPracticePlay(false);
+                    return true;
+                });
+                practicePlayer.prepare();
+                practicePlayer.start();
+            } catch (Exception e) {
+                finishPracticePlay(false);
+            }
+        });
+    }
+
+    private void finishPracticePlay(boolean played) {
+        PluginCall call = practicePlayCall;
+        practicePlayCall = null;
+        releasePracticePlayer();
+        if (call == null) return;
+        call.setKeepAlive(false);
+        if (played) {
+            JSObject ret = new JSObject();
+            ret.put("played", true);
+            call.resolve(ret);
+        } else {
+            call.reject("playback failed", "PLAYBACK_FAILED");
+        }
+    }
+
+    private void releasePracticePlayer() {
+        if (practicePlayer != null) {
+            try {
+                practicePlayer.stop();
+            } catch (RuntimeException ignored) {}
+            practicePlayer.release();
+            practicePlayer = null;
+        }
+    }
+
+    @PluginMethod
+    public void deletePracticeRecording(PluginCall call) {
+        main.post(() -> {
+            discardPracticeRecording();
+            JSObject ret = new JSObject();
+            ret.put("deleted", true);
+            call.resolve(ret);
+        });
+    }
+
+    /** Para gravação/reprodução e APAGA o arquivo. Idempotente. */
+    private void discardPracticeRecording() {
+        if (practiceRecorder != null) {
+            try {
+                practiceRecorder.stop();
+            } catch (RuntimeException ignored) {}
+            practiceRecorder.release();
+            practiceRecorder = null;
+        }
+        if (practicePlayCall != null) finishPracticePlay(false);
+        releasePracticePlayer();
+        File file = practiceFile != null ? practiceFile : practiceFile();
+        if (file.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+        practiceFile = null;
+    }
+
     // ── Permissão do microfone ────────────────────────────────────────────
 
     @PluginMethod
@@ -423,11 +797,16 @@ public class LongyuSpeechPlugin extends Plugin {
         if (tts != null) tts.stop();
         finishSpeak(true);
         failRecognition("CANCELLED");
+        // RC2.2.17 · AB — sair da atividade apaga a gravação de prática.
+        discardPracticeRecording();
     }
 
     @Override
     protected void handleOnDestroy() {
         failRecognition("CANCELLED");
+        discardPracticeRecording();
+        releaseSupportProbe();
+        releaseModelDownloader();
         finishSpeak(true);
         if (tts != null) {
             tts.stop();

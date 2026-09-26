@@ -7,6 +7,7 @@ import {
   seedMissionsSession,
   seedUnlockedLessonSession,
   waitForLazyPage,
+  CULTURE_DISCOVERED_LESSONS,
 } from "./helpers";
 import {
   expectCultureLessonPlayer,
@@ -86,7 +87,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
 
   test("wrong answer shows recovery, then victory still completes Hub + Journey", async ({ page }) => {
     test.setTimeout(120_000);
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/visiting-home");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -164,7 +165,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
   test("PT and EN instruction overlays both render the native lesson", async ({ page }) => {
     await seedInterfaceLocale(page, "en");
     await seedInstructionLocale(page, "en", { force: true });
-    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20 });
+    await seedMissionsSession(page, { isPremium: true, serverIsPro: true, folego: 20, completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura/greetings-nihao");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
@@ -176,6 +177,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
     test.setTimeout(90_000);
     const due = Date.now() - 60_000;
     await seedMissionsSession(page, {
+      completedLessons: CULTURE_DISCOVERED_LESSONS,
       isPremium: true,
       serverIsPro: true,
       cultureMemoryById: {

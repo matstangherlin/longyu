@@ -1,4 +1,5 @@
 import {
+  useLayoutEffect,
   useEffect,
   useId,
   useRef,
@@ -71,6 +72,18 @@ export function MandarinToken({
   const holdTimer = useRef<number | null>(null);
   const suppressClickRef = useRef(false);
   const atlasHref = lookup.atlasLink ? atlasHrefForHanzi(text, entry?.charId) : null;
+  /**
+   * RC2.2.17 · FC/(14) — termo DENTRO de um botão (opção, peça, par): tocar
+   * precisa acionar o botão. No modo padrão o toque abria a "Ajuda de
+   * leitura" e a opção não ficava marcada (Verificar seguia desabilitado) —
+   * no celular, "toquei e nada aconteceu". Aninhado, o termo usa o mesmo
+   * contrato da Revisão: tocar = botão; segurar = glossário.
+   */
+  const [nestedInButton, setNestedInButton] = useState(false);
+  useLayoutEffect(() => {
+    setNestedInButton(Boolean(ref.current?.parentElement?.closest("button")));
+  }, []);
+  const effectiveActivation: MandarinTokenActivation = activation === "default" && nestedInButton ? "hover-hold" : activation;
 
   const canShowPhrase = !helpDisabled && help.helpMode === "sentence" && Boolean(phrase && phrase.parts.length > 1);
   const canSpeak = !helpDisabled && speakOnClick && isTTSAvailable();
@@ -192,7 +205,7 @@ export function MandarinToken({
     />
   ) : null;
 
-  if (activation === "hover-hold") {
+  if (effectiveActivation === "hover-hold") {
     // Sem role=button: o termo vive dentro de um <button> e não pode ser um
     // segundo controle interativo aninhado.
     return (
