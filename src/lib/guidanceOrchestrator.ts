@@ -283,6 +283,19 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     dragon: false,
   },
   {
+    // RC2.2.19 — primeira revisão: rodadas curtas, erro volta de outro jeito.
+    id: "review_session_intro_v1",
+    kind: "INLINE_TIP",
+    priority: "PEDAGOGICAL_TIP",
+    essential: false,
+    surfaces: ["/revisao"],
+    bodyKey: "guidance.reviewSessionIntro.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
     // RC2.2.19 — onde fica o perfil (avatar do topo → /perfil).
     id: "profile_entry_v1",
     kind: "COACHMARK",
@@ -545,6 +558,8 @@ function candidateEligible(definition: GuidanceDefinition, ctx: GuidanceContext)
       return ctx.visibility.culture === "AVAILABLE";
     case "atlas_first_use_v1":
       return ctx.visibility.atlas === "AVAILABLE";
+    case "review_session_intro_v1":
+      return ctx.visibility.review === "AVAILABLE";
     case "profile_entry_v1":
       // Depois da primeira atividade: nunca disputa com as boas-vindas.
       return ctx.learner.completedLessons.length > 0;

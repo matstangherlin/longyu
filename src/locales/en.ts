@@ -2889,6 +2889,9 @@ export const en: MessageCatalog = {
     atlasFirstUse: {
       body: "Tap a character to see its sound, meaning and components.",
     },
+    reviewSessionIntro: {
+      body: "Review comes in short rounds of 5 to 8. Got one wrong? It comes back later, in a different way. Tap a hànzì to open it in the Atlas.",
+    },
     profileEntry: {
       body: "Your profile lives here: photo, name, medals and friends. Account and Sign out too.",
     },
