@@ -127,10 +127,15 @@ test.describe("TEST-026 — draft ausente falha fechado", () => {
     await expect(page.getByRole("link", { name: /Refazer teste de nivelamento/i })).toBeVisible();
     await expect(page).not.toHaveURL(/\/jornada/);
     await page.getByRole("link", { name: /Refazer teste de nivelamento/i }).click();
-    await page.waitForURL(/\/comecar\?refazer=1/);
-    // O título da tela anterior também diz "ponto de partida": exige o da /comecar.
-    await expect(page.getByRole("heading", { name: /Vamos encontrar seu ponto de partida/i })).toBeVisible();
+    // RC2.2.14B: sem curso, /comecar redireciona para /curso e volta com ?refazer=1.
+    await page.waitForURL(/\/(comecar|curso)/);
+    if (/\/curso/.test(page.url())) {
+      await page.locator('[data-course-choice="pt-zh"]').click();
+      await page.getByTestId("course-picker-confirm").click();
+      await page.waitForURL(/\/comecar/);
+    }
     await expect(page).toHaveURL(/\/comecar\?refazer=1/);
+    await expect(page.getByRole("heading", { name: /ponto de partida/i })).toBeVisible({ timeout: 15_000 });
   });
 });
 
