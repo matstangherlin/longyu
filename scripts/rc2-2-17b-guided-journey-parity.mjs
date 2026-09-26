@@ -90,7 +90,7 @@ const MUTATIONS = {
     ["11. conversa mantém a moldura gigante", "CONVERSATION_FRAME", src("conversation", 'className={guided ? "mt-4" : "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface', 'className={guided ? "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3" : "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface')],
     ["12. Dragão em todo passo", "DRAGON_EVERY_STEP", src("presentation", '  if (kind === "intro") return index === 0 ? "PREPARE" : "EXPLANATION";\n  return null;', '  if (kind === "intro") return index === 0 ? "PREPARE" : "EXPLANATION";\n  return "EXPLANATION";')],
     ["14. mais de 1 pílula de metadado", "METADATA_PILLS", src("shell", '<span className="sr-only">{stageLabel}</span>', '<span className="rounded-full uppercase">{stageLabel}</span>')],
-    ["24. package muda de longyu.noba.com", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "com.longyu.app"')],
+    ["24. package muda de longyu.noba.com", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "longyu.outro.app"')],
     ["25. #273 tocado", "TOUCHED_273", json((s) => { s.rc2CandidateSha256 = "0".repeat(64); })],
     ["M42. falante inativo quase invisível", "SPEAKER_INVISIBLE", src("conversation", '"border-line opacity-70"', '"border-line opacity-20"')],
     ["M43. tom com card-em-card", "TONE_CARD_IN_CARD", src("steps", "flat={guided}", "flat={false}")],

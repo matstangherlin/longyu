@@ -110,7 +110,7 @@ const MUTATIONS = {
     ["59. base ambígua", "BASE_SHA_AMBIGUOUS", json((s) => { s.manifest.RC2_2_19_BASE_SHA = "HEAD"; })],
     ["60. PR automático", "AUTO_PR", json((s) => { s.manifest.prOpenedAutomatically = true; })],
     ["61. compras Android ligadas", "PURCHASES_ENABLED", json((s) => { s.manifest.regression.androidInAppPurchase = "ENABLED"; })],
-    ["62. package muda", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "com.longyu.app"')],
+    ["62. package muda", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "longyu.outro.app"')],
     ["63. #273 tocada", "TOUCHED_273", json((s) => { s.rc2CandidateSha256 = "0".repeat(64); })],
     ["64. exceção de freeze ausente", "FREEZE_EXCEPTION_MISSING", src("curriculumFreeze", "RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION", "RC2_2_19_UNREGISTERED")],
     ["65. desenhos de articulação somem", "ARTICULATION_MISSING", src("articulation", '    id: "j-q-x",\n    sounds:', '    id: "j-q-x-removed",\n    sounds:')],
