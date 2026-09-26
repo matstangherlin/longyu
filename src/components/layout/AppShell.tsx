@@ -1,3 +1,4 @@
+import { useResolvedTheme } from "../../lib/useResolvedTheme";
 import { useEffect, Suspense } from "react";
 import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import { useStore } from "../../lib/store";
@@ -28,7 +29,7 @@ import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
 
 export function AppShell() {
-  const theme = useStore((s) => s.theme);
+  const theme = useResolvedTheme();
   const registerActivity = useStore((s) => s.registerActivity);
   const reconcileStreak = useStore((s) => s.reconcileStreak);
   const location = useLocation();

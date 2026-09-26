@@ -43,11 +43,19 @@ assert(
     !auth.includes('functions.invoke("delete-account"'),
   "authService delega ao único cliente de exclusão"
 );
+// RC2.2.17 · CS–CT — em Ajustes, a exclusão mora na "Zona de perigo" de Conta
+// (componente próprio): a frase é DIGITADA num campo e comparada à frase
+// compartilhada antes de habilitar o botão final.
+const dangerZone = read("src", "components", "account", "DangerZone.tsx");
+assert(settingsPage.includes("<DangerZone />"), "ajustes mostra a Zona de perigo em Conta");
 for (const [label, source] of [
   ["conta", accountPage],
-  ["ajustes", settingsPage],
+  ["ajustes", dangerZone],
 ]) {
-  assert(source.includes("window.prompt("), `${label} exige confirmação digitada`);
+  assert(
+    source.includes("window.prompt(") || /phrase\.trim\(\) === ACCOUNT_DELETION_CONFIRMATION_TEXT/.test(source),
+    `${label} exige confirmação digitada`
+  );
   assert(source.includes("ACCOUNT_DELETION_CONFIRMATION_TEXT"), `${label} usa a frase compartilhada`);
 }
 

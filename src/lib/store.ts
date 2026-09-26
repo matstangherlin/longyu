@@ -174,6 +174,15 @@ export type MandarinDisplayMode = "pinyin_hanzi" | "hanzi_pinyin" | "hanzi_only"
 export type TranslationMode = "always" | "tap" | "hidden";
 
 export const DAILY_GOAL_PER_TRACK = 5; // min por trilha (20 min total)
+
+/**
+ * RC2.2.17 · AI — meta diária total (min). A escolha do onboarding manda;
+ * sem escolha, o valor histórico (5 min × 4 trilhas = 20 min).
+ */
+export function dailyGoalMinutesFor(state: { dailyGoalMinutes?: number | null }): number {
+  const chosen = state.dailyGoalMinutes;
+  return typeof chosen === "number" && chosen > 0 ? chosen : DAILY_GOAL_PER_TRACK * 4;
+}
 export const DEFAULT_ACCOUNT_ID = "local";
 export const FREE_DAILY_CHARGES = DAILY_CHARGES_FREE;
 export const MISSION_CHARGE_REWARD = 2;
@@ -1282,6 +1291,22 @@ function normalizeCurrentLessonAttempt(attempt: LessonAttemptRecord | null | und
   };
 }
 
+export interface GuidedTryExposure {
+  kind: "GUIDED_TRY_EXPOSURE";
+  at: number;
+  audio: "AUDIO_HEARD" | "DEGRADED_AUDIO";
+}
+
+function normalizeGuidedTryExposure(raw: unknown): GuidedTryExposure | null {
+  const value = raw as Partial<GuidedTryExposure> | null | undefined;
+  if (!value || value.kind !== "GUIDED_TRY_EXPOSURE" || typeof value.at !== "number") return null;
+  return { kind: "GUIDED_TRY_EXPOSURE", at: value.at, audio: value.audio === "DEGRADED_AUDIO" ? "DEGRADED_AUDIO" : "AUDIO_HEARD" };
+}
+
+function normalizeDailyGoalMinutes(raw: unknown): number | null {
+  return typeof raw === "number" && [5, 10, 15, 20].includes(raw) ? raw : null;
+}
+
 interface AccountSnapshot extends XpBuckets {
   srs: Record<string, SRSItem>;
   learnedChars: string[];
@@ -1293,6 +1318,16 @@ interface AccountSnapshot extends XpBuckets {
    * troca o curso; nunca vaza para outra. Só muda a camada de instrução.
    */
   courseDirection: CourseDirectionId | null;
+  /**
+   * RC2.2.17 · AI/DY — meta diária em minutos escolhida no onboarding
+   * (preferência DESTA conta). null = comportamento anterior (20 min).
+   */
+  dailyGoalMinutes: number | null;
+  /**
+   * RC2.2.17 · AU — o aluno passou pelo Teste guiado antes da conta. É só
+   * exposição: nunca lição concluída, domínio, XP ou estrela.
+   */
+  guidedTryExposure: GuidedTryExposure | null;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -1477,6 +1512,8 @@ function blankSnapshot(): AccountSnapshot {
     learnedChunks: [],
     hanziBuilderProgressByChar: {},
     courseDirection: null,
+    dailyGoalMinutes: null,
+    guidedTryExposure: null,
     completedLessons: [],
     lessonStarsById: {},
     lessonAttemptsById: {},
@@ -1612,6 +1649,8 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     learnedChunks: s.learnedChunks,
     hanziBuilderProgressByChar: s.hanziBuilderProgressByChar,
     courseDirection: s.courseDirection ?? null,
+    dailyGoalMinutes: normalizeDailyGoalMinutes(s.dailyGoalMinutes),
+    guidedTryExposure: normalizeGuidedTryExposure(s.guidedTryExposure),
     completedLessons: s.completedLessons,
     lessonStarsById: s.lessonStarsById,
     lessonAttemptsById: s.lessonAttemptsById,
@@ -1767,6 +1806,8 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     learnedChunks: account.learnedChunks ?? [],
     hanziBuilderProgressByChar: normalizeHanziBuilderProgress(account.hanziBuilderProgressByChar),
     courseDirection: isAvailableCourseDirection(account.courseDirection) ? account.courseDirection : null,
+    dailyGoalMinutes: normalizeDailyGoalMinutes(account.dailyGoalMinutes),
+    guidedTryExposure: normalizeGuidedTryExposure(account.guidedTryExposure),
     completedLessons,
     lessonStarsById: normalizeLessonStars(account.lessonStarsById, completedLessons, pendingLessonIds),
     lessonAttemptsById: normalizeLessonAttempts(account.lessonAttemptsById),
@@ -2118,6 +2159,8 @@ function hasProAccess(s: AppState, serverIsProOverride?: boolean): boolean {
 interface AppState {
   // preferências
   theme: ThemeName;
+  /** RC2.2.17 · CV — Aparência "Sistema": segue o claro/escuro do aparelho. */
+  followSystemTheme: boolean;
   ttsRate: number;
   ttsVolume: number;
   soundEffects: boolean;
@@ -2150,6 +2193,8 @@ interface AppState {
   learnedChunks: string[];
   hanziBuilderProgressByChar: HanziBuilderProgressMap;
   courseDirection: CourseDirectionId | null;
+  dailyGoalMinutes: number | null;
+  guidedTryExposure: GuidedTryExposure | null;
   completedLessons: string[];
   lessonStarsById: Record<string, LessonStar>;
   lessonAttemptsById: Record<string, LessonAttemptRecord[]>;
@@ -2262,6 +2307,7 @@ interface AppState {
   phaseChallengeAttempts?: PhaseChallengeAttempt[];
 
   setTheme: (t: ThemeName) => void;
+  setFollowSystemTheme: (follow: boolean) => void;
   setTtsRate: (r: number) => void;
   setTtsVolume: (v: number) => void;
   setSoundEffects: (v: boolean) => void;
@@ -2276,6 +2322,10 @@ interface AppState {
   setNotificationPrefs: (patch: Partial<{ enabled: boolean; streak: boolean; comeback: boolean }>) => void;
   markNativePermissionIntroSeen: (version: number) => void;
   setHapticsEnabled: (enabled: boolean) => void;
+  /** RC2.2.17 · AI — meta diária (5/10/15/20 min) desta conta. */
+  setDailyGoalMinutes: (minutes: number) => void;
+  /** RC2.2.17 · AU — só exposição ao Teste guiado; idempotente. */
+  recordGuidedTryExposure: (input: { at: number; audio: "AUDIO_HEARD" | "DEGRADED_AUDIO" }) => void;
   /**
    * RC2.2.14B — grava o curso NA CONTA ATUAL. Não toca progresso: lições,
    * mastery, SRS, XP e ofensiva continuam os mesmos.
@@ -2666,6 +2716,7 @@ export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       theme: "clay",
+      followSystemTheme: false,
       ttsRate: 0.85,
       ttsVolume: 1,
       soundEffects: true,
@@ -2690,6 +2741,8 @@ export const useStore = create<AppState>()(
       learnedChunks: [],
       hanziBuilderProgressByChar: {},
       courseDirection: null,
+      dailyGoalMinutes: null,
+      guidedTryExposure: null,
       completedLessons: [],
       lessonStarsById: {},
       lessonAttemptsById: {},
@@ -2774,7 +2827,8 @@ export const useStore = create<AppState>()(
       leagueBots: [],
       leagueHistory: [],
 
-      setTheme: (t) => set({ theme: t }),
+      setTheme: (t) => set({ theme: t, followSystemTheme: false }),
+      setFollowSystemTheme: (follow) => set({ followSystemTheme: follow }),
       setTtsRate: (r) => set({ ttsRate: r }),
       setTtsVolume: (v) => set({ ttsVolume: clamp01(v) }),
       setSoundEffects: (v) => set({ soundEffects: v }),
@@ -2791,6 +2845,23 @@ export const useStore = create<AppState>()(
       markNativePermissionIntroSeen: (version) =>
         set((s) => ({ nativePermissionIntroVersion: Math.max(s.nativePermissionIntroVersion ?? 0, version) })),
       setHapticsEnabled: (enabled) => set({ hapticsEnabled: enabled }),
+      setDailyGoalMinutes: (minutes) => {
+        const value = normalizeDailyGoalMinutes(minutes);
+        if (value == null) return;
+        set((s) => {
+          if (s.dailyGoalMinutes === value) return {};
+          const next = { ...s, dailyGoalMinutes: value };
+          return { dailyGoalMinutes: value, accounts: saveCurrentAccount(next) };
+        });
+      },
+      recordGuidedTryExposure: ({ at, audio }) => {
+        set((s) => {
+          if (s.guidedTryExposure) return {};
+          const exposure: GuidedTryExposure = { kind: "GUIDED_TRY_EXPOSURE", at, audio };
+          const next = { ...s, guidedTryExposure: exposure };
+          return { guidedTryExposure: exposure, accounts: saveCurrentAccount(next) };
+        });
+      },
       setCourseDirection: (id) => {
         if (!isAvailableCourseDirection(id)) return;
         set((s) => {

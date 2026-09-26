@@ -36,7 +36,7 @@ test.describe("PT device", () => {
 
   test("interface PT → escolher curso → Português → Mandarim → teste guiado", async ({ page }) => {
     await freshLanding(page);
-    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 2 min");
+    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 3 min");
     // Sem seletor de idioma na landing do celular.
     await expect(page.locator("select, [data-testid='landing-locale-button']")).toHaveCount(0);
     await page.getByTestId("landing-guided-try").click();
@@ -54,6 +54,9 @@ test.describe("PT device", () => {
     await page.locator('[data-course-choice="pt-zh"]').click();
     await page.getByTestId("course-picker-confirm").click();
     await expect(page).toHaveURL(/\/teste-guiado$/);
+    // RC2.2.17 — o Teste guiado V2 abre com a fala curta do Dragão.
+    await expect(page.getByTestId("guide-line")).toContainText("Você já vai aprender sua primeira saudação");
+    await page.locator("[data-guided-action]").click();
     await expect(page.getByRole("heading", { name: "Ouça sua primeira frase" })).toBeVisible();
     const state = await storeState(page);
     expect(state.pending).toBe("pt-zh");
@@ -84,8 +87,12 @@ test.describe("PT device", () => {
     await page.getByTestId("landing-guided-try").click();
     await page.locator('[data-course-choice="en-zh"]').click();
     await page.getByTestId("course-picker-confirm").click();
-    await expect(page.getByRole("heading", { name: "Hear your first phrase" })).toBeVisible();
+    // Ensino no idioma do curso (EN); botões na interface (PT).
+    await expect(page.getByTestId("guide-line")).toContainText("You're about to learn your first Mandarin greeting");
     await expect(page.getByRole("button", { name: "Sair do teste" })).toBeVisible();
+    await expect(page.locator("[data-guided-action]")).toHaveText("Começar");
+    await page.locator("[data-guided-action]").click();
+    await expect(page.getByRole("heading", { name: "Hear your first phrase" })).toBeVisible();
     await expect(page.locator("[data-guided-action]")).toHaveText("Continuar");
   });
 
@@ -93,7 +100,7 @@ test.describe("PT device", () => {
     const context = await browser.newContext({ locale: "pt-PT" });
     const page = await context.newPage();
     await freshLanding(page);
-    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 2 min");
+    await expect(page.getByTestId("landing-guided-try")).toHaveText("Fazer teste guiado · 3 min");
     await context.close();
   });
 });
@@ -111,6 +118,7 @@ test.describe("EN device", () => {
     await page.screenshot({ path: "test-results/rc2-2-14b/course-picker-en-390x844.png" });
     await page.locator('[data-course-choice="en-zh"]').click();
     await page.getByTestId("course-picker-confirm").click();
+    await page.locator("[data-guided-action]").click();
     await expect(page.getByRole("heading", { name: "Hear your first phrase" })).toBeVisible();
   });
 

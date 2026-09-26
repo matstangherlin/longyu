@@ -1,9 +1,9 @@
+import { useResolvedTheme } from "../../lib/useResolvedTheme";
 import { Link } from "react-router-dom";
 import { BrandLockup } from "../../components/layout/Brand";
 import { ButtonLink } from "../../components/ui/primitives";
 import { AppVersionLabel } from "../../components/system/AppVersionLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
-import { useStore } from "../../lib/store";
 import { useEffect, type ReactNode } from "react";
 import { PUBLIC_SEO_PAGES } from "../../lib/seo";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
@@ -31,7 +31,7 @@ export function PublicMarketingLayout({
   eyebrow?: string;
 }) {
   const { t } = useTranslation();
-  const theme = useStore((s) => s.theme);
+  const theme = useResolvedTheme();
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

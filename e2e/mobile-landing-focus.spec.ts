@@ -36,7 +36,7 @@ for (const [width, height] of VIEWPORTS) {
     await inFirstFold(page, "landing-guided-try", height);
     await inFirstFold(page, "landing-has-account", height);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByTestId("landing-guided-try")).toHaveText(/Fazer teste guiado · 2 min/);
+    await expect(page.getByTestId("landing-guided-try")).toHaveText(/Fazer teste guiado · 3 min/);
     // Fora da primeira dobra (ou fora da tela no celular).
     await expect(page.getByText("Comece pelo básico")).toBeHidden();
     await expect(page.getByRole("button", { name: /modo escuro|modo claro|dark mode|light mode/i })).toBeHidden();

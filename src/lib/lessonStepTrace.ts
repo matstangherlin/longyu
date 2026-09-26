@@ -13,7 +13,17 @@ export type LessonStepTraceEvent =
   | "finished"
   | "duplicate_completion"
   | "stalled"
-  | "plan_swap_skipped";
+  | "plan_swap_skipped"
+  // RC2.2.17 · R — a cadeia inteira do toque em Continuar, para achar no
+  // aparelho ONDE o avanço se perde.
+  | "scene_continue_pressed"
+  | "scene_onDone"
+  | "renderer_onDone"
+  | "renderer_latched"
+  | "player_handleDone"
+  | "completion_key"
+  | "side_effect_failed"
+  | "handle_done_failed";
 
 export interface LessonStepTraceEntry {
   at: number;

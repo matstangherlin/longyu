@@ -1,3 +1,4 @@
+import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { castNameForSceneCharacter } from "../../data/storyCast";
 import type {
@@ -727,8 +728,16 @@ function InteractionPanel({
     resolveInstructionText(interaction.prompt, getInstructionLocale())
   ).replaceAll("Matheus", studentName ?? "você");
 
+  // RC2.2.17 · S — só em builds de fixture (E2E/preview): o driver de
+  // integração responde pelo grafo. Produção nunca expõe a resposta no DOM.
+  const qaExpected = import.meta.env.VITE_USE_TEST_FIXTURES === "true" ? answer : undefined;
+
   return (
-    <div className={`mt-3 animate-pop rounded-2xl border border-accent-soft bg-surface p-3 shadow-card ${LESSON_UI_CLASS.card}`}>
+    <div
+      className={`mt-3 animate-pop rounded-2xl border border-accent-soft bg-surface p-3 shadow-card ${LESSON_UI_CLASS.card}`}
+      data-conversation-interaction={interaction.type}
+      data-qa-expected={qaExpected}
+    >
       <LessonKindLabel kind="conversation" />
       <p className="mt-2 text-base font-medium leading-6 text-ink">{displayPrompt}</p>
 
@@ -1187,7 +1196,10 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
 function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const characters = step.characters ?? [];
   const nodes = (step.nodes ?? []) as ConversationNode[];
-  const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.sceneId]);
+  // RC2.2.17 · O — o mapa segue os nós PERSONALIZADOS atuais. Chavear só por
+  // sceneId congelava a primeira versão (nome ainda não carregado) e a fala na
+  // tela divergia da resposta aceita.
+  const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [step.nodes]);
   const entryNodeId = step.entryNodeId ?? nodes[0]?.id ?? "";
   const history = useStore((s) => s.conversationHistory ?? []);
   const variantLevel = conversationVariantLevelFor(
@@ -1209,9 +1221,19 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   // punir quem está com dificuldade.
   const [repairPending, setRepairPending] = useState<null | { resumeNodeId?: string }>(null);
   const repairUsedRef = useRef(false);
+  /**
+   * RC2.2.17 · K–M — erros por interação. No 2º erro na MESMA fala (sem
+   * reparo disponível), a cena mostra a resposta e segue pelo ramo certo:
+   * o ramo de erro de `como-se-chama` (6 → 5) repetia "Como você se chama?"
+   * com o mesmo texto, e o aluno via "toquei Continuar e nada mudou".
+   */
+  const wrongByNodeRef = useRef<Map<string, number>>(new Map());
+  const [revealPending, setRevealPending] = useState<null | { answer: string; nextNodeId?: string }>(null);
 
   useEffect(() => {
     setNodeId(entryNodeId);
+    setRevealPending(null);
+    wrongByNodeRef.current = new Map();
     setAnswering(false);
     setSpokenCount(1);
     setHint(null);
@@ -1235,6 +1257,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   function finish() {
     const attempts = Math.max(1, mistakeCountRef.current + 1);
+    traceLessonStep({ lessonId: step.sceneId ?? "scene", stepIndex: -1, kind: "conversation_scene", attempt: attempts, event: "scene_onDone" });
     onDone(!hadMistakeRef.current, {
       attempts,
       helpLevel: helpLevelRef.current,
@@ -1260,6 +1283,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   function advance() {
     noteUserGesture();
+    traceLessonStep({ lessonId: step.sceneId ?? "scene", stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
     if (node?.interaction) {
       setAnswering(true);
       return;
@@ -1273,7 +1297,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   }
 
   useExerciseHotkeys({
-    enabled: Boolean(node) && !answering && !repairPending,
+    enabled: Boolean(node) && !answering && !repairPending && !revealPending,
     mode: "choice",
     isAnswered: true,
     onContinue: advance,
@@ -1344,10 +1368,30 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           </div>
         )}
 
-        {!answering && !repairPending && (
+        {revealPending && (
+          <div className="mt-4 rounded-2xl border border-accent-soft bg-accent-soft/40 p-3.5" data-testid="conversation-reveal" role="status">
+            <p className="text-sm font-semibold text-ink">{t("player.conversationRevealTitle")}</p>
+            <p className="mt-1 text-lg font-semibold text-ink">
+              <ExerciseText value={revealPending.answer} type={containsCjk(revealPending.answer) ? "hanzi" : "pt"} />
+            </p>
+            <Button
+              className="longyu-press-feedback mt-3 w-full shadow-lift"
+              data-testid="conversation-reveal-continue"
+              onClick={() => {
+                const nextId = revealPending.nextNodeId;
+                setRevealPending(null);
+                goTo(nextId, nextId ? nodeById.get(nextId) : undefined);
+              }}
+            >
+              {t("player.continue")} <IconChevron width={18} height={18} />
+            </Button>
+          </div>
+        )}
+
+        {!answering && !repairPending && !revealPending && (
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">{t("player.lineN", { n: spokenCount })}</span>
-            <Button className="min-w-[9.5rem] shadow-lift" onClick={advance}>
+            <Button className="longyu-press-feedback min-w-[9.5rem] shadow-lift" onClick={advance} data-testid="conversation-advance" data-conversation-node={node.id}>
               {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
               <IconChevron width={18} height={18} />
             </Button>
@@ -1386,6 +1430,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
                 ? () => {
                     setHint(node.interaction!.explanation ?? null);
                     const nextId = node.interaction!.wrongNextNodeId!;
+                    const wrongHere = (wrongByNodeRef.current.get(node.id) ?? 0) + 1;
+                    wrongByNodeRef.current.set(node.id, wrongHere);
                     // Segundo tropeço: a comunicação quebra antes do ramo de
                     // erro. O aluno repara e só então a conversa retoma.
                     if (
@@ -1396,6 +1442,13 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
                       repairUsedRef.current = true;
                       setAnswering(false);
                       setRepairPending({ resumeNodeId: nextId });
+                      return;
+                    }
+                    if (wrongHere >= 2) {
+                      // Mostra a resposta e segue pelo ramo CERTO (sem prêmio:
+                      // o erro já ficou registrado em hadMistake).
+                      setAnswering(false);
+                      setRevealPending({ answer: node.interaction!.correctAnswer, nextNodeId: node.interaction!.correctNextNodeId });
                       return;
                     }
                     goTo(nextId, nodeById.get(nextId));

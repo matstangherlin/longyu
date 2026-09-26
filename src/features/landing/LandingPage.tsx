@@ -1,3 +1,4 @@
+import { useResolvedTheme } from "../../lib/useResolvedTheme";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
@@ -25,7 +26,7 @@ import { MobileWelcome } from "./MobileWelcome";
 export function LandingPage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const theme = useStore((s) => s.theme);
+  const theme = useResolvedTheme();
   const setTheme = useStore((s) => s.setTheme);
   const [audience, setAudience] = useState<SessionAudience | null>(null);
   const wide = useWideLayout();

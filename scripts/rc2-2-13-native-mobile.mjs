@@ -91,7 +91,7 @@ const MUTATIONS = {
   "native-tts": [
     ["DI1. speak() ignora o nativo", "TTS_NOT_NATIVE", src("tts", "  if (hasNativeSpeech()) {\n    speakNative(text, opts);\n    return;\n  }\n", "")],
     ["DI2. Android exige speechSynthesis", "TTS_REQUIRES_WEB_SPEECH", src("tts", "  if (hasNativeSpeech()) return nativeTtsKnownAvailable !== false;\n", "")],
-    ["DI3. falha nativa finge que tocou", "TTS_FAKE_SUCCESS", src("tts", "      nativeTtsUnavailableReason = result.code;\n      opts.onerror?.();", "      nativeTtsUnavailableReason = result.code;")],
+    ["DI3. falha nativa finge que tocou", "TTS_FAKE_SUCCESS", src("tts", "      nativeTtsUnavailableReason = result.code;\n      opts.onerror?.(result.code);", "      nativeTtsUnavailableReason = result.code;")],
     ["DI4. SpeakButton desativado no Android", "SPEAK_BUTTON_DISABLED_ON_ANDROID", src("speakButton", "disabled={unavailable && !usesNativeVoice()}", "disabled={unavailable}")],
     ["DI5. motor de TTS paralelo numa tela", "PARALLEL_TTS_ENGINE", file("src/features/immersion/ImmersionPage.tsx", "export function ImmersionPage", "const parallelVoice = () => window.speechSynthesis.speak(new SpeechSynthesisUtterance(\"你好\"));\nexport function ImmersionPage")],
     ["DI5b. plugin registrado fora do adapter", "PARALLEL_TTS_ENGINE", file("src/components/ui/SpeakButton.tsx", "export function SpeakButton", "const Voice = registerPlugin(\"LongyuSpeech\");\nexport function SpeakButton")],
@@ -105,7 +105,7 @@ const MUTATIONS = {
     ["DJ1. sem on-device", "ON_DEVICE_MISSING", src("plugin", "SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext())", "SpeechRecognizer.createSpeechRecognizer(getContext())")],
     ["DJ2. escuta contínua", "CONTINUOUS_LISTENING", src("plugin", "intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);", "intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);")],
     ["DJ3. reconhecedor não destruído", "RECOGNIZER_NOT_DESTROYED", src("plugin", "            recognizer.destroy();\n", "")],
-    ["DJ4. background não cancela", "NOT_CANCELLED_ON_BACKGROUND", src("plugin", "        finishSpeak(true);\n        failRecognition(\"CANCELLED\");\n    }\n\n    @Override\n    protected void handleOnDestroy()", "        finishSpeak(true);\n    }\n\n    @Override\n    protected void handleOnDestroy()")],
+    ["DJ4. background não cancela", "NOT_CANCELLED_ON_BACKGROUND", src("plugin", "        finishSpeak(true);\n        failRecognition(\"CANCELLED\");\n        // RC2.2.17 · AB", "        finishSpeak(true);\n        // RC2.2.17 · AB")],
     ["DJ5. sem timeout", "NO_TIMEOUT", src("plugin", "main.postDelayed(recognitionTimeout, timeout);", "")],
     ["DJ6. JS sem single-flight", "NOT_SINGLE_FLIGHT", src("nativeSpeech", '  if (recognitionInFlight) return { ok: false, code: "RECOGNIZER_BUSY" };\n', "")],
     ["DJ7. Java sem single-flight", "NOT_SINGLE_FLIGHT", src("plugin", "if (recognitionCall != null) {", "if (false) {")],

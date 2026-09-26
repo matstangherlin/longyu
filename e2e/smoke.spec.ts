@@ -86,7 +86,9 @@ test.describe("smoke", () => {
     await page.waitForURL(/\/curso\?next=%2Fcomecar/);
     await chooseCourseIfAsked(page, "pt-zh");
     await page.waitForURL("**/comecar");
-    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+    // RC2.2.17 · AN — welcome oferece os dois caminhos (do zero / já estudo).
+    await expect(page.getByTestId("onboarding-path-beginner")).toBeVisible();
+    await expect(page.getByTestId("onboarding-path-experienced")).toBeVisible();
   });
 
   test("landing: Já tenho uma conta vai para /login", async ({ page }) => {
@@ -134,7 +136,9 @@ test.describe("smoke", () => {
     await seedCourseDirection(page, "pt-zh");
     await page.goto("/conta");
     await page.waitForURL(/\/comecar/);
-    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+    // RC2.2.17 · AN — welcome oferece os dois caminhos (do zero / já estudo).
+    await expect(page.getByTestId("onboarding-path-beginner")).toBeVisible();
+    await expect(page.getByTestId("onboarding-path-experienced")).toBeVisible();
   });
 });
 
@@ -145,7 +149,7 @@ test.describe("mobile", () => {
     await page.goto("/");
     // RC2.2.14 — no celular: teste guiado + "Já tenho uma conta" na primeira dobra.
     await expect(page.getByTestId("mobile-welcome")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Fazer teste guiado · 2 min" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Fazer teste guiado · 3 min" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Já tenho uma conta" })).toBeVisible();
 
     const layout = await page.evaluate(() => {

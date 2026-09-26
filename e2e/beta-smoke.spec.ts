@@ -218,7 +218,9 @@ test.describe("beta smoke — fluxos públicos", () => {
   test("cadastro: /comecar inicia onboarding / teste de nível", async ({ page }) => {
     await seedCourseDirection(page, "pt-zh");
     await page.goto("/comecar");
-    await expect(page.getByRole("button", { name: /Começar/i })).toBeVisible();
+    // RC2.2.17 · AN — welcome oferece os dois caminhos (do zero / já estudo).
+    await expect(page.getByTestId("onboarding-path-beginner")).toBeVisible();
+    await expect(page.getByTestId("onboarding-path-experienced")).toBeVisible();
     await expect(page.getByText(/ponto de partida|jornada|conta/i).first()).toBeVisible();
   });
 

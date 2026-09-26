@@ -9,6 +9,22 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 import { buildProgressSnapshot, isMeaningfulProgress } from "../lib/progressSnapshot";
 import { FINALIZE_ONBOARDING_TEMP_ERROR } from "../lib/auth/onboardingCopy";
 import { isCloudOnboardingV2Enabled } from "../lib/featureFlags";
+import { clearOnboardingDraft, readOnboardingDraft } from "../lib/onboardingDraft";
+
+/**
+ * RC2.2.17 · AU/DY — depois da conta: grava SOMENTE a exposição ao Teste
+ * guiado (GUIDED_TRY_EXPOSURE) e a meta diária nas preferências da conta.
+ * Nunca lição concluída, domínio, estrela, XP ou ofensiva.
+ */
+export function applyOnboardingDraft(): void {
+  const draft = readOnboardingDraft();
+  const store = useStore.getState();
+  if (draft.dailyGoalMinutes != null) store.setDailyGoalMinutes(draft.dailyGoalMinutes);
+  if (draft.guidedTryCompleted && draft.guidedTryCompletedAt != null) {
+    store.recordGuidedTryExposure({ at: draft.guidedTryCompletedAt, audio: draft.guidedTryAudio ?? "DEGRADED_AUDIO" });
+  }
+  clearOnboardingDraft();
+}
 
 export async function completeAuthenticatedOnboarding(input?: {
   placement?: PendingPlacementV2 | null;
@@ -53,6 +69,7 @@ export async function completeAuthenticatedOnboarding(input?: {
     if (!sync.ok) {
       return { ok: false, code: "unavailable", message: sync.message };
     }
+    applyOnboardingDraft();
     useStore.getState().setAccountSetupComplete(true);
     if (migratingLocal) useStore.getState().markLocalMigrated();
     trackFunnelEvent("placement_committed", {
@@ -88,6 +105,7 @@ export async function completeAuthenticatedOnboarding(input?: {
   if (!sync.ok) {
     return { ok: false, code: "unavailable", message: sync.message };
   }
+  applyOnboardingDraft();
   useStore.getState().setAccountSetupComplete(true);
   if (migratingLocal) useStore.getState().markLocalMigrated();
   trackFunnelEvent("account_authenticated");
