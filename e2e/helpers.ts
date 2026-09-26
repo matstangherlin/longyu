@@ -716,6 +716,11 @@ export async function seedLessonRecoverySession(
         // preview Pro. serverIsPro continua efêmero e nunca vem do navegador.
         isPremium,
         achievementsUnlocked: { "jornada-primeira-licao": Date.now() },
+        // Medalhas destravadas pelo próprio seed abriam um modal assíncrono
+        // ("Novo marco desbloqueado") depois do dismissBlockingOverlays e
+        // interceptavam "Corrigir agora" no WebKit. Como nos outros seeds, os
+        // desbloqueios ficam em espera — estes testes não exercitam medalhas.
+        holdAchievementModals: true,
         recentActivityErrors: [
           {
             id: "e2e-pending-error",
