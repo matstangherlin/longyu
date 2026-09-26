@@ -4495,7 +4495,9 @@ export function LessonPlayer() {
     function handlePrimaryAction() {
       if (hasUnclaimedRewards) {
         claimLessonRewards();
-        return;
+        // RC2.2.19 / RC2.2.17B · CR — no shell guiado a recompensa é
+        // secundária: o CTA é "Continuar" e resgata no mesmo toque.
+        if (!guidedShell) return;
       }
       // P6/P15 — o único caso em que a Victory abre outra sessão: o Reforço +
       // pedido pela média das quatro rodadas. Continua sendo um CTA só.
@@ -4676,7 +4678,7 @@ export function LessonPlayer() {
                     }
                   : undefined
           }
-          primaryLabel={hasUnclaimedRewards ? t("player.claimRewards") : journeyCta}
+          primaryLabel={hasUnclaimedRewards && !guidedShell ? t("player.claimRewards") : journeyCta}
           primaryTestId={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
           onPrimary={handlePrimaryAction}
         />

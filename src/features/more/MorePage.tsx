@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
-import { IconShield } from "../../components/ui/Icon";
+import { Link } from "react-router-dom";
+import { IconGear, IconShield, IconSun, IconUser } from "../../components/ui/Icon";
+import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { isAdminEmail } from "../../lib/feedback";
 import { useStore } from "../../lib/store";
 import { dueItems } from "../../lib/srs";
@@ -150,6 +152,12 @@ export function MorePage() {
     });
   }
 
+  // RC2.2.19 — Perfil/Conta/Aparência/Sair no topo: nunca escondidos no fim da lista.
+  const accountSection = sections.find((section) => section.id === "account");
+  if (accountSection) {
+    accountSection.items = accountSection.items.filter((hubItem) => hubItem.to !== "/perfil" && hubItem.to !== "/conta");
+  }
+
   return (
     <HubPage>
       <HubHeader
@@ -159,6 +167,8 @@ export function MorePage() {
         badge={<BetaBadge />}
       />
 
+      <MoreYouBlock />
+
       {sections.map((section) => (
         <HubSection key={section.id} title={section.title}>
           <HubNavGrid items={section.items} />
@@ -167,5 +177,38 @@ export function MorePage() {
 
       <FeedbackPrompt context={{ screen: "/mais" }} compact />
     </HubPage>
+  );
+}
+
+/**
+ * RC2.2.19 — "Você": Perfil, Conta, Aparência e Sair logo no topo do Mais
+ * (P2 PROFILE_ACCOUNT_DISCOVERABILITY / LOGOUT_DISCOVERABILITY). Excluir conta
+ * NÃO fica aqui: mora separado, no fim de Conta, atrás de confirmação.
+ */
+function MoreYouBlock() {
+  const { t } = useTranslation();
+  const { signOut, canSignOut } = useCloudSignOut();
+  const tile =
+    "flex min-h-14 items-center gap-2 rounded-2xl border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+  return (
+    <section className="mb-5" data-testid="more-you">
+      <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">{t("navigation.groupYou")}</h2>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Link to="/perfil" className={tile} data-testid="more-profile">
+          <IconUser width={18} height={18} className="text-accent" /> {t("navigation.profile")}
+        </Link>
+        <Link to="/conta" className={tile} data-testid="more-account">
+          <IconGear width={18} height={18} className="text-accent" /> {t("navigation.account")}
+        </Link>
+        <Link to="/config/aparencia" className={tile} data-testid="more-appearance">
+          <IconSun width={18} height={18} className="text-accent" /> {t("navigation.appearance")}
+        </Link>
+        {canSignOut && (
+          <button type="button" onClick={() => void signOut()} className={`${tile} text-wrong`} data-testid="more-sign-out">
+            {t("common.signOut")}
+          </button>
+        )}
+      </div>
+    </section>
   );
 }
