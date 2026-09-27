@@ -46,6 +46,10 @@ async function mockSpeech(page: Parameters<typeof test>[0] extends never ? never
 }
 
 async function skipIntros(page: import("@playwright/test").Page, max = 12) {
+  // RC2.2.17B/19 — o shell guiado quebra a fala longa em micro-páginas, e a
+  // troca de página desabilita o botão por um instante: um "sem botão" isolado
+  // não encerra a busca, só vários seguidos.
+  let misses = 0;
   for (let i = 0; i < max; i += 1) {
     const kind = await page.locator("[data-current-step-kind]").getAttribute("data-current-step-kind");
     if (kind && kind !== "intro") return kind;
@@ -53,15 +57,18 @@ async function skipIntros(page: import("@playwright/test").Page, max = 12) {
     if (await guideContinue.isVisible().catch(() => false) && !(await guideContinue.isDisabled().catch(() => true))) {
       await guideContinue.click().catch(() => undefined);
       await page.waitForTimeout(120);
+      misses = 0;
       continue;
     }
     const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ }).first();
     if (await entendi.isVisible().catch(() => false) && !(await entendi.isDisabled().catch(() => true))) {
       await entendi.click().catch(() => undefined);
       await page.waitForTimeout(120);
+      misses = 0;
       continue;
     }
-    break;
+    if (++misses >= 8) break;
+    await page.waitForTimeout(250);
   }
   return page.locator("[data-current-step-kind]").getAttribute("data-current-step-kind");
 }
@@ -268,7 +275,8 @@ test.describe("V4.9.8A.2 all culture lessons have a playable scored step", () =>
       await waitForLazyPage(page);
       await dismissBlockingOverlays(page);
       await expectCultureLessonPlayer(page, itemId);
-      const kind = await skipIntros(page, 16);
+      // Até 16 páginas guiadas (spring-festival, digital-pay, hotel-checkin-register) + folga.
+      const kind = await skipIntros(page, 40);
       expect(kind, itemId).toBeTruthy();
       expect(kind, itemId).not.toBe("intro");
       const interactive = page.locator(
