@@ -32,14 +32,14 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
     await startExperiencedPlacement(page);
 
     for (let i = 0; i < 12; i += 1) {
-      const result = page.getByText(/Encontramos seu ponto de partida/i);
+      const result = page.getByText(/Encontramos seu ponto de partida/i).first();
       if (await result.isVisible().catch(() => false)) break;
       const option = page.locator('button[aria-pressed]').first();
       await option.click({ timeout: 8_000 });
       await page.getByRole("button", { name: /^Confirmar/i }).click();
     }
 
-    await expect(page.getByText(/Encontramos seu ponto de partida/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/Encontramos seu ponto de partida/i).first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("button", { name: /Deixar para depois|Continuar sem conta/i })).toHaveCount(0);
     await page.getByTestId("create-account-cta").click();
     // RC2.2.17 · CL–CM — cadastro em duas etapas (identidade → segurança).

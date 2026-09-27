@@ -50,6 +50,9 @@ export const RECOVERY_CODE_INVALID_MESSAGE = "Código inválido ou expirado. Con
 
 export const RECOVERY_MIN_PASSWORD_LENGTH = 6;
 
+/** "Enviar outro código" só depois deste intervalo (evita spam e o limite do Supabase). */
+export const RECOVERY_RESEND_COOLDOWN_S = 60;
+
 /**
  * Estado do modelo de e-mail de recuperação com código (manifesto de release).
  * CODE_READY: app + modelo versionado prontos. OWNER_APPLIED: o owner colou o

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
@@ -8,6 +8,7 @@ import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import {
   RECOVERY_CODE_LENGTH,
   RECOVERY_MIN_PASSWORD_LENGTH,
+  RECOVERY_RESEND_COOLDOWN_S,
   isRecoveryCodeComplete,
   normalizeRecoveryCode,
 } from "../../lib/passwordRecovery";
@@ -41,7 +42,15 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
   const cloudEnabled = isSupabaseBackendEnabled();
+
+  // Contagem regressiva do "Enviar outro código".
+  useEffect(() => {
+    if (resendIn <= 0) return undefined;
+    const timer = window.setTimeout(() => setResendIn((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendIn]);
 
   async function sendCode(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
@@ -60,6 +69,7 @@ export function ForgotPasswordPage() {
     }
     setNotice(localizeUserMessage(result.message));
     setCode("");
+    setResendIn(RECOVERY_RESEND_COOLDOWN_S);
     setStage("code");
   }
 
@@ -191,8 +201,8 @@ export function ForgotPasswordPage() {
             {loading ? t("auth.recoveryVerifying") : t("auth.recoveryVerify")}
           </Button>
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-sm">
-            <button type="button" className="min-h-11 px-2 font-semibold text-accent hover:underline" disabled={loading} onClick={() => void sendCode()} data-testid="recovery-resend">
-              {t("auth.recoveryResend")}
+            <button type="button" className="min-h-11 px-2 font-semibold text-accent hover:underline" disabled={loading || resendIn > 0} onClick={() => void sendCode()} data-testid="recovery-resend">
+              {resendIn > 0 ? t("auth.recoveryResendIn", { s: resendIn }) : t("auth.recoveryResend")}
             </button>
             <span aria-hidden className="text-ink-faint">·</span>
             <button

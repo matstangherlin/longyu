@@ -142,6 +142,7 @@ export const en: MessageCatalog = {
     recoveryVerify: "Confirm code",
     recoveryVerifying: "Confirming…",
     recoveryResend: "Send another code",
+    recoveryResendIn: "Send another code in {s}s",
     recoveryChangeEmail: "Use another email",
     recoveryNewPasswordTitle: "Create the new password",
     recoveryNewPasswordLabel: "New password",
@@ -2895,10 +2896,12 @@ export const en: MessageCatalog = {
       body: "Tap a character to see its sound, meaning and components.",
     },
     reviewSessionIntro: {
-      body: "Review in short rounds. What you miss comes back later, in a different way.",
+      body: "Review brings back what is starting to fade.",
     },
     profileEntry: {
-      body: "Your profile lives here: photo, name, medals and friends. Account and Sign out too.",
+      title: "This is your profile.",
+      body: "Here you can see medals, progress and personalize your identity.",
+      primary: "Explore",
     },
     immersionFirstUse: {
       body: "Each scene shows where you are, who you talk to and the goal. Listen first, then answer.",

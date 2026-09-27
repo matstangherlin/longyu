@@ -127,7 +127,9 @@ test.describe("V4.9.8A.2 Culture stories + audio", () => {
       await expectCultureLessonPlayer(page, itemId);
 
       let sawAudio = false;
-      for (let i = 0; i < 10; i += 1) {
+      // RC2.2.17B/19 — no shell guiado a fala longa do narrador vira
+      // micro-páginas (um "Entendi" por página): o orçamento de cliques cobre isso.
+      for (let i = 0; i < 40; i += 1) {
         if (await page.getByTestId("culture-story-audio").isVisible().catch(() => false)) {
           sawAudio = true;
           const listen = page.getByRole("button", { name: /Ouvir|Listen/i }).first();

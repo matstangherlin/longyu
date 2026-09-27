@@ -11,6 +11,7 @@ import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
 import { engineInsights } from "../../lib/engineIntelligence";
 import { LEAGUE_META, normalizeLeagueTier } from "../../lib/leagues";
 import { ACHIEVEMENTS, isMedalAchievementId } from "../../data/achievements";
+import { normalizeFeaturedAchievementIds } from "../../lib/profileShowcase";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useLeagueData } from "../../hooks/useLeagueData";
 import { Mascot } from "../../components/brand/Mascot";
@@ -122,6 +123,12 @@ export function ProfilePage() {
   // nunca o email). Sem username, não inventamos um.
   const handle = formatUsernameHandle(account?.username);
   const medalCount = Object.keys(achievementsUnlocked).filter(isMedalAchievementId).length;
+  // Primeira dobra: até 3 medalhas em destaque (mesma vitrine de FeaturedMedals).
+  const featuredRaw = useStore((s) => s.featuredAchievementIds);
+  const featuredGlyphs = normalizeFeaturedAchievementIds(featuredRaw, achievementsUnlocked, undefined, isMedalAchievementId)
+    .slice(0, 3)
+    .map((id) => ACHIEVEMENTS.find((def) => def.id === id)?.glyph)
+    .filter((glyph): glyph is string => Boolean(glyph));
   const since = memberSinceLabel(account?.createdAt);
   const tier = normalizeLeagueTier(league.leagueTier);
   const leagueName = LEAGUE_META[tier]?.name ?? "Liga Bronze";
@@ -293,7 +300,11 @@ export function ProfilePage() {
             data-testid="profile-medal-count"
             aria-label={t("hub.medalCount", { n: medalCount })}
           >
-            🏅 {medalCount}
+            {featuredGlyphs.length ? (
+              <span className="hanzi text-lg leading-none text-gold" data-testid="profile-featured-glyphs">{featuredGlyphs.join(" ")}</span>
+            ) : (
+              <>🏅 {medalCount}</>
+            )}
           </a>
           <ActionButton to="/conta" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />}>
             {t("hub.editShort")}

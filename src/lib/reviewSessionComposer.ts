@@ -105,3 +105,25 @@ export function hasConsecutiveSameTarget<T>(entries: readonly T[], targetOf: (en
   }
   return false;
 }
+
+/**
+ * Feedback sem cópia repetida: uma explicação que só repete o hànzì, o pinyin
+ * ou o sentido já mostrados não aparece (nunca a mesma informação no título,
+ * na resposta, no rótulo e na explicação).
+ */
+export function feedbackExplanationIsRedundant(
+  explanation: string | null | undefined,
+  shown: { hanzi?: string | null; pinyin?: string | null; meaning?: string | null }
+): boolean {
+  const text = String(explanation ?? "").trim();
+  if (!text) return true;
+  const strip = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  let rest = strip(text);
+  for (const part of [shown.hanzi, shown.pinyin, shown.meaning]) {
+    const clean = strip(String(part ?? "").trim());
+    if (clean) rest = rest.split(clean).join(" ");
+  }
+  rest = rest.replace(/[\s.,;:!?=·()\-–—"'“”«»]+/g, "");
+  return rest.length < 4;
+}
+

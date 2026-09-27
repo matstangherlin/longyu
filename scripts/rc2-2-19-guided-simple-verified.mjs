@@ -56,6 +56,7 @@ const MUTATIONS = {
     ["13. sair da tela grava 'visto'", "LEAVE_MARKS_SEEN", src("host", "    if (!shown || shown.definition.surfaces.includes(pathname)) return;\n    setCurrentGuidance(null);", "    if (!shown || shown.definition.surfaces.includes(pathname)) return;\n    updateGuidance((state) => applyGuidanceAction(state, shown, \"primary\", Date.now()));\n    setCurrentGuidance(null);")],
     ["14. coachmark conta antes de posicionar", "SHOWN_WITHOUT_EVIDENCE", src("host", "useRenderEvidence(presentation, cardRef, position !== null);", "useRenderEvidence(presentation, cardRef, true);")],
     ["15. sem 'Pular dicas'", "GUIDANCE_ACTION_MISSING", src("host", 'data-guidance-action="skip_all" onClick', "onClick")],
+    ["16b. orientação vista volta a aparecer", "SHOWN_REPEATS", src("orchestrator", '  if (record.status === "SNOOZED") return (record.snoozedUntil ?? 0) > ctx.now;\n  return true;', '  if (record.status === "SNOOZED") return (record.snoozedUntil ?? 0) > ctx.now;\n  if (record.status === "SHOWN") return false;\n  return true;')],
     ["16. evidência instantânea", "SHOWN_WITHOUT_EVIDENCE", src("orchestrator", "export const GUIDANCE_RENDER_EVIDENCE_MS = 1200;", "export const GUIDANCE_RENDER_EVIDENCE_MS = 0;")],
   ],
   "device-traces": [
@@ -81,6 +82,7 @@ const MUTATIONS = {
     ["34. estágio do cadastro sem marco", "SIGNUP_STAGE_MISSING", src("comecar", '    markSignupStage("confirmation_required");\n', "")],
     ["35. e-mail no log de falha", "SIGNUP_PII_LOGGED", src("signupTrace", '  if (!text || /@/.test(text)) return "UNKNOWN";', '  if (!text) return "UNKNOWN";')],
     ["36. finalização gira para sempre", "SIGNUP_INFINITE_LOADING", src("finalize", "const outcome = await withSignupTimeout(", "const outcome = await ((p: Promise<unknown>, _ms: number) => p)(")],
+    ["37b. código inválido aceito", "RECOVERY_ACCEPTS_INVALID_OTP", src("authService", "    if (error || !data?.session) {", "    if (false) {")],
     ["37. recuperação sem voltar ao Login", "RECOVERY_NOT_CANONICAL", src("authService", "    await client?.auth.signOut();", "    void client;")],
   ],
   "review-composer": [
@@ -91,8 +93,9 @@ const MUTATIONS = {
     ["42. alvo de tamanho abaixo do piso", "HANZI_TOO_SMALL", src("composer", "main: { min: 64, max: 80 },", "main: { min: 48, max: 60 },")],
     ["43. repetição sempre igual", "REPETITION_NOT_TRANSFORMED", src("reviewBuilder", "const reps = input.item.reps + (input.formatShift ?? 0);", "const reps = input.item.reps;")],
     ["44. revisão ignora o composer", "COMPOSER_NOT_WIRED", src("review", "() => composeReviewQueue(advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue, reviewTargetOf),", "() => (advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue),")],
-    ["45. feedback denso no acerto", "FEEDBACK_TOO_DENSE", src("review", '{correct !== true && <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>}', '<p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>')],
+    ["45. feedback denso no acerto", "FEEDBACK_TOO_DENSE", src("review", "{correct !== true &&\n        !feedbackExplanationIsRedundant(", "{true &&\n        !feedbackExplanationIsRedundant(")],
     ["46. composer agenda SRS", "NEW_SRS", json((s) => { s.src.composer += '\nexport const scheduleVia = "dueItems";\n'; })],
+    ["52c. resposta repetida na explicação", "REVIEW_DUPLICATE_COPY", src("composer", "  return rest.length < 4;", "  return false;")],
     ["47. motor de SRS novo", "NEW_SRS", json((s) => { s.srcFileNames.push("src/lib/SrsV2.ts"); })],
   ],
   "product-release": [
@@ -101,7 +104,9 @@ const MUTATIONS = {
     ["50. Amigos fora da primeira dobra", "PROFILE_NOT_DISCOVERABLE", src("profile", '<ActionButton to="/amigos"', '<ActionButton to="/ligas"')],
     ["51. Sair escondido", "LOGOUT_NOT_DISCOVERABLE", src("more", "onClick={() => void signOut()}", "onClick={() => undefined}")],
     ["52. Excluir conta no bloco rápido", "DELETE_NOT_SEPARATED", src("more", '{t("navigation.appearance")}\n        </Link>', '{t("navigation.appearance")}\n        </Link>\n        <Link to="/conta#excluir">Excluir conta</Link>')],
+    ["52b. Cultura não volta para a Jornada", "CULTURE_NO_RETURN", src("nextContinue", 'if (src === "jornada") return "/jornada";', 'if (src === "jornada") return "/cultura";')],
     ["53. recompensa volta a ser o CTA", "REWARD_PRIMARY", src("player", "        if (!guidedShell) return;", "        return;")],
+    ["53b. \"+XP\" volta ao CTA do detalhe da lição", "REWARD_PRIMARY", src("lessonDetail", "            {primaryLabel}\n          </span>", "            {`${primaryLabel} +${maxXp} XP`}\n          </span>")],
     ["54. tom ensinado com a língua", "TONGUE_FOR_TONE", json((s) => { s.src.toneContour += '\nexport const TONE_HINT = "posição da língua";\n'; })],
     ["55. PASS físico automático no manifesto", "FAKE_PHYSICAL_PASS", json((s) => { s.manifest.p1.MOBILE_SIGNUP_FAILURE.physical = "PASS"; })],
     ["56. PASS físico sem aparelho no QA", "FAKE_PHYSICAL_PASS", json((s) => { s.qa = { ...s.qa, nativeSpeechRecognitionZhCn: "PASS", deviceModel: null }; })],

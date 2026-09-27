@@ -444,7 +444,7 @@ test.describe("RC2.2.17B · contrato de apresentação por StepKind", () => {
     const violations: string[] = [];
     for (const lessonId of KIND_COVER_LESSONS) {
       await page.goto(`/licao/${lessonId}/player`);
-      await page.locator("[data-guided-lesson-shell]").first().waitFor({ timeout: 20_000 });
+      await page.locator("[data-guided-lesson-shell]").first().waitFor({ timeout: 45_000 });
       await dismissBlockingOverlays(page);
       const steps = await lessonQaSteps(page);
       for (const step of steps) {

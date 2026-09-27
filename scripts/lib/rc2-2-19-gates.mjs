@@ -105,6 +105,8 @@ export const FILES = {
   articulationDiagram: "src/components/pronunciation/ArticulationDiagram.tsx",
   toneContour: "src/components/tone/ToneContour.tsx",
   curriculumFreeze: "src/lib/curriculumFreeze.ts",
+  nextContinue: "src/features/lesson/nextJourneyContinue.ts",
+  lessonDetail: "src/features/lesson/LessonDetailPage.tsx",
   ptBR: "src/locales/pt-BR.ts",
 };
 
@@ -292,6 +294,9 @@ export async function validateGuidanceTruth(s) {
   const dismissed = o.applyGuidanceAction(seeded, { coveredIds: ["practice_unlocked_v1"] }, "primary", NOW);
   if (o.recordGuidanceRendered(dismissed, { coveredIds: ["practice_unlocked_v1"] }, NOW + 1).records.practice_unlocked_v1?.status !== "DISMISSED")
     fail("SHOWN_WITHOUT_EVIDENCE", "recordGuidanceRendered", "evidência de render não rebaixa DISMISSED");
+  // Mutação 3 da spec: orientação REALMENTE mostrada não repete.
+  const allShown = o.recordGuidanceRendered(seeded, { coveredIds: Object.keys(seeded.records) }, NOW);
+  if (o.selectGuidance(ctx(allShown))) fail("SHOWN_REPEATS", "selectGuidance", "SHOWN (vista de verdade) nunca volta");
   // Lote cobre só o que lista.
   const fresh = { ...o.DEFAULT_GUIDANCE_STATE, initialized: true, records: { welcome_journey_v1: { status: "DISMISSED", at: 1 } } };
   const batch = o.selectGuidance(ctx(fresh, { learner: { ...mature, completedLessons: lessons(12) } }));
@@ -381,6 +386,8 @@ export async function validateAuthRecovery(s) {
     fail("RECOVERY_ENUMERATION", "requestPasswordReset", "nunca devolve o erro cru do servidor");
   const verifyBody = fnBody(auth, "export async function verifyRecoveryCode(");
   if (!/verifyOtp\(\{ email: email\.trim\(\), token, type: "recovery" \}\)/.test(verifyBody)) fail("RECOVERY_NOT_CANONICAL", "verifyRecoveryCode", "verifyOtp type=recovery (canônico do Supabase)");
+  // Mutação 21 da spec: código inválido nunca abre a troca de senha.
+  if (!/if \(error \|\| !data\?\.session\) \{/.test(verifyBody)) fail("RECOVERY_ACCEPTS_INVALID_OTP", "verifyRecoveryCode", "sem sessão de recuperação válida, nada de nova senha");
   const completeBody = fnBody(auth, "export async function completePasswordRecovery(");
   if (!/updatePasswordAfterRecovery\(password\)/.test(completeBody) || !/signOut\(\)/.test(completeBody)) fail("RECOVERY_NOT_CANONICAL", "completePasswordRecovery", "updateUser e depois Login");
   // OTP nunca logado/guardado/rastreado.
@@ -443,8 +450,11 @@ export async function validateReviewComposer(s) {
     fail("REPETITION_NOT_TRANSFORMED", FILES.reviewBuilder, "repetição pede outro formato");
   for (const key of ["main", "option", "pair"]) if (!new RegExp(`REVIEW_HANZI_CLASS\\.${key}`).test(review)) fail("HANZI_TOO_SMALL", FILES.review, `hànzì ${key} usa o tamanho do composer`);
   if (/text-5xl leading-tight text-ink sm:text-6xl|isHanziText\(option\.label\) \? "text-3xl/.test(review)) fail("HANZI_TOO_SMALL", FILES.review, "tamanhos antigos voltaram");
-  if (!/\{correct !== true && <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">\{exercise\.explanation\}<\/p>\}/.test(review))
-    fail("FEEDBACK_TOO_DENSE", FILES.review, "acerto = confirmação; explicação só no erro");
+  if (!/\{correct !== true &&\s*!feedbackExplanationIsRedundant\(exercise\.explanation, \{ hanzi: exercise\.entity\.hanzi, pinyin: exercise\.entity\.pinyin, meaning: exercise\.entity\.meaningPt \}\)/.test(review))
+    fail("FEEDBACK_TOO_DENSE", FILES.review, "acerto = confirmação; explicação só no erro e só se acrescenta algo");
+  // Mutação 13 da spec: a explicação não repete a resposta já mostrada.
+  if (!c.feedbackExplanationIsRedundant("骂 (mà) = xingar.", { hanzi: "骂", pinyin: "mà", meaning: "xingar" }) || c.feedbackExplanationIsRedundant("4º tom — cai firme.", { hanzi: "骂", pinyin: "mà", meaning: "xingar" }))
+    fail("REVIEW_DUPLICATE_COPY", "feedbackExplanationIsRedundant", "nunca a mesma informação na resposta e na explicação");
   if (!/<GuidanceInlineSlot surface="\/revisao" \/>/.test(review)) fail("REVIEW_FIRST_USE_MISSING", FILES.review, "primeira revisão explica as rodadas (orquestrado)");
   // Mesmo SRS: nenhum motor novo, nada de agenda no composer.
   if (/\b(gradeSrs|review\(|dueItems|newItem)\b/.test(stripComments(s.src.composer))) fail("NEW_SRS", FILES.composer, "composer não agenda nem gradua");
@@ -476,9 +486,18 @@ export async function validateProductRelease(s) {
   if (/excluir|delete|DangerZone/i.test(you)) fail("DELETE_NOT_SEPARATED", FILES.more, "Excluir conta fica separado, nunca no bloco rápido");
   if (more.indexOf("<MoreYouBlock />") < 0 || more.indexOf("<MoreYouBlock />") > more.indexOf("{sections.map("))
     fail("PROFILE_NOT_DISCOVERABLE", FILES.more, "Você no topo do Mais");
+  // Mutação 27 da spec: a Cultura aberta pela Jornada volta para a Jornada.
+  if (!/if \(src === "jornada"\) return "\/jornada";/.test(stripComments(s.src.nextContinue)) || !/cultureSkipForNow/.test(s.src.player))
+    fail("CULTURE_NO_RETURN", FILES.nextContinue, "Cultura aberta pela Jornada sempre oferece voltar à Jornada");
   // Recompensa secundária (shell guiado).
   if (!/if \(!guidedShell\) return;/.test(stripComments(s.src.player)) || !/hasUnclaimedRewards && !guidedShell \? t\("player\.claimRewards"\) : journeyCta/.test(s.src.player))
     fail("REWARD_PRIMARY", FILES.player, "no shell guiado o CTA é Continuar; recompensa secundária");
+  // Detalhe da lição: o CTA principal não carrega "+N XP" (o chip já mostra).
+  {
+    const cta = s.src.lessonDetail.match(/data-lesson-primary-cta=""\>([\s\S]*?)<\/span>/);
+    if (!cta || /XP|maxXp|xp/.test(cta[1]))
+      fail("REWARD_PRIMARY", FILES.lessonDetail, "CTA do detalhe da lição é a ação; XP fica no chip secundário");
+  }
   // Articulação ≠ tom.
   if (/tongue|língua|TONGUE/i.test(stripComments(s.src.toneContour))) fail("TONGUE_FOR_TONE", FILES.toneContour, "tom é altura da voz, nunca língua");
   const diagrams = (s.src.articulation.match(/\{\s*id: "(j-q-x|zh-ch-sh|z-c-s|r-retroflex|u-umlaut|e|apical-i)",\s*sounds:/g) ?? []).length;

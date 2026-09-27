@@ -61,6 +61,7 @@ import { reviewSessionSplit } from "../../lib/reviewSession";
 import {
   REVIEW_HANZI_CLASS,
   composeReviewQueue,
+  feedbackExplanationIsRedundant,
   reviewOccurrenceAt,
   reviewRoundPosition,
 } from "../../lib/reviewSessionComposer";
@@ -1009,7 +1010,10 @@ function ExerciseFeedback({
         />
       </div>
       {/* RC2.2.19 — feedback enxuto: acerto = confirmação + o item; a explicação só no erro. */}
-      {correct !== true && <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>}
+      {correct !== true &&
+        !feedbackExplanationIsRedundant(exercise.explanation, { hanzi: exercise.entity.hanzi, pinyin: exercise.entity.pinyin, meaning: exercise.entity.meaningPt }) && (
+          <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>
+        )}
       {correct && exercise.remediation && (
         <p className="mx-auto mt-2 max-w-sm text-xs font-semibold text-[rgb(var(--good))]">
           {catalogT("review.backToSpaced")}

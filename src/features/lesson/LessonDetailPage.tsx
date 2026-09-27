@@ -451,13 +451,17 @@ export function LessonDetailPage() {
           trailingChevron
           className="mt-4 w-full min-w-0 border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:max-w-full sm:px-6"
         >
-          <span className="block min-w-0 break-words text-center leading-snug">
-            {topicNode && !blocked ? `${primaryLabel} +${maxXp} XP` : primaryLabel}
-            {topicNode && topicCta.secondary ? (
-              <span className="mt-0.5 block text-[11px] font-medium opacity-90">{topicCta.secondary}</span>
-            ) : null}
+          {/* RC2.2.19 — CTA fala a ação ("Continuar"), não a recompensa: o XP já
+              está no chip acima e o estado do tema fica como legenda discreta. */}
+          <span className="block min-w-0 break-words text-center leading-snug" data-lesson-primary-cta="">
+            {primaryLabel}
           </span>
         </ActionButton>
+        {topicNode && topicCta.secondary ? (
+          <p className="mt-1.5 text-center text-[11px] font-medium text-ink-faint sm:text-left" data-lesson-cta-caption="">
+            {topicCta.secondary}
+          </p>
+        ) : null}
       </Card>
 
       {lesson.cultureItemId && !cultureDismissed ? (

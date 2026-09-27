@@ -140,6 +140,7 @@ export const ptBR = {
     recoveryVerify: "Confirmar código",
     recoveryVerifying: "Confirmando…",
     recoveryResend: "Enviar outro código",
+    recoveryResendIn: "Enviar outro código em {s} s",
     recoveryChangeEmail: "Usar outro email",
     recoveryNewPasswordTitle: "Crie a nova senha",
     recoveryNewPasswordLabel: "Nova senha",
@@ -2900,10 +2901,12 @@ export const ptBR = {
       body: "Toque em um caractere para ver som, significado e componentes.",
     },
     reviewSessionIntro: {
-      body: "Revisão em rodadas curtas. O que você errar volta depois, de outro jeito.",
+      body: "A revisão traz de volta o que está começando a enfraquecer.",
     },
     profileEntry: {
-      body: "Seu perfil fica aqui: foto, nome, medalhas e amigos. Conta e Sair também.",
+      title: "Este é o seu perfil.",
+      body: "Aqui você pode ver medalhas, progresso e personalizar sua identidade.",
+      primary: "Conhecer",
     },
     immersionFirstUse: {
       body: "Cada cena mostra onde você está, com quem fala e o objetivo. Ouça primeiro, depois responda.",

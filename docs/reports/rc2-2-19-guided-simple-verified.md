@@ -98,6 +98,7 @@ Estados de uma orientação:
 - Mensagem única: "Se este email estiver cadastrado, enviaremos as instruções."
 - Só "sem conexão" e "muitas tentativas" viram erro, porque não revelam a conta.
 - Código errado e código vencido têm a mesma resposta.
+- Tela do código: resumo do e-mail, teclado numérico, colar funciona (`123 456`), "Enviar outro código" com espera de 60 s e "Usar outro email".
 - O código vive só no estado do formulário. Nunca vai para store, URL, log ou analytics (o gate verifica).
 
 **Modelo de e-mail — 👤 owner.** `supabase/templates/recovery.html` (com `{{ .Token }}` e o link) está só **versionado**. Nem o template de produção nem o `supabase/config.toml` foram alterados. Passos em `docs/release/rc2-2-19-recovery-template.md`.
@@ -116,7 +117,8 @@ Estados de uma orientação:
 - A 2ª aparição do alvo desloca a alternância de formatos do builder (`formatShift`).
 - Hànzì: principal `text-[64px] sm:text-[80px]`, opções `text-[48px] sm:text-[60px]`, pares `text-[44px] sm:text-[52px]`.
 - Feedback: no acerto, confirmação + o item; explicação, motivo provável e sugestão de nota só no erro.
-- Primeira revisão: uma dica inline orquestrada (rodadas curtas; o erro volta depois, de outro jeito). O link do Atlas no glossário já existia.
+- Primeira revisão: uma dica inline orquestrada: "A revisão traz de volta o que está começando a enfraquecer."
+- Sem cópia repetida: uma explicação que só repete o hànzì, o pinyin ou o sentido já mostrados não aparece. O link do Atlas no glossário já existia.
 
 ## 7. Tom, articulação e imagens
 
@@ -132,10 +134,12 @@ Estados de uma orientação:
   - Glossário e áudio como antes.
   - Final "**Você conseguiu**" + objetivo cumprido, com o recap **antes** das recompensas.
 - **Perfil.**
-  - O avatar do topo abre `/perfil` e ganhou coachmark.
+  - O avatar do topo abre `/perfil` e ganhou coachmark com o Dragão: "Este é o seu perfil. Aqui você pode ver medalhas, progresso e personalizar sua identidade." [Conhecer] [Agora não] [Pular dicas].
+  - A primeira dobra mostra até 3 medalhas em destaque (glifos da mesma vitrine); sem medalha, a contagem.
   - A primeira dobra traz avatar, nome, @username e uma linha com 🏅 medalhas · Editar · Amigos (cabe em 360 px; teste de 200 px da RC2.2.13 passa).
   - Amigos leva à página real, que mostra o próprio estado honesto.
 - **Mais.** Bloco "Você" no topo com Perfil, Conta, Aparência (`/config/aparencia`) e Sair. **Excluir conta não entra** ali: continua separado em Conta, atrás de confirmação.
+- **Detalhe da lição: CTA sem recompensa.** O botão principal diz só a ação ("Continuar", "Praticar novamente"); o "+N XP" fica no chip de recompensas acima e o estado do tema vira legenda discreta abaixo do botão (antes: "Praticar novamente +15 XP · Tema dominado" dentro do botão, com "Tema dominado" repetido três vezes no card). Mutação 53b.
 - **Conclusão da lição no shell guiado.** Um único CTA, "Continuar", que também resgata as recompensas (secundárias). O recap vem antes, como na 17B.
 
 ## 9. Nomes de exemplo
@@ -148,15 +152,49 @@ A spec pede Mariana/Matheus (PT) e Alex/Emily (EN).
 
 ## 10. Gate
 
-`gate:rc2-2-19-guided-simple-verified` tem 5 pares validate/test e **65 mutações**, todas mortas. A spec pede ≥ 29.
+`gate:rc2-2-19-guided-simple-verified` tem 5 pares validate/test e **70 mutações**, todas mortas. A spec pede ≥ 29 (mapa abaixo).
 
 | Área | Mutações | Exemplos de código de falha |
 |---|---|---|
-| `guidance-truth` | 16 | `AUTO_SEEDED_AS_SEEN`, `LEGACY_SEEN_TRUSTED`, `SHOWN_WITHOUT_EVIDENCE`, `LEAVE_MARKS_SEEN`, `SELECTION_COUNTS_AS_SHOWN`, `BATCH_MARKS_UNLISTED`, `RELOCKED`, `MATURE_BATCH_AS_NEW` |
+| `guidance-truth` | 17 | `AUTO_SEEDED_AS_SEEN`, `SHOWN_REPEATS`, `LEGACY_SEEN_TRUSTED`, `SHOWN_WITHOUT_EVIDENCE`, `LEAVE_MARKS_SEEN`, `SELECTION_COUNTS_AS_SHOWN`, `BATCH_MARKS_UNLISTED`, `RELOCKED`, `MATURE_BATCH_AS_NEW` |
 | `device-traces` | 10 | `TRACE_EVENT_MISSING`, `SPEECH_FROM_PERMISSION`, `RECORDING_WITHOUT_PLAYBACK`, `RECORDING_WITHOUT_FILE`, `RECORDING_PATH_LEAK`, `DIAGNOSTICS_IN_PRODUCTION` |
-| `auth-recovery` | 11 | `RECOVERY_ENUMERATION`, `RECOVERY_NOT_CANONICAL`, `OTP_LOGGED`, `TEMPLATE_SILENTLY_APPLIED`, `SIGNUP_PII_LOGGED`, `SIGNUP_INFINITE_LOADING` |
-| `review-composer` | 10 | `ROUND_SIZE_OUT_OF_RANGE`, `CONSECUTIVE_SAME_TARGET`, `COMPOSER_DROPS_ITEMS`, `HANZI_TOO_SMALL`, `REPETITION_NOT_TRANSFORMED`, `NEW_SRS` |
-| `product-release` | 18 | `STORY_SHELL_INCOMPLETE`, `PROFILE_NOT_DISCOVERABLE`, `DELETE_NOT_SEPARATED`, `REWARD_PRIMARY`, `TONGUE_FOR_TONE`, `FAKE_PHYSICAL_PASS`, `OWNER_ACTION_HIDDEN`, `RESIDUAL_HIDDEN`, `BASE_SHA_AMBIGUOUS`, `AUTO_PR`, `PURCHASES_ENABLED`, `TOUCHED_273` |
+| `auth-recovery` | 12 | `RECOVERY_ENUMERATION`, `RECOVERY_ACCEPTS_INVALID_OTP`, `RECOVERY_NOT_CANONICAL`, `OTP_LOGGED`, `TEMPLATE_SILENTLY_APPLIED`, `SIGNUP_PII_LOGGED`, `SIGNUP_INFINITE_LOADING` |
+| `review-composer` | 11 | `ROUND_SIZE_OUT_OF_RANGE`, `REVIEW_DUPLICATE_COPY`, `CONSECUTIVE_SAME_TARGET`, `COMPOSER_DROPS_ITEMS`, `HANZI_TOO_SMALL`, `REPETITION_NOT_TRANSFORMED`, `NEW_SRS` |
+| `product-release` | 20 | `STORY_SHELL_INCOMPLETE`, `CULTURE_NO_RETURN`, `PROFILE_NOT_DISCOVERABLE`, `DELETE_NOT_SEPARATED`, `REWARD_PRIMARY`, `TONGUE_FOR_TONE`, `FAKE_PHYSICAL_PASS`, `OWNER_ACTION_HIDDEN`, `RESIDUAL_HIDDEN`, `BASE_SHA_AMBIGUOUS`, `AUTO_PR`, `PURCHASES_ENABLED`, `TOUCHED_273` |
+
+Mapa das 29 mutações obrigatórias da spec → gate que as mata:
+
+| # | Mutação da spec | Gate · código |
+|---|---|---|
+| 1 | feature disponível marcada SHOWN | 19 `guidance-truth` · `AUTO_SEEDED_AS_SEEN` |
+| 2 | orientação nunca vista não aparece em conta madura | 19 · `MATURE_GUIDANCE_SUPPRESSED` |
+| 3 | orientação realmente vista repete | 19 · `SHOWN_REPEATS` |
+| 4 | SKIPPED repete | 18 `guidance-orchestrator` · `DISMISS_IGNORED` |
+| 5 | SNOOZED repete na mesma sessão | 18 · `NOW_NOT_REPEATS` |
+| 6 | acima do orçamento de popups | 18/19 · `SESSION_BUDGET_EXCEEDED` |
+| 7 | popup durante exercício | 18 · `GUIDANCE_DURING_LESSON` |
+| 8 | Jornada com o Card externo antigo | 17B `guided-shell` · `LEGACY_CARD_WRAPPER` |
+| 9 | lição de guia baixo fora do GuidedLessonShell | 17B · `SHELL_DEPENDS_ON_GUIDANCE` |
+| 10 | hànzì da Revisão abaixo do contrato | 19 `review-composer` · `HANZI_TOO_SMALL` (+ 2.2.8 E1/E2/E4) |
+| 11 | mesmo alvo colado | 19 · `CONSECUTIVE_SAME_TARGET` |
+| 12 | mesma forma de exercício repetida | 19 · `REPETITION_NOT_TRANSFORMED` |
+| 13 | Revisão repete a resposta na explicação | 19 · `REVIEW_DUPLICATE_COPY` |
+| 14 | gravação "ok" sem arquivo | 19 `device-traces` · `RECORDING_WITHOUT_FILE` |
+| 15 | gravação sem reprodução | 19 · `RECORDING_WITHOUT_PLAYBACK` |
+| 16 | reconhecimento indisponível bloqueia a lição | 19 · `SPEECH_FALLBACK_MISSING` (+ 2.2.17 `speech-capability`) |
+| 17 | Teste guiado marca HEARD antes do áudio começar | 2.2.17 `audio-playback-truth` · 17B `LISTEN_CLICK_IS_HEARD` |
+| 18 | Continuar da conversa não avança | 2.2.17 `lesson-advance-integrity` · 19 `TRACE_EVENT_MISSING` |
+| 19 | cadastro preso em "ocupado" | 19 `auth-recovery` · `SIGNUP_INFINITE_LOADING` |
+| 20 | recuperação revela se a conta existe | 19 · `RECOVERY_ENUMERATION` |
+| 21 | recuperação aceita código inválido | 19 · `RECOVERY_ACCEPTS_INVALID_OTP` |
+| 22 | recuperação registra o token | 19 · `OTP_LOGGED` |
+| 23 | não troca a senha depois do código válido | 19 · `RECOVERY_NOT_CANONICAL` |
+| 24 | Imersão sem quem fala visível | 19 `product-release` · `STORY_SHELL_INCOMPLETE` |
+| 25 | Perfil escondido | 19 · `PROFILE_NOT_DISCOVERABLE` |
+| 26 | Sair exige rolar fundo | 19 · `LOGOUT_NOT_DISCOVERABLE` |
+| 27 | tarefa de Cultura não volta à Jornada | 19 · `CULTURE_NO_RETURN` |
+| 28 | #273 muda | 19 · `TOUCHED_273` |
+| 29 | package ≠ longyu.noba.com | 19 · `PACKAGE_CHANGED` (+ 2.2.16 `android-release-identity`) |
 
 Os módulos puros (orquestrador, descoberta, composer, diagnóstico, recuperação, trilha de cadastro e trilha de passo) são **empacotados a partir do texto** (esbuild). As mutações executam de verdade, não são só regex.
 
