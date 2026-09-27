@@ -11,6 +11,8 @@ import {
   nativeStopPracticeRecording,
   hasNativeSpeech,
 } from "../../lib/platform/nativeSpeech";
+import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
+import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -54,6 +56,7 @@ export function SelfComparePractice({
   reason?: string | null;
 }) {
   const recordSpeechAttempt = useStore((s) => s.recordSpeechAttempt);
+  const guided = useGuidedPresentation();
   const native = hasNativeSpeech();
   const [phase, setPhase] = useState<Phase>("idle");
   const [webUrl, setWebUrl] = useState<string | null>(null);
@@ -90,12 +93,22 @@ export function SelfComparePractice({
       URL.revokeObjectURL(webUrl);
       setWebUrl(null);
     }
+    updateSpeechDiagnostics({
+      recordingEngine: native ? "native" : "web",
+      recordingStarted: "unknown",
+      recordingDuration: null,
+      temporaryFileCreated: "unknown",
+      playbackReady: "unknown",
+      playbackPlayed: "unknown",
+    });
     if (native) {
       const result = await nativeStartPracticeRecording();
       if (!result.ok) {
+        updateSpeechDiagnostics({ recordingStarted: "no", lastErrorCode: result.code });
         setPhase("failed");
         return;
       }
+      updateSpeechDiagnostics({ recordingStarted: "yes" });
       startedAtRef.current = Date.now();
       setPhase("recording");
       return;
@@ -111,7 +124,13 @@ export function SelfComparePractice({
       recorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        if (blob.size > 0 && Date.now() - startedAtRef.current >= MIN_RECORDING_MS) {
+        const duration = Date.now() - startedAtRef.current;
+        updateSpeechDiagnostics({
+          recordingDuration: duration,
+          temporaryFileCreated: blob.size > 0 ? "yes" : "no",
+          playbackReady: blob.size > 0 && duration >= MIN_RECORDING_MS ? "yes" : "no",
+        });
+        if (blob.size > 0 && duration >= MIN_RECORDING_MS) {
           setWebUrl(URL.createObjectURL(blob));
           setPhase("recorded");
           countAttempt();
@@ -122,8 +141,10 @@ export function SelfComparePractice({
       recorder.start();
       recorderRef.current = recorder;
       startedAtRef.current = Date.now();
+      updateSpeechDiagnostics({ recordingStarted: "yes" });
       setPhase("recording");
     } catch {
+      updateSpeechDiagnostics({ recordingStarted: "no", lastErrorCode: "WEB_RECORDING_FAILED" });
       setPhase("failed");
     }
   }
@@ -131,6 +152,15 @@ export function SelfComparePractice({
   async function stopRecording() {
     if (native) {
       const result = await nativeStopPracticeRecording();
+      updateSpeechDiagnostics(
+        result.ok
+          ? {
+              recordingDuration: result.durationMs ?? 0,
+              temporaryFileCreated: result.fileExists && (result.fileBytes ?? 0) > 0 ? "yes" : result.fileExists === false ? "no" : "unknown",
+              playbackReady: result.fileExists && (result.durationMs ?? 0) >= MIN_RECORDING_MS ? "yes" : "no",
+            }
+          : { playbackReady: "no", lastErrorCode: result.code }
+      );
       if (result.ok && (result.durationMs ?? 0) >= MIN_RECORDING_MS) {
         setPhase("recorded");
         countAttempt();
@@ -152,18 +182,27 @@ export function SelfComparePractice({
 
   function playMine() {
     if (native) {
-      void nativePlayPracticeRecording();
+      // O plugin só resolve DEPOIS de tocar até o fim: é a prova de reprodução.
+      void nativePlayPracticeRecording().then((result) =>
+        updateSpeechDiagnostics(result.ok ? { playbackPlayed: "yes" } : { playbackPlayed: "no", lastErrorCode: result.code })
+      );
       return;
     }
     if (!webUrl) return;
     audioRef.current?.pause();
     const audio = new Audio(webUrl);
     audioRef.current = audio;
-    void audio.play().catch(() => undefined);
+    audio.onended = () => updateSpeechDiagnostics({ playbackPlayed: "yes" });
+    audio.onerror = () => updateSpeechDiagnostics({ playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_FAILED" });
+    void audio.play().catch(() => updateSpeechDiagnostics({ playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_BLOCKED" }));
   }
 
   return (
-    <div className="mt-5 rounded-2xl border border-line bg-surface p-4" data-testid="self-compare" data-self-compare-phase={phase}>
+    <div
+      className={guided ? "mt-5" : "mt-5 rounded-2xl border border-line bg-surface p-4"}
+      data-testid="self-compare"
+      data-self-compare-phase={phase}
+    >
       <p className="text-sm font-semibold text-ink">{t("player.selfCompareTitle")}</p>
       {reason && <p className="mt-1 text-xs leading-5 text-ink-soft" data-testid="self-compare-reason">{reason}</p>}
       <div className="mt-3 flex items-center justify-center gap-3">
@@ -173,15 +212,23 @@ export function SelfComparePractice({
         </Button>
       </div>
 
-      {phase === "idle" && (
-        <Button className="mt-4 w-full" size="lg" onClick={() => void startRecording()} data-testid="self-compare-record">
-          {t("player.selfCompareRecord")}
-        </Button>
-      )}
-      {phase === "recording" && (
-        <Button className="mt-4 w-full animate-pulse" size="lg" variant="danger" onClick={() => void stopRecording()} data-testid="self-compare-stop">
-          {t("player.selfCompareStop")}
-        </Button>
+      {(phase === "idle" || phase === "recording") && (
+        <GuidedDock>
+          {phase === "idle" ? (
+            <Button className={guided ? "w-full" : "mt-4 w-full"} size="lg" onClick={() => void startRecording()} data-testid="self-compare-record">
+              {t("player.selfCompareRecord")}
+            </Button>
+          ) : (
+            <Button className={guided ? "w-full animate-pulse" : "mt-4 w-full animate-pulse"} size="lg" variant="danger" onClick={() => void stopRecording()} data-testid="self-compare-stop">
+              {t("player.selfCompareStop")}
+            </Button>
+          )}
+          {guided && phase === "idle" && (
+            <button type="button" onClick={onCannotSpeak} className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink">
+              {t("player.cannotSpeakNow")}
+            </button>
+          )}
+        </GuidedDock>
       )}
       {phase === "recorded" && (
         <div className="mt-4 grid gap-2" data-testid="self-compare-recorded">
@@ -190,12 +237,14 @@ export function SelfComparePractice({
             <Button variant="outline" onClick={playMine} data-testid="self-compare-play-mine">{t("player.selfCompareListenMine")}</Button>
           </div>
           <p className="text-center text-sm text-ink-soft">{t("player.selfCompareHint")}</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" onClick={() => void startRecording()}>{t("player.selfCompareRepeat")}</Button>
-            <Button onClick={onContinue} data-testid="self-compare-continue">
-              {t("player.continue")} <IconChevron width={18} height={18} />
-            </Button>
-          </div>
+          <GuidedDock>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => void startRecording()}>{t("player.selfCompareRepeat")}</Button>
+              <Button onClick={onContinue} data-testid="self-compare-continue">
+                {t("player.continue")} <IconChevron width={18} height={18} />
+              </Button>
+            </div>
+          </GuidedDock>
         </div>
       )}
       {phase === "failed" && (
@@ -207,7 +256,7 @@ export function SelfComparePractice({
       <p className="mt-3 text-center text-[11px] leading-4 text-ink-faint" data-testid="self-compare-privacy">
         {t("player.selfComparePrivacy")}
       </p>
-      {phase !== "recorded" && (
+      {phase !== "recorded" && !(guided && phase === "idle") && (
         <button type="button" onClick={onCannotSpeak} className="mt-2 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink">
           {t("player.cannotSpeakNow")}
         </button>

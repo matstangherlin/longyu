@@ -64,7 +64,7 @@ it(cases, "F4 — 'Ver no Atlas' usa a rota canônica", () => {
 const src = readSources();
 it(cases, "gate real passa", () => assert.deepEqual(gateReviewLearningUx(src), []));
 expectMutationCaught(cases, "8. Hànzì da revisão continua pequeno", gateReviewLearningUx,
-  mutate(src, "revisao", '"text-5xl leading-tight text-ink sm:text-6xl"', '"text-3xl text-ink"'));
+  mutate(src, "revisao", "`${REVIEW_HANZI_CLASS.main} text-ink`", '"text-3xl text-ink"'));
 expectMutationCaught(cases, "9. consulta bloqueada na revisão", gateReviewLearningUx,
   mutate(src, "revisao", 'activation="hover-hold"\n      />', 'activation="hover-hold"\n        examMode={!revealed}\n      />'));
 expectMutationCaught(cases, "10. consulta conta como recordação independente", gateReviewLearningUx,

@@ -10,7 +10,8 @@ import { ALL_LESSONS } from "../../data/journey";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
 import { engineInsights } from "../../lib/engineIntelligence";
 import { LEAGUE_META, normalizeLeagueTier } from "../../lib/leagues";
-import { ACHIEVEMENTS } from "../../data/achievements";
+import { ACHIEVEMENTS, isMedalAchievementId } from "../../data/achievements";
+import { normalizeFeaturedAchievementIds } from "../../lib/profileShowcase";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useLeagueData } from "../../hooks/useLeagueData";
 import { Mascot } from "../../components/brand/Mascot";
@@ -121,6 +122,13 @@ export function ProfilePage() {
   // RC2.2.11 — só o nome de usuário REAL (nunca um apelido derivado do nome,
   // nunca o email). Sem username, não inventamos um.
   const handle = formatUsernameHandle(account?.username);
+  const medalCount = Object.keys(achievementsUnlocked).filter(isMedalAchievementId).length;
+  // Primeira dobra: até 3 medalhas em destaque (mesma vitrine de FeaturedMedals).
+  const featuredRaw = useStore((s) => s.featuredAchievementIds);
+  const featuredGlyphs = normalizeFeaturedAchievementIds(featuredRaw, achievementsUnlocked, undefined, isMedalAchievementId)
+    .slice(0, 3)
+    .map((id) => ACHIEVEMENTS.find((def) => def.id === id)?.glyph)
+    .filter((glyph): glyph is string => Boolean(glyph));
   const since = memberSinceLabel(account?.createdAt);
   const tier = normalizeLeagueTier(league.leagueTier);
   const leagueName = LEAGUE_META[tier]?.name ?? "Liga Bronze";
@@ -284,9 +292,25 @@ export function ProfilePage() {
             )}
           </div>
         </div>
-        <div className="w-full shrink-0 sm:w-auto [&>*]:w-full sm:[&>*]:w-auto">
+        {/* RC2.2.19 — primeira dobra: medalhas, Editar e Amigos à mão. */}
+        <div className="grid w-full shrink-0 grid-cols-3 gap-2 sm:flex sm:w-auto" data-testid="profile-first-fold-actions">
+          <a
+            href="#medalhas"
+            className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl bg-surface-2 px-2 text-sm font-semibold text-ink"
+            data-testid="profile-medal-count"
+            aria-label={t("hub.medalCount", { n: medalCount })}
+          >
+            {featuredGlyphs.length ? (
+              <span className="hanzi text-lg leading-none text-gold" data-testid="profile-featured-glyphs">{featuredGlyphs.join(" ")}</span>
+            ) : (
+              <>🏅 {medalCount}</>
+            )}
+          </a>
           <ActionButton to="/conta" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />}>
-            {t("hub.editProfile")}
+            {t("hub.editShort")}
+          </ActionButton>
+          <ActionButton to="/amigos" variant="secondary" size="sm" data-testid="profile-friends-link">
+            {t("hub.friends")}
           </ActionButton>
         </div>
       </Card>
@@ -300,7 +324,7 @@ export function ProfilePage() {
 
       {/* 2a · RC2.2.8 — vitrine: medalhas (achievement) e passaporte (selos) são
           blocos separados de propósito. Selo ≠ medalha. */}
-      <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+      <div id="medalhas" className="grid scroll-mt-20 gap-3 lg:grid-cols-2 lg:items-start">
         <FeaturedMedals />
         <CulturePassportCard />
       </div>

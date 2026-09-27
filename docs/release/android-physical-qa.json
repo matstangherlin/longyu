@@ -92,6 +92,26 @@
   "lockedFeatureDeepLink": "NOT_RUN",
   "micPrePermission": "NOT_RUN",
   "notificationOfferAfterSession": "NOT_RUN",
+  "guidedJourneyL1": "NOT_RUN",
+  "guidedJourneyL2": "NOT_RUN",
+  "guidedJourneyTone": "NOT_RUN",
+  "guidedJourneySpeech": "NOT_RUN",
+  "guidedJourneyConversation": "NOT_RUN",
+  "guidedJourneyHanzi": "NOT_RUN",
+  "guidedJourneyIntermediate": "NOT_RUN",
+  "guidedJourneyAdvanced": "NOT_RUN",
+  "guidanceShownOnDevice": "NOT_RUN",
+  "guidanceMatureAccountNoRelock": "NOT_RUN",
+  "guidedTryAudioDevice": "NOT_RUN",
+  "conversationContinueDevice": "NOT_RUN",
+  "nativeSpeechRecognitionZhCn": "NOT_RUN",
+  "selfCompareRecordingPlayback": "NOT_RUN",
+  "mobileSignupDevice": "NOT_RUN",
+  "passwordRecoveryOtpDevice": "NOT_RUN",
+  "reviewRoundsDevice": "NOT_RUN",
+  "storySceneDevice": "NOT_RUN",
+  "profileAccountLogoutDevice": "NOT_RUN",
+  "articulationDiagramsDevice": "NOT_RUN",
   "performance": {
     "coldStartMs": null,
     "firstInteractiveMs": null,
@@ -130,13 +150,24 @@
       "id": "ANDROID_RC2_2_18_DISCOVERY_UNVERIFIED",
       "severity": "P1_CANDIDATE",
       "detail": "RC2.2.18: descoberta progressiva, coachmarks (360×740, barra de navegação, VOLTAR), anúncio de desbloqueio e permissões progressivas (microfone na fala, notificação após a 1ª sessão) só foram verificados na Web/E2E. Nenhum PASS sem aparelho real."
+    },
+    {
+      "id": "ANDROID_RC2_2_17B_GUIDED_JOURNEY_UNVERIFIED",
+      "note": "RC2.2.17B — shell guiado da Jornada (L1, L2, tom, fala, conversa, Hànzì, intermediária, avançada) ainda não executado em aparelho Android físico. Antes do Closed Beta, o QA físico da Jornada guiada precisa passar.",
+      "status": "OPEN"
+    },
+    {
+      "id": "ANDROID_RC2_2_19_PRODUCT_UNVERIFIED",
+      "severity": "P1_CANDIDATE",
+      "detail": "RC2.2.19: guidance render evidence, audio/advance trace, zh-CN recognition, recording + playback, signup stages and in-app password recovery by code were verified only in code and Web/E2E. AUTOMATED PASS != PRODUCT PASS: each field stays NOT_RUN until a physical device with the Play build produces evidence.",
+      "status": "OPEN"
     }
   ],
   "p0Open": null,
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.18",
+  "extendedBy": "RC2.2.19",
   "playBuild": {
     "note": "RC2.2.16 — QA repetido no build DISTRIBUÍDO PELA PLAY (Internal testing), nunca só debug/adb. PASS exige: instalação pela Play Store (installer com.android.vending), aparelho físico, testedAt e evidência por teste.",
     "packageName": "longyu.noba.com",

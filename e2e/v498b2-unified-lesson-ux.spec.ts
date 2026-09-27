@@ -68,7 +68,7 @@ async function openPlayer(page: Page, lessonId: string) {
 
 async function continueScene(page: Page) {
   const scene = page.locator("[data-conversation-scene]");
-  const btn = scene.getByRole("button", { name: /Continuar|Continue|Responder|Reply|Answer/i }).first();
+  const btn = scene.or(page.locator("[data-lesson-action-region]")).getByRole("button", { name: /Continuar|Continue|Responder|Reply|Answer/i }).first();
   if ((await btn.isVisible().catch(() => false)) && !(await btn.isDisabled().catch(() => true))) {
     await btn.scrollIntoViewIfNeeded();
     await btn.click();

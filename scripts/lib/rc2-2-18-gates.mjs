@@ -340,7 +340,7 @@ export async function validateGuidanceOrchestrator(s) {
   }
   const L = learners(registry);
   const NOW = 1_700_000_000_000;
-  const fresh = { enabled: true, records: {}, initialized: true };
+  const fresh = { version: 2, enabled: true, records: {}, initialized: true, availabilityMemory: [] };
   const ctx = (over = {}) => {
     const learner = over.learner ?? L.fresh;
     return {
@@ -372,7 +372,7 @@ export async function validateGuidanceOrchestrator(s) {
   if (pick(ctx({ state: { ...fresh, enabled: false } }))) fail("GUIDANCE_OFF_SHOWS", "selectGuidance", "Dicas guiadas OFF → nenhuma dica não essencial");
   // DZ14 — orçamento da sessão.
   const afterWelcome = { shownIds: ["welcome_journey_v1"], snoozedIds: [] };
-  const welcomeSeen = { ...fresh, records: { welcome_journey_v1: { status: "SEEN", at: NOW } } };
+  const welcomeSeen = { ...fresh, records: { welcome_journey_v1: { status: "DISMISSED", at: NOW } } };
   if (pick(ctx({ session: afterWelcome, state: welcomeSeen })))
     fail("SESSION_BUDGET_EXCEEDED", "selectGuidance", "2ª orientação da 1ª sessão só depois da primeira atividade");
   if (pick(ctx({ session: { shownIds: ["x", "y"], snoozedIds: [] }, learner: L.firstLesson, state: welcomeSeen })))
@@ -387,7 +387,7 @@ export async function validateGuidanceOrchestrator(s) {
   if (batch) {
     const done = orchestrator.applyGuidanceAction(welcomeSeen, batch, "primary", NOW);
     for (const id of batch.coveredIds)
-      if (done.records[id]?.status !== "SEEN") fail("DISMISS_IGNORED", "applyGuidanceAction", `${id} não ficou marcado como visto`);
+      if (done.records[id]?.status !== "DISMISSED") fail("DISMISS_IGNORED", "applyGuidanceAction", `${id} não ficou marcado como dispensado`);
     const again = pick(ctx({ learner: L.firstLesson, state: done }));
     if (again && batch.coveredIds.includes(again.coveredIds[0])) fail("UNLOCK_POPUP_REPEATS", "selectGuidance", "anúncio visto não volta ao recarregar");
     // DZ19 — Agora não: não volta na sessão; 24h de cooldown.
@@ -409,10 +409,13 @@ export async function validateGuidanceOrchestrator(s) {
   // DZ18 — dicas desligadas não impedem a área de liberar.
   if (registry.featureVisibility("culture", L.atCulture) !== "AVAILABLE" || /state\.enabled|guidance/.test(fnBody(stripComments(s.src.registry), "export function featureVisibility(")))
     fail("UNLOCK_NEEDS_TIPS", "progressiveDiscovery.ts", "área libera com ou sem dicas");
-  // DI — conta antiga: nada de enxurrada; conta nova: boas-vindas.
-  const legacy = orchestrator.initializeGuidanceState({ enabled: true, records: {}, initialized: false }, registry.featureVisibilityMap(L.mature), L.mature, NOW);
-  if (pick(ctx({ learner: L.mature, state: legacy })) && pick(ctx({ learner: L.mature, state: legacy }))?.definition.priority === "FEATURE_UNLOCK")
-    fail("UNLOCK_POPUP_REPEATS", "initializeGuidanceState", "conta antiga não recebe anúncio do que já usa");
+  // DI (revisto no RC2.2.19) — conta antiga: nada de enxurrada nem de lote
+  // "Novos recursos" do que já usa; a orientação nunca vista continua
+  // elegível, uma por sessão (ver gate:rc2-2-19).
+  const legacy = orchestrator.initializeGuidanceState({ ...fresh, initialized: false }, registry.featureVisibilityMap(L.mature), L.mature, NOW);
+  const legacyPick = pick(ctx({ learner: L.mature, state: legacy }));
+  if (legacyPick && (legacyPick.definition.id === "new_features_v1" || legacyPick.coveredIds.length > 1))
+    fail("UNLOCK_POPUP_REPEATS", "initializeGuidanceState", "conta antiga não recebe lote 'Novos recursos' do que já usa");
   // DZ35 — rever dicas não mexe em progresso.
   const reset = orchestrator.resetGuidanceState({ ...legacy, enabled: false });
   if (Object.keys(reset.records).length !== 0 || reset.enabled !== true) fail("RESET_BROKEN", "resetGuidanceState", "zera o visto e religa");
@@ -472,7 +475,7 @@ export async function validateNavigationDisclosure(s) {
   if (!/\{shopAvailable && \(\s*<StatPill\s+to="\/loja"/.test(s.src.topBar)) fail("SHOP_BEFORE_ECONOMY", "TopBar.tsx", "atalho de Qi/Loja só depois da introdução");
   // DJ/DK — sem re-trancar durante o carregamento do sync.
   const hook = stripComments(s.src.hook);
-  if (!/mergeStickyVisibility\(derived, confirmed\)/.test(hook) || !/if \(ready\) \{\s*for \(const id of DISCOVERY_FEATURE_ORDER\) if \(derived\[id\] === "AVAILABLE"\) confirmed\.add\(id\);/.test(hook))
+  if (!/mergeStickyVisibility\(derived, \[\.\.\.confirmed, \.\.\.remembered\]\)/.test(hook) || !/if \(ready\) \{\s*for \(const id of DISCOVERY_FEATURE_ORDER\) if \(derived\[id\] === "AVAILABLE"\) confirmed\.add\(id\);/.test(hook))
     fail("FEATURE_RELOCKS_DURING_SYNC", "useProgressiveDiscovery.ts", "área liberada nesta sessão não some enquanto o sync carrega");
   try {
     const { registry } = await loadModules(s);
@@ -594,7 +597,7 @@ export async function validateGuidanceCopyAndSettings(s) {
   if (!/role="switch"/.test(card) || !/updateGuidance\(\(state\) => \(\{ \.\.\.state, enabled: !enabled \}\)\)/.test(card) || !/data-testid="guidance-reset"/.test(card))
     fail("SETTINGS_TOGGLE_MISSING", "GuidanceSettingsCard.tsx", "liga/desliga + Rever dicas do aplicativo");
   // AZ/BA — as três saídas.
-  if (!/secondary: "now_not" \| "skip";/.test(orchestrator) || !/offerSkipAll: true/.test(definitionBlock(orchestrator, "welcome_journey_v1")))
+  if (!/secondary: "now_not" \| "skip";/.test(orchestrator) || !/GUIDANCE_ACTIONS: readonly GuidanceAction\[\] = \["primary", "now_not", "skip", "skip_all"\]/.test(orchestrator))
     fail("DISMISS_IGNORED", "guidanceOrchestrator.ts", "Entendi · Agora não · Pular · Pular dicas");
   return failures;
 }

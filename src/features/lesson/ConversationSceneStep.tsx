@@ -47,6 +47,7 @@ import {
   unlockProductionHelpAfterMistake,
   type ProductionHelpLevel,
 } from "../../data/productionHelp";
+import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -267,7 +268,7 @@ function SpeechBubble({
   );
 }
 
-function SettingBackdrop({ setting }: { setting?: string }) {
+function SettingBackdrop({ setting, guided = false }: { setting?: string; guided?: boolean }) {
   const raw =
     setting && setting in SETTING_LABELS
       ? SETTING_LABELS[setting as keyof typeof SETTING_LABELS]
@@ -286,6 +287,14 @@ function SettingBackdrop({ setting }: { setting?: string }) {
   };
   const wash = washes[setting ?? ""] ?? washes.classroom;
 
+  if (guided) {
+    // RC2.2.17B · PART AB — sem moldura: o cenário vira uma linha discreta.
+    return (
+      <div className="text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint" data-conversation-setting={setting ?? "classroom"}>
+        {label}
+      </div>
+    );
+  }
   return (
     <div
       className={["relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br p-3 sm:p-4", wash].join(" ")}
@@ -1194,6 +1203,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
 // personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
 function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
+  const guided = useGuidedPresentation();
   const characters = step.characters ?? [];
   const nodes = (step.nodes ?? []) as ConversationNode[];
   // RC2.2.17 · O — o mapa segue os nós PERSONALIZADOS atuais. Chavear só por
@@ -1326,15 +1336,16 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   };
 
   return (
-    <div data-conversation-scene data-conversation-scene-id={step.sceneId}>
-      <LessonKindLabel kind="conversation" />
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
+    <div data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"}>
+      {/* RC2.2.17B · PART AF — no shell guiado, só o título da cena (sem pílula nem "Fala N"). */}
+      {!guided && <LessonKindLabel kind="conversation" />}
+      <h2 className={guided ? "text-center font-serif text-lg font-semibold text-ink sm:text-xl" : "mt-2 font-serif text-lg font-semibold text-ink sm:text-xl"}>{step.title}</h2>
 
-      <div className="mt-3">
-        <SettingBackdrop setting={step.setting} />
+      <div className={guided ? "mt-1" : "mt-3"}>
+        <SettingBackdrop setting={step.setting} guided={guided} />
       </div>
 
-      <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-3 pt-4 sm:px-4 sm:pb-4 sm:pt-5">
+      <div className={guided ? "mt-4" : "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-3 pt-4 sm:px-4 sm:pb-4 sm:pt-5"}>
         <div className="mb-3 flex items-end justify-between gap-4 px-1 sm:mb-4" data-conversation-cast>
           {left && (
             <CharacterAvatar
@@ -1389,6 +1400,15 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         )}
 
         {!answering && !repairPending && !revealPending && (
+          guided ? (
+            // PART AD — NPC fala → [ Responder ] no dock.
+            <GuidedDock>
+              <Button size="lg" className="longyu-press-feedback w-full shadow-lift" onClick={advance} data-testid="conversation-advance" data-conversation-node={node.id}>
+                {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
+                <IconChevron width={18} height={18} />
+              </Button>
+            </GuidedDock>
+          ) : (
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">{t("player.lineN", { n: spokenCount })}</span>
             <Button className="longyu-press-feedback min-w-[9.5rem] shadow-lift" onClick={advance} data-testid="conversation-advance" data-conversation-node={node.id}>
@@ -1396,6 +1416,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
               <IconChevron width={18} height={18} />
             </Button>
           </div>
+          )
         )}
 
         {repairPending && step.conversationRepairBeat && (
@@ -1480,6 +1501,7 @@ export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepP
 }
 
 function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
+  const guided = useGuidedPresentation();
   const characters = step.characters ?? [];
   const lines = (step.lines ?? []) as ConversationLine[];
   const checkpoint = step.checkpoint;
@@ -1539,15 +1561,15 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   return (
-    <div data-conversation-scene data-conversation-scene-id={step.sceneId}>
-      <LessonKindLabel kind="conversation" />
-      <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">{step.title}</h2>
+    <div data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"}>
+      {!guided && <LessonKindLabel kind="conversation" />}
+      <h2 className={guided ? "text-center font-serif text-lg font-semibold text-ink sm:text-xl" : "mt-2 font-serif text-lg font-semibold text-ink sm:text-xl"}>{step.title}</h2>
 
-      <div className="mt-3">
-        <SettingBackdrop setting={step.setting} />
+      <div className={guided ? "mt-1" : "mt-3"}>
+        <SettingBackdrop setting={step.setting} guided={guided} />
       </div>
 
-      <div className="-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4">
+      <div className={guided ? "mt-4" : "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4"}>
         <div className="mb-4 flex items-end justify-between gap-4 px-1">
           {left && (
             <CharacterAvatar
@@ -1584,6 +1606,13 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         )}
 
         {phase === "dialogue" && (
+          guided ? (
+            <GuidedDock>
+              <Button size="lg" className="w-full shadow-lift" onClick={advanceDialogue}>
+                {t("player.continue")} <IconChevron width={18} height={18} />
+              </Button>
+            </GuidedDock>
+          ) : (
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">
               {t("player.lineOf", { index: lineIndex + 1, total: lines.length })}
@@ -1592,6 +1621,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
               {t("player.continue")} <IconChevron width={18} height={18} />
             </Button>
           </div>
+          )
         )}
 
         {phase === "checkpoint" && checkpoint && (

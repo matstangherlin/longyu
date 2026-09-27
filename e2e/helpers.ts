@@ -383,6 +383,27 @@ export async function advancePastGuideDialogue(page: Page, timeoutMs = 20_000) {
     }
     break;
   }
+  await passGuidedListenPage(page);
+}
+
+/**
+ * RC2.2.17B — "Ouça a frase" (1ª micro-página do passo de escuta): o texto só
+ * aparece com áudio real. Navegador de teste sem voz → "Não posso ouvir
+ * agora" leva à micro-página de fala, que mostra hànzì · pinyin · sentido.
+ */
+export async function passGuidedListenPage(page: Page) {
+  // O passo seguinte ao Dragão entra com uma transição curta: espera um pouco.
+  const listen = page.locator('[data-guided-listen-stage="listen"]').first();
+  await listen.waitFor({ timeout: 1_500 }).catch(() => undefined);
+  if (!(await listen.isVisible().catch(() => false))) return;
+  const speak = page.locator('[data-guided-listen-stage="speak"]').first();
+  // Guarda contra toque atravessado logo depois da troca de passo: espera e
+  // tenta de novo se o primeiro toque caiu dentro dela.
+  for (let attempt = 0; attempt < 3 && !(await speak.isVisible().catch(() => false)); attempt += 1) {
+    await page.waitForTimeout(450);
+    await page.getByRole("button", { name: /Não posso ouvir agora|I can't listen now/ }).first().click({ timeout: 2_000 }).catch(() => undefined);
+    await speak.waitFor({ timeout: 1_500 }).catch(() => undefined);
+  }
 }
 
 /**
@@ -412,10 +433,15 @@ export async function advanceToChoiceOptions(page: Page, timeoutMs = 15_000) {
         continue;
       }
     }
+    // RC2.2.17B — "Ouça a frase" guiado: sem voz no navegador de teste, sai
+    // por "Não posso ouvir agora" (depois vem a micro-página de fala).
+    const skipListen = page.getByRole("button", { name: /Não posso ouvir agora|I can't listen now/i });
     const skipSpeak = page.getByRole("button", { name: /Não posso falar agora/i });
     const continueBtn = page.getByRole("button", { name: /^Continuar$/i });
     const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
-    if (await skipSpeak.isVisible().catch(() => false)) {
+    if (await skipListen.isVisible().catch(() => false)) {
+      await skipListen.click().catch(() => undefined);
+    } else if (await skipSpeak.isVisible().catch(() => false)) {
       await skipSpeak.click().catch(() => undefined);
     } else if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
       await continueBtn.click().catch(() => undefined);

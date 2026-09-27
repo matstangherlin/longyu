@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { journeyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import { CULTURE_ITEMS } from "../../data/culture";
@@ -46,6 +47,7 @@ export function JourneyCultureMomentCard({ moment }: { moment: JourneyCultureMom
       data-culture-item={moment.cultureItemId}
       data-explored={explored ? "true" : "false"}
       data-optional="true"
+      data-culture-guidance-type={journeyCultureGuidanceType("moment")}
     >
       <div className="flex items-start gap-3">
         <span

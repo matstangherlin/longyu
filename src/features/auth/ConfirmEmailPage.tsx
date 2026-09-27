@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { markSignupStage, reportSignupFailure } from "../../lib/signupTrace";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import {
@@ -53,6 +54,7 @@ export function ConfirmEmailPage() {
 
     const finishConfirmed = async () => {
       if (cancelled) return;
+      markSignupStage("session_available");
       if (isCloudOnboardingV2Enabled()) {
         clearPendingConfirmEmail();
         setNotice(t("auth.errors.emailConfirmedFinish"));
@@ -62,11 +64,13 @@ export function ConfirmEmailPage() {
       const onboard = await completeAuthenticatedOnboarding();
       if (cancelled) return;
       if (!onboard.ok) {
+        reportSignupFailure("finalize_started", onboard.code ?? "FINALIZE_FAILED");
         setConfirming(false);
         setError(localizeUserMessage(onboard.message));
         return;
       }
       clearPendingConfirmEmail();
+      markSignupStage("journey_entered");
       navigate(postAuthPath, { replace: true });
     };
 

@@ -24,9 +24,13 @@ export const FUNNEL_EVENT_TYPES = [
   "daily_goal_selected",
   // RC2.2.18 · CD — descoberta progressiva (ids e áreas, nunca PII).
   "guidance_shown",
+  "guidance_render_failed",
   "guidance_dismissed",
   "feature_unlocked",
   "feature_opened_after_unlock",
+  // RC2.2.19 — estágios do cadastro (estágio, código, plataforma, build; nunca PII).
+  "signup_stage",
+  "signup_failed",
 ] as const;
 
 export type FunnelEventType = (typeof FUNNEL_EVENT_TYPES)[number];

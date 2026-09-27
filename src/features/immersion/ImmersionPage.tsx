@@ -594,6 +594,7 @@ function RecommendedStoryCard({
   return (
     <Card
       data-testid="recommended-story"
+      data-coachmark-target="immersion-first-scene"
       className="relative overflow-hidden rounded-2xl border-accent/25 bg-gradient-to-br from-accent-soft/60 via-surface to-surface p-4 shadow-card sm:p-5"
     >
       <div className="flex items-start justify-between gap-3">
@@ -1011,12 +1012,15 @@ function InteractiveStoryPlayer({
     return (
       <div className="mx-auto max-w-xl py-6 text-center sm:py-12">
         <Mascot size={126} variant="celebrate" className="mx-auto" />
-        <div className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-accent">História concluída</div>
-        <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{story.title}</h1>
+        <div className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-accent">{story.title}</div>
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-ink" data-testid="story-victory-headline">
+          Você conseguiu
+        </h1>
         <p className="mx-auto mt-2 max-w-md text-ink-soft">
-          Você praticou em contexto e mandou os pontos fracos para revisão.
+          {story.context?.goalPt ? `Objetivo cumprido: ${story.context.goalPt}` : "Você praticou em contexto e mandou os pontos fracos para revisão."}
         </p>
 
+        {/* Recap (o que você disse e ouviu) ANTES das recompensas. */}
         <StoryRecap story={story} learnerName={learnerName} studentName={studentName} />
 
         <div className="mx-auto mt-6 grid max-w-sm grid-cols-3 gap-2">
@@ -1070,8 +1074,11 @@ function InteractiveStoryPlayer({
     );
   }
 
+  // RC2.2.19 — StorySceneShell: o próprio InteractiveStoryPlayer (sem motor
+  // novo) em cena — pré-tela ONDE/COM QUEM/OBJETIVO, bolhas com quem fala
+  // agora, glossário e áudio, recap "Você conseguiu".
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4" data-story-scene-shell data-story-phase={contextOpen ? "prescreen" : "scene"}>
       <button
         type="button"
         onClick={() => {
@@ -1302,9 +1309,15 @@ function StoryContextCard({ story, onStart }: { story: InteractiveStory; onStart
   return (
     <Card className="rounded-2xl border-line/70 p-4 shadow-none sm:p-5" data-testid="story-context-card">
       <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Antes da cena</div>
-      <p className="mt-2 text-sm leading-6 text-ink">{story.context?.wherePt}</p>
+      <div className="mt-3" data-story-where>
+        <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-faint">Onde</div>
+        <p className="mt-0.5 text-sm leading-6 text-ink">{story.context?.wherePt}</p>
+      </div>
       {cast.length > 0 && (
-        <ul className="mt-3 grid gap-2" data-testid="story-context-cast">
+        <div className="mt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-faint">Com quem</div>
+      )}
+      {cast.length > 0 && (
+        <ul className="mt-1 grid gap-2" data-testid="story-context-cast" data-story-who>
           {cast.map((member) => (
             <li key={member.id} className="flex min-w-0 items-center gap-2 text-sm">
               <StoryAvatar cast={member} learnerName="" />
@@ -1317,9 +1330,10 @@ function StoryContextCard({ story, onStart }: { story: InteractiveStory; onStart
           ))}
         </ul>
       )}
-      <p className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">
-        <span className="font-semibold text-ink">Objetivo:</span> {story.context?.goalPt}
-      </p>
+      <div className="mt-3 rounded-xl bg-surface-2 px-3 py-2" data-story-objective>
+        <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-faint">Objetivo</div>
+        <p className="mt-0.5 text-sm text-ink">{story.context?.goalPt}</p>
+      </div>
       <Button className="mt-4 w-full" data-testid="story-context-start" onClick={onStart}>
         Começar a cena <IconChevron width={18} height={18} />
       </Button>
@@ -1433,11 +1447,13 @@ function StoryTurn({
       data-testid="story-current-turn"
       data-side={cast.side}
       data-speaker={cast.id}
+      data-active-speaker="true"
     >
       <StorySpeakerLabel cast={cast} learnerName={learnerName} />
       <div
         className={[
-          "w-full min-w-0 space-y-3 rounded-2xl p-3.5 sm:max-w-xl sm:p-4",
+          // Quem fala AGORA fica em destaque (anel), as falas passadas não.
+          "w-full min-w-0 space-y-3 rounded-2xl p-3.5 ring-2 ring-accent/35 sm:max-w-xl sm:p-4",
           cast.side === "right" ? "rounded-tr-md bg-accent-soft/60" : "rounded-tl-md border border-line/70 bg-surface",
         ].join(" ")}
       >

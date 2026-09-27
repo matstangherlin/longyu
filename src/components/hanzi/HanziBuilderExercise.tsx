@@ -516,6 +516,7 @@ export function HanziBuilderExercise({
           )}
           <Button
             variant={canCheck ? "good" : "outline"}
+            data-guided-primary
             disabled={!canCheck}
             onClick={check}
             className={[

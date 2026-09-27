@@ -17,6 +17,14 @@ async function advanceToToneGuidedNotice(page: Page, tone: 1 | 2 | 3 | 4) {
   const deadline = Date.now() + 20_000;
   while (Date.now() < deadline) {
     if (await notice.isVisible().catch(() => false)) return notice;
+    // RC2.2.17B — "Ouça a frase": sem voz no navegador de teste, sai por
+    // "Não posso ouvir agora" (depois vem a micro-página de fala).
+    const skipListen = page.getByRole("button", { name: /Não posso ouvir agora|I can't listen now/i });
+    if (await skipListen.isVisible().catch(() => false)) {
+      await skipListen.click();
+      await page.waitForTimeout(150);
+      continue;
+    }
     const skipSpeak = page.getByRole("button", { name: /Não posso falar agora|I can't speak now/i });
     if (await skipSpeak.isVisible().catch(() => false)) {
       await skipSpeak.click();

@@ -110,6 +110,7 @@ export function TopBar() {
         <Link
           to="/perfil"
           data-testid="topbar-avatar"
+          data-coachmark-target="topbar-profile"
           aria-current={onProfile ? "page" : undefined}
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition aria-[current=page]:border-accent aria-[current=page]:bg-accent-soft hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
           aria-label={account?.name ? t("auth.accountNamed", { name: account.name }) : t("auth.accountAria")}

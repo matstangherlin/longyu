@@ -36,7 +36,7 @@ test.describe("compare_with_image — comparação visual", () => {
   test("erro explica a diferença sem marcar a associação ambígua", async ({ page }) => {
     const comparison = await openComparison(page);
     await comparison.getByRole("button", { name: /^Opção \d+:.*cardápio/i }).click();
-    const retryDialog = page.getByRole("dialog", { name: "Quer tentar de novo?" });
+    const retryDialog = page.getByRole("dialog", { name: /^Quer tentar de novo\?$|^Quase\.$/ });
     await expect(retryDialog).toContainText("Você escolheu 菜单");
     await expect(retryDialog).toContainText("饭馆 — restaurante");
   });

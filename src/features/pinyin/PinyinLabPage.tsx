@@ -25,6 +25,8 @@ import { GlossText } from "../../components/hanzi/GlossText";
 import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubHeader, HubPage } from "../../components/layout/HubLayout";
 import { SpeakButton } from "../../components/ui/SpeakButton";
+import { ArticulationDiagram } from "../../components/pronunciation/ArticulationDiagram";
+import { ARTICULATION_DIAGRAMS } from "../../data/articulationTargets";
 import { IconCheck, IconChevron, IconHeadphones, IconRefresh, IconShield, IconSound, IconX } from "../../components/ui/Icon";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { numericPinyinToDiacritics, stripPinyinTone } from "../../lib/pinyin";
@@ -204,6 +206,33 @@ export function PinyinLabPage() {
       <section id="iniciais" className={["scroll-mt-20", mobileView === "iniciais" ? "block" : "hidden md:block"].join(" ")}>
         <LabSectionHeader title="Tabela de iniciais" desc="A inicial abre a sílaba. O sopro faz diferença em pares como b/p, d/t, g/k e z/c." />
         <ReferenceGrid items={PINYIN_INITIALS} />
+      </section>
+
+      {/* RC2.2.19 — como a boca faz os sons difíceis (articulação ≠ tom). */}
+      <section id="boca" className={["scroll-mt-20", mobileView === "iniciais" ? "block" : "hidden md:block"].join(" ")} data-testid="articulation-section">
+        <LabSectionHeader
+          title={instructionLocale === "en" ? "How the mouth makes it" : "Como a boca faz"}
+          desc={
+            instructionLocale === "en"
+              ? "Consonants and vowels are about tongue and lips. Tones are about the pitch of your voice — never the tongue."
+              : "Consoantes e vogais dependem de língua e lábios. Tom é a altura da voz — nunca a língua."
+          }
+        />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {ARTICULATION_DIAGRAMS.map((spec) => (
+            <div key={spec.id}>
+              <ArticulationDiagram spec={spec} locale={instructionLocale === "en" ? "en" : "pt"} />
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
+                {spec.examples.map((example) => (
+                  <span key={example.pinyin} className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-1 text-sm font-semibold text-ink">
+                    <span className="hanzi">{example.hanzi}</span> {example.pinyin}
+                    <SpeakButton text={example.hanzi} size="sm" />
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section id="finais" className={["scroll-mt-20", mobileView === "finais" ? "block" : "hidden md:block"].join(" ")}>

@@ -16,6 +16,7 @@
  * Evolui tts.ts (mesmo speak()); não é outro motor de voz.
  */
 import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture } from "./tts";
+import { traceCurrentLessonStep } from "./lessonStepTrace";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -83,6 +84,9 @@ function traceEnabled(): boolean {
 
 function record(entry: PlaybackTraceEntry): void {
   if (!traceEnabled()) return;
+  // RC2.2.19 — o mesmo pedido/início aparece na trilha do passo atual.
+  if (entry.event === "request") traceCurrentLessonStep("audio_requested");
+  else if (entry.event === "start") traceCurrentLessonStep("audio_started");
   trace.push(entry);
   if (trace.length > TRACE_LIMIT) trace.splice(0, trace.length - TRACE_LIMIT);
   if (typeof window !== "undefined") {

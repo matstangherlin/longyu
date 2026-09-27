@@ -655,6 +655,10 @@ public class LongyuSpeechPlugin extends Plugin {
             practiceRecorder = null;
             JSObject ret = new JSObject();
             ret.put("durationMs", duration);
+            // RC2.2.19 — prova (sem conteúdo) de que o arquivo temporário existe.
+            boolean exists = practiceFile != null && practiceFile.exists();
+            ret.put("fileExists", exists);
+            ret.put("fileBytes", exists ? practiceFile.length() : 0);
             call.resolve(ret);
         });
     }

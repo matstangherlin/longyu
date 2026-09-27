@@ -3,8 +3,17 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { charById } from "../../data/characters";
 import { chunkById } from "../../data/chunks";
 import { haptic } from "../../lib/haptics";
-import { Button, ProgressBar } from "../../components/ui/primitives";
-import { IconCheck, IconSound, IconX } from "../../components/ui/Icon";
+import { Button } from "../../components/ui/primitives";
+import { IconCheck, IconSound } from "../../components/ui/Icon";
+import {
+  GUIDED_CLASS,
+  GuidedAudioButton,
+  GuidedBottomAction,
+  GuidedChoiceList as ChoiceList,
+  GuidedFeedback as Feedback,
+  GuidedProgressHeader,
+  type GuidedChoice as Choice,
+} from "../../components/guided/GuidedPrimitives";
 import { Mascot } from "../../components/brand/Mascot";
 import { GuideLine } from "../../components/guide/GuideLine";
 import { ToneContour } from "../../components/tone/ToneContour";
@@ -45,8 +54,6 @@ const DISTRACTOR = charById.kou ?? { hanzi: "口" };
 
 export const GUIDED_TRY_STEPS = ["intro", "listen", "explain", "tone", "meaning", "build", "conversation"] as const;
 type GuidedStep = (typeof GUIDED_TRY_STEPS)[number] | "done";
-
-type Choice = { id: string; label: string; correct: boolean };
 
 /** Estado do áudio do passo "Ouça" — espelha o contrato de reprodução. */
 export type GuidedListenState = "IDLE" | "STARTING" | "PLAYING" | "HEARD" | "FAILED" | "UNAVAILABLE";
@@ -252,23 +259,15 @@ function GuidedTryFlow() {
       data-guided-listen-state={listen}
     >
       {step !== "done" && (
-        <header className="sticky top-0 z-10 flex items-center gap-3 bg-bg/95 px-3 pb-2 pt-[max(0.5rem,var(--app-safe-top))] backdrop-blur">
-          <button
-            type="button"
-            onClick={() => navigate(replay ? "/treino" : "/")}
-            aria-label={t("guidedTry.exit")}
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-          >
-            <IconX width={18} height={18} />
-          </button>
-          <ProgressBar value={index + 1} max={total} className="h-2.5 min-w-0 flex-1" />
-          <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-faint" data-guided-progress>
-            {index + 1}/{total}
-          </span>
-        </header>
+        <GuidedProgressHeader
+          onExit={() => navigate(replay ? "/treino" : "/")}
+          exitLabel={t("guidedTry.exit")}
+          value={index + 1}
+          max={total}
+        />
       )}
 
-      <main key={step} className="longyu-step-in mx-auto flex w-full max-w-md flex-1 flex-col px-4 pb-4 pt-2">
+      <main key={step} className={`longyu-step-in ${GUIDED_CLASS.column} flex max-w-md flex-1 flex-col px-4 pb-4 pt-2`}>
         {step === "intro" && (
           <section className="flex flex-1 flex-col justify-center gap-6">
             <GuideLine text={tc("guidedTry.introLine")} size={72} />
@@ -280,20 +279,14 @@ function GuidedTryFlow() {
           <section className="flex flex-1 flex-col items-center justify-center text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">{t("guidedTry.listenEyebrow")}</p>
             <h1 className="mt-2 font-serif text-2xl font-semibold text-ink">{tc("guidedTry.listenTitle")}</h1>
-            <button
-              type="button"
-              onClick={playNihao}
+            <GuidedAudioButton
+              onPress={playNihao}
+              state={listen}
+              failed={audioFailed}
+              label={t("guidedTry.listenAria")}
               data-guided-listen
-              data-listen-state={listen}
-              className={[
-                "mt-6 grid h-24 w-24 place-items-center rounded-full text-white shadow-lift transition active:scale-95",
-                audioFailed ? "bg-ink-faint" : "bg-accent",
-                listen === "STARTING" || listen === "PLAYING" ? "ring-8 ring-accent-soft" : "",
-              ].join(" ")}
-              aria-label={t("guidedTry.listenAria")}
-            >
-              <IconSound width={34} height={34} />
-            </button>
+              className="mt-6"
+            />
             <p className="mt-3 min-h-5 text-sm font-medium text-ink-soft" role="status" aria-live="polite" data-testid="guided-listen-status">
               {listen === "STARTING"
                 ? t("guidedTry.audioStarting")
@@ -476,7 +469,7 @@ function GuidedTryFlow() {
         )}
       </main>
 
-      <div className="sticky bottom-0 mx-auto w-full max-w-md bg-bg/95 px-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2 backdrop-blur">
+      <GuidedBottomAction className="sticky bottom-0 mx-auto w-full max-w-md">
         {action ? (
           <Button
             size="lg"
@@ -498,61 +491,8 @@ function GuidedTryFlow() {
             </Link>
           </div>
         )}
-      </div>
+      </GuidedBottomAction>
     </div>
-  );
-}
-
-function ChoiceList({
-  step,
-  choices,
-  picked,
-  onChoose,
-  label,
-  hanzi = false,
-  render,
-}: {
-  step: string;
-  choices: Choice[];
-  picked: string | null;
-  onChoose: (choice: Choice) => void;
-  label: string;
-  hanzi?: boolean;
-  render?: (choice: Choice) => React.ReactNode;
-}) {
-  return (
-    <div className="mt-5 grid gap-2" role="group" aria-label={label} data-choice-step={step}>
-      {choices.map((choice) => {
-        const state = picked === choice.id ? (choice.correct ? "right" : "wrong") : "idle";
-        return (
-          <button
-            key={choice.id}
-            type="button"
-            data-guided-option={choice.id}
-            data-state={state}
-            onClick={() => onChoose(choice)}
-            className={[
-              "min-h-12 rounded-2xl border px-4 py-3 text-left text-base font-semibold transition",
-              state === "right" && "longyu-correct-pop border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
-              state === "wrong" && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
-              state === "idle" && "border-line bg-surface text-ink hover:bg-surface-2",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-          >
-            {render ? render(choice) : <span className={hanzi ? "hanzi text-xl" : undefined}>{choice.label}</span>}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function Feedback({ picked, right, tryAgain }: { picked: Choice | undefined; right: string; tryAgain: string }) {
-  return (
-    <p className="mt-3 min-h-5 text-sm text-ink-soft" role="status" aria-live="polite">
-      {picked ? (picked.correct ? right : tryAgain) : ""}
-    </p>
   );
 }
 

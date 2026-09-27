@@ -18,7 +18,7 @@ import {
   type NativePermission,
   type NativeRecognitionSupport,
 } from "./platform/nativeSpeech";
-import { deriveRecognitionCapability, type RecognitionCapability } from "./recognitionCapability";
+import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, type RecognitionCapability } from "./recognitionCapability";
 
 // ── RC2.2.13 — fala do aluno no Android ────────────────────────────────────
 //
@@ -83,6 +83,36 @@ export function currentRecognitionCapability(): RecognitionCapability {
     microphone: native ? nativeMicState : null,
     lastErrorCode: lastRecognitionErrorCode,
   });
+}
+
+/**
+ * RC2.2.19 — os elos de reconhecimento para o diagnóstico de fala, cada um
+ * como o aparelho respondeu (nunca "permissão = funciona").
+ */
+export function recognitionDiagnosticsSnapshot(): {
+  microphonePermission: string;
+  recognitionService: "yes" | "no" | "unknown";
+  zhCnSupport: string;
+  modelDownloadAvailable: "yes" | "no" | "unknown";
+  lastErrorCode: string | null;
+} {
+  const native = hasNativeSpeech();
+  const input = {
+    native,
+    recognizerPresent: native ? nativeRecognitionKnownAvailable !== false : isRecognitionAvailable(),
+    support: mandarinSupport,
+    microphone: native ? nativeMicState : null,
+    lastErrorCode: lastRecognitionErrorCode,
+  };
+  const capability = deriveRecognitionCapability(input);
+  const serviceKnown = native ? nativeRecognitionKnownAvailable : input.recognizerPresent;
+  return {
+    microphonePermission: native ? nativeMicState ?? "unknown" : "web-unknown",
+    recognitionService: serviceKnown == null ? "unknown" : serviceKnown ? "yes" : "no",
+    zhCnSupport: languageSupportFor(input),
+    modelDownloadAvailable: !native ? "no" : mandarinSupport ? (canOfferModelDownload(capability, mandarinSupport) ? "yes" : "no") : "unknown",
+    lastErrorCode: lastRecognitionErrorCode,
+  };
 }
 
 export function isNativeMicBlocked(): boolean {

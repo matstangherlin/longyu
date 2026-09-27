@@ -1,0 +1,628 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "lessons": [
+    {
+      "position": 1,
+      "lessonId": "p1-o-que-e-mandarim",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "lessonId": "p1-o-que-e-pinyin",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 3,
+      "lessonId": "p1-o-que-e-tom",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 4,
+      "lessonId": "p1-o-que-e-hanzi",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 5,
+      "lessonId": "p1-primeiros-hanzi",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 6,
+      "lessonId": "p1-engine-2-lab",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "listen_select",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 7,
+      "lessonId": "l1",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 8,
+      "lessonId": "l2",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "audio_to_action",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 9,
+      "lessonId": "l3",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "contextual_choice",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 10,
+      "lessonId": "l1-rev",
+      "guidance": "LOW",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 11,
+      "lessonId": "l4",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "audio_to_action",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 12,
+      "lessonId": "p1-ate-logo",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "audio_to_action",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 13,
+      "lessonId": "p1-primeira-conversa",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 14,
+      "lessonId": "p1-qingwen-cortesia",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "audio_to_action",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 15,
+      "lessonId": "l2-rev",
+      "guidance": "LOW",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 16,
+      "lessonId": "p2-ma-primeiro-tom",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 17,
+      "lessonId": "p2-ma-segundo-tom",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 18,
+      "lessonId": "p3-wohenhao",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "PREPARE",
+          "kind": null,
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "audio_to_action",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 0,
+          "primaryInDock": 0,
+          "metadataPills": 1,
+          "mascots": 0,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 19,
+      "lessonId": "p2-ma-terceiro-tom",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    },
+    {
+      "position": 20,
+      "lessonId": "p2-ma-quarto-tom",
+      "guidance": "HIGH",
+      "screens": [
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        },
+        {
+          "stage": "STEP",
+          "kind": "intro",
+          "shell": "true",
+          "noOuterCard": true,
+          "primaryActions": 1,
+          "primaryInDock": 1,
+          "metadataPills": 0,
+          "mascots": 1,
+          "largeSurfaces": 0,
+          "dockReachable": true
+        }
+      ]
+    }
+  ]
+}

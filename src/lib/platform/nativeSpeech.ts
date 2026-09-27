@@ -60,7 +60,7 @@ interface LongyuSpeechPlugin {
   checkRecognitionSupport(options: { language: string }): Promise<NativeRecognitionSupport>;
   triggerModelDownload(options: { language: string }): Promise<NativeModelDownloadResult>;
   startPracticeRecording(): Promise<{ recording: boolean }>;
-  stopPracticeRecording(): Promise<{ durationMs: number }>;
+  stopPracticeRecording(): Promise<{ durationMs: number; fileExists?: boolean; fileBytes?: number }>;
   playPracticeRecording(): Promise<{ played: boolean }>;
   deletePracticeRecording(): Promise<{ deleted: boolean }>;
   addListener(event: "recognitionState", listener: (event: { state: string }) => void): Promise<PluginListenerHandle>;
@@ -276,7 +276,9 @@ export function onNativeModelDownload(listener: (event: { status: string; progre
 // Arquivo único no cache do app; apagado ao gravar de novo, ao apagar, ao ir
 // para o background e ao fechar. Nunca sai do aparelho.
 
-export type NativeRecordingResult = { ok: true; durationMs?: number } | { ok: false; code: string };
+export type NativeRecordingResult =
+  | { ok: true; durationMs?: number; fileExists?: boolean; fileBytes?: number }
+  | { ok: false; code: string };
 
 export async function nativeStartPracticeRecording(): Promise<NativeRecordingResult> {
   try {
@@ -291,7 +293,12 @@ export async function nativeStartPracticeRecording(): Promise<NativeRecordingRes
 export async function nativeStopPracticeRecording(): Promise<NativeRecordingResult> {
   try {
     const result = await LongyuSpeech.stopPracticeRecording();
-    return { ok: true, durationMs: Number(result?.durationMs ?? 0) };
+    return {
+      ok: true,
+      durationMs: Number(result?.durationMs ?? 0),
+      fileExists: result?.fileExists === true,
+      fileBytes: Number(result?.fileBytes ?? 0),
+    };
   } catch (error) {
     return { ok: false, code: errorCode(error) };
   }

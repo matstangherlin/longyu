@@ -25,6 +25,7 @@ export function DecompositionCard({ char }: { char: Character }) {
               </span>
               <span
                 className="mt-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                data-content-tag="component-role"
                 style={
                   p.role === "som"
                     ? { background: "#2F6FB01a", color: "#2F6FB0" }

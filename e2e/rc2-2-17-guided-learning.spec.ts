@@ -207,10 +207,14 @@ test.describe("RC2.2.17 · camada guiada e Ajustes", () => {
       parsed.state.guidedTryExposure = { kind: "GUIDED_TRY_EXPOSURE", at: Date.now(), audio: "AUDIO_HEARD" };
       localStorage.setItem("longyu-v1", JSON.stringify(parsed));
     });
+    // RC2.2.17B — a ponte é o PREPARE (micro-passo real); em E2E semeado ele
+    // só aparece quando o teste pede.
+    await page.addInitScript(() => localStorage.setItem("longyu:e2e-prepare", "on"));
     await page.goto("/licao/l2/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("lesson-prepare-line")).toContainText("Você já usou 你好 no início");
+    await page.getByTestId("lesson-prepare-start").click();
     await expect(page.locator("[data-lesson-step-frame]")).toHaveAttribute("data-guidance-level", "HIGH");
   });
 

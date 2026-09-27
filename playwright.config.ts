@@ -22,6 +22,9 @@ const CAPABILITY_CLOSURE_SPEC = "**/rc2-2-9-capability-closure.spec.ts";
 // Captura de evidências (docs/screenshots) — só no projeto `screenshots`.
 const SCREENSHOT_SPEC = "**/screenshots.spec.ts";
 
+/** Porta do preview isolado (várias worktrees podem rodar E2E em paralelo). */
+const PREVIEW_PORT = process.env.PLAYWRIGHT_PREVIEW_PORT ?? "4173";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -33,7 +36,7 @@ export default defineConfig({
   // No CI, além do console, gera playwright-report/ (salvo como artifact).
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PREVIEW_PORT}`,
     // RC2.2.14B — a interface segue o idioma do sistema. A suíte simula um
     // aparelho brasileiro; os specs de idioma sobrescrevem com test.use({ locale }).
     locale: "pt-BR",
@@ -41,7 +44,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "npm run build && npm run preview -- --host 127.0.0.1 --port 4173",
+    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${PREVIEW_PORT}`,
     // E2E usa preview isolado para fixtures locais. O build formal executado
     // antes pelo gate continua production_beta e jamais recebe essas flags.
     env: {
@@ -50,7 +53,7 @@ export default defineConfig({
       VITE_ALLOW_PRO_PREVIEW: "true",
       VITE_DEV_ALLOW_LOCAL_AUTH: "1",
     },
-    url: "http://127.0.0.1:4173",
+    url: `http://127.0.0.1:${PREVIEW_PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

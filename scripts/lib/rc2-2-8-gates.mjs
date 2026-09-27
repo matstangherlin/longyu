@@ -193,10 +193,12 @@ export function gateReviewLearningUx(src) {
     [/onLookup=\{\(\) => \{\s*if \(!answeredRef\.current\) setReviewAssistanceUsed\(true\)/.test(src.lessonPlayer), "D8: remediação da Jornada permite e registra consulta"],
     [/capAssistedGrade\("good", Boolean\(meta\?\.assisted\)\)/.test(src.lessonPlayer), "D8: remediação assistida grava Hard"],
     // E — tamanhos
-    [/text-5xl leading-tight text-ink sm:text-6xl/.test(panel), "E1 mutação 8: Hànzì principal da revisão precisa de text-5xl/6xl"],
-    [/text-3xl leading-tight sm:text-4xl/.test(choiceButton), "E2: Hànzì nas opções >= text-3xl"],
+    // RC2.2.19 — os tamanhos mínimos subiram e moram em REVIEW_HANZI_CLASS
+    // (principal 64–80 px, opções 48–60 px, pares 44–52 px; gate:rc2-2-19).
+    [/\$\{REVIEW_HANZI_CLASS\.main\} text-ink/.test(panel), "E1 mutação 8: Hànzì principal da revisão precisa do tamanho REVIEW_HANZI_CLASS.main (≥ text-5xl)"],
+    [/REVIEW_HANZI_CLASS\.option/.test(choiceButton), "E2: Hànzì nas opções >= text-3xl (REVIEW_HANZI_CLASS.option)"],
     [/min-h-14/.test(choiceButton), "E3: opção com min-height >= 56px"],
-    [/hanzi text-3xl leading-tight sm:text-4xl/.test(pairs), "E4: Hànzì dos pares maiores"],
+    [/hanzi \$\{REVIEW_HANZI_CLASS\.pair\}/.test(pairs), "E4: Hànzì dos pares maiores (REVIEW_HANZI_CLASS.pair)"],
     [!/text-\[26px\] leading-tight sm:text-\[30px\]/.test(pairs), "E4: pares não voltam ao tamanho antigo"],
     // D5 / K12 — prova continua bloqueada
     [!/GlossText|GlossLookupProvider|MandarinInlineText/.test(src.comecar), "D5 mutação 11: nivelamento não pode ter consulta"],

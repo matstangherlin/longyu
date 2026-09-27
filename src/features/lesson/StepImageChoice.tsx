@@ -4,6 +4,7 @@ import { ImageChoiceGrid } from "../../components/hanzi/ImageChoiceGrid";
 import { VisualConceptImage } from "../../components/hanzi/VisualConceptImage";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { SpeakButton } from "../../components/ui/SpeakButton";
+import { Button } from "../../components/ui/primitives";
 import { useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
 import { KeyboardShortcutHint, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
@@ -12,6 +13,7 @@ import { t } from "../../i18n/catalog";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import type { StepProps } from "./steps";
+import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -26,12 +28,18 @@ function Eyebrow({ children }: { children: ReactNode }) {
   return <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{children}</div>;
 }
 
+/**
+ * RC2.2.19 — o feedback ENSINA: depois da resposta, a imagem vira a palavra
+ * (hànzì · pinyin · sentido · áudio). Acertar ou errar, o aluno sai sabendo.
+ */
 function AnswerFeedback({
   correct,
   explanation,
+  teach,
 }: {
   correct: boolean;
   explanation?: string;
+  teach?: { conceptId: string; hanzi: string; pinyin?: string; meaning?: string } | null;
 }) {
   return (
     <div
@@ -39,14 +47,23 @@ function AnswerFeedback({
         "mt-4 rounded-xl px-4 py-3 text-sm",
         correct ? "bg-[rgb(var(--good)/0.12)] text-ink" : "bg-wrong-soft text-ink",
       ].join(" ")}
+      data-image-choice-teach={teach ? "true" : "false"}
     >
       {correct ? t("player.correctShort") : t("player.almostVisual")}
-      {explanation && <p className="mt-1 text-ink-soft">{explanation}</p>}
+      {teach ? (
+        <div className="mt-2 flex items-center gap-3">
+          <VisualConceptImage conceptId={teach.conceptId} size="sm" className="h-16 w-16 shrink-0 rounded-lg" />
+          <MandarinText hanzi={teach.hanzi} pinyin={teach.pinyin} meaning={teach.meaning} size="md" audio />
+        </div>
+      ) : (
+        explanation && <p className="mt-1 text-ink-soft">{explanation}</p>
+      )}
     </div>
   );
 }
 
 export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) {
+  const guided = useGuidedPresentation();
   const soundEffects = useStore((s) => s.soundEffects);
   const mode = step.imageChoiceMode ?? "choose_hanzi";
   const concept = resolveVisualConcept(step.imageId ?? step.iconId);
@@ -165,6 +182,16 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
       {answered && (
         <AnswerFeedback
           correct={answered === correctAnswer}
+          teach={
+            concept
+              ? {
+                  conceptId: concept.id,
+                  hanzi: step.targetHanzi ?? concept.hanzi,
+                  pinyin: step.targetPinyin ?? concept.pinyin,
+                  meaning: resolveInstructionText(step.targetMeaningPt ?? concept.meaningPt, getInstructionLocale()),
+                }
+              : null
+          }
           explanation={
             step.explanation ??
             (concept
@@ -177,32 +204,52 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
         />
       )}
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        {!answered && (
-          <button
-            type="button"
-            disabled={!selected}
-            onClick={submitSelected}
-            className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-          >
-            {t("player.confirm")}
-          </button>
-        )}
-        {answered && (
-          <button
-            type="button"
-            onClick={() => onDone(answered === correctAnswer)}
-            className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white"
-          >
-            {t("player.continue")}
-          </button>
-        )}
-        {onSkip && !answered && (
-          <button type="button" onClick={onSkip} className="rounded-xl border border-line px-4 py-2 text-sm text-ink-soft">
-            {t("player.skip")}
-          </button>
-        )}
-      </div>
+      {guided ? (
+        // RC2.2.17B · PART J — no shell guiado a ação vai para o dock.
+        <GuidedDock>
+          {!answered ? (
+            <Button size="lg" className="w-full" disabled={!selected} onClick={submitSelected} data-guided-primary>
+              {t("player.confirm")}
+            </Button>
+          ) : (
+            <Button size="lg" className="w-full shadow-lift" onClick={() => onDone(answered === correctAnswer)} data-guided-primary>
+              {t("player.continue")}
+            </Button>
+          )}
+          {onSkip && !answered && (
+            <Button variant="ghost" className="w-full" onClick={onSkip}>
+              {t("player.skip")}
+            </Button>
+          )}
+        </GuidedDock>
+      ) : (
+        <div className="mt-5 flex flex-wrap gap-2">
+          {!answered && (
+            <button
+              type="button"
+              disabled={!selected}
+              onClick={submitSelected}
+              className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            >
+              {t("player.confirm")}
+            </button>
+          )}
+          {answered && (
+            <button
+              type="button"
+              onClick={() => onDone(answered === correctAnswer)}
+              className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white"
+            >
+              {t("player.continue")}
+            </button>
+          )}
+          {onSkip && !answered && (
+            <button type="button" onClick={onSkip} className="rounded-xl border border-line px-4 py-2 text-sm text-ink-soft">
+              {t("player.skip")}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

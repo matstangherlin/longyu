@@ -83,6 +83,12 @@ export const PROGRESSIVE_DISCOVERY_RULES = {
   previewWithinLessons: 2,
   /** Máximo de áreas listadas num único "Novos recursos disponíveis". */
   unlockBatchMaxListed: 2,
+  /**
+   * RC2.2.19 — conta madura: a partir daqui nenhuma área HARD fica trancada
+   * (a conta já passou por conversas e Cultura na trilha; uma regra nova de
+   * descoberta nunca pode tirar o que ela já usava).
+   */
+  matureAccountMinCompletedLessons: 12,
 } as const;
 
 const LESSON_ORDER: readonly string[] = ALL_LESSONS.map((lesson) => lesson.id);
@@ -306,10 +312,16 @@ function isWithinNextLessons(state: DiscoveryLearnerState, topicId: string, wind
   return pending.includes(topicId);
 }
 
+/** RC2.2.19 — conta madura: nada de HARD lock. */
+export function isMatureDiscoveryAccount(state: DiscoveryLearnerState): boolean {
+  return completedCount(state) >= PROGRESSIVE_DISCOVERY_RULES.matureAccountMinCompletedLessons;
+}
+
 /** PART BY — função pura: mesma entrada, mesma saída. */
 export function featureVisibility(id: DiscoveryFeatureId, state: DiscoveryLearnerState): FeatureVisibility {
   const rules = PROGRESSIVE_DISCOVERY_RULES;
   const lessons = completedCount(state);
+  if (FEATURE_AVAILABILITY[id].lockedBehavior === "HARD" && isMatureDiscoveryAccount(state)) return "AVAILABLE";
   switch (id) {
     case "journey":
     case "practice":
@@ -375,7 +387,7 @@ export function featureVisibilityMap(state: DiscoveryLearnerState): FeatureVisib
  */
 export function mergeStickyVisibility(
   current: FeatureVisibilityMap,
-  confirmed: ReadonlySet<DiscoveryFeatureId>
+  confirmed: ReadonlySet<DiscoveryFeatureId> | readonly DiscoveryFeatureId[]
 ): FeatureVisibilityMap {
   const out = { ...current } as Record<DiscoveryFeatureId, FeatureVisibility>;
   for (const id of confirmed) out[id] = "AVAILABLE";

@@ -400,6 +400,62 @@ export const RC2_2_18_PROGRESSIVE_DISCOVERY_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.17B — exceção controlada de apresentação: a Jornada passa a usar o
+ * GuidedLessonShell (tela cheia, cabeçalho simples, sem o Card antigo, uma
+ * ação principal no dock, PREPARE como micro-passo visual, micro-páginas de
+ * ensino). O motor é o mesmo LessonPlayer/StepRenderer. Nenhuma lição, ordem,
+ * tópico, StepKind, resposta, referência de domínio, SRS ou XP muda; o
+ * fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_17B_GUIDED_JOURNEY_PARITY_EXCEPTION = {
+  id: "RC2_2_17B_GUIDED_JOURNEY_PARITY",
+  scope: "Journey lesson presentation parity with the Guided Try (shell, header, viewport, action dock, presentation-only stages)",
+  areas: [
+    "GuidedLessonShell / GuidedLessonHeader / GuidedStepSurface / GuidedLessonActionDock",
+    "STEP_PRESENTATION_CONTRACTS (layout, actionPlacement, alignment, scroll, feedback, interaction)",
+    "PREPARE presentation stage and teach micro-pages (presentation only)",
+    "shared guided primitives with GuidedTryPage",
+    "compact error sheet in the initial flow; phase challenge exam in the same shell",
+  ],
+  forbids: [
+    "LessonEngineV2 or a second StepRenderer",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "answer keys or mastery refs changed for layout",
+    "presentation stage counting as step, XP, mastery, task or SRS",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-17b-guided-journey-parity",
+} as const;
+
+/**
+ * RC2.2.19 — GUIDED · SIMPLE · PHYSICALLY VERIFIED. Orientação com evidência
+ * de render, diagnóstico de fala/gravação, cadastro rastreado, recuperação de
+ * senha por código, revisão em rodadas (mesma fila do SRS), cena de história
+ * e descoberta de perfil/conta. Nenhuma lição, tópico, StepKind, resposta,
+ * agenda de SRS, domínio ou XP muda; o fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION = {
+  id: "RC2_2_19_GUIDED_SIMPLE_VERIFIED",
+  scope: "Guidance truth, device diagnostics, auth recovery/signup trace, review composition, story scene, profile/account discoverability",
+  areas: [
+    "guidance records AUTO_SEEDED/SHOWN/DISMISSED/SNOOZED/SKIPPED with render evidence; never relock",
+    "DEV/QA audio/advance trace and speech/recording diagnostics",
+    "signup stage trace; in-app password recovery by 6-digit code",
+    "ReviewSessionComposer over the existing SRS queue (order, rounds, format shift only)",
+    "StorySceneShell (InteractiveStoryPlayer), profile first fold, Mais › Você",
+  ],
+  forbids: [
+    "new SRS, Lesson Engine, Story Engine or Profile Engine",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "SRS schedule, grades or mastery changed by the composer",
+    "guidance marked seen without render evidence",
+    "relocking areas a mature account already had",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-19-guided-simple-verified",
+} as const;
+
+/**
  * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
  * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
  * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).

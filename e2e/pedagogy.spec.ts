@@ -6,6 +6,7 @@ import {
   seedFreshJourneySession,
   seedFoundationThrough,
   seedLessonRecoverySession,
+  passGuidedListenPage,
   seedOnboardedSession,
   waitForLazyPage,
 } from "./helpers";
@@ -109,6 +110,7 @@ test.describe("lição", () => {
     await expect(
       page.getByText(/Monte o hànzì|Monte por fragmentos|Monte pelas peças|Associação visual|Observe a forma|Fixe com pares|Combine o conteúdo|Ouça e imite/i).first(),
     ).toBeVisible({ timeout: 15_000 });
+    await passGuidedListenPage(page);
     await expect(page.locator("[data-lesson-step-frame]").getByText("木").first()).toBeVisible();
     await expect(page.getByText(/Monte 林|Monte 明|Monte 好/i)).toHaveCount(0);
   });
