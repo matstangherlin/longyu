@@ -10,7 +10,11 @@ jobs:
     name: Portão de qualidade (validate:beta + build)
     runs-on: ubuntu-latest
     steps:
+      # Full history: RC2.2.22 release-truth exige que RC2_2_22_BASE_SHA
+      # seja ancestral do HEAD (clone shallow = BASE_SHA_AMBIGUOUS falso).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
