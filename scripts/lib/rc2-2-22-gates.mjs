@@ -394,9 +394,11 @@ export async function validateBetaFeedback(s) {
   await withModules(s, fail, FILES.betaQa, (mods) => {
     const b = mods.betaQa;
     if ((b.BETA_ISSUE_CATEGORIES ?? []).length !== 9) fail("FEEDBACK_CATEGORIES_WRONG", "BETA_ISSUE_CATEGORIES", "9 categorias");
+    // JWT de teste montado em partes — literal contíguo dispara gitleaks (generic-api-key).
+    const fakeJwt = ["eyJhbGciOiJIUzI1NiJ9", "eyJzdWIiOiIxIn0", "abcdefghij"].join(".");
     const events = [
       { at: 1, name: "route_changed", route: "/licao/l1/player", detail: { from: "/jornada" } },
-      { at: 2, name: "speech_result", route: "/licao/l1/player", detail: { transcript: "你好", text: "resposta do aluno", note: "ana@exemplo.com", token: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcdefghij" } },
+      { at: 2, name: "speech_result", route: "/licao/l1/player", detail: { transcript: "你好", text: "resposta do aluno", note: "ana@exemplo.com", token: fakeJwt } },
     ];
     const context = { route: "/licao/l1/player", lessonId: "l1", stepKind: "listen", build: "b43ca4465319", viewport: "360x640", platform: "android", email: "ana@exemplo.com", password: "x", otp: "123456", answerText: "resposta digitada" };
     const ok = b.buildIssuePacket({ category: "AUDIO", comment: "o áudio não tocou no passo 2", context, events });

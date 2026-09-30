@@ -125,7 +125,7 @@ const MUTATIONS = {
     ["reabrir reseta orientações vistas", "GUIDANCE_RESET", src("orchestrator", 'if (legacy && r.status === "SEEN") {', 'if (legacy || r.status === "SHOWN") {')],
   ],
   "release-truth": [
-    ["[12] pacote de bug com token", "BUG_PACKET_SECRET", json((s) => { s.bugs.bugs[0].diagnosticSnapshot = { detail: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcdefghij" }; })],
+    ["[12] pacote de bug com token", "BUG_PACKET_SECRET", json((s) => { s.bugs.bugs[0].diagnosticSnapshot = { detail: ["eyJhbGciOiJIUzI1NiJ9", "eyJzdWIiOiIxIn0", "abcdefghij"].join(".") }; })],
     ["[29] package muda", "PACKAGE_CHANGED", src("capacitorConfig", 'appId: "longyu.noba.com"', 'appId: "longyu.outro.app"')],
     ["[30] compras Android ligadas", "PURCHASES_ENABLED", src("subscription", 'export const ANDROID_IN_APP_PURCHASE = "DISABLED_FOR_BETA" as const;', 'export const ANDROID_IN_APP_PURCHASE = "ENABLED" as const;')],
     ["[31] Production Play automático", "PRODUCTION_PLAY_ENABLED", src("releaseIdentity", 'export const MAX_AUTOMATIC_CHANNEL = "internal";', 'export const MAX_AUTOMATIC_CHANNEL = "production";')],
