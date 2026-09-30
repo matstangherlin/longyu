@@ -18,9 +18,19 @@ import {
   type NativePermission,
   type NativeRecognitionSupport,
 } from "./platform/nativeSpeech";
-import { recordTechEvent } from "./techEvents";
 import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, recognizerStrategyFor, type RecognitionCapability } from "./recognitionCapability";
 import type { NativeRecognitionDiagnostics } from "./platform/nativeSpeech";
+
+/** Lazy: top-level techEvents → deviceQa → import.meta.env quebra o require TS dos gates (Node CJS). */
+function emitMicPermissionPrompted() {
+  void import("./techEvents")
+    .then(({ recordTechEvent }) => {
+      recordTechEvent("permission_prompted", { permission: "microphone" });
+    })
+    .catch(() => {
+      /* contexto de gate/CJS sem buffer de QA */
+    });
+}
 
 // ── RC2.2.13 — fala do aluno no Android ────────────────────────────────────
 //
@@ -156,7 +166,7 @@ export async function ensureMicPermission(): Promise<MicPermission> {
   if (hasNativeSpeech()) {
     // Permissão do SO (RECORD_AUDIO). Pedido em contexto, no toque em "Falar".
     const current = (await nativeRecognitionStatus()).microphone;
-    if (current !== "granted") recordTechEvent("permission_prompted", { permission: "microphone" });
+    if (current !== "granted") emitMicPermissionPrompted();
     const state = current === "granted" ? current : await requestNativeMicrophone();
     nativeMicState = state;
     return state === "granted" ? "granted" : "denied";
