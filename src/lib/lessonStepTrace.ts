@@ -1,4 +1,5 @@
 import { deviceQaEnabled } from "./deviceQa";
+import { recordTechEvent } from "./techEvents";
 
 /**
  * RC2.2.14 · DH — rastro estruturado de conclusão/avanço de passos.
@@ -66,7 +67,17 @@ function traceEnabled(): boolean {
   return env.DEV === true || env.VITE_USE_TEST_FIXTURES === "true";
 }
 
+/** RC2.2.21 — Continuar/avançou/travou também no buffer técnico do /qa/device. */
+const TECH_STEP_EVENT: Partial<Record<LessonStepTraceEvent, "step_continue" | "step_advanced" | "step_stalled">> = {
+  continue_pressed: "step_continue",
+  scene_continue_pressed: "step_continue",
+  advanced: "step_advanced",
+  stalled: "step_stalled",
+};
+
 export function traceLessonStep(entry: Omit<LessonStepTraceEntry, "at">): void {
+  const techEvent = TECH_STEP_EVENT[entry.event];
+  if (techEvent) recordTechEvent(techEvent, { stepIndex: entry.stepIndex, kind: entry.kind, attempt: entry.attempt });
   if (typeof window === "undefined" || !traceEnabled()) return;
   const target = window as TraceWindow;
   const list = (target.__longyuLessonTrace ??= []);

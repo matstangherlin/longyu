@@ -66,7 +66,7 @@ const MUTATIONS = {
     ["20. gravação 'provada' sem reprodução", "RECORDING_WITHOUT_PLAYBACK", src("speechDiagnostics", '    d.playbackStarted !== "no" &&\n    d.playbackPlayed === "yes"', '    d.playbackStarted !== "no"')],
     ["21. gravação 'provada' sem arquivo", "RECORDING_WITHOUT_FILE", src("speechDiagnostics", '    d.temporaryFileCreated === "yes" &&\n', "")],
     ["22. diagnóstico em production_beta", "DIAGNOSTICS_IN_PRODUCTION", src("speechDiagnostics", "    if (isProductionBetaEnv()) return false;\n", "")],
-    ["23. plugin devolve o caminho do áudio", "RECORDING_PATH_LEAK", src("plugin", 'ret.put("fileBytes", exists ? practiceFile.length() : 0);', 'ret.put("fileBytes", exists ? practiceFile.length() : 0);\n            ret.put("path", practiceFile.getAbsolutePath());')],
+    ["23. plugin devolve o caminho do áudio", "RECORDING_PATH_LEAK", src("plugin", 'ret.put("fileBytes", bytes);', 'ret.put("fileBytes", bytes);\n            ret.put("path", practiceFile.getAbsolutePath());')],
     ["24. sem 'Gravar e comparar' no fallback", "SPEECH_FALLBACK_MISSING", src("pronunciation", 'data-testid="speech-fallback-record"', 'data-testid="speech-fallback-other"')],
     ["25. trilha ligada em produção", "TRACE_IN_PRODUCTION", src("trace", 'return env.DEV === true || env.VITE_USE_TEST_FIXTURES === "true";', "return true;")],
     ["26. reprodução não alimenta o diagnóstico", "RECORDING_WITHOUT_PLAYBACK", src("selfCompare", 'playbackPlayed: "yes"', 'playbackPlayed: "unknown"')],

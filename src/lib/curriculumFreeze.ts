@@ -456,6 +456,33 @@ export const RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
+ * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
+ * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o
+ * árbitro de áudio, o diagnóstico de QA e a navegação (VOLTAR/modais).
+ */
+export const RC2_2_21_MOBILE_NATIVE_STABILITY_EXCEPTION = {
+  id: "RC2_2_21_MOBILE_NATIVE_STABILITY",
+  scope: "Native self-voice playback contract, speech recognizer strategy and diagnostics, TTS audio attributes, audio arbiter, lifecycle pause/stop, Android Back priority, modal stack, tap-through, mobile diagnostic console",
+  areas: [
+    "LongyuSpeech practice playback: AudioAttributes media/speech, transient focus, PLAYING only after isPlaying, stable error codes",
+    "pause interrupts, stop/destroy delete the temporary practice file",
+    "recognizer on-device only with zh-CN installed; RMS/recognizer diagnostics; no infinite retry",
+    "one audio owner at a time (IDLE/TTS/SELF_PLAYBACK/RECORDING/RECOGNITION)",
+    "Back: keyboard → modal → guidance → subview → route → exit at root; one modal closes per Back",
+    "tech event buffer (150, memory only, QA builds) and sanitized diagnostic JSON",
+  ],
+  forbids: [
+    "physical PASS generated automatically",
+    "a second plugin or a second audio engine",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "voice recording, transcript, OTP, e-mail, password or token stored, logged or uploaded",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-21-mobile-native-stability",
+} as const;
+
+/**
  * RC2.2.20 — Physical Beta Readiness. Superfície de QA físico (/qa/device, só
  * DEV/Preview/QA Candidate/`VITE_DEVICE_QA`), trilhas no APK de diagnóstico,
  * contratos de update N→N+1, recuo de etapa travada, categorias de falha de

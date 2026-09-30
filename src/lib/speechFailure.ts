@@ -94,3 +94,70 @@ export function speechFallbackActions(category: SpeechFailureCategory, opts: { c
   actions.push("continue_without_speaking");
   return actions;
 }
+
+/**
+ * RC2.2.21 — categoria ESTÁVEL do reconhecimento nativo para o diagnóstico
+ * de QA (o código cru do SpeechRecognizer varia por fabricante/versão).
+ */
+export const NATIVE_RECOGNITION_CATEGORIES = [
+  "NO_SPEECH",
+  "AUDIO_CAPTURE",
+  "NETWORK",
+  "BUSY",
+  "PERMISSION",
+  "LANGUAGE_UNAVAILABLE",
+  "SERVICE_UNAVAILABLE",
+  "TIMEOUT",
+  "CLIENT",
+  "UNKNOWN",
+] as const;
+export type NativeRecognitionCategory = (typeof NATIVE_RECOGNITION_CATEGORIES)[number];
+
+export function nativeRecognitionCategory(code: string | null | undefined): NativeRecognitionCategory {
+  switch (String(code ?? "")) {
+    case "NO_MATCH":
+    case "no-speech":
+      return "NO_SPEECH";
+    case "SPEECH_TIMEOUT":
+    case "timeout":
+      return "TIMEOUT";
+    case "AUDIO":
+    case "audio-capture":
+      return "AUDIO_CAPTURE";
+    case "NETWORK":
+    case "NETWORK_TIMEOUT":
+    case "SERVER":
+    case "network":
+      return "NETWORK";
+    case "RECOGNIZER_BUSY":
+    case "busy":
+      return "BUSY";
+    case "INSUFFICIENT_PERMISSIONS":
+    case "not-allowed":
+      return "PERMISSION";
+    case "LANGUAGE_NOT_SUPPORTED":
+    case "LANGUAGE_UNAVAILABLE":
+    case "language-unavailable":
+      return "LANGUAGE_UNAVAILABLE";
+    case "RECOGNITION_UNAVAILABLE":
+    case "unsupported":
+      return "SERVICE_UNAVAILABLE";
+    case "CLIENT":
+      return "CLIENT";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+/**
+ * RC2.2.21 — sem loop infinito: depois de SPEECH_RETRY_LIMIT falhas seguidas
+ * que o aluno não resolve tentando de novo, a atividade troca sozinha para
+ * "Gravar e comparar" (ou modelo + continuar).
+ */
+export const SPEECH_RETRY_LIMIT = 2;
+
+export function shouldLeaveRecognition(consecutiveFailures: number, category: SpeechFailureCategory): boolean {
+  if (category === "PERMISSION_DENIED") return false; // a saída é abrir os ajustes
+  if (category === "NO_SERVICE" || category === "NO_ZH_CN") return true;
+  return consecutiveFailures >= SPEECH_RETRY_LIMIT;
+}

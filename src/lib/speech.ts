@@ -18,7 +18,8 @@ import {
   type NativePermission,
   type NativeRecognitionSupport,
 } from "./platform/nativeSpeech";
-import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, type RecognitionCapability } from "./recognitionCapability";
+import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, recognizerStrategyFor, type RecognitionCapability } from "./recognitionCapability";
+import type { NativeRecognitionDiagnostics } from "./platform/nativeSpeech";
 
 // ── RC2.2.13 — fala do aluno no Android ────────────────────────────────────
 //
@@ -250,6 +251,11 @@ export function mapNativeRecognitionError(code: string): RecognizeErrorCode {
       return "unsupported";
     case "CANCELLED":
       return "aborted";
+    // RC2.2.21 — ERROR_CLIENT (5) é falha genérica do cliente: tentar de
+    // novo pode funcionar, mas nunca em loop (ver PronunciationPractice).
+    case "CLIENT":
+    case "SERVER":
+      return "error";
     default:
       return "error";
   }
@@ -486,7 +492,17 @@ function recognizeOnceNative(
     settled = true;
     fn();
   };
-  void nativeRecognize(Math.min(timeoutMs, 15_000)).then((result) => {
+  const preferOnDevice = recognizerStrategyFor(mandarinSupport) === "ON_DEVICE";
+  lastNativeRecognition = null;
+  void nativeRecognize(Math.min(timeoutMs, 15_000), { preferOnDevice }).then((result) => {
+    lastNativeRecognition = {
+      recognizer: result.recognizer,
+      requestedLocale: result.requestedLocale,
+      usedLocale: result.usedLocale,
+      signalDetected: result.signalDetected,
+      peakRmsBucket: result.peakRmsBucket,
+      rawCode: result.ok ? null : result.code,
+    };
     if (result.ok) {
       const best = result.matches.find((match) => match.trim()) ?? "";
       settle(() => (best ? onResult(best.trim()) : onError("no-speech")));
@@ -504,6 +520,13 @@ function recognizeOnceNative(
       void stopNativeRecognition();
     },
   };
+}
+
+/** RC2.2.21 — diagnóstico técnico da última escuta nativa (sem transcrição). */
+let lastNativeRecognition: (NativeRecognitionDiagnostics & { rawCode: string | null }) | null = null;
+
+export function lastNativeRecognitionDiagnostics(): (NativeRecognitionDiagnostics & { rawCode: string | null }) | null {
+  return lastNativeRecognition;
 }
 
 /** Cancela a escuta nativa (sair da tela, app em background). */

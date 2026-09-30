@@ -386,7 +386,7 @@ export async function validateDeviceContracts(s) {
   if (!/if \(deviceQaEnabled\(\)\) return true;\s*if \(isProductionBetaEnv\(\)\) return false;/.test(stripComments(s.src.speechDiagnostics))) fail("TRACE_NOT_ON_DEVICE", FILES.speechDiagnostics, "diagnóstico de fala no APK de QA, nunca na Beta comum");
   // SelfCompare: estados claros e prova real.
   const self = stripComments(s.src.selfCompare);
-  for (const key of ["selfComparePreparing", "selfCompareRecording", "selfCompareTooShort", "selfComparePermissionDenied"]) if (!self.includes(key)) fail("SELF_COMPARE_STATE_MISSING", FILES.selfCompare, key);
+  for (const key of ["selfComparePreparing", "selfCompareRecording", "selfCompareTooShort", "selfComparePermissionDenied"]) if (!self.includes(`t("player.${key}")`)) fail("SELF_COMPARE_STATE_MISSING", FILES.selfCompare, key);
   if (!/fileBytes: typeof result\.fileBytes === "number"/.test(self) || !/playbackStarted: "yes", playbackPlayed: "yes"/.test(self)) fail("RECORDING_WITHOUT_FILE", FILES.selfCompare, "bytes do arquivo e reprodução registrados");
   return failures;
 }

@@ -45,6 +45,18 @@ export interface SpeechDiagnostics {
   playbackStarted: Tri;
   /** Categoria segura da última falha de fala (ver speechFailure.ts). */
   failureCategory: string | null;
+  // RC2.2.21 — prova da captura e da saída (números/classes, nunca o áudio).
+  /** Houve sinal na captura (pico de amplitude acima do silêncio). */
+  captureSignal: Tri;
+  /** Duração lida do arquivo (MediaMetadataRetriever); não do relógio. */
+  metadataDuration: number | null;
+  /** BUILT_IN_SPEAKER / WIRED_HEADSET / BLUETOOTH / USB / OTHER. */
+  outputRoute: string | null;
+  /** Volume de mídia "atual/máximo" no momento de tocar. */
+  mediaVolume: string | null;
+  /** Reconhecedor usado ("on_device"/"service") e sinal na escuta. */
+  recognizerKind: string | null;
+  recognitionSignal: Tri;
 }
 
 export const SPEECH_DIAGNOSTIC_FIELDS: readonly (keyof SpeechDiagnostics)[] = [
@@ -66,6 +78,12 @@ export const SPEECH_DIAGNOSTIC_FIELDS: readonly (keyof SpeechDiagnostics)[] = [
   "fileBytes",
   "playbackStarted",
   "failureCategory",
+  "captureSignal",
+  "metadataDuration",
+  "outputRoute",
+  "mediaVolume",
+  "recognizerKind",
+  "recognitionSignal",
 ];
 
 export const EMPTY_SPEECH_DIAGNOSTICS: SpeechDiagnostics = {
@@ -87,6 +105,12 @@ export const EMPTY_SPEECH_DIAGNOSTICS: SpeechDiagnostics = {
   fileBytes: null,
   playbackStarted: "unknown",
   failureCategory: null,
+  captureSignal: "unknown",
+  metadataDuration: null,
+  outputRoute: null,
+  mediaVolume: null,
+  recognizerKind: null,
+  recognitionSignal: "unknown",
 };
 
 /**

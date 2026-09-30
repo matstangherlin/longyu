@@ -18,6 +18,7 @@ import {
   refreshNativeSpeechStatus,
   isSecureMicContext,
   checkMandarinRecognitionSupport,
+  lastNativeRecognitionDiagnostics,
   currentRecognitionCapability,
   mandarinRecognitionSupport,
   recognitionDiagnosticsSnapshot,
@@ -32,7 +33,9 @@ import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { t } from "../../i18n/catalog";
 import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
-import { classifySpeechFailure } from "../../lib/speechFailure";
+import { classifySpeechFailure, nativeRecognitionCategory, shouldLeaveRecognition } from "../../lib/speechFailure";
+import { claimAudio, releaseAudio } from "../../lib/audioArbiter";
+import { recordTechEvent } from "../../lib/techEvents";
 import { recordDeviceQaObservation } from "../../lib/deviceQa";
 import { SpeechDiagnosticsPanel } from "./SpeechDiagnosticsPanel";
 
@@ -89,6 +92,24 @@ export function PronunciationPractice({
    * viram duas frases faladas: a mesma tentativa só conta uma vez.
    */
   const attemptKeyRef = useRef<string | null>(null);
+  /** RC2.2.21 — falhas SEGUIDAS (sem loop: passa do limite → gravar e comparar). */
+  const failuresRef = useRef(0);
+  const audioClaimRef = useRef<number | null>(null);
+
+  function releaseRecognitionAudio() {
+    if (audioClaimRef.current != null) releaseAudio("RECOGNITION", audioClaimRef.current);
+    audioClaimRef.current = null;
+  }
+
+  /** O que o reconhecedor nativo relatou (tipo, sinal de voz) — nunca a fala. */
+  function noteRecognizerDiagnostics() {
+    const diag = lastNativeRecognitionDiagnostics();
+    if (!diag) return;
+    updateSpeechDiagnostics({
+      recognizerKind: diag.recognizer ?? null,
+      recognitionSignal: diag.signalDetected === true ? "yes" : diag.signalDetected === false ? "no" : "unknown",
+    });
+  }
 
   // RC2.2.13 — Android: estado real do microfone no SO ("Permitir" / "Ajustes").
   const nativeVoice = usesNativeVoice();
@@ -156,6 +177,7 @@ export function PronunciationPractice({
       // Sair da tela nunca deixa o microfone aberto.
       cancelRecognition();
       handleRef.current?.stop();
+      releaseRecognitionAudio();
       if (recorderRef.current?.state === "recording") {
         try {
           recorderRef.current.stop();
@@ -219,6 +241,14 @@ export function PronunciationPractice({
 
     // RC2.2.20 — elos da TENTATIVA (só sim/não; nunca o texto reconhecido).
     const heardSomething = Boolean(transcript.trim());
+    noteRecognizerDiagnostics();
+    releaseRecognitionAudio();
+    recordTechEvent(heardSomething ? "speech_result" : "speech_failed", { heard: heardSomething, category: heardSomething ? "OK" : "NO_SPEECH" });
+    if (heardSomething) failuresRef.current = 0;
+    else {
+      failuresRef.current += 1;
+      if (shouldLeaveRecognition(failuresRef.current, "NO_SPEECH")) setForcedFallback(true);
+    }
     updateSpeechDiagnostics({
       speechDetected: heardSomething ? "yes" : "no",
       recognitionResult: heardSomething ? "yes" : "no",
@@ -250,10 +280,18 @@ export function PronunciationPractice({
       ...(category === "NO_SPEECH" || category === "TIMEOUT" ? { speechDetected: "no" as const } : {}),
     });
     recordDeviceQaObservation("speech_failed", `${code} · ${category}`);
+    noteRecognizerDiagnostics();
+    releaseRecognitionAudio();
+    const rawCode = lastNativeRecognitionDiagnostics()?.rawCode ?? code;
+    recordTechEvent("speech_failed", { code: rawCode, category, nativeCategory: nativeRecognitionCategory(rawCode) });
+    failuresRef.current += 1;
     // RC2.2.17 · Y — idioma/serviço indisponível: não insistir 10 vezes.
     // Troca para a autoavaliação gravando (quando der para gravar).
     if (recognitionErrorForcesFallback(code)) {
       setCapability(currentRecognitionCapability());
+      setForcedFallback(true);
+    } else if (shouldLeaveRecognition(failuresRef.current, category)) {
+      // RC2.2.21 — sem loop: 2 falhas seguidas → gravar e comparar / seguir.
       setForcedFallback(true);
     }
     setHeard("");
@@ -296,6 +334,9 @@ export function PronunciationPractice({
     }
 
     // 3) Reconhecimento com continuous/interim — aguenta a fala no mobile.
+    // RC2.2.21 — o microfone é o dono do áudio: voz modelo/gravação param.
+    audioClaimRef.current = claimAudio("RECOGNITION", () => cancelRecognition());
+    recordTechEvent("speech_requested", { native: nativeVoice, attempt: failuresRef.current + 1 });
     updateSpeechDiagnostics({ recognitionStarted: "yes", speechDetected: "unknown", recognitionResult: "unknown", failureCategory: null });
     handleRef.current = recognizeOnce(
       (transcript) => finishResult(transcript),

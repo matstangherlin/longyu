@@ -117,3 +117,16 @@ export interface SelfCompareEvidence {
   listenedToModel: boolean;
   listenedToSelf: boolean;
 }
+
+/**
+ * RC2.2.21 — qual reconhecedor pedir ao Android. On-device só quando o
+ * mandarim JÁ está instalado nele (senão ele devolve LANGUAGE_* e o aluno
+ * fica preso); caso contrário o serviço do aparelho, que costuma ter zh-CN
+ * online. Sem suporte consultado (Android < 13) = serviço.
+ */
+export type RecognizerStrategy = "ON_DEVICE" | "SERVICE";
+
+export function recognizerStrategyFor(support: NativeRecognitionSupport | null): RecognizerStrategy {
+  if (support && support.onDeviceAvailable && support.installedOnDevice) return "ON_DEVICE";
+  return "SERVICE";
+}
