@@ -45,6 +45,8 @@ import { signupTrace } from "../../lib/signupTrace";
 import { playbackTrace } from "../../lib/audioPlayback";
 import { isTTSAvailable, usesNativeVoice } from "../../lib/tts";
 import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
+import { BetaQaConsole } from "./BetaQaConsole";
+import { BetaIssueReporter } from "./BetaIssueReporter";
 
 /**
  * RC2.2.20 — /qa/device: a superfície ÚNICA do QA físico.
@@ -157,6 +159,8 @@ function QaDeviceSurface() {
       </section>
 
       <MobileDiagnosticConsole build={build} />
+      <BetaQaConsole />
+      <BetaIssueReporter />
 
       <section className="space-y-3" data-testid="qa-device-tests">
         <div className="flex flex-wrap items-center gap-2 text-[12px] font-semibold">

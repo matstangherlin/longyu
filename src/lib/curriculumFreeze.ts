@@ -456,6 +456,32 @@ export const RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.22 — exceção controlada para o CLOSED BETA CANDIDATE. Nenhuma lição,
+ * id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
+ * fingerprint continua c48b008c9c1e. Só prontidão formal, triagem de
+ * segurança, compatibilidade por aparelho, Beta QA (relato sanitizado e
+ * sessões humanas por ID) e lint de produto (complexidade/repetição).
+ */
+export const RC2_2_22_CLOSED_BETA_CANDIDATE_EXCEPTION = {
+  id: "RC2_2_22_CLOSED_BETA_CANDIDATE",
+  scope: "Closed Beta readiness state machine, security triage, device compatibility model, Beta QA issue packet and human QA sessions, resource counters, product lint (screen complexity, bad repetition, first-20 audit)",
+  areas: [
+    "NOT_READY → PRE_CANDIDATE → CANDIDATE → CLOSED_BETA_READY only with typed physical/Play evidence",
+    "failure classification with evidence: LONGYU_BUG vs device/service/network/configuration",
+    "Beta QA issue packet and human sessions: no e-mail, OTP, token, transcript, recording; testers by ID",
+    "resource counters and session popup load in /qa/device (QA builds only)",
+  ],
+  forbids: [
+    "Closed Beta declared ready by code",
+    "new cloud feedback architecture while #273 is frozen",
+    "brand-specific hacks without a capability abstraction",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-22-closed-beta-candidate",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

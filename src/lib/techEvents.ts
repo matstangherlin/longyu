@@ -53,6 +53,13 @@ export const TECH_EVENT_NAMES = [
   "back_pressed",
   "js_error",
   "unhandled_rejection",
+  // RC2.2.22 — carga da sessão (orçamento de popups) e marcações do QA humano.
+  "coachmark_shown",
+  "unlock_reveal_shown",
+  "ceremony_shown",
+  "permission_prompted",
+  "perceived_speed",
+  "issue_reported",
 ] as const;
 export type TechEventName = (typeof TECH_EVENT_NAMES)[number];
 

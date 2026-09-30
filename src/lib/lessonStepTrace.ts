@@ -99,6 +99,11 @@ export function setLessonTraceContext(next: TraceContext | null): void {
   traceContext = next;
 }
 
+/** RC2.2.22 — lição/passo na tela, para o relato de problema do Beta QA (só ids e tipo). */
+export function currentLessonTraceContext(): { lessonId: string; stepKind: string } | null {
+  return traceContext ? { lessonId: traceContext.lessonId, stepKind: traceContext.kind } : null;
+}
+
 export function traceCurrentLessonStep(event: LessonStepTraceEvent): void {
   if (!traceContext) return;
   traceLessonStep({ ...traceContext, event });

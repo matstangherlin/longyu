@@ -11,6 +11,7 @@
  */
 import { registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 import { isAndroid } from "./nativePlatform";
+import { trackObserver } from "../resourceCounters";
 
 export type NativePermission = "granted" | "denied" | "prompt" | "prompt-with-rationale";
 
@@ -96,6 +97,17 @@ export type NativePracticeAudioDiagnostics = {
   hasRecording?: boolean;
 };
 
+/** RC2.2.22 — recursos nativos vivos (QA). Em repouso: tudo 0. */
+export type NativeResourceCounters = {
+  activeMediaPlayers: number;
+  activeRecorders: number;
+  activeRecognizers: number;
+  activeTtsUtterances: number;
+  pendingRecognitionCalls: number;
+  activeTimersCritical: number;
+  practiceState?: string;
+};
+
 /** Diagnóstico da escuta: reconhecedor usado, locale e sinal (sem áudio, sem texto). */
 export type NativeRecognitionDiagnostics = {
   recognizer?: string;
@@ -125,6 +137,7 @@ interface LongyuSpeechPlugin {
   playPracticeRecording(): Promise<NativePlaybackPayload>;
   stopPracticePlayback(): Promise<void>;
   getPracticeAudioDiagnostics(): Promise<NativePracticeAudioDiagnostics>;
+  getResourceCounters(): Promise<NativeResourceCounters>;
   deletePracticeRecording(): Promise<{ deleted: boolean }>;
   addListener(event: "practiceRecordingState", listener: (event: NativePracticeStateEvent) => void): Promise<PluginListenerHandle>;
   addListener(event: "recognitionState", listener: (event: { state: string; recognizer?: string; signalDetected?: boolean }) => void): Promise<PluginListenerHandle>;
@@ -292,6 +305,7 @@ export function onNativeRecognitionState(listener: (event: { state: string; reco
   if (!hasNativeSpeech()) return () => undefined;
   let handle: PluginListenerHandle | null = null;
   let released = false;
+  const releaseObserver = trackObserver();
   void LongyuSpeech.addListener("recognitionState", listener)
     .then((h) => {
       if (released) void h.remove();
@@ -299,7 +313,9 @@ export function onNativeRecognitionState(listener: (event: { state: string; reco
     })
     .catch(() => undefined);
   return () => {
+    if (released) return;
     released = true;
+    releaseObserver();
     if (handle) void handle.remove();
   };
 }
@@ -351,6 +367,7 @@ export async function nativeTriggerModelDownload(language = MANDARIN_LANGUAGE): 
 export function onNativeModelDownload(listener: (event: { status: string; progress?: number }) => void): () => void {
   let handle: PluginListenerHandle | null = null;
   let released = false;
+  const releaseObserver = trackObserver();
   void LongyuSpeech.addListener("modelDownload", listener)
     .then((h) => {
       if (released) void h.remove();
@@ -358,7 +375,9 @@ export function onNativeModelDownload(listener: (event: { status: string; progre
     })
     .catch(() => undefined);
   return () => {
+    if (released) return;
     released = true;
+    releaseObserver();
     if (handle) void handle.remove();
   };
 }
@@ -446,11 +465,21 @@ export async function nativePracticeAudioDiagnostics(): Promise<NativePracticeAu
   }
 }
 
+export async function nativeResourceCounters(): Promise<NativeResourceCounters | null> {
+  if (!hasNativeSpeech()) return null;
+  try {
+    return await LongyuSpeech.getResourceCounters();
+  } catch {
+    return null;
+  }
+}
+
 /** Estados da gravação/reprodução vindos do Android (um ouvinte por tela). */
 export function onPracticeRecordingState(listener: (event: NativePracticeStateEvent) => void): () => void {
   if (!hasNativeSpeech()) return () => undefined;
   let handle: PluginListenerHandle | null = null;
   let released = false;
+  const releaseObserver = trackObserver();
   void LongyuSpeech.addListener("practiceRecordingState", listener)
     .then((h) => {
       if (released) void h.remove();
@@ -458,7 +487,9 @@ export function onPracticeRecordingState(listener: (event: NativePracticeStateEv
     })
     .catch(() => undefined);
   return () => {
+    if (released) return;
     released = true;
+    releaseObserver();
     if (handle) void handle.remove();
   };
 }

@@ -758,6 +758,25 @@ public class LongyuSpeechPlugin extends Plugin {
     }
 
     /** Diagnóstico de áudio para o QA (sem conteúdo): volume, rota e estado. */
+    /**
+     * RC2.2.22 — contadores de recurso para o QA (vazamento / RECOGNIZER_BUSY
+     * permanente). Em repouso, todos devem ser 0. Só números; nada de conteúdo.
+     */
+    @PluginMethod
+    public void getResourceCounters(PluginCall call) {
+        main.post(() -> {
+            JSObject ret = new JSObject();
+            ret.put("activeMediaPlayers", practicePlayer != null ? 1 : 0);
+            ret.put("activeRecorders", practiceRecorder != null ? 1 : 0);
+            ret.put("activeRecognizers", (recognizer != null ? 1 : 0) + (supportProbe != null ? 1 : 0) + (modelDownloader != null ? 1 : 0));
+            ret.put("activeTtsUtterances", speakCall != null ? 1 : 0);
+            ret.put("pendingRecognitionCalls", recognitionCall != null ? 1 : 0);
+            ret.put("activeTimersCritical", (amplitudeSampler != null ? 1 : 0) + (playingProbe != null ? 1 : 0));
+            ret.put("practiceState", practiceState);
+            call.resolve(ret);
+        });
+    }
+
     @PluginMethod
     public void getPracticeAudioDiagnostics(PluginCall call) {
         main.post(() -> {

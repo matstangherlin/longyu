@@ -1,3 +1,4 @@
+import { recordTechEvent } from "../../lib/techEvents";
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
@@ -198,6 +199,7 @@ function GuidanceHostInner() {
       updateGuidance((state) => recordGuidanceRendered(state, current, Date.now()));
       setGuidanceSession(recordShownInSession(getGuidanceSession(), current));
       trackFunnelEvent("guidance_shown", { guidance_id: current.definition.id, kind: current.definition.kind, render_evidence: true });
+      recordTechEvent(current.definition.kind === "UNLOCK_REVEAL" ? "unlock_reveal_shown" : "coachmark_shown", { guidanceId: current.definition.id });
     }, wait);
     return () => window.clearTimeout(timer);
   }, [current, visibleSince, updateGuidance]);

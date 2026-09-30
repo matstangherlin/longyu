@@ -18,6 +18,7 @@ import {
   type NativePermission,
   type NativeRecognitionSupport,
 } from "./platform/nativeSpeech";
+import { recordTechEvent } from "./techEvents";
 import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, recognizerStrategyFor, type RecognitionCapability } from "./recognitionCapability";
 import type { NativeRecognitionDiagnostics } from "./platform/nativeSpeech";
 
@@ -155,6 +156,7 @@ export async function ensureMicPermission(): Promise<MicPermission> {
   if (hasNativeSpeech()) {
     // Permissão do SO (RECORD_AUDIO). Pedido em contexto, no toque em "Falar".
     const current = (await nativeRecognitionStatus()).microphone;
+    if (current !== "granted") recordTechEvent("permission_prompted", { permission: "microphone" });
     const state = current === "granted" ? current : await requestNativeMicrophone();
     nativeMicState = state;
     return state === "granted" ? "granted" : "denied";
