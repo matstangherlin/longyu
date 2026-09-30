@@ -32,6 +32,8 @@ import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { t } from "../../i18n/catalog";
 import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
+import { classifySpeechFailure } from "../../lib/speechFailure";
+import { recordDeviceQaObservation } from "../../lib/deviceQa";
 import { SpeechDiagnosticsPanel } from "./SpeechDiagnosticsPanel";
 
 type Phase = "idle" | "listening" | "result";
@@ -215,6 +217,13 @@ export function PronunciationPractice({
     }
     attemptKeyRef.current = null;
 
+    // RC2.2.20 — elos da TENTATIVA (só sim/não; nunca o texto reconhecido).
+    const heardSomething = Boolean(transcript.trim());
+    updateSpeechDiagnostics({
+      speechDetected: heardSomething ? "yes" : "no",
+      recognitionResult: heardSomething ? "yes" : "no",
+      failureCategory: heardSomething ? null : "NO_SPEECH",
+    });
     const r = analyzePronunciation(transcript, target);
     setHeard(transcript);
     setCorrect(r.correct);
@@ -230,6 +239,17 @@ export function PronunciationPractice({
     // Permissão negada, navegador sem suporte, no-speech: nada foi capturado,
     // logo nada é contado (P5.2). O aluno continua a lição do mesmo jeito.
     attemptKeyRef.current = null;
+    // RC2.2.20 — cada falha com a sua categoria (permissão ≠ sem serviço ≠
+    // sem zh-CN ≠ prazo ≠ sem fala ≠ gravação): mensagem e saída próprias.
+    const category = classifySpeechFailure(code);
+    updateSpeechDiagnostics({
+      recognitionResult: "no",
+      lastErrorCode: code,
+      failureCategory: category,
+      ...(code === "start-failed" || category === "PERMISSION_DENIED" || category === "NO_SERVICE" ? { recognitionStarted: "no" as const } : {}),
+      ...(category === "NO_SPEECH" || category === "TIMEOUT" ? { speechDetected: "no" as const } : {}),
+    });
+    recordDeviceQaObservation("speech_failed", `${code} · ${category}`);
     // RC2.2.17 · Y — idioma/serviço indisponível: não insistir 10 vezes.
     // Troca para a autoavaliação gravando (quando der para gravar).
     if (recognitionErrorForcesFallback(code)) {
@@ -276,6 +296,7 @@ export function PronunciationPractice({
     }
 
     // 3) Reconhecimento com continuous/interim — aguenta a fala no mobile.
+    updateSpeechDiagnostics({ recognitionStarted: "yes", speechDetected: "unknown", recognitionResult: "unknown", failureCategory: null });
     handleRef.current = recognizeOnce(
       (transcript) => finishResult(transcript),
       (code) => finishError(code),

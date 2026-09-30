@@ -17,6 +17,7 @@
  */
 import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture } from "./tts";
 import { traceCurrentLessonStep } from "./lessonStepTrace";
+import { deviceQaEnabled, recordDeviceQaObservation } from "./deviceQa";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -76,6 +77,8 @@ const trace: PlaybackTraceEntry[] = [];
 
 function traceEnabled(): boolean {
   try {
+    // RC2.2.20 — também no APK de diagnóstico / Preview / QA Candidate.
+    if (deviceQaEnabled()) return true;
     return Boolean(import.meta.env?.DEV) || import.meta.env?.VITE_USE_TEST_FIXTURES === "true";
   } catch {
     return false;
@@ -84,6 +87,9 @@ function traceEnabled(): boolean {
 
 function record(entry: PlaybackTraceEntry): void {
   if (!traceEnabled()) return;
+  if (entry.event === "error" || entry.event === "timeout" || entry.event === "unavailable") {
+    recordDeviceQaObservation("audio_failed", `${entry.engine} · ${entry.event}${entry.reason ? ` · ${entry.reason}` : ""}`);
+  }
   // RC2.2.19 — o mesmo pedido/início aparece na trilha do passo atual.
   if (entry.event === "request") traceCurrentLessonStep("audio_requested");
   else if (entry.event === "start") traceCurrentLessonStep("audio_started");

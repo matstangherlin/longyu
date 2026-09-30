@@ -193,6 +193,8 @@ export type RecognizeErrorCode =
   | "start-failed"
   | "busy"
   | "language-unavailable"
+  // RC2.2.20 — o prazo da sessão acabou sem ouvir nada (≠ "no-speech" do motor).
+  | "timeout"
   | "error";
 
 function mapError(code?: string): RecognizeErrorCode {
@@ -219,6 +221,8 @@ function mapError(code?: string): RecognizeErrorCode {
     case "language-unavailable":
     case "language-not-supported":
       return "language-unavailable";
+    case "timeout":
+      return "timeout";
     default:
       return "error";
   }
@@ -276,6 +280,8 @@ export function speechErrorMessage(code: RecognizeErrorCode | string): string {
       return "Escuta interrompida. Toque em De novo e fale em seguida.";
     case "no-speech":
       return "Não consegui ouvir. Fale um pouco mais perto do mic.";
+    case "timeout":
+      return "O tempo acabou antes de ouvir sua voz. Toque em Falar e diga a frase logo em seguida.";
     case "start-failed":
       return "Não deu para iniciar o microfone. Tente de novo.";
     default:
@@ -421,11 +427,12 @@ export function recognizeOnce(
     finishErr(code);
   };
 
+  let timedOut = false;
   rec.onend = () => {
     if (settled) return;
     const heard = bestTranscript();
     if (heard) finishOk(heard);
-    else finishErr("no-speech");
+    else finishErr(timedOut ? "timeout" : "no-speech");
   };
 
   timer = setTimeout(() => {
@@ -433,10 +440,11 @@ export function recognizeOnce(
     const heard = bestTranscript();
     if (heard) finishOk(heard);
     else {
+      timedOut = true;
       try {
         rec.stop();
       } catch {
-        finishErr("no-speech");
+        finishErr("timeout");
       }
     }
   }, timeoutMs);

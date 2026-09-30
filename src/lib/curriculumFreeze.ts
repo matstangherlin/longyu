@@ -456,6 +456,36 @@ export const RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.20 — Physical Beta Readiness. Superfície de QA físico (/qa/device, só
+ * DEV/Preview/QA Candidate/`VITE_DEVICE_QA`), trilhas no APK de diagnóstico,
+ * contratos de update N→N+1, recuo de etapa travada, categorias de falha de
+ * fala/cadastro, espaçamento semântico da Revisão e Pronunciation Core BR no
+ * Pinyin Lab (fora das fontes congeladas). Nenhuma lição, ordem, tópico,
+ * StepKind, SRS, economia ou progresso muda; o fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_20_PHYSICAL_BETA_READINESS_EXCEPTION = {
+  id: "RC2_2_20_PHYSICAL_BETA_READINESS",
+  scope: "Physical QA surface and evidence contract, device diagnostics, upgrade snapshot, stall fallback, speech/signup failure categories, review spacing, Pronunciation Core BR (Pinyin Lab)",
+  areas: [
+    "/qa/device: 12 physical tests, PASS only with testedAt/buildSha/versionCode/deviceClass/evidenceType, never on web/emulator",
+    "lesson/audio/speech traces also in device-QA builds (never plain production_beta)",
+    "upgrade N→N+1 snapshot compare (counts only, no PII)",
+    "stalled step: retry / reload step / report (QA); never auto-skip",
+    "ReviewSessionComposer MIN_TARGET_GAP and surface target (order only)",
+    "Pronunciation Core BR contrasts in the Pinyin Lab",
+  ],
+  forbids: [
+    "physical PASS generated automatically",
+    "new SRS, Lesson Engine, Story Engine, Guidance Engine, Profile Engine or Auth Engine",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "SRS schedule, grades or mastery changed by the composer",
+    "OTP, e-mail, password, token or voice recording stored or logged",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-20-physical-beta-readiness",
+} as const;
+
+/**
  * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
  * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
  * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).

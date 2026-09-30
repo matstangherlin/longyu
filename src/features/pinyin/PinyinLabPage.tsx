@@ -26,6 +26,8 @@ import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives"
 import { HubHeader, HubPage } from "../../components/layout/HubLayout";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { ArticulationDiagram } from "../../components/pronunciation/ArticulationDiagram";
+import { PRONUNCIATION_CORE_BR } from "../../data/pronunciationCoreBr";
+import { PronunciationContrastDrill } from "./PronunciationContrastDrill";
 import { ARTICULATION_DIAGRAMS } from "../../data/articulationTargets";
 import { IconCheck, IconChevron, IconHeadphones, IconRefresh, IconShield, IconSound, IconX } from "../../components/ui/Icon";
 import { ProPaywall } from "../../components/pro/ProPaywall";
@@ -207,6 +209,10 @@ export function PinyinLabPage() {
         <LabSectionHeader title="Tabela de iniciais" desc="A inicial abre a sílaba. O sopro faz diferença em pares como b/p, d/t, g/k e z/c." />
         <ReferenceGrid items={PINYIN_INITIALS} />
       </section>
+
+      {/* RC2.2.20 · V5A — contrastes que mais pegam quem fala português:
+          ver → ouvir A → ouvir B → comparar → identificar → (produzir). */}
+      <PronunciationCoreBrSection visible={mobileView === "iniciais"} />
 
       {/* RC2.2.19 — como a boca faz os sons difíceis (articulação ≠ tom). */}
       <section id="boca" className={["scroll-mt-20", mobileView === "iniciais" ? "block" : "hidden md:block"].join(" ")} data-testid="articulation-section">
@@ -1166,4 +1172,38 @@ function samePinyinBase(left: string, right: string): boolean {
       .replace(/[\s'’-]/g, "")
       .toLocaleLowerCase("pt-BR");
   return normalize(left) === normalize(right);
+}
+
+function PronunciationCoreBrSection({ visible }: { visible: boolean }) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const open = PRONUNCIATION_CORE_BR.find((contrast) => contrast.id === openId) ?? null;
+  return (
+    <section
+      id="contrastes"
+      className={["scroll-mt-20", visible ? "block" : "hidden md:block"].join(" ")}
+      data-testid="pronunciation-core-br"
+    >
+      <LabSectionHeader
+        title="Sons que confundem quem fala português"
+        desc="Primeiro você vê e ouve cada som; só depois tenta identificar. Nada de começar por quiz."
+      />
+      {open ? (
+        <PronunciationContrastDrill key={open.id} contrast={open} onClose={() => setOpenId(null)} />
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {PRONUNCIATION_CORE_BR.map((contrast) => (
+            <button
+              key={contrast.id}
+              type="button"
+              onClick={() => setOpenId(contrast.id)}
+              className="min-h-11 rounded-full border border-line bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              data-contrast-open={contrast.id}
+            >
+              {contrast.title}
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }

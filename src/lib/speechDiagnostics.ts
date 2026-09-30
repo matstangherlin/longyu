@@ -16,6 +16,7 @@
  */
 import { useSyncExternalStore } from "react";
 import { isProductionBetaEnv } from "./appEnvironment";
+import { deviceQaEnabled } from "./deviceQa";
 
 export type Tri = "yes" | "no" | "unknown";
 
@@ -33,6 +34,17 @@ export interface SpeechDiagnostics {
   /** Evidência de que a reprodução da própria voz TERMINOU (não só começou). */
   playbackPlayed: Tri;
   lastErrorCode: string | null;
+  // RC2.2.20 — elos separados da TENTATIVA de reconhecimento (permissão e
+  // serviço não provam que o aparelho reconheceu fala) e da gravação.
+  recognitionStarted: Tri;
+  speechDetected: Tri;
+  /** Houve resultado (nunca o texto: só sim/não). */
+  recognitionResult: Tri;
+  /** Tamanho do arquivo temporário em bytes (nunca o conteúdo nem o caminho). */
+  fileBytes: number | null;
+  playbackStarted: Tri;
+  /** Categoria segura da última falha de fala (ver speechFailure.ts). */
+  failureCategory: string | null;
 }
 
 export const SPEECH_DIAGNOSTIC_FIELDS: readonly (keyof SpeechDiagnostics)[] = [
@@ -48,6 +60,12 @@ export const SPEECH_DIAGNOSTIC_FIELDS: readonly (keyof SpeechDiagnostics)[] = [
   "playbackReady",
   "playbackPlayed",
   "lastErrorCode",
+  "recognitionStarted",
+  "speechDetected",
+  "recognitionResult",
+  "fileBytes",
+  "playbackStarted",
+  "failureCategory",
 ];
 
 export const EMPTY_SPEECH_DIAGNOSTICS: SpeechDiagnostics = {
@@ -63,6 +81,12 @@ export const EMPTY_SPEECH_DIAGNOSTICS: SpeechDiagnostics = {
   playbackReady: "unknown",
   playbackPlayed: "unknown",
   lastErrorCode: null,
+  recognitionStarted: "unknown",
+  speechDetected: "unknown",
+  recognitionResult: "unknown",
+  fileBytes: null,
+  playbackStarted: "unknown",
+  failureCategory: null,
 };
 
 /**
@@ -74,6 +98,9 @@ export function recordingProven(d: SpeechDiagnostics, minDurationMs = 400): bool
     d.recordingStarted === "yes" &&
     (d.recordingDuration ?? 0) >= minDurationMs &&
     d.temporaryFileCreated === "yes" &&
+    // RC2.2.20 — arquivo vazio nunca é gravação; reprodução que não começou não terminou.
+    d.fileBytes !== 0 &&
+    d.playbackStarted !== "no" &&
     d.playbackPlayed === "yes"
   );
 }
@@ -83,14 +110,23 @@ export function recognitionProven(d: SpeechDiagnostics): boolean {
   return d.microphonePermission === "granted" && d.recognitionService === "yes" && d.zhCnSupport === "SUPPORTED";
 }
 
+/**
+ * RC2.2.20 — o QA físico precisa de uma TENTATIVA real: capacidade provada
+ * + reconhecimento iniciado + fala detectada + resultado devolvido.
+ */
+export function recognitionAttemptProven(d: SpeechDiagnostics): boolean {
+  return recognitionProven(d) && d.recognitionStarted === "yes" && d.speechDetected === "yes" && d.recognitionResult === "yes";
+}
+
 let state: SpeechDiagnostics = { ...EMPTY_SPEECH_DIAGNOSTICS };
 let version = 0;
 const listeners = new Set<() => void>();
 
 export function speechDiagnosticsEnabled(): boolean {
   try {
-    const env = import.meta.env ?? {};
-    if (env.DEV === true || env.VITE_USE_TEST_FIXTURES === "true") return true;
+    // RC2.2.20 — APK de diagnóstico (`VITE_DEVICE_QA=true`), Preview e QA
+    // Candidate também: é onde a fala é provada fisicamente.
+    if (deviceQaEnabled()) return true;
     if (isProductionBetaEnv()) return false;
     return typeof localStorage !== "undefined" && localStorage.getItem("longyu:qa-diagnostics") === "on";
   } catch {

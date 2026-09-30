@@ -1,8 +1,10 @@
+import { deviceQaEnabled } from "./deviceQa";
+
 /**
  * RC2.2.14 · DH — rastro estruturado de conclusão/avanço de passos.
  *
- * Só em DEV ou em builds com fixtures de teste (E2E/preview): nunca em
- * produção. Sem PII e sem resposta do aluno: lição, índice, tipo, tentativa e
+ * Só em DEV, builds de fixtures (E2E), Preview/QA Candidate ou build com
+ * `VITE_DEVICE_QA=true` (RC2.2.20): nunca na Production Beta comum. Sem PII e sem resposta do aluno: lição, índice, tipo, tentativa e
  * o evento. O E2E lê `window.__longyuLessonTrace` para provar que todo
  * "completed" é seguido de "advanced" (ou "finished") e que nenhum passo
  * ficou "stalled".
@@ -58,6 +60,9 @@ type TraceWindow = Window & { __longyuLessonTrace?: LessonStepTraceEntry[] };
 
 function traceEnabled(): boolean {
   const env = (import.meta as { env?: Record<string, unknown> }).env ?? {};
+  // RC2.2.20 — também no APK de diagnóstico / build interno (`VITE_DEVICE_QA`),
+  // Preview e QA Candidate: sem isso o QA físico não prova o avanço no aparelho.
+  if (deviceQaEnabled()) return true;
   return env.DEV === true || env.VITE_USE_TEST_FIXTURES === "true";
 }
 

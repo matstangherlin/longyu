@@ -13,6 +13,7 @@ import {
 } from "../../lib/platform/nativeSpeech";
 import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
 import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
+import { classifySpeechFailure, type SpeechFailureCategory } from "../../lib/speechFailure";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -32,7 +33,10 @@ import { updateSpeechDiagnostics } from "../../lib/speechDiagnostics";
  *     "Continuar" sozinho não é tentativa.
  */
 
-type Phase = "idle" | "recording" | "recorded" | "failed";
+// RC2.2.20 — estados que o aluno entende: Preparando… → Gravando… → Ouvir minha
+// voz / Gravar novamente. "preparing" cobre o tempo entre o toque e o
+// microfone abrir de verdade (no Android pode levar um instante).
+type Phase = "idle" | "preparing" | "recording" | "recorded" | "failed";
 
 const MIN_RECORDING_MS = 400;
 
@@ -59,6 +63,10 @@ export function SelfComparePractice({
   const guided = useGuidedPresentation();
   const native = hasNativeSpeech();
   const [phase, setPhase] = useState<Phase>("idle");
+  const [failure, setFailure] = useState<SpeechFailureCategory | null>(null);
+  /** Gravação curta demais: volta ao início COM aviso (nunca em silêncio). */
+  const [tooShort, setTooShort] = useState(false);
+  const [playingMine, setPlayingMine] = useState(false);
   const [webUrl, setWebUrl] = useState<string | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -88,24 +96,37 @@ export function SelfComparePractice({
     recordSpeechAttempt({ id: `self-compare:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`, captured: true });
   }
 
+  function fail(code: string) {
+    const category = classifySpeechFailure(code);
+    updateSpeechDiagnostics({ lastErrorCode: code, failureCategory: category });
+    setFailure(category);
+    setPhase("failed");
+  }
+
   async function startRecording() {
     if (webUrl) {
       URL.revokeObjectURL(webUrl);
       setWebUrl(null);
     }
+    setTooShort(false);
+    setFailure(null);
+    setPhase("preparing");
     updateSpeechDiagnostics({
       recordingEngine: native ? "native" : "web",
       recordingStarted: "unknown",
       recordingDuration: null,
       temporaryFileCreated: "unknown",
+      fileBytes: null,
       playbackReady: "unknown",
+      playbackStarted: "unknown",
       playbackPlayed: "unknown",
+      failureCategory: null,
     });
     if (native) {
       const result = await nativeStartPracticeRecording();
       if (!result.ok) {
-        updateSpeechDiagnostics({ recordingStarted: "no", lastErrorCode: result.code });
-        setPhase("failed");
+        updateSpeechDiagnostics({ recordingStarted: "no" });
+        fail(result.code);
         return;
       }
       updateSpeechDiagnostics({ recordingStarted: "yes" });
@@ -128,13 +149,17 @@ export function SelfComparePractice({
         updateSpeechDiagnostics({
           recordingDuration: duration,
           temporaryFileCreated: blob.size > 0 ? "yes" : "no",
+          fileBytes: blob.size,
           playbackReady: blob.size > 0 && duration >= MIN_RECORDING_MS ? "yes" : "no",
         });
         if (blob.size > 0 && duration >= MIN_RECORDING_MS) {
           setWebUrl(URL.createObjectURL(blob));
           setPhase("recorded");
           countAttempt();
+        } else if (blob.size === 0) {
+          fail("EMPTY_RECORDING");
         } else {
+          setTooShort(true);
           setPhase("idle");
         }
       };
@@ -143,9 +168,10 @@ export function SelfComparePractice({
       startedAtRef.current = Date.now();
       updateSpeechDiagnostics({ recordingStarted: "yes" });
       setPhase("recording");
-    } catch {
-      updateSpeechDiagnostics({ recordingStarted: "no", lastErrorCode: "WEB_RECORDING_FAILED" });
-      setPhase("failed");
+    } catch (error) {
+      updateSpeechDiagnostics({ recordingStarted: "no" });
+      const denied = error instanceof DOMException && (error.name === "NotAllowedError" || error.name === "SecurityError");
+      fail(denied ? "PERMISSION_DENIED" : "WEB_RECORDING_FAILED");
     }
   }
 
@@ -157,15 +183,21 @@ export function SelfComparePractice({
           ? {
               recordingDuration: result.durationMs ?? 0,
               temporaryFileCreated: result.fileExists && (result.fileBytes ?? 0) > 0 ? "yes" : result.fileExists === false ? "no" : "unknown",
+              fileBytes: typeof result.fileBytes === "number" ? result.fileBytes : null,
               playbackReady: result.fileExists && (result.durationMs ?? 0) >= MIN_RECORDING_MS ? "yes" : "no",
             }
-          : { playbackReady: "no", lastErrorCode: result.code }
+          : { playbackReady: "no" }
       );
-      if (result.ok && (result.durationMs ?? 0) >= MIN_RECORDING_MS) {
+      if (!result.ok) {
+        fail(result.code);
+      } else if (result.fileExists === false || result.fileBytes === 0) {
+        fail("EMPTY_RECORDING");
+      } else if ((result.durationMs ?? 0) >= MIN_RECORDING_MS) {
         setPhase("recorded");
         countAttempt();
       } else {
-        setPhase(result.ok ? "idle" : "failed");
+        setTooShort(true);
+        setPhase("idle");
       }
       return;
     }
@@ -181,20 +213,39 @@ export function SelfComparePractice({
   }
 
   function playMine() {
+    if (playingMine) return;
+    setPlayingMine(true);
     if (native) {
-      // O plugin só resolve DEPOIS de tocar até o fim: é a prova de reprodução.
-      void nativePlayPracticeRecording().then((result) =>
-        updateSpeechDiagnostics(result.ok ? { playbackPlayed: "yes" } : { playbackPlayed: "no", lastErrorCode: result.code })
-      );
+      // O plugin só resolve DEPOIS de tocar até o fim: é a prova de reprodução
+      // (começou E terminou). Falha = nem começou.
+      void nativePlayPracticeRecording().then((result) => {
+        setPlayingMine(false);
+        updateSpeechDiagnostics(
+          result.ok ? { playbackStarted: "yes", playbackPlayed: "yes" } : { playbackStarted: "no", playbackPlayed: "no", lastErrorCode: result.code }
+        );
+      });
       return;
     }
-    if (!webUrl) return;
+    if (!webUrl) {
+      setPlayingMine(false);
+      return;
+    }
     audioRef.current?.pause();
     const audio = new Audio(webUrl);
     audioRef.current = audio;
-    audio.onended = () => updateSpeechDiagnostics({ playbackPlayed: "yes" });
-    audio.onerror = () => updateSpeechDiagnostics({ playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_FAILED" });
-    void audio.play().catch(() => updateSpeechDiagnostics({ playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_BLOCKED" }));
+    audio.onplaying = () => updateSpeechDiagnostics({ playbackStarted: "yes" });
+    audio.onended = () => {
+      setPlayingMine(false);
+      updateSpeechDiagnostics({ playbackPlayed: "yes" });
+    };
+    audio.onerror = () => {
+      setPlayingMine(false);
+      updateSpeechDiagnostics({ playbackStarted: "no", playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_FAILED" });
+    };
+    void audio.play().catch(() => {
+      setPlayingMine(false);
+      updateSpeechDiagnostics({ playbackStarted: "no", playbackPlayed: "no", lastErrorCode: "WEB_PLAYBACK_BLOCKED" });
+    });
   }
 
   return (
@@ -212,11 +263,26 @@ export function SelfComparePractice({
         </Button>
       </div>
 
-      {(phase === "idle" || phase === "recording") && (
+      {phase === "recording" && (
+        <p className="mt-3 flex items-center justify-center gap-2 text-sm font-semibold text-wrong" role="status" data-testid="self-compare-recording-label">
+          <span aria-hidden className="h-2.5 w-2.5 animate-pulse rounded-full bg-wrong" />
+          {t("player.selfCompareRecording")}
+        </p>
+      )}
+      {tooShort && phase === "idle" && (
+        <p className="mt-3 text-center text-sm text-ink-soft" role="status" data-testid="self-compare-too-short">
+          {t("player.selfCompareTooShort")}
+        </p>
+      )}
+      {(phase === "idle" || phase === "preparing" || phase === "recording") && (
         <GuidedDock>
           {phase === "idle" ? (
             <Button className={guided ? "w-full" : "mt-4 w-full"} size="lg" onClick={() => void startRecording()} data-testid="self-compare-record">
               {t("player.selfCompareRecord")}
+            </Button>
+          ) : phase === "preparing" ? (
+            <Button className={guided ? "w-full" : "mt-4 w-full"} size="lg" disabled data-testid="self-compare-preparing">
+              {t("player.selfComparePreparing")}
             </Button>
           ) : (
             <Button className={guided ? "w-full animate-pulse" : "mt-4 w-full animate-pulse"} size="lg" variant="danger" onClick={() => void stopRecording()} data-testid="self-compare-stop">
@@ -234,7 +300,9 @@ export function SelfComparePractice({
         <div className="mt-4 grid gap-2" data-testid="self-compare-recorded">
           <div className="grid grid-cols-2 gap-2">
             <Button variant="outline" onClick={playModel}>{t("player.selfCompareListenModel")}</Button>
-            <Button variant="outline" onClick={playMine} data-testid="self-compare-play-mine">{t("player.selfCompareListenMine")}</Button>
+            <Button variant="outline" onClick={playMine} disabled={playingMine} data-testid="self-compare-play-mine">
+              {playingMine ? t("player.selfComparePlayingMine") : t("player.selfCompareListenMine")}
+            </Button>
           </div>
           <p className="text-center text-sm text-ink-soft">{t("player.selfCompareHint")}</p>
           <GuidedDock>
@@ -248,9 +316,16 @@ export function SelfComparePractice({
         </div>
       )}
       {phase === "failed" && (
-        <p className="mt-3 text-sm text-ink-soft" role="status" data-testid="self-compare-failed">
-          {t("player.selfCompareFailed")}
-        </p>
+        <div className="mt-3 space-y-2" data-testid="self-compare-failed" data-failure-category={failure ?? "UNKNOWN"}>
+          <p className="text-sm text-ink-soft" role="status">
+            {failure === "PERMISSION_DENIED" ? t("player.selfComparePermissionDenied") : t("player.selfCompareFailed")}
+          </p>
+          {failure !== "PERMISSION_DENIED" && (
+            <Button variant="outline" className="w-full" onClick={() => void startRecording()} data-testid="self-compare-retry">
+              {t("player.selfCompareRepeat")}
+            </Button>
+          )}
+        </div>
       )}
 
       <p className="mt-3 text-center text-[11px] leading-4 text-ink-faint" data-testid="self-compare-privacy">

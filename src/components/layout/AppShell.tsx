@@ -28,8 +28,11 @@ import { SmartBackButton } from "../navigation/SmartBackButton";
 import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
 import { GuidanceHost } from "../guidance/GuidanceHost";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 export function AppShell() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("first_interactive"), []);
   const theme = useResolvedTheme();
   const registerActivity = useStore((s) => s.registerActivity);
   const reconcileStreak = useStore((s) => s.reconcileStreak);
