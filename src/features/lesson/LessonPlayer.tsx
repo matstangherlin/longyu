@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { lessonStartConsumesCharge } from "../../lib/energyPolicy";
 import { haptic } from "../../lib/haptics";
 import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
@@ -52,8 +53,6 @@ import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import {
   BREATH_LIVES,
   BREATH_RECOVERY_QI,
-  CONSECUTIVE_MISTAKE_CHARGE_COST,
-  CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD,
   DAILY_GOAL_QI,
   LESSON_BASE_XP,
   LESSON_NO_SKIP_QI,
@@ -2097,8 +2096,6 @@ export function LessonPlayer() {
   const folegoSkipRefsRef = useRef<Set<string>>(new Set());
   /** Erros confirmados seguidos — ao atingir o limiar, perde 1 Carga. */
   const errorStreakRef = useRef(0);
-  const mistakeChargeHitsRef = useRef(0);
-  const [chargePenaltyNotice, setChargePenaltyNotice] = useState<string | null>(null);
   const retryUsesRef = useRef(0);
   const recoveryUsesRef = useRef(0);
   // Tons acertados nesta tentativa (contados no acerto real, não inferidos):
@@ -2462,7 +2459,8 @@ export function LessonPlayer() {
     const alreadyInSession = window.sessionStorage.getItem(sessionKey) === "1";
     const cursor = lessonSessionStepById?.[foundLesson.id];
     const alreadyStarted = Boolean(cursor && cursor.pass === pass && cursor.stepIndex > 0);
-    if (alreadyInSession || alreadyStarted) {
+    // RC2.2.23 — replay de lição já concluída não é progressão nova: não cobra Carga.
+    if (alreadyInSession || alreadyStarted || !lessonStartConsumesCharge({ lessonCompleted: completedLessons.includes(foundLesson.id) })) {
       setEntryChecked(true);
       return;
     }
@@ -2480,7 +2478,7 @@ export function LessonPlayer() {
       lessonId: foundLesson.id,
       route: `/licao/${foundLesson.id}/player`,
     });
-  }, [consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
+  }, [completedLessons, consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
 
   useEffect(() => {
     if (planReady) return undefined;
@@ -3328,28 +3326,10 @@ export function LessonPlayer() {
 
   // Continuar sem refazer: o erro vira permanente, custa 1 Vida
   // e avança para o próximo step para evitar dois fluxos de feedback.
+  // RC2.2.23 — erro custa SÓ Vida. Nunca a Carga diária (sem dupla punição).
   function noteConfirmedMistake() {
     if (hasUnlimitedLives) return;
     errorStreakRef.current += 1;
-    if (
-      errorStreakRef.current >= CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD &&
-      CONSECUTIVE_MISTAKE_CHARGE_COST > 0
-    ) {
-      const hit = mistakeChargeHitsRef.current + 1;
-      const spent = consumeCharge(
-        "lesson",
-        `consume:mistake-streak:${lesson.id}:${todayKey()}:${hit}`
-      );
-      errorStreakRef.current = 0;
-      if (spent) {
-        mistakeChargeHitsRef.current = hit;
-        setChargePenaltyNotice(
-          `−${CONSECUTIVE_MISTAKE_CHARGE_COST} Carga: ${CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD} erros seguidos.`
-        );
-        window.setTimeout(() => setChargePenaltyNotice(null), 3200);
-        playSoundFx("blocked", soundEffects);
-      }
-    }
   }
 
   function continueWithMistake() {
@@ -4225,8 +4205,6 @@ export function LessonPlayer() {
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
       errorStreakRef.current = 0;
-      mistakeChargeHitsRef.current = 0;
-      setChargePenaltyNotice(null);
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
@@ -4804,13 +4782,6 @@ export function LessonPlayer() {
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-streak-burst rounded-full border border-accent-soft bg-surface px-4 py-2 text-sm font-semibold text-accent shadow-card">
             Sequência x{streakBurst} 🔥
-          </div>
-        </div>
-      )}
-      {chargePenaltyNotice && (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
-          <div className="longyu-error-shake rounded-full border border-wrong/30 bg-wrong-soft px-4 py-2 text-sm font-semibold text-wrong shadow-card">
-            {chargePenaltyNotice}
           </div>
         </div>
       )}

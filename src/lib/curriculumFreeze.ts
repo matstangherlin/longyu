@@ -482,6 +482,34 @@ export const RC2_2_22_CLOSED_BETA_CANDIDATE_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.23 — exceção controlada para CONVERGÊNCIA DE PRODUTO. Nenhuma lição,
+ * id, ordem, tópico, StepKind ou SRS muda; o fingerprint continua
+ * c48b008c9c1e. Muda a entrega (orientação, energia, navegação, densidade,
+ * apresentação da revisão/tons/imersão). Economia: errar deixa de custar Carga
+ * (CONSECUTIVE_MISTAKE_CHARGE_COST = 0, nomes exportados intactos) e prática/
+ * replay deixam de cobrar — sem moeda nova.
+ */
+export const RC2_2_23_PRODUCT_CONVERGENCE_EXCEPTION = {
+  id: "RC2_2_23_PRODUCT_CONVERGENCE",
+  scope: "Guidance delivery (anchor fallback, reason codes, QA panel), energy soft landing, earned tab bar and More 'You' group, review round cap and short feedback, Hànzì size floors per role, tone microlesson, immersion reaction",
+  areas: [
+    "guidance never dropped silently: unanchored bottom card + 13 reason codes; AUTO_SEEDED stays pending",
+    "errors cost only Vidas; only NEW progression consumes Cargas; zero Cargas keeps review/practice/culture/replay open",
+    "tabs earned progressively (new account: Jornada + Mais; max 3 early)",
+    "review: max 2 of the same target per round of 5–8 (3 only as remediation), same SRS",
+    "tone microlesson SEE→HEAR→IMITATE→DISCRIMINATE→RECOGNIZE→USE WORD→USE CONTEXT, one concept per screen, no pitch score",
+  ],
+  forbids: [
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "new SRS, new StoryEngine or new currency",
+    "Pro as the only path out of zero Cargas",
+    "pitch explained through tongue/mouth position",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-23-product-convergence",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

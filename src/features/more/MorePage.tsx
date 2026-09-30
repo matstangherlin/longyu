@@ -200,7 +200,7 @@ function MoreYouBlock() {
   const tile =
     "flex min-h-14 items-center gap-2 rounded-2xl border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
   return (
-    <section className="mb-5" data-testid="more-you">
+    <section className="mb-5" data-testid="more-you" data-coachmark-target="more-you">
       <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">{t("navigation.groupYou")}</h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Link to="/perfil" className={tile} data-testid="more-profile">

@@ -46,6 +46,7 @@ import { playbackTrace } from "../../lib/audioPlayback";
 import { isTTSAvailable, usesNativeVoice } from "../../lib/tts";
 import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
 import { BetaQaConsole } from "./BetaQaConsole";
+import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
 
 /**
@@ -158,6 +159,7 @@ function QaDeviceSurface() {
         )}
       </section>
 
+      <GuidanceDeliveryPanel />
       <MobileDiagnosticConsole build={build} />
       <BetaQaConsole />
       <BetaIssueReporter />

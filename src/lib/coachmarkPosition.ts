@@ -10,7 +10,8 @@ export interface CoachmarkPosition {
   top: number;
   left: number;
   arrowLeft: number;
-  placement: "above" | "below";
+  /** RC2.2.23 — "fallback" = card inferior não ancorado (âncora indisponível). */
+  placement: "above" | "below" | "fallback";
 }
 
 export function computeCoachmarkPosition(input: {

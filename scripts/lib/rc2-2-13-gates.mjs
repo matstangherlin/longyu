@@ -250,7 +250,11 @@ export async function validateMobileNavigationDensity(s) {
   if (JSON.stringify(navKeys(mobileConst)) !== JSON.stringify(MOBILE_TABBAR)) fail("TABBAR_ITEMS_WRONG", "nav.tsx NAV_MOBILE", "NAV_MOBILE diverge da barra");
   if (/"\/cultura"/.test(mobileConst) || /"\/cultura"/.test(fnBody(nav, "export function mobileNavForStage("))) fail("CULTURE_UNDER_MORE_MATCH", "nav.tsx", "Mais não pode acender em /cultura");
   const moreSheet = fnBody(nav, "export function moreMobileSheetGroups(");
-  if (navKeys(moreSheet).includes("cultura")) fail("CULTURE_DUPLICATED_IN_MORE", "nav.tsx moreMobileSheetGroups", "Cultura já é aba");
+  // RC2.2.23 — Cultura pode morar no Mais enquanto não mereceu aba; nunca
+  // duplicada: só entra pelo filtro que tira o que já está na barra.
+  const cultureInMore = /\[[^\]]*NAV\.cultura[^\]]*\]\.filter\(keep\)/.test(moreSheet);
+  if (navKeys(moreSheet).includes("cultura") && (!cultureInMore || !/const keep = \(item: NavItem\) => !primaryTos\.has\(item\.to\)/.test(moreSheet)))
+    fail("CULTURE_DUPLICATED_IN_MORE", "nav.tsx moreMobileSheetGroups", "Cultura só no Mais quando não está na barra");
   const practice = navKeys(fnBody(nav, "export function practiceMobileSheetItems(")).filter((key) => key !== "revisao");
   if (!practice.includes("fala")) fail("SPEAKING_HIDDEN", "nav.tsx practiceMobileSheetItems", "Fala continua visível (também no Android)");
   if (JSON.stringify(practice) !== JSON.stringify(PRACTICE_SHEET)) fail("PRACTICE_SHEET_ORDER", "nav.tsx practiceMobileSheetItems", `${practice.join(",")} ≠ ${PRACTICE_SHEET.join(",")}`);

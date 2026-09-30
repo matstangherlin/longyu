@@ -87,7 +87,8 @@ test.describe("RC2.2.18 · conta nova", () => {
   test("CT: superfície mínima + UMA orientação de boas-vindas", async ({ page }) => {
     await seed(page, { completedLessons: [], achievementsUnlocked: {} }, { guidance: { enabled: true, initialized: false, records: {} } });
     await open(page, "/jornada");
-    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Mais"]);
+    // RC2.2.23 — conta nova: Jornada · Mais (Praticar depois da 1ª conclusão real).
+    expect(await tabLabels(page)).toEqual(["Jornada", "Mais"]);
 
     const welcome = page.locator('[data-guidance-id="welcome_journey_v1"]');
     await expect(welcome).toBeVisible({ timeout: 8_000 });
@@ -193,7 +194,8 @@ test.describe("RC2.2.18 · desbloqueios", () => {
       guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1") },
     });
     await open(page, "/jornada");
-    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Missões", "Mais"]);
+    // RC2.2.23 — no máximo 3 abas antes da Cultura: Missões fica no Mais.
+    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Mais"]);
     const batch = page.locator('[data-guidance-id="new_features_v1"]');
     await expect(batch).toBeVisible({ timeout: 8_000 });
     await expect(surfaces(page)).toHaveCount(1);
@@ -335,7 +337,8 @@ test.describe("RC2.2.18 · TabBar estável (DC)", () => {
       await page.setViewportSize(viewport);
       await seed(page, { completedLessons: [] }, { optIn: false });
       await open(page, "/jornada");
-      expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Mais"]);
+      // RC2.2.23 — conta nova: Jornada · Mais (Praticar depois da 1ª conclusão real).
+      expect(await tabLabels(page)).toEqual(["Jornada", "Mais"]);
       await noHorizontalOverflow(page);
     });
 

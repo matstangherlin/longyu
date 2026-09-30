@@ -86,7 +86,7 @@ const MUTATIONS = {
     ["M1b. barra ignora o registro", "CULTURE_VISIBLE_FRESH", src("tabBar", "mobileNavForStage(profile.stage, visibility)", "mobileNavForStage(profile.stage)")],
   ],
   "guidance-surfaces": [
-    ["27. VOLTAR sai do app em vez de fechar o coachmark", "BACK_EXITS_APP", src("host", "      data-coachmark-placement={position?.placement}\n      data-native-back-dismiss\n", "      data-coachmark-placement={position?.placement}\n")],
+    ["27. VOLTAR sai do app em vez de fechar o coachmark", "BACK_EXITS_APP", src("host", "      data-guidance-anchor={fallback || position?.placement === \"fallback\" ? \"fallback\" : \"anchored\"}\n      data-native-back-dismiss\n", "      data-guidance-anchor={fallback || position?.placement === \"fallback\" ? \"fallback\" : \"anchored\"}\n")],
     ["28. coachmark fora da tela", "COACHMARK_OUTSIDE_VIEWPORT", src("position", "  top = Math.min(Math.max(top, minTop), Math.max(minTop, maxBottom - card.height));\n", "")],
     ["29. tooltip cobre o alvo", "TOOLTIP_COVERS_TARGET", src("position", 'let top = placement === "below" ? target.bottom + COACHMARK_GAP : target.top - COACHMARK_GAP - card.height;', "let top = target.top;")],
     ["31. movimento reduzido ignorado", "REDUCED_MOTION_IGNORED", src("css", "  .longyu-guidance-in,\n  .longyu-unlock-reveal,\n  .longyu-tab-appear {\n    animation: longyu-fade-in 150ms linear both !important;\n  }\n", "")],

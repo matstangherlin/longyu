@@ -1210,7 +1210,9 @@ export const ptBR = {
     goHanzi: "Ir para Hànzì",
     goSpeaking: "Ir para Fala",
     backToReview: "Voltar à revisão",
-    sessionComplete: "Sessão concluída",
+    sessionComplete: "Revisão concluída",
+    endBack: "Voltar",
+    keepReviewing: "Continuar revisando",
     roundsComplete: "Rodadas concluídas",
     itemReviewed: "item revisado",
     itemsReviewed: "itens revisados",
@@ -1359,6 +1361,7 @@ export const ptBR = {
     tapPieces: "Toque nas peças abaixo",
     pieceAria: "Peça {n}: {value}",
     cardEvaluated: "Este cartão avaliou {skill}. A nota afeta só esse domínio.",
+    moreExplanation: "Ver explicação",
     literalPrefix: "literal: {text}",
     detailedErrorsHistory: "Histórico e padrões de erro",
     detailedErrorsProBody:
@@ -1406,6 +1409,21 @@ export const ptBR = {
     lockedStatus: "Bloqueada",
     openEpicChest: "Abrir Baú Épico ({n})",
     shieldReward: "+{n} Escudo",
+  },
+  energySoftLanding: {
+    title: "Você usou suas Cargas de hoje.",
+    body: "Ainda dá para continuar estudando.",
+    explain: "Cargas abrem lições novas. Revisar, praticar o que você já aprendeu e rever o que já concluiu continuam livres.",
+    review: "Revisar",
+    practice: "Praticar",
+    culture: "Cultura",
+    story: "História disponível",
+    hanzi: "Treinar Hànzì",
+    pinyin: "Pinyin",
+    atlas: "Atlas",
+    getCharge: "Conseguir Carga",
+    pro: "Longyu Pro",
+    close: "Agora não",
   },
   pro: {
     badge: "Longyu Pro",
@@ -2920,11 +2938,20 @@ export const ptBR = {
     },
     profileEntry: {
       title: "Este é o seu perfil.",
-      body: "Aqui você pode ver medalhas, progresso e personalizar sua identidade.",
+      body: "Aqui você pode ver suas medalhas, progresso e personalizar sua identidade.",
       primary: "Conhecer",
     },
     immersionFirstUse: {
-      body: "Cada cena mostra onde você está, com quem fala e o objetivo. Ouça primeiro, depois responda.",
+      body: "Na Imersão você usa o que aprendeu em situações completas.",
+    },
+    accountAppearance: {
+      title: "Você",
+      body: "Perfil, Conta e Aparência ficam juntos aqui. É aqui também que você sai da conta.",
+    },
+    journeyCultureBridge: {
+      title: "Como isso aparece no cotidiano",
+      body: "Antes de continuar, veja rapidamente como isso aparece no cotidiano.",
+      primary: "Ir para Cultura",
     },
     notificationsOffer: {
       title: "Lembretes de estudo",

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { capTargetPerRound } from "../../lib/semanticRepetition";
 import { useSearchParams } from "react-router-dom";
 import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
 import { todayKey } from "../../lib/storage";
@@ -61,6 +62,7 @@ import { reviewSessionSplit } from "../../lib/reviewSession";
 import {
   REVIEW_HANZI_CLASS,
   composeReviewQueue,
+  reviewRoundSize,
   feedbackExplanationIsRedundant,
   reviewOccurrenceAt,
   reviewRoundPosition,
@@ -402,10 +404,16 @@ function domainForEntry(entry: ReviewQueueEntry): ReviewDomain {
   return entry.kind === "mistake" ? entry.error.targets[0]?.domain ?? domainForItem(entry.item) : domainForItem(entry.item);
 }
 
+/**
+ * RC2.2.23 — feedback CURTO: ✓ 骂 · mà — sentido. Sem bloco gigante; o que
+ * não muda a próxima ação (literal, mnemônico, exemplo, o que foi avaliado)
+ * fica em "Ver explicação", opcional.
+ */
 function ReviewAnswer({ data, domain }: { data: Resolved; domain: ReviewDomain }) {
   const meta = REVIEW_DOMAIN_META[domain];
+  const hasMore = Boolean(data.literalPt || data.mnemonicPt || data.example.hanzi);
   return (
-    <div className="animate-pop mt-5 rounded-2xl bg-surface-2 p-4 text-center">
+    <div className="animate-pop mt-4 rounded-2xl bg-surface-2 px-4 py-3 text-center" data-review-answer="short">
       <MandarinText
         hanzi={data.hanzi}
         pinyin={data.pinyin}
@@ -414,32 +422,22 @@ function ReviewAnswer({ data, domain }: { data: Resolved; domain: ReviewDomain }
         audio
         align="center"
       />
-      {data.literalPt && (
-        <div className="mt-1 text-sm text-ink-faint">
-          {catalogT("review.literalPrefix", { text: displayInstruction(data.literalPt) })}
-        </div>
+      {hasMore && (
+        <details className="mt-2 text-left" data-review-answer-more>
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center text-sm font-medium text-accent">
+            {catalogT("review.moreExplanation")}
+          </summary>
+          <div className="mt-1 space-y-2 text-sm text-ink-soft">
+            {data.literalPt && <div className="text-ink-faint">{catalogT("review.literalPrefix", { text: displayInstruction(data.literalPt) })}</div>}
+            {data.mnemonicPt && <p className="rounded-xl bg-surface px-3 py-2">{data.mnemonicPt}</p>}
+            <div className="rounded-xl bg-surface px-3 py-2">
+              <MandarinText hanzi={data.example.hanzi} pinyin={data.example.pinyin} meaning={data.example.pt} size="sm" align="center" autoPlay={false} />
+              {data.example.note && <div className="mt-1 text-xs text-ink-faint">{data.example.note}</div>}
+            </div>
+            <div className="text-xs text-ink-faint">{catalogT("review.cardEvaluated", { skill: displayInstruction(meta.weaknessLabel) })}</div>
+          </div>
+        </details>
       )}
-      <div className="mx-auto mt-3 max-w-sm rounded-xl bg-surface px-3 py-2 text-xs text-ink-soft">
-        {catalogT("review.cardEvaluated", {
-          skill: displayInstruction(meta.weaknessLabel),
-        })}
-      </div>
-      {data.mnemonicPt && (
-        <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-sm text-ink-soft">
-          {data.mnemonicPt}
-        </p>
-      )}
-      <div className="mt-3 rounded-xl bg-surface px-3 py-2 text-sm text-ink-soft">
-        <MandarinText
-          hanzi={data.example.hanzi}
-          pinyin={data.example.pinyin}
-          meaning={data.example.pt}
-          size="sm"
-          align="center"
-          autoPlay={false}
-        />
-        {data.example.note && <div className="mt-1 text-xs text-ink-faint">{data.example.note}</div>}
-      </div>
     </div>
   );
 }
@@ -621,12 +619,14 @@ function ChoiceButton({
       className={["relative min-h-14 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
     >
       {shortcut && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
-      <TypedValue
-        value={option.label}
-        type={option.type}
-        className={isHanziText(option.label) ? REVIEW_HANZI_CLASS.option : ""}
-        activation="hover-hold"
-      />
+      <span data-review-hanzi={isHanziText(option.label) ? "option" : undefined}>
+        <TypedValue
+          value={option.label}
+          type={option.type}
+          className={isHanziText(option.label) ? REVIEW_HANZI_CLASS.option : ""}
+          activation="hover-hold"
+        />
+      </span>
       {option.detail && revealed && <span className="mt-0.5 block text-xs font-normal opacity-75">{formatPinyinForDisplay(option.detail)}</span>}
     </button>
   );
@@ -666,7 +666,7 @@ function ReviewExercisePanel({
         </div>
       )}
       {exercise.displayText && (
-        <div className="mt-4 rounded-2xl bg-surface px-4 py-4 text-center">
+        <div className="mt-4 rounded-2xl bg-surface px-4 py-4 text-center" data-review-hanzi={isHanziText(exercise.displayText) ? "main" : undefined}>
           <TypedValue
             value={exercise.displayText}
             type={exercise.displayType}
@@ -822,11 +822,14 @@ function SentenceBuildExercise({
               className={[
                 "relative min-h-14 rounded-xl border px-4 py-2 text-sm font-semibold transition",
                 used ? "border-line bg-surface-2 text-ink-faint opacity-55" : "border-line bg-surface text-ink hover:border-accent hover:bg-accent-soft",
-                isHanziText(piece.value) ? "text-2xl sm:text-3xl" : "",
+                // RC2.2.23 — peça com hànzì segue o piso de pares (≥ 44 px no celular).
+                isHanziText(piece.value) ? REVIEW_HANZI_CLASS.pair : "",
               ].join(" ")}
             >
               {index < 10 && <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>}
-              <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} activation="hover-hold" />
+              <span data-review-hanzi={isHanziText(piece.value) ? "pair" : undefined}>
+                <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} activation="hover-hold" />
+              </span>
             </button>
           );
         })}
@@ -922,12 +925,14 @@ function MatchPairsExercise({
                 ].join(" ")}
               >
                 <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
-                <TypedValue
-                  value={pair.left}
-                  type={pair.leftType}
-                  className={isHanziText(pair.left) ? `hanzi ${REVIEW_HANZI_CLASS.pair}` : "text-base"}
-                  activation="hover-hold"
-                />
+                <span data-review-hanzi={isHanziText(pair.left) ? "pair" : undefined}>
+                  <TypedValue
+                    value={pair.left}
+                    type={pair.leftType}
+                    className={isHanziText(pair.left) ? `hanzi ${REVIEW_HANZI_CLASS.pair}` : "text-base"}
+                    activation="hover-hold"
+                  />
+                </span>
                 {matched && (
                   <span className="flex items-center gap-1 text-xs font-medium text-ink-soft">
                     {good && <IconCheck width={13} height={13} className="text-[rgb(var(--good))]" />}
@@ -1299,6 +1304,8 @@ export function RevisaoPage() {
   // Congela a fila no início da sessão, mas permite um rebuild se o storage
   // reidratar depois do primeiro paint (evita sessão vazia com dados locais).
   const sessionQueueRef = useRef<ReviewQueueEntry[] | null>(null);
+  // RC2.2.23 — "Continuar revisando" recongela a fila com o SRS já atualizado.
+  const [sessionNonce, setSessionNonce] = useState(0);
   const fullQueue = useMemo(() => {
     if (atlasStudySet) {
       if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
@@ -1326,7 +1333,8 @@ export function RevisaoPage() {
       sessionQueueRef.current = scoped;
     }
     return sessionQueueRef.current;
-  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, moduleUnitId, srs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sessionNonce` recongela a fila de propósito
+  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, moduleUnitId, srs, sessionNonce]);
   // Modos de revisão: recuperar erros da tentativa/recentes, reforçar itens
   // fracos ou percorrer a fila inteligente inteira. O modo só filtra a fila já
   // congelada — não reconstrói SRS nem duplica nada.
@@ -1343,10 +1351,12 @@ export function RevisaoPage() {
   );
   const advancedReviewAccess = canAccessAdvancedReview({ isPremium });
   // RC2.2.19 — mesma fila do SRS, só reordenada: o mesmo alvo nunca colado.
-  const baseQueue = useMemo(
-    () => composeReviewQueue(advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue, reviewTargetOf),
-    [advancedReviewAccess.limited, modeQueue]
-  );
+  // RC2.2.23 — e nenhuma rodada de 5–8 com o mesmo alvo mais de 2× (o
+  // excedente vai para a rodada seguinte; nada sai da fila do SRS).
+  const baseQueue = useMemo(() => {
+    const spaced = composeReviewQueue(advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue, reviewTargetOf);
+    return capTargetPerRound(spaced, reviewTargetOf, reviewRoundSize(spaced.length));
+  }, [advancedReviewAccess.limited, modeQueue]);
   const [retryQueue, setRetryQueue] = useState<ReviewQueueEntry[]>([]);
   const queue = useMemo(() => [...baseQueue, ...retryQueue], [baseQueue, retryQueue]);
   const domainCounts = useMemo(() => countByDomain(queue), [queue]);
@@ -1513,6 +1523,26 @@ export function RevisaoPage() {
       completeStudySession();
     }
   }, [completeStudySession, mode, pos, queue.length]);
+
+  const sessionFinished = queue.length > 0 && pos >= queue.length;
+  // Quanto ainda está devido fora desta sessão (SRS já atualizado pelas notas).
+  const moreDueAfterSession = useMemo(() => {
+    if (!sessionFinished || atlasStudySet) return 0;
+    const seen = new Set(queue.map((queued) => queued.id));
+    return buildReviewQueue(srs, detailedErrorsAllowed ? activeActivityErrors : [], { includeRecentWeakItems: detailedErrorsAllowed }).filter(
+      (candidate) => !seen.has(candidate.id)
+    ).length;
+  }, [activeActivityErrors, atlasStudySet, detailedErrorsAllowed, queue, sessionFinished, srs]);
+  const continueReviewing = useCallback(() => {
+    sessionQueueRef.current = null;
+    reviewCompletedRef.current = false;
+    setRetryQueue([]);
+    setReviewed(0);
+    setSessionGrades([]);
+    setReturningItems([]);
+    setPos(0);
+    setSessionNonce((value) => value + 1);
+  }, []);
 
   // Trocar de modo recomeça a fila filtrada do zero (sem carregar retry antigo).
   useEffect(() => {
@@ -1757,10 +1787,22 @@ export function RevisaoPage() {
                   </div>
                 </div>
               )}
-              {correctionDrill && (
+              {correctionDrill ? (
                 <Button className="mt-5" onClick={exitCorrectionDrill}>
                   {t("review.backToReview")}
                 </Button>
+              ) : (
+                // RC2.2.23 — fim claro: voltar ou continuar, nada em volta competindo.
+                <div className="mt-5 flex flex-wrap justify-center gap-3" data-review-end>
+                  <ButtonLink to="/jornada" variant="outline" data-testid="review-end-back">
+                    {t("review.endBack")}
+                  </ButtonLink>
+                  {moreDueAfterSession > 0 && (
+                    <Button onClick={continueReviewing} data-testid="review-end-continue">
+                      {t("review.keepReviewing")}
+                    </Button>
+                  )}
+                </div>
               )}
               {!isPremium && fullQueue.length > queue.length && (
                 <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-sm text-ink-soft">

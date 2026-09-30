@@ -1212,7 +1212,9 @@ export const en: MessageCatalog = {
     goHanzi: "Go to Hànzì",
     goSpeaking: "Go to Speaking",
     backToReview: "Back to review",
-    sessionComplete: "Session complete",
+    sessionComplete: "Review complete",
+    endBack: "Back",
+    keepReviewing: "Keep reviewing",
     roundsComplete: "Rounds complete",
     itemReviewed: "item reviewed",
     itemsReviewed: "items reviewed",
@@ -1361,6 +1363,7 @@ export const en: MessageCatalog = {
     tapPieces: "Tap the pieces below",
     pieceAria: "Piece {n}: {value}",
     cardEvaluated: "This card assessed {skill}. The grade only affects that skill.",
+    moreExplanation: "See explanation",
     literalPrefix: "literal: {text}",
     detailedErrorsHistory: "Error history and patterns",
     detailedErrorsProBody:
@@ -1408,6 +1411,21 @@ export const en: MessageCatalog = {
     lockedStatus: "Locked",
     openEpicChest: "Open Epic Chest ({n})",
     shieldReward: "+{n} Shield",
+  },
+  energySoftLanding: {
+    title: "You used today's Charges.",
+    body: "You can still keep studying.",
+    explain: "Charges open new lessons. Reviewing, practicing what you already learned and replaying what you finished stay free.",
+    review: "Review",
+    practice: "Practice",
+    culture: "Culture",
+    story: "Available story",
+    hanzi: "Train Hànzì",
+    pinyin: "Pinyin",
+    atlas: "Atlas",
+    getCharge: "Get a Charge",
+    pro: "Longyu Pro",
+    close: "Not now",
   },
   pro: {
     badge: "Longyu Pro",
@@ -2919,7 +2937,16 @@ export const en: MessageCatalog = {
       primary: "Explore",
     },
     immersionFirstUse: {
-      body: "Each scene shows where you are, who you talk to and the goal. Listen first, then answer.",
+      body: "In Immersion you use what you learned in complete situations.",
+    },
+    accountAppearance: {
+      title: "You",
+      body: "Profile, Account and Appearance live together here. This is also where you sign out.",
+    },
+    journeyCultureBridge: {
+      title: "How this shows up in daily life",
+      body: "Before moving on, take a quick look at how this shows up in daily life.",
+      primary: "Go to Culture",
     },
     notificationsOffer: {
       title: "Study reminders",

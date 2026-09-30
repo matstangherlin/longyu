@@ -55,6 +55,7 @@ export const TECH_EVENT_NAMES = [
   "unhandled_rejection",
   // RC2.2.22 — carga da sessão (orçamento de popups) e marcações do QA humano.
   "coachmark_shown",
+  "guidance_delivery",
   "unlock_reveal_shown",
   "ceremony_shown",
   "permission_prompted",
