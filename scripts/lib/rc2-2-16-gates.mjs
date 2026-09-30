@@ -780,9 +780,14 @@ export async function validatePlayPolicyReadiness(s) {
   const recordsAudio = recordsInRecognition || recordRe.test(stripComments(s.src.speechPlugin ?? ""));
   const local = mic?.temporaryLocalRecording;
   const localDeclared = Boolean(local && local.transmitted === false && local.deletedOnExit === true && local.deletedOnBackground === true);
+  // RC2.2.21 — "apagada no background" = no background REAL (onStop), com a
+  // pausa transitória só interrompendo microfone/reprodução.
+  const pluginSource = s.src.speechPlugin ?? "";
   const pluginDeletes =
-    /protected void handleOnPause\(\)[\s\S]{0,400}discardPracticeRecording\(\);/.test(s.src.speechPlugin ?? "") &&
-    /getCacheDir\(\)/.test(s.src.speechPlugin ?? "");
+    (/protected void handleOnPause\(\)[\s\S]{0,400}discardPracticeRecording\(\);/.test(pluginSource) ||
+      (/protected void handleOnPause\(\)[\s\S]{0,400}interruptPractice\(\);/.test(pluginSource) &&
+        /protected void handleOnStop\(\)[\s\S]{0,300}discardPracticeRecording\(\);/.test(pluginSource))) &&
+    /getCacheDir\(\)/.test(pluginSource);
   if (recordsAudio && mic?.audioStored === false && (recordsInRecognition || !(localDeclared && pluginDeletes))) {
     fail("AUDIO_PRIVACY_WRONG", "speech", "código grava áudio mas a declaração diz que não");
   }

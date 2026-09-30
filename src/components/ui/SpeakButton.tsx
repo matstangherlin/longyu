@@ -104,7 +104,7 @@ export function SpeakButton({
     // Part I — ao voltar do instalador, perguntar de novo ao SO.
     const refresh = () => {
       document.removeEventListener("visibilitychange", refresh);
-      void refreshNativeTtsStatus().then((status) => {
+      void refreshNativeTtsStatus({ reinit: true }).then((status) => {
         if (status?.available) {
           setUnavailable(false);
           setFailed(false);

@@ -62,6 +62,7 @@ import { publishedCapsuleNodesAfterTopic } from "../../data/lessonCatalog";
 import { useLessonCatalogStatus } from "../../hooks/useLessonCatalog";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 import { JourneyInlineNode } from "./JourneyInlineNode";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -242,6 +243,8 @@ function lockedLessonMessage(
 }
 
 export function JourneyPage() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("journey_open"), []);
   const { t, instructionLocale: locale } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

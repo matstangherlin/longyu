@@ -25,6 +25,7 @@ import {
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 import { featureAvailability, type FeatureId } from "../../lib/learnerStage";
 import { checkIsBetaAdmin } from "../../services/feedbackService";
+import { deviceQaEnabled } from "../../lib/deviceQa";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import type { MessageKey } from "../../locales/pt-BR";
@@ -176,6 +177,14 @@ export function MorePage() {
       ))}
 
       <FeedbackPrompt context={{ screen: "/mais" }} compact />
+
+      {deviceQaEnabled() && (
+        <p className="mt-4 text-center text-sm">
+          <Link to="/qa/device" className="font-semibold text-accent hover:underline" data-testid="more-device-qa">
+            QA físico no aparelho
+          </Link>
+        </p>
+      )}
     </HubPage>
   );
 }
@@ -204,7 +213,9 @@ function MoreYouBlock() {
           <IconSun width={18} height={18} className="text-accent" /> {t("navigation.appearance")}
         </Link>
         {canSignOut && (
-          <button type="button" onClick={() => void signOut()} className={`${tile} text-wrong`} data-testid="more-sign-out">
+          // RC2.2.20 — Sair é visível mas NEUTRO: não pode parecer o "Excluir
+          // conta" (vermelho, separado, no fim de Conta).
+          <button type="button" onClick={() => void signOut()} className={`${tile} text-ink-soft`} data-testid="more-sign-out" data-sign-out-tone="neutral">
             {t("common.signOut")}
           </button>
         )}

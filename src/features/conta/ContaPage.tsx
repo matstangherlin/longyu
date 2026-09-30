@@ -175,7 +175,7 @@ export function ContaPage() {
             )}
           </p>
           {canSignOut && (
-            <ActionButton onClick={() => void onSignOut()} variant="secondary" size="sm" className="mt-3 border-wrong/30 text-wrong hover:bg-wrong-soft">
+            <ActionButton onClick={() => void onSignOut()} variant="secondary" size="sm" className="mt-3" data-testid="conta-sign-out" data-sign-out-tone="neutral">
               {displayInstruction("Sair da conta")}
             </ActionButton>
           )}
