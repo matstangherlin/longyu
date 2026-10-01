@@ -164,6 +164,34 @@ export async function validateConversationZeroStall(s) {
   const { failures, fail } = collector();
   if (!/tryAcquireTransitionLock/.test(s.src.conversation)) fail("NO_TRANSITION_LOCK", FILES.conversation, "lock [10]");
   if (!/TRANSITION_LOCK_MS/.test(s.src.runtime)) fail("LOCK_MISSING", FILES.runtime, "TRANSITION_LOCK_MS");
+  if (!/forceReleaseTransitionLock/.test(s.src.runtime) || !/forceReleaseTransitionLock/.test(s.src.conversation)) {
+    fail("LOCK_DOM_RELEASE_MISSING", FILES.runtime, "release on DOM_NEXT_VISIBLE");
+  }
+  // APK pointer→audio contract traces
+  for (const ev of [
+    "conversation_pointer_down",
+    "conversation_click",
+    "conversation_handler_enter",
+    "conversation_lock_acquired",
+    "conversation_lock_rejected",
+    "conversation_target",
+    "conversation_state_commit",
+    "conversation_dom_visible",
+    "conversation_audio_request",
+  ]) {
+    if (!s.src.conversation.includes(ev) && !read("src/lib/conversationTransition.ts").includes(ev)) {
+      fail("TRACE_MISSING", "conversationTransition", ev);
+    }
+  }
+  if (!/conversation_pointer_down/.test(s.src.conversation) || !/onPointerDown/.test(s.src.conversation)) {
+    fail("POINTER_CONTRACT", FILES.conversation, "pointerdown on Continuar [OR58]");
+  }
+  if (!/reuseTransitionId/.test(s.src.conversation)) {
+    fail("FAILSAFE_SAME_TRANSITION", FILES.conversation, "failsafe reuses transitionId");
+  }
+  if (!/touch-manipulation|touch-action/.test(s.src.conversation) && !/touch-manipulation/.test(read("src/components/ui/primitives.tsx"))) {
+    fail("BUTTON_TOUCH", FILES.conversation, "touch-action manipulation");
+  }
   await guarded(fail, FILES.runtime, async () => {
     const m = await bundle("runtime", s);
     const ten = m.runQaConversationTenNodes(true);
@@ -177,12 +205,25 @@ export async function validateConversationZeroStall(s) {
     const a = m.tryAcquireTransitionLock(lock, "t-1", 1000);
     const b = m.tryAcquireTransitionLock(a.lock, "t-2", 1000 + 10);
     if (b.ok) fail("DUPLICATE_TAP_ADVANCES", FILES.runtime, "second tap must be ignored [10]");
+    // force release must unlock immediately so next legitimate tap works
+    if (typeof m.forceReleaseTransitionLock === "function") {
+      const released = m.forceReleaseTransitionLock(a.lock);
+      if (released.locked) fail("LOCK_FORCE_RELEASE", FILES.runtime, "forceRelease must clear lock");
+    }
     let state = m.createConversationRuntimeState({ sceneId: "s", entryNodeId: "n1" });
     state = m.conversationReducer(state, { type: "CONTINUE", targetNodeId: "n2", transitionId: "t-2" });
     if (state.nodeId !== "n2") fail("CONTINUE_NO_COMMIT", FILES.runtime, "CONTINUE must commit [9]");
   });
-  const goTo = s.src.conversation.match(/function goTo\([\s\S]*?\n  function advance\(/)?.[0] ?? "";
+  const goTo = s.src.conversation.match(/function goTo\([\s\S]*?\n  function advance\(/)?.[0]
+    ?? s.src.conversation.match(/function goTo\([\s\S]*?\n  failsafeRetryRef/)?.[0]
+    ?? "";
   if (/playMandarin|requestMandarin/.test(goTo)) fail("AUDIO_BLOCKS_TRANSITION", FILES.conversation, "audio in goTo [8]");
+  // P1 must not be marked DONE without APK proof
+  const or34 = s.owner?.items?.find((i) => i.id === "OR34");
+  if (or34 && (or34.ownerAccepted || or34.apkState === "APK_PASS") && or34.apkState !== "APK_PASS" && or34.apkState !== "OWNER_ACCEPTED") {
+    fail("CONVERSATION_P1_FAKE_DONE", FILES.owner, "OR34 DONE without APK");
+  }
+  if (or34 && or34.codeState === "OWNER_ACCEPTED") fail("CONVERSATION_P1_FAKE_DONE", FILES.owner, "OR34 CODE≠OWNER");
   return failures;
 }
 
@@ -190,12 +231,17 @@ export async function validateOwnerRequestRegister(s) {
   const { failures, fail } = collector();
   if (!s.owner?.items?.length) fail("OWNER_REGISTER_MISSING", FILES.owner, "register");
   else {
-    if (s.owner.items.length < 44) fail("OWNER_REGISTER_INCOMPLETE", FILES.owner, String(s.owner.items.length));
-    for (const id of ["OR01", "OR34", "OR43", "OR44"]) {
+    if (s.owner.items.length < 60) fail("OWNER_REGISTER_INCOMPLETE", FILES.owner, `need OR01–OR60 got ${s.owner.items.length}`);
+    for (const id of ["OR01", "OR34", "OR43", "OR44", "OR45", "OR46", "OR50", "OR58", "OR60"]) {
       if (!s.owner.items.some((i) => i.id === id)) fail("OWNER_ITEM_MISSING", FILES.owner, id);
     }
-    const fakeDone = s.owner.items.find((i) => i.ownerAccepted === true && i.apkState !== "APK_PASS" && i.apkState !== "OWNER_ACCEPTED");
-    // ownerAccepted true without APK is only OK if code says OWNER_ACCEPTED state
+    // Critical items must not close as CODE_READY pretending DONE
+    for (const id of ["OR34", "OR29", "OR30", "OR58", "OR60"]) {
+      const item = s.owner.items.find((i) => i.id === id);
+      if (item && (item.ownerAccepted || item.codeState === "OWNER_ACCEPTED") && item.apkState !== "APK_PASS" && item.apkState !== "OWNER_ACCEPTED") {
+        fail("CRITICAL_OR_CODE_READY_DONE", FILES.owner, `${id} closed without APK/OWNER`);
+      }
+    }
     const bad = s.owner.items.find((i) => i.codeState === "OWNER_ACCEPTED" || (i.ownerAccepted && !i.ownerSaw));
     if (bad) fail("OWNER_REJECTED_MARKED_DONE", FILES.owner, bad.id);
   }
@@ -234,9 +280,13 @@ export async function validateGuidanceDelivery(s) {
   const { failures, fail } = collector();
   if (!/tone_trace_first_use_v1/.test(s.src.guidance)) fail("TONE_TRACE_GUIDANCE", FILES.guidance, "[22]");
   if (!/tone_confusion_2_3_v1/.test(s.src.guidance)) fail("TONE_CONFUSION_GUIDANCE", FILES.guidance, "AF");
+  if (!/profile_entry_v1/.test(s.src.guidance)) fail("PROFILE_COACHMARK", FILES.guidance, "OR46");
   if (!/isAutoSeeded/.test(s.src.guidance)) fail("AUTO_SEED", FILES.guidance, "must not mark seen on unlock alone");
   if (!/GUIDANCE_SESSION_BUDGET\s*=\s*1/.test(s.src.guidance)) fail("POPUP_SPAM", FILES.guidance, "budget [21]");
   if (!/GUIDANCE_FIRST_SESSION_BUDGET\s*=\s*2/.test(s.src.guidance)) fail("POPUP_SPAM", FILES.guidance, "onboarding budget");
+  if (!/Acompanhe o caminho do tom/.test(s.src.localesPt)) {
+    fail("TONE_TRACE_COPY", FILES.localesPt, "Tone Trace first-use copy");
+  }
   return failures;
 }
 
@@ -255,6 +305,20 @@ export async function validatePhysicalTruth(s) {
   const { failures, fail } = collector();
   if (!s.matrix) fail("MATRIX_MISSING", FILES.matrix, "matrix");
   else {
+    const ids = new Set((s.matrix.requiredChecks ?? []).map((c) => c.id));
+    for (const need of [
+      "conversationPointerDown",
+      "conversationClick",
+      "conversation20Transitions",
+      "noDebugLearnerUi",
+      "logoutUnder5Seconds",
+      "noScroll390",
+      "signupCleanInstall",
+      "selfCompareOwnerHear",
+      "completionAnimation",
+    ]) {
+      if (!ids.has(need)) fail("MATRIX_INCOMPLETE", FILES.matrix, need);
+    }
     for (const check of s.matrix.requiredChecks ?? []) {
       if (check.result === "PASS" && check.evidence !== "PHYSICAL") fail("FAKE_PHYSICAL_PASS", check.id, "auto PASS");
     }

@@ -2931,11 +2931,11 @@ export const en: MessageCatalog = {
     },
     toneTraceFirstUse: {
       title: "Tones follow a path",
-      body: "Slide your finger along the line to memorize the voice movement.",
+      body: "Follow the tone’s path. On a phone, slide your finger along the line.",
       primary: "Try it",
     },
     toneConfusion23: {
-      body: "You’re mixing up 2nd and 3rd tones. Want to review the movement?",
+      body: "The 2nd rises. The 3rd dips then rises. Want to review the movement?",
       primary: "Practice",
     },
     practiceFirstUse: {

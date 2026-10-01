@@ -624,19 +624,19 @@ export const RC2_2_28_DETERMINISTIC_AUDIO_EXCEPTION = {
  */
 export const RC2_2_29_LAUNCH_CONVERGENCE_EXCEPTION = {
   id: "RC2_2_29_LAUNCH_CONVERGENCE",
-  scope: "Full FIXED_CANONICAL audio coverage + quality gate, learner UI without technical debug, conversation transition lock / rapid-continue safety, owner-request closure register, Tone Trace first-use guidance, local-profile copy cleanup, completion deltas preserved, stacked launch convergence gate",
+  scope: "Full FIXED_CANONICAL audio coverage + quality gate, learner UI without technical debug, conversation pointer/click/lock/DOM failsafe (Continue stall P1), owner-request closure OR01–OR60, Tone Trace first-use guidance, local-profile copy cleanup, completion deltas preserved, stacked launch convergence gate",
   areas: [
     "FIXED_CONTENT_MISSING_AUDIO = 0 (dynamic-only classified separately)",
     "Guided Try and pedagogical surfaces show no TTS/plugin/requestId diagnostics",
-    "tryAcquireTransitionLock blocks duplicate Continuar during commit",
-    "owner-request-closure.json tracks OR01–OR44 until OWNER_ACCEPTED",
-    "tone_trace_first_use_v1 and tone_confusion_2_3_v1 registered in guidance",
+    "conversation APK traces pointer→click→lock→commit→DOM→audio; forceRelease on DOM; failsafe same transitionId",
+    "owner-request-closure.json tracks OR01–OR60 until OWNER_ACCEPTED (CODE_READY ≠ DONE)",
+    "tone_trace_first_use_v1, tone_confusion_2_3_v1, profile_entry_v1 registered in guidance",
   ],
   forbids: [
     "new LessonEngine, SRS, StoryEngine or ProfileEngine",
     "touching #273 / changing package / enabling Android billing or Production Play",
     "physical PASS or owner acceptance generated automatically",
-    "marking owner-rejected items DONE",
+    "marking owner-rejected or critical P1 items DONE without APK_PASS/OWNER_ACCEPTED",
     "new lessons, lesson ids, order, topics or StepKinds",
   ],
   fingerprint: "c48b008c9c1e",

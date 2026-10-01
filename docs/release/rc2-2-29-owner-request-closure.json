@@ -330,7 +330,7 @@
       "apkState": "NOT_RUN",
       "ownerSaw": false,
       "ownerAccepted": false,
-      "notes": "P1 physical still required"
+      "notes": "P1 physical still required | P1 explicit signup clean install"
     },
     {
       "id": "OR30",
@@ -341,7 +341,7 @@
       "apkState": "NOT_RUN",
       "ownerSaw": false,
       "ownerAccepted": false,
-      "notes": "P1 physical still required"
+      "notes": "P1 physical still required | close if backend allows"
     },
     {
       "id": "OR31",
@@ -385,7 +385,7 @@
       "apkState": "NOT_RUN",
       "ownerSaw": false,
       "ownerAccepted": false,
-      "notes": "Reducer + transition lock; APK physical required"
+      "notes": "P1 ANDROID_CONVERSATION_CONTINUE_STALL — pointer/click/lock/DOM failsafe; APK 20/20 required; CODE_READY ≠ DONE"
     },
     {
       "id": "OR35",
@@ -496,6 +496,182 @@
       "ownerSaw": false,
       "ownerAccepted": false,
       "notes": "Dynamic name audio classified DYNAMIC_TTS"
+    },
+    {
+      "id": "OR45",
+      "request": "Visual questions",
+      "surface": "lesson",
+      "codeState": "PARTIAL",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "Visual teaches; image/scene/contour items"
+    },
+    {
+      "id": "OR46",
+      "request": "Profile first-use coachmark",
+      "surface": "profile",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "profile_entry_v1 registered"
+    },
+    {
+      "id": "OR47",
+      "request": "Immersion speech bubbles",
+      "surface": "immersion",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "NPC + learner bubbles"
+    },
+    {
+      "id": "OR48",
+      "request": "Immersion character reaction",
+      "surface": "immersion",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "choice → reaction → next"
+    },
+    {
+      "id": "OR49",
+      "request": "Immersion tap-to-gloss",
+      "surface": "immersion",
+      "codeState": "PARTIAL",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "tap Hànzì: pinyin/meaning/audio"
+    },
+    {
+      "id": "OR50",
+      "request": "Global no-scroll activity parity",
+      "surface": "ui",
+      "codeState": "PARTIAL",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "390/375/360 physical required"
+    },
+    {
+      "id": "OR51",
+      "request": "Guided parity Review",
+      "surface": "review",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "Focus Mode shell"
+    },
+    {
+      "id": "OR52",
+      "request": "Guided parity Pinyin",
+      "surface": "pinyin",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "Focus Mode shell"
+    },
+    {
+      "id": "OR53",
+      "request": "Guided parity Hànzì",
+      "surface": "hanzi",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "Focus Mode shell"
+    },
+    {
+      "id": "OR54",
+      "request": "Guided parity Speaking",
+      "surface": "speaking",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "Focus Mode shell"
+    },
+    {
+      "id": "OR55",
+      "request": "Guided parity Culture task",
+      "surface": "culture",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "task focus after hub"
+    },
+    {
+      "id": "OR56",
+      "request": "Guided parity Immersion task",
+      "surface": "immersion",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "task focus after hub"
+    },
+    {
+      "id": "OR57",
+      "request": "Premium visual acceptance",
+      "surface": "ui",
+      "codeState": "PARTIAL",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "owner golden-standard compare"
+    },
+    {
+      "id": "OR58",
+      "request": "Conversation pointer/click truth",
+      "surface": "conversation",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "APK traces pointer→DOM→audio; physical 20/20 required"
+    },
+    {
+      "id": "OR59",
+      "request": "No local identity after logout",
+      "surface": "auth",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "no Aluno local / perfis UI"
+    },
+    {
+      "id": "OR60",
+      "request": "Completion owner acceptance",
+      "surface": "completion",
+      "codeState": "CODE_READY",
+      "webState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerSaw": false,
+      "ownerAccepted": false,
+      "notes": "animation/sound/haptic one-by-one; owner must see"
     }
   ]
 }

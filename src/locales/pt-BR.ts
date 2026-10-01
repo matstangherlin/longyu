@@ -2936,11 +2936,11 @@ export const ptBR = {
     },
     toneTraceFirstUse: {
       title: "Os tons seguem um caminho",
-      body: "Passe o dedo sobre a linha para memorizar o movimento da voz.",
+      body: "Acompanhe o caminho do tom. No celular, passe o dedo pela linha.",
       primary: "Experimentar",
     },
     toneConfusion23: {
-      body: "Você está confundindo 2º e 3º tons. Quer revisar o movimento?",
+      body: "O 2º sobe. O 3º primeiro desce e depois sobe. Quer revisar o movimento?",
       primary: "Praticar",
     },
     practiceFirstUse: {

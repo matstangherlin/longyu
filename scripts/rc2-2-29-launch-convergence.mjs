@@ -57,8 +57,8 @@ const MUTATIONS = {
     ["[10] duplicate tap skips two nodes", "DUPLICATE_TAP_ADVANCES", src("runtime", "if (lock.locked && now - lock.lockedAt < TRANSITION_LOCK_MS) {\n    return { ok: false, lock };\n  }", "if (false) {\n    return { ok: false, lock };\n  }")],
     ["[8] audio failure blocks transition", "AUDIO_BLOCKS_TRANSITION", (s) => {
       s.src.conversation = s.src.conversation.replace(
-        "function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {",
-        'function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {\n    void playMandarinAudio("x");'
+        "function goTo(\n    targetId: string | undefined,\n    _speakTarget?: ConversationNode,\n    opts?: { reuseTransitionId?: string }\n  ) {",
+        'function goTo(\n    targetId: string | undefined,\n    _speakTarget?: ConversationNode,\n    opts?: { reuseTransitionId?: string }\n  ) {\n    void playMandarinAudio("x");'
       );
     }],
   ],
@@ -67,6 +67,15 @@ const MUTATIONS = {
       s.owner = JSON.parse(JSON.stringify(s.owner));
       s.owner.items[0].ownerAccepted = true;
       s.owner.items[0].ownerSaw = false;
+    }],
+    ["critical OR closed as CODE_READY", "CRITICAL_OR_CODE_READY_DONE", (s) => {
+      s.owner = JSON.parse(JSON.stringify(s.owner));
+      const or34 = s.owner.items.find((i) => i.id === "OR34");
+      if (or34) {
+        or34.ownerAccepted = true;
+        or34.ownerSaw = true;
+        or34.apkState = "NOT_RUN";
+      }
     }],
   ],
   "no-debug-ui": [
@@ -84,6 +93,7 @@ const MUTATIONS = {
   "guidance-delivery": [
     ["[22] Tone Trace no first-use", "TONE_TRACE_GUIDANCE", src("guidance", "tone_trace_first_use_v1", "tone_trace_removed")],
     ["[21] popup spam", "POPUP_SPAM", src("guidance", "GUIDANCE_SESSION_BUDGET = 1", "GUIDANCE_SESSION_BUDGET = 9")],
+    ["OR46 profile coachmark absent", "PROFILE_COACHMARK", src("guidance", "profile_entry_v1", "profile_entry_removed")],
   ],
   "completion-sequence": [
     ["[32] unit celebration missing", "UNIT_CELEBRATION", src("player", "computeCompletionDeltas", "computeNothing")],
