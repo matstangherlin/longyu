@@ -293,11 +293,11 @@ export function ProfilePage() {
           </div>
         </div>
         {/* RC2.2.19 — primeira dobra: medalhas, Editar e Amigos à mão.
-            RC2.2.25 — + Conta (leva direto à região com "Sair da conta"). */}
-        <div className="grid w-full shrink-0 grid-cols-2 gap-2 sm:flex sm:w-auto" data-testid="profile-first-fold-actions">
+            RC2.2.25 — + Conta em 1 linha (grid-cols-4): 2×2 estourava 200px no 360. */}
+        <div className="grid w-full shrink-0 grid-cols-4 gap-1.5 sm:flex sm:w-auto sm:gap-2" data-testid="profile-first-fold-actions">
           <a
             href="#medalhas"
-            className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl bg-surface-2 px-2 text-sm font-semibold text-ink"
+            className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl bg-surface-2 px-1.5 text-sm font-semibold text-ink"
             data-testid="profile-medal-count"
             aria-label={t("hub.medalCount", { n: medalCount })}
           >
