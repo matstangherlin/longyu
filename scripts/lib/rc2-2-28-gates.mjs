@@ -142,7 +142,7 @@ export async function validateCanonicalAudioManifest(s) {
       "./techEvents": `export const recordTechEvent=()=>{};`,
       "./ttsCorrelation": `export const newTtsRequestId=()=>'r1';`,
       "./platform/nativeSpeech": `export const nativeCancelSpeak=async()=>{};`,
-      "./audio/canonicalPlayer": `export const playCanonicalAudio=async()=>({requestId:'r1',audioId:'a',started:true,ended:true,failed:false,reason:null,engine:'web-asset'}); export const stopCanonicalAudio=async()=>{};`,
+      "./audio/canonicalPlayer": `export const playCanonicalAudio=async()=>({requestId:'r1',audioId:'a',started:true,ended:true,failed:false,reason:null,engine:'web-asset'}); export const stopCanonicalAudio=async()=>{}; export const cancelCanonicalAudio=async()=>{};`,
     });
     if (!m.CANONICAL_AUDIO_ASSETS || !Object.keys(m.CANONICAL_AUDIO_ASSETS).length) {
       fail("CANONICAL_AUDIO_EMPTY", FILES.manifest, "mapa de assets vazio [1]");
