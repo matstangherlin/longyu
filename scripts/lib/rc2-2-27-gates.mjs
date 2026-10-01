@@ -447,7 +447,10 @@ export async function validateLessonAudioGates(s) {
 
 export async function validateAudioArbiterRecovery(s) {
   const { failures, fail } = collector();
-  if (!/claim = claimAudio\("TTS", \(\) => cancelOwnSpeech\(requestId, token\)\);/.test(s.src.playback)) fail("ARBITER_GLOBAL_STOP", FILES.playback, "o árbitro cancela a PRÓPRIA fala, não para tudo");
+  // RC2.2.31 — asset path claims CANONICAL_MEDIA; TTS path still cancels own request only.
+  if (!/claimAudio\("(TTS|CANONICAL_MEDIA)", \(\) => cancelOwnSpeech\(requestId, token\)\)/.test(s.src.playback)) {
+    fail("ARBITER_GLOBAL_STOP", FILES.playback, "o árbitro cancela a PRÓPRIA fala, não para tudo");
+  }
   const play = section(s.src.playback, "export function playMandarinAudio(", "export function cancelOwnSpeech(");
   if (/\bstopSpeaking\(\)/.test(stripComments(play))) fail("ARBITER_GLOBAL_STOP", FILES.playback, "prazo de fim cancela só a própria request");
   const bug = s.bugs?.bugs?.find((item) => item.id === "AUDIO_OWNER_RECOVERY_FAIL");

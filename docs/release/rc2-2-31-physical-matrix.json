@@ -1,0 +1,19 @@
+{
+  "wave": "RC2_2_31",
+  "note": "Owner tested #303 tip a70bff9d — physical FAILS recorded. NOT_RUN forbidden for these checks.",
+  "checks": {
+    "guidedTryAudio": "FAIL",
+    "conversationContinue": "FAIL",
+    "conversationSequentialAudio": "FAIL",
+    "requestAwareCancel": "NOT_RUN",
+    "staleCallbackRejection": "NOT_RUN",
+    "audioOffConversation20": "NOT_RUN",
+    "audioOnConversation20": "NOT_RUN",
+    "guidedTry10ColdStarts": "NOT_RUN"
+  },
+  "release": {
+    "CLOSED_BETA": "NO_GO",
+    "APK_PASS": 0,
+    "OWNER_ACCEPTED": 0
+  }
+}

@@ -1,8 +1,8 @@
 /**
- * RC2.2.28 — bridge Capacitor do player canônico de assets (LongyuMedia).
+ * RC2.2.28/31 — bridge Capacitor do player canônico (LongyuMedia).
  *
  * Capacitor/registerPlugin só vivem em src/lib/platform/ (android-platform-boundaries).
- * O player JS (`canonicalPlayer.ts`) chama estes helpers; nunca importa Capacitor.
+ * RC2.2.31 — cancelCanonicalAudio request-aware; androidAssetPath explícito.
  */
 import { registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 import { isAndroid } from "./nativePlatform";
@@ -11,16 +11,67 @@ export interface NativeMediaPlayResult {
   ok: boolean;
   state?: string;
   reason?: string;
+  requestId?: string;
+  mediaId?: string;
+  generation?: number;
+  assetPath?: string;
+  ignored?: boolean;
+}
+
+export interface NativeMediaCancelResult {
+  ok: boolean;
+  ignored?: boolean;
+  reason?: string;
+  requestId?: string;
+  activeRequestId?: string;
+}
+
+export interface NativeMediaPlayerState {
+  state: string;
+  requestId?: string;
+  mediaId?: string;
+  audioId?: string;
+  generation?: number;
+  assetPath?: string;
+  isPlaying?: boolean;
+  positionMs?: number;
+  durationMs?: number;
+  volume?: number;
+  started?: boolean;
+  sessionState?: string;
+  errorCode?: string;
+  playerMediaId?: string;
 }
 
 export interface NativeMediaPlugin {
-  playCanonicalAudio(options: { audioId: string; uri: string; requestId: string }): Promise<NativeMediaPlayResult>;
-  stopCanonicalAudio(options?: { requestId?: string }): Promise<{ ok: boolean }>;
-  getCanonicalPlayerState(): Promise<{ state: string; requestId?: string }>;
+  playCanonicalAudio(options: {
+    audioId: string;
+    uri: string;
+    requestId: string;
+    androidAssetPath?: string;
+  }): Promise<NativeMediaPlayResult>;
+  /** Request-aware: stale requestId → ignored STALE_REQUEST, nao para o player. */
+  cancelCanonicalAudio(options: { requestId: string }): Promise<NativeMediaCancelResult>;
+  /** Alias: com requestId = cancel; sem requestId = stopAll. */
+  stopCanonicalAudio(options?: { requestId?: string }): Promise<NativeMediaCancelResult>;
+  stopAllCanonicalAudio(): Promise<{ ok: boolean }>;
+  getCanonicalPlayerState(): Promise<NativeMediaPlayerState>;
+  preflightCanonicalAsset(options: {
+    androidAssetPath?: string;
+    uri?: string;
+  }): Promise<{ ok: boolean; exists?: boolean; length?: number; reason?: string; assetPath?: string }>;
   releaseCanonicalPlayer(): Promise<{ ok: boolean }>;
   addListener(
     eventName: string,
-    listener: (data: { requestId?: string; reason?: string; state?: string }) => void
+    listener: (data: {
+      requestId?: string;
+      mediaId?: string;
+      reason?: string;
+      state?: string;
+      positionMs?: number;
+      isPlaying?: boolean;
+      generation?: number;
+    }) => void
   ): Promise<PluginListenerHandle>;
 }
 

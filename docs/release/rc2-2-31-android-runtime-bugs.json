@@ -1,0 +1,46 @@
+{
+  "wave": "RC2_2_31",
+  "updatedAt": "2026-10-01",
+  "rootCauseProven": false,
+  "bugs": [
+    {
+      "id": "ANDROID_CANONICAL_AUDIO_SILENT",
+      "severity": "P1",
+      "status": "REPRODUCED",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "ownerEvidence": true,
+      "summary": "Guided Try / conversation assets silent or dead after first utterance on APK"
+    },
+    {
+      "id": "ANDROID_CONVERSATION_CONTINUE_STALL",
+      "severity": "P1",
+      "status": "REPRODUCED",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "ownerEvidence": true,
+      "summary": "Continue does not advance conversation on APK"
+    },
+    {
+      "id": "ANDROID_SEQUENTIAL_AUDIO_CANCEL_RACE",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "ownerEvidence": true,
+      "summary": "stopCanonicalAudio ignored requestId and killed active B when canceling A — fixed request-aware cancel + mediaId callbacks; awaiting APK retest"
+    },
+    {
+      "id": "CANONICAL_AUDIO_CONTENT_NOT_CERTIFIED",
+      "severity": "P1",
+      "status": "CORE_REGENERATED_AWAITING_HUMAN_HEAR",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "ownerEvidence": false,
+      "summary": "Core was core-tone-v1 beeps; regenerated zh-CN-XiaoxiaoNeural speech + AQV2 volume/silence. Owner must HEARD_CORRECT core pack on device."
+    }
+  ],
+  "panel": {
+    "P1": { "open": 4, "reproduced": 3, "codeDefect": 2 }
+  }
+}

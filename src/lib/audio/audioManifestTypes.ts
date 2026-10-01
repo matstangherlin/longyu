@@ -14,8 +14,13 @@ export interface CanonicalAudioEntry {
   locale: string;
   speaker: string;
   file: string;
-  /** URL web (/audio/...) ou file:// / android asset:// */
+  /** URL web (/audio/...) — Capacitor public. */
   uri: string;
+  /**
+   * RC2.2.31 — caminho AssetManager nativo (ex: audio/core/guided-try-nihao.mp3).
+   * Se omitido, deriva de `file`. Android nao adivinha public/.
+   */
+  androidAssetPath?: string;
   durationMs: number;
   version: number;
   pack: AudioPack;

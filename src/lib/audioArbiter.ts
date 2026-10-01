@@ -1,17 +1,13 @@
 /**
- * RC2.2.21 — um dono do áudio por vez (sem segundo motor de áudio).
+ * RC2.2.21/31 — um dono do áudio por vez (sem segundo motor de áudio).
  *
- *   IDLE · TTS · SELF_PLAYBACK · RECORDING · RECOGNITION
+ *   IDLE · CANONICAL_MEDIA · TTS · SELF_PLAYBACK · RECORDING · RECOGNITION
  *
- * Quem começa "reivindica" o áudio; se outro dono estava ativo, o anterior é
- * parado/liberado ANTES (o último pedido vence). Assim nunca tocam juntos a
- * voz modelo, a própria gravação, o microfone gravando e o reconhecimento.
- * Cada parte continua usando o seu caminho existente (tts/audioPlayback,
- * plugin LongyuSpeech, MediaRecorder da Web); aqui só se coordena.
+ * RC2.2.31 — asset canônico NAO usa owner "TTS".
  */
 import { recordTechEvent } from "./techEvents";
 
-export const AUDIO_OWNERS = ["IDLE", "TTS", "SELF_PLAYBACK", "RECORDING", "RECOGNITION"] as const;
+export const AUDIO_OWNERS = ["IDLE", "CANONICAL_MEDIA", "TTS", "SELF_PLAYBACK", "RECORDING", "RECOGNITION"] as const;
 export type AudioOwner = (typeof AUDIO_OWNERS)[number];
 
 let owner: AudioOwner = "IDLE";

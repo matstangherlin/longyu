@@ -21,7 +21,7 @@ import { newTtsRequestId } from "./ttsCorrelation";
 import { nativeCancelSpeak } from "./platform/nativeSpeech";
 import { CANONICAL_AUDIO_ASSETS, audioEntryById, audioEntryByText, resolveCanonicalUri } from "../data/audioManifest.generated";
 import { decideAudioEngine, classifyAudioSource } from "./audio/audioEnginePolicy";
-import { playCanonicalAudio, stopCanonicalAudio } from "./audio/canonicalPlayer";
+import { playCanonicalAudio, cancelCanonicalAudio } from "./audio/canonicalPlayer";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -160,15 +160,33 @@ export interface PlayMandarinOptions {
   ttsJustification?: string;
 }
 
-function resolveAsset(text: string, audioId?: string): { uri: string; audioId: string | null } | null {
+function resolveAsset(
+  text: string,
+  audioId?: string
+): { uri: string; audioId: string | null; androidAssetPath?: string } | null {
   if (audioId) {
     const entry = audioEntryById(audioId);
-    if (entry) return { uri: entry.uri, audioId: entry.audioId };
+    if (entry) {
+      return {
+        uri: entry.uri,
+        audioId: entry.audioId,
+        androidAssetPath: entry.androidAssetPath ?? entry.file,
+      };
+    }
   }
   const byText = audioEntryByText(text);
-  if (byText) return { uri: byText.uri, audioId: byText.audioId };
+  if (byText) {
+    return {
+      uri: byText.uri,
+      audioId: byText.audioId,
+      androidAssetPath: byText.androidAssetPath ?? byText.file,
+    };
+  }
   const legacy = CANONICAL_AUDIO_ASSETS[text];
-  if (legacy) return { uri: legacy, audioId: null };
+  if (legacy) {
+    const path = legacy.startsWith("/") ? legacy.slice(1) : legacy;
+    return { uri: legacy, audioId: null, androidAssetPath: path.startsWith("audio/") ? path : undefined };
+  }
   const resolved = resolveCanonicalUri({ text, audioId });
   return resolved ? { uri: resolved, audioId: audioId ?? null } : null;
 }
@@ -244,6 +262,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     let settled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     let claim: number | null = null;
+    let claimedOwner: "CANONICAL_MEDIA" | "TTS" | null = null;
     const clearTimer = () => {
       if (timer) {
         clearTimeout(timer);
@@ -254,7 +273,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
       if (settled) return;
       settled = true;
       clearTimer();
-      if (claim != null) releaseAudio("TTS", claim);
+      if (claim != null && claimedOwner) releaseAudio(claimedOwner, claim);
       if (token !== generation) outcome.superseded = true;
       resolve({ ...outcome });
     };
@@ -285,8 +304,14 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
 
     if (options.userGesture !== false) noteUserGesture();
-    claim = claimAudio("TTS", () => cancelOwnSpeech(requestId, token));
-    recordTechEvent("audio_owner_claimed" as TechEventName, { requestId });
+    // RC2.2.31 — asset canônico usa CANONICAL_MEDIA; TTS so para fallback.
+    claimedOwner = engine === "asset" || engine === "native-media" ? "CANONICAL_MEDIA" : "TTS";
+    if (claimedOwner === "CANONICAL_MEDIA") {
+      claim = claimAudio("CANONICAL_MEDIA", () => cancelOwnSpeech(requestId, token));
+    } else {
+      claim = claimAudio("TTS", () => cancelOwnSpeech(requestId, token));
+    }
+    recordTechEvent("audio_owner_claimed" as TechEventName, { requestId, owner: claimedOwner });
     recordTechEvent("audio_engine_selected" as TechEventName, { requestId, engine });
     emit("STARTING");
 
@@ -343,6 +368,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
       void playCanonicalAudio({
         audioId: asset.audioId ?? options.audioId ?? clean,
         uri: asset.uri,
+        androidAssetPath: asset.androidAssetPath,
         requestId,
         onState: (state) => {
           if (state === "PLAYING") onStart();
@@ -403,7 +429,8 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
  * RC2.2.28 — também para o player canônico.
  */
 export function cancelOwnSpeech(requestId: string, token?: number): void {
-  void stopCanonicalAudio(requestId);
+  // RC2.2.31 — cancel request-aware: cleanup A nao mata B no Media3.
+  void cancelCanonicalAudio(requestId);
   if (usesNativeVoice()) {
     void nativeCancelSpeak(requestId);
     return;

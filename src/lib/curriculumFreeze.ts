@@ -669,6 +669,30 @@ export const RC2_2_30_CLOSED_BETA_ENTRY_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.31 — ANDROID AUDIO ROOT-CAUSE + CONVERSATION DEADLOCK.
+ * Stacked on #303 tip a70bff9d. No new engines/curriculum. Fingerprint c48b008c9c1e.
+ */
+export const RC2_2_31_ANDROID_RUNTIME_CLOSURE_EXCEPTION = {
+  id: "RC2_2_31_ANDROID_RUNTIME_CLOSURE",
+  scope: "Request-aware Media3 cancel, mediaId-correlated callbacks, AssetManager preflight, CANONICAL_MEDIA owner, conversation single-source runtime.nodeId, NativeSafeAction, audio-quality-v2 — no new gamification/curriculum/Pro",
+  areas: [
+    "cancel(A) must not kill B; MediaItem.mediaId=requestId; stale callbacks ignored",
+    "androidAssetPath + AssetManager.openFd before ExoPlayer; asset:/// not public/ guess",
+    "Guided Try / Conversation physical FAILS from #303 recorded — Closed Beta NO-GO",
+    "conversation V1+V2 NativeSafeAction; no dual nodeId; audio after DOM only",
+  ],
+  forbids: [
+    "new LessonEngine, SRS, StoryEngine, ProfileEngine or reward engine",
+    "touching #273 / changing package / enabling Android billing or Production Play",
+    "declaring CLOSED_BETA while Guided Try or Conversation still FAIL",
+    "treating file-exists or exo.play() as audible without position proof",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-31-android-runtime-closure",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o
