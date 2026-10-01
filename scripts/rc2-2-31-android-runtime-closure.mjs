@@ -55,7 +55,7 @@ const MUTATIONS = {
     ["[4] 11-Hanzi 450ms accepted blindly", "DURATION_11_HANZI_BLIND", src("audioQualityV2", "durationSuspicious", "durationNeverSuspicious")],
   ],
   "media-position-proof": [
-    ["[14] exo.play() counts as audible", "EXO_PLAY_COUNTS_AUDIBLE", src("mediaPlugin", "getCurrentPosition", "getDuration")],
+    ["[14] exo.play() counts as audible", "EXO_PLAY_COUNTS_AUDIBLE", src("mediaPlugin", "ENDED_REPAIR", "ENDED_SILENT")],
   ],
   "physical-truth": [
     ["[31] owner reproduced FAIL remains NOT_RUN", "OWNER_FAIL_STAYS_NOT_RUN", (s) => {

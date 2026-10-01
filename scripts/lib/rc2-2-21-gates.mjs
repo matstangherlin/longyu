@@ -540,6 +540,12 @@ export async function validateResourceCleanup(s) {
     } catch {
       fail("AUDIO_OVERLAP", "claimAudio", "falha ao parar o anterior não quebra o novo");
     }
+    // RC2.2.31B — mesmo dono também para o anterior (conversa A→B canônico).
+    a.resetAudioArbiterForTests?.();
+    const sameOwnerStops = [];
+    a.claimAudio("CANONICAL_MEDIA", () => sameOwnerStops.push("A"));
+    a.claimAudio("CANONICAL_MEDIA", () => sameOwnerStops.push("B"));
+    if (sameOwnerStops.join() !== "A") fail("AUDIO_OVERLAP", "claimAudio", "CANONICAL_MEDIA→CANONICAL_MEDIA deve parar A");
     a.resetAudioArbiterForTests?.();
   }
   const playback = stripComments(s.src.audioPlayback);

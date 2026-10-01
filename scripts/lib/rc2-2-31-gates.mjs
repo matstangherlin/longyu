@@ -203,6 +203,13 @@ export async function validateMediaPositionProof(s) {
   if (!/getCurrentPosition/.test(java)) fail("EXO_PLAY_COUNTS_AUDIBLE", FILES.mediaPlugin, "position proof");
   if (!/positionMs/.test(java)) fail("POSITION_ZERO_PASS", FILES.mediaPlugin, "expose positionMs");
   if (!/CONTENT_TYPE_SPEECH|AUDIO_CONTENT_TYPE_SPEECH/.test(java)) fail("AUDIO_ATTRIBUTES", FILES.mediaPlugin, "speech attributes");
+  // RC2.2.31B — short-clip STARTED repair (Guided Try / conversation line 2).
+  if (!/armPositionWatchdog|POSITION_PROOF/.test(java)) {
+    fail("EXO_PLAY_COUNTS_AUDIBLE", FILES.mediaPlugin, "position watchdog must prove audible start");
+  }
+  if (!/ENDED_REPAIR/.test(java)) {
+    fail("EXO_PLAY_COUNTS_AUDIBLE", FILES.mediaPlugin, "STATE_ENDED without isPlaying must repair STARTED");
+  }
   return failures;
 }
 
