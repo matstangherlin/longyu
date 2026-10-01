@@ -41,21 +41,49 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
     []
   );
 
+  // Watchdog fora da Promise do TTS: no Firefox o motor pode ficar em
+  // "Tocando…" sem resolver (onstart sem onend / timer engolido). O aluno
+  // já tocou Ouvir — depois do teto liberamos Continuar/opções.
+  useEffect(() => {
+    if (audio !== "playing") return;
+    const id = window.setTimeout(() => {
+      setAudio((current) => (current === "playing" ? "failed" : current));
+    }, 2_500);
+    return () => window.clearTimeout(id);
+  }, [audio]);
+
   async function play(sound: ContrastSound) {
     setAudio("playing");
-    const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8 });
-    if (!alive.current) return;
-    setAudio(outcome.started ? "heard" : "failed");
+    try {
+      const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8 });
+      if (!alive.current) return;
+      setAudio((current) => {
+        if (current !== "playing") return current;
+        return outcome.started ? "heard" : "failed";
+      });
+    } catch {
+      if (!alive.current) return;
+      setAudio((current) => (current === "playing" ? "failed" : current));
+    }
   }
 
   async function playSequence() {
     setAudio("playing");
-    let any = false;
-    for (const sound of contrast.sounds) {
-      const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8 });
-      any = any || outcome.started;
+    try {
+      let any = false;
+      for (const sound of contrast.sounds) {
+        const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8 });
+        any = any || outcome.started;
+      }
+      if (!alive.current) return;
+      setAudio((current) => {
+        if (current !== "playing") return current;
+        return any ? "heard" : "failed";
+      });
+    } catch {
+      if (!alive.current) return;
+      setAudio((current) => (current === "playing" ? "failed" : current));
     }
-    setAudio(any ? "heard" : "failed");
   }
 
   function next(stageTo: ContrastDrillStage) {
@@ -69,7 +97,7 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
   const target = roundTargets[round];
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4" data-testid="contrast-drill" data-contrast={contrast.id} data-stage={stage}>
+    <div className="rounded-2xl border border-line bg-surface p-4" data-testid="contrast-drill" data-contrast={contrast.id} data-stage={stage} data-audio={audio}>
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">{contrast.title}</p>
         <button type="button" onClick={onClose} className="min-h-11 px-2 text-sm font-semibold text-ink-soft hover:text-ink">
