@@ -220,9 +220,10 @@ function GuidedTryFlow() {
           return;
         }
         if (outcome.superseded) {
+          // RC2.2.24 — substituída sem começar = FAILED recuperável (nunca STARTING eterno).
           recordTechEvent("guided_try_audio_superseded", { requestId, reason: outcome.reason });
           setFailReason("TTS_SUPERSEDED");
-          setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "DEGRADED"));
+          setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));
           return;
         }
         setFailReason(outcome.reason);
