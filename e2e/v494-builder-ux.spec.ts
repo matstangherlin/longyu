@@ -115,10 +115,11 @@ test.describe("V4.9.4 — montar e desmontar sem conhecimento oculto", () => {
     await expect(undo).toBeEnabled();
     await undo.click();
     await expect(page.locator(PLACED)).toHaveCount(2);
-    // WebKit: espera o botão estabilizar após o re-render do primeiro undo
-    // (sem isso o driver às vezes fecha o contexto no segundo click).
+    // WebKit: after the first undo re-render, the ghost button's CSS transition
+    // (active:scale / transition) keeps the locator from becoming "stable".
+    // Force the second click once the button is enabled again.
     await expect(undo).toBeEnabled();
-    await undo.click({ timeout: 15_000 });
+    await undo.click({ force: true, timeout: 15_000 });
     await expect(page.locator(PLACED)).toHaveCount(1);
   });
 
