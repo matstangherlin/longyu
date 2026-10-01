@@ -1,0 +1,33 @@
+{
+  "schema": "longyu-closed-beta-bugs/1",
+  "wave": "RC2.2.30",
+  "RC2_2_30_BASE_SHA": "ae04113b15156e3832384ab5f0e628d3e31761b5",
+  "fields": [
+    "id",
+    "testerId",
+    "buildSha",
+    "versionCode",
+    "surface",
+    "severity",
+    "reproducible",
+    "status",
+    "evidence",
+    "fixSha"
+  ],
+  "severities": {
+    "P0": "data/account/security/global unusable",
+    "P1": "dead-end/stall/auth/progression/0-charge lock",
+    "P2": "visual/copy/non-blocking"
+  },
+  "open": {
+    "P0": 0,
+    "P1": [
+      "ANDROID_CONVERSATION_CONTINUE_STALL",
+      "SIGNUP_APK",
+      "OTP_RECOVERY"
+    ],
+    "P2": []
+  },
+  "items": [],
+  "note": "No invented bugs. Physical/owner evidence only."
+}

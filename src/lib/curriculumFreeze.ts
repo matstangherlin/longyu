@@ -644,6 +644,31 @@ export const RC2_2_29_LAUNCH_CONVERGENCE_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.30 — CLOSED BETA ENTRY & REAL LEARNER VALIDATION.
+ * No new engines. Prove APK / Play Internal / human learning. Fingerprint c48b008c9c1e.
+ */
+export const RC2_2_30_CLOSED_BETA_ENTRY_EXCEPTION = {
+  id: "RC2_2_30_CLOSED_BETA_ENTRY",
+  scope: "Closed Beta status machine (PREPARING→CLOSED_ACTIVE), Play Internal + N→N+1 truth, physical matrix honesty, OR01–OR60 carry-forward without reset, human-learning reports, release P1 burn-down — no architecture rebuild",
+  areas: [
+    "CLOSED_BETA_ENTRY=false while release P1 open; CODE_READY≠APK_PASS; Web≠Physical",
+    "Play install ≠ sideload; debug APK ≠ Internal; N→N+1 must preserve progress",
+    "Conversation 20/20 + Guided Try 10/10 + Signup/OTP/Self Compare physical required before READY_FOR_CLOSED",
+    "owner-request-closure imported from RC2.2.29 without state reset",
+    "human-learning report separates OBSERVED / INFERRED / NOT_TESTED",
+  ],
+  forbids: [
+    "new LessonEngine, SRS, StoryEngine or ProfileEngine",
+    "touching #273 / changing package / enabling Android billing or Production Play",
+    "auto physical PASS / OWNER_ACCEPTED / Closed Active without cohort",
+    "accepting Conversation 19/20 or Guided Try 9/10 as PASS",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-30-closed-beta-entry",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

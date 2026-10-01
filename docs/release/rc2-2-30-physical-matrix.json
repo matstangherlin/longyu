@@ -1,0 +1,183 @@
+{
+  "wave": "RC2.2.30",
+  "schema": "longyu-physical-matrix/1",
+  "RC2_2_30_BASE_SHA": "ae04113b15156e3832384ab5f0e628d3e31761b5",
+  "note": "PASS físico só com evidência humana no APK/Play. Código nunca gera PHYSICAL PASS. CODE_READY≠APK_PASS. Web PASS≠Physical PASS.",
+  "requiredChecks": [
+    {
+      "id": "conversationPointerDown",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "conversationClick",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "conversationHandlerEnter",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "conversationStateCommit",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "conversationDomNextVisible",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "conversation20Transitions",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "guidedTry10ColdStarts",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "guidedTryTtsDisabled",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "noDebugLearnerUi",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "allFixedAudioAssets",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "toneTraceTouch",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "toneGuidanceVisible",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "profileGuidanceVisible",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "cultureHandoff",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "journeyReturnExact",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "logoutUnder5Seconds",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "noLocalIdentity",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "zeroChargesUsable",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "selfCompareOwnerHear",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "completionAnimation",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "completionSound",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "completionHaptic",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "signupCleanInstall",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "otpRecovery",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "noScroll390",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "noScroll375",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "noScroll360",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    },
+    {
+      "id": "conversationContinueClickTruth",
+      "result": "NOT_RUN",
+      "evidence": null,
+      "inheritedFrom": "RC2.2.29"
+    }
+  ],
+  "p0": 0,
+  "releaseP1Open": [
+    "ANDROID_CONVERSATION_CONTINUE_STALL",
+    "SIGNUP_APK",
+    "OTP_RECOVERY"
+  ],
+  "closedBetaEntry": false
+}

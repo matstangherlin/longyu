@@ -1,0 +1,16 @@
+{
+  "wave": "RC2.2.30",
+  "RC2_2_30_BASE_SHA": "ae04113b15156e3832384ab5f0e628d3e31761b5",
+  "status": "NOT_RUN",
+  "buildN": null,
+  "buildN1": null,
+  "preserve": {
+    "account": "NOT_RUN",
+    "progress": "NOT_RUN",
+    "xp": "NOT_RUN",
+    "streak": "NOT_RUN",
+    "settings": "NOT_RUN",
+    "cache": "NOT_RUN"
+  },
+  "rule": "N→N+1 without preserved progress is FAIL; sideload≠Play"
+}

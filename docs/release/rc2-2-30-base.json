@@ -1,0 +1,29 @@
+{
+  "wave": "RC2.2.30",
+  "title": "Closed Beta Entry, Real Learner Validation & Release Candidate Hardening",
+  "parentWave": "RC2.2.29",
+  "parentPr": "matstangherlin/longyu#302",
+  "strategy": "STACKED",
+  "RC2_2_30_BASE_SHA": "ae04113b15156e3832384ab5f0e628d3e31761b5",
+  "baseCapturedFrom": "HEAD real do #302 após fix guided-try-advance (ae04113b)",
+  "branch": "cursor/rc2-2-30-closed-beta-entry-c598",
+  "prTargetWhileParentOpen": "cursor/rc2-2-29-launch-convergence-c598",
+  "prTargetAfterParentMerged": "main",
+  "closedBetaEntry": false,
+  "status": "PREPARING",
+  "statusMachine": [
+    "PREPARING",
+    "READY_FOR_INTERNAL",
+    "INTERNAL_PASS",
+    "READY_FOR_CLOSED",
+    "CLOSED_ACTIVE",
+    "BLOCKED"
+  ],
+  "rule": "CLOSED_BETA_ENTRY=false while any release P1 is open; branch≠beta; PR≠beta; APK≠beta",
+  "nextWaveIfBugs": "RC2.2.31 — Closed Beta Fixpack & Learning Polish",
+  "inheritedReleaseP1": [
+    "ANDROID_CONVERSATION_CONTINUE_STALL",
+    "SIGNUP_APK",
+    "OTP_RECOVERY"
+  ]
+}
