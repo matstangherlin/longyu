@@ -154,7 +154,9 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await earlyLink.click();
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/som\?journeyNode=booster%3Atone-contour-1-3%3Av1/);
-    await expect(page.getByText("Aqui aparecem somente contornos já ensinados na Jornada.")).toBeVisible();
+    // RC2.2.24 — nó da Jornada abre direto na rodada em focus (sem cabeçalho de hub);
+    // o contrato pedagógico continua: só contornos já ensinados.
+    await expect(page.locator("[data-tone-trainer-focus]")).toBeVisible();
     const contours = await page.locator("[data-tone-contour]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-tone-contour")));
     expect(new Set(contours)).toEqual(new Set(["1", "3"]));
     const masteryAfter = await page.evaluate(() => JSON.parse(localStorage.getItem("longyu-v1") ?? "{}").state?.lessonMasteryById);

@@ -124,11 +124,12 @@ test.describe("RC2.2.19 · orientação com evidência de render", () => {
 test.describe("RC2.2.19 · navegação, perfil e conta", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("conta nova: barra Jornada · Praticar · Mais", async ({ page }) => {
+  // RC2.2.23 — Praticar é conquistada na 1ª conclusão real.
+  test("conta nova: barra Jornada · Mais", async ({ page }) => {
     await seed(page, { completedLessons: [] }, { version: 2, enabled: false, initialized: true, records: {} }, false);
     await open(page, "/jornada");
     const labels = (await page.locator("[data-app-bottom-nav]").locator("a, button").allInnerTexts()).map((label) => label.trim());
-    expect(labels).toEqual(["Jornada", "Praticar", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Mais"]);
   });
 
   test("Mais: Perfil, Conta e Aparência no topo; avatar abre o perfil com medalhas, Editar e Amigos na primeira dobra", async ({ page }) => {

@@ -1,5 +1,6 @@
 import { SystemBars, SystemBarsStyle } from "@capacitor/core";
-import { decideBackAction, dismissTopOverlay, isOverlayOpen, routerCanGoBack } from "./backNavigation";
+import { closeKeyboard, decideBackAction, dismissTopOverlay, isGuidanceOpen, isKeyboardOpen, isModalOpen, routerCanGoBack } from "./backNavigation";
+import { recordTechEvent } from "../techEvents";
 import { previousInAppPath, runBackGuard, smartBackFallback } from "../navigation/smartBack";
 import { resolveDeepLink } from "./deepLinks";
 import { classifyLink } from "./externalLinks";
@@ -41,20 +42,34 @@ async function installAppListeners(router: NativeShellRouter): Promise<void> {
     // RC2.2.11 — mesma política do SmartBackButton: histórico só quando a
     // trilha in-app confirma; senão o pai lógico da rota (não "a Jornada").
     await App.addListener("backButton", () => {
-      const overlayOpen = isOverlayOpen();
+      // RC2.2.21 — teclado → modal → orientação → subtela (guarda) → rota → raiz.
+      const keyboardOpen = isKeyboardOpen();
+      const overlayOpen = isModalOpen();
+      const guidanceOpen = isGuidanceOpen();
       // Prova/lição em andamento: a tela decide (pergunta antes de perder).
-      if (!overlayOpen && runBackGuard()) return;
+      if (!keyboardOpen && !overlayOpen && !guidanceOpen && runBackGuard()) {
+        recordTechEvent("back_pressed", { action: "screen-guard" });
+        return;
+      }
       const pathname = router.pathname();
       const action = decideBackAction({
+        keyboardOpen,
         overlayOpen,
+        guidanceOpen,
         canGoBack: routerCanGoBack() && previousInAppPath(pathname) !== null,
         pathname,
       });
-      if (action === "dismiss-overlay") dismissTopOverlay();
+      recordTechEvent("back_pressed", { action });
+      if (action === "close-keyboard") closeKeyboard();
+      else if (action === "dismiss-overlay" || action === "dismiss-guidance") dismissTopOverlay();
       else if (action === "history-back") void router.navigate(-1);
       else if (action === "navigate-home") void router.navigate(smartBackFallback(pathname), { replace: true });
       else void App.minimizeApp();
     });
+
+    // RC2.2.21 — ciclo de vida no buffer técnico (QA): pausa ≠ sair do app.
+    await App.addListener("pause", () => recordTechEvent("app_paused", { via: "native" }));
+    await App.addListener("resume", () => recordTechEvent("app_resumed", { via: "native" }));
 
     await App.addListener("appUrlOpen", ({ url }) => {
       const route = resolveDeepLink(url);

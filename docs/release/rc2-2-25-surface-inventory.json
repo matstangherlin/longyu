@@ -1,0 +1,1524 @@
+{
+  "schema": "longyu-rc2-2-25-surface-inventory/1",
+  "note": "Gerado do código e do plano real. CODE_READY ≠ WEB_PASS ≠ APK_PASS ≠ OWNER_ACCEPTED; ownerAccepted fica null até o SIM/NÃO do owner.",
+  "goldStandard": [
+    "ONE_IDEA_PER_SCREEN",
+    "ONE_PRIMARY_ACTION",
+    "SIMPLE_PROGRESS",
+    "NO_DASHBOARD",
+    "NO_CARD_IN_CARD",
+    "NO_SCROLL_390",
+    "ADAPT_360",
+    "SHORT_FEEDBACK",
+    "CTA_IS_ACTION",
+    "NO_SHELL_CHROME",
+    "EXIT_ALWAYS",
+    "AUDIO_HONEST",
+    "NO_ENGINE_TALK",
+    "HANZI_LEGIBLE",
+    "RETURN_TO_CONTEXT",
+    "CALM_REWARD"
+  ],
+  "totals": {
+    "lessons": 134,
+    "premiumLessons": 35,
+    "plansBuilt": 536,
+    "stepKinds": 42,
+    "guidedNative": 23,
+    "guidedCompatible": 19,
+    "legacyPresentation": 0,
+    "lessonsWithLegacy": 0,
+    "surfaces": 23
+  },
+  "surfaces": [
+    {
+      "id": "JORNADA_LICAO",
+      "route": "/licao/:id/player",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "LESSON_PLAYER",
+      "activityMarker": "[data-lesson-step-frame]",
+      "densityEvidence": "E2E_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "PRATICAR",
+      "route": "/treino",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "REVISAO",
+      "route": "/revisao",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "FOCUS_ACTIVITY",
+      "activityMarker": "[data-review-round-header]",
+      "densityEvidence": "E2E_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "TONS_SOM",
+      "route": "/som",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "FOCUS_ACTIVITY",
+      "activityMarker": "[data-tone-trainer-focus]",
+      "densityEvidence": "E2E_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "PINYIN_LAB",
+      "route": "/pinyin",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "FOCUS_FRAME",
+      "activityMarker": "[data-focus-activity-frame]",
+      "densityEvidence": "E2E_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "FALA",
+      "route": "/fala",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "FOCUS_FRAME",
+      "activityMarker": "[data-focus-activity-frame]",
+      "densityEvidence": "E2E_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "HANZI",
+      "route": "/hanzi?mode=",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "ROUTE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "IDEOGRAMAS",
+      "route": "/ideogramas",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "ATLAS",
+      "route": "/hanzi/atlas",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "CULTURA",
+      "route": "/cultura/:id",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "LESSON_PLAYER",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "IMERSAO",
+      "route": "/imersao",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "FOCUS_ACTIVITY",
+      "activityMarker": "[data-immersion-focus]",
+      "densityEvidence": "E2E_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "LEITURA",
+      "route": "/leitura",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "MISSOES",
+      "route": "/missoes",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "CHALLENGE",
+      "route": "/teste/fase/:id",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "ROUTE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "PLACEMENT",
+      "route": "/comecar",
+      "mode": "HUB+ACTIVITY",
+      "focusVia": "ROUTE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "PREMIUM",
+      "route": "/plano",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "JORNADA",
+      "route": "/jornada",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "MAIS",
+      "route": "/mais",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "PERFIL",
+      "route": "/perfil",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "CONTA",
+      "route": "/conta",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "APARENCIA",
+      "route": "/config/aparencia",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "DADOS_BACKUP",
+      "route": "/dados-locais",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    },
+    {
+      "id": "LANDING_LOGIN",
+      "route": "/",
+      "mode": "HUB",
+      "focusVia": "NONE",
+      "activityMarker": null,
+      "densityEvidence": "NOT_MEASURED",
+      "webState": "CODE_READY",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": null
+    }
+  ],
+  "stepKinds": [
+    {
+      "kind": "address_build",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 2,
+      "lessons": 1,
+      "premiumLessons": 1
+    },
+    {
+      "kind": "audio_discrimination",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 56,
+      "lessons": 27,
+      "premiumLessons": 11
+    },
+    {
+      "kind": "audio_to_action",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 41,
+      "lessons": 36,
+      "premiumLessons": 19
+    },
+    {
+      "kind": "city_context",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 7,
+      "lessons": 4,
+      "premiumLessons": 4
+    },
+    {
+      "kind": "compare_with_image",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 5,
+      "lessons": 3,
+      "premiumLessons": 3
+    },
+    {
+      "kind": "comprehend",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 432,
+      "lessons": 99,
+      "premiumLessons": 21
+    },
+    {
+      "kind": "contextual_choice",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 143,
+      "lessons": 105,
+      "premiumLessons": 19
+    },
+    {
+      "kind": "conversation_repair",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 104,
+      "lessons": 48,
+      "premiumLessons": 19
+    },
+    {
+      "kind": "conversation_scene",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 438,
+      "lessons": 110,
+      "premiumLessons": 34
+    },
+    {
+      "kind": "decompose",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 16,
+      "lessons": 4,
+      "premiumLessons": 1
+    },
+    {
+      "kind": "dialogue_choice",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 419,
+      "lessons": 119,
+      "premiumLessons": 26
+    },
+    {
+      "kind": "dialogue_completion",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 56,
+      "lessons": 36,
+      "premiumLessons": 16
+    },
+    {
+      "kind": "dictation",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 50,
+      "lessons": 23,
+      "premiumLessons": 5
+    },
+    {
+      "kind": "fill_blank",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 420,
+      "lessons": 101,
+      "premiumLessons": 27
+    },
+    {
+      "kind": "flashcard",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 133,
+      "lessons": 17,
+      "premiumLessons": 12
+    },
+    {
+      "kind": "free_production",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 333,
+      "lessons": 86,
+      "premiumLessons": 27
+    },
+    {
+      "kind": "hanzi_build",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 169,
+      "lessons": 62,
+      "premiumLessons": 10
+    },
+    {
+      "kind": "image_choice",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 355,
+      "lessons": 100,
+      "premiumLessons": 29
+    },
+    {
+      "kind": "intro",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 195,
+      "lessons": 92,
+      "premiumLessons": 19
+    },
+    {
+      "kind": "listen",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 336,
+      "lessons": 47,
+      "premiumLessons": 13
+    },
+    {
+      "kind": "listen_select",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 408,
+      "lessons": 99,
+      "premiumLessons": 16
+    },
+    {
+      "kind": "map_direction",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 7,
+      "lessons": 2,
+      "premiumLessons": 2
+    },
+    {
+      "kind": "match_pairs",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 68,
+      "lessons": 29,
+      "premiumLessons": 5
+    },
+    {
+      "kind": "menu_reading",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 2,
+      "lessons": 2,
+      "premiumLessons": 2
+    },
+    {
+      "kind": "microread",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 4,
+      "lessons": 1,
+      "premiumLessons": 0
+    },
+    {
+      "kind": "odd_one_out",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 47,
+      "lessons": 23,
+      "premiumLessons": 8
+    },
+    {
+      "kind": "place_label",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 10,
+      "lessons": 4,
+      "premiumLessons": 4
+    },
+    {
+      "kind": "price_task",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 5,
+      "lessons": 3,
+      "premiumLessons": 3
+    },
+    {
+      "kind": "produce",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 35,
+      "lessons": 17,
+      "premiumLessons": 2
+    },
+    {
+      "kind": "recognize",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 57,
+      "lessons": 24,
+      "premiumLessons": 5
+    },
+    {
+      "kind": "reverse_recall",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 168,
+      "lessons": 107,
+      "premiumLessons": 21
+    },
+    {
+      "kind": "route_sequence",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 6,
+      "lessons": 3,
+      "premiumLessons": 3
+    },
+    {
+      "kind": "sentence_build",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 460,
+      "lessons": 107,
+      "premiumLessons": 31
+    },
+    {
+      "kind": "sentence_transform",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 30,
+      "lessons": 30,
+      "premiumLessons": 14
+    },
+    {
+      "kind": "sign_reading",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 4,
+      "lessons": 1,
+      "premiumLessons": 1
+    },
+    {
+      "kind": "spot_error",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 47,
+      "lessons": 38,
+      "premiumLessons": 9
+    },
+    {
+      "kind": "substitution_drill",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 19,
+      "lessons": 19,
+      "premiumLessons": 9
+    },
+    {
+      "kind": "tone",
+      "guidedClass": "GUIDED_NATIVE",
+      "occurrences": 101,
+      "lessons": 18,
+      "premiumLessons": 1
+    },
+    {
+      "kind": "tone_pair",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 26,
+      "lessons": 9,
+      "premiumLessons": 5
+    },
+    {
+      "kind": "transfer_task",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 20,
+      "lessons": 17,
+      "premiumLessons": 14
+    },
+    {
+      "kind": "translation_build",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 6,
+      "lessons": 2,
+      "premiumLessons": 1
+    },
+    {
+      "kind": "write",
+      "guidedClass": "GUIDED_COMPATIBLE",
+      "occurrences": 65,
+      "lessons": 7,
+      "premiumLessons": 4
+    }
+  ],
+  "lessons": [
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "premium": false,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "premium": false,
+      "stepKinds": 6,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-o-que-e-hanzi",
+      "premium": false,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-primeiros-hanzi",
+      "premium": false,
+      "stepKinds": 4,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "premium": false,
+      "stepKinds": 9,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l1",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l2",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l3",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l1-rev",
+      "premium": false,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l4",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l2-rev",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-ma-primeiro-tom",
+      "premium": false,
+      "stepKinds": 9,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "premium": false,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "premium": false,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "premium": false,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "premium": false,
+      "stepKinds": 12,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-comparar-tom-1-4",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-comparar-tom-2-3",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-tons-xiexie",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l5",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l6",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l3-rev",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l7",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l8",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l8-compare",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l8-shi",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "premium": false,
+      "stepKinds": 12,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "premium": false,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l4-rev",
+      "premium": false,
+      "stepKinds": 9,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l9",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l9-qual-nome",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l10",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p3-wobuhui-shuo-zhongwen",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p3-qing-zai-shuo-yibian",
+      "premium": false,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l11",
+      "premium": false,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l12",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l13",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l13-dialogo-ola",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l13-dialogo-nome",
+      "premium": false,
+      "stepKinds": 9,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p3-ordem-das-palavras",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p3-nomes-da-frase",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l5-rev",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l14",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-num-123",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-num-45",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-num-678",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-num-910",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-shan",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-shui",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-tian",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-huo",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-da",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-xiao",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-zhong",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-bu",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-shi",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-wo",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-char-ni",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l14-numeros-visuais",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l14-pecas-natureza",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l14-frase-minima",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l14-char-rev",
+      "premium": false,
+      "stepKinds": 5,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l15",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l6-rev",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l16",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l17",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l18",
+      "premium": false,
+      "stepKinds": 10,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l7-rev",
+      "premium": false,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p4-checkpoint-fundamentos",
+      "premium": false,
+      "stepKinds": 5,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p5-kou-ma-pergunta",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "premium": false,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "premium": false,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l19-logica-ma",
+      "premium": false,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l19-logica-rev",
+      "premium": false,
+      "stepKinds": 3,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l19",
+      "premium": false,
+      "stepKinds": 17,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l20",
+      "premium": false,
+      "stepKinds": 17,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l8-rev",
+      "premium": false,
+      "stepKinds": 9,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l21",
+      "premium": false,
+      "stepKinds": 17,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l22",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l23",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l9-rev",
+      "premium": true,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l24",
+      "premium": true,
+      "stepKinds": 11,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l25",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l26",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l26b",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l26c",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l27",
+      "premium": true,
+      "stepKinds": 18,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l28",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "premium": true,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-cidade-lugares",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-china-cidades",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "premium": true,
+      "stepKinds": 12,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-saude",
+      "premium": true,
+      "stepKinds": 10,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-horarios",
+      "premium": true,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-natureza",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-clima",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-direcoes",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-compras",
+      "premium": true,
+      "stepKinds": 17,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "premium": true,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l10-rev",
+      "premium": true,
+      "stepKinds": 4,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l29",
+      "premium": true,
+      "stepKinds": 17,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l30",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "l11-rev",
+      "premium": true,
+      "stepKinds": 7,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "premium": true,
+      "stepKinds": 12,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-estacao",
+      "premium": true,
+      "stepKinds": 16,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-hotel",
+      "premium": true,
+      "stepKinds": 17,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-aeroporto",
+      "premium": true,
+      "stepKinds": 14,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-saude",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-conversa-cotidiana",
+      "premium": true,
+      "stepKinds": 8,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-china-survival",
+      "premium": true,
+      "stepKinds": 5,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-viagem",
+      "premium": true,
+      "stepKinds": 15,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    },
+    {
+      "lessonId": "p7-imersao-casa-amigo",
+      "premium": true,
+      "stepKinds": 13,
+      "legacySteps": 0,
+      "guidedClass": "GUIDED_COMPATIBLE"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "wave": "RC2.2.28",
+  "title": "Deterministic Audio Pipeline, Conversation Runtime Closure & Android Deadlock Elimination",
+  "parentWave": "RC2.2.27",
+  "parentPr": "matstangherlin/longyu#300",
+  "strategy": "STACKED",
+  "stack": [
+    "RC2.2.19 / #292 (merged)",
+    "RC2.2.20 + RC2.2.21 / #294",
+    "RC2.2.22 / #295",
+    "RC2.2.23 / #296",
+    "RC2.2.24 / #297",
+    "RC2.2.25 / #298",
+    "RC2.2.26 / #299",
+    "RC2.2.27 / #300",
+    "RC2.2.28"
+  ],
+  "baseBranch": "claude/rc2-2-27-android-tts-root-cause",
+  "RC2_2_28_BASE_SHA": "920310c18f5e77d044754885bd0319d183db6d45",
+  "baseCapturedFrom": "HEAD real final do #300 (920310c18f5e77d044754885bd0319d183db6d45)",
+  "branch": "cursor/rc2-2-28-deterministic-audio-c598",
+  "prTargetWhileParentOpen": "claude/rc2-2-27-android-tts-root-cause",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "architecture": "canonical-asset-first; TTS is fallback only; pure conversation reducer; dual SHA provenance",
+  "notClosedBeta": true,
+  "nextWave": "RC2.2.29 — Closed Beta Entry & Real Learner Validation"
+}

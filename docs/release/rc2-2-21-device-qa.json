@@ -1,0 +1,281 @@
+{
+  "schema": "longyu-rc2-2-21-device-qa/1",
+  "wave": "RC2.2.21",
+  "baseSha": "b43ca4465319cb9632c68982de9ebbbba6dbb003",
+  "physicalPass": false,
+  "note": "Nenhum teste rodou em aparelho físico nesta onda (o agente não tem aparelho). Mocks, E2E e emulador não contam. PASS só com testedAt, buildSha, versionCode, deviceClass e evidenceType — registrado em /qa/device pelo owner.",
+  "evidenceRules": {
+    "passRequires": [
+      "testedAt",
+      "buildSha",
+      "versionCode",
+      "deviceClass",
+      "evidenceType"
+    ],
+    "neverCountsAsPhysical": [
+      "CODE_PASS",
+      "E2E_PASS",
+      "EMULATOR",
+      "MOCK",
+      "SCREENSHOT_AUTOMATED"
+    ],
+    "voiceRecordingInRepo": "FORBIDDEN_WITHOUT_OWNER_DECISION",
+    "humanVoiceInCi": "FORBIDDEN"
+  },
+  "tests": {
+    "selfRecordingCaptured": {
+      "title": "Gravar e comparar: gravação de 2–3 s cria arquivo com sinal (captureSignal=yes)",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "selfPlaybackAudible": {
+      "title": "Ouvir minha voz: o owner OUVE a própria voz pelo alto-falante",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "selfPlaybackStopAndReplay": {
+      "title": "Reproduzindo… ■ Parar e depois Ouvir novamente funcionam",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "selfPlaybackVolumeZeroMessage": {
+      "title": "Volume de mídia zerado mostra a mensagem certa (não 'falhou')",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "selfPlaybackBluetoothRoute": {
+      "title": "Com fone Bluetooth: outputRoute=BLUETOOTH e som no fone",
+      "critical": false,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "selfPlaybackAfterPermissionDialog": {
+      "title": "Primeira gravação com o diálogo de permissão: a gravação não some",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "nativeSpeechZhCnRecognized": {
+      "title": "Falar: SpeechRecognizer devolve hànzì para 你好 (zh-CN)",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "nativeSpeechFailureCategories": {
+      "title": "Silêncio/sem rede/sem zh-CN mostram categorias diferentes",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "nativeSpeechNoLoopFallback": {
+      "title": "Depois de 2 falhas seguidas a lição oferece Gravar e comparar / Continuar",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "ttsModelVoiceAllSurfaces": {
+      "title": "Voz modelo toca em Teste guiado, lição, conversa, revisão e Hànzì",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "ttsAfterVoiceInstall": {
+      "title": "Instalar voz chinesa → voltar → a voz toca sem reiniciar o app",
+      "critical": false,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "lessonAdvanceDevice": {
+      "title": "Continuar avança todas as etapas das lições 1–3 sem travar",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "mobileSignupDevice": {
+      "title": "Cadastro no celular conclui (ou mostra categoria de erro) sem spinner infinito",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "passwordRecoveryDevice": {
+      "title": "Recuperação por código (OTP) no celular: código errado recusado, certo aceito",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "guidanceDevice": {
+      "title": "Orientação aparece, fecha com VOLTAR e não volta depois",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "lifecycleBackgroundResume": {
+      "title": "Home no meio da gravação/reprodução: nada toca escondido; ao voltar, estado coerente",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "lifecycleProcessDeath": {
+      "title": "Processo morto pelo Android: reabrir não perde progresso nem duplica recompensa",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "offlineResume": {
+      "title": "Modo avião no meio da lição: aviso claro; ao voltar a rede, segue",
+      "critical": false,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "androidBackPriority": {
+      "title": "VOLTAR: teclado → modal → orientação → subtela → rota → só sai na raiz",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "keyboardLayout": {
+      "title": "Teclado aberto no cadastro/login não cobre o campo nem o botão",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "safeAreaLayout": {
+      "title": "Topo/rodapé respeitam status bar, notch e barra de gestos",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "smallScreen360": {
+      "title": "Aparelho ~360 dp: sem corte nem rolagem horizontal nas telas principais",
+      "critical": true,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    },
+    "diagnosticCopy": {
+      "title": "/qa/device → Copiar diagnóstico gera JSON sem PII",
+      "critical": false,
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null
+    }
+  },
+  "physicalCriticalMatrix": "NOT_PASS"
+}

@@ -70,6 +70,11 @@ async function openFala(page: Page, { pro = false }: { pro?: boolean } = {}) {
   await dismissBlockingOverlays(page);
 }
 
+/** RC2.2.25 — o treino de frases roda em focus depois do [Começar] do hub. */
+async function startFalaPhrases(page: Page) {
+  await page.getByTestId("fala-phrases-start").click();
+}
+
 test.describe("RC1.5 — /fala não vende o que não existe", () => {
   test("P15 — usuário grátis não encontra CTA nem paywall de IA", async ({ page }) => {
     await openFala(page, { pro: false });
@@ -105,6 +110,7 @@ test.describe("RC1.5 — /fala não vende o que não existe", () => {
 
   test("P15.2 — seis autoavaliações somam 6 revisões e 0 falas", async ({ page }) => {
     await openFala(page, { pro: false });
+    await startFalaPhrases(page);
 
     const before = await readDailyTasks(page);
 
@@ -215,6 +221,7 @@ test.describe("RC1.5 — missão de fala exige fala", () => {
     // e a spec passaria sem ter verificado nada.
     await stubSpeechRecognition(page, "你好");
     await openFala(page, { pro: false });
+    await startFalaPhrases(page);
 
     for (let i = 0; i < 3; i += 1) {
       await page.getByRole("button", { name: "Mostrar significado" }).click();

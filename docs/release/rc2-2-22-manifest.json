@@ -1,0 +1,96 @@
+{
+  "schema": "longyu-rc2-2-22-manifest/1",
+  "wave": "RC2.2.22",
+  "title": "Closed Beta Candidate",
+  "RC2_2_22_BASE_SHA": "cc66db9dd5cfed9800dc4d6d1a60167f66902ed6",
+  "parentWave": "RC2.2.21",
+  "strategy": "STACKED",
+  "readinessState": "PRE_CANDIDATE",
+  "PUBLIC_BETA": "NO_GO",
+  "CLOSED_BETA": "NO_GO",
+  "allowedBeforeGate": [
+    "QA build",
+    "Internal testing",
+    "trusted-device testing",
+    "human UX validation"
+  ],
+  "documents": {
+    "base": "docs/release/rc2-2-22-base.json",
+    "securityTriage": "docs/release/rc2-2-22-security-triage.json",
+    "readiness": "docs/release/rc2-2-22-closed-beta-readiness.json",
+    "deviceQa": "docs/release/rc2-2-22-device-qa.json",
+    "bugs": "docs/release/rc2-2-22-beta-bugs.json",
+    "first20Audit": "docs/reports/rc2-2-22-first-20-lesson-audit.json",
+    "humanLearning": "docs/reports/rc2-2-22-human-learning-validation.md",
+    "deviceCompatibility": "docs/reports/rc2-2-22-device-compatibility.md",
+    "burndown": "docs/reports/rc2-2-22-beta-bug-burndown.md"
+  },
+  "checklists": {
+    "device": {
+      "ownerDeviceCriticalMatrix": false,
+      "secondDevice": false,
+      "noP0": true,
+      "p1ClassificationComplete": true,
+      "capabilityMatrix": false,
+      "audio": false,
+      "selfVoice": false,
+      "speech": false,
+      "auth": false,
+      "navigation": false,
+      "lifecycle": false
+    },
+    "human": {
+      "freshTesterStartsAlone": false,
+      "guidedTryUnderstandable": false,
+      "journeyUnderstandable": false,
+      "noPopupOverload": false,
+      "lessonActionObvious": false,
+      "reviewNotEndless": false,
+      "toneVisualsUnderstandable": false,
+      "immersionSceneLike": false,
+      "profileDiscoverable": false,
+      "logoutDiscoverable": false
+    },
+    "security": {
+      "failingPackageIdentified": true,
+      "remediationDocumented": true,
+      "productionAuditGreen": true,
+      "fullAuditGreen": true,
+      "gitleaksGreen": true,
+      "codeqlGreen": true
+    },
+    "play": {
+      "signedAab": false,
+      "packageVerified": false,
+      "internalUpload": false,
+      "playInstall": false,
+      "ownerDogfood": false,
+      "nToNPlus1": false,
+      "stateIntact": false
+    }
+  },
+  "humanQa": {
+    "sessions": 0,
+    "testers": [],
+    "testerCategories": [
+      "BEGINNER",
+      "HAS_STUDIED_CHINESE",
+      "TECHNICAL_QA"
+    ],
+    "testerIdFormat": "T01, T02…"
+  },
+  "regression": {
+    "package": "longyu.noba.com",
+    "androidInAppPurchase": "DISABLED_FOR_BETA",
+    "productionPlay": "NOT_ENABLED",
+    "pr273": "FROZEN",
+    "fingerprint": "c48b008c9c1e"
+  },
+  "next": [
+    "RC2.2.23 — Closed Beta Fixpack & RC Candidate",
+    "#273 Cloud Candidate Certification",
+    "FINAL RC",
+    "PUBLIC BETA"
+  ],
+  "prOpenedAutomatically": false
+}

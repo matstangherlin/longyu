@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { recordTechEvent } from "./techEvents";
 
 /**
  * Uma cerimônia por vez. O reveal de Selo Cultural e o modal de medalha podem
@@ -16,6 +17,7 @@ function emit() {
 }
 
 export function holdCelebration(id: string): () => void {
+  if (!active.has(id)) recordTechEvent("ceremony_shown", { ceremony: id.split(":")[0] });
   active.add(id);
   emit();
   return () => {

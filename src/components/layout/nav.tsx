@@ -17,6 +17,7 @@ import {
   IconUser,
   IconFlame,
   IconLantern,
+  IconSun,
 } from "../ui/Icon";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
 import type { FeatureId, LearnerStage } from "../../lib/learnerStage";
@@ -93,6 +94,7 @@ export const NAV: Record<string, NavItem> = {
   convide: { to: "/convide", label: "Convide amigos", labelKey: "navigation.inviteFriends", icon: IconStar },
   perfil: { to: "/perfil", label: "Perfil", labelKey: "navigation.profile", icon: IconUser, matches: PROFILE_MATCHES, feature: "perfil" },
   conta: { to: "/conta", label: "Conta", labelKey: "navigation.account", icon: IconShield, feature: "conta" },
+  aparencia: { to: "/config/aparencia", label: "Aparência", labelKey: "navigation.appearance", icon: IconSun },
   plano: { to: "/plano", label: "Plano Pro", labelKey: "navigation.proPlan", icon: IconStar, feature: "plano" },
   business: { to: "/business", label: "Para empresas", labelKey: "navigation.business", icon: IconTarget },
   dados: { to: "/dados-locais", label: "Dados locais", labelKey: "navigation.localData", icon: IconBook, feature: "dados" },
@@ -149,6 +151,31 @@ export function previewNavItems(visibility: FeatureVisibilityMap, limit = 2): Na
  * Barra mobile: a ordem final é SEMPRE esta (PART BU); a RC2.2.18 só filtra o
  * que ainda não foi descoberto. Conta nova: Jornada · Praticar · Mais.
  */
+/**
+ * RC2.2.23 — abas CONQUISTADAS. Conta nova: Jornada · Mais. Depois da 1ª
+ * conclusão real: + Praticar. Cultura e Missões entram na barra quando a
+ * descoberta progressiva já as revelou (o anúncio da RC2.2.18 promete a aba);
+ * antes disso, no máximo 3 itens.
+ */
+export const EARLY_NAV_MAX_ITEMS = 3;
+export const NAV_TAB_MIN_COMPLETED_LESSONS: Readonly<Record<string, number>> = {
+  "/treino": 1,
+};
+
+export function navItemEarnedTab(item: NavItem, completedLessons: number): boolean {
+  return completedLessons >= (NAV_TAB_MIN_COMPLETED_LESSONS[item.to] ?? 0);
+}
+
+/** Barra efetiva: a barra (já filtrada pela descoberta) menos o que o aluno ainda não conquistou. */
+export function earnedTabBar(items: NavItem[], completedLessons: number): NavItem[] {
+  const earned = items.filter((item) => navItemEarnedTab(item, completedLessons));
+  // Maduro = a Cultura já foi revelada; antes disso, no máximo 3 itens.
+  if (earned.some((item) => item.to === "/cultura")) return earned;
+  const more = earned.find((item) => item.to === "/mais");
+  const rest = earned.filter((item) => item.to !== "/mais").slice(0, EARLY_NAV_MAX_ITEMS - (more ? 1 : 0));
+  return more ? [...rest, more] : rest;
+}
+
 export function mobileNavForStage(_stage: LearnerStage, visibility: FeatureVisibilityMap = FULL_FEATURE_VISIBILITY): NavItem[] {
   return [
     NAV.jornada,
@@ -194,24 +221,34 @@ export function profileFlyoutItems(): NavItem[] {
   return [NAV.amigos, NAV.convide, NAV.conta, NAV.plano];
 }
 
+/**
+ * RC2.2.25 — /mais em ordem fixa: VOCÊ (bloco próprio no topo) · ESTUDAR ·
+ * SOCIAL · PROGRESSO · SISTEMA. Perfil/Conta moram só no bloco Você.
+ */
 export const MORE_CATALOG: NavGroup[] = [
   {
     id: "learn",
-    title: "Aprender",
-    titleKey: "navigation.groupLearn",
+    title: "Estudar",
+    titleKey: "navigation.groupStudy",
     items: [NAV.treino, NAV.revisao, NAV.cultura, NAV.pinyin, NAV.ideogramas, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao],
   },
   {
-    id: "motivation",
-    title: "Motivação",
-    titleKey: "navigation.groupMotivation",
-    items: [NAV.missoes, NAV.conquistas, NAV.ligas, NAV.loja, NAV.amigos, NAV.convide],
+    id: "social",
+    title: "Social",
+    titleKey: "navigation.groupSocial",
+    items: [NAV.ligas, NAV.amigos, NAV.convide],
   },
   {
-    id: "account",
-    title: "Conta",
-    titleKey: "navigation.groupAccount",
-    items: [NAV.perfil, NAV.conta, NAV.plano, NAV.business, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre],
+    id: "progress",
+    title: "Progresso",
+    titleKey: "navigation.groupProgress",
+    items: [NAV.missoes, NAV.conquistas, NAV.loja, NAV.plano],
+  },
+  {
+    id: "system",
+    title: "Sistema",
+    titleKey: "navigation.groupSystem",
+    items: [NAV.business, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre],
   },
 ];
 
@@ -244,11 +281,19 @@ export function moreMobileSheetGroups(
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to) && isNavItemDiscovered(item, visibility);
 
-  // Cultura é aba da barra (RC2.2.13): não se repete aqui.
-  const explore = [NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
+  // RC2.2.23 — o Mais começa por VOCÊ (Perfil · Conta). RC2.2.25 — ordem
+  // fixa VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA, cada grupo só com o
+  // que já foi descoberto. Nada se repete: `keep` tira o que já está na barra.
+  const you = [NAV.perfil, NAV.conta, NAV.aparencia].filter((item) => !primaryTos.has(item.to));
+  const learn = [NAV.cultura, NAV.missoes].filter(keep);
+  const social = [NAV.ligas].filter(keep);
+  const progress = [NAV.conquistas, NAV.loja].filter(keep);
   const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
   const groups: NavGroup[] = [];
-  if (explore.length) groups.push({ id: "explore", title: "Explorar", titleKey: "navigation.groupExplore", items: explore });
+  groups.push({ id: "you", title: "Você", titleKey: "navigation.groupYou", items: you });
+  if (learn.length) groups.push({ id: "learn", title: "Estudar", titleKey: "navigation.groupStudy", items: learn });
+  if (social.length) groups.push({ id: "social", title: "Social", titleKey: "navigation.groupSocial", items: social });
+  if (progress.length) groups.push({ id: "progress", title: "Progresso", titleKey: "navigation.groupProgress", items: progress });
   if (system.length) groups.push({ id: "system", title: "Sistema", titleKey: "navigation.groupSystem", items: system });
   return groups;
 }
