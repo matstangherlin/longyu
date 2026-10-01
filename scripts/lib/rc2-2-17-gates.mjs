@@ -240,9 +240,15 @@ export async function validateAudioPlaybackTruth(s) {
       fail("DAILY_AUDIO_WITHOUT_PLAYBACK", "SpeakButton.tsx", "audioHeard só no início real da fala (PLAYING/onstart)");
   }
   // RC2.2.24 — o onStart emite TTS_STARTED correlacionado antes do ttsState.
-  // RC2.2.26 — onStart também atualiza snapshot/resolve o ACK direto; a janela
-  // até notifyListeners cresceu (~1.1k). Continua: só a fala corrente resolve.
-  if (!/onStart\(String utteranceId\) \{[\s\S]{0,1800}notifyListeners\("ttsState", event\)/.test(plugin) || !/utteranceId\.equals\(currentUtteranceId\)/.test(plugin))
+  // RC2.2.26 — onStart também atualiza snapshot/resolve o ACK direto.
+  // RC2.2.27 — identidade por requestForUtterance (mapa), não equals(currentUtteranceId).
+  // Continua: só a fala conhecida/corrente resolve; alienígenas retornam cedo.
+  const onStartEmits =
+    /onStart\(String utteranceId\) \{[\s\S]{0,1800}notifyListeners\("ttsState", event\)/.test(plugin);
+  const currentOnly =
+    /utteranceId\.equals\(currentUtteranceId\)/.test(plugin) ||
+    /TtsRequest request = requestForUtterance\(utteranceId\);\s*if \(request == null\) return;/.test(plugin);
+  if (!onStartEmits || !currentOnly)
     fail("TTS_START_UNCONFIRMED", "LongyuSpeechPlugin.java", "onStart do motor emite ttsState; só a fala corrente resolve");
   if (!/u\.onstart = \(\) => opts\.onstart\?\.\(\);/.test(tts)) fail("TTS_START_UNCONFIRMED", "tts.ts", "Web: onstart da utterance");
   freezeInvariants(s, fail);
