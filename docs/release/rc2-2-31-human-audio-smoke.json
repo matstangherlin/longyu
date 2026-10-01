@@ -1,0 +1,24 @@
+{
+  "wave": "RC2_2_31",
+  "voiceProfile": "zh-CN-XiaoxiaoNeural",
+  "generationSource": "edge-tts",
+  "note": "Core pack regenerated as spoken Mandarin (not core-tone beeps). Owner/QA must mark each asset after listening on device speakers.",
+  "core": [
+    { "audioId": "audio:guided-try:nihao:v1", "textKey": "你好", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:guided-try:ni:v1", "textKey": "你", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:guided-try:hao:v1", "textKey": "好", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:guided-try:xiexie:v1", "textKey": "谢谢", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:guided-try:zaijian:v1", "textKey": "再见", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:tone:ma1:v1", "textKey": "妈", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:tone:ma2:v1", "textKey": "麻", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:tone:ma3:v1", "textKey": "马", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:tone:ma4:v1", "textKey": "骂", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:foundation:nihaoma:v1", "textKey": "你好吗", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:foundation:wojiao:v1", "textKey": "我叫", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:foundation:bukeqi:v1", "textKey": "不客气", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:conversation:store-greeting-01:v1", "textKey": "你好！", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:conversation:store-greeting-02:v1", "textKey": "你好，请问有什么可以帮您？", "status": "PENDING_OWNER_HEAR" },
+    { "audioId": "audio:onboarding:welcome:v1", "textKey": "欢迎", "status": "PENDING_OWNER_HEAR" }
+  ],
+  "allowedMarks": ["HEARD_CORRECT", "HEARD_WRONG", "MUTE", "DISTORTED", "BAD_PRONUNCIATION", "WRONG_TONE", "PENDING_OWNER_HEAR"]
+}
