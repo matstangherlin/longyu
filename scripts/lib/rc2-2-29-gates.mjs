@@ -10,7 +10,7 @@ import { stripComments } from "./rc2-2-8-gates.mjs";
 import { loadBetaPedagogyFreezeState } from "./beta-pedagogy-freeze-state.mjs";
 
 const ROOT = process.cwd();
-export const RC2_2_29_BASE_SHA = "ba36e4fd4d52867e6666bb6ea4af6bb5644b9791";
+export const RC2_2_29_BASE_SHA = "6c7d54e8e6d186a6c4497ce73f4d2a56df20abcf";
 
 export const FILES = {
   guidedTry: "src/features/landing/GuidedTryPage.tsx",
