@@ -10,10 +10,10 @@
  *
  * Um player reutilizável por sessão; release só no teardown do app.
  */
-import { Capacitor, registerPlugin } from "@capacitor/core";
 import { newTtsRequestId } from "../ttsCorrelation";
-import { recordTechEvent } from "../techEvents";
+import { recordTechEvent, type TechEventDetail, type TechEventName } from "../techEvents";
 import { deviceQaEnabled } from "../deviceQa";
+import { getNativeMediaPlugin, usesNativeMediaPlayer } from "../platform/nativeMedia";
 
 export type CanonicalPlayerState = "IDLE" | "PREPARING" | "READY" | "PLAYING" | "ENDED" | "ERROR";
 
@@ -41,23 +41,6 @@ export interface CanonicalPlayOutcome {
   engine: "web-asset" | "native-media";
 }
 
-interface NativeMediaPlugin {
-  playCanonicalAudio(options: { audioId: string; uri: string; requestId: string }): Promise<{
-    ok: boolean;
-    state?: string;
-    reason?: string;
-  }>;
-  stopCanonicalAudio(options?: { requestId?: string }): Promise<{ ok: boolean }>;
-  getCanonicalPlayerState(): Promise<{ state: string; requestId?: string }>;
-  releaseCanonicalPlayer(): Promise<{ ok: boolean }>;
-  addListener(
-    eventName: string,
-    listener: (data: { requestId?: string; reason?: string; state?: string }) => void
-  ): Promise<{ remove: () => void }>;
-}
-
-const LongyuMedia = registerPlugin<NativeMediaPlugin>("LongyuMedia");
-
 let webAudio: HTMLAudioElement | null = null;
 let webRequestId: string | null = null;
 let nativeListenersBound = false;
@@ -67,10 +50,10 @@ const nativeHandlers = new Map<string, {
   onError: (reason: string) => void;
 }>();
 
-function trace(event: string, detail: Record<string, unknown>): void {
+function trace(event: TechEventName, detail: TechEventDetail): void {
   try {
     if (deviceQaEnabled() || import.meta.env?.DEV) {
-      recordTechEvent(event as never, detail);
+      recordTechEvent(event, detail);
     }
   } catch {
     /* ignore */
@@ -82,15 +65,12 @@ function trace(event: string, detail: Record<string, unknown>): void {
 }
 
 function usesNativeMedia(): boolean {
-  try {
-    return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
-  } catch {
-    return false;
-  }
+  return usesNativeMediaPlayer();
 }
 
 async function ensureNativeListeners(): Promise<void> {
-  if (nativeListenersBound || !usesNativeMedia()) return;
+  const media = getNativeMediaPlugin();
+  if (nativeListenersBound || !media) return;
   nativeListenersBound = true;
   const forward = (event: CanonicalAudioEvent) => (data: { requestId?: string; reason?: string }) => {
     const id = data.requestId ?? "";
@@ -100,10 +80,10 @@ async function ensureNativeListeners(): Promise<void> {
     else if (event === "AUDIO_ENDED") h.onEnd();
     else if (event === "AUDIO_ERROR") h.onError(data.reason ?? "NATIVE_MEDIA_ERROR");
   };
-  await LongyuMedia.addListener("AUDIO_READY", forward("AUDIO_READY"));
-  await LongyuMedia.addListener("AUDIO_STARTED", forward("AUDIO_STARTED"));
-  await LongyuMedia.addListener("AUDIO_ENDED", forward("AUDIO_ENDED"));
-  await LongyuMedia.addListener("AUDIO_ERROR", forward("AUDIO_ERROR"));
+  await media.addListener("AUDIO_READY", forward("AUDIO_READY"));
+  await media.addListener("AUDIO_STARTED", forward("AUDIO_STARTED"));
+  await media.addListener("AUDIO_ENDED", forward("AUDIO_ENDED"));
+  await media.addListener("AUDIO_ERROR", forward("AUDIO_ERROR"));
 }
 
 function playWebAsset(
@@ -210,12 +190,13 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     input.onState?.("READY");
     input.onEvent?.("AUDIO_READY", { requestId });
 
-    if (usesNativeMedia()) {
+    const media = getNativeMediaPlugin();
+    if (media) {
       trace("audio_engine_selected", { requestId, engine: "native-media" });
       trace("audio_native_call_enter", { requestId, audioId });
       nativeHandlers.set(requestId, { onStart, onEnd, onError });
       void ensureNativeListeners()
-        .then(() => LongyuMedia.playCanonicalAudio({ audioId, uri, requestId }))
+        .then(() => media.playCanonicalAudio({ audioId, uri, requestId }))
         .then((result) => {
           if (result && result.ok === false) onError(result.reason ?? "NATIVE_MEDIA_REJECTED");
         })
@@ -235,9 +216,10 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
 }
 
 export async function stopCanonicalAudio(requestId?: string): Promise<void> {
-  if (usesNativeMedia()) {
+  const media = getNativeMediaPlugin();
+  if (media) {
     try {
-      await LongyuMedia.stopCanonicalAudio({ requestId });
+      await media.stopCanonicalAudio({ requestId });
     } catch {
       /* ignore */
     }
@@ -254,9 +236,10 @@ export async function stopCanonicalAudio(requestId?: string): Promise<void> {
 }
 
 export async function releaseCanonicalPlayer(): Promise<void> {
-  if (usesNativeMedia()) {
+  const media = getNativeMediaPlugin();
+  if (media) {
     try {
-      await LongyuMedia.releaseCanonicalPlayer();
+      await media.releaseCanonicalPlayer();
     } catch {
       /* ignore */
     }
