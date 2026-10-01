@@ -1,29 +1,37 @@
 /**
- * RC2.2.28/31 — player canônico (Web HTMLAudioElement + Android Media3 bridge).
+ * RC2.2.31B — player canônico com Promise sempre terminal + READY honesto.
  *
- * RC2.2.31:
- *   - androidAssetPath explícito (nao adivinhar public/)
- *   - cancelCanonicalAudio request-aware (cleanup A nao mata B)
- *   - listeners UNBOUND → BINDING → BOUND | FAILED
- *   - handler removido em ENDED/ERROR/CANCELLED (nao TTL 15s)
+ * READY só após AUDIO_READY nativo (Media3 STATE_READY).
+ * Cancel / SUPERSEDED resolvem a Promise (nunca hang).
+ * Listener handles removidos se bind parcial falhar.
  */
+import type { PluginListenerHandle } from "@capacitor/core";
 import { newTtsRequestId } from "../ttsCorrelation";
 import { recordTechEvent, type TechEventDetail, type TechEventName } from "../techEvents";
 import { deviceQaEnabled } from "../deviceQa";
 import { getNativeMediaPlugin, usesNativeMediaPlayer } from "../platform/nativeMedia";
 
-export type CanonicalPlayerState = "IDLE" | "PREPARING" | "READY" | "PLAYING" | "ENDED" | "ERROR";
+export type CanonicalPlayerState =
+  | "IDLE"
+  | "PREPARING"
+  | "READY"
+  | "PLAYING"
+  | "ENDED"
+  | "ERROR"
+  | "CANCELLED"
+  | "SUPERSEDED";
 
 export type CanonicalAudioEvent =
   | "AUDIO_READY"
   | "AUDIO_STARTED"
   | "AUDIO_ENDED"
-  | "AUDIO_ERROR";
+  | "AUDIO_ERROR"
+  | "AUDIO_CANCELLED"
+  | "AUDIO_SUPERSEDED";
 
 export interface PlayCanonicalAudioInput {
   audioId: string;
   uri: string;
-  /** Caminho AssetManager (audio/core/...). Preferido no Android. */
   androidAssetPath?: string;
   requestId?: string;
   onState?: (state: CanonicalPlayerState) => void;
@@ -36,21 +44,29 @@ export interface CanonicalPlayOutcome {
   started: boolean;
   ended: boolean;
   failed: boolean;
+  cancelled: boolean;
+  superseded: boolean;
   reason: string | null;
   engine: "web-asset" | "native-media";
 }
 
 type ListenerBindState = "UNBOUND" | "BINDING" | "BOUND" | "FAILED";
 
+type NativeHandler = {
+  onReady: () => void;
+  onStart: () => void;
+  onEnd: () => void;
+  onError: (reason: string) => void;
+  onCancelled: (reason?: string) => void;
+  onSuperseded: (reason?: string) => void;
+};
+
 let webAudio: HTMLAudioElement | null = null;
 let webRequestId: string | null = null;
 let nativeListenerState: ListenerBindState = "UNBOUND";
 let nativeBindPromise: Promise<void> | null = null;
-const nativeHandlers = new Map<string, {
-  onStart: () => void;
-  onEnd: () => void;
-  onError: (reason: string) => void;
-}>();
+let nativeListenerHandles: PluginListenerHandle[] = [];
+const nativeHandlers = new Map<string, NativeHandler>();
 
 function trace(event: TechEventName, detail: TechEventDetail): void {
   try {
@@ -74,6 +90,17 @@ function dropHandler(requestId: string): void {
   nativeHandlers.delete(requestId);
 }
 
+async function removeAllListenerHandles(): Promise<void> {
+  const handles = nativeListenerHandles.splice(0, nativeListenerHandles.length);
+  for (const h of handles) {
+    try {
+      await h.remove();
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 async function ensureNativeListeners(): Promise<void> {
   const media = getNativeMediaPlugin();
   if (!media) return;
@@ -84,21 +111,38 @@ async function ensureNativeListeners(): Promise<void> {
   }
   nativeListenerState = "BINDING";
   nativeBindPromise = (async () => {
+    const handles: PluginListenerHandle[] = [];
     try {
-      const forward = (event: CanonicalAudioEvent) => (data: { requestId?: string; reason?: string }) => {
-        const id = data.requestId ?? "";
-        const h = nativeHandlers.get(id);
-        if (!h) return;
-        if (event === "AUDIO_STARTED") h.onStart();
-        else if (event === "AUDIO_ENDED") h.onEnd();
-        else if (event === "AUDIO_ERROR") h.onError(data.reason ?? "NATIVE_MEDIA_ERROR");
-      };
-      await media.addListener("AUDIO_READY", forward("AUDIO_READY"));
-      await media.addListener("AUDIO_STARTED", forward("AUDIO_STARTED"));
-      await media.addListener("AUDIO_ENDED", forward("AUDIO_ENDED"));
-      await media.addListener("AUDIO_ERROR", forward("AUDIO_ERROR"));
+      const forward =
+        (event: CanonicalAudioEvent) =>
+        (data: { requestId?: string; reason?: string }) => {
+          const id = data.requestId ?? "";
+          const h = nativeHandlers.get(id);
+          if (!h) return;
+          if (event === "AUDIO_READY") h.onReady();
+          else if (event === "AUDIO_STARTED") h.onStart();
+          else if (event === "AUDIO_ENDED") h.onEnd();
+          else if (event === "AUDIO_ERROR") h.onError(data.reason ?? "NATIVE_MEDIA_ERROR");
+          else if (event === "AUDIO_CANCELLED") h.onCancelled(data.reason);
+          else if (event === "AUDIO_SUPERSEDED") h.onSuperseded(data.reason);
+        };
+      handles.push(await media.addListener("AUDIO_READY", forward("AUDIO_READY")));
+      handles.push(await media.addListener("AUDIO_STARTED", forward("AUDIO_STARTED")));
+      handles.push(await media.addListener("AUDIO_ENDED", forward("AUDIO_ENDED")));
+      handles.push(await media.addListener("AUDIO_ERROR", forward("AUDIO_ERROR")));
+      handles.push(await media.addListener("AUDIO_CANCELLED", forward("AUDIO_CANCELLED")));
+      handles.push(await media.addListener("AUDIO_SUPERSEDED", forward("AUDIO_SUPERSEDED")));
+      nativeListenerHandles = handles;
       nativeListenerState = "BOUND";
     } catch {
+      for (const h of handles) {
+        try {
+          await h.remove();
+        } catch {
+          /* ignore */
+        }
+      }
+      nativeListenerHandles = [];
       nativeListenerState = "FAILED";
       nativeBindPromise = null;
       throw new Error("NATIVE_LISTENER_BIND_FAILED");
@@ -112,7 +156,8 @@ function playWebAsset(
   requestId: string,
   onStart: () => void,
   onEnd: () => void,
-  onError: (reason: string) => void
+  onError: (reason: string) => void,
+  onReady: () => void
 ): void {
   try {
     if (!webAudio) webAudio = new Audio();
@@ -125,6 +170,10 @@ function playWebAsset(
     audio.oncanplaythrough = null;
     audio.src = uri;
     audio.load();
+    audio.oncanplaythrough = () => {
+      if (webRequestId !== requestId) return;
+      onReady();
+    };
     audio.onplaying = () => {
       if (webRequestId !== requestId) return;
       onStart();
@@ -143,10 +192,6 @@ function playWebAsset(
   }
 }
 
-/**
- * Toca um asset canônico. Nunca usa TextToSpeech.
- * Promise sempre resolve (nunca rejeita sem catch do caller).
- */
 export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<CanonicalPlayOutcome> {
   const requestId = input.requestId ?? newTtsRequestId();
   const audioId = input.audioId;
@@ -159,6 +204,8 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     started: false,
     ended: false,
     failed: false,
+    cancelled: false,
+    superseded: false,
     reason: null,
     engine,
   };
@@ -173,6 +220,11 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
       settled = true;
       dropHandler(requestId);
       resolve({ ...outcome });
+    };
+    const onReady = () => {
+      if (settled) return;
+      input.onState?.("READY");
+      input.onEvent?.("AUDIO_READY", { requestId });
     };
     const onStart = () => {
       if (settled || outcome.started) return;
@@ -204,23 +256,37 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
       input.onEvent?.("AUDIO_ERROR", { requestId, reason });
       settle();
     };
+    const onCancelled = (reason?: string) => {
+      if (settled) return;
+      outcome.cancelled = true;
+      outcome.reason = reason ?? "CANCELLED";
+      input.onState?.("CANCELLED");
+      input.onEvent?.("AUDIO_CANCELLED", { requestId, reason: outcome.reason });
+      settle();
+    };
+    const onSuperseded = (reason?: string) => {
+      if (settled) return;
+      outcome.superseded = true;
+      outcome.reason = reason ?? "SUPERSEDED";
+      input.onState?.("SUPERSEDED");
+      input.onEvent?.("AUDIO_SUPERSEDED", { requestId, reason: outcome.reason });
+      settle();
+    };
 
     if (!uri && !androidAssetPath) {
       onError("MISSING_URI");
       return;
     }
 
-    input.onState?.("READY");
-    input.onEvent?.("AUDIO_READY", { requestId });
-
     const media = getNativeMediaPlugin();
     if (media) {
+      // READY só depois de AUDIO_READY nativo — nunca pré-nativo.
       trace("audio_engine_selected", { requestId, engine: "native-media" });
       trace("audio_native_call_enter", { requestId, audioId, androidAssetPath });
-      nativeHandlers.set(requestId, { onStart, onEnd, onError });
+      nativeHandlers.set(requestId, { onReady, onStart, onEnd, onError, onCancelled, onSuperseded });
       const bind =
         nativeListenerState === "FAILED"
-          ? (nativeListenerState = "UNBOUND", ensureNativeListeners())
+          ? ((nativeListenerState = "UNBOUND"), ensureNativeListeners())
           : ensureNativeListeners();
       void bind
         .then(() =>
@@ -241,11 +307,10 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     }
 
     trace("audio_engine_selected", { requestId, engine: "web-asset" });
-    playWebAsset(uri, requestId, onStart, onEnd, onError);
+    playWebAsset(uri, requestId, onStart, onEnd, onError, onReady);
   });
 }
 
-/** Cancel request-aware — stale requestId nao para o player ativo. */
 export async function cancelCanonicalAudio(requestId: string): Promise<void> {
   const media = getNativeMediaPlugin();
   if (media) {
@@ -254,7 +319,9 @@ export async function cancelCanonicalAudio(requestId: string): Promise<void> {
     } catch {
       /* ignore */
     }
-    dropHandler(requestId);
+    // Se o nativo não emitir CANCELLED (stale), ainda termina Promise local se pendente.
+    const h = nativeHandlers.get(requestId);
+    if (h) h.onCancelled("CANCELLED_LOCAL");
     return;
   }
   if (webAudio && webRequestId === requestId) {
@@ -288,6 +355,10 @@ export async function stopAllCanonicalAudio(): Promise<void> {
     } catch {
       /* ignore */
     }
+    for (const [id, h] of nativeHandlers) {
+      h.onCancelled("STOP_ALL");
+      void id;
+    }
     nativeHandlers.clear();
     return;
   }
@@ -309,7 +380,9 @@ export async function releaseCanonicalPlayer(): Promise<void> {
     } catch {
       /* ignore */
     }
+    for (const [, h] of nativeHandlers) h.onCancelled("RELEASE");
     nativeHandlers.clear();
+    await removeAllListenerHandles();
     nativeListenerState = "UNBOUND";
     nativeBindPromise = null;
     return;
@@ -323,4 +396,13 @@ export async function releaseCanonicalPlayer(): Promise<void> {
     }
     webAudio = null;
   }
+}
+
+/** QA forensics helpers */
+export function canonicalHandlerCount(): number {
+  return nativeHandlers.size;
+}
+
+export function canonicalListenerBindState(): ListenerBindState {
+  return nativeListenerState;
 }

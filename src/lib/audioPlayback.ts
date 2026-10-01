@@ -374,11 +374,22 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
           if (state === "PLAYING") onStart();
           else if (state === "ENDED") onEnd();
           else if (state === "ERROR") onError("ASSET_PLAYBACK_FAILED");
+          else if (state === "CANCELLED" || state === "SUPERSEDED") {
+            outcome.superseded = state === "SUPERSEDED";
+            outcome.reason = state;
+            settle();
+          }
         },
       })
         .then((canonical) => {
           recordTechEvent("audio_native_call_return" as TechEventName, { requestId, started: canonical.started });
           if (settled) return;
+          if (canonical.cancelled || canonical.superseded) {
+            outcome.superseded = canonical.superseded;
+            outcome.reason = canonical.reason ?? (canonical.superseded ? "SUPERSEDED" : "CANCELLED");
+            settle();
+            return;
+          }
           if (canonical.started && canonical.ended) {
             // playCanonical já disparou onState; garantir settle se perdemos evento.
             if (!outcome.ended) onEnd();

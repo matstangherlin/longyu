@@ -20,13 +20,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import java.io.IOException;
 
 /**
- * RC2.2.31 — player canônico Media3 com isolamento por requestId.
+ * RC2.2.31B — Media3 canônico com listener SESSION-SCOPED.
  *
- * Regras:
- *   - MediaItem.mediaId == requestId (callbacks leem mediaId, nao currentRequestId mutavel)
- *   - cancelCanonicalAudio(requestId) so para o player se requestId == sessao ativa
- *   - stopAllCanonicalAudio() e o unico stop global
- *   - androidAssetPath preferido; AssetManager preflight antes de ExoPlayer
+ * Callbacks capturam requestId/generation no bind; nunca releem currentMediaItem
+ * para reinterpretar evento atrasado de A como B.
+ * Substituição A→B emite AUDIO_SUPERSEDED(A) antes de iniciar B.
  */
 @CapacitorPlugin(name = "LongyuMedia")
 public class LongyuMediaPlugin extends Plugin {
@@ -36,9 +34,10 @@ public class LongyuMediaPlugin extends Plugin {
     private static final String EVENT_STARTED = "AUDIO_STARTED";
     private static final String EVENT_ENDED = "AUDIO_ENDED";
     private static final String EVENT_ERROR = "AUDIO_ERROR";
+    private static final String EVENT_CANCELLED = "AUDIO_CANCELLED";
+    private static final String EVENT_SUPERSEDED = "AUDIO_SUPERSEDED";
     private static final String EVENT_STALE = "STALE_MEDIA_CALLBACK_IGNORED";
 
-    /** Uma sessao nativa por request — estado de started vive aqui, nao em flag global. */
     private static final class NativeMediaSession {
         final String requestId;
         final String audioId;
@@ -54,6 +53,7 @@ public class LongyuMediaPlugin extends Plugin {
         long cancelledAt = 0;
         long positionMs = 0;
         @Nullable String errorCode = null;
+        @Nullable Player.Listener listener = null;
 
         NativeMediaSession(String requestId, String audioId, String assetPath, long generation) {
             this.requestId = requestId;
@@ -79,84 +79,120 @@ public class LongyuMediaPlugin extends Plugin {
             .build();
         exo.setAudioAttributes(attrs, /* handleAudioFocus= */ true);
         exo.setVolume(1f);
-        exo.addListener(new Player.Listener() {
+        player = exo;
+        return exo;
+    }
+
+    /** Listener capturado por sessão — identidade fixa, nunca currentMediaItem global. */
+    private Player.Listener bindSessionListener(final NativeMediaSession session) {
+        final String capturedRequestId = session.requestId;
+        final long capturedGeneration = session.generation;
+        return new Player.Listener() {
+            private boolean isLive() {
+                NativeMediaSession active = activeSession;
+                if (active == null) return false;
+                if (active.generation != capturedGeneration) return false;
+                if (!capturedRequestId.equals(active.requestId)) return false;
+                return true;
+            }
+
+            private void stale(String reason) {
+                Log.i(TAG, "STALE_CALLBACK requestId=" + capturedRequestId
+                    + " gen=" + capturedGeneration + " reason=" + reason
+                    + " active=" + (activeSession != null ? activeSession.requestId : "null"));
+                JSObject data = new JSObject();
+                data.put("mediaId", capturedRequestId);
+                data.put("requestId", capturedRequestId);
+                data.put("generation", capturedGeneration);
+                data.put("reason", reason);
+                if (activeSession != null) data.put("activeRequestId", activeSession.requestId);
+                notifyListeners(EVENT_STALE, data);
+            }
+
             @Override
             public void onPlaybackStateChanged(int playbackState) {
-                String mediaId = currentMediaId();
-                NativeMediaSession session = sessionForMediaId(mediaId);
-                if (session == null) {
-                    if (mediaId != null) emitStale(mediaId, "STATE_" + playbackState);
+                if (!isLive()) {
+                    stale("STATE_" + playbackState);
                     return;
                 }
-                if (playbackState == Player.STATE_READY && !session.started) {
-                    session.state = "READY";
-                    session.preparedAt = System.currentTimeMillis();
+                NativeMediaSession s = activeSession;
+                if (s == null) return;
+                if (playbackState == Player.STATE_READY && !s.started) {
+                    s.state = "READY";
+                    s.preparedAt = System.currentTimeMillis();
                     setState("READY");
-                    emit(EVENT_READY, session, null);
+                    emit(EVENT_READY, s, null);
                 }
                 if (playbackState == Player.STATE_ENDED) {
-                    session.state = "ENDED";
-                    session.endedAt = System.currentTimeMillis();
-                    session.positionMs = safePosition();
+                    s.state = "ENDED";
+                    s.endedAt = System.currentTimeMillis();
+                    s.positionMs = safePosition();
                     setState("ENDED");
-                    emit(EVENT_ENDED, session, null);
+                    emit(EVENT_ENDED, s, null);
                 }
             }
 
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
-                String mediaId = currentMediaId();
-                NativeMediaSession session = sessionForMediaId(mediaId);
-                if (session == null) {
-                    if (mediaId != null) emitStale(mediaId, "IS_PLAYING_" + isPlaying);
+                if (!isLive()) {
+                    stale("IS_PLAYING_" + isPlaying);
                     return;
                 }
-                if (isPlaying && !session.started) {
-                    // Prova de start: isPlaying e/ou position > 0.
+                NativeMediaSession s = activeSession;
+                if (s == null) return;
+                if (isPlaying && !s.started) {
                     long pos = safePosition();
-                    session.started = true;
-                    session.state = "PLAYING";
-                    session.startedAt = System.currentTimeMillis();
-                    session.positionMs = pos;
+                    s.started = true;
+                    s.state = "PLAYING";
+                    s.startedAt = System.currentTimeMillis();
+                    s.positionMs = pos;
                     setState("PLAYING");
-                    emit(EVENT_STARTED, session, null);
+                    emit(EVENT_STARTED, s, null);
                 } else if (isPlaying) {
-                    session.positionMs = safePosition();
+                    s.positionMs = safePosition();
                 }
             }
 
             @Override
             public void onPlayerError(PlaybackException error) {
-                String mediaId = currentMediaId();
-                NativeMediaSession session = sessionForMediaId(mediaId);
-                String code = error != null ? error.getErrorCodeName() : "PLAYER_ERROR";
-                if (session == null) {
-                    if (mediaId != null) emitStale(mediaId, code);
+                if (!isLive()) {
+                    stale(error != null ? error.getErrorCodeName() : "PLAYER_ERROR");
                     return;
                 }
-                session.state = "ERROR";
-                session.errorCode = code;
+                NativeMediaSession s = activeSession;
+                if (s == null) return;
+                String code = error != null ? error.getErrorCodeName() : "PLAYER_ERROR";
+                s.state = "ERROR";
+                s.errorCode = code;
                 setState("ERROR");
-                emit(EVENT_ERROR, session, code);
+                emit(EVENT_ERROR, s, code);
             }
-        });
-        player = exo;
-        return exo;
+        };
     }
 
-    @Nullable
-    private String currentMediaId() {
-        if (player == null) return null;
-        MediaItem item = player.getCurrentMediaItem();
-        if (item == null || item.mediaId == null || item.mediaId.isEmpty()) return null;
-        return item.mediaId;
+    private void detachSessionListener(@Nullable NativeMediaSession session) {
+        if (session == null || session.listener == null || player == null) return;
+        try {
+            player.removeListener(session.listener);
+        } catch (Exception ignored) {
+        }
+        session.listener = null;
     }
 
-    @Nullable
-    private NativeMediaSession sessionForMediaId(@Nullable String mediaId) {
-        if (mediaId == null || activeSession == null) return null;
-        if (!mediaId.equals(activeSession.mediaId)) return null;
-        return activeSession;
+    /** A → SUPERSEDED terminal antes de B. */
+    private void supersedeActive(@Nullable String reason) {
+        NativeMediaSession prev = activeSession;
+        if (prev == null) return;
+        if ("ENDED".equals(prev.state) || "ERROR".equals(prev.state)
+            || "CANCELLED".equals(prev.state) || "SUPERSEDED".equals(prev.state)) {
+            detachSessionListener(prev);
+            return;
+        }
+        prev.state = "SUPERSEDED";
+        prev.cancelledAt = System.currentTimeMillis();
+        prev.positionMs = safePosition();
+        emit(EVENT_SUPERSEDED, prev, reason != null ? reason : "SUPERSEDED");
+        detachSessionListener(prev);
     }
 
     private long safePosition() {
@@ -185,22 +221,6 @@ public class LongyuMediaPlugin extends Plugin {
         notifyListeners(event, data);
     }
 
-    private void emitStale(String mediaId, String reason) {
-        Log.i(TAG, "STALE_MEDIA_CALLBACK_IGNORED mediaId=" + mediaId + " reason=" + reason
-            + " active=" + (activeSession != null ? activeSession.mediaId : "null"));
-        JSObject data = new JSObject();
-        data.put("mediaId", mediaId);
-        data.put("reason", reason);
-        if (activeSession != null) data.put("activeRequestId", activeSession.requestId);
-        notifyListeners(EVENT_STALE, data);
-    }
-
-    /**
-     * Resolve caminho nativo. Preferencia:
-     *   1) androidAssetPath (ex: audio/core/guided-try-nihao.mp3)
-     *   2) uri asset://...
-     *   3) uri /audio/... → audio/... sob assets/ (NAO public/ adivinhado)
-     */
     private String resolveAssetPath(@Nullable String androidAssetPath, @Nullable String uri) {
         if (androidAssetPath != null && !androidAssetPath.isEmpty()) {
             return androidAssetPath.startsWith("/") ? androidAssetPath.substring(1) : androidAssetPath;
@@ -210,13 +230,12 @@ public class LongyuMediaPlugin extends Plugin {
             return uri.substring("asset://".length());
         }
         if (uri.startsWith("/audio/")) {
-            return uri.substring(1); // audio/core/...
+            return uri.substring(1);
         }
         if (uri.startsWith("audio/")) return uri;
         return null;
     }
 
-    /** AssetManager preflight — existe + length > 0. */
     private JSObject preflightAsset(String assetPath) {
         JSObject out = new JSObject();
         out.put("assetPath", assetPath);
@@ -242,7 +261,6 @@ public class LongyuMediaPlugin extends Plugin {
     }
 
     private Uri assetUri(String assetPath) {
-        // Media3 AssetDataSource: asset:///path relativo a assets/
         return Uri.parse("asset:///" + assetPath);
     }
 
@@ -271,6 +289,7 @@ public class LongyuMediaPlugin extends Plugin {
                 JSObject preflight = preflightAsset(assetPath);
                 if (!preflight.optBoolean("ok", false)) {
                     setState("ERROR");
+                    supersedeActive("ERROR_PREFLIGHT");
                     generationCounter += 1;
                     NativeMediaSession failed = new NativeMediaSession(requestId, audioId, assetPath, generationCounter);
                     failed.state = "ERROR";
@@ -286,11 +305,20 @@ public class LongyuMediaPlugin extends Plugin {
                 }
 
                 ExoPlayer exo = ensurePlayer();
-                // Nova sessao substitui a ativa — cancel de request antiga NAO deve
-                // matar esta (ver cancelCanonicalAudio).
+                // Terminal para A antes de B — Promise JS de A precisa resolver.
+                supersedeActive("REPLACED");
+                try {
+                    exo.stop();
+                    exo.clearMediaItems();
+                } catch (Exception ignored) {
+                }
+
                 generationCounter += 1;
                 NativeMediaSession session = new NativeMediaSession(requestId, audioId, assetPath, generationCounter);
                 session.state = "PREPARING";
+                Player.Listener listener = bindSessionListener(session);
+                session.listener = listener;
+                exo.addListener(listener);
                 activeSession = session;
                 setState("PREPARING");
 
@@ -327,10 +355,6 @@ public class LongyuMediaPlugin extends Plugin {
         });
     }
 
-    /**
-     * Cancel REQUEST-AWARE. Se requestId != sessao ativa → ignored STALE_REQUEST,
-     * sem player.stop() / clearMediaItems.
-     */
     @PluginMethod
     public void cancelCanonicalAudio(PluginCall call) {
         String requestId = call.getString("requestId", "");
@@ -353,9 +377,11 @@ public class LongyuMediaPlugin extends Plugin {
                 call.resolve(result);
                 return;
             }
-            // Cancela so a sessao ativa (esta request).
             session.cancelledAt = System.currentTimeMillis();
             session.state = "CANCELLED";
+            session.positionMs = safePosition();
+            emit(EVENT_CANCELLED, session, "CANCELLED");
+            detachSessionListener(session);
             if (player != null) {
                 try {
                     player.stop();
@@ -372,7 +398,6 @@ public class LongyuMediaPlugin extends Plugin {
         });
     }
 
-    /** Alias: stopCanonicalAudio com requestId = cancel request-aware. Sem requestId = stopAll. */
     @PluginMethod
     public void stopCanonicalAudio(PluginCall call) {
         String requestId = call.getString("requestId", null);
@@ -386,16 +411,22 @@ public class LongyuMediaPlugin extends Plugin {
     @PluginMethod
     public void stopAllCanonicalAudio(PluginCall call) {
         main.post(() -> {
+            if (activeSession != null
+                && !"ENDED".equals(activeSession.state)
+                && !"ERROR".equals(activeSession.state)
+                && !"CANCELLED".equals(activeSession.state)
+                && !"SUPERSEDED".equals(activeSession.state)) {
+                activeSession.cancelledAt = System.currentTimeMillis();
+                activeSession.state = "CANCELLED";
+                emit(EVENT_CANCELLED, activeSession, "STOP_ALL");
+            }
+            detachSessionListener(activeSession);
             if (player != null) {
                 try {
                     player.stop();
                     player.clearMediaItems();
                 } catch (Exception ignored) {
                 }
-            }
-            if (activeSession != null) {
-                activeSession.cancelledAt = System.currentTimeMillis();
-                activeSession.state = "CANCELLED";
             }
             activeSession = null;
             setState("IDLE");
@@ -430,8 +461,6 @@ public class LongyuMediaPlugin extends Plugin {
             result.put("sessionState", activeSession.state);
             if (activeSession.errorCode != null) result.put("errorCode", activeSession.errorCode);
         }
-        String mediaId = currentMediaId();
-        if (mediaId != null) result.put("playerMediaId", mediaId);
         call.resolve(result);
     }
 
@@ -453,6 +482,7 @@ public class LongyuMediaPlugin extends Plugin {
     @PluginMethod
     public void releaseCanonicalPlayer(PluginCall call) {
         main.post(() -> {
+            detachSessionListener(activeSession);
             if (player != null) {
                 try {
                     player.release();
@@ -470,6 +500,7 @@ public class LongyuMediaPlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        detachSessionListener(activeSession);
         if (player != null) {
             try {
                 player.release();
