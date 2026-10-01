@@ -17,10 +17,13 @@ const stoppers = new Map<AudioOwner, () => void>();
 /**
  * Reivindica o áudio para `next`. `stop` é como parar este dono se outro o
  * substituir. Devolve o token da posse (para liberar só a PRÓPRIA posse).
+ *
+ * RC2.2.31B — mesmo dono (CANONICAL_MEDIA → CANONICAL_MEDIA) também para o
+ * stopper anterior: conversa fala A→B não deixa A vivo matando o STARTED de B.
  */
 export function claimAudio(next: Exclude<AudioOwner, "IDLE">, stop?: () => void): number {
   const previous = owner;
-  if (previous !== "IDLE" && previous !== next) {
+  if (previous !== "IDLE") {
     const stopPrevious = stoppers.get(previous);
     stoppers.delete(previous);
     try {

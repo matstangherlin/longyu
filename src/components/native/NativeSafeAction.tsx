@@ -28,7 +28,8 @@ export function useNativeSafeAction(
   observers?: NativeSafeActionObservers
 ): NativeSafeActionHandlers {
   const pendingRef = useRef<{ at: number; key: string } | null>(null);
-  const lastActionIdRef = useRef<string | null>(null);
+  const lastGestureAtRef = useRef<number | null>(null);
+  const lastRanAtRef = useRef(0);
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observersRef = useRef(observers);
   observersRef.current = observers;
@@ -41,23 +42,22 @@ export function useNativeSafeAction(
   }
 
   function runOnce(source: "click" | "pointer_fallback") {
-    if (lastActionIdRef.current === actionKey && pendingRef.current == null) {
+    const now = Date.now();
+    // Só dedupe o MESMO gesto (click + pointer_fallback). Nunca bloqueie o
+    // próximo toque do aluno — no APK Continuar com o mesmo actionKey (lock
+    // rejeitado / spokenCount igual) precisa poder tentar de novo.
+    if (lastRanAtRef.current > 0 && now - lastRanAtRef.current < POINTER_FALLBACK_MS + 30) {
       return;
     }
-    if (source === "click") {
-      lastActionIdRef.current = actionKey;
-      pendingRef.current = null;
-      clearFallback();
-      observersRef.current?.onActionExecuted?.(source);
-      action();
-      return;
+    if (source === "pointer_fallback") {
+      if (pendingRef.current == null) return;
+      if (pendingRef.current.key !== actionKey) return;
+      observersRef.current?.onFallbackObserved?.();
     }
-    if (pendingRef.current == null) return;
-    if (pendingRef.current.key !== actionKey) return;
     pendingRef.current = null;
-    lastActionIdRef.current = actionKey;
+    lastRanAtRef.current = now;
+    lastGestureAtRef.current = now;
     clearFallback();
-    observersRef.current?.onFallbackObserved?.();
     observersRef.current?.onActionExecuted?.(source);
     action();
   }
@@ -65,7 +65,6 @@ export function useNativeSafeAction(
   return {
     onPointerDown: () => {
       pendingRef.current = { at: Date.now(), key: actionKey };
-      lastActionIdRef.current = null;
       clearFallback();
       observersRef.current?.onPointerDownObserved?.();
     },
@@ -76,6 +75,11 @@ export function useNativeSafeAction(
     onPointerUp: () => {
       observersRef.current?.onPointerUpObserved?.();
       if (pendingRef.current == null || pendingRef.current.key !== actionKey) return;
+      // Se o click já rodou neste gesto, não agenda fallback.
+      if (lastRanAtRef.current > 0 && Date.now() - lastRanAtRef.current < POINTER_FALLBACK_MS + 30) {
+        pendingRef.current = null;
+        return;
+      }
       clearFallback();
       fallbackTimerRef.current = setTimeout(() => {
         runOnce("pointer_fallback");

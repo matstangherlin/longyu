@@ -67,6 +67,7 @@ public class LongyuMediaPlugin extends Plugin {
     private final Handler main = new Handler(Looper.getMainLooper());
     @Nullable private ExoPlayer player;
     @Nullable private NativeMediaSession activeSession;
+    @Nullable private Runnable positionWatchdog;
     private long generationCounter = 0;
     private String playerState = "IDLE";
 
@@ -81,6 +82,75 @@ public class LongyuMediaPlugin extends Plugin {
         exo.setVolume(1f);
         player = exo;
         return exo;
+    }
+
+    private void clearPositionWatchdog() {
+        if (positionWatchdog != null) {
+            main.removeCallbacks(positionWatchdog);
+            positionWatchdog = null;
+        }
+    }
+
+    /**
+     * RC2.2.31B — Media3 short-clip: STATE_ENDED / position advance can land
+     * without a durable onIsPlayingChanged(true). Emit STARTED once so JS can
+     * confirm AUDIO_HEARD and unlock Continuar / conversation advance.
+     */
+    private void markStarted(NativeMediaSession s, String why) {
+        if (s == null || s.started) return;
+        long pos = safePosition();
+        s.started = true;
+        s.state = "PLAYING";
+        s.startedAt = System.currentTimeMillis();
+        s.positionMs = pos;
+        setState("PLAYING");
+        Log.i(TAG, "AUDIO_STARTED requestId=" + s.requestId + " why=" + why + " positionMs=" + pos);
+        emit(EVENT_STARTED, s, why);
+    }
+
+    private void armPositionWatchdog(final NativeMediaSession session) {
+        clearPositionWatchdog();
+        final long capturedGeneration = session.generation;
+        final String capturedRequestId = session.requestId;
+        final long[] ticks = new long[] {0};
+        positionWatchdog = new Runnable() {
+            @Override
+            public void run() {
+                NativeMediaSession active = activeSession;
+                if (active == null
+                    || active.generation != capturedGeneration
+                    || !capturedRequestId.equals(active.requestId)
+                    || active.started
+                    || "ENDED".equals(active.state)
+                    || "ERROR".equals(active.state)
+                    || "CANCELLED".equals(active.state)
+                    || "SUPERSEDED".equals(active.state)) {
+                    positionWatchdog = null;
+                    return;
+                }
+                long pos = safePosition();
+                active.positionMs = pos;
+                if (pos > 0) {
+                    markStarted(active, "POSITION_PROOF");
+                    positionWatchdog = null;
+                    return;
+                }
+                // Se READY mas player ainda parado (foco atrasado), re-pedir play.
+                if (player != null && !player.isPlaying() && "READY".equals(active.state)) {
+                    try {
+                        player.play();
+                    } catch (Exception ignored) {
+                    }
+                }
+                ticks[0] += 1;
+                if (ticks[0] < 40) {
+                    main.postDelayed(this, 50);
+                } else {
+                    positionWatchdog = null;
+                }
+            }
+        };
+        main.postDelayed(positionWatchdog, 50);
     }
 
     /** Listener capturado por sessão — identidade fixa, nunca currentMediaItem global. */
@@ -122,8 +192,14 @@ public class LongyuMediaPlugin extends Plugin {
                     s.preparedAt = System.currentTimeMillis();
                     setState("READY");
                     emit(EVENT_READY, s, null);
+                    armPositionWatchdog(s);
                 }
                 if (playbackState == Player.STATE_ENDED) {
+                    clearPositionWatchdog();
+                    // Clip curto: ENDED sem isPlaying=true → reparar STARTED antes do ENDED.
+                    if (!s.started && (s.preparedAt > 0 || safePosition() > 0)) {
+                        markStarted(s, "ENDED_REPAIR");
+                    }
                     s.state = "ENDED";
                     s.endedAt = System.currentTimeMillis();
                     s.positionMs = safePosition();
@@ -141,13 +217,8 @@ public class LongyuMediaPlugin extends Plugin {
                 NativeMediaSession s = activeSession;
                 if (s == null) return;
                 if (isPlaying && !s.started) {
-                    long pos = safePosition();
-                    s.started = true;
-                    s.state = "PLAYING";
-                    s.startedAt = System.currentTimeMillis();
-                    s.positionMs = pos;
-                    setState("PLAYING");
-                    emit(EVENT_STARTED, s, null);
+                    clearPositionWatchdog();
+                    markStarted(s, "IS_PLAYING");
                 } else if (isPlaying) {
                     s.positionMs = safePosition();
                 }
@@ -159,6 +230,7 @@ public class LongyuMediaPlugin extends Plugin {
                     stale(error != null ? error.getErrorCodeName() : "PLAYER_ERROR");
                     return;
                 }
+                clearPositionWatchdog();
                 NativeMediaSession s = activeSession;
                 if (s == null) return;
                 String code = error != null ? error.getErrorCodeName() : "PLAYER_ERROR";
@@ -181,6 +253,7 @@ public class LongyuMediaPlugin extends Plugin {
 
     /** A → SUPERSEDED terminal antes de B. */
     private void supersedeActive(@Nullable String reason) {
+        clearPositionWatchdog();
         NativeMediaSession prev = activeSession;
         if (prev == null) return;
         if ("ENDED".equals(prev.state) || "ERROR".equals(prev.state)
@@ -377,6 +450,7 @@ public class LongyuMediaPlugin extends Plugin {
                 call.resolve(result);
                 return;
             }
+            clearPositionWatchdog();
             session.cancelledAt = System.currentTimeMillis();
             session.state = "CANCELLED";
             session.positionMs = safePosition();
@@ -411,6 +485,7 @@ public class LongyuMediaPlugin extends Plugin {
     @PluginMethod
     public void stopAllCanonicalAudio(PluginCall call) {
         main.post(() -> {
+            clearPositionWatchdog();
             if (activeSession != null
                 && !"ENDED".equals(activeSession.state)
                 && !"ERROR".equals(activeSession.state)

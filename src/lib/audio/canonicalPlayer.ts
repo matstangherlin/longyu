@@ -214,6 +214,7 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
 
   return new Promise((resolve) => {
     let settled = false;
+    let sawReady = false;
     const settle = () => {
       if (settled) return;
       settled = true;
@@ -222,6 +223,7 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     };
     const onReady = () => {
       if (settled) return;
+      sawReady = true;
       input.onState?.("READY");
       input.onEvent?.("AUDIO_READY", { requestId });
     };
@@ -234,13 +236,22 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     };
     const onEnd = () => {
       if (settled) return;
+      // RC2.2.31B — clip curto no Media3: ENDED sem isPlaying=true. Se READY
+      // chegou, o asset tocou; não trate como ENDED_WITHOUT_START (trava Guided Try).
       if (!outcome.started) {
-        outcome.failed = true;
-        outcome.reason = "ENDED_WITHOUT_START";
-        input.onState?.("ERROR");
-        input.onEvent?.("AUDIO_ERROR", { requestId, reason: outcome.reason });
-        settle();
-        return;
+        if (sawReady) {
+          outcome.started = true;
+          input.onState?.("PLAYING");
+          input.onEvent?.("AUDIO_STARTED", { requestId, reason: "ENDED_AFTER_READY" });
+          trace("audio_native_call_return", { requestId, audioId, phase: "started_via_ended_repair" });
+        } else {
+          outcome.failed = true;
+          outcome.reason = "ENDED_WITHOUT_START";
+          input.onState?.("ERROR");
+          input.onEvent?.("AUDIO_ERROR", { requestId, reason: outcome.reason });
+          settle();
+          return;
+        }
       }
       outcome.ended = true;
       input.onState?.("ENDED");
@@ -313,14 +324,17 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
 export async function cancelCanonicalAudio(requestId: string): Promise<void> {
   const media = getNativeMediaPlugin();
   if (media) {
+    let ignoredStale = false;
     try {
-      await media.cancelCanonicalAudio({ requestId });
+      const result = await media.cancelCanonicalAudio({ requestId });
+      // STALE_REQUEST: B já é ativo — não inventar CANCELLED em B; só fechar A se handler existir.
+      ignoredStale = Boolean(result && (result as { ignored?: boolean }).ignored);
     } catch {
       /* ignore */
     }
-    // Se o nativo não emitir CANCELLED (stale), ainda termina Promise local se pendente.
+    // Se o nativo não emitir CANCELLED (stale/miss), ainda termina Promise local de A.
     const h = nativeHandlers.get(requestId);
-    if (h) h.onCancelled("CANCELLED_LOCAL");
+    if (h) h.onCancelled(ignoredStale ? "STALE_REQUEST" : "CANCELLED_LOCAL");
     return;
   }
   if (webAudio && webRequestId === requestId) {
