@@ -224,6 +224,12 @@ public class LongyuSpeechPlugin extends Plugin {
             return;
         }
         if (tts == null) {
+            // RC2.2.27 — motor NOVO não herda idioma/velocidade/tom do anterior:
+            // sem zerar o cache, a 1ª fala do motor recriado (reinit depois de
+            // instalar a voz) saía sem setLanguage(zh-CN).
+            lastLocale = null;
+            lastRate = -1f;
+            lastPitch = -1f;
             tts = new TextToSpeech(getContext(), (status) -> {
                 ttsInitStatus = status;
                 if (status == TextToSpeech.SUCCESS) {
