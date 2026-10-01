@@ -416,7 +416,9 @@ export async function validateGuidedTry(s) {
   const superseded = section(s.src.guidedTry, "if (outcome.superseded) {", "setFailReason(outcome.reason);");
   if (/"IDLE"/.test(superseded) || !/setFailReason\("TTS_SUPERSEDED"\)/.test(superseded)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "substituída sem início vira falha recuperável, nunca IDLE cinza");
   for (const testId of ["guided-audio-retry", "guided-audio-confirm-heard", "listen-continue-degraded"]) if (!s.src.guidedTry.includes(testId)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, testId);
-  if (!/failReason === "TTS_UI_DEADLINE"/.test(s.src.guidedTry)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "\"Eu ouvi\" aparece depois do prazo");
+  // RC2.2.31C — "Eu ouvi" is always in the audioFailed panel (deadline → FAILED → panel),
+  // not gated behind failReason === "TTS_UI_DEADLINE" / usesNativeVoice().
+  if (!/audioFailed && \([\s\S]{0,900}guided-audio-confirm-heard/.test(s.src.guidedTry)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "\"Eu ouvi\" aparece depois do prazo");
   if (!/source: "GUIDED_TRY"/.test(s.src.guidedTry)) fail("GUIDED_TRY_IGNORES_ENGINE", FILES.guidedTry, "sessão única de fala");
   return failures;
 }
