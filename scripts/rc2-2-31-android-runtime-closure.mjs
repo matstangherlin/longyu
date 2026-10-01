@@ -46,7 +46,7 @@ const MUTATIONS = {
   ],
   "conversation-single-source": [
     ["[21] V2 keeps nodeId twice", "V2_DUAL_NODEID", src("conversation", "const nodeId = runtime.nodeId;", "const [nodeId, setNodeId] = useState(entryNodeId);\n  void runtime;")],
-    ["[22] V1 click-only remains", "V1_CLICK_ONLY", src("conversation", "useNativeSafeAction", "useFakeSafeAction")],
+    ["[22] V1 click-only remains", "V1_CLICK_ONLY", src("conversation", "useConversationAction", "useFakeSafeAction")],
     ["[26] audio Promise owns node state", "AUDIO_OWNS_NODE", src("conversation", "function goTo(\n    targetId: string | undefined,\n    _speakTarget?: ConversationNode,\n    opts?: { reuseTransitionId?: string }\n  ) {\n    const sceneId = step.sceneId ?? \"scene\";", 'function goTo(\n    targetId: string | undefined,\n    _speakTarget?: ConversationNode,\n    opts?: { reuseTransitionId?: string }\n  ) {\n    void playMandarinAudio("x");\n    const sceneId = step.sceneId ?? \"scene\";')],
   ],
   "audio-quality-v2": [

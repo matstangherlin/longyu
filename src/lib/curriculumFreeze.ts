@@ -693,6 +693,31 @@ export const RC2_2_31_ANDROID_RUNTIME_CLOSURE_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.31B — FULL ANDROID RUNTIME CLOSURE on #304 tip 8a063323.
+ * Full Mandarin speech corpus, session-scoped listeners, promise terminals,
+ * conversation all-actions. Fingerprint c48b008c9c1e. Closed Beta NO-GO until APK.
+ */
+export const RC2_2_31B_ANDROID_RUNTIME_FINAL_EXCEPTION = {
+  id: "RC2_2_31B_ANDROID_RUNTIME_FINAL",
+  scope: "Full fixed Mandarin speech corpus, AQV3 silencedetect, session-scoped Media3 listeners, SUPERSEDED/CANCELLED promise terminals, ConversationActionBoundary, real input traces — no new gamification/curriculum/Pro",
+  areas: [
+    "0 extended-tone placeholders for Mandarin phrases; 657 speech assets + provenance",
+    "session-scoped capturedRequestId/generation; stale callback never becomes B",
+    "every playCanonicalAudio Promise settles (ENDED|ERROR|CANCELLED|SUPERSEDED)",
+    "conversation Continue/Reveal/Repair/stall-retry via ConversationActionBoundary",
+  ],
+  forbids: [
+    "new LessonEngine, SRS, StoryEngine, ProfileEngine or reward engine",
+    "touching #273 / changing package / enabling Android billing or Production Play",
+    "declaring CLOSED_BETA or APK PASS without owner physical acceptance",
+    "Chromium-only E2E counting as Android WebView proof",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-31b-android-runtime-final",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

@@ -1,0 +1,79 @@
+{
+  "wave": "RC2_2_31B",
+  "updatedAt": "2026-10-01",
+  "closedBeta": "NO_GO",
+  "bugs": [
+    {
+      "id": "ANDROID_CANONICAL_AUDIO_SILENT",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "summary": "Guided Try / conversation silent on APK — awaiting 31B HEAD retest"
+    },
+    {
+      "id": "ANDROID_CONVERSATION_CONTINUE_STALL",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "summary": "Continue stall — NativeSafeAction + all-action boundary in 31B"
+    },
+    {
+      "id": "ANDROID_SEQUENTIAL_AUDIO_CANCEL_RACE",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "summary": "cancel race — request-aware + session-scoped listeners"
+    },
+    {
+      "id": "CANONICAL_AUDIO_CONTENT_NOT_CERTIFIED",
+      "severity": "P1",
+      "status": "CORPUS_REGENERATED_AQV3",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "summary": "Full 657 fixed assets regenerated as Mandarin speech; AQV3; human hear pending"
+    },
+    {
+      "id": "ANDROID_MEDIA_STALE_CALLBACK_RACE",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "summary": "Delayed callback A could read currentMediaItem=B — session-scoped captured identity"
+    },
+    {
+      "id": "CANONICAL_PROMISE_NEVER_SETTLES",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "summary": "playCanonicalAudio Promise could hang — CANCELLED/SUPERSEDED terminals"
+    },
+    {
+      "id": "CONVERSATION_FALSE_INPUT_TRACE",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "summary": "V1 fabricated pointer/click traces — moved to real NativeSafeAction observers"
+    },
+    {
+      "id": "CONVERSATION_STALL_RETRY_NULL",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "summary": "stall expected read after clearStall — fixed capture-before-clear"
+    },
+    {
+      "id": "EXTENDED_AUDIO_PLACEHOLDER_CORPUS",
+      "severity": "P1",
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "releaseBlocking": true,
+      "physicalStatus": "NOT_RUN",
+      "summary": "638 extended-tone-v1 placeholders — full corpus → fixed-speech-xiaoxiao-v1"
+    }
+  ]
+}

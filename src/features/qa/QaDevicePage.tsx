@@ -49,6 +49,7 @@ import { newTtsRequestId } from "../../lib/ttsCorrelation";
 import { ttsDiagnosticSnapshot, type TtsAckSource } from "../../lib/ttsDiagnostic";
 import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
 import { AndroidTtsForensicsPanel } from "./AndroidTtsForensicsPanel";
+import { CanonicalMediaForensicsPanel } from "./CanonicalMediaForensicsPanel";
 import { BetaQaConsole } from "./BetaQaConsole";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
@@ -165,6 +166,7 @@ function QaDeviceSurface() {
 
       <QaTtsProbe />
       <AndroidTtsForensicsPanel />
+      <CanonicalMediaForensicsPanel />
       <GuidanceDeliveryPanel />
       <MobileDiagnosticConsole build={build} />
       <BetaQaConsole />

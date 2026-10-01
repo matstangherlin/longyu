@@ -85,8 +85,11 @@ export async function validateStaleCallbackRejection(s) {
   const { failures, fail } = collector();
   const java = s.src.mediaPlugin;
   if (!/setMediaId\(requestId\)/.test(java)) fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "MediaItem.mediaId = requestId");
-  if (!/getCurrentMediaItem\(\)/.test(java)) fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "callbacks read mediaId from player");
-  if (!/STALE_MEDIA_CALLBACK_IGNORED/.test(java)) fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "stale callback event");
+  // RC2.2.31B — session-scoped capturedRequestId preferred over getCurrentMediaItem().
+  if (!/getCurrentMediaItem\(\)/.test(java) && !/capturedRequestId/.test(java)) {
+    fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "callbacks must use mediaId or session-scoped capture");
+  }
+  if (!/STALE_MEDIA_CALLBACK_IGNORED|STALE_CALLBACK/.test(java)) fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "stale callback event");
   if (/startedForCurrent/.test(java)) fail("STARTED_STATE_GLOBAL", FILES.mediaPlugin, "started must live on NativeMediaSession");
   if (!/class NativeMediaSession/.test(java) && !/static final class NativeMediaSession/.test(java)) {
     fail("STARTED_STATE_GLOBAL", FILES.mediaPlugin, "NativeMediaSession required");
@@ -146,7 +149,10 @@ export async function validateConversationSingleSource(s) {
   const c = s.src.conversation;
   if (/const \[nodeId, setNodeId\] = useState/.test(c)) fail("V2_DUAL_NODEID", FILES.conversation, "remove parallel nodeId state");
   if (!/const nodeId = runtime\.nodeId/.test(c)) fail("V2_DUAL_NODEID", FILES.conversation, "derive nodeId from runtime");
-  if (!/useNativeSafeAction/.test(c)) fail("V1_CLICK_ONLY", FILES.conversation, "NativeSafeAction required");
+  // RC2.2.31B — ConversationActionBoundary wraps NativeSafeAction.
+  if (!/useNativeSafeAction|useConversationAction/.test(c)) {
+    fail("V1_CLICK_ONLY", FILES.conversation, "NativeSafeAction / ConversationActionBoundary required");
+  }
   if (!/useNativeSafeAction/.test(s.src.nativeSafe) && !/export function useNativeSafeAction/.test(s.src.nativeSafe)) {
     fail("V1_CLICK_ONLY", FILES.nativeSafe, "hook missing");
   }
