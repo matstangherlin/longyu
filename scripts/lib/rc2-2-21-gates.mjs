@@ -542,7 +542,8 @@ export async function validateResourceCleanup(s) {
     a.resetAudioArbiterForTests?.();
   }
   const playback = stripComments(s.src.audioPlayback);
-  if (!/claimAudio\("TTS", \(\) => stopSpeaking\(\)\)/.test(playback) || !/releaseAudio\("TTS"/.test(playback)) fail("AUDIO_OVERLAP", FILES.audioPlayback, "voz modelo passa pelo árbitro");
+  // RC2.2.27 — quem perde a posse cancela SÓ a própria fala (cancelOwnSpeech), nunca a de outro.
+  if (!/claimAudio\("TTS", \(\) => (stopSpeaking\(\)|cancelOwnSpeech\(requestId, token\))\)/.test(playback) || !/releaseAudio\("TTS"/.test(playback)) fail("AUDIO_OVERLAP", FILES.audioPlayback, "voz modelo passa pelo árbitro");
   const pron = stripComments(s.src.pronunciation);
   if (!/audioClaimRef\.current = claimAudio\("RECOGNITION"/.test(pron)) fail("AUDIO_OVERLAP", FILES.pronunciation, "reconhecimento passa pelo árbitro");
   const unmount = /useEffect\(\(\) => \{\s*return \(\) => \{([\s\S]*?)\};\s*\}, \[audioUrl\]\);/.exec(pron)?.[1] ?? "";

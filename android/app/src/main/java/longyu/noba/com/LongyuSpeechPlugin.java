@@ -67,52 +67,132 @@ public class LongyuSpeechPlugin extends Plugin {
     private TextToSpeech tts;
     /** -1 = inicializando; TextToSpeech.SUCCESS / ERROR depois do onInit. */
     private int ttsInitStatus = -1;
-    private PluginCall speakCall;
-    private PluginCall startCall;
-    private Runnable startTimeout;
-    private static final long TTS_START_TIMEOUT_MS = 3000L;
+    // ── RC2.2.27 — registro de pedidos de fala (request lifecycle) ─────────
+    //
+    // Antes (RC2.2.26): um `startCall` único (sobrescrito em silêncio por
+    // toque duplo/autoplay rápido), `tts.stop()` incondicional antes de TODA
+    // fala e três "fontes" de ACK que eram a mesma: o UtteranceProgressListener.
+    // Agora cada requestId tem o seu ciclo de vida determinístico:
+    //
+    //   CREATED → QUEUED → ENGINE_SPEAKING → STARTED → DONE
+    //                    ↘ SUPERSEDED · STOPPED · ERROR
+    //
+    // e uma fonte REALMENTE independente do listener: tts.isSpeaking(),
+    // consultada a cada TTS_SPEAKING_PROBE_MS enquanto a fala é a corrente.
+    private static final String TTS_LOG_TAG = "LongyuTTS";
+    private static final long TTS_START_TIMEOUT_MS = 4000L;
+    private static final long TTS_SPEAKING_PROBE_MS = 75L;
+    private static final int TTS_REQUEST_HISTORY = 40;
+    /** QA: CONDITIONAL (padrão: stop só se o motor está falando) · EXPLICIT_STOP (modo A) · QUEUE_FLUSH_ONLY (modo B). */
+    private String ttsStopMode = "CONDITIONAL";
+    private boolean ttsQaLogs = false;
     private int utteranceSeq = 0;
-    /** RC2.2.17 — só a fala CORRENTE pode resolver/rejeitar speakCall. */
+    private int onStartCount = 0;
+    private int onDoneCount = 0;
+    private int onStopCount = 0;
+    private int onErrorCount = 0;
+    private int engineSpeakingCount = 0;
+    /** RC2.2.17 — só a fala CORRENTE pode resolver/rejeitar o ACK. */
     private String currentUtteranceId;
-    /** RC2.2.24 — requestId (JS) da fala corrente e se o motor já disse onStart. */
     private String currentRequestId;
-    private boolean currentStarted = false;
-    private static final class TtsPlaybackSnapshot {
-        final String requestId;
-        final String utteranceId;
-        String state = "QUEUED";
-        boolean started = false;
-        boolean done = false;
-        String errorCode = null;
+    private Locale lastLocale;
+    private float lastRate = -1f;
+    private float lastPitch = -1f;
 
-        TtsPlaybackSnapshot(String requestId, String utteranceId) {
+    private static final class TtsRequest {
+        final String requestId;
+        final String source;
+        String utteranceId;
+        String state = "CREATED";
+        final long createdAt = System.currentTimeMillis();
+        long queuedAt = 0L;
+        long firstSpeakingObservedAt = 0L;
+        long onStartAt = 0L;
+        long onDoneAt = 0L;
+        long onStopAt = 0L;
+        long onErrorAt = 0L;
+        long cancelledAt = 0L;
+        boolean speakAccepted = false;
+        boolean engineSpeaking = false;
+        boolean acked = false;
+        String ackSource = null;
+        String errorCode = null;
+        String supersededBy = null;
+        /** Preflight: o que havia antes desta fala (prova da corrida stop→speak). */
+        boolean hadActiveRequest = false;
+        String previousRequestId = null;
+        String previousState = null;
+        boolean previousEngineSpeaking = false;
+        boolean stopCalled = false;
+        boolean stopCallbackReceived = false;
+        long newSpeakCalledAt = 0L;
+        String newSpeakResult = null;
+        long newIsSpeakingObservedAt = 0L;
+        String stopMode = null;
+        /** ACK (startSpeak) e fim (speak legado): nunca trocados em silêncio. */
+        PluginCall ackCall;
+        PluginCall endCall;
+        Runnable probe;
+        Runnable deadline;
+
+        TtsRequest(String requestId, String source) {
             this.requestId = requestId;
-            this.utteranceId = utteranceId;
+            this.source = source == null ? "UNKNOWN" : source;
+        }
+
+        boolean terminal() {
+            return "DONE".equals(state) || "SUPERSEDED".equals(state) || "STOPPED".equals(state) || "ERROR".equals(state);
         }
 
         JSObject toJson() {
             JSObject result = new JSObject();
             result.put("requestId", requestId);
             result.put("utteranceId", utteranceId);
+            result.put("source", source);
             result.put("state", state);
-            result.put("started", started);
-            result.put("done", done);
+            result.put("started", "STARTED".equals(state) || "ENGINE_SPEAKING".equals(state) || onStartAt > 0 || firstSpeakingObservedAt > 0 || onDoneAt > 0);
+            result.put("done", onDoneAt > 0);
             result.put("errorCode", errorCode);
+            result.put("speakAccepted", speakAccepted);
+            result.put("engineSpeaking", engineSpeaking);
+            result.put("acked", acked);
+            result.put("ackSource", ackSource);
+            result.put("createdAt", createdAt);
+            result.put("queuedAt", queuedAt);
+            result.put("firstSpeakingObservedAt", firstSpeakingObservedAt);
+            result.put("onStartAt", onStartAt);
+            result.put("onDoneAt", onDoneAt);
+            result.put("onStopAt", onStopAt);
+            result.put("onErrorAt", onErrorAt);
+            result.put("cancelledAt", cancelledAt);
+            result.put("supersededBy", supersededBy);
+            JSObject pre = new JSObject();
+            pre.put("hadActiveRequest", hadActiveRequest);
+            pre.put("previousRequestId", previousRequestId);
+            pre.put("previousState", previousState);
+            pre.put("previousEngineSpeaking", previousEngineSpeaking);
+            pre.put("stopCalled", stopCalled);
+            pre.put("stopCallbackReceived", stopCallbackReceived);
+            pre.put("newSpeakCalledAt", newSpeakCalledAt);
+            pre.put("newSpeakResult", newSpeakResult);
+            pre.put("newIsSpeakingObservedAt", newIsSpeakingObservedAt);
+            pre.put("stopMode", stopMode);
+            result.put("preflight", pre);
             return result;
         }
     }
-    private final java.util.LinkedHashMap<String, TtsPlaybackSnapshot> ttsPlaybackByRequest =
-        new java.util.LinkedHashMap<String, TtsPlaybackSnapshot>() {
-            @Override
-            protected boolean removeEldestEntry(java.util.Map.Entry<String, TtsPlaybackSnapshot> eldest) {
-                return size() > 32;
-            }
-        };
+
+    private final java.util.LinkedHashMap<String, TtsRequest> ttsRequests = new java.util.LinkedHashMap<String, TtsRequest>() {
+        @Override
+        protected boolean removeEldestEntry(java.util.Map.Entry<String, TtsRequest> eldest) {
+            return size() > TTS_REQUEST_HISTORY;
+        }
+    };
     /** utteranceId → requestId (limitado): evento atrasado carrega a identidade da SUA fala. */
     private final java.util.LinkedHashMap<String, String> requestByUtterance = new java.util.LinkedHashMap<String, String>() {
         @Override
         protected boolean removeEldestEntry(java.util.Map.Entry<String, String> eldest) {
-            return size() > 32;
+            return size() > TTS_REQUEST_HISTORY;
         }
     };
 
@@ -184,142 +264,297 @@ public class LongyuSpeechPlugin extends Plugin {
 
     @PluginMethod
     public void getTtsStatus(PluginCall call) {
-        String language = call.getString("language", "zh-CN");
-        // RC2.2.21 — depois de instalar a voz chinesa, o motor antigo pode
-        // continuar dizendo LANG_MISSING_DATA: recria-o uma vez (reinit).
-        Boolean reinit = call.getBoolean("reinit", false);
-        if (Boolean.TRUE.equals(reinit) && tts != null && ttsInitStatus != -1
-            && !"AVAILABLE".equals(languageStatus(localeFor(language)))) {
-            finishSpeak(true);
-            try {
-                tts.stop();
-                tts.shutdown();
-            } catch (Exception ignored) {
-                // motor já encerrado
+        // RC2.2.27 — mesmo thread dos callbacks do motor (nunca a ponte).
+        main.post(() -> {
+            String language = call.getString("language", "zh-CN");
+            // RC2.2.21 — depois de instalar a voz chinesa, o motor antigo pode
+            // continuar dizendo LANG_MISSING_DATA: recria-o uma vez (reinit).
+            Boolean reinit = call.getBoolean("reinit", false);
+            if (Boolean.TRUE.equals(reinit) && tts != null && ttsInitStatus != -1
+                && !"AVAILABLE".equals(languageStatus(localeFor(language)))) {
+                finishSpeak(true);
+                try {
+                    tts.stop();
+                    tts.shutdown();
+                } catch (Exception ignored) {
+                    // motor já encerrado
+                }
+                tts = null;
+                ttsInitStatus = -1;
             }
-            tts = null;
-            ttsInitStatus = -1;
-        }
-        ensureTts(() -> {
-            JSObject ret = new JSObject();
-            String status = languageStatus(localeFor(language));
-            ret.put("available", "AVAILABLE".equals(status));
-            ret.put("status", status);
-            ret.put("engine", tts != null ? tts.getDefaultEngine() : null);
-            // RC2.2.17 · H — diagnóstico sem PII.
-            ret.put("initStatus", ttsInitStatus == TextToSpeech.SUCCESS ? "SUCCESS" : ttsInitStatus == -1 ? "PENDING" : "ERROR");
-            ret.put("requestedLocale", localeFor(language).toLanguageTag());
-            ret.put("audioAttributes", "MEDIA_SPEECH");
-            ret.put("reinitialized", Boolean.TRUE.equals(reinit));
-            call.resolve(ret);
+            ensureTts(() -> {
+                JSObject ret = new JSObject();
+                String status = languageStatus(localeFor(language));
+                ret.put("available", "AVAILABLE".equals(status));
+                ret.put("status", status);
+                ret.put("engine", tts != null ? tts.getDefaultEngine() : null);
+                // RC2.2.17 · H — diagnóstico sem PII.
+                ret.put("initStatus", ttsInitStatus == TextToSpeech.SUCCESS ? "SUCCESS" : ttsInitStatus == -1 ? "PENDING" : "ERROR");
+                ret.put("requestedLocale", localeFor(language).toLanguageTag());
+                ret.put("audioAttributes", "MEDIA_SPEECH");
+                ret.put("reinitialized", Boolean.TRUE.equals(reinit));
+                call.resolve(ret);
+            });
         });
     }
 
+    /**
+     * Legado (RC2.2.13): resolve no FIM da fala. Passa pelo MESMO registro de
+     * pedidos que startSpeak — não existe um segundo caminho de TTS.
+     */
     @PluginMethod
     public void speak(PluginCall call) {
+        call.setKeepAlive(true);
+        main.post(() -> beginTtsRequest(call, false));
+    }
+
+    /**
+     * RC2.2.26/27 — resolve no INÍCIO confirmado da fala (onStart, isSpeaking
+     * ou DONE da mesma requestId). Um pedido anterior ainda pendente é
+     * rejeitado com TTS_SUPERSEDED — nunca sobrescrito em silêncio.
+     */
+    @PluginMethod
+    public void startSpeak(PluginCall call) {
+        main.post(() -> beginTtsRequest(call, true));
+    }
+
+    private void beginTtsRequest(PluginCall call, boolean ackOnStart) {
         String text = call.getString("text", "");
         String requestId = call.getString("requestId", null);
         if (text == null || text.trim().isEmpty()) {
             emitTts("TTS_ERROR", requestId, null, "error", "TTS_EMPTY_TEXT");
+            call.setKeepAlive(false);
             call.reject("empty text", "TTS_EMPTY_TEXT");
             return;
         }
+        if (ackOnStart && (requestId == null || requestId.isEmpty())) {
+            call.reject("requestId required", "TTS_REQUEST_ID_REQUIRED");
+            return;
+        }
+        String rid = requestId != null && !requestId.isEmpty() ? requestId : UTTERANCE_PREFIX + "r" + (utteranceSeq + 1);
         String language = call.getString("language", "zh-CN");
         Float rate = call.getFloat("rate", 0.85f);
         Float pitch = call.getFloat("pitch", 1.0f);
+        TtsRequest request = new TtsRequest(rid, call.getString("source", "UNKNOWN"));
+        if (ackOnStart) request.ackCall = call;
+        else request.endCall = call;
+        ttsRequests.put(rid, request);
+        ttsLog(request, "REQUEST", null);
+
+        // Preflight: o que estava acontecendo antes desta fala.
+        TtsRequest previous = currentRequestId == null ? null : ttsRequests.get(currentRequestId);
+        boolean engineSpeakingNow = tts != null && ttsInitStatus == TextToSpeech.SUCCESS && safeIsSpeaking();
+        request.stopMode = ttsStopMode;
+        if (previous != null && previous != request && !previous.terminal()) {
+            request.hadActiveRequest = true;
+            request.previousRequestId = previous.requestId;
+            request.previousState = previous.state;
+            request.previousEngineSpeaking = engineSpeakingNow;
+            supersede(previous, rid);
+        } else {
+            request.previousEngineSpeaking = engineSpeakingNow;
+            if (previous != null) {
+                request.previousRequestId = previous.requestId;
+                request.previousState = previous.state;
+            }
+        }
+        // RC2.2.27 — stop() só quando há fala REALMENTE tocando (CONDITIONAL),
+        // sempre (modo A, QA) ou nunca (modo B, QA: QUEUE_FLUSH já interrompe).
+        boolean shouldStop = "EXPLICIT_STOP".equals(ttsStopMode)
+            || ("CONDITIONAL".equals(ttsStopMode) && engineSpeakingNow);
+        if (shouldStop && tts != null) {
+            tts.stop();
+            request.stopCalled = true;
+        }
+        currentRequestId = rid;
+        currentUtteranceId = null;
+        armDeadline(request);
         ensureTts(() -> {
+            if (request.terminal()) return;
             Locale locale = localeFor(language);
             String status = languageStatus(locale);
             if (!"AVAILABLE".equals(status)) {
                 // Nunca finge que tocou.
-                emitTts("TTS_ERROR", requestId, null, "unavailable", status);
-                call.reject(status, status);
+                failRequest(request, status, "unavailable");
                 return;
             }
-            // Uma fala por vez: a anterior termina como "interrompida".
-            finishSpeak(true);
-            tts.setLanguage(locale);
-            tts.setSpeechRate(rate == null ? 0.85f : Math.max(0.3f, Math.min(2.0f, rate)));
-            tts.setPitch(pitch == null ? 1.0f : Math.max(0.5f, Math.min(2.0f, pitch)));
+            float r = rate == null ? 0.85f : Math.max(0.3f, Math.min(2.0f, rate));
+            float p = pitch == null ? 1.0f : Math.max(0.5f, Math.min(2.0f, pitch));
+            // setLanguage a cada fala recarregava a voz em alguns motores: só se mudou.
+            if (lastLocale == null || !lastLocale.equals(locale)) {
+                tts.setLanguage(locale);
+                lastLocale = locale;
+            }
+            if (r != lastRate) {
+                tts.setSpeechRate(r);
+                lastRate = r;
+            }
+            if (p != lastPitch) {
+                tts.setPitch(p);
+                lastPitch = p;
+            }
             String id = UTTERANCE_PREFIX + (++utteranceSeq);
-            String rid = requestId != null && !requestId.isEmpty() ? requestId : id;
+            request.utteranceId = id;
             requestByUtterance.put(id, rid);
-            speakCall = call;
-            currentUtteranceId = id;
-            currentRequestId = rid;
-            currentStarted = false;
-            call.setKeepAlive(true);
+            if (rid.equals(currentRequestId)) currentUtteranceId = id;
+            request.newSpeakCalledAt = System.currentTimeMillis();
             int result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
+            request.newSpeakResult = result == TextToSpeech.SUCCESS ? "SUCCESS" : "ERROR";
+            ttsLog(request, "QUEUE_RESULT", "result=" + request.newSpeakResult);
             if (result != TextToSpeech.SUCCESS) {
-                speakCall = null;
-                currentUtteranceId = null;
-                currentRequestId = null;
-                call.setKeepAlive(false);
-                emitTts("TTS_ERROR", rid, id, "error", "TTS_SPEAK_FAILED");
-                call.reject("speak failed", "TTS_SPEAK_FAILED");
+                failRequest(request, "TTS_SPEAK_FAILED", "error");
                 return;
             }
+            request.speakAccepted = true;
+            request.queuedAt = System.currentTimeMillis();
+            if (!request.terminal() && "CREATED".equals(request.state)) request.state = "QUEUED";
             emitTts("TTS_QUEUED", rid, id, "queued", null);
-            ttsPlaybackByRequest.put(rid, new TtsPlaybackSnapshot(rid, id));
+            startSpeakingProbe(request);
         });
     }
 
+    /** Fonte independente do listener: o motor diz que está falando AGORA. */
+    private void startSpeakingProbe(TtsRequest request) {
+        final long until = System.currentTimeMillis() + TTS_START_TIMEOUT_MS;
+        request.probe = new Runnable() {
+            @Override
+            public void run() {
+                if (request.terminal() || !request.requestId.equals(currentRequestId) || request.firstSpeakingObservedAt > 0) return;
+                if (safeIsSpeaking()) {
+                    long now = System.currentTimeMillis();
+                    request.firstSpeakingObservedAt = now;
+                    request.newIsSpeakingObservedAt = now;
+                    request.engineSpeaking = true;
+                    engineSpeakingCount += 1;
+                    if ("QUEUED".equals(request.state) || "CREATED".equals(request.state)) request.state = "ENGINE_SPEAKING";
+                    ttsLog(request, "ENGINE_IS_SPEAKING", null);
+                    emitTts("TTS_ENGINE_SPEAKING", request.requestId, request.utteranceId, "speaking", null);
+                    ackRequest(request, "isSpeaking", false);
+                    return;
+                }
+                if (System.currentTimeMillis() < until) main.postDelayed(this, TTS_SPEAKING_PROBE_MS);
+            }
+        };
+        main.postDelayed(request.probe, TTS_SPEAKING_PROBE_MS);
+    }
+
+    private void armDeadline(TtsRequest request) {
+        request.deadline = () -> {
+            request.deadline = null;
+            if (request.acked || request.terminal()) return;
+            PluginCall pending = request.ackCall;
+            request.ackCall = null;
+            ttsLog(request, "START_NOT_CONFIRMED", "state=" + request.state);
+            // Não é terminal: um DONE atrasado ainda será registrado e emitido.
+            if (pending != null) pending.reject("start not confirmed", "TTS_START_NOT_CONFIRMED");
+        };
+        main.postDelayed(request.deadline, TTS_START_TIMEOUT_MS);
+    }
+
+    private boolean safeIsSpeaking() {
+        try {
+            return tts != null && tts.isSpeaking();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /** Resolve o ACK uma vez só, com a fonte que confirmou. */
+    private void ackRequest(TtsRequest request, String source, boolean startEventMissed) {
+        if (request.acked) return;
+        request.acked = true;
+        request.ackSource = source;
+        if (request.deadline != null) main.removeCallbacks(request.deadline);
+        request.deadline = null;
+        PluginCall pending = request.ackCall;
+        request.ackCall = null;
+        if (pending != null) {
+            JSObject result = new JSObject();
+            result.put("requestId", request.requestId);
+            result.put("utteranceId", request.utteranceId);
+            result.put("started", true);
+            result.put("ackSource", source);
+            result.put("startEventMissed", startEventMissed);
+            pending.resolve(result);
+        }
+    }
+
+    private void supersede(TtsRequest previous, String byRequestId) {
+        previous.state = "SUPERSEDED";
+        previous.supersededBy = byRequestId;
+        previous.cancelledAt = System.currentTimeMillis();
+        ttsLog(previous, "SUPERSEDED", "by=" + shortId(byRequestId));
+        emitTts("TTS_SUPERSEDED", previous.requestId, previous.utteranceId, "superseded", "TTS_SUPERSEDED");
+        settleRequest(previous, true, "TTS_SUPERSEDED");
+    }
+
+    private void failRequest(TtsRequest request, String code, String engineState) {
+        request.state = "ERROR";
+        request.errorCode = code;
+        request.onErrorAt = request.onErrorAt > 0 ? request.onErrorAt : System.currentTimeMillis();
+        ttsLog(request, "ON_ERROR", "code=" + code);
+        emitTts("TTS_ERROR", request.requestId, request.utteranceId, engineState, code);
+        settleRequest(request, true, code);
+        if (request.requestId.equals(currentRequestId)) {
+            currentRequestId = null;
+            currentUtteranceId = null;
+        }
+    }
+
+    /** Fecha as chamadas pendentes desta request (e só desta). */
+    private void settleRequest(TtsRequest request, boolean interrupted, String rejectCode) {
+        if (request.probe != null) main.removeCallbacks(request.probe);
+        request.probe = null;
+        if (request.deadline != null) main.removeCallbacks(request.deadline);
+        request.deadline = null;
+        PluginCall ack = request.ackCall;
+        request.ackCall = null;
+        if (ack != null && !request.acked) ack.reject(rejectCode == null ? "TTS_STOPPED" : rejectCode, rejectCode == null ? "TTS_STOPPED" : rejectCode);
+        PluginCall end = request.endCall;
+        request.endCall = null;
+        if (end != null) {
+            JSObject ret = new JSObject();
+            ret.put("interrupted", interrupted);
+            // RC2.2.24 — o retorno também prova se o motor começou ESTA fala.
+            boolean started = request.onStartAt > 0 || request.firstSpeakingObservedAt > 0 || request.onDoneAt > 0;
+            ret.put("started", started);
+            if (request.utteranceId != null) ret.put("utteranceId", request.utteranceId);
+            ret.put("requestId", request.requestId);
+            end.setKeepAlive(false);
+            if (!started && "ERROR".equals(request.state)) end.reject(rejectCode, rejectCode);
+            else end.resolve(ret);
+        }
+    }
+
+    /**
+     * RC2.2.27 — cancela SÓ a própria request (quem a criou desmontou). Fala de
+     * outro componente nunca é parada por aqui.
+     */
     @PluginMethod
-    public void startSpeak(PluginCall call) {
+    public void cancelSpeak(PluginCall call) {
         main.post(() -> {
-            String text = call.getString("text", "");
             String requestId = call.getString("requestId", null);
-            if (text == null || text.trim().isEmpty()) {
-                call.reject("empty text", "TTS_EMPTY_TEXT");
+            TtsRequest request = requestId == null ? null : ttsRequests.get(requestId);
+            JSObject result = new JSObject();
+            result.put("requestId", requestId);
+            if (request == null || request.terminal()) {
+                result.put("cancelled", false);
+                call.resolve(result);
                 return;
             }
-            if (requestId == null || requestId.isEmpty()) {
-                call.reject("requestId required", "TTS_REQUEST_ID_REQUIRED");
-                return;
+            boolean isCurrent = request.requestId.equals(currentRequestId);
+            if (isCurrent && safeIsSpeaking() && tts != null) tts.stop();
+            request.state = "STOPPED";
+            request.cancelledAt = System.currentTimeMillis();
+            ttsLog(request, "CANCELLED", "current=" + isCurrent);
+            emitTts("TTS_STOPPED", request.requestId, request.utteranceId, "cancelled", "TTS_CANCELLED");
+            settleRequest(request, true, "TTS_CANCELLED");
+            if (isCurrent) {
+                currentRequestId = null;
+                currentUtteranceId = null;
             }
-            String language = call.getString("language", "zh-CN");
-            Float rate = call.getFloat("rate", 0.85f);
-            Float pitch = call.getFloat("pitch", 1.0f);
-            if (tts != null) tts.stop();
-            finishSpeak(true);
-            startCall = call;
-            startTimeout = () -> {
-                if (startCall != call) return;
-                startCall = null;
-                startTimeout = null;
-                call.reject("start not confirmed", "TTS_START_NOT_CONFIRMED");
-            };
-            main.postDelayed(startTimeout, TTS_START_TIMEOUT_MS);
-            ensureTts(() -> {
-                if (startCall != call) return;
-                String status = languageStatus(localeFor(language));
-                if (!"AVAILABLE".equals(status)) {
-                    emitTts("TTS_ERROR", requestId, null, "unavailable", status);
-                    clearStartCall(status);
-                    return;
-                }
-                tts.setLanguage(localeFor(language));
-                tts.setSpeechRate(rate == null ? 0.85f : Math.max(0.3f, Math.min(2.0f, rate)));
-                tts.setPitch(pitch == null ? 1.0f : Math.max(0.5f, Math.min(2.0f, pitch)));
-                String id = UTTERANCE_PREFIX + (++utteranceSeq);
-                requestByUtterance.put(id, requestId);
-                currentUtteranceId = id;
-                currentRequestId = requestId;
-                currentStarted = false;
-                TtsPlaybackSnapshot snapshot = new TtsPlaybackSnapshot(requestId, id);
-                ttsPlaybackByRequest.put(requestId, snapshot);
-                int result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
-                if (result != TextToSpeech.SUCCESS) {
-                    snapshot.state = "ERROR";
-                    snapshot.errorCode = "TTS_SPEAK_FAILED";
-                    clearStartCall("TTS_SPEAK_FAILED");
-                    currentUtteranceId = null;
-                    currentRequestId = null;
-                    emitTts("TTS_ERROR", requestId, id, "error", "TTS_SPEAK_FAILED");
-                    return;
-                }
-                emitTts("TTS_QUEUED", requestId, id, "queued", null);
-            });
+            result.put("cancelled", true);
+            call.resolve(result);
         });
     }
 
@@ -327,28 +562,103 @@ public class LongyuSpeechPlugin extends Plugin {
     public void getTtsPlaybackState(PluginCall call) {
         main.post(() -> {
             String requestId = call.getString("requestId", currentRequestId);
-            TtsPlaybackSnapshot snapshot = requestId == null ? null : ttsPlaybackByRequest.get(requestId);
-            if (snapshot != null) {
-                call.resolve(snapshot.toJson());
-                return;
+            TtsRequest request = requestId == null ? null : ttsRequests.get(requestId);
+            JSObject result;
+            if (request != null) {
+                result = request.toJson();
+            } else {
+                result = new JSObject();
+                result.put("requestId", requestId);
+                result.put("utteranceId", (String) null);
+                result.put("state", "IDLE");
+                result.put("started", false);
+                result.put("done", false);
+                result.put("errorCode", (String) null);
             }
-            JSObject result = new JSObject();
-            result.put("requestId", requestId);
-            result.put("utteranceId", (String) null);
-            result.put("state", "IDLE");
-            result.put("started", false);
-            result.put("done", false);
-            result.put("errorCode", (String) null);
+            // Fonte independente, AO VIVO: só vale para a request corrente.
+            boolean isCurrent = requestId != null && requestId.equals(currentRequestId);
+            result.put("isCurrent", isCurrent);
+            result.put("engineSpeakingNow", isCurrent && safeIsSpeaking());
             call.resolve(result);
         });
     }
 
-    private void clearStartCall(String code) {
-        if (startTimeout != null) main.removeCallbacks(startTimeout);
-        startTimeout = null;
-        PluginCall pending = startCall;
-        startCall = null;
-        if (pending != null) pending.reject(code, code);
+    /** RC2.2.27 — /qa/device › ANDROID TTS FORENSICS (sem texto, sem PII). */
+    @PluginMethod
+    public void getTtsForensics(PluginCall call) {
+        main.post(() -> {
+            JSObject ret = new JSObject();
+            ret.put("pluginAvailable", true);
+            ret.put("engine", tts != null ? tts.getDefaultEngine() : null);
+            ret.put("initStatus", ttsInitStatus == TextToSpeech.SUCCESS ? "SUCCESS" : ttsInitStatus == -1 ? "PENDING" : "ERROR");
+            ret.put("languageStatus", languageStatus(localeFor("zh-CN")));
+            ret.put("requestedLocale", "zh-CN");
+            String voiceLocale = null;
+            try {
+                if (tts != null && tts.getVoice() != null && tts.getVoice().getLocale() != null) voiceLocale = tts.getVoice().getLocale().toLanguageTag();
+            } catch (Exception ignored) {
+                // motor sem voz carregada
+            }
+            ret.put("voiceLocale", voiceLocale);
+            ret.put("androidApi", Build.VERSION.SDK_INT);
+            ret.put("manufacturer", Build.MANUFACTURER);
+            ret.put("model", Build.MODEL);
+            String webView = null;
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    android.content.pm.PackageInfo info = android.webkit.WebView.getCurrentWebViewPackage();
+                    if (info != null) webView = info.packageName + "/" + info.versionName;
+                }
+            } catch (Exception ignored) {
+                // WebView sem pacote
+            }
+            ret.put("webView", webView);
+            ret.put("stopMode", ttsStopMode);
+            ret.put("currentRequestId", currentRequestId);
+            ret.put("currentUtteranceId", currentUtteranceId);
+            TtsRequest current = currentRequestId == null ? null : ttsRequests.get(currentRequestId);
+            ret.put("currentState", current == null ? "IDLE" : current.state);
+            ret.put("isSpeaking", safeIsSpeaking());
+            ret.put("onStartCount", onStartCount);
+            ret.put("onDoneCount", onDoneCount);
+            ret.put("onStopCount", onStopCount);
+            ret.put("onErrorCount", onErrorCount);
+            ret.put("engineSpeakingCount", engineSpeakingCount);
+            ret.put("pendingAck", current != null && current.ackCall != null);
+            JSArray recent = new JSArray();
+            List<TtsRequest> all = new ArrayList<>(ttsRequests.values());
+            for (int i = Math.max(0, all.size() - 20); i < all.size(); i++) recent.put(all.get(i).toJson());
+            ret.put("requests", recent);
+            call.resolve(ret);
+        });
+    }
+
+    /** QA: modo de parada (A/B) e logs LongyuTTS. O JS só chama em build de QA. */
+    @PluginMethod
+    public void setTtsQaOptions(PluginCall call) {
+        main.post(() -> {
+            String mode = call.getString("stopMode", ttsStopMode);
+            if ("CONDITIONAL".equals(mode) || "EXPLICIT_STOP".equals(mode) || "QUEUE_FLUSH_ONLY".equals(mode)) ttsStopMode = mode;
+            Boolean logs = call.getBoolean("logs", ttsQaLogs);
+            ttsQaLogs = Boolean.TRUE.equals(logs);
+            JSObject ret = new JSObject();
+            ret.put("stopMode", ttsStopMode);
+            ret.put("logs", ttsQaLogs);
+            call.resolve(ret);
+        });
+    }
+
+    private static String shortId(String id) {
+        if (id == null) return "-";
+        return id.length() <= 10 ? id : id.substring(id.length() - 10);
+    }
+
+    /** Log QA com identidade e evento. NUNCA o texto falado, nome ou conteúdo da aula. */
+    private void ttsLog(TtsRequest request, String event, String detail) {
+        if (!ttsQaLogs) return;
+        android.util.Log.i(TTS_LOG_TAG, "req=" + shortId(request == null ? null : request.requestId)
+            + " src=" + (request == null ? "-" : request.source)
+            + " event=" + event + (detail == null ? "" : " " + detail));
     }
 
     /**
@@ -367,9 +677,10 @@ public class LongyuSpeechPlugin extends Plugin {
         notifyListeners("ttsEvent", event);
     }
 
-    private String requestFor(String utteranceId) {
+    private TtsRequest requestForUtterance(String utteranceId) {
         if (utteranceId == null) return null;
-        return requestByUtterance.get(utteranceId);
+        String rid = requestByUtterance.get(utteranceId);
+        return rid == null ? null : ttsRequests.get(rid);
     }
 
     private final UtteranceProgressListener progressListener = new UtteranceProgressListener() {
@@ -377,26 +688,16 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onStart(String utteranceId) {
             main.post(() -> {
+                onStartCount += 1;
+                TtsRequest request = requestForUtterance(utteranceId);
+                if (request == null) return;
+                request.onStartAt = System.currentTimeMillis();
+                ttsLog(request, "ON_START", null);
                 // RC2.2.24 — toda fala anuncia o SEU início (o JS filtra por requestId).
-                emitTts("TTS_STARTED", requestFor(utteranceId), utteranceId, "speaking", null);
-                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
-                currentStarted = true;
-                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(currentRequestId);
-                if (snapshot != null) {
-                    snapshot.state = "STARTED";
-                    snapshot.started = true;
-                }
-                if (startTimeout != null) main.removeCallbacks(startTimeout);
-                startTimeout = null;
-                PluginCall pending = startCall;
-                startCall = null;
-                if (pending != null) {
-                    JSObject result = new JSObject();
-                    result.put("requestId", currentRequestId);
-                    result.put("utteranceId", utteranceId);
-                    result.put("started", true);
-                    pending.resolve(result);
-                }
+                emitTts("TTS_STARTED", request.requestId, utteranceId, "speaking", null);
+                if (request.terminal()) return;
+                request.state = "STARTED";
+                ackRequest(request, "onStart", false);
                 JSObject event = new JSObject();
                 event.put("state", "start");
                 notifyListeners("ttsState", event);
@@ -406,83 +707,80 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onDone(String utteranceId) {
             main.post(() -> {
-                emitTts("TTS_DONE", requestFor(utteranceId), utteranceId, "idle", null);
-                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestFor(utteranceId));
-                if (snapshot != null) {
-                    snapshot.state = "DONE";
-                    snapshot.done = true;
+                onDoneCount += 1;
+                TtsRequest request = requestForUtterance(utteranceId);
+                if (request == null) return;
+                request.onDoneAt = System.currentTimeMillis();
+                ttsLog(request, "ON_DONE", "acked=" + request.acked);
+                emitTts("TTS_DONE", request.requestId, utteranceId, "idle", null);
+                // O DONE atrasado de uma request SUPERSEDED fica registrado, mas não a reabre.
+                if (request.terminal()) return;
+                // DONE sem START (onStart perdido) ainda prova que ESTA fala tocou.
+                ackRequest(request, request.onStartAt > 0 ? request.ackSource : "onDone", request.onStartAt == 0 && request.firstSpeakingObservedAt == 0);
+                request.state = "DONE";
+                settleRequest(request, false, null);
+                if (request.requestId.equals(currentRequestId)) {
+                    currentRequestId = null;
+                    currentUtteranceId = null;
                 }
-                // O onStop/onDone atrasado da fala ANTERIOR não encerra a atual.
-                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
-                clearStartCall("TTS_START_NOT_CONFIRMED");
-                finishSpeak(false);
             });
         }
 
         @Override
         public void onError(String utteranceId) {
             main.post(() -> {
-                emitTts("TTS_ERROR", requestFor(utteranceId), utteranceId, "error", "TTS_SPEAK_FAILED");
-                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestFor(utteranceId));
-                if (snapshot != null) {
-                    snapshot.state = "ERROR";
-                    snapshot.errorCode = "TTS_SPEAK_FAILED";
-                }
-                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
-                clearStartCall("TTS_SPEAK_FAILED");
-                PluginCall call = speakCall;
-                speakCall = null;
-                currentUtteranceId = null;
-                currentRequestId = null;
-                if (call != null) {
-                    call.setKeepAlive(false);
-                    call.reject("tts error", "TTS_SPEAK_FAILED");
-                }
+                onErrorCount += 1;
+                TtsRequest request = requestForUtterance(utteranceId);
+                if (request == null || request.terminal()) return;
+                request.onErrorAt = System.currentTimeMillis();
+                failRequest(request, "TTS_SPEAK_FAILED", "error");
             });
         }
 
         @Override
         public void onStop(String utteranceId, boolean interrupted) {
             main.post(() -> {
-                emitTts("TTS_STOPPED", requestFor(utteranceId), utteranceId, "stopped", null);
-                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestFor(utteranceId));
-                if (snapshot != null && !snapshot.done) snapshot.state = "STOPPED";
-                if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
-                finishSpeak(true);
+                onStopCount += 1;
+                TtsRequest request = requestForUtterance(utteranceId);
+                if (request == null) return;
+                request.onStopAt = System.currentTimeMillis();
+                ttsLog(request, "ON_STOP", "interrupted=" + interrupted);
+                emitTts("TTS_STOPPED", request.requestId, utteranceId, "stopped", null);
+                // Prova da corrida: a fala que substituiu esta recebeu o stop da anterior?
+                if (request.supersededBy != null) {
+                    TtsRequest next = ttsRequests.get(request.supersededBy);
+                    if (next != null) next.stopCallbackReceived = true;
+                }
+                if (request.terminal()) return;
+                request.state = "STOPPED";
+                settleRequest(request, true, "TTS_STOPPED");
+                if (request.requestId.equals(currentRequestId)) {
+                    currentRequestId = null;
+                    currentUtteranceId = null;
+                }
             });
         }
     };
 
+    /** Para a fala corrente (pausa do app, microfone, gravação). */
     private void finishSpeak(boolean interrupted) {
-        PluginCall call = speakCall;
-        String utteranceId = currentUtteranceId;
-        String requestId = currentRequestId;
-        boolean started = currentStarted;
-        if (interrupted) {
-            TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestId);
-            if (snapshot != null && !snapshot.done) snapshot.state = "STOPPED";
-            clearStartCall("TTS_STOPPED");
-        }
-        speakCall = null;
-        currentUtteranceId = null;
+        TtsRequest request = currentRequestId == null ? null : ttsRequests.get(currentRequestId);
         currentRequestId = null;
-        currentStarted = false;
-        if (call == null) return;
-        JSObject ret = new JSObject();
-        ret.put("interrupted", interrupted);
-        // RC2.2.24 — o retorno também prova se o motor começou ESTA fala.
-        ret.put("started", started);
-        if (utteranceId != null) ret.put("utteranceId", utteranceId);
-        if (requestId != null) ret.put("requestId", requestId);
-        call.setKeepAlive(false);
-        call.resolve(ret);
+        currentUtteranceId = null;
+        if (request == null || request.terminal()) return;
+        request.state = interrupted ? "STOPPED" : "DONE";
+        request.cancelledAt = System.currentTimeMillis();
+        ttsLog(request, "CANCELLED", "reason=owner");
+        settleRequest(request, interrupted, "TTS_STOPPED");
     }
 
     @PluginMethod
     public void stop(PluginCall call) {
-        if (tts != null) tts.stop();
-        finishSpeak(true);
-        call.resolve();
+        main.post(() -> {
+            if (safeIsSpeaking() && tts != null) tts.stop();
+            finishSpeak(true);
+            call.resolve();
+        });
     }
 
     @PluginMethod
@@ -984,7 +1282,7 @@ public class LongyuSpeechPlugin extends Plugin {
             ret.put("activeMediaPlayers", practicePlayer != null ? 1 : 0);
             ret.put("activeRecorders", practiceRecorder != null ? 1 : 0);
             ret.put("activeRecognizers", (recognizer != null ? 1 : 0) + (supportProbe != null ? 1 : 0) + (modelDownloader != null ? 1 : 0));
-            ret.put("activeTtsUtterances", speakCall != null ? 1 : 0);
+            ret.put("activeTtsUtterances", currentRequestId != null ? 1 : 0);
             ret.put("pendingRecognitionCalls", recognitionCall != null ? 1 : 0);
             ret.put("activeTimersCritical", (amplitudeSampler != null ? 1 : 0) + (playingProbe != null ? 1 : 0));
             ret.put("practiceState", practiceState);

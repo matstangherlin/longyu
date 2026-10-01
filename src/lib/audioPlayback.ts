@@ -21,6 +21,8 @@ import { deviceQaEnabled, recordDeviceQaObservation } from "./deviceQa";
 import { claimAudio, releaseAudio } from "./audioArbiter";
 import { recordTechEvent, type TechEventName } from "./techEvents";
 import { stopSpeaking } from "./tts";
+import { newTtsRequestId } from "./ttsCorrelation";
+import { nativeCancelSpeak } from "./platform/nativeSpeech";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -40,6 +42,8 @@ export interface PlaybackOutcome {
   engine: PlaybackEngine;
   /** Uma chamada mais nova substituiu esta (o aluno tocou de novo). */
   superseded: boolean;
+  /** RC2.2.27 — identidade desta reprodução (sempre presente). */
+  requestId?: string;
 }
 
 /** Sem início neste prazo = falha perceptível, não espera infinita (Part J). */
@@ -139,6 +143,10 @@ export interface PlayMandarinOptions {
   requestId?: string;
   /** RC2.2.24 — eventos de TTS DESTA reprodução (diagnóstico e motivo do CTA). */
   onTtsEvent?: SpeakOptions["onTtsEvent"];
+  /** RC2.2.27 — origem (GUIDED_TRY, CONVERSATION_AUTOPLAY…) para o diagnóstico. */
+  source?: string;
+  /** RC2.2.27 — autoplay não é gesto do aluno (não finge ativação de áudio). */
+  userGesture?: boolean;
 }
 
 function engineFor(text: string): PlaybackEngine {
@@ -169,6 +177,9 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
   const clean = String(text ?? "").trim();
   const token = ++generation;
   const engine = engineFor(clean);
+  // RC2.2.27 — toda reprodução tem identidade, manual ou automática.
+  const requestId = options.requestId ?? newTtsRequestId();
+  latestRequestId = requestId;
   const outcome: PlaybackOutcome = {
     started: false,
     ended: false,
@@ -177,6 +188,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     reason: null,
     engine,
     superseded: false,
+    requestId,
   };
   const emit = (state: PlaybackState) => {
     if (token !== generation) return;
@@ -222,21 +234,19 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
       return;
     }
 
-    noteUserGesture();
+    if (options.userGesture !== false) noteUserGesture();
     // A voz modelo interrompe gravação/reprodução própria/escuta em curso.
-    claim = claimAudio("TTS", () => stopSpeaking());
+    // RC2.2.27 — quem perde a posse cancela SÓ a própria fala (nunca a de outro).
+    claim = claimAudio("TTS", () => cancelOwnSpeech(requestId, token));
     emit("STARTING");
 
     const armEndTimeout = () => {
       clearTimer();
       timer = setTimeout(() => {
         if (settled) return;
-        // Motor confirmou início mas não fechou — corta e libera a UI.
-        try {
-          stopSpeaking();
-        } catch {
-          /* ignore */
-        }
+        // Motor confirmou início mas não fechou — corta SÓ esta fala e libera a UI.
+        // (Antes: stopSpeaking() global matava a fala SEGUINTE de outro componente.)
+        cancelOwnSpeech(requestId, token);
         outcome.ended = true;
         outcome.reason = outcome.reason ?? "NO_END_TIMEOUT";
         record({ at: Date.now(), engine, event: "end", reason: "NO_END_TIMEOUT" });
@@ -287,7 +297,8 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
     speak(clean, {
       rate: options.rate,
-      requestId: options.requestId,
+      requestId,
+      source: options.source,
       onTtsEvent: options.onTtsEvent,
       onstart: onStart,
       onerror: onError,
@@ -295,3 +306,20 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     });
   });
 }
+
+/**
+ * RC2.2.27 — cancela a fala DESTA reprodução. Android: `cancelSpeak(requestId)`
+ * (no-op se já terminou ou se outra é a corrente). Web: só se esta ainda é a
+ * reprodução mais nova (speechSynthesis tem uma fila só).
+ */
+export function cancelOwnSpeech(requestId: string, token?: number): void {
+  if (usesNativeVoice()) {
+    void nativeCancelSpeak(requestId);
+    return;
+  }
+  const stillNewest = token != null ? token === generation : latestRequestId === requestId;
+  if (stillNewest) stopSpeaking();
+}
+
+/** Última reprodução pedida (Web: uma fila só no speechSynthesis). */
+let latestRequestId: string | null = null;

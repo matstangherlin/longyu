@@ -186,7 +186,7 @@ import {
 } from "./reviewSessionPlan";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import { withToneContrastTeaching } from "./toneContrastEnrichment";
-import { scheduleAutoSpeak } from "../../lib/tts";
+import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
 import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
@@ -2120,6 +2120,8 @@ export function LessonPlayer() {
   const activityErrorsRef = useRef<ActivityError[]>([]);
   const attemptIdRef = useRef<string | null>(null);
   const attemptStartedAtRef = useRef<number>(Date.now());
+  /** RC2.2.27 — rodada do tema no início da tentativa (CompletionSequence só EXIBE 3/4 → 4/4). */
+  const masteryAtStartRef = useRef<number | null>(null);
   const recordedMistakeStepRef = useRef<number | null>(null);
   const recordedPairMistakesRef = useRef<Set<string>>(new Set());
   // Segunda barreira de idempotência no shell: mesmo que um exercício legado
@@ -2588,6 +2590,7 @@ export function LessonPlayer() {
     const startedAt = Date.now();
     attemptStartedAtRef.current = startedAt;
     attemptIdRef.current = `${foundLesson.id}:${startedAt}`;
+    masteryAtStartRef.current = lessonMasteryById?.[foundLesson.id]?.level ?? 0;
     setCurrentLessonAttempt({
       id: attemptIdRef.current,
       lessonId: foundLesson.id,
@@ -4708,6 +4711,18 @@ export function LessonPlayer() {
           primaryLabel={hasUnclaimedRewards && !guidedShell ? t("player.claimRewards") : journeyCta}
           primaryTestId={lesson.lessonDomain === "culture" ? "culture-back-journey" : "topic-victory-return"}
           onPrimary={handlePrimaryAction}
+          // RC2.2.27 — CompletionSequence só EXIBE deltas já calculados acima
+          // (nada é concedido aqui). A ofensiva tem tela própria depois
+          // (postLessonView "streak"), então não entra na revelação.
+          qi={newRewards.find((reward) => reward.type === "qi")?.amount ?? 0}
+          medalLabel={newRewards.some((reward) => reward.type === "badge") ? ACCURACY_SERENE_BADGE : null}
+          streakAdvanced={false}
+          progress={
+            isTopicMasteryLesson(lesson) && masteryAtStartRef.current !== null
+              ? { before: Math.min(4, masteryAtStartRef.current), after: Math.min(4, masteryNow), total: 4 }
+              : null
+          }
+          completion={{ lessonId: lesson.id, completionId: attemptIdRef.current ?? String(attemptStartedAtRef.current) }}
         />
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       </>

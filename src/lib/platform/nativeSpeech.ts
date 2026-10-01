@@ -121,8 +121,11 @@ export type NativeRecognitionDiagnostics = {
 interface LongyuSpeechPlugin {
   getTtsStatus(options: { language: string; reinit?: boolean }): Promise<TtsStatus>;
   speak(options: { text: string; language: string; rate?: number; pitch?: number; requestId?: string }): Promise<{ interrupted: boolean; requestId?: string; utteranceId?: string; started?: boolean }>;
-  startSpeak(options: { text: string; language: string; rate?: number; pitch?: number; requestId: string }): Promise<{ requestId: string; utteranceId: string; started: boolean }>;
+  startSpeak(options: { text: string; language: string; rate?: number; pitch?: number; requestId: string; source?: string }): Promise<{ requestId: string; utteranceId: string; started: boolean; ackSource?: string; startEventMissed?: boolean }>;
   getTtsPlaybackState(options: { requestId: string }): Promise<NativeTtsPlaybackState>;
+  cancelSpeak(options: { requestId: string }): Promise<{ requestId: string; cancelled: boolean }>;
+  getTtsForensics(): Promise<NativeTtsForensics>;
+  setTtsQaOptions(options: { stopMode?: NativeTtsStopMode; logs?: boolean }): Promise<{ stopMode: NativeTtsStopMode; logs: boolean }>;
   stop(): Promise<void>;
   openTtsSettings(): Promise<void>;
   getRecognitionStatus(): Promise<RecognitionStatus>;
@@ -154,13 +157,58 @@ const LongyuSpeech = registerPlugin<LongyuSpeechPlugin>("LongyuSpeech");
 export const MANDARIN_LANGUAGE = "zh-CN";
 export const RECOGNITION_TIMEOUT_MS = 10_000;
 
+/** RC2.2.27 — ciclo de vida da request no plugin (uma fala física por vez). */
+export type NativeTtsRequestState = "IDLE" | "CREATED" | "QUEUED" | "ENGINE_SPEAKING" | "STARTED" | "DONE" | "SUPERSEDED" | "STOPPED" | "ERROR";
+
 export type NativeTtsPlaybackState = {
   requestId: string | null;
   utteranceId: string | null;
-  state: "IDLE" | "QUEUED" | "STARTED" | "DONE" | "STOPPED" | "ERROR";
+  state: NativeTtsRequestState;
   started: boolean;
   done: boolean;
   errorCode: string | null;
+  source?: string;
+  speakAccepted?: boolean;
+  engineSpeaking?: boolean;
+  /** `tts.isSpeaking()` AO VIVO — só vale enquanto esta é a request corrente. */
+  engineSpeakingNow?: boolean;
+  isCurrent?: boolean;
+  queuedAt?: number;
+  firstSpeakingObservedAt?: number;
+  onStartAt?: number;
+  onDoneAt?: number;
+  onStopAt?: number;
+  onErrorAt?: number;
+  supersededBy?: string | null;
+  preflight?: Record<string, unknown>;
+};
+
+/** QA: CONDITIONAL (padrão) · EXPLICIT_STOP (modo A: stop + speak) · QUEUE_FLUSH_ONLY (modo B). */
+export type NativeTtsStopMode = "CONDITIONAL" | "EXPLICIT_STOP" | "QUEUE_FLUSH_ONLY";
+
+export type NativeTtsForensics = {
+  pluginAvailable: boolean;
+  engine: string | null;
+  initStatus: string;
+  languageStatus: string;
+  requestedLocale: string;
+  voiceLocale: string | null;
+  androidApi: number;
+  manufacturer: string;
+  model: string;
+  webView: string | null;
+  stopMode: NativeTtsStopMode;
+  currentRequestId: string | null;
+  currentUtteranceId: string | null;
+  currentState: string;
+  isSpeaking: boolean;
+  onStartCount: number;
+  onDoneCount: number;
+  onStopCount: number;
+  onErrorCount: number;
+  engineSpeakingCount: number;
+  pendingAck: boolean;
+  requests: NativeTtsPlaybackState[];
 };
 
 export function nativeTtsPluginAvailable(): boolean {
@@ -271,18 +319,20 @@ const SUBSCRIBER_GRACE_MS = 1500;
  */
 export async function nativeSpeakTracked(
   text: string,
-  options: { rate?: number; pitch?: number; requestId: string },
+  options: { rate?: number; pitch?: number; requestId: string; source?: string },
   onEvent: TtsSubscriber
 ): Promise<NativeTrackedSpeakResult> {
   const { requestId } = options;
   const cleanup = () => {
     if (ttsSubscribers.get(requestId) === subscribed) ttsSubscribers.delete(requestId);
   };
+  let confirmed = false;
+  let terminal = false;
   const subscribed: TtsSubscriber = (event) => {
+    if (event.type === "TTS_STARTED" || event.type === "TTS_ENGINE_SPEAKING" || event.type === "TTS_DONE") confirmed = true;
+    if (event.type === "TTS_DONE" || event.type === "TTS_STOPPED" || event.type === "TTS_SUPERSEDED" || event.type === "TTS_ERROR") terminal = true;
     onEvent(event);
-    if (event.type === "TTS_DONE" || event.type === "TTS_STOPPED" || event.type === "TTS_ERROR") {
-      setTimeout(cleanup, SUBSCRIBER_GRACE_MS);
-    }
+    if (terminal) setTimeout(cleanup, SUBSCRIBER_GRACE_MS);
   };
   ttsSubscribers.set(requestId, subscribed);
   const requested: TtsEvent = { type: "TTS_REQUESTED", requestId, utteranceId: null, timestamp: Date.now(), engineState: "js" };
@@ -295,36 +345,97 @@ export async function nativeSpeakTracked(
   }
   // The direct ACK and state query still work if addListener never resolves.
   await Promise.race([initNativeTtsEventBridge(), new Promise((resolve) => setTimeout(resolve, 500))]);
+  // RC2.2.27 — o dono cancelou antes do pedido chegar ao motor: nunca vira fala órfã.
+  if (cancelledBeforeNative.delete(requestId)) {
+    subscribed({ type: "TTS_STOPPED", requestId, utteranceId: null, timestamp: Date.now(), engineState: "cancelled-before-native", code: "TTS_CANCELLED" });
+    cleanup();
+    return { ok: false, code: "TTS_CANCELLED" };
+  }
+  inFlightNative.add(requestId);
+  // RC2.2.27 — consulta REPETIDA (não uma vez em 1,1 s): a cada TTS_STATE_POLL_MS
+  // até TTS_STATE_POLL_DEADLINE_MS, parando em confirmação, fim ou substituição.
+  // `engineSpeakingNow` (tts.isSpeaking da request corrente) é fonte própria.
+  const pollStartedAt = Date.now();
   let queryStarted = false;
   let queryDone = false;
-  let queryConfirmed = false;
   const query = async () => {
     const state = await nativeTtsPlaybackState(requestId);
     if (!state) return;
-    if ((state.state === "STARTED" || state.started) && !queryStarted) {
+    if (!queryStarted && (state.state === "STARTED" || state.started || state.state === "ENGINE_SPEAKING" || state.engineSpeakingNow === true)) {
       queryStarted = true;
-      queryConfirmed = true;
-      subscribed({ type: "TTS_STARTED", requestId, utteranceId: state.utteranceId, timestamp: Date.now(), engineState: "native-query", source: "query" });
+      const engine = state.state === "ENGINE_SPEAKING" || state.engineSpeakingNow === true;
+      subscribed({ type: engine ? "TTS_ENGINE_SPEAKING" : "TTS_STARTED", requestId, utteranceId: state.utteranceId, timestamp: Date.now(), engineState: engine ? "native-is-speaking" : "native-query", source: engine ? "engine" : "query" });
     }
     if (state.state === "DONE" && !queryDone) {
       queryDone = true;
-      queryConfirmed = true;
       subscribed({ type: "TTS_DONE", requestId, utteranceId: state.utteranceId, timestamp: Date.now(), engineState: "native-query", source: "query" });
     }
+    if ((state.state === "SUPERSEDED" || state.state === "STOPPED" || state.state === "ERROR") && !terminal) {
+      subscribed({ type: state.state === "SUPERSEDED" ? "TTS_SUPERSEDED" : state.state === "STOPPED" ? "TTS_STOPPED" : "TTS_ERROR", requestId, utteranceId: state.utteranceId, timestamp: Date.now(), engineState: "native-query", code: state.errorCode, source: "query" });
+    }
   };
-  const queryTimer = setTimeout(() => { void query(); }, 1100);
+  const pollUntilSettled = async () => {
+    while (!confirmed && !terminal && Date.now() - pollStartedAt < TTS_STATE_POLL_DEADLINE_MS) {
+      await new Promise((resolve) => setTimeout(resolve, TTS_STATE_POLL_MS));
+      if (confirmed || terminal) break;
+      await query();
+    }
+  };
+  const polling = pollUntilSettled();
   try {
-    const result = await LongyuSpeech.startSpeak({ text, language: MANDARIN_LANGUAGE, rate: options.rate, pitch: options.pitch, requestId });
+    const result = await LongyuSpeech.startSpeak({ text, language: MANDARIN_LANGUAGE, rate: options.rate, pitch: options.pitch, requestId, source: options.source });
     if (result?.requestId !== requestId || result?.started !== true) return { ok: false, code: "TTS_START_NOT_CONFIRMED" };
     subscribed({ type: "TTS_STARTED", requestId, utteranceId: result.utteranceId, timestamp: Date.now(), engineState: "native-direct", source: "direct" });
     return { ok: true, interrupted: false, started: true, utteranceId: result.utteranceId };
   } catch (error) {
-    await query();
-    if (queryConfirmed) return { ok: true, interrupted: false, started: true, utteranceId: null };
+    // ACK direto rejeitado: a consulta continua até o prazo antes de declarar falha.
+    await polling;
+    if (confirmed) return { ok: true, interrupted: false, started: true, utteranceId: null };
     return { ok: false, code: errorCode(error) };
   } finally {
-    clearTimeout(queryTimer);
+    inFlightNative.delete(requestId);
     setTimeout(cleanup, 12_000);
+  }
+}
+
+/** Requests canceladas pelo dono antes de chegar ao plugin. */
+const cancelledBeforeNative = new Set<string>();
+const inFlightNative = new Set<string>();
+export const TTS_STATE_POLL_MS = 225;
+export const TTS_STATE_POLL_DEADLINE_MS = 4000;
+
+/**
+ * RC2.2.27 — cancela SÓ esta request (o componente que a criou desmontou).
+ * Nunca para a fala de outro componente; no-op se já terminou.
+ */
+export async function nativeCancelSpeak(requestId: string): Promise<boolean> {
+  if (!hasNativeSpeech() || !nativeTtsPluginAvailable()) return false;
+  if (!inFlightNative.has(requestId) && ttsSubscribers.has(requestId)) cancelledBeforeNative.add(requestId);
+  try {
+    const result = await LongyuSpeech.cancelSpeak({ requestId });
+    return Boolean(result?.cancelled);
+  } catch {
+    return false;
+  }
+}
+
+/** /qa/device › ANDROID TTS FORENSICS. */
+export async function nativeTtsForensics(): Promise<NativeTtsForensics | null> {
+  if (!hasNativeSpeech() || !nativeTtsPluginAvailable()) return null;
+  try {
+    return await LongyuSpeech.getTtsForensics();
+  } catch {
+    return null;
+  }
+}
+
+/** Só em build de QA (o chamador verifica deviceQaEnabled). */
+export async function nativeSetTtsQaOptions(options: { stopMode?: NativeTtsStopMode; logs?: boolean }): Promise<{ stopMode: NativeTtsStopMode; logs: boolean } | null> {
+  if (!hasNativeSpeech() || !nativeTtsPluginAvailable()) return null;
+  try {
+    return await LongyuSpeech.setTtsQaOptions(options);
+  } catch {
+    return null;
   }
 }
 

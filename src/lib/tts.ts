@@ -191,6 +191,8 @@ export interface SpeakOptions {
   onerror?: (reason?: string) => void;
   /** P3 — nomes latinos que podem ser falados dentro de uma fala mandarim. */
   properNames?: readonly string[];
+  /** RC2.2.27 — de onde veio o pedido (GUIDED_TRY, CONVERSATION_AUTOPLAY…). Diagnóstico, nunca texto. */
+  source?: string;
   /** RC2.2.24 — identidade da reprodução (Android). Sem ela, uma é criada. */
   requestId?: string;
   /** RC2.2.24 — cada evento DESTA fala + o estado correlacionado (diagnóstico/CTA). */
@@ -445,12 +447,13 @@ function speakNative(text: string, opts: SpeakOptions): void {
     opts.onTtsEvent?.(event, playback);
     confirmStart();
     if (event.type === "TTS_DONE" || event.type === "TTS_STOPPED") end();
+    else if (event.type === "TTS_SUPERSEDED") end();
     else if (event.type === "TTS_ERROR") {
       if (!started) opts.onerror?.(event.code ?? "TTS_ERROR");
       end();
     }
   };
-  void nativeSpeakTracked(spoken, { rate, pitch: opts.pitch ?? 1, requestId }, onEvent).then((result) => {
+  void nativeSpeakTracked(spoken, { rate, pitch: opts.pitch ?? 1, requestId, source: opts.source }, onEvent).then((result) => {
     if (result.ok) {
       nativeTtsKnownAvailable = true;
       nativeTtsUnavailableReason = null;
@@ -474,59 +477,10 @@ export function stopSpeaking(): void {
   if (isTTSAvailable()) window.speechSynthesis.cancel();
 }
 
-function autoSpeakDelayMs(requested?: number): number {
-  if (requested != null) return requested;
-  // Gesto fresco: falar na mesma janela de ativação (Safari/iOS).
-  return Date.now() - lastUserGestureAt < 2500 ? 0 : 120;
-}
-
 /**
- * Agenda fala automática ao montar/trocar conteúdo. Retorna cleanup que cancela
- * o timer pendente (sem interromper fala já iniciada por outro componente).
- * Respeita `autoPlayAudio` do store.
+ * RC2.2.27 — fala automática mora em ./mandarinSpeech (scheduleAutoSpeak):
+ * o MESMO runtime da fala manual (requestId, árbitro, cancelamento próprio).
  */
-export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?: number } = {}): () => void {
-  const clean = String(text ?? "").trim();
-  if (!clean) return () => {};
-  if (useStore.getState().autoPlayAudio === false) return () => {};
-
-  let cancelled = false;
-  const delayMs = autoSpeakDelayMs(opts.delayMs);
-  const { delayMs: _delay, ...speakOpts } = opts;
-  const recentGesture = Date.now() - lastUserGestureAt < 800;
-
-  const run = () => {
-    if (cancelled) return;
-    // Android: TTS nativo não depende de gesto nem de carregar vozes do navegador.
-    if (hasNativeSpeech()) {
-      speak(clean, speakOpts);
-      return;
-    }
-    // Com gesto recente, fala na hora (sem await de vozes) para não sair da
-    // janela de user activation do Safari.
-    if (warmed || recentGesture) {
-      speak(clean, speakOpts);
-      return;
-    }
-    void warmUpVoices().then(() => {
-      if (cancelled) return;
-      speak(clean, speakOpts);
-    });
-  };
-
-  if (delayMs === 0 && recentGesture) {
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }
-
-  const timer = window.setTimeout(run, delayMs);
-  return () => {
-    cancelled = true;
-    window.clearTimeout(timer);
-  };
-}
 
 /** Há uma voz chinesa dedicada disponível? (para avisar o usuário) */
 export function hasChineseVoice(): boolean {

@@ -2,7 +2,8 @@ import { getBuildIdentity, getNativeAppInfo } from "./platform/buildIdentity";
 import { getPlatform, isNativeApp } from "./platform/nativePlatform";
 import { hasNativeSpeech, nativeTtsBridgeInstalledAt, nativeTtsPlaybackState, nativeTtsPluginAvailable } from "./platform/nativeSpeech";
 
-export type TtsAckSource = "event" | "direct" | "query";
+export type { TtsAckSource } from "./ttsCorrelation";
+import type { TtsAckSource } from "./ttsCorrelation";
 
 export async function ttsDiagnosticSnapshot(input: {
   requestId: string | null;
@@ -35,6 +36,11 @@ export async function ttsDiagnosticSnapshot(input: {
     directStartAck: input.ackSources.includes("direct"),
     eventStartAck: input.ackSources.includes("event"),
     stateQueryAck: queryAck,
+    // RC2.2.27 — fonte independente do listener: tts.isSpeaking da request corrente.
+    engineSpeakingAck: input.ackSources.includes("engine") || state?.engineSpeaking === true,
+    engineSpeakingNow: state?.engineSpeakingNow ?? null,
+    nativeSource: state?.source ?? null,
+    preflight: state?.preflight ?? null,
     audioOutcome: input.audioOutcome ?? null,
     guidedListenState: input.guidedListenState ?? null,
     ctaReason: input.ctaReason ?? null,

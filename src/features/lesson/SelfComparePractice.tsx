@@ -330,7 +330,7 @@ export function SelfComparePractice({
     // A voz modelo interrompe a própria gravação tocando (último pedido vence).
     if (playState === "playing" || playState === "preparing") stopMine();
     setModelHeard(true);
-    void playMandarinAudio(target);
+    void playMandarinAudio(target, { source: "SPEAKING_MODEL" });
   }
 
   function stopMine() {

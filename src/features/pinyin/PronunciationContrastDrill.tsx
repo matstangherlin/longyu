@@ -55,7 +55,7 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
   async function play(sound: ContrastSound) {
     setAudio("playing");
     try {
-      const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8 });
+      const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8, source: "PINYIN" });
       if (!alive.current) return;
       setAudio((current) => {
         if (current !== "playing") return current;
@@ -72,7 +72,7 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
     try {
       let any = false;
       for (const sound of contrast.sounds) {
-        const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8 });
+        const outcome = await playMandarinAudio(sound.hanzi, { rate: 0.8, source: "PINYIN" });
         any = any || outcome.started;
       }
       if (!alive.current) return;

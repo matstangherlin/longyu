@@ -564,6 +564,33 @@ export const RC2_2_25_PRODUCT_EXPERIENCE_CLOSURE_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.27 — exceção controlada para a CAUSA REAL do TTS Android. Nenhuma
+ * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
+ * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente
+ * (registro de requests, isSpeaking, cancelSpeak), a sessão única de fala
+ * mandarim, o painel forense de QA e a apresentação da conclusão.
+ */
+export const RC2_2_27_ANDROID_TTS_ROOT_CAUSE_EXCEPTION = {
+  id: "RC2_2_27_ANDROID_TTS_ROOT_CAUSE",
+  scope: "Native TTS request lifecycle registry, isSpeaking probe, conditional stop, superseded requests, own-request cancellation, single Mandarin speech session (manual and autoplay), Guided Try audio deadline recovery, ANDROID TTS FORENSICS QA panel, build identity verdict, sequential completion presentation",
+  areas: [
+    "every TTS request has requestId/utteranceId/state/timestamps; a newer request supersedes, never overwrites",
+    "start confirmed by onStart, isSpeaking of the same request, DONE or direct ACK",
+    "autoplay and manual playback share requestMandarinSpeech; a bubble cancels only its own request",
+    "QA logs LongyuTTS never carry spoken text",
+    "completion reveal is presentation only: no new reward, XP, Qi, streak or medal is granted",
+  ],
+  forbids: [
+    "a second TTS engine or a second lesson player",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "physical PASS or owner acceptance generated automatically",
+    "spoken text, voice recording, OTP, e-mail, password or token logged",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-27-android-tts-root-cause",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

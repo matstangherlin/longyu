@@ -113,7 +113,7 @@ const MUTATIONS = {
     ["[47] microfone aberto ao sair da fala", "RESOURCE_LEAK", src("pronunciation", "      handleRef.current?.stop();\n      releaseRecognitionAudio();", "      handleRef.current?.stop();")],
     ["[48] URL da gravação não revogada", "RESOURCE_LEAK", src("selfCompare", "      if (webUrlRef.current) URL.revokeObjectURL(webUrlRef.current);\n", "")],
     ["[49] ouvintes duplicados", "LISTENER_LEAK", src("techEvents", "  if (installed) return installed;\n", "")],
-    ["TTS fora do árbitro", "AUDIO_OVERLAP", src("audioPlayback", 'claimAudio("TTS", () => stopSpeaking())', "0")],
+    ["TTS fora do árbitro", "AUDIO_OVERLAP", src("audioPlayback", 'claimAudio("TTS", () => cancelOwnSpeech(requestId, token))', "0")],
     ["segundo plugin de voz", "DUPLICATE_ENGINE", json((s) => { s.fileNames.push("android/app/src/main/java/longyu/noba/com/LongyuVoicePlugin.java"); })],
   ],
   "release-truth": [

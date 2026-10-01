@@ -45,7 +45,7 @@ const MUTATIONS = {
     ["[3b] ponte fora do bootstrap", "TTS_LISTENER_AFTER_SPEAK", src("bootstrap", "    void initNativeTtsEventBridge();\n", "")],
     ["[4] áudio ouvido mantém CTA bloqueado", "TTS_HEARD_CTA_BLOCKED", src("ttsCorrelation", '  return state.phase === "STARTED" || state.phase === "HEARD" || state.phase === "DONE";', '  return state.phase === "DONE" && !state.startEventMissed;')],
     ["[5] ACK direto perdido", "TTS_ONDONE_WAIT_FOREVER", src("nativeSpeech", '    subscribed({ type: "TTS_STARTED", requestId, utteranceId: result.utteranceId, timestamp: Date.now(), engineState: "native-direct", source: "direct" });', "    void result;")],
-    ["evento carrega o texto falado", "TTS_EVENT_CARRIES_TEXT", src("ttsCorrelation", '    code: typeof value.code === "string" ? value.code : null,\n    source: "event",\n  };', '    code: typeof value.code === "string" ? value.code : null,\n    source: "event",\n    text: value.text,\n  } as TtsEvent;')],
+    ["evento carrega o texto falado", "TTS_EVENT_CARRIES_TEXT", src("ttsCorrelation", '    source: type === "TTS_ENGINE_SPEAKING" ? "engine" : "event",\n  };', '    source: type === "TTS_ENGINE_SPEAKING" ? "engine" : "event",\n    text: value.text,\n  } as TtsEvent;')],
     ["callback global volta", "TTS_GLOBAL_CALLBACK", src("nativeSpeech", "// ── RC2.2.24 — eventos de TTS correlacionados", "const ttsStartWaiters = new Set();\n// ── RC2.2.24 — eventos de TTS correlacionados")],
   ],
   "guided-try-advance": [

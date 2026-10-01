@@ -80,15 +80,21 @@ for (const source of ["direct", "event", "query"]) {
   const result = await adapter.nativeSpeakTracked("你好", { requestId: "A" }, (receivedEvent) => received.push(receivedEvent));
   assert.equal(received.some((item) => item.type === "TTS_STARTED" && item.source === source), true, `${source} must reach subscriber`);
   if (source === "query" || source === "direct") assert.equal(result.ok, true);
-  if (source === "event") assert.equal(result.ok, false, "event path may outlive failed direct ACK");
+  // RC2.2.27 — onStart da MESMA request é início confirmado: o ACK direto
+  // perdido não transforma uma fala que começou em falha (antes: ok=false).
+  if (source === "event") assert.equal(result.ok, true, "event START of the same request is a confirmed start");
 }
 delete globalThis.__longyuTtsTestPlugin;
 
 const java = read("android/app/src/main/java/longyu/noba/com/LongyuSpeechPlugin.java");
-const start = java.split("public void startSpeak(PluginCall call)")[1]?.split("@PluginMethod")[0] ?? "";
+// RC2.2.27 — startSpeak delega ao registro de requests (beginTtsRequest com
+// ackOnStart=true); o trecho vai até o watchdog de isSpeaking. A chamada
+// nunca é mantida viva até o fim da fala (só o speak legado faz isso).
+const start = java.split("public void startSpeak(PluginCall call)")[1]?.split("private void armDeadline")[0] ?? "";
+assert.match(start, /beginTtsRequest\(call, true\)/);
 assert.match(start, /TTS_START_TIMEOUT_MS/);
 assert.match(start, /tts\.speak\(/);
-assert.doesNotMatch(start, /setKeepAlive\(/);
+assert.doesNotMatch(start, /setKeepAlive\(true\)/);
 assert.match(java, /public void getTtsPlaybackState\(PluginCall call\)/);
 assert.match(java, /pending\.resolve\(result\)/);
 assert.match(java, /emitTts\("TTS_DONE"/);

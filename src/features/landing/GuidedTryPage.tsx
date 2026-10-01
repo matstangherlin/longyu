@@ -22,6 +22,7 @@ import { t as translate, type TranslateVars } from "../../i18n/catalog";
 import type { MessageKey } from "../../locales/pt-BR";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
+import { requestMandarinSpeech } from "../../lib/mandarinSpeech";
 import { installNativeTtsData, openNativeTtsSettings } from "../../lib/platform/nativeSpeech";
 import { nativeTtsPluginAvailable } from "../../lib/platform/nativeSpeech";
 import { refreshNativeTtsStatus, usesNativeVoice } from "../../lib/tts";
@@ -67,6 +68,9 @@ export type GuidedListenState = "IDLE" | "STARTING" | "PLAYING" | "HEARD" | "FAI
  * RC2.2.14B · AS — sem curso escolhido não há teste guiado: vai para a
  * escolha do curso e volta para cá.
  */
+/** RC2.2.27 — prazo de UI do "Ouça" (> 4 s do watchdog nativo + polling JS). */
+export const GUIDED_LISTEN_DEADLINE_MS = 5500;
+
 export function GuidedTryPage() {
   if (!hasCourseDirection()) return <Navigate to="/curso?next=%2Fteste-guiado" replace />;
   return <GuidedTryFlow />;
@@ -105,6 +109,22 @@ function GuidedTryFlow() {
   const total = GUIDED_TRY_STEPS.length;
   const heard = listen === "HEARD" || listen === "PLAYING";
   const audioFailed = listen === "FAILED" || listen === "UNAVAILABLE";
+
+  // RC2.2.27 — nunca cinza para sempre: sem início confirmado (onStart,
+  // isSpeaking da MESMA request, DONE ou ACK) até o prazo, a tela sai de
+  // "Iniciando…" e oferece [Tocar novamente] [Eu ouvi, continuar]
+  // [Continuar sem áudio]. "Eu ouvi" é fallback de UX, não PHYSICAL_PASS.
+  useEffect(() => {
+    if (step !== "listen" || listen !== "STARTING") return;
+    const requestId = activeRequest.current;
+    const timer = window.setTimeout(() => {
+      if (!alive.current || activeRequest.current !== requestId) return;
+      recordTechEvent("guided_try_audio_deadline", { requestId, deadlineMs: GUIDED_LISTEN_DEADLINE_MS });
+      setFailReason("TTS_UI_DEADLINE");
+      setListen((prev) => (prev === "STARTING" ? "FAILED" : prev));
+    }, GUIDED_LISTEN_DEADLINE_MS);
+    return () => window.clearTimeout(timer);
+  }, [step, listen]);
 
   const meaningChoices: Choice[] = useMemo(
     () => [
@@ -162,14 +182,18 @@ function GuidedTryFlow() {
     const requestId = newTtsRequestId();
     activeRequest.current = requestId;
     if (usesNativeVoice()) setTtsPlayback(beginTtsPlayback(requestId));
-    void playMandarinAudio(NIHAO.hanzi, {
+    // RC2.2.27 — mesmo runtime de toda fala mandarim (requestId, posse, correlação).
+    void requestMandarinSpeech({
+      text: NIHAO.hanzi,
+      source: "GUIDED_TRY",
+      mode: "USER_REQUESTED",
       rate: 0.8,
       requestId,
       onState: applyPlayback,
       onTtsEvent: (_event, playback) => {
         if (alive.current && activeRequest.current === requestId) setTtsPlayback(playback);
       },
-    }).then((outcome) => {
+    }).done.then((outcome) => {
       if (!alive.current || activeRequest.current !== requestId) return;
       // Começou = foi ouvido, mesmo que outra fala tenha vindo depois.
       if (outcome.started) {
@@ -211,7 +235,7 @@ function GuidedTryFlow() {
 
   function playTone() {
     setTonePlayKey((key) => key + 1);
-    void playMandarinAudio(HAO.hanzi, { rate: 0.75 });
+    void playMandarinAudio(HAO.hanzi, { rate: 0.75, source: "TONE" });
   }
 
   async function installVoice() {
@@ -376,7 +400,7 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  {usesNativeVoice() && (
+                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE") && (
                     <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
                       {t("guidedTry.audioConfirmedByUser")}
                     </Button>

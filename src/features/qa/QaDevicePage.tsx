@@ -48,6 +48,7 @@ import { nativeTtsPluginAvailable } from "../../lib/platform/nativeSpeech";
 import { newTtsRequestId } from "../../lib/ttsCorrelation";
 import { ttsDiagnosticSnapshot, type TtsAckSource } from "../../lib/ttsDiagnostic";
 import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
+import { AndroidTtsForensicsPanel } from "./AndroidTtsForensicsPanel";
 import { BetaQaConsole } from "./BetaQaConsole";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
@@ -163,6 +164,7 @@ function QaDeviceSurface() {
       </section>
 
       <QaTtsProbe />
+      <AndroidTtsForensicsPanel />
       <GuidanceDeliveryPanel />
       <MobileDiagnosticConsole build={build} />
       <BetaQaConsole />

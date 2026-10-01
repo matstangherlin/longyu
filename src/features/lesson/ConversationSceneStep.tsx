@@ -186,9 +186,13 @@ function SpeechBubble({
   const { showPinyin, showPt, audioFirst } = variantVisibility(variantLevel);
   const [highlightListen, setHighlightListen] = useState(false);
 
+  // RC2.2.27 — cada nó é uma fala nova (speechKey = cena:nó), pelo MESMO
+  // runtime da fala manual; desmontar cancela só a fala desta bolha.
   useAutoSpeak(visible && autoSpeak ? audio : undefined, visible && autoSpeak, {
     rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
     delayMs: 80,
+    source: "CONVERSATION_AUTOPLAY",
+    speechKey: nodeKey,
   });
 
   useEffect(() => {
@@ -1445,7 +1449,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
             visible
             variantLevel={variantLevel}
             autoSpeak={!skipAutoSpeakRef.current}
-            nodeKey={node.id}
+            nodeKey={`${step.sceneId ?? "scene"}:${node.id}:${spokenCount}`}
           />
         </div>
 

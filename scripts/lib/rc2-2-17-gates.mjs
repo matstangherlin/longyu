@@ -203,7 +203,8 @@ export async function validateAudioPlaybackTruth(s) {
   const play = fnBody(guided, "function playNihao(");
   const heardAt = play.indexOf('setAudioResult("AUDIO_HEARD")');
   const startedAt = play.indexOf("if (outcome.started)");
-  if (!/playMandarinAudio\(NIHAO\.hanzi/.test(play) || startedAt < 0 || heardAt < startedAt || /setHeard\(true\)/.test(guided))
+  // RC2.2.27 — o mesmo pedido agora passa pelo runtime unificado (requestMandarinSpeech).
+  if (!/(playMandarinAudio\(NIHAO\.hanzi|requestMandarinSpeech\(\{\s*text: NIHAO\.hanzi)/.test(play) || startedAt < 0 || heardAt < startedAt || /setHeard\(true\)/.test(guided))
     fail("GUIDED_HEARD_ON_CLICK", "GuidedTryPage.tsx playNihao()", "AUDIO_HEARD só depois de outcome.started (clique ≠ ouviu)");
   if (!/const heard = listen === "HEARD" \|\| listen === "PLAYING";/.test(guided))
     fail("GUIDED_HEARD_ON_CLICK", "GuidedTryPage.tsx", "heard deriva do estado real de reprodução");

@@ -13,7 +13,8 @@ import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
-import { speak, scheduleAutoSpeak, refreshNativeTtsStatus } from "../../lib/tts";
+import { speak, refreshNativeTtsStatus } from "../../lib/tts";
+import { requestMandarinSpeech, scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
@@ -90,7 +91,7 @@ import { StepCompareWithImage } from "./StepCompareWithImage";
 import { GuidedDock, InGuidedDockContext, useGuidedPresentation, useInGuidedDock } from "./GuidedLessonShell";
 import { GuidedAudioButton } from "../../components/guided/GuidedPrimitives";
 import { splitTeachPages } from "../../lib/guidedPresentation";
-import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
+import { canOfferVoiceInstall, type PlaybackState } from "../../lib/audioPlayback";
 import { ConversationSceneStep } from "./ConversationSceneStep";
 import type { ItemType } from "../../data/types";
 import { MAP_DIRECTION_LABELS, type MapDirectionAction } from "../../data/chinaReal";
@@ -674,7 +675,8 @@ function GuidedStepListen({ step, onDone }: StepProps) {
 
   function play() {
     setFailReason(null);
-    void playMandarinAudio(step.text!, { rate: 0.85, onState: applyPlayback }).then((outcome) => {
+    // RC2.2.27 — mesmo runtime de toda fala mandarim (requestId, posse, correlação).
+    void requestMandarinSpeech({ text: step.text!, source: "LESSON_AUDIO", mode: "USER_REQUESTED", rate: 0.85, onState: applyPlayback }).done.then((outcome) => {
       if (!alive.current || outcome.superseded || outcome.started) return;
       setFailReason(outcome.reason);
     });

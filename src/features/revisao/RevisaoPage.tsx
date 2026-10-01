@@ -74,7 +74,7 @@ import {
 import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
-import { scheduleAutoSpeak } from "../../lib/tts";
+import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { decideFeedbackAudio } from "../lesson/feedbackAudioPolicy";
 import { nextQueuePosition } from "../lesson/taskFlowMachine";
 import { ProPaywall } from "../../components/pro/ProPaywall";

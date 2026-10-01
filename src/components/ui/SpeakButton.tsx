@@ -4,9 +4,9 @@ import {
   isTTSAvailable,
   mandarinSpeechText,
   refreshNativeTtsStatus,
-  scheduleAutoSpeak,
   usesNativeVoice,
 } from "../../lib/tts";
+import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { canOfferVoiceInstall, playMandarinAudio } from "../../lib/audioPlayback";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { useStore } from "../../lib/store";

@@ -24,6 +24,7 @@ export const TECH_EVENT_NAMES = [
   "audio_ended",
   "audio_failed",
   "user_confirmed_audio_without_native_ack",
+  "guided_try_audio_deadline",
   "audio_owner",
   "recording_started",
   "recording_stopped",
