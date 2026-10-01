@@ -1,0 +1,467 @@
+{
+  "schema": "longyu-rc2-2-22-beta-bugs/1",
+  "wave": "RC2.2.22",
+  "importedFrom": {
+    "file": "docs/release/rc2-2-21-mobile-bugs.json",
+    "bugs": 11,
+    "historyReset": false
+  },
+  "statuses": [
+    "OPEN",
+    "REPRODUCED",
+    "ROOT_CAUSE_FOUND",
+    "FIXED_CODE",
+    "AUTOMATED_REGRESSION",
+    "PHYSICAL_RETEST_PENDING",
+    "PHYSICAL_PASS",
+    "WONT_FIX_WITH_REASON"
+  ],
+  "severityPolicy": "Severidade não muda para liberar Beta. P1 continua P1 enquanto bloquear fluxo crítico.",
+  "p0Policy": "P0 durante o QA: parar a expansão da onda → corrigir → regressão → reteste físico → continuar.",
+  "newP1Requires": [
+    "owner",
+    "reproduction",
+    "status"
+  ],
+  "physicalFailRequires": [
+    "bugId",
+    "build",
+    "deviceClass",
+    "reproduction",
+    "diagnosticSnapshot"
+  ],
+  "failureClasses": [
+    "LONGYU_BUG",
+    "DEVICE_CAPABILITY_LIMITATION",
+    "ANDROID_SERVICE_LIMITATION",
+    "NETWORK_DEPENDENCY",
+    "CONFIGURATION_ERROR"
+  ],
+  "rootCauses": [
+    {
+      "id": "AUDIO_SESSION_CONFLICT",
+      "status": "FIXED_CODE",
+      "confidence": "CANDIDATE_FROM_CODE",
+      "bugs": [
+        "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+        "ANDROID_TTS_NOT_PROVEN_ACROSS_SURFACES",
+        "NATIVE_SPEECH_NOT_PROVEN"
+      ],
+      "description": "TTS, gravação, reprodução da própria voz e reconhecimento podiam disputar o áudio/microfone sem dono único nem foco.",
+      "fix": "árbitro de áudio (um dono por vez) + foco transitório + AudioAttributes (RC2.2.21) — corrigido UMA vez para os três"
+    },
+    {
+      "id": "PAUSE_TREATED_AS_EXIT",
+      "status": "FIXED_CODE",
+      "confidence": "CANDIDATE_FROM_CODE",
+      "bugs": [
+        "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+        "ANDROID_LIFECYCLE_STATE_LOSS"
+      ],
+      "description": "onPause (diálogo de permissão, painel) apagava a gravação como se o app tivesse fechado.",
+      "fix": "pausa só interrompe; stop/destroy apagam (RC2.2.21)"
+    }
+  ],
+  "bugs": [
+    {
+      "id": "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "handleOnPause apagava a gravação em QUALQUER pausa (diálogo de permissão, painel de notificações) — a primeira gravação sumia antes de tocar",
+          "o caminho Gravar e comparar nunca pedia o microfone: a gravação podia sair vazia/silenciosa",
+          "MediaPlayer sem AudioAttributes (uso/rota não garantidos), sem foco de áudio e sem prova de PLAYING — 'reproduziu' era reportado mesmo sem som",
+          "volume de mídia zerado aparecia como falha genérica"
+        ]
+      },
+      "fix": [
+        "onPause só interrompe (não apaga arquivo válido); onStop/onDestroy apagam",
+        "ensureMicPermission com explicação antes de gravar",
+        "AudioAttributes USAGE_MEDIA/CONTENT_TYPE_SPEECH antes do prepare; foco transitório sempre abandonado",
+        "PLAYING só após isPlaying(); códigos estáveis (NO_RECORDING…PLAYBACK_ERROR); MEDIA_VOLUME_ZERO com mensagem própria",
+        "amplitude (getMaxAmplitude), duração por MediaMetadataRetriever, rota de saída e volume no diagnóstico",
+        "[Ouvir minha voz] → [Reproduzindo… ■ Parar] → [Ouvir novamente]"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-voice-playback, mobile-lifecycle)",
+        "gate:rc2-2-19/2-2-20 (gravação = arquivo + reprodução)"
+      ],
+      "physicalTest": "selfPlaybackAudible",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste selfPlaybackAudible em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "AUDIO_SESSION_CONFLICT",
+        "PAUSE_TREATED_AS_EXIT"
+      ]
+    },
+    {
+      "id": "NATIVE_SPEECH_NOT_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "startRecognition preferia o reconhecedor on-device mesmo sem zh-CN instalado nele → LANGUAGE_* e o aluno preso",
+          "sem sinal de voz (RMS) nem tipo de reconhecedor no diagnóstico: impossível separar 'não ouviu' de 'não entendeu'",
+          "ERROR_CLIENT sem categoria; repetição sem limite"
+        ]
+      },
+      "fix": [
+        "estratégia ON_DEVICE só com zh-CN instalado; senão o serviço",
+        "RMS pico + eventos created/ready/begin/end/destroyed",
+        "categorias estáveis (NO_SPEECH…CLIENT, UNKNOWN)",
+        "2 falhas seguidas → Gravar e comparar / Continuar sem falar"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-speech)"
+      ],
+      "physicalTest": "nativeSpeechZhCnRecognized",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste nativeSpeechZhCnRecognized em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "AUDIO_SESSION_CONFLICT"
+      ]
+    },
+    {
+      "id": "ANDROID_TTS_NOT_PROVEN_ACROSS_SURFACES",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "motor TTS antigo seguia dizendo LANG_MISSING_DATA depois de instalar a voz",
+          "TTS, gravação e reconhecimento podiam disputar o áudio"
+        ]
+      },
+      "fix": [
+        "AudioAttributes MEDIA/SPEECH no TTS",
+        "reinit do motor ao voltar do instalador de voz",
+        "árbitro de áudio: um dono por vez (IDLE/TTS/SELF_PLAYBACK/RECORDING/RECOGNITION)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-speech, resource-cleanup)",
+        "test:audio-playback-truth"
+      ],
+      "physicalTest": "ttsModelVoiceAllSurfaces",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste ttsModelVoiceAllSurfaces em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "AUDIO_SESSION_CONFLICT"
+      ]
+    },
+    {
+      "id": "LESSON_ADVANCE_DEVICE_REGRESSION_RISK",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "step_continue/step_advanced/step_stalled no buffer técnico para achar ONDE o avanço se perde no aparelho"
+      ],
+      "tests": [
+        "gate:rc2-2-14/2-2-17 (contrato de avanço)",
+        "E2E existentes"
+      ],
+      "physicalTest": "lessonAdvanceDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste lessonAdvanceDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "MOBILE_SIGNUP_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "sem mudança de código nesta onda (prazo e categorias vêm da RC2.2.20)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (auth-resilience)"
+      ],
+      "physicalTest": "mobileSignupDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste mobileSignupDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "PASSWORD_RECOVERY_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "sem mudança de código nesta onda; OTP continua só em memória"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (auth-resilience)"
+      ],
+      "physicalTest": "passwordRecoveryDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste passwordRecoveryDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "GUIDANCE_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "VOLTAR fecha a orientação na ordem certa (depois de teclado e modal)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "guidanceDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste guidanceDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "ANDROID_LIFECYCLE_STATE_LOSS",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "pausa transitória tratada como saída (apagava a gravação)"
+        ]
+      },
+      "fix": [
+        "pausa ≠ sair; app_paused/app_resumed (nativo e visibilidade) no buffer técnico"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-lifecycle)"
+      ],
+      "physicalTest": "lifecycleBackgroundResume",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste lifecycleBackgroundResume em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "PAUSE_TREATED_AS_EXIT"
+      ]
+    },
+    {
+      "id": "MODAL_STACK_BACK_CLOSES_ALL",
+      "severity": "P1",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "cada ModalOverlay ouvia Escape no documento: um VOLTAR fechava todos os modais empilhados"
+        ]
+      },
+      "fix": [
+        "pilha de modais (modalStack): só o do topo reage"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "androidBackPriority",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste androidBackPriority em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "BACKDROP_TAP_THROUGH",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "o fundo do modal fechava no mousedown: o click do mesmo toque caía no que estava embaixo"
+        ]
+      },
+      "fix": [
+        "fecha no click, só se o toque começou no fundo"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-layout)"
+      ],
+      "physicalTest": "androidBackPriority",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste androidBackPriority em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "BACK_IGNORES_KEYBOARD",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "decideBackAction não conhecia o teclado nem separava orientação de modal"
+        ]
+      },
+      "fix": [
+        "BACK_PRIORITY: keyboard → modal → guidance → subview → route → exit"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "androidBackPriority",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste androidBackPriority em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": []
+    },
+    {
+      "id": "FIRST20_NO_REAL_LIFE_TRANSFER_17_20",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "PRODUCT_LINT",
+      "owner": "PEDAGOGY",
+      "reproduction": "node scripts/audit-rc2-2-22-first-20.mjs → sessões 17,18,19,20 (p1-primeiros-hanzi) sem passo de contexto/conversa/produção",
+      "rootCauseIds": [],
+      "fix": null,
+      "note": "Conteúdo congelado (fingerprint c48b008c9c1e): mudar o plano exige exceção de conteúdo; decidir na RC2.2.23 com dado de tester.",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null
+    },
+    {
+      "id": "FIRST20_LOW_VISUAL_SUPPORT",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "PRODUCT_LINT",
+      "owner": "PEDAGOGY",
+      "reproduction": "sessões sem passo visual (imagem, contorno de tom, montagem de hànzì ou cena): 1,2,3,5,6,7,8,13,14,15,16",
+      "rootCauseIds": [],
+      "fix": null,
+      "note": "Validar com tester se falta apoio visual antes de adicionar imagens (sem otimizar por um único tester).",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null
+    },
+    {
+      "id": "FIRST20_HIGH_COMPLEXITY_STEPS",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "PRODUCT_LINT",
+      "owner": "PEDAGOGY",
+      "reproduction": "3 passos HIGH no lint de complexidade (sessões 2, 4 e 20); nenhum OVERLOADED",
+      "rootCauseIds": [],
+      "fix": null,
+      "note": "Heurística interna, não ciência pedagógica.",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null
+    }
+  ],
+  "panel": {
+    "P0": {
+      "open": 0,
+      "new": 0,
+      "reproduced": 0,
+      "fixed": 0,
+      "awaitingPhysical": 0,
+      "physicalPass": 0
+    },
+    "P1": {
+      "open": 9,
+      "new": 0,
+      "reproduced": 0,
+      "fixed": 0,
+      "awaitingPhysical": 9,
+      "physicalPass": 0
+    },
+    "P2": {
+      "open": 5,
+      "new": 3,
+      "reproduced": 0,
+      "fixed": 0,
+      "awaitingPhysical": 2,
+      "physicalPass": 0
+    }
+  },
+  "releaseBlockingOpen": 8
+}

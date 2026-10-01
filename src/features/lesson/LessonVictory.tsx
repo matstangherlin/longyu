@@ -11,6 +11,20 @@ import {
   buildLessonCompletionSummary,
   type LessonCompletionSkill,
 } from "./buildLessonCompletionSummary";
+import { haptic } from "../../lib/haptics";
+import { holdCelebration } from "../../lib/celebrationLock";
+import { cancelAllMandarinSpeech } from "../../lib/mandarinSpeech";
+import {
+  buildCompletionStages,
+  claimCompletionShow,
+  completionFeedback,
+  completionKey,
+  completionSchedule,
+  isInterstitialStage,
+  nextCompletionStage,
+  type CompletionKind,
+  type CompletionStage,
+} from "../../lib/completionSequence";
 
 export type LessonVictoryContext = "lesson" | "culture" | "review" | "test" | "mission";
 
@@ -36,6 +50,13 @@ export function LessonVictory({
   guided = false,
   learned,
   cultureNext,
+  qi,
+  streakAdvanced,
+  medalLabel,
+  unlockLabel,
+  completionKind,
+  completion,
+  progress,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -64,8 +85,22 @@ export function LessonVictory({
    * a tela diz isso e oferece voltar à Jornada (recomendação, não pedágio).
    */
   cultureNext?: { type: JourneyCultureGuidanceType; line: string; skipLabel: string; onSkip: () => void };
+  /**
+   * RC2.2.27 — CompletionSequence: deltas que JÁ existem (nada é concedido
+   * aqui). Qi a resgatar desta conclusão, ofensiva, medalha nova, função.
+   */
+  qi?: number;
+  streakAdvanced?: boolean;
+  medalLabel?: string | null;
+  unlockLabel?: string | null;
+  completionKind?: CompletionKind;
+  /** Identidade da conclusão: reabrir/voltar não repete som, vibração nem contagem. */
+  completion?: { lessonId: string; completionId: string };
+  /** Rodada do tema antes → depois desta conclusão (só aparece se avançou). */
+  progress?: { before: number; after: number; total: number } | null;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
+  const hapticsOn = useStore((s) => s.hapticsEnabled !== false);
   const [motionReady, setMotionReady] = useState(false);
   const [shownXp, setShownXp] = useState(0);
   const playedRef = useRef(false);
@@ -85,11 +120,69 @@ export function LessonVictory({
     [accuracy, errorCount, assistanceCount, mistakesBySkill, displayName, locale]
   );
 
+  // RC2.2.27 — revelação sequencial e mínima (uma coisa por vez).
+  const kind: CompletionKind = completionKind ?? "LESSON";
+  const stages = useMemo<CompletionStage[]>(
+    () =>
+      buildCompletionStages({
+        kind,
+        xpDelta: xp,
+        qiDelta: qi ?? 0,
+        streakAdvanced: Boolean(streakAdvanced),
+        progress,
+        unlockLabel,
+        medalLabel,
+        summaryLine: summary.highlight,
+      }),
+    [kind, xp, qi, streakAdvanced, progress, unlockLabel, medalLabel, summary.highlight]
+  );
+  const [firstShow] = useState(() => {
+    if (!completion) return true;
+    let storage: Storage | null = null;
+    try {
+      storage = typeof localStorage === "undefined" ? null : localStorage;
+    } catch {
+      storage = null;
+    }
+    return claimCompletionShow(completionKey(completion.lessonId, completion.completionId), storage);
+  });
+  // Reabrir/voltar: estado final direto, sem animação, som ou vibração.
+  const [stageIndex, setStageIndex] = useState(() => (firstShow && !reducedMotion ? 0 : stages.length - 1));
+  const reached = (stage: CompletionStage) => {
+    const at = stages.indexOf(stage);
+    return at >= 0 && at <= stageIndex;
+  };
+  const currentStage = stages[stageIndex];
+  const advance = () => setStageIndex((index) => nextCompletionStage(index, stages.length));
+
+  useEffect(() => {
+    if (!firstShow || reducedMotion) return;
+    const timers = completionSchedule(stages, false).map((at, index) => (index === 0 ? 0 : window.setTimeout(() => setStageIndex((current) => Math.max(current, index)), at)));
+    return () => timers.forEach((id) => id && window.clearTimeout(id));
+  }, [firstShow, reducedMotion, stages]);
+
+  // Uma cerimônia por vez: coachmark/baú/medalha/energia esperam a revelação.
+  const revealing = stageIndex < stages.length - 1;
+  useEffect(() => {
+    if (!revealing) return;
+    return holdCelebration(`completion:${completion?.lessonId ?? "lesson"}:${completion?.completionId ?? "now"}`);
+  }, [revealing, completion?.lessonId, completion?.completionId]);
+
+  // Som e vibração só na etapa que pede (abertura, medalha, desbloqueio) e só na 1ª vez.
+  useEffect(() => {
+    if (!firstShow || !currentStage) return;
+    const feedback = completionFeedback(currentStage, kind, { soundEffects, hapticsEnabled: hapticsOn }, true);
+    if (feedback.sound) playSoundFx(feedback.sound, soundEffects);
+    if (feedback.haptic) haptic(feedback.haptic);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStage]);
+
   useEffect(() => {
     if (playedRef.current) return;
     playedRef.current = true;
-    if (soundEffects) playSoundFx("lessonComplete", soundEffects);
-    if (reducedMotion) {
+    // A fala pedagógica termina (ou é cancelada) antes do som de conclusão.
+    cancelAllMandarinSpeech();
+    if (reducedMotion || !firstShow) {
       setShownXp(xp);
       setMotionReady(true);
       return;
@@ -245,18 +338,66 @@ export function LessonVictory({
             </div>
           ) : null}
 
-          <div className="mt-3 flex flex-wrap items-stretch justify-center gap-2" data-testid={context === "culture" ? "culture-score" : "lesson-victory-score"}>
+          <div
+            className="mt-3 flex flex-wrap items-stretch justify-center gap-2"
+            data-testid={context === "culture" ? "culture-score" : "lesson-victory-score"}
+            data-completion-stage={currentStage}
+            data-completion-stages={stages.join(",")}
+            data-completion-first-show={firstShow ? "yes" : "no"}
+            onClick={advance}
+          >
+            {/* Replay: "+0 XP" continua visível (honesto: repetir não rende XP), sem etapa nem animação. */}
+            {(reached("XP") || xp === 0) && (
             <span data-testid={context === "culture" ? "culture-xp" : "lesson-victory-xp"} data-victory-xp>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/60 px-3 py-1.5 text-sm font-semibold text-accent shadow-card">
                 <span className="font-serif tabular-nums">+{shownXp || xp}</span>
                 <span className="text-xs font-medium opacity-80">XP</span>
               </span>
             </span>
+            )}
             <span data-victory-accuracy className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-sm font-semibold text-ink shadow-card">
               <span className="font-serif tabular-nums">{accuracy}%</span>
               <span className="text-xs font-medium opacity-80">{t("player.accuracy")}</span>
             </span>
+            {reached("QI") && (
+              <span data-victory-qi className={`inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-sm font-semibold text-gold shadow-card ${reducedMotion ? "" : "animate-pop"}`}>
+                <span className="font-serif tabular-nums">+{qi}</span>
+                <span className="text-xs font-medium opacity-80">Qi</span>
+              </span>
+            )}
+            {reached("PROGRESS") && progress && (
+              <span data-victory-progress className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-sm font-semibold text-ink shadow-card">
+                <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden className="-rotate-90">
+                  <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgb(var(--line))" strokeWidth="2" />
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeDasharray={`${(2 * Math.PI * 6.5 * progress.after) / progress.total} ${2 * Math.PI * 6.5}`}
+                    style={{ transition: reducedMotion ? undefined : "stroke-dasharray 400ms ease-out" }}
+                    className="text-accent"
+                  />
+                </svg>
+                <span className="tabular-nums">
+                  {progress.before}/{progress.total} → {progress.after}/{progress.total}
+                </span>
+              </span>
+            )}
+            {reached("STREAK") && (
+              <span data-victory-streak className={`inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-sm font-semibold text-ink shadow-card ${reducedMotion ? "" : "animate-pop"}`}>
+                {t("player.streakPlusOne")}
+              </span>
+            )}
           </div>
+          {currentStage && isInterstitialStage(currentStage) && (
+            // Medalha/função nova: um instante só dela, depois sai (nunca junto do resumo).
+            <div className="mx-auto mt-3 rounded-2xl border border-accent-soft bg-accent-soft/40 px-4 py-2 text-sm font-semibold text-accent" data-victory-interstitial={currentStage} onClick={advance}>
+              {currentStage === "MEDAL" ? `🏅 ${medalLabel}` : unlockLabel}
+            </div>
+          )}
 
           {/*
             P14.1/P14.4 — no máximo um ponto forte e um foco, e o ponto forte
@@ -264,6 +405,7 @@ export function LessonVictory({
             positiva, a linha é uma constatação neutra, sem o rótulo
             "Ponto forte" por cima de uma precisão ruim.
           */}
+          {reached("SUMMARY") && (
           <div className="mx-auto mt-4 w-full max-w-sm space-y-2 text-left" data-victory-summary>
             <div
               className={
@@ -292,6 +434,7 @@ export function LessonVictory({
               </div>
             ) : null}
           </div>
+          )}
           {/*
             P14.2/P14.3 — o que não entra aqui: oferta Pro, estado de
             sincronização, card cultural, missões, acordeões, nav inferior e

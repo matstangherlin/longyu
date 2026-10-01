@@ -22,8 +22,14 @@ import { t as translate, type TranslateVars } from "../../i18n/catalog";
 import type { MessageKey } from "../../locales/pt-BR";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
-import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
-import { refreshNativeTtsStatus } from "../../lib/tts";
+import { requestMandarinSpeech } from "../../lib/mandarinSpeech";
+import { installNativeTtsData, openNativeTtsSettings } from "../../lib/platform/nativeSpeech";
+import { nativeTtsPluginAvailable } from "../../lib/platform/nativeSpeech";
+import { refreshNativeTtsStatus, usesNativeVoice } from "../../lib/tts";
+import { beginTtsPlayback, IDLE_TTS_PLAYBACK, newTtsRequestId, ttsCtaReason, type TtsPlayback } from "../../lib/ttsCorrelation";
+import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
+import { recordTechEvent } from "../../lib/techEvents";
+import { ttsDiagnosticSnapshot } from "../../lib/ttsDiagnostic";
 import { markGuidedTryCompleted, type GuidedTryAudioResult } from "../../lib/onboardingDraft";
 import type { MandarinToneNumber } from "../../data/toneKnowledge";
 
@@ -62,6 +68,9 @@ export type GuidedListenState = "IDLE" | "STARTING" | "PLAYING" | "HEARD" | "FAI
  * RC2.2.14B · AS — sem curso escolhido não há teste guiado: vai para a
  * escolha do curso e volta para cá.
  */
+/** RC2.2.27 — prazo de UI do "Ouça" (> 4 s do watchdog nativo + polling JS). */
+export const GUIDED_LISTEN_DEADLINE_MS = 5500;
+
 export function GuidedTryPage() {
   if (!hasCourseDirection()) return <Navigate to="/curso?next=%2Fteste-guiado" replace />;
   return <GuidedTryFlow />;
@@ -84,6 +93,10 @@ function GuidedTryFlow() {
   const [built, setBuilt] = useState<string[]>([]);
   const [buildWrong, setBuildWrong] = useState(false);
   const [tonePlayKey, setTonePlayKey] = useState(0);
+  // RC2.2.24 — a reprodução ATIVA do passo "Ouça" (só a requestId dela conta).
+  const activeRequest = useRef<string | null>(null);
+  const [ttsPlayback, setTtsPlayback] = useState<TtsPlayback>(IDLE_TTS_PLAYBACK);
+  const [ttsDiagnostic, setTtsDiagnostic] = useState<string | null>(null);
   const alive = useRef(true);
   useEffect(
     () => () => {
@@ -96,6 +109,25 @@ function GuidedTryFlow() {
   const total = GUIDED_TRY_STEPS.length;
   const heard = listen === "HEARD" || listen === "PLAYING";
   const audioFailed = listen === "FAILED" || listen === "UNAVAILABLE";
+
+  // RC2.2.27 — nunca cinza para sempre: o prazo nasce no TOQUE (não no
+  // estado STARTING, que pode não chegar ou ser revertido). Sem início
+  // confirmado (onStart, isSpeaking da MESMA request, DONE ou ACK) até o
+  // prazo, a tela oferece [Tocar novamente] [Eu ouvi, continuar]
+  // [Continuar sem áudio]. "Eu ouvi" é fallback de UX, não PHYSICAL_PASS.
+  const [listenTap, setListenTap] = useState(0);
+  useEffect(() => {
+    if (step !== "listen" || listenTap === 0) return;
+    if (listen === "PLAYING" || listen === "HEARD" || listen === "FAILED" || listen === "UNAVAILABLE") return;
+    const requestId = activeRequest.current;
+    const timer = window.setTimeout(() => {
+      if (!alive.current || activeRequest.current !== requestId) return;
+      recordTechEvent("guided_try_audio_deadline", { requestId, deadlineMs: GUIDED_LISTEN_DEADLINE_MS, state: listen });
+      setFailReason("TTS_UI_DEADLINE");
+      setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));
+    }, GUIDED_LISTEN_DEADLINE_MS);
+    return () => window.clearTimeout(timer);
+  }, [step, listen, listenTap]);
 
   const meaningChoices: Choice[] = useMemo(
     () => [
@@ -133,7 +165,10 @@ function GuidedTryFlow() {
   function applyPlayback(state: PlaybackState) {
     if (!alive.current) return;
     if (state === "STARTING") setListen((prev) => (prev === "HEARD" ? prev : "STARTING"));
-    else if (state === "PLAYING") setListen("PLAYING");
+    else if (state === "PLAYING") {
+      setListen("PLAYING");
+      setAudioResult("AUDIO_HEARD");
+    }
     else if (state === "ENDED") setListen("HEARD");
     else if (state === "FAILED") setListen((prev) => (prev === "HEARD" ? prev : "FAILED"));
     else if (state === "UNAVAILABLE") setListen((prev) => (prev === "HEARD" ? prev : "UNAVAILABLE"));
@@ -145,19 +180,69 @@ function GuidedTryFlow() {
    */
   function playNihao() {
     setFailReason(null);
-    void playMandarinAudio(NIHAO.hanzi, { rate: 0.8, onState: applyPlayback }).then((outcome) => {
-      if (!alive.current || outcome.superseded) return;
+    setListenTap((count) => count + 1);
+    // RC2.2.24 — cada toque é uma reprodução com identidade. Evento de outra
+    // fala (inclusive a anterior deste botão) nunca libera o Continuar.
+    const requestId = newTtsRequestId();
+    activeRequest.current = requestId;
+    if (usesNativeVoice()) setTtsPlayback(beginTtsPlayback(requestId));
+    // RC2.2.27 — mesmo runtime de toda fala mandarim (requestId, posse, correlação).
+    void requestMandarinSpeech({
+      text: NIHAO.hanzi,
+      source: "GUIDED_TRY",
+      mode: "USER_REQUESTED",
+      rate: 0.8,
+      requestId,
+      onState: applyPlayback,
+      onTtsEvent: (_event, playback) => {
+        if (alive.current && activeRequest.current === requestId) setTtsPlayback(playback);
+      },
+    }).done.then((outcome) => {
+      if (!alive.current || activeRequest.current !== requestId) return;
+      // Começou = foi ouvido, mesmo que outra fala tenha vindo depois.
       if (outcome.started) {
         setAudioResult("AUDIO_HEARD");
+        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "HEARD"));
+        return;
+      }
+      if (outcome.superseded) {
+        // RC2.2.27 — a request ATIVA foi substituída sem ter começado: outra
+        // fala tomou o motor. Voltar a IDLE deixava o Continuar cinza sem
+        // saída (APK do owner). Vira falha recuperável e fica no diagnóstico.
+        recordTechEvent("guided_try_audio_superseded", { requestId, reason: outcome.reason });
+        setFailReason("TTS_SUPERSEDED");
+        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));
         return;
       }
       setFailReason(outcome.reason);
     });
   }
 
+  function confirmHeardWithoutAck() {
+    recordTechEvent("user_confirmed_audio_without_native_ack", { requestId: activeRequest.current, reason: failReason });
+    recordDeviceQaObservation("audio_failed", "USER_CONFIRMED_AUDIO_WITHOUT_NATIVE_ACK");
+    setAudioResult("DEGRADED_AUDIO");
+    go("explain");
+  }
+
+  async function copyTtsDiagnostic() {
+    const diagnostic = await ttsDiagnosticSnapshot({
+      requestId: activeRequest.current,
+      ackSources: ttsPlayback.ackSources ?? [],
+      guidedListenState: listen,
+      ctaReason: ttsCtaReason(ttsPlayback),
+      ctaEnabled: audioResult === "AUDIO_HEARD" || heard,
+      audioOutcome: failReason,
+      finalDecision: audioFailed ? "RECOVERY_REQUIRED" : heard ? "HEARD" : "WAITING",
+    });
+    const value = JSON.stringify(diagnostic, null, 2);
+    setTtsDiagnostic(value);
+    await navigator.clipboard?.writeText(value).catch(() => undefined);
+  }
+
   function playTone() {
     setTonePlayKey((key) => key + 1);
-    void playMandarinAudio(HAO.hanzi, { rate: 0.75 });
+    void playMandarinAudio(HAO.hanzi, { rate: 0.75, source: "TONE" });
   }
 
   async function installVoice() {
@@ -287,7 +372,16 @@ function GuidedTryFlow() {
               data-guided-listen
               className="mt-6"
             />
-            <p className="mt-3 min-h-5 text-sm font-medium text-ink-soft" role="status" aria-live="polite" data-testid="guided-listen-status">
+            <p
+              className="mt-3 min-h-5 text-sm font-medium text-ink-soft"
+              role="status"
+              aria-live="polite"
+              data-testid="guided-listen-status"
+              data-listen-state={listen}
+              data-tts-request-id={ttsPlayback.requestId ?? undefined}
+              data-tts-phase={ttsPlayback.phase}
+              data-cta-reason={audioResult === "AUDIO_HEARD" || heard ? (ttsPlayback.requestId ? ttsCtaReason(ttsPlayback) : "PLAYBACK_CONFIRMED") : audioFailed ? "PLAYBACK_FAILED" : "WAITING_ENGINE"}
+            >
               {listen === "STARTING"
                 ? t("guidedTry.audioStarting")
                 : listen === "PLAYING"
@@ -296,6 +390,17 @@ function GuidedTryFlow() {
                     ? t("guidedTry.audioHeard")
                     : ""}
             </p>
+            {/* RC2.2.27 — owner: a aba fica limpa. Os ACKs ficam só nos atributos
+                (E2E/gates) e no "Copiar diagnóstico" da caixa de falha. */}
+            {deviceQaEnabled() && usesNativeVoice() && (
+              <div hidden data-testid="guided-tts-qa"
+                data-direct-ack={ttsPlayback.ackSources?.includes("direct") ? "yes" : "no"}
+                data-event-ack={ttsPlayback.ackSources?.includes("event") ? "yes" : "no"}
+                data-query-ack={ttsPlayback.ackSources?.includes("query") ? "yes" : "no"}
+                data-plugin={nativeTtsPluginAvailable() ? "yes" : "no"}
+                data-cta-enabled={audioResult === "AUDIO_HEARD" || heard ? "yes" : "no"}
+              />
+            )}
             {audioFailed && (
               <div className="mt-2 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
                 <p className="text-sm font-semibold text-ink">{t("guidedTry.audioFailedTitle")}</p>
@@ -304,12 +409,28 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  {canOfferVoiceInstall(failReason) && (
+                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE" || failReason === "TTS_SUPERSEDED" || failReason === "NO_START_TIMEOUT") && (
+                    <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
+                      {t("guidedTry.audioConfirmedByUser")}
+                    </Button>
+                  )}
+                  {deviceQaEnabled() && (
+                    <Button size="sm" variant="outline" onClick={() => void copyTtsDiagnostic()} data-testid="guided-audio-copy-diagnostic">
+                      Copiar diagnóstico
+                    </Button>
+                  )}
+                  {canOfferVoiceInstall(failReason) ? (
                     <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
                       {t("guidedTry.audioInstallVoice")}
                     </Button>
-                  )}
+                  ) : usesNativeVoice() ? (
+                    // RC2.2.24 — sem START nem DONE: sempre há como configurar a voz.
+                    <Button size="sm" variant="outline" onClick={() => void openNativeTtsSettings()} data-testid="guided-audio-settings">
+                      {t("guidedTry.audioInstallVoice")}
+                    </Button>
+                  ) : null}
                 </div>
+                {ttsDiagnostic && <pre className="mt-2 max-h-32 overflow-auto text-[10px] text-ink-soft" data-testid="guided-audio-diagnostic">{ttsDiagnostic}</pre>}
               </div>
             )}
             {(heard || audioFailed) && (

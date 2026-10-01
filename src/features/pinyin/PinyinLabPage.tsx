@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
+import { FocusActivityLauncher } from "../../components/layout/FocusActivityFrame";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   PINYIN_ACCENT_ROUNDS,
@@ -26,6 +28,8 @@ import { Button, Card, Pill, ProgressBar } from "../../components/ui/primitives"
 import { HubHeader, HubPage } from "../../components/layout/HubLayout";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { ArticulationDiagram } from "../../components/pronunciation/ArticulationDiagram";
+import { PRONUNCIATION_CORE_BR } from "../../data/pronunciationCoreBr";
+import { PronunciationContrastDrill } from "./PronunciationContrastDrill";
 import { ARTICULATION_DIAGRAMS } from "../../data/articulationTargets";
 import { IconCheck, IconChevron, IconHeadphones, IconRefresh, IconShield, IconSound, IconX } from "../../components/ui/Icon";
 import { ProPaywall } from "../../components/pro/ProPaywall";
@@ -116,21 +120,26 @@ export function PinyinLabPage() {
     const taughtRounds = PINYIN_ACCENT_ROUNDS.filter((round) => round.id === "accent-nihao");
     return (
       <HubPage className="space-y-5" data-testid="journey-pinyin-booster">
+        <JourneyHandoffBanner source="PINYIN" />
         <HubHeader eyebrow={copy.eyebrow} title={copy.title} desc={copy.desc} />
-        <PinyinAccentTrainer
-          rounds={taughtRounds}
-          onComplete={() => {
-            completeJourneyNode(journeyNode.id);
-            navigate("/jornada");
-          }}
-          returnLabel={copy.back}
-        />
+        {/* RC2.2.25 — nó da Jornada já chega com intenção: entra direto em focus. */}
+        <FocusActivityLauncher title={copy.title} testId="pinyin-journey" autoStart>
+          <PinyinAccentTrainer
+            rounds={taughtRounds}
+            onComplete={() => {
+              completeJourneyNode(journeyNode.id);
+              navigate("/jornada");
+            }}
+            returnLabel={copy.back}
+          />
+        </FocusActivityLauncher>
       </HubPage>
     );
   }
 
   return (
     <HubPage className="space-y-5">
+      <JourneyHandoffBanner source="PINYIN" />
       <section className="space-y-3">
         <div className="min-w-0">
           <HubHeader
@@ -207,6 +216,10 @@ export function PinyinLabPage() {
         <LabSectionHeader title="Tabela de iniciais" desc="A inicial abre a sílaba. O sopro faz diferença em pares como b/p, d/t, g/k e z/c." />
         <ReferenceGrid items={PINYIN_INITIALS} />
       </section>
+
+      {/* RC2.2.20 · V5A — contrastes que mais pegam quem fala português:
+          ver → ouvir A → ouvir B → comparar → identificar → (produzir). */}
+      <PronunciationCoreBrSection visible={mobileView === "iniciais"} />
 
       {/* RC2.2.19 — como a boca faz os sons difíceis (articulação ≠ tom). */}
       <section id="boca" className={["scroll-mt-20", mobileView === "iniciais" ? "block" : "hidden md:block"].join(" ")} data-testid="articulation-section">
@@ -376,16 +389,24 @@ export function PinyinLabPage() {
       </section>
 
       <section id="acentos" className={["scroll-mt-20", mobileView === "treino" ? "block" : "hidden md:block"].join(" ")}>
-        <LabSectionHeader
+        {/* RC2.2.25 — hub mostra [Começar]; o treino roda em focus. */}
+        <FocusActivityLauncher
           title="Treino de acentos"
-          desc="Escolha o pinyin correto. Aqui o acento não é detalhe decorativo: ele mostra o tom que muda som e sentido."
-        />
-        <PinyinAccentTrainer />
+          desc="Escolha o pinyin correto: o acento mostra o tom."
+          testId="pinyin-accent"
+        >
+          <PinyinAccentTrainer />
+        </FocusActivityLauncher>
       </section>
 
       <section id="montar" className={["scroll-mt-20", mobileView === "treino" ? "block" : "hidden md:block"].join(" ")}>
-        <LabSectionHeader title="Treino de montar pinyin" desc="Ouça a sílaba, escolha inicial, final e tom, e veja o resultado com acento." />
-        <PinyinBuilder />
+        <FocusActivityLauncher
+          title="Treino de montar pinyin"
+          desc="Ouça, escolha inicial, final e tom."
+          testId="pinyin-builder"
+        >
+          <PinyinBuilder />
+        </FocusActivityLauncher>
       </section>
     </HubPage>
   );
@@ -1166,4 +1187,38 @@ function samePinyinBase(left: string, right: string): boolean {
       .replace(/[\s'’-]/g, "")
       .toLocaleLowerCase("pt-BR");
   return normalize(left) === normalize(right);
+}
+
+function PronunciationCoreBrSection({ visible }: { visible: boolean }) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const open = PRONUNCIATION_CORE_BR.find((contrast) => contrast.id === openId) ?? null;
+  return (
+    <section
+      id="contrastes"
+      className={["scroll-mt-20", visible ? "block" : "hidden md:block"].join(" ")}
+      data-testid="pronunciation-core-br"
+    >
+      <LabSectionHeader
+        title="Sons que confundem quem fala português"
+        desc="Primeiro você vê e ouve cada som; só depois tenta identificar. Nada de começar por quiz."
+      />
+      {open ? (
+        <PronunciationContrastDrill key={open.id} contrast={open} onClose={() => setOpenId(null)} />
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {PRONUNCIATION_CORE_BR.map((contrast) => (
+            <button
+              key={contrast.id}
+              type="button"
+              onClick={() => setOpenId(contrast.id)}
+              className="min-h-11 rounded-full border border-line bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              data-contrast-open={contrast.id}
+            >
+              {contrast.title}
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }

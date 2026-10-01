@@ -71,22 +71,73 @@ export function reviewRoundPosition(pos: number, total: number): ReviewRoundPosi
 }
 
 /**
- * Reordena para que o mesmo alvo nunca fique colado. Conservador: mantém a
- * ordem de prioridade do SRS e só puxa o próximo item de outro alvo quando
- * existe; nada é removido nem duplicado.
+ * RC2.2.20 — o mesmo alvo só volta depois de pelo menos MIN_TARGET_GAP OUTROS
+ * alvos (ideal: 你好 … 2 outros … 你好). Com fila pequena, degrada: escolhe o
+ * alvo que está há mais tempo sem aparecer (nunca trava nem remove item).
  */
-export function composeReviewQueue<T>(entries: readonly T[], targetOf: (entry: T) => string): T[] {
+export const MIN_TARGET_GAP = 2;
+
+/**
+ * Reordena para espaçar o mesmo alvo. Conservador: mantém a ordem de
+ * prioridade do SRS e só adianta outro alvo quando o da vez apareceu há menos
+ * de `minGap` itens; nada é removido nem duplicado.
+ */
+export function composeReviewQueue<T>(entries: readonly T[], targetOf: (entry: T) => string, minGap: number = MIN_TARGET_GAP): T[] {
   const remaining = [...entries];
   const out: T[] = [];
-  let previous: string | null = null;
+  const lastSeen = new Map<string, number>();
+  const distance = (target: string) => (lastSeen.has(target) ? out.length - 1 - (lastSeen.get(target) as number) : Number.POSITIVE_INFINITY);
   while (remaining.length > 0) {
-    let pick = remaining.findIndex((entry) => targetOf(entry) !== previous);
-    if (pick < 0) pick = 0;
+    // 1º item (na ordem do SRS) com distância suficiente…
+    let pick = remaining.findIndex((entry) => distance(targetOf(entry)) >= minGap);
+    // …senão, o que está há mais tempo sem aparecer (fila pequena).
+    if (pick < 0) {
+      let best = -1;
+      let bestDistance = -1;
+      remaining.forEach((entry, index) => {
+        const d = distance(targetOf(entry));
+        if (d > bestDistance) {
+          bestDistance = d;
+          best = index;
+        }
+      });
+      pick = Math.max(0, best);
+    }
     const [chosen] = remaining.splice(pick, 1);
     out.push(chosen);
-    previous = targetOf(chosen);
+    lastSeen.set(targetOf(chosen), out.length - 1);
   }
   return out;
+}
+
+/**
+ * RC2.2.20 — repetição semântica: mesmo alvo + mesma família de exercício a
+ * menos de `window` itens, mesmo com IDs diferentes (你好 vocabulário × 你好
+ * frase). Devolve as posições que violam, para o gate e o QA.
+ */
+export function semanticRepetitionViolations<T>(
+  entries: readonly T[],
+  targetOf: (entry: T, index: number) => string,
+  familyOf: (entry: T, index: number) => string,
+  window: number = MIN_TARGET_GAP
+): number[] {
+  const bad: number[] = [];
+  for (let index = 1; index < entries.length; index += 1) {
+    for (let back = 1; back <= window && index - back >= 0; back += 1) {
+      const other = index - back;
+      if (targetOf(entries[index], index) === targetOf(entries[other], other) && familyOf(entries[index], index) === familyOf(entries[other], other)) {
+        bad.push(index);
+        break;
+      }
+    }
+  }
+  return bad;
+}
+
+/** Alvo pela FORMA (hànzì) quando existe: 你好 é o mesmo alvo em qualquer domínio/tipo. */
+export function reviewSurfaceTarget(fallbackKey: string, hanzi: string | null | undefined): string {
+  const surface = String(hanzi ?? "").trim();
+  return surface ? `surface:${surface}` : fallbackKey;
 }
 
 /** Quantas vezes este alvo já apareceu ANTES desta posição na sessão. */

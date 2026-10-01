@@ -28,13 +28,16 @@ import {
 
 export type GuidanceKind = "INLINE_TIP" | "COACHMARK" | "UNLOCK_REVEAL";
 
-/** PART P — CRITICAL UX > NEW FEATURE UNLOCK > PEDAGOGICAL TIP > OPTIONAL DISCOVERY. */
+/**
+ * RC2.2.23 — BLOCKING UX > PEDAGÓGICO > DESCOBERTA DE RECURSO > OPCIONAL
+ * (monetização nunca entra aqui: oferta Pro não compete com orientação).
+ */
 export type GuidancePriority = "CRITICAL_UX" | "FEATURE_UNLOCK" | "PEDAGOGICAL_TIP" | "OPTIONAL_DISCOVERY";
 
 export const GUIDANCE_PRIORITY_RANK: Readonly<Record<GuidancePriority, number>> = {
   CRITICAL_UX: 0,
-  FEATURE_UNLOCK: 1,
-  PEDAGOGICAL_TIP: 2,
+  PEDAGOGICAL_TIP: 1,
+  FEATURE_UNLOCK: 2,
   OPTIONAL_DISCOVERY: 3,
 };
 
@@ -325,6 +328,36 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     dragon: false,
   },
   {
+    // RC2.2.23 — Mais → Você: Perfil, Conta e Aparência ficam juntos.
+    id: "account_appearance_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: ["/mais"],
+    anchor: "more-you",
+    titleKey: "guidance.accountAppearance.title",
+    bodyKey: "guidance.accountAppearance.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "now_not",
+    offerSkipAll: true,
+    dragon: false,
+  },
+  {
+    // RC2.2.23 — o percurso de estudo: Jornada → Cultura → volta à Jornada.
+    id: "journey_culture_bridge_v1",
+    kind: "UNLOCK_REVEAL",
+    priority: "PEDAGOGICAL_TIP",
+    essential: false,
+    surfaces: JOURNEY,
+    titleKey: "guidance.journeyCultureBridge.title",
+    bodyKey: "guidance.journeyCultureBridge.body",
+    primaryKey: "guidance.journeyCultureBridge.primary",
+    primaryTo: "/cultura?from=jornada",
+    secondary: "now_not",
+    offerSkipAll: true,
+    dragon: true,
+  },
+  {
     id: "notifications_offer_v1",
     kind: "UNLOCK_REVEAL",
     priority: "OPTIONAL_DISCOVERY",
@@ -461,9 +494,15 @@ export interface GuidanceSession {
   shownIds: readonly string[];
   /** Dispensadas com "Agora não" nesta sessão — não voltam antes da próxima. */
   snoozedIds: readonly string[];
+  /**
+   * RC2.2.23 — coachmarks cuja âncora não apareceu depois de uma tentativa
+   * segura: na próxima avaliação viram card inferior não ancorado (a
+   * informação aparece; nunca é abandonada em silêncio).
+   */
+  anchorMisses?: readonly string[];
 }
 
-export const EMPTY_GUIDANCE_SESSION: GuidanceSession = { shownIds: [], snoozedIds: [] };
+export const EMPTY_GUIDANCE_SESSION: GuidanceSession = { shownIds: [], snoozedIds: [], anchorMisses: [] };
 
 /** PART J/AS — 1 normal; 2 na primeira sessão (boas-vindas + 1 depois da 1ª atividade). */
 export const GUIDANCE_SESSION_BUDGET = 1;
@@ -513,6 +552,8 @@ export interface GuidancePresentation {
   coveredIds: readonly string[];
   /** Áreas listadas no lote "Novos recursos disponíveis" (máx. 2). */
   listedFeatures: readonly DiscoveryFeatureId[];
+  /** RC2.2.23 — âncora indisponível: mostrar como card inferior não ancorado. */
+  anchorFallback?: boolean;
 }
 
 export const TONE_CONFUSION_TIP_THRESHOLD = 3;
@@ -539,11 +580,22 @@ function sessionBudget(ctx: GuidanceContext): number {
   return ctx.learner.completedLessons.length > 0 ? GUIDANCE_FIRST_SESSION_BUDGET : GUIDANCE_SESSION_BUDGET;
 }
 
+/** A âncora está presente, ou já houve uma tentativa segura (→ card não ancorado). */
+function anchorReady(definition: GuidanceDefinition, ctx: GuidanceContext): boolean {
+  if (definition.kind !== "COACHMARK" || !definition.anchor) return true;
+  return ctx.anchorsPresent.has(definition.anchor) || (ctx.session.anchorMisses ?? []).includes(definition.id);
+}
+
 function candidateEligible(definition: GuidanceDefinition, ctx: GuidanceContext): boolean {
   if (!definition.surfaces.includes(ctx.pathname)) return false;
   if (definition.nativeOnly && !ctx.isNative) return false;
   if (isBlockedByRecord(definition.id, ctx)) return false;
-  if (definition.kind === "COACHMARK" && definition.anchor && !ctx.anchorsPresent.has(definition.anchor)) return false;
+  if (!anchorReady(definition, ctx)) return false;
+  return featureConditionMet(definition, ctx);
+}
+
+/** A condição própria de cada orientação (o recurso já faz sentido para o aluno?). */
+function featureConditionMet(definition: GuidanceDefinition, ctx: GuidanceContext): boolean {
   switch (definition.id) {
     case "welcome_journey_v1":
       // Boas-vindas são para quem ainda não começou; conta madura não precisa.
@@ -567,6 +619,13 @@ function candidateEligible(definition: GuidanceDefinition, ctx: GuidanceContext)
       return ctx.learner.completedLessons.length > 0;
     case "immersion_first_use_v1":
       return ctx.visibility.immersion === "AVAILABLE";
+    case "account_appearance_v1":
+      return ctx.learner.completedLessons.length > 0;
+    case "journey_culture_bridge_v1": {
+      // Depois do anúncio da Cultura (resolvido), se o aluno ainda não a tocou.
+      const reveal = ctx.state.records["culture_unlocked_v1"]?.status;
+      return ctx.visibility.culture === "AVAILABLE" && !ctx.learner.cultureTouched && (reveal === "SHOWN" || reveal === "DISMISSED");
+    }
     case "notifications_offer_v1":
       // PART BO — depois que o valor ficou claro (1ª sessão concluída), nunca junto do microfone.
       return ctx.notificationPermissionPromptable && ctx.learner.completedLessons.length > 0;
@@ -618,7 +677,101 @@ export function selectGuidance(ctx: GuidanceContext): GuidancePresentation | nul
       listedFeatures: listed.map((d) => d.feature!),
     };
   }
-  return { definition: top, coveredIds: [top.id], listedFeatures: top.feature ? [top.feature] : [] };
+  const anchorFallback = top.kind === "COACHMARK" && Boolean(top.anchor) && !ctx.anchorsPresent.has(top.anchor!);
+  return { definition: top, coveredIds: [top.id], listedFeatures: top.feature ? [top.feature] : [], ...(anchorFallback ? { anchorFallback: true } : {}) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// RC2.2.23 — por que uma orientação não apareceu (QA / /qa/device)
+// ─────────────────────────────────────────────────────────────────────────
+
+export const GUIDANCE_REASON_CODES = [
+  "DISABLED",
+  "ALREADY_RESOLVED",
+  "SESSION_BUDGET",
+  "WRONG_SURFACE",
+  "ANCHOR_MISSING",
+  "INPUT_FOCUSED",
+  "ACTIVE_LEARNING",
+  "OTHER_CEREMONY",
+  "FEATURE_NOT_AVAILABLE",
+  "SNOOZED",
+  "RENDER_TIMEOUT",
+  "SUPPRESSED_TEST_BUILD",
+  "NOT_INITIALIZED",
+] as const;
+export type GuidanceReasonCode = (typeof GUIDANCE_REASON_CODES)[number];
+
+export interface GuidanceExplanation {
+  guidanceId: string;
+  surface: string;
+  status: GuidanceRecordStatus | "NEW";
+  /** Desbloqueada/relevante e ainda não resolvida (SHOWN/DISMISSED/SKIPPED). */
+  pendingDelivery: boolean;
+  eligible: boolean;
+  selected: boolean;
+  anchorPresent: boolean | null;
+  reasonCode: GuidanceReasonCode | null;
+}
+
+/** Resolvida = o aluno viu (SHOWN) ou decidiu (DISMISSED/SKIPPED). AUTO_SEEDED = pendente. */
+export function guidanceResolved(record: GuidanceRecord | undefined): boolean {
+  return record?.status === "SHOWN" || record?.status === "DISMISSED" || record?.status === "SKIPPED";
+}
+
+/**
+ * Explica, para cada orientação, se ela sairia AGORA nesta superfície e,
+ * se não, o código do motivo. Nunca decide nada: só diagnostica.
+ */
+export function explainGuidance(
+  ctx: GuidanceContext,
+  extras: { initialized?: boolean; suppressedTestBuild?: boolean } = {}
+): GuidanceExplanation[] {
+  const selected = extras.initialized === false || extras.suppressedTestBuild ? null : selectGuidance(ctx);
+  const selectedIds = new Set(selected?.coveredIds ?? []);
+  const budgetFull = ctx.session.shownIds.length >= sessionBudget(ctx);
+  return GUIDANCE_DEFINITIONS.filter((definition) => definition.id !== "new_features_v1").map((definition) => {
+    const record = ctx.state.records[definition.id];
+    const onSurface = definition.surfaces.includes(ctx.pathname);
+    const anchorPresent = definition.kind === "COACHMARK" && definition.anchor ? ctx.anchorsPresent.has(definition.anchor) : null;
+    const featureOk = featureConditionMet(definition, ctx);
+    let reasonCode: GuidanceReasonCode | null = null;
+    if (extras.initialized === false) reasonCode = "NOT_INITIALIZED";
+    else if (extras.suppressedTestBuild) reasonCode = "SUPPRESSED_TEST_BUILD";
+    else if (!ctx.state.enabled && !definition.essential) reasonCode = "DISABLED";
+    else if (guidanceResolved(record)) reasonCode = "ALREADY_RESOLVED";
+    else if (ctx.session.snoozedIds.includes(definition.id) || (record?.status === "SNOOZED" && (record.snoozedUntil ?? 0) > ctx.now)) reasonCode = "SNOOZED";
+    else if (!featureOk || (definition.nativeOnly && !ctx.isNative)) reasonCode = "FEATURE_NOT_AVAILABLE";
+    else if (!onSurface) reasonCode = "WRONG_SURFACE";
+    else if (!anchorReady(definition, ctx)) reasonCode = "ANCHOR_MISSING";
+    else if (ctx.activeLearning) reasonCode = "ACTIVE_LEARNING";
+    else if (ctx.inputFocused) reasonCode = "INPUT_FOCUSED";
+    else if (ctx.otherCeremonyActive) reasonCode = "OTHER_CEREMONY";
+    else if (!selectedIds.has(definition.id) && budgetFull) reasonCode = "SESSION_BUDGET";
+    const eligible = reasonCode === null;
+    return {
+      guidanceId: definition.id,
+      surface: definition.surfaces[0] ?? "",
+      status: record?.status ?? "NEW",
+      pendingDelivery: !guidanceResolved(record) && featureOk,
+      eligible,
+      selected: selectedIds.has(definition.id),
+      anchorPresent,
+      reasonCode,
+    };
+  });
+}
+
+/** Pendentes (desbloqueadas e nunca resolvidas), na ordem em que sairiam. */
+export function pendingGuidance(ctx: GuidanceContext): GuidanceExplanation[] {
+  const rank = (id: string) => {
+    const definition = GUIDANCE_BY_ID.get(id)!;
+    return GUIDANCE_PRIORITY_RANK[definition.priority] * 100 + GUIDANCE_DEFINITIONS.indexOf(definition);
+  };
+  return GUIDANCE_DEFINITIONS.filter((definition) => definition.id !== "new_features_v1")
+    .map((definition) => explainGuidance({ ...ctx, pathname: definition.surfaces[0] ?? ctx.pathname, anchorsPresent: new Set([definition.anchor ?? ""]), session: { ...ctx.session, shownIds: [] } }).find((item) => item.guidanceId === definition.id)!)
+    .filter((item) => item.pendingDelivery && item.reasonCode !== "ALREADY_RESOLVED" && item.reasonCode !== "DISABLED")
+    .sort((a, b) => rank(a.guidanceId) - rank(b.guidanceId));
 }
 
 // ─────────────────────────────────────────────────────────────────────────

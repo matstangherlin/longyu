@@ -1,0 +1,21 @@
+{
+  "wave": "RC2.2.24",
+  "title": "Android Learning Parity (APK = Web, guided, minimal, no dead-end, one account)",
+  "parentWave": "RC2.2.23",
+  "strategy": "STACKED",
+  "stack": [
+    "RC2.2.19 / #292 (merged)",
+    "RC2.2.20 + RC2.2.21 / #294",
+    "RC2.2.22 / #295",
+    "RC2.2.23",
+    "RC2.2.24"
+  ],
+  "baseBranch": "claude/rc2-2-23-product-convergence",
+  "RC2_2_24_BASE_SHA": "d843f1d3ed43b1b1d541ee849f1644c60170c033",
+  "baseCapturedFrom": "HEAD real da RC2.2.23 no início da onda (RC2.2.23 + merge do fix 3cb0ddd4 do #295); não o SHA do #295",
+  "branch": "claude/rc2-2-24-android-learning-parity",
+  "prTargetWhileParentOpen": "claude/rc2-2-23-product-convergence",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "note": "Correções posteriores da RC2.2.23 entram por merge da branch dela (nunca cherry-pick)."
+}

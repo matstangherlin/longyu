@@ -2,7 +2,8 @@
 // Trocável por um TTS na nuvem depois sem mexer nas telas: basta
 // reimplementar speak() mantendo a assinatura.
 
-import { hasNativeSpeech, nativeSpeak, nativeStopSpeaking, nativeTtsStatus, onNativeTtsStart } from "./platform/nativeSpeech";
+import { hasNativeSpeech, nativeSpeakTracked, nativeStopSpeaking, nativeTtsStatus } from "./platform/nativeSpeech";
+import { applyTtsEvent, beginTtsPlayback, newTtsRequestId, setActiveTtsRequest, ttsPlaybackConfirmed, type TtsEvent, type TtsPlayback } from "./ttsCorrelation";
 import { unlockAudio } from "./soundFx";
 import { useStore } from "./store";
 import { speakableProperNames } from "./personalize";
@@ -31,9 +32,9 @@ function clearChromeResumeWatchdog(): void {
 
 function startChromeResumeWatchdog(): void {
   clearChromeResumeWatchdog();
-  if (!isTTSAvailable()) return;
+  const synth = webSpeechSynthesis();
+  if (!synth) return;
   chromeResumeTimer = window.setInterval(() => {
-    const synth = window.speechSynthesis;
     if (!synth.speaking && !synth.pending) {
       clearChromeResumeWatchdog();
       return;
@@ -48,8 +49,9 @@ function startChromeResumeWatchdog(): void {
 }
 
 function pickChineseVoice(): SpeechSynthesisVoice | null {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
-  const voices = window.speechSynthesis.getVoices();
+  const synth = webSpeechSynthesis();
+  if (!synth) return null;
+  const voices = synth.getVoices();
   if (!voices.length) return null;
   // Preferência: zh-CN > zh > qualquer "Chinese" no nome.
   const byLang = (re: RegExp) => voices.find((v) => re.test(v.lang));
@@ -62,18 +64,38 @@ function pickChineseVoice(): SpeechSynthesisVoice | null {
   return cachedVoice;
 }
 
-function resumeSpeechSynthesis(): void {
-  if (!isTTSAvailable()) return;
-  const synth = window.speechSynthesis;
-  if (synth.paused) synth.resume();
+/**
+ * O objeto `speechSynthesis` DE VERDADE, ou null. RC2.2.27 — no APK,
+ * `isTTSAvailable()` responde pelo motor NATIVO (true), mas o WebView do
+ * Android não tem `window.speechSynthesis`: perguntar a `isTTSAvailable()`
+ * antes de tocar no objeto web estourava `TypeError (reading 'paused')`.
+ */
+function webSpeechSynthesis(): SpeechSynthesis | null {
+  if (typeof window === "undefined") return null;
+  const synth = window.speechSynthesis as SpeechSynthesis | undefined | null;
+  return synth && typeof synth.speak === "function" ? synth : null;
 }
 
-/** Marca interação recente do usuário — necessário para autoplay em Safari/iOS. */
+function resumeSpeechSynthesis(): void {
+  const synth = webSpeechSynthesis();
+  if (synth?.paused) synth.resume();
+}
+
+/**
+ * Marca interação recente do usuário — necessário para autoplay em Safari/iOS.
+ * Melhor esforço: roda no início do toque em Ouvir/Continuar e NUNCA pode
+ * abortar quem chamou (RC2.2.27: o TypeError acima matava o pedido de fala
+ * antes de chegar ao plugin e o Continuar da conversa antes de avançar).
+ */
 export function noteUserGesture(): void {
   lastUserGestureAt = Date.now();
-  resumeSpeechSynthesis();
-  // Mesmo gesto desbloqueia SFX (AudioContext) — sem isso o 1º efeito some no iOS.
-  unlockAudio();
+  try {
+    resumeSpeechSynthesis();
+    // Mesmo gesto desbloqueia SFX (AudioContext) — sem isso o 1º efeito some no iOS.
+    unlockAudio();
+  } catch {
+    // desbloqueio de áudio é opcional; o toque segue
+  }
 }
 
 /** true se houve gesto recente o bastante para autoplay (Safari/iOS). */
@@ -107,9 +129,10 @@ let nativeTtsUnavailableReason: string | null = null;
 let nativeTtsKnownAvailable: boolean | null = null;
 
 /** Consulta o SO (zh-CN instalado?) e guarda o resultado desta sessão. */
-export async function refreshNativeTtsStatus(): Promise<{ available: boolean; status: string } | null> {
+export async function refreshNativeTtsStatus(options: { reinit?: boolean } = {}): Promise<{ available: boolean; status: string } | null> {
   if (!hasNativeSpeech()) return null;
-  const status = await nativeTtsStatus();
+  // RC2.2.21 — `reinit` depois do instalador de voz: o motor é recriado.
+  const status = await nativeTtsStatus(undefined, { reinit: options.reinit === true });
   nativeTtsKnownAvailable = status.available;
   nativeTtsUnavailableReason = status.available ? null : status.status;
   return { available: status.available, status: status.status };
@@ -189,6 +212,12 @@ export interface SpeakOptions {
   onerror?: (reason?: string) => void;
   /** P3 — nomes latinos que podem ser falados dentro de uma fala mandarim. */
   properNames?: readonly string[];
+  /** RC2.2.27 — de onde veio o pedido (GUIDED_TRY, CONVERSATION_AUTOPLAY…). Diagnóstico, nunca texto. */
+  source?: string;
+  /** RC2.2.24 — identidade da reprodução (Android). Sem ela, uma é criada. */
+  requestId?: string;
+  /** RC2.2.24 — cada evento DESTA fala + o estado correlacionado (diagnóstico/CTA). */
+  onTtsEvent?: (event: TtsEvent, playback: TtsPlayback) => void;
 }
 
 /** Fala um texto chinês. Cancela qualquer fala anterior. */
@@ -403,7 +432,14 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   }
 }
 
-/** Android: mesmo contrato de speak() (onend sempre; onerror quando não tocou). */
+/**
+ * Android: mesmo contrato de speak() (onend sempre; onerror quando não tocou).
+ *
+ * RC2.2.24 — `onstart` só dispara com a confirmação DESTA fala (requestId):
+ * TTS_STARTED, ou TTS_DONE sem START (TTS_START_EVENT_MISSED — conta como
+ * tocada), ou o próprio retorno do plugin dizendo que o motor começou. Um
+ * evento de outra fala nunca libera esta.
+ */
 function speakNative(text: string, opts: SpeakOptions): void {
   const spoken = mandarinSpeechText(text, { properNames: opts.properNames ?? defaultSpeakableProperNames() });
   if (!spoken.trim()) {
@@ -412,31 +448,43 @@ function speakNative(text: string, opts: SpeakOptions): void {
   }
   const preferences = useStore.getState();
   const rate = opts.rate ?? (preferences.slowAudio ? Math.min(preferences.ttsRate ?? 0.85, 0.65) : preferences.ttsRate ?? 0.85);
-  // RC2.2.17 · B — o início vem do evento nativo `onStart`, não do toque.
+  const requestId = opts.requestId ?? newTtsRequestId();
+  setActiveTtsRequest(requestId);
+  let playback = beginTtsPlayback(requestId);
   let started = false;
-  const release = onNativeTtsStart(() => {
-    if (started) return;
+  let ended = false;
+  const end = () => {
+    if (ended) return;
+    ended = true;
+    opts.onend?.();
+  };
+  const confirmStart = () => {
+    if (started || !ttsPlaybackConfirmed(playback)) return;
     started = true;
     opts.onstart?.();
-  });
-  void nativeSpeak(spoken, { rate, pitch: opts.pitch ?? 1 }).then((result) => {
-    release();
+  };
+  const onEvent = (event: TtsEvent) => {
+    playback = applyTtsEvent(playback, event);
+    opts.onTtsEvent?.(event, playback);
+    confirmStart();
+    if (event.type === "TTS_DONE" || event.type === "TTS_STOPPED") end();
+    else if (event.type === "TTS_SUPERSEDED") end();
+    else if (event.type === "TTS_ERROR") {
+      if (!started) opts.onerror?.(event.code ?? "TTS_ERROR");
+      end();
+    }
+  };
+  void nativeSpeakTracked(spoken, { rate, pitch: opts.pitch ?? 1, requestId, source: opts.source }, onEvent).then((result) => {
     if (result.ok) {
       nativeTtsKnownAvailable = true;
       nativeTtsUnavailableReason = null;
-      // `onDone` só chega depois de a voz tocar: um plugin antigo sem o
-      // evento de início ainda prova que houve som. Interrompida sem início
-      // (o aluno tocou de novo) não prova nada, e também não é falha.
-      if (!started && !result.interrupted) {
-        started = true;
-        opts.onstart?.();
-      }
     } else {
-      if (/^TTS_(LANGUAGE|UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
+      if (/^TTS_(LANGUAGE|UNAVAILABLE|NATIVE_PLUGIN_UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
       nativeTtsUnavailableReason = result.code;
-      opts.onerror?.(result.code);
+      if (!ttsPlaybackConfirmed(playback)) {
+        if (playback.phase !== "ERROR") onEvent({ type: "TTS_ERROR", requestId, utteranceId: null, timestamp: Date.now(), engineState: "rejected", code: result.code });
+      }
     }
-    opts.onend?.();
   });
 }
 
@@ -447,62 +495,13 @@ export function stopSpeaking(): void {
   }
   clearPendingSpeak();
   clearChromeResumeWatchdog();
-  if (isTTSAvailable()) window.speechSynthesis.cancel();
-}
-
-function autoSpeakDelayMs(requested?: number): number {
-  if (requested != null) return requested;
-  // Gesto fresco: falar na mesma janela de ativação (Safari/iOS).
-  return Date.now() - lastUserGestureAt < 2500 ? 0 : 120;
+  webSpeechSynthesis()?.cancel();
 }
 
 /**
- * Agenda fala automática ao montar/trocar conteúdo. Retorna cleanup que cancela
- * o timer pendente (sem interromper fala já iniciada por outro componente).
- * Respeita `autoPlayAudio` do store.
+ * RC2.2.27 — fala automática mora em ./mandarinSpeech (scheduleAutoSpeak):
+ * o MESMO runtime da fala manual (requestId, árbitro, cancelamento próprio).
  */
-export function scheduleAutoSpeak(text: string, opts: SpeakOptions & { delayMs?: number } = {}): () => void {
-  const clean = String(text ?? "").trim();
-  if (!clean) return () => {};
-  if (useStore.getState().autoPlayAudio === false) return () => {};
-
-  let cancelled = false;
-  const delayMs = autoSpeakDelayMs(opts.delayMs);
-  const { delayMs: _delay, ...speakOpts } = opts;
-  const recentGesture = Date.now() - lastUserGestureAt < 800;
-
-  const run = () => {
-    if (cancelled) return;
-    // Android: TTS nativo não depende de gesto nem de carregar vozes do navegador.
-    if (hasNativeSpeech()) {
-      speak(clean, speakOpts);
-      return;
-    }
-    // Com gesto recente, fala na hora (sem await de vozes) para não sair da
-    // janela de user activation do Safari.
-    if (warmed || recentGesture) {
-      speak(clean, speakOpts);
-      return;
-    }
-    void warmUpVoices().then(() => {
-      if (cancelled) return;
-      speak(clean, speakOpts);
-    });
-  };
-
-  if (delayMs === 0 && recentGesture) {
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }
-
-  const timer = window.setTimeout(run, delayMs);
-  return () => {
-    cancelled = true;
-    window.clearTimeout(timer);
-  };
-}
 
 /** Há uma voz chinesa dedicada disponível? (para avisar o usuário) */
 export function hasChineseVoice(): boolean {

@@ -7,7 +7,7 @@ import { CHUNKS } from "../../data/chunks";
 import { JOURNEY, type Lesson, type Skill, type Unit } from "../../data/journey";
 import type { ItemType } from "../../data/types";
 import { useStore, type Track } from "../../lib/store";
-import { scheduleAutoSpeak } from "../../lib/tts";
+import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { decideFeedbackAudio } from "../lesson/feedbackAudioPolicy";
 import { todayKey } from "../../lib/storage";
 import { playSoundFx } from "../../lib/soundFx";

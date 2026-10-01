@@ -1,0 +1,15 @@
+# Synthetic fixtures in RC gate/mutation scripts prove scrubbing (PII/JWT never
+# leave the packet). They are not credentials. Contiguous eyJ… literals in git
+# history still trip generic-api-key when the PR range includes those commits.
+title = "longyu"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic JWT fixtures used only to assert BUG_PACKET_SECRET / scrubbing"
+regexes = [
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxIn0\.abcdefghij''',
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.abc''',
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkw\.abc''',
+]

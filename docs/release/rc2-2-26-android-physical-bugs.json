@@ -1,0 +1,1114 @@
+{
+  "schema": "longyu-rc2-2-26-android-physical-bugs/1",
+  "wave": "RC2.2.26",
+  "RC2_2_26_BASE_SHA": "94020966cac9094a00a85a1c0ddbc4956e3171e6",
+  "importedFrom": {
+    "wave": "RC2.2.25",
+    "file": "docs/release/rc2-2-25-product-experience-bugs.json",
+    "count": 35,
+    "historyReset": false
+  },
+  "statuses": [
+    "OPEN",
+    "REPRODUCED",
+    "ROOT_CAUSE_FOUND",
+    "FIXED_CODE",
+    "AUTOMATED_REGRESSION",
+    "PHYSICAL_RETEST_PENDING",
+    "PHYSICAL_PASS",
+    "WONT_FIX_WITH_REASON"
+  ],
+  "severityPolicy": "Severidade não muda para liberar Beta. P1 continua P1 enquanto bloquear fluxo crítico.",
+  "rootCauses": [
+    {
+      "id": "AUDIO_SESSION_CONFLICT",
+      "status": "FIXED_CODE",
+      "confidence": "CANDIDATE_FROM_CODE",
+      "bugs": [
+        "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+        "ANDROID_TTS_NOT_PROVEN_ACROSS_SURFACES",
+        "NATIVE_SPEECH_NOT_PROVEN"
+      ],
+      "description": "TTS, gravação, reprodução da própria voz e reconhecimento podiam disputar o áudio/microfone sem dono único nem foco.",
+      "fix": "árbitro de áudio (um dono por vez) + foco transitório + AudioAttributes (RC2.2.21) — corrigido UMA vez para os três"
+    },
+    {
+      "id": "PAUSE_TREATED_AS_EXIT",
+      "status": "FIXED_CODE",
+      "confidence": "CANDIDATE_FROM_CODE",
+      "bugs": [
+        "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+        "ANDROID_LIFECYCLE_STATE_LOSS"
+      ],
+      "description": "onPause (diálogo de permissão, painel) apagava a gravação como se o app tivesse fechado.",
+      "fix": "pausa só interrompe; stop/destroy apagam (RC2.2.21)"
+    },
+    {
+      "id": "PRESENTATION_DROPPED_SILENTLY",
+      "status": "FIXED_CODE",
+      "confidence": "CONFIRMED_IN_CODE",
+      "bugs": [
+        "GUIDANCE_DELIVERY_NOT_VISIBLE_OWNER_DEVICE",
+        "GUIDANCE_NOT_PHYSICALLY_PROVEN"
+      ],
+      "description": "Uma orientação selecionada podia sumir sem motivo registrado (âncora ausente/timeout).",
+      "fix": "card sem âncora + reason codes + trilha de entrega (RC2.2.23)"
+    },
+    {
+      "id": "DENSITY_OVER_GUIDANCE",
+      "status": "FIXED_CODE",
+      "confidence": "CONFIRMED_IN_CODE",
+      "bugs": [
+        "MOBILE_INFORMATION_DENSITY",
+        "REVIEW_HANZI_PHYSICAL_TOO_SMALL"
+      ],
+      "description": "Telas mostravam tudo de uma vez no celular, encolhendo o que importa.",
+      "fix": "abas conquistadas, feedback curto, pisos de Hànzì por papel (RC2.2.23)"
+    },
+    {
+      "id": "SIDE_EFFECT_GATES_NAVIGATION",
+      "status": "REOPENED",
+      "confidence": "REOPENED_AFTER_PHYSICAL_FAILURE",
+      "bugs": [
+        "ANDROID_TTS_HEARD_BUT_UI_NOT_ACKNOWLEDGED",
+        "ANDROID_CONVERSATION_NODE_STALL",
+        "STEP_RENDER_STALL_ANDROID"
+      ],
+      "description": "Áudio (efeito secundário) controlava avanço/CTA, sem identidade nem prova de render.",
+      "fix": "requestId por fala; transição sem TTS; prova de DOM (RC2.2.24)"
+    }
+  ],
+  "bugs": [
+    {
+      "id": "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "handleOnPause apagava a gravação em QUALQUER pausa (diálogo de permissão, painel de notificações) — a primeira gravação sumia antes de tocar",
+          "o caminho Gravar e comparar nunca pedia o microfone: a gravação podia sair vazia/silenciosa",
+          "MediaPlayer sem AudioAttributes (uso/rota não garantidos), sem foco de áudio e sem prova de PLAYING — 'reproduziu' era reportado mesmo sem som",
+          "volume de mídia zerado aparecia como falha genérica"
+        ]
+      },
+      "fix": [
+        "onPause só interrompe (não apaga arquivo válido); onStop/onDestroy apagam",
+        "ensureMicPermission com explicação antes de gravar",
+        "AudioAttributes USAGE_MEDIA/CONTENT_TYPE_SPEECH antes do prepare; foco transitório sempre abandonado",
+        "PLAYING só após isPlaying(); códigos estáveis (NO_RECORDING…PLAYBACK_ERROR); MEDIA_VOLUME_ZERO com mensagem própria",
+        "amplitude (getMaxAmplitude), duração por MediaMetadataRetriever, rota de saída e volume no diagnóstico",
+        "[Ouvir minha voz] → [Reproduzindo… ■ Parar] → [Ouvir novamente]"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-voice-playback, mobile-lifecycle)",
+        "gate:rc2-2-19/2-2-20 (gravação = arquivo + reprodução)"
+      ],
+      "physicalTest": "selfPlaybackAudible",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste selfPlaybackAudible em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "AUDIO_SESSION_CONFLICT",
+        "PAUSE_TREATED_AS_EXIT"
+      ],
+      "carriedForward": true
+    },
+    {
+      "id": "NATIVE_SPEECH_NOT_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "startRecognition preferia o reconhecedor on-device mesmo sem zh-CN instalado nele → LANGUAGE_* e o aluno preso",
+          "sem sinal de voz (RMS) nem tipo de reconhecedor no diagnóstico: impossível separar 'não ouviu' de 'não entendeu'",
+          "ERROR_CLIENT sem categoria; repetição sem limite"
+        ]
+      },
+      "fix": [
+        "estratégia ON_DEVICE só com zh-CN instalado; senão o serviço",
+        "RMS pico + eventos created/ready/begin/end/destroyed",
+        "categorias estáveis (NO_SPEECH…CLIENT, UNKNOWN)",
+        "2 falhas seguidas → Gravar e comparar / Continuar sem falar"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-speech)"
+      ],
+      "physicalTest": "nativeSpeechZhCnRecognized",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste nativeSpeechZhCnRecognized em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "AUDIO_SESSION_CONFLICT"
+      ],
+      "carriedForward": true
+    },
+    {
+      "id": "ANDROID_TTS_NOT_PROVEN_ACROSS_SURFACES",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "motor TTS antigo seguia dizendo LANG_MISSING_DATA depois de instalar a voz",
+          "TTS, gravação e reconhecimento podiam disputar o áudio"
+        ]
+      },
+      "fix": [
+        "AudioAttributes MEDIA/SPEECH no TTS",
+        "reinit do motor ao voltar do instalador de voz",
+        "árbitro de áudio: um dono por vez (IDLE/TTS/SELF_PLAYBACK/RECORDING/RECOGNITION)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-speech, resource-cleanup)",
+        "test:audio-playback-truth"
+      ],
+      "physicalTest": "ttsModelVoiceAllSurfaces",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste ttsModelVoiceAllSurfaces em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "AUDIO_SESSION_CONFLICT"
+      ],
+      "carriedForward": true
+    },
+    {
+      "id": "LESSON_ADVANCE_DEVICE_REGRESSION_RISK",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "step_continue/step_advanced/step_stalled no buffer técnico para achar ONDE o avanço se perde no aparelho"
+      ],
+      "tests": [
+        "gate:rc2-2-14/2-2-17 (contrato de avanço)",
+        "E2E existentes"
+      ],
+      "physicalTest": "lessonAdvanceDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste lessonAdvanceDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "MOBILE_SIGNUP_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "sem mudança de código nesta onda (prazo e categorias vêm da RC2.2.20)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (auth-resilience)"
+      ],
+      "physicalTest": "mobileSignupDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste mobileSignupDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "PASSWORD_RECOVERY_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "sem mudança de código nesta onda; OTP continua só em memória"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (auth-resilience)"
+      ],
+      "physicalTest": "passwordRecoveryDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste passwordRecoveryDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "GUIDANCE_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "VOLTAR fecha a orientação na ordem certa (depois de teclado e modal)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "guidanceDevice",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste guidanceDevice em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "ANDROID_LIFECYCLE_STATE_LOSS",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "pausa transitória tratada como saída (apagava a gravação)"
+        ]
+      },
+      "fix": [
+        "pausa ≠ sair; app_paused/app_resumed (nativo e visibilidade) no buffer técnico"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-lifecycle)"
+      ],
+      "physicalTest": "lifecycleBackgroundResume",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste lifecycleBackgroundResume em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [
+        "PAUSE_TREATED_AS_EXIT"
+      ],
+      "carriedForward": true
+    },
+    {
+      "id": "MODAL_STACK_BACK_CLOSES_ALL",
+      "severity": "P1",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "cada ModalOverlay ouvia Escape no documento: um VOLTAR fechava todos os modais empilhados"
+        ]
+      },
+      "fix": [
+        "pilha de modais (modalStack): só o do topo reage"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "androidBackPriority",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste androidBackPriority em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "BACKDROP_TAP_THROUGH",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "o fundo do modal fechava no mousedown: o click do mesmo toque caía no que estava embaixo"
+        ]
+      },
+      "fix": [
+        "fecha no click, só se o toque começou no fundo"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-layout)"
+      ],
+      "physicalTest": "androidBackPriority",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste androidBackPriority em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "BACK_IGNORES_KEYBOARD",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "decideBackAction não conhecia o teclado nem separava orientação de modal"
+        ]
+      },
+      "fix": [
+        "BACK_PRIORITY: keyboard → modal → guidance → subview → route → exit"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "androidBackPriority",
+      "importedFrom": "RC2.2.21",
+      "owner": "OWNER",
+      "discovery": "CODE_AUDIT",
+      "reproduction": "Reteste físico pendente: seguir o teste androidBackPriority em docs/release/rc2-2-22-device-qa.json",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "rootCauseIds": [],
+      "carriedForward": true
+    },
+    {
+      "id": "FIRST20_NO_REAL_LIFE_TRANSFER_17_20",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "PRODUCT_LINT",
+      "owner": "PEDAGOGY",
+      "reproduction": "node scripts/audit-rc2-2-22-first-20.mjs → sessões 17,18,19,20 (p1-primeiros-hanzi) sem passo de contexto/conversa/produção",
+      "rootCauseIds": [],
+      "fix": null,
+      "note": "Conteúdo congelado (fingerprint c48b008c9c1e): mudar o plano exige exceção de conteúdo; decidir na RC2.2.23 com dado de tester.",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "importedFrom": "RC2.2.22",
+      "carriedForward": true
+    },
+    {
+      "id": "FIRST20_LOW_VISUAL_SUPPORT",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "PRODUCT_LINT",
+      "owner": "PEDAGOGY",
+      "reproduction": "sessões sem passo visual (imagem, contorno de tom, montagem de hànzì ou cena): 1,2,3,5,6,7,8,13,14,15,16",
+      "rootCauseIds": [],
+      "fix": null,
+      "note": "Validar com tester se falta apoio visual antes de adicionar imagens (sem otimizar por um único tester).",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "importedFrom": "RC2.2.22",
+      "carriedForward": true
+    },
+    {
+      "id": "FIRST20_HIGH_COMPLEXITY_STEPS",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "PRODUCT_LINT",
+      "owner": "PEDAGOGY",
+      "reproduction": "3 passos HIGH no lint de complexidade (sessões 2, 4 e 20); nenhum OVERLOADED",
+      "rootCauseIds": [],
+      "fix": null,
+      "note": "Heurística interna, não ciência pedagógica.",
+      "build": null,
+      "deviceClass": null,
+      "diagnosticSnapshot": null,
+      "importedFrom": "RC2.2.22",
+      "carriedForward": true
+    },
+    {
+      "id": "GUIDANCE_DELIVERY_NOT_VISIBLE_OWNER_DEVICE",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "No aparelho do owner as dicas guiadas (coachmarks) não aparecem.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "coachmark cuja âncora não estava na tela (fora da viewport/ainda não montada) era DESCARTADO em silêncio após o timeout de render",
+          "enquanto a âncora não existisse, a dica ficava inelegível para sempre (nenhum caminho alternativo)",
+          "nenhum motivo registrado: impossível responder 'por que não apareceu?' no aparelho"
+        ],
+        "ruledOut": [
+          "guidanceSuppressedForSeededE2E só vale para sessão semeada de E2E na Web; nunca em build nativo nem de QA (agora explícito)"
+        ]
+      },
+      "fix": [
+        "âncora ausente → espera 1,5 s → card inferior sem âncora (ANCHOR_FALLBACK), nunca descarte",
+        "timeout de render troca para o card sem âncora; só registra RENDER_TIMEOUT se o card também falhar",
+        "13 reason codes + trilha selected→render_started→shown→dismissed",
+        "/qa/device GUIDANCE DELIVERY: [Listar dicas pendentes] [Mostrar próxima dica] [Resetar guidance de QA] (só QA)",
+        "AUTO_SEEDED = pendente; orçamento 1 por sessão (2 na primeira, em momentos separados)"
+      ],
+      "tests": [
+        "gate:rc2-2-23-product-convergence (guidance-delivery)",
+        "e2e/rc2-2-23-product-convergence.spec.ts"
+      ],
+      "physicalTest": "guidanceVisibleOwnerDevice",
+      "reproduction": "Instalar o APK, conta nova, abrir Jornada/Perfil/Praticar: nenhuma dica aparecia.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.23",
+      "reproducedOnDevice": false,
+      "carriedForward": true
+    },
+    {
+      "id": "ENERGY_DEPLETION_FEELS_LIKE_APP_LOCK",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Com zero Cargas o app parecia travado: só o Pro aparecia como saída.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "4 erros seguidos consumiam uma Carga (dupla punição: Vida + Carga)",
+          "treino extra (Hànzì, Pinyin, Som, Fala, Leitura) cobrava Carga → zero Cargas bloqueava prática do que já foi aprendido",
+          "replay de lição concluída cobrava Carga",
+          "a tela de energia empurrava o Pro primeiro"
+        ]
+      },
+      "fix": [
+        "errar custa só Vida (MISTAKE_CHARGE_COST = 0)",
+        "só NOVA progressão consome Carga; replay e prática são livres",
+        "uma superfície calma: [Revisar][Praticar][Cultura][História] → [Conseguir Carga] → Longyu Pro por último"
+      ],
+      "tests": [
+        "gate:rc2-2-23-product-convergence (energy-soft-landing)",
+        "e2e/rc2-2-23-product-convergence.spec.ts"
+      ],
+      "physicalTest": "zeroChargeStillUsable",
+      "reproduction": "Gastar as Cargas do dia e tentar revisar/praticar: tudo levava ao paywall.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.23",
+      "reproducedOnDevice": false,
+      "carriedForward": true
+    },
+    {
+      "id": "REVIEW_SEMANTIC_REPETITION",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "OPEN",
+      "discovery": "OWNER_REPORT",
+      "description": "A revisão e as micro-sessões repetem o mesmo alvo em sequência, apesar do relatório antigo dizer '0 repetição ruim'.",
+      "rootCause": {
+        "confidence": "CONFIRMED_BY_AUDIT",
+        "found": [
+          "auditoria semântica: sessões 5, 6 e 16 das 20 primeiras dominadas por um alvo (你好 5/7 e 6/7; 你 4/7); 1 REDUNDANT"
+        ]
+      },
+      "fix": [
+        "Revisão: no máximo 2 do mesmo alvo por rodada de 5–8 (3 só em remediação), mesmo SRS",
+        "relatório nunca diz 'limpo' com saturação/domínio"
+      ],
+      "tests": [
+        "gate:rc2-2-23-product-convergence (review-repetition)",
+        "audit:rc2-2-23-semantic-repetition"
+      ],
+      "physicalTest": "reviewNotRepetitive",
+      "reproduction": "Revisar 8 itens logo após as primeiras lições.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.23",
+      "reproducedOnDevice": false,
+      "partialFix": "Revisão corrigida (apresentação). As sessões 5/6/16 são conteúdo congelado: continuam registradas, sem edição de lição nesta onda.",
+      "carriedForward": true
+    },
+    {
+      "id": "REVIEW_HANZI_PHYSICAL_TOO_SMALL",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Hànzì pequeno demais na revisão no celular.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "peças de montagem usavam text-2xl (24 px)",
+          "sem medição computada por papel"
+        ]
+      },
+      "fix": [
+        "piso por papel a 360 px: principal ≥ 64, opção ≥ 48, par/peça ≥ 44 (data-review-hanzi)"
+      ],
+      "tests": [
+        "gate:rc2-2-23-product-convergence (review-hanzi)",
+        "e2e computed font-size 360 px"
+      ],
+      "physicalTest": "reviewHanziReadable",
+      "reproduction": "Abrir Revisão em 360 px e ler as peças da montagem.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.23",
+      "reproducedOnDevice": false,
+      "carriedForward": true
+    },
+    {
+      "id": "MOBILE_INFORMATION_DENSITY",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Muita informação por tela no celular (barra com 5 abas para conta nova, feedback longo).",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "conta nova via 5 abas",
+          "feedback da revisão com bloco gigante (literal+mnemônico+exemplo+o que foi avaliado)"
+        ]
+      },
+      "fix": [
+        "abas conquistadas: conta nova = Jornada + Mais; Praticar após a 1ª conclusão; no máximo 3 cedo",
+        "Mais começa por Você (Perfil · Conta · Aparência)",
+        "feedback curto + 'Ver explicação' opcional",
+        "fim claro: Revisão concluída [Voltar] [Continuar revisando]"
+      ],
+      "tests": [
+        "gate:rc2-2-23-product-convergence (progressive-navigation, mobile-density)"
+      ],
+      "physicalTest": "mobileDensityAcceptable",
+      "reproduction": "Conta nova no celular: contar abas e ler o feedback da revisão.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.23",
+      "reproducedOnDevice": false,
+      "carriedForward": true
+    },
+    {
+      "id": "IMMERSION_DEPTH_GAP",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "FIXED_CODE",
+      "discovery": "OWNER_REPORT",
+      "description": "Imersão parecia exercício, não cena: a escolha do aluno não tinha reação do personagem.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "feedback genérico Certo/Quase sem reação da cena"
+        ]
+      },
+      "fix": [
+        "o parceiro de cena reage (对！/ 嗯？) com áudio; cena, falante, bolhas, áudio por fala, glossário e recap mantidos"
+      ],
+      "tests": [
+        "gate:rc2-2-23-product-convergence (immersion-depth)"
+      ],
+      "physicalTest": "immersionSceneLike",
+      "reproduction": "Abrir uma história, errar e acertar uma escolha.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.23",
+      "reproducedOnDevice": false,
+      "carriedForward": true
+    },
+    {
+      "id": "ANDROID_TTS_HEARD_BUT_UI_NOT_ACKNOWLEDGED",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "REPRODUCED",
+      "discovery": "OWNER_REPORT",
+      "description": "Teste Guiado no APK: o áudio é ouvido, mas o Continuar segue desabilitado.",
+      "rootCause": {
+        "confidence": "REOPENED_AFTER_PHYSICAL_FAILURE",
+        "found": [
+          "listener global `ttsState` SEM identidade da fala, instalado só no primeiro play (addListener assíncrono): no cold start o onStart chegava antes do listener e se perdia",
+          "um START de outra fala podia liberar a atual (sem requestId)",
+          "contador global de geração: outra chamada de áudio deixava a tela em STARTING sem estado terminal (botão morto)"
+        ]
+      },
+      "fix": [
+        "contrato nativo TTS_QUEUED/STARTED/DONE/STOPPED/ERROR com requestId, utteranceId, timestamp, engineState (nunca texto)",
+        "ponte instalada no NativeExperienceBootstrap e aguardada ANTES do speak",
+        "CTA libera só com STARTED ou DONE da MESMA requestId; DONE sem START = TTS_START_EVENT_MISSED (conta como tocada)",
+        "sem START nem DONE: erro explícito [Tentar novamente] [Configurar voz chinesa] [Continuar sem áudio]",
+        "substituída sem começar → volta a IDLE (tocável), nunca STARTING eterno"
+      ],
+      "physicalTest": "guidedTryAudioAdvance",
+      "reproduction": "Instalar APK, cold start, Teste Guiado 1/7 → tocar Ouvir imediatamente.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": true,
+      "ownerEvidence": true,
+      "fixConfidence": "INVALIDATED_BY_DEVICE",
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "ANDROID_CONVERSATION_NODE_STALL",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Conversas no APK podiam ficar presas na mesma fala.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "a transição chamava TTS no toque ANTES de trocar o nó: falha síncrona do caminho nativo abortava o handler"
+        ]
+      },
+      "fix": [
+        "goTo não chama TTS: valida → setNodeId → setAnswering(false) → spokenCount+1; o áudio sai do efeito da bolha depois do render",
+        "trilha conversation_continue_tap → … → conversation_dom_next_visible; sem DOM do nó esperado em 800 ms = CONVERSATION_DOM_STALL com [Tentar transição novamente] (+ [Copiar diagnóstico] no QA)",
+        "V1 e V2 e o último passo do Teste Guiado (áudio só acompanha)"
+      ],
+      "physicalTest": "conversationV2MultiNode",
+      "reproduction": "Abrir qualquer aula com conversation_scene no APK e tocar Continuar/Responder.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "STEP_RENDER_STALL_ANDROID",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "'Avançou' contava setIdx, não a etapa nova na tela.",
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "found": [
+          "sem prova de que o DOM da etapa seguinte apareceu"
+        ]
+      },
+      "fix": [
+        "completion_committed → next_step_selected → next_step_rendered (DOM data-current-step-index); sem render em 1,5 s = step_render_stall + observação de QA"
+      ],
+      "physicalTest": "lessonAfterConversation",
+      "reproduction": "Concluir passos de cada categoria no APK e ver a etapa seguinte.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "JOURNEY_RETURN_POSITION_LOST",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "FIXED_CODE",
+      "discovery": "OWNER_REPORT",
+      "description": "Concluir atividade externa e voltar à Jornada caía no topo ou longe da unidade.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "só lições tinham retorno; Cultura/Tons/Revisão/Pinyin/Hànzì/Imersão e troca de aba não guardavam âncora"
+        ]
+      },
+      "fix": [
+        "JourneyReturnAnchor (fase, unidade, lição, nó, origem, motivo) gravada ao sair da Jornada; volta centraliza no nó (ou no nó atual se houve progresso), com pulso discreto; nunca o topo por padrão"
+      ],
+      "physicalTest": "journeyReturnAnchor",
+      "reproduction": "Jornada → Cultura/Tons → concluir → Jornada.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "CROSS_TAB_REQUIREMENT_UNGUIDED",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "FIXED_CODE",
+      "discovery": "OWNER_REPORT",
+      "description": "Ao ser mandado para outra aba, o aluno não sabia o que fazer nem como voltar.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "destino sem contexto da Jornada"
+        ]
+      },
+      "fix": [
+        "banner 'Você veio da Jornada. Complete esta atividade para continuar <unidade>.' + [Voltar à Jornada] em Cultura, Tons, Revisão, Pinyin, Hànzì, Imersão"
+      ],
+      "physicalTest": "cultureReturnAnchor",
+      "reproduction": "Jornada → atividade exigida em outra aba.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "TONE_TRAINER_DASHBOARD_DURING_ROUND",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "FIXED_CODE",
+      "discovery": "OWNER_REPORT",
+      "description": "Treino de tons exigia scroll e misturava hub e exercício (Nota/Melhor/Fraco, packs, atalhos).",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "rodada dentro de Card com estatísticas e lista de packs na mesma página"
+        ]
+      },
+      "fix": [
+        "hub (escolher + Começar) ≠ rodada em FOCUS MODE (X · progresso · som · Ouvir/Repetir · opções · feedback curto · Próxima); TopBar/TabBar ocultos; Tone Trace (Pointer Events) na microaula"
+      ],
+      "physicalTest": "toneTrainerNoScroll",
+      "reproduction": "Abrir Treino de tons em 390×844 e 375×667.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "LOCAL_PROFILES_VISIBLE",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Perfis locais ainda apareciam em Dados locais.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "card 'Perfis neste dispositivo' com 'Usar perfil' (switchAccount) em Dados; listas em Ajustes e Conta"
+        ]
+      },
+      "fix": [
+        "Dados vira 'Dados e backup' só da conta atual; listas de perfis só em DEV/E2E; switchAccount deprecated; logout → Landing (guest shell), nunca 'Aluno local'"
+      ],
+      "physicalTest": "logoutNoLocalProfile",
+      "reproduction": "Abrir Mais → Dados e backup; sair da conta.",
+      "owner": "OWNER",
+      "importedFrom": "RC2.2.24",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "LOGOUT_DISCOVERABILITY_OWNER_FAIL",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "O owner não encontrou 'Sair da conta' no celular: a Conta era longa e o Sair ficava abaixo da dobra / com cara de ação destrutiva.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "Conta no mobile abria com blocos longos antes de qualquer ação; Sair só depois de rolar",
+          "no Mais, Sair era um chip pequeno dentro da grade de Você"
+        ]
+      },
+      "fix": [
+        "Conta: primeira dobra = avatar, nome, e-mail, status + Perfil · Aparência · Segurança e senha · Sair da conta (linha full-width, neutra)",
+        "Excluir conta separado no fim ('Zona de perigo')",
+        "Mais › Você: Perfil · Conta · Aparência + 'Sair da conta' full-width com ícone, não vermelho",
+        "Perfil: botão Conta visível na primeira dobra"
+      ],
+      "physicalTest": "logoutWithinTwoLevels",
+      "reproduction": "Celular 390×844: Mais → Sair da conta (≤ 2 níveis) e Conta → Sair sem rolar.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "ACTIVITY_SHELL_CHROME_DURING_ACTIVITY",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Revisão, Pinyin, Fala e Imersão rodavam com TopBar/TabBar/contadores visíveis durante a atividade.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "só o Lesson Player, Hànzì (rota) e o Tone Trainer entravam em focus"
+        ]
+      },
+      "fix": [
+        "Revisão: hub [Começar revisão] → rodada em focus (X + ETAPA n/N)",
+        "Pinyin Lab e Fala: FocusActivityLauncher/Frame (X, título, atividade)",
+        "Imersão: história/sessão aberta = focus"
+      ],
+      "physicalTest": "activityFocusNoChrome",
+      "reproduction": "Abrir cada atividade e confirmar ausência de TopBar/TabBar/streak.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "REVIEW_ANALYTICS_DURING_ROUND",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "A rodada de revisão mostrava painéis, abas de modo, fila inteligente e pílulas de estado junto do exercício.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "hub e rodada eram a mesma tela"
+        ]
+      },
+      "fix": [
+        "painéis só no hub; rodada curta (5–8) sem análise; XP/Qi fora dos botões de nota"
+      ],
+      "physicalTest": "reviewRoundMinimal",
+      "reproduction": "/revisao → Começar revisão em 390×844.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "CTA_REWARD_IN_BUTTON",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "CODE_AUDIT",
+      "description": "Botões de nota da revisão carregavam '+XP · +Qi' no rótulo.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "RevisaoPage GRADE_BUTTONS"
+        ]
+      },
+      "fix": [
+        "rótulo só com a ação/efeito; recompensa só no resultado"
+      ],
+      "physicalTest": "ctaNoReward",
+      "reproduction": "Revisão → Ver mais → botões de nota.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "SPEECH_ENGINE_TALK_TO_LEARNER",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "CODE_AUDIT",
+      "description": "Mensagens de fala citavam 'serviço de reconhecimento' / 'serviço de voz'.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "speechErrorMessage (unsupported/language-unavailable/network)",
+          "título do fallback"
+        ]
+      },
+      "fix": [
+        "'Seu aparelho não conseguiu reconhecer mandarim agora.' + [Gravar e comparar] [Continuar sem falar]; diagnóstico só no QA",
+        "trilha OUÇA → GRAVE → OUÇA VOCÊ → COMPARE → CONTINUE no Gravar e comparar"
+      ],
+      "physicalTest": "speechFallbackCopy",
+      "reproduction": "Aparelho sem reconhecimento zh-CN → passo de fala.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "MORE_GROUP_ORDER",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "Mais misturava Aprender/Motivação/Conta; Perfil e Conta repetiam no fim.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "MORE_CATALOG com 3 grupos sem ordem de produto"
+        ]
+      },
+      "fix": [
+        "VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA, cada grupo só com o já descoberto"
+      ],
+      "physicalTest": "moreOrder",
+      "reproduction": "Abrir Mais em conta nova e madura.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "TONE_TRACE_NO_MEMORY_STAGE",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "SPEC_GAP",
+      "description": "Tone Trace parava em 'sem linha'; faltava a escolha de memória.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "TONE_TRACE_LEVELS terminava em NO_LINE"
+        ]
+      },
+      "fix": [
+        "NO_LINE → MEMORY_CHOICE ('Qual foi o caminho do tom?'), instrução 'Passe o dedo pelo caminho do tom.'"
+      ],
+      "physicalTest": "toneTraceTouch",
+      "reproduction": "Microaula de tom → TRACE quatro vezes.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    },
+    {
+      "id": "CULTURE_TASK_HANDOFF_UNCLEAR",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "discovery": "OWNER_REPORT",
+      "description": "O marco cultural da Jornada não dizia por que parar; a volta não nomeava a unidade.",
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "found": [
+          "CTA 'Continuar pela Cultura'; vitória da Cultura com 'Voltar à Jornada' genérico"
+        ]
+      },
+      "fix": [
+        "'Antes de continuar, entenda este costume.' + [Ir para Cultura]",
+        "'✓ Cultura concluída' + [Voltar para <unidade>] pela âncora"
+      ],
+      "physicalTest": "cultureHandoff",
+      "reproduction": "Jornada → marco cultural → aula → volta.",
+      "owner": "OWNER",
+      "importedFrom": null,
+      "introducedWave": "RC2.2.25",
+      "reproducedOnDevice": false,
+      "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK."
+    }
+  ],
+  "panel": {
+    "P0": {
+      "open": 0,
+      "new": 0,
+      "reproduced": 0,
+      "fixed": 0,
+      "awaitingPhysical": 0,
+      "physicalPass": 0
+    },
+    "P1": {
+      "open": 16,
+      "new": 0,
+      "reproduced": 0,
+      "fixed": 0,
+      "awaitingPhysical": 16,
+      "physicalPass": 0
+    },
+    "P2": {
+      "open": 19,
+      "new": 4,
+      "reproduced": 0,
+      "fixed": 4,
+      "awaitingPhysical": 11,
+      "physicalPass": 0
+    }
+  },
+  "releaseBlockingOpen": 15,
+  "ownerDevicePhysical": {
+    "guidedTryAudioAdvance": "NOT_RUN",
+    "guidedTryAllSevenSteps": "NOT_RUN",
+    "conversationV1MultiLine": "NOT_RUN",
+    "conversationV2MultiNode": "NOT_RUN",
+    "conversationWithAudio": "NOT_RUN",
+    "conversationWrongBranch": "NOT_RUN",
+    "conversationRevealContinue": "NOT_RUN",
+    "lessonAfterConversation": "NOT_RUN",
+    "toneTrainerNoScroll": "NOT_RUN",
+    "toneTraceTouch": "NOT_RUN",
+    "journeyReturnAnchor": "NOT_RUN",
+    "cultureReturnAnchor": "NOT_RUN",
+    "toneReturnAnchor": "NOT_RUN",
+    "logoutNoLocalProfile": "NOT_RUN",
+    "coldStartTts": "NOT_RUN",
+    "firstAudioAfterColdStart": "NOT_RUN",
+    "logoutWithinTwoLevels": "NOT_RUN",
+    "contaFirstFoldSignOut": "NOT_RUN",
+    "moreOrderVoceFirst": "NOT_RUN",
+    "reviewRoundFocus": "NOT_RUN",
+    "pinyinFocus": "NOT_RUN",
+    "falaFocus": "NOT_RUN",
+    "immersionFocus": "NOT_RUN",
+    "toneTraceMemoryChoice": "NOT_RUN",
+    "cultureHandoffReturn": "NOT_RUN",
+    "speechFallbackCopy": "NOT_RUN",
+    "ownerVisualAcceptance": "NOT_RUN"
+  },
+  "physicalRuns": {
+    "autoPlayAudio": [
+      "true",
+      "false"
+    ],
+    "taps": "Ouvir · Ouvir · Continuar não duplica/congela/avança duas",
+    "lifecycle": "home → voltar durante áudio mantém a atividade; nova fala interrompe a antiga sem reverter nodeId"
+  },
+  "release": {
+    "PUBLIC_BETA": "NO_GO",
+    "CLOSED_BETA": "NO_GO",
+    "readinessState": "PRE_CANDIDATE",
+    "rule": "Nenhuma função conta como concluída só porque existe no código. CODE_READY ≠ WEB_PASS ≠ APK_PASS ≠ OWNER_ACCEPTED.",
+    "nextIfAllPhysicalPass": "RC2.2.27 — Closed Beta Entry"
+  },
+  "playOwnerActions": {
+    "signedAab": false,
+    "packageVerified": false,
+    "internalUpload": false,
+    "playInstall": false,
+    "ownerDogfood": false,
+    "nToNPlus1": false,
+    "stateIntact": false
+  },
+  "regression": {
+    "package": "longyu.noba.com",
+    "androidInAppPurchase": "DISABLED_FOR_BETA",
+    "productionPlay": "NOT_ENABLED",
+    "pr273": "FROZEN",
+    "fingerprint": "c48b008c9c1e"
+  },
+  "prOpenedAutomatically": false
+}

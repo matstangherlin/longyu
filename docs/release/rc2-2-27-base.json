@@ -1,0 +1,26 @@
+{
+  "wave": "RC2.2.27",
+  "title": "Android TTS Root Cause (forense, request lifecycle, isSpeaking, sessão única de fala) + Completion Moment",
+  "parentWave": "RC2.2.26",
+  "parentPr": "matstangherlin/longyu#299",
+  "strategy": "STACKED",
+  "stack": [
+    "RC2.2.19 / #292 (merged)",
+    "RC2.2.20 + RC2.2.21 / #294",
+    "RC2.2.22 / #295",
+    "RC2.2.23 / #296",
+    "RC2.2.24 / #297",
+    "RC2.2.25 / #298",
+    "RC2.2.26 / #299",
+    "RC2.2.27"
+  ],
+  "baseBranch": "codex/rc2-2-26-android-physical-closure",
+  "RC2_2_27_BASE_SHA": "eb84b6595249aff56f05dd4d71ad8c1142571075",
+  "baseCapturedFrom": "HEAD real do #299 no início da onda; o SHA do APK citado no corpo do #299 (e54ca366) NÃO é o HEAD e não foi usado",
+  "branch": "claude/rc2-2-27-android-tts-root-cause",
+  "prTargetWhileParentOpen": "codex/rc2-2-26-android-physical-closure",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "noNewEngines": true,
+  "note": "Correções posteriores da RC2.2.26 entram por merge da branch dela (nunca cherry-pick)."
+}
