@@ -249,10 +249,15 @@ export async function validateConversationTransition(s) {
     for (const event of ["conversation_continue_tap", "conversation_state_before", "conversation_target_resolved", "conversation_state_committed", "conversation_dom_next_visible", "conversation_audio_requested", "conversation_audio_started"]) if (!t.CONVERSATION_TRACE_EVENTS.includes(event)) fail("CONVERSATION_TRACE_INCOMPLETE", "CONVERSATION_TRACE_EVENTS", event);
   });
   const c = stripComments(s.src.conversation);
-  const goTo = body(c, "function goTo(targetId: string | undefined, _speakTarget?: ConversationNode)");
+  // RC2.2.29 — goTo pode ter opts.reuseTransitionId (failsafe idempotente).
+  const goToSigLegacy = "function goTo(targetId: string | undefined, _speakTarget?: ConversationNode)";
+  const goToSig29 = "function goTo(\n    targetId: string | undefined,\n    _speakTarget?: ConversationNode,\n    opts?: { reuseTransitionId?: string }\n  )";
+  const goTo = body(c, goToSigLegacy) || body(c, goToSig29);
   if (!goTo) fail("CONVERSATION_GOTO_SPEAKS", FILES.conversation, "goTo existe com o contrato novo");
-  if (/speak|playMandarinAudio|then\(|await/.test(goTo)) fail("CONVERSATION_GOTO_SPEAKS", "goTo", "goTo não chama TTS nem espera áudio");
-  if (!/setNodeId\(target\.id\);\s*setAnswering\(false\);\s*setSpokenCount/.test(goTo)) fail("TTS_FAILURE_BLOCKS_NODE", "goTo", "valida → setNodeId → setAnswering(false) → spokenCount");
+  if (/speak\(|playMandarinAudio|requestMandarinSpeech|\.then\(|await /.test(goTo)) fail("CONVERSATION_GOTO_SPEAKS", "goTo", "goTo não chama TTS nem espera áudio");
+  if (!/setNodeId\(target\.id\);\s*setAnswering\(false\);[\s\S]{0,160}setSpokenCount/.test(goTo)) {
+    fail("TTS_FAILURE_BLOCKS_NODE", "goTo", "valida → setNodeId → setAnswering(false) → spokenCount");
+  }
   if (/onend\s*[:=][^;]*setNodeId|onstart\s*[:=][^;]*setNodeId|\.then\([^)]*setNodeId|\.then\([^)]*setLineIndex/.test(c)) fail("AUDIO_DRIVES_NODE", FILES.conversation, "proibido: onend/onstart/promise de áudio → nó");
   if (!/setStall\(expected\)/.test(c) || !/data-testid="conversation-dom-stall"/.test(c)) fail("CONVERSATION_DOM_STALL_UNDETECTED", FILES.conversation, "nó esperado ausente → CONVERSATION_DOM_STALL com retry");
   if (!/data-conversation-current-node=\{node\.id\}/.test(c)) fail("CONVERSATION_DOM_STALL_UNDETECTED", FILES.conversation, "V2 marca o nó visível");

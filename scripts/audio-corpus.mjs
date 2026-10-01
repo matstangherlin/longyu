@@ -148,7 +148,7 @@ async function inventory() {
     generatedAt: new Date().toISOString(),
     uniqueUtterances,
     references: refs.length,
-    missingAudio: missingAudio.slice(0, 500),
+    missingAudio,
     missingAudioCount: missingAudio.length,
     dynamicOnly,
     duplicateText: duplicateText.slice(0, 100),

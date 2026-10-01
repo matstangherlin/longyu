@@ -50,14 +50,14 @@ const MUTATIONS = {
   ],
   "guided-try-advance": [
     ["Teste Guiado sem identidade da fala", "GUIDED_TRY_UNCORRELATED", src("guidedTry", "    const requestId = newTtsRequestId();\n", "    const requestId = \"fixed\";\n")],
-    ["STARTING eterno (botão morto)", "GUIDED_TRY_DEAD_BUTTON", src("guidedTry", 'setFailReason("TTS_SUPERSEDED");\n        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', "void 0;")],
+    ["STARTING eterno (botão morto)", "GUIDED_TRY_DEAD_BUTTON", src("guidedTry", 'setFailReason("TTS_SUPERSEDED");\n          setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', "void 0;")],
     ["falha sem [Configurar voz chinesa]", "GUIDED_TRY_DEAD_BUTTON", src("guidedTry", 'data-testid="guided-audio-retry"', 'data-testid="guided-audio-x"')],
     ["ouviu mas CTA bloqueado", "TTS_HEARD_CTA_BLOCKED", src("guidedTry", "audioResult === \"AUDIO_HEARD\" || heard", "audioResult === \"AUDIO_HEARD\" && heard && false")],
     ["último passo espera o áudio", "AUDIO_GATES_LAST_STEP", src("guidedTry", '    if (choice.correct && step === "conversation") void playMandarinAudio("你好");', '    if (choice.correct && step === "conversation") void playMandarinAudio("你好").then(() => go("done"));')],
   ],
   "conversation-transition": [
-    ["[6] goTo depende do áudio", "CONVERSATION_GOTO_SPEAKS", src("conversation", "    truth.begin(nodeId, target.id);\n    setNodeId(target.id);", "    truth.begin(nodeId, target.id);\n    speak(String(_speakTarget?.hanzi ?? \"\"));\n    setNodeId(target.id);")],
-    ["[7] falha do TTS impede setNodeId", "TTS_FAILURE_BLOCKS_NODE", src("conversation", "    setNodeId(target.id);\n    setAnswering(false);\n    setSpokenCount((count) => count + 1);\n  }", "    setAnswering(false);\n    setSpokenCount((count) => count + 1);\n  }")],
+    ["[6] goTo depende do áudio", "CONVERSATION_GOTO_SPEAKS", src("conversation", "    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });\n    setNodeId(target.id);", "    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });\n    speak(String(_speakTarget?.hanzi ?? \"\"));\n    setNodeId(target.id);")],
+    ["[7] falha do TTS impede setNodeId", "TTS_FAILURE_BLOCKS_NODE", src("conversation", "    setNodeId(target.id);\n    setAnswering(false);\n    if (!opts?.reuseTransitionId) setSpokenCount((count) => count + 1);", "    setAnswering(false);\n    if (!opts?.reuseTransitionId) setSpokenCount((count) => count + 1);")],
     ["[8] Continue registra toque mas DOM não muda (stall não detectado)", "CONVERSATION_DOM_STALL_UNDETECTED", src("conversation", "        setStall(expected);\n", "")],
     ["[9] V1 não avança", "CONVERSATION_V1_STUCK", src("conversation", "      setLineIndex((index) => index + 1);\n      return;", "      return;")],
     ["[10] V2 sem marca do nó visível", "CONVERSATION_DOM_STALL_UNDETECTED", src("conversation", "        <div data-conversation-current-node={node.id}>", "        <div>")],

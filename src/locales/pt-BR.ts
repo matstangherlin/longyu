@@ -2262,7 +2262,7 @@ export const ptBR = {
     exportReady: "Progresso exportado como arquivo JSON neste dispositivo.",
     privacyExportReady: "Pacote de dados (LGPD) exportado como JSON neste dispositivo.",
     eraseLocalConfirm:
-      "Apagar TODOS os dados locais deste dispositivo? Progresso, perfis e preferências salvos apenas aqui serão removidos. Faça um backup antes. Esta ação não pode ser desfeita.",
+      "Apagar TODOS os dados locais deste dispositivo? Progresso e preferências salvos apenas aqui serão removidos. Faça um backup antes. Esta ação não pode ser desfeita.",
     eraseLocalFailed: "Não foi possível apagar os dados neste navegador.",
     noLocalProfile: "Nenhum perfil local encontrado para exportar.",
     justNow: "agora",
@@ -2933,6 +2933,15 @@ export const ptBR = {
     },
     toneDirectionTip: {
       body: "Dica: compare primeiro a direção da voz, não apenas o som da sílaba.",
+    },
+    toneTraceFirstUse: {
+      title: "Os tons seguem um caminho",
+      body: "Acompanhe o caminho do tom. No celular, passe o dedo pela linha.",
+      primary: "Experimentar",
+    },
+    toneConfusion23: {
+      body: "O 2º sobe. O 3º primeiro desce e depois sobe. Quer revisar o movimento?",
+      primary: "Praticar",
     },
     practiceFirstUse: {
       body: "O Longyu escolhe uma prática baseada no que você já estudou.",

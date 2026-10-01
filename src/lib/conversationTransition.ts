@@ -1,5 +1,6 @@
 /**
  * RC2.2.24 — ANDROID_CONVERSATION_NODE_STALL.
+ * RC2.2.29 — trace APK completo do Continuar (pointer → DOM → áudio).
  *
  * A conversa é navegação pedagógica; o áudio só acompanha:
  *
@@ -11,12 +12,13 @@
  * áudio do nó novo sai de um efeito depois que o DOM do nó apareceu.
  *
  * "Avançou" só quando o DOM do nó esperado ficou visível. Sem isso em 800 ms:
- * CONVERSATION_DOM_STALL (no build de QA: [Tentar transição novamente]
- * [Copiar diagnóstico]).
+ * CONVERSATION_DOM_STALL (+ failsafe idempotente uma vez com o mesmo
+ * transitionId; no build de QA: TRANSITION STALL / [Tentar novamente]).
  *
  * Módulo puro (sem React/Capacitor) — o gate o executa a partir do texto.
  */
 export const CONVERSATION_TRACE_EVENTS = [
+  // RC2.2.24 (preservados — gates antigos ainda os exigem)
   "conversation_continue_tap",
   "conversation_state_before",
   "conversation_target_resolved",
@@ -25,6 +27,16 @@ export const CONVERSATION_TRACE_EVENTS = [
   "conversation_audio_requested",
   "conversation_audio_started",
   "conversation_dom_stall",
+  // RC2.2.29 — contrato APK (pointer → áudio)
+  "conversation_pointer_down",
+  "conversation_click",
+  "conversation_handler_enter",
+  "conversation_lock_acquired",
+  "conversation_lock_rejected",
+  "conversation_target",
+  "conversation_state_commit",
+  "conversation_dom_visible",
+  "conversation_audio_request",
 ] as const;
 export type ConversationTraceEvent = (typeof CONVERSATION_TRACE_EVENTS)[number];
 
@@ -38,9 +50,10 @@ export interface ConversationTraceEntry {
   /** Nó (V2) ou índice de fala (V1) — nunca texto. */
   nodeId: string | null;
   expectedNodeId?: string | null;
+  transitionId?: string | null;
 }
 
-const LIMIT = 80;
+const LIMIT = 120;
 const trace: ConversationTraceEntry[] = [];
 
 export function recordConversationTrace(entry: Omit<ConversationTraceEntry, "at"> & { at?: number }): void {
@@ -73,5 +86,5 @@ export function conversationTransitionLanded(expectedNodeId: string | null, visi
 
 /** Diagnóstico copiável (sem texto da fala, sem PII). */
 export function conversationDiagnostic(input: { sceneId: string; currentNodeId: string | null; expectedNodeId: string | null; visibleNodeId: string | null; ttsRequestId?: string | null; ttsPhase?: string | null }): string {
-  return JSON.stringify({ ...input, trace: conversationTrace().filter((entry) => entry.sceneId === input.sceneId).slice(-20) }, null, 2);
+  return JSON.stringify({ ...input, trace: conversationTrace().filter((entry) => entry.sceneId === input.sceneId).slice(-30) }, null, 2);
 }

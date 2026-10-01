@@ -109,7 +109,7 @@ export function DadosLocaisPage() {
       <CompactCard className="border-wrong/25">
         <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-wrong">{chrome("Apagar dados locais")}</div>
         <p className="text-[13px] leading-5 text-ink-soft">
-          {chrome("Remove progresso, perfis e preferências guardados apenas neste aparelho. Faça um backup antes — não dá para desfazer.")}
+          {chrome("Remove progresso e preferências guardados apenas neste aparelho. Faça um backup antes — não dá para desfazer.")}
         </p>
         <ActionButton
           onClick={eraseLocalData}

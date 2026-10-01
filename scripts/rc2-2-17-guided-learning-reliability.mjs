@@ -52,7 +52,7 @@ const MUTATIONS = {
     ["9. completionKey bloqueia o próximo", "COMPLETION_KEY_BLOCKS", src("player", "      completedStepKeyRef.current = null;\n      traceLessonStep(", "      traceLessonStep(")],
     ["10. toque duplo pula dois", "DOUBLE_ADVANCE", src("player", '      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "duplicate_completion" });\n      return;\n    }', '      traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "duplicate_completion" });\n    }')],
     ["11. mesma fala trava (laço 5→6→5)", "SAME_TEXT_LOOP", src("scene", "if (wrongHere >= 2) {", "if (wrongHere >= 99) {")],
-    ["12. background/resume trava a cena", "RESUME_BLOCKS_SCENE", src("scene", "  function advance() {\n    noteUserGesture();", '  function advance() {\n    if (document.visibilityState !== "visible") return;\n    noteUserGesture();')],
+    ["12. background/resume trava a cena", "RESUME_BLOCKS_SCENE", src("scene", '  function advance() {\n    const sceneId = step.sceneId ?? "scene";\n    noteUserGesture();', '  function advance() {\n    if (document.visibilityState !== "visible") return;\n    const sceneId = step.sceneId ?? "scene";\n    noteUserGesture();')],
     ["13. tentar de novo deixa a cena incompletável", "RETRY_UNCOMPLETABLE", src("scene", "onClick={retry}", "onClick={() => undefined}")],
     ["14. toque físico não chega ao handler", "TAP_NOT_REACHING_HANDLER", src("token", 'const effectiveActivation: MandarinTokenActivation = activation === "default" && nestedInButton ? "hover-hold" : activation;', "const effectiveActivation: MandarinTokenActivation = activation;")],
   ],

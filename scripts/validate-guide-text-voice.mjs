@@ -27,11 +27,14 @@ const blipSection = soundFx.slice(soundFx.indexOf("Guide text voice"));
 // RC2.2.28: first-party Longyu core pack lives under public/audio/core (and the
 // source pack under assets/audio/core). Those are allowed. Everything else —
 // third-party samples under src/ or elsewhere in public/ — still fails.
+// RC2.2.29 — permitir assets canônicos Longyu (core + extended) com manifesto.
 const FIRST_PARTY_AUDIO_DIRS = new Set([
   path.normalize("public/audio/core"),
+  path.normalize("public/audio/extended"),
   path.normalize("assets/audio/core"),
+  path.normalize("assets/audio/extended"),
 ]);
-check("nenhum asset de áudio de terceiros no repo de src", () => {
+check("nenhum asset de áudio de terceiros / sem manifesto", () => {
   const offenders = [];
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -48,7 +51,23 @@ check("nenhum asset de áudio de terceiros no repo de src", () => {
   for (const root of ["src", "public"]) {
     if (fs.existsSync(root)) walk(root);
   }
-  assert.deepEqual(offenders, [], `arquivos de áudio encontrados: ${offenders.join(", ")}`);
+  assert.deepEqual(offenders, [], `áudio externo/não aprovado: ${offenders.join(", ")}`);
+});
+
+check("assets Longyu registrados no manifesto com checksum", () => {
+  const manifest = fs.readFileSync("src/data/audioManifest.generated.ts", "utf8");
+  assert.ok(/CANONICAL_AUDIO_ENTRIES/.test(manifest), "manifesto ausente");
+  assert.ok(!/CANONICAL_AUDIO_ENTRIES:\s*readonly[^=]*=\s*\[\s*\]/.test(manifest), "manifesto vazio");
+  const packPath = fs.existsSync("docs/reports/rc2-2-29-audio-pack.json")
+    ? "docs/reports/rc2-2-29-audio-pack.json"
+    : "docs/reports/rc2-2-28-core-pack.json";
+  const pack = JSON.parse(fs.readFileSync(packPath, "utf8"));
+  assert.ok(pack.entries?.length > 0, "pack sem entradas");
+  for (const e of pack.entries.slice(0, 20)) {
+    assert.ok(e.checksum && String(e.checksum).length >= 32, `checksum ausente: ${e.audioId}`);
+    assert.ok(e.audioId && e.file && e.uri, `provenance incompleta: ${e.audioId}`);
+    assert.ok(!/^https?:\/\/(?!.*longyu)/i.test(e.uri), `hotlink terceiros: ${e.uri}`);
+  }
 });
 
 check("nenhuma referência a Undertale ou sample externo", () => {

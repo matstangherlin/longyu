@@ -1,0 +1,153 @@
+{
+  "wave": "RC2.2.29",
+  "schema": "longyu-physical-matrix/1",
+  "note": "PASS físico só com evidência humana no APK. Código nunca gera PHYSICAL PASS.",
+  "requiredChecks": [
+    {
+      "id": "conversationPointerDown",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "conversationClick",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "conversationHandlerEnter",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "conversationStateCommit",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "conversationDomNextVisible",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "conversation20Transitions",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "guidedTry10ColdStarts",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "guidedTryTtsDisabled",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "noDebugLearnerUi",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "allFixedAudioAssets",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "toneTraceTouch",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "toneGuidanceVisible",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "profileGuidanceVisible",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "cultureHandoff",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "journeyReturnExact",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "logoutUnder5Seconds",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "noLocalIdentity",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "zeroChargesUsable",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "selfCompareOwnerHear",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "completionAnimation",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "completionSound",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "completionHaptic",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "signupCleanInstall",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "otpRecovery",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "noScroll390",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "noScroll375",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "noScroll360",
+      "result": "NOT_RUN",
+      "evidence": null
+    },
+    {
+      "id": "conversationContinueClickTruth",
+      "result": "NOT_RUN",
+      "evidence": null
+    }
+  ],
+  "p0": 0,
+  "releaseP1Open": [
+    "ANDROID_CONVERSATION_CONTINUE_STALL",
+    "SIGNUP_APK",
+    "OTP_RECOVERY"
+  ]
+}

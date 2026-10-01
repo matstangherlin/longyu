@@ -143,6 +143,88 @@ export function nextTransitionId(sceneId: string, spokenCount: number): string {
 }
 
 /**
+ * RC2.2.29 — lock de transição: bloqueia tap duplicado durante o commit.
+ * Durante `TRANSITION_LOCK_MS`, o mesmo transitionId / um segundo Continuar
+ * não avança dois nós nem congela — o segundo tap é ignorado.
+ *
+ * Preferência: liberar quando DOM_NEXT_NODE_VISIBLE (forceRelease), não só
+ * por timeout — o timeout só protege duplicata; a próxima interação
+ * legítima após o render não pode ficar bloqueada.
+ */
+export const TRANSITION_LOCK_MS = 280;
+
+export interface TransitionLockState {
+  locked: boolean;
+  transitionId: string | null;
+  lockedAt: number;
+}
+
+export function createTransitionLock(): TransitionLockState {
+  return { locked: false, transitionId: null, lockedAt: 0 };
+}
+
+/** Tenta adquirir o lock. false = tap duplicado (ignorar). */
+export function tryAcquireTransitionLock(
+  lock: TransitionLockState,
+  transitionId: string,
+  now = Date.now()
+): { ok: true; lock: TransitionLockState } | { ok: false; lock: TransitionLockState } {
+  if (lock.locked && now - lock.lockedAt < TRANSITION_LOCK_MS) {
+    return { ok: false, lock };
+  }
+  return { ok: true, lock: { locked: true, transitionId, lockedAt: now } };
+}
+
+/** Liberação temporal: só solta depois de TRANSITION_LOCK_MS. */
+export function releaseTransitionLock(lock: TransitionLockState, now = Date.now()): TransitionLockState {
+  if (!lock.locked) return lock;
+  if (now - lock.lockedAt < TRANSITION_LOCK_MS) {
+    return lock;
+  }
+  return { locked: false, transitionId: null, lockedAt: 0 };
+}
+
+/** Liberação imediata (DOM visível / failsafe). Não espera o timeout. */
+export function forceReleaseTransitionLock(_lock: TransitionLockState): TransitionLockState {
+  return { locked: false, transitionId: null, lockedAt: 0 };
+}
+
+/** Fixture QA: 20 transições (stress). */
+export const QA_CONVERSATION_20_NODE_IDS = Array.from({ length: 20 }, (_, i) => `qa-node-${String(i + 1).padStart(2, "0")}`);
+
+export function runQaConversationNodes(count: number, playerOff = true): {
+  nodeIds: string[];
+  transitionIds: string[];
+  final: ConversationRuntimeState;
+} {
+  const ids = Array.from({ length: count }, (_, i) => `qa-node-${String(i + 1).padStart(2, "0")}`);
+  let state = createConversationRuntimeState({
+    sceneId: `qa-${count}-nodes`,
+    entryNodeId: ids[0],
+    transitionId: `t-qa-${count}-nodes-0`,
+  });
+  const nodeIds = [state.nodeId];
+  const transitionIds = [state.transitionId];
+  let lock = createTransitionLock();
+  for (let i = 1; i < ids.length; i += 1) {
+    const transitionId = nextTransitionId(state.sceneId, state.spokenCount);
+    const acquired = tryAcquireTransitionLock(lock, transitionId, Date.now() + i * (TRANSITION_LOCK_MS + 1));
+    if (!acquired.ok) continue;
+    lock = acquired.lock;
+    state = conversationReducer(state, {
+      type: "CONTINUE",
+      targetNodeId: ids[i],
+      transitionId,
+    });
+    nodeIds.push(state.nodeId);
+    transitionIds.push(state.transitionId);
+    lock = releaseTransitionLock(lock, Date.now() + i * (TRANSITION_LOCK_MS + 1) + TRANSITION_LOCK_MS);
+    void playerOff;
+  }
+  return { nodeIds, transitionIds, final: state };
+}
+
+/**
  * Fixture QA: cena sintética de 10 nós (PLAYER OFF / ON).
  * Usada pelos gates e pelo teste Android contra o APK.
  */

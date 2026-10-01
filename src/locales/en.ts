@@ -2929,6 +2929,15 @@ export const en: MessageCatalog = {
     toneDirectionTip: {
       body: "Tip: compare the direction of the voice first, not only the sound of the syllable.",
     },
+    toneTraceFirstUse: {
+      title: "Tones follow a path",
+      body: "Follow the tone’s path. On a phone, slide your finger along the line.",
+      primary: "Try it",
+    },
+    toneConfusion23: {
+      body: "The 2nd rises. The 3rd dips then rises. Want to review the movement?",
+      primary: "Practice",
+    },
     practiceFirstUse: {
       body: "Longyu picks a practice based on what you have already studied.",
     },
