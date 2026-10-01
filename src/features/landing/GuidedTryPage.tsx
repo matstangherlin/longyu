@@ -390,14 +390,16 @@ function GuidedTryFlow() {
                     ? t("guidedTry.audioHeard")
                     : ""}
             </p>
+            {/* RC2.2.27 — owner: a aba fica limpa. Os ACKs ficam só nos atributos
+                (E2E/gates) e no "Copiar diagnóstico" da caixa de falha. */}
             {deviceQaEnabled() && usesNativeVoice() && (
-              <div className="mt-1 font-mono text-[10px] leading-4 text-ink-faint" data-testid="guided-tts-qa"
+              <div hidden data-testid="guided-tts-qa"
                 data-direct-ack={ttsPlayback.ackSources?.includes("direct") ? "yes" : "no"}
                 data-event-ack={ttsPlayback.ackSources?.includes("event") ? "yes" : "no"}
                 data-query-ack={ttsPlayback.ackSources?.includes("query") ? "yes" : "no"}
-                data-cta-enabled={audioResult === "AUDIO_HEARD" || heard ? "yes" : "no"}>
-                TTS: NATIVE · plugin: {nativeTtsPluginAvailable() ? "YES" : "NO"} · START: {ttsPlayback.ackSources?.includes("direct") ? "YES" : "NO"} · EVENT: {ttsPlayback.ackSources?.includes("event") ? "YES" : "NO"} · QUERY: {ttsPlayback.ackSources?.includes("query") ? "YES" : "NO"} · CTA: {audioResult === "AUDIO_HEARD" || heard ? "ENABLED" : "DISABLED"}
-              </div>
+                data-plugin={nativeTtsPluginAvailable() ? "yes" : "no"}
+                data-cta-enabled={audioResult === "AUDIO_HEARD" || heard ? "yes" : "no"}
+              />
             )}
             {audioFailed && (
               <div className="mt-2 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
@@ -407,7 +409,7 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE" || failReason === "TTS_SUPERSEDED") && (
+                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE" || failReason === "TTS_SUPERSEDED" || failReason === "NO_START_TIMEOUT") && (
                     <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
                       {t("guidedTry.audioConfirmedByUser")}
                     </Button>

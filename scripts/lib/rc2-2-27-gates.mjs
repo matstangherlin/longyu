@@ -165,6 +165,16 @@ const ADAPTER_MOCKS = {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** Dependências de tts.ts/audioPlayback.ts que não importam para o caminho de fala. */
+const WEBVIEW_MOCKS = {
+  "./store": "export const useStore = { getState: () => ({ ttsRate: 0.85, slowAudio: false, autoPlayAudio: true, accounts: {}, currentAccountId: null }) };",
+  "./soundFx": "export const unlockAudio = () => {};",
+  "./personalize": "export const speakableProperNames = () => [];",
+  "./lessonStepTrace": "export const traceCurrentLessonStep = () => {};",
+  "./deviceQa": "export const deviceQaEnabled = () => false; export const recordDeviceQaObservation = () => {};",
+  "./techEvents": "export const recordTechEvent = () => {};",
+};
+
 /**
  * Motor simulado pelo CONTRATO do plugin RC2.2.27 (não pelo Java): eventos com
  * requestId, startSpeak resolve no início, nova fala substitui a anterior.
@@ -415,6 +425,48 @@ export async function validateGuidedTry(s) {
   for (const testId of ["guided-audio-retry", "guided-audio-confirm-heard", "listen-continue-degraded"]) if (!s.src.guidedTry.includes(testId)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, testId);
   if (!/failReason === "TTS_UI_DEADLINE"/.test(s.src.guidedTry)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "\"Eu ouvi\" aparece depois do prazo");
   if (!/source: "GUIDED_TRY"/.test(s.src.guidedTry)) fail("GUIDED_TRY_IGNORES_ENGINE", FILES.guidedTry, "sessão única de fala");
+  // APK do owner (dbe7439b): o WebView não tem `window.speechSynthesis`, mas
+  // isTTSAvailable() responde pelo motor nativo → noteUserGesture estourava
+  // TypeError antes do startSpeak (nativo IDLE, prazo de UI) e antes do
+  // Continuar da conversa avançar. Roda o tts.ts/audioPlayback.ts REAIS.
+  await guarded(fail, FILES.playback, async () => {
+    const playback = await bundle("playback", s, { ...ADAPTER_MOCKS, ...WEBVIEW_MOCKS });
+    const tts = await bundle("tts", s, { ...ADAPTER_MOCKS, ...WEBVIEW_MOCKS });
+    const started = [];
+    const previousWindow = globalThis.window;
+    const previousEngine = globalThis.__longyu27Engine;
+    globalThis.window = { setTimeout, clearTimeout, setInterval, clearInterval };
+    globalThis.__longyu27Engine = {
+      addListener: async () => ({ remove: async () => {} }),
+      startSpeak: async (options) => {
+        started.push(options.requestId);
+        return { requestId: options.requestId, utteranceId: "u-webview", started: true };
+      },
+      getTtsPlaybackState: async (options) => ({ requestId: options.requestId, state: "IDLE" }),
+      cancelSpeak: async (options) => ({ requestId: options.requestId, cancelled: false }),
+    };
+    try {
+      try {
+        tts.noteUserGesture();
+      } catch (error) {
+        fail("WEBVIEW_GESTURE_THROWS", FILES.tts, `noteUserGesture sem speechSynthesis aborta o Continuar: ${String(error?.message ?? error).slice(0, 80)}`);
+      }
+      const states = [];
+      const outcome = await Promise.race([
+        playback.playMandarinAudio("你好", { requestId: "webview-1", source: "GUIDED_TRY", onState: (state) => states.push(state) }).then(
+          (value) => value,
+          (error) => ({ rejected: String(error?.message ?? error).slice(0, 80) })
+        ),
+        wait(1500).then(() => null),
+      ]);
+      if (outcome?.rejected) fail("WEBVIEW_GESTURE_THROWS", FILES.playback, `toque em Ouça rejeita antes do plugin: ${outcome.rejected}`);
+      if (!started.includes("webview-1")) fail("WEBVIEW_GESTURE_THROWS", FILES.playback, "sem speechSynthesis no WebView o pedido nunca chega ao startSpeak (nativo IDLE)");
+      if (!states.includes("STARTING") || !states.includes("PLAYING")) fail("WEBVIEW_GESTURE_THROWS", FILES.playback, `estados ${states.join(">") || "nenhum"}; esperado STARTING>PLAYING`);
+    } finally {
+      globalThis.window = previousWindow;
+      globalThis.__longyu27Engine = previousEngine;
+    }
+  });
   return failures;
 }
 

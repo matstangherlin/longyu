@@ -29,6 +29,38 @@ Test-identity warning: the RC2.2.26 PR body pointed to the APK `e54ca366` while 
   - The `android-build` debug APK is built with `VITE_DEVICE_QA=true`, as the diagnostic APK of the RC2.2.20 contract (never in the release).
 - **The TTS root cause (C1–C7) remains NOT PROVEN.** The next owner run, on the diagnostic APK, has to come with the panel diagnostic.
 
+## 1c. Owner diagnostic on APK `dbe7439b` → JS cause CONFIRMED (fixed in #300)
+
+Owner's Guided Try diagnostic (no text, no PII):
+`nativeState: IDLE`, `preflight: null`, `utteranceId: null`, all ACKs `false`, `engineSpeakingNow: false`, `audioOutcome: TTS_UI_DEADLINE`.
+
+**What it proves.**
+- `engineSpeakingNow` (not `null`) only exists in the RC2.2.27 plugin, so the APK runs #300's native code.
+- That plugin records every request (`ttsRequests.put`) **before** the language check. A state of `IDLE` therefore means `startSpeak` **never reached the plugin** for that requestId.
+- The reason stayed `TTS_UI_DEADLINE`, not `NO_START_TIMEOUT` (6 s), so `playMandarinAudio` died **before arming its own timer**.
+
+**Cause (CONFIRMED_ROOT_CAUSE, reproduced):**
+- The Android WebView has no `window.speechSynthesis`.
+- `noteUserGesture()` → `resumeSpeechSynthesis()` asked `isTTSAvailable()`. On Android that function answers for the **native** engine (true), so the code then read `window.speechSynthesis.paused` and threw `TypeError: Cannot read properties of undefined (reading 'paused')`.
+
+**Effects (both owner symptoms):**
+- **Ouvir (Guided Try, lesson, any manual tap):** `playMandarinAudio` rejects before `STARTING` and before `startSpeak`. Nothing plays, and the screen waits for the deadline.
+- **Conversation Continuar:** `advance()` / `advanceDialogue()` call `noteUserGesture()` on their first line, so the tap aborts before advancing.
+- **Autoplay** (no gesture) does not go through that call, which is why "only the first line plays".
+
+**Why it varies across builds:** the throw only happens while `nativeTtsKnownAvailable !== false`. When the voice is reported unavailable, `isTTSAvailable()` is false and the code returns before touching the object.
+
+**Repro (Chromium, Android mocks):**
+- Without `speechSynthesis`: `REJECT TypeError (reading 'paused')`, 0 calls to `startSpeak`.
+- With the fix: `STARTING → PLAYING` and `startSpeak:<requestId>`.
+
+**Fix:**
+- `webSpeechSynthesis()` returns the real object or null. The resume, the Chrome watchdog, `pickChineseVoice` and the web `stopSpeaking` use it.
+- `noteUserGesture` is best-effort and never aborts the caller.
+- Gate `guided-try` runs the real `tts.ts` / `audioPlayback.ts` in a WebView without `speechSynthesis` and requires `startSpeak`. The mutation that reintroduces the bug is KILLED (`WEBVIEW_GESTURE_THROWS`).
+
+**Still open:** C1–C7 stay **NOT PROVEN on a device**, because the plugin never received the requests until now. The next owner run, on the APK from this fix, decides them.
+
 ## 2. Base path (eb84b659), read line by line (OBSERVED in the code)
 
 ### Manual playback (Guided Try, Ouça)

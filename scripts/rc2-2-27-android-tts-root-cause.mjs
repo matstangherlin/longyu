@@ -85,6 +85,10 @@ const MUTATIONS = {
     ["prazo de UI infinito", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", "export const GUIDED_LISTEN_DEADLINE_MS = 5500;", "export const GUIDED_LISTEN_DEADLINE_MS = 600000;")],
     ["prazo só arma em STARTING (APK do owner)", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", "    setListenTap((count) => count + 1);\n", "")],
     ["substituída volta a IDLE cinza", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", '        setFailReason("TTS_SUPERSEDED");\n        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', '        setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));')],
+    ["WebView sem speechSynthesis: gesto estoura antes do startSpeak (APK dbe7439b)", "WEBVIEW_GESTURE_THROWS", (st) => {
+      src("tts", "  const synth = webSpeechSynthesis();\n  if (synth?.paused) synth.resume();", "  if (!isTTSAvailable()) return;\n  const synth = window.speechSynthesis;\n  if (synth.paused) synth.resume();")(st);
+      src("tts", "  try {\n    resumeSpeechSynthesis();\n    // Mesmo gesto desbloqueia SFX (AudioContext) — sem isso o 1º efeito some no iOS.\n    unlockAudio();\n  } catch {\n    // desbloqueio de áudio é opcional; o toque segue\n  }", "  resumeSpeechSynthesis();\n  unlockAudio();")(st);
+    }],
   ],
   "lesson-audio-gates": [
     ["Ouça sem saída sem áudio", "AUDIO_GATE_NO_EXIT", src("steps", 'tr("player.cannotListenNow")', 'tr("player.listen")')],

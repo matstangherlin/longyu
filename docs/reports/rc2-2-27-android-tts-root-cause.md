@@ -12,6 +12,11 @@ The cause analysis is in `docs/reports/rc2-2-27-android-tts-forensics.md`. The a
   - Guided Try 2/7 plays the audio, but Continuar stays grey.
   - Conversation: line 1 has audio, the next lines are silent.
   - Mobile web passes the same flow, so ANDROID_RUNTIME_BUG = CONFIRMED.
+- **Owner, APK `dbe7439b` (#300):**
+  - Ouvir doesn't play, and the conversation's Continuar doesn't advance.
+  - Diagnostic: native `IDLE` + `TTS_UI_DEADLINE`.
+  - **Cause CONFIRMED and reproduced:** `noteUserGesture()` read `window.speechSynthesis.paused` in the Android WebView, where it doesn't exist, guarded by `isTTSAvailable()`, which answers for the native engine. The `TypeError` killed the speech request before `startSpeak` and Continuar before advancing.
+  - **Fixed in #300** (forensics §1c).
 - **Base code (eb84b659), read line by line:**
   - `startSpeak` called `tts.stop()` unconditionally.
   - There was a single `startCall` slot.

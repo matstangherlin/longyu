@@ -32,9 +32,9 @@ function clearChromeResumeWatchdog(): void {
 
 function startChromeResumeWatchdog(): void {
   clearChromeResumeWatchdog();
-  if (!isTTSAvailable()) return;
+  const synth = webSpeechSynthesis();
+  if (!synth) return;
   chromeResumeTimer = window.setInterval(() => {
-    const synth = window.speechSynthesis;
     if (!synth.speaking && !synth.pending) {
       clearChromeResumeWatchdog();
       return;
@@ -49,8 +49,9 @@ function startChromeResumeWatchdog(): void {
 }
 
 function pickChineseVoice(): SpeechSynthesisVoice | null {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
-  const voices = window.speechSynthesis.getVoices();
+  const synth = webSpeechSynthesis();
+  if (!synth) return null;
+  const voices = synth.getVoices();
   if (!voices.length) return null;
   // Preferência: zh-CN > zh > qualquer "Chinese" no nome.
   const byLang = (re: RegExp) => voices.find((v) => re.test(v.lang));
@@ -63,18 +64,38 @@ function pickChineseVoice(): SpeechSynthesisVoice | null {
   return cachedVoice;
 }
 
-function resumeSpeechSynthesis(): void {
-  if (!isTTSAvailable()) return;
-  const synth = window.speechSynthesis;
-  if (synth.paused) synth.resume();
+/**
+ * O objeto `speechSynthesis` DE VERDADE, ou null. RC2.2.27 — no APK,
+ * `isTTSAvailable()` responde pelo motor NATIVO (true), mas o WebView do
+ * Android não tem `window.speechSynthesis`: perguntar a `isTTSAvailable()`
+ * antes de tocar no objeto web estourava `TypeError (reading 'paused')`.
+ */
+function webSpeechSynthesis(): SpeechSynthesis | null {
+  if (typeof window === "undefined") return null;
+  const synth = window.speechSynthesis as SpeechSynthesis | undefined | null;
+  return synth && typeof synth.speak === "function" ? synth : null;
 }
 
-/** Marca interação recente do usuário — necessário para autoplay em Safari/iOS. */
+function resumeSpeechSynthesis(): void {
+  const synth = webSpeechSynthesis();
+  if (synth?.paused) synth.resume();
+}
+
+/**
+ * Marca interação recente do usuário — necessário para autoplay em Safari/iOS.
+ * Melhor esforço: roda no início do toque em Ouvir/Continuar e NUNCA pode
+ * abortar quem chamou (RC2.2.27: o TypeError acima matava o pedido de fala
+ * antes de chegar ao plugin e o Continuar da conversa antes de avançar).
+ */
 export function noteUserGesture(): void {
   lastUserGestureAt = Date.now();
-  resumeSpeechSynthesis();
-  // Mesmo gesto desbloqueia SFX (AudioContext) — sem isso o 1º efeito some no iOS.
-  unlockAudio();
+  try {
+    resumeSpeechSynthesis();
+    // Mesmo gesto desbloqueia SFX (AudioContext) — sem isso o 1º efeito some no iOS.
+    unlockAudio();
+  } catch {
+    // desbloqueio de áudio é opcional; o toque segue
+  }
 }
 
 /** true se houve gesto recente o bastante para autoplay (Safari/iOS). */
@@ -474,7 +495,7 @@ export function stopSpeaking(): void {
   }
   clearPendingSpeak();
   clearChromeResumeWatchdog();
-  if (isTTSAvailable()) window.speechSynthesis.cancel();
+  webSpeechSynthesis()?.cancel();
 }
 
 /**
