@@ -181,6 +181,12 @@
       "surface": "Cargas zeradas: superfície calma com estudo gratuito (RC2.2.23)",
       "class": "ESSENTIAL",
       "automatic": false
+    },
+    {
+      "file": "src/components/layout/FocusActivityFrame.tsx",
+      "surface": "hub → activity focus shell (Pinyin Lab / Fala; user tap Start)",
+      "class": "ESSENTIAL",
+      "automatic": false
     }
   ],
   "firstSessionAutomatic": {
