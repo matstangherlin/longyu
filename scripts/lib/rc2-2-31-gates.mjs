@@ -84,7 +84,10 @@ export async function validateRequestAwareCancel(s) {
 export async function validateStaleCallbackRejection(s) {
   const { failures, fail } = collector();
   const java = s.src.mediaPlugin;
-  if (!/setMediaId\(requestId\)/.test(java)) fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "MediaItem.mediaId = requestId");
+  // RC2.2.31D — MediaItem.mediaId binds to session.requestId (same identity as requestId).
+  if (!/setMediaId\(requestId\)/.test(java) && !/setMediaId\(session\.requestId\)/.test(java)) {
+    fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "MediaItem.mediaId = requestId");
+  }
   // RC2.2.31B — session-scoped capturedRequestId preferred over getCurrentMediaItem().
   if (!/getCurrentMediaItem\(\)/.test(java) && !/capturedRequestId/.test(java)) {
     fail("CALLBACK_A_GETS_B", FILES.mediaPlugin, "callbacks must use mediaId or session-scoped capture");

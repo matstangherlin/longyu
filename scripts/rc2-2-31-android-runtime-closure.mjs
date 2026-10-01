@@ -30,7 +30,8 @@ const MUTATIONS = {
     ["[9] old cleanup kills new media", "OLD_CLEANUP_KILLS_NEW", src("audioPlayback", "void cancelCanonicalAudio(requestId);", "/* cancel skipped — stale cleanup */")],
   ],
   "stale-callback-rejection": [
-    ["[7] callback A gets B requestId", "CALLBACK_A_GETS_B", src("mediaPlugin", ".setMediaId(requestId)", '.setMediaId("shared")')],
+    // RC2.2.31D — MediaItem uses session.requestId (equivalent identity).
+    ["[7] callback A gets B requestId", "CALLBACK_A_GETS_B", src("mediaPlugin", ".setMediaId(session.requestId)", '.setMediaId("shared")')],
     ["[8] started state global", "STARTED_STATE_GLOBAL", src("mediaPlugin", "private long generationCounter = 0;", "private boolean startedForCurrent = false;\n    private long generationCounter = 0;")],
   ],
   "asset-path-preflight": [

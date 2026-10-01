@@ -92,11 +92,11 @@ const MUTATIONS = {
   ],
   "conversation-audio-after-render": [
     ["[8] audio promise controla nodeId", "AUDIO_IN_GOTO", (s) => {
-      // RC2.2.29 — goTo takes opts.reuseTransitionId (multi-line signature).
-      s.src.conversation = s.src.conversation.replace(
-        "    const sceneId = step.sceneId ?? \"scene\";\n    const transitionId = opts?.reuseTransitionId ?? nextTransitionId(sceneId, spokenCount);",
-        '    void playMandarinAudio("x");\n    const sceneId = step.sceneId ?? \"scene\";\n    const transitionId = opts?.reuseTransitionId ?? nextTransitionId(sceneId, spokenCount);'
-      );
+      // RC2.2.31D — goTo captures fromNodeId before transitionId (state-first).
+      const from = "    const sceneId = step.sceneId ?? \"scene\";\n    const fromNodeId = nodeId;";
+      const to = '    void playMandarinAudio("x");\n    const sceneId = step.sceneId ?? \"scene\";\n    const fromNodeId = nodeId;';
+      if (!s.src.conversation.includes(from)) throw new Error(`mutação vazia: ${from}`);
+      s.src.conversation = s.src.conversation.split(from).join(to);
     }],
     ["[12] player ERROR cancela transition", "AUDIO_IN_GOTO", (s) => {
       // RC2.2.31D — truth.begin uses fromNodeId inside safeSideEffect.
