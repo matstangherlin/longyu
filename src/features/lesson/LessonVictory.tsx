@@ -346,7 +346,8 @@ export function LessonVictory({
             data-completion-first-show={firstShow ? "yes" : "no"}
             onClick={advance}
           >
-            {reached("XP") && (
+            {/* Replay: "+0 XP" continua visível (honesto: repetir não rende XP), sem etapa nem animação. */}
+            {(reached("XP") || xp === 0) && (
             <span data-testid={context === "culture" ? "culture-xp" : "lesson-victory-xp"} data-victory-xp>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft bg-accent-soft/60 px-3 py-1.5 text-sm font-semibold text-accent shadow-card">
                 <span className="font-serif tabular-nums">+{shownXp || xp}</span>
