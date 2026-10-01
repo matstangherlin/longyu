@@ -187,8 +187,11 @@ function GuidedTryFlow() {
       setAudioResult("AUDIO_HEARD");
     }
     else if (state === "ENDED") setListen("HEARD");
-    else if (state === "FAILED") setListen((prev) => (prev === "HEARD" ? prev : "DEGRADED"));
-    else if (state === "UNAVAILABLE") setListen((prev) => (prev === "HEARD" ? prev : "DEGRADED"));
+    // RC2.2.17 · A2 — FAILED/UNAVAILABLE nunca viram HEARD (nem masquerade).
+    // RC2.2.28 — audioGateFromPlayback mapeia failed/unavailable → DEGRADED
+    // para liberar o CTA; o estado de UI permanece honesto.
+    else if (state === "FAILED") setListen((prev) => (prev === "HEARD" ? prev : "FAILED"));
+    else if (state === "UNAVAILABLE") setListen((prev) => (prev === "HEARD" ? prev : "UNAVAILABLE"));
   }
 
   /**
