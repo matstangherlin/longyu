@@ -59,7 +59,8 @@ const MUTATIONS = {
     ["[6] goTo depende do áudio", "CONVERSATION_GOTO_SPEAKS", src("conversation", "    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });", "    speak(String(_speakTarget?.hanzi ?? \"\"));\n    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });")],
     ["[7] falha do TTS impede setNodeId", "TTS_FAILURE_BLOCKS_NODE", src("conversation", "    setRuntime((prev) =>\n      conversationReducer(prev, { type: \"CONTINUE\", targetNodeId: target.id, transitionId })\n    );", "    /* CONTINUE omitted — TTS would gate the node */")],
     ["[8] Continue registra toque mas DOM não muda (stall não detectado)", "CONVERSATION_DOM_STALL_UNDETECTED", src("conversation", "        setStall(expected);\n", "")],
-    ["[9] V1 não avança", "CONVERSATION_V1_STUCK", src("conversation", "      setLineIndex((index) => index + 1);\n      return;", "      return;")],
+    // RC2.2.31C — advanceDialogue() keeps safeSideEffect after setLineIndex; remove the index bump only.
+    ["[9] V1 não avança", "CONVERSATION_V1_STUCK", src("conversation", "      setLineIndex((index) => index + 1);\n      safeSideEffect(\"conversation_trace\", () => {", "      safeSideEffect(\"conversation_trace\", () => {")],
     ["[10] V2 sem marca do nó visível", "CONVERSATION_DOM_STALL_UNDETECTED", src("conversation", "        <div data-conversation-current-node={node.id}>", "        <div>")],
     ["[11] ramo errado repete eternamente", "CONVERSATION_WRONG_LOOP", src("conversation", "if (wrongHere >= 2) {", "if (wrongHere >= 99) {")],
     ["[12] áudio do nó pode reverter o estado", "AUDIO_DRIVES_NODE", src("conversation", "function useConversationTransitionTruth(", "const revert = { onend: () => setNodeId(entry) };\nfunction useConversationTransitionTruth(")],
