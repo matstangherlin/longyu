@@ -55,7 +55,8 @@ export const RC2_2_21_P1 = [
 const BUG_STATUSES = ["OPEN", "REPRODUCED", "ROOT_CAUSE_FOUND", "FIXED_CODE", "AUTOMATED_REGRESSION", "PHYSICAL_RETEST_PENDING", "PHYSICAL_PASS", "WONT_FIX_WITH_REASON"];
 const PLAYBACK_CODES = ["NO_RECORDING", "INVALID_FILE", "PLAYER_PREPARE_FAILED", "AUDIO_FOCUS_FAILED", "PLAYBACK_START_FAILED", "OUTPUT_UNAVAILABLE", "MEDIA_VOLUME_ZERO", "PLAYBACK_INTERRUPTED", "PLAYBACK_ERROR"];
 const RECOGNITION_CATEGORIES = ["NO_SPEECH", "AUDIO_CAPTURE", "NETWORK", "BUSY", "PERMISSION", "LANGUAGE_UNAVAILABLE", "SERVICE_UNAVAILABLE", "TIMEOUT", "CLIENT", "UNKNOWN"];
-const AUDIO_OWNERS = ["IDLE", "TTS", "SELF_PLAYBACK", "RECORDING", "RECOGNITION"];
+// RC2.2.31 — CANONICAL_MEDIA owner for packaged speech assets (Media3).
+const AUDIO_OWNERS = ["IDLE", "CANONICAL_MEDIA", "TTS", "SELF_PLAYBACK", "RECORDING", "RECOGNITION"];
 const PASS_EVIDENCE_FIELDS = ["testedAt", "buildSha", "versionCode", "deviceClass", "evidenceType"];
 const REPORT_STATES = ["CODE PASS", "E2E PASS", "ANDROID QA BUILD PASS", "PLAY PHYSICAL PASS", "OWNER ACTION REQUIRED"];
 const FORBIDDEN_DUPLICATES = /(LongyuSpeechPlugin2|LongyuVoicePlugin|AudioEngineV2|AudioEngine2|SpeechEngineV2|SecondAudioEngine|SrsV2|LessonEngineV2)\.(tsx?|mjs|java)$/;
@@ -543,7 +544,16 @@ export async function validateResourceCleanup(s) {
   }
   const playback = stripComments(s.src.audioPlayback);
   // RC2.2.27 — quem perde a posse cancela SÓ a própria fala (cancelOwnSpeech), nunca a de outro.
-  if (!/claimAudio\("TTS", \(\) => (stopSpeaking\(\)|cancelOwnSpeech\(requestId, token\))\)/.test(playback) || !/releaseAudio\("TTS"/.test(playback)) fail("AUDIO_OVERLAP", FILES.audioPlayback, "voz modelo passa pelo árbitro");
+  // RC2.2.31 — asset path claims CANONICAL_MEDIA; TTS path still claims TTS.
+  if (!/claimAudio\("CANONICAL_MEDIA", \(\) => cancelOwnSpeech\(requestId, token\)\)/.test(playback)) {
+    fail("AUDIO_OVERLAP", FILES.audioPlayback, "asset canônico passa pelo árbitro (CANONICAL_MEDIA)");
+  }
+  if (!/claimAudio\("TTS", \(\) => (stopSpeaking\(\)|cancelOwnSpeech\(requestId, token\))\)/.test(playback)) {
+    fail("AUDIO_OVERLAP", FILES.audioPlayback, "voz modelo TTS passa pelo árbitro");
+  }
+  if (!(/releaseAudio\("TTS"/.test(playback) || /releaseAudio\(claimedOwner/.test(playback) || /releaseAudio\("CANONICAL_MEDIA"/.test(playback))) {
+    fail("AUDIO_OVERLAP", FILES.audioPlayback, "releaseAudio no fim da reprodução");
+  }
   const pron = stripComments(s.src.pronunciation);
   if (!/audioClaimRef\.current = claimAudio\("RECOGNITION"/.test(pron)) fail("AUDIO_OVERLAP", FILES.pronunciation, "reconhecimento passa pelo árbitro");
   const unmount = /useEffect\(\(\) => \{\s*return \(\) => \{([\s\S]*?)\};\s*\}, \[audioUrl\]\);/.exec(pron)?.[1] ?? "";

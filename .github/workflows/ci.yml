@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install ffmpeg (audio quality gates)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Validate beta
         run: npm run validate:beta
 

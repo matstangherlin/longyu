@@ -5,11 +5,10 @@
  * Cancel / SUPERSEDED resolvem a Promise (nunca hang).
  * Listener handles removidos se bind parcial falhar.
  */
-import type { PluginListenerHandle } from "@capacitor/core";
 import { newTtsRequestId } from "../ttsCorrelation";
 import { recordTechEvent, type TechEventDetail, type TechEventName } from "../techEvents";
 import { deviceQaEnabled } from "../deviceQa";
-import { getNativeMediaPlugin, usesNativeMediaPlayer } from "../platform/nativeMedia";
+import { getNativeMediaPlugin, usesNativeMediaPlayer, type NativeMediaListenerHandle } from "../platform/nativeMedia";
 
 export type CanonicalPlayerState =
   | "IDLE"
@@ -65,7 +64,7 @@ let webAudio: HTMLAudioElement | null = null;
 let webRequestId: string | null = null;
 let nativeListenerState: ListenerBindState = "UNBOUND";
 let nativeBindPromise: Promise<void> | null = null;
-let nativeListenerHandles: PluginListenerHandle[] = [];
+let nativeListenerHandles: NativeMediaListenerHandle[] = [];
 const nativeHandlers = new Map<string, NativeHandler>();
 
 function trace(event: TechEventName, detail: TechEventDetail): void {
@@ -111,7 +110,7 @@ async function ensureNativeListeners(): Promise<void> {
   }
   nativeListenerState = "BINDING";
   nativeBindPromise = (async () => {
-    const handles: PluginListenerHandle[] = [];
+    const handles: NativeMediaListenerHandle[] = [];
     try {
       const forward =
         (event: CanonicalAudioEvent) =>

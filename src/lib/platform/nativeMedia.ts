@@ -7,6 +7,9 @@
 import { registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 import { isAndroid } from "./nativePlatform";
 
+/** Re-export — features/libs fora de platform/ usam este tipo, nunca @capacitor/core. */
+export type NativeMediaListenerHandle = PluginListenerHandle;
+
 export interface NativeMediaPlayResult {
   ok: boolean;
   state?: string;
@@ -72,7 +75,7 @@ export interface NativeMediaPlugin {
       isPlaying?: boolean;
       generation?: number;
     }) => void
-  ): Promise<PluginListenerHandle>;
+  ): Promise<NativeMediaListenerHandle>;
 }
 
 const LongyuMedia = registerPlugin<NativeMediaPlugin>("LongyuMedia");
