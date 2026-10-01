@@ -1,5 +1,6 @@
 import { traceLessonStep } from "../../lib/lessonStepTrace";
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useNativeSafeAction } from "../../components/native/NativeSafeAction";
 import {
   CONVERSATION_DOM_STALL_MS,
   conversationDiagnostic,
@@ -1344,22 +1345,22 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     { sceneId: step.sceneId ?? "", intent: step.sceneIntent ?? "" },
     history
   );
-  const [nodeId, setNodeId] = useState(entryNodeId);
-  const [answering, setAnswering] = useState(false);
-  const [spokenCount, setSpokenCount] = useState(1);
   const [hint, setHint] = useState<string | null>(null);
-  // RC2.2.28 — runtime pedagógico puro (áudio é side-effect depois do DOM).
-  const [runtime, setRuntime] = useState<ConversationRuntimeState>(() =>
-    createConversationRuntimeState({
+  // RC2.2.31 — UNICA fonte pedagogica: runtime.nodeId / spokenCount / answering.
+  const [runtime, setRuntime] = useState<ConversationRuntimeState>(() => ({
+    ...createConversationRuntimeState({
       sceneId: step.sceneId ?? "scene",
       entryNodeId,
       transitionId: `t-${step.sceneId ?? "scene"}-0`,
-    })
-  );
+    }),
+    spokenCount: 1,
+  }));
+  const nodeId = runtime.nodeId;
+  const spokenCount = Math.max(1, runtime.spokenCount);
+  const answering = runtime.answering;
   // RC2.2.29 — lock anti double-tap (não pula dois nós / não congela).
   const transitionLockRef = useRef<TransitionLockState>(createTransitionLock());
   const lastTransitionIdRef = useRef<string | null>(null);
-  const pendingPointerTapRef = useRef<{ x: number; y: number; at: number; nodeId: string } | null>(null);
   const failsafeRetryRef = useRef<(expected: string, transitionId: string | null) => void>(() => undefined);
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
@@ -1393,11 +1394,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   });
 
   useEffect(() => {
-    setNodeId(entryNodeId);
     setRevealPending(null);
     wrongByNodeRef.current = new Map();
-    setAnswering(false);
-    setSpokenCount(1);
     setHint(null);
     setRepairPending(null);
     hadMistakeRef.current = false;
@@ -1407,13 +1405,14 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     transitionsRef.current = 0;
     repairUsedRef.current = false;
     skipAutoSpeakRef.current = false;
-    setRuntime(
-      createConversationRuntimeState({
+    setRuntime({
+      ...createConversationRuntimeState({
         sceneId: step.sceneId ?? "scene",
         entryNodeId,
         transitionId: `t-${step.sceneId ?? "scene"}-0`,
-      })
-    );
+      }),
+      spokenCount: 1,
+    });
   }, [step.sceneId, entryNodeId]);
 
   useEffect(() => {
@@ -1483,13 +1482,11 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       finish();
       return;
     }
+    // RC2.2.31 — um unico commit pedagogico (sem setNodeId paralelo).
     setRuntime((prev) =>
       conversationReducer(prev, { type: "CONTINUE", targetNodeId: target.id, transitionId })
     );
     truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });
-    setNodeId(target.id);
-    setAnswering(false);
-    if (!opts?.reuseTransitionId) setSpokenCount((count) => count + 1);
     // Backup: se o DOM não liberar o lock, o timeout de 280ms+ ainda desbloqueia.
     window.setTimeout(() => {
       transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now());
@@ -1511,7 +1508,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
     traceLessonStep({ lessonId: sceneId, stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
     if (node?.interaction) {
-      setAnswering(true);
+      setRuntime((prev) => ({ ...prev, answering: true, mode: "answering" }));
       return;
     }
     if (node?.nextNodeId) {
@@ -1522,46 +1519,15 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     finish();
   }
 
-  /** Continuar: pointer → click → handler. Fallback se click for cancelado no APK. */
-  function onContinuePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+  // RC2.2.31 — NativeSafeAction: pointer → click → fallback idempotente.
+  const continueSafe = useNativeSafeAction(() => {
     const sceneId = step.sceneId ?? "scene";
-    recordConversationTrace({ event: "conversation_pointer_down", sceneId, nodeId: node?.id ?? null });
-    pendingPointerTapRef.current = {
-      x: event.clientX,
-      y: event.clientY,
-      at: Date.now(),
-      nodeId: node?.id ?? "",
-    };
-  }
-
-  function onContinueClick() {
-    const sceneId = step.sceneId ?? "scene";
-    pendingPointerTapRef.current = null;
     recordConversationTrace({ event: "conversation_click", sceneId, nodeId: node?.id ?? null });
     advance();
-  }
-
-  function onContinuePointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
-    const pending = pendingPointerTapRef.current;
-    if (!pending) return;
-    const dx = Math.abs(event.clientX - pending.x);
-    const dy = Math.abs(event.clientY - pending.y);
-    if (dx > 14 || dy > 14) {
-      pendingPointerTapRef.current = null;
-      return;
-    }
-    // Se o click nativo não chegar (cancelamento de toque no WebView), avança uma vez.
-    window.setTimeout(() => {
-      if (pendingPointerTapRef.current !== pending) return;
-      pendingPointerTapRef.current = null;
-      recordConversationTrace({
-        event: "conversation_click",
-        sceneId: step.sceneId ?? "scene",
-        nodeId: node?.id ?? null,
-      });
-      advance();
-    }, 48);
-  }
+  }, `v2-continue:${nodeId}:${spokenCount}`);
+  const onContinuePointerDown = continueSafe.onPointerDown;
+  const onContinuePointerUp = continueSafe.onPointerUp;
+  const onContinueClick = continueSafe.onClick;
 
   useExerciseHotkeys({
     enabled: Boolean(node) && !answering && !repairPending && !revealPending,
@@ -1762,14 +1728,14 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
                       mistakeCountRef.current >= 2
                     ) {
                       repairUsedRef.current = true;
-                      setAnswering(false);
+                      setRuntime((prev) => ({ ...prev, answering: false, mode: "repairing" }));
                       setRepairPending({ resumeNodeId: nextId });
                       return;
                     }
                     if (wrongHere >= 2) {
                       // Mostra a resposta e segue pelo ramo CERTO (sem prêmio:
                       // o erro já ficou registrado em hadMistake).
-                      setAnswering(false);
+                      setRuntime((prev) => ({ ...prev, answering: false, mode: "revealing" }));
                       setRevealPending({ answer: node.interaction!.correctAnswer, nextNodeId: node.interaction!.correctNextNodeId });
                       return;
                     }
@@ -1862,6 +1828,9 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     onDone(true);
   }
 
+  // RC2.2.31 — V1 usa o mesmo NativeSafeAction (nao click-only no APK).
+  const v1ContinueSafe = useNativeSafeAction(advanceDialogue, `v1-continue:${step.sceneId}:${lineIndex}`);
+
   useExerciseHotkeys({
     enabled: lines.length > 0 && phase === "dialogue",
     mode: "choice",
@@ -1911,8 +1880,9 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         {phase === "dialogue" && currentLine && (
           <div
             data-conversation-current-node={`line-${lineIndex}`}
-            ref={(node) => {
-              node?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            ref={(el) => {
+              // RC2.2.31 — sem smooth scroll na troca de fala (APK).
+              el?.scrollIntoView({ behavior: "auto", block: "nearest" });
             }}
           >
             <SpeechBubble
@@ -1946,7 +1916,14 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
         {phase === "dialogue" && (
           guided ? (
             <GuidedDock>
-              <Button size="lg" className="w-full shadow-lift" onClick={advanceDialogue} data-testid="conversation-v1-advance">
+              <Button
+                size="lg"
+                className="longyu-press-feedback pointer-events-auto relative z-10 w-full touch-manipulation shadow-lift"
+                onPointerDown={v1ContinueSafe.onPointerDown}
+                onPointerUp={v1ContinueSafe.onPointerUp}
+                onClick={v1ContinueSafe.onClick}
+                data-testid="conversation-v1-advance"
+              >
                 {t("player.continue")} <IconChevron width={18} height={18} />
               </Button>
             </GuidedDock>
@@ -1955,7 +1932,13 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
             <span className="text-xs font-medium text-ink-faint">
               {t("player.lineOf", { index: lineIndex + 1, total: lines.length })}
             </span>
-            <Button className="min-w-[9.5rem] shadow-lift" onClick={advanceDialogue}>
+            <Button
+              className="longyu-press-feedback pointer-events-auto relative z-10 min-w-[9.5rem] touch-manipulation shadow-lift"
+              onPointerDown={v1ContinueSafe.onPointerDown}
+              onPointerUp={v1ContinueSafe.onPointerUp}
+              onClick={v1ContinueSafe.onClick}
+              data-testid="conversation-v1-advance"
+            >
               {t("player.continue")} <IconChevron width={18} height={18} />
             </Button>
           </div>
