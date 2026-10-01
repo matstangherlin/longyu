@@ -13,6 +13,7 @@ import { resolveDeepLink } from "../../lib/platform/deepLinks";
 import { subscribeAppLifecycle } from "../../lib/platform/appLifecycle";
 import { refreshNativeTtsStatus } from "../../lib/tts";
 import { refreshNativeSpeechStatus } from "../../lib/speech";
+import { initNativeTtsEventBridge } from "../../lib/platform/nativeSpeech";
 
 /**
  * RC2.2.13 — experiência nativa do Android, montada UMA vez na raiz do router.
@@ -39,6 +40,13 @@ export function NativeExperienceBootstrap() {
   const prefs = useStore((s) => s.notificationPrefs);
   const [resumeTick, setResumeTick] = useState(0);
   const reconcileChain = useRef<Promise<unknown>>(Promise.resolve());
+
+  // RC2.2.24 — a ponte de eventos de TTS existe ANTES de qualquer tela
+  // (Teste Guiado, lição, conversa, tons, Cultura, Imersão) pedir voz: no
+  // cold start o primeiro onStart do motor não pode chegar sem ouvinte.
+  useEffect(() => {
+    void initNativeTtsEventBridge();
+  }, []);
 
   // Toque na notificação → rota aprovada. Registrado uma única vez.
   useEffect(() => {

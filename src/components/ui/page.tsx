@@ -206,6 +206,7 @@ export function ActionButton({
   block = false,
   disabled = false,
   className,
+  "data-testid": testId,
 }: {
   children: ReactNode;
   to?: string;
@@ -217,6 +218,8 @@ export function ActionButton({
   block?: boolean;
   disabled?: boolean;
   className?: string;
+  /** RC2.2.25 — antes era descartado em silêncio (o seletor do teste nunca existia). */
+  "data-testid"?: string;
 }) {
   const resolvedVariant = variant === "secondary" ? "outline" : "primary";
   const classes = cx(block && "w-full", variant === "primary" && "shadow-lift", className);
@@ -231,7 +234,7 @@ export function ActionButton({
   // que aninharia um <button> dentro de um <a> (HTML inválido e ruim para o teclado).
   if (to && !disabled) {
     return (
-      <ButtonLink to={to} variant={resolvedVariant} size={size} className={classes}>
+      <ButtonLink to={to} variant={resolvedVariant} size={size} className={classes} data-testid={testId}>
         {content}
       </ButtonLink>
     );
@@ -243,6 +246,7 @@ export function ActionButton({
       onClick={onClick}
       disabled={disabled}
       className={classes}
+      data-testid={testId}
     >
       {content}
     </Button>

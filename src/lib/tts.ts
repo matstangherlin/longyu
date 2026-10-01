@@ -2,7 +2,8 @@
 // Trocável por um TTS na nuvem depois sem mexer nas telas: basta
 // reimplementar speak() mantendo a assinatura.
 
-import { hasNativeSpeech, nativeSpeak, nativeStopSpeaking, nativeTtsStatus, onNativeTtsStart } from "./platform/nativeSpeech";
+import { hasNativeSpeech, nativeSpeakTracked, nativeStopSpeaking, nativeTtsStatus } from "./platform/nativeSpeech";
+import { applyTtsEvent, beginTtsPlayback, newTtsRequestId, setActiveTtsRequest, ttsPlaybackConfirmed, type TtsEvent, type TtsPlayback } from "./ttsCorrelation";
 import { unlockAudio } from "./soundFx";
 import { useStore } from "./store";
 import { speakableProperNames } from "./personalize";
@@ -107,9 +108,10 @@ let nativeTtsUnavailableReason: string | null = null;
 let nativeTtsKnownAvailable: boolean | null = null;
 
 /** Consulta o SO (zh-CN instalado?) e guarda o resultado desta sessão. */
-export async function refreshNativeTtsStatus(): Promise<{ available: boolean; status: string } | null> {
+export async function refreshNativeTtsStatus(options: { reinit?: boolean } = {}): Promise<{ available: boolean; status: string } | null> {
   if (!hasNativeSpeech()) return null;
-  const status = await nativeTtsStatus();
+  // RC2.2.21 — `reinit` depois do instalador de voz: o motor é recriado.
+  const status = await nativeTtsStatus(undefined, { reinit: options.reinit === true });
   nativeTtsKnownAvailable = status.available;
   nativeTtsUnavailableReason = status.available ? null : status.status;
   return { available: status.available, status: status.status };
@@ -189,6 +191,10 @@ export interface SpeakOptions {
   onerror?: (reason?: string) => void;
   /** P3 — nomes latinos que podem ser falados dentro de uma fala mandarim. */
   properNames?: readonly string[];
+  /** RC2.2.24 — identidade da reprodução (Android). Sem ela, uma é criada. */
+  requestId?: string;
+  /** RC2.2.24 — cada evento DESTA fala + o estado correlacionado (diagnóstico/CTA). */
+  onTtsEvent?: (event: TtsEvent, playback: TtsPlayback) => void;
 }
 
 /** Fala um texto chinês. Cancela qualquer fala anterior. */
@@ -403,7 +409,14 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   }
 }
 
-/** Android: mesmo contrato de speak() (onend sempre; onerror quando não tocou). */
+/**
+ * Android: mesmo contrato de speak() (onend sempre; onerror quando não tocou).
+ *
+ * RC2.2.24 — `onstart` só dispara com a confirmação DESTA fala (requestId):
+ * TTS_STARTED, ou TTS_DONE sem START (TTS_START_EVENT_MISSED — conta como
+ * tocada), ou o próprio retorno do plugin dizendo que o motor começou. Um
+ * evento de outra fala nunca libera esta.
+ */
 function speakNative(text: string, opts: SpeakOptions): void {
   const spoken = mandarinSpeechText(text, { properNames: opts.properNames ?? defaultSpeakableProperNames() });
   if (!spoken.trim()) {
@@ -412,29 +425,34 @@ function speakNative(text: string, opts: SpeakOptions): void {
   }
   const preferences = useStore.getState();
   const rate = opts.rate ?? (preferences.slowAudio ? Math.min(preferences.ttsRate ?? 0.85, 0.65) : preferences.ttsRate ?? 0.85);
-  // RC2.2.17 · B — o início vem do evento nativo `onStart`, não do toque.
+  const requestId = opts.requestId ?? newTtsRequestId();
+  setActiveTtsRequest(requestId);
+  let playback = beginTtsPlayback(requestId);
   let started = false;
-  const release = onNativeTtsStart(() => {
-    if (started) return;
+  const confirmStart = () => {
+    if (started || !ttsPlaybackConfirmed(playback)) return;
     started = true;
     opts.onstart?.();
-  });
-  void nativeSpeak(spoken, { rate, pitch: opts.pitch ?? 1 }).then((result) => {
-    release();
+  };
+  const onEvent = (event: TtsEvent) => {
+    playback = applyTtsEvent(playback, event);
+    opts.onTtsEvent?.(event, playback);
+    confirmStart();
+  };
+  void nativeSpeakTracked(spoken, { rate, pitch: opts.pitch ?? 1, requestId }, onEvent).then((result) => {
     if (result.ok) {
       nativeTtsKnownAvailable = true;
       nativeTtsUnavailableReason = null;
-      // `onDone` só chega depois de a voz tocar: um plugin antigo sem o
-      // evento de início ainda prova que houve som. Interrompida sem início
-      // (o aluno tocou de novo) não prova nada, e também não é falha.
-      if (!started && !result.interrupted) {
-        started = true;
-        opts.onstart?.();
+      // O plugin resolve no onDone/onStop DESTA fala. Se o evento de início
+      // não chegou ao JS, o retorno ainda prova o que o motor fez.
+      if (!ttsPlaybackConfirmed(playback) && (result.started || !result.interrupted)) {
+        onEvent({ type: "TTS_DONE", requestId, utteranceId: result.utteranceId, timestamp: Date.now(), engineState: "resolved" });
       }
     } else {
       if (/^TTS_(LANGUAGE|UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
       nativeTtsUnavailableReason = result.code;
       opts.onerror?.(result.code);
+      if (playback.phase !== "ERROR") onEvent({ type: "TTS_ERROR", requestId, utteranceId: null, timestamp: Date.now(), engineState: "rejected", code: result.code });
     }
     opts.onend?.();
   });

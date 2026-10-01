@@ -1,0 +1,762 @@
+{
+  "schema": "longyu-rc2-2-22-first-20-audit/1",
+  "note": "Lint de produto sobre o plano autoral. Não é resultado com humanos: duração observada = null até existir sessão real (docs/reports/rc2-2-22-human-learning-validation.md).",
+  "heuristic": "complexityLevel(ctas, paragraphs, chips, interactiveControls, instructionChars) — src/lib/screenComplexity.ts",
+  "totals": {
+    "sessions": 20,
+    "steps": 149,
+    "badRepetitions": 0,
+    "overloadedSteps": 0,
+    "highSteps": 3,
+    "sessionsWithoutTransfer": [
+      17,
+      18,
+      19,
+      20
+    ],
+    "sessionsWithoutVisual": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      13,
+      14,
+      15,
+      16
+    ]
+  },
+  "sessions": [
+    {
+      "session": 1,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 1,
+      "objective": "Uma língua falada",
+      "stepCount": 6,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "RECOGNIZE",
+        "CONTEXT"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "comprehend",
+        "dialogue_choice"
+      ],
+      "newMaterial": 5,
+      "reviewMaterial": 0,
+      "targetRepetition": {
+        "maxSameTargetInSession": 6,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 1,
+        "GOOD": 5,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 2,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 2,
+      "objective": "Quatro camadas",
+      "stepCount": 6,
+      "interactionFamilies": [
+        "TEACH",
+        "MATCH",
+        "CONTEXT",
+        "LISTEN"
+      ],
+      "stepKinds": [
+        "intro",
+        "match_pairs",
+        "dialogue_choice",
+        "listen_select"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 5,
+      "targetRepetition": {
+        "maxSameTargetInSession": 6,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 0,
+        "GOOD": 5,
+        "HIGH": 1,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [
+        {
+          "step": 1,
+          "kind": "match_pairs",
+          "level": "HIGH"
+        }
+      ],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 3,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 3,
+      "objective": "Use a língua",
+      "stepCount": 6,
+      "interactionFamilies": [
+        "TEACH",
+        "CONTEXT",
+        "PRODUCE",
+        "BUILD"
+      ],
+      "stepKinds": [
+        "intro",
+        "contextual_choice",
+        "reverse_recall",
+        "free_production",
+        "sentence_build",
+        "dialogue_choice"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 5,
+      "targetRepetition": {
+        "maxSameTargetInSession": 6,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 1,
+        "GOOD": 5,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 4,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 4,
+      "objective": "Primeiro cumprimento",
+      "stepCount": 5,
+      "interactionFamilies": [
+        "CONTEXT",
+        "MATCH",
+        "PRODUCE"
+      ],
+      "stepKinds": [
+        "conversation_scene",
+        "match_pairs",
+        "reverse_recall",
+        "dialogue_choice",
+        "contextual_choice"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 5,
+      "targetRepetition": {
+        "maxSameTargetInSession": 5,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 1,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 1,
+        "GOOD": 3,
+        "HIGH": 1,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [
+        {
+          "step": 1,
+          "kind": "match_pairs",
+          "level": "HIGH"
+        }
+      ],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 5,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 1,
+      "objective": "Para que o pinyin existe",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "CONTEXT",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "dialogue_choice",
+        "match_pairs",
+        "listen_select"
+      ],
+      "newMaterial": 1,
+      "reviewMaterial": 3,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 1,
+        "GOOD": 6,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 6,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 2,
+      "objective": "Sílabas",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "CONTEXT",
+        "MATCH",
+        "LISTEN"
+      ],
+      "stepKinds": [
+        "intro",
+        "dialogue_choice",
+        "match_pairs",
+        "listen_select"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 4,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 0,
+        "GOOD": 7,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 7,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 3,
+      "objective": "Marcas de tom",
+      "stepCount": 6,
+      "interactionFamilies": [
+        "TEACH",
+        "CONTEXT",
+        "MATCH",
+        "LISTEN",
+        "PRODUCE"
+      ],
+      "stepKinds": [
+        "intro",
+        "dialogue_choice",
+        "match_pairs",
+        "listen_select",
+        "reverse_recall"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 4,
+      "targetRepetition": {
+        "maxSameTargetInSession": 6,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 0,
+        "GOOD": 6,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 8,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 4,
+      "objective": "Usar e soltar",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "CONTEXT",
+        "MATCH",
+        "LISTEN",
+        "PRODUCE"
+      ],
+      "stepKinds": [
+        "intro",
+        "contextual_choice",
+        "match_pairs",
+        "listen_select",
+        "reverse_recall",
+        "dialogue_choice"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 4,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 0,
+        "GOOD": 7,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 9,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 1,
+      "objective": "A curva faz parte da palavra",
+      "stepCount": 10,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "TONE",
+        "CONTEXT"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "tone",
+        "listen_select",
+        "dialogue_choice"
+      ],
+      "newMaterial": 5,
+      "reviewMaterial": 0,
+      "targetRepetition": {
+        "maxSameTargetInSession": 10,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 2,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 4,
+        "GOOD": 6,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 10,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 2,
+      "objective": "Duas curvas novas",
+      "stepCount": 9,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "TONE",
+        "CONTEXT"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "tone",
+        "listen_select",
+        "dialogue_choice"
+      ],
+      "newMaterial": 4,
+      "reviewMaterial": 3,
+      "targetRepetition": {
+        "maxSameTargetInSession": 9,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 2,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 4,
+        "GOOD": 5,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 11,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 3,
+      "objective": "Reconheça os quatro",
+      "stepCount": 9,
+      "interactionFamilies": [
+        "TEACH",
+        "TONE",
+        "CONTEXT",
+        "LISTEN"
+      ],
+      "stepKinds": [
+        "intro",
+        "tone",
+        "dialogue_choice",
+        "listen"
+      ],
+      "newMaterial": 1,
+      "reviewMaterial": 9,
+      "targetRepetition": {
+        "maxSameTargetInSession": 9,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 4,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 5,
+        "GOOD": 4,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 12,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 4,
+      "objective": "Tons em palavras reais",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "TONE",
+        "CONTEXT",
+        "PRODUCE"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen_select",
+        "tone",
+        "dialogue_choice",
+        "listen",
+        "reverse_recall"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 9,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 2,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 3,
+        "GOOD": 4,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 13,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 1,
+      "objective": "Sistema de escrita",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "CONTEXT",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "dialogue_choice",
+        "match_pairs",
+        "listen_select"
+      ],
+      "newMaterial": 1,
+      "reviewMaterial": 3,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 1,
+        "GOOD": 6,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 14,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 2,
+      "objective": "Caractere × palavra",
+      "stepCount": 6,
+      "interactionFamilies": [
+        "TEACH",
+        "CONTEXT",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "dialogue_choice",
+        "match_pairs"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 4,
+      "targetRepetition": {
+        "maxSameTargetInSession": 6,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 0,
+        "GOOD": 6,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 15,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 3,
+      "objective": "Reconhecer e montar",
+      "stepCount": 6,
+      "interactionFamilies": [
+        "TEACH",
+        "BUILD",
+        "CONTEXT",
+        "LISTEN"
+      ],
+      "stepKinds": [
+        "intro",
+        "sentence_build",
+        "dialogue_choice",
+        "listen_select"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 4,
+      "targetRepetition": {
+        "maxSameTargetInSession": 6,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 1,
+        "GOOD": 5,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 16,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 4,
+      "objective": "Menos pinyin",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "CONTEXT",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen_select",
+        "contextual_choice",
+        "dialogue_choice",
+        "match_pairs"
+      ],
+      "newMaterial": 0,
+      "reviewMaterial": 4,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 0,
+      "realLifeTransfer": true,
+      "complexity": {
+        "LOW": 0,
+        "GOOD": 7,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 17,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 1,
+      "objective": "Peças visuais, não desenhos aleatórios",
+      "stepCount": 7,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "BUILD"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "hanzi_build"
+      ],
+      "newMaterial": 3,
+      "reviewMaterial": 0,
+      "targetRepetition": {
+        "maxSameTargetInSession": 7,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 2,
+      "realLifeTransfer": false,
+      "complexity": {
+        "LOW": 4,
+        "GOOD": 3,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 18,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 2,
+      "objective": "Contornos simples",
+      "stepCount": 8,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "BUILD",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "hanzi_build",
+        "match_pairs"
+      ],
+      "newMaterial": 2,
+      "reviewMaterial": 1,
+      "targetRepetition": {
+        "maxSameTargetInSession": 8,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 2,
+      "realLifeTransfer": false,
+      "complexity": {
+        "LOW": 4,
+        "GOOD": 4,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 19,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 3,
+      "objective": "Formas da natureza",
+      "stepCount": 9,
+      "interactionFamilies": [
+        "TEACH",
+        "BUILD",
+        "LISTEN",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "hanzi_build",
+        "listen",
+        "match_pairs"
+      ],
+      "newMaterial": 2,
+      "reviewMaterial": 3,
+      "targetRepetition": {
+        "maxSameTargetInSession": 9,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 3,
+      "realLifeTransfer": false,
+      "complexity": {
+        "LOW": 4,
+        "GOOD": 5,
+        "HIGH": 0,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [],
+      "observedDurationMedianMin": null
+    },
+    {
+      "session": 20,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 4,
+      "objective": "Transfira a lógica visual",
+      "stepCount": 14,
+      "interactionFamilies": [
+        "TEACH",
+        "LISTEN",
+        "BUILD",
+        "MATCH"
+      ],
+      "stepKinds": [
+        "intro",
+        "listen",
+        "hanzi_build",
+        "match_pairs"
+      ],
+      "newMaterial": 4,
+      "reviewMaterial": 1,
+      "targetRepetition": {
+        "maxSameTargetInSession": 14,
+        "badRepetitions": 0
+      },
+      "visualSupportSteps": 4,
+      "realLifeTransfer": false,
+      "complexity": {
+        "LOW": 8,
+        "GOOD": 5,
+        "HIGH": 1,
+        "OVERLOADED": 0
+      },
+      "complexityFlags": [
+        {
+          "step": 13,
+          "kind": "match_pairs",
+          "level": "HIGH"
+        }
+      ],
+      "observedDurationMedianMin": null
+    }
+  ]
+}

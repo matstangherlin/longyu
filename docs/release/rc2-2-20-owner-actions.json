@@ -1,0 +1,170 @@
+{
+  "schema": "longyu-owner-actions/1",
+  "wave": "RC2.2.20",
+  "rule": "Nenhum destes vira PASS por código. O agente nunca inventa, lê, mostra, loga nem commita senha, key password ou chave privada; só confere fingerprint PÚBLICO.",
+  "actions": [
+    {
+      "id": "recoveryTemplateOwnerApplied",
+      "title": "Aplicar o modelo de e-mail de recuperação com código",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Supabase › Authentication › Email Templates › Reset Password: colar supabase/templates/recovery.html (docs/release/rc2-2-19-recovery-template.md)",
+      "evidenceRequired": "print da tela do painel sem segredo + e-mail recebido com 6 dígitos (código não é guardado)",
+      "evidence": null
+    },
+    {
+      "id": "playPackageConfirmation",
+      "title": "Confirmar o package longyu.noba.com no Play Console",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › criar/abrir o app com o package longyu.noba.com",
+      "evidenceRequired": "print do Play Console mostrando o package",
+      "evidence": null
+    },
+    {
+      "id": "developerVerification",
+      "title": "Verificação de desenvolvedor Google Play",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › Configurações da conta de desenvolvedor",
+      "evidenceRequired": "status VERIFIED no console",
+      "evidence": null
+    },
+    {
+      "id": "packageRegistration",
+      "title": "Registro do package",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › app longyu.noba.com criado",
+      "evidenceRequired": "print do app no console",
+      "evidence": null
+    },
+    {
+      "id": "uploadKey",
+      "title": "Criar a upload key",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "npm run android:keystore:init (a senha fica só com o owner)",
+      "evidenceRequired": "fingerprint SHA-256 PÚBLICO do certificado de upload",
+      "evidence": null
+    },
+    {
+      "id": "uploadKeyBackup1",
+      "title": "Backup 1 da upload key",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "cópia offline segura do keystore",
+      "evidenceRequired": "confirmação do owner (sem conteúdo)",
+      "evidence": null
+    },
+    {
+      "id": "uploadKeyBackup2",
+      "title": "Backup 2 da upload key",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "segunda cópia em outro lugar",
+      "evidenceRequired": "confirmação do owner (sem conteúdo)",
+      "evidence": null
+    },
+    {
+      "id": "aliasPasswordStorage",
+      "title": "Guardar alias e senhas",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "gerenciador de senhas do owner",
+      "evidenceRequired": "confirmação do owner (nunca o valor)",
+      "evidence": null
+    },
+    {
+      "id": "githubEnvironment",
+      "title": "Segredos do environment android-release no GitHub",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Settings › Environments › android-release (keystore base64 + senhas)",
+      "evidenceRequired": "nomes dos segredos configurados (nunca os valores)",
+      "evidence": null
+    },
+    {
+      "id": "uploadCertFingerprint",
+      "title": "Registrar o fingerprint do certificado de upload",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › Integridade do app",
+      "evidenceRequired": "fingerprint público igual ao do keystore",
+      "evidence": null
+    },
+    {
+      "id": "signedAab",
+      "title": "Primeiro AAB assinado de release",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "workflow android-release (canal internal)",
+      "evidenceRequired": "npm run android:inspect-bundle + android:verify-signature: package longyu.noba.com, release assinado, não debug, upload cert confere, versionCode/versionName certos, SHA de proveniência",
+      "evidence": null
+    },
+    {
+      "id": "playAppSigning",
+      "title": "Play App Signing ativo",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › Integridade do app",
+      "evidenceRequired": "print do Play App Signing",
+      "evidence": null
+    },
+    {
+      "id": "internalTrack",
+      "title": "Trilha de Teste interno criada",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › Testes › Teste interno",
+      "evidenceRequired": "lista de testadores configurada",
+      "evidence": null
+    },
+    {
+      "id": "internalUpload",
+      "title": "Upload na trilha interna",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "workflow android-release channel=internal",
+      "evidenceRequired": "release visível na trilha interna",
+      "evidence": null
+    },
+    {
+      "id": "playInstall",
+      "title": "Instalar pela Play",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "link de teste interno no aparelho",
+      "evidenceRequired": "npm run android:play-install:verify → installer com.android.vending",
+      "evidence": null
+    },
+    {
+      "id": "physicalQaOnPlayBuild",
+      "title": "Repetir os testes críticos no BUILD DA PLAY",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "/qa/device no build da Play (deviceClass PLAY_BUILD)",
+      "evidenceRequired": "matriz crítica PASS com evidência",
+      "evidence": null
+    },
+    {
+      "id": "nToNPlus1",
+      "title": "Segunda release interna e update real",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "snapshot em /qa/device antes, update pela Play, comparar depois",
+      "evidenceRequired": "Comparar (depois) sem nenhuma violação",
+      "evidence": null
+    },
+    {
+      "id": "featureGraphic",
+      "title": "Feature graphic da loja",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "Play Console › Ficha da loja",
+      "evidenceRequired": "arquivo enviado",
+      "evidence": null
+    },
+    {
+      "id": "finalPhoneScreenshots",
+      "title": "Screenshots finais do celular",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "capturas no aparelho físico",
+      "evidenceRequired": "arquivos enviados",
+      "evidence": null
+    },
+    {
+      "id": "physicalQaAccounts",
+      "title": "Rodar a matriz física com Conta A (nova) e Conta B (madura)",
+      "status": "OWNER_ACTION_REQUIRED",
+      "how": "/qa/device",
+      "evidenceRequired": "docs/release/rc2-2-20-device-matrix.json preenchido a partir do JSON exportado",
+      "evidence": null
+    }
+  ],
+  "notAvailable": {
+    "SECOND_ANDROID": "sem segundo aparelho hoje — não fingir"
+  }
+}

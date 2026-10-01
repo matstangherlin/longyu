@@ -1,0 +1,162 @@
+{
+  "schema": "longyu-rc2-2-20-manifest/1",
+  "wave": "RC2.2.20 — Physical Beta Readiness",
+  "RC2_2_20_BASE_SHA": "3eb7df133f2826ce70bc9e347a7d4cc705fccbc4",
+  "baseDescription": "main após o merge do matstangherlin/longyu#292 (RC2.2.19)",
+  "fingerprint": "c48b008c9c1e",
+  "pedagogyContentException": null,
+  "states": [
+    "CODE_PASS",
+    "WEB_E2E_PASS",
+    "PHYSICAL_PASS",
+    "OWNER_ACTION_REQUIRED"
+  ],
+  "areas": {
+    "deviceQaSurface": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "REQUIRED"
+    },
+    "stepStallFallback": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "speechFailureTaxonomy": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "selfCompareStates": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "audioTraceOnDevice": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "signupErrorCategories": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "reviewSemanticRepetition": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "upgradeSnapshot": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "REQUIRED"
+    },
+    "devicePerformanceBaseline": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "REQUIRED"
+    },
+    "logoutNeutral": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "pronunciationCoreBr": {
+      "code": "PASS",
+      "webE2E": "PASS",
+      "physical": "NOT_RUN",
+      "ownerAction": "NONE"
+    },
+    "lexicalRecyclingReport": {
+      "code": "PASS",
+      "webE2E": "NOT_APPLICABLE",
+      "physical": "NOT_APPLICABLE",
+      "ownerAction": "NONE"
+    },
+    "toneProgressionReport": {
+      "code": "PASS",
+      "webE2E": "NOT_APPLICABLE",
+      "physical": "NOT_APPLICABLE",
+      "ownerAction": "NONE"
+    }
+  },
+  "physicalTests": {
+    "guidanceShownOnDevice": "NOT_RUN",
+    "guidanceMatureAccountNoRelock": "NOT_RUN",
+    "guidedTryAudioDevice": "NOT_RUN",
+    "conversationContinueDevice": "NOT_RUN",
+    "nativeSpeechRecognitionZhCn": "NOT_RUN",
+    "selfCompareRecordingPlayback": "NOT_RUN",
+    "mobileSignupDevice": "NOT_RUN",
+    "passwordRecoveryOtpDevice": "NOT_RUN",
+    "reviewRoundsDevice": "NOT_RUN",
+    "storySceneDevice": "NOT_RUN",
+    "profileAccountLogoutDevice": "NOT_RUN",
+    "articulationDiagramsDevice": "NOT_RUN"
+  },
+  "recoveryTemplate": {
+    "codeReady": "PASS",
+    "ownerApplied": "OWNER_ACTION_REQUIRED",
+    "physicallyVerified": "NOT_RUN"
+  },
+  "releaseResidual": {
+    "playPackageConfirmation": "OWNER_ACTION_REQUIRED",
+    "developerVerification": "OWNER_ACTION_REQUIRED",
+    "packageRegistration": "OWNER_ACTION_REQUIRED",
+    "uploadKey": "OWNER_ACTION_REQUIRED",
+    "backups": "OWNER_ACTION_REQUIRED",
+    "githubEnvironment": "OWNER_ACTION_REQUIRED",
+    "signedAab": "OWNER_ACTION_REQUIRED",
+    "playAppSigning": "OWNER_ACTION_REQUIRED",
+    "internalTrack": "OWNER_ACTION_REQUIRED",
+    "playUpload": "OWNER_ACTION_REQUIRED",
+    "playInstall": "OWNER_ACTION_REQUIRED",
+    "nToNPlus1": "OWNER_ACTION_REQUIRED",
+    "storeAssets": "OWNER_ACTION_REQUIRED"
+  },
+  "closedBeta": {
+    "CLOSED_BETA_READY": false,
+    "requires": {
+      "SIGNED_AAB_READY": false,
+      "PLAY_INSTALL_COMPLETE": false,
+      "N_TO_N_PLUS_1": "NOT_RUN",
+      "P0": 0,
+      "releaseBlockingP1": "UNKNOWN_UNTIL_PHYSICAL",
+      "PHYSICAL_CRITICAL_MATRIX": "NOT_RUN",
+      "AUTH_PHYSICAL": "NOT_RUN"
+    }
+  },
+  "PUBLIC_BETA": "NO_GO",
+  "v5a": {
+    "pronunciationCoreBr": "11 contrastes no Pinyin Lab (ver → ouvir A → ouvir B → comparar → identificar → produzir opcional)",
+    "lexicalRecycling": "docs/reports/rc2-2-20-lexical-recycling.md (primeiras 40 lições; órfãs listadas; só mede)",
+    "toneProgression": "docs/reports/rc2-2-20-tone-progression.md (aulas que cobram reconhecer antes de ouvir listadas; currículo congelado não alterado)",
+    "microreadings": "NOT_STARTED",
+    "pragmatics": "NOT_STARTED"
+  },
+  "regression": {
+    "package": "longyu.noba.com",
+    "androidInAppPurchase": "DISABLED_FOR_BETA",
+    "productionPlay": "NOT_ENABLED",
+    "touched273": false
+  },
+  "gate": {
+    "name": "gate:rc2-2-20-physical-beta-readiness",
+    "areas": 5,
+    "mutations": 68,
+    "requiredMutationsMapped": 24
+  },
+  "prOpenedAutomatically": false,
+  "next": "RC2.2.21 — CLOSED BETA & HUMAN LEARNING VALIDATION (só se a RC2.2.20 fechar)"
+}

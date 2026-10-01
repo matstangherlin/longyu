@@ -22,8 +22,9 @@ import { t as translate, type TranslateVars } from "../../i18n/catalog";
 import type { MessageKey } from "../../locales/pt-BR";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
-import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
-import { refreshNativeTtsStatus } from "../../lib/tts";
+import { installNativeTtsData, openNativeTtsSettings } from "../../lib/platform/nativeSpeech";
+import { refreshNativeTtsStatus, usesNativeVoice } from "../../lib/tts";
+import { IDLE_TTS_PLAYBACK, newTtsRequestId, ttsCtaReason, type TtsPlayback } from "../../lib/ttsCorrelation";
 import { markGuidedTryCompleted, type GuidedTryAudioResult } from "../../lib/onboardingDraft";
 import type { MandarinToneNumber } from "../../data/toneKnowledge";
 
@@ -84,6 +85,9 @@ function GuidedTryFlow() {
   const [built, setBuilt] = useState<string[]>([]);
   const [buildWrong, setBuildWrong] = useState(false);
   const [tonePlayKey, setTonePlayKey] = useState(0);
+  // RC2.2.24 — a reprodução ATIVA do passo "Ouça" (só a requestId dela conta).
+  const activeRequest = useRef<string | null>(null);
+  const [ttsPlayback, setTtsPlayback] = useState<TtsPlayback>(IDLE_TTS_PLAYBACK);
   const alive = useRef(true);
   useEffect(
     () => () => {
@@ -145,10 +149,29 @@ function GuidedTryFlow() {
    */
   function playNihao() {
     setFailReason(null);
-    void playMandarinAudio(NIHAO.hanzi, { rate: 0.8, onState: applyPlayback }).then((outcome) => {
-      if (!alive.current || outcome.superseded) return;
+    // RC2.2.24 — cada toque é uma reprodução com identidade. Evento de outra
+    // fala (inclusive a anterior deste botão) nunca libera o Continuar.
+    const requestId = newTtsRequestId();
+    activeRequest.current = requestId;
+    void playMandarinAudio(NIHAO.hanzi, {
+      rate: 0.8,
+      requestId,
+      onState: applyPlayback,
+      onTtsEvent: (_event, playback) => {
+        if (alive.current && activeRequest.current === requestId) setTtsPlayback(playback);
+      },
+    }).then((outcome) => {
+      if (!alive.current || activeRequest.current !== requestId) return;
+      // Começou = foi ouvido, mesmo que outra fala tenha vindo depois.
       if (outcome.started) {
         setAudioResult("AUDIO_HEARD");
+        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "HEARD"));
+        return;
+      }
+      if (outcome.superseded) {
+        // Substituída sem ter começado (outro áudio na tela): volta ao
+        // estado tocável — nunca fica em "Iniciando…" com o botão morto.
+        setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));
         return;
       }
       setFailReason(outcome.reason);
@@ -287,7 +310,16 @@ function GuidedTryFlow() {
               data-guided-listen
               className="mt-6"
             />
-            <p className="mt-3 min-h-5 text-sm font-medium text-ink-soft" role="status" aria-live="polite" data-testid="guided-listen-status">
+            <p
+              className="mt-3 min-h-5 text-sm font-medium text-ink-soft"
+              role="status"
+              aria-live="polite"
+              data-testid="guided-listen-status"
+              data-listen-state={listen}
+              data-tts-request-id={ttsPlayback.requestId ?? undefined}
+              data-tts-phase={ttsPlayback.phase}
+              data-cta-reason={audioResult === "AUDIO_HEARD" || heard ? (ttsPlayback.requestId ? ttsCtaReason(ttsPlayback) : "PLAYBACK_CONFIRMED") : audioFailed ? "PLAYBACK_FAILED" : "WAITING_ENGINE"}
+            >
               {listen === "STARTING"
                 ? t("guidedTry.audioStarting")
                 : listen === "PLAYING"
@@ -304,11 +336,16 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  {canOfferVoiceInstall(failReason) && (
+                  {canOfferVoiceInstall(failReason) ? (
                     <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
                       {t("guidedTry.audioInstallVoice")}
                     </Button>
-                  )}
+                  ) : usesNativeVoice() ? (
+                    // RC2.2.24 — sem START nem DONE: sempre há como configurar a voz.
+                    <Button size="sm" variant="outline" onClick={() => void openNativeTtsSettings()} data-testid="guided-audio-settings">
+                      {t("guidedTry.audioInstallVoice")}
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             )}

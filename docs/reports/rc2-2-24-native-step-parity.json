@@ -1,0 +1,942 @@
+{
+  "schema": "longyu-rc2-2-24-native-step-parity/1",
+  "note": "Inventário gerado do plano real (todas as aulas × passes 0–3). ANDROID APK = NOT_RUN até teste físico; Web PASS ≠ APK PASS.",
+  "totals": {
+    "lessons": 134,
+    "premiumLessons": 35,
+    "plansBuilt": 536,
+    "conversationScenes": 43,
+    "conversationV1": 0,
+    "conversationV2": 43,
+    "premiumConversationScenes": 27,
+    "stepKinds": 42
+  },
+  "conversationScenes": [
+    {
+      "sceneId": "agradecendo",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l2-rev"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "apontar-natureza",
+      "version": "V2",
+      "nodes": 10,
+      "lines": 7,
+      "lessons": [
+        "l14-frase-minima",
+        "l15",
+        "l16",
+        "l17",
+        "l19",
+        "l19-logica-luz",
+        "l19-logica-madeira",
+        "l19-logica-pessoas",
+        "l20",
+        "l21",
+        "p5-mu-mu-lin",
+        "p5-mu-mu-mu-sen",
+        "p5-nv-ma-mae",
+        "p5-ren-mu-xiu",
+        "p5-ren-ren-cong",
+        "p5-ren-ren-ren-zhong",
+        "p5-ri-yue-ming",
+        "p6-natureza"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "checkin-hotel",
+      "version": "V2",
+      "nodes": 29,
+      "lines": 18,
+      "lessons": [
+        "p7-china-survival",
+        "p7-imersao-hotel"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "como-se-chama",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l1",
+        "l2",
+        "l4",
+        "p1-qingwen-cortesia"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "conversa-cotidiana",
+      "version": "V2",
+      "nodes": 30,
+      "lines": 14,
+      "lessons": [
+        "p7-china-survival",
+        "p7-conversa-cotidiana"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "conversa-na-loja",
+      "version": "V2",
+      "nodes": 16,
+      "lines": 9,
+      "lessons": [
+        "l30",
+        "p6-compras",
+        "p6-survival-mandarin"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "cortesia-loja",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "l3-rev",
+        "p2-tons-xiexie",
+        "p3-wohenhao"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "de-onde-sou",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l10"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "encontro-amanha",
+      "version": "V2",
+      "nodes": 12,
+      "lines": 9,
+      "lessons": [
+        "p1-ate-logo",
+        "p2-tons-nihao",
+        "p5-nv-zi-hao"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "falar-de-estudo",
+      "version": "V2",
+      "nodes": 10,
+      "lines": 7,
+      "lessons": [
+        "l11-falo-pouco",
+        "l13-dialogo-ola"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "fale-de-novo",
+      "version": "V2",
+      "nodes": 10,
+      "lines": 7,
+      "lessons": [
+        "l14",
+        "l14-numeros-visuais",
+        "p4-char-bu",
+        "p4-char-da",
+        "p4-char-kou",
+        "p4-char-mu",
+        "p4-char-ni",
+        "p4-char-ren",
+        "p4-char-ri",
+        "p4-char-shan",
+        "p4-char-wo",
+        "p4-char-xiao",
+        "p4-char-yue",
+        "p4-char-zhong",
+        "p4-num-123",
+        "p4-num-45",
+        "p4-num-678",
+        "p4-num-910"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "gostos-na-casa",
+      "version": "V2",
+      "nodes": 10,
+      "lines": 7,
+      "lessons": [
+        "l28"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "identificar-pessoa",
+      "version": "V2",
+      "nodes": 16,
+      "lines": 11,
+      "lessons": [
+        "l24"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "imersao-estacao",
+      "version": "V2",
+      "nodes": 28,
+      "lines": 17,
+      "lessons": [
+        "p7-china-survival",
+        "p7-imersao-estacao"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "imersao-restaurante",
+      "version": "V2",
+      "nodes": 33,
+      "lines": 22,
+      "lessons": [
+        "l26c",
+        "p7-china-survival"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "me-apresentando",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "p1-primeira-conversa"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "na-clinica",
+      "version": "V2",
+      "nodes": 29,
+      "lines": 15,
+      "lessons": [
+        "p7-imersao-saude"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "nao-falo-chinês",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l3",
+        "p3-wobuhui-shuo-zhongwen"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "nao-me-sinto-bem",
+      "version": "V2",
+      "nodes": 14,
+      "lines": 10,
+      "lessons": [
+        "p6-saude"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "no-aeroporto",
+      "version": "V2",
+      "nodes": 29,
+      "lines": 17,
+      "lessons": [
+        "p7-imersao-aeroporto"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "o-que-e-isto",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "l19-logica-ma",
+        "l26",
+        "p5-kou-ma-pergunta"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "onde-esta",
+      "version": "V2",
+      "nodes": 10,
+      "lines": 8,
+      "lessons": [
+        "l25",
+        "p6-cidade-lugares"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "onde-esta-o-carro",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "p7-imersao-estacao"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-basic_questions",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l28",
+        "l9-tudo-bem",
+        "p7-imersao-casa-amigo",
+        "p7-imersao-mercado"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-communication_repair",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l11",
+        "p4-char-tian"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-courtesy",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l9"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-greetings",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l12"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-introductions",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l13",
+        "l22",
+        "l23",
+        "l9-qual-nome",
+        "l9-rev",
+        "p3-nomes-da-frase",
+        "p3-ordem-das-palavras",
+        "p4-char-shi"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-shopping",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l29"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-study",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l11-rev"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-time",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "p6-clima"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "packet-exchange-transport",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "p6-china-cidades"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "pedir-agua",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l14-pecas-natureza",
+        "l27",
+        "p4-char-huo",
+        "p4-char-shui",
+        "p6-china-cidades-2"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "pedir-cardapio",
+      "version": "V2",
+      "nodes": 19,
+      "lines": 14,
+      "lessons": [
+        "l26b"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "pedir-repeticao",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "l4-rev",
+        "p2-sons-brasileiros",
+        "p3-qing-zai-shuo-yibian"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "pegar-taxi",
+      "version": "V2",
+      "nodes": 11,
+      "lines": 7,
+      "lessons": [
+        "p6-china-ruas",
+        "p7-imersao-estacao"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "perguntar-o-caminho",
+      "version": "V2",
+      "nodes": 10,
+      "lines": 7,
+      "lessons": [
+        "p6-direcoes"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "perguntar-quantidade",
+      "version": "V2",
+      "nodes": 11,
+      "lines": 8,
+      "lessons": [
+        "p7-imersao-viagem"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "primeiro-cumprimento",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "p1-o-que-e-mandarim"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "que-horas-sao",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "p6-horarios"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "revisao-numeros",
+      "version": "V2",
+      "nodes": 14,
+      "lines": 10,
+      "lessons": [
+        "l8-rev"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "rotina-e-trabalho",
+      "version": "V2",
+      "nodes": 13,
+      "lines": 10,
+      "lessons": [
+        "p6-rotina-trabalho"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "sala-de-aula",
+      "version": "V2",
+      "nodes": 16,
+      "lines": 11,
+      "lessons": [
+        "l13-dialogo-nome",
+        "l5-rev",
+        "l6-rev",
+        "l7-rev"
+      ],
+      "premium": false,
+      "hasWrongBranch": true
+    }
+  ],
+  "stepKinds": [
+    {
+      "kind": "address_build",
+      "occurrences": 2,
+      "lessons": 1,
+      "premiumLessons": 1,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "audio_discrimination",
+      "occurrences": 56,
+      "lessons": 27,
+      "premiumLessons": 11,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "audio_to_action",
+      "occurrences": 41,
+      "lessons": 36,
+      "premiumLessons": 19,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "city_context",
+      "occurrences": 7,
+      "lessons": 4,
+      "premiumLessons": 4,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "compare_with_image",
+      "occurrences": 5,
+      "lessons": 3,
+      "premiumLessons": 3,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "comprehend",
+      "occurrences": 432,
+      "lessons": 99,
+      "premiumLessons": 21,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "contextual_choice",
+      "occurrences": 143,
+      "lessons": 105,
+      "premiumLessons": 19,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "conversation_repair",
+      "occurrences": 104,
+      "lessons": 48,
+      "premiumLessons": 19,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "conversation_scene",
+      "occurrences": 438,
+      "lessons": 110,
+      "premiumLessons": 34,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "decompose",
+      "occurrences": 16,
+      "lessons": 4,
+      "premiumLessons": 1,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "dialogue_choice",
+      "occurrences": 419,
+      "lessons": 119,
+      "premiumLessons": 26,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "dialogue_completion",
+      "occurrences": 56,
+      "lessons": 36,
+      "premiumLessons": 16,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "dictation",
+      "occurrences": 50,
+      "lessons": 23,
+      "premiumLessons": 5,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "fill_blank",
+      "occurrences": 420,
+      "lessons": 101,
+      "premiumLessons": 27,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "flashcard",
+      "occurrences": 133,
+      "lessons": 17,
+      "premiumLessons": 12,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "free_production",
+      "occurrences": 333,
+      "lessons": 86,
+      "premiumLessons": 27,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "hanzi_build",
+      "occurrences": 169,
+      "lessons": 62,
+      "premiumLessons": 10,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "image_choice",
+      "occurrences": 355,
+      "lessons": 100,
+      "premiumLessons": 29,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "intro",
+      "occurrences": 195,
+      "lessons": 92,
+      "premiumLessons": 19,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "listen",
+      "occurrences": 336,
+      "lessons": 47,
+      "premiumLessons": 13,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "listen_select",
+      "occurrences": 408,
+      "lessons": 99,
+      "premiumLessons": 16,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "map_direction",
+      "occurrences": 7,
+      "lessons": 2,
+      "premiumLessons": 2,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "match_pairs",
+      "occurrences": 68,
+      "lessons": 29,
+      "premiumLessons": 5,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "menu_reading",
+      "occurrences": 2,
+      "lessons": 2,
+      "premiumLessons": 2,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "microread",
+      "occurrences": 4,
+      "lessons": 1,
+      "premiumLessons": 0,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "odd_one_out",
+      "occurrences": 47,
+      "lessons": 23,
+      "premiumLessons": 8,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "place_label",
+      "occurrences": 10,
+      "lessons": 4,
+      "premiumLessons": 4,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "price_task",
+      "occurrences": 5,
+      "lessons": 3,
+      "premiumLessons": 3,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "produce",
+      "occurrences": 35,
+      "lessons": 17,
+      "premiumLessons": 2,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "recognize",
+      "occurrences": 57,
+      "lessons": 24,
+      "premiumLessons": 5,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "reverse_recall",
+      "occurrences": 168,
+      "lessons": 107,
+      "premiumLessons": 21,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "route_sequence",
+      "occurrences": 6,
+      "lessons": 3,
+      "premiumLessons": 3,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "sentence_build",
+      "occurrences": 460,
+      "lessons": 107,
+      "premiumLessons": 31,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "sentence_transform",
+      "occurrences": 30,
+      "lessons": 30,
+      "premiumLessons": 14,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "sign_reading",
+      "occurrences": 4,
+      "lessons": 1,
+      "premiumLessons": 1,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "spot_error",
+      "occurrences": 47,
+      "lessons": 38,
+      "premiumLessons": 9,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "substitution_drill",
+      "occurrences": 19,
+      "lessons": 19,
+      "premiumLessons": 9,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "tone",
+      "occurrences": 101,
+      "lessons": 18,
+      "premiumLessons": 1,
+      "focus": true,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "tone_pair",
+      "occurrences": 26,
+      "lessons": 9,
+      "premiumLessons": 5,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "transfer_task",
+      "occurrences": 20,
+      "lessons": 17,
+      "premiumLessons": 14,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "translation_build",
+      "occurrences": 6,
+      "lessons": 2,
+      "premiumLessons": 1,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    },
+    {
+      "kind": "write",
+      "occurrences": 65,
+      "lessons": 7,
+      "premiumLessons": 4,
+      "focus": false,
+      "webMobile": "WEB_E2E_COVERED_BY_SUITE",
+      "androidApk": "NOT_RUN"
+    }
+  ]
+}

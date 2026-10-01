@@ -1,9 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { lessonStartConsumesCharge } from "../../lib/energyPolicy";
 import { haptic } from "../../lib/haptics";
 import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
+import { peekJourneyReturnAnchor } from "../../lib/journeyReturnAnchor";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
@@ -52,8 +54,6 @@ import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import {
   BREATH_LIVES,
   BREATH_RECOVERY_QI,
-  CONSECUTIVE_MISTAKE_CHARGE_COST,
-  CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD,
   DAILY_GOAL_QI,
   LESSON_BASE_XP,
   LESSON_NO_SKIP_QI,
@@ -128,6 +128,8 @@ import { useTapThroughGuard } from "../../lib/useTapThroughGuard";
 import { guidanceLevelForLesson, guidedPhaseForStep, guidedTryBridgeApplies, showsPrepareLine } from "../../lib/guidedLesson";
 import { GuideLine } from "../../components/guide/GuideLine";
 import { setLessonTraceContext, traceLessonStep } from "../../lib/lessonStepTrace";
+import { STEP_RENDER_STALL_MS } from "../../lib/stepRenderTruth";
+import { recordDeviceQaObservation } from "../../lib/deviceQa";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
@@ -207,6 +209,7 @@ import {
 } from "./PieceAssembly";
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 const GUIDED_COLUMN = GUIDED_CLASS.column;
 
@@ -1910,6 +1913,8 @@ function logicalReviewItemIdFor(error: ActivityError): string {
 }
 
 export function LessonPlayer() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("lesson_open"), []);
   const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
   const [searchParams] = useSearchParams();
@@ -2039,6 +2044,12 @@ export function LessonPlayer() {
   // RC2.2.17 · AV — exposição do Teste guiado (só apresentação; nunca domínio).
   const guidedTryExposure = useStore((s) => s.guidedTryExposure);
   const idxRef = useRef(0);
+  // RC2.2.24 — etapa selecionada que ainda precisa aparecer no DOM.
+  const expectedRenderIdxRef = useRef<number | null>(null);
+  const renderWatchdogRef = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (renderWatchdogRef.current != null) window.clearTimeout(renderWatchdogRef.current);
+  }, []);
   idxRef.current = idx;
   /** RC2.2.14 — o aluno já tocou/digitou no passo atual (o plano não troca mais sob ele). */
   const stepInteractedRef = useRef(false);
@@ -2094,8 +2105,6 @@ export function LessonPlayer() {
   const folegoSkipRefsRef = useRef<Set<string>>(new Set());
   /** Erros confirmados seguidos — ao atingir o limiar, perde 1 Carga. */
   const errorStreakRef = useRef(0);
-  const mistakeChargeHitsRef = useRef(0);
-  const [chargePenaltyNotice, setChargePenaltyNotice] = useState<string | null>(null);
   const retryUsesRef = useRef(0);
   const recoveryUsesRef = useRef(0);
   // Tons acertados nesta tentativa (contados no acerto real, não inferidos):
@@ -2459,7 +2468,8 @@ export function LessonPlayer() {
     const alreadyInSession = window.sessionStorage.getItem(sessionKey) === "1";
     const cursor = lessonSessionStepById?.[foundLesson.id];
     const alreadyStarted = Boolean(cursor && cursor.pass === pass && cursor.stepIndex > 0);
-    if (alreadyInSession || alreadyStarted) {
+    // RC2.2.23 — replay de lição já concluída não é progressão nova: não cobra Carga.
+    if (alreadyInSession || alreadyStarted || !lessonStartConsumesCharge({ lessonCompleted: completedLessons.includes(foundLesson.id) })) {
       setEntryChecked(true);
       return;
     }
@@ -2477,7 +2487,7 @@ export function LessonPlayer() {
       lessonId: foundLesson.id,
       route: `/licao/${foundLesson.id}/player`,
     });
-  }, [consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
+  }, [completedLessons, consumeCharge, energyBlocked, entryChecked, foundLesson, isPremium, lessonMasteryById, lessonSessionStepById, soundEffects, startAccess, toneLocked]);
 
   useEffect(() => {
     if (planReady) return undefined;
@@ -2641,7 +2651,16 @@ export function LessonPlayer() {
   useEffect(() => {
     const context = { lessonId: lesson.id, stepIndex: idx, kind: traceStepKind, attempt: stepAttempt };
     setLessonTraceContext(context);
-    const frame = requestAnimationFrame(() => traceLessonStep({ ...context, event: "step_visible" }));
+    const frame = requestAnimationFrame(() => {
+      traceLessonStep({ ...context, event: "step_visible" });
+      // RC2.2.24 — a etapa selecionada está mesmo no DOM?
+      const rendered = document.querySelector(`[data-lesson-step-frame][data-current-step-index="${idx}"]`);
+      if (rendered && expectedRenderIdxRef.current === idx) {
+        expectedRenderIdxRef.current = null;
+        if (renderWatchdogRef.current != null) window.clearTimeout(renderWatchdogRef.current);
+        traceLessonStep({ ...context, event: "next_step_rendered" });
+      }
+    });
     const onClick = (event: MouseEvent) => {
       const button = (event.target as Element | null)?.closest?.("button");
       if (!button || button.disabled) return;
@@ -3325,28 +3344,10 @@ export function LessonPlayer() {
 
   // Continuar sem refazer: o erro vira permanente, custa 1 Vida
   // e avança para o próximo step para evitar dois fluxos de feedback.
+  // RC2.2.23 — erro custa SÓ Vida. Nunca a Carga diária (sem dupla punição).
   function noteConfirmedMistake() {
     if (hasUnlimitedLives) return;
     errorStreakRef.current += 1;
-    if (
-      errorStreakRef.current >= CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD &&
-      CONSECUTIVE_MISTAKE_CHARGE_COST > 0
-    ) {
-      const hit = mistakeChargeHitsRef.current + 1;
-      const spent = consumeCharge(
-        "lesson",
-        `consume:mistake-streak:${lesson.id}:${todayKey()}:${hit}`
-      );
-      errorStreakRef.current = 0;
-      if (spent) {
-        mistakeChargeHitsRef.current = hit;
-        setChargePenaltyNotice(
-          `−${CONSECUTIVE_MISTAKE_CHARGE_COST} Carga: ${CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD} erros seguidos.`
-        );
-        window.setTimeout(() => setChargePenaltyNotice(null), 3200);
-        playSoundFx("blocked", soundEffects);
-      }
-    }
   }
 
   function continueWithMistake() {
@@ -3417,7 +3418,7 @@ export function LessonPlayer() {
         finish(correct);
       } else {
         traceLessonStep({ lessonId: lesson.id, stepIndex: idx + 1, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "advanced" });
-        setIdx(idx + 1);
+        selectNextStep(currentStep?.kind ?? "none");
       }
     }
   }
@@ -3615,8 +3616,28 @@ export function LessonPlayer() {
       finish(nextCorrect);
     } else {
       traceLessonStep({ lessonId: lesson.id, stepIndex: idx + 1, kind: currentStep.kind, attempt: stepAttempt, event: "advanced" });
-      setIdx(idx + 1);
+      selectNextStep(currentStep.kind);
     }
+  }
+
+  /**
+   * RC2.2.24 — conclusão comprometida → etapa seguinte selecionada; o efeito
+   * de render confirma `next_step_rendered` quando o DOM DELA aparece. Sem
+   * isso no prazo: STEP_RENDER_STALL_ANDROID (rastro + observação de QA).
+   */
+  function selectNextStep(kind: string) {
+    const next = idx + 1;
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind, attempt: stepAttempt, event: "completion_committed" });
+    traceLessonStep({ lessonId: lesson.id, stepIndex: next, kind, attempt: stepAttempt, event: "next_step_selected" });
+    expectedRenderIdxRef.current = next;
+    if (renderWatchdogRef.current != null) window.clearTimeout(renderWatchdogRef.current);
+    const lessonIdAtSelect = lesson.id;
+    renderWatchdogRef.current = window.setTimeout(() => {
+      if (expectedRenderIdxRef.current !== next) return;
+      traceLessonStep({ lessonId: lessonIdAtSelect, stepIndex: next, kind, attempt: 0, event: "step_render_stall" });
+      recordDeviceQaObservation("step_stalled", `STEP_RENDER_STALL_ANDROID · ${lessonIdAtSelect} · ${kind} → ${next}`);
+    }, STEP_RENDER_STALL_MS);
+    setIdx(next);
   }
 
   // Pular com Fôlego: gasta 1 Fôlego (Pro pula sem gastar), sem contar como erro
@@ -4108,7 +4129,15 @@ export function LessonPlayer() {
             locale: locale === "en" ? "en" : "pt",
           })
         : null;
-    const journeyCta = plusResult
+    // RC2.2.25 — Cultura aberta pela Jornada: "✓ Cultura concluída" +
+    // [Voltar para <unidade>] (a unidade que o costume prepara, pela âncora).
+    const cultureReturnUnit =
+      lesson.lessonDomain === "culture" && searchParams.get("src") === "jornada"
+        ? getLesson(peekJourneyReturnAnchor()?.lessonId ?? "")?.unitTitle ?? null
+        : null;
+    const journeyCta = cultureReturnUnit
+      ? t("common.backTo", { target: cultureReturnUnit })
+      : plusResult
       ? plusResult.ctaLabel
       : isPlusRoundSession
         ? t("player.continueJourney")
@@ -4222,8 +4251,6 @@ export function LessonPlayer() {
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
       errorStreakRef.current = 0;
-      mistakeChargeHitsRef.current = 0;
-      setChargePenaltyNotice(null);
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
@@ -4801,13 +4828,6 @@ export function LessonPlayer() {
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
           <div className="longyu-streak-burst rounded-full border border-accent-soft bg-surface px-4 py-2 text-sm font-semibold text-accent shadow-card">
             Sequência x{streakBurst} 🔥
-          </div>
-        </div>
-      )}
-      {chargePenaltyNotice && (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
-          <div className="longyu-error-shake rounded-full border border-wrong/30 bg-wrong-soft px-4 py-2 text-sm font-semibold text-wrong shadow-card">
-            {chargePenaltyNotice}
           </div>
         </div>
       )}

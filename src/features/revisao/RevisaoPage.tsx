@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
+import { capTargetPerRound } from "../../lib/semanticRepetition";
 import { useSearchParams } from "react-router-dom";
 import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
 import { todayKey } from "../../lib/storage";
@@ -11,7 +13,9 @@ import { reviewExampleFor, type ReviewExample } from "../../data/reviewExamples"
 import { charById } from "../../data/characters";
 import { assemblyTileClass } from "../lesson/buildAssemblyFeedback";
 import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
-import { IconCheck, IconChevron, IconRefresh, IconTarget } from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconRefresh, IconTarget, IconX } from "../../components/ui/Icon";
+import { useFocusActivity } from "../../lib/focusActivity";
+import { peekJourneyReturnAnchor } from "../../lib/journeyReturnAnchor";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
@@ -61,9 +65,11 @@ import { reviewSessionSplit } from "../../lib/reviewSession";
 import {
   REVIEW_HANZI_CLASS,
   composeReviewQueue,
+  reviewRoundSize,
   feedbackExplanationIsRedundant,
   reviewOccurrenceAt,
   reviewRoundPosition,
+  reviewSurfaceTarget,
 } from "../../lib/reviewSessionComposer";
 import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { trackFunnelEvent } from "../../services/funnelEvents";
@@ -76,6 +82,7 @@ import { useProOffer } from "../../hooks/useProOffer";
 import {
   buildReviewExercise,
   buildReviewExerciseFromMistake,
+  resolveReviewEntity,
   type ReviewExercise,
   type ReviewMatchPair,
   type ReviewOption,
@@ -84,6 +91,7 @@ import {
 import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 /** Troca o nome-modelo (Matheus/Matheus) pelo nome do aluno nas frases da revisão. */
 function personalizeReviewExercise(
@@ -127,8 +135,17 @@ function personalizeReviewExercise(
 
 /** Tamanho de cada rodada no drill de pontos fracos. */
 /** RC2.2.19 — alvo pedagógico da entrada (mesmo hànzì/palavra em domínios diferentes = mesmo alvo). */
+// RC2.2.20 — pela FORMA: 你好 como vocabulário e 你好 como frase são o mesmo
+// alvo para o aluno (repetição semântica), mesmo com IDs diferentes.
+const reviewSurfaceCache = new Map<string, string>();
 function reviewTargetOf(entry: { item: SRSItem }): string {
-  return `${entry.item.type}:${entry.item.itemId}`;
+  const key = `${entry.item.type}:${entry.item.itemId}`;
+  let target = reviewSurfaceCache.get(key);
+  if (target == null) {
+    target = reviewSurfaceTarget(key, resolveReviewEntity(entry.item)?.hanzi);
+    reviewSurfaceCache.set(key, target);
+  }
+  return target;
 }
 interface Resolved {
   type: SRSItem["type"];
@@ -390,10 +407,16 @@ function domainForEntry(entry: ReviewQueueEntry): ReviewDomain {
   return entry.kind === "mistake" ? entry.error.targets[0]?.domain ?? domainForItem(entry.item) : domainForItem(entry.item);
 }
 
+/**
+ * RC2.2.23 — feedback CURTO: ✓ 骂 · mà — sentido. Sem bloco gigante; o que
+ * não muda a próxima ação (literal, mnemônico, exemplo, o que foi avaliado)
+ * fica em "Ver explicação", opcional.
+ */
 function ReviewAnswer({ data, domain }: { data: Resolved; domain: ReviewDomain }) {
   const meta = REVIEW_DOMAIN_META[domain];
+  const hasMore = Boolean(data.literalPt || data.mnemonicPt || data.example.hanzi);
   return (
-    <div className="animate-pop mt-5 rounded-2xl bg-surface-2 p-4 text-center">
+    <div className="animate-pop mt-4 rounded-2xl bg-surface-2 px-4 py-3 text-center" data-review-answer="short">
       <MandarinText
         hanzi={data.hanzi}
         pinyin={data.pinyin}
@@ -402,32 +425,22 @@ function ReviewAnswer({ data, domain }: { data: Resolved; domain: ReviewDomain }
         audio
         align="center"
       />
-      {data.literalPt && (
-        <div className="mt-1 text-sm text-ink-faint">
-          {catalogT("review.literalPrefix", { text: displayInstruction(data.literalPt) })}
-        </div>
+      {hasMore && (
+        <details className="mt-2 text-left" data-review-answer-more>
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center text-sm font-medium text-accent">
+            {catalogT("review.moreExplanation")}
+          </summary>
+          <div className="mt-1 space-y-2 text-sm text-ink-soft">
+            {data.literalPt && <div className="text-ink-faint">{catalogT("review.literalPrefix", { text: displayInstruction(data.literalPt) })}</div>}
+            {data.mnemonicPt && <p className="rounded-xl bg-surface px-3 py-2">{data.mnemonicPt}</p>}
+            <div className="rounded-xl bg-surface px-3 py-2">
+              <MandarinText hanzi={data.example.hanzi} pinyin={data.example.pinyin} meaning={data.example.pt} size="sm" align="center" autoPlay={false} />
+              {data.example.note && <div className="mt-1 text-xs text-ink-faint">{data.example.note}</div>}
+            </div>
+            <div className="text-xs text-ink-faint">{catalogT("review.cardEvaluated", { skill: displayInstruction(meta.weaknessLabel) })}</div>
+          </div>
+        </details>
       )}
-      <div className="mx-auto mt-3 max-w-sm rounded-xl bg-surface px-3 py-2 text-xs text-ink-soft">
-        {catalogT("review.cardEvaluated", {
-          skill: displayInstruction(meta.weaknessLabel),
-        })}
-      </div>
-      {data.mnemonicPt && (
-        <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-sm text-ink-soft">
-          {data.mnemonicPt}
-        </p>
-      )}
-      <div className="mt-3 rounded-xl bg-surface px-3 py-2 text-sm text-ink-soft">
-        <MandarinText
-          hanzi={data.example.hanzi}
-          pinyin={data.example.pinyin}
-          meaning={data.example.pt}
-          size="sm"
-          align="center"
-          autoPlay={false}
-        />
-        {data.example.note && <div className="mt-1 text-xs text-ink-faint">{data.example.note}</div>}
-      </div>
     </div>
   );
 }
@@ -609,12 +622,14 @@ function ChoiceButton({
       className={["relative min-h-14 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition", className].join(" ")}
     >
       {shortcut && <ShortcutBadge className="shrink-0">{shortcut}</ShortcutBadge>}
-      <TypedValue
-        value={option.label}
-        type={option.type}
-        className={isHanziText(option.label) ? REVIEW_HANZI_CLASS.option : ""}
-        activation="hover-hold"
-      />
+      <span data-review-hanzi={isHanziText(option.label) ? "option" : undefined}>
+        <TypedValue
+          value={option.label}
+          type={option.type}
+          className={isHanziText(option.label) ? REVIEW_HANZI_CLASS.option : ""}
+          activation="hover-hold"
+        />
+      </span>
       {option.detail && revealed && <span className="mt-0.5 block text-xs font-normal opacity-75">{formatPinyinForDisplay(option.detail)}</span>}
     </button>
   );
@@ -654,7 +669,7 @@ function ReviewExercisePanel({
         </div>
       )}
       {exercise.displayText && (
-        <div className="mt-4 rounded-2xl bg-surface px-4 py-4 text-center">
+        <div className="mt-4 rounded-2xl bg-surface px-4 py-4 text-center" data-review-hanzi={isHanziText(exercise.displayText) ? "main" : undefined}>
           <TypedValue
             value={exercise.displayText}
             type={exercise.displayType}
@@ -810,11 +825,14 @@ function SentenceBuildExercise({
               className={[
                 "relative min-h-14 rounded-xl border px-4 py-2 text-sm font-semibold transition",
                 used ? "border-line bg-surface-2 text-ink-faint opacity-55" : "border-line bg-surface text-ink hover:border-accent hover:bg-accent-soft",
-                isHanziText(piece.value) ? "text-2xl sm:text-3xl" : "",
+                // RC2.2.23 — peça com hànzì segue o piso de pares (≥ 44 px no celular).
+                isHanziText(piece.value) ? REVIEW_HANZI_CLASS.pair : "",
               ].join(" ")}
             >
               {index < 10 && <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>}
-              <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} activation="hover-hold" />
+              <span data-review-hanzi={isHanziText(piece.value) ? "pair" : undefined}>
+                <TypedValue value={piece.value} type={isHanziText(piece.value) ? "hanzi" : undefined} activation="hover-hold" />
+              </span>
             </button>
           );
         })}
@@ -910,12 +928,14 @@ function MatchPairsExercise({
                 ].join(" ")}
               >
                 <ShortcutBadge className="shrink-0">{leftPairShortcut(index)}</ShortcutBadge>
-                <TypedValue
-                  value={pair.left}
-                  type={pair.leftType}
-                  className={isHanziText(pair.left) ? `hanzi ${REVIEW_HANZI_CLASS.pair}` : "text-base"}
-                  activation="hover-hold"
-                />
+                <span data-review-hanzi={isHanziText(pair.left) ? "pair" : undefined}>
+                  <TypedValue
+                    value={pair.left}
+                    type={pair.leftType}
+                    className={isHanziText(pair.left) ? `hanzi ${REVIEW_HANZI_CLASS.pair}` : "text-base"}
+                    activation="hover-hold"
+                  />
+                </span>
                 {matched && (
                   <span className="flex items-center gap-1 text-xs font-medium text-ink-soft">
                     {good && <IconCheck width={13} height={13} className="text-[rgb(var(--good))]" />}
@@ -1244,6 +1264,8 @@ function ReviewInsightGroup({
 }
 
 export function RevisaoPage() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("review_open"), []);
   const { t, instructionLocale: locale } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);
@@ -1285,6 +1307,8 @@ export function RevisaoPage() {
   // Congela a fila no início da sessão, mas permite um rebuild se o storage
   // reidratar depois do primeiro paint (evita sessão vazia com dados locais).
   const sessionQueueRef = useRef<ReviewQueueEntry[] | null>(null);
+  // RC2.2.23 — "Continuar revisando" recongela a fila com o SRS já atualizado.
+  const [sessionNonce, setSessionNonce] = useState(0);
   const fullQueue = useMemo(() => {
     if (atlasStudySet) {
       if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
@@ -1312,7 +1336,8 @@ export function RevisaoPage() {
       sessionQueueRef.current = scoped;
     }
     return sessionQueueRef.current;
-  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, moduleUnitId, srs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `sessionNonce` recongela a fila de propósito
+  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, moduleUnitId, srs, sessionNonce]);
   // Modos de revisão: recuperar erros da tentativa/recentes, reforçar itens
   // fracos ou percorrer a fila inteligente inteira. O modo só filtra a fila já
   // congelada — não reconstrói SRS nem duplica nada.
@@ -1322,6 +1347,25 @@ export function RevisaoPage() {
   const [correctionDrill, setCorrectionDrill] = useState(
     () => wantsCorrectionSession && detailedErrorsAllowed
   );
+  // RC2.2.25 — HUB ≠ RODADA. O hub mostra o resumo e [Começar revisão]; a
+  // rodada (5–8 itens) é atividade em focus: sem TabBar, sem painéis, sem
+  // contadores. Link com intenção (sessão/módulo/Atlas/Jornada) já entra na
+  // rodada; `?modo=` só escolhe o filtro do hub.
+  const [roundStarted, setRoundStarted] = useState(
+    () =>
+      wantsCorrectionSession ||
+      searchParams.has("modulo") ||
+      searchParams.get("iniciar") === "1" ||
+      atlasStudySet != null
+  );
+  // A Jornada grava a âncora ao desmontar (no mesmo commit em que esta tela
+  // monta): lida num efeito. Revisão EXIGIDA pela Jornada já entra na rodada;
+  // troca de aba comum cai no hub.
+  useEffect(() => {
+    const anchor = peekJourneyReturnAnchor();
+    if (anchor?.activitySource === "REVIEW" && anchor.returnReason === "REQUIRED_ACTIVITY") setRoundStarted(true);
+  }, []);
+  const inRound = roundStarted || correctionDrill;
   const modeCounts = useMemo(() => countByMode(fullQueue), [fullQueue]);
   const modeQueue = useMemo(
     () => (detailedErrorsAllowed ? filterQueueByMode(fullQueue, mode) : fullQueue),
@@ -1329,13 +1373,14 @@ export function RevisaoPage() {
   );
   const advancedReviewAccess = canAccessAdvancedReview({ isPremium });
   // RC2.2.19 — mesma fila do SRS, só reordenada: o mesmo alvo nunca colado.
-  const baseQueue = useMemo(
-    () => composeReviewQueue(advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue, reviewTargetOf),
-    [advancedReviewAccess.limited, modeQueue]
-  );
+  // RC2.2.23 — e nenhuma rodada de 5–8 com o mesmo alvo mais de 2× (o
+  // excedente vai para a rodada seguinte; nada sai da fila do SRS).
+  const baseQueue = useMemo(() => {
+    const spaced = composeReviewQueue(advancedReviewAccess.limited ? modeQueue.slice(0, FREE_REVIEW_LIMIT) : modeQueue, reviewTargetOf);
+    return capTargetPerRound(spaced, reviewTargetOf, reviewRoundSize(spaced.length));
+  }, [advancedReviewAccess.limited, modeQueue]);
   const [retryQueue, setRetryQueue] = useState<ReviewQueueEntry[]>([]);
   const queue = useMemo(() => [...baseQueue, ...retryQueue], [baseQueue, retryQueue]);
-  const domainCounts = useMemo(() => countByDomain(queue), [queue]);
   const focus = useMemo(() => (detailedErrorsAllowed ? focusForQueue(fullQueue) : null), [detailedErrorsAllowed, fullQueue]);
   const weakItemsCount = useMemo(
     () => (detailedErrorsAllowed ? Object.values(srs).filter((srsItem) => reviewStateLabel(srsItem) === "fraco").length : 0),
@@ -1500,6 +1545,26 @@ export function RevisaoPage() {
     }
   }, [completeStudySession, mode, pos, queue.length]);
 
+  const sessionFinished = queue.length > 0 && pos >= queue.length;
+  // Quanto ainda está devido fora desta sessão (SRS já atualizado pelas notas).
+  const moreDueAfterSession = useMemo(() => {
+    if (!sessionFinished || atlasStudySet) return 0;
+    const seen = new Set(queue.map((queued) => queued.id));
+    return buildReviewQueue(srs, detailedErrorsAllowed ? activeActivityErrors : [], { includeRecentWeakItems: detailedErrorsAllowed }).filter(
+      (candidate) => !seen.has(candidate.id)
+    ).length;
+  }, [activeActivityErrors, atlasStudySet, detailedErrorsAllowed, queue, sessionFinished, srs]);
+  const continueReviewing = useCallback(() => {
+    sessionQueueRef.current = null;
+    reviewCompletedRef.current = false;
+    setRetryQueue([]);
+    setReviewed(0);
+    setSessionGrades([]);
+    setReturningItems([]);
+    setPos(0);
+    setSessionNonce((value) => value + 1);
+  }, []);
+
   // Trocar de modo recomeça a fila filtrada do zero (sem carregar retry antigo).
   useEffect(() => {
     setPos(0);
@@ -1558,8 +1623,10 @@ export function RevisaoPage() {
     entry && item && data && exercise && !(requestedDetailedErrors && !detailedErrorsAllowed)
   );
 
+  useFocusActivity(sessionReadyForHotkeys && inRound);
+
   useExerciseHotkeys({
-    enabled: sessionReadyForHotkeys && !reviewBuilderForHotkeys,
+    enabled: sessionReadyForHotkeys && inRound && !reviewBuilderForHotkeys,
     mode: reviewHotkeyModeForHooks,
     optionCount: reviewOptionCountForHooks,
     leftCount: exercise?.kind === "match_pairs" ? exercise.pairs?.length ?? 0 : 0,
@@ -1602,6 +1669,7 @@ export function RevisaoPage() {
   if (requestedDetailedErrors && !detailedErrorsAllowed) {
     return (
       <HubPage data-review-page="">
+        <JourneyHandoffBanner source="REVIEW" />
         <HubHeader
           eyebrow={t("review.eyebrow")}
           title={t("review.detailedErrors")}
@@ -1639,6 +1707,7 @@ export function RevisaoPage() {
   if (!entry || !item || !data || !exercise) {
     return (
       <HubPage data-review-page="">
+        <JourneyHandoffBanner source="REVIEW" />
         <HubHeader
           eyebrow={moduleUnit ? t("review.moduleEyebrow") : t("review.eyebrow")}
           title={moduleUnit ? moduleUnit.title : detailedErrorsAllowed ? t("review.byDomain") : t("review.basic")}
@@ -1743,10 +1812,22 @@ export function RevisaoPage() {
                   </div>
                 </div>
               )}
-              {correctionDrill && (
+              {correctionDrill ? (
                 <Button className="mt-5" onClick={exitCorrectionDrill}>
                   {t("review.backToReview")}
                 </Button>
+              ) : (
+                // RC2.2.23 — fim claro: voltar ou continuar, nada em volta competindo.
+                <div className="mt-5 flex flex-wrap justify-center gap-3" data-review-end>
+                  <ButtonLink to="/jornada" variant="outline" data-testid="review-end-back">
+                    {t("review.endBack")}
+                  </ButtonLink>
+                  {moreDueAfterSession > 0 && (
+                    <Button onClick={continueReviewing} data-testid="review-end-continue">
+                      {t("review.keepReviewing")}
+                    </Button>
+                  )}
+                </div>
               )}
               {!isPremium && fullQueue.length > queue.length && (
                 <div className="mt-5 rounded-2xl border border-line bg-surface-2 p-4 text-sm text-ink-soft">
@@ -1951,6 +2032,7 @@ export function RevisaoPage() {
 
   return (
     <HubPage data-review-page="">
+        <JourneyHandoffBanner source="REVIEW" />
       {correctionDrill ? (
         <div className="mb-4 flex flex-col gap-3">
           <button
@@ -1985,6 +2067,24 @@ export function RevisaoPage() {
             </div>
           </div>
         </div>
+      ) : inRound ? (
+        <div className="mb-3 flex items-center gap-3" data-review-round-header="">
+          <button
+            type="button"
+            onClick={() => setRoundStarted(false)}
+            aria-label={t("review.backToReview")}
+            data-testid="review-exit"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          >
+            <IconX width={20} height={20} />
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint" data-review-round-step="">
+              {t("review.roundStep", { n: taskInRound, total: roundPosition.roundSize })}
+            </div>
+            <ProgressBar value={roundProgress} max={100} className="mt-1 h-1.5" />
+          </div>
+        </div>
       ) : (
         <HubHeader
           eyebrow={t("review.eyebrow")}
@@ -1993,11 +2093,13 @@ export function RevisaoPage() {
         />
       )}
       {/* RC2.2.19 — primeira revisão: como a sessão funciona (orquestrada, 1x). */}
+      {!inRound && (
       <div className="mb-3">
         <GuidanceInlineSlot surface="/revisao" />
       </div>
+      )}
 
-      {detailedErrorsAllowed && !correctionDrill && (
+      {detailedErrorsAllowed && !inRound && (
         <DetailedErrorsPanel
           errors={recentActivityErrors}
           activeErrors={activeActivityErrors}
@@ -2005,7 +2107,7 @@ export function RevisaoPage() {
         />
       )}
 
-      {!correctionDrill && detailedErrorsAllowed && (
+      {!inRound && detailedErrorsAllowed && (
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ReviewSummaryTile
           label={t("review.todayReview")}
@@ -2051,7 +2153,7 @@ export function RevisaoPage() {
           contagem, "Revisão básica", "Plano de hoje" e "Fila básica" — repetindo
           o mesmo número três vezes e a mesma frase sobre o Pro outras três.
           Vira uma faixa só, com tudo que eles diziam. */}
-      {!correctionDrill && !detailedErrorsAllowed && (
+      {!inRound && !detailedErrorsAllowed && (
         <Card className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
@@ -2085,14 +2187,14 @@ export function RevisaoPage() {
         </Card>
       )}
 
-      {detailedErrorsAllowed && !correctionDrill && (
+      {detailedErrorsAllowed && !inRound && (
         <>
           <ReviewModeTabs mode={mode} counts={modeCounts} onSelect={setMode} />
           <p className="-mt-2 text-xs text-ink-faint">{reviewModeOptions(t).find((option) => option.id === mode)?.hint}</p>
         </>
       )}
 
-      {!correctionDrill && detailedErrorsAllowed && (
+      {!inRound && detailedErrorsAllowed && (
       <Card className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -2120,36 +2222,28 @@ export function RevisaoPage() {
       </Card>
       )}
 
+      {!inRound ? (
+        <div className="mx-auto max-w-xl" data-review-hub-start="">
+          <Button
+            size="lg"
+            className="w-full"
+            data-testid="review-start"
+            onClick={() => setRoundStarted(true)}
+          >
+            {t("review.startRound")}
+          </Button>
+        </div>
+      ) : (
       <div className="mx-auto max-w-xl">
-        {!correctionDrill && detailedErrorsAllowed && (
-        <Card className="mb-4 p-4">
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {t("review.smartQueue")}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {REVIEW_DOMAIN_ORDER.map((domain) => {
-              const count = domainCounts[domain] ?? 0;
-              if (count === 0) return null;
-              return (
-                <Pill key={domain} tone={domain === domainForEntry(entry) ? "accent" : "muted"}>
-                  {displayInstruction(REVIEW_DOMAIN_META[domain].shortLabel)} · {count}
-                </Pill>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-xs text-ink-faint">
-            {t("review.smartQueueHint")}
-          </p>
-        </Card>
-        )}
 
         <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-faint">
           <div className="flex flex-wrap items-center gap-2">
             <Pill tone="accent">{correctionDrill ? t("review.weakPoints") : detailedErrorsAllowed ? displayInstruction(domainMeta.label) : t("review.title")}</Pill>
             {detailedErrorsAllowed && sourceError && <Pill tone="accent">{t("review.realError")}</Pill>}
             <Pill>{itemLabel(item)}</Pill>
-            {detailedErrorsAllowed && !correctionDrill && <Pill tone="muted">{displayInstruction(domainMeta.cardLabel)}</Pill>}
-            {detailedErrorsAllowed && (
+            {/* RC2.2.25 — rodada sem análise: domínio/estado ficam no hub. */}
+            {detailedErrorsAllowed && !inRound && <Pill tone="muted">{displayInstruction(domainMeta.cardLabel)}</Pill>}
+            {detailedErrorsAllowed && !inRound && (
               <Pill tone={item.lapses > 0 && item.reps === 0 ? "accent" : "muted"}>
                 {reviewStateLabel(item)}
               </Pill>
@@ -2283,7 +2377,8 @@ export function RevisaoPage() {
                         >
                           <span>{gradeLabel(g)}</span>
                           <span className="text-[10px] font-normal opacity-80">
-                            {gradeEffect(g)} · +{reviewXpForGrade(g)} XP · +{reviewQiForGrade(g)} Qi
+                            {/* RC2.2.25 — CTA sem recompensa: XP/Qi só no resultado. */}
+                            {gradeEffect(g)}
                           </span>
                         </Button>
                       ))}
@@ -2306,18 +2401,10 @@ export function RevisaoPage() {
           )}
         </Card>
       </div>
+      )}
       <ProPaywall open={proPaywallOpen} kind={proPaywallKind} onClose={() => setProPaywallOpen(false)} />
     </HubPage>
   );
-}
-
-function countByDomain(queue: ReviewQueueEntry[]): Partial<Record<ReviewDomain, number>> {
-  const counts: Partial<Record<ReviewDomain, number>> = {};
-  for (const entry of queue) {
-    const domain = domainForEntry(entry);
-    counts[domain] = (counts[domain] ?? 0) + 1;
-  }
-  return counts;
 }
 
 function buildReviewQueue(

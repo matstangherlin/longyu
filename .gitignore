@@ -66,3 +66,4 @@ google-play*.json
 # RC2.2.16 — manifesto público do Internal testing (sem credenciais; validado por validate:play-internal-readiness).
 !docs/release/google-play-internal.json
 play-credentials*.json
+docs/reports/rc2-2-25-goldens/

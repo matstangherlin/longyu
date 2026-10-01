@@ -32,6 +32,7 @@ import { GlossText } from "../../components/hanzi/GlossText";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziEvolutionCard } from "../../components/hanzi/HanziEvolutionCard";
 import { IconBook, IconChevron, IconLibrary, IconRefresh, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 type FrequencyFilter = "300" | "1000" | "all";
 type ToneFilter = "all" | "1" | "2" | "3" | "4" | "5";
@@ -114,6 +115,8 @@ function findAtlasFromParam(value: string | null | undefined): HanziAtlasItem | 
 }
 
 export function HanziAtlasPage() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("atlas_open"), []);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestedChar = searchParams.get("char") ?? searchParams.get("hanzi");
