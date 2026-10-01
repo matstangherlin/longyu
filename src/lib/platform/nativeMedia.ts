@@ -19,6 +19,10 @@ export interface NativeMediaPlayResult {
   generation?: number;
   assetPath?: string;
   ignored?: boolean;
+  backend?: string;
+  streamVolume?: number;
+  streamMaxVolume?: number;
+  fallbackCount?: number;
 }
 
 export interface NativeMediaCancelResult {
@@ -44,6 +48,13 @@ export interface NativeMediaPlayerState {
   sessionState?: string;
   errorCode?: string;
   playerMediaId?: string;
+  backend?: string;
+  streamVolume?: number;
+  streamMaxVolume?: number;
+  fallbackCount?: number;
+  audioFocus?: string;
+  attemptedBackends?: string;
+  backendErrors?: string;
 }
 
 export interface NativeMediaPlugin {
@@ -69,11 +80,17 @@ export interface NativeMediaPlugin {
     listener: (data: {
       requestId?: string;
       mediaId?: string;
+      audioId?: string;
       reason?: string;
       state?: string;
       positionMs?: number;
       isPlaying?: boolean;
       generation?: number;
+      backend?: string;
+      fallbackCount?: number;
+      audioFocus?: string;
+      started?: boolean;
+      streamVolume?: number;
     }) => void
   ): Promise<NativeMediaListenerHandle>;
 }

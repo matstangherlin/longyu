@@ -2,9 +2,11 @@ package longyu.noba.com;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -21,12 +23,17 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * RC2.2.31C — Media3 + Direct Asset MediaPlayer, session-scoped.
+ * RC2.2.31D — Media3 + Direct Asset MediaPlayer, session-scoped async failover.
  *
  * Fixed packaged speech prefers DIRECT_MEDIA_PLAYER (AssetFileDescriptor).
- * Media3 remains fallback. STARTED requires isPlaying or positionMs proof.
+ * Async Direct failure before STARTED → Media3 (same requestId).
+ * Terminal AUDIO_ERROR only after local backends exhausted.
+ * STARTED requires isPlaying or positionMs proof.
  */
 @CapacitorPlugin(name = "LongyuMedia")
 public class LongyuMediaPlugin extends Plugin {
@@ -39,7 +46,15 @@ public class LongyuMediaPlugin extends Plugin {
     private static final String EVENT_CANCELLED = "AUDIO_CANCELLED";
     private static final String EVENT_SUPERSEDED = "AUDIO_SUPERSEDED";
     private static final String EVENT_STALE = "STALE_MEDIA_CALLBACK_IGNORED";
+    private static final String EVENT_BACKEND_SELECTED = "AUDIO_BACKEND_SELECTED";
+    private static final String EVENT_BACKEND_FAILED = "AUDIO_BACKEND_FAILED";
+    private static final String EVENT_FOCUS_GRANTED = "AUDIO_FOCUS_GRANTED";
+    private static final String EVENT_FOCUS_DENIED = "AUDIO_FOCUS_DENIED";
+    private static final String EVENT_START_PROVED = "AUDIO_START_PROVED";
+    private static final String EVENT_LOCAL_EXHAUSTED = "AUDIO_LOCAL_BACKENDS_EXHAUSTED";
     private static final long MIN_PLAYBACK_PROOF_MS = 100L;
+    private static final long DIRECT_PREPARE_TIMEOUT_MS = 1400L;
+    private static final long DIRECT_START_PROOF_TIMEOUT_MS = 1000L;
     private static final String BACKEND_DIRECT = "DIRECT_MEDIA_PLAYER";
     private static final String BACKEND_MEDIA3 = "MEDIA3";
 
@@ -58,6 +73,10 @@ public class LongyuMediaPlugin extends Plugin {
         long endedAt = 0;
         long cancelledAt = 0;
         long positionMs = 0;
+        int fallbackCount = 0;
+        final List<String> attemptedBackends = new ArrayList<>();
+        final List<String> backendErrors = new ArrayList<>();
+        String audioFocus = "NONE";
         @Nullable String errorCode = null;
         @Nullable Player.Listener listener = null;
 
@@ -75,6 +94,10 @@ public class LongyuMediaPlugin extends Plugin {
     @Nullable private MediaPlayer directPlayer;
     @Nullable private NativeMediaSession activeSession;
     @Nullable private Runnable positionWatchdog;
+    @Nullable private Runnable directPrepareTimeout;
+    @Nullable private Runnable directStartProofTimeout;
+    @Nullable private AudioFocusRequest audioFocusRequest;
+    private boolean audioFocusHeld = false;
     private long generationCounter = 0;
     private String playerState = "IDLE";
 
@@ -103,8 +126,83 @@ public class LongyuMediaPlugin extends Plugin {
      * without a durable onIsPlayingChanged(true). Emit STARTED once so JS can
      * confirm AUDIO_HEARD and unlock Continuar / conversation advance.
      */
+    private void clearDirectTimeouts() {
+        if (directPrepareTimeout != null) {
+            main.removeCallbacks(directPrepareTimeout);
+            directPrepareTimeout = null;
+        }
+        if (directStartProofTimeout != null) {
+            main.removeCallbacks(directStartProofTimeout);
+            directStartProofTimeout = null;
+        }
+    }
+
+    private void abandonAudioFocus() {
+        if (!audioFocusHeld) return;
+        try {
+            AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) return;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && audioFocusRequest != null) {
+                am.abandonAudioFocusRequest(audioFocusRequest);
+            } else {
+                am.abandonAudioFocus(null);
+            }
+        } catch (Exception ignored) {
+        }
+        audioFocusHeld = false;
+        audioFocusRequest = null;
+        if (activeSession != null) activeSession.audioFocus = "ABANDONED";
+    }
+
+    /** Transient focus for short speech clips (Direct MediaPlayer). */
+    private boolean requestAudioFocus(NativeMediaSession session) {
+        try {
+            AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) {
+                session.audioFocus = "DENIED";
+                emit(EVENT_FOCUS_DENIED, session, "NO_AUDIO_MANAGER");
+                return false;
+            }
+            int result;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                android.media.AudioAttributes attrs = new android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+                audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                    .setAudioAttributes(attrs)
+                    .setAcceptsDelayedFocusGain(false)
+                    .setOnAudioFocusChangeListener(focusChange -> {
+                        /* short clips — no duck resume needed */
+                    })
+                    .build();
+                result = am.requestAudioFocus(audioFocusRequest);
+            } else {
+                result = am.requestAudioFocus(
+                    null,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+                );
+            }
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                audioFocusHeld = true;
+                session.audioFocus = "GRANTED";
+                emit(EVENT_FOCUS_GRANTED, session, null);
+                return true;
+            }
+            session.audioFocus = "DENIED";
+            emit(EVENT_FOCUS_DENIED, session, "FOCUS_RESULT_" + result);
+            return false;
+        } catch (Exception e) {
+            session.audioFocus = "DENIED";
+            emit(EVENT_FOCUS_DENIED, session, "FOCUS_EXCEPTION");
+            return false;
+        }
+    }
+
     private void markStarted(NativeMediaSession s, String why) {
         if (s == null || s.started) return;
+        clearDirectTimeouts();
         long pos = safePosition();
         s.started = true;
         s.state = "PLAYING";
@@ -113,6 +211,7 @@ public class LongyuMediaPlugin extends Plugin {
         setState("PLAYING");
         Log.i(TAG, "AUDIO_STARTED requestId=" + s.requestId + " why=" + why + " positionMs=" + pos);
         emit(EVENT_STARTED, s, why);
+        emit(EVENT_START_PROVED, s, why);
     }
 
     private void armPositionWatchdog(final NativeMediaSession session) {
@@ -240,13 +339,14 @@ public class LongyuMediaPlugin extends Plugin {
                     return;
                 }
                 clearPositionWatchdog();
+                clearDirectTimeouts();
                 NativeMediaSession s = activeSession;
                 if (s == null) return;
                 String code = error != null ? error.getErrorCodeName() : "PLAYER_ERROR";
-                s.state = "ERROR";
-                s.errorCode = code;
-                setState("ERROR");
-                emit(EVENT_ERROR, s, code);
+                s.backendErrors.add(code);
+                emit(EVENT_BACKEND_FAILED, s, code);
+                // Media3 is last local backend — terminal only after exhaustion.
+                emitLocalExhausted(s, code);
             }
         };
     }
@@ -263,6 +363,8 @@ public class LongyuMediaPlugin extends Plugin {
     /** A → SUPERSEDED terminal antes de B. */
     private void supersedeActive(@Nullable String reason) {
         clearPositionWatchdog();
+        clearDirectTimeouts();
+        abandonAudioFocus();
         NativeMediaSession prev = activeSession;
         if (prev == null) {
             releaseDirectPlayer();
@@ -282,6 +384,65 @@ public class LongyuMediaPlugin extends Plugin {
         releaseDirectPlayer();
     }
 
+    /** Intermediate backend failure — never terminal AUDIO_ERROR. Same requestId. */
+    private void failDirectBackend(NativeMediaSession session, String reason) {
+        if (session == null || session.started) return;
+        if (!BACKEND_DIRECT.equals(session.backend)) return;
+        if ("ERROR".equals(session.state) || "ENDED".equals(session.state)
+            || "CANCELLED".equals(session.state) || "SUPERSEDED".equals(session.state)) {
+            return;
+        }
+        clearDirectTimeouts();
+        clearPositionWatchdog();
+        session.backendErrors.add(reason);
+        session.fallbackCount += 1;
+        Log.w(TAG, "AUDIO_BACKEND_FAILED requestId=" + session.requestId + " backend=DIRECT reason=" + reason);
+        emit(EVENT_BACKEND_FAILED, session, reason);
+        releaseDirectPlayer();
+        abandonAudioFocus();
+        startMedia3Backend(session);
+    }
+
+    private void emitLocalExhausted(NativeMediaSession session, String reason) {
+        session.state = "ERROR";
+        session.errorCode = reason != null ? reason : "LOCAL_BACKENDS_EXHAUSTED";
+        setState("ERROR");
+        emit(EVENT_LOCAL_EXHAUSTED, session, session.errorCode);
+        emit(EVENT_ERROR, session, session.errorCode);
+        abandonAudioFocus();
+    }
+
+    private void startMedia3Backend(final NativeMediaSession session) {
+        if (session.started) return;
+        if (session.attemptedBackends.contains(BACKEND_MEDIA3)) {
+            emitLocalExhausted(session, "MEDIA3_ALREADY_ATTEMPTED");
+            return;
+        }
+        try {
+            ExoPlayer exo = ensurePlayer();
+            session.backend = BACKEND_MEDIA3;
+            session.attemptedBackends.add(BACKEND_MEDIA3);
+            session.state = "PREPARING";
+            setState("PREPARING");
+            emit(EVENT_BACKEND_SELECTED, session, BACKEND_MEDIA3);
+            Player.Listener listener = bindSessionListener(session);
+            session.listener = listener;
+            exo.addListener(listener);
+            activeSession = session;
+            MediaItem item = new MediaItem.Builder()
+                .setUri(assetUri(session.assetPath))
+                .setMediaId(session.requestId)
+                .build();
+            exo.setMediaItem(item);
+            exo.prepare();
+            exo.play();
+        } catch (Exception e) {
+            session.backendErrors.add("MEDIA3_START_FAILED");
+            emit(EVENT_BACKEND_FAILED, session, "MEDIA3_START_FAILED");
+            emitLocalExhausted(session, "MEDIA3_START_FAILED");
+        }
+    }
+
     private long safePosition() {
         if (directPlayer != null) {
             try {
@@ -299,6 +460,7 @@ public class LongyuMediaPlugin extends Plugin {
     }
 
     private void releaseDirectPlayer() {
+        clearDirectTimeouts();
         if (directPlayer == null) return;
         try {
             directPlayer.setOnPreparedListener(null);
@@ -334,11 +496,27 @@ public class LongyuMediaPlugin extends Plugin {
         }
     }
 
-    /** RC2.2.31C — packaged fixed speech via AssetFileDescriptor + MediaPlayer. */
+    /** RC2.2.31D — packaged fixed speech; async failures failover to Media3 before STARTED. */
     private boolean playDirectAsset(final NativeMediaSession session, String assetPath) {
         releaseDirectPlayer();
         try {
-            AssetFileDescriptor afd = getContext().getAssets().openFd(assetPath);
+            AssetFileDescriptor afd;
+            try {
+                afd = getContext().getAssets().openFd(assetPath);
+            } catch (IOException openFdErr) {
+                // Confirm existence via open(); compressed assets may refuse openFd.
+                try (InputStream in = getContext().getAssets().open(assetPath)) {
+                    if (in != null) {
+                        session.backendErrors.add("ASSET_COMPRESSED_FD_UNAVAILABLE");
+                        Log.w(TAG, "ASSET_COMPRESSED_FD_UNAVAILABLE " + assetPath);
+                        return false;
+                    }
+                } catch (IOException openErr) {
+                    session.backendErrors.add("AUDIO_ASSET_NOT_PACKAGED");
+                    return false;
+                }
+                return false;
+            }
             MediaPlayer mp = new MediaPlayer();
             android.media.AudioAttributes attrs = new android.media.AudioAttributes.Builder()
                 .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
@@ -355,19 +533,33 @@ public class LongyuMediaPlugin extends Plugin {
                     || !capturedRequestId.equals(active.requestId)) {
                     return;
                 }
+                if (directPrepareTimeout != null) {
+                    main.removeCallbacks(directPrepareTimeout);
+                    directPrepareTimeout = null;
+                }
                 active.state = "READY";
                 active.preparedAt = System.currentTimeMillis();
                 setState("READY");
                 emit(EVENT_READY, active, null);
+                if (!requestAudioFocus(active)) {
+                    failDirectBackend(active, "AUDIO_FOCUS_DENIED");
+                    return;
+                }
                 try {
                     player.start();
                 } catch (Exception e) {
-                    active.state = "ERROR";
-                    active.errorCode = "DIRECT_START_FAILED";
-                    setState("ERROR");
-                    emit(EVENT_ERROR, active, active.errorCode);
+                    failDirectBackend(active, "DIRECT_START_FAILED");
                     return;
                 }
+                directStartProofTimeout = () -> {
+                    NativeMediaSession live = activeSession;
+                    if (live == null || live.generation != capturedGeneration
+                        || !capturedRequestId.equals(live.requestId) || live.started) {
+                        return;
+                    }
+                    failDirectBackend(live, "DIRECT_START_PROOF_TIMEOUT");
+                };
+                main.postDelayed(directStartProofTimeout, DIRECT_START_PROOF_TIMEOUT_MS);
                 main.postDelayed(() -> {
                     NativeMediaSession live = activeSession;
                     if (live == null || live.generation != capturedGeneration
@@ -390,6 +582,7 @@ public class LongyuMediaPlugin extends Plugin {
                     || !capturedRequestId.equals(active.requestId)) {
                     return;
                 }
+                clearDirectTimeouts();
                 long pos = 0;
                 try {
                     pos = player.getCurrentPosition();
@@ -399,10 +592,17 @@ public class LongyuMediaPlugin extends Plugin {
                 if (!active.started && pos >= MIN_PLAYBACK_PROOF_MS) {
                     markStarted(active, "DIRECT_ENDED_REPAIR");
                 }
+                if (!active.started) {
+                    // Completed without proof — treat as async Direct failure → Media3.
+                    failDirectBackend(active, "DIRECT_ENDED_WITHOUT_PROOF");
+                    return;
+                }
                 active.state = "ENDED";
                 active.endedAt = System.currentTimeMillis();
                 setState("ENDED");
                 emit(EVENT_ENDED, active, null);
+                abandonAudioFocus();
+                releaseDirectPlayer();
             });
             mp.setOnErrorListener((player, what, extra) -> {
                 NativeMediaSession active = activeSession;
@@ -410,16 +610,33 @@ public class LongyuMediaPlugin extends Plugin {
                     || !capturedRequestId.equals(active.requestId)) {
                     return true;
                 }
-                active.state = "ERROR";
-                active.errorCode = "DIRECT_MEDIA_ERROR_" + what;
-                setState("ERROR");
-                emit(EVENT_ERROR, active, active.errorCode);
+                if (active.started) {
+                    active.state = "ERROR";
+                    active.errorCode = "DIRECT_MEDIA_ERROR_" + what;
+                    setState("ERROR");
+                    emit(EVENT_ERROR, active, active.errorCode);
+                    abandonAudioFocus();
+                    return true;
+                }
+                failDirectBackend(active, "DIRECT_MEDIA_ERROR_" + what);
                 return true;
             });
             session.backend = BACKEND_DIRECT;
+            session.attemptedBackends.add(BACKEND_DIRECT);
             directPlayer = mp;
             activeSession = session;
             setState("PREPARING");
+            emit(EVENT_BACKEND_SELECTED, session, BACKEND_DIRECT);
+            directPrepareTimeout = () -> {
+                NativeMediaSession live = activeSession;
+                if (live == null || live.generation != capturedGeneration
+                    || !capturedRequestId.equals(live.requestId) || live.started
+                    || live.preparedAt > 0) {
+                    return;
+                }
+                failDirectBackend(live, "DIRECT_PREPARE_TIMEOUT");
+            };
+            main.postDelayed(directPrepareTimeout, DIRECT_PREPARE_TIMEOUT_MS);
             mp.prepareAsync();
             return true;
         } catch (Exception e) {
@@ -442,6 +659,9 @@ public class LongyuMediaPlugin extends Plugin {
         data.put("backend", session.backend);
         data.put("state", session.state);
         data.put("positionMs", session.positionMs);
+        data.put("fallbackCount", session.fallbackCount);
+        data.put("audioFocus", session.audioFocus);
+        data.put("started", session.started);
         boolean playing = false;
         try {
             if (directPlayer != null) playing = directPlayer.isPlaying();
@@ -450,6 +670,7 @@ public class LongyuMediaPlugin extends Plugin {
         }
         data.put("isPlaying", playing);
         data.put("streamVolume", streamMusicVolume());
+        data.put("streamMaxVolume", streamMusicMaxVolume());
         if (reason != null) data.put("reason", reason);
         notifyListeners(event, data);
     }
@@ -568,7 +789,7 @@ public class LongyuMediaPlugin extends Plugin {
                     return;
                 }
 
-                // RC2.2.31C — fixed packaged speech: Direct MediaPlayer first.
+                // RC2.2.31D — Direct first; sync failure OR later async failure → Media3 same requestId.
                 if (playDirectAsset(session, assetPath)) {
                     JSObject ok = new JSObject();
                     ok.put("ok", true);
@@ -585,27 +806,16 @@ public class LongyuMediaPlugin extends Plugin {
                     return;
                 }
 
-                // Fallback Media3
-                ExoPlayer exo = ensurePlayer();
-                session.backend = BACKEND_MEDIA3;
-                Player.Listener listener = bindSessionListener(session);
-                session.listener = listener;
-                exo.addListener(listener);
-                activeSession = session;
-                setState("PREPARING");
-
-                MediaItem item = new MediaItem.Builder()
-                    .setUri(assetUri(assetPath))
-                    .setMediaId(requestId)
-                    .build();
-                exo.setMediaItem(item);
-                exo.prepare();
-                exo.play();
+                // Sync Direct failure — start Media3 immediately (same session/requestId).
+                emit(EVENT_BACKEND_FAILED, session, session.backendErrors.isEmpty()
+                    ? "DIRECT_SYNC_FAILED" : session.backendErrors.get(session.backendErrors.size() - 1));
+                session.fallbackCount += 1;
+                startMedia3Backend(session);
 
                 JSObject ok = new JSObject();
                 ok.put("ok", true);
                 ok.put("state", playerState);
-                ok.put("backend", BACKEND_MEDIA3);
+                ok.put("backend", session.backend);
                 ok.put("requestId", requestId);
                 ok.put("mediaId", requestId);
                 ok.put("generation", session.generation);
@@ -613,6 +823,7 @@ public class LongyuMediaPlugin extends Plugin {
                 ok.put("preflight", preflight);
                 ok.put("streamVolume", streamVol);
                 ok.put("streamMaxVolume", streamMax);
+                ok.put("fallbackCount", session.fallbackCount);
                 call.resolve(ok);
             } catch (Exception e) {
                 setState("ERROR");
@@ -653,12 +864,14 @@ public class LongyuMediaPlugin extends Plugin {
                 return;
             }
             clearPositionWatchdog();
+            clearDirectTimeouts();
             session.cancelledAt = System.currentTimeMillis();
             session.state = "CANCELLED";
             session.positionMs = safePosition();
             emit(EVENT_CANCELLED, session, "CANCELLED");
             detachSessionListener(session);
             releaseDirectPlayer();
+            abandonAudioFocus();
             if (player != null) {
                 try {
                     player.stop();
@@ -689,6 +902,7 @@ public class LongyuMediaPlugin extends Plugin {
     public void stopAllCanonicalAudio(PluginCall call) {
         main.post(() -> {
             clearPositionWatchdog();
+            clearDirectTimeouts();
             if (activeSession != null
                 && !"ENDED".equals(activeSession.state)
                 && !"ERROR".equals(activeSession.state)
@@ -700,6 +914,7 @@ public class LongyuMediaPlugin extends Plugin {
             }
             detachSessionListener(activeSession);
             releaseDirectPlayer();
+            abandonAudioFocus();
             if (player != null) {
                 try {
                     player.stop();
@@ -747,6 +962,10 @@ public class LongyuMediaPlugin extends Plugin {
             result.put("backend", activeSession.backend);
             result.put("started", activeSession.started);
             result.put("sessionState", activeSession.state);
+            result.put("fallbackCount", activeSession.fallbackCount);
+            result.put("audioFocus", activeSession.audioFocus);
+            result.put("attemptedBackends", String.join(",", activeSession.attemptedBackends));
+            result.put("backendErrors", String.join(",", activeSession.backendErrors));
             if (activeSession.errorCode != null) result.put("errorCode", activeSession.errorCode);
         }
         call.resolve(result);
@@ -790,7 +1009,11 @@ public class LongyuMediaPlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        clearPositionWatchdog();
+        clearDirectTimeouts();
         detachSessionListener(activeSession);
+        releaseDirectPlayer();
+        abandonAudioFocus();
         if (player != null) {
             try {
                 player.release();

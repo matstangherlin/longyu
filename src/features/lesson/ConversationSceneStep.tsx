@@ -1447,12 +1447,15 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const right = characters.find((c) => c.side === "right") ?? characters[1];
 
   function finish() {
+    // RC2.2.31D — CORE first (onDone), then best-effort trace. Trace never blocks finish.
     const attempts = Math.max(1, mistakeCountRef.current + 1);
-    traceLessonStep({ lessonId: step.sceneId ?? "scene", stepIndex: -1, kind: "conversation_scene", attempt: attempts, event: "scene_onDone" });
     onDone(!hadMistakeRef.current, {
       attempts,
       helpLevel: helpLevelRef.current,
       helpRequests: helpRequestsRef.current,
+    });
+    safeSideEffect("conversation_trace", () => {
+      traceLessonStep({ lessonId: step.sceneId ?? "scene", stepIndex: -1, kind: "conversation_scene", attempt: attempts, event: "scene_onDone" });
     });
   }
 
@@ -1474,28 +1477,26 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     opts?: { reuseTransitionId?: string }
   ) {
     const sceneId = step.sceneId ?? "scene";
+    const fromNodeId = nodeId;
+    // RC2.2.31D — state-first: resolve → pure lock → target → COMMIT, then side effects.
     const transitionId = opts?.reuseTransitionId ?? nextTransitionId(sceneId, spokenCount);
     if (opts?.reuseTransitionId) {
       transitionLockRef.current = forceReleaseTransitionLock(transitionLockRef.current);
     }
     const acquired = tryAcquireTransitionLock(transitionLockRef.current, transitionId);
     if (!acquired.ok) {
-      recordConversationTrace({
-        event: "conversation_lock_rejected",
-        sceneId,
-        nodeId: nodeId,
-        transitionId,
+      safeSideEffect("conversation_trace", () => {
+        recordConversationTrace({
+          event: "conversation_lock_rejected",
+          sceneId,
+          nodeId: fromNodeId,
+          transitionId,
+        });
       });
       return;
     }
     transitionLockRef.current = acquired.lock;
     lastTransitionIdRef.current = transitionId;
-    recordConversationTrace({
-      event: "conversation_lock_acquired",
-      sceneId,
-      nodeId: nodeId,
-      transitionId,
-    });
     if (!opts?.reuseTransitionId) transitionsRef.current += 1;
     // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
     const target = resolveConversationTarget(targetId, (id) => nodeById.has(id), transitionsRef.current);
@@ -1503,13 +1504,31 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       setRuntime((prev) => conversationReducer(prev, { type: "FINISH", transitionId }));
       transitionLockRef.current = forceReleaseTransitionLock(transitionLockRef.current);
       finish();
+      safeSideEffect("conversation_trace", () => {
+        recordConversationTrace({
+          event: "conversation_lock_acquired",
+          sceneId,
+          nodeId: fromNodeId,
+          transitionId,
+        });
+      });
       return;
     }
-    // RC2.2.31 — um unico commit pedagogico (sem setNodeId paralelo).
+    // RC2.2.31D — único commit pedagógico ANTES de trace/truth.
     setRuntime((prev) =>
       conversationReducer(prev, { type: "CONTINUE", targetNodeId: target.id, transitionId })
     );
-    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });
+    safeSideEffect("conversation_trace", () => {
+      recordConversationTrace({
+        event: "conversation_lock_acquired",
+        sceneId,
+        nodeId: fromNodeId,
+        transitionId,
+      });
+    });
+    safeSideEffect("conversation_truth", () => {
+      truth.begin(fromNodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });
+    });
     // Backup: se o DOM não liberar o lock, o timeout de 280ms+ ainda desbloqueia.
     window.setTimeout(() => {
       transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now());
@@ -1841,8 +1860,11 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     const wanted = Number(String(expected).replace("line-", ""));
     if (!Number.isFinite(wanted)) return;
     setV1TruthTick((n) => n + 1);
-    truth.begin(`line-${lineIndex}`, `line-${wanted}`, null, { failsafe: true });
+    // RC2.2.31D — state first, then truth tracking.
     setLineIndex(wanted);
+    safeSideEffect("conversation_truth", () => {
+      truth.begin(`line-${lineIndex}`, `line-${wanted}`, null, { failsafe: true });
+    });
   };
 
   useEffect(() => {
@@ -1862,14 +1884,16 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function advanceDialogue() {
     const sceneId = step.sceneId ?? "scene";
-    // RC2.2.31C — V1 state first; no noteUserGesture on critical path.
+    // RC2.2.31D — V1: setLineIndex BEFORE truth/trace. No noteUserGesture on critical path.
     if (lineIndex < lines.length - 1) {
-      // RC2.2.24 — sem TTS no toque: a fala nova aparece e só então a bolha fala.
-      truth.begin(`line-${lineIndex}`, `line-${lineIndex + 1}`);
+      const from = lineIndex;
       setLineIndex((index) => index + 1);
+      safeSideEffect("conversation_truth", () => {
+        truth.begin(`line-${from}`, `line-${from + 1}`);
+      });
       safeSideEffect("conversation_trace", () => {
-        recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: `line-${lineIndex}` });
-        recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: `line-${lineIndex}` });
+        recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: `line-${from}` });
+        recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: `line-${from}` });
       });
       return;
     }
@@ -1899,8 +1923,11 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     truth.clearStall();
     const wanted = Number(expected.replace("line-", ""));
     if (Number.isFinite(wanted) && wanted < lines.length) {
-      truth.begin(`line-${lineIndex}`, `line-${wanted}`);
+      const from = lineIndex;
       setLineIndex(wanted);
+      safeSideEffect("conversation_truth", () => {
+        truth.begin(`line-${from}`, `line-${wanted}`);
+      });
     }
   });
   useExerciseHotkeys({

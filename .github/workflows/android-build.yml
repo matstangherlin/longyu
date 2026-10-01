@@ -25,6 +25,8 @@ jobs:
   android-build:
     name: Android foundation (contratos + debug APK/AAB)
     runs-on: ubuntu-latest
+    outputs:
+      artifact_name: ${{ steps.identity.outputs.base }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +70,7 @@ jobs:
           ffprobe -version | head -1
 
       - name: Contratos Android + pipeline de entrega
-        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause && npm run gate:rc2-2-28-deterministic-audio && npm run gate:rc2-2-29-launch-convergence && npm run gate:rc2-2-30-closed-beta-entry && npm run gate:rc2-2-31-android-runtime-closure && npm run gate:rc2-2-31b-android-runtime-final && npm run gate:rc2-2-31c-android-runtime-root-cause
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause && npm run gate:rc2-2-28-deterministic-audio && npm run gate:rc2-2-29-launch-convergence && npm run gate:rc2-2-30-closed-beta-entry && npm run gate:rc2-2-31-android-runtime-closure && npm run gate:rc2-2-31b-android-runtime-final && npm run gate:rc2-2-31c-android-runtime-root-cause && npm run gate:rc2-2-31d-apk-runtime-proof
 
       - name: Release sem segredos bloqueia honestamente
         run: |
@@ -127,3 +129,81 @@ jobs:
           path: release-artifacts/
           if-no-files-found: error
           retention-days: ${{ github.event_name == 'push' && 30 || 7 }}
+
+  # RC2.2.31D — BUILD PASS ≠ RUNTIME PASS.
+  # Boots emulator, installs the same debug app, runs connectedDebugAndroidTest
+  # against real MainActivity WebView (Guided Try + conversation scenes).
+  android-runtime-emulator:
+    name: Android runtime (emulator + connectedDebugAndroidTest)
+    needs: android-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm || true
+
+      - name: Build web + sync Capacitor (diagnostic APK)
+        env:
+          VITE_DEVICE_QA: "true"
+          VITE_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VITE_WORKFLOW_SHA: ${{ github.sha }}
+          VITE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          npm run build
+          npx cap sync android
+
+      - name: Android runtime emulator tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            cd android
+            chmod +x ./gradlew
+            ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --stacktrace
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            ./gradlew :app:connectedDebugAndroidTest --stacktrace
+            mkdir -p ../runtime-evidence
+            adb logcat -d -s LongyuMedia:I LongyuGesture:I LongyuConversation:I > ../runtime-evidence/logcat-sanitized.txt || true
+            if [ -d app/build/outputs/androidTest-results ]; then
+              cp -R app/build/outputs/androidTest-results ../runtime-evidence/ || true
+            fi
+            if [ -d app/build/reports/androidTests ]; then
+              cp -R app/build/reports/androidTests ../runtime-evidence/ || true
+            fi
+            printf '%s\n' "{\"sourceHead\":\"${{ github.event.pull_request.head.sha || github.sha }}\",\"workflowSha\":\"${{ github.sha }}\",\"lane\":\"ANDROID_EMULATOR_RUNTIME\"}" > ../runtime-evidence/build-identity.json
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-runtime-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: runtime-evidence/
+          if-no-files-found: warn
+          retention-days: 7

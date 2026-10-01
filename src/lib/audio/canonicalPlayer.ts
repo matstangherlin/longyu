@@ -26,7 +26,9 @@ export type CanonicalAudioEvent =
   | "AUDIO_ENDED"
   | "AUDIO_ERROR"
   | "AUDIO_CANCELLED"
-  | "AUDIO_SUPERSEDED";
+  | "AUDIO_SUPERSEDED"
+  | "AUDIO_BACKEND_FAILED"
+  | "AUDIO_LOCAL_BACKENDS_EXHAUSTED";
 
 export interface PlayCanonicalAudioInput {
   audioId: string;
@@ -56,6 +58,7 @@ type NativeHandler = {
   onStart: () => void;
   onEnd: () => void;
   onError: (reason: string) => void;
+  onBackendFailed: (reason: string) => void;
   onCancelled: (reason?: string) => void;
   onSuperseded: (reason?: string) => void;
 };
@@ -121,6 +124,9 @@ async function ensureNativeListeners(): Promise<void> {
           if (event === "AUDIO_READY") h.onReady();
           else if (event === "AUDIO_STARTED") h.onStart();
           else if (event === "AUDIO_ENDED") h.onEnd();
+          // Intermediate Direct failure — do NOT settle; Media3 may still play.
+          else if (event === "AUDIO_BACKEND_FAILED") h.onBackendFailed(data.reason ?? "BACKEND_FAILED");
+          else if (event === "AUDIO_LOCAL_BACKENDS_EXHAUSTED") h.onError(data.reason ?? "LOCAL_BACKENDS_EXHAUSTED");
           else if (event === "AUDIO_ERROR") h.onError(data.reason ?? "NATIVE_MEDIA_ERROR");
           else if (event === "AUDIO_CANCELLED") h.onCancelled(data.reason);
           else if (event === "AUDIO_SUPERSEDED") h.onSuperseded(data.reason);
@@ -128,6 +134,8 @@ async function ensureNativeListeners(): Promise<void> {
       handles.push(await media.addListener("AUDIO_READY", forward("AUDIO_READY")));
       handles.push(await media.addListener("AUDIO_STARTED", forward("AUDIO_STARTED")));
       handles.push(await media.addListener("AUDIO_ENDED", forward("AUDIO_ENDED")));
+      handles.push(await media.addListener("AUDIO_BACKEND_FAILED", forward("AUDIO_BACKEND_FAILED")));
+      handles.push(await media.addListener("AUDIO_LOCAL_BACKENDS_EXHAUSTED", forward("AUDIO_LOCAL_BACKENDS_EXHAUSTED")));
       handles.push(await media.addListener("AUDIO_ERROR", forward("AUDIO_ERROR")));
       handles.push(await media.addListener("AUDIO_CANCELLED", forward("AUDIO_CANCELLED")));
       handles.push(await media.addListener("AUDIO_SUPERSEDED", forward("AUDIO_SUPERSEDED")));
@@ -257,6 +265,12 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
       input.onEvent?.("AUDIO_ERROR", { requestId, reason });
       settle();
     };
+    // RC2.2.31D — intermediate backend failure must NOT settle or emit terminal ERROR.
+    const onBackendFailed = (reason: string) => {
+      if (settled) return;
+      input.onEvent?.("AUDIO_BACKEND_FAILED", { requestId, reason });
+      trace("audio_native_call_return", { requestId, audioId, phase: "backend_failed", reason });
+    };
     const onCancelled = (reason?: string) => {
       if (settled) return;
       outcome.cancelled = true;
@@ -284,7 +298,7 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
       // READY só depois de AUDIO_READY nativo — nunca pré-nativo.
       trace("audio_engine_selected", { requestId, engine: "native-media" });
       trace("audio_native_call_enter", { requestId, audioId, androidAssetPath });
-      nativeHandlers.set(requestId, { onReady, onStart, onEnd, onError, onCancelled, onSuperseded });
+      nativeHandlers.set(requestId, { onReady, onStart, onEnd, onError, onBackendFailed, onCancelled, onSuperseded });
       const bind =
         nativeListenerState === "FAILED"
           ? ((nativeListenerState = "UNBOUND"), ensureNativeListeners())

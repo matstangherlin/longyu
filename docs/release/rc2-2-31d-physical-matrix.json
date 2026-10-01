@@ -1,0 +1,44 @@
+{
+  "wave": "RC2_2_31D",
+  "note": "Prior #305 FAIL preserved. #306 CODE_READY. Current 31D HEAD physical NOT_RUN until owner installs matching APK.",
+  "lanes": {
+    "CODE_CONTRACTS": "PENDING",
+    "WEB_E2E": "NOT_THIS_WAVE",
+    "ANDROID_BUILD": "PENDING",
+    "ANDROID_EMULATOR_RUNTIME": "PENDING",
+    "ANDROID_PHYSICAL_OWNER": "NOT_RUN",
+    "PLAY_INSTALL": "NOT_REQUESTED"
+  },
+  "checks": {
+    "guidedTryAudio": "NOT_RUN",
+    "conversationContinue": "NOT_RUN",
+    "conversationSequentialAudio": "NOT_RUN",
+    "asyncDirectMedia3Failover": "CODE_READY",
+    "observerNeverBlocksAction": "CODE_READY",
+    "stateFirstConversation": "CODE_READY",
+    "audioFocusDirect": "CODE_READY",
+    "failOpenProgression": "CODE_READY",
+    "realWebViewInstrumented": "CODE_READY",
+    "guidedTry10ColdStarts": "NOT_RUN",
+    "audioOffConversation20": "NOT_RUN",
+    "audioOnConversation20": "NOT_RUN"
+  },
+  "priorPhysical": {
+    "pr305_pre_1713d851": {
+      "guidedTryAudio": "FAIL",
+      "conversationContinue": "FAIL",
+      "conversationSequentialAudio": "FAIL"
+    },
+    "pr306_58efcbbe": {
+      "status": "CODE_READY_AWAITING_PHYSICAL",
+      "ownerAccepted": false
+    }
+  },
+  "release": {
+    "CLOSED_BETA": "NO-GO",
+    "DEVELOPMENT_USABLE": 0,
+    "APK_PASS": 0,
+    "OWNER_ACCEPTED": 0,
+    "AUDIO_PHYSICAL_PASS": 0
+  }
+}

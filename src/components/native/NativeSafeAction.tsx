@@ -1,10 +1,18 @@
 /**
- * RC2.2.31C — contrato único de toque APK para ações críticas.
+ * RC2.2.31D — contrato único de toque APK para ações críticas.
  *
  * Traces só nos handlers REAIS (nunca fabricados).
  * Dedupe por gestureId (pointerdown), nunca só por actionKey.
+ * Observers / telemetry NUNCA bloqueiam a ação pedagógica.
  */
-import { useRef, type PointerEvent as ReactPointerEvent, type ReactNode, type MouseEvent as ReactMouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
+import { recordTechEvent } from "../../lib/techEvents";
 
 const POINTER_FALLBACK_MS = 50;
 
@@ -24,6 +32,20 @@ export interface NativeSafeActionHandlers {
 
 let gestureSeq = 0;
 
+/** Telemetry never blocks pedagogical action. */
+export function safeObserve(fn?: () => void): void {
+  if (!fn) return;
+  try {
+    fn();
+  } catch {
+    try {
+      recordTechEvent("js_error", { errorClass: "NativeSafeObserveError", source: "safeObserve" });
+    } catch {
+      /* never throw */
+    }
+  }
+}
+
 export function useNativeSafeAction(
   action: () => void,
   actionKey: string,
@@ -34,6 +56,12 @@ export function useNativeSafeAction(
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observersRef = useRef(observers);
   observersRef.current = observers;
+  // Timer / late click must call the latest action (current node), not a stale closure.
+  const actionRef = useRef(action);
+  actionRef.current = action;
+  const actionKeyRef = useRef(actionKey);
+  actionKeyRef.current = actionKey;
+  const mountedRef = useRef(true);
 
   function clearFallback() {
     if (fallbackTimerRef.current != null) {
@@ -42,25 +70,46 @@ export function useNativeSafeAction(
     }
   }
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      clearFallback();
+      pendingRef.current = null;
+    };
+  }, []);
+
   function runOnce(source: "click" | "pointer_fallback", gestureId: number | null) {
+    if (!mountedRef.current) return;
     // Same gestureId → one execution (click + fallback). New pointerdown → new id → eligible.
     if (gestureId != null && executedGestureRef.current === gestureId) {
       return;
     }
+    const key = actionKeyRef.current;
     if (source === "pointer_fallback") {
       if (pendingRef.current == null) return;
-      if (pendingRef.current.key !== actionKey) return;
+      if (pendingRef.current.key !== key) return;
       if (gestureId == null) return;
-      observersRef.current?.onFallbackObserved?.();
+      safeObserve(() => observersRef.current?.onFallbackObserved?.());
     }
     if (gestureId != null) executedGestureRef.current = gestureId;
     pendingRef.current = null;
     clearFallback();
-    // Wrap action so side-effect throws inside the handler never poison the button.
     try {
-      observersRef.current?.onActionExecuted?.(source);
-      action();
-    } catch {
+      safeObserve(() => observersRef.current?.onActionExecuted?.(source));
+      actionRef.current();
+    } catch (err) {
+      try {
+        recordTechEvent("js_error", {
+          errorClass: err instanceof Error ? err.name : "NativeActionError",
+          source: "native_action_error",
+          actionKey: key,
+          gestureId: gestureId ?? undefined,
+          detail: source,
+        });
+      } catch {
+        /* never throw */
+      }
       /* pedagogical action should not throw; if it does, allow retap */
       executedGestureRef.current = null;
     }
@@ -69,14 +118,15 @@ export function useNativeSafeAction(
   return {
     onPointerDown: () => {
       gestureSeq += 1;
-      pendingRef.current = { gestureId: gestureSeq, key: actionKey };
+      pendingRef.current = { gestureId: gestureSeq, key: actionKeyRef.current };
       clearFallback();
-      observersRef.current?.onPointerDownObserved?.();
+      safeObserve(() => observersRef.current?.onPointerDownObserved?.());
     },
     onClick: () => {
-      observersRef.current?.onClickObserved?.();
-      const gid = pendingRef.current?.key === actionKey ? pendingRef.current.gestureId : gestureSeq + 1;
-      if (pendingRef.current?.key !== actionKey) {
+      safeObserve(() => observersRef.current?.onClickObserved?.());
+      const key = actionKeyRef.current;
+      const gid = pendingRef.current?.key === key ? pendingRef.current.gestureId : gestureSeq + 1;
+      if (pendingRef.current?.key !== key) {
         // Click without pointerdown (some WebViews): invent a fresh gesture id.
         gestureSeq += 1;
         runOnce("click", gestureSeq);
@@ -85,16 +135,19 @@ export function useNativeSafeAction(
       runOnce("click", gid);
     },
     onPointerUp: () => {
-      observersRef.current?.onPointerUpObserved?.();
+      safeObserve(() => observersRef.current?.onPointerUpObserved?.());
       const pending = pendingRef.current;
-      if (pending == null || pending.key !== actionKey) return;
+      const key = actionKeyRef.current;
+      if (pending == null || pending.key !== key) return;
       if (executedGestureRef.current === pending.gestureId) {
         pendingRef.current = null;
         return;
       }
       clearFallback();
+      const gestureId = pending.gestureId;
       fallbackTimerRef.current = setTimeout(() => {
-        runOnce("pointer_fallback", pending.gestureId);
+        if (!mountedRef.current) return;
+        runOnce("pointer_fallback", gestureId);
       }, POINTER_FALLBACK_MS);
     },
   };

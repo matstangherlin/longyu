@@ -8,14 +8,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * RC2.2.28 — mínimo contra o APK: fixture de conversa 1→10.
+ * RC2.2.31D — fixture contract ONLY (NOT runtime proof): fixture de conversa 1→10.
  *
  * O WebView + bridge de QA disparam Continuar; este teste instrumentado
  * documenta o contrato (nodeId avança sem depender de TTS). A prova física
  * completa permanece NOT_RUN até o owner no aparelho.
  */
 @RunWith(AndroidJUnit4.class)
-public class ConversationTenNodeInstrumentedTest {
+public class ConversationFixtureContractTest {
 
     @Test
     public void qaTenNodeIdsAreStable() {

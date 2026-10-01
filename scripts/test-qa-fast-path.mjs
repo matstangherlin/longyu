@@ -44,6 +44,8 @@ function isProductionLikeEnv(env) {
 }
 
 function isQaFastPathAllowed(env) {
+  // RC2.2.31D — diagnostic APK may open /qa fixtures for instrumented runtime.
+  if (env.VITE_DEVICE_QA === "true") return true;
   if (isProductionLikeEnv(env)) return false;
   const appEnv = resolveAppEnvironment(env);
   return appEnv === "development" || appEnv === "preview";
@@ -82,6 +84,14 @@ assert(
 assert(
   isQaFastPathAllowed({ MODE: "production", VITE_ALLOW_PRO_PREVIEW: "true" }) === false,
   "Pro Preview flag não liga /qa em production"
+);
+assert(
+  isQaFastPathAllowed({ MODE: "production", VITE_APP_ENV: "production_beta", VITE_DEVICE_QA: "true" }) === true,
+  "APK de diagnóstico (VITE_DEVICE_QA) → Fast Path on"
+);
+assert(
+  envSrc.includes('VITE_DEVICE_QA === "true"'),
+  "appEnvironment deve liberar /qa com VITE_DEVICE_QA"
 );
 
 for (const pathName of ["/qa", "/qa/player", "/qa/m1", "/qa/player?seed=1", "/qa?marker=1"]) {

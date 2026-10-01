@@ -742,6 +742,26 @@ export const RC2_2_31C_ANDROID_WEBVIEW_GESTURE_EXCEPTION = {
   gate: "gate:rc2-2-31c-android-runtime-root-cause",
 } as const;
 
+export const RC2_2_31D_APK_RUNTIME_PROOF_EXCEPTION = {
+  id: "RC2_2_31D_APK_RUNTIME_PROOF",
+  scope: "real emulator WebView instrumented tests, async Direct→Media3 failover, NativeSafeAction safeObserve, state-first conversation, audio focus, pedagogical fail-open — no new gamification/curriculum/Pro",
+  areas: [
+    "ANDROID_BUILD_PASS separated from ANDROID_EMULATOR_RUNTIME_PASS",
+    "observer/trace/haptic never block pedagogical CTAs",
+    "Direct async failure failover to Media3 same requestId before terminal ERROR",
+    "Guided Try / Conversation fail-open when audio degraded",
+  ],
+  forbids: [
+    "new LessonEngine, SRS, StoryEngine, ProfileEngine or reward engine",
+    "touching #273 / changing package / enabling Android billing or Production Play",
+    "declaring CLOSED_BETA or APK PASS without owner physical acceptance",
+    "counting Node gate or assembleDebug as emulator runtime PASS",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "a91d31d0c0de",
+  gate: "gate:rc2-2-31d-apk-runtime-proof",
+} as const;
+
 /**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
