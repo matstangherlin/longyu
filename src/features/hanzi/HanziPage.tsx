@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CHARACTERS, DECOMPOSABLE } from "../../data/characters";
 import { hanziLessonFor } from "../../data/hanziPedagogy";
@@ -95,6 +96,7 @@ export function HanziPage() {
   return (
     <EngineGate track="hanzi">
     <div className="space-y-8">
+      <JourneyHandoffBanner source="HANZI" />
       <SectionTitle
         eyebrow="Competência · Hànzì"
         title="Montar hànzì"

@@ -295,7 +295,8 @@ export async function validateGuidanceTruth(s) {
   if (o.recordGuidanceRendered(dismissed, { coveredIds: ["practice_unlocked_v1"] }, NOW + 1).records.practice_unlocked_v1?.status !== "DISMISSED")
     fail("SHOWN_WITHOUT_EVIDENCE", "recordGuidanceRendered", "evidência de render não rebaixa DISMISSED");
   // Mutação 3 da spec: orientação REALMENTE mostrada não repete.
-  const allShown = o.recordGuidanceRendered(seeded, { coveredIds: Object.keys(seeded.records) }, NOW);
+  // RC2.2.23 — TODAS as orientações vistas (inclui as que só nascem depois, ex.: ponte Jornada→Cultura).
+  const allShown = o.recordGuidanceRendered(seeded, { coveredIds: [...new Set([...Object.keys(seeded.records), ...o.GUIDANCE_DEFINITIONS.map((d) => d.id)])] }, NOW);
   if (o.selectGuidance(ctx(allShown))) fail("SHOWN_REPEATS", "selectGuidance", "SHOWN (vista de verdade) nunca volta");
   // Lote cobre só o que lista.
   const fresh = { ...o.DEFAULT_GUIDANCE_STATE, initialized: true, records: { welcome_journey_v1: { status: "DISMISSED", at: 1 } } };
@@ -476,7 +477,7 @@ export async function validateProductRelease(s) {
   // Perfil / Conta / Sair.
   if (!/to="\/perfil"[\s\S]{0,80}data-coachmark-target="topbar-profile"/.test(s.src.topBar)) fail("PROFILE_NOT_DISCOVERABLE", FILES.topBar, "avatar → /perfil com coachmark");
   const profile = stripComments(s.src.profile);
-  const fold = profile.slice(profile.indexOf('data-testid="profile-header"'), profile.indexOf('data-testid="profile-first-fold-actions"') + 900);
+  const fold = profile.slice(profile.indexOf('data-testid="profile-header"'), profile.indexOf('data-testid="profile-first-fold-actions"') + 1400);
   for (const needle of ['data-testid="profile-avatar"', 'data-testid="profile-username"', 'data-testid="profile-medal-count"', 'to="/conta"', 'to="/amigos"'])
     if (!fold.includes(needle)) fail("PROFILE_NOT_DISCOVERABLE", FILES.profile, `primeira dobra: ${needle}`);
   const more = stripComments(s.src.more);

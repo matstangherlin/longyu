@@ -73,7 +73,7 @@ test.describe("RC2.2.8 — P1 Review gloss (aprendizagem assistida)", () => {
       isPremium: true,
       serverIsPro: true,
     });
-    await page.goto("/revisao");
+    await page.goto("/revisao?iniciar=1");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const lookup = page.locator('[data-review-lookup="enabled"]');
@@ -407,7 +407,7 @@ test.describe("RC2.2.8 — D3/E5 mobile", () => {
       isPremium: true,
       serverIsPro: true,
     });
-    await page.goto("/revisao");
+    await page.goto("/revisao?iniciar=1");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     const lookup = page.locator('[data-review-lookup="enabled"]');

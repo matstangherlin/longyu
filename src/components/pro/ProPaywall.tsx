@@ -19,6 +19,7 @@ import {
 import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
 import { canOpenPaywallKind } from "../../product/featureTruth";
 import { useTranslation } from "../../i18n/useTranslation";
+import { EnergySoftLanding } from "./EnergySoftLanding";
 
 export type { PaywallKind, ProPaywallKind };
 
@@ -94,6 +95,10 @@ export function ProPaywall({
   // isto é o que segura em produção se um deles for contornado.
   if (!canOpenPaywallKind(offer?.paywallKind ?? kind)) return null;
 
+  // RC2.2.23 — Cargas zeradas não são paywall: superfície calma com estudo
+  // gratuito primeiro, Conseguir Carga depois e o Pro por último.
+  if (kind === "energy") return <EnergySoftLanding onClose={onClose} />;
+
   return (
     <ModalOverlay role="presentation" onBackdropClick={onClose}>
       <section
@@ -120,24 +125,12 @@ export function ProPaywall({
           {copy.benefit}
         </div>
         <p className="mt-3 text-xs leading-5 text-ink-faint">{copy.freeContinues}</p>
-        {kind === "energy" ? (
-          <div className="mt-5 grid gap-2">
-            <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
-              {t("pro.viewPlans")}
-            </ButtonLink>
-            <ButtonLink to="/missoes" onClick={onClose} size="lg" variant="outline" className="w-full">
-              {t("pro.goToMissions")}
-            </ButtonLink>
-            <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>{t("pro.comeBackTomorrow")}</Button>
-          </div>
-        ) : (
-          <div className="mt-5 grid gap-2">
-            <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
-              {t("pro.viewPlans")}
-            </ButtonLink>
-            <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>{t("pro.notNow")}</Button>
-          </div>
-        )}
+        <div className="mt-5 grid gap-2">
+          <ButtonLink to="/pro" onClick={handleCta} size="lg" className="w-full">
+            {t("pro.viewPlans")}
+          </ButtonLink>
+          <Button size="lg" variant="ghost" className="w-full" onClick={onClose}>{t("pro.notNow")}</Button>
+        </div>
         <p className="mt-3 text-center text-xs text-ink-faint">
           {realBilling
             ? t("pro.trialFootnote")

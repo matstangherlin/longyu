@@ -2935,6 +2935,9 @@ export function AccountPage() {
         </Card>
       </div>
 
+      {/* RC2.2.24 — uma conta Longyu: a lista de perfis locais é ferramenta de
+          DEV/E2E (e da migração legada), nunca UX de produção. */}
+      {isDevLocalAuthAllowed() && (
       <div>
         <Card className="border-line/80 p-5 sm:p-6">
           <h3 className="font-serif text-lg font-semibold text-ink">{t("hub.localProfilesHere")}</h3>
@@ -2975,6 +2978,7 @@ export function AccountPage() {
           </div>
         </Card>
       </div>
+      )}
       <ProPaywall open={reportPaywallOpen} kind="reports" onClose={() => setReportPaywallOpen(false)} />
 
       {relevel && (

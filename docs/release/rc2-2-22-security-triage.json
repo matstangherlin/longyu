@@ -1,0 +1,94 @@
+{
+  "schema": "longyu-rc2-2-22-security-triage/1",
+  "wave": "RC2.2.22",
+  "auditCommand": "npm audit --audit-level=moderate (prod + dev) e npm audit --omit=dev",
+  "state": {
+    "beforeFix": {
+      "sha": "579f65275c1e6e145e667700f3c256fffc4f2eec",
+      "full": {
+        "moderate": 1,
+        "high": 1,
+        "critical": 0
+      },
+      "production": {
+        "total": 0
+      }
+    },
+    "afterFix": {
+      "sha": "cc66db9dd5cfed9800dc4d6d1a60167f66902ed6",
+      "full": {
+        "total": 0
+      },
+      "production": {
+        "total": 0
+      }
+    },
+    "measuredAt": "2026-09-30"
+  },
+  "findings": [
+    {
+      "package": "brace-expansion",
+      "currentVersion": "5.0.12 (e 2.1.7 aninhado em filelist)",
+      "previousVersion": "5.0.9 / 2.1.4",
+      "affectedRange": ">=2.0.0 <2.1.7 || >=4.0.0 <5.0.12",
+      "severity": "high",
+      "advisories": [
+        "GHSA-qhr7-859c-m2p7 (high, recursão sem limite)",
+        "GHSA-6j4f-fj2g-mc7p (high, parseCommaParts)",
+        "GHSA-q2hr-2g5m-vwhr (moderate, expansão quadrática)"
+      ],
+      "dependencyType": "transitive",
+      "scope": "dev",
+      "dependencyPath": [
+        "vite-plugin-pwa → workbox-build → @trickfilm400/rollup-plugin-off-main-thread → ejs → jake → filelist → minimatch@5 → brace-expansion@2",
+        "(dev tooling) → minimatch@10 → brace-expansion@5"
+      ],
+      "shippedToUsers": false,
+      "realImpact": "Só no build (glob de arquivos do service worker); nenhuma entrada de usuário chega ao brace-expansion. DoS teórico no build local/CI.",
+      "fixAvailable": true,
+      "fixApplied": "lockfile refresh (cc66db9d) para versões corrigidas, sem mudar package.json",
+      "breakingRisk": "LOW (patch dentro da mesma major)",
+      "decision": "FIXED_BY_LOCKFILE_REFRESH"
+    },
+    {
+      "package": "fast-uri",
+      "currentVersion": "3.1.8",
+      "previousVersion": "3.1.7",
+      "affectedRange": ">=3.0.0 <3.1.8",
+      "severity": "moderate",
+      "advisories": [
+        "GHSA-hrr3-gc8f-f4qj (normalização de host com octetos percent-encoded)"
+      ],
+      "dependencyType": "transitive",
+      "scope": "dev",
+      "dependencyPath": [
+        "vite-plugin-pwa → workbox-build → ajv@8 → fast-uri"
+      ],
+      "shippedToUsers": false,
+      "realImpact": "Validação de schema no build do service worker; não roda no app.",
+      "fixAvailable": true,
+      "fixApplied": "lockfile refresh (cc66db9d)",
+      "breakingRisk": "LOW (patch)",
+      "decision": "FIXED_BY_LOCKFILE_REFRESH"
+    }
+  ],
+  "policy": {
+    "npmAuditFixForce": "NEVER_AUTOMATIC",
+    "auditThreshold": "moderate (inalterado)",
+    "securityWorkflow": "mantido",
+    "silentIgnore": "PROIBIDO",
+    "allowedRemediation": [
+      "safe dependency update",
+      "lockfile refresh",
+      "package override/resolution",
+      "tool migration"
+    ]
+  },
+  "securityGreen": {
+    "productionAudit": "PASS",
+    "fullAudit": "PASS",
+    "gitleaks": "PASS",
+    "codeql": "PASS",
+    "evidence": "checks do #294 no HEAD cc66db9d"
+  }
+}

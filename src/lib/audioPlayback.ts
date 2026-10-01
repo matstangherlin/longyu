@@ -15,8 +15,12 @@
  *
  * Evolui tts.ts (mesmo speak()); não é outro motor de voz.
  */
-import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture } from "./tts";
+import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture, type SpeakOptions } from "./tts";
 import { traceCurrentLessonStep } from "./lessonStepTrace";
+import { deviceQaEnabled, recordDeviceQaObservation } from "./deviceQa";
+import { claimAudio, releaseAudio } from "./audioArbiter";
+import { recordTechEvent, type TechEventName } from "./techEvents";
+import { stopSpeaking } from "./tts";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -42,6 +46,13 @@ export interface PlaybackOutcome {
 export const PLAYBACK_START_TIMEOUT_MS = 6000;
 
 /**
+ * RC2.2.22 — WebKit/Firefox às vezes disparam onstart e nunca onend. Sem teto
+ * depois do start, o Continuar do contraste (e qualquer UI que espere a
+ * Promise) fica disabled para sempre. Consideramos ENDED e soltamos o áudio.
+ */
+export const PLAYBACK_END_TIMEOUT_MS = 8_000;
+
+/**
  * Asset canônico gravado por falante, se existir para o texto. A auditoria
  * RC2.2.17 · G (你好 谢谢 再见 我 你 好 妈 麻 马 骂) não encontrou nenhum no
  * repositório: o mapa fica vazio até existir gravação com origem registrada.
@@ -50,7 +61,7 @@ export const PLAYBACK_START_TIMEOUT_MS = 6000;
 export const CANONICAL_AUDIO_ASSETS: Readonly<Record<string, string>> = {};
 
 /** Códigos que significam "falta a voz chinesa", não "falhou agora". */
-const UNAVAILABLE_CODE = /^(TTS_LANGUAGE_MISSING_DATA|TTS_LANGUAGE_NOT_SUPPORTED|TTS_UNAVAILABLE|WEB_TTS_UNAVAILABLE)$/;
+const UNAVAILABLE_CODE = /^(TTS_LANGUAGE_MISSING_DATA|TTS_LANGUAGE_NOT_SUPPORTED|TTS_UNAVAILABLE|TTS_NATIVE_PLUGIN_UNAVAILABLE|WEB_TTS_UNAVAILABLE)$/;
 
 export function isVoiceMissingReason(reason: string | null | undefined): boolean {
   return reason === "TTS_LANGUAGE_MISSING_DATA" || reason === "TTS_LANGUAGE_NOT_SUPPORTED";
@@ -76,14 +87,30 @@ const trace: PlaybackTraceEntry[] = [];
 
 function traceEnabled(): boolean {
   try {
+    // RC2.2.20 — também no APK de diagnóstico / Preview / QA Candidate.
+    if (deviceQaEnabled()) return true;
     return Boolean(import.meta.env?.DEV) || import.meta.env?.VITE_USE_TEST_FIXTURES === "true";
   } catch {
     return false;
   }
 }
 
+const TECH_EVENT_FOR: Record<PlaybackTraceEntry["event"], TechEventName> = {
+  request: "audio_requested",
+  start: "audio_started",
+  end: "audio_ended",
+  error: "audio_failed",
+  timeout: "audio_failed",
+  unavailable: "audio_failed",
+};
+
 function record(entry: PlaybackTraceEntry): void {
   if (!traceEnabled()) return;
+  // RC2.2.21 — mesmo evento no buffer técnico do /qa/device (sem o texto).
+  recordTechEvent(TECH_EVENT_FOR[entry.event], { engine: entry.engine, reason: entry.reason ?? null });
+  if (entry.event === "error" || entry.event === "timeout" || entry.event === "unavailable") {
+    recordDeviceQaObservation("audio_failed", `${entry.engine} · ${entry.event}${entry.reason ? ` · ${entry.reason}` : ""}`);
+  }
   // RC2.2.19 — o mesmo pedido/início aparece na trilha do passo atual.
   if (entry.event === "request") traceCurrentLessonStep("audio_requested");
   else if (entry.event === "start") traceCurrentLessonStep("audio_started");
@@ -106,11 +133,17 @@ export interface PlayMandarinOptions {
   rate?: number;
   onState?: (state: PlaybackState, outcome: PlaybackOutcome) => void;
   startTimeoutMs?: number;
+  /** Teto após onstart quando o motor não dispara onend (default: PLAYBACK_END_TIMEOUT_MS). */
+  endTimeoutMs?: number;
+  /** RC2.2.24 — identidade desta reprodução (Android correlaciona os eventos por ela). */
+  requestId?: string;
+  /** RC2.2.24 — eventos de TTS DESTA reprodução (diagnóstico e motivo do CTA). */
+  onTtsEvent?: SpeakOptions["onTtsEvent"];
 }
 
 function engineFor(text: string): PlaybackEngine {
-  if (CANONICAL_AUDIO_ASSETS[text]) return "asset";
   if (usesNativeVoice()) return "native-tts";
+  if (CANONICAL_AUDIO_ASSETS[text]) return "asset";
   if (isTTSAvailable()) return "web-tts";
   return "none";
 }
@@ -153,10 +186,19 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
   return new Promise((resolve) => {
     let settled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    /** RC2.2.21 — posse do áudio (voz modelo); liberada ao terminar/falhar. */
+    let claim: number | null = null;
+    const clearTimer = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
     const settle = () => {
       if (settled) return;
       settled = true;
-      if (timer) clearTimeout(timer);
+      clearTimer();
+      if (claim != null) releaseAudio("TTS", claim);
       if (token !== generation) outcome.superseded = true;
       resolve({ ...outcome });
     };
@@ -181,17 +223,34 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
 
     noteUserGesture();
+    // A voz modelo interrompe gravação/reprodução própria/escuta em curso.
+    claim = claimAudio("TTS", () => stopSpeaking());
     emit("STARTING");
+
+    const armEndTimeout = () => {
+      clearTimer();
+      timer = setTimeout(() => {
+        if (settled) return;
+        // Motor confirmou início mas não fechou — corta e libera a UI.
+        try {
+          stopSpeaking();
+        } catch {
+          /* ignore */
+        }
+        outcome.ended = true;
+        outcome.reason = outcome.reason ?? "NO_END_TIMEOUT";
+        record({ at: Date.now(), engine, event: "end", reason: "NO_END_TIMEOUT" });
+        emit("ENDED");
+        settle();
+      }, options.endTimeoutMs ?? PLAYBACK_END_TIMEOUT_MS);
+    };
 
     const onStart = () => {
       if (settled || outcome.started) return;
       outcome.started = true;
       record({ at: Date.now(), engine, event: "start" });
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
       emit("PLAYING");
+      armEndTimeout();
     };
     const onError = (reason?: string) => {
       if (settled) return;
@@ -228,6 +287,8 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
     speak(clean, {
       rate: options.rate,
+      requestId: options.requestId,
+      onTtsEvent: options.onTtsEvent,
       onstart: onStart,
       onerror: onError,
       onend: onEnd,

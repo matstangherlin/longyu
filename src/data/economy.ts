@@ -37,12 +37,14 @@ export const CHARGE_COST_ACTIVITY = 1;
 /** Histórias introdutórias grátis podem conceder até N cargas extras por dia. */
 export const STORY_ENERGY_DAILY_CAP = 2;
 /**
- * Erros confirmados seguidos na mesma lição: ao atingir este limiar, perde 1 Carga.
- * (2 = mais rígido; 4 = mais tolerante — usamos 4 como padrão.)
+ * RC2.2.23 — SEM dupla punição na Beta: erro consome VIDA, nunca a Carga
+ * diária. Cargas são orçamento de progressão, não castigo por errar. O limiar
+ * continua exportado (superfície congelada da economia), mas o custo é 0 e o
+ * player não chama `consumeCharge` por erro.
  */
 export const CONSECUTIVE_MISTAKE_CHARGE_THRESHOLD = 4;
-/** Cargas perdidas ao atingir o limiar de erros seguidos. */
-export const CONSECUTIVE_MISTAKE_CHARGE_COST = 1;
+/** Cargas perdidas por erros seguidos: 0 (erro só custa Vida). */
+export const CONSECUTIVE_MISTAKE_CHARGE_COST = 0;
 
 /** Revisão básica do grátis: itens por sessão. Pro revisa a fila inteira. */
 export const FREE_REVIEW_SESSION_LIMIT = 20;

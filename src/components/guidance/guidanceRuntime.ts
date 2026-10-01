@@ -2,8 +2,10 @@ import { useSyncExternalStore } from "react";
 import {
   EMPTY_GUIDANCE_SESSION,
   type GuidancePresentation,
+  type GuidanceReasonCode,
   type GuidanceSession,
 } from "../../lib/guidanceOrchestrator";
+import { recordTechEvent } from "../../lib/techEvents";
 
 /**
  * RC2.2.18 — estado de sessão do orquestrador (RAM): o que já apareceu nesta
@@ -100,3 +102,36 @@ export function startNewGuidanceSession(): void {
 
 /** Alias para testes. */
 export const resetGuidanceRuntimeForTests = startNewGuidanceSession;
+
+// ── RC2.2.23 — trilha de ENTREGA (memória; QA lê em /qa/device) ─────────────
+
+export type GuidanceDeliveryStage = "selected" | "render_started" | "visible" | "shown" | "dismissed" | "anchor_fallback" | "render_timeout" | "suppressed";
+
+export interface GuidanceDeliveryEntry {
+  at: number;
+  guidanceId: string;
+  stage: GuidanceDeliveryStage;
+  reasonCode?: GuidanceReasonCode | "ANCHOR_FALLBACK" | null;
+}
+
+const DELIVERY_LIMIT = 60;
+const delivery: GuidanceDeliveryEntry[] = [];
+
+export function recordGuidanceDelivery(entry: Omit<GuidanceDeliveryEntry, "at">): void {
+  delivery.push({ ...entry, at: Date.now() });
+  if (delivery.length > DELIVERY_LIMIT) delivery.splice(0, delivery.length - DELIVERY_LIMIT);
+  recordTechEvent(entry.stage === "shown" ? "coachmark_shown" : "guidance_delivery", { guidanceId: entry.guidanceId, stage: entry.stage, reason: entry.reasonCode ?? null });
+}
+
+export function guidanceDeliveryTrace(): readonly GuidanceDeliveryEntry[] {
+  return delivery.slice();
+}
+
+/** A âncora não apareceu depois de uma tentativa segura: a próxima vez vira card não ancorado. */
+export function noteGuidanceAnchorMiss(guidanceId: string): void {
+  const misses = session.anchorMisses ?? [];
+  if (misses.includes(guidanceId)) return;
+  session = { ...session, anchorMisses: [...misses, guidanceId] };
+  recordGuidanceDelivery({ guidanceId, stage: "anchor_fallback", reasonCode: "ANCHOR_FALLBACK" });
+  emit();
+}

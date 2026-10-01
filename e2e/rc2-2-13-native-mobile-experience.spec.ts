@@ -68,7 +68,8 @@ test.describe("RC2.2.13 — navegação mobile", () => {
     const more = page.getByRole("dialog", { name: "Mais opções" });
     await expect(more).toBeVisible();
     await expect(more.getByRole("link", { name: "Cultura" })).toHaveCount(0);
-    await expect(more.getByRole("link", { name: "Perfil" })).toHaveCount(0);
+    // RC2.2.23 — o Mais começa por Você: Perfil · Conta · Aparência.
+    await expect(more.getByRole("link", { name: "Perfil" })).toHaveCount(1);
   });
 
   test("sheet Praticar: 2 colunas, ordem fixa, alvos ≥ 48px", async ({ page }) => {

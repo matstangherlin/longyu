@@ -11,6 +11,7 @@ import { LocalNotifications, type PermissionStatus } from "@capacitor/local-noti
 import type { PluginListenerHandle } from "@capacitor/core";
 import { ALL_REMINDER_IDS, type PlannedReminder } from "../studyReminderPlan";
 import { isAndroid } from "./nativePlatform";
+import { recordTechEvent } from "../techEvents";
 
 export type NotificationPermission = "granted" | "denied" | "prompt" | "unavailable";
 
@@ -46,6 +47,7 @@ export async function notificationPermission(): Promise<NotificationPermission> 
 /** Android 13+: diálogo do sistema. Android ≤12: já concedida, sem diálogo. */
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!hasNativeNotifications()) return "unavailable";
+  recordTechEvent("permission_prompted", { permission: "notifications" });
   try {
     return mapPermission(await LocalNotifications.requestPermissions());
   } catch {
