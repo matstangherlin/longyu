@@ -238,7 +238,8 @@ export async function validateAudioPlaybackTruth(s) {
     if (!/state === "PLAYING"\)\s*$/.test(before) && !/onstart: \(\) => $/.test(before))
       fail("DAILY_AUDIO_WITHOUT_PLAYBACK", "SpeakButton.tsx", "audioHeard só no início real da fala (PLAYING/onstart)");
   }
-  if (!/onStart\(String utteranceId\) \{[\s\S]{0,300}notifyListeners\("ttsState", event\)/.test(plugin) || !/utteranceId\.equals\(currentUtteranceId\)/.test(plugin))
+  // RC2.2.24 — o onStart agora emite antes o evento correlacionado (TTS_STARTED).
+  if (!/onStart\(String utteranceId\) \{[\s\S]{0,700}notifyListeners\("ttsState", event\)/.test(plugin) || !/utteranceId\.equals\(currentUtteranceId\)/.test(plugin))
     fail("TTS_START_UNCONFIRMED", "LongyuSpeechPlugin.java", "onStart do motor emite ttsState; só a fala corrente resolve");
   if (!/u\.onstart = \(\) => opts\.onstart\?\.\(\);/.test(tts)) fail("TTS_START_UNCONFIRMED", "tts.ts", "Web: onstart da utterance");
   freezeInvariants(s, fail);
@@ -266,7 +267,8 @@ export async function validateLessonAdvanceIntegrity(s) {
     fail("LATCH_DROPS_ONDONE", "steps.tsx StepRenderer", "latch repassa onDone ao player");
 
   // 9 — a chave de conclusão nunca prende o passo.
-  if (!/catch \(error\) \{[\s\S]{0,400}completedStepKeyRef\.current = null;[\s\S]{0,600}setIdx\(idx \+ 1\);/.test(player) || !/safeSideEffect\("conversation"/.test(player) || !/safeSideEffect\("pedagogy"/.test(player))
+  // RC2.2.24 — o avanço passa por selectNextStep (prova de render da etapa nova).
+  if (!/catch \(error\) \{[\s\S]{0,400}completedStepKeyRef\.current = null;[\s\S]{0,600}(setIdx\(idx \+ 1\)|selectNextStep\([^)]*\));/.test(player) || !/safeSideEffect\("conversation"/.test(player) || !/safeSideEffect\("pedagogy"/.test(player))
     fail("COMPLETION_KEY_BLOCKS", "LessonPlayer.tsx handleDone()", "efeito colateral isolado; falha libera a chave e avança");
 
   // 10 — um toque = +1 passo.

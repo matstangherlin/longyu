@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   JOURNEY, ALL_LESSONS, TIERS, lessonState, currentLessonId, unitProgress,
   type Lesson, type Skill, type LessonState, type Unit,
+  getLesson,
 } from "../../data/journey";
 import {
   isJourneyTopicComplete,
@@ -63,6 +64,13 @@ import { useLessonCatalogStatus } from "../../hooks/useLessonCatalog";
 import { isJourneyNodeComplete } from "../../lib/journeyNodeProgress";
 import { JourneyInlineNode } from "./JourneyInlineNode";
 import { markDevicePerf } from "../../lib/devicePerf";
+import {
+  JOURNEY_ANCHOR_ATTRS,
+  consumeJourneyReturnAnchor,
+  journeyReturnSourceForPath,
+  resolveJourneyReturnTarget,
+  setJourneyReturnAnchor,
+} from "../../lib/journeyReturnAnchor";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -242,6 +250,21 @@ function lockedLessonMessage(
   return t("journey.completeCurrentLesson");
 }
 
+/** O nó de lição mais perto do centro da tela (âncora de troca de aba). */
+function centeredJourneyLessonId(): string | null {
+  if (typeof document === "undefined") return null;
+  const middle = window.innerHeight / 2;
+  let best: { id: string; distance: number } | null = null;
+  for (const el of Array.from(document.querySelectorAll<HTMLElement>("[data-lesson-id]"))) {
+    const rect = el.getBoundingClientRect();
+    if (rect.height <= 0) continue;
+    const distance = Math.abs(rect.top + rect.height / 2 - middle);
+    const id = el.getAttribute("data-lesson-id");
+    if (id && (!best || distance < best.distance)) best = { id, distance };
+  }
+  return best?.id ?? null;
+}
+
 export function JourneyPage() {
   // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
   useEffect(() => markDevicePerf("journey_open"), []);
@@ -371,6 +394,46 @@ export function JourneyPage() {
   // Só rola se o nó atual não estiver já visível, para evitar saltos de layout.
   const [ringPulse, setRingPulse] = useState<{ lessonId: string; filledLevel: number } | null>(null);
   const didScroll = useRef(false);
+
+  // RC2.2.24 — JourneyReturnAnchor: a lição/nó com que o aluno interagiu por
+  // último (ou o nó no centro da tela) vira âncora semântica ao sair da
+  // Jornada para qualquer lugar — Cultura, Tons, Revisão, outra aba.
+  const lastAnchorLessonRef = useRef<string | null>(null);
+  const completedCountRef = useRef(completed.length);
+  completedCountRef.current = completed.length;
+  useEffect(() => {
+    const selector = JOURNEY_ANCHOR_ATTRS.map((attr) => `[${attr}]`).join(", ");
+    const onClick = (event: MouseEvent) => {
+      const holder = (event.target as Element | null)?.closest?.(selector);
+      if (!holder) return;
+      for (const attr of JOURNEY_ANCHOR_ATTRS) {
+        const value = holder.getAttribute(attr);
+        if (value) {
+          lastAnchorLessonRef.current = value;
+          return;
+        }
+      }
+    };
+    document.addEventListener("click", onClick, true);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      const interacted = lastAnchorLessonRef.current;
+      const lessonId = interacted ?? centeredJourneyLessonId();
+      if (!lessonId) return;
+      const lesson = getLesson(lessonId);
+      setJourneyReturnAnchor({
+        phaseId: lesson?.phaseId ?? null,
+        unitId: lesson?.unitId ?? null,
+        lessonId,
+        nodeId: null,
+        activitySource: interacted ? journeyReturnSourceForPath(window.location.pathname) : "TAB_SWITCH",
+        returnReason: interacted ? "REQUIRED_ACTIVITY" : "TAB_SWITCH",
+        completedAtLeave: completedCountRef.current,
+        createdAt: Date.now(),
+      });
+    };
+  }, []);
+
   useEffect(() => {
     ensurePageScrollUnlocked();
     // Peek first so Strict Mode remounts still see the payload; consume after the pulse.
@@ -388,6 +451,29 @@ export function JourneyPage() {
         setRingPulse(null);
       }, 1400);
       return () => window.clearTimeout(timer);
+    }
+    // RC2.2.24 — volta de atividade/aba: âncora semântica → nó certo, centralizado,
+    // com um pulso discreto. Nunca o topo por padrão.
+    const anchor = didScroll.current ? null : consumeJourneyReturnAnchor();
+    if (anchor) {
+      didScroll.current = true;
+      const currentEl = document.querySelector<HTMLElement>('[data-current="true"]');
+      const target = resolveJourneyReturnTarget(anchor, {
+        completedNow: completed.length,
+        currentLessonId: currentEl?.getAttribute("data-lesson-id") ?? null,
+        lessonExists: (id) => document.querySelector(`[data-lesson-id="${CSS.escape(id)}"]`) != null,
+      });
+      if (target) {
+        requestAnimationFrame(() => {
+          const el = document.querySelector<HTMLElement>(`[data-lesson-id="${CSS.escape(target.lessonId)}"]`);
+          if (!el) return;
+          el.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
+          el.setAttribute("data-journey-return-target", target.why);
+          el.classList.add("ring-4", "ring-accent/40");
+          window.setTimeout(() => el.classList.remove("ring-4", "ring-accent/40"), 1300);
+        });
+        return;
+      }
     }
     const focus = searchParams.get("focus");
     if (focus?.startsWith("culture-moment:")) {

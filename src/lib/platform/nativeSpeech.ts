@@ -12,6 +12,7 @@
 import { registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 import { isAndroid } from "./nativePlatform";
 import { trackObserver } from "../resourceCounters";
+import { recordTtsTrace, sanitizeTtsEvent, type TtsEvent } from "../ttsCorrelation";
 
 export type NativePermission = "granted" | "denied" | "prompt" | "prompt-with-rationale";
 
@@ -119,7 +120,7 @@ export type NativeRecognitionDiagnostics = {
 
 interface LongyuSpeechPlugin {
   getTtsStatus(options: { language: string; reinit?: boolean }): Promise<TtsStatus>;
-  speak(options: { text: string; language: string; rate?: number; pitch?: number }): Promise<{ interrupted: boolean }>;
+  speak(options: { text: string; language: string; rate?: number; pitch?: number; requestId?: string }): Promise<{ interrupted: boolean; requestId?: string; utteranceId?: string; started?: boolean }>;
   stop(): Promise<void>;
   openTtsSettings(): Promise<void>;
   getRecognitionStatus(): Promise<RecognitionStatus>;
@@ -142,6 +143,7 @@ interface LongyuSpeechPlugin {
   addListener(event: "practiceRecordingState", listener: (event: NativePracticeStateEvent) => void): Promise<PluginListenerHandle>;
   addListener(event: "recognitionState", listener: (event: { state: string; recognizer?: string; signalDetected?: boolean }) => void): Promise<PluginListenerHandle>;
   addListener(event: "ttsState", listener: (event: { state: string }) => void): Promise<PluginListenerHandle>;
+  addListener(event: "ttsEvent", listener: (event: Record<string, unknown>) => void): Promise<PluginListenerHandle>;
   addListener(event: "modelDownload", listener: (event: { status: string; progress?: number }) => void): Promise<PluginListenerHandle>;
 }
 
@@ -190,33 +192,78 @@ export async function nativeSpeak(text: string, options: { rate?: number; pitch?
   }
 }
 
-// RC2.2.17 · B — o plugin avisa `ttsState: start` no onStart do motor. Um
-// único listener nativo; quem fala registra o callback da fala corrente.
-const ttsStartWaiters = new Set<() => void>();
-let ttsListenerInstalled = false;
+// ── RC2.2.24 — eventos de TTS correlacionados (requestId / utteranceId) ──
+//
+// Antes: um listener global de `ttsState` SEM identidade da fala, instalado
+// só no primeiro play — o `addListener` é assíncrono, então no cold start o
+// onStart do motor chegava antes do listener e se perdia (o aluno ouvia; o
+// Continuar ficava desligado). Agora a ponte é instalada no
+// NativeExperienceBootstrap (antes de qualquer tela usar TTS) e cada fala
+// AGUARDA a ponte antes de pedir ao motor. Cada evento carrega a requestId da
+// fala; só o assinante daquela requestId recebe.
+type TtsSubscriber = (event: TtsEvent) => void;
+const ttsSubscribers = new Map<string, TtsSubscriber>();
+let ttsBridge: Promise<boolean> | null = null;
+let ttsBridgeInstalledAt: number | null = null;
 
-function ensureTtsStateListener(): void {
-  if (ttsListenerInstalled || !hasNativeSpeech()) return;
-  ttsListenerInstalled = true;
-  try {
-    void LongyuSpeech.addListener("ttsState", (event) => {
-      if (event?.state !== "start") return;
-      for (const waiter of Array.from(ttsStartWaiters)) waiter();
-    }).catch(() => {
-      ttsListenerInstalled = false;
+/** Instala a ponte de eventos de TTS uma vez (idempotente). */
+export function initNativeTtsEventBridge(): Promise<boolean> {
+  if (!hasNativeSpeech()) return Promise.resolve(false);
+  if (ttsBridge) return ttsBridge;
+  ttsBridge = LongyuSpeech.addListener("ttsEvent", (raw) => {
+    const event = sanitizeTtsEvent(raw);
+    if (!event) return;
+    recordTtsTrace(event);
+    ttsSubscribers.get(event.requestId)?.(event);
+  })
+    .then(() => {
+      ttsBridgeInstalledAt = Date.now();
+      return true;
+    })
+    .catch(() => {
+      ttsBridge = null;
+      return false;
     });
-  } catch {
-    ttsListenerInstalled = false;
-  }
+  return ttsBridge;
 }
 
-/** Registra o callback de início da fala corrente; devolve o "desregistrar". */
-export function onNativeTtsStart(callback: () => void): () => void {
-  ensureTtsStateListener();
-  ttsStartWaiters.add(callback);
-  return () => {
-    ttsStartWaiters.delete(callback);
-  };
+export function nativeTtsBridgeInstalledAt(): number | null {
+  return ttsBridgeInstalledAt;
+}
+
+export type NativeTrackedSpeakResult =
+  | { ok: true; interrupted: boolean; started: boolean; utteranceId: string | null }
+  | { ok: false; code: string };
+
+/** Mantém o assinante um pouco depois do fim: eventos atrasados ainda chegam. */
+const SUBSCRIBER_GRACE_MS = 1500;
+
+/**
+ * Fala com identidade. `onEvent` recebe SÓ os eventos desta requestId
+ * (TTS_REQUESTED sintetizado aqui; QUEUED/STARTED/DONE/STOPPED/ERROR do
+ * nativo). A ponte está instalada ANTES do pedido ao motor.
+ */
+export async function nativeSpeakTracked(
+  text: string,
+  options: { rate?: number; pitch?: number; requestId: string },
+  onEvent: TtsSubscriber
+): Promise<NativeTrackedSpeakResult> {
+  const { requestId } = options;
+  ttsSubscribers.set(requestId, onEvent);
+  const requested: TtsEvent = { type: "TTS_REQUESTED", requestId, utteranceId: null, timestamp: Date.now(), engineState: "js" };
+  recordTtsTrace(requested);
+  onEvent(requested);
+  await initNativeTtsEventBridge();
+  try {
+    const result = await LongyuSpeech.speak({ text, language: MANDARIN_LANGUAGE, rate: options.rate, pitch: options.pitch, requestId });
+    return { ok: true, interrupted: Boolean(result?.interrupted), started: Boolean(result?.started), utteranceId: result?.utteranceId ?? null };
+  } catch (error) {
+    return { ok: false, code: errorCode(error) };
+  } finally {
+    setTimeout(() => {
+      if (ttsSubscribers.get(requestId) === onEvent) ttsSubscribers.delete(requestId);
+    }, SUBSCRIBER_GRACE_MS);
+  }
 }
 
 /**

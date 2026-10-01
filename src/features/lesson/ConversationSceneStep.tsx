@@ -1,5 +1,12 @@
 import { traceLessonStep } from "../../lib/lessonStepTrace";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import {
+  CONVERSATION_DOM_STALL_MS,
+  conversationDiagnostic,
+  recordConversationTrace,
+  resolveConversationTarget,
+} from "../../lib/conversationTransition";
+import { deviceQaEnabled } from "../../lib/deviceQa";
 import { castNameForSceneCharacter } from "../../data/storyCast";
 import type {
   ConversationCharacter,
@@ -21,7 +28,7 @@ import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/producti
 import { isConversationV2Enabled } from "../../lib/featureFlags";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
-import { speak, noteUserGesture, hasRecentTtsGesture } from "../../lib/tts";
+import { noteUserGesture, hasRecentTtsGesture } from "../../lib/tts";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import {
   KeyboardShortcutHint,
@@ -153,18 +160,6 @@ function naturalizeConversationPrompt(prompt: string): string {
   if (/O que Matheus perguntou/i.test(prompt)) return t("player.promptWhatDidYouAsk");
   if (/O que Matheus (disse|achou)/i.test(prompt)) return t("player.promptWhatDidYouSay");
   return prompt;
-}
-
-function conversationLineAudio(line: Pick<ConversationLine, "audioText" | "hanzi"> | undefined): string {
-  return String(line?.audioText ?? line?.hanzi ?? "").trim();
-}
-
-function speakConversationLine(line: Pick<ConversationLine, "audioText" | "hanzi"> | undefined): void {
-  const audio = conversationLineAudio(line);
-  if (!audio) return;
-  noteUserGesture();
-  const { slowAudio, ttsRate } = useStore.getState();
-  speak(audio, { rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate });
 }
 
 function SpeechBubble({
@@ -1199,6 +1194,78 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
   );
 }
 
+/**
+ * RC2.2.24 — verdade da transição: depois do toque, o nó ESPERADO precisa
+ * aparecer no DOM. Commit → (frame) → visível; sem isso em 800 ms vira
+ * CONVERSATION_DOM_STALL. O áudio do nó novo só sai depois (efeito da bolha).
+ */
+function useConversationTransitionTruth(sceneId: string, renderKey: string, rootRef: RefObject<HTMLElement | null>) {
+  const expectedRef = useRef<string | null>(null);
+  const [stall, setStall] = useState<string | null>(null);
+
+  function begin(currentNodeId: string, expectedNodeId: string) {
+    expectedRef.current = expectedNodeId;
+    setStall(null);
+    recordConversationTrace({ event: "conversation_state_before", sceneId, nodeId: currentNodeId });
+    recordConversationTrace({ event: "conversation_target_resolved", sceneId, nodeId: currentNodeId, expectedNodeId });
+  }
+
+  useEffect(() => {
+    const expected = expectedRef.current;
+    if (expected == null) return undefined;
+    recordConversationTrace({ event: "conversation_state_committed", sceneId, nodeId: expected });
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const visible = () => {
+      const node = rootRef.current?.querySelector<HTMLElement>(`[data-conversation-current-node="${CSS.escape(expected)}"]`);
+      if (!node || node.getBoundingClientRect().height <= 0) return false;
+      expectedRef.current = null;
+      recordConversationTrace({ event: "conversation_dom_next_visible", sceneId, nodeId: expected });
+      if (useStore.getState().autoPlayAudio !== false) recordConversationTrace({ event: "conversation_audio_requested", sceneId, nodeId: expected });
+      return true;
+    };
+    const frame = requestAnimationFrame(() => {
+      if (visible()) return;
+      timer = setTimeout(() => {
+        if (visible()) return;
+        recordConversationTrace({ event: "conversation_dom_stall", sceneId, nodeId: null, expectedNodeId: expected });
+        setStall(expected);
+      }, CONVERSATION_DOM_STALL_MS);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      if (timer) clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- renderKey muda a cada transição comprometida
+  }, [renderKey]);
+
+  return { begin, stall, clearStall: () => setStall(null) };
+}
+
+/** Transição que não apareceu: nunca botão morto. Diagnóstico só no build de QA. */
+function ConversationStallPanel({ sceneId, expected, current, onRetry }: { sceneId: string; expected: string; current: string | null; onRetry: () => void }) {
+  const qa = deviceQaEnabled();
+  return (
+    <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 p-3 text-sm" role="status" data-testid="conversation-dom-stall" data-expected-node={expected}>
+      {qa && <p className="font-semibold text-ink">CONVERSATION_DOM_STALL · esperado {expected} · visível {current ?? "—"}</p>}
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={onRetry} data-testid="conversation-stall-retry">
+          {qa ? "Tentar transição novamente" : t("player.stepStalledRetry")}
+        </Button>
+        {qa && (
+          <Button
+            size="sm"
+            variant="outline"
+            data-testid="conversation-stall-copy"
+            onClick={() => void navigator.clipboard?.writeText(conversationDiagnostic({ sceneId, currentNodeId: current, expectedNodeId: expected, visibleNodeId: current }))}
+          >
+            Copiar diagnóstico
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
 // personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
@@ -1239,6 +1306,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
    */
   const wrongByNodeRef = useRef<Map<string, number>>(new Map());
   const [revealPending, setRevealPending] = useState<null | { answer: string; nextNodeId?: string }>(null);
+  const sceneRootRef = useRef<HTMLDivElement>(null);
+  const truth = useConversationTransitionTruth(step.sceneId ?? "scene", `${nodeId}:${spokenCount}`, sceneRootRef);
 
   useEffect(() => {
     setNodeId(entryNodeId);
@@ -1275,24 +1344,29 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     });
   }
 
-  function goTo(targetId: string | undefined, speakTarget?: ConversationNode) {
+  /**
+   * RC2.2.24 — `goTo` não chama TTS: valida o alvo, grava o nó e a fala. O
+   * áudio do nó novo sai do efeito da bolha DEPOIS que ela aparece; se a voz
+   * falhar, a fala nova continua na tela. O 2º argumento (nó alvo) fica só por
+   * compatibilidade de assinatura — áudio nunca controla a mudança de nó.
+   */
+  function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {
     transitionsRef.current += 1;
     // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
-    if (!targetId || !nodeById.has(targetId) || transitionsRef.current > 60) {
+    const target = resolveConversationTarget(targetId, (id) => nodeById.has(id), transitionsRef.current);
+    if (target.kind === "finish") {
       finish();
       return;
     }
-    if (speakTarget) {
-      skipAutoSpeakRef.current = true;
-      speakConversationLine(speakTarget);
-    }
-    setNodeId(targetId);
+    truth.begin(nodeId, target.id);
+    setNodeId(target.id);
     setAnswering(false);
     setSpokenCount((count) => count + 1);
   }
 
   function advance() {
     noteUserGesture();
+    recordConversationTrace({ event: "conversation_continue_tap", sceneId: step.sceneId ?? "scene", nodeId: node?.id ?? null });
     traceLessonStep({ lessonId: step.sceneId ?? "scene", stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
     if (node?.interaction) {
       setAnswering(true);
@@ -1336,7 +1410,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   };
 
   return (
-    <div data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"}>
+    <div ref={sceneRootRef} data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"} data-conversation-node-id={node.id}>
       {/* RC2.2.17B · PART AF — no shell guiado, só o título da cena (sem pílula nem "Fala N"). */}
       {!guided && <LessonKindLabel kind="conversation" />}
       <h2 className={guided ? "text-center font-serif text-lg font-semibold text-ink sm:text-xl" : "mt-2 font-serif text-lg font-semibold text-ink sm:text-xl"}>{step.title}</h2>
@@ -1363,15 +1437,34 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           )}
         </div>
 
-        <SpeechBubble
-          key={`${step.sceneId}-${node.id}-${spokenCount}`}
-          line={line}
-          side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
-          visible
-          variantLevel={variantLevel}
-          autoSpeak={!skipAutoSpeakRef.current}
-          nodeKey={node.id}
-        />
+        <div data-conversation-current-node={node.id}>
+          <SpeechBubble
+            key={`${step.sceneId}-${node.id}-${spokenCount}`}
+            line={line}
+            side={characters.find((c) => c.id === node.speakerId)?.side ?? "left"}
+            visible
+            variantLevel={variantLevel}
+            autoSpeak={!skipAutoSpeakRef.current}
+            nodeKey={node.id}
+          />
+        </div>
+
+        {truth.stall && (
+          <ConversationStallPanel
+            sceneId={step.sceneId ?? "scene"}
+            expected={truth.stall}
+            current={node.id}
+            onRetry={() => {
+              const expected = truth.stall!;
+              truth.clearStall();
+              if (nodeById.has(expected)) {
+                truth.begin(node.id, expected);
+                setNodeId(expected);
+                setSpokenCount((count) => count + 1);
+              }
+            }}
+          />
+        )}
 
         {hint && !answering && (
           <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 px-3 py-2 text-sm text-ink-soft">
@@ -1508,6 +1601,8 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const [lineIndex, setLineIndex] = useState(0);
   const [phase, setPhase] = useState<"dialogue" | "checkpoint" | "done">("dialogue");
   const skipAutoSpeakRef = useRef(false);
+  const sceneRootRef = useRef<HTMLDivElement>(null);
+  const truth = useConversationTransitionTruth(step.sceneId ?? "scene", `line-${lineIndex}`, sceneRootRef);
 
   useEffect(() => {
     setLineIndex(0);
@@ -1526,10 +1621,10 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function advanceDialogue() {
     noteUserGesture();
+    recordConversationTrace({ event: "conversation_continue_tap", sceneId: step.sceneId ?? "scene", nodeId: `line-${lineIndex}` });
     if (lineIndex < lines.length - 1) {
-      const nextLine = lines[lineIndex + 1];
-      skipAutoSpeakRef.current = true;
-      speakConversationLine(nextLine);
+      // RC2.2.24 — sem TTS no toque: a fala nova aparece e só então a bolha fala.
+      truth.begin(`line-${lineIndex}`, `line-${lineIndex + 1}`);
       setLineIndex((index) => index + 1);
       return;
     }
@@ -1561,7 +1656,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   }
 
   return (
-    <div data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"}>
+    <div ref={sceneRootRef} data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"}>
       {!guided && <LessonKindLabel kind="conversation" />}
       <h2 className={guided ? "text-center font-serif text-lg font-semibold text-ink sm:text-xl" : "mt-2 font-serif text-lg font-semibold text-ink sm:text-xl"}>{step.title}</h2>
 
@@ -1589,6 +1684,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
         {phase === "dialogue" && currentLine && (
           <div
+            data-conversation-current-node={`line-${lineIndex}`}
             ref={(node) => {
               node?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }}
@@ -1605,10 +1701,26 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
         )}
 
+        {truth.stall && phase === "dialogue" && (
+          <ConversationStallPanel
+            sceneId={step.sceneId ?? "scene"}
+            expected={truth.stall}
+            current={`line-${lineIndex}`}
+            onRetry={() => {
+              truth.clearStall();
+              const wanted = Number(truth.stall?.replace("line-", ""));
+              if (Number.isFinite(wanted) && wanted < lines.length) {
+                truth.begin(`line-${lineIndex}`, `line-${wanted}`);
+                setLineIndex(wanted);
+              }
+            }}
+          />
+        )}
+
         {phase === "dialogue" && (
           guided ? (
             <GuidedDock>
-              <Button size="lg" className="w-full shadow-lift" onClick={advanceDialogue}>
+              <Button size="lg" className="w-full shadow-lift" onClick={advanceDialogue} data-testid="conversation-v1-advance">
                 {t("player.continue")} <IconChevron width={18} height={18} />
               </Button>
             </GuidedDock>

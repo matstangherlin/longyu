@@ -15,7 +15,7 @@
  *
  * Evolui tts.ts (mesmo speak()); não é outro motor de voz.
  */
-import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture } from "./tts";
+import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture, type SpeakOptions } from "./tts";
 import { traceCurrentLessonStep } from "./lessonStepTrace";
 import { deviceQaEnabled, recordDeviceQaObservation } from "./deviceQa";
 import { claimAudio, releaseAudio } from "./audioArbiter";
@@ -126,6 +126,10 @@ export interface PlayMandarinOptions {
   rate?: number;
   onState?: (state: PlaybackState, outcome: PlaybackOutcome) => void;
   startTimeoutMs?: number;
+  /** RC2.2.24 — identidade desta reprodução (Android correlaciona os eventos por ela). */
+  requestId?: string;
+  /** RC2.2.24 — eventos de TTS DESTA reprodução (diagnóstico e motivo do CTA). */
+  onTtsEvent?: SpeakOptions["onTtsEvent"];
 }
 
 function engineFor(text: string): PlaybackEngine {
@@ -253,6 +257,8 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
     speak(clean, {
       rate: options.rate,
+      requestId: options.requestId,
+      onTtsEvent: options.onTtsEvent,
       onstart: onStart,
       onerror: onError,
       onend: onEnd,

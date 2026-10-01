@@ -35,7 +35,12 @@ export type LessonStepTraceEvent =
   | "audio_started"
   | "continue_pressed"
   | "completion_started"
-  | "completion_finished";
+  | "completion_finished"
+  // RC2.2.24 — verdade de render: a etapa nova precisa APARECER no DOM.
+  | "completion_committed"
+  | "next_step_selected"
+  | "next_step_rendered"
+  | "step_render_stall";
 
 /** A sequência mínima que o QA físico compara (RC2.2.19). */
 export const AUDIO_ADVANCE_TRACE_EVENTS: readonly LessonStepTraceEvent[] = [

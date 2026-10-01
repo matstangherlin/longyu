@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { useNavigate } from "react-router-dom";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
@@ -400,6 +401,7 @@ export function ImmersionPage() {
 
   return (
     <HubPage compact data-testid="immersion-hub">
+      <JourneyHandoffBanner source="IMMERSION" />
       <HubHeader
         eyebrow={t("hub.eyebrow")}
         title={t("navigation.immersion")}

@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { useStore } from "../../lib/store";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
 import { buildPrivacyExportBundle } from "../../services/privacyService";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
-import { Pill } from "../../components/ui/primitives";
-import { IconBook, IconCheck, IconRefresh, IconShield, IconUser } from "../../components/ui/Icon";
+import { IconBook, IconRefresh, IconShield } from "../../components/ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 
@@ -24,12 +22,8 @@ function downloadJson(filename: string, data: unknown) {
 export function DadosLocaisPage() {
   const { t, instructionLocale: locale } = useTranslation();
   const chrome = (text: string) => displayInstruction(text, locale);
-  const accounts = useStore((s) => s.accounts);
-  const currentAccountId = useStore((s) => s.currentAccountId);
-  const switchAccount = useStore((s) => s.switchAccount);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const accountList = Object.values(accounts);
 
   function download(kind: "export" | "backup") {
     const snapshot = activeLearningRepository().exportSnapshot();
@@ -89,36 +83,7 @@ export function DadosLocaisPage() {
         </div>
       )}
 
-      {/* Perfis locais */}
-      <CompactCard>
-        <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("hub.localProfilesHere")}</div>
-        <div className="grid gap-2">
-          {accountList.map((acc) => {
-            const isCurrent = acc.id === currentAccountId;
-            return (
-              <div key={acc.id} className="flex items-center gap-2.5 rounded-xl border border-line/50 bg-surface-2/60 px-3 py-2">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface text-accent">
-                  <IconUser width={16} height={16} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="truncate text-[13px] font-semibold text-ink">{acc.name?.trim() || t("hub.defaultLearner")}</span>
-                    {isCurrent && <Pill tone="accent">{t("common.active")}</Pill>}
-                  </div>
-                  <div className="truncate text-[11px] text-ink-faint">{acc.email || t("hub.localProfile")}</div>
-                </div>
-                {!isCurrent && (
-                  <ActionButton onClick={() => switchAccount(acc.id)} variant="secondary" size="sm">
-                    {t("hub.useProfile")}
-                  </ActionButton>
-                )}
-                {isCurrent && <IconCheck width={16} height={16} className="shrink-0 text-[rgb(var(--good))]" />}
-              </div>
-            );
-          })}
-        </div>
-      </CompactCard>
-
+      {/* RC2.2.24 — "Dados e backup" da conta atual: sem perfis locais nem troca de aluno. */}
       {/* Exportar / backup */}
       <CompactCard>
         <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{chrome("Exportar e backup")}</div>
