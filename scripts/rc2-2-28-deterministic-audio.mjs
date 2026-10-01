@@ -99,10 +99,11 @@ const MUTATIONS = {
       );
     }],
     ["[12] player ERROR cancela transition", "AUDIO_IN_GOTO", (s) => {
-      s.src.conversation = s.src.conversation.replace(
-        "truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });",
-        'void requestMandarinSpeech({ text: "x", source: "CONVERSATION_AUTOPLAY", mode: "AUTO_PLAY" });\n    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });'
-      );
+      // RC2.2.31D — truth.begin uses fromNodeId inside safeSideEffect.
+      const from = "truth.begin(fromNodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });";
+      const to = 'void requestMandarinSpeech({ text: "x", source: "CONVERSATION_AUTOPLAY", mode: "AUTO_PLAY" });\n      truth.begin(fromNodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });';
+      if (!s.src.conversation.includes(from)) throw new Error(`mutação vazia: ${from}`);
+      s.src.conversation = s.src.conversation.split(from).join(to);
     }],
     ["[10] node 2 reutiliza request do node 1", "NODE_REUSES_REQUEST", src("conversation", "speechKey: nodeKey,", 'speechKey: "shared",')],
     ["[11] same text em nodes diferentes não toca novamente", "NODE_REUSES_REQUEST", src("conversation", "speechKey: nodeKey,", "/* speechKey removed */")],
