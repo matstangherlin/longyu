@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_VERSION?: string;
   /** Git commit SHA baked at build time for candidate identity (public). */
   readonly VITE_COMMIT_SHA?: string;
+  readonly VITE_SOURCE_HEAD_SHA?: string;
+  readonly VITE_WORKFLOW_SHA?: string;
   /** development | preview | qa_candidate | production_beta */
   readonly VITE_APP_ENV?: string;
   /** Nunca true em ambiente production-like (Production Beta / QA Candidate). */

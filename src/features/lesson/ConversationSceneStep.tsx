@@ -6,6 +6,13 @@ import {
   recordConversationTrace,
   resolveConversationTarget,
 } from "../../lib/conversationTransition";
+import {
+  conversationReducer,
+  createConversationRuntimeState,
+  nextTransitionId,
+  type ConversationRuntimeState,
+} from "../../lib/conversationRuntime";
+import { audioEntryByText } from "../../data/audioManifest.generated";
 import { deviceQaEnabled } from "../../lib/deviceQa";
 import { castNameForSceneCharacter } from "../../data/storyCast";
 import type {
@@ -180,6 +187,7 @@ function SpeechBubble({
   nodeKey?: string;
 }) {
   const audio = line.audioText ?? line.hanzi;
+  const audioId = audioEntryByText(audio)?.audioId;
   const slowAudio = useStore((s) => s.slowAudio);
   const ttsRate = useStore((s) => s.ttsRate);
   const autoPlayAudio = useStore((s) => s.autoPlayAudio);
@@ -188,11 +196,14 @@ function SpeechBubble({
 
   // RC2.2.27 — cada nó é uma fala nova (speechKey = cena:nó), pelo MESMO
   // runtime da fala manual; desmontar cancela só a fala desta bolha.
+  // RC2.2.28 — audioId canônico quando o manifesto conhece a frase; áudio
+  // só DEPOIS do DOM (visible=true). Falha de áudio NÃO cancela o nó.
   useAutoSpeak(visible && autoSpeak ? audio : undefined, visible && autoSpeak, {
     rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
     delayMs: 80,
     source: "CONVERSATION_AUTOPLAY",
     speechKey: nodeKey,
+    audioId,
   });
 
   useEffect(() => {
@@ -1291,6 +1302,14 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const [answering, setAnswering] = useState(false);
   const [spokenCount, setSpokenCount] = useState(1);
   const [hint, setHint] = useState<string | null>(null);
+  // RC2.2.28 — runtime pedagógico puro (áudio é side-effect depois do DOM).
+  const [runtime, setRuntime] = useState<ConversationRuntimeState>(() =>
+    createConversationRuntimeState({
+      sceneId: step.sceneId ?? "scene",
+      entryNodeId,
+      transitionId: `t-${step.sceneId ?? "scene"}-0`,
+    })
+  );
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
   const helpLevelRef = useRef(0);
@@ -1328,6 +1347,13 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     transitionsRef.current = 0;
     repairUsedRef.current = false;
     skipAutoSpeakRef.current = false;
+    setRuntime(
+      createConversationRuntimeState({
+        sceneId: step.sceneId ?? "scene",
+        entryNodeId,
+        transitionId: `t-${step.sceneId ?? "scene"}-0`,
+      })
+    );
   }, [step.sceneId, entryNodeId]);
 
   useEffect(() => {
@@ -1353,15 +1379,24 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
    * áudio do nó novo sai do efeito da bolha DEPOIS que ela aparece; se a voz
    * falhar, a fala nova continua na tela. O 2º argumento (nó alvo) fica só por
    * compatibilidade de assinatura — áudio nunca controla a mudança de nó.
+   *
+   * RC2.2.28 — commit via conversationReducer (puro). Áudio NÃO cancela
+   * transição; promise de áudio NÃO controla nodeId.
    */
   function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {
     transitionsRef.current += 1;
     // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
     const target = resolveConversationTarget(targetId, (id) => nodeById.has(id), transitionsRef.current);
     if (target.kind === "finish") {
+      const transitionId = nextTransitionId(step.sceneId ?? "scene", spokenCount);
+      setRuntime((prev) => conversationReducer(prev, { type: "FINISH", transitionId }));
       finish();
       return;
     }
+    const transitionId = nextTransitionId(step.sceneId ?? "scene", spokenCount);
+    setRuntime((prev) =>
+      conversationReducer(prev, { type: "CONTINUE", targetNodeId: target.id, transitionId })
+    );
     truth.begin(nodeId, target.id);
     setNodeId(target.id);
     setAnswering(false);
@@ -1414,7 +1449,15 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   };
 
   return (
-    <div ref={sceneRootRef} data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"} data-conversation-node-id={node.id}>
+    <div
+      ref={sceneRootRef}
+      data-conversation-scene
+      data-conversation-scene-id={step.sceneId}
+      data-conversation-frame={guided ? "none" : "legacy"}
+      data-conversation-node-id={node.id}
+      data-conversation-transition-id={runtime.transitionId}
+      data-conversation-spoken-count={spokenCount}
+    >
       {/* RC2.2.17B · PART AF — no shell guiado, só o título da cena (sem pílula nem "Fala N"). */}
       {!guided && <LessonKindLabel kind="conversation" />}
       <h2 className={guided ? "text-center font-serif text-lg font-semibold text-ink sm:text-xl" : "mt-2 font-serif text-lg font-semibold text-ink sm:text-xl"}>{step.title}</h2>

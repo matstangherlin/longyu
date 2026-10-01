@@ -1,51 +1,34 @@
 /**
  * RC2.2.27 — ANDROID TTS FORENSICS (lógica pura, sem React; o gate executa).
+ * RC2.2.28 — BUILD PROVENANCE: dual SHA (source HEAD ≠ workflow merge).
  *
  * Duas perguntas antes de qualquer conclusão no aparelho:
- *   1. O build instalado é o código testado? PR HEAD · workflow HEAD · SHA
- *      embutido no APK · SHA instalado precisam bater. Divergiu → TEST_INVALID
- *      (nem PASS nem FAIL contra código que não estava instalado).
- *   2. A fala N tocou depois da fala N−1? Testes sequenciais, interrupção,
- *      toque duplo e diálogo simulado — cada linha com o ciclo de vida da
- *      request (sem texto). O owner confirma se OUVIU; código não é ouvido.
+ *   1. O build instalado é o código testado? Source HEAD embutido deve bater
+ *      com o HEAD da PR; workflow SHA pode ser merge sintético (normal).
+ *   2. A fala N tocou depois da fala N−1? …
+ *
+ * Painel: LEGACY / FALLBACK TTS FORENSICS (não bloqueia produto).
  */
 import type { PlaybackOutcome } from "./audioPlayback";
+import {
+  buildProvenanceVerdict as provenanceVerdict,
+  shaMatches,
+  type BuildIdentityInput,
+  type BuildIdentityVerdict,
+  type BuildProvenanceInput,
+  type BuildProvenanceVerdict,
+} from "./buildProvenance";
 
-export type BuildIdentityVerdict = "MATCH" | "TEST_INVALID" | "UNKNOWN";
+export type { BuildIdentityInput, BuildIdentityVerdict, BuildProvenanceInput, BuildProvenanceVerdict };
+export { shaMatches };
 
-export interface BuildIdentityInput {
-  prHead?: string | null;
-  workflowHead?: string | null;
-  embeddedSha?: string | null;
-  installedSha?: string | null;
+/** RC2.2.28 — delega ao provenance dual-SHA (merge ≠ source é válido). */
+export function buildProvenanceVerdict(input: BuildProvenanceInput): BuildProvenanceVerdict {
+  return provenanceVerdict(input);
 }
 
-const MIN_SHA = 7;
-
-function norm(sha?: string | null): string | null {
-  const value = String(sha ?? "").trim().toLowerCase();
-  return /^[0-9a-f]{7,40}$/.test(value) ? value : null;
-}
-
-/** Dois SHAs batem se um é prefixo do outro (≥ 7 caracteres). */
-export function shaMatches(a?: string | null, b?: string | null): boolean {
-  const x = norm(a);
-  const y = norm(b);
-  if (!x || !y) return false;
-  const n = Math.min(x.length, y.length);
-  return n >= MIN_SHA && x.slice(0, n) === y.slice(0, n);
-}
-
-/**
- * Os quatro precisam bater. Faltando PR HEAD ou SHA instalado → UNKNOWN
- * (não dá para aceitar o teste). Qualquer divergência → TEST_INVALID.
- */
 export function buildIdentityVerdict(input: BuildIdentityInput): BuildIdentityVerdict {
-  const known = [input.prHead, input.workflowHead, input.embeddedSha, input.installedSha].map(norm);
-  if (!known[0] || !known[3]) return "UNKNOWN";
-  const present = known.filter((value): value is string => Boolean(value));
-  for (const value of present) if (!shaMatches(value, known[0])) return "TEST_INVALID";
-  return "MATCH";
+  return buildProvenanceVerdict(input);
 }
 
 /** Um teste físico só é aceito (PASS ou FAIL) com o build confirmado. */

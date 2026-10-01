@@ -39,7 +39,7 @@ const bug = (s, id) => s.bugs.bugs.find((item) => item.id === id);
 
 const MUTATIONS = {
   "build-identity": [
-    ["[20] build SHA instalado diverge e teste é aceito", "BUILD_MISMATCH_ACCEPTED", src("forensics", '  for (const value of present) if (!shaMatches(value, known[0])) return "TEST_INVALID";\n', "")],
+    ["[20] build SHA instalado diverge e teste é aceito", "BUILD_MISMATCH_ACCEPTED", src("forensics", 'export function buildIdentityVerdict(input: BuildIdentityInput): BuildIdentityVerdict {\n  return buildProvenanceVerdict(input);\n}', 'export function buildIdentityVerdict(input: BuildIdentityInput): BuildIdentityVerdict {\n  return "MATCH";\n}')],
     ["UNKNOWN aceito como resultado físico", "BUILD_MISMATCH_ACCEPTED", src("forensics", 'return verdict === "MATCH";', 'return verdict !== "TEST_INVALID";')],
   ],
   "native-tts-engine-truth": [

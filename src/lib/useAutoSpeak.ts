@@ -9,11 +9,13 @@ import { useStore } from "./store";
  * texto: o mesmo texto em dois nós diferentes toca de novo. Passa pelo mesmo
  * runtime da fala manual (requestMandarinSpeech) e, ao desmontar/trocar,
  * cancela SÓ a própria request.
+ *
+ * RC2.2.28 — `audioId` canônico quando disponível (asset-first).
  */
 export function useAutoSpeak(
   text: string | undefined,
   enabled = true,
-  opts: AutoSpeakOptions & { speechKey?: string } = {}
+  opts: AutoSpeakOptions & { speechKey?: string; audioId?: string } = {}
 ): void {
   const slowAudio = useStore((s) => s.slowAudio);
   const ttsRate = useStore((s) => s.ttsRate);
@@ -24,7 +26,12 @@ export function useAutoSpeak(
     const clean = String(text ?? "").trim();
     if (!clean) return;
     const rate = opts.rate ?? (slowAudio ? Math.min(ttsRate, 0.65) : ttsRate);
-    return scheduleAutoSpeak(clean, { rate, delayMs: opts.delayMs, source: opts.source });
+    return scheduleAutoSpeak(clean, {
+      rate,
+      delayMs: opts.delayMs,
+      source: opts.source,
+      audioId: opts.audioId,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [opts.speechKey, text, enabled, autoPlayAudio, slowAudio, ttsRate, opts.rate, opts.delayMs]);
+  }, [opts.speechKey, opts.audioId, text, enabled, autoPlayAudio, slowAudio, ttsRate, opts.rate, opts.delayMs]);
 }

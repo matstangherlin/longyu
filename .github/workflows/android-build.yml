@@ -45,7 +45,7 @@ jobs:
         run: npm ci
 
       - name: Contratos Android + pipeline de entrega
-        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause && npm run gate:rc2-2-28-deterministic-audio
 
       - name: Release sem segredos bloqueia honestamente
         run: |
@@ -63,10 +63,14 @@ jobs:
 
       - name: Debug APK + AAB (build web + cap sync + Gradle)
         # RC2.2.27 — o APK debug é o APK de DIAGNÓSTICO (contrato RC2.2.20):
-        # /qa/device › ANDROID TTS FORENSICS, linha técnica do Teste Guiado e
+        # /qa/device › LEGACY/FALLBACK TTS FORENSICS, linha técnica do Teste Guiado e
         # logs LongyuTTS só existem com VITE_DEVICE_QA. Nunca no release.
+        # RC2.2.28 — dual SHA: SOURCE_HEAD (PR head) + WORKFLOW (GITHUB_SHA merge).
         env:
           VITE_DEVICE_QA: "true"
+          VITE_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VITE_WORKFLOW_SHA: ${{ github.sha }}
+          VITE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           node scripts/android-cli.mjs debug
           node scripts/android-cli.mjs bundle:debug
@@ -76,12 +80,15 @@ jobs:
         run: |
           base=$(ls release-artifacts/*.provenance.json | head -n1 | xargs -n1 basename | sed 's/\.provenance\.json$//')
           echo "base=$base" >> "$GITHUB_OUTPUT"
+          SOURCE_HEAD="${{ github.event.pull_request.head.sha || github.sha }}"
+          WORKFLOW_SHA="${{ github.sha }}"
           {
             echo "### Android build — $base"
             echo ""
             echo "| Item | Resultado |"
             echo "| --- | --- |"
-            echo "| Fonte | \`${GITHUB_SHA}\` ($GITHUB_EVENT_NAME) |"
+            echo "| SOURCE HEAD | \`${SOURCE_HEAD:0:8}\` |"
+            echo "| CI MERGE | \`${WORKFLOW_SHA:0:8}\` |"
             echo "| Android debug APK/AAB | PASS |"
             echo "| Signed release | BLOCKED_SIGNING_SECRETS |"
             echo "| Play internal upload | BLOCKED_PLAY_CREDENTIALS (este workflow nunca publica) |"
