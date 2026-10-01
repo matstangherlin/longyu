@@ -40,7 +40,8 @@
       "generationSource": "edge-tts",
       "generatedAt": "2026-10-01T14:09:01.020Z",
       "qualityVersion": "aqv2",
-      "androidAssetPath": "audio/core/guided-try-ni.mp3"
+      "androidAssetPath": "audio/core/guided-try-ni.mp3",
+      "suspiciousDuration": true
     },
     {
       "audioId": "audio:guided-try:hao:v1",
@@ -59,7 +60,8 @@
       "generationSource": "edge-tts",
       "generatedAt": "2026-10-01T14:09:01.488Z",
       "qualityVersion": "aqv2",
-      "androidAssetPath": "audio/core/guided-try-hao.mp3"
+      "androidAssetPath": "audio/core/guided-try-hao.mp3",
+      "suspiciousDuration": true
     },
     {
       "audioId": "audio:guided-try:xiexie:v1",
@@ -116,7 +118,8 @@
       "generationSource": "edge-tts",
       "generatedAt": "2026-10-01T14:09:03.261Z",
       "qualityVersion": "aqv2",
-      "androidAssetPath": "audio/core/tone-ma1.mp3"
+      "androidAssetPath": "audio/core/tone-ma1.mp3",
+      "suspiciousDuration": true
     },
     {
       "audioId": "audio:tone:ma2:v1",
@@ -135,7 +138,8 @@
       "generationSource": "edge-tts",
       "generatedAt": "2026-10-01T14:09:03.728Z",
       "qualityVersion": "aqv2",
-      "androidAssetPath": "audio/core/tone-ma2.mp3"
+      "androidAssetPath": "audio/core/tone-ma2.mp3",
+      "suspiciousDuration": true
     },
     {
       "audioId": "audio:tone:ma3:v1",
@@ -154,7 +158,8 @@
       "generationSource": "edge-tts",
       "generatedAt": "2026-10-01T14:09:04.156Z",
       "qualityVersion": "aqv2",
-      "androidAssetPath": "audio/core/tone-ma3.mp3"
+      "androidAssetPath": "audio/core/tone-ma3.mp3",
+      "suspiciousDuration": true
     },
     {
       "audioId": "audio:tone:ma4:v1",
@@ -173,7 +178,8 @@
       "generationSource": "edge-tts",
       "generatedAt": "2026-10-01T14:09:04.613Z",
       "qualityVersion": "aqv2",
-      "androidAssetPath": "audio/core/tone-ma4.mp3"
+      "androidAssetPath": "audio/core/tone-ma4.mp3",
+      "suspiciousDuration": true
     },
     {
       "audioId": "audio:foundation:nihaoma:v1",
@@ -10563,5 +10569,6 @@
     }
   ],
   "coreRegeneratedAt": "2026-10-01T14:09:07.847Z",
-  "coreVoiceProfile": "zh-CN-XiaoxiaoNeural"
+  "coreVoiceProfile": "zh-CN-XiaoxiaoNeural",
+  "suspiciousDurationFlagged": 6
 }

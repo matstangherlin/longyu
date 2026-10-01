@@ -292,6 +292,36 @@ fs.writeFileSync(
   `${JSON.stringify({ schema: "longyu-audio-provenance/1", qualityVersion: QUALITY_VERSION, entries: provenance }, null, 2)}\n`
 );
 
+// Keep RC2.2.29 pack report in sync (durations + suspiciousDuration flags for gate:rc2-2-29).
+{
+  const pack29Path = path.join(ROOT, "docs/reports/rc2-2-29-audio-pack.json");
+  const packEntries = updated.map((e) => {
+    const hanzi = (String(e.textKey).match(/[\u4e00-\u9fff]/g) || []).length || 1;
+    const suspiciousDuration =
+      (hanzi === 1 && e.durationMs > 900) || (hanzi >= 12 && e.durationMs < 600);
+    return { ...e, suspiciousDuration };
+  });
+  fs.writeFileSync(
+    pack29Path,
+    `${JSON.stringify(
+      {
+        pack: "core+extended",
+        count: packEntries.length,
+        core: packEntries.filter((e) => e.pack === "core").length,
+        extended: packEntries.filter((e) => e.pack === "extended").length,
+        suspiciousDurationFlagged: packEntries.filter((e) => e.suspiciousDuration).length,
+        voiceProfile: VOICE_PROFILE,
+        generationSource: GENERATION_SOURCE,
+        qualityVersion: QUALITY_VERSION,
+        regeneratedAt: new Date().toISOString(),
+        entries: packEntries,
+      },
+      null,
+      2
+    )}\n`
+  );
+}
+
 fs.rmSync(tmpRoot, { recursive: true, force: true });
 console.log(
   `PASS regenerate-fixed-speech-corpus entries=${updated.length} unique=${groups.size} toneLeft=${updated.filter((e) => /tone-v1/.test(e.speaker)).length}`
