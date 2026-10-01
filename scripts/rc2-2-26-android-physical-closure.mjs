@@ -110,8 +110,10 @@ const guided = read("src/features/landing/GuidedTryPage.tsx");
 assert.match(guided, /guided-audio-confirm-heard/);
 assert.match(guided, /user_confirmed_audio_without_native_ack/);
 assert.match(guided, /setAudioResult\("DEGRADED_AUDIO"\)/);
-assert.match(guided, /guided-audio-copy-diagnostic/);
-assert.match(guided, /guided-tts-qa/);
+// RC2.2.29+ — recovery stays; technical TTS diagnostics leave the learner surface.
+assert.doesNotMatch(guided, /guided-audio-copy-diagnostic/);
+assert.doesNotMatch(guided, /guided-tts-qa/);
+assert.doesNotMatch(guided, /Copiar diagnóstico/);
 
 const bugs = json("docs/release/rc2-2-26-android-physical-bugs.json");
 const ttsBug = bugs.bugs.find((bug) => bug.id === "ANDROID_TTS_HEARD_BUT_UI_NOT_ACKNOWLEDGED");

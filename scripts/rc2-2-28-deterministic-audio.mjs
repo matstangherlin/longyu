@@ -92,15 +92,16 @@ const MUTATIONS = {
   ],
   "conversation-audio-after-render": [
     ["[8] audio promise controla nodeId", "AUDIO_IN_GOTO", (s) => {
+      // RC2.2.29 — goTo takes opts.reuseTransitionId (multi-line signature).
       s.src.conversation = s.src.conversation.replace(
-        "function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {",
-        'function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {\n    void playMandarinAudio("x");'
+        "    const sceneId = step.sceneId ?? \"scene\";\n    const transitionId = opts?.reuseTransitionId ?? nextTransitionId(sceneId, spokenCount);",
+        '    void playMandarinAudio("x");\n    const sceneId = step.sceneId ?? \"scene\";\n    const transitionId = opts?.reuseTransitionId ?? nextTransitionId(sceneId, spokenCount);'
       );
     }],
     ["[12] player ERROR cancela transition", "AUDIO_IN_GOTO", (s) => {
       s.src.conversation = s.src.conversation.replace(
-        "truth.begin(nodeId, target.id);",
-        'void requestMandarinSpeech({ text: "x", source: "CONVERSATION_AUTOPLAY", mode: "AUTO_PLAY" });\n    truth.begin(nodeId, target.id);'
+        "truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });",
+        'void requestMandarinSpeech({ text: "x", source: "CONVERSATION_AUTOPLAY", mode: "AUTO_PLAY" });\n    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });'
       );
     }],
     ["[10] node 2 reutiliza request do node 1", "NODE_REUSES_REQUEST", src("conversation", "speechKey: nodeKey,", 'speechKey: "shared",')],
