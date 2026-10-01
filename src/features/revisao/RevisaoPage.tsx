@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { capTargetPerRound } from "../../lib/semanticRepetition";
 import { useSearchParams } from "react-router-dom";
 import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
@@ -1646,6 +1647,7 @@ export function RevisaoPage() {
   if (requestedDetailedErrors && !detailedErrorsAllowed) {
     return (
       <HubPage data-review-page="">
+        <JourneyHandoffBanner source="REVIEW" />
         <HubHeader
           eyebrow={t("review.eyebrow")}
           title={t("review.detailedErrors")}
@@ -1683,6 +1685,7 @@ export function RevisaoPage() {
   if (!entry || !item || !data || !exercise) {
     return (
       <HubPage data-review-page="">
+        <JourneyHandoffBanner source="REVIEW" />
         <HubHeader
           eyebrow={moduleUnit ? t("review.moduleEyebrow") : t("review.eyebrow")}
           title={moduleUnit ? moduleUnit.title : detailedErrorsAllowed ? t("review.byDomain") : t("review.basic")}
@@ -2007,6 +2010,7 @@ export function RevisaoPage() {
 
   return (
     <HubPage data-review-page="">
+        <JourneyHandoffBanner source="REVIEW" />
       {correctionDrill ? (
         <div className="mb-4 flex flex-col gap-3">
           <button

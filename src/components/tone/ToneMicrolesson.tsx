@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Button, ProgressBar } from "../ui/primitives";
 import { SpeakButton } from "../ui/SpeakButton";
 import { ToneContour } from "./ToneContour";
+import { ToneTrace } from "./ToneTrace";
 import { speak } from "../../lib/tts";
 import { buildToneMicrolesson } from "../../lib/toneMicrolesson";
 import type { MandarinToneNumber } from "../../data/toneKnowledge";
@@ -40,6 +41,8 @@ export function ToneMicrolesson({ tone, onDone, onSkip }: { tone: MandarinToneNu
 
       {screen.stage === "SEE" && <ToneContour tone={tone} guided playKey={playKey} heightScale />}
       {screen.stage === "IMITATE" && <ToneContour tone={tone} guided gesture playKey={playKey} />}
+      {/* RC2.2.24 — rastrear é treino de memória do contorno; nunca obrigatório (Continuar sempre livre). */}
+      {screen.stage === "TRACE" && <ToneTrace tone={tone} />}
 
       {screen.sample && screen.stage !== "DISCRIMINATE" && (
         <div className="text-center">

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { TONE_SYLLABLES, TONE_COLOR, TONE_NAMES } from "../../data/tones";
 import { CHARACTERS } from "../../data/characters";
@@ -11,7 +12,6 @@ import {
   TONE_TRAINER_PACKS,
   MANDARIN_TONES,
   packAnswerOptions,
-  weakestToneFromProgress,
   type MandarinTone,
   type ToneTrainerPack,
   type ToneTrainerRound,
@@ -21,7 +21,7 @@ import { hasChineseVoice, speak, stopSpeaking, warmUpVoices } from "../../lib/tt
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { playSoundFx } from "../../lib/soundFx";
 import { stripPinyinTone } from "../../lib/pinyin";
-import { ShortcutBadge, isTypingTarget, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
+import { ShortcutBadge, isTypingTarget, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { Card, Button, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { GlossText } from "../../components/hanzi/GlossText";
@@ -30,7 +30,6 @@ import {
   IconCheck,
   IconChevron,
   IconFlame,
-  IconHeadphones,
   IconRefresh,
   IconSound,
   IconTarget,
@@ -41,6 +40,8 @@ import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { ToneContour } from "../../components/tone/ToneContour";
 import { ToneMicrolesson } from "../../components/tone/ToneMicrolesson";
+import { useFocusActivity, useIsFocusActivity } from "../../lib/focusActivity";
+import { toneKnowledge, type MandarinToneNumber } from "../../data/toneKnowledge";
 import { tonesNeedingMicrolesson } from "../../lib/toneMicrolesson";
 import { getJourneyNode, type JourneyNode } from "../../data/journeyOrchestrator";
 import { completeJourneyNode } from "../../lib/journeyNodeProgress";
@@ -59,6 +60,7 @@ interface ToneTrainerAnswer {
 
 export function SomPage() {
   const { instructionLocale } = useTranslation();
+  const focus = useIsFocusActivity();
   const [searchParams] = useSearchParams();
   const journeyNode = getJourneyNode(searchParams.get("journeyNode"));
   const [syllableIdx, setSyllableIdx] = useState(0);
@@ -67,15 +69,16 @@ export function SomPage() {
   return (
     <EngineGate track="som">
       <div className="space-y-8">
-        <SectionTitle
+        <JourneyHandoffBanner source="TONE_TRAINER" />
+        {!focus && <SectionTitle
           eyebrow={instructionLocale === "en" ? "Skill · Sound" : "Competência · Som"}
           title={journeyNode ? (instructionLocale === "en" ? "Journey Tone Trainer" : "Tone Trainer da Jornada") : instructionLocale === "en" ? "Tone training" : "Treino de tons"}
           desc={journeyNode
             ? instructionLocale === "en" ? "Only contours already taught in the Journey appear here." : "Aqui aparecem somente contornos já ensinados na Jornada."
             : instructionLocale === "en" ? "Listen, compare, retry, and consolidate each contour." : "Ouça, compare, erre, repita e consolide cada contorno."}
-        />
+        />}
 
-        {!journeyNode && <section>
+        {!journeyNode && !focus && <section>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-ink-soft">Sílaba:</span>
             {TONE_SYLLABLES.map((s, i) => (
@@ -119,7 +122,7 @@ export function SomPage() {
 
         <ToneTrainer journeyNode={journeyNode?.type === "TONE_TRAINER" ? journeyNode : undefined} />
 
-        <PinyinReference />
+        {!focus && <PinyinReference />}
       </div>
     </EngineGate>
   );
@@ -152,6 +155,10 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
   const [sessionCharged, setSessionCharged] = useState(false);
   const [energyPaywallOpen, setEnergyPaywallOpen] = useState(false);
   const [hasVoice, setHasVoice] = useState(true);
+  // RC2.2.24 — hub (escolher) ≠ atividade (focus). Vindo da Jornada, já começa.
+  const [started, setStarted] = useState(Boolean(journeyNode));
+  // A rodada (e a microaula) é FOCUS MODE: sem TopBar/TabBar/hub em volta.
+  useFocusActivity(started && !done);
   // RC2.2.23 — tom novo: microaula (um conceito por tela) antes da 1ª rodada.
   const [microlessonsSeen, setMicrolessonsSeen] = useState<Set<string>>(() => new Set());
 
@@ -183,16 +190,12 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
   const currentRound = pack.rounds[Math.min(roundIndex, pack.rounds.length - 1)];
   const stats = toneTrainer[pack.id];
   const score = results.filter((item) => item.correct).length;
-  const weakTone = weakestToneFromProgress(toneTrainer);
   const nextPack = TONE_TRAINER_PACKS.find((item) => item.order === pack.order + 1);
   const suggestedPack = useMemo(() => suggestedPackForErrors(errorsByTone), [errorsByTone]);
   const answered = picked !== null;
   const consonantPack = pack.kind === "consonant";
   const answerOptions = packAnswerOptions(pack);
   const pickedCorrect = consonantPack ? picked === currentRound.answerInitial : picked === currentRound.answerTone;
-  const hadPriorError = consonantPack
-    ? (errorsByInitial[currentRound.answerInitial ?? ""] ?? 0) > 0
-    : (stats?.errorsByTone?.[currentRound.answerTone] ?? 0) > 0;
   const weakInitial = consonantPack
     ? (Object.entries(errorsByInitial).sort((a, b) => b[1] - a[1])[0] ?? null)
     : null;
@@ -231,8 +234,9 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
     onContinue: nextRound,
   });
 
-  function resetSession(packId = selectedPackId) {
+  function resetSession(packId = selectedPackId, startNow = false) {
     stopSpeaking();
+    setStarted(startNow || Boolean(journeyNode));
     setSelectedPackId(packId);
     setRoundIndex(0);
     setPicked(null);
@@ -359,7 +363,7 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
   }
 
   const microlessonTone =
-    !journeyNode && !done && !consonantPack && roundIndex === 0 && results.length === 0
+    started && !journeyNode && !done && !consonantPack && roundIndex === 0 && results.length === 0
       ? tonesNeedingMicrolesson(pack.options, toneTrainer).find((tone) => !microlessonsSeen.has(`${pack.id}:${tone}`)) ?? null
       : null;
   if (microlessonTone !== null) {
@@ -435,7 +439,7 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
           )}
 
           <div className="mt-auto flex flex-col gap-2 pt-6 sm:flex-row sm:justify-center">
-            <Button size="lg" onClick={() => resetSession(pack.id)}>
+            <Button size="lg" onClick={() => resetSession(pack.id, true)}>
               Refazer pack
               <IconRefresh width={18} height={18} />
             </Button>
@@ -458,181 +462,103 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
     );
   }
 
+  // RC2.2.24 — HUB: escolher o treino e COMEÇAR. Nada de rodada aqui.
+  if (!started) {
+    return (
+      <section className="space-y-4" data-tone-trainer-hub>
+        <Card className="p-5 text-center" data-testid="tone-trainer-selected">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{pack.shortTitle}</div>
+          <h2 className="mt-1 font-serif text-2xl font-semibold text-ink">{pack.title}</h2>
+          <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-ink-soft">{pack.focus}</p>
+          <Button size="lg" className="mt-4 w-full sm:w-auto" onClick={() => setStarted(true)} data-testid="tone-trainer-start">
+            Começar
+          </Button>
+        </Card>
+        <TonePackList selectedPackId={pack.id} onSelect={resetSession} />
+        <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
+      </section>
+    );
+  }
+
+  // RC2.2.24 — FOCUS MODE da rodada: X · progresso · som · [Ouvir][Repetir] ·
+  // opções grandes · feedback curto · [Próxima]. Nota/Melhor/Fraco, pack,
+  // mínimo, descrição longa, lista de packs e atalhos ficam fora da resposta.
+  const contour = !consonantPack ? (currentRound.answerTone as MandarinToneNumber) : null;
   return (
-    <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <Card className="flex min-h-[560px] flex-col overflow-hidden p-0">
-        <div className="border-b border-line bg-surface-2/60 px-5 py-4 sm:px-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Pill tone="accent">Pack {pack.order}</Pill>
-                <Pill>{pack.shortTitle}</Pill>
-                <Pill tone={stats?.completed ? "good" : "muted"}>
-                  {stats?.completed ? "concluído" : `${pack.minimumCorrect}/${pack.requiredRounds} mínimo`}
-                </Pill>
-              </div>
-              <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight text-ink">
-                {pack.title}
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-ink-soft">{pack.focus}</p>
-            </div>
-            <div className="min-w-28 text-right">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                Rodada
-              </div>
-              <div className="font-serif text-2xl font-semibold text-ink">
-                {roundIndex + 1}/{pack.requiredRounds}
-              </div>
-            </div>
-          </div>
-          <ProgressBar value={roundIndex + (answered ? 1 : 0)} max={pack.requiredRounds} className="mt-4" />
+    <section className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-md flex-col px-1 py-2" data-tone-trainer-focus data-tone-round={roundIndex + 1}>
+      <header className="flex items-center gap-3">
+        <button
+          type="button"
+          aria-label="Sair do treino"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-surface-2"
+          onClick={() => (journeyNode ? navigate("/jornada") : resetSession(pack.id))}
+          data-testid="tone-trainer-exit"
+        >
+          <IconX width={22} height={22} />
+        </button>
+        <ProgressBar value={roundIndex + (answered ? 1 : 0)} max={pack.requiredRounds} className="flex-1" />
+        <span className="shrink-0 text-xs font-semibold tabular-nums text-ink-faint" data-testid="tone-round-counter">
+          {roundIndex + 1}/{pack.requiredRounds}
+        </span>
+      </header>
+
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <p className="text-sm font-semibold text-ink-soft">{consonantPack ? "Ouça o som inicial" : "Ouça o som"}</p>
+        <div className="mt-3 font-serif text-5xl font-semibold text-ink" data-testid="tone-round-syllable">
+          {answered ? <Pinyin text={currentRound.pinyin} className="text-accent" /> : visibleFocusSyllable}
+        </div>
+        <div className="mt-5 flex gap-3">
+          <Button size="lg" onClick={playRoundAudio} data-testid="tone-round-listen">
+            <IconSound width={19} height={19} />
+            Ouvir
+          </Button>
+          <Button size="lg" variant="soft" onClick={playRoundAudio}>
+            <IconRefresh width={18} height={18} />
+            Repetir
+          </Button>
+        </div>
+        {!hasVoice && <p className="mt-3 text-xs leading-5 text-ink-faint">Sem voz chinesa: ative uma nas configurações.</p>}
+
+        <div className={["mt-6 grid w-full gap-3", answerOptions.length <= 2 ? "grid-cols-2" : "grid-cols-2"].join(" ")} data-testid="tone-round-options">
+          {consonantPack
+            ? (pack.consonantOptions ?? []).map((initial) => (
+                <ConsonantOptionButton
+                  key={initial}
+                  initial={initial}
+                  disabled={answered}
+                  state={!answered ? "idle" : initial === currentRound.answerInitial ? "right" : initial === picked ? "wrong" : "idle"}
+                  onClick={() => answer(initial)}
+                />
+              ))
+            : pack.options.map((tone) => (
+                <ToneOptionButton
+                  key={tone}
+                  tone={tone}
+                  disabled={answered}
+                  state={!answered ? "idle" : tone === currentRound.answerTone ? "right" : tone === picked ? "wrong" : "idle"}
+                  assessmentMode={journeyNode?.mode === "TONE_NUMBER" && !answered}
+                  locale={instructionLocale}
+                  onClick={() => answer(tone)}
+                />
+              ))}
         </div>
 
-        <div className="flex flex-1 flex-col px-5 py-5 sm:px-6 sm:py-6">
-          <div className="grid gap-4 lg:grid-cols-[1fr_220px] lg:items-start">
-            <div className="rounded-2xl border border-line bg-surface-2/70 px-4 py-4 text-center">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[26px] bg-accent-soft text-accent shadow-card">
-                <IconHeadphones width={38} height={38} />
-              </div>
-              <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-                {consonantPack ? "Ouça e escolha o som" : "Ouça e escolha o tom"}
-              </div>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                <GlossText text={currentRound.displayText} className="hanzi text-3xl font-semibold text-ink" />
-                {answered ? (
-                  <Pinyin text={currentRound.pinyin} className="font-serif text-2xl text-accent" />
-                ) : (
-                  <span className="font-serif text-2xl font-semibold text-ink-soft">{visibleFocusSyllable}</span>
-                )}
-              </div>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
-                Foco em "{visibleFocusSyllable}"{answered ? ` - ${currentRound.meaningPt}` : ""}
-              </p>
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-                <Button size="lg" onClick={playRoundAudio}>
-                  <IconSound width={19} height={19} />
-                  Ouvir
-                </Button>
-                <Button size="lg" variant="soft" onClick={playRoundAudio}>
-                  <IconRefresh width={18} height={18} />
-                  Repetir
-                </Button>
-              </div>
-              {!hasVoice && (
-                <p className="mt-3 text-xs leading-5 text-ink-faint">
-                  Se o áudio não tocar, ative uma voz chinesa nas configurações do navegador.
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center lg:grid-cols-1">
-              <ToneMiniStat label="Nota" value={`${score}/${pack.requiredRounds}`} active={score >= pack.minimumCorrect} />
-              <ToneMiniStat label="Melhor" value={stats ? `${stats.bestScore}/${stats.bestTotal}` : "-"} />
-              <ToneMiniStat
-                label="Fraco"
-                value={consonantPack ? (weakInitial ? weakInitial[0] : "estável") : weakTone ? TONE_SHORT_LABEL[weakTone] : "estável"}
-                active={Boolean(consonantPack ? weakInitial : weakTone)}
-              />
-            </div>
+        {answered && (
+          <div className="mt-5 w-full text-center" role="status" data-testid="tone-round-feedback" data-correct={pickedCorrect ? "yes" : "no"}>
+            <p className={["text-base font-semibold", pickedCorrect ? "text-[rgb(var(--good))]" : "text-wrong"].join(" ")}>
+              {pickedCorrect ? "✓ " : ""}
+              {consonantPack ? currentRound.answerInitial : TONE_SHORT_LABEL[currentRound.answerTone]}
+              {!consonantPack && contour ? ` — ${toneKnowledge(contour).learnerDescriptionPt}` : ""}
+            </p>
+            {contour && contour !== 5 && <ToneContour tone={contour} guided className="mx-auto mt-2 max-w-[220px]" />}
           </div>
+        )}
+      </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {consonantPack
-              ? (pack.consonantOptions ?? []).map((initial, index) => (
-                  <ConsonantOptionButton
-                    key={initial}
-                    initial={initial}
-                    shortcut={shortcutKeyForIndex(index)}
-                    disabled={answered}
-                    state={
-                      !answered
-                        ? "idle"
-                        : initial === currentRound.answerInitial
-                          ? "right"
-                          : initial === picked
-                            ? "wrong"
-                            : "idle"
-                    }
-                    onClick={() => answer(initial)}
-                  />
-                ))
-              : pack.options.map((tone, index) => (
-                  <ToneOptionButton
-                    key={tone}
-                    tone={tone}
-                    shortcut={shortcutKeyForIndex(index)}
-                    disabled={answered}
-                    state={
-                      !answered
-                        ? "idle"
-                        : tone === currentRound.answerTone
-                          ? "right"
-                          : tone === picked
-                            ? "wrong"
-                            : "idle"
-                    }
-                    assessmentMode={journeyNode?.mode === "TONE_NUMBER" && !answered}
-                    locale={instructionLocale}
-                    onClick={() => answer(tone)}
-                  />
-                ))}
-          </div>
-
-          {answered && (
-            <div
-              className={[
-                "mt-5 rounded-2xl border px-4 py-4",
-                pickedCorrect
-                  ? "border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.1)]"
-                  : "border-wrong/25 bg-wrong-soft/70",
-              ].join(" ")}
-            >
-              <div className="flex items-start gap-3">
-                <span
-                  className={[
-                    "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-                    pickedCorrect ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]" : "bg-wrong text-white",
-                  ].join(" ")}
-                >
-                  {pickedCorrect ? <IconCheck width={20} height={20} /> : <IconX width={20} height={20} />}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-ink">
-                    {pickedCorrect
-                      ? hadPriorError
-                        ? "Corrigido!"
-                        : "Certo!"
-                      : `Resposta correta: ${consonantPack ? currentRound.answerInitial : TONE_SHORT_LABEL[currentRound.answerTone]}`}
-                  </div>
-                  <p className="mt-1 text-sm leading-6 text-ink-soft">
-                    {pickedCorrect
-                      ? currentRound.explanation
-                      : consonantPack
-                        ? currentRound.explanation
-                        : `${TONE_EXPLANATION[currentRound.answerTone]} ${currentRound.explanation}`}
-                  </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                    <Pinyin text={currentRound.pinyin} className="font-serif text-lg text-accent" />
-                    <span className="text-ink-soft">{currentRound.meaningPt}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-auto flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <span className="hidden text-xs font-medium text-ink-faint sm:inline">
-              Atalhos: 1-9 para responder, Enter para avançar e espaço para repetir.
-            </span>
-            <Button size="lg" className="w-full sm:w-auto" disabled={!answered} onClick={nextRound}>
-              {roundIndex + 1 >= pack.requiredRounds ? "Ver nota" : "Próxima"}
-              <IconChevron width={18} height={18} />
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {!journeyNode && <TonePackList selectedPackId={pack.id} onSelect={resetSession} />}
+      <Button size="lg" className="sticky bottom-3 mt-4 w-full shadow-lift" disabled={!answered} onClick={nextRound} data-testid="tone-round-next">
+        {roundIndex + 1 >= pack.requiredRounds ? "Ver resultado" : "Próxima"}
+        <IconChevron width={18} height={18} />
+      </Button>
       <ProPaywall open={energyPaywallOpen} kind="energy" onClose={() => setEnergyPaywallOpen(false)} />
     </section>
   );

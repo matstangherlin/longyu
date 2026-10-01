@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   CULTURE_ITEMS,
@@ -113,6 +114,7 @@ export function CultureHubPage() {
 
   return (
     <HubPage compact data-testid="culture-hub">
+      <JourneyHandoffBanner source="CULTURE" />
       {fromJourney && (
         <Link to="/jornada" className="inline-flex min-h-11 items-center text-sm font-semibold text-accent" data-testid="culture-back-to-journey">
           ← {t("culture.backToJourney")}

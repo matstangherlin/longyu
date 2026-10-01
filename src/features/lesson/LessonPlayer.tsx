@@ -127,6 +127,8 @@ import { useTapThroughGuard } from "../../lib/useTapThroughGuard";
 import { guidanceLevelForLesson, guidedPhaseForStep, guidedTryBridgeApplies, showsPrepareLine } from "../../lib/guidedLesson";
 import { GuideLine } from "../../components/guide/GuideLine";
 import { setLessonTraceContext, traceLessonStep } from "../../lib/lessonStepTrace";
+import { STEP_RENDER_STALL_MS } from "../../lib/stepRenderTruth";
+import { recordDeviceQaObservation } from "../../lib/deviceQa";
 import { DragonBreathMeter, LessonFocusHeader } from "./LessonFocusHeader";
 import {
   completedLessonStagesFromRoundStep,
@@ -2041,6 +2043,12 @@ export function LessonPlayer() {
   // RC2.2.17 · AV — exposição do Teste guiado (só apresentação; nunca domínio).
   const guidedTryExposure = useStore((s) => s.guidedTryExposure);
   const idxRef = useRef(0);
+  // RC2.2.24 — etapa selecionada que ainda precisa aparecer no DOM.
+  const expectedRenderIdxRef = useRef<number | null>(null);
+  const renderWatchdogRef = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (renderWatchdogRef.current != null) window.clearTimeout(renderWatchdogRef.current);
+  }, []);
   idxRef.current = idx;
   /** RC2.2.14 — o aluno já tocou/digitou no passo atual (o plano não troca mais sob ele). */
   const stepInteractedRef = useRef(false);
@@ -2642,7 +2650,16 @@ export function LessonPlayer() {
   useEffect(() => {
     const context = { lessonId: lesson.id, stepIndex: idx, kind: traceStepKind, attempt: stepAttempt };
     setLessonTraceContext(context);
-    const frame = requestAnimationFrame(() => traceLessonStep({ ...context, event: "step_visible" }));
+    const frame = requestAnimationFrame(() => {
+      traceLessonStep({ ...context, event: "step_visible" });
+      // RC2.2.24 — a etapa selecionada está mesmo no DOM?
+      const rendered = document.querySelector(`[data-lesson-step-frame][data-current-step-index="${idx}"]`);
+      if (rendered && expectedRenderIdxRef.current === idx) {
+        expectedRenderIdxRef.current = null;
+        if (renderWatchdogRef.current != null) window.clearTimeout(renderWatchdogRef.current);
+        traceLessonStep({ ...context, event: "next_step_rendered" });
+      }
+    });
     const onClick = (event: MouseEvent) => {
       const button = (event.target as Element | null)?.closest?.("button");
       if (!button || button.disabled) return;
@@ -3400,7 +3417,7 @@ export function LessonPlayer() {
         finish(correct);
       } else {
         traceLessonStep({ lessonId: lesson.id, stepIndex: idx + 1, kind: currentStep?.kind ?? "none", attempt: stepAttempt, event: "advanced" });
-        setIdx(idx + 1);
+        selectNextStep(currentStep?.kind ?? "none");
       }
     }
   }
@@ -3598,8 +3615,28 @@ export function LessonPlayer() {
       finish(nextCorrect);
     } else {
       traceLessonStep({ lessonId: lesson.id, stepIndex: idx + 1, kind: currentStep.kind, attempt: stepAttempt, event: "advanced" });
-      setIdx(idx + 1);
+      selectNextStep(currentStep.kind);
     }
+  }
+
+  /**
+   * RC2.2.24 — conclusão comprometida → etapa seguinte selecionada; o efeito
+   * de render confirma `next_step_rendered` quando o DOM DELA aparece. Sem
+   * isso no prazo: STEP_RENDER_STALL_ANDROID (rastro + observação de QA).
+   */
+  function selectNextStep(kind: string) {
+    const next = idx + 1;
+    traceLessonStep({ lessonId: lesson.id, stepIndex: idx, kind, attempt: stepAttempt, event: "completion_committed" });
+    traceLessonStep({ lessonId: lesson.id, stepIndex: next, kind, attempt: stepAttempt, event: "next_step_selected" });
+    expectedRenderIdxRef.current = next;
+    if (renderWatchdogRef.current != null) window.clearTimeout(renderWatchdogRef.current);
+    const lessonIdAtSelect = lesson.id;
+    renderWatchdogRef.current = window.setTimeout(() => {
+      if (expectedRenderIdxRef.current !== next) return;
+      traceLessonStep({ lessonId: lessonIdAtSelect, stepIndex: next, kind, attempt: 0, event: "step_render_stall" });
+      recordDeviceQaObservation("step_stalled", `STEP_RENDER_STALL_ANDROID · ${lessonIdAtSelect} · ${kind} → ${next}`);
+    }, STEP_RENDER_STALL_MS);
+    setIdx(next);
   }
 
   // Pular com Fôlego: gasta 1 Fôlego (Pro pula sem gastar), sem contar como erro

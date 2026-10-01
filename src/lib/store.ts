@@ -2417,6 +2417,10 @@ interface AppState {
   applyServerPlacement: (analysis: PlacementAnalysis) => void;
   /** Marca ACK da migração local → cloud depois do sync. */
   markLocalMigrated: () => void;
+  /**
+   * @deprecated RC2.2.24 — uma conta Longyu por sessão. Troca de perfil local só
+   * existe para DEV/E2E e para a migração legada; nenhuma UI de produção usa.
+   */
   switchAccount: (id: string) => void;
   renameAccount: (id: string, name: string) => void;
   /** RC2.2.11 — valida pelo contrato de username; nunca salva forma inválida. */

@@ -99,7 +99,7 @@ const MUTATIONS = {
     ["[22] tela de tom com vários conceitos", "TONE_SCREEN_MULTIPLE_CONCEPTS", src("toneMicrolesson", '{ stage: "IMITATE", concept: "imitation"', '{ stage: "IMITATE", concept: "sound"')],
     ["[22b] tela de tom vira bloco", "TONE_SCREEN_MULTIPLE_CONCEPTS", src("toneMicrolesson", "line: `${label}: ${firstSentence(guidance.guidedPt)}`", "line: `${label}: ${guidance.guidedPt} ${guidance.gesturePt} ${toneKnowledge(tone).learnerDescriptionPt}`")],
     ["[23] pitch explicado por língua", "PITCH_EXPLAINED_BY_TONGUE", src("toneKnowledge", 'guidedPt: "Cai firme."', 'guidedPt: "A língua cai firme."')],
-    ["sequência de tom fora de ordem", "TONE_SEQUENCE_BROKEN", src("toneMicrolesson", '["SEE", "HEAR", "IMITATE", "DISCRIMINATE"', '["HEAR", "SEE", "IMITATE", "DISCRIMINATE"')],
+    ["sequência de tom fora de ordem", "TONE_SEQUENCE_BROKEN", src("toneMicrolesson", '["SEE", "HEAR", "TRACE", "IMITATE", "DISCRIMINATE"', '["HEAR", "SEE", "TRACE", "IMITATE", "DISCRIMINATE"')],
     ["nota falsa de pitch", "FAKE_PITCH_SCORE", src("toneMicrolessonUi", '`✓ ${TONE_SHORT_LABEL[tone]}`', '`✓ seu tom ficou correto (92%)`')],
     ["microaula não ligada", "TONE_MICROLESSON_NOT_WIRED", src("som", "tonesNeedingMicrolesson(pack.options, toneTrainer)", "[]")],
   ],

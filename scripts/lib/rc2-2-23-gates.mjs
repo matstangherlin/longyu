@@ -397,7 +397,8 @@ export async function validateGuidedTones(s) {
   const { failures, fail } = collector();
   await withModules(s, fail, FILES.toneMicrolesson, (mods) => {
     const t = mods.toneMicrolesson;
-    const expected = ["SEE", "HEAR", "IMITATE", "DISCRIMINATE", "RECOGNIZE", "USE_WORD", "USE_CONTEXT"];
+    // RC2.2.24 — RASTREAR entrou depois de OUVIR (mesma ordem pedagógica).
+    const expected = ["SEE", "HEAR", "TRACE", "IMITATE", "DISCRIMINATE", "RECOGNIZE", "USE_WORD", "USE_CONTEXT"];
     if (JSON.stringify([...t.TONE_MICROLESSON_STAGES]) !== JSON.stringify(expected)) fail("TONE_SEQUENCE_BROKEN", "TONE_MICROLESSON_STAGES", "VER→OUVIR→IMITAR→DISCRIMINAR→RECONHECER→PALAVRA→CONTEXTO");
     for (const tone of [1, 2, 3, 4]) {
       const screens = t.buildToneMicrolesson(tone);

@@ -13,11 +13,12 @@
 import { toneGuidance, toneKnowledge, type MandarinToneNumber } from "../data/toneKnowledge";
 import { TONE_TRAINER_PACKS, TONE_SHORT_LABEL, type MandarinTone } from "../data/toneTrainer";
 
-export const TONE_MICROLESSON_STAGES = ["SEE", "HEAR", "IMITATE", "DISCRIMINATE", "RECOGNIZE", "USE_WORD", "USE_CONTEXT"] as const;
+// RC2.2.24 — + TRACE (rastrear o contorno com o dedo) depois de OUVIR.
+export const TONE_MICROLESSON_STAGES = ["SEE", "HEAR", "TRACE", "IMITATE", "DISCRIMINATE", "RECOGNIZE", "USE_WORD", "USE_CONTEXT"] as const;
 export type ToneMicrolessonStage = (typeof TONE_MICROLESSON_STAGES)[number];
 
 /** O único conceito que a tela ensina/pede. */
-export type ToneScreenConcept = "contour" | "sound" | "imitation" | "contrast" | "recognition" | "word" | "context";
+export type ToneScreenConcept = "contour" | "sound" | "trace" | "imitation" | "contrast" | "recognition" | "word" | "context";
 
 export interface ToneSample {
   hanzi: string;
@@ -73,6 +74,7 @@ export function buildToneMicrolesson(tone: MandarinToneNumber): ToneMicrolessonS
   const screens: ToneMicrolessonScreen[] = [
     { stage: "SEE", concept: "contour", tone, line: `${label}: ${firstSentence(guidance.guidedPt)}`, sample: null },
     { stage: "HEAR", concept: "sound", tone, line: "Ouça o movimento da voz.", sample: samples.canonical },
+    { stage: "TRACE", concept: "trace", tone, line: "Passe o dedo pela forma do tom.", sample: null },
     { stage: "IMITATE", concept: "imitation", tone, line: `${guidance.gesturePt} Repita em voz alta.`, sample: samples.canonical },
     { stage: "DISCRIMINATE", concept: "contrast", tone, line: "Qual contorno você ouviu?", sample: samples.canonical, choices: shuffleTwo(tone, contrast) },
     { stage: "RECOGNIZE", concept: "recognition", tone, line: `Qual é o ${label}?`, sample: null, choices: shuffleTwo(contrast, tone) },

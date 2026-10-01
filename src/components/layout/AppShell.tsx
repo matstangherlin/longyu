@@ -31,6 +31,7 @@ import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
 import { GuidanceHost } from "../guidance/GuidanceHost";
 import { markDevicePerf } from "../../lib/devicePerf";
+import { useIsFocusActivity } from "../../lib/focusActivity";
 
 export function AppShell() {
   // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
@@ -46,7 +47,9 @@ export function AppShell() {
   const isHanziTraining =
     location.pathname === "/hanzi" && isHanziPracticeMode(new URLSearchParams(location.search).get("mode"));
   const ownsViewport = isLessonPlayer || isHanziTraining;
-  const focusMode = ownsViewport || location.pathname.startsWith("/teste/");
+  // RC2.2.24 — atividade fora do player (Tone Trainer etc.) também pede foco.
+  const focusActivity = useIsFocusActivity();
+  const focusMode = ownsViewport || focusActivity || location.pathname.startsWith("/teste/");
 
   // Aplica o tema no <html> e prepara as vozes de TTS.
   useEffect(() => {

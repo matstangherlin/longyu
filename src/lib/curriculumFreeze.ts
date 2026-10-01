@@ -511,6 +511,34 @@ export const RC2_2_23_PRODUCT_CONVERGENCE_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.24 — exceção controlada para PARIDADE ANDROID. Nenhuma lição, id,
+ * ordem, tópico, StepKind, SRS ou economia muda; fingerprint c48b008c9c1e.
+ * Muda runtime/navegação/apresentação: TTS correlacionado por requestId,
+ * transição de conversa sem áudio, prova de render da etapa, âncora de volta
+ * à Jornada, handoff entre abas, focus mode, Tone Trace e conta única.
+ */
+export const RC2_2_24_ANDROID_LEARNING_PARITY_EXCEPTION = {
+  id: "RC2_2_24_ANDROID_LEARNING_PARITY",
+  scope: "Native TTS event contract (requestId/utteranceId), Guided Try listen CTA, conversation transition truth (V1/V2), step render truth, JourneyReturnAnchor, cross-tab handoff, focus activity mode, Tone Trainer focus round, Tone Trace, single-account UI",
+  areas: [
+    "CTA releases only on STARTED/DONE of the SAME requestId; DONE without START = TTS_START_EVENT_MISSED",
+    "goTo never calls TTS; audio speaks after the next node is in the DOM; 800 ms DOM stall surfaced",
+    "advanced = next step rendered in the DOM, not setIdx",
+    "return to the Journey by semantic anchor (phase/unit/lesson/node), never top by default",
+    "Tone Trainer: hub ≠ round; focus round without stats/pack list; Tone Trace with Pointer Events, no pitch claims",
+    "one Longyu account: no local profiles in production UI",
+  ],
+  forbids: [
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "audio controlling node/step navigation",
+    "pitch scoring without measurement",
+    "local identity as production UX",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-24-android-learning-parity",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

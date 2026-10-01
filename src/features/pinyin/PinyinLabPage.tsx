@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   PINYIN_ACCENT_ROUNDS,
@@ -118,6 +119,7 @@ export function PinyinLabPage() {
     const taughtRounds = PINYIN_ACCENT_ROUNDS.filter((round) => round.id === "accent-nihao");
     return (
       <HubPage className="space-y-5" data-testid="journey-pinyin-booster">
+        <JourneyHandoffBanner source="PINYIN" />
         <HubHeader eyebrow={copy.eyebrow} title={copy.title} desc={copy.desc} />
         <PinyinAccentTrainer
           rounds={taughtRounds}
@@ -133,6 +135,7 @@ export function PinyinLabPage() {
 
   return (
     <HubPage className="space-y-5">
+      <JourneyHandoffBanner source="PINYIN" />
       <section className="space-y-3">
         <div className="min-w-0">
           <HubHeader

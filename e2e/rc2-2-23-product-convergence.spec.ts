@@ -177,11 +177,13 @@ test.describe("RC2.2.23 · microaula de tom", () => {
   test("tom novo: um conceito por tela, discriminação com duas opções, Pular leva ao treino", async ({ page }) => {
     await seed(page, { completedLessons: [...THROUGH_L2, "l2-rev"], ...matureDiscoveryState(), toneTrainer: {} });
     await open(page, "/som");
+    // RC2.2.24 — o Treino de tons tem hub: escolher → Começar → atividade.
+    await page.getByTestId("tone-trainer-start").click();
     const micro = page.locator("[data-tone-microlesson]");
     await expect(micro).toBeVisible();
     await expect(micro).toHaveAttribute("data-tone-stage", "SEE");
     const stages: string[] = [];
-    for (let step = 0; step < 8; step += 1) {
+    for (let step = 0; step < 9; step += 1) {
       if (!(await micro.count())) break;
       const stage = (await micro.getAttribute("data-tone-stage")) ?? "";
       stages.push(stage);
@@ -194,7 +196,8 @@ test.describe("RC2.2.23 · microaula de tom", () => {
       await noHorizontalOverflow(page);
       await page.getByTestId("tone-microlesson-continue").click();
     }
-    expect(stages.slice(0, 5)).toEqual(["SEE", "HEAR", "IMITATE", "DISCRIMINATE", "RECOGNIZE"]);
+    // RC2.2.24 — RASTREAR entra depois de OUVIR.
+    expect(stages.slice(0, 6)).toEqual(["SEE", "HEAR", "TRACE", "IMITATE", "DISCRIMINATE", "RECOGNIZE"]);
     await expect(page.getByText(/língua/i)).toHaveCount(0);
     // Segundo tom novo do pack: Pular vai direto ao treino.
     if (await micro.count()) await page.getByTestId("tone-microlesson-skip").click();

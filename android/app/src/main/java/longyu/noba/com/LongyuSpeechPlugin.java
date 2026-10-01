@@ -71,6 +71,16 @@ public class LongyuSpeechPlugin extends Plugin {
     private int utteranceSeq = 0;
     /** RC2.2.17 — só a fala CORRENTE pode resolver/rejeitar speakCall. */
     private String currentUtteranceId;
+    /** RC2.2.24 — requestId (JS) da fala corrente e se o motor já disse onStart. */
+    private String currentRequestId;
+    private boolean currentStarted = false;
+    /** utteranceId → requestId (limitado): evento atrasado carrega a identidade da SUA fala. */
+    private final java.util.LinkedHashMap<String, String> requestByUtterance = new java.util.LinkedHashMap<String, String>() {
+        @Override
+        protected boolean removeEldestEntry(java.util.Map.Entry<String, String> eldest) {
+            return size() > 32;
+        }
+    };
 
     private SpeechRecognizer recognizer;
     private PluginCall recognitionCall;
@@ -174,7 +184,9 @@ public class LongyuSpeechPlugin extends Plugin {
     @PluginMethod
     public void speak(PluginCall call) {
         String text = call.getString("text", "");
+        String requestId = call.getString("requestId", null);
         if (text == null || text.trim().isEmpty()) {
+            emitTts("TTS_ERROR", requestId, null, "error", "TTS_EMPTY_TEXT");
             call.reject("empty text", "TTS_EMPTY_TEXT");
             return;
         }
@@ -186,6 +198,7 @@ public class LongyuSpeechPlugin extends Plugin {
             String status = languageStatus(locale);
             if (!"AVAILABLE".equals(status)) {
                 // Nunca finge que tocou.
+                emitTts("TTS_ERROR", requestId, null, "unavailable", status);
                 call.reject(status, status);
                 return;
             }
@@ -195,17 +208,46 @@ public class LongyuSpeechPlugin extends Plugin {
             tts.setSpeechRate(rate == null ? 0.85f : Math.max(0.3f, Math.min(2.0f, rate)));
             tts.setPitch(pitch == null ? 1.0f : Math.max(0.5f, Math.min(2.0f, pitch)));
             String id = UTTERANCE_PREFIX + (++utteranceSeq);
+            String rid = requestId != null && !requestId.isEmpty() ? requestId : id;
+            requestByUtterance.put(id, rid);
             speakCall = call;
             currentUtteranceId = id;
+            currentRequestId = rid;
+            currentStarted = false;
             call.setKeepAlive(true);
             int result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
             if (result != TextToSpeech.SUCCESS) {
                 speakCall = null;
                 currentUtteranceId = null;
+                currentRequestId = null;
                 call.setKeepAlive(false);
+                emitTts("TTS_ERROR", rid, id, "error", "TTS_SPEAK_FAILED");
                 call.reject("speak failed", "TTS_SPEAK_FAILED");
+                return;
             }
+            emitTts("TTS_QUEUED", rid, id, "queued", null);
         });
+    }
+
+    /**
+     * RC2.2.24 — evento de TTS com identidade: requestId, utteranceId,
+     * timestamp e engineState. NUNCA o texto falado.
+     */
+    private void emitTts(String type, String requestId, String utteranceId, String engineState, String code) {
+        if (requestId == null || requestId.isEmpty()) return;
+        JSObject event = new JSObject();
+        event.put("type", type);
+        event.put("requestId", requestId);
+        if (utteranceId != null) event.put("utteranceId", utteranceId);
+        event.put("timestamp", System.currentTimeMillis());
+        event.put("engineState", engineState);
+        if (code != null) event.put("code", code);
+        notifyListeners("ttsEvent", event);
+    }
+
+    private String requestFor(String utteranceId) {
+        if (utteranceId == null) return null;
+        return requestByUtterance.get(utteranceId);
     }
 
     private final UtteranceProgressListener progressListener = new UtteranceProgressListener() {
@@ -213,7 +255,10 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onStart(String utteranceId) {
             main.post(() -> {
+                // RC2.2.24 — toda fala anuncia o SEU início (o JS filtra por requestId).
+                emitTts("TTS_STARTED", requestFor(utteranceId), utteranceId, "speaking", null);
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
+                currentStarted = true;
                 JSObject event = new JSObject();
                 event.put("state", "start");
                 notifyListeners("ttsState", event);
@@ -223,6 +268,7 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onDone(String utteranceId) {
             main.post(() -> {
+                emitTts("TTS_DONE", requestFor(utteranceId), utteranceId, "idle", null);
                 // O onStop/onDone atrasado da fala ANTERIOR não encerra a atual.
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
                 finishSpeak(false);
@@ -232,10 +278,12 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onError(String utteranceId) {
             main.post(() -> {
+                emitTts("TTS_ERROR", requestFor(utteranceId), utteranceId, "error", "TTS_SPEAK_FAILED");
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
                 PluginCall call = speakCall;
                 speakCall = null;
                 currentUtteranceId = null;
+                currentRequestId = null;
                 if (call != null) {
                     call.setKeepAlive(false);
                     call.reject("tts error", "TTS_SPEAK_FAILED");
@@ -246,6 +294,7 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onStop(String utteranceId, boolean interrupted) {
             main.post(() -> {
+                emitTts("TTS_STOPPED", requestFor(utteranceId), utteranceId, "stopped", null);
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
                 finishSpeak(true);
             });
@@ -254,11 +303,20 @@ public class LongyuSpeechPlugin extends Plugin {
 
     private void finishSpeak(boolean interrupted) {
         PluginCall call = speakCall;
+        String utteranceId = currentUtteranceId;
+        String requestId = currentRequestId;
+        boolean started = currentStarted;
         speakCall = null;
         currentUtteranceId = null;
+        currentRequestId = null;
+        currentStarted = false;
         if (call == null) return;
         JSObject ret = new JSObject();
         ret.put("interrupted", interrupted);
+        // RC2.2.24 — o retorno também prova se o motor começou ESTA fala.
+        ret.put("started", started);
+        if (utteranceId != null) ret.put("utteranceId", utteranceId);
+        if (requestId != null) ret.put("requestId", requestId);
         call.setKeepAlive(false);
         call.resolve(ret);
     }
