@@ -1,6 +1,6 @@
 # RC2.2.30 — Closed Beta Entry
 
-Stacked on #302 (`RC2_2_30_BASE_SHA=c86a816b8e8b6fd0576f56222ed42f1a809d3c2d`).
+Stacked on #302 (`RC2_2_30_BASE_SHA=017834c6915874150ddaec2921007c6e536ffcdb`).
 
 ## Status machine
 

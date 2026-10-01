@@ -1,7 +1,7 @@
 {
   "wave": "RC2.2.30",
   "schema": "longyu-physical-matrix/1",
-  "RC2_2_30_BASE_SHA": "c86a816b8e8b6fd0576f56222ed42f1a809d3c2d",
+  "RC2_2_30_BASE_SHA": "017834c6915874150ddaec2921007c6e536ffcdb",
   "note": "PASS físico só com evidência humana no APK/Play. Código nunca gera PHYSICAL PASS. CODE_READY≠APK_PASS. Web PASS≠Physical PASS.",
   "requiredChecks": [
     {

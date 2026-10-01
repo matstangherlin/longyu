@@ -7,7 +7,7 @@ import path from "node:path";
 import { loadBetaPedagogyFreezeState } from "./beta-pedagogy-freeze-state.mjs";
 
 const ROOT = process.cwd();
-export const RC2_2_30_BASE_SHA = "c86a816b8e8b6fd0576f56222ed42f1a809d3c2d";
+export const RC2_2_30_BASE_SHA = "017834c6915874150ddaec2921007c6e536ffcdb";
 
 export const FILES = {
   base: "docs/release/rc2-2-30-base.json",
