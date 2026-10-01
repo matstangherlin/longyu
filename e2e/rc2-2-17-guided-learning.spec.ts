@@ -145,7 +145,8 @@ test.describe("RC2.2.17 · onboarding único", () => {
     await page.locator("[data-guided-action]").click();
     await page.locator("[data-guided-listen]").click();
     await expect(page.getByTestId("guided-audio-failed")).toBeVisible();
-    await expect(page.getByText("Não conseguimos reproduzir o áudio.")).toBeVisible();
+    // RC2.2.26+ copy: confirm-path title (not the old "Não conseguimos reproduzir…").
+    await expect(page.getByTestId("guided-audio-failed")).toContainText("Não consegui confirmar o áudio.");
     await expect(page.getByTestId("guided-audio-retry")).toBeVisible();
     await expect(page.getByTestId("guided-reveal")).toContainText("你好");
     const action = page.locator("[data-guided-action]");
