@@ -1,6 +1,6 @@
 # RC2.2.31D — Real APK runtime proof
 
-Base: `#306` tip `f7f5ad23a60b4f9bfa61199ce565f82d9ae6b82d` (`RC2_2_31D_BASE_SHA`)
+Base: `#306` tip `042f0f405a47da022e9c245d245d4823c4fc6af9` (`RC2_2_31D_BASE_SHA`)
 
 ## Gaps closed
 

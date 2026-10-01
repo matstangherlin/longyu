@@ -1,6 +1,6 @@
 {
   "wave": "RC2_2_31D_APK_RUNTIME_PROOF",
-  "RC2_2_31D_BASE_SHA": "f7f5ad23a60b4f9bfa61199ce565f82d9ae6b82d",
+  "RC2_2_31D_BASE_SHA": "042f0f405a47da022e9c245d245d4823c4fc6af9",
   "basePr": 306,
   "stackedOn": "cursor/rc2-2-31c-android-webview-gesture-5b4f",
   "status": "CODE_READY_AWAITING_PHYSICAL",

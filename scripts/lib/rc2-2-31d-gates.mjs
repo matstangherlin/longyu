@@ -7,7 +7,7 @@ import { loadBetaPedagogyFreezeState } from "./beta-pedagogy-freeze-state.mjs";
 import { RC2_CANDIDATE_FROZEN_SHA256 } from "./rc2-2-12-gates.mjs";
 
 const ROOT = process.cwd();
-export const RC2_2_31D_BASE_SHA = "f7f5ad23a60b4f9bfa61199ce565f82d9ae6b82d";
+export const RC2_2_31D_BASE_SHA = "042f0f405a47da022e9c245d245d4823c4fc6af9";
 
 export const FILES = {
   nativeSafe: "src/components/native/NativeSafeAction.tsx",
