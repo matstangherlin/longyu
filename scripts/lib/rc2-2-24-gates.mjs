@@ -226,7 +226,9 @@ export async function validateGuidedTryAdvance(s) {
   const g = stripComments(s.src.guidedTry);
   const play = body(g, "function playNihao()");
   if (!/const requestId = newTtsRequestId\(\);/.test(play) || !/activeRequest\.current !== requestId/.test(play)) fail("GUIDED_TRY_UNCORRELATED", "playNihao", "cada toque é uma reprodução com identidade");
-  if (!/setListen\(\(prev\) => \(prev === "STARTING" \? "IDLE" : prev\)\)/.test(play)) fail("GUIDED_TRY_DEAD_BUTTON", "playNihao", "substituída sem começar volta a IDLE (nunca STARTING eterno)");
+  // RC2.2.27 — no APK, voltar a IDLE deixava o Continuar cinza sem saída:
+  // substituída sem começar agora vira falha recuperável (nunca STARTING eterno).
+  if (!/setListen\(\(prev\) => \(prev === "STARTING" \? "IDLE" : prev\)\)/.test(play) && !/setFailReason\("TTS_SUPERSEDED"\);\s*setListen\(\(prev\) => \(prev === "PLAYING" \|\| prev === "HEARD" \? prev : "FAILED"\)\)/.test(play)) fail("GUIDED_TRY_DEAD_BUTTON", "playNihao", "substituída sem começar sai de STARTING (falha recuperável)");
   if (!/if \(outcome\.started\) \{\s*setAudioResult\("AUDIO_HEARD"\)/.test(play)) fail("TTS_HEARD_CTA_BLOCKED", "playNihao", "começou = ouvido, mesmo substituída depois");
   if (!/data-testid="guided-audio-retry"/.test(g) || !/guided-audio-settings|guided-audio-install/.test(g) || !/testId: "listen-continue-degraded"/.test(g)) fail("GUIDED_TRY_DEAD_BUTTON", FILES.guidedTry, "[Tentar novamente] [Configurar voz chinesa] [Continuar sem áudio]");
   if (!/audioResult === "AUDIO_HEARD" \|\| heard/.test(g)) fail("TTS_HEARD_CTA_BLOCKED", "listenAction", "ouviu → Continuar livre");

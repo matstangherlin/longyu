@@ -110,21 +110,24 @@ function GuidedTryFlow() {
   const heard = listen === "HEARD" || listen === "PLAYING";
   const audioFailed = listen === "FAILED" || listen === "UNAVAILABLE";
 
-  // RC2.2.27 — nunca cinza para sempre: sem início confirmado (onStart,
-  // isSpeaking da MESMA request, DONE ou ACK) até o prazo, a tela sai de
-  // "Iniciando…" e oferece [Tocar novamente] [Eu ouvi, continuar]
+  // RC2.2.27 — nunca cinza para sempre: o prazo nasce no TOQUE (não no
+  // estado STARTING, que pode não chegar ou ser revertido). Sem início
+  // confirmado (onStart, isSpeaking da MESMA request, DONE ou ACK) até o
+  // prazo, a tela oferece [Tocar novamente] [Eu ouvi, continuar]
   // [Continuar sem áudio]. "Eu ouvi" é fallback de UX, não PHYSICAL_PASS.
+  const [listenTap, setListenTap] = useState(0);
   useEffect(() => {
-    if (step !== "listen" || listen !== "STARTING") return;
+    if (step !== "listen" || listenTap === 0) return;
+    if (listen === "PLAYING" || listen === "HEARD" || listen === "FAILED" || listen === "UNAVAILABLE") return;
     const requestId = activeRequest.current;
     const timer = window.setTimeout(() => {
       if (!alive.current || activeRequest.current !== requestId) return;
-      recordTechEvent("guided_try_audio_deadline", { requestId, deadlineMs: GUIDED_LISTEN_DEADLINE_MS });
+      recordTechEvent("guided_try_audio_deadline", { requestId, deadlineMs: GUIDED_LISTEN_DEADLINE_MS, state: listen });
       setFailReason("TTS_UI_DEADLINE");
-      setListen((prev) => (prev === "STARTING" ? "FAILED" : prev));
+      setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));
     }, GUIDED_LISTEN_DEADLINE_MS);
     return () => window.clearTimeout(timer);
-  }, [step, listen]);
+  }, [step, listen, listenTap]);
 
   const meaningChoices: Choice[] = useMemo(
     () => [
@@ -177,6 +180,7 @@ function GuidedTryFlow() {
    */
   function playNihao() {
     setFailReason(null);
+    setListenTap((count) => count + 1);
     // RC2.2.24 — cada toque é uma reprodução com identidade. Evento de outra
     // fala (inclusive a anterior deste botão) nunca libera o Continuar.
     const requestId = newTtsRequestId();
@@ -202,9 +206,12 @@ function GuidedTryFlow() {
         return;
       }
       if (outcome.superseded) {
-        // Substituída sem ter começado (outro áudio na tela): volta ao
-        // estado tocável — nunca fica em "Iniciando…" com o botão morto.
-        setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));
+        // RC2.2.27 — a request ATIVA foi substituída sem ter começado: outra
+        // fala tomou o motor. Voltar a IDLE deixava o Continuar cinza sem
+        // saída (APK do owner). Vira falha recuperável e fica no diagnóstico.
+        recordTechEvent("guided_try_audio_superseded", { requestId, reason: outcome.reason });
+        setFailReason("TTS_SUPERSEDED");
+        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));
         return;
       }
       setFailReason(outcome.reason);
@@ -400,7 +407,7 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE") && (
+                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE" || failReason === "TTS_SUPERSEDED") && (
                     <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
                       {t("guidedTry.audioConfirmedByUser")}
                     </Button>

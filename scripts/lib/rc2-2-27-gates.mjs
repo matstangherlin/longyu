@@ -406,8 +406,12 @@ export async function validateGuidedTry(s) {
   });
   const deadline = Number((s.src.guidedTry.match(/GUIDED_LISTEN_DEADLINE_MS = (\d+);/) ?? [])[1]);
   if (!(deadline > 0 && deadline <= 8000)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "prazo de UI ≤ 8 s");
-  const effect = section(s.src.guidedTry, "if (step !== \"listen\" || listen !== \"STARTING\") return;", "}, [step, listen]);");
-  if (!/setFailReason\("TTS_UI_DEADLINE"\)/.test(effect) || !/"FAILED"/.test(effect)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "prazo leva a [Tocar novamente] [Eu ouvi] [Continuar sem áudio] [19]");
+  // O prazo nasce no TOQUE (o APK do owner ficou em IDLE: prazo preso a STARTING nunca armou).
+  const effect = section(s.src.guidedTry, "if (step !== \"listen\" || listenTap === 0) return;", "}, [step, listen, listenTap]);");
+  if (!effect || !/setFailReason\("TTS_UI_DEADLINE"\)/.test(effect) || !/"FAILED"/.test(effect)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "prazo leva a [Tocar novamente] [Eu ouvi] [Continuar sem áudio] [19]");
+  if (!/setListenTap\(\(count\) => count \+ 1\);/.test(section(s.src.guidedTry, "function playNihao()", "function confirmHeardWithoutAck()"))) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "o toque arma o prazo");
+  const superseded = section(s.src.guidedTry, "if (outcome.superseded) {", "setFailReason(outcome.reason);");
+  if (/"IDLE"/.test(superseded) || !/setFailReason\("TTS_SUPERSEDED"\)/.test(superseded)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "substituída sem início vira falha recuperável, nunca IDLE cinza");
   for (const testId of ["guided-audio-retry", "guided-audio-confirm-heard", "listen-continue-degraded"]) if (!s.src.guidedTry.includes(testId)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, testId);
   if (!/failReason === "TTS_UI_DEADLINE"/.test(s.src.guidedTry)) fail("GUIDED_TRY_DISABLED_FOREVER", FILES.guidedTry, "\"Eu ouvi\" aparece depois do prazo");
   if (!/source: "GUIDED_TRY"/.test(s.src.guidedTry)) fail("GUIDED_TRY_IGNORES_ENGINE", FILES.guidedTry, "sessão única de fala");

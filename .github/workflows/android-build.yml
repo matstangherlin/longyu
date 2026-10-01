@@ -62,6 +62,11 @@ jobs:
         run: node scripts/play-upload.mjs --probe
 
       - name: Debug APK + AAB (build web + cap sync + Gradle)
+        # RC2.2.27 — o APK debug é o APK de DIAGNÓSTICO (contrato RC2.2.20):
+        # /qa/device › ANDROID TTS FORENSICS, linha técnica do Teste Guiado e
+        # logs LongyuTTS só existem com VITE_DEVICE_QA. Nunca no release.
+        env:
+          VITE_DEVICE_QA: "true"
         run: |
           node scripts/android-cli.mjs debug
           node scripts/android-cli.mjs bundle:debug

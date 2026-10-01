@@ -686,7 +686,7 @@
       "ownerEvidence": true,
       "fixConfidence": "INVALIDATED_BY_DEVICE",
       "closeRule": "Só fecha quando reproduzido no build anterior e comprovadamente ausente no build novo, no APK.",
-      "reproducedAfter": "RC2.2.26",
+      "reproducedAfter": "RC2.2.27 (#300 APK)",
       "instrumentation": [
         "isSpeaking watchdog",
         "request lifecycle registry",
@@ -694,7 +694,31 @@
         "ANDROID TTS FORENSICS (/qa/device)",
         "build identity verdict"
       ],
-      "physicalStatus": "NOT_RUN"
+      "physicalStatus": "NOT_RUN",
+      "ownerRuns": [
+        {
+          "build": "RC2.2.26 APK",
+          "result": "FAIL",
+          "observed": "Teste Guiado 2/7: áudio ouvido, Continuar cinza."
+        },
+        {
+          "build": "RC2.2.27 / #300 debug APK (CI)",
+          "installedSha": null,
+          "buildIdentityVerdict": "UNKNOWN",
+          "result": "FAIL",
+          "observed": "Teste Guiado 2/7: Continuar cinza, SEM texto de estado e SEM caixa de recuperação (tela em IDLE). Conversa 'Primeiro cumprimento' com o mesmo sintoma.",
+          "diagnosticAvailable": false,
+          "whyNoDiagnostic": "APK debug do CI era production_beta: deviceQaEnabled=false → /qa/device, linha técnica e logs LongyuTTS indisponíveis."
+        }
+      ],
+      "codeFindingsFromOwnerRun": [
+        "superseded sem início devolvia a tela a IDLE; o prazo de UI só armava em STARTING → Continuar cinza sem saída",
+        "APK debug do CI sem VITE_DEVICE_QA → instrumentação da RC2.2.27 inacessível no aparelho"
+      ],
+      "fixInPr300": [
+        "prazo nasce no toque; superseded sem início = falha recuperável (TTS_SUPERSEDED)",
+        "APK debug do android-build com VITE_DEVICE_QA=true (APK de diagnóstico)"
+      ]
     },
     {
       "id": "ANDROID_CONVERSATION_NODE_STALL",

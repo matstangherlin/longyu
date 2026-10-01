@@ -102,6 +102,13 @@
       "bugId": "ANDROID_CONVERSATION_AUDIO_SEQUENCE_BROKEN",
       "observed": "Conversa: 1ª linha com áudio, próximas sem.",
       "testedBuildSha": null
+    },
+    {
+      "bugId": "ANDROID_TTS_HEARD_BUT_UI_NOT_ACKNOWLEDGED",
+      "observed": "APK do #300: Teste Guiado 2/7 cinza em IDLE (sem estado, sem recuperação).",
+      "testedBuildSha": null,
+      "buildIdentityVerdict": "UNKNOWN",
+      "reproducedAfter": "RC2.2.27"
     }
   ]
 }

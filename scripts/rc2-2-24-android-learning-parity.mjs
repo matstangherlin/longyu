@@ -50,7 +50,7 @@ const MUTATIONS = {
   ],
   "guided-try-advance": [
     ["Teste Guiado sem identidade da fala", "GUIDED_TRY_UNCORRELATED", src("guidedTry", "    const requestId = newTtsRequestId();\n", "    const requestId = \"fixed\";\n")],
-    ["STARTING eterno (botão morto)", "GUIDED_TRY_DEAD_BUTTON", src("guidedTry", 'setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));', "void 0;")],
+    ["STARTING eterno (botão morto)", "GUIDED_TRY_DEAD_BUTTON", src("guidedTry", 'setFailReason("TTS_SUPERSEDED");\n        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', "void 0;")],
     ["falha sem [Configurar voz chinesa]", "GUIDED_TRY_DEAD_BUTTON", src("guidedTry", 'data-testid="guided-audio-retry"', 'data-testid="guided-audio-x"')],
     ["ouviu mas CTA bloqueado", "TTS_HEARD_CTA_BLOCKED", src("guidedTry", "audioResult === \"AUDIO_HEARD\" || heard", "audioResult === \"AUDIO_HEARD\" && heard && false")],
     ["último passo espera o áudio", "AUDIO_GATES_LAST_STEP", src("guidedTry", '    if (choice.correct && step === "conversation") void playMandarinAudio("你好");', '    if (choice.correct && step === "conversation") void playMandarinAudio("你好").then(() => go("done"));')],

@@ -83,6 +83,8 @@ const MUTATIONS = {
     ["[18] Guided Try permanece disabled após engineSpeaking", "GUIDED_TRY_IGNORES_ENGINE", src("correlation", '    case "TTS_ENGINE_SPEAKING":\n    case "TTS_STARTED":', '    case "TTS_STARTED":')],
     ["[19] Guided Try fica disabled indefinidamente", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", '      setFailReason("TTS_UI_DEADLINE");\n', "")],
     ["prazo de UI infinito", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", "export const GUIDED_LISTEN_DEADLINE_MS = 5500;", "export const GUIDED_LISTEN_DEADLINE_MS = 600000;")],
+    ["prazo só arma em STARTING (APK do owner)", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", "    setListenTap((count) => count + 1);\n", "")],
+    ["substituída volta a IDLE cinza", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", '        setFailReason("TTS_SUPERSEDED");\n        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', '        setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));')],
   ],
   "lesson-audio-gates": [
     ["Ouça sem saída sem áudio", "AUDIO_GATE_NO_EXIT", src("steps", 'tr("player.cannotListenNow")', 'tr("player.listen")')],

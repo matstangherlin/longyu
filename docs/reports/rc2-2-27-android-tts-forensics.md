@@ -15,6 +15,20 @@
 
 Test-identity warning: the RC2.2.26 PR body pointed to the APK `e54ca366` while the branch HEAD was `eb84b659`. Without comparing PR HEAD, workflow HEAD, embedded SHA and installed SHA, a physical result cannot be accepted as PASS or FAIL. RC2.2.27 adds that verdict in `/qa/device` (`buildIdentityVerdict`, MATCH / TEST_INVALID / UNKNOWN).
 
+## 1b. Owner run on the #300 APK (OBSERVED)
+
+- **Result: FAIL.** On Guided Try 2/7, Continuar stayed grey **with no status text and no recovery box**: the screen was in `IDLE`. The "Primeiro cumprimento" conversation showed the same symptom.
+- **No diagnostic was possible.** The CI debug APK was built as `production_beta`, so `deviceQaEnabled=false`: there was no `/qa/device`, no technical line on Guided Try, and no `LongyuTTS` logs. The installed SHA is unknown (build identity `UNKNOWN`).
+- **What the code explains** (CONFIRMED_IN_CODE, not the TTS cause):
+  - A request that ended as *superseded* before starting sent the screen back to `IDLE`.
+  - The UI deadline only armed in `STARTING`, so nothing ever offered a way out.
+- **Fixed in #300 itself:**
+  - The deadline is armed by the **tap**.
+  - Superseded without a start becomes a recoverable failure (`TTS_SUPERSEDED`, offering [Tocar novamente] [Eu ouvi] [Continuar sem áudio]).
+  - A `guided_try_audio_superseded` event is recorded.
+  - The `android-build` debug APK is built with `VITE_DEVICE_QA=true`, as the diagnostic APK of the RC2.2.20 contract (never in the release).
+- **The TTS root cause (C1–C7) remains NOT PROVEN.** The next owner run, on the diagnostic APK, has to come with the panel diagnostic.
+
 ## 2. Base path (eb84b659), read line by line (OBSERVED in the code)
 
 ### Manual playback (Guided Try, Ouça)
