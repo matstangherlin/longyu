@@ -464,12 +464,13 @@ export const RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION = {
  */
 export const RC2_2_22_CLOSED_BETA_CANDIDATE_EXCEPTION = {
   id: "RC2_2_22_CLOSED_BETA_CANDIDATE",
-  scope: "Closed Beta readiness state machine, security triage, device compatibility model, Beta QA issue packet and human QA sessions, resource counters, product lint (screen complexity, bad repetition, first-20 audit)",
+  scope: "Closed Beta readiness state machine, security triage, device compatibility model, Beta QA issue packet and human QA sessions, resource counters, product lint (screen complexity, bad repetition, first-20 audit), TTS playback end timeout and pronunciation-contrast UI watchdog",
   areas: [
     "NOT_READY → PRE_CANDIDATE → CANDIDATE → CLOSED_BETA_READY only with typed physical/Play evidence",
     "failure classification with evidence: LONGYU_BUG vs device/service/network/configuration",
     "Beta QA issue packet and human sessions: no e-mail, OTP, token, transcript, recording; testers by ID",
     "resource counters and session popup load in /qa/device (QA builds only)",
+    "playMandarinAudio NO_END_TIMEOUT after onstart; PronunciationContrastDrill unlocks Continuar if TTS sticks on Tocando…",
   ],
   forbids: [
     "Closed Beta declared ready by code",
