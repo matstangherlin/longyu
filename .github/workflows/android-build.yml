@@ -182,8 +182,10 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
+          # android-emulator-runner invokes /bin/sh (dash on ubuntu) — not bash.
+          # pipefail is bash-only; use bash explicitly for the test script.
           script: |
-            set -euo pipefail
+            exec bash -euo pipefail <<'SCRIPT'
             cd android
             chmod +x ./gradlew
             ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --stacktrace
@@ -197,7 +199,11 @@ jobs:
             if [ -d app/build/reports/androidTests ]; then
               cp -R app/build/reports/androidTests ../runtime-evidence/ || true
             fi
-            printf '%s\n' "{\"sourceHead\":\"${{ github.event.pull_request.head.sha || github.sha }}\",\"workflowSha\":\"${{ github.sha }}\",\"lane\":\"ANDROID_EMULATOR_RUNTIME\"}" > ../runtime-evidence/build-identity.json
+            printf '%s\n' "{\"sourceHead\":\"${SOURCE_HEAD}\",\"workflowSha\":\"${WORKFLOW_SHA}\",\"lane\":\"ANDROID_EMULATOR_RUNTIME\"}" > ../runtime-evidence/build-identity.json
+            SCRIPT
+        env:
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          WORKFLOW_SHA: ${{ github.sha }}
 
       - name: Upload runtime evidence
         if: always()
