@@ -1,8 +1,8 @@
 /**
- * RC2.2.31B — contrato único de toque APK para ações críticas.
+ * RC2.2.31C — contrato único de toque APK para ações críticas.
  *
  * Traces só nos handlers REAIS (nunca fabricados).
- * pointerdown → click → pointerup fallback (~50ms), idempotente.
+ * Dedupe por gestureId (pointerdown), nunca só por actionKey.
  */
 import { useRef, type PointerEvent as ReactPointerEvent, type ReactNode, type MouseEvent as ReactMouseEvent } from "react";
 
@@ -22,14 +22,15 @@ export interface NativeSafeActionHandlers {
   onClick: (event: ReactMouseEvent<HTMLButtonElement>) => void;
 }
 
+let gestureSeq = 0;
+
 export function useNativeSafeAction(
   action: () => void,
   actionKey: string,
   observers?: NativeSafeActionObservers
 ): NativeSafeActionHandlers {
-  const pendingRef = useRef<{ at: number; key: string } | null>(null);
-  const lastGestureAtRef = useRef<number | null>(null);
-  const lastRanAtRef = useRef(0);
+  const pendingRef = useRef<{ gestureId: number; key: string } | null>(null);
+  const executedGestureRef = useRef<number | null>(null);
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observersRef = useRef(observers);
   observersRef.current = observers;
@@ -41,48 +42,59 @@ export function useNativeSafeAction(
     }
   }
 
-  function runOnce(source: "click" | "pointer_fallback") {
-    const now = Date.now();
-    // Só dedupe o MESMO gesto (click + pointer_fallback). Nunca bloqueie o
-    // próximo toque do aluno — no APK Continuar com o mesmo actionKey (lock
-    // rejeitado / spokenCount igual) precisa poder tentar de novo.
-    if (lastRanAtRef.current > 0 && now - lastRanAtRef.current < POINTER_FALLBACK_MS + 30) {
+  function runOnce(source: "click" | "pointer_fallback", gestureId: number | null) {
+    // Same gestureId → one execution (click + fallback). New pointerdown → new id → eligible.
+    if (gestureId != null && executedGestureRef.current === gestureId) {
       return;
     }
     if (source === "pointer_fallback") {
       if (pendingRef.current == null) return;
       if (pendingRef.current.key !== actionKey) return;
+      if (gestureId == null) return;
       observersRef.current?.onFallbackObserved?.();
     }
+    if (gestureId != null) executedGestureRef.current = gestureId;
     pendingRef.current = null;
-    lastRanAtRef.current = now;
-    lastGestureAtRef.current = now;
     clearFallback();
-    observersRef.current?.onActionExecuted?.(source);
-    action();
+    // Wrap action so side-effect throws inside the handler never poison the button.
+    try {
+      observersRef.current?.onActionExecuted?.(source);
+      action();
+    } catch {
+      /* pedagogical action should not throw; if it does, allow retap */
+      executedGestureRef.current = null;
+    }
   }
 
   return {
     onPointerDown: () => {
-      pendingRef.current = { at: Date.now(), key: actionKey };
+      gestureSeq += 1;
+      pendingRef.current = { gestureId: gestureSeq, key: actionKey };
       clearFallback();
       observersRef.current?.onPointerDownObserved?.();
     },
     onClick: () => {
       observersRef.current?.onClickObserved?.();
-      runOnce("click");
+      const gid = pendingRef.current?.key === actionKey ? pendingRef.current.gestureId : gestureSeq + 1;
+      if (pendingRef.current?.key !== actionKey) {
+        // Click without pointerdown (some WebViews): invent a fresh gesture id.
+        gestureSeq += 1;
+        runOnce("click", gestureSeq);
+        return;
+      }
+      runOnce("click", gid);
     },
     onPointerUp: () => {
       observersRef.current?.onPointerUpObserved?.();
-      if (pendingRef.current == null || pendingRef.current.key !== actionKey) return;
-      // Se o click já rodou neste gesto, não agenda fallback.
-      if (lastRanAtRef.current > 0 && Date.now() - lastRanAtRef.current < POINTER_FALLBACK_MS + 30) {
+      const pending = pendingRef.current;
+      if (pending == null || pending.key !== actionKey) return;
+      if (executedGestureRef.current === pending.gestureId) {
         pendingRef.current = null;
         return;
       }
       clearFallback();
       fallbackTimerRef.current = setTimeout(() => {
-        runOnce("pointer_fallback");
+        runOnce("pointer_fallback", pending.gestureId);
       }, POINTER_FALLBACK_MS);
     },
   };

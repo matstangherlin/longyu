@@ -32,25 +32,44 @@ function clearChromeResumeWatchdog(): void {
 
 function startChromeResumeWatchdog(): void {
   clearChromeResumeWatchdog();
-  if (!isTTSAvailable()) return;
+  const synth = webSpeechSynthesis();
+  if (!synth) return;
   chromeResumeTimer = window.setInterval(() => {
-    const synth = window.speechSynthesis;
-    if (!synth.speaking && !synth.pending) {
+    const live = webSpeechSynthesis();
+    if (!live || (!live.speaking && !live.pending)) {
       clearChromeResumeWatchdog();
       return;
     }
     // Chrome: fala "travada" em paused; resume periódico mantém o áudio vivo.
     try {
-      synth.resume();
+      live.resume();
     } catch {
       // ignore
     }
   }, 10_000);
 }
 
+/**
+ * RC2.2.31C — Web Speech API object, or null.
+ *
+ * não SUBSTITUIR ESTA GUARDA POR isTTSAvailable().
+ * Native TTS availability (LongyuSpeech) != Web Speech API availability
+ * (window.speechSynthesis). Android WebView often has the former without
+ * the latter; assuming speechSynthesis exists when isTTSAvailable() is true
+ * throws and blocks Guided Try + Conversation Continuar.
+ */
+export function webSpeechSynthesis(): SpeechSynthesis | null {
+  if (typeof window === "undefined") return null;
+  const synth = window.speechSynthesis as SpeechSynthesis | undefined | null;
+  if (!synth) return null;
+  if (typeof synth.speak !== "function") return null;
+  return synth;
+}
+
 function pickChineseVoice(): SpeechSynthesisVoice | null {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
-  const voices = window.speechSynthesis.getVoices();
+  const synth = webSpeechSynthesis();
+  if (!synth) return null;
+  const voices = synth.getVoices();
   if (!voices.length) return null;
   // Preferência: zh-CN > zh > qualquer "Chinese" no nome.
   const byLang = (re: RegExp) => voices.find((v) => re.test(v.lang));
@@ -64,17 +83,33 @@ function pickChineseVoice(): SpeechSynthesisVoice | null {
 }
 
 function resumeSpeechSynthesis(): void {
-  if (!isTTSAvailable()) return;
-  const synth = window.speechSynthesis;
-  if (synth.paused) synth.resume();
+  // não usar isTTSAvailable() aqui — ver webSpeechSynthesis().
+  const synth = webSpeechSynthesis();
+  if (!synth) return;
+  try {
+    if (synth.paused) synth.resume();
+  } catch {
+    /* best effort — WebView / Safari may refuse */
+  }
 }
 
-/** Marca interação recente do usuário — necessário para autoplay em Safari/iOS. */
+/**
+ * Marca interação recente do usuário — Safari/iOS autoplay + SFX unlock.
+ * RC2.2.31C — NUNCA lança. Falha de Web Speech / AudioContext não bloqueia
+ * navegação pedagógica nem o pedido ao Media3/Direct player.
+ */
 export function noteUserGesture(): void {
   lastUserGestureAt = Date.now();
-  resumeSpeechSynthesis();
-  // Mesmo gesto desbloqueia SFX (AudioContext) — sem isso o 1º efeito some no iOS.
-  unlockAudio();
+  try {
+    resumeSpeechSynthesis();
+  } catch {
+    /* never throw */
+  }
+  try {
+    unlockAudio();
+  } catch {
+    /* never throw */
+  }
 }
 
 /** true se houve gesto recente o bastante para autoplay (Safari/iOS). */
@@ -129,14 +164,9 @@ export function getNativeTtsUnavailableReason(): string | null {
 
 export function isTTSAvailable(): boolean {
   // Android: disponível até o SO dizer o contrário — nunca por falta de speechSynthesis.
+  // Isto responde "Longyu consegue falar?" (nativo), não "speechSynthesis existe?".
   if (hasNativeSpeech()) return nativeTtsKnownAvailable !== false;
-  // `"speechSynthesis" in window` respondia "sim" para uma propriedade que
-  // existe valendo `undefined` — e aí a fala ia adiante e estourava ao chamar
-  // `.speak`. Perguntar pelo objeto e pelo método é a pergunta que interessa:
-  // "dá para falar?", não "o nome está declarado?".
-  if (typeof window === "undefined") return false;
-  const synth = window.speechSynthesis as SpeechSynthesis | undefined | null;
-  return Boolean(synth) && typeof synth?.speak === "function";
+  return webSpeechSynthesis() != null;
 }
 
 /** Carrega vozes (algumas plataformas só preenchem após o evento). */
@@ -354,7 +384,12 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
     opts.onend?.();
     return;
   }
-  const synth = window.speechSynthesis;
+  const synth = webSpeechSynthesis();
+  if (!synth) {
+    opts.onerror?.("WEB_TTS_UNAVAILABLE");
+    opts.onend?.();
+    return;
+  }
   clearPendingSpeak();
   clearChromeResumeWatchdog();
   const u = new SpeechSynthesisUtterance(spoken);
@@ -474,7 +509,11 @@ export function stopSpeaking(): void {
   }
   clearPendingSpeak();
   clearChromeResumeWatchdog();
-  if (isTTSAvailable()) window.speechSynthesis.cancel();
+  try {
+    webSpeechSynthesis()?.cancel();
+  } catch {
+    /* never throw */
+  }
 }
 
 /**

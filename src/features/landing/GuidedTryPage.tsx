@@ -23,8 +23,8 @@ import type { MessageKey } from "../../locales/pt-BR";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
 import { requestMandarinSpeech } from "../../lib/mandarinSpeech";
-import { installNativeTtsData, openNativeTtsSettings } from "../../lib/platform/nativeSpeech";
-import { refreshNativeTtsStatus, usesNativeVoice } from "../../lib/tts";
+import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
+import { refreshNativeTtsStatus } from "../../lib/tts";
 import { newTtsRequestId } from "../../lib/ttsCorrelation";
 import { recordDeviceQaObservation } from "../../lib/deviceQa";
 import { recordTechEvent } from "../../lib/techEvents";
@@ -396,23 +396,18 @@ function GuidedTryFlow() {
             </p>
             {audioFailed && (
               <div className="mt-2 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
+                {/* RC2.2.31C — Guided Try is asset-first. Never push "Configurar voz chinesa" for asset playback failure. */}
                 <p className="text-sm font-semibold text-ink">{t("guidedTry.audioFailedTitle")}</p>
                 <p className="mt-1 text-xs leading-5 text-ink-soft">{t("guidedTry.audioFailedLead")}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE" || failReason === "TTS_SUPERSEDED") && (
-                    <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
-                      {t("guidedTry.audioConfirmedByUser")}
-                    </Button>
-                  )}
+                  <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
+                    {t("guidedTry.audioConfirmedByUser")}
+                  </Button>
                   {canOfferVoiceInstall(failReason) ? (
                     <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
-                      {t("guidedTry.audioInstallVoice")}
-                    </Button>
-                  ) : usesNativeVoice() ? (
-                    <Button size="sm" variant="outline" onClick={() => void openNativeTtsSettings()} data-testid="guided-audio-settings">
                       {t("guidedTry.audioInstallVoice")}
                     </Button>
                   ) : null}

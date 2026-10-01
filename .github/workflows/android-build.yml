@@ -45,21 +45,30 @@ jobs:
         run: npm ci
 
       - name: Install ffmpeg (audio quality gates)
-        timeout-minutes: 4
+        timeout-minutes: 3
         run: |
           set -euo pipefail
-          # Apt mirrors sometimes hang; fail fast and let the job retry instead of 25+ min stalls.
-          sudo DEBIAN_FRONTEND=noninteractive apt-get \
-            -o Acquire::Retries=3 \
-            -o DPkg::Lock::Timeout=60 \
-            update -y
-          sudo DEBIAN_FRONTEND=noninteractive apt-get \
-            -o Acquire::Retries=3 \
-            -o DPkg::Lock::Timeout=60 \
-            install -y --no-install-recommends ffmpeg
+          # Apt Azure mirrors intermittently crawl (80+ packages) and hit step timeouts.
+          # Static build from GitHub CDN is one archive + predictable PATH install.
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            ffmpeg -version | head -1
+            exit 0
+          fi
+          ARCHIVE="$RUNNER_TEMP/ffmpeg-static.tar.xz"
+          curl -fsSL --retry 4 --retry-delay 2 \
+            -o "$ARCHIVE" \
+            "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz"
+          tar -xJf "$ARCHIVE" -C "$RUNNER_TEMP"
+          BIN="$(find "$RUNNER_TEMP" -type f -path '*/bin/ffmpeg' | head -1)"
+          PROBE="$(find "$RUNNER_TEMP" -type f -path '*/bin/ffprobe' | head -1)"
+          test -n "$BIN" && test -n "$PROBE"
+          sudo install -m 755 "$BIN" /usr/local/bin/ffmpeg
+          sudo install -m 755 "$PROBE" /usr/local/bin/ffprobe
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
 
       - name: Contratos Android + pipeline de entrega
-        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause && npm run gate:rc2-2-28-deterministic-audio && npm run gate:rc2-2-29-launch-convergence && npm run gate:rc2-2-30-closed-beta-entry && npm run gate:rc2-2-31-android-runtime-closure && npm run gate:rc2-2-31b-android-runtime-final
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause && npm run gate:rc2-2-28-deterministic-audio && npm run gate:rc2-2-29-launch-convergence && npm run gate:rc2-2-30-closed-beta-entry && npm run gate:rc2-2-31-android-runtime-closure && npm run gate:rc2-2-31b-android-runtime-final && npm run gate:rc2-2-31c-android-runtime-root-cause
 
       - name: Release sem segredos bloqueia honestamente
         run: |

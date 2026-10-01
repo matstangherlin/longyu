@@ -214,7 +214,6 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
 
   return new Promise((resolve) => {
     let settled = false;
-    let sawReady = false;
     const settle = () => {
       if (settled) return;
       settled = true;
@@ -223,7 +222,6 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     };
     const onReady = () => {
       if (settled) return;
-      sawReady = true;
       input.onState?.("READY");
       input.onEvent?.("AUDIO_READY", { requestId });
     };
@@ -236,22 +234,15 @@ export function playCanonicalAudio(input: PlayCanonicalAudioInput): Promise<Cano
     };
     const onEnd = () => {
       if (settled) return;
-      // RC2.2.31B — clip curto no Media3: ENDED sem isPlaying=true. Se READY
-      // chegou, o asset tocou; não trate como ENDED_WITHOUT_START (trava Guided Try).
+      // RC2.2.31C — READY/ENDED alone are NOT audible proof. Native must emit
+      // AUDIO_STARTED (isPlaying or positionMs proof). Otherwise PLAYBACK_NOT_CONFIRMED.
       if (!outcome.started) {
-        if (sawReady) {
-          outcome.started = true;
-          input.onState?.("PLAYING");
-          input.onEvent?.("AUDIO_STARTED", { requestId, reason: "ENDED_AFTER_READY" });
-          trace("audio_native_call_return", { requestId, audioId, phase: "started_via_ended_repair" });
-        } else {
-          outcome.failed = true;
-          outcome.reason = "ENDED_WITHOUT_START";
-          input.onState?.("ERROR");
-          input.onEvent?.("AUDIO_ERROR", { requestId, reason: outcome.reason });
-          settle();
-          return;
-        }
+        outcome.failed = true;
+        outcome.reason = "PLAYBACK_NOT_CONFIRMED";
+        input.onState?.("ERROR");
+        input.onEvent?.("AUDIO_ERROR", { requestId, reason: outcome.reason });
+        settle();
+        return;
       }
       outcome.ended = true;
       input.onState?.("ENDED");

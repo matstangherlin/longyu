@@ -1,0 +1,34 @@
+{
+  "wave": "RC2_2_31C",
+  "note": "Owner screenshots 14:39–14:40 BRT predate 1713d851. Prior #305 build FAIL recorded. Current HEAD physical NOT_RUN until owner installs matching APK.",
+  "checks": {
+    "guidedTryAudio": "NOT_RUN",
+    "conversationContinue": "NOT_RUN",
+    "conversationSequentialAudio": "NOT_RUN",
+    "webviewSpeechSynthesisAbsence": "CODE_READY",
+    "gestureNoThrow": "CODE_READY",
+    "directAssetPlayer": "CODE_READY",
+    "noFalseStart": "CODE_READY",
+    "audioOffConversation20": "NOT_RUN",
+    "audioOnConversation20": "NOT_RUN",
+    "guidedTry10ColdStarts": "NOT_RUN",
+    "androidWebviewInput": "NOT_RUN"
+  },
+  "priorPhysical": {
+    "pr305_pre_1713d851": {
+      "guidedTryAudio": "FAIL",
+      "conversationContinue": "FAIL",
+      "conversationSequentialAudio": "FAIL",
+      "note": "Owner APK before Media3 STARTED repair commit"
+    },
+    "pr305_96d6dc7d": {
+      "status": "CODE_READY_AWAITING_PHYSICAL",
+      "ownerAccepted": false
+    }
+  },
+  "release": {
+    "CLOSED_BETA": "NO-GO",
+    "APK_PASS": 0,
+    "OWNER_ACCEPTED": 0
+  }
+}
