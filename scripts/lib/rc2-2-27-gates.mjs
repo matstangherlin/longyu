@@ -391,7 +391,10 @@ export async function validateConversationSequence(s) {
   if (!/source: "CONVERSATION_AUTOPLAY"/.test(s.src.conversation)) fail("AUDIO_BLOCKS_CONVERSATION", FILES.conversation, "autoplay da conversa identificado na sessão única");
   if (!/conversation_dom_next_visible/.test(s.src.conversation)) fail("AUDIO_BLOCKS_CONVERSATION", FILES.conversation, "próximo nó visível independe do áudio");
   const schedule = section(s.src.mandarin, "export function scheduleAutoSpeak(", "\n}\n");
-  if (!/void handle\.done\.then\(\(\) => opts\.onend\?\.\(\)\);/.test(schedule)) fail("AUDIO_BLOCKS_CONVERSATION", FILES.mandarin, "onend sempre chega (falha, substituída ou cancelada)");
+  // RC2.2.28+ also chains .catch so rejected done still fires onend.
+  if (!/void handle\.done\.then\(\(\) => opts\.onend\?\.\(\)\)(?:\.catch\(\(\) => opts\.onend\?\.\(\)\))?;/.test(schedule)) {
+    fail("AUDIO_BLOCKS_CONVERSATION", FILES.mandarin, "onend sempre chega (falha, substituída ou cancelada)");
+  }
   return failures;
 }
 
@@ -484,7 +487,10 @@ export async function validateCompletionSequence(s) {
   if (!/useState\(\(\) => \(firstShow && !reducedMotion \? 0 : stages\.length - 1\)\)/.test(victory)) fail("REDUCED_MOTION_IGNORED", FILES.victory, "reduced motion/reabrir = estado final direto");
   const actions = section(victory, "data-lesson-victory-actions", "</div>");
   if (/disabled=\{[^}]*stage/i.test(actions)) fail("CONTINUE_HIJACKED", FILES.victory, "Continuar nunca espera a animação");
-  if (!/qi=\{newRewards\.find\(\(reward\) => reward\.type === "qi"\)\?\.amount \?\? 0\}/.test(s.src.player)) fail("COMPLETION_GRANTS_QI", FILES.player, "Qi exibido = delta já calculado pelo fluxo existente");
+  // JSX prop (qi={...}) or spread object field (qi: ...) — same delta source.
+  if (!/qi[=:]\s*\{?newRewards\.find\(\(reward\) => reward\.type === "qi"\)\?\.amount \?\? 0\}?/.test(s.src.player)) {
+    fail("COMPLETION_GRANTS_QI", FILES.player, "Qi exibido = delta já calculado pelo fluxo existente");
+  }
   return failures;
 }
 
