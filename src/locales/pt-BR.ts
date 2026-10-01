@@ -2940,7 +2940,7 @@ export const ptBR = {
       primary: "Experimentar",
     },
     toneConfusion23: {
-      body: "O 2º sobe. O 3º primeiro desce e depois sobe. Quer revisar o movimento?",
+      body: "O 2º sobe; o 3º desce e sobe. Quer revisar o movimento?",
       primary: "Praticar",
     },
     practiceFirstUse: {

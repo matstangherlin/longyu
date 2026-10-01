@@ -2935,7 +2935,7 @@ export const en: MessageCatalog = {
       primary: "Try it",
     },
     toneConfusion23: {
-      body: "The 2nd rises. The 3rd dips then rises. Want to review the movement?",
+      body: "The 2nd rises; the 3rd dips then rises. Want to review the movement?",
       primary: "Practice",
     },
     practiceFirstUse: {
