@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { acquireModalBodyScrollLock, releaseModalBodyScrollLock } from "../../lib/bodyScrollLock";
 import { zLayerClass } from "./layers";
+import { isTopModal, popModal, pushModal } from "../../lib/modalStack";
 
 function useBodyScrollLock() {
   useEffect(() => {
@@ -39,6 +40,16 @@ export function ModalOverlay({
   const onBackdropClickRef = useRef(onBackdropClick);
   onBackdropClickRef.current = onBackdropClick;
   useBodyScrollLock();
+  // RC2.2.21 — pilha: um VOLTAR fecha só o modal do topo.
+  const stackIdRef = useRef<number | null>(null);
+  useEffect(() => {
+    const id = pushModal(role);
+    stackIdRef.current = id;
+    return () => popModal(id, role);
+  }, [role]);
+  // Toque que COMEÇOU no fundo; fechar no click (não no mousedown) evita que
+  // o "click" do mesmo toque atravesse para o que está embaixo (tap-through).
+  const downOnBackdropRef = useRef(false);
 
   useEffect(() => {
     if (role !== "dialog") return undefined;
@@ -50,6 +61,7 @@ export function ModalOverlay({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && onBackdropClickRef.current) {
+        if (stackIdRef.current != null && !isTopModal(stackIdRef.current)) return;
         event.preventDefault();
         onBackdropClickRef.current();
         return;
@@ -99,7 +111,15 @@ export function ModalOverlay({
       aria-label={label}
       onMouseDown={(event) => {
         event.stopPropagation();
-        if (event.target === event.currentTarget) onBackdropClick?.();
+        downOnBackdropRef.current = event.target === event.currentTarget;
+      }}
+      onClick={(event) => {
+        const startedOnBackdrop = downOnBackdropRef.current;
+        downOnBackdropRef.current = false;
+        if (event.target !== event.currentTarget) return;
+        event.stopPropagation();
+        event.preventDefault();
+        if (startedOnBackdrop) onBackdropClick?.();
       }}
     >
       {children}

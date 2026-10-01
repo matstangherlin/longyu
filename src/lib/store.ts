@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { activityConsumesCharge as energyActivityConsumesCharge } from "./energyPolicy";
 import { checkUsername, type UsernameRejection } from "./username";
 import {
   ACTIVITY_MEMORY_LIMIT,
@@ -939,14 +940,10 @@ function buildEconomySummary(s: AppState, date = todayKey()): EconomySummary {
   };
 }
 
+// RC2.2.23 — só NOVA progressão principal consome Carga (ver energyPolicy.ts).
+// Prática do que já foi aprendido (extra_training) fica livre com zero Cargas.
 function activityConsumesCharge(activityType: EnergyActivityType): boolean {
-  return (
-    activityType === "lesson" ||
-    activityType === "module_challenge" ||
-    activityType === "immersion_session" ||
-    activityType === "extra_training" ||
-    activityType === "premium_preview"
-  );
+  return energyActivityConsumesCharge(activityType);
 }
 
 export interface ActivityReviewTarget {

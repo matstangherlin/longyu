@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { lessonStartConsumesCharge } from "../../lib/energyPolicy";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, currentLessonId, getLesson, type Skill } from "../../data/journey";
 import {
@@ -295,7 +296,9 @@ export function LessonDetailPage() {
     const continuingSamePass = activityIndex > 0 && sessionCursor?.pass === topicPass;
     // TM-018: a Detail não cobra. O player cobra uma vez por pass com chave
     // idempotente. Recarregar / voltar / continuar a mesma pass não gera 2ª cobrança.
-    if (!alreadyInSession && !continuingSamePass && !canStartActivity("lesson")) {
+    // RC2.2.23 — replay de lição concluída não precisa de Carga.
+    const chargeNeeded = lessonStartConsumesCharge({ lessonCompleted: completed.includes(lesson.id) });
+    if (chargeNeeded && !alreadyInSession && !continuingSamePass && !canStartActivity("lesson")) {
       setProPaywallKind("energy");
       return;
     }

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   isNavItemActive,
   mobileNavForStage,
+  earnedTabBar,
   moreMobileSheetGroups,
   practiceMobileSheetItems,
   navLabel,
@@ -40,8 +41,9 @@ export function TabBar() {
   const dailyMissions = useStore((s) => s.dailyMissions);
   const isPro = useIsPro();
   const profile = useLearnerProfile();
-  const { visibility } = useFeatureVisibility();
-  const items = mobileNavForStage(profile.stage, visibility);
+  const { visibility, learner } = useFeatureVisibility();
+  // RC2.2.23 — a barra madura, filtrada pelo que o aluno já conquistou (máx. 3 no início).
+  const items = earnedTabBar(mobileNavForStage(profile.stage, visibility), learner.completedLessons.length);
   const appearing = useRef<Set<string>>(new Set());
   for (const item of items) {
     if (!tabsSeenThisSession.has(item.to)) {

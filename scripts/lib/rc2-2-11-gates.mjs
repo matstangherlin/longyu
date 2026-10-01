@@ -387,7 +387,7 @@ export function gateSmartBack(src) {
     [/shouldShowShellBack\(location\.pathname\)/.test(src.appShell) && /<SmartBackButton \/>/.test(src.appShell), "BE: SmartBackButton na casca (desktop = mobile)"],
     [/recordNavigation\(location\.pathname, navigationType\)/.test(src.appShell), "BF: trilha in-app registrada"],
     [/smartBackFallback\(pathname\)/.test(src.nativeShell) && /previousInAppPath\(pathname\) !== null/.test(src.nativeShell), "BH: VOLTAR do Android usa a mesma política"],
-    [/if \(!overlayOpen && runBackGuard\(\)\) return;/.test(src.nativeShell), "BJ: modal primeiro, depois guarda"],
+    [/if \(!overlayOpen && runBackGuard\(\)\) return;/.test(src.nativeShell) || /if \(!keyboardOpen && !overlayOpen && !guidanceOpen && runBackGuard\(\)\) \{/.test(src.nativeShell), "BJ: modal primeiro, depois guarda"],
     [/useBackGuard\(Boolean\(attemptId\) && !grade/.test(src.phaseChallengePage) && /useBackGuard\(attemptPaid && !finished/.test(src.moduleChallengePage), "BK: prova em andamento pergunta antes de sair"],
     [/registerBackGuard\(/.test(src.lessonPlayer), "BK: lição sai pela própria saída (sem perda silenciosa)"],
     [/!value\.startsWith\("\/\/"\)/.test(src.smartBack), "BF: destino externo (//host) recusado"],

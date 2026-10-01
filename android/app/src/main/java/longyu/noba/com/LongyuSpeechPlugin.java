@@ -1,7 +1,13 @@
 package longyu.noba.com;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioDeviceInfo;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -69,6 +75,13 @@ public class LongyuSpeechPlugin extends Plugin {
     private SpeechRecognizer recognizer;
     private PluginCall recognitionCall;
     private Runnable recognitionTimeout;
+    /** RC2.2.21 — "on_device" ou "service": qual reconhecedor atendeu. */
+    private String recognizerKind = "none";
+    private String recognitionLanguage = "zh-CN";
+    /** Pico do RMS (dB) da escuta: só prova se o microfone captou sinal. */
+    private float recognitionPeakRms = -100f;
+    private boolean recognitionSignalNotified = false;
+    private static final float RECOGNITION_SIGNAL_RMS_DB = 2.0f;
 
     private SpeechRecognizer supportProbe;
     private SpeechRecognizer modelDownloader;
@@ -89,7 +102,14 @@ public class LongyuSpeechPlugin extends Plugin {
         if (tts == null) {
             tts = new TextToSpeech(getContext(), (status) -> {
                 ttsInitStatus = status;
-                if (status == TextToSpeech.SUCCESS) tts.setOnUtteranceProgressListener(progressListener);
+                if (status == TextToSpeech.SUCCESS) {
+                    tts.setOnUtteranceProgressListener(progressListener);
+                    // RC2.2.21 — voz modelo como MÍDIA/FALA (nunca rota de chamada).
+                    tts.setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build());
+                }
                 main.post(this::flushTtsWaiting);
             });
         }
@@ -121,6 +141,21 @@ public class LongyuSpeechPlugin extends Plugin {
     @PluginMethod
     public void getTtsStatus(PluginCall call) {
         String language = call.getString("language", "zh-CN");
+        // RC2.2.21 — depois de instalar a voz chinesa, o motor antigo pode
+        // continuar dizendo LANG_MISSING_DATA: recria-o uma vez (reinit).
+        Boolean reinit = call.getBoolean("reinit", false);
+        if (Boolean.TRUE.equals(reinit) && tts != null && ttsInitStatus != -1
+            && !"AVAILABLE".equals(languageStatus(localeFor(language)))) {
+            finishSpeak(true);
+            try {
+                tts.stop();
+                tts.shutdown();
+            } catch (Exception ignored) {
+                // motor já encerrado
+            }
+            tts = null;
+            ttsInitStatus = -1;
+        }
         ensureTts(() -> {
             JSObject ret = new JSObject();
             String status = languageStatus(localeFor(language));
@@ -130,6 +165,8 @@ public class LongyuSpeechPlugin extends Plugin {
             // RC2.2.17 · H — diagnóstico sem PII.
             ret.put("initStatus", ttsInitStatus == TextToSpeech.SUCCESS ? "SUCCESS" : ttsInitStatus == -1 ? "PENDING" : "ERROR");
             ret.put("requestedLocale", localeFor(language).toLanguageTag());
+            ret.put("audioAttributes", "MEDIA_SPEECH");
+            ret.put("reinitialized", Boolean.TRUE.equals(reinit));
             call.resolve(ret);
         });
     }
@@ -463,19 +500,37 @@ public class LongyuSpeechPlugin extends Plugin {
         long timeout = Math.max(3000L, Math.min(MAX_RECOGNITION_TIMEOUT_MS, call.getLong("timeoutMs", DEFAULT_RECOGNITION_TIMEOUT_MS)));
         recognitionCall = call;
         call.setKeepAlive(true);
+        // RC2.2.21 — o JS só pede on-device quando o mandarim está INSTALADO no
+        // reconhecedor on-device (checkRecognitionSupport). Antes, havendo
+        // on-device, ele era usado sempre — mesmo sem zh-CN, enquanto o serviço
+        // normal do aparelho suportava mandarim.
+        boolean preferOnDevice = Boolean.TRUE.equals(call.getBoolean("preferOnDevice", false));
         main.post(() -> {
             // Microfone e voz do sistema não disputam o áudio.
             if (tts != null) tts.stop();
             finishSpeak(true);
+            // Nem a própria gravação de prática toca durante a escuta.
+            if (practicePlayCall != null || practicePlayer != null) finishPracticePlay("STOPPED");
             boolean onDevice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && SpeechRecognizer.isOnDeviceRecognitionAvailable(getContext());
-            if (onDevice) {
+            boolean service = SpeechRecognizer.isRecognitionAvailable(getContext());
+            recognitionLanguage = language;
+            recognitionPeakRms = -100f;
+            recognitionSignalNotified = false;
+            if (onDevice && (preferOnDevice || !service)) {
                 recognizer = SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext());
-            } else if (SpeechRecognizer.isRecognitionAvailable(getContext())) {
+                recognizerKind = "on_device";
+            } else if (service) {
                 recognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+                recognizerKind = "service";
             } else {
                 failRecognition("RECOGNITION_UNAVAILABLE");
                 return;
             }
+            JSObject created = new JSObject();
+            created.put("state", "created");
+            created.put("recognizer", recognizerKind);
+            created.put("requestedLocale", language);
+            notifyListeners("recognitionState", created);
             recognizer.setRecognitionListener(recognitionListener);
             Intent intent = recognitionIntent(language);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
@@ -512,16 +567,34 @@ public class LongyuSpeechPlugin extends Plugin {
         }
 
         @Override
-        public void onBeginningOfSpeech() {}
+        public void onBeginningOfSpeech() {
+            JSObject event = new JSObject();
+            event.put("state", "speech_begin");
+            notifyListeners("recognitionState", event);
+        }
 
+        /** Só o pico do sinal (número técnico); nunca o áudio nem nota de pronúncia. */
         @Override
-        public void onRmsChanged(float rmsdB) {}
+        public void onRmsChanged(float rmsdB) {
+            if (rmsdB > recognitionPeakRms) recognitionPeakRms = rmsdB;
+            if (!recognitionSignalNotified && rmsdB >= RECOGNITION_SIGNAL_RMS_DB) {
+                recognitionSignalNotified = true;
+                JSObject event = new JSObject();
+                event.put("state", "signal");
+                event.put("signalDetected", true);
+                notifyListeners("recognitionState", event);
+            }
+        }
 
         @Override
         public void onBufferReceived(byte[] buffer) {}
 
         @Override
-        public void onEndOfSpeech() {}
+        public void onEndOfSpeech() {
+            JSObject event = new JSObject();
+            event.put("state", "speech_end");
+            notifyListeners("recognitionState", event);
+        }
 
         @Override
         public void onError(int error) {
@@ -532,14 +605,15 @@ public class LongyuSpeechPlugin extends Plugin {
         public void onResults(Bundle results) {
             ArrayList<String> matches = results == null ? null : results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             PluginCall call = recognitionCall;
+            JSObject diagnostics = recognitionDiagnostics();
             releaseRecognizer();
             if (call == null) return;
             call.setKeepAlive(false);
             if (matches == null || matches.isEmpty()) {
-                call.reject("no match", "NO_MATCH");
+                call.reject("no match", "NO_MATCH", (Exception) null, diagnostics);
                 return;
             }
-            JSObject ret = new JSObject();
+            JSObject ret = diagnostics;
             ret.put("matches", new JSArray(matches));
             call.resolve(ret);
         }
@@ -550,6 +624,17 @@ public class LongyuSpeechPlugin extends Plugin {
         @Override
         public void onEvent(int eventType, Bundle params) {}
     };
+
+    /** Sinal captado + reconhecedor e locale usados (sem áudio, sem texto). */
+    private JSObject recognitionDiagnostics() {
+        JSObject ret = new JSObject();
+        ret.put("recognizer", recognizerKind);
+        ret.put("requestedLocale", recognitionLanguage);
+        ret.put("usedLocale", recognitionLanguage);
+        ret.put("signalDetected", recognitionPeakRms >= RECOGNITION_SIGNAL_RMS_DB);
+        ret.put("peakRmsBucket", recognitionPeakRms < 0f ? "none" : recognitionPeakRms < 4f ? "low" : recognitionPeakRms < 7f ? "medium" : "high");
+        return ret;
+    }
 
     /** Código estável para o front-end traduzir. Nunca "ERROR_CLIENT = 5" cru. */
     static String errorCode(int error) {
@@ -564,15 +649,17 @@ public class LongyuSpeechPlugin extends Plugin {
         if (error == SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE) return "LANGUAGE_UNAVAILABLE";
         if (error == SpeechRecognizer.ERROR_SERVER || error == SpeechRecognizer.ERROR_SERVER_DISCONNECTED) return "NETWORK";
         if (error == SpeechRecognizer.ERROR_TOO_MANY_REQUESTS) return "RECOGNIZER_BUSY";
+        if (error == SpeechRecognizer.ERROR_CLIENT) return "CLIENT";
         return "RECOGNITION_FAILED";
     }
 
     private void failRecognition(String code) {
         PluginCall call = recognitionCall;
+        JSObject diagnostics = recognitionDiagnostics();
         releaseRecognizer();
         if (call == null) return;
         call.setKeepAlive(false);
-        call.reject(code, code);
+        call.reject(code, code, (Exception) null, diagnostics);
     }
 
     /** Sempre destrói: nada de reconhecedor vivo esperando fala. */
@@ -587,14 +674,118 @@ public class LongyuSpeechPlugin extends Plugin {
             } catch (RuntimeException ignored) {}
             recognizer.destroy();
             recognizer = null;
+            JSObject event = new JSObject();
+            event.put("state", "destroyed");
+            notifyListeners("recognitionState", event);
         }
         recognitionCall = null;
     }
 
-    // ── RC2.2.17 · AA — gravação temporária de prática ────────────────────
+    // ── RC2.2.17 · AA / RC2.2.21 — gravação temporária de prática ─────────
+    //
+    // RC2.2.21 (P1 SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID): arquivo existir e o
+    // MediaPlayer terminar NÃO provam que o aluno ouviu. O contrato agora é uma
+    // máquina de estados que o JS acompanha pelo evento `practiceRecordingState`:
+    //
+    //   IDLE → PREPARING → RECORDING → STOPPING → RECORDED
+    //        → PLAY_PREPARING → PLAYING → PLAYED   (ou FAILED com código estável)
+    //
+    // Reprodução: AudioAttributes de MÍDIA/FALA antes do prepare, foco de áudio
+    // transitório (liberado sempre), volume de mídia e rota de saída lidos antes,
+    // PLAYING só depois de isPlaying() confirmado. Nada vai para a nuvem.
+
+    private static final long PRACTICE_MIN_DURATION_MS = 400L;
+    private static final long PRACTICE_MIN_BYTES = 1024L;
+    /** Amplitude (0–32767) abaixo disto em toda a captura = microfone mudo. */
+    private static final int PRACTICE_SILENT_AMPLITUDE = 300;
+    private static final long PLAYING_CONFIRM_MS = 1200L;
+
+    private String practiceState = "IDLE";
+    private int practicePeakAmplitude = 0;
+    private Runnable amplitudeSampler;
+    private Runnable playingProbe;
+    private AudioFocusRequest practiceFocusRequest;
+    private boolean practicePlaybackStarted = false;
 
     private File practiceFile() {
         return new File(getContext().getCacheDir(), "longyu-practice.m4a");
+    }
+
+    private void setPracticeState(String state, String code) {
+        practiceState = state;
+        JSObject event = new JSObject();
+        event.put("state", state);
+        if (code != null) event.put("code", code);
+        notifyListeners("practiceRecordingState", event);
+    }
+
+    private AudioManager audioManager() {
+        return (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+    }
+
+    /** Rota de saída de mídia provável (sem nome de aparelho, só a classe). */
+    private String outputRoute() {
+        AudioManager am = audioManager();
+        if (am == null) return "UNKNOWN";
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return "UNKNOWN";
+        boolean bluetooth = false, wired = false, usb = false, speaker = false;
+        for (AudioDeviceInfo device : am.getDevices(AudioManager.GET_DEVICES_OUTPUTS)) {
+            int type = device.getType();
+            if (type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP || type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) bluetooth = true;
+            else if (type == AudioDeviceInfo.TYPE_WIRED_HEADSET || type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES) wired = true;
+            else if (type == AudioDeviceInfo.TYPE_USB_HEADSET || type == AudioDeviceInfo.TYPE_USB_DEVICE) usb = true;
+            else if (type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) speaker = true;
+        }
+        // O Android toca mídia no fone/Bluetooth quando conectados; nunca forçamos o alto-falante.
+        if (bluetooth) return "BLUETOOTH";
+        if (wired) return "WIRED_HEADSET";
+        if (usb) return "USB";
+        if (speaker) return "BUILT_IN_SPEAKER";
+        return "OTHER";
+    }
+
+    private JSObject mediaVolume() {
+        JSObject ret = new JSObject();
+        AudioManager am = audioManager();
+        if (am == null) return ret;
+        int current = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+        int max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        boolean muted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && am.isStreamMute(AudioManager.STREAM_MUSIC);
+        ret.put("mediaVolumeCurrent", current);
+        ret.put("mediaVolumeMax", max);
+        ret.put("mediaMuted", muted);
+        return ret;
+    }
+
+    /** Diagnóstico de áudio para o QA (sem conteúdo): volume, rota e estado. */
+    /**
+     * RC2.2.22 — contadores de recurso para o QA (vazamento / RECOGNIZER_BUSY
+     * permanente). Em repouso, todos devem ser 0. Só números; nada de conteúdo.
+     */
+    @PluginMethod
+    public void getResourceCounters(PluginCall call) {
+        main.post(() -> {
+            JSObject ret = new JSObject();
+            ret.put("activeMediaPlayers", practicePlayer != null ? 1 : 0);
+            ret.put("activeRecorders", practiceRecorder != null ? 1 : 0);
+            ret.put("activeRecognizers", (recognizer != null ? 1 : 0) + (supportProbe != null ? 1 : 0) + (modelDownloader != null ? 1 : 0));
+            ret.put("activeTtsUtterances", speakCall != null ? 1 : 0);
+            ret.put("pendingRecognitionCalls", recognitionCall != null ? 1 : 0);
+            ret.put("activeTimersCritical", (amplitudeSampler != null ? 1 : 0) + (playingProbe != null ? 1 : 0));
+            ret.put("practiceState", practiceState);
+            call.resolve(ret);
+        });
+    }
+
+    @PluginMethod
+    public void getPracticeAudioDiagnostics(PluginCall call) {
+        main.post(() -> {
+            JSObject ret = mediaVolume();
+            ret.put("outputRoute", outputRoute());
+            ret.put("state", practiceState);
+            ret.put("hasRecording", practiceFile != null && practiceFile.exists() && practiceRecorder == null);
+            call.resolve(ret);
+        });
     }
 
     @PluginMethod
@@ -612,7 +803,9 @@ public class LongyuSpeechPlugin extends Plugin {
             finishSpeak(true);
             // Nova gravação apaga a anterior: nunca acumula áudio do aluno.
             discardPracticeRecording();
+            setPracticeState("PREPARING", null);
             practiceFile = practiceFile();
+            practicePeakAmplitude = 0;
             try {
                 practiceRecorder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? new MediaRecorder(getContext()) : new MediaRecorder();
                 practiceRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -625,14 +818,56 @@ public class LongyuSpeechPlugin extends Plugin {
                 practiceRecorder.prepare();
                 practiceRecorder.start();
                 practiceStartedAt = System.currentTimeMillis();
+                startAmplitudeSampler();
+                setPracticeState("RECORDING", null);
                 JSObject ret = new JSObject();
                 ret.put("recording", true);
                 call.resolve(ret);
             } catch (Exception e) {
                 discardPracticeRecording();
+                setPracticeState("FAILED", "RECORDING_FAILED");
                 call.reject("recording failed", "RECORDING_FAILED");
             }
         });
+    }
+
+    /** Amostra a amplitude máxima (número técnico, nunca o áudio) durante a captura. */
+    private void startAmplitudeSampler() {
+        stopAmplitudeSampler();
+        amplitudeSampler = new Runnable() {
+            @Override
+            public void run() {
+                if (practiceRecorder == null) return;
+                try {
+                    practicePeakAmplitude = Math.max(practicePeakAmplitude, practiceRecorder.getMaxAmplitude());
+                } catch (RuntimeException ignored) {}
+                main.postDelayed(this, 120);
+            }
+        };
+        main.postDelayed(amplitudeSampler, 120);
+    }
+
+    private void stopAmplitudeSampler() {
+        if (amplitudeSampler != null) {
+            main.removeCallbacks(amplitudeSampler);
+            amplitudeSampler = null;
+        }
+    }
+
+    /** Duração lida do próprio arquivo (não do relógio). -1 quando ilegível. */
+    private long metadataDurationMs(File file) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(file.getAbsolutePath());
+            String value = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            return value == null ? -1L : Long.parseLong(value);
+        } catch (RuntimeException e) {
+            return -1L;
+        } finally {
+            try {
+                retriever.release();
+            } catch (Exception ignored) {}
+        }
     }
 
     @PluginMethod
@@ -642,25 +877,84 @@ public class LongyuSpeechPlugin extends Plugin {
                 call.reject("not recording", "NOT_RECORDING");
                 return;
             }
-            long duration = System.currentTimeMillis() - practiceStartedAt;
+            setPracticeState("STOPPING", null);
+            try {
+                practicePeakAmplitude = Math.max(practicePeakAmplitude, practiceRecorder.getMaxAmplitude());
+            } catch (RuntimeException ignored) {}
+            stopAmplitudeSampler();
+            long wallDuration = System.currentTimeMillis() - practiceStartedAt;
             try {
                 practiceRecorder.stop();
             } catch (RuntimeException e) {
                 // stop() logo após start(): nada gravado de verdade.
                 discardPracticeRecording();
+                setPracticeState("FAILED", "RECORDING_TOO_SHORT");
                 call.reject("recording too short", "RECORDING_TOO_SHORT");
                 return;
             }
             practiceRecorder.release();
             practiceRecorder = null;
-            JSObject ret = new JSObject();
-            ret.put("durationMs", duration);
-            // RC2.2.19 — prova (sem conteúdo) de que o arquivo temporário existe.
             boolean exists = practiceFile != null && practiceFile.exists();
+            long bytes = exists ? practiceFile.length() : 0L;
+            long metadata = exists ? metadataDurationMs(practiceFile) : -1L;
+            JSObject ret = new JSObject();
+            // RC2.2.21 — duração do ARQUIVO quando legível; relógio só como reserva.
+            ret.put("durationMs", metadata > 0 ? metadata : wallDuration);
+            ret.put("wallDurationMs", wallDuration);
+            ret.put("metadataDurationMs", metadata);
+            // RC2.2.19 — prova (sem conteúdo) de que o arquivo temporário existe.
             ret.put("fileExists", exists);
-            ret.put("fileBytes", exists ? practiceFile.length() : 0);
+            ret.put("fileBytes", bytes);
+            ret.put("peakAmplitude", practicePeakAmplitude);
+            ret.put("signalDetected", practicePeakAmplitude > PRACTICE_SILENT_AMPLITUDE);
+            if (!exists || bytes < PRACTICE_MIN_BYTES || metadata == 0L) {
+                discardPracticeRecording();
+                setPracticeState("FAILED", "INVALID_FILE");
+                ret.put("code", "INVALID_FILE");
+            } else if ((metadata > 0 ? metadata : wallDuration) < PRACTICE_MIN_DURATION_MS) {
+                discardPracticeRecording();
+                setPracticeState("FAILED", "RECORDING_TOO_SHORT");
+                ret.put("code", "RECORDING_TOO_SHORT");
+            } else {
+                setPracticeState("RECORDED", null);
+            }
             call.resolve(ret);
         });
+    }
+
+    private final AudioManager.OnAudioFocusChangeListener practiceFocusListener = (change) -> main.post(() -> {
+        // Outro app (ligação, alarme, música) tomou o áudio: para e avisa.
+        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            if (practicePlayer != null) finishPracticePlay("PLAYBACK_INTERRUPTED");
+        }
+    });
+
+    private boolean requestPracticeFocus(AudioAttributes attributes) {
+        AudioManager am = audioManager();
+        if (am == null) return true;
+        int result;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            practiceFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                .setAudioAttributes(attributes)
+                .setOnAudioFocusChangeListener(practiceFocusListener, main)
+                .build();
+            result = am.requestAudioFocus(practiceFocusRequest);
+        } else {
+            result = am.requestAudioFocus(practiceFocusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        }
+        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+    }
+
+    /** Sempre devolve o foco: nunca deixa a música/outro app interrompido. */
+    private void abandonPracticeFocus() {
+        AudioManager am = audioManager();
+        if (am == null) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (practiceFocusRequest != null) am.abandonAudioFocusRequest(practiceFocusRequest);
+            practiceFocusRequest = null;
+        } else {
+            am.abandonAudioFocus(practiceFocusListener);
+        }
     }
 
     @PluginMethod
@@ -670,39 +964,141 @@ public class LongyuSpeechPlugin extends Plugin {
                 call.reject("no recording", "NO_RECORDING");
                 return;
             }
+            if (practiceFile.length() < PRACTICE_MIN_BYTES) {
+                call.reject("invalid file", "INVALID_FILE");
+                return;
+            }
             if (tts != null) tts.stop();
             finishSpeak(true);
+            // Toque repetido: a reprodução anterior termina como "parada" (não erro).
+            if (practicePlayCall != null) finishPracticePlay("STOPPED");
             releasePracticePlayer();
+            JSObject volume = mediaVolume();
+            String route = outputRoute();
+            // Volume de mídia zerado não é erro de gravação: orienta o aluno.
+            if (volume.getInteger("mediaVolumeCurrent", 1) == 0 || volume.getBoolean("mediaMuted", false)) {
+                JSObject data = new JSObject();
+                data.put("outputRoute", route);
+                setPracticeState("RECORDED", "MEDIA_VOLUME_ZERO");
+                call.reject("media volume zero", "MEDIA_VOLUME_ZERO", (Exception) null, data);
+                return;
+            }
+            setPracticeState("PLAY_PREPARING", null);
+            practicePlaybackStarted = false;
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build();
+            practicePlayCall = call;
+            call.setKeepAlive(true);
             try {
                 practicePlayer = new MediaPlayer();
+                // Mídia/fala ANTES do prepare: nunca a rota de chamada (earpiece).
+                practicePlayer.setAudioAttributes(attributes);
                 practicePlayer.setDataSource(practiceFile.getAbsolutePath());
-                practicePlayCall = call;
-                call.setKeepAlive(true);
-                practicePlayer.setOnCompletionListener((player) -> finishPracticePlay(true));
+                practicePlayer.setOnCompletionListener((player) -> finishPracticePlay(practicePlaybackStarted ? null : "PLAYBACK_START_FAILED"));
                 practicePlayer.setOnErrorListener((player, what, extra) -> {
-                    finishPracticePlay(false);
+                    finishPracticePlay("PLAYBACK_ERROR");
                     return true;
                 });
                 practicePlayer.prepare();
-                practicePlayer.start();
             } catch (Exception e) {
-                finishPracticePlay(false);
+                finishPracticePlay("PLAYER_PREPARE_FAILED");
+                return;
             }
+            JSObject prepared = new JSObject();
+            prepared.put("state", "PLAY_PREPARING");
+            prepared.put("playbackPrepared", true);
+            notifyListeners("practiceRecordingState", prepared);
+            if (!requestPracticeFocus(attributes)) {
+                finishPracticePlay("AUDIO_FOCUS_FAILED");
+                return;
+            }
+            try {
+                practicePlayer.start();
+            } catch (RuntimeException e) {
+                finishPracticePlay("PLAYBACK_START_FAILED");
+                return;
+            }
+            // PLAYING só depois de o player confirmar que está tocando.
+            playingProbe = () -> {
+                playingProbe = null;
+                if (practicePlayer == null) return;
+                boolean playing;
+                try {
+                    playing = practicePlayer.isPlaying();
+                } catch (RuntimeException e) {
+                    playing = false;
+                }
+                if (!playing && !practicePlaybackStarted) {
+                    finishPracticePlay("PLAYBACK_START_FAILED");
+                    return;
+                }
+                if (!practicePlaybackStarted) markPracticePlaying(route, volume);
+            };
+            main.postDelayed(() -> {
+                if (practicePlayer != null && !practicePlaybackStarted) {
+                    try {
+                        if (practicePlayer.isPlaying()) markPracticePlaying(route, volume);
+                    } catch (RuntimeException ignored) {}
+                }
+            }, 60);
+            main.postDelayed(playingProbe, PLAYING_CONFIRM_MS);
         });
     }
 
-    private void finishPracticePlay(boolean played) {
+    private void markPracticePlaying(String route, JSObject volume) {
+        practicePlaybackStarted = true;
+        JSObject event = new JSObject();
+        event.put("state", "PLAYING");
+        event.put("playbackStarted", true);
+        event.put("outputRoute", route);
+        event.put("mediaVolumeCurrent", volume.getInteger("mediaVolumeCurrent", -1));
+        event.put("mediaVolumeMax", volume.getInteger("mediaVolumeMax", -1));
+        practiceState = "PLAYING";
+        notifyListeners("practiceRecordingState", event);
+    }
+
+    /** "Parar" durante a reprodução: resolve como parada, sem erro, e libera tudo. */
+    @PluginMethod
+    public void stopPracticePlayback(PluginCall call) {
+        main.post(() -> {
+            if (practicePlayCall != null || practicePlayer != null) finishPracticePlay("STOPPED");
+            call.resolve();
+        });
+    }
+
+    /**
+     * Fecha a reprodução. `code == null` = tocou até o fim DEPOIS de PLAYING.
+     * "STOPPED" = o aluno parou (resolve sem erro). Qualquer outro = falha.
+     */
+    private void finishPracticePlay(String code) {
+        if (playingProbe != null) {
+            main.removeCallbacks(playingProbe);
+            playingProbe = null;
+        }
+        boolean started = practicePlaybackStarted;
         PluginCall call = practicePlayCall;
         practicePlayCall = null;
         releasePracticePlayer();
+        abandonPracticeFocus();
+        practicePlaybackStarted = false;
+        boolean hasFile = practiceFile != null && practiceFile.exists();
+        if (code == null) setPracticeState("PLAYED", null);
+        else if ("STOPPED".equals(code)) setPracticeState(hasFile ? "RECORDED" : "IDLE", null);
+        else setPracticeState(hasFile ? "RECORDED" : "FAILED", code);
         if (call == null) return;
         call.setKeepAlive(false);
-        if (played) {
+        if (code == null || "STOPPED".equals(code)) {
             JSObject ret = new JSObject();
-            ret.put("played", true);
+            ret.put("played", code == null);
+            ret.put("stopped", "STOPPED".equals(code));
+            ret.put("playbackPrepared", true);
+            ret.put("playbackStarted", started);
+            ret.put("playbackCompleted", code == null);
             call.resolve(ret);
         } else {
-            call.reject("playback failed", "PLAYBACK_FAILED");
+            call.reject("playback failed", code);
         }
     }
 
@@ -726,8 +1122,34 @@ public class LongyuSpeechPlugin extends Plugin {
         });
     }
 
-    /** Para gravação/reprodução e APAGA o arquivo. Idempotente. */
+    /**
+     * RC2.2.21 — pausa TRANSITÓRIA (diálogo de permissão, painel de notificação,
+     * sobreposição do sistema): para o microfone na hora e para a reprodução,
+     * mas NÃO apaga uma gravação válida. Captura interrompida no meio é
+     * descartada (não é uma gravação completa).
+     */
+    private void interruptPractice() {
+        if (practiceRecorder != null) {
+            stopAmplitudeSampler();
+            try {
+                practiceRecorder.stop();
+            } catch (RuntimeException ignored) {}
+            practiceRecorder.release();
+            practiceRecorder = null;
+            File file = practiceFile != null ? practiceFile : practiceFile();
+            if (file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
+            practiceFile = null;
+            setPracticeState("FAILED", "RECORDING_INTERRUPTED");
+        }
+        if (practicePlayCall != null || practicePlayer != null) finishPracticePlay("PLAYBACK_INTERRUPTED");
+    }
+
+    /** Para gravação/reprodução, libera foco e APAGA o arquivo. Idempotente. */
     private void discardPracticeRecording() {
+        stopAmplitudeSampler();
         if (practiceRecorder != null) {
             try {
                 practiceRecorder.stop();
@@ -735,14 +1157,16 @@ public class LongyuSpeechPlugin extends Plugin {
             practiceRecorder.release();
             practiceRecorder = null;
         }
-        if (practicePlayCall != null) finishPracticePlay(false);
+        if (practicePlayCall != null) finishPracticePlay("PLAYBACK_INTERRUPTED");
         releasePracticePlayer();
+        abandonPracticeFocus();
         File file = practiceFile != null ? practiceFile : practiceFile();
         if (file.exists()) {
             //noinspection ResultOfMethodCallIgnored
             file.delete();
         }
         practiceFile = null;
+        practiceState = "IDLE";
     }
 
     // ── Permissão do microfone ────────────────────────────────────────────
@@ -794,14 +1218,26 @@ public class LongyuSpeechPlugin extends Plugin {
 
     // ── Ciclo de vida ─────────────────────────────────────────────────────
 
-    /** Background: para a voz e cancela o microfone (nunca escuta escondido). */
+    /**
+     * Pausa (inclusive transitória): para a voz, cancela o reconhecimento e
+     * interrompe microfone/reprodução — nunca escuta nem toca escondido. A
+     * gravação VÁLIDA só é apagada no background real (onStop) ou ao fechar.
+     */
     @Override
     protected void handleOnPause() {
         super.handleOnPause();
         if (tts != null) tts.stop();
         finishSpeak(true);
         failRecognition("CANCELLED");
-        // RC2.2.17 · AB — sair da atividade apaga a gravação de prática.
+        // RC2.2.21 — diálogo de permissão/painel também pausam: não apaga aqui.
+        interruptPractice();
+    }
+
+    /** Background de verdade (Activity invisível): a gravação temporária some. */
+    @Override
+    protected void handleOnStop() {
+        super.handleOnStop();
+        // RC2.2.17 · AB — sair do app apaga a gravação de prática.
         discardPracticeRecording();
     }
 

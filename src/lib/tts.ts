@@ -107,9 +107,10 @@ let nativeTtsUnavailableReason: string | null = null;
 let nativeTtsKnownAvailable: boolean | null = null;
 
 /** Consulta o SO (zh-CN instalado?) e guarda o resultado desta sessão. */
-export async function refreshNativeTtsStatus(): Promise<{ available: boolean; status: string } | null> {
+export async function refreshNativeTtsStatus(options: { reinit?: boolean } = {}): Promise<{ available: boolean; status: string } | null> {
   if (!hasNativeSpeech()) return null;
-  const status = await nativeTtsStatus();
+  // RC2.2.21 — `reinit` depois do instalador de voz: o motor é recriado.
+  const status = await nativeTtsStatus(undefined, { reinit: options.reinit === true });
   nativeTtsKnownAvailable = status.available;
   nativeTtsUnavailableReason = status.available ? null : status.status;
   return { available: status.available, status: status.status };

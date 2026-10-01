@@ -40,6 +40,8 @@ import { PinyinReference } from "./PinyinReference";
 import { EngineGate } from "../../components/layout/EngineGate";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { ToneContour } from "../../components/tone/ToneContour";
+import { ToneMicrolesson } from "../../components/tone/ToneMicrolesson";
+import { tonesNeedingMicrolesson } from "../../lib/toneMicrolesson";
 import { getJourneyNode, type JourneyNode } from "../../data/journeyOrchestrator";
 import { completeJourneyNode } from "../../lib/journeyNodeProgress";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -150,6 +152,8 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
   const [sessionCharged, setSessionCharged] = useState(false);
   const [energyPaywallOpen, setEnergyPaywallOpen] = useState(false);
   const [hasVoice, setHasVoice] = useState(true);
+  // RC2.2.23 — tom novo: microaula (um conceito por tela) antes da 1ª rodada.
+  const [microlessonsSeen, setMicrolessonsSeen] = useState<Set<string>>(() => new Set());
 
   const sourcePack = TONE_TRAINER_PACKS.find((item) => item.id === selectedPackId) ?? TONE_TRAINER_PACKS[0];
   const pack = useMemo(() => {
@@ -352,6 +356,24 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
     setRewarded(grantsReward);
     setDone(true);
     if (passedNow && journeyNode) completeJourneyNode(journeyNode.id);
+  }
+
+  const microlessonTone =
+    !journeyNode && !done && !consonantPack && roundIndex === 0 && results.length === 0
+      ? tonesNeedingMicrolesson(pack.options, toneTrainer).find((tone) => !microlessonsSeen.has(`${pack.id}:${tone}`)) ?? null
+      : null;
+  if (microlessonTone !== null) {
+    const markSeen = (all: boolean) =>
+      setMicrolessonsSeen((current) => {
+        const nextSeen = new Set(current);
+        for (const tone of all ? pack.options : [microlessonTone]) nextSeen.add(`${pack.id}:${tone}`);
+        return nextSeen;
+      });
+    return (
+      <section className="py-2">
+        <ToneMicrolesson key={`${pack.id}:${microlessonTone}`} tone={microlessonTone} onDone={() => markSeen(false)} onSkip={() => markSeen(true)} />
+      </section>
+    );
   }
 
   if (done) {

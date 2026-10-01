@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LessonStep, StepTextType } from "../../data/journey";
 import type { ConversationNode } from "../../data/conversationScenes";
 import { CHARACTERS, charById } from "../../data/characters";
@@ -12,6 +12,7 @@ import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
+import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
 import { speak, scheduleAutoSpeak, refreshNativeTtsStatus } from "../../lib/tts";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
@@ -5341,6 +5342,55 @@ export function autoSpeakTextForDialoguePrompt(step: LessonStep, dialoguePrompt:
 /** Tempo depois de onDone em que um passo ainda montado é considerado travado. */
 export const STALL_GUARD_MS = 2000;
 
+/**
+ * RC2.2.20 — Continuar tocado e o passo não avançou. Nunca pula conteúdo:
+ * oferece tentar de novo a ação canônica ou recarregar SÓ esta etapa.
+ * Produção: texto simples, sem termo técnico. QA/diagnóstico: o texto
+ * exato do QA físico e "Reportar problema" (vira observação em /qa/device).
+ */
+function StepStalledFallback({
+  qa,
+  onRetry,
+  onReload,
+  onReport,
+}: {
+  qa: boolean;
+  onRetry: () => void;
+  onReload: () => void;
+  onReport: () => void;
+}) {
+  const { t } = useTranslation();
+  const [reported, setReported] = useState(false);
+  return (
+    <div className="mt-4 space-y-2 text-center" data-testid="step-stalled-continue" data-stall-mode={qa ? "qa" : "production"} role="status">
+      <p className="text-sm font-medium text-ink" data-testid="step-stalled-message">
+        {qa ? "Esta etapa não avançou corretamente." : t("player.stepStalled")}
+      </p>
+      <Button className="w-full" onClick={onRetry} data-testid="step-stalled-retry">
+        {t("player.stepStalledRetry")}
+      </Button>
+      <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
+        <button type="button" className="min-h-11 px-2 font-semibold text-ink-soft hover:underline" onClick={onReload} data-testid="step-stalled-reload">
+          {t("player.stepStalledReload")}
+        </button>
+        {qa && (
+          <button
+            type="button"
+            className="min-h-11 px-2 font-semibold text-ink-soft hover:underline"
+            onClick={() => {
+              onReport();
+              setReported(true);
+            }}
+            data-testid="step-stalled-report"
+          >
+            {reported ? "Registrado em /qa/device" : "Reportar problema"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, onUnrecognized, lessonId, attemptSeed, stallGuard = true }: StepProps) {
   // A função do LessonPlayer muda de identidade sempre que o shell atualiza
   // (rede, áudio, streak, viewport etc.). Alguns exercícios concluem depois
@@ -5354,6 +5404,9 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
   const completionSentRef = useRef(false);
   const lastCompletionRef = useRef<{ correct?: boolean; meta?: StepDoneMeta } | null>(null);
   const [stalled, setStalled] = useState(false);
+  // RC2.2.20 — "Recarregar etapa": remonta só o exercício (mesmo passo, mesma
+  // posição), nunca pula conteúdo.
+  const [reloadNonce, setReloadNonce] = useState(0);
   const stallTimerRef = useRef<number | null>(null);
   useEffect(() => () => {
     if (stallTimerRef.current != null) window.clearTimeout(stallTimerRef.current);
@@ -5386,6 +5439,7 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
   useEffect(() => {
     if (!stalled) return;
     traceLessonStep({ lessonId: lessonId ?? "unknown", stepIndex: -1, kind: step.kind, attempt: 0, event: "stalled" });
+    recordDeviceQaObservation("step_stalled", `${lessonId ?? "unknown"} · ${step.kind}`);
   }, [lessonId, stalled, step.kind]);
   const name = useStudentFirstName();
   const { instructionLocale } = useTranslation();
@@ -5646,19 +5700,22 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
   })();
 
   const stalledAction = stalled ? (
-    <div className="mt-4" data-testid="step-stalled-continue">
-      <Button
-        className="w-full"
-        onClick={() => {
-          const last = lastCompletionRef.current;
-          setStalled(false);
-          completionSentRef.current = false;
-          onDone(last?.correct, last?.meta);
-        }}
-      >
-        {t("player.continue")}
-      </Button>
-    </div>
+    <StepStalledFallback
+      qa={deviceQaEnabled()}
+      onRetry={() => {
+        const last = lastCompletionRef.current;
+        setStalled(false);
+        completionSentRef.current = false;
+        onDone(last?.correct, last?.meta);
+      }}
+      onReload={() => {
+        setStalled(false);
+        completionSentRef.current = false;
+        lastCompletionRef.current = null;
+        setReloadNonce((value) => value + 1);
+      }}
+      onReport={() => recordDeviceQaObservation("reported", `${lessonId ?? "unknown"} · ${step.kind} · stalled`)}
+    />
   ) : null;
 
   return (
@@ -5675,7 +5732,7 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
         data-step-graded={isEvaluableQuestionStep(personalizedStep) ? "true" : "false"}
         data-step-reflection={isIntentionalFreeReflection(personalizedStep) ? "true" : "false"}
       >
-        {rendered}
+        <Fragment key={reloadNonce}>{rendered}</Fragment>
         {stalledAction}
       </div>
     </MandarinHelpProvider>

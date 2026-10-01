@@ -21,6 +21,8 @@ import { TelemetryConsentBootstrap } from "../privacy/TelemetryConsentBootstrap"
 import { TelemetryConsentWatcher } from "../privacy/TelemetryConsentWatcher";
 import { ErrorBoundary } from "../system/ErrorBoundary";
 import { QaTestStateBanner } from "../qa/QaTestStateBanner";
+import { BetaIssueReporter } from "../../features/qa/BetaIssueReporter";
+import { zLayerClass } from "../ui/layers";
 import { useLessonPlayerScrollLock } from "../../hooks/useLessonPlayerScrollLock";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 import { CultureSealRevealWatcher } from "../../features/culture/CultureSealReveal";
@@ -28,8 +30,11 @@ import { SmartBackButton } from "../navigation/SmartBackButton";
 import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { recordNavigation, shouldShowShellBack } from "../../lib/navigation/smartBack";
 import { GuidanceHost } from "../guidance/GuidanceHost";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 export function AppShell() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("first_interactive"), []);
   const theme = useResolvedTheme();
   const registerActivity = useStore((s) => s.registerActivity);
   const reconcileStreak = useStore((s) => s.reconcileStreak);
@@ -105,6 +110,12 @@ export function AppShell() {
       <div className={["flex min-w-0 flex-1 flex-col", focusMode ? "h-full min-h-0" : ""].join(" ")}>
         {/* Dentro da coluna — nunca irmão em row (no 390px espremia [data-app-main] a 0px). */}
         <QaTestStateBanner />
+        {/* RC2.2.22 — só no build de tester (VITE_BETA_QA=true): entrada discreta. */}
+        {import.meta.env.VITE_BETA_QA === "true" && (
+          <div className={`pointer-events-auto fixed bottom-[calc(var(--app-safe-bottom)+5.5rem)] left-2 max-w-[calc(100vw-1rem)] ${zLayerClass.feedbackFab}`} data-testid="beta-issue-entry">
+            <BetaIssueReporter compact />
+          </div>
+        )}
         {!focusMode && <TopBar />}
         {/* Padding bottom cobre a altura da tab bar + safe area: nenhum botão
             principal pode ficar escondido atrás dela no mobile. No modo foco a

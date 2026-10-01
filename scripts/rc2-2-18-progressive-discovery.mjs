@@ -86,7 +86,7 @@ const MUTATIONS = {
     ["M1b. barra ignora o registro", "CULTURE_VISIBLE_FRESH", src("tabBar", "mobileNavForStage(profile.stage, visibility)", "mobileNavForStage(profile.stage)")],
   ],
   "guidance-surfaces": [
-    ["27. VOLTAR sai do app em vez de fechar o coachmark", "BACK_EXITS_APP", src("host", "      data-coachmark-placement={position?.placement}\n      data-native-back-dismiss\n", "      data-coachmark-placement={position?.placement}\n")],
+    ["27. VOLTAR sai do app em vez de fechar o coachmark", "BACK_EXITS_APP", src("host", "      data-guidance-anchor={fallback || position?.placement === \"fallback\" ? \"fallback\" : \"anchored\"}\n      data-native-back-dismiss\n", "      data-guidance-anchor={fallback || position?.placement === \"fallback\" ? \"fallback\" : \"anchored\"}\n")],
     ["28. coachmark fora da tela", "COACHMARK_OUTSIDE_VIEWPORT", src("position", "  top = Math.min(Math.max(top, minTop), Math.max(minTop, maxBottom - card.height));\n", "")],
     ["29. tooltip cobre o alvo", "TOOLTIP_COVERS_TARGET", src("position", 'let top = placement === "below" ? target.bottom + COACHMARK_GAP : target.top - COACHMARK_GAP - card.height;', "let top = target.top;")],
     ["31. movimento reduzido ignorado", "REDUCED_MOTION_IGNORED", src("css", "  .longyu-guidance-in,\n  .longyu-unlock-reveal,\n  .longyu-tab-appear {\n    animation: longyu-fade-in 150ms linear both !important;\n  }\n", "")],
@@ -96,7 +96,7 @@ const MUTATIONS = {
   ],
   "guidance-copy-settings": [
     ["33. texto fixo em PT", "GUIDANCE_HARDCODED_PT", src("host", '{t("guidance.common.skipAll")}', "Pular dicas")],
-    ["M46. Cultura como recompensa", "CULTURE_AS_REWARD", src("ptBR", 'title: "✨ Cultura desbloqueada",', 'title: "Você ganhou Cultura",')],
+    ["M46. Cultura como recompensa", "CULTURE_AS_REWARD", src("ptBR", 'title: "Cultura liberada",', 'title: "Você ganhou Cultura",')],
     ["M47. Missões com pressão", "MANIPULATIVE_COPY", src("ptBR", 'body: "As Missões ajudam você a manter uma rotina.",', 'body: "Complete agora para não perder!",')],
     ["M48. Dicas guiadas some de Ajustes", "SETTINGS_TOGGLE_MISSING", src("settingsPage", "          <GuidanceSettingsCard />\n", "")],
     ["M53. anúncio abre a Loja sozinho", "SHOP_AUTO_OPEN", src("orchestrator", '    primaryKey: "guidance.shopIntroduction.primary",\n', '    primaryKey: "guidance.shopIntroduction.primary",\n    primaryTo: "/loja",\n')],

@@ -4,6 +4,7 @@ import { GlossText } from "../../components/hanzi/GlossText";
 import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Mascot } from "../../components/brand/Mascot";
 import { SpeakButton } from "../../components/ui/SpeakButton";
+import { storyReaction } from "../../lib/storyReaction";
 import { Button, ButtonLink, Card, HubCard, Pill, ProgressBar } from "../../components/ui/primitives";
 import { HubEmptyState, HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import {
@@ -46,6 +47,7 @@ import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHo
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { useIsPro } from "../../lib/proAccess";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 const MODE_META: Record<ImmersionMode, { label: string; instruction: string; icon: typeof IconSound }> = {
   listen_repeat: {
@@ -260,6 +262,8 @@ function storySkill(step: StoryStep): ActivityErrorSkill {
 }
 
 export function ImmersionPage() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("immersion_open"), []);
   const { t } = useTranslation();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
@@ -1225,6 +1229,20 @@ function InteractiveStoryPlayer({
                 {lastCorrect ? <IconCheck width={18} height={18} /> : <IconTarget width={18} height={18} />}
                 {lastCorrect ? "Certo" : "Quase"}
               </div>
+              {(() => {
+                const reaction = storyReaction(story.steps, currentIndex, Boolean(lastCorrect));
+                if (!reaction) return null;
+                return (
+                  <div className="mt-2 flex items-center gap-2" data-story-reaction={reaction.correct ? "correct" : "wrong"} data-speaker={reaction.cast.id}>
+                    <StoryAvatar cast={reaction.cast} learnerName={learnerName} />
+                    <div className="rounded-2xl rounded-tl-sm border border-line bg-surface px-3 py-1.5">
+                      <span className="hanzi text-lg text-ink" lang="zh-CN">{reaction.hanzi}</span>
+                      <span className="ml-2 text-xs text-ink-soft">{reaction.pinyin} · {reaction.meaningPt}</span>
+                    </div>
+                    <SpeakButton text={reaction.hanzi} size="sm" revealText={false} />
+                  </div>
+                );
+              })()}
               {!lastCorrect && (
                 <div className="mt-2">
                   Resposta esperada: <span className="font-semibold">{storyAnswerText(step)}</span>

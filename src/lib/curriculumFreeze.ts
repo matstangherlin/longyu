@@ -456,6 +456,118 @@ export const RC2_2_19_GUIDED_SIMPLE_VERIFIED_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.22 — exceção controlada para o CLOSED BETA CANDIDATE. Nenhuma lição,
+ * id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
+ * fingerprint continua c48b008c9c1e. Só prontidão formal, triagem de
+ * segurança, compatibilidade por aparelho, Beta QA (relato sanitizado e
+ * sessões humanas por ID) e lint de produto (complexidade/repetição).
+ */
+export const RC2_2_22_CLOSED_BETA_CANDIDATE_EXCEPTION = {
+  id: "RC2_2_22_CLOSED_BETA_CANDIDATE",
+  scope: "Closed Beta readiness state machine, security triage, device compatibility model, Beta QA issue packet and human QA sessions, resource counters, product lint (screen complexity, bad repetition, first-20 audit), TTS playback end timeout and pronunciation-contrast UI watchdog",
+  areas: [
+    "NOT_READY → PRE_CANDIDATE → CANDIDATE → CLOSED_BETA_READY only with typed physical/Play evidence",
+    "failure classification with evidence: LONGYU_BUG vs device/service/network/configuration",
+    "Beta QA issue packet and human sessions: no e-mail, OTP, token, transcript, recording; testers by ID",
+    "resource counters and session popup load in /qa/device (QA builds only)",
+    "playMandarinAudio NO_END_TIMEOUT after onstart; PronunciationContrastDrill unlocks Continuar if TTS sticks on Tocando…",
+  ],
+  forbids: [
+    "Closed Beta declared ready by code",
+    "new cloud feedback architecture while #273 is frozen",
+    "brand-specific hacks without a capability abstraction",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-22-closed-beta-candidate",
+} as const;
+
+/**
+ * RC2.2.23 — exceção controlada para CONVERGÊNCIA DE PRODUTO. Nenhuma lição,
+ * id, ordem, tópico, StepKind ou SRS muda; o fingerprint continua
+ * c48b008c9c1e. Muda a entrega (orientação, energia, navegação, densidade,
+ * apresentação da revisão/tons/imersão). Economia: errar deixa de custar Carga
+ * (CONSECUTIVE_MISTAKE_CHARGE_COST = 0, nomes exportados intactos) e prática/
+ * replay deixam de cobrar — sem moeda nova.
+ */
+export const RC2_2_23_PRODUCT_CONVERGENCE_EXCEPTION = {
+  id: "RC2_2_23_PRODUCT_CONVERGENCE",
+  scope: "Guidance delivery (anchor fallback, reason codes, QA panel), energy soft landing, earned tab bar and More 'You' group, review round cap and short feedback, Hànzì size floors per role, tone microlesson, immersion reaction",
+  areas: [
+    "guidance never dropped silently: unanchored bottom card + 13 reason codes; AUTO_SEEDED stays pending",
+    "errors cost only Vidas; only NEW progression consumes Cargas; zero Cargas keeps review/practice/culture/replay open",
+    "tabs earned progressively (new account: Jornada + Mais; max 3 early)",
+    "review: max 2 of the same target per round of 5–8 (3 only as remediation), same SRS",
+    "tone microlesson SEE→HEAR→IMITATE→DISCRIMINATE→RECOGNIZE→USE WORD→USE CONTEXT, one concept per screen, no pitch score",
+  ],
+  forbids: [
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "new SRS, new StoryEngine or new currency",
+    "Pro as the only path out of zero Cargas",
+    "pitch explained through tongue/mouth position",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-23-product-convergence",
+} as const;
+
+/**
+ * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
+ * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
+ * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o
+ * árbitro de áudio, o diagnóstico de QA e a navegação (VOLTAR/modais).
+ */
+export const RC2_2_21_MOBILE_NATIVE_STABILITY_EXCEPTION = {
+  id: "RC2_2_21_MOBILE_NATIVE_STABILITY",
+  scope: "Native self-voice playback contract, speech recognizer strategy and diagnostics, TTS audio attributes, audio arbiter, lifecycle pause/stop, Android Back priority, modal stack, tap-through, mobile diagnostic console",
+  areas: [
+    "LongyuSpeech practice playback: AudioAttributes media/speech, transient focus, PLAYING only after isPlaying, stable error codes",
+    "pause interrupts, stop/destroy delete the temporary practice file",
+    "recognizer on-device only with zh-CN installed; RMS/recognizer diagnostics; no infinite retry",
+    "one audio owner at a time (IDLE/TTS/SELF_PLAYBACK/RECORDING/RECOGNITION)",
+    "Back: keyboard → modal → guidance → subview → route → exit at root; one modal closes per Back",
+    "tech event buffer (150, memory only, QA builds) and sanitized diagnostic JSON",
+  ],
+  forbids: [
+    "physical PASS generated automatically",
+    "a second plugin or a second audio engine",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "voice recording, transcript, OTP, e-mail, password or token stored, logged or uploaded",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-21-mobile-native-stability",
+} as const;
+
+/**
+ * RC2.2.20 — Physical Beta Readiness. Superfície de QA físico (/qa/device, só
+ * DEV/Preview/QA Candidate/`VITE_DEVICE_QA`), trilhas no APK de diagnóstico,
+ * contratos de update N→N+1, recuo de etapa travada, categorias de falha de
+ * fala/cadastro, espaçamento semântico da Revisão e Pronunciation Core BR no
+ * Pinyin Lab (fora das fontes congeladas). Nenhuma lição, ordem, tópico,
+ * StepKind, SRS, economia ou progresso muda; o fingerprint continua c48b008c9c1e.
+ */
+export const RC2_2_20_PHYSICAL_BETA_READINESS_EXCEPTION = {
+  id: "RC2_2_20_PHYSICAL_BETA_READINESS",
+  scope: "Physical QA surface and evidence contract, device diagnostics, upgrade snapshot, stall fallback, speech/signup failure categories, review spacing, Pronunciation Core BR (Pinyin Lab)",
+  areas: [
+    "/qa/device: 12 physical tests, PASS only with testedAt/buildSha/versionCode/deviceClass/evidenceType, never on web/emulator",
+    "lesson/audio/speech traces also in device-QA builds (never plain production_beta)",
+    "upgrade N→N+1 snapshot compare (counts only, no PII)",
+    "stalled step: retry / reload step / report (QA); never auto-skip",
+    "ReviewSessionComposer MIN_TARGET_GAP and surface target (order only)",
+    "Pronunciation Core BR contrasts in the Pinyin Lab",
+  ],
+  forbids: [
+    "physical PASS generated automatically",
+    "new SRS, Lesson Engine, Story Engine, Guidance Engine, Profile Engine or Auth Engine",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "SRS schedule, grades or mastery changed by the composer",
+    "OTP, e-mail, password, token or voice recording stored or logged",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-20-physical-beta-readiness",
+} as const;
+
+/**
  * RC2.2.14B — exceção controlada para idioma e curso. A interface passa a
  * seguir o idioma do sistema (com escolha manual soberana) e o curso vira
  * CourseDirection explícito (pt-zh, en-zh; registro pronto para es/fr/de).

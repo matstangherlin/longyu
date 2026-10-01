@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   CULTURE_ITEMS,
   cultureItemsForCategory,
@@ -59,6 +59,9 @@ export function CultureHubPage() {
   const [category, setCategory] = useState<"all" | CultureCategory>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [showSecondary, setShowSecondary] = useState(false);
+  // RC2.2.23 — veio da Jornada (orientação "Ir para Cultura"): o caminho de volta fica à vista.
+  const [searchParams] = useSearchParams();
+  const fromJourney = searchParams.get("from") === "jornada";
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const savedIds = useStore((s) => s.cultureSavedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
@@ -110,6 +113,11 @@ export function CultureHubPage() {
 
   return (
     <HubPage compact data-testid="culture-hub">
+      {fromJourney && (
+        <Link to="/jornada" className="inline-flex min-h-11 items-center text-sm font-semibold text-accent" data-testid="culture-back-to-journey">
+          ← {t("culture.backToJourney")}
+        </Link>
+      )}
       <HubHeader eyebrow={t("culture.eyebrow")} title={t("culture.title")} desc={t("culture.atlasTagline")} />
 
       <CultureHubGuide />
