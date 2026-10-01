@@ -21,8 +21,10 @@ import { useTranslation } from "../../i18n/useTranslation";
 import { t as translate, type TranslateVars } from "../../i18n/catalog";
 import type { MessageKey } from "../../locales/pt-BR";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
-import { playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
+import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
 import { requestMandarinSpeech } from "../../lib/mandarinSpeech";
+import { installNativeTtsData, openNativeTtsSettings } from "../../lib/platform/nativeSpeech";
+import { refreshNativeTtsStatus, usesNativeVoice } from "../../lib/tts";
 import { newTtsRequestId } from "../../lib/ttsCorrelation";
 import { recordDeviceQaObservation } from "../../lib/deviceQa";
 import { recordTechEvent } from "../../lib/techEvents";
@@ -243,6 +245,16 @@ function GuidedTryFlow() {
     go("explain");
   }
 
+  /** RC2.2.17 · A4 — instalar voz chinesa (fallback TTS). Sem texto técnico. */
+  async function installVoice() {
+    await installNativeTtsData();
+    const refresh = () => {
+      document.removeEventListener("visibilitychange", refresh);
+      void refreshNativeTtsStatus();
+    };
+    document.addEventListener("visibilitychange", refresh);
+  }
+
   function playTone() {
     setTonePlayKey((key) => key + 1);
     void playMandarinAudio(HAO.hanzi, { rate: 0.75, source: "TONE", audioId: GUIDED_TRY_HAO_AUDIO_ID }).catch(() => undefined);
@@ -392,6 +404,15 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
                     {t("guidedTry.audioConfirmedByUser")}
                   </Button>
+                  {canOfferVoiceInstall(failReason) ? (
+                    <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
+                      {t("guidedTry.audioInstallVoice")}
+                    </Button>
+                  ) : usesNativeVoice() ? (
+                    <Button size="sm" variant="outline" onClick={() => void openNativeTtsSettings()} data-testid="guided-audio-settings">
+                      {t("guidedTry.audioInstallVoice")}
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             )}
