@@ -221,24 +221,34 @@ export function profileFlyoutItems(): NavItem[] {
   return [NAV.amigos, NAV.convide, NAV.conta, NAV.plano];
 }
 
+/**
+ * RC2.2.25 — /mais em ordem fixa: VOCÊ (bloco próprio no topo) · ESTUDAR ·
+ * SOCIAL · PROGRESSO · SISTEMA. Perfil/Conta moram só no bloco Você.
+ */
 export const MORE_CATALOG: NavGroup[] = [
   {
     id: "learn",
-    title: "Aprender",
-    titleKey: "navigation.groupLearn",
+    title: "Estudar",
+    titleKey: "navigation.groupStudy",
     items: [NAV.treino, NAV.revisao, NAV.cultura, NAV.pinyin, NAV.ideogramas, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao],
   },
   {
-    id: "motivation",
-    title: "Motivação",
-    titleKey: "navigation.groupMotivation",
-    items: [NAV.missoes, NAV.conquistas, NAV.ligas, NAV.loja, NAV.amigos, NAV.convide],
+    id: "social",
+    title: "Social",
+    titleKey: "navigation.groupSocial",
+    items: [NAV.ligas, NAV.amigos, NAV.convide],
   },
   {
-    id: "account",
-    title: "Conta",
-    titleKey: "navigation.groupAccount",
-    items: [NAV.perfil, NAV.conta, NAV.plano, NAV.business, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre],
+    id: "progress",
+    title: "Progresso",
+    titleKey: "navigation.groupProgress",
+    items: [NAV.missoes, NAV.conquistas, NAV.loja, NAV.plano],
+  },
+  {
+    id: "system",
+    title: "Sistema",
+    titleKey: "navigation.groupSystem",
+    items: [NAV.business, NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre],
   },
 ];
 
@@ -271,17 +281,19 @@ export function moreMobileSheetGroups(
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to) && isNavItemDiscovered(item, visibility);
 
-  // RC2.2.23 — o Mais começa por VOCÊ (Perfil · Conta), depois Aprender
-  // (o que ainda não mereceu aba), Explorar e Sistema. Nada se repete: `keep`
-  // tira o que já está na barra.
+  // RC2.2.23 — o Mais começa por VOCÊ (Perfil · Conta). RC2.2.25 — ordem
+  // fixa VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA, cada grupo só com o
+  // que já foi descoberto. Nada se repete: `keep` tira o que já está na barra.
   const you = [NAV.perfil, NAV.conta, NAV.aparencia].filter((item) => !primaryTos.has(item.to));
   const learn = [NAV.cultura, NAV.missoes].filter(keep);
-  const explore = [NAV.loja, NAV.ligas, NAV.conquistas].filter(keep);
+  const social = [NAV.ligas].filter(keep);
+  const progress = [NAV.conquistas, NAV.loja].filter(keep);
   const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
   const groups: NavGroup[] = [];
   groups.push({ id: "you", title: "Você", titleKey: "navigation.groupYou", items: you });
-  if (learn.length) groups.push({ id: "learn", title: "Aprender", titleKey: "navigation.groupLearn", items: learn });
-  if (explore.length) groups.push({ id: "explore", title: "Explorar", titleKey: "navigation.groupExplore", items: explore });
+  if (learn.length) groups.push({ id: "learn", title: "Estudar", titleKey: "navigation.groupStudy", items: learn });
+  if (social.length) groups.push({ id: "social", title: "Social", titleKey: "navigation.groupSocial", items: social });
+  if (progress.length) groups.push({ id: "progress", title: "Progresso", titleKey: "navigation.groupProgress", items: progress });
   if (system.length) groups.push({ id: "system", title: "Sistema", titleKey: "navigation.groupSystem", items: system });
   return groups;
 }

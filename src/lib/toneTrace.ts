@@ -13,7 +13,25 @@
 export const TONE_TRACE_LEVELS = ["FULL_LINE", "PARTIAL_LINE", "GUIDE_DOTS", "NO_LINE"] as const;
 export type ToneTraceLevel = (typeof TONE_TRACE_LEVELS)[number];
 
-export const TONE_TRACE_INSTRUCTION = "Passe o dedo pela forma do tom.";
+export const TONE_TRACE_INSTRUCTION = "Passe o dedo pelo caminho do tom.";
+/**
+ * RC2.2.25 — depois do traço sem linha, a ajuda some de vez: escolha de
+ * MEMÓRIA ("Qual foi o caminho?") entre os quatro contornos.
+ *   linha → parcial → pontos → nada → escolha de memória
+ */
+export const TONE_TRACE_STAGES = [...TONE_TRACE_LEVELS, "MEMORY_CHOICE"] as const;
+export type ToneTraceStage = (typeof TONE_TRACE_STAGES)[number];
+export const TONE_TRACE_MEMORY_PROMPT = "Qual foi o caminho do tom?";
+
+/** Próximo estágio depois de um traço completo (o último leva à memória). */
+export function nextTraceStage(level: ToneTraceLevel): ToneTraceStage {
+  return level === "NO_LINE" ? "MEMORY_CHOICE" : nextTraceLevel(level);
+}
+
+/** Feedback da escolha de memória: sobre a FORMA lembrada, nunca sobre a voz. */
+export function memoryChoiceFeedback(correct: boolean): string {
+  return correct ? "✓ Você lembrou o caminho." : "Quase. Ouça de novo e veja a forma.";
+}
 /** O traço só conta se começar perto do início do contorno. */
 export const TRACE_START_WINDOW = 0.18;
 /** E termina perto do fim. */

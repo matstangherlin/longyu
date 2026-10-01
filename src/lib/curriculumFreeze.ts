@@ -538,6 +538,31 @@ export const RC2_2_24_ANDROID_LEARNING_PARITY_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.25 — exceção controlada para FECHAMENTO DA EXPERIÊNCIA DE PRODUTO.
+ * Nenhuma lição, id, ordem, tópico, StepKind, SRS, economia ou progresso
+ * muda; o fingerprint continua c48b008c9c1e. Só apresentação: hub ≠
+ * atividade, conta/sair, ordem do Mais, CTA e cópia de fala.
+ */
+export const RC2_2_25_PRODUCT_EXPERIENCE_CLOSURE_EXCEPTION = {
+  id: "RC2_2_25_PRODUCT_EXPERIENCE_CLOSURE",
+  scope: "Guided experience gold standard, surface inventory, hub vs activity focus (Review, Pinyin Lab, Speaking, Immersion), account first fold and logout discoverability, More group order, CTA without rewards, speech copy without engine talk, Tone Trace memory stage, culture task handoff",
+  areas: [
+    "every StepKind classified GUIDED_NATIVE or GUIDED_COMPATIBLE; LEGACY_PRESENTATION = 0",
+    "activities run without TopBar/TabBar/counters/streak; hubs show only [Começar]",
+    "Review round is short and guided, without analytics; reward stays in the result",
+    "Sair da conta visible without scroll in Conta and as a full-width row in Mais",
+    "More order VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA",
+  ],
+  forbids: [
+    "new engines or a second lesson player",
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "owner acceptance or physical PASS generated automatically",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-25-product-experience-closure",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

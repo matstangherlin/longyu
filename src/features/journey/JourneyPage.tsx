@@ -70,6 +70,7 @@ import {
   journeyReturnSourceForPath,
   resolveJourneyReturnTarget,
   setJourneyReturnAnchor,
+  JOURNEY_RETURN_PULSE_MS,
 } from "../../lib/journeyReturnAnchor";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
@@ -470,7 +471,7 @@ export function JourneyPage() {
           el.scrollIntoView({ block: "center", behavior: "instant" as ScrollBehavior });
           el.setAttribute("data-journey-return-target", target.why);
           el.classList.add("ring-4", "ring-accent/40");
-          window.setTimeout(() => el.classList.remove("ring-4", "ring-accent/40"), 1300);
+          window.setTimeout(() => el.classList.remove("ring-4", "ring-accent/40"), JOURNEY_RETURN_PULSE_MS);
         });
         return;
       }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useFocusActivity } from "../../lib/focusActivity";
 import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { useNavigate } from "react-router-dom";
 import { GlossText } from "../../components/hanzi/GlossText";
@@ -326,19 +327,24 @@ export function ImmersionPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [selectedSessionId, selectedStoryId]);
+  // RC2.2.25 — história/sessão aberta é ATIVIDADE: sem TopBar/TabBar/contadores.
+  useFocusActivity(Boolean(selectedSession || selectedStory));
 
   if (selectedSession) {
     return (
+      <div data-immersion-focus="session">
       <ImmersionPlayer
         session={selectedSession}
         completedToday={activeDaily.completedSessionIds.includes(selectedSession.id)}
         onClose={() => setSelectedSessionId(null)}
       />
+      </div>
     );
   }
 
   if (selectedStory) {
     return (
+      <div data-immersion-focus="story">
       <InteractiveStoryPlayer
         story={selectedStory}
         progress={storyProgress[selectedStory.id]}
@@ -348,6 +354,7 @@ export function ImmersionPage() {
         }}
         onProgressChange={refreshStoryProgress}
       />
+      </div>
     );
   }
 

@@ -13,7 +13,9 @@ import { reviewExampleFor, type ReviewExample } from "../../data/reviewExamples"
 import { charById } from "../../data/characters";
 import { assemblyTileClass } from "../lesson/buildAssemblyFeedback";
 import { stableOptionPermutation } from "../../lib/stableOptionPermutation";
-import { IconCheck, IconChevron, IconRefresh, IconTarget } from "../../components/ui/Icon";
+import { IconCheck, IconChevron, IconRefresh, IconTarget, IconX } from "../../components/ui/Icon";
+import { useFocusActivity } from "../../lib/focusActivity";
+import { peekJourneyReturnAnchor } from "../../lib/journeyReturnAnchor";
 import { chunkById } from "../../data/chunks";
 import { radicalById } from "../../data/radicals";
 import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
@@ -1345,6 +1347,25 @@ export function RevisaoPage() {
   const [correctionDrill, setCorrectionDrill] = useState(
     () => wantsCorrectionSession && detailedErrorsAllowed
   );
+  // RC2.2.25 — HUB ≠ RODADA. O hub mostra o resumo e [Começar revisão]; a
+  // rodada (5–8 itens) é atividade em focus: sem TabBar, sem painéis, sem
+  // contadores. Link com intenção (sessão/módulo/Atlas/Jornada) já entra na
+  // rodada; `?modo=` só escolhe o filtro do hub.
+  const [roundStarted, setRoundStarted] = useState(
+    () =>
+      wantsCorrectionSession ||
+      searchParams.has("modulo") ||
+      searchParams.get("iniciar") === "1" ||
+      atlasStudySet != null
+  );
+  // A Jornada grava a âncora ao desmontar (no mesmo commit em que esta tela
+  // monta): lida num efeito. Revisão EXIGIDA pela Jornada já entra na rodada;
+  // troca de aba comum cai no hub.
+  useEffect(() => {
+    const anchor = peekJourneyReturnAnchor();
+    if (anchor?.activitySource === "REVIEW" && anchor.returnReason === "REQUIRED_ACTIVITY") setRoundStarted(true);
+  }, []);
+  const inRound = roundStarted || correctionDrill;
   const modeCounts = useMemo(() => countByMode(fullQueue), [fullQueue]);
   const modeQueue = useMemo(
     () => (detailedErrorsAllowed ? filterQueueByMode(fullQueue, mode) : fullQueue),
@@ -1360,7 +1381,6 @@ export function RevisaoPage() {
   }, [advancedReviewAccess.limited, modeQueue]);
   const [retryQueue, setRetryQueue] = useState<ReviewQueueEntry[]>([]);
   const queue = useMemo(() => [...baseQueue, ...retryQueue], [baseQueue, retryQueue]);
-  const domainCounts = useMemo(() => countByDomain(queue), [queue]);
   const focus = useMemo(() => (detailedErrorsAllowed ? focusForQueue(fullQueue) : null), [detailedErrorsAllowed, fullQueue]);
   const weakItemsCount = useMemo(
     () => (detailedErrorsAllowed ? Object.values(srs).filter((srsItem) => reviewStateLabel(srsItem) === "fraco").length : 0),
@@ -1603,8 +1623,10 @@ export function RevisaoPage() {
     entry && item && data && exercise && !(requestedDetailedErrors && !detailedErrorsAllowed)
   );
 
+  useFocusActivity(sessionReadyForHotkeys && inRound);
+
   useExerciseHotkeys({
-    enabled: sessionReadyForHotkeys && !reviewBuilderForHotkeys,
+    enabled: sessionReadyForHotkeys && inRound && !reviewBuilderForHotkeys,
     mode: reviewHotkeyModeForHooks,
     optionCount: reviewOptionCountForHooks,
     leftCount: exercise?.kind === "match_pairs" ? exercise.pairs?.length ?? 0 : 0,
@@ -2045,6 +2067,24 @@ export function RevisaoPage() {
             </div>
           </div>
         </div>
+      ) : inRound ? (
+        <div className="mb-3 flex items-center gap-3" data-review-round-header="">
+          <button
+            type="button"
+            onClick={() => setRoundStarted(false)}
+            aria-label={t("review.backToReview")}
+            data-testid="review-exit"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          >
+            <IconX width={20} height={20} />
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint" data-review-round-step="">
+              {t("review.roundStep", { n: taskInRound, total: roundPosition.roundSize })}
+            </div>
+            <ProgressBar value={roundProgress} max={100} className="mt-1 h-1.5" />
+          </div>
+        </div>
       ) : (
         <HubHeader
           eyebrow={t("review.eyebrow")}
@@ -2053,11 +2093,13 @@ export function RevisaoPage() {
         />
       )}
       {/* RC2.2.19 — primeira revisão: como a sessão funciona (orquestrada, 1x). */}
+      {!inRound && (
       <div className="mb-3">
         <GuidanceInlineSlot surface="/revisao" />
       </div>
+      )}
 
-      {detailedErrorsAllowed && !correctionDrill && (
+      {detailedErrorsAllowed && !inRound && (
         <DetailedErrorsPanel
           errors={recentActivityErrors}
           activeErrors={activeActivityErrors}
@@ -2065,7 +2107,7 @@ export function RevisaoPage() {
         />
       )}
 
-      {!correctionDrill && detailedErrorsAllowed && (
+      {!inRound && detailedErrorsAllowed && (
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ReviewSummaryTile
           label={t("review.todayReview")}
@@ -2111,7 +2153,7 @@ export function RevisaoPage() {
           contagem, "Revisão básica", "Plano de hoje" e "Fila básica" — repetindo
           o mesmo número três vezes e a mesma frase sobre o Pro outras três.
           Vira uma faixa só, com tudo que eles diziam. */}
-      {!correctionDrill && !detailedErrorsAllowed && (
+      {!inRound && !detailedErrorsAllowed && (
         <Card className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
@@ -2145,14 +2187,14 @@ export function RevisaoPage() {
         </Card>
       )}
 
-      {detailedErrorsAllowed && !correctionDrill && (
+      {detailedErrorsAllowed && !inRound && (
         <>
           <ReviewModeTabs mode={mode} counts={modeCounts} onSelect={setMode} />
           <p className="-mt-2 text-xs text-ink-faint">{reviewModeOptions(t).find((option) => option.id === mode)?.hint}</p>
         </>
       )}
 
-      {!correctionDrill && detailedErrorsAllowed && (
+      {!inRound && detailedErrorsAllowed && (
       <Card className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -2180,36 +2222,28 @@ export function RevisaoPage() {
       </Card>
       )}
 
+      {!inRound ? (
+        <div className="mx-auto max-w-xl" data-review-hub-start="">
+          <Button
+            size="lg"
+            className="w-full"
+            data-testid="review-start"
+            onClick={() => setRoundStarted(true)}
+          >
+            {t("review.startRound")}
+          </Button>
+        </div>
+      ) : (
       <div className="mx-auto max-w-xl">
-        {!correctionDrill && detailedErrorsAllowed && (
-        <Card className="mb-4 p-4">
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-            {t("review.smartQueue")}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {REVIEW_DOMAIN_ORDER.map((domain) => {
-              const count = domainCounts[domain] ?? 0;
-              if (count === 0) return null;
-              return (
-                <Pill key={domain} tone={domain === domainForEntry(entry) ? "accent" : "muted"}>
-                  {displayInstruction(REVIEW_DOMAIN_META[domain].shortLabel)} · {count}
-                </Pill>
-              );
-            })}
-          </div>
-          <p className="mt-2 text-xs text-ink-faint">
-            {t("review.smartQueueHint")}
-          </p>
-        </Card>
-        )}
 
         <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-faint">
           <div className="flex flex-wrap items-center gap-2">
             <Pill tone="accent">{correctionDrill ? t("review.weakPoints") : detailedErrorsAllowed ? displayInstruction(domainMeta.label) : t("review.title")}</Pill>
             {detailedErrorsAllowed && sourceError && <Pill tone="accent">{t("review.realError")}</Pill>}
             <Pill>{itemLabel(item)}</Pill>
-            {detailedErrorsAllowed && !correctionDrill && <Pill tone="muted">{displayInstruction(domainMeta.cardLabel)}</Pill>}
-            {detailedErrorsAllowed && (
+            {/* RC2.2.25 — rodada sem análise: domínio/estado ficam no hub. */}
+            {detailedErrorsAllowed && !inRound && <Pill tone="muted">{displayInstruction(domainMeta.cardLabel)}</Pill>}
+            {detailedErrorsAllowed && !inRound && (
               <Pill tone={item.lapses > 0 && item.reps === 0 ? "accent" : "muted"}>
                 {reviewStateLabel(item)}
               </Pill>
@@ -2343,7 +2377,8 @@ export function RevisaoPage() {
                         >
                           <span>{gradeLabel(g)}</span>
                           <span className="text-[10px] font-normal opacity-80">
-                            {gradeEffect(g)} · +{reviewXpForGrade(g)} XP · +{reviewQiForGrade(g)} Qi
+                            {/* RC2.2.25 — CTA sem recompensa: XP/Qi só no resultado. */}
+                            {gradeEffect(g)}
                           </span>
                         </Button>
                       ))}
@@ -2366,18 +2401,10 @@ export function RevisaoPage() {
           )}
         </Card>
       </div>
+      )}
       <ProPaywall open={proPaywallOpen} kind={proPaywallKind} onClose={() => setProPaywallOpen(false)} />
     </HubPage>
   );
-}
-
-function countByDomain(queue: ReviewQueueEntry[]): Partial<Record<ReviewDomain, number>> {
-  const counts: Partial<Record<ReviewDomain, number>> = {};
-  for (const entry of queue) {
-    const domain = domainForEntry(entry);
-    counts[domain] = (counts[domain] ?? 0) + 1;
-  }
-  return counts;
 }
 
 function buildReviewQueue(

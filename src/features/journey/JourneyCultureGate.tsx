@@ -36,7 +36,9 @@ export function JourneyCultureGate({
 
   const title = en ? gate.titleEn : gate.titlePt;
   const reason = en ? gate.reasonEn : gate.reasonPt;
-  const ctaLabel = en ? "Continue through Culture" : "Continuar pela Cultura";
+  // RC2.2.25 — pedido curto e claro: o costume vem antes do próximo trecho.
+  const lead = en ? "Before you continue, understand this custom." : "Antes de continuar, entenda este costume.";
+  const ctaLabel = en ? "Go to Culture" : "Ir para Cultura";
 
   return (
     <div
@@ -58,6 +60,7 @@ export function JourneyCultureGate({
         </div>
       </div>
 
+      <p className="text-sm font-semibold text-ink" data-testid="culture-gate-lead">{lead}</p>
       {/* O dragão explica o porquê, no mesmo GuideDialogue canônico da RC2.2.5. */}
       <JourneyGuideExplanation id={`culture-gate-${gate.id}`} message={reason} className="max-w-none" />
 

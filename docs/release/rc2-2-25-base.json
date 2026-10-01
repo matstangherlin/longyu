@@ -1,0 +1,23 @@
+{
+  "wave": "RC2.2.25",
+  "title": "Product Experience Closure (gold standard, hub ≠ atividade, conta/sair, CTA, densidade)",
+  "parentWave": "RC2.2.24",
+  "strategy": "STACKED",
+  "stack": [
+    "RC2.2.19 / #292 (merged)",
+    "RC2.2.20 + RC2.2.21 / #294",
+    "RC2.2.22 / #295",
+    "RC2.2.23",
+    "RC2.2.24",
+    "RC2.2.25"
+  ],
+  "baseBranch": "claude/rc2-2-24-android-learning-parity",
+  "RC2_2_25_BASE_SHA": "ab2a2d595073ac7acbdd752d316e8ee7f052a31d",
+  "baseCapturedFrom": "HEAD real da RC2.2.24 no início da onda (inclui o merge dos follow-ups da RC2.2.23); não um SHA de PR",
+  "branch": "claude/rc2-2-25-product-experience-closure",
+  "prTargetWhileParentOpen": "claude/rc2-2-24-android-learning-parity",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "noNewEngines": true,
+  "note": "Correções posteriores da RC2.2.24 entram por merge da branch dela (nunca cherry-pick)."
+}

@@ -139,7 +139,7 @@ for (const viewport of [
 
     test("Hànzì computado por papel (≥ 64/48/44), feedback curto e sem overflow", async ({ page }) => {
       await seed(page, { completedLessons: THROUGH_L2, ...matureDiscoveryState(), srs: chunkSrs(), learnedChunks: Object.keys(chunkSrs()).map((key) => key.slice(6)) });
-      await open(page, "/revisao");
+      await open(page, "/revisao?iniciar=1");
       const floors: Record<string, number> = { main: 64, option: 48, pair: 44 };
       const measured: string[] = [];
       for (let round = 0; round < 8; round += 1) {

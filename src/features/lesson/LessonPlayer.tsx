@@ -5,6 +5,7 @@ import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
+import { peekJourneyReturnAnchor } from "../../lib/journeyReturnAnchor";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
 import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
@@ -4128,7 +4129,15 @@ export function LessonPlayer() {
             locale: locale === "en" ? "en" : "pt",
           })
         : null;
-    const journeyCta = plusResult
+    // RC2.2.25 — Cultura aberta pela Jornada: "✓ Cultura concluída" +
+    // [Voltar para <unidade>] (a unidade que o costume prepara, pela âncora).
+    const cultureReturnUnit =
+      lesson.lessonDomain === "culture" && searchParams.get("src") === "jornada"
+        ? getLesson(peekJourneyReturnAnchor()?.lessonId ?? "")?.unitTitle ?? null
+        : null;
+    const journeyCta = cultureReturnUnit
+      ? t("common.backTo", { target: cultureReturnUnit })
+      : plusResult
       ? plusResult.ctaLabel
       : isPlusRoundSession
         ? t("player.continueJourney")

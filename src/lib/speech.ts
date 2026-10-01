@@ -273,6 +273,7 @@ export function mapNativeRecognitionError(code: string): RecognizeErrorCode {
   }
 }
 
+// RC2.2.25 — mensagens de aluno sem motor/serviço/modelo/locale (isso só no QA).
 export function speechErrorMessage(code: RecognizeErrorCode | string): string {
   const native = hasNativeSpeech();
   switch (mapError(code)) {
@@ -283,15 +284,15 @@ export function speechErrorMessage(code: RecognizeErrorCode | string): string {
     case "busy":
       return "O reconhecimento ainda está ocupado. Espere um instante e tente de novo.";
     case "language-unavailable":
-      return "O reconhecimento de mandarim não está disponível neste aparelho.";
+      return "Seu aparelho não conseguiu reconhecer mandarim agora.";
     case "insecure":
       return "O microfone só funciona em HTTPS.";
     case "unsupported":
       return native
-        ? "Este aparelho não tem serviço de reconhecimento de fala."
+        ? "Seu aparelho não conseguiu reconhecer mandarim agora."
         : "Este navegador não reconhece voz. Use Chrome ou Edge.";
     case "network":
-      return "Sem conexão com o serviço de voz. Confira a internet.";
+      return "Sem internet agora. Confira a conexão e tente de novo.";
     case "audio-capture":
       return "Não consegui acessar o microfone. Feche outros apps que usam o mic.";
     case "aborted":

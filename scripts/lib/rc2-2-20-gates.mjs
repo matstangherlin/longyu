@@ -505,7 +505,11 @@ export async function validateRelease(s) {
   const moreSignOut = /<button[^\n]*data-testid="more-sign-out"[^\n]*/.exec(more)?.[0] ?? "";
   if (/text-wrong|danger|bg-wrong/.test(moreSignOut)) fail("LOGOUT_STYLED_AS_DELETE", FILES.more, "Sair não pode parecer Excluir");
   const conta = stripComments(s.src.conta);
-  const contaSignOut = /<ActionButton onClick=\{\(\) => void onSignOut\(\)\}[^\n]*/.exec(conta)?.[0] ?? "";
+  // RC2.2.25 — Sair virou linha full-width (<button>) na primeira dobra de Conta.
+  const contaSignOut =
+    /<ActionButton onClick=\{\(\) => void onSignOut\(\)\}[^\n]*/.exec(conta)?.[0] ??
+    /<button\s[\s\S]{0,120}?onClick=\{\(\) => void onSignOut\(\)\}[\s\S]{0,400}?data-testid="conta-sign-out"[^\n]*/.exec(conta)?.[0] ??
+    "";
   if (!contaSignOut) fail("LOGOUT_HIDDEN", FILES.conta, "Sair da conta em Conta");
   else if (/text-wrong|border-wrong|danger/.test(contaSignOut)) fail("LOGOUT_STYLED_AS_DELETE", FILES.conta, "Sair não pode parecer Excluir");
   if (!/<DangerZone \/>/.test(s.src.settings)) fail("DELETE_NOT_SEPARATED", FILES.settings, "Excluir conta na zona de perigo, separado");

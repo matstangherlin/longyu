@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { Link } from "react-router-dom";
-import { IconShield, IconSun, IconUser } from "../../components/ui/Icon";
+import { IconShield, IconSun, IconLogout, IconUser } from "../../components/ui/Icon";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { isAdminEmail } from "../../lib/feedback";
 import { useStore } from "../../lib/store";
@@ -142,8 +142,8 @@ export function MorePage() {
 
   // Admin (interno) fica fora do catálogo público.
   if (showAdmin) {
-    const conta = sections.find((s) => s.id === "account");
-    conta?.items.push({
+    const system = sections.find((s) => s.id === "system");
+    system?.items.push({
       title: t("navigation.adminFeedback"),
       desc: t("navigation.adminFeedbackDesc"),
       icon: IconShield,
@@ -154,10 +154,7 @@ export function MorePage() {
   }
 
   // RC2.2.19 — Perfil/Conta/Aparência/Sair no topo: nunca escondidos no fim da lista.
-  const accountSection = sections.find((section) => section.id === "account");
-  if (accountSection) {
-    accountSection.items = accountSection.items.filter((hubItem) => hubItem.to !== "/perfil" && hubItem.to !== "/conta");
-  }
+  // RC2.2.25 — o catálogo já não os repete (moram só no bloco Você).
 
   return (
     <HubPage>
@@ -202,7 +199,7 @@ function MoreYouBlock() {
   return (
     <section className="mb-5" data-testid="more-you" data-coachmark-target="more-you">
       <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">{t("navigation.groupYou")}</h2>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-3 gap-2">
         <Link to="/perfil" className={tile} data-testid="more-profile">
           <IconUser width={18} height={18} className="text-accent" /> {t("navigation.profile")}
         </Link>
@@ -212,14 +209,23 @@ function MoreYouBlock() {
         <Link to="/config/aparencia" className={tile} data-testid="more-appearance">
           <IconSun width={18} height={18} className="text-accent" /> {t("navigation.appearance")}
         </Link>
-        {canSignOut && (
-          // RC2.2.20 — Sair é visível mas NEUTRO: não pode parecer o "Excluir
-          // conta" (vermelho, separado, no fim de Conta).
-          <button type="button" onClick={() => void signOut()} className={`${tile} text-ink-soft`} data-testid="more-sign-out" data-sign-out-tone="neutral">
-            {t("common.signOut")}
-          </button>
-        )}
       </div>
+      {canSignOut && (
+        // RC2.2.25 — LOGOUT_DISCOVERABILITY_OWNER_FAIL: "Sair da conta" é uma
+        // LINHA inteira com ícone, não um quadrado perdido na grade. Neutra:
+        // não pode parecer o "Excluir conta" (vermelho, no fim de Conta).
+        <button
+          type="button"
+          onClick={() => void signOut()}
+          className="mt-2 flex min-h-12 w-full items-center gap-3 rounded-2xl border border-line bg-surface px-4 text-left text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          data-testid="more-sign-out"
+          data-sign-out-tone="neutral"
+          data-sign-out-layout="full-width"
+        >
+          <IconLogout width={18} height={18} className="text-ink-soft" />
+          {t("common.signOutAccount")}
+        </button>
+      )}
     </section>
   );
 }

@@ -292,8 +292,9 @@ export function ProfilePage() {
             )}
           </div>
         </div>
-        {/* RC2.2.19 — primeira dobra: medalhas, Editar e Amigos à mão. */}
-        <div className="grid w-full shrink-0 grid-cols-3 gap-2 sm:flex sm:w-auto" data-testid="profile-first-fold-actions">
+        {/* RC2.2.19 — primeira dobra: medalhas, Editar e Amigos à mão.
+            RC2.2.25 — + Conta (leva direto à região com "Sair da conta"). */}
+        <div className="grid w-full shrink-0 grid-cols-2 gap-2 sm:flex sm:w-auto" data-testid="profile-first-fold-actions">
           <a
             href="#medalhas"
             className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl bg-surface-2 px-2 text-sm font-semibold text-ink"
@@ -306,11 +307,14 @@ export function ProfilePage() {
               <>🏅 {medalCount}</>
             )}
           </a>
-          <ActionButton to="/conta" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />}>
+          <ActionButton to="#personalizar" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />} data-testid="profile-edit-link">
             {t("hub.editShort")}
           </ActionButton>
           <ActionButton to="/amigos" variant="secondary" size="sm" data-testid="profile-friends-link">
             {t("hub.friends")}
+          </ActionButton>
+          <ActionButton to="/conta" variant="secondary" size="sm" data-testid="profile-account-link">
+            {t("navigation.account")}
           </ActionButton>
         </div>
       </Card>

@@ -31,6 +31,8 @@ export interface JourneyReturnAnchor {
 const KEY = "longyu:journey-return-anchor";
 /** A âncora velha (outra sessão de estudo) não sequestra a Jornada. */
 export const JOURNEY_RETURN_TTL_MS = 6 * 60 * 60 * 1000;
+/** RC2.2.25 — pulso discreto no nó de volta: entre 1 e 1,5 s, nunca piscando. */
+export const JOURNEY_RETURN_PULSE_MS = 1300;
 
 /** Origem pela rota de destino (o link que tirou o aluno da Jornada). */
 export function journeyReturnSourceForPath(pathname: string): JourneyReturnSource {

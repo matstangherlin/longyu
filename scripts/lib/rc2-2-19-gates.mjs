@@ -477,7 +477,7 @@ export async function validateProductRelease(s) {
   // Perfil / Conta / Sair.
   if (!/to="\/perfil"[\s\S]{0,80}data-coachmark-target="topbar-profile"/.test(s.src.topBar)) fail("PROFILE_NOT_DISCOVERABLE", FILES.topBar, "avatar → /perfil com coachmark");
   const profile = stripComments(s.src.profile);
-  const fold = profile.slice(profile.indexOf('data-testid="profile-header"'), profile.indexOf('data-testid="profile-first-fold-actions"') + 900);
+  const fold = profile.slice(profile.indexOf('data-testid="profile-header"'), profile.indexOf('data-testid="profile-first-fold-actions"') + 1400);
   for (const needle of ['data-testid="profile-avatar"', 'data-testid="profile-username"', 'data-testid="profile-medal-count"', 'to="/conta"', 'to="/amigos"'])
     if (!fold.includes(needle)) fail("PROFILE_NOT_DISCOVERABLE", FILES.profile, `primeira dobra: ${needle}`);
   const more = stripComments(s.src.more);

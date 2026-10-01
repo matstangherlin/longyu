@@ -21,6 +21,7 @@ import { classifySpeechFailure, type SpeechFailureCategory } from "../../lib/spe
 import { claimAudio, releaseAudio } from "../../lib/audioArbiter";
 import { recordTechEvent } from "../../lib/techEvents";
 import { selfPlaybackMessageKey, type SelfPlaybackErrorCode } from "../../lib/selfPlayback";
+import { SPEAKING_STAGES, SPEAKING_STAGE_LABEL, speakingStageFor, type SpeakingStage } from "../../lib/productGoldStandard";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -58,6 +59,21 @@ type PlayState = "idle" | "preparing" | "playing" | "played" | "failed";
 
 const MIN_RECORDING_MS = 400;
 
+/** Trilha compacta dos cinco estágios; o atual em destaque, sem números. */
+function SpeakingStageStrip({ stage }: { stage: SpeakingStage }) {
+  const current = SPEAKING_STAGES.indexOf(stage);
+  return (
+    <ol className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] font-bold uppercase tracking-[0.1em]" data-speaking-stage={stage} aria-label={SPEAKING_STAGE_LABEL[stage]}>
+      {SPEAKING_STAGES.map((item, index) => (
+        <li key={item} className={index === current ? "text-accent" : index < current ? "text-ink-soft" : "text-ink-faint"} aria-current={index === current ? "step" : undefined}>
+          {SPEAKING_STAGE_LABEL[item]}
+          {index < SPEAKING_STAGES.length - 1 ? <span className="ml-1.5 text-ink-faint" aria-hidden="true">→</span> : null}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function selfCompareRecordingAvailable(): boolean {
   if (hasNativeSpeech()) return true;
   if (typeof window === "undefined") return false;
@@ -81,6 +97,8 @@ export function SelfComparePractice({
   const guided = useGuidedPresentation();
   const native = hasNativeSpeech();
   const [phase, setPhase] = useState<Phase>("idle");
+  /** RC2.2.25 — OUÇA → GRAVE → OUÇA VOCÊ → COMPARE → CONTINUE (estado real). */
+  const [modelHeard, setModelHeard] = useState(false);
   const [failure, setFailure] = useState<SpeechFailureCategory | null>(null);
   /** Gravação curta demais: volta ao início COM aviso (nunca em silêncio). */
   const [tooShort, setTooShort] = useState(false);
@@ -311,6 +329,7 @@ export function SelfComparePractice({
   function playModel() {
     // A voz modelo interrompe a própria gravação tocando (último pedido vence).
     if (playState === "playing" || playState === "preparing") stopMine();
+    setModelHeard(true);
     void playMandarinAudio(target);
   }
 
@@ -408,6 +427,7 @@ export function SelfComparePractice({
       data-self-playback={playState}
     >
       <p className="text-sm font-semibold text-ink">{t("player.selfCompareTitle")}</p>
+      <SpeakingStageStrip stage={speakingStageFor({ modelHeard, phase, playState })} />
       {reason && <p className="mt-1 text-xs leading-5 text-ink-soft" data-testid="self-compare-reason">{reason}</p>}
       <div className="mt-3 flex items-center justify-center gap-3">
         <span className="hanzi text-3xl text-ink">{target}</span>

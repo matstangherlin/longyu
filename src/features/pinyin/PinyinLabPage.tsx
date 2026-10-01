@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
+import { FocusActivityLauncher } from "../../components/layout/FocusActivityFrame";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   PINYIN_ACCENT_ROUNDS,
@@ -121,14 +122,17 @@ export function PinyinLabPage() {
       <HubPage className="space-y-5" data-testid="journey-pinyin-booster">
         <JourneyHandoffBanner source="PINYIN" />
         <HubHeader eyebrow={copy.eyebrow} title={copy.title} desc={copy.desc} />
-        <PinyinAccentTrainer
-          rounds={taughtRounds}
-          onComplete={() => {
-            completeJourneyNode(journeyNode.id);
-            navigate("/jornada");
-          }}
-          returnLabel={copy.back}
-        />
+        {/* RC2.2.25 — nó da Jornada já chega com intenção: entra direto em focus. */}
+        <FocusActivityLauncher title={copy.title} testId="pinyin-journey" autoStart>
+          <PinyinAccentTrainer
+            rounds={taughtRounds}
+            onComplete={() => {
+              completeJourneyNode(journeyNode.id);
+              navigate("/jornada");
+            }}
+            returnLabel={copy.back}
+          />
+        </FocusActivityLauncher>
       </HubPage>
     );
   }
@@ -385,16 +389,24 @@ export function PinyinLabPage() {
       </section>
 
       <section id="acentos" className={["scroll-mt-20", mobileView === "treino" ? "block" : "hidden md:block"].join(" ")}>
-        <LabSectionHeader
+        {/* RC2.2.25 — hub mostra [Começar]; o treino roda em focus. */}
+        <FocusActivityLauncher
           title="Treino de acentos"
-          desc="Escolha o pinyin correto. Aqui o acento não é detalhe decorativo: ele mostra o tom que muda som e sentido."
-        />
-        <PinyinAccentTrainer />
+          desc="Escolha o pinyin correto: o acento mostra o tom."
+          testId="pinyin-accent"
+        >
+          <PinyinAccentTrainer />
+        </FocusActivityLauncher>
       </section>
 
       <section id="montar" className={["scroll-mt-20", mobileView === "treino" ? "block" : "hidden md:block"].join(" ")}>
-        <LabSectionHeader title="Treino de montar pinyin" desc="Ouça a sílaba, escolha inicial, final e tom, e veja o resultado com acento." />
-        <PinyinBuilder />
+        <FocusActivityLauncher
+          title="Treino de montar pinyin"
+          desc="Ouça, escolha inicial, final e tom."
+          testId="pinyin-builder"
+        >
+          <PinyinBuilder />
+        </FocusActivityLauncher>
       </section>
     </HubPage>
   );

@@ -5,7 +5,9 @@ import type { MandarinToneNumber } from "../../data/toneKnowledge";
 import { haptic } from "../../lib/haptics";
 import {
   TONE_TRACE_INSTRUCTION,
+  TONE_TRACE_MEMORY_PROMPT,
   advanceTraceProgress,
+  memoryChoiceFeedback,
   nearestSampleIndex,
   nextTraceLevel,
   traceComplete,
@@ -32,6 +34,9 @@ export function ToneTrace({ tone, onTraced }: { tone: MandarinToneNumber; onTrac
   const [dragging, setDragging] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [completions, setCompletions] = useState(0);
+  // RC2.2.25 — depois do traço sem linha: escolha de memória entre 4 caminhos.
+  const [memoryChoice, setMemoryChoice] = useState(false);
+  const [memoryResult, setMemoryResult] = useState<"correct" | "wrong" | null>(null);
   const d = useMemo(() => guidedContourPath(tone), [tone]);
 
   useEffect(() => {
@@ -93,6 +98,7 @@ export function ToneTrace({ tone, onTraced }: { tone: MandarinToneNumber; onTrac
       setMessage(traceFeedback(level, true));
       setCompletions((count) => count + 1);
       onTraced?.(level);
+      if (level === "NO_LINE") setMemoryChoice(true);
       setLevel((current) => nextTraceLevel(current));
     } else {
       setMessage(traceFeedback(level, false));
@@ -103,6 +109,38 @@ export function ToneTrace({ tone, onTraced }: { tone: MandarinToneNumber; onTrac
   const color = TONE_COLOR[tone];
   const lineOpacity = level === "NO_LINE" ? 0 : level === "GUIDE_DOTS" ? 0.9 : 0.85;
   const dash = level === "PARTIAL_LINE" ? "40 200" : level === "GUIDE_DOTS" ? "0.1 9" : undefined;
+
+  if (memoryChoice) {
+    return (
+      <div className="flex w-full flex-col items-center" data-tone-trace={tone} data-trace-level="MEMORY_CHOICE" data-trace-completions={completions}>
+        <p className="text-center text-base font-semibold text-ink">{TONE_TRACE_MEMORY_PROMPT}</p>
+        <div className="mt-3 grid w-full max-w-sm grid-cols-2 gap-2" data-testid="tone-trace-memory-options">
+          {([1, 2, 3, 4] as MandarinToneNumber[]).map((option) => (
+            <button
+              key={option}
+              type="button"
+              disabled={memoryResult === "correct"}
+              onClick={() => {
+                const correct = option === tone;
+                setMemoryResult(correct ? "correct" : "wrong");
+                if (correct) haptic("piecePlaced");
+              }}
+              className="flex min-h-16 items-center justify-center rounded-2xl border border-line bg-surface p-2 transition hover:bg-surface-2 disabled:opacity-80"
+              data-memory-option={option}
+              aria-label={`${option}`}
+            >
+              <svg viewBox="0 0 120 68" className="h-10 w-full" aria-hidden="true">
+                <path d={guidedContourPath(option)} fill="none" stroke="currentColor" strokeWidth={5} strokeLinecap="round" className="text-ink-soft" />
+              </svg>
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 min-h-5 text-sm font-medium text-ink-soft" role="status" data-testid="tone-trace-message" data-memory-result={memoryResult ?? ""}>
+          {memoryResult ? memoryChoiceFeedback(memoryResult === "correct") : ""}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full flex-col items-center" data-tone-trace={tone} data-trace-level={level} data-trace-completions={completions}>
