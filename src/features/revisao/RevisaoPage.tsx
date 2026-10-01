@@ -64,6 +64,7 @@ import {
   feedbackExplanationIsRedundant,
   reviewOccurrenceAt,
   reviewRoundPosition,
+  reviewSurfaceTarget,
 } from "../../lib/reviewSessionComposer";
 import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { trackFunnelEvent } from "../../services/funnelEvents";
@@ -76,6 +77,7 @@ import { useProOffer } from "../../hooks/useProOffer";
 import {
   buildReviewExercise,
   buildReviewExerciseFromMistake,
+  resolveReviewEntity,
   type ReviewExercise,
   type ReviewMatchPair,
   type ReviewOption,
@@ -84,6 +86,7 @@ import {
 import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 /** Troca o nome-modelo (Matheus/Matheus) pelo nome do aluno nas frases da revisão. */
 function personalizeReviewExercise(
@@ -127,8 +130,17 @@ function personalizeReviewExercise(
 
 /** Tamanho de cada rodada no drill de pontos fracos. */
 /** RC2.2.19 — alvo pedagógico da entrada (mesmo hànzì/palavra em domínios diferentes = mesmo alvo). */
+// RC2.2.20 — pela FORMA: 你好 como vocabulário e 你好 como frase são o mesmo
+// alvo para o aluno (repetição semântica), mesmo com IDs diferentes.
+const reviewSurfaceCache = new Map<string, string>();
 function reviewTargetOf(entry: { item: SRSItem }): string {
-  return `${entry.item.type}:${entry.item.itemId}`;
+  const key = `${entry.item.type}:${entry.item.itemId}`;
+  let target = reviewSurfaceCache.get(key);
+  if (target == null) {
+    target = reviewSurfaceTarget(key, resolveReviewEntity(entry.item)?.hanzi);
+    reviewSurfaceCache.set(key, target);
+  }
+  return target;
 }
 interface Resolved {
   type: SRSItem["type"];
@@ -1244,6 +1256,8 @@ function ReviewInsightGroup({
 }
 
 export function RevisaoPage() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("review_open"), []);
   const { t, instructionLocale: locale } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const srs = useStore((s) => s.srs);

@@ -1,0 +1,22 @@
+{
+  "wave": "RC2.2.22",
+  "title": "Closed Beta Candidate (human learning & cross-device validation)",
+  "parentWave": "RC2.2.21",
+  "strategy": "STACKED",
+  "stack": [
+    "RC2.2.19 / #292 (merged 3eb7df13)",
+    "RC2.2.20 (b43ca446, inside #294)",
+    "RC2.2.21 / #294",
+    "RC2.2.22"
+  ],
+  "baseBranch": "claude/rc2-2-21-mobile-native-stability",
+  "RC2_2_22_BASE_SHA": "cc66db9dd5cfed9800dc4d6d1a60167f66902ed6",
+  "baseCapturedFrom": "HEAD real do #294 no início da onda (inclui o fix de npm audit cc66db9d), não 579f6527",
+  "parentPr": 294,
+  "mainAtStart": "3eb7df133f2826ce70bc9e347a7d4cc705fccbc4",
+  "branch": "claude/rc2-2-22-closed-beta-candidate",
+  "prTargetWhileParentOpen": "claude/rc2-2-21-mobile-native-stability",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "note": "Se o #294 receber novas correções de CI, a branch desta onda faz merge da branch do #294 (nunca cherry-pick, nunca recriar commits)."
+}

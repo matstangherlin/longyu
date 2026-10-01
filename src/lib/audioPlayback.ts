@@ -17,6 +17,10 @@
  */
 import { isTTSAvailable, speak, getNativeTtsUnavailableReason, usesNativeVoice, noteUserGesture } from "./tts";
 import { traceCurrentLessonStep } from "./lessonStepTrace";
+import { deviceQaEnabled, recordDeviceQaObservation } from "./deviceQa";
+import { claimAudio, releaseAudio } from "./audioArbiter";
+import { recordTechEvent, type TechEventName } from "./techEvents";
+import { stopSpeaking } from "./tts";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -40,6 +44,13 @@ export interface PlaybackOutcome {
 
 /** Sem início neste prazo = falha perceptível, não espera infinita (Part J). */
 export const PLAYBACK_START_TIMEOUT_MS = 6000;
+
+/**
+ * RC2.2.22 — WebKit/Firefox às vezes disparam onstart e nunca onend. Sem teto
+ * depois do start, o Continuar do contraste (e qualquer UI que espere a
+ * Promise) fica disabled para sempre. Consideramos ENDED e soltamos o áudio.
+ */
+export const PLAYBACK_END_TIMEOUT_MS = 8_000;
 
 /**
  * Asset canônico gravado por falante, se existir para o texto. A auditoria
@@ -76,14 +87,30 @@ const trace: PlaybackTraceEntry[] = [];
 
 function traceEnabled(): boolean {
   try {
+    // RC2.2.20 — também no APK de diagnóstico / Preview / QA Candidate.
+    if (deviceQaEnabled()) return true;
     return Boolean(import.meta.env?.DEV) || import.meta.env?.VITE_USE_TEST_FIXTURES === "true";
   } catch {
     return false;
   }
 }
 
+const TECH_EVENT_FOR: Record<PlaybackTraceEntry["event"], TechEventName> = {
+  request: "audio_requested",
+  start: "audio_started",
+  end: "audio_ended",
+  error: "audio_failed",
+  timeout: "audio_failed",
+  unavailable: "audio_failed",
+};
+
 function record(entry: PlaybackTraceEntry): void {
   if (!traceEnabled()) return;
+  // RC2.2.21 — mesmo evento no buffer técnico do /qa/device (sem o texto).
+  recordTechEvent(TECH_EVENT_FOR[entry.event], { engine: entry.engine, reason: entry.reason ?? null });
+  if (entry.event === "error" || entry.event === "timeout" || entry.event === "unavailable") {
+    recordDeviceQaObservation("audio_failed", `${entry.engine} · ${entry.event}${entry.reason ? ` · ${entry.reason}` : ""}`);
+  }
   // RC2.2.19 — o mesmo pedido/início aparece na trilha do passo atual.
   if (entry.event === "request") traceCurrentLessonStep("audio_requested");
   else if (entry.event === "start") traceCurrentLessonStep("audio_started");
@@ -106,6 +133,8 @@ export interface PlayMandarinOptions {
   rate?: number;
   onState?: (state: PlaybackState, outcome: PlaybackOutcome) => void;
   startTimeoutMs?: number;
+  /** Teto após onstart quando o motor não dispara onend (default: PLAYBACK_END_TIMEOUT_MS). */
+  endTimeoutMs?: number;
 }
 
 function engineFor(text: string): PlaybackEngine {
@@ -153,10 +182,19 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
   return new Promise((resolve) => {
     let settled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    /** RC2.2.21 — posse do áudio (voz modelo); liberada ao terminar/falhar. */
+    let claim: number | null = null;
+    const clearTimer = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
     const settle = () => {
       if (settled) return;
       settled = true;
-      if (timer) clearTimeout(timer);
+      clearTimer();
+      if (claim != null) releaseAudio("TTS", claim);
       if (token !== generation) outcome.superseded = true;
       resolve({ ...outcome });
     };
@@ -181,17 +219,34 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
 
     noteUserGesture();
+    // A voz modelo interrompe gravação/reprodução própria/escuta em curso.
+    claim = claimAudio("TTS", () => stopSpeaking());
     emit("STARTING");
+
+    const armEndTimeout = () => {
+      clearTimer();
+      timer = setTimeout(() => {
+        if (settled) return;
+        // Motor confirmou início mas não fechou — corta e libera a UI.
+        try {
+          stopSpeaking();
+        } catch {
+          /* ignore */
+        }
+        outcome.ended = true;
+        outcome.reason = outcome.reason ?? "NO_END_TIMEOUT";
+        record({ at: Date.now(), engine, event: "end", reason: "NO_END_TIMEOUT" });
+        emit("ENDED");
+        settle();
+      }, options.endTimeoutMs ?? PLAYBACK_END_TIMEOUT_MS);
+    };
 
     const onStart = () => {
       if (settled || outcome.started) return;
       outcome.started = true;
       record({ at: Date.now(), engine, event: "start" });
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
       emit("PLAYING");
+      armEndTimeout();
     };
     const onError = (reason?: string) => {
       if (settled) return;

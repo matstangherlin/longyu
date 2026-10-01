@@ -1,0 +1,232 @@
+{
+  "schema": "longyu-rc2-2-22-closed-beta-readiness/1",
+  "wave": "RC2.2.22",
+  "baseSha": "cc66db9dd5cfed9800dc4d6d1a60167f66902ed6",
+  "states": [
+    "NOT_READY",
+    "PRE_CANDIDATE",
+    "CANDIDATE",
+    "CLOSED_BETA_READY"
+  ],
+  "declaredState": "PRE_CANDIDATE",
+  "rules": {
+    "PRE_CANDIDATE": [
+      "CODE_GREEN",
+      "SECURITY_GREEN",
+      "ANDROID_BUILD_GREEN"
+    ],
+    "CANDIDATE": [
+      "P0_OPEN = 0",
+      "RELEASE_BLOCKING_P1 = 0",
+      "SELF_PLAYBACK_AUDIBLE = PASS (físico)",
+      "TTS_CRITICAL = PASS (físico)",
+      "MOBILE_SIGNUP = PASS (físico)",
+      "PASSWORD_RECOVERY = PASS (físico)",
+      "sem beco sem saída em lição crítica"
+    ],
+    "CLOSED_BETA_READY": [
+      "LESSON_ADVANCE = PASS",
+      "GUIDANCE = PASS",
+      "LIFECYCLE = PASS",
+      "PLAY_INTERNAL_INSTALL = PASS (build da Play)",
+      "N_TO_N_PLUS_1 = PASS (update pela Play)",
+      "matriz física crítica = PASS"
+    ]
+  },
+  "code": {
+    "status": "PASS",
+    "evidence": "validate:beta completo + Portão de qualidade e E2E do #294 verdes em cc66db9d"
+  },
+  "security": {
+    "productionAudit": "PASS",
+    "fullAudit": "PASS",
+    "gitleaks": "PASS",
+    "codeql": "PASS",
+    "triage": "docs/release/rc2-2-22-security-triage.json"
+  },
+  "androidBuild": {
+    "status": "PASS",
+    "evidence": "job 'Android foundation (contratos + debug APK/AAB)' verde no #294 (cc66db9d). É build de debug: NÃO é assinatura de release nem Play."
+  },
+  "bugs": {
+    "p0Open": 0,
+    "releaseBlockingP1": 8,
+    "source": "docs/release/rc2-2-21-mobile-bugs.json (herdado; 8 P1 aguardando reteste físico)"
+  },
+  "criticalLessonDeadEnd": false,
+  "criticalLessonDeadEndEvidence": "contratos de avanço (gates RC2.2.14/2.2.17/2.2.20) e fallback de fala sempre com Continuar; físico pendente",
+  "physical": {
+    "selfPlaybackAudible": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "ttsCritical": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "lessonAdvance": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "mobileSignup": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "passwordRecovery": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "guidance": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "lifecycle": {
+      "status": "NOT_RUN",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    }
+  },
+  "physicalOwnerDevice": {
+    "status": "NOT_RUN",
+    "deviceClass": "OWNER_DEVICE",
+    "note": "aparelho do owner ainda não registrou nenhum teste"
+  },
+  "physicalSecondaryDevices": {
+    "status": "NOT_RUN",
+    "available": [],
+    "note": "nenhum aparelho secundário disponível/registrado — não inventado"
+  },
+  "play": {
+    "internalInstall": {
+      "status": "BLOCKED_OWNER_ACTION",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    },
+    "nToNPlus1": {
+      "status": "BLOCKED_OWNER_ACTION",
+      "evidenceType": null,
+      "buildChannel": null,
+      "testedAt": null,
+      "versionCode": null
+    }
+  },
+  "playInternal": {
+    "status": "BLOCKED_OWNER_ACTION",
+    "ownerActions": [
+      {
+        "id": "playPackageConfirmation",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "developerVerification",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "uploadKey",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "uploadKeyBackup1",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "uploadKeyBackup2",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "githubEnvironments",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "signedAab",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "playAppSigning",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "internalTrack",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "playInstall",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "nToNPlus1",
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      {
+        "id": "storeAssets",
+        "status": "OWNER_ACTION_REQUIRED"
+      }
+    ],
+    "sequence": "Internal Testing primeiro (owner + QA de confiança); Closed só depois do gate. Comparar QA APK × Play Internal: divergência = P1 até entender."
+  },
+  "auth": {
+    "signup": "NOT_RUN",
+    "confirmation": "NOT_RUN",
+    "login": "NOT_RUN",
+    "logout": "NOT_RUN",
+    "relogin": "NOT_RUN",
+    "forgotPassword": "NOT_RUN"
+  },
+  "audio": {
+    "ttsCriticalSurfaces": "NOT_RUN",
+    "selfPlaybackAudible": "NOT_RUN",
+    "bluetoothRoute": "NOT_RUN",
+    "focusLoss": "NOT_RUN"
+  },
+  "speech": {
+    "recognizerMatrix": "NOT_RUN",
+    "selfCompareAlwaysAvailable": "CODE_PASS",
+    "note": "reconhecimento pode falhar por aparelho; Gravar e comparar precisa funcionar sempre"
+  },
+  "upgrade": {
+    "nToNPlus1ThroughPlay": "BLOCKED_OWNER_ACTION",
+    "noGuidanceReset": "CODE_PASS",
+    "noRewardDuplication": "CODE_PASS"
+  },
+  "humanQa": {
+    "status": "NOT_STARTED",
+    "sessions": 0,
+    "testers": [],
+    "plan": "docs/reports/rc2-2-22-human-learning-validation.md"
+  },
+  "PUBLIC_BETA": "NO_GO",
+  "CLOSED_BETA": "NO_GO",
+  "allowedBeforeGate": [
+    "QA build",
+    "Internal testing",
+    "trusted-device testing",
+    "human UX validation"
+  ],
+  "package": "longyu.noba.com",
+  "androidInAppPurchase": "DISABLED_FOR_BETA",
+  "productionPlay": "NOT_ENABLED",
+  "pr273": "FROZEN",
+  "prOpenedAutomatically": false
+}

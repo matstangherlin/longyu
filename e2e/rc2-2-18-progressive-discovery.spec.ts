@@ -221,9 +221,9 @@ test.describe("RC2.2.18 · desbloqueios", () => {
     const reveal = page.locator('[data-guidance-id="culture_unlocked_v1"]');
     await expect(reveal).toBeVisible({ timeout: 8_000 });
     await expect(surfaces(page)).toHaveCount(1);
-    await expect(reveal.getByText(/cultura por trás do idioma/)).toBeVisible();
+    await expect(reveal.getByText(/usadas no dia a dia/)).toBeVisible();
     await expect(reveal.getByText(/ganhou/i)).toHaveCount(0);
-    await reveal.getByRole("button", { name: "Entendi" }).or(reveal.getByRole("button", { name: "Explorar" })).first().click();
+    await reveal.getByRole("button", { name: "Entendi" }).or(reveal.getByRole("button", { name: "Conhecer" })).first().click();
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await page.waitForTimeout(1_200);

@@ -1,8 +1,11 @@
+import { deviceQaEnabled } from "./deviceQa";
+import { recordTechEvent } from "./techEvents";
+
 /**
  * RC2.2.14 · DH — rastro estruturado de conclusão/avanço de passos.
  *
- * Só em DEV ou em builds com fixtures de teste (E2E/preview): nunca em
- * produção. Sem PII e sem resposta do aluno: lição, índice, tipo, tentativa e
+ * Só em DEV, builds de fixtures (E2E), Preview/QA Candidate ou build com
+ * `VITE_DEVICE_QA=true` (RC2.2.20): nunca na Production Beta comum. Sem PII e sem resposta do aluno: lição, índice, tipo, tentativa e
  * o evento. O E2E lê `window.__longyuLessonTrace` para provar que todo
  * "completed" é seguido de "advanced" (ou "finished") e que nenhum passo
  * ficou "stalled".
@@ -58,10 +61,23 @@ type TraceWindow = Window & { __longyuLessonTrace?: LessonStepTraceEntry[] };
 
 function traceEnabled(): boolean {
   const env = (import.meta as { env?: Record<string, unknown> }).env ?? {};
+  // RC2.2.20 — também no APK de diagnóstico / build interno (`VITE_DEVICE_QA`),
+  // Preview e QA Candidate: sem isso o QA físico não prova o avanço no aparelho.
+  if (deviceQaEnabled()) return true;
   return env.DEV === true || env.VITE_USE_TEST_FIXTURES === "true";
 }
 
+/** RC2.2.21 — Continuar/avançou/travou também no buffer técnico do /qa/device. */
+const TECH_STEP_EVENT: Partial<Record<LessonStepTraceEvent, "step_continue" | "step_advanced" | "step_stalled">> = {
+  continue_pressed: "step_continue",
+  scene_continue_pressed: "step_continue",
+  advanced: "step_advanced",
+  stalled: "step_stalled",
+};
+
 export function traceLessonStep(entry: Omit<LessonStepTraceEntry, "at">): void {
+  const techEvent = TECH_STEP_EVENT[entry.event];
+  if (techEvent) recordTechEvent(techEvent, { stepIndex: entry.stepIndex, kind: entry.kind, attempt: entry.attempt });
   if (typeof window === "undefined" || !traceEnabled()) return;
   const target = window as TraceWindow;
   const list = (target.__longyuLessonTrace ??= []);
@@ -81,6 +97,11 @@ let traceContext: TraceContext | null = null;
 
 export function setLessonTraceContext(next: TraceContext | null): void {
   traceContext = next;
+}
+
+/** RC2.2.22 — lição/passo na tela, para o relato de problema do Beta QA (só ids e tipo). */
+export function currentLessonTraceContext(): { lessonId: string; stepKind: string } | null {
+  return traceContext ? { lessonId: traceContext.lessonId, stepKind: traceContext.kind } : null;
 }
 
 export function traceCurrentLessonStep(event: LessonStepTraceEvent): void {

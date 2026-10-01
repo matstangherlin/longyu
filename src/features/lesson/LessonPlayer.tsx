@@ -207,6 +207,7 @@ import {
 } from "./PieceAssembly";
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 const GUIDED_COLUMN = GUIDED_CLASS.column;
 
@@ -1910,6 +1911,8 @@ function logicalReviewItemIdFor(error: ActivityError): string {
 }
 
 export function LessonPlayer() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("lesson_open"), []);
   const { t, instructionLocale: locale } = useTranslation();
   const { lessonId } = useParams();
   const [searchParams] = useSearchParams();

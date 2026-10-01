@@ -96,7 +96,7 @@ const MUTATIONS = {
   ],
   "guidance-copy-settings": [
     ["33. texto fixo em PT", "GUIDANCE_HARDCODED_PT", src("host", '{t("guidance.common.skipAll")}', "Pular dicas")],
-    ["M46. Cultura como recompensa", "CULTURE_AS_REWARD", src("ptBR", 'title: "✨ Cultura desbloqueada",', 'title: "Você ganhou Cultura",')],
+    ["M46. Cultura como recompensa", "CULTURE_AS_REWARD", src("ptBR", 'title: "Cultura liberada",', 'title: "Você ganhou Cultura",')],
     ["M47. Missões com pressão", "MANIPULATIVE_COPY", src("ptBR", 'body: "As Missões ajudam você a manter uma rotina.",', 'body: "Complete agora para não perder!",')],
     ["M48. Dicas guiadas some de Ajustes", "SETTINGS_TOGGLE_MISSING", src("settingsPage", "          <GuidanceSettingsCard />\n", "")],
     ["M53. anúncio abre a Loja sozinho", "SHOP_AUTO_OPEN", src("orchestrator", '    primaryKey: "guidance.shopIntroduction.primary",\n', '    primaryKey: "guidance.shopIntroduction.primary",\n    primaryTo: "/loja",\n')],

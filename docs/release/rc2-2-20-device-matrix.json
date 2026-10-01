@@ -1,0 +1,315 @@
+{
+  "schema": "longyu-device-matrix/1",
+  "wave": "RC2.2.20",
+  "RC2_2_20_BASE_SHA": "3eb7df133f2826ce70bc9e347a7d4cc705fccbc4",
+  "rule": "CODE PASS, WEB/E2E PASS, screenshot automatizado e emulador não são PHYSICAL PASS. PASS exige testedAt, buildSha, versionCode, deviceClass e evidenceType, registrados por uma pessoa num Android físico (/qa/device → Copiar JSON).",
+  "statuses": [
+    "NOT_RUN",
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "NOT_APPLICABLE"
+  ],
+  "evidenceTypes": [
+    "OWNER_OBSERVED",
+    "SCREENSHOT",
+    "SCREEN_RECORDING",
+    "DIAGNOSTIC_TRACE",
+    "PLAY_INSTALL_EVIDENCE"
+  ],
+  "neverStored": [
+    "email",
+    "password",
+    "OTP",
+    "voice recording",
+    "token",
+    "PII"
+  ],
+  "deviceClasses": {
+    "OWNER_DEVICE": {
+      "available": null,
+      "model": null,
+      "androidVersion": null,
+      "note": "aparelho do owner; preenchido no 1º registro físico"
+    },
+    "SECOND_ANDROID": {
+      "available": false,
+      "note": "não existe hoje — nunca fingir um segundo aparelho"
+    },
+    "PLAY_BUILD": {
+      "available": false,
+      "note": "sem AAB assinado nem instalação pela Play ainda (OWNER_ACTION_REQUIRED)"
+    },
+    "DEBUG_DIAGNOSTIC_BUILD": {
+      "available": null,
+      "note": "APK de diagnóstico com VITE_DEVICE_QA=true; vale para diagnóstico, não para certificação final"
+    }
+  },
+  "accounts": {
+    "ACCOUNT_A": {
+      "kind": "fresh",
+      "expectedInitialNav": [
+        "Jornada",
+        "Praticar",
+        "Mais"
+      ],
+      "status": "NOT_RUN"
+    },
+    "ACCOUNT_B": {
+      "kind": "mature_pre_guidance_v2",
+      "expect": "nada re-tranca; orientação nunca vista continua elegível (1/sessão)",
+      "status": "NOT_RUN"
+    }
+  },
+  "physicalCriticalMatrix": "NOT_PASS",
+  "tests": {
+    "guidanceShownOnDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "guidanceMatureAccountNoRelock": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "guidedTryAudioDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "conversationContinueDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "nativeSpeechRecognitionZhCn": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "selfCompareRecordingPlayback": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "mobileSignupDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "passwordRecoveryOtpDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "reviewRoundsDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "storySceneDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": false
+    },
+    "profileAccountLogoutDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": true
+    },
+    "articulationDiagramsDevice": {
+      "status": "NOT_RUN",
+      "testedAt": null,
+      "buildSha": null,
+      "versionCode": null,
+      "deviceClass": null,
+      "evidenceType": null,
+      "note": null,
+      "critical": false
+    }
+  },
+  "checklists": {
+    "guidance": {
+      "freshAccountPopupObserved": "NOT_RUN",
+      "matureAccountPopupObserved": "NOT_RUN",
+      "noRelock": "NOT_RUN",
+      "entendiPersists": "NOT_RUN",
+      "skipPersists": "NOT_RUN",
+      "snoozeBehaves": "NOT_RUN",
+      "budgetConfirmed": "NOT_RUN",
+      "cultureReturnConfirmed": "NOT_RUN",
+      "androidBackConfirmed": "NOT_RUN"
+    },
+    "journey": {
+      "first20PhysicallyWalked": "NOT_RUN",
+      "noDeadEnd": "NOT_RUN",
+      "noLegacyVisualRegressions": "NOT_RUN",
+      "noExcessiveCardNesting": "NOT_RUN",
+      "keyboardSafe": "NOT_RUN",
+      "safeAreaSafe": "NOT_RUN",
+      "conversationAdvances": "NOT_RUN",
+      "tonesGuided": "NOT_RUN",
+      "hanziLegible": "NOT_RUN"
+    },
+    "audio": {
+      "guidedTry": "NOT_RUN",
+      "journey": "NOT_RUN",
+      "tone": "NOT_RUN",
+      "culture": "NOT_RUN",
+      "immersion": "NOT_RUN",
+      "review": "NOT_RUN",
+      "atlas": "NOT_RUN",
+      "placement": "NOT_RUN"
+    },
+    "speech": {
+      "permission": "NOT_RUN",
+      "recognizer": "NOT_RUN",
+      "zhCn": "NOT_RUN",
+      "modelState": "NOT_RUN",
+      "recognitionAttempt": "NOT_RUN",
+      "fallback": "NOT_RUN",
+      "recording": "NOT_RUN",
+      "fileProof": "NOT_RUN",
+      "playback": "NOT_RUN",
+      "noDeadEnd": "NOT_RUN"
+    },
+    "auth": {
+      "signupAndroid": "NOT_RUN",
+      "emailConfirmation": "NOT_RUN",
+      "sessionRestore": "NOT_RUN",
+      "finalization": "NOT_RUN",
+      "journeyEntry": "NOT_RUN",
+      "otpReceived": "NOT_RUN",
+      "otpVerified": "NOT_RUN",
+      "newPasswordSaved": "NOT_RUN",
+      "loginWithNewPassword": "NOT_RUN",
+      "oldPasswordRejected": "NOT_RUN",
+      "noAccountEnumeration": "NOT_RUN"
+    },
+    "review": {
+      "round5to8": "NOT_RUN",
+      "targetGap": "NOT_RUN",
+      "transformedRepetition": "NOT_RUN",
+      "largeHanzi": "NOT_RUN",
+      "conciseFeedback": "NOT_RUN",
+      "atlas": "NOT_RUN",
+      "gloss": "NOT_RUN",
+      "audio": "NOT_RUN"
+    },
+    "immersion": {
+      "contextVisible": "NOT_RUN",
+      "castVisible": "NOT_RUN",
+      "speakerObvious": "NOT_RUN",
+      "bubblesReadable": "NOT_RUN",
+      "choiceDockUsable": "NOT_RUN",
+      "reactionsClear": "NOT_RUN",
+      "audioWorks": "NOT_RUN",
+      "glossWorks": "NOT_RUN",
+      "recapBeforeRewards": "NOT_RUN"
+    },
+    "profile": {
+      "avatarToProfile": "NOT_RUN",
+      "coachmark": "NOT_RUN",
+      "usernameVisible": "NOT_RUN",
+      "medalsVisible": "NOT_RUN",
+      "personalizationDiscoverable": "NOT_RUN",
+      "amigosEntry": "NOT_RUN",
+      "contaDiscoverable": "NOT_RUN",
+      "aparenciaDiscoverable": "NOT_RUN",
+      "sairDiscoverable": "NOT_RUN",
+      "excluirSeparated": "NOT_RUN"
+    },
+    "stability": {
+      "longSession20to30min": "NOT_RUN",
+      "backgroundResume": "NOT_RUN",
+      "processDeathRestore": "NOT_RUN",
+      "offlineStart": "NOT_RUN",
+      "networkLossRecovery": "NOT_RUN"
+    },
+    "performance": {
+      "baselineCaptured": "NOT_RUN",
+      "marks": {
+        "first_interactive": null,
+        "journey_open": null,
+        "lesson_open": null,
+        "review_open": null,
+        "immersion_open": null,
+        "atlas_open": null
+      }
+    }
+  },
+  "lessonWalk": {
+    "first20": "NOT_RUN",
+    "sample": {
+      "intermediate": 5,
+      "advanced": 5,
+      "culture": 2,
+      "conversation": 2,
+      "tone": 4,
+      "hanzi": 4,
+      "freeProduction": 2
+    },
+    "viewportClasses": [
+      "360x640",
+      "375x667",
+      "390x844"
+    ],
+    "status": "NOT_RUN"
+  }
+}

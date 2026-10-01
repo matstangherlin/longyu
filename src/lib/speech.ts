@@ -18,7 +18,19 @@ import {
   type NativePermission,
   type NativeRecognitionSupport,
 } from "./platform/nativeSpeech";
-import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, type RecognitionCapability } from "./recognitionCapability";
+import { canOfferModelDownload, deriveRecognitionCapability, languageSupportFor, recognizerStrategyFor, type RecognitionCapability } from "./recognitionCapability";
+import type { NativeRecognitionDiagnostics } from "./platform/nativeSpeech";
+
+/** Lazy: top-level techEvents → deviceQa → import.meta.env quebra o require TS dos gates (Node CJS). */
+function emitMicPermissionPrompted() {
+  void import("./techEvents")
+    .then(({ recordTechEvent }) => {
+      recordTechEvent("permission_prompted", { permission: "microphone" });
+    })
+    .catch(() => {
+      /* contexto de gate/CJS sem buffer de QA */
+    });
+}
 
 // ── RC2.2.13 — fala do aluno no Android ────────────────────────────────────
 //
@@ -154,6 +166,7 @@ export async function ensureMicPermission(): Promise<MicPermission> {
   if (hasNativeSpeech()) {
     // Permissão do SO (RECORD_AUDIO). Pedido em contexto, no toque em "Falar".
     const current = (await nativeRecognitionStatus()).microphone;
+    if (current !== "granted") emitMicPermissionPrompted();
     const state = current === "granted" ? current : await requestNativeMicrophone();
     nativeMicState = state;
     return state === "granted" ? "granted" : "denied";
@@ -193,6 +206,8 @@ export type RecognizeErrorCode =
   | "start-failed"
   | "busy"
   | "language-unavailable"
+  // RC2.2.20 — o prazo da sessão acabou sem ouvir nada (≠ "no-speech" do motor).
+  | "timeout"
   | "error";
 
 function mapError(code?: string): RecognizeErrorCode {
@@ -219,6 +234,8 @@ function mapError(code?: string): RecognizeErrorCode {
     case "language-unavailable":
     case "language-not-supported":
       return "language-unavailable";
+    case "timeout":
+      return "timeout";
     default:
       return "error";
   }
@@ -246,6 +263,11 @@ export function mapNativeRecognitionError(code: string): RecognizeErrorCode {
       return "unsupported";
     case "CANCELLED":
       return "aborted";
+    // RC2.2.21 — ERROR_CLIENT (5) é falha genérica do cliente: tentar de
+    // novo pode funcionar, mas nunca em loop (ver PronunciationPractice).
+    case "CLIENT":
+    case "SERVER":
+      return "error";
     default:
       return "error";
   }
@@ -276,6 +298,8 @@ export function speechErrorMessage(code: RecognizeErrorCode | string): string {
       return "Escuta interrompida. Toque em De novo e fale em seguida.";
     case "no-speech":
       return "Não consegui ouvir. Fale um pouco mais perto do mic.";
+    case "timeout":
+      return "O tempo acabou antes de ouvir sua voz. Toque em Falar e diga a frase logo em seguida.";
     case "start-failed":
       return "Não deu para iniciar o microfone. Tente de novo.";
     default:
@@ -421,11 +445,12 @@ export function recognizeOnce(
     finishErr(code);
   };
 
+  let timedOut = false;
   rec.onend = () => {
     if (settled) return;
     const heard = bestTranscript();
     if (heard) finishOk(heard);
-    else finishErr("no-speech");
+    else finishErr(timedOut ? "timeout" : "no-speech");
   };
 
   timer = setTimeout(() => {
@@ -433,10 +458,11 @@ export function recognizeOnce(
     const heard = bestTranscript();
     if (heard) finishOk(heard);
     else {
+      timedOut = true;
       try {
         rec.stop();
       } catch {
-        finishErr("no-speech");
+        finishErr("timeout");
       }
     }
   }, timeoutMs);
@@ -478,7 +504,17 @@ function recognizeOnceNative(
     settled = true;
     fn();
   };
-  void nativeRecognize(Math.min(timeoutMs, 15_000)).then((result) => {
+  const preferOnDevice = recognizerStrategyFor(mandarinSupport) === "ON_DEVICE";
+  lastNativeRecognition = null;
+  void nativeRecognize(Math.min(timeoutMs, 15_000), { preferOnDevice }).then((result) => {
+    lastNativeRecognition = {
+      recognizer: result.recognizer,
+      requestedLocale: result.requestedLocale,
+      usedLocale: result.usedLocale,
+      signalDetected: result.signalDetected,
+      peakRmsBucket: result.peakRmsBucket,
+      rawCode: result.ok ? null : result.code,
+    };
     if (result.ok) {
       const best = result.matches.find((match) => match.trim()) ?? "";
       settle(() => (best ? onResult(best.trim()) : onError("no-speech")));
@@ -496,6 +532,13 @@ function recognizeOnceNative(
       void stopNativeRecognition();
     },
   };
+}
+
+/** RC2.2.21 — diagnóstico técnico da última escuta nativa (sem transcrição). */
+let lastNativeRecognition: (NativeRecognitionDiagnostics & { rawCode: string | null }) | null = null;
+
+export function lastNativeRecognitionDiagnostics(): (NativeRecognitionDiagnostics & { rawCode: string | null }) | null {
+  return lastNativeRecognition;
 }
 
 /** Cancela a escuta nativa (sair da tela, app em background). */

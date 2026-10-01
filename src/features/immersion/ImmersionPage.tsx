@@ -46,6 +46,7 @@ import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHo
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
 import { useIsPro } from "../../lib/proAccess";
+import { markDevicePerf } from "../../lib/devicePerf";
 
 const MODE_META: Record<ImmersionMode, { label: string; instruction: string; icon: typeof IconSound }> = {
   listen_repeat: {
@@ -260,6 +261,8 @@ function storySkill(step: StoryStep): ActivityErrorSkill {
 }
 
 export function ImmersionPage() {
+  // RC2.2.20 — tempo medido no aparelho (/qa/device); só números, sem PII.
+  useEffect(() => markDevicePerf("immersion_open"), []);
   const { t } = useTranslation();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
