@@ -5,7 +5,7 @@
  *   embeddedSourceHeadSha == github.event.pull_request.head.sha
  *   embeddedWorkflowSha    == GITHUB_SHA
  *
- * NÃO comparar simplesmente GITHUB_SHA == PR HEAD.
+ * não comparar simplesmente GITHUB_SHA == PR HEAD.
  * O merge sintético de CI (workflowSha) é NORMAL — não significa APK antigo.
  */
 export type BuildProvenanceVerdict = "MATCH" | "TEST_INVALID" | "UNKNOWN";
@@ -69,7 +69,7 @@ export function buildProvenanceVerdict(input: BuildProvenanceInput): BuildProven
   if (workflow && embeddedWorkflow && !shaMatches(workflow, embeddedWorkflow)) return "TEST_INVALID";
   if (workflow && installedWorkflow && !shaMatches(workflow, installedWorkflow)) return "TEST_INVALID";
 
-  // Regra explícita: NÃO falhar só porque merge SHA ≠ source HEAD.
+  // Regra explícita: não falhar só porque merge SHA ≠ source HEAD.
   if (workflow && sourceHead && !shaMatches(workflow, sourceHead)) {
     // Isso é ESPERADO em PR builds. Continua MATCH se source bateu.
   }

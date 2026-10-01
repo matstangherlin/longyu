@@ -1,7 +1,7 @@
 /**
  * RC2.2.28 — tipos do manifesto canônico de áudio.
  *
- * NÃO usar texto cru como ID. Usar chave estável:
+ * não usar texto cru como ID. Usar chave estável:
  *   audio:foundation:nihao:v1
  *   conversation:store:greeting:chenmei:v1
  */

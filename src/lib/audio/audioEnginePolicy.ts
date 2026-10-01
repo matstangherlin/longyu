@@ -5,7 +5,7 @@
  * DYNAMIC_CONTENT → TTS permitido (nome do aluno, QA, frases geradas).
  * QA              → override explícito permitido.
  *
- * O curso NÃO pergunta se o telefone tem voz chinesa para decidir se a aula
+ * O curso não pergunta se o telefone tem voz chinesa para decidir se a aula
  * funciona. A frase fixa já tem (ou deve ter) o seu áudio.
  */
 export type AudioContentClass = "FIXED_CONTENT" | "DYNAMIC_CONTENT" | "QA";

@@ -206,7 +206,7 @@ function SpeechBubble({
   // RC2.2.27 — cada nó é uma fala nova (speechKey = cena:nó), pelo MESMO
   // runtime da fala manual; desmontar cancela só a fala desta bolha.
   // RC2.2.28 — audioId canônico quando o manifesto conhece a frase; áudio
-  // só DEPOIS do DOM (visible=true). Falha de áudio NÃO cancela o nó.
+  // só DEPOIS do DOM (visible=true). Falha de áudio não cancela o nó.
   useAutoSpeak(visible && autoSpeak ? audio : undefined, visible && autoSpeak, {
     rate: slowAudio ? Math.min(ttsRate, 0.65) : ttsRate,
     delayMs: 80,
@@ -1440,8 +1440,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
    * falhar, a fala nova continua na tela. O 2º argumento (nó alvo) fica só por
    * compatibilidade de assinatura — áudio nunca controla a mudança de nó.
    *
-   * RC2.2.28 — commit via conversationReducer (puro). Áudio NÃO cancela
-   * transição; promise de áudio NÃO controla nodeId.
+   * RC2.2.28 — commit via conversationReducer (puro). Áudio não cancela
+   * transição; promise de áudio não controla nodeId.
    *
    * RC2.2.29 — lock liberado no DOM visível (não só timeout). Failsafe
    * reusa o mesmo transitionId (`reuseTransitionId`).

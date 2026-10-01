@@ -1,5 +1,5 @@
 /**
- * RC2.2.29 — manifesto gerado. NÃO editar à mão.
+ * RC2.2.29 — manifesto gerado. não editar à mão.
  * Fonte: docs/reports/rc2-2-29-audio-pack.json + npm run audio:inventory
  */
 import type { AudioManifest, CanonicalAudioEntry } from "../lib/audio/audioManifestTypes";

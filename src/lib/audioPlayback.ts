@@ -4,7 +4,7 @@
  * Ordem NOVA (Part 1):
  *   CANONICAL ASSET → NATIVE MEDIA PLAYER → fallback TTS → fallback textual
  *
- * TTS NÃO é infraestrutura crítica para conteúdo fixo. Guided Try, aulas,
+ * TTS não é infraestrutura crítica para conteúdo fixo. Guided Try, aulas,
  * conversas autoradas, Review, Tone, Culture e Immersion usam asset quando
  * existir no manifesto. TTS permanece para dinâmico / QA / asset ausente.
  *
@@ -57,7 +57,7 @@ export const PLAYBACK_START_TIMEOUT_MS = 6000;
  */
 export const PLAYBACK_END_TIMEOUT_MS = 8_000;
 
-/** Re-export do manifesto — o mapa NÃO fica mais vazio. */
+/** Re-export do manifesto — o mapa não fica mais vazio. */
 export { CANONICAL_AUDIO_ASSETS };
 
 /** Códigos que significam "falta a voz chinesa", não "falhou agora". */
