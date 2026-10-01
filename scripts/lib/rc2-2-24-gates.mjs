@@ -255,8 +255,12 @@ export async function validateConversationTransition(s) {
   const goTo = body(c, goToSigLegacy) || body(c, goToSig29);
   if (!goTo) fail("CONVERSATION_GOTO_SPEAKS", FILES.conversation, "goTo existe com o contrato novo");
   if (/speak\(|playMandarinAudio|requestMandarinSpeech|\.then\(|await /.test(goTo)) fail("CONVERSATION_GOTO_SPEAKS", "goTo", "goTo não chama TTS nem espera áudio");
-  if (!/setNodeId\(target\.id\);\s*setAnswering\(false\);[\s\S]{0,160}setSpokenCount/.test(goTo)) {
-    fail("TTS_FAILURE_BLOCKS_NODE", "goTo", "valida → setNodeId → setAnswering(false) → spokenCount");
+  // RC2.2.31 — commit pedagógico via conversationReducer CONTINUE (sem setNodeId paralelo).
+  // Legado setNodeId→setAnswering→setSpokenCount ainda conta; ambos garantem nó sem TTS.
+  const commitsViaLegacy = /setNodeId\(target\.id\);\s*setAnswering\(false\);[\s\S]{0,160}setSpokenCount/.test(goTo);
+  const commitsViaReducer = /conversationReducer\(\s*prev\s*,\s*\{\s*type:\s*"CONTINUE"\s*,\s*targetNodeId:\s*target\.id/.test(goTo);
+  if (!commitsViaLegacy && !commitsViaReducer) {
+    fail("TTS_FAILURE_BLOCKS_NODE", "goTo", "valida → CONTINUE/nodeId commit sem TTS");
   }
   if (/onend\s*[:=][^;]*setNodeId|onstart\s*[:=][^;]*setNodeId|\.then\([^)]*setNodeId|\.then\([^)]*setLineIndex/.test(c)) fail("AUDIO_DRIVES_NODE", FILES.conversation, "proibido: onend/onstart/promise de áudio → nó");
   if (!/setStall\(expected\)/.test(c) || !/data-testid="conversation-dom-stall"/.test(c)) fail("CONVERSATION_DOM_STALL_UNDETECTED", FILES.conversation, "nó esperado ausente → CONVERSATION_DOM_STALL com retry");

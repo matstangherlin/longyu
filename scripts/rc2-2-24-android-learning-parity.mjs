@@ -56,8 +56,8 @@ const MUTATIONS = {
     ["último passo espera o áudio", "AUDIO_GATES_LAST_STEP", src("guidedTry", '    if (choice.correct && step === "conversation") void playMandarinAudio("你好");', '    if (choice.correct && step === "conversation") void playMandarinAudio("你好").then(() => go("done"));')],
   ],
   "conversation-transition": [
-    ["[6] goTo depende do áudio", "CONVERSATION_GOTO_SPEAKS", src("conversation", "    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });\n    setNodeId(target.id);", "    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });\n    speak(String(_speakTarget?.hanzi ?? \"\"));\n    setNodeId(target.id);")],
-    ["[7] falha do TTS impede setNodeId", "TTS_FAILURE_BLOCKS_NODE", src("conversation", "    setNodeId(target.id);\n    setAnswering(false);\n    if (!opts?.reuseTransitionId) setSpokenCount((count) => count + 1);", "    setAnswering(false);\n    if (!opts?.reuseTransitionId) setSpokenCount((count) => count + 1);")],
+    ["[6] goTo depende do áudio", "CONVERSATION_GOTO_SPEAKS", src("conversation", "    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });", "    speak(String(_speakTarget?.hanzi ?? \"\"));\n    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });")],
+    ["[7] falha do TTS impede setNodeId", "TTS_FAILURE_BLOCKS_NODE", src("conversation", "    setRuntime((prev) =>\n      conversationReducer(prev, { type: \"CONTINUE\", targetNodeId: target.id, transitionId })\n    );", "    /* CONTINUE omitted — TTS would gate the node */")],
     ["[8] Continue registra toque mas DOM não muda (stall não detectado)", "CONVERSATION_DOM_STALL_UNDETECTED", src("conversation", "        setStall(expected);\n", "")],
     ["[9] V1 não avança", "CONVERSATION_V1_STUCK", src("conversation", "      setLineIndex((index) => index + 1);\n      return;", "      return;")],
     ["[10] V2 sem marca do nó visível", "CONVERSATION_DOM_STALL_UNDETECTED", src("conversation", "        <div data-conversation-current-node={node.id}>", "        <div>")],
