@@ -43,12 +43,20 @@ export type NativeAppVersion = { versionName: string; versionCode: number };
 
 /** Android: versionName/versionCode do APK instalado. Web: null. */
 export async function getNativeAppVersion(): Promise<NativeAppVersion | null> {
+  const info = await getNativeAppInfo();
+  return info ? { versionName: info.versionName, versionCode: info.versionCode } : null;
+}
+
+export type NativeAppInfo = NativeAppVersion & { packageName: string };
+
+/** RC2.2.20 — /qa/device: versão + package do APK instalado. Web: null. */
+export async function getNativeAppInfo(): Promise<NativeAppInfo | null> {
   if (!isNativePluginAvailable("App")) return null;
   try {
     const { App } = await import("@capacitor/app");
     const info = await App.getInfo();
     const versionCode = Number(info.build);
-    return Number.isInteger(versionCode) ? { versionName: info.version, versionCode } : null;
+    return Number.isInteger(versionCode) ? { versionName: info.version, versionCode, packageName: info.id } : null;
   } catch {
     return null;
   }

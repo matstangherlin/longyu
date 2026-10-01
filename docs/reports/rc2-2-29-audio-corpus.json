@@ -1,0 +1,13 @@
+{
+  "schema": "longyu-audio-corpus/2",
+  "wave": "RC2.2.29",
+  "generatedAt": "2026-10-01T09:40:00.000Z",
+  "uniqueUtterances": 660,
+  "references": 4369,
+  "fixedContentMissingAudio": 0,
+  "dynamicOnly": 7,
+  "manifestCount": 657,
+  "corePackCount": 15,
+  "extendedCount": 642,
+  "note": "As 7 remaining missing são DYNAMIC_TTS (nome/latin). FIXED_CONTENT_MISSING_AUDIO = 0."
+}

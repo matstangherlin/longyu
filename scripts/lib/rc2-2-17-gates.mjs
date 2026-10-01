@@ -203,7 +203,8 @@ export async function validateAudioPlaybackTruth(s) {
   const play = fnBody(guided, "function playNihao(");
   const heardAt = play.indexOf('setAudioResult("AUDIO_HEARD")');
   const startedAt = play.indexOf("if (outcome.started)");
-  if (!/playMandarinAudio\(NIHAO\.hanzi/.test(play) || startedAt < 0 || heardAt < startedAt || /setHeard\(true\)/.test(guided))
+  // RC2.2.27 — o mesmo pedido agora passa pelo runtime unificado (requestMandarinSpeech).
+  if (!/(playMandarinAudio\(NIHAO\.hanzi|requestMandarinSpeech\(\{\s*text: NIHAO\.hanzi)/.test(play) || startedAt < 0 || heardAt < startedAt || /setHeard\(true\)/.test(guided))
     fail("GUIDED_HEARD_ON_CLICK", "GuidedTryPage.tsx playNihao()", "AUDIO_HEARD só depois de outcome.started (clique ≠ ouviu)");
   if (!/const heard = listen === "HEARD" \|\| listen === "PLAYING";/.test(guided))
     fail("GUIDED_HEARD_ON_CLICK", "GuidedTryPage.tsx", "heard deriva do estado real de reprodução");
@@ -224,7 +225,7 @@ export async function validateAudioPlaybackTruth(s) {
   // A4 — voz chinesa ausente oferece instalação e reconsulta.
   if (!/return usesNativeVoice\(\) && isVoiceMissingReason\(reason\);/.test(audio) || !/reason === "TTS_LANGUAGE_MISSING_DATA"/.test(audio))
     fail("TTS_INSTALL_MISSING", "audioPlayback.ts canOfferVoiceInstall()", "TTS_LANGUAGE_MISSING_DATA oferece instalar");
-  if (!/ACTION_INSTALL_TTS_DATA/.test(plugin) || !/public void installTtsData\(PluginCall call\)/.test(plugin) || !/data-testid="guided-audio-install"/.test(guided) || !/refreshNativeTtsStatus\(\)/.test(button))
+  if (!/ACTION_INSTALL_TTS_DATA/.test(plugin) || !/public void installTtsData\(PluginCall call\)/.test(plugin) || !/data-testid="guided-audio-install"/.test(guided) || !/refreshNativeTtsStatus\((\{ reinit: true \})?\)/.test(button))
     fail("TTS_INSTALL_MISSING", "LongyuSpeechPlugin/GuidedTry/SpeakButton", "Instalar voz chinesa + refresh do status");
 
   // A5 — placement não pune falha técnica de áudio.
@@ -238,7 +239,16 @@ export async function validateAudioPlaybackTruth(s) {
     if (!/state === "PLAYING"\)\s*$/.test(before) && !/onstart: \(\) => $/.test(before))
       fail("DAILY_AUDIO_WITHOUT_PLAYBACK", "SpeakButton.tsx", "audioHeard só no início real da fala (PLAYING/onstart)");
   }
-  if (!/onStart\(String utteranceId\) \{[\s\S]{0,300}notifyListeners\("ttsState", event\)/.test(plugin) || !/utteranceId\.equals\(currentUtteranceId\)/.test(plugin))
+  // RC2.2.24 — o onStart emite TTS_STARTED correlacionado antes do ttsState.
+  // RC2.2.26 — onStart também atualiza snapshot/resolve o ACK direto.
+  // RC2.2.27 — identidade por requestForUtterance (mapa), não equals(currentUtteranceId).
+  // Continua: só a fala conhecida/corrente resolve; alienígenas retornam cedo.
+  const onStartEmits =
+    /onStart\(String utteranceId\) \{[\s\S]{0,1800}notifyListeners\("ttsState", event\)/.test(plugin);
+  const currentOnly =
+    /utteranceId\.equals\(currentUtteranceId\)/.test(plugin) ||
+    /TtsRequest request = requestForUtterance\(utteranceId\);\s*if \(request == null\) return;/.test(plugin);
+  if (!onStartEmits || !currentOnly)
     fail("TTS_START_UNCONFIRMED", "LongyuSpeechPlugin.java", "onStart do motor emite ttsState; só a fala corrente resolve");
   if (!/u\.onstart = \(\) => opts\.onstart\?\.\(\);/.test(tts)) fail("TTS_START_UNCONFIRMED", "tts.ts", "Web: onstart da utterance");
   freezeInvariants(s, fail);
@@ -266,7 +276,8 @@ export async function validateLessonAdvanceIntegrity(s) {
     fail("LATCH_DROPS_ONDONE", "steps.tsx StepRenderer", "latch repassa onDone ao player");
 
   // 9 — a chave de conclusão nunca prende o passo.
-  if (!/catch \(error\) \{[\s\S]{0,400}completedStepKeyRef\.current = null;[\s\S]{0,600}setIdx\(idx \+ 1\);/.test(player) || !/safeSideEffect\("conversation"/.test(player) || !/safeSideEffect\("pedagogy"/.test(player))
+  // RC2.2.24 — o avanço passa por selectNextStep (prova de render da etapa nova).
+  if (!/catch \(error\) \{[\s\S]{0,400}completedStepKeyRef\.current = null;[\s\S]{0,600}(setIdx\(idx \+ 1\)|selectNextStep\([^)]*\));/.test(player) || !/safeSideEffect\("conversation"/.test(player) || !/safeSideEffect\("pedagogy"/.test(player))
     fail("COMPLETION_KEY_BLOCKS", "LessonPlayer.tsx handleDone()", "efeito colateral isolado; falha libera a chave e avança");
 
   // 10 — um toque = +1 passo.
@@ -359,7 +370,10 @@ export async function validateSpeechCapability(s) {
   if (/\bfetch\(|supabase|upload|trackPedagogyEvent|trackFunnelEvent|analytics|sendBeacon|XMLHttpRequest/i.test(recordingCode))
     fail("RECORDING_UPLOADED", "SelfComparePractice/plugin", "gravação de prática nunca vai para nuvem/analytics");
   // 20 — gravação não fica persistida.
-  if (!/discardPracticeRecording\(\);/.test(fnBody(plugin, "protected void handleOnPause(")) || !/discardPracticeRecording\(\);/.test(fnBody(plugin, "protected void handleOnDestroy(")) || !/new File\(getContext\(\)\.getCacheDir\(\), "longyu-practice\.m4a"\)/.test(plugin) || !/URL\.revokeObjectURL\(webUrlRef\.current\)/.test(selfCompare) || !/void nativeDeletePracticeRecording\(\)/.test(selfCompare))
+  // RC2.2.21 — pausa transitória interrompe microfone/reprodução; o background
+  // real (onStop) e o fechamento apagam a gravação.
+  const pauseSafe = /discardPracticeRecording\(\);/.test(fnBody(plugin, "protected void handleOnPause(")) || (/interruptPractice\(\);/.test(fnBody(plugin, "protected void handleOnPause(")) && /discardPracticeRecording\(\);/.test(fnBody(plugin, "protected void handleOnStop(")));
+  if (!pauseSafe || !/discardPracticeRecording\(\);/.test(fnBody(plugin, "protected void handleOnDestroy(")) || !/new File\(getContext\(\)\.getCacheDir\(\), "longyu-practice\.m4a"\)/.test(plugin) || !/URL\.revokeObjectURL\(webUrlRef\.current\)/.test(selfCompare) || !/void nativeDeletePracticeRecording\(\)/.test(selfCompare))
     fail("RECORDING_PERSISTED", "plugin/SelfComparePractice", "cache temporário, apagado ao sair/background/nova gravação");
   // 21 — autoavaliação não dá nota.
   if (/toneScore|pronunciationAccuracy|perfectTone|accuracy\s*[:=]|\d+\s*%/.test(`${selfCompare}\n${stripComments(s.src.capability)}`))

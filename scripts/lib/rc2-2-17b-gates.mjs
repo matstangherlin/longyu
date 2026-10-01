@@ -364,7 +364,7 @@ export async function validateGuidedActionDock(s) {
     fail("TWO_PRIMARY_CTAS", "GuidedTryPage.tsx", "uma ação principal por passo");
   // T/U/CX — ouvir: revela só com áudio REAL (ou falha explícita).
   const listen = fnBody(stripComments(s.src.steps), "function GuidedStepListen(");
-  if (!/const heard = listen === "PLAYING" \|\| listen === "HEARD";/.test(listen) || !/\(heard \|\| failed\) && \(/.test(listen) || !/disabled=\{!heard && !failed\}/.test(listen) || !/playMandarinAudio\(/.test(listen))
+  if (!/const heard = listen === "PLAYING" \|\| listen === "HEARD";/.test(listen) || !/\(heard \|\| failed\) && \(/.test(listen) || !/disabled=\{!heard && !failed\}/.test(listen) || !/(playMandarinAudio|requestMandarinSpeech)\(/.test(listen))
     fail("LISTEN_CLICK_IS_HEARD", "steps.tsx GuidedStepListen", "clique ≠ ouviu; revela e libera só com evento real ou falha");
   if (/setListen\(/.test(fnBody(listen, "function play(")))
     fail("LISTEN_CLICK_IS_HEARD", "steps.tsx GuidedStepListen play()", "o toque só pede o áudio; o estado vem do motor (onState)");

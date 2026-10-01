@@ -10,7 +10,11 @@ jobs:
     name: Portão de qualidade (validate:beta + build)
     runs-on: ubuntu-latest
     steps:
+      # Full history: RC2.2.22 release-truth exige que RC2_2_22_BASE_SHA
+      # seja ancestral do HEAD (clone shallow = BASE_SHA_AMBIGUOUS falso).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -19,6 +23,20 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install ffmpeg (audio quality gates)
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          # Apt mirrors sometimes hang; fail fast and let the job retry instead of 25+ min stalls.
+          sudo DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=3 \
+            -o DPkg::Lock::Timeout=60 \
+            update -y
+          sudo DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=3 \
+            -o DPkg::Lock::Timeout=60 \
+            install -y --no-install-recommends ffmpeg
 
       - name: Validate beta
         run: npm run validate:beta

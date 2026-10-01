@@ -66,7 +66,8 @@ it(cases, "gate real passa", () => assert.deepEqual(gateReviewLearningUx(src), [
 expectMutationCaught(cases, "8. Hànzì da revisão continua pequeno", gateReviewLearningUx,
   mutate(src, "revisao", "`${REVIEW_HANZI_CLASS.main} text-ink`", '"text-3xl text-ink"'));
 expectMutationCaught(cases, "9. consulta bloqueada na revisão", gateReviewLearningUx,
-  mutate(src, "revisao", 'activation="hover-hold"\n      />', 'activation="hover-hold"\n        examMode={!revealed}\n      />'));
+  // RC2.2.23 — o TypedValue da opção ganhou um <span data-review-hanzi> em volta.
+  mutate(src, "revisao", 'activation="hover-hold"\n        />\n      </span>', 'activation="hover-hold"\n          examMode={!revealed}\n        />\n      </span>'));
 expectMutationCaught(cases, "10. consulta conta como recordação independente", gateReviewLearningUx,
   mutate(src, "revisao", "capAssistedGrade(g, reviewAssistanceUsed)", "g"));
 expectMutationCaught(cases, "11. nivelamento permite consulta", gateReviewLearningUx,

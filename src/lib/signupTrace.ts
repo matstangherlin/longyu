@@ -13,6 +13,7 @@
  */
 import { trackFunnelEvent } from "../services/funnelEvents";
 import { getBuildIdentity } from "./platform/buildIdentity";
+import { recordDeviceQaObservation } from "./deviceQa";
 
 export const SIGNUP_STAGES = [
   "signup_started",
@@ -36,8 +37,68 @@ export interface SignupTraceEntry {
   stage: SignupStage;
   outcome: "reached" | "failed";
   code?: string;
+  /** RC2.2.20 — categoria segura (sem mensagem do servidor). */
+  category?: SignupErrorCategory;
   platform: string;
   build: string;
+}
+
+/**
+ * RC2.2.20 — categorias SEGURAS de falha de cadastro. Nunca stack trace nem
+ * texto do servidor na tela: a UI escolhe a mensagem e a ação pela categoria.
+ */
+export const SIGNUP_ERROR_CATEGORIES = [
+  "NETWORK",
+  "RATE_LIMIT",
+  "SUPABASE_AUTH",
+  "EMAIL_CONFIRMATION",
+  "SESSION_RESTORE",
+  "PROFILE_BOOTSTRAP",
+  "ONBOARDING_DRAFT",
+  "TIMEOUT",
+  "UNKNOWN_SAFE",
+] as const;
+export type SignupErrorCategory = (typeof SIGNUP_ERROR_CATEGORIES)[number];
+
+/**
+ * Código já sanitizado + estágio → categoria. A rede e o limite valem em
+ * qualquer estágio; o resto é decidido pelo estágio em que parou.
+ */
+export function classifySignupError(stage: SignupStage, code: string): SignupErrorCategory {
+  const c = safeSignupErrorCode(code);
+  if (c === "TIMEOUT" || /TIMED?_?OUT/.test(c)) return "TIMEOUT";
+  if (/FAILED_TO_FETCH|NETWORK|OFFLINE|LOAD_FAILED|FETCH/.test(c)) return "NETWORK";
+  if (/429|RATE_LIMIT|TOO_MANY|OVER_.*_LIMIT/.test(c)) return "RATE_LIMIT";
+  if (/EMAIL_NOT_CONFIRMED|CONFIRM/.test(c) || stage === "confirmation_required") return "EMAIL_CONFIRMATION";
+  if (stage === "session_available") return "SESSION_RESTORE";
+  if (stage === "draft_restore_started") return "ONBOARDING_DRAFT";
+  if (stage === "profile_bootstrap_started" || stage === "finalize_started" || /PROFILE|USERNAME/.test(c)) return "PROFILE_BOOTSTRAP";
+  if (/USER_ALREADY|ALREADY_REGISTERED|WEAK_PASSWORD|INVALID|SIGNUP_DISABLED|AUTH|EMAIL_ADDRESS/.test(c) || stage === "signup_started") {
+    return "SUPABASE_AUTH";
+  }
+  return "UNKNOWN_SAFE";
+}
+
+/**
+ * Onde o "Tentar novamente" retoma com segurança (nunca recria perfil,
+ * username, conta ou recompensa de onboarding que já existem).
+ */
+export function signupRetryStage(category: SignupErrorCategory, stage: SignupStage): SignupStage {
+  switch (category) {
+    case "SUPABASE_AUTH":
+    case "RATE_LIMIT":
+      return "signup_started";
+    case "EMAIL_CONFIRMATION":
+      return "confirmation_required";
+    case "SESSION_RESTORE":
+      return "session_available";
+    case "ONBOARDING_DRAFT":
+      return "draft_restore_started";
+    case "PROFILE_BOOTSTRAP":
+      return "profile_bootstrap_started";
+    default:
+      return stage;
+  }
 }
 
 const MAX_ENTRIES = 40;
@@ -76,9 +137,11 @@ export function markSignupStage(stage: SignupStage): void {
 
 export function reportSignupFailure(stage: SignupStage, rawCode: unknown): string {
   const code = safeSignupErrorCode(rawCode);
+  const category = classifySignupError(stage, code);
   const { platform, build } = identity();
-  push({ at: Date.now(), stage, outcome: "failed", code, platform, build });
-  trackFunnelEvent("signup_failed", { stage, code, platform, build });
+  push({ at: Date.now(), stage, outcome: "failed", code, category, platform, build });
+  trackFunnelEvent("signup_failed", { stage, code, category, platform, build });
+  recordDeviceQaObservation("signup_failed", `${stage} · ${code} · ${category}`);
   return code;
 }
 

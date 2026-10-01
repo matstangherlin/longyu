@@ -40,6 +40,18 @@ if (!process.env.VITE_COMMIT_SHA?.trim()) {
   if (git.status === 0) process.env.VITE_COMMIT_SHA = git.stdout.trim();
 }
 
+// RC2.2.28 — dual SHA: source HEAD da PR ≠ merge sintético do workflow.
+if (!process.env.VITE_SOURCE_HEAD_SHA?.trim()) {
+  process.env.VITE_SOURCE_HEAD_SHA =
+    process.env.GITHUB_EVENT_PULL_REQUEST_HEAD_SHA ||
+    process.env.GITHUB_HEAD_SHA ||
+    process.env.VITE_COMMIT_SHA ||
+    "";
+}
+if (!process.env.VITE_WORKFLOW_SHA?.trim()) {
+  process.env.VITE_WORKFLOW_SHA = process.env.GITHUB_SHA || process.env.VITE_COMMIT_SHA || "";
+}
+
 const result = spawnSync(process.execPath, [viteEntry, "build", ...extraArgs], {
   cwd: root,
   stdio: "inherit",
@@ -57,12 +69,21 @@ try {
   // RC2.2.10B — mesma identidade canônica do Android (SHA é a autoridade;
   // builtAt é só informativo). Ver scripts/lib/release-identity.mjs.
   const commitSha = process.env.VITE_COMMIT_SHA || "";
+  const sourceHeadSha = process.env.VITE_SOURCE_HEAD_SHA || commitSha;
+  const workflowSha = process.env.VITE_WORKFLOW_SHA || process.env.GITHUB_SHA || commitSha;
   const branchName = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { cwd: root, encoding: "utf8" });
   const identity = {
-    schema: "longyu-build-identity/1",
+    schema: "longyu-build-identity/2",
     authority: "sha",
     commitSha,
+    // RC2.2.28 — provenance dual (Part 25).
+    sourceHeadSha,
+    workflowSha,
+    embeddedSourceHeadSha: sourceHeadSha,
+    embeddedWorkflowSha: workflowSha,
     shortSha: /^[0-9a-f]{7,40}$/.test(commitSha) ? commitSha.slice(0, 7) : "",
+    shortSourceHeadSha: /^[0-9a-f]{7,40}$/.test(sourceHeadSha) ? sourceHeadSha.slice(0, 7) : "",
+    shortWorkflowSha: /^[0-9a-f]{7,40}$/.test(workflowSha) ? workflowSha.slice(0, 7) : "",
     branch: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || process.env.BRANCH || (branchName.status === 0 ? branchName.stdout.trim() : ""),
     appVersion: process.env.VITE_APP_VERSION || "",
     platform: "web",

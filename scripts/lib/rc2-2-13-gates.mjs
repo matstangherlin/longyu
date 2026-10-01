@@ -250,7 +250,11 @@ export async function validateMobileNavigationDensity(s) {
   if (JSON.stringify(navKeys(mobileConst)) !== JSON.stringify(MOBILE_TABBAR)) fail("TABBAR_ITEMS_WRONG", "nav.tsx NAV_MOBILE", "NAV_MOBILE diverge da barra");
   if (/"\/cultura"/.test(mobileConst) || /"\/cultura"/.test(fnBody(nav, "export function mobileNavForStage("))) fail("CULTURE_UNDER_MORE_MATCH", "nav.tsx", "Mais não pode acender em /cultura");
   const moreSheet = fnBody(nav, "export function moreMobileSheetGroups(");
-  if (navKeys(moreSheet).includes("cultura")) fail("CULTURE_DUPLICATED_IN_MORE", "nav.tsx moreMobileSheetGroups", "Cultura já é aba");
+  // RC2.2.23 — Cultura pode morar no Mais enquanto não mereceu aba; nunca
+  // duplicada: só entra pelo filtro que tira o que já está na barra.
+  const cultureInMore = /\[[^\]]*NAV\.cultura[^\]]*\]\.filter\(keep\)/.test(moreSheet);
+  if (navKeys(moreSheet).includes("cultura") && (!cultureInMore || !/const keep = \(item: NavItem\) => !primaryTos\.has\(item\.to\)/.test(moreSheet)))
+    fail("CULTURE_DUPLICATED_IN_MORE", "nav.tsx moreMobileSheetGroups", "Cultura só no Mais quando não está na barra");
   const practice = navKeys(fnBody(nav, "export function practiceMobileSheetItems(")).filter((key) => key !== "revisao");
   if (!practice.includes("fala")) fail("SPEAKING_HIDDEN", "nav.tsx practiceMobileSheetItems", "Fala continua visível (também no Android)");
   if (JSON.stringify(practice) !== JSON.stringify(PRACTICE_SHEET)) fail("PRACTICE_SHEET_ORDER", "nav.tsx practiceMobileSheetItems", `${practice.join(",")} ≠ ${PRACTICE_SHEET.join(",")}`);
@@ -292,8 +296,15 @@ export async function validateNativeTts(s) {
   if (!/if \(hasNativeSpeech\(\)\) return nativeTtsKnownAvailable !== false;/.test(available))
     fail("TTS_REQUIRES_WEB_SPEECH", "tts.ts isTTSAvailable()", "no Android não depende de speechSynthesis");
   const speakNative = fnBody(tts, "function speakNative(");
-  // RC2.2.17 · C — onerror agora leva o código honesto do motor (result.code).
-  if (!/\} else \{[\s\S]*?opts\.onerror\?\.\((?:result\.code)?\);[\s\S]*?\}\s*opts\.onend\?\.\(\);/.test(speakNative))
+  // RC2.2.17 · C — falha nativa chama onerror (nunca finge que tocou).
+  // RC2.2.26 — o mesmo contrato via evento TTS_ERROR → onerror (ACK/DONE
+  // separados); o padrão clássico .then/else+onend continua aceito.
+  const classicFail =
+    /\} else \{[\s\S]*?opts\.onerror\?\.\((?:result\.code)?\);[\s\S]*?\}\s*opts\.onend\?\.\(\);/.test(speakNative);
+  const eventFail =
+    /event\.type === "TTS_ERROR"[\s\S]{0,160}opts\.onerror\?\.\(event\.code/.test(speakNative) &&
+    /type: "TTS_ERROR"[\s\S]{0,220}code: result\.code/.test(speakNative);
+  if (!classicFail && !eventFail)
     fail("TTS_FAKE_SUCCESS", "tts.ts speakNative()", "falha nativa chama onerror (nunca finge que tocou)");
   if (!/disabled=\{unavailable && !usesNativeVoice\(\)\}/.test(s.src.speakButton))
     fail("SPEAK_BUTTON_DISABLED_ON_ANDROID", "SpeakButton.tsx", "o botão não morre por falta de speechSynthesis");
@@ -313,7 +324,8 @@ export async function validateNativeTts(s) {
     fail("TTS_UNAVAILABILITY_HIDDEN", "LongyuSpeechPlugin.java", "voz ausente vira erro honesto");
   const onPause = fnBody(java, "protected void handleOnPause(");
   if (!/tts\.stop\(\)/.test(onPause)) fail("TTS_NOT_STOPPED_ON_BACKGROUND", "LongyuSpeechPlugin.java handleOnPause", "voz para no background");
-  if (!/registerPlugin\(LongyuSpeechPlugin\.class\);\s*super\.onCreate/.test(stripComments(s.src.mainActivity)))
+  // RC2.2.28+ — LongyuSpeech (e opcionalmente LongyuMedia) antes de super.onCreate.
+  if (!/registerPlugin\(LongyuSpeechPlugin\.class\);[\s\S]*?super\.onCreate/.test(stripComments(s.src.mainActivity)))
     fail("PLUGIN_NOT_REGISTERED", "MainActivity.java", "registerPlugin antes de super.onCreate");
   return failures;
 }

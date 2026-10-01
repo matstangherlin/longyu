@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FocusActivityLauncher } from "../../components/layout/FocusActivityFrame";
 import { CHUNKS } from "../../data/chunks";
 import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
 import { todayKey } from "../../lib/storage";
@@ -105,8 +106,9 @@ export function FalaPage() {
         </p>
       </section>
 
-      {/* Flashcard */}
-      <Card className="mx-auto max-w-xl p-6 sm:p-8">
+      {/* Flashcard — RC2.2.25: hub mostra [Começar]; o treino roda em focus. */}
+      <FocusActivityLauncher title="Treino de frases" desc="Ouça, imite e reconheça o sentido." testId="fala-phrases">
+      <Card className="mx-auto max-w-xl p-6 sm:p-8" data-fala-activity="">
         <div className="mb-4 flex items-center justify-between">
           <Pill tone="accent">{chunk.tags[0]}</Pill>
           <span className="text-sm text-ink-faint">
@@ -144,6 +146,7 @@ export function FalaPage() {
           </div>
         )}
       </Card>
+      </FocusActivityLauncher>
 
       {/* Lista de referência */}
       <section>

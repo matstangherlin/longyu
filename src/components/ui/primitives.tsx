@@ -70,7 +70,7 @@ export type ButtonSize = "sm" | "md" | "lg" | "icon";
 // Base compartilhada por Button e ButtonLink para que um CTA fique idêntico
 // quer seja <button> quer seja um link de navegação.
 const BUTTON_BASE =
-  "inline-flex select-none items-center justify-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-soft disabled:opacity-70 disabled:shadow-none";
+  "inline-flex select-none items-center justify-center gap-2 touch-manipulation font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-soft disabled:opacity-70 disabled:shadow-none";
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   primary:
@@ -121,10 +121,12 @@ export function Button({
   className,
   children,
   disabled,
+  type = "button",
   ...rest
 }: BtnProps) {
   return (
     <button
+      type={type}
       className={buttonClasses(variant, size, className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}

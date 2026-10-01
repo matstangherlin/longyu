@@ -1,0 +1,15 @@
+{
+  "wave": "RC2.2.21",
+  "title": "Mobile Native Stability",
+  "parentWave": "RC2.2.20",
+  "strategy": "STACKED",
+  "baseBranch": "claude/rc2-2-20-physical-beta-readiness",
+  "baseSha": "b43ca4465319cb9632c68982de9ebbbba6dbb003",
+  "mainAtStart": "3eb7df133f2826ce70bc9e347a7d4cc705fccbc4",
+  "mergeBaseWithMain": "3eb7df133f2826ce70bc9e347a7d4cc705fccbc4",
+  "branch": "claude/rc2-2-21-mobile-native-stability",
+  "prTargetWhileParentOpen": "claude/rc2-2-20-physical-beta-readiness",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "note": "Onda empilhada sobre o HEAD da RC2.2.20 (sem esperar o merge). Nenhum commit da RC2.2.20 é recriado ou cherry-pickado; depois que a RC2.2.20 entrar na main, o PR da RC2.2.21 é redirecionado para a main."
+}

@@ -200,7 +200,7 @@ export function CustomizeProfileCard() {
 
   return (
     <CompactCard>
-      <div data-testid="profile-customize">
+      <div id="personalizar" className="scroll-mt-6" data-testid="profile-customize">
         <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("hub.customizeProfile")}</div>
         {ownedCosmetics.length === 0 ? (
           <div className="flex flex-wrap items-center justify-between gap-2">
