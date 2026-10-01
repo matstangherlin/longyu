@@ -146,6 +146,10 @@ export function nextTransitionId(sceneId: string, spokenCount: number): string {
  * RC2.2.29 — lock de transição: bloqueia tap duplicado durante o commit.
  * Durante `TRANSITION_LOCK_MS`, o mesmo transitionId / um segundo Continuar
  * não avança dois nós nem congela — o segundo tap é ignorado.
+ *
+ * Preferência: liberar quando DOM_NEXT_NODE_VISIBLE (forceRelease), não só
+ * por timeout — o timeout só protege duplicata; a próxima interação
+ * legítima após o render não pode ficar bloqueada.
  */
 export const TRANSITION_LOCK_MS = 280;
 
@@ -171,11 +175,17 @@ export function tryAcquireTransitionLock(
   return { ok: true, lock: { locked: true, transitionId, lockedAt: now } };
 }
 
+/** Liberação temporal: só solta depois de TRANSITION_LOCK_MS. */
 export function releaseTransitionLock(lock: TransitionLockState, now = Date.now()): TransitionLockState {
   if (!lock.locked) return lock;
   if (now - lock.lockedAt < TRANSITION_LOCK_MS) {
     return lock;
   }
+  return { locked: false, transitionId: null, lockedAt: 0 };
+}
+
+/** Liberação imediata (DOM visível / failsafe). Não espera o timeout. */
+export function forceReleaseTransitionLock(_lock: TransitionLockState): TransitionLockState {
   return { locked: false, transitionId: null, lockedAt: 0 };
 }
 

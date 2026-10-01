@@ -1,5 +1,5 @@
 import { traceLessonStep } from "../../lib/lessonStepTrace";
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import {
   CONVERSATION_DOM_STALL_MS,
   conversationDiagnostic,
@@ -10,12 +10,17 @@ import {
   conversationReducer,
   createConversationRuntimeState,
   createTransitionLock,
+  forceReleaseTransitionLock,
   nextTransitionId,
   releaseTransitionLock,
+  TRANSITION_LOCK_MS,
   tryAcquireTransitionLock,
   type ConversationRuntimeState,
   type TransitionLockState,
 } from "../../lib/conversationRuntime";
+
+/** Backup: se DOM não liberar o lock, solta após a janela anti-duplicata. */
+const TRANSITION_LOCK_BACKUP_MS = TRANSITION_LOCK_MS + 40;
 import { audioEntryByText } from "../../data/audioManifest.generated";
 import { deviceQaEnabled } from "../../lib/deviceQa";
 import { castNameForSceneCharacter } from "../../data/storyCast";
@@ -1214,39 +1219,74 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
 }
 
 /**
- * RC2.2.24 — verdade da transição: depois do toque, o nó ESPERADO precisa
- * aparecer no DOM. Commit → (frame) → visível; sem isso em 800 ms vira
- * CONVERSATION_DOM_STALL. O áudio do nó novo só sai depois (efeito da bolha).
+ * RC2.2.24 / RC2.2.29 — verdade da transição: depois do toque, o nó ESPERADO
+ * precisa aparecer no DOM. Commit → (frame) → visível; sem isso em 800 ms:
+ * failsafe idempotente (mesmo transitionId) uma vez; se ainda falhar →
+ * CONVERSATION_DOM_STALL (QA mostra TRANSITION STALL). Áudio só depois.
  */
-function useConversationTransitionTruth(sceneId: string, renderKey: string, rootRef: RefObject<HTMLElement | null>) {
+function useConversationTransitionTruth(
+  sceneId: string,
+  renderKey: string,
+  rootRef: RefObject<HTMLElement | null>,
+  hooks: {
+    onDomVisible: (expectedNodeId: string, transitionId: string | null) => void;
+    onFailsafeRetry: (expectedNodeId: string, transitionId: string | null) => void;
+  }
+) {
   const expectedRef = useRef<string | null>(null);
+  const transitionIdRef = useRef<string | null>(null);
+  const failsafeUsedRef = useRef(false);
   const [stall, setStall] = useState<string | null>(null);
+  const hooksRef = useRef(hooks);
+  hooksRef.current = hooks;
 
-  function begin(currentNodeId: string, expectedNodeId: string) {
+  function begin(
+    currentNodeId: string,
+    expectedNodeId: string,
+    transitionId: string | null = null,
+    opts?: { failsafe?: boolean }
+  ) {
     expectedRef.current = expectedNodeId;
+    transitionIdRef.current = transitionId;
+    // Failsafe não zera o flag — senão reentra em loop infinito.
+    if (!opts?.failsafe) failsafeUsedRef.current = false;
     setStall(null);
-    recordConversationTrace({ event: "conversation_state_before", sceneId, nodeId: currentNodeId });
-    recordConversationTrace({ event: "conversation_target_resolved", sceneId, nodeId: currentNodeId, expectedNodeId });
+    recordConversationTrace({ event: "conversation_state_before", sceneId, nodeId: currentNodeId, transitionId });
+    recordConversationTrace({ event: "conversation_target_resolved", sceneId, nodeId: currentNodeId, expectedNodeId, transitionId });
+    recordConversationTrace({ event: "conversation_target", sceneId, nodeId: currentNodeId, expectedNodeId, transitionId });
   }
 
   useEffect(() => {
     const expected = expectedRef.current;
     if (expected == null) return undefined;
-    recordConversationTrace({ event: "conversation_state_committed", sceneId, nodeId: expected });
+    const transitionId = transitionIdRef.current;
+    recordConversationTrace({ event: "conversation_state_committed", sceneId, nodeId: expected, transitionId });
+    recordConversationTrace({ event: "conversation_state_commit", sceneId, nodeId: expected, transitionId });
     let timer: ReturnType<typeof setTimeout> | null = null;
     const visible = () => {
       const node = rootRef.current?.querySelector<HTMLElement>(`[data-conversation-current-node="${CSS.escape(expected)}"]`);
       if (!node || node.getBoundingClientRect().height <= 0) return false;
       expectedRef.current = null;
-      recordConversationTrace({ event: "conversation_dom_next_visible", sceneId, nodeId: expected });
-      if (useStore.getState().autoPlayAudio !== false) recordConversationTrace({ event: "conversation_audio_requested", sceneId, nodeId: expected });
+      recordConversationTrace({ event: "conversation_dom_next_visible", sceneId, nodeId: expected, transitionId });
+      recordConversationTrace({ event: "conversation_dom_visible", sceneId, nodeId: expected, transitionId });
+      if (useStore.getState().autoPlayAudio !== false) {
+        recordConversationTrace({ event: "conversation_audio_requested", sceneId, nodeId: expected, transitionId });
+        recordConversationTrace({ event: "conversation_audio_request", sceneId, nodeId: expected, transitionId });
+      }
+      hooksRef.current.onDomVisible(expected, transitionId);
       return true;
     };
     const frame = requestAnimationFrame(() => {
       if (visible()) return;
       timer = setTimeout(() => {
         if (visible()) return;
-        recordConversationTrace({ event: "conversation_dom_stall", sceneId, nodeId: null, expectedNodeId: expected });
+        recordConversationTrace({ event: "conversation_dom_stall", sceneId, nodeId: null, expectedNodeId: expected, transitionId });
+        // Failsafe: um único commit idempotente com o MESMO transitionId.
+        if (!failsafeUsedRef.current) {
+          failsafeUsedRef.current = true;
+          hooksRef.current.onFailsafeRetry(expected, transitionId);
+          return;
+        }
         setStall(expected);
       }, CONVERSATION_DOM_STALL_MS);
     });
@@ -1260,21 +1300,23 @@ function useConversationTransitionTruth(sceneId: string, renderKey: string, root
   return { begin, stall, clearStall: () => setStall(null) };
 }
 
-/** Transição que não apareceu: nunca botão morto. Diagnóstico só no build de QA. */
+/** Transição que não apareceu: nunca botão morto. "TRANSITION STALL" só em QA. */
 function ConversationStallPanel({ sceneId, expected, current, onRetry }: { sceneId: string; expected: string; current: string | null; onRetry: () => void }) {
   const qa = deviceQaEnabled();
   return (
     <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 p-3 text-sm" role="status" data-testid="conversation-dom-stall" data-expected-node={expected}>
-      {qa && <p className="font-semibold text-ink">CONVERSATION_DOM_STALL · esperado {expected} · visível {current ?? "—"}</p>}
+      {qa && <p className="font-semibold text-ink">TRANSITION STALL · esperado {expected} · visível {current ?? "—"}</p>}
       <div className="mt-2 flex flex-wrap gap-2">
-        <Button size="sm" variant="outline" onClick={onRetry} data-testid="conversation-stall-retry">
+        <Button type="button" size="sm" variant="outline" onClick={onRetry} data-testid="conversation-stall-retry" className="touch-manipulation">
           {qa ? "Tentar transição novamente" : t("player.stepStalledRetry")}
         </Button>
         {qa && (
           <Button
+            type="button"
             size="sm"
             variant="outline"
             data-testid="conversation-stall-copy"
+            className="touch-manipulation"
             onClick={() => void navigator.clipboard?.writeText(conversationDiagnostic({ sceneId, currentNodeId: current, expectedNodeId: expected, visibleNodeId: current }))}
           >
             Copiar diagnóstico
@@ -1316,6 +1358,9 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   );
   // RC2.2.29 — lock anti double-tap (não pula dois nós / não congela).
   const transitionLockRef = useRef<TransitionLockState>(createTransitionLock());
+  const lastTransitionIdRef = useRef<string | null>(null);
+  const pendingPointerTapRef = useRef<{ x: number; y: number; at: number; nodeId: string } | null>(null);
+  const failsafeRetryRef = useRef<(expected: string, transitionId: string | null) => void>(() => undefined);
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
   const helpLevelRef = useRef(0);
@@ -1335,8 +1380,17 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
    */
   const wrongByNodeRef = useRef<Map<string, number>>(new Map());
   const [revealPending, setRevealPending] = useState<null | { answer: string; nextNodeId?: string }>(null);
+  const [truthTick, setTruthTick] = useState(0);
   const sceneRootRef = useRef<HTMLDivElement>(null);
-  const truth = useConversationTransitionTruth(step.sceneId ?? "scene", `${nodeId}:${spokenCount}`, sceneRootRef);
+  const truth = useConversationTransitionTruth(step.sceneId ?? "scene", `${nodeId}:${spokenCount}:${truthTick}`, sceneRootRef, {
+    onDomVisible: () => {
+      // Preferir liberar o lock quando o DOM do próximo nó fica visível.
+      transitionLockRef.current = forceReleaseTransitionLock(transitionLockRef.current);
+    },
+    onFailsafeRetry: (expected, transitionId) => {
+      failsafeRetryRef.current(expected, transitionId);
+    },
+  });
 
   useEffect(() => {
     setNodeId(entryNodeId);
@@ -1388,42 +1442,74 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
    *
    * RC2.2.28 — commit via conversationReducer (puro). Áudio NÃO cancela
    * transição; promise de áudio NÃO controla nodeId.
+   *
+   * RC2.2.29 — lock liberado no DOM visível (não só timeout). Failsafe
+   * reusa o mesmo transitionId (`reuseTransitionId`).
    */
-  function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {
-    const transitionId = nextTransitionId(step.sceneId ?? "scene", spokenCount);
+  function goTo(
+    targetId: string | undefined,
+    _speakTarget?: ConversationNode,
+    opts?: { reuseTransitionId?: string }
+  ) {
+    const sceneId = step.sceneId ?? "scene";
+    const transitionId = opts?.reuseTransitionId ?? nextTransitionId(sceneId, spokenCount);
+    if (opts?.reuseTransitionId) {
+      transitionLockRef.current = forceReleaseTransitionLock(transitionLockRef.current);
+    }
     const acquired = tryAcquireTransitionLock(transitionLockRef.current, transitionId);
     if (!acquired.ok) {
-      // Tap duplicado durante o commit — ignora (não pula dois nós).
+      recordConversationTrace({
+        event: "conversation_lock_rejected",
+        sceneId,
+        nodeId: nodeId,
+        transitionId,
+      });
       return;
     }
     transitionLockRef.current = acquired.lock;
-    transitionsRef.current += 1;
+    lastTransitionIdRef.current = transitionId;
+    recordConversationTrace({
+      event: "conversation_lock_acquired",
+      sceneId,
+      nodeId: nodeId,
+      transitionId,
+    });
+    if (!opts?.reuseTransitionId) transitionsRef.current += 1;
     // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
     const target = resolveConversationTarget(targetId, (id) => nodeById.has(id), transitionsRef.current);
     if (target.kind === "finish") {
       setRuntime((prev) => conversationReducer(prev, { type: "FINISH", transitionId }));
-      window.setTimeout(() => {
-        transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now() + 1_000);
-      }, 0);
+      transitionLockRef.current = forceReleaseTransitionLock(transitionLockRef.current);
       finish();
       return;
     }
     setRuntime((prev) =>
       conversationReducer(prev, { type: "CONTINUE", targetNodeId: target.id, transitionId })
     );
-    truth.begin(nodeId, target.id);
+    truth.begin(nodeId, target.id, transitionId, { failsafe: Boolean(opts?.reuseTransitionId) });
     setNodeId(target.id);
     setAnswering(false);
-    setSpokenCount((count) => count + 1);
+    if (!opts?.reuseTransitionId) setSpokenCount((count) => count + 1);
+    // Backup: se o DOM não liberar o lock, o timeout de 280ms+ ainda desbloqueia.
     window.setTimeout(() => {
-      transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now() + 1_000);
-    }, 0);
+      transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now());
+    }, TRANSITION_LOCK_BACKUP_MS);
   }
 
+  failsafeRetryRef.current = (expected, transitionId) => {
+    if (!nodeById.has(expected)) return;
+    setTruthTick((n) => n + 1);
+    goTo(expected, nodeById.get(expected), {
+      reuseTransitionId: transitionId ?? lastTransitionIdRef.current ?? undefined,
+    });
+  };
+
   function advance() {
+    const sceneId = step.sceneId ?? "scene";
     noteUserGesture();
-    recordConversationTrace({ event: "conversation_continue_tap", sceneId: step.sceneId ?? "scene", nodeId: node?.id ?? null });
-    traceLessonStep({ lessonId: step.sceneId ?? "scene", stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
+    recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: node?.id ?? null });
+    recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
+    traceLessonStep({ lessonId: sceneId, stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
     if (node?.interaction) {
       setAnswering(true);
       return;
@@ -1434,6 +1520,47 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       return;
     }
     finish();
+  }
+
+  /** Continuar: pointer → click → handler. Fallback se click for cancelado no APK. */
+  function onContinuePointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    const sceneId = step.sceneId ?? "scene";
+    recordConversationTrace({ event: "conversation_pointer_down", sceneId, nodeId: node?.id ?? null });
+    pendingPointerTapRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      at: Date.now(),
+      nodeId: node?.id ?? "",
+    };
+  }
+
+  function onContinueClick() {
+    const sceneId = step.sceneId ?? "scene";
+    pendingPointerTapRef.current = null;
+    recordConversationTrace({ event: "conversation_click", sceneId, nodeId: node?.id ?? null });
+    advance();
+  }
+
+  function onContinuePointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
+    const pending = pendingPointerTapRef.current;
+    if (!pending) return;
+    const dx = Math.abs(event.clientX - pending.x);
+    const dy = Math.abs(event.clientY - pending.y);
+    if (dx > 14 || dy > 14) {
+      pendingPointerTapRef.current = null;
+      return;
+    }
+    // Se o click nativo não chegar (cancelamento de toque no WebView), avança uma vez.
+    window.setTimeout(() => {
+      if (pendingPointerTapRef.current !== pending) return;
+      pendingPointerTapRef.current = null;
+      recordConversationTrace({
+        event: "conversation_click",
+        sceneId: step.sceneId ?? "scene",
+        nodeId: node?.id ?? null,
+      });
+      advance();
+    }, 48);
   }
 
   useExerciseHotkeys({
@@ -1522,9 +1649,9 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
               const expected = truth.stall!;
               truth.clearStall();
               if (nodeById.has(expected)) {
-                truth.begin(node.id, expected);
-                setNodeId(expected);
-                setSpokenCount((count) => count + 1);
+                goTo(expected, nodeById.get(expected), {
+                  reuseTransitionId: lastTransitionIdRef.current ?? undefined,
+                });
               }
             }}
           />
@@ -1560,7 +1687,16 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           guided ? (
             // PART AD — NPC fala → [ Responder ] no dock.
             <GuidedDock>
-              <Button size="lg" className="longyu-press-feedback w-full shadow-lift" onClick={advance} data-testid="conversation-advance" data-conversation-node={node.id}>
+              <Button
+                type="button"
+                size="lg"
+                className="longyu-press-feedback pointer-events-auto relative z-10 w-full touch-manipulation shadow-lift"
+                onPointerDown={onContinuePointerDown}
+                onPointerUp={onContinuePointerUp}
+                onClick={onContinueClick}
+                data-testid="conversation-advance"
+                data-conversation-node={node.id}
+              >
                 {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
                 <IconChevron width={18} height={18} />
               </Button>
@@ -1568,7 +1704,15 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
           ) : (
           <div className="mt-4 flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-ink-faint">{t("player.lineN", { n: spokenCount })}</span>
-            <Button className="longyu-press-feedback min-w-[9.5rem] shadow-lift" onClick={advance} data-testid="conversation-advance" data-conversation-node={node.id}>
+            <Button
+              type="button"
+              className="longyu-press-feedback pointer-events-auto relative z-10 min-w-[9.5rem] touch-manipulation shadow-lift"
+              onPointerDown={onContinuePointerDown}
+              onPointerUp={onContinuePointerUp}
+              onClick={onContinueClick}
+              data-testid="conversation-advance"
+              data-conversation-node={node.id}
+            >
               {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
               <IconChevron width={18} height={18} />
             </Button>
@@ -1666,7 +1810,21 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const [phase, setPhase] = useState<"dialogue" | "checkpoint" | "done">("dialogue");
   const skipAutoSpeakRef = useRef(false);
   const sceneRootRef = useRef<HTMLDivElement>(null);
-  const truth = useConversationTransitionTruth(step.sceneId ?? "scene", `line-${lineIndex}`, sceneRootRef);
+  const [v1TruthTick, setV1TruthTick] = useState(0);
+  const v1FailsafeRef = useRef<(expected: string) => void>(() => undefined);
+  const truth = useConversationTransitionTruth(step.sceneId ?? "scene", `line-${lineIndex}:${v1TruthTick}`, sceneRootRef, {
+    onDomVisible: () => undefined,
+    onFailsafeRetry: (expected) => {
+      v1FailsafeRef.current(expected);
+    },
+  });
+  v1FailsafeRef.current = (expected) => {
+    const wanted = Number(String(expected).replace("line-", ""));
+    if (!Number.isFinite(wanted)) return;
+    setV1TruthTick((n) => n + 1);
+    truth.begin(`line-${lineIndex}`, `line-${wanted}`, null, { failsafe: true });
+    setLineIndex(wanted);
+  };
 
   useEffect(() => {
     setLineIndex(0);
@@ -1684,8 +1842,12 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   const right = characters.find((c) => c.side === "right") ?? characters[1];
 
   function advanceDialogue() {
+    const sceneId = step.sceneId ?? "scene";
     noteUserGesture();
-    recordConversationTrace({ event: "conversation_continue_tap", sceneId: step.sceneId ?? "scene", nodeId: `line-${lineIndex}` });
+    recordConversationTrace({ event: "conversation_pointer_down", sceneId, nodeId: `line-${lineIndex}` });
+    recordConversationTrace({ event: "conversation_click", sceneId, nodeId: `line-${lineIndex}` });
+    recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: `line-${lineIndex}` });
+    recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: `line-${lineIndex}` });
     if (lineIndex < lines.length - 1) {
       // RC2.2.24 — sem TTS no toque: a fala nova aparece e só então a bolha fala.
       truth.begin(`line-${lineIndex}`, `line-${lineIndex + 1}`);
