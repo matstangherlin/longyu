@@ -42,8 +42,11 @@ import {
 } from "../../lib/upgradeContract";
 import { SPEECH_DIAGNOSTIC_FIELDS, useSpeechDiagnostics } from "../../lib/speechDiagnostics";
 import { signupTrace } from "../../lib/signupTrace";
-import { playbackTrace } from "../../lib/audioPlayback";
+import { playMandarinAudio, playbackTrace } from "../../lib/audioPlayback";
 import { isTTSAvailable, usesNativeVoice } from "../../lib/tts";
+import { nativeTtsPluginAvailable } from "../../lib/platform/nativeSpeech";
+import { newTtsRequestId } from "../../lib/ttsCorrelation";
+import { ttsDiagnosticSnapshot, type TtsAckSource } from "../../lib/ttsDiagnostic";
 import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
 import { BetaQaConsole } from "./BetaQaConsole";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
@@ -159,6 +162,7 @@ function QaDeviceSurface() {
         )}
       </section>
 
+      <QaTtsProbe />
       <GuidanceDeliveryPanel />
       <MobileDiagnosticConsole build={build} />
       <BetaQaConsole />
@@ -218,6 +222,58 @@ function QaDeviceSurface() {
         </pre>
       </section>
     </div>
+  );
+}
+
+function QaTtsProbe() {
+  const [busy, setBusy] = useState(false);
+  const [live, setLive] = useState("IDLE");
+  const [diagnostic, setDiagnostic] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  async function run() {
+    if (!isNativeApp() || !nativeTtsPluginAvailable()) return;
+    setBusy(true);
+    setCopied(false);
+    setLive("REQUESTED");
+    const requestId = newTtsRequestId();
+    const sources = new Set<TtsAckSource>();
+    try {
+      const outcome = await playMandarinAudio("你好", {
+        requestId,
+        onTtsEvent: (event) => {
+          if ((event.type === "TTS_STARTED" || event.type === "TTS_DONE") && event.source) sources.add(event.source);
+          setLive(`${event.type} · ${Array.from(sources).join("/") || "waiting"}`);
+        },
+      });
+      const snapshot = await ttsDiagnosticSnapshot({
+        requestId,
+        ackSources: Array.from(sources),
+        audioOutcome: outcome.started ? "STARTED" : outcome.reason ?? "NOT_STARTED",
+        finalDecision: outcome.started ? "CODE_CONFIRMED" : "RECOVERY_REQUIRED",
+      });
+      setDiagnostic(JSON.stringify(snapshot, null, 2));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="border-y border-line py-4" data-testid="qa-tts-probe">
+      <h2 className="text-sm font-semibold text-ink">Teste de TTS nativo</h2>
+      <p className="mt-1 font-mono text-[11px] text-ink-soft">LongyuSpeech: {nativeTtsPluginAvailable() ? "disponível" : "indisponível"} · {live}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button type="button" size="sm" onClick={() => void run()} disabled={busy || !isNativeApp() || !nativeTtsPluginAvailable()} data-testid="qa-tts-reproduce">
+          Reproduzir teste de TTS
+        </Button>
+        {diagnostic && (
+          <Button type="button" size="sm" variant="outline" onClick={() => void navigator.clipboard?.writeText(diagnostic).then(() => setCopied(true))} data-testid="qa-tts-copy">
+            {copied ? "Copiado" : "Copiar diagnóstico"}
+          </Button>
+        )}
+      </div>
+      {diagnostic && <pre className="mt-3 max-h-48 overflow-auto bg-surface-2 p-3 font-mono text-[10px] text-ink-soft" data-testid="qa-tts-diagnostic">{diagnostic}</pre>}
+    </section>
   );
 }
 

@@ -9,7 +9,7 @@
  *
  * Sem estado persistido: só consultas ao sistema operacional.
  */
-import { registerPlugin, type PluginListenerHandle } from "@capacitor/core";
+import { Capacitor, registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 import { isAndroid } from "./nativePlatform";
 import { trackObserver } from "../resourceCounters";
 import { recordTtsTrace, sanitizeTtsEvent, type TtsEvent } from "../ttsCorrelation";
@@ -121,6 +121,8 @@ export type NativeRecognitionDiagnostics = {
 interface LongyuSpeechPlugin {
   getTtsStatus(options: { language: string; reinit?: boolean }): Promise<TtsStatus>;
   speak(options: { text: string; language: string; rate?: number; pitch?: number; requestId?: string }): Promise<{ interrupted: boolean; requestId?: string; utteranceId?: string; started?: boolean }>;
+  startSpeak(options: { text: string; language: string; rate?: number; pitch?: number; requestId: string }): Promise<{ requestId: string; utteranceId: string; started: boolean }>;
+  getTtsPlaybackState(options: { requestId: string }): Promise<NativeTtsPlaybackState>;
   stop(): Promise<void>;
   openTtsSettings(): Promise<void>;
   getRecognitionStatus(): Promise<RecognitionStatus>;
@@ -152,6 +154,29 @@ const LongyuSpeech = registerPlugin<LongyuSpeechPlugin>("LongyuSpeech");
 export const MANDARIN_LANGUAGE = "zh-CN";
 export const RECOGNITION_TIMEOUT_MS = 10_000;
 
+export type NativeTtsPlaybackState = {
+  requestId: string | null;
+  utteranceId: string | null;
+  state: "IDLE" | "QUEUED" | "STARTED" | "DONE" | "STOPPED" | "ERROR";
+  started: boolean;
+  done: boolean;
+  errorCode: string | null;
+};
+
+export function nativeTtsPluginAvailable(): boolean {
+  return Capacitor.isPluginAvailable("LongyuSpeech");
+}
+
+export async function nativeTtsPlaybackState(requestId: string): Promise<NativeTtsPlaybackState | null> {
+  if (!hasNativeSpeech() || !nativeTtsPluginAvailable()) return null;
+  try {
+    const result = await LongyuSpeech.getTtsPlaybackState({ requestId });
+    return result.requestId === requestId ? result : null;
+  } catch {
+    return null;
+  }
+}
+
 /** A voz nativa é o caminho do Android; a Web nunca passa por aqui. */
 export function hasNativeSpeech(): boolean {
   return isAndroid();
@@ -173,6 +198,7 @@ function errorCode(error: unknown): string {
 // ── TTS ───────────────────────────────────────────────────────────────────
 
 export async function nativeTtsStatus(language = MANDARIN_LANGUAGE, options: { reinit?: boolean } = {}): Promise<TtsStatus> {
+  if (!nativeTtsPluginAvailable()) return { available: false, status: "TTS_NATIVE_PLUGIN_UNAVAILABLE" };
   try {
     return await LongyuSpeech.getTtsStatus({ language, reinit: options.reinit === true });
   } catch (error) {
@@ -199,8 +225,8 @@ export async function nativeSpeak(text: string, options: { rate?: number; pitch?
 // onStart do motor chegava antes do listener e se perdia (o aluno ouvia; o
 // Continuar ficava desligado). Agora a ponte é instalada no
 // NativeExperienceBootstrap (antes de qualquer tela usar TTS) e cada fala
-// AGUARDA a ponte antes de pedir ao motor. Cada evento carrega a requestId da
-// fala; só o assinante daquela requestId recebe.
+// aguarda até 500 ms pela ponte antes de pedir ao motor; ACK direto e consulta
+// de estado continuam funcionando se ela falhar. Eventos sempre têm requestId.
 type TtsSubscriber = (event: TtsEvent) => void;
 const ttsSubscribers = new Map<string, TtsSubscriber>();
 let ttsBridge: Promise<boolean> | null = null;
@@ -241,7 +267,7 @@ const SUBSCRIBER_GRACE_MS = 1500;
 /**
  * Fala com identidade. `onEvent` recebe SÓ os eventos desta requestId
  * (TTS_REQUESTED sintetizado aqui; QUEUED/STARTED/DONE/STOPPED/ERROR do
- * nativo). A ponte está instalada ANTES do pedido ao motor.
+ * nativo). A instalação da ponte começa antes do pedido ao motor.
  */
 export async function nativeSpeakTracked(
   text: string,
@@ -249,20 +275,56 @@ export async function nativeSpeakTracked(
   onEvent: TtsSubscriber
 ): Promise<NativeTrackedSpeakResult> {
   const { requestId } = options;
-  ttsSubscribers.set(requestId, onEvent);
+  const cleanup = () => {
+    if (ttsSubscribers.get(requestId) === subscribed) ttsSubscribers.delete(requestId);
+  };
+  const subscribed: TtsSubscriber = (event) => {
+    onEvent(event);
+    if (event.type === "TTS_DONE" || event.type === "TTS_STOPPED" || event.type === "TTS_ERROR") {
+      setTimeout(cleanup, SUBSCRIBER_GRACE_MS);
+    }
+  };
+  ttsSubscribers.set(requestId, subscribed);
   const requested: TtsEvent = { type: "TTS_REQUESTED", requestId, utteranceId: null, timestamp: Date.now(), engineState: "js" };
   recordTtsTrace(requested);
-  onEvent(requested);
-  await initNativeTtsEventBridge();
+  subscribed(requested);
+  if (!nativeTtsPluginAvailable()) {
+    subscribed({ type: "TTS_ERROR", requestId, utteranceId: null, timestamp: Date.now(), engineState: "unavailable", code: "TTS_NATIVE_PLUGIN_UNAVAILABLE" });
+    cleanup();
+    return { ok: false, code: "TTS_NATIVE_PLUGIN_UNAVAILABLE" };
+  }
+  // The direct ACK and state query still work if addListener never resolves.
+  await Promise.race([initNativeTtsEventBridge(), new Promise((resolve) => setTimeout(resolve, 500))]);
+  let queryStarted = false;
+  let queryDone = false;
+  let queryConfirmed = false;
+  const query = async () => {
+    const state = await nativeTtsPlaybackState(requestId);
+    if (!state) return;
+    if ((state.state === "STARTED" || state.started) && !queryStarted) {
+      queryStarted = true;
+      queryConfirmed = true;
+      subscribed({ type: "TTS_STARTED", requestId, utteranceId: state.utteranceId, timestamp: Date.now(), engineState: "native-query", source: "query" });
+    }
+    if (state.state === "DONE" && !queryDone) {
+      queryDone = true;
+      queryConfirmed = true;
+      subscribed({ type: "TTS_DONE", requestId, utteranceId: state.utteranceId, timestamp: Date.now(), engineState: "native-query", source: "query" });
+    }
+  };
+  const queryTimer = setTimeout(() => { void query(); }, 1100);
   try {
-    const result = await LongyuSpeech.speak({ text, language: MANDARIN_LANGUAGE, rate: options.rate, pitch: options.pitch, requestId });
-    return { ok: true, interrupted: Boolean(result?.interrupted), started: Boolean(result?.started), utteranceId: result?.utteranceId ?? null };
+    const result = await LongyuSpeech.startSpeak({ text, language: MANDARIN_LANGUAGE, rate: options.rate, pitch: options.pitch, requestId });
+    if (result?.requestId !== requestId || result?.started !== true) return { ok: false, code: "TTS_START_NOT_CONFIRMED" };
+    subscribed({ type: "TTS_STARTED", requestId, utteranceId: result.utteranceId, timestamp: Date.now(), engineState: "native-direct", source: "direct" });
+    return { ok: true, interrupted: false, started: true, utteranceId: result.utteranceId };
   } catch (error) {
+    await query();
+    if (queryConfirmed) return { ok: true, interrupted: false, started: true, utteranceId: null };
     return { ok: false, code: errorCode(error) };
   } finally {
-    setTimeout(() => {
-      if (ttsSubscribers.get(requestId) === onEvent) ttsSubscribers.delete(requestId);
-    }, SUBSCRIBER_GRACE_MS);
+    clearTimeout(queryTimer);
+    setTimeout(cleanup, 12_000);
   }
 }
 

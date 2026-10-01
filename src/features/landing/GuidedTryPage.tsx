@@ -23,8 +23,12 @@ import type { MessageKey } from "../../locales/pt-BR";
 import { hasCourseDirection } from "../../lib/courseDirectionState";
 import { canOfferVoiceInstall, playMandarinAudio, type PlaybackState } from "../../lib/audioPlayback";
 import { installNativeTtsData, openNativeTtsSettings } from "../../lib/platform/nativeSpeech";
+import { nativeTtsPluginAvailable } from "../../lib/platform/nativeSpeech";
 import { refreshNativeTtsStatus, usesNativeVoice } from "../../lib/tts";
-import { IDLE_TTS_PLAYBACK, newTtsRequestId, ttsCtaReason, type TtsPlayback } from "../../lib/ttsCorrelation";
+import { beginTtsPlayback, IDLE_TTS_PLAYBACK, newTtsRequestId, ttsCtaReason, type TtsPlayback } from "../../lib/ttsCorrelation";
+import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
+import { recordTechEvent } from "../../lib/techEvents";
+import { ttsDiagnosticSnapshot } from "../../lib/ttsDiagnostic";
 import { markGuidedTryCompleted, type GuidedTryAudioResult } from "../../lib/onboardingDraft";
 import type { MandarinToneNumber } from "../../data/toneKnowledge";
 
@@ -88,6 +92,7 @@ function GuidedTryFlow() {
   // RC2.2.24 — a reprodução ATIVA do passo "Ouça" (só a requestId dela conta).
   const activeRequest = useRef<string | null>(null);
   const [ttsPlayback, setTtsPlayback] = useState<TtsPlayback>(IDLE_TTS_PLAYBACK);
+  const [ttsDiagnostic, setTtsDiagnostic] = useState<string | null>(null);
   const alive = useRef(true);
   useEffect(
     () => () => {
@@ -137,7 +142,10 @@ function GuidedTryFlow() {
   function applyPlayback(state: PlaybackState) {
     if (!alive.current) return;
     if (state === "STARTING") setListen((prev) => (prev === "HEARD" ? prev : "STARTING"));
-    else if (state === "PLAYING") setListen("PLAYING");
+    else if (state === "PLAYING") {
+      setListen("PLAYING");
+      setAudioResult("AUDIO_HEARD");
+    }
     else if (state === "ENDED") setListen("HEARD");
     else if (state === "FAILED") setListen((prev) => (prev === "HEARD" ? prev : "FAILED"));
     else if (state === "UNAVAILABLE") setListen((prev) => (prev === "HEARD" ? prev : "UNAVAILABLE"));
@@ -153,6 +161,7 @@ function GuidedTryFlow() {
     // fala (inclusive a anterior deste botão) nunca libera o Continuar.
     const requestId = newTtsRequestId();
     activeRequest.current = requestId;
+    if (usesNativeVoice()) setTtsPlayback(beginTtsPlayback(requestId));
     void playMandarinAudio(NIHAO.hanzi, {
       rate: 0.8,
       requestId,
@@ -176,6 +185,28 @@ function GuidedTryFlow() {
       }
       setFailReason(outcome.reason);
     });
+  }
+
+  function confirmHeardWithoutAck() {
+    recordTechEvent("user_confirmed_audio_without_native_ack", { requestId: activeRequest.current, reason: failReason });
+    recordDeviceQaObservation("audio_failed", "USER_CONFIRMED_AUDIO_WITHOUT_NATIVE_ACK");
+    setAudioResult("DEGRADED_AUDIO");
+    go("explain");
+  }
+
+  async function copyTtsDiagnostic() {
+    const diagnostic = await ttsDiagnosticSnapshot({
+      requestId: activeRequest.current,
+      ackSources: ttsPlayback.ackSources ?? [],
+      guidedListenState: listen,
+      ctaReason: ttsCtaReason(ttsPlayback),
+      ctaEnabled: audioResult === "AUDIO_HEARD" || heard,
+      audioOutcome: failReason,
+      finalDecision: audioFailed ? "RECOVERY_REQUIRED" : heard ? "HEARD" : "WAITING",
+    });
+    const value = JSON.stringify(diagnostic, null, 2);
+    setTtsDiagnostic(value);
+    await navigator.clipboard?.writeText(value).catch(() => undefined);
   }
 
   function playTone() {
@@ -328,6 +359,15 @@ function GuidedTryFlow() {
                     ? t("guidedTry.audioHeard")
                     : ""}
             </p>
+            {deviceQaEnabled() && usesNativeVoice() && (
+              <div className="mt-1 font-mono text-[10px] leading-4 text-ink-faint" data-testid="guided-tts-qa"
+                data-direct-ack={ttsPlayback.ackSources?.includes("direct") ? "yes" : "no"}
+                data-event-ack={ttsPlayback.ackSources?.includes("event") ? "yes" : "no"}
+                data-query-ack={ttsPlayback.ackSources?.includes("query") ? "yes" : "no"}
+                data-cta-enabled={audioResult === "AUDIO_HEARD" || heard ? "yes" : "no"}>
+                TTS: NATIVE · plugin: {nativeTtsPluginAvailable() ? "YES" : "NO"} · START: {ttsPlayback.ackSources?.includes("direct") ? "YES" : "NO"} · EVENT: {ttsPlayback.ackSources?.includes("event") ? "YES" : "NO"} · QUERY: {ttsPlayback.ackSources?.includes("query") ? "YES" : "NO"} · CTA: {audioResult === "AUDIO_HEARD" || heard ? "ENABLED" : "DISABLED"}
+              </div>
+            )}
             {audioFailed && (
               <div className="mt-2 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
                 <p className="text-sm font-semibold text-ink">{t("guidedTry.audioFailedTitle")}</p>
@@ -336,6 +376,16 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
+                  {usesNativeVoice() && (
+                    <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
+                      {t("guidedTry.audioConfirmedByUser")}
+                    </Button>
+                  )}
+                  {deviceQaEnabled() && (
+                    <Button size="sm" variant="outline" onClick={() => void copyTtsDiagnostic()} data-testid="guided-audio-copy-diagnostic">
+                      Copiar diagnóstico
+                    </Button>
+                  )}
                   {canOfferVoiceInstall(failReason) ? (
                     <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
                       {t("guidedTry.audioInstallVoice")}
@@ -347,6 +397,7 @@ function GuidedTryFlow() {
                     </Button>
                   ) : null}
                 </div>
+                {ttsDiagnostic && <pre className="mt-2 max-h-32 overflow-auto text-[10px] text-ink-soft" data-testid="guided-audio-diagnostic">{ttsDiagnostic}</pre>}
               </div>
             )}
             {(heard || audioFailed) && (

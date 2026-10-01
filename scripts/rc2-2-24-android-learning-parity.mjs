@@ -27,8 +27,9 @@ if (mode === "validate") {
 }
 
 function swap(text, from, to) {
-  assert.ok(String(text).includes(from), `mutação vazia: trecho não encontrado → ${from.slice(0, 90)}`);
-  return String(text).split(from).join(to);
+  const source = String(text).replace(/\r\n/g, "\n");
+  assert.ok(source.includes(from), `mutação vazia: trecho não encontrado → ${from.slice(0, 90)}`);
+  return source.split(from).join(to);
 }
 const src = (key, from, to) => (s) => {
   s.src[key] = swap(s.src[key], from, to);
@@ -40,11 +41,11 @@ const MUTATIONS = {
   "native-tts-correlation": [
     ["[1] TTS start sem requestId libera CTA", "TTS_START_WITHOUT_REQUEST_ID", src("ttsCorrelation", '  if (!requestId) return null;\n', "")],
     ["[2] evento antigo libera áudio novo", "TTS_FOREIGN_EVENT_RELEASES", src("ttsCorrelation", "  if (!state.requestId || event.requestId !== state.requestId) return { ...state, ignoredForeign: state.ignoredForeign + 1 };", "  if (!state.requestId) return { ...state, ignoredForeign: state.ignoredForeign + 1 };")],
-    ["[3] listener instala depois do speak", "TTS_LISTENER_AFTER_SPEAK", src("nativeSpeech", "  await initNativeTtsEventBridge();\n  try {\n    const result = await LongyuSpeech.speak(", "  try {\n    const result = await LongyuSpeech.speak(")],
+    ["[3] listener instala depois do speak", "TTS_LISTENER_AFTER_SPEAK", src("nativeSpeech", "  await Promise.race([initNativeTtsEventBridge(), new Promise((resolve) => setTimeout(resolve, 500))]);", "  await Promise.resolve();")],
     ["[3b] ponte fora do bootstrap", "TTS_LISTENER_AFTER_SPEAK", src("bootstrap", "    void initNativeTtsEventBridge();\n", "")],
     ["[4] áudio ouvido mantém CTA bloqueado", "TTS_HEARD_CTA_BLOCKED", src("ttsCorrelation", '  return state.phase === "STARTED" || state.phase === "HEARD" || state.phase === "DONE";', '  return state.phase === "DONE" && !state.startEventMissed;')],
-    ["[5] onDone ausente gera espera infinita", "TTS_ONDONE_WAIT_FOREVER", src("tts", "if (!ttsPlaybackConfirmed(playback) && (result.started || !result.interrupted)) {", "if (false) {")],
-    ["evento carrega o texto falado", "TTS_EVENT_CARRIES_TEXT", src("ttsCorrelation", '    code: typeof value.code === "string" ? value.code : null,\n  };', '    code: typeof value.code === "string" ? value.code : null,\n    text: value.text,\n  } as TtsEvent;')],
+    ["[5] ACK direto perdido", "TTS_ONDONE_WAIT_FOREVER", src("nativeSpeech", '    subscribed({ type: "TTS_STARTED", requestId, utteranceId: result.utteranceId, timestamp: Date.now(), engineState: "native-direct", source: "direct" });', "    void result;")],
+    ["evento carrega o texto falado", "TTS_EVENT_CARRIES_TEXT", src("ttsCorrelation", '    code: typeof value.code === "string" ? value.code : null,\n    source: "event",\n  };', '    code: typeof value.code === "string" ? value.code : null,\n    source: "event",\n    text: value.text,\n  } as TtsEvent;')],
     ["callback global volta", "TTS_GLOBAL_CALLBACK", src("nativeSpeech", "// ── RC2.2.24 — eventos de TTS correlacionados", "const ttsStartWaiters = new Set();\n// ── RC2.2.24 — eventos de TTS correlacionados")],
   ],
   "guided-try-advance": [

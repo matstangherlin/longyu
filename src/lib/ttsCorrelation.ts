@@ -32,6 +32,7 @@ export interface TtsEvent {
   engineState: string;
   /** Código estável quando TTS_ERROR (TTS_SPEAK_FAILED, TTS_LANGUAGE_MISSING_DATA…). */
   code?: string | null;
+  source?: "event" | "direct" | "query";
 }
 
 export type TtsPhase = "IDLE" | "REQUESTED" | "QUEUED" | "STARTED" | "HEARD" | "DONE" | "STOPPED" | "ERROR";
@@ -46,6 +47,7 @@ export interface TtsPlayback {
   events: TtsEventType[];
   /** Eventos de OUTRA fala ignorados (um START antigo nunca libera a atual). */
   ignoredForeign: number;
+  ackSources?: Array<"event" | "direct" | "query">;
 }
 
 export const IDLE_TTS_PLAYBACK: TtsPlayback = { requestId: null, phase: "IDLE", startEventMissed: false, code: null, events: [], ignoredForeign: 0 };
@@ -67,18 +69,21 @@ const TERMINAL: readonly TtsPhase[] = ["DONE", "STOPPED", "ERROR"];
 export function applyTtsEvent(state: TtsPlayback, event: TtsEvent): TtsPlayback {
   if (!state.requestId || event.requestId !== state.requestId) return { ...state, ignoredForeign: state.ignoredForeign + 1 };
   const events = [...state.events, event.type];
+  const ackSources = event.type === "TTS_STARTED" || event.type === "TTS_DONE"
+    ? Array.from(new Set([...(state.ackSources ?? []), event.source ?? "event"])) as TtsPlayback["ackSources"]
+    : state.ackSources;
   switch (event.type) {
     case "TTS_REQUESTED":
       return { ...state, events };
     case "TTS_QUEUED":
       return state.phase === "REQUESTED" ? { ...state, phase: "QUEUED", events } : { ...state, events };
     case "TTS_STARTED":
-      if (TERMINAL.includes(state.phase) && state.phase !== "STOPPED") return { ...state, events };
+      if (TERMINAL.includes(state.phase) && state.phase !== "STOPPED") return { ...state, events, ackSources };
       // Começou = o aluno está ouvindo (HEARD). START tardio depois de DONE não regride.
-      return { ...state, phase: state.phase === "DONE" ? "DONE" : "HEARD", events };
+      return { ...state, phase: state.phase === "DONE" ? "DONE" : "HEARD", events, ackSources };
     case "TTS_DONE": {
       const heardBefore = state.phase === "STARTED" || state.phase === "HEARD";
-      return { ...state, phase: "DONE", startEventMissed: state.startEventMissed || !heardBefore, events };
+      return { ...state, phase: "DONE", startEventMissed: state.startEventMissed || !heardBefore, events, ackSources };
     }
     case "TTS_STOPPED":
       // Interrompida por outra fala/tela: se já tinha começado, o que foi ouvido vale.
@@ -131,6 +136,7 @@ export function sanitizeTtsEvent(raw: unknown): TtsEvent | null {
     timestamp: typeof value.timestamp === "number" ? value.timestamp : Date.now(),
     engineState: typeof value.engineState === "string" ? value.engineState : "unknown",
     code: typeof value.code === "string" ? value.code : null,
+    source: "event",
   };
 }
 

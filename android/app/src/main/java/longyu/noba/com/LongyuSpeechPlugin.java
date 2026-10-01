@@ -68,12 +68,46 @@ public class LongyuSpeechPlugin extends Plugin {
     /** -1 = inicializando; TextToSpeech.SUCCESS / ERROR depois do onInit. */
     private int ttsInitStatus = -1;
     private PluginCall speakCall;
+    private PluginCall startCall;
+    private Runnable startTimeout;
+    private static final long TTS_START_TIMEOUT_MS = 3000L;
     private int utteranceSeq = 0;
     /** RC2.2.17 — só a fala CORRENTE pode resolver/rejeitar speakCall. */
     private String currentUtteranceId;
     /** RC2.2.24 — requestId (JS) da fala corrente e se o motor já disse onStart. */
     private String currentRequestId;
     private boolean currentStarted = false;
+    private static final class TtsPlaybackSnapshot {
+        final String requestId;
+        final String utteranceId;
+        String state = "QUEUED";
+        boolean started = false;
+        boolean done = false;
+        String errorCode = null;
+
+        TtsPlaybackSnapshot(String requestId, String utteranceId) {
+            this.requestId = requestId;
+            this.utteranceId = utteranceId;
+        }
+
+        JSObject toJson() {
+            JSObject result = new JSObject();
+            result.put("requestId", requestId);
+            result.put("utteranceId", utteranceId);
+            result.put("state", state);
+            result.put("started", started);
+            result.put("done", done);
+            result.put("errorCode", errorCode);
+            return result;
+        }
+    }
+    private final java.util.LinkedHashMap<String, TtsPlaybackSnapshot> ttsPlaybackByRequest =
+        new java.util.LinkedHashMap<String, TtsPlaybackSnapshot>() {
+            @Override
+            protected boolean removeEldestEntry(java.util.Map.Entry<String, TtsPlaybackSnapshot> eldest) {
+                return size() > 32;
+            }
+        };
     /** utteranceId → requestId (limitado): evento atrasado carrega a identidade da SUA fala. */
     private final java.util.LinkedHashMap<String, String> requestByUtterance = new java.util.LinkedHashMap<String, String>() {
         @Override
@@ -226,7 +260,95 @@ public class LongyuSpeechPlugin extends Plugin {
                 return;
             }
             emitTts("TTS_QUEUED", rid, id, "queued", null);
+            ttsPlaybackByRequest.put(rid, new TtsPlaybackSnapshot(rid, id));
         });
+    }
+
+    @PluginMethod
+    public void startSpeak(PluginCall call) {
+        main.post(() -> {
+            String text = call.getString("text", "");
+            String requestId = call.getString("requestId", null);
+            if (text == null || text.trim().isEmpty()) {
+                call.reject("empty text", "TTS_EMPTY_TEXT");
+                return;
+            }
+            if (requestId == null || requestId.isEmpty()) {
+                call.reject("requestId required", "TTS_REQUEST_ID_REQUIRED");
+                return;
+            }
+            String language = call.getString("language", "zh-CN");
+            Float rate = call.getFloat("rate", 0.85f);
+            Float pitch = call.getFloat("pitch", 1.0f);
+            if (tts != null) tts.stop();
+            finishSpeak(true);
+            startCall = call;
+            startTimeout = () -> {
+                if (startCall != call) return;
+                startCall = null;
+                startTimeout = null;
+                call.reject("start not confirmed", "TTS_START_NOT_CONFIRMED");
+            };
+            main.postDelayed(startTimeout, TTS_START_TIMEOUT_MS);
+            ensureTts(() -> {
+                if (startCall != call) return;
+                String status = languageStatus(localeFor(language));
+                if (!"AVAILABLE".equals(status)) {
+                    emitTts("TTS_ERROR", requestId, null, "unavailable", status);
+                    clearStartCall(status);
+                    return;
+                }
+                tts.setLanguage(localeFor(language));
+                tts.setSpeechRate(rate == null ? 0.85f : Math.max(0.3f, Math.min(2.0f, rate)));
+                tts.setPitch(pitch == null ? 1.0f : Math.max(0.5f, Math.min(2.0f, pitch)));
+                String id = UTTERANCE_PREFIX + (++utteranceSeq);
+                requestByUtterance.put(id, requestId);
+                currentUtteranceId = id;
+                currentRequestId = requestId;
+                currentStarted = false;
+                TtsPlaybackSnapshot snapshot = new TtsPlaybackSnapshot(requestId, id);
+                ttsPlaybackByRequest.put(requestId, snapshot);
+                int result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
+                if (result != TextToSpeech.SUCCESS) {
+                    snapshot.state = "ERROR";
+                    snapshot.errorCode = "TTS_SPEAK_FAILED";
+                    clearStartCall("TTS_SPEAK_FAILED");
+                    currentUtteranceId = null;
+                    currentRequestId = null;
+                    emitTts("TTS_ERROR", requestId, id, "error", "TTS_SPEAK_FAILED");
+                    return;
+                }
+                emitTts("TTS_QUEUED", requestId, id, "queued", null);
+            });
+        });
+    }
+
+    @PluginMethod
+    public void getTtsPlaybackState(PluginCall call) {
+        main.post(() -> {
+            String requestId = call.getString("requestId", currentRequestId);
+            TtsPlaybackSnapshot snapshot = requestId == null ? null : ttsPlaybackByRequest.get(requestId);
+            if (snapshot != null) {
+                call.resolve(snapshot.toJson());
+                return;
+            }
+            JSObject result = new JSObject();
+            result.put("requestId", requestId);
+            result.put("utteranceId", (String) null);
+            result.put("state", "IDLE");
+            result.put("started", false);
+            result.put("done", false);
+            result.put("errorCode", (String) null);
+            call.resolve(result);
+        });
+    }
+
+    private void clearStartCall(String code) {
+        if (startTimeout != null) main.removeCallbacks(startTimeout);
+        startTimeout = null;
+        PluginCall pending = startCall;
+        startCall = null;
+        if (pending != null) pending.reject(code, code);
     }
 
     /**
@@ -259,6 +381,22 @@ public class LongyuSpeechPlugin extends Plugin {
                 emitTts("TTS_STARTED", requestFor(utteranceId), utteranceId, "speaking", null);
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
                 currentStarted = true;
+                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(currentRequestId);
+                if (snapshot != null) {
+                    snapshot.state = "STARTED";
+                    snapshot.started = true;
+                }
+                if (startTimeout != null) main.removeCallbacks(startTimeout);
+                startTimeout = null;
+                PluginCall pending = startCall;
+                startCall = null;
+                if (pending != null) {
+                    JSObject result = new JSObject();
+                    result.put("requestId", currentRequestId);
+                    result.put("utteranceId", utteranceId);
+                    result.put("started", true);
+                    pending.resolve(result);
+                }
                 JSObject event = new JSObject();
                 event.put("state", "start");
                 notifyListeners("ttsState", event);
@@ -269,8 +407,14 @@ public class LongyuSpeechPlugin extends Plugin {
         public void onDone(String utteranceId) {
             main.post(() -> {
                 emitTts("TTS_DONE", requestFor(utteranceId), utteranceId, "idle", null);
+                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestFor(utteranceId));
+                if (snapshot != null) {
+                    snapshot.state = "DONE";
+                    snapshot.done = true;
+                }
                 // O onStop/onDone atrasado da fala ANTERIOR não encerra a atual.
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
+                clearStartCall("TTS_START_NOT_CONFIRMED");
                 finishSpeak(false);
             });
         }
@@ -279,7 +423,13 @@ public class LongyuSpeechPlugin extends Plugin {
         public void onError(String utteranceId) {
             main.post(() -> {
                 emitTts("TTS_ERROR", requestFor(utteranceId), utteranceId, "error", "TTS_SPEAK_FAILED");
+                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestFor(utteranceId));
+                if (snapshot != null) {
+                    snapshot.state = "ERROR";
+                    snapshot.errorCode = "TTS_SPEAK_FAILED";
+                }
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
+                clearStartCall("TTS_SPEAK_FAILED");
                 PluginCall call = speakCall;
                 speakCall = null;
                 currentUtteranceId = null;
@@ -295,6 +445,8 @@ public class LongyuSpeechPlugin extends Plugin {
         public void onStop(String utteranceId, boolean interrupted) {
             main.post(() -> {
                 emitTts("TTS_STOPPED", requestFor(utteranceId), utteranceId, "stopped", null);
+                TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestFor(utteranceId));
+                if (snapshot != null && !snapshot.done) snapshot.state = "STOPPED";
                 if (utteranceId == null || !utteranceId.equals(currentUtteranceId)) return;
                 finishSpeak(true);
             });
@@ -306,6 +458,11 @@ public class LongyuSpeechPlugin extends Plugin {
         String utteranceId = currentUtteranceId;
         String requestId = currentRequestId;
         boolean started = currentStarted;
+        if (interrupted) {
+            TtsPlaybackSnapshot snapshot = ttsPlaybackByRequest.get(requestId);
+            if (snapshot != null && !snapshot.done) snapshot.state = "STOPPED";
+            clearStartCall("TTS_STOPPED");
+        }
         speakCall = null;
         currentUtteranceId = null;
         currentRequestId = null;

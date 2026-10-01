@@ -429,6 +429,12 @@ function speakNative(text: string, opts: SpeakOptions): void {
   setActiveTtsRequest(requestId);
   let playback = beginTtsPlayback(requestId);
   let started = false;
+  let ended = false;
+  const end = () => {
+    if (ended) return;
+    ended = true;
+    opts.onend?.();
+  };
   const confirmStart = () => {
     if (started || !ttsPlaybackConfirmed(playback)) return;
     started = true;
@@ -438,23 +444,23 @@ function speakNative(text: string, opts: SpeakOptions): void {
     playback = applyTtsEvent(playback, event);
     opts.onTtsEvent?.(event, playback);
     confirmStart();
+    if (event.type === "TTS_DONE" || event.type === "TTS_STOPPED") end();
+    else if (event.type === "TTS_ERROR") {
+      if (!started) opts.onerror?.(event.code ?? "TTS_ERROR");
+      end();
+    }
   };
   void nativeSpeakTracked(spoken, { rate, pitch: opts.pitch ?? 1, requestId }, onEvent).then((result) => {
     if (result.ok) {
       nativeTtsKnownAvailable = true;
       nativeTtsUnavailableReason = null;
-      // O plugin resolve no onDone/onStop DESTA fala. Se o evento de início
-      // não chegou ao JS, o retorno ainda prova o que o motor fez.
-      if (!ttsPlaybackConfirmed(playback) && (result.started || !result.interrupted)) {
-        onEvent({ type: "TTS_DONE", requestId, utteranceId: result.utteranceId, timestamp: Date.now(), engineState: "resolved" });
-      }
     } else {
-      if (/^TTS_(LANGUAGE|UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
+      if (/^TTS_(LANGUAGE|UNAVAILABLE|NATIVE_PLUGIN_UNAVAILABLE)/.test(result.code)) nativeTtsKnownAvailable = false;
       nativeTtsUnavailableReason = result.code;
-      opts.onerror?.(result.code);
-      if (playback.phase !== "ERROR") onEvent({ type: "TTS_ERROR", requestId, utteranceId: null, timestamp: Date.now(), engineState: "rejected", code: result.code });
+      if (!ttsPlaybackConfirmed(playback)) {
+        if (playback.phase !== "ERROR") onEvent({ type: "TTS_ERROR", requestId, utteranceId: null, timestamp: Date.now(), engineState: "rejected", code: result.code });
+      }
     }
-    opts.onend?.();
   });
 }
 

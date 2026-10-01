@@ -61,7 +61,7 @@ export const PLAYBACK_END_TIMEOUT_MS = 8_000;
 export const CANONICAL_AUDIO_ASSETS: Readonly<Record<string, string>> = {};
 
 /** Códigos que significam "falta a voz chinesa", não "falhou agora". */
-const UNAVAILABLE_CODE = /^(TTS_LANGUAGE_MISSING_DATA|TTS_LANGUAGE_NOT_SUPPORTED|TTS_UNAVAILABLE|WEB_TTS_UNAVAILABLE)$/;
+const UNAVAILABLE_CODE = /^(TTS_LANGUAGE_MISSING_DATA|TTS_LANGUAGE_NOT_SUPPORTED|TTS_UNAVAILABLE|TTS_NATIVE_PLUGIN_UNAVAILABLE|WEB_TTS_UNAVAILABLE)$/;
 
 export function isVoiceMissingReason(reason: string | null | undefined): boolean {
   return reason === "TTS_LANGUAGE_MISSING_DATA" || reason === "TTS_LANGUAGE_NOT_SUPPORTED";
@@ -142,8 +142,8 @@ export interface PlayMandarinOptions {
 }
 
 function engineFor(text: string): PlaybackEngine {
-  if (CANONICAL_AUDIO_ASSETS[text]) return "asset";
   if (usesNativeVoice()) return "native-tts";
+  if (CANONICAL_AUDIO_ASSETS[text]) return "asset";
   if (isTTSAvailable()) return "web-tts";
   return "none";
 }

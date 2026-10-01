@@ -201,8 +201,8 @@ export async function validateNativeTtsCorrelation(s) {
   const ns = stripComments(s.src.nativeSpeech);
   const trackedAt = ns.indexOf("export async function nativeSpeakTracked(");
   const tracked = trackedAt < 0 ? "" : ns.slice(trackedAt, ns.indexOf("\n}\n", trackedAt));
-  const awaitAt = tracked.indexOf("await initNativeTtsEventBridge();");
-  const speakAt = tracked.indexOf("LongyuSpeech.speak(");
+  const awaitAt = tracked.indexOf("initNativeTtsEventBridge()");
+  const speakAt = tracked.indexOf("LongyuSpeech.startSpeak(");
   if (awaitAt < 0 || speakAt < 0 || awaitAt > speakAt) fail("TTS_LISTENER_AFTER_SPEAK", "nativeSpeakTracked", "a ponte existe ANTES do pedido ao motor");
   if (!/ttsSubscribers\.get\(event\.requestId\)/.test(ns)) fail("TTS_FOREIGN_EVENT_RELEASES", FILES.nativeSpeech, "evento entregue só ao assinante da requestId");
   if (/onNativeTtsStart|ttsStartWaiters/.test(ns + stripComments(s.src.tts))) fail("TTS_GLOBAL_CALLBACK", FILES.nativeSpeech, "sem callback global sem identidade");
@@ -213,7 +213,8 @@ export async function validateNativeTtsCorrelation(s) {
   if (!/event\.put\("requestId", requestId\)/.test(emit) || !/event\.put\("timestamp"/.test(emit) || !/event\.put\("engineState"/.test(emit) || /text/.test(emit)) fail("TTS_EVENT_CARRIES_TEXT", "emitTts", "requestId/utteranceId/timestamp/engineState, nunca texto");
   if (!/ret\.put\("started", started\)/.test(java)) fail("TTS_DONE_WITHOUT_START_BLOCKS", "finishSpeak", "o retorno prova se o motor começou ESTA fala");
   const native = body(stripComments(s.src.tts), "function speakNative(text: string, opts: SpeakOptions): void");
-  if (!/if \(!ttsPlaybackConfirmed\(playback\) && \(result\.started \|\| !result\.interrupted\)\)/.test(native)) fail("TTS_ONDONE_WAIT_FOREVER", "speakNative", "retorno do plugin confirma DONE quando o evento não chegou");
+  if (!/source: "direct"/.test(tracked) || !/source: "query"/.test(tracked) || !/if \(event\.type === "TTS_DONE" \|\| event\.type === "TTS_STOPPED"\) end\(\)/.test(native))
+    fail("TTS_ONDONE_WAIT_FOREVER", "speakNative", "START vem de ACK direto/consulta; DONE continua separado");
   if (!/PLAYBACK_START_TIMEOUT_MS = \d+/.test(s.src.audioPlayback)) fail("TTS_ONDONE_WAIT_FOREVER", FILES.audioPlayback, "sem início no prazo = falha perceptível");
   return failures;
 }
