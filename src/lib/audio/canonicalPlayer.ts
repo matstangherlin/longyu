@@ -327,8 +327,8 @@ export async function cancelCanonicalAudio(requestId: string): Promise<void> {
     let ignoredStale = false;
     try {
       const result = await media.cancelCanonicalAudio({ requestId });
-      // STALE_REQUEST: B já é ativo — não inventar CANCELLED em B; só fechar A se handler existir.
-      ignoredStale = Boolean(result && (result as { ignored?: boolean }).ignored);
+      // STALE_REQUEST: B já é ativo — só fechar Promise de A se o handler ainda existir.
+      ignoredStale = Boolean(result?.ignored);
     } catch {
       /* ignore */
     }
