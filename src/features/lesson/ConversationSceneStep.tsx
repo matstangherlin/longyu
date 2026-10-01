@@ -45,7 +45,8 @@ import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/producti
 import { isConversationV2Enabled } from "../../lib/featureFlags";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
-import { noteUserGesture, hasRecentTtsGesture } from "../../lib/tts";
+import { hasRecentTtsGesture } from "../../lib/tts";
+import { safeSideEffect } from "../../lib/safeSideEffect";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import {
   KeyboardShortcutHint,
@@ -1525,21 +1526,30 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
 
   function advance() {
     const sceneId = step.sceneId ?? "scene";
-    noteUserGesture();
-    // RC2.2.31B — só handler_enter aqui; pointer/click vêm dos observers reais.
-    recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: node?.id ?? null });
-    recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
-    traceLessonStep({ lessonId: sceneId, stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
+    // RC2.2.31C — state first. Gesture/trace/audio are side effects; never gate goTo.
     if (node?.interaction) {
       setRuntime((prev) => ({ ...prev, answering: true, mode: "answering" }));
+      safeSideEffect("conversation_trace", () => {
+        recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: node?.id ?? null });
+        recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
+      });
       return;
     }
     if (node?.nextNodeId) {
       setHint(null);
       goTo(node.nextNodeId, nodeById.get(node.nextNodeId));
+      safeSideEffect("conversation_trace", () => {
+        recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: node?.id ?? null });
+        recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
+        traceLessonStep({ lessonId: sceneId, stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
+      });
       return;
     }
     finish();
+    safeSideEffect("conversation_trace", () => {
+      recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: node?.id ?? null });
+      recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
+    });
   }
 
   const continueObservers = {
@@ -1852,14 +1862,15 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
 
   function advanceDialogue() {
     const sceneId = step.sceneId ?? "scene";
-    noteUserGesture();
-    // RC2.2.31B — traces de pointer/click só nos observers reais do NativeSafeAction.
-    recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: `line-${lineIndex}` });
-    recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: `line-${lineIndex}` });
+    // RC2.2.31C — V1 state first; no noteUserGesture on critical path.
     if (lineIndex < lines.length - 1) {
       // RC2.2.24 — sem TTS no toque: a fala nova aparece e só então a bolha fala.
       truth.begin(`line-${lineIndex}`, `line-${lineIndex + 1}`);
       setLineIndex((index) => index + 1);
+      safeSideEffect("conversation_trace", () => {
+        recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: `line-${lineIndex}` });
+        recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: `line-${lineIndex}` });
+      });
       return;
     }
     if (checkpoint) {

@@ -1,0 +1,47 @@
+{
+  "wave": "RC2_2_31C",
+  "bugs": [
+    {
+      "id": "ANDROID_WEBVIEW_SPEECH_SYNTHESIS_UNDEFINED",
+      "severity": "P0",
+      "releaseBlocking": true,
+      "physicalStatus": "REPRODUCED_PRE_HEAD",
+      "summary": "isTTSAvailable true via LongyuSpeech while window.speechSynthesis undefined → noteUserGesture TypeError → blocks Guided Try audio request and Conversation goTo"
+    },
+    {
+      "id": "ANDROID_CANONICAL_AUDIO_SILENT",
+      "severity": "P0",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "summary": "Guided Try asset path never confirmed audible on prior APK"
+    },
+    {
+      "id": "ANDROID_CONVERSATION_CONTINUE_STALL",
+      "severity": "P0",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "summary": "Continuar tap does not advance node when gesture helper throws"
+    },
+    {
+      "id": "ANDROID_SEQUENTIAL_AUDIO_CANCEL_RACE",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "physicalStatus": "FAIL",
+      "summary": "Second conversation line silent / cancelled"
+    },
+    {
+      "id": "GUIDED_TRY_MISLEADING_VOICE_INSTALL",
+      "severity": "P1",
+      "releaseBlocking": false,
+      "physicalStatus": "CODE_FIXED",
+      "summary": "Asset failure showed Configurar voz chinesa"
+    },
+    {
+      "id": "READY_COUNTS_AS_HEARD",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "physicalStatus": "CODE_FIXED",
+      "summary": "ENDED-after-READY laundering removed; need position/isPlaying proof"
+    }
+  ]
+}

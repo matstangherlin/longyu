@@ -303,7 +303,14 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
       return;
     }
 
-    if (options.userGesture !== false) noteUserGesture();
+    // RC2.2.31C — gesture unlock is best-effort. Never abort before native player.
+    if (options.userGesture !== false) {
+      try {
+        noteUserGesture();
+      } catch {
+        recordTechEvent("js_error", { errorClass: "GestureUnlockError", source: "playMandarinAudio" });
+      }
+    }
     // RC2.2.31 — asset canônico usa CANONICAL_MEDIA; TTS so para fallback.
     claimedOwner = engine === "asset" || engine === "native-media" ? "CANONICAL_MEDIA" : "TTS";
     if (claimedOwner === "CANONICAL_MEDIA") {

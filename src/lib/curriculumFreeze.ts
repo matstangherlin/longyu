@@ -718,6 +718,31 @@ export const RC2_2_31B_ANDROID_RUNTIME_FINAL_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.31C — ANDROID WEBVIEW GESTURE ROOT CAUSE on #305 tip 96d6dc7d.
+ * Separate Web Speech from native TTS; Direct MediaPlayer; conversation
+ * independent of audio helpers. Fingerprint c48b008c9c1e. Closed Beta NO-GO.
+ */
+export const RC2_2_31C_ANDROID_WEBVIEW_GESTURE_EXCEPTION = {
+  id: "RC2_2_31C_ANDROID_WEBVIEW_GESTURE_ROOT_CAUSE",
+  scope: "webSpeechSynthesis guard, noteUserGesture never-throw, gesture out of conversation critical path, Direct Asset MediaPlayer, honest playback proof, Guided Try asset-first recovery — no new gamification/curriculum/Pro",
+  areas: [
+    "Native TTS availability != Web Speech API availability",
+    "Conversation advance/goTo never calls noteUserGesture",
+    "playCanonicalAudio always reached after best-effort gesture",
+    "Direct MediaPlayer primary for packaged fixed speech; Media3 fallback",
+  ],
+  forbids: [
+    "new LessonEngine, SRS, StoryEngine, ProfileEngine or reward engine",
+    "touching #273 / changing package / enabling Android billing or Production Play",
+    "declaring CLOSED_BETA or APK PASS without owner physical acceptance",
+    "READY/ENDED laundering as audible HEARD without position/isPlaying proof",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-31c-android-runtime-root-cause",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o
