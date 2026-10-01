@@ -27,8 +27,10 @@ export const CONVERSATION_TRACE_EVENTS = [
   "conversation_audio_requested",
   "conversation_audio_started",
   "conversation_dom_stall",
-  // RC2.2.29 — contrato APK (pointer → áudio)
+  // RC2.2.29 / 31B — contrato APK (pointer → áudio); traces só de eventos reais
   "conversation_pointer_down",
+  "conversation_pointer_up",
+  "conversation_pointer_fallback",
   "conversation_click",
   "conversation_handler_enter",
   "conversation_lock_acquired",

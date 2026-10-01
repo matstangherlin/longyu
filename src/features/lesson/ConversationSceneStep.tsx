@@ -1,6 +1,6 @@
 import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { useNativeSafeAction } from "../../components/native/NativeSafeAction";
+import { useConversationAction } from "../../components/native/ConversationActionBoundary";
 import {
   CONVERSATION_DOM_STALL_MS,
   conversationDiagnostic,
@@ -1302,13 +1302,35 @@ function useConversationTransitionTruth(
 }
 
 /** Transição que não apareceu: nunca botão morto. "TRANSITION STALL" só em QA. */
-function ConversationStallPanel({ sceneId, expected, current, onRetry }: { sceneId: string; expected: string; current: string | null; onRetry: () => void }) {
+function ConversationStallPanel({
+  sceneId,
+  expected,
+  current,
+  onRetry,
+  safeHandlers,
+}: {
+  sceneId: string;
+  expected: string;
+  current: string | null;
+  onRetry: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  safeHandlers?: { onPointerDown: (e: any) => void; onPointerUp: (e: any) => void; onClick: (e: any) => void };
+}) {
   const qa = deviceQaEnabled();
   return (
     <div className="mt-3 rounded-xl border border-accent-soft bg-accent-soft/40 p-3 text-sm" role="status" data-testid="conversation-dom-stall" data-expected-node={expected}>
       {qa && <p className="font-semibold text-ink">TRANSITION STALL · esperado {expected} · visível {current ?? "—"}</p>}
       <div className="mt-2 flex flex-wrap gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={onRetry} data-testid="conversation-stall-retry" className="touch-manipulation">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onPointerDown={safeHandlers?.onPointerDown as never}
+          onPointerUp={safeHandlers?.onPointerUp as never}
+          onClick={safeHandlers?.onClick ?? onRetry}
+          data-testid="conversation-stall-retry"
+          className="touch-manipulation"
+        >
           {qa ? "Tentar transição novamente" : t("player.stepStalledRetry")}
         </Button>
         {qa && (
@@ -1504,6 +1526,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   function advance() {
     const sceneId = step.sceneId ?? "scene";
     noteUserGesture();
+    // RC2.2.31B — só handler_enter aqui; pointer/click vêm dos observers reais.
     recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: node?.id ?? null });
     recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: node?.id ?? null });
     traceLessonStep({ lessonId: sceneId, stepIndex: -1, kind: `conversation_scene:${node?.id ?? "none"}`, attempt: 0, event: "scene_continue_pressed" });
@@ -1519,15 +1542,51 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     finish();
   }
 
-  // RC2.2.31 — NativeSafeAction: pointer → click → fallback idempotente.
-  const continueSafe = useNativeSafeAction(() => {
-    const sceneId = step.sceneId ?? "scene";
-    recordConversationTrace({ event: "conversation_click", sceneId, nodeId: node?.id ?? null });
-    advance();
-  }, `v2-continue:${nodeId}:${spokenCount}`);
+  const continueObservers = {
+    onPointerDownObserved: () =>
+      recordConversationTrace({ event: "conversation_pointer_down", sceneId: step.sceneId ?? "scene", nodeId: node?.id ?? null }),
+    onPointerUpObserved: () =>
+      recordConversationTrace({ event: "conversation_pointer_up", sceneId: step.sceneId ?? "scene", nodeId: node?.id ?? null }),
+    onClickObserved: () =>
+      recordConversationTrace({ event: "conversation_click", sceneId: step.sceneId ?? "scene", nodeId: node?.id ?? null }),
+    onFallbackObserved: () =>
+      recordConversationTrace({ event: "conversation_pointer_fallback", sceneId: step.sceneId ?? "scene", nodeId: node?.id ?? null }),
+  };
+  // RC2.2.31B — ConversationActionBoundary / NativeSafeAction com traces reais.
+  const continueSafe = useConversationAction("continue", `v2-continue:${nodeId}:${spokenCount}`, advance, continueObservers);
   const onContinuePointerDown = continueSafe.onPointerDown;
   const onContinuePointerUp = continueSafe.onPointerUp;
   const onContinueClick = continueSafe.onClick;
+
+  const revealSafe = useConversationAction(
+    "reveal",
+    `v2-reveal:${nodeId}`,
+    () => {
+      if (!revealPending) return;
+      const nextId = revealPending.nextNodeId;
+      setRevealPending(null);
+      goTo(nextId, nextId ? nodeById.get(nextId) : undefined);
+    },
+    continueObservers
+  );
+
+  const stallRetrySafe = useConversationAction("stall-retry", `v2-stall:${nodeId}`, () => {
+    const expected = truth.stall;
+    if (!expected) return;
+    truth.clearStall();
+    if (nodeById.has(expected)) {
+      goTo(expected, nodeById.get(expected), {
+        reuseTransitionId: lastTransitionIdRef.current ?? undefined,
+      });
+    }
+  });
+
+  const repairSafe = useConversationAction("repair", `v2-repair:${nodeId}`, () => {
+    if (!repairPending) return;
+    const resumeId = repairPending.resumeNodeId;
+    setRepairPending(null);
+    goTo(resumeId, resumeId ? nodeById.get(resumeId) : undefined);
+  });
 
   useExerciseHotkeys({
     enabled: Boolean(node) && !answering && !repairPending && !revealPending,
@@ -1611,15 +1670,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
             sceneId={step.sceneId ?? "scene"}
             expected={truth.stall}
             current={node.id}
-            onRetry={() => {
-              const expected = truth.stall!;
-              truth.clearStall();
-              if (nodeById.has(expected)) {
-                goTo(expected, nodeById.get(expected), {
-                  reuseTransitionId: lastTransitionIdRef.current ?? undefined,
-                });
-              }
-            }}
+            onRetry={() => stallRetrySafe.onClick({} as never)}
+            safeHandlers={stallRetrySafe}
           />
         )}
 
@@ -1636,13 +1688,11 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
               <ExerciseText value={revealPending.answer} type={containsCjk(revealPending.answer) ? "hanzi" : "pt"} />
             </p>
             <Button
-              className="longyu-press-feedback mt-3 w-full shadow-lift"
+              className="longyu-press-feedback pointer-events-auto relative z-10 mt-3 w-full touch-manipulation shadow-lift"
               data-testid="conversation-reveal-continue"
-              onClick={() => {
-                const nextId = revealPending.nextNodeId;
-                setRevealPending(null);
-                goTo(nextId, nextId ? nodeById.get(nextId) : undefined);
-              }}
+              onPointerDown={revealSafe.onPointerDown}
+              onPointerUp={revealSafe.onPointerUp}
+              onClick={revealSafe.onClick}
             >
               {t("player.continue")} <IconChevron width={18} height={18} />
             </Button>
@@ -1687,14 +1737,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
         )}
 
         {repairPending && step.conversationRepairBeat && (
-          <RepairBeatPanel
-            beat={step.conversationRepairBeat}
-            onRecovered={() => {
-              const resumeId = repairPending.resumeNodeId;
-              setRepairPending(null);
-              goTo(resumeId, resumeId ? nodeById.get(resumeId) : undefined);
-            }}
-          />
+          <RepairBeatPanel beat={step.conversationRepairBeat} onRecovered={() => repairSafe.onClick({} as never)} />
         )}
 
         {!repairPending && answering && node.interaction && (
@@ -1810,8 +1853,7 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
   function advanceDialogue() {
     const sceneId = step.sceneId ?? "scene";
     noteUserGesture();
-    recordConversationTrace({ event: "conversation_pointer_down", sceneId, nodeId: `line-${lineIndex}` });
-    recordConversationTrace({ event: "conversation_click", sceneId, nodeId: `line-${lineIndex}` });
+    // RC2.2.31B — traces de pointer/click só nos observers reais do NativeSafeAction.
     recordConversationTrace({ event: "conversation_handler_enter", sceneId, nodeId: `line-${lineIndex}` });
     recordConversationTrace({ event: "conversation_continue_tap", sceneId, nodeId: `line-${lineIndex}` });
     if (lineIndex < lines.length - 1) {
@@ -1828,9 +1870,28 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     onDone(true);
   }
 
-  // RC2.2.31 — V1 usa o mesmo NativeSafeAction (nao click-only no APK).
-  const v1ContinueSafe = useNativeSafeAction(advanceDialogue, `v1-continue:${step.sceneId}:${lineIndex}`);
-
+  const v1Observers = {
+    onPointerDownObserved: () =>
+      recordConversationTrace({ event: "conversation_pointer_down", sceneId: step.sceneId ?? "scene", nodeId: `line-${lineIndex}` }),
+    onPointerUpObserved: () =>
+      recordConversationTrace({ event: "conversation_pointer_up", sceneId: step.sceneId ?? "scene", nodeId: `line-${lineIndex}` }),
+    onClickObserved: () =>
+      recordConversationTrace({ event: "conversation_click", sceneId: step.sceneId ?? "scene", nodeId: `line-${lineIndex}` }),
+    onFallbackObserved: () =>
+      recordConversationTrace({ event: "conversation_pointer_fallback", sceneId: step.sceneId ?? "scene", nodeId: `line-${lineIndex}` }),
+  };
+  // RC2.2.31B — V1 usa ConversationActionBoundary (nao click-only; traces reais).
+  const v1ContinueSafe = useConversationAction("continue", `v1-continue:${step.sceneId}:${lineIndex}`, advanceDialogue, v1Observers);
+  const v1StallRetrySafe = useConversationAction("stall-retry", `v1-stall:${step.sceneId}:${lineIndex}`, () => {
+    const expected = truth.stall;
+    if (!expected) return;
+    truth.clearStall();
+    const wanted = Number(expected.replace("line-", ""));
+    if (Number.isFinite(wanted) && wanted < lines.length) {
+      truth.begin(`line-${lineIndex}`, `line-${wanted}`);
+      setLineIndex(wanted);
+    }
+  });
   useExerciseHotkeys({
     enabled: lines.length > 0 && phase === "dialogue",
     mode: "choice",
@@ -1902,14 +1963,8 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
             sceneId={step.sceneId ?? "scene"}
             expected={truth.stall}
             current={`line-${lineIndex}`}
-            onRetry={() => {
-              truth.clearStall();
-              const wanted = Number(truth.stall?.replace("line-", ""));
-              if (Number.isFinite(wanted) && wanted < lines.length) {
-                truth.begin(`line-${lineIndex}`, `line-${wanted}`);
-                setLineIndex(wanted);
-              }
-            }}
+            onRetry={() => v1StallRetrySafe.onClick({} as never)}
+            safeHandlers={v1StallRetrySafe}
           />
         )}
 
