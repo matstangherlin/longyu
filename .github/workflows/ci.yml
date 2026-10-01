@@ -25,7 +25,18 @@ jobs:
         run: npm ci
 
       - name: Install ffmpeg (audio quality gates)
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          # Apt mirrors sometimes hang; fail fast and let the job retry instead of 25+ min stalls.
+          sudo DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=3 \
+            -o DPkg::Lock::Timeout=60 \
+            update -y
+          sudo DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=3 \
+            -o DPkg::Lock::Timeout=60 \
+            install -y --no-install-recommends ffmpeg
 
       - name: Validate beta
         run: npm run validate:beta
