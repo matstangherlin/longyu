@@ -24,6 +24,13 @@ const dialogue = fs.readFileSync("src/components/guide/GuideDialogue.tsx", "utf8
 const blipSection = soundFx.slice(soundFx.indexOf("Guide text voice"));
 
 // ── Copyright / asset rule ────────────────────────────────────────────────────
+// RC2.2.28: first-party Longyu core pack lives under public/audio/core (and the
+// source pack under assets/audio/core). Those are allowed. Everything else —
+// third-party samples under src/ or elsewhere in public/ — still fails.
+const FIRST_PARTY_AUDIO_DIRS = new Set([
+  path.normalize("public/audio/core"),
+  path.normalize("assets/audio/core"),
+]);
 check("nenhum asset de áudio de terceiros no repo de src", () => {
   const offenders = [];
   const walk = (dir) => {
@@ -32,6 +39,8 @@ check("nenhum asset de áudio de terceiros no repo de src", () => {
       if (entry.isDirectory()) {
         walk(full);
       } else if (/\.(mp3|wav|ogg|m4a|aac|flac|opus)$/i.test(entry.name)) {
+        const parent = path.normalize(path.dirname(full));
+        if (FIRST_PARTY_AUDIO_DIRS.has(parent)) continue;
         offenders.push(full);
       }
     }

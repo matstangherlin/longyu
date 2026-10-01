@@ -75,6 +75,7 @@ import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
 import { LessonVictory } from "./LessonVictory";
 import { resolveVictoryContinuePath, cultureReturnPath } from "./nextJourneyContinue";
 import { journeyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
+import { computeCompletionDeltas } from "../../lib/completionDeltas";
 import { studentFirstName } from "../../lib/personalize";
 import type { LessonCompletionSkill } from "./buildLessonCompletionSummary";
 import { t } from "../../i18n/catalog";
@@ -4714,15 +4715,34 @@ export function LessonPlayer() {
           // RC2.2.27 — CompletionSequence só EXIBE deltas já calculados acima
           // (nada é concedido aqui). A ofensiva tem tela própria depois
           // (postLessonView "streak"), então não entra na revelação.
-          qi={newRewards.find((reward) => reward.type === "qi")?.amount ?? 0}
-          medalLabel={newRewards.some((reward) => reward.type === "badge") ? ACCURACY_SERENE_BADGE : null}
-          streakAdvanced={false}
-          progress={
-            isTopicMasteryLesson(lesson) && masteryAtStartRef.current !== null
-              ? { before: Math.min(4, masteryAtStartRef.current), after: Math.min(4, masteryNow), total: 4 }
-              : null
-          }
-          completion={{ lessonId: lesson.id, completionId: attemptIdRef.current ?? String(attemptStartedAtRef.current) }}
+          // RC2.2.28 — unit/phase/feature unlock deltas chegam à victory.
+          {...(() => {
+            const completedBefore = completedLessons.filter((id) => id !== lesson.id);
+            const completedAfter = passed
+              ? completedLessons.includes(lesson.id)
+                ? completedLessons
+                : [...completedLessons, lesson.id]
+              : completedLessons;
+            const deltas = computeCompletionDeltas({
+              lesson,
+              completedBefore,
+              completedAfter,
+              masteryBefore: masteryAtStartRef.current ?? 0,
+              masteryAfter: masteryNow,
+            });
+            return {
+              qi: newRewards.find((reward) => reward.type === "qi")?.amount ?? 0,
+              medalLabel: newRewards.some((reward) => reward.type === "badge") ? ACCURACY_SERENE_BADGE : null,
+              streakAdvanced: false as const,
+              progress:
+                isTopicMasteryLesson(lesson) && masteryAtStartRef.current !== null
+                  ? { before: Math.min(4, masteryAtStartRef.current), after: Math.min(4, masteryNow), total: 4 }
+                  : null,
+              completionKind: deltas.completionKind,
+              unlockLabel: deltas.unlockLabel,
+              completion: { lessonId: lesson.id, completionId: attemptIdRef.current ?? String(attemptStartedAtRef.current) },
+            };
+          })()}
         />
         <ProPaywall open={proPaywallKind !== null} kind={proPaywallKind ?? "qi"} onClose={() => setProPaywallKind(null)} />
       </>

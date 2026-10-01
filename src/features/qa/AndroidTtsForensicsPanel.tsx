@@ -32,6 +32,8 @@ function readExpectedHead(): string {
 
 /**
  * RC2.2.27 — ANDROID TTS FORENSICS (/qa/device, só build de QA).
+ * RC2.2.28 — LEGACY / FALLBACK TTS FORENSICS: não bloqueia o produto.
+ * Conteúdo fixo usa asset canônico; este painel diagnostica o caminho TTS.
  *
  * Prova, no aparelho, qual request chegou, qual entrou no motor, se o motor
  * estava falando (isSpeaking), quais callbacks chegaram e por que a UI decidiu
@@ -156,7 +158,7 @@ export function AndroidTtsForensicsPanel() {
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4" data-testid="qa-tts-forensics" data-build-verdict={verdict}>
-      <h2 className="text-sm font-semibold text-ink">ANDROID TTS FORENSICS</h2>
+      <h2 className="text-sm font-semibold text-ink">LEGACY / FALLBACK TTS FORENSICS</h2>
       <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 font-mono text-[11px] text-ink-soft">
         <dt>Build instalado</dt>
         <dd data-testid="qa-tts-installed-sha">{installedSha ? installedSha.slice(0, 12) : "—"}</dd>

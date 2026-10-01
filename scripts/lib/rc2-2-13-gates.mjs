@@ -324,7 +324,8 @@ export async function validateNativeTts(s) {
     fail("TTS_UNAVAILABILITY_HIDDEN", "LongyuSpeechPlugin.java", "voz ausente vira erro honesto");
   const onPause = fnBody(java, "protected void handleOnPause(");
   if (!/tts\.stop\(\)/.test(onPause)) fail("TTS_NOT_STOPPED_ON_BACKGROUND", "LongyuSpeechPlugin.java handleOnPause", "voz para no background");
-  if (!/registerPlugin\(LongyuSpeechPlugin\.class\);\s*super\.onCreate/.test(stripComments(s.src.mainActivity)))
+  // RC2.2.28+ — LongyuSpeech (e opcionalmente LongyuMedia) antes de super.onCreate.
+  if (!/registerPlugin\(LongyuSpeechPlugin\.class\);[\s\S]*?super\.onCreate/.test(stripComments(s.src.mainActivity)))
     fail("PLUGIN_NOT_REGISTERED", "MainActivity.java", "registerPlugin antes de super.onCreate");
   return failures;
 }

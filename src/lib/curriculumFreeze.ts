@@ -591,6 +591,33 @@ export const RC2_2_27_ANDROID_TTS_ROOT_CAUSE_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.28 — áudio canônico (asset-first), Media3 player, reducer puro de
+ * conversa, provenance dual-SHA e fechamento dos deadlocks de Continuar.
+ * Nenhuma lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda;
+ * o fingerprint continua c48b008c9c1e. TTS vira fallback — não infraestrutura.
+ */
+export const RC2_2_28_DETERMINISTIC_AUDIO_EXCEPTION = {
+  id: "RC2_2_28_DETERMINISTIC_AUDIO",
+  scope: "Canonical audio manifest + core pack, Media3/ExoPlayer LongyuMedia plugin, HTMLAudioElement web player, TTS fallback-only for fixed content, Guided Try core asset path, pure conversationReducer, audio-after-DOM, audio gate DEGRADED, dual SHA build provenance, completion unit/phase/unlock deltas, expanded no-scroll, TTS-independence gate",
+  areas: [
+    "fixed learning audio has audioId; core pack ships in APK; extended may be CDN/cache",
+    "playCanonicalAudio({ audioId, uri, requestId }) with IDLE/PREPARING/READY/PLAYING/ENDED/ERROR",
+    "conversationReducer is pure; audio is a side-effect after DOM_VISIBLE; CONTINUE always commits",
+    "Guided Try listen uses core asset; TTS disabled still advances; CTA enables on HEARD or DEGRADED",
+    "sourceHeadSha and workflowSha are independent; merge SHA is not stale APK",
+  ],
+  forbids: [
+    "new lessons, lesson ids, order, topics or StepKinds",
+    "physical PASS or owner acceptance generated automatically",
+    "making device TTS a hard dependency for Guided Try / authored conversations / Tone / Review",
+    "spoken text, voice recording, OTP, e-mail, password or token logged",
+    "enabling Android billing or Production Play in this wave",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-28-deterministic-audio",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

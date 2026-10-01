@@ -39,6 +39,8 @@ export interface MandarinSpeechRequest {
   mode: MandarinSpeechMode;
   requestId?: string;
   rate?: number;
+  /** RC2.2.28 — chave estável do manifesto (preferida sobre texto). */
+  audioId?: string;
   onState?: (state: PlaybackState, outcome: PlaybackOutcome) => void;
   onTtsEvent?: SpeakOptions["onTtsEvent"];
 }
@@ -84,6 +86,7 @@ export function requestMandarinSpeech(request: MandarinSpeechRequest): MandarinS
     rate: request.rate,
     requestId,
     source: request.source,
+    audioId: request.audioId,
     userGesture: request.mode === "USER_REQUESTED",
     onState: request.onState,
     onTtsEvent: request.onTtsEvent,
@@ -136,6 +139,8 @@ export interface AutoSpeakOptions {
   rate?: number;
   delayMs?: number;
   source?: MandarinSpeechSource;
+  /** RC2.2.28 — chave estável do manifesto. */
+  audioId?: string;
   /** O motor confirmou o início (nunca no agendamento). */
   onstart?: () => void;
   /** Terminou, falhou, foi substituída ou cancelada — sempre chega uma vez. */
@@ -165,6 +170,7 @@ export function scheduleAutoSpeak(text: string, opts: AutoSpeakOptions = {}): ()
       source: opts.source ?? "LESSON_AUDIO",
       mode: "AUTO_PLAY",
       rate: opts.rate,
+      audioId: opts.audioId,
       onState: (state) => {
         if (state === "PLAYING" && !startedNotified) {
           startedNotified = true;
@@ -172,7 +178,7 @@ export function scheduleAutoSpeak(text: string, opts: AutoSpeakOptions = {}): ()
         }
       },
     });
-    void handle.done.then(() => opts.onend?.());
+    void handle.done.then(() => opts.onend?.()).catch(() => opts.onend?.());
   };
 
   const run = () => {
