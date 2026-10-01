@@ -2295,7 +2295,7 @@ export function AccountPage() {
         },
         {
           title: chrome("Dados"),
-          desc: chrome("Exportar, backup e perfis."),
+          desc: chrome("Exportar e backup."),
           icon: IconBook,
           onClick: () => dataAccountRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
         },

@@ -618,6 +618,32 @@ export const RC2_2_28_DETERMINISTIC_AUDIO_EXCEPTION = {
 } as const;
 
 /**
+ * RC2.2.29 — launch convergence: full canonical audio, zero learner debug UI,
+ * conversation transition lock, owner-request register, guidance/tone/copy
+ * closures. Fingerprint remains c48b008c9c1e. No new engines.
+ */
+export const RC2_2_29_LAUNCH_CONVERGENCE_EXCEPTION = {
+  id: "RC2_2_29_LAUNCH_CONVERGENCE",
+  scope: "Full FIXED_CANONICAL audio coverage + quality gate, learner UI without technical debug, conversation transition lock / rapid-continue safety, owner-request closure register, Tone Trace first-use guidance, local-profile copy cleanup, completion deltas preserved, stacked launch convergence gate",
+  areas: [
+    "FIXED_CONTENT_MISSING_AUDIO = 0 (dynamic-only classified separately)",
+    "Guided Try and pedagogical surfaces show no TTS/plugin/requestId diagnostics",
+    "tryAcquireTransitionLock blocks duplicate Continuar during commit",
+    "owner-request-closure.json tracks OR01–OR44 until OWNER_ACCEPTED",
+    "tone_trace_first_use_v1 and tone_confusion_2_3_v1 registered in guidance",
+  ],
+  forbids: [
+    "new LessonEngine, SRS, StoryEngine or ProfileEngine",
+    "touching #273 / changing package / enabling Android billing or Production Play",
+    "physical PASS or owner acceptance generated automatically",
+    "marking owner-rejected items DONE",
+    "new lessons, lesson ids, order, topics or StepKinds",
+  ],
+  fingerprint: "c48b008c9c1e",
+  gate: "gate:rc2-2-29-launch-convergence",
+} as const;
+
+/**
  * RC2.2.21 — exceção controlada para ESTABILIDADE MOBILE NATIVA. Nenhuma
  * lição, id, ordem, tópico, StepKind, SRS, economia ou progresso muda; o
  * fingerprint continua c48b008c9c1e. Só o plugin LongyuSpeech existente, o

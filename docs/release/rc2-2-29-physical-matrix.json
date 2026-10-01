@@ -1,0 +1,19 @@
+{
+  "wave": "RC2.2.29",
+  "schema": "longyu-physical-matrix/1",
+  "note": "PASS físico só com evidência humana no APK. Código nunca gera PHYSICAL PASS.",
+  "requiredChecks": [
+    { "id": "guidedTryTenColdStarts", "result": "NOT_RUN", "evidence": null },
+    { "id": "guidedTryTtsDisabled", "result": "NOT_RUN", "evidence": null },
+    { "id": "conversationTwentyTransitions", "result": "NOT_RUN", "evidence": null },
+    { "id": "conversationContinueClickTruth", "result": "NOT_RUN", "evidence": null },
+    { "id": "noDebugLearnerUi", "result": "NOT_RUN", "evidence": null },
+    { "id": "noScrollGuidedLessonReviewPinyinToneConversation", "result": "NOT_RUN", "evidence": null },
+    { "id": "signupCleanInstall", "result": "NOT_RUN", "evidence": null },
+    { "id": "otpRecovery", "result": "NOT_RUN", "evidence": null },
+    { "id": "zeroChargeSoftLanding", "result": "NOT_RUN", "evidence": null },
+    { "id": "selfCompareOwnerHear", "result": "NOT_RUN", "evidence": null }
+  ],
+  "p0": 0,
+  "releaseP1Open": ["ANDROID_CONVERSATION_CONTINUE_STALL", "SIGNUP_APK", "OTP_RECOVERY"]
+}

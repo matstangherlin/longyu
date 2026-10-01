@@ -9,8 +9,12 @@ import {
 import {
   conversationReducer,
   createConversationRuntimeState,
+  createTransitionLock,
   nextTransitionId,
+  releaseTransitionLock,
+  tryAcquireTransitionLock,
   type ConversationRuntimeState,
+  type TransitionLockState,
 } from "../../lib/conversationRuntime";
 import { audioEntryByText } from "../../data/audioManifest.generated";
 import { deviceQaEnabled } from "../../lib/deviceQa";
@@ -1310,6 +1314,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       transitionId: `t-${step.sceneId ?? "scene"}-0`,
     })
   );
+  // RC2.2.29 — lock anti double-tap (não pula dois nós / não congela).
+  const transitionLockRef = useRef<TransitionLockState>(createTransitionLock());
   const hadMistakeRef = useRef(false);
   const mistakeCountRef = useRef(0);
   const helpLevelRef = useRef(0);
@@ -1384,16 +1390,24 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
    * transição; promise de áudio NÃO controla nodeId.
    */
   function goTo(targetId: string | undefined, _speakTarget?: ConversationNode) {
+    const transitionId = nextTransitionId(step.sceneId ?? "scene", spokenCount);
+    const acquired = tryAcquireTransitionLock(transitionLockRef.current, transitionId);
+    if (!acquired.ok) {
+      // Tap duplicado durante o commit — ignora (não pula dois nós).
+      return;
+    }
+    transitionLockRef.current = acquired.lock;
     transitionsRef.current += 1;
     // Rede de segurança: nunca deixa um grafo mal formado prender o aluno.
     const target = resolveConversationTarget(targetId, (id) => nodeById.has(id), transitionsRef.current);
     if (target.kind === "finish") {
-      const transitionId = nextTransitionId(step.sceneId ?? "scene", spokenCount);
       setRuntime((prev) => conversationReducer(prev, { type: "FINISH", transitionId }));
+      window.setTimeout(() => {
+        transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now() + 1_000);
+      }, 0);
       finish();
       return;
     }
-    const transitionId = nextTransitionId(step.sceneId ?? "scene", spokenCount);
     setRuntime((prev) =>
       conversationReducer(prev, { type: "CONTINUE", targetNodeId: target.id, transitionId })
     );
@@ -1401,6 +1415,9 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     setNodeId(target.id);
     setAnswering(false);
     setSpokenCount((count) => count + 1);
+    window.setTimeout(() => {
+      transitionLockRef.current = releaseTransitionLock(transitionLockRef.current, Date.now() + 1_000);
+    }, 0);
   }
 
   function advance() {
