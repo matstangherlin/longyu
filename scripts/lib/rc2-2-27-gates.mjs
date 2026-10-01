@@ -391,7 +391,10 @@ export async function validateConversationSequence(s) {
   if (!/source: "CONVERSATION_AUTOPLAY"/.test(s.src.conversation)) fail("AUDIO_BLOCKS_CONVERSATION", FILES.conversation, "autoplay da conversa identificado na sessão única");
   if (!/conversation_dom_next_visible/.test(s.src.conversation)) fail("AUDIO_BLOCKS_CONVERSATION", FILES.conversation, "próximo nó visível independe do áudio");
   const schedule = section(s.src.mandarin, "export function scheduleAutoSpeak(", "\n}\n");
-  if (!/void handle\.done\.then\(\(\) => opts\.onend\?\.\(\)\);/.test(schedule)) fail("AUDIO_BLOCKS_CONVERSATION", FILES.mandarin, "onend sempre chega (falha, substituída ou cancelada)");
+  // RC2.2.28+ also chains .catch so rejected done still fires onend.
+  if (!/void handle\.done\.then\(\(\) => opts\.onend\?\.\(\)\)(?:\.catch\(\(\) => opts\.onend\?\.\(\)\))?;/.test(schedule)) {
+    fail("AUDIO_BLOCKS_CONVERSATION", FILES.mandarin, "onend sempre chega (falha, substituída ou cancelada)");
+  }
   return failures;
 }
 

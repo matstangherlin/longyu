@@ -73,18 +73,18 @@ const MUTATIONS = {
   "auto-speak-unification": [
     ["[10] autoplay bypassa runtime unificado", "AUTOPLAY_BYPASSES_RUNTIME", src("autoSpeak", 'import { scheduleAutoSpeak, type AutoSpeakOptions } from "./mandarinSpeech";', 'import { scheduleAutoSpeak, type AutoSpeakOptions } from "./tts";')],
     ["[11] conversation node 2 não cria nova requestId", "NODE_REUSES_REQUEST_ID", src("mandarin", "const requestId = request.requestId ?? newTtsRequestId();", 'const requestId = request.requestId ?? "autoplay";')],
-    ["[12] mesmo texto em novo node não toca", "SAME_TEXT_NEW_NODE_SILENT", src("autoSpeak", "[opts.speechKey, text,", "[text,")],
+    ["[12] mesmo texto em novo node não toca", "SAME_TEXT_NEW_NODE_SILENT", src("autoSpeak", "[opts.speechKey, opts.audioId, text,", "[text, opts.audioId,")],
   ],
   "conversation-sequence": [
     ["[17] áudio falha e bloqueia conversa", "AUDIO_BLOCKS_CONVERSATION", src("conversation", 'feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)', 'feedback === "correct" || audioPlaying || (isOrder ? ordered.length === 0 : !picked)')],
-    ["onend some quando a fala falha", "AUDIO_BLOCKS_CONVERSATION", src("mandarin", "    void handle.done.then(() => opts.onend?.());\n", "")],
+    ["onend some quando a fala falha", "AUDIO_BLOCKS_CONVERSATION", src("mandarin", "    void handle.done.then(() => opts.onend?.()).catch(() => opts.onend?.());\n", "")],
   ],
   "guided-try": [
     ["[18] Guided Try permanece disabled após engineSpeaking", "GUIDED_TRY_IGNORES_ENGINE", src("correlation", '    case "TTS_ENGINE_SPEAKING":\n    case "TTS_STARTED":', '    case "TTS_STARTED":')],
     ["[19] Guided Try fica disabled indefinidamente", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", '      setFailReason("TTS_UI_DEADLINE");\n', "")],
     ["prazo de UI infinito", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", "export const GUIDED_LISTEN_DEADLINE_MS = 5500;", "export const GUIDED_LISTEN_DEADLINE_MS = 600000;")],
     ["prazo só arma em STARTING (APK do owner)", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", "    setListenTap((count) => count + 1);\n", "")],
-    ["substituída volta a IDLE cinza", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", '        setFailReason("TTS_SUPERSEDED");\n        setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', '        setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));')],
+    ["substituída volta a IDLE cinza", "GUIDED_TRY_DISABLED_FOREVER", src("guidedTry", '          setFailReason("TTS_SUPERSEDED");\n          setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));', '          setListen((prev) => (prev === "STARTING" ? "IDLE" : prev));')],
   ],
   "lesson-audio-gates": [
     ["Ouça sem saída sem áudio", "AUDIO_GATE_NO_EXIT", src("steps", 'tr("player.cannotListenNow")', 'tr("player.listen")')],

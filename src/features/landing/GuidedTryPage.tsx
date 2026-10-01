@@ -136,7 +136,7 @@ function GuidedTryFlow() {
       if (!alive.current || activeRequest.current !== requestId) return;
       recordTechEvent("guided_try_audio_deadline", { requestId, deadlineMs: GUIDED_LISTEN_DEADLINE_MS, state: listen });
       setFailReason("TTS_UI_DEADLINE");
-      setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "DEGRADED"));
+      setListen((prev) => (prev === "PLAYING" || prev === "HEARD" ? prev : "FAILED"));
       setAudioResult((prev) => prev ?? "DEGRADED_AUDIO");
     }, GUIDED_LISTEN_DEADLINE_MS);
     return () => window.clearTimeout(timer);
@@ -402,9 +402,11 @@ function GuidedTryFlow() {
                   <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
-                    {t("guidedTry.audioConfirmedByUser")}
-                  </Button>
+                  {(usesNativeVoice() || failReason === "TTS_UI_DEADLINE" || failReason === "TTS_SUPERSEDED") && (
+                    <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
+                      {t("guidedTry.audioConfirmedByUser")}
+                    </Button>
+                  )}
                   {canOfferVoiceInstall(failReason) ? (
                     <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
                       {t("guidedTry.audioInstallVoice")}
