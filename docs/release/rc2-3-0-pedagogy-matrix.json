@@ -9,7 +9,7 @@
   "statuses": {
     "ENGINE_READY": "YES",
     "PILOT_CONTENT_READY": "YES",
-    "WEB_PASS": "NOT_RUN",
+    "WEB_PASS": "PASS",
     "ANDROID_BUILD_PASS": "NOT_RUN",
     "APK_PASS": "NOT_RUN",
     "OWNER_PEDAGOGICAL_ACCEPTANCE": "NOT_RUN"

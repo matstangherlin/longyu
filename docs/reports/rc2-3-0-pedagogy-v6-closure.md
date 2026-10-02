@@ -32,7 +32,7 @@ RC2.3.1 Visual First · RC2.3.2 Everyday · RC2.3.3 Culture Deep · RC2.3.4 Writ
 |---|---|
 | ENGINE_READY | YES (`gate:rc2-3-0-pedagogy-v6` PASS) |
 | PILOT_CONTENT_READY | YES (piloto early + first-20) |
-| WEB_PASS | NOT_RUN |
+| WEB_PASS | PASS (`npm run build`) |
 | ANDROID_BUILD_PASS | NOT_RUN (sem SDK neste ambiente) |
 | APK_PASS | NOT_RUN |
 | OWNER_PEDAGOGICAL_ACCEPTANCE | NOT_RUN |
