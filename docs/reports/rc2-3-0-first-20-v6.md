@@ -1,6 +1,6 @@
 # RC2.3.0 — First 20 Sessions (Pedagogy V6)
 
-Gerado: 2026-10-02T22:04:33.462Z
+Gerado: 2026-10-02T23:39:09.632Z
 
 ## Escopo
 
