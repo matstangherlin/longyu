@@ -282,6 +282,8 @@ export function SettingsPage() {
                 <span>{t("shell.syncStatusLabel")}</span>
                 <SyncStatusChip />
               </div>
+              {/* RC2.2.24 — perfis locais só em DEV/E2E; produção = uma conta. */}
+              {isDevLocalAuthAllowed() && (
               <div className="grid gap-2">
                 {accountList.map((account) => {
                   const isCurrent = account.id === currentAccountId;
@@ -309,6 +311,7 @@ export function SettingsPage() {
                   );
                 })}
               </div>
+              )}
 
               {isDevLocalAuthAllowed() ? (
               <div className="flex flex-col gap-2 sm:flex-row">

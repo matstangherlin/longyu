@@ -1,0 +1,14 @@
+{
+  "wave": "RC2_2_31_ANDROID_RUNTIME_CLOSURE",
+  "RC2_2_31_BASE_SHA": "a70bff9d9fd5e762373ae7e55ce35bac15f66e60",
+  "basePr": 303,
+  "stackedOn": "cursor/rc2-2-30-closed-beta-entry-c598",
+  "status": "IN_PROGRESS",
+  "closedBetaEntry": false,
+  "priorities": [
+    "reliable APK canonical audio",
+    "conversation Continue advances on APK"
+  ],
+  "nextWaveIfPass": "RC2.2.32 — Auth + Play Internal + Closed Beta Entry",
+  "nextWaveIfFail": "RC2.2.31B — Android Runtime Fixpack"
+}

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   isNavItemActive,
   mobileNavForStage,
+  earnedTabBar,
   moreMobileSheetGroups,
   practiceMobileSheetItems,
   navLabel,
@@ -18,6 +19,8 @@ import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useCloudSignOut } from "../../hooks/useCloudSignOut";
+import { IconLogout } from "../ui/Icon";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 
 /**
@@ -40,8 +43,9 @@ export function TabBar() {
   const dailyMissions = useStore((s) => s.dailyMissions);
   const isPro = useIsPro();
   const profile = useLearnerProfile();
-  const { visibility } = useFeatureVisibility();
-  const items = mobileNavForStage(profile.stage, visibility);
+  const { visibility, learner } = useFeatureVisibility();
+  // RC2.2.23 — a barra madura, filtrada pelo que o aluno já conquistou (máx. 3 no início).
+  const items = earnedTabBar(mobileNavForStage(profile.stage, visibility), learner.completedLessons.length);
   const appearing = useRef<Set<string>>(new Set());
   for (const item of items) {
     if (!tabsSeenThisSession.has(item.to)) {
@@ -273,6 +277,7 @@ function TabSheet({
                   );
                 })}
               </div>
+              {group.id === "you" && <SheetSignOutRow onDone={onClose} />}
             </div>
           ))}
         </div>
@@ -288,5 +293,32 @@ function TabSheet({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * RC2.2.25 — LOGOUT_DISCOVERABILITY_OWNER_FAIL: no sheet do Mais, "Sair da
+ * conta" é a linha inteira logo abaixo de VOCÊ (≤ 2 níveis de qualquer tela).
+ * Neutra, com ícone; Excluir conta nunca mora aqui.
+ */
+function SheetSignOutRow({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation();
+  const { signOut, canSignOut } = useCloudSignOut();
+  if (!canSignOut) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        onDone();
+        void signOut();
+      }}
+      className="mt-2 flex min-h-12 w-full items-center gap-2.5 rounded-2xl border border-line/60 bg-surface-2/80 px-3 text-left text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+      data-testid="more-sheet-sign-out"
+      data-sign-out-tone="neutral"
+      data-sign-out-layout="full-width"
+    >
+      <IconLogout width={20} height={20} aria-hidden="true" />
+      {t("common.signOutAccount")}
+    </button>
   );
 }

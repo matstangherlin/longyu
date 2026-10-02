@@ -1,0 +1,1074 @@
+{
+  "schema": "longyu-audio-corpus/1",
+  "generatedAt": "2026-10-01T09:36:51.260Z",
+  "uniqueUtterances": 660,
+  "references": 4369,
+  "missingAudio": [
+    "我叫Matheus",
+    "有Wi-Fi吗",
+    "你好Matheus",
+    "你好吗我叫Matheus",
+    "你好我叫Wang",
+    "我叫Lin",
+    "请再说一遍我叫Matheus"
+  ],
+  "missingAudioCount": 7,
+  "dynamicOnly": [],
+  "duplicateText": [
+    {
+      "textKey": "你好",
+      "audioIds": [
+        "audio:guided-try:nihao:v1",
+        "audio:chunk:nihao:v1",
+        "audio:tone:nihao-hao:v1",
+        "audio:tone:sandhi-nihao-ni:v1",
+        "audio:immersion:nihao:v1",
+        "audio:immersion:apresentacao-1:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-1:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-2:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-4:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-5:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-7:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-9:v1",
+        "audio:conversation:me-apresentando:me-apresentando-1:v1",
+        "audio:conversation:me-apresentando:me-apresentando-2:v1",
+        "audio:conversation:me-apresentando:me-apresentando-8:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-1:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-2:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-2:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-9:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-1:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-2:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-2:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-1:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-1:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-8:v1",
+        "audio:conversation:como-se-chama:como-se-chama-1:v1",
+        "audio:conversation:pedir-agua:agua-1:v1",
+        "audio:conversation:pedir-agua:agua-3:v1",
+        "audio:conversation:onde-esta:onde-2:v1",
+        "audio:conversation:pedir-ajuda:ajuda-2:v1",
+        "audio:conversation:encontro-amanha:amanha-1:v1",
+        "audio:conversation:encontro-amanha:amanha-1-retry:v1",
+        "audio:conversation:encontro-amanha:amanha-1-answer:v1",
+        "audio:conversation:o-que-e-isto:isto-2:v1",
+        "audio:conversation:revisao-restaurante:rest-2:v1",
+        "audio:conversation:imersao-estacao:estacao-0:v1",
+        "audio:conversation:imersao-estacao:estacao-1:v1",
+        "audio:conversation:imersao-estacao:estacao-ticket:v1",
+        "audio:conversation:imersao-casa-amigo:visita-1:v1",
+        "audio:conversation:esta-e-minha-casa:casa-nova-1:v1",
+        "audio:conversation:imersao-restaurante:ir-1:v1",
+        "audio:conversation:imersao-restaurante:ir-3-react:v1",
+        "audio:conversation:mostrar-livro:livro-1:v1",
+        "audio:conversation:mostrar-livro:livro-2:v1",
+        "audio:conversation:onde-esta-o-carro:carro-2:v1",
+        "audio:conversation:conversa-cotidiana:cot-open:v1",
+        "audio:conversation:conversa-cotidiana:cot-hi:v1",
+        "audio:conversation:conversa-cotidiana:cot-hi-retry:v1",
+        "audio:conversation:conversa-cotidiana:cot-hi-answer:v1",
+        "audio:conversation:como-esta-o-tempo:clima-1:v1",
+        "audio:conversation:checkin-hotel:hotel-greet:v1",
+        "audio:conversation:no-aeroporto:aero-greet:v1",
+        "audio:conversation:na-clinica:clinic-greet:v1",
+        "audio:conversation:na-clinica:clinic-unwell:v1",
+        "audio:conversation:perguntar-o-caminho:caminho-2:v1"
+      ]
+    },
+    {
+      "textKey": "你",
+      "audioIds": [
+        "audio:guided-try:ni:v1",
+        "audio:char:ni:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-3:v1",
+        "audio:conversation:me-apresentando:me-apresentando-3:v1"
+      ]
+    },
+    {
+      "textKey": "好",
+      "audioIds": [
+        "audio:guided-try:hao:v1",
+        "audio:char:hao:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-6:v1",
+        "audio:conversation:primeiro-cumprimento:primeiro-cumprimento-8:v1",
+        "audio:conversation:encontro-amanha:amanha-1-react:v1",
+        "audio:conversation:o-que-e-isto:isto-8:v1",
+        "audio:conversation:conversa-na-loja:loja-accept:v1",
+        "audio:conversation:comprar-itens:comprar-2:v1",
+        "audio:conversation:comprar-itens:comprar-4-answer:v1",
+        "audio:conversation:comprar-itens:comprar-6:v1",
+        "audio:conversation:revisao-restaurante:rest-9:v1",
+        "audio:conversation:imersao-mercado:mercado-2:v1",
+        "audio:conversation:imersao-mercado:mercado-accept:v1",
+        "audio:conversation:imersao-mercado:mercado-pay-ok:v1",
+        "audio:conversation:imersao-mercado:mercado-thanks:v1",
+        "audio:conversation:imersao-estacao:estacao-slow-3:v1",
+        "audio:conversation:imersao-estacao:estacao-sign:v1",
+        "audio:conversation:imersao-casa-amigo:visita-10b:v1",
+        "audio:conversation:pedir-cardapio:cardapio-6:v1",
+        "audio:conversation:imersao-restaurante:ir-3:v1",
+        "audio:conversation:imersao-restaurante:ir-9:v1",
+        "audio:conversation:imersao-restaurante:ir-9-no:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-end:v1",
+        "audio:conversation:nao-me-sinto-bem:saude-doctor:v1",
+        "audio:conversation:nao-me-sinto-bem:saude-hospital:v1",
+        "audio:conversation:nao-me-sinto-bem:saude-hospital-react:v1",
+        "audio:conversation:conversa-cotidiana:cot-weather-ack:v1",
+        "audio:conversation:conversa-cotidiana:cot-bye:v1",
+        "audio:conversation:checkin-hotel:hotel-room-answer:v1",
+        "audio:conversation:checkin-hotel:hotel-card-answer:v1",
+        "audio:conversation:checkin-hotel:hotel-where:v1",
+        "audio:conversation:no-aeroporto:aero-ok:v1",
+        "audio:conversation:no-aeroporto:aero-gate:v1",
+        "audio:conversation:no-aeroporto:aero-number:v1",
+        "audio:conversation:no-aeroporto:aero-number-answer:v1",
+        "audio:conversation:no-aeroporto:aero-sign:v1",
+        "audio:conversation:no-aeroporto:aero-dir-answer:v1",
+        "audio:conversation:no-aeroporto:aero-close:v1",
+        "audio:conversation:na-clinica:clinic-ask-answer:v1",
+        "audio:conversation:na-clinica:clinic-head-react:v1",
+        "audio:conversation:na-clinica:clinic-stomach-react:v1",
+        "audio:conversation:na-clinica:clinic-fever-react:v1",
+        "audio:conversation:na-clinica:clinic-consult:v1",
+        "audio:conversation:na-clinica:clinic-arrive:v1",
+        "audio:conversation:na-clinica:clinic-arrive-retry:v1",
+        "audio:conversation:pegar-taxi:taxi-stop:v1",
+        "audio:conversation:pegar-taxi:taxi-stop-react:v1"
+      ]
+    },
+    {
+      "textKey": "谢谢",
+      "audioIds": [
+        "audio:guided-try:xiexie:v1",
+        "audio:chunk:xiexie:v1",
+        "audio:tone:neutral-xiexie-second:v1",
+        "audio:tone:xiexie-xie:v1",
+        "audio:immersion:xiexie:v1",
+        "audio:conversation:agradecendo:agradecendo-1:v1",
+        "audio:conversation:agradecendo:agradecendo-3:v1",
+        "audio:conversation:agradecendo:agradecendo-6:v1",
+        "audio:conversation:agradecendo:agradecendo-7:v1",
+        "audio:conversation:agradecendo:agradecendo-8:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-7:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-8:v1",
+        "audio:conversation:pedir-agua:agua-8:v1",
+        "audio:conversation:identificar-pessoa:pessoa-end:v1",
+        "audio:conversation:onde-esta:onde-9:v1",
+        "audio:conversation:sala-de-aula:aula-end:v1",
+        "audio:conversation:pedir-ajuda:ajuda-8:v1",
+        "audio:conversation:o-que-e-isto:isto-9:v1",
+        "audio:conversation:imersao-mercado:mercado-thanks-retry:v1",
+        "audio:conversation:imersao-mercado:mercado-thanks-answer:v1",
+        "audio:conversation:imersao-estacao:estacao-end-thanks:v1",
+        "audio:conversation:checkin-hotel:hotel-thanks:v1",
+        "audio:conversation:no-aeroporto:aero-thanks:v1",
+        "audio:conversation:na-clinica:clinic-thanks:v1",
+        "audio:conversation:pegar-taxi:taxi-end:v1",
+        "audio:conversation:perguntar-o-caminho:caminho-9:v1"
+      ]
+    },
+    {
+      "textKey": "再见",
+      "audioIds": [
+        "audio:guided-try:zaijian:v1",
+        "audio:chunk:zaijian:v1",
+        "audio:tone:zaijian-zai:v1",
+        "audio:immersion:zaijian:v1",
+        "audio:conversation:despedida:despedida-1:v1",
+        "audio:conversation:despedida:despedida-2:v1",
+        "audio:conversation:despedida:despedida-3:v1",
+        "audio:conversation:despedida:despedida-4:v1",
+        "audio:conversation:despedida:despedida-5:v1",
+        "audio:conversation:despedida:despedida-6:v1",
+        "audio:conversation:despedida:despedida-7:v1",
+        "audio:conversation:despedida:despedida-8:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-9:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-10:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-11:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-12:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-16:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-17:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-18:v1",
+        "audio:conversation:pedir-agua:agua-11:v1",
+        "audio:conversation:encontro-amanha:amanha-3:v1",
+        "audio:conversation:encontro-amanha:amanha-3-retry:v1",
+        "audio:conversation:encontro-amanha:amanha-3-answer:v1",
+        "audio:conversation:imersao-estacao:estacao-awkward-1:v1",
+        "audio:conversation:imersao-estacao:estacao-end:v1",
+        "audio:conversation:imersao-casa-amigo:visita-19:v1",
+        "audio:conversation:comentar-ceu:ceu-8:v1",
+        "audio:conversation:esta-e-minha-casa:casa-nova-9:v1",
+        "audio:conversation:imersao-restaurante:ir-end:v1",
+        "audio:conversation:conversa-cotidiana:cot-bye-retry:v1",
+        "audio:conversation:conversa-cotidiana:cot-bye-answer:v1",
+        "audio:conversation:conversa-cotidiana:cot-bye-react:v1",
+        "audio:conversation:checkin-hotel:hotel-awkward-1:v1",
+        "audio:conversation:no-aeroporto:aero-awkward-1:v1"
+      ]
+    },
+    {
+      "textKey": "你好吗",
+      "audioIds": [
+        "audio:chunk:nihaoma:v1",
+        "audio:immersion:nihaoma:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-1:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-3:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-7:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-3:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-5:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-6:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-6:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-6:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-7:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-2:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-6:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-2:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-5:v1",
+        "audio:conversation:revisao-hanzi-natureza:hanzi-1:v1",
+        "audio:conversation:imersao-casa-amigo:visita-13:v1",
+        "audio:conversation:conversa-cotidiana:cot-how:v1"
+      ]
+    },
+    {
+      "textKey": "我很好",
+      "audioIds": [
+        "audio:chunk:wohenhao:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-2:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-4:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-5:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-6:v1",
+        "audio:conversation:perguntando-se-esta-bem:perguntando-se-esta-bem-8:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-4:v1",
+        "audio:conversation:revisao-cumprimento-completo:revisao-cumprimento-completo-5:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-5:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-7:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-8:v1",
+        "audio:conversation:encontrar-amigo:amigo-3:v1",
+        "audio:conversation:encontrar-amigo:amigo-4:v1",
+        "audio:conversation:fale-de-novo:devagar-9:v1",
+        "audio:conversation:fale-de-novo:devagar-10:v1",
+        "audio:conversation:conversa-em-casa:casa-2:v1",
+        "audio:conversation:conversa-em-casa:casa-5:v1",
+        "audio:conversation:revisao-numeros:num-11:v1",
+        "audio:conversation:imersao-casa-amigo:visita-15:v1",
+        "audio:conversation:conversa-cotidiana:cot-need-nine:v1"
+      ]
+    },
+    {
+      "textKey": "今天很好",
+      "audioIds": [
+        "audio:chunk:jintianhenhao:v1",
+        "audio:conversation:comentar-ceu:ceu-5:v1"
+      ]
+    },
+    {
+      "textKey": "不客气",
+      "audioIds": [
+        "audio:chunk:bukeqi:v1",
+        "audio:immersion:bukeqi:v1",
+        "audio:conversation:agradecendo:agradecendo-2:v1",
+        "audio:conversation:agradecendo:agradecendo-4:v1",
+        "audio:conversation:agradecendo:agradecendo-5:v1",
+        "audio:conversation:pedir-cha:cha-9:v1",
+        "audio:conversation:perguntar-quantidade:qtd-11:v1",
+        "audio:conversation:onde-esta:onde-10:v1",
+        "audio:conversation:pedir-ajuda:ajuda-9:v1",
+        "audio:conversation:mostrar-livro:livro-9:v1",
+        "audio:conversation:checkin-hotel:hotel-end:v1",
+        "audio:conversation:no-aeroporto:aero-end:v1",
+        "audio:conversation:na-clinica:clinic-end:v1",
+        "audio:conversation:gostos-na-casa:gosto-10:v1",
+        "audio:conversation:perguntar-o-caminho:caminho-10:v1"
+      ]
+    },
+    {
+      "textKey": "明天见",
+      "audioIds": [
+        "audio:chunk:mingtianjian:v1",
+        "audio:conversation:encontro-amanha:amanha-2:v1",
+        "audio:conversation:encontro-amanha:amanha-2-retry:v1",
+        "audio:conversation:encontro-amanha:amanha-2-answer:v1",
+        "audio:conversation:encontro-amanha:amanha-end:v1",
+        "audio:conversation:conversa-cotidiana:cot-plan-answer:v1",
+        "audio:conversation:conversa-cotidiana:cot-fast:v1",
+        "audio:conversation:conversa-cotidiana:cot-repeat:v1"
+      ]
+    },
+    {
+      "textKey": "请问",
+      "audioIds": [
+        "audio:chunk:qingwen:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-1:v1",
+        "audio:conversation:pedir-ajuda:ajuda-1:v1",
+        "audio:conversation:onde-esta-o-carro:carro-1:v1"
+      ]
+    },
+    {
+      "textKey": "我叫Matheus",
+      "audioIds": [
+        "audio:chunk:wojiao:v1",
+        "audio:immersion:wojiao:v1",
+        "audio:immersion:apresentacao-2:v1",
+        "audio:conversation:me-apresentando:me-apresentando-4:v1",
+        "audio:conversation:me-apresentando:me-apresentando-5:v1",
+        "audio:conversation:me-apresentando:me-apresentando-7:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-7:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-5:v1",
+        "audio:conversation:como-se-chama:como-se-chama-3:v1",
+        "audio:conversation:como-se-chama:como-se-chama-4:v1",
+        "audio:conversation:como-se-chama:como-se-chama-7:v1",
+        "audio:conversation:fale-de-novo:devagar-7:v1"
+      ]
+    },
+    {
+      "textKey": "你叫什么",
+      "audioIds": [
+        "audio:chunk:nijiaoshenme:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-3:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-4:v1",
+        "audio:conversation:como-se-chama:como-se-chama-2:v1",
+        "audio:conversation:como-se-chama:como-se-chama-5:v1",
+        "audio:conversation:como-se-chama:como-se-chama-6:v1",
+        "audio:conversation:fale-de-novo:devagar-5:v1"
+      ]
+    },
+    {
+      "textKey": "我是巴西人",
+      "audioIds": [
+        "audio:chunk:wature:v1",
+        "audio:immersion:wature:v1",
+        "audio:immersion:apresentacao-3:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-5:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-7:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-8:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-12:v1"
+      ]
+    },
+    {
+      "textKey": "你是哪国人",
+      "audioIds": [
+        "audio:chunk:nishinaiguoren:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-3:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-4:v1",
+        "audio:conversation:de-onde-sou:de-onde-sou-6:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-10:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-11:v1",
+        "audio:conversation:sala-de-aula:aula-2:v1"
+      ]
+    },
+    {
+      "textKey": "请问你好吗",
+      "audioIds": [
+        "audio:chunk:qingwen_nihaoma:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-3:v1",
+        "audio:conversation:cortesia-loja:cortesia-loja-4:v1"
+      ]
+    },
+    {
+      "textKey": "我是学生",
+      "audioIds": [
+        "audio:chunk:woshixuesheng:v1",
+        "audio:conversation:sala-de-aula:aula-3-answer:v1"
+      ]
+    },
+    {
+      "textKey": "认识你很高兴",
+      "audioIds": [
+        "audio:chunk:renshinihengaoxing:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-13:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-14:v1",
+        "audio:conversation:sala-de-aula:aula-5:v1",
+        "audio:conversation:imersao-casa-amigo:visita-5:v1"
+      ]
+    },
+    {
+      "textKey": "我有三个朋友",
+      "audioIds": [
+        "audio:chunk:woyousangepengyou:v1",
+        "audio:immersion:apresentacao-4:v1",
+        "audio:conversation:revisao-numeros:num-8:v1"
+      ]
+    },
+    {
+      "textKey": "我不会说中文",
+      "audioIds": [
+        "audio:chunk:wobuhui:v1",
+        "audio:immersion:wobuhui:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-7:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-8:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-3:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-4:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-6:v1",
+        "audio:conversation:nao-falo-chinês:nao-falo-chinês-7:v1",
+        "audio:conversation:pedir-ajuda:ajuda-5:v1"
+      ]
+    },
+    {
+      "textKey": "我会说一点中文",
+      "audioIds": [
+        "audio:chunk:wohuishuoyidian:v1",
+        "audio:immersion:wohuishuoyidian:v1",
+        "audio:conversation:pedir-ajuda:ajuda-6:v1",
+        "audio:conversation:fale-de-novo:devagar-2:v1"
+      ]
+    },
+    {
+      "textKey": "我听不懂",
+      "audioIds": [
+        "audio:chunk:tingbudong:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-2:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-8:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-3:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-10:v1",
+        "audio:conversation:pedir-ajuda:ajuda-3:v1"
+      ]
+    },
+    {
+      "textKey": "请再说一遍",
+      "audioIds": [
+        "audio:chunk:qingzaishuoyibian:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-3:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-4:v1",
+        "audio:conversation:pedir-repeticao:pedir-repeticao-9:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-4:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-5:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-9:v1",
+        "audio:conversation:nao-entendi-reparo:nao-entendi-reparo-11:v1",
+        "audio:conversation:identificar-pessoa:pessoa-1-retry:v1",
+        "audio:conversation:identificar-pessoa:pessoa-2-retry:v1",
+        "audio:conversation:identificar-pessoa:pessoa-3-retry:v1",
+        "audio:conversation:identificar-pessoa:pessoa-4-retry:v1",
+        "audio:conversation:identificar-pessoa:pessoa-5-retry:v1",
+        "audio:conversation:sala-de-aula:aula-1-retry:v1",
+        "audio:conversation:sala-de-aula:aula-2-retry:v1",
+        "audio:conversation:sala-de-aula:aula-3-retry:v1",
+        "audio:conversation:sala-de-aula:aula-4-retry:v1",
+        "audio:conversation:sala-de-aula:aula-5-retry:v1",
+        "audio:conversation:fale-de-novo:devagar-3:v1",
+        "audio:conversation:fale-de-novo:devagar-4:v1"
+      ]
+    },
+    {
+      "textKey": "这是什么",
+      "audioIds": [
+        "audio:chunk:zheshishenme:v1",
+        "audio:conversation:pedir-cha:cha-6:v1",
+        "audio:conversation:apontar-natureza:natureza-2:v1",
+        "audio:conversation:o-que-e-isto:isto-3:v1",
+        "audio:conversation:o-que-e-isto:isto-4:v1",
+        "audio:conversation:esta-e-minha-casa:casa-nova-3:v1",
+        "audio:conversation:mostrar-livro:livro-3:v1"
+      ]
+    },
+    {
+      "textKey": "这是水",
+      "audioIds": [
+        "audio:chunk:zheshishui:v1",
+        "audio:conversation:o-que-e-isto:isto-5:v1"
+      ]
+    },
+    {
+      "textKey": "那是天",
+      "audioIds": [
+        "audio:chunk:nashitian:v1",
+        "audio:conversation:comentar-ceu:ceu-2:v1",
+        "audio:conversation:comentar-ceu:ceu-4:v1"
+      ]
+    },
+    {
+      "textKey": "那是人吗",
+      "audioIds": [
+        "audio:chunk:nashirenm:v1",
+        "audio:conversation:onde-esta:onde-6:v1",
+        "audio:conversation:onde-esta:onde-7:v1"
+      ]
+    },
+    {
+      "textKey": "车在哪里",
+      "audioIds": [
+        "audio:chunk:chezainali:v1",
+        "audio:conversation:onde-esta-o-carro:carro-3:v1"
+      ]
+    },
+    {
+      "textKey": "你呢",
+      "audioIds": [
+        "audio:chunk:nine:v1",
+        "audio:conversation:conversa-em-casa:casa-3:v1",
+        "audio:conversation:conversa-em-casa:casa-4:v1",
+        "audio:conversation:conversa-cotidiana:cot-need-nine-retry:v1",
+        "audio:conversation:conversa-cotidiana:cot-nine-answer:v1"
+      ]
+    },
+    {
+      "textKey": "什么时候",
+      "audioIds": [
+        "audio:chunk:shenmeshihou:v1",
+        "audio:conversation:que-horas-sao:hora-2:v1"
+      ]
+    },
+    {
+      "textKey": "多少钱",
+      "audioIds": [
+        "audio:chunk:duoshaoqian:v1",
+        "audio:conversation:perguntar-quantidade:qtd-6:v1",
+        "audio:conversation:comprar-itens:comprar-2-retry:v1",
+        "audio:conversation:comprar-itens:comprar-2-answer:v1",
+        "audio:conversation:imersao-mercado:mercado-2-retry:v1",
+        "audio:conversation:imersao-mercado:mercado-2-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我要这个",
+      "audioIds": [
+        "audio:chunk:woyao:v1",
+        "audio:conversation:conversa-na-loja:loja-1-answer:v1",
+        "audio:conversation:revisao-restaurante:rest-2-answer:v1",
+        "audio:conversation:imersao-mercado:mercado-1-answer:v1",
+        "audio:conversation:imersao-estacao:estacao-buy-answer:v1"
+      ]
+    },
+    {
+      "textKey": "太贵了",
+      "audioIds": [
+        "audio:chunk:taiguile:v1",
+        "audio:conversation:conversa-na-loja:loja-bargain:v1",
+        "audio:conversation:imersao-mercado:mercado-bargain:v1",
+        "audio:conversation:imersao-mercado:mercado-5:v1"
+      ]
+    },
+    {
+      "textKey": "便宜一点",
+      "audioIds": [
+        "audio:chunk:pianyiyidian:v1",
+        "audio:conversation:imersao-mercado:mercado-5-retry:v1",
+        "audio:conversation:imersao-mercado:mercado-5-answer:v1"
+      ]
+    },
+    {
+      "textKey": "很好吃",
+      "audioIds": [
+        "audio:chunk:haochi:v1",
+        "audio:conversation:revisao-restaurante:rest-7:v1",
+        "audio:conversation:imersao-restaurante:ir-8-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我想喝茶",
+      "audioIds": [
+        "audio:chunk:woxianghe:v1",
+        "audio:conversation:pedir-cha:cha-5:v1",
+        "audio:conversation:perguntar-quantidade:qtd-2:v1",
+        "audio:conversation:o-que-e-isto:isto-6:v1",
+        "audio:conversation:revisao-restaurante:rest-4-answer:v1",
+        "audio:conversation:imersao-casa-amigo:visita-10:v1"
+      ]
+    },
+    {
+      "textKey": "我要米饭",
+      "audioIds": [
+        "audio:chunk:woyaomifan:v1",
+        "audio:conversation:pedir-cardapio:cardapio-4-answer:v1",
+        "audio:conversation:imersao-restaurante:ir-5-answer:v1"
+      ]
+    },
+    {
+      "textKey": "买单",
+      "audioIds": [
+        "audio:chunk:maidan:v1",
+        "audio:conversation:revisao-restaurante:rest-9-retry:v1",
+        "audio:conversation:revisao-restaurante:rest-9-answer:v1",
+        "audio:conversation:pedir-cardapio:cardapio-6-retry:v1",
+        "audio:conversation:pedir-cardapio:cardapio-6-answer:v1",
+        "audio:conversation:imersao-restaurante:ir-9-retry:v1",
+        "audio:conversation:imersao-restaurante:ir-9-answer:v1",
+        "audio:conversation:imersao-restaurante:ir-9-no-retry:v1",
+        "audio:conversation:imersao-restaurante:ir-9-no-answer:v1"
+      ]
+    },
+    {
+      "textKey": "服务员",
+      "audioIds": [
+        "audio:chunk:fuwuyuan:v1",
+        "audio:conversation:imersao-restaurante:ir-3-retry:v1",
+        "audio:conversation:imersao-restaurante:ir-3-answer:v1"
+      ]
+    },
+    {
+      "textKey": "菜单",
+      "audioIds": [
+        "audio:chunk:caidan:v1",
+        "audio:conversation:pedir-cardapio:cardapio-3-retry:v1",
+        "audio:conversation:imersao-restaurante:ir-4-retry:v1"
+      ]
+    },
+    {
+      "textKey": "我要一杯茶",
+      "audioIds": [
+        "audio:chunk:woyaoyibeicha:v1",
+        "audio:conversation:pedir-cardapio:cardapio-5-answer:v1",
+        "audio:conversation:imersao-restaurante:ir-6-answer:v1"
+      ]
+    },
+    {
+      "textKey": "请问几位",
+      "audioIds": [
+        "audio:chunk:qingwenjiwei:v1",
+        "audio:conversation:imersao-restaurante:ir-2:v1"
+      ]
+    },
+    {
+      "textKey": "两位",
+      "audioIds": [
+        "audio:chunk:liangwei:v1",
+        "audio:conversation:pedir-cardapio:cardapio-2-answer:v1",
+        "audio:conversation:imersao-restaurante:ir-2-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我要菜单",
+      "audioIds": [
+        "audio:chunk:woyaocaidan:v1",
+        "audio:conversation:pedir-cardapio:cardapio-3-answer:v1",
+        "audio:conversation:imersao-restaurante:ir-4-answer:v1"
+      ]
+    },
+    {
+      "textKey": "不要了",
+      "audioIds": [
+        "audio:chunk:buyaole:v1",
+        "audio:conversation:conversa-na-loja:loja-decline:v1",
+        "audio:conversation:imersao-mercado:mercado-decline:v1"
+      ]
+    },
+    {
+      "textKey": "地铁站在哪里",
+      "audioIds": [
+        "audio:chunk:ditiezhanzainali:v1",
+        "audio:conversation:imersao-estacao:estacao-1-answer:v1"
+      ]
+    },
+    {
+      "textKey": "这是我爸爸",
+      "audioIds": [
+        "audio:chunk:zheshibaba:v1",
+        "audio:conversation:imersao-casa-amigo:visita-6:v1"
+      ]
+    },
+    {
+      "textKey": "这是我妈妈",
+      "audioIds": [
+        "audio:chunk:zheshimama:v1",
+        "audio:conversation:identificar-pessoa:pessoa-2-answer:v1",
+        "audio:conversation:imersao-casa-amigo:visita-3:v1"
+      ]
+    },
+    {
+      "textKey": "这是我家",
+      "audioIds": [
+        "audio:chunk:zheshiwodejia:v1",
+        "audio:conversation:esta-e-minha-casa:casa-nova-5:v1"
+      ]
+    },
+    {
+      "textKey": "这是书",
+      "audioIds": [
+        "audio:chunk:zheshishu:v1",
+        "audio:conversation:mostrar-livro:livro-5:v1"
+      ]
+    },
+    {
+      "textKey": "票多少钱",
+      "audioIds": [
+        "audio:chunk:piaoduoshaoqian:v1",
+        "audio:conversation:imersao-estacao:estacao-ticket-answer:v1",
+        "audio:conversation:onde-esta-o-carro:carro-6:v1"
+      ]
+    },
+    {
+      "textKey": "我要工作",
+      "audioIds": [
+        "audio:chunk:woyaogongzuo:v1",
+        "audio:conversation:conversa-cotidiana:cot-work-say:v1"
+      ]
+    },
+    {
+      "textKey": "医院在哪里",
+      "audioIds": [
+        "audio:chunk:yiyuanzainali:v1",
+        "audio:conversation:nao-me-sinto-bem:saude-hospital-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我头疼",
+      "audioIds": [
+        "audio:chunk:wotouteng:v1",
+        "audio:conversation:nao-me-sinto-bem:saude-head-answer:v1",
+        "audio:conversation:na-clinica:clinic-head-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我要看医生",
+      "audioIds": [
+        "audio:chunk:woyaokanyisheng:v1",
+        "audio:conversation:na-clinica:clinic-consult-answer:v1"
+      ]
+    },
+    {
+      "textKey": "现在几点",
+      "audioIds": [
+        "audio:chunk:xianzaijidian:v1",
+        "audio:conversation:que-horas-sao:hora-1:v1"
+      ]
+    },
+    {
+      "textKey": "现在",
+      "audioIds": [
+        "audio:chunk:xianzai:v1",
+        "audio:conversation:que-horas-sao:hora-2-answer:v1"
+      ]
+    },
+    {
+      "textKey": "明天",
+      "audioIds": [
+        "audio:chunk:mingtian:v1",
+        "audio:conversation:conversa-cotidiana:cot-tomorrow-retry:v1",
+        "audio:conversation:conversa-cotidiana:cot-fast-retry:v1",
+        "audio:conversation:conversa-cotidiana:cot-slow-1:v1"
+      ]
+    },
+    {
+      "textKey": "下雨了",
+      "audioIds": [
+        "audio:chunk:xiayule:v1",
+        "audio:conversation:como-esta-o-tempo:clima-5:v1",
+        "audio:conversation:como-esta-o-tempo:clima-7:v1"
+      ]
+    },
+    {
+      "textKey": "左边",
+      "audioIds": [
+        "audio:chunk:zuobian:v1",
+        "audio:conversation:imersao-estacao:estacao-fast-retry:v1"
+      ]
+    },
+    {
+      "textKey": "我要这双鞋",
+      "audioIds": [
+        "audio:chunk:woyaozheshuangxie:v1",
+        "audio:conversation:comprar-itens:comprar-1-answer:v1"
+      ]
+    },
+    {
+      "textKey": "好的",
+      "audioIds": [
+        "audio:chunk:haode:v1",
+        "audio:conversation:pedir-cardapio:cardapio-6-react:v1",
+        "audio:conversation:imersao-restaurante:ir-9-no-react:v1"
+      ]
+    },
+    {
+      "textKey": "我也是",
+      "audioIds": [
+        "audio:chunk:woyeshi:v1",
+        "audio:conversation:conhecer-alguem:conhecer-alguem-15:v1",
+        "audio:conversation:sala-de-aula:aula-5-answer:v1"
+      ]
+    },
+    {
+      "textKey": "朋友",
+      "audioIds": [
+        "audio:chunk:pengyou:v1",
+        "audio:conversation:encontrar-amigo:amigo-6:v1"
+      ]
+    },
+    {
+      "textKey": "左转",
+      "audioIds": [
+        "audio:chunk:zuozhuan:v1",
+        "audio:conversation:imersao-estacao:estacao-slow-2:v1"
+      ]
+    },
+    {
+      "textKey": "一直走",
+      "audioIds": [
+        "audio:chunk:yizhizou:v1",
+        "audio:conversation:imersao-estacao:estacao-slow-1:v1",
+        "audio:conversation:na-clinica:clinic-dir:v1",
+        "audio:conversation:na-clinica:clinic-repeat:v1"
+      ]
+    },
+    {
+      "textKey": "微信支付",
+      "audioIds": [
+        "audio:chunk:weixinzhifu:v1",
+        "audio:conversation:comprar-itens:comprar-5:v1",
+        "audio:conversation:imersao-mercado:mercado-pay:v1"
+      ]
+    },
+    {
+      "textKey": "可以刷卡吗",
+      "audioIds": [
+        "audio:chunk:keyishuaka:v1",
+        "audio:conversation:comprar-itens:comprar-5-answer:v1",
+        "audio:conversation:imersao-mercado:mercado-pay-card:v1"
+      ]
+    },
+    {
+      "textKey": "现金可以吗",
+      "audioIds": [
+        "audio:chunk:xianjinkeyima:v1",
+        "audio:conversation:comprar-itens:comprar-5-cash:v1",
+        "audio:conversation:imersao-mercado:mercado-pay-cash:v1"
+      ]
+    },
+    {
+      "textKey": "我要两个",
+      "audioIds": [
+        "audio:chunk:woyaoliangge:v1",
+        "audio:conversation:imersao-mercado:mercado-qty:v1",
+        "audio:conversation:imersao-mercado:mercado-qty-retry:v1",
+        "audio:conversation:imersao-mercado:mercado-qty-answer:v1"
+      ]
+    },
+    {
+      "textKey": "护照",
+      "audioIds": [
+        "audio:chunk:huzhao:v1",
+        "audio:conversation:checkin-hotel:hotel-passport-retry:v1",
+        "audio:conversation:no-aeroporto:aero-passport:v1",
+        "audio:conversation:no-aeroporto:aero-passport-retry:v1"
+      ]
+    },
+    {
+      "textKey": "房间",
+      "audioIds": [
+        "audio:chunk:fangjian:v1",
+        "audio:conversation:checkin-hotel:hotel-where-retry:v1"
+      ]
+    },
+    {
+      "textKey": "房卡",
+      "audioIds": [
+        "audio:chunk:fangka:v1",
+        "audio:conversation:checkin-hotel:hotel-card-retry:v1"
+      ]
+    },
+    {
+      "textKey": "我有预订",
+      "audioIds": [
+        "audio:chunk:woyouyuding:v1",
+        "audio:conversation:checkin-hotel:hotel-reserve-answer:v1"
+      ]
+    },
+    {
+      "textKey": "这是我的护照",
+      "audioIds": [
+        "audio:chunk:zheshiwodehuzhao:v1",
+        "audio:conversation:checkin-hotel:hotel-passport-answer:v1",
+        "audio:conversation:no-aeroporto:aero-passport-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我的房间在哪里",
+      "audioIds": [
+        "audio:chunk:wodefangjianzainali:v1",
+        "audio:conversation:checkin-hotel:hotel-where-answer:v1"
+      ]
+    },
+    {
+      "textKey": "两晚",
+      "audioIds": [
+        "audio:chunk:liangwan:v1",
+        "audio:conversation:checkin-hotel:hotel-nights-answer:v1"
+      ]
+    },
+    {
+      "textKey": "洗手间在哪里",
+      "audioIds": [
+        "audio:chunk:xishoujianzainali:v1",
+        "audio:conversation:checkin-hotel:hotel-bath-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我需要帮助",
+      "audioIds": [
+        "audio:chunk:woxuyaobangzhu:v1",
+        "audio:conversation:no-aeroporto:aero-help:v1",
+        "audio:conversation:na-clinica:clinic-help:v1"
+      ]
+    },
+    {
+      "textKey": "入口",
+      "audioIds": [
+        "audio:chunk:ruko:v1",
+        "audio:conversation:imersao-estacao:estacao-sign-retry:v1",
+        "audio:conversation:imersao-estacao:estacao-in:v1"
+      ]
+    },
+    {
+      "textKey": "是我是学生",
+      "audioIds": [
+        "audio:chunk:shiwoshixuesheng:v1",
+        "audio:conversation:falar-de-estudo:estudo-3:v1"
+      ]
+    },
+    {
+      "textKey": "你学习什么",
+      "audioIds": [
+        "audio:chunk:nixuexishenme:v1",
+        "audio:conversation:falar-de-estudo:estudo-4:v1"
+      ]
+    },
+    {
+      "textKey": "我学习中文",
+      "audioIds": [
+        "audio:chunk:woxuexizhongwen:v1",
+        "audio:conversation:sala-de-aula:aula-4-answer:v1",
+        "audio:conversation:falar-de-estudo:estudo-6:v1"
+      ]
+    },
+    {
+      "textKey": "我在学校学习",
+      "audioIds": [
+        "audio:chunk:wozaixuexiaoxuexi:v1",
+        "audio:conversation:falar-de-estudo:estudo-9:v1"
+      ]
+    },
+    {
+      "textKey": "你在哪里工作",
+      "audioIds": [
+        "audio:chunk:nizainagongzuo:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-3:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-3-retry:v1"
+      ]
+    },
+    {
+      "textKey": "我在公司上班",
+      "audioIds": [
+        "audio:chunk:wozaigongsishangban:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-3-answer:v1"
+      ]
+    },
+    {
+      "textKey": "你几点上班",
+      "audioIds": [
+        "audio:chunk:nijidianshangban:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-2:v1"
+      ]
+    },
+    {
+      "textKey": "你几点起床",
+      "audioIds": [
+        "audio:chunk:nijidianqichuang:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-1:v1"
+      ]
+    },
+    {
+      "textKey": "我七点起床",
+      "audioIds": [
+        "audio:chunk:woqidianqichuang:v1",
+        "audio:conversation:rotina-e-trabalho:rotina-1-answer:v1"
+      ]
+    },
+    {
+      "textKey": "八点半",
+      "audioIds": [
+        "audio:chunk:badianban:v1",
+        "audio:conversation:que-horas-sao:hora-1-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我要去酒店",
+      "audioIds": [
+        "audio:chunk:woyaoqujiudian:v1",
+        "audio:conversation:pegar-taxi:taxi-1-answer:v1"
+      ]
+    },
+    {
+      "textKey": "去北京路",
+      "audioIds": [
+        "audio:chunk:qubeijinglu:v1",
+        "audio:conversation:pegar-taxi:taxi-road:v1"
+      ]
+    },
+    {
+      "textKey": "在这里停车",
+      "audioIds": [
+        "audio:chunk:zaizhelictingche:v1",
+        "audio:conversation:pegar-taxi:taxi-stop-answer:v1"
+      ]
+    },
+    {
+      "textKey": "登机口在哪里",
+      "audioIds": [
+        "audio:chunk:dengjikouzainali:v1",
+        "audio:conversation:no-aeroporto:aero-gate-answer:v1"
+      ]
+    },
+    {
+      "textKey": "有Wi-Fi吗",
+      "audioIds": [
+        "audio:chunk:youwifima:v1",
+        "audio:conversation:checkin-hotel:hotel-wifi-answer:v1"
+      ]
+    },
+    {
+      "textKey": "请给我护照",
+      "audioIds": [
+        "audio:chunk:qinggeiwodehuzhao:v1",
+        "audio:conversation:checkin-hotel:hotel-passport:v1"
+      ]
+    },
+    {
+      "textKey": "住几晚",
+      "audioIds": [
+        "audio:chunk:zhujiwan:v1",
+        "audio:conversation:checkin-hotel:hotel-nights:v1"
+      ]
+    },
+    {
+      "textKey": "三零五",
+      "audioIds": [
+        "audio:chunk:sanlingwu:v1",
+        "audio:conversation:checkin-hotel:hotel-room:v1"
+      ]
+    },
+    {
+      "textKey": "登机口",
+      "audioIds": [
+        "audio:chunk:dengjikou:v1",
+        "audio:conversation:no-aeroporto:aero-gate-retry:v1",
+        "audio:conversation:no-aeroporto:aero-slow-2:v1",
+        "audio:conversation:no-aeroporto:aero-sign-retry:v1",
+        "audio:conversation:no-aeroporto:aero-sign-answer:v1"
+      ]
+    },
+    {
+      "textKey": "我不舒服",
+      "audioIds": [
+        "audio:chunk:wobushufu:v1",
+        "audio:conversation:nao-me-sinto-bem:saude-unwell-answer:v1",
+        "audio:conversation:conversa-cotidiana:cot-unwell-say:v1",
+        "audio:conversation:na-clinica:clinic-unwell-answer:v1"
+      ]
+    }
+  ],
+  "corePackCount": 15,
+  "extendedCount": 642,
+  "manifestCount": 657,
+  "lessonCount": 134,
+  "bySource": {
+    "guided-try": 5,
+    "chunk": 268,
+    "tone-trainer": 108,
+    "immersion": 21,
+    "conversation": 711,
+    "conversation-option": 491,
+    "conversation-line": 487,
+    "lesson": 2099,
+    "character": 175,
+    "conversation-listen": 4
+  },
+  "note": "missingAudio lista falas fixas ainda sem asset; core pack cobre Guided Try / onboarding / tons / primeiras conversas."
+}

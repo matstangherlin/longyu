@@ -1,0 +1,16 @@
+{
+  "wave": "RC2_2_31B_ANDROID_RUNTIME_FINAL",
+  "RC2_2_31B_BASE_SHA": "8a0633234b8d57b6a8239c15e2ed2f75d7356045",
+  "basePr": 304,
+  "stackedOn": "cursor/rc2-2-31-android-runtime-closure-5b4f",
+  "status": "IN_PROGRESS",
+  "closedBetaEntry": false,
+  "priorities": [
+    "full fixed Mandarin speech corpus (657)",
+    "session-scoped Media3 listeners + promise terminals",
+    "conversation all-actions NativeSafeAction + real traces",
+    "owner APK physical proof"
+  ],
+  "nextWaveIfPass": "RC2.2.32 — Auth + Play Internal + Closed Beta Entry",
+  "nextWaveIfFail": "RC2.2.31C — device-diagnosed fixpack"
+}

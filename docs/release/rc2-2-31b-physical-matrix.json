@@ -1,0 +1,33 @@
+{
+  "wave": "RC2_2_31B",
+  "note": "#303 FAIL recorded. #304 code-fixed but not owner-proven. 31B PASS only after HEAD APK owner acceptance.",
+  "checks": {
+    "guidedTryAudio": "NOT_RUN",
+    "conversationContinue": "NOT_RUN",
+    "conversationSequentialAudio": "NOT_RUN",
+    "fullSpeechCorpus": "CODE_READY",
+    "aqv3": "CODE_READY",
+    "sessionScopedListeners": "CODE_READY",
+    "promiseTerminal": "CODE_READY",
+    "audioOffConversation20": "NOT_RUN",
+    "audioOnConversation20": "NOT_RUN",
+    "guidedTry10ColdStarts": "NOT_RUN",
+    "androidWebviewInput": "NOT_RUN"
+  },
+  "priorPhysical": {
+    "pr303": {
+      "guidedTryAudio": "FAIL",
+      "conversationContinue": "FAIL",
+      "conversationSequentialAudio": "FAIL"
+    },
+    "pr304": {
+      "status": "CODE_FIXED_AWAITING_PHYSICAL",
+      "ownerAccepted": false
+    }
+  },
+  "release": {
+    "CLOSED_BETA": "NO_GO",
+    "APK_PASS": 0,
+    "OWNER_ACCEPTED": 0
+  }
+}

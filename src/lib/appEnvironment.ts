@@ -118,11 +118,14 @@ export function isTestFixturesAllowed(env: AppEnvironmentInput = import.meta.env
 }
 
 /**
- * QA Fast Path (`/qa`) só em development ou preview.
- * Nunca em ambiente production-like, mesmo se alguém colar a URL ou um marker
- * no storage. O candidate QA é testado pelos caminhos reais do aluno.
+ * QA Fast Path (`/qa`) só em development, preview, ou APK de diagnóstico
+ * (`VITE_DEVICE_QA=true`). Nunca em Production Beta / Play release sem a flag.
+ * RC2.2.31D — instrumented WebView tests need real scene fixtures on debug APK.
  */
-export function isQaFastPathAllowed(env: AppEnvironmentInput = import.meta.env): boolean {
+export function isQaFastPathAllowed(
+  env: AppEnvironmentInput & { VITE_DEVICE_QA?: string } = import.meta.env
+): boolean {
+  if (env.VITE_DEVICE_QA === "true") return true;
   if (isProductionLikeEnv(env)) return false;
   return isDevelopmentEnv(env) || isPreviewEnv(env);
 }

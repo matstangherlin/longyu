@@ -1,0 +1,17 @@
+{
+  "wave": "RC2_2_31C_ANDROID_WEBVIEW_GESTURE_ROOT_CAUSE",
+  "RC2_2_31C_BASE_SHA": "96d6dc7da40173e72a83a03df2097ae072103a0a",
+  "basePr": 305,
+  "stackedOn": "cursor/rc2-2-31b-android-runtime-final-5b4f",
+  "status": "CODE_READY_AWAITING_PHYSICAL",
+  "closedBetaEntry": false,
+  "priorities": [
+    "webSpeechSynthesis vs isTTSAvailable separation",
+    "noteUserGesture never throws; removed from conversation critical path",
+    "Direct Asset MediaPlayer primary for packaged speech",
+    "no READY→HEARD laundering; honest playback proof",
+    "owner APK physical proof on HEAD"
+  ],
+  "nextWaveIfPass": "RC2.2.32 — Auth + Play Internal + Closed Beta Entry",
+  "nextWaveIfFail": "RC2.2.31D — device-diagnosed fixpack with exact death line"
+}

@@ -81,14 +81,15 @@ async function bottomTabLabels(page: Page): Promise<string[]> {
 test.describe("navegação progressiva — mobile", () => {
   test.use({ viewport: { width: 360, height: 640 } });
 
-  test("usuário novo vê só Jornada · Praticar · Mais (RC2.2.18)", async ({ page }) => {
+  // RC2.2.23/25 — conta nova vê Jornada · Mais; Praticar chega com a 1ª conclusão real.
+  test("usuário novo vê só Jornada · Mais (RC2.2.25)", async ({ page }) => {
     await seedStage(page, { completedLessons: [] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
     const labels = (await bottomTabLabels(page)).map((t) => t.trim());
-    expect(labels).toEqual(["Jornada", "Praticar", "Mais"]);
+    expect(labels).toEqual(["Jornada", "Mais"]);
 
     // Sem overflow horizontal.
     const overflow = await page.evaluate(
@@ -187,9 +188,12 @@ test.describe("navegação progressiva — mobile", () => {
     await seedStage(page, { completedLessons: ["l1"], learnedChars: ["你"] });
     await page.goto("/mais");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { level: 2, name: "Aprender" })).toBeVisible();
-    await expect(page.getByRole("heading", { level: 2, name: "Motivação" })).toBeVisible();
-    await expect(page.getByRole("heading", { level: 2, name: "Conta" })).toBeVisible();
+    // RC2.2.25 — ordem VOCÊ · ESTUDAR · (SOCIAL · PROGRESSO quando descobertos) · SISTEMA.
+    await expect(page.getByTestId("more-you")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Estudar" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Sistema" })).toBeVisible();
+    const order = await page.getByRole("heading", { level: 2 }).allTextContents();
+    expect(order.indexOf("Estudar")).toBeLessThan(order.indexOf("Sistema"));
     // RC2.2.18 · AN/AO — perto do desbloqueio: seção "Depois" discreta, ≤ 2 itens.
     const upcoming = page.getByRole("heading", { level: 2, name: "Depois" });
     await expect(upcoming).toBeVisible();

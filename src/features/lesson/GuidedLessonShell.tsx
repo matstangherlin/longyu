@@ -60,7 +60,7 @@ export function GuidedDock({ children, className = "" }: { children: ReactNode; 
         data-lesson-sticky-actions
         data-lesson-bottom-action
         data-lesson-action-mode="docked"
-        className={["grid gap-1 px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 sm:px-4", className].join(" ")}
+        className={["relative z-20 grid gap-1 px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 pointer-events-auto sm:px-4", className].join(" ")}
       >
         {children}
       </div>

@@ -40,7 +40,8 @@ async function openReviewPairs(page: Page) {
     ])
   );
   await seedUnlockedLessonSession(page, "p4-num-678", { srs, isPremium: true, serverIsPro: true });
-  await page.goto("/revisao");
+  // RC2.2.25 — a rodada é atividade: `iniciar=1` entra direto (sem o hub).
+  await page.goto("/revisao?iniciar=1");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   await expect(page.locator("[data-review-match-pairs-board]")).toBeVisible({ timeout: 15_000 });

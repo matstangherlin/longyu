@@ -10,7 +10,11 @@ jobs:
     name: Portão de qualidade (validate:beta + build)
     runs-on: ubuntu-latest
     steps:
+      # Full history: RC2.2.22 release-truth exige que RC2_2_22_BASE_SHA
+      # seja ancestral do HEAD (clone shallow = BASE_SHA_AMBIGUOUS falso).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -19,6 +23,29 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install ffmpeg (audio quality gates)
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          # Apt Azure mirrors intermittently crawl (80+ packages) and hit step timeouts.
+          # Static build from GitHub CDN is one archive + predictable PATH install.
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            ffmpeg -version | head -1
+            exit 0
+          fi
+          ARCHIVE="$RUNNER_TEMP/ffmpeg-static.tar.xz"
+          curl -fsSL --retry 4 --retry-delay 2 \
+            -o "$ARCHIVE" \
+            "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz"
+          tar -xJf "$ARCHIVE" -C "$RUNNER_TEMP"
+          BIN="$(find "$RUNNER_TEMP" -type f -path '*/bin/ffmpeg' | head -1)"
+          PROBE="$(find "$RUNNER_TEMP" -type f -path '*/bin/ffprobe' | head -1)"
+          test -n "$BIN" && test -n "$PROBE"
+          sudo install -m 755 "$BIN" /usr/local/bin/ffmpeg
+          sudo install -m 755 "$PROBE" /usr/local/bin/ffprobe
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
 
       - name: Validate beta
         run: npm run validate:beta

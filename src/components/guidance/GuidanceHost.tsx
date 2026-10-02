@@ -1,3 +1,5 @@
+import { recordTechEvent } from "../../lib/techEvents";
+import { currentAudioOwner } from "../../lib/audioArbiter";
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
@@ -5,6 +7,8 @@ import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 import {
   GUIDANCE_RENDER_EVIDENCE_MS,
   GUIDANCE_RENDER_TIMEOUT_MS,
+  GUIDANCE_BY_ID,
+  explainGuidance,
   applyGuidanceAction,
   guidanceRecordProvesRender,
   initializeGuidanceState,
@@ -27,6 +31,7 @@ import { hapticOnce } from "../../lib/haptics";
 import { playSoundFx } from "../../lib/soundFx";
 import { trackFunnelEvent } from "../../services/funnelEvents";
 import { allowSeededLocalSession } from "../../lib/auth/localAuthPolicy";
+import { guidanceSuppressedForSeededE2E } from "../../lib/guidanceSuppression";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
 import { Mascot } from "../brand/Mascot";
@@ -41,10 +46,14 @@ import {
   setCurrentGuidance,
   setGuidanceSession,
   useGuidanceRuntime,
+  recordGuidanceDelivery,
+  noteGuidanceAnchorMiss,
 } from "./guidanceRuntime";
 
 /** Espera a tela assentar antes de orientar (nada de piscar durante o render). */
 const SETTLE_MS = 700;
+/** RC2.2.23 — tentativa segura de achar a âncora antes do card não ancorado. */
+const ANCHOR_WAIT_MS = 1500;
 const GUIDANCE_CEREMONY_ID = "guidance";
 
 function isTypingTarget(element: Element | null): boolean {
@@ -90,13 +99,22 @@ function useRecentToneConfusions(): number {
  * clique com um coachmark; os specs de orientação ligam com
  * `longyu:e2e-guidance=on`. Em Production Beta isto é sempre falso.
  */
-function guidanceSuppressedForSeededE2E(): boolean {
-  if (!allowSeededLocalSession()) return false;
+function guidanceSuppressedForThisBuild(): boolean {
+  let override: string | null = null;
   try {
-    return localStorage.getItem("longyu:e2e-guidance") !== "on";
+    override = localStorage.getItem("longyu:e2e-guidance");
   } catch {
-    return false;
+    override = null;
   }
+  // RC2.2.23 — nunca no app nativo nem em build de QA (o owner PRECISA ver).
+  const suppressed = guidanceSuppressedForSeededE2E({
+    seededLocalSession: allowSeededLocalSession(),
+    native: isNativeApp(),
+    deviceQaBuild: import.meta.env.VITE_DEVICE_QA === "true",
+    guidanceOverride: override,
+  });
+  if (suppressed) recordGuidanceDelivery({ guidanceId: "*", stage: "suppressed", reasonCode: "SUPPRESSED_TEST_BUILD" });
+  return suppressed;
 }
 
 /**
@@ -105,7 +123,7 @@ function guidanceSuppressedForSeededE2E(): boolean {
  * no momento de mostrar: teclado, outro modal, âncora na tela.
  */
 export function GuidanceHost() {
-  const [suppressed] = useState(guidanceSuppressedForSeededE2E);
+  const [suppressed] = useState(guidanceSuppressedForThisBuild);
   return suppressed ? null : <GuidanceHostInner />;
 }
 
@@ -198,6 +216,8 @@ function GuidanceHostInner() {
       updateGuidance((state) => recordGuidanceRendered(state, current, Date.now()));
       setGuidanceSession(recordShownInSession(getGuidanceSession(), current));
       trackFunnelEvent("guidance_shown", { guidance_id: current.definition.id, kind: current.definition.kind, render_evidence: true });
+      recordTechEvent(current.definition.kind === "UNLOCK_REVEAL" ? "unlock_reveal_shown" : "coachmark_shown", { guidanceId: current.definition.id });
+      recordGuidanceDelivery({ guidanceId: current.definition.id, stage: "shown", reasonCode: current.anchorFallback ? "ANCHOR_FALLBACK" : null });
     }, wait);
     return () => window.clearTimeout(timer);
   }, [current, visibleSince, updateGuidance]);
@@ -207,6 +227,14 @@ function GuidanceHostInner() {
     if (!current || visibleSince != null) return undefined;
     const timer = window.setTimeout(() => {
       if (getCurrentGuidance() !== current) return;
+      // RC2.2.23 — coachmark que não ficou visível (âncora fora da tela/sumiu)
+      // vira card inferior não ancorado: a informação aparece, nunca some calada.
+      if (current.definition.kind === "COACHMARK" && !current.anchorFallback) {
+        recordGuidanceDelivery({ guidanceId: current.definition.id, stage: "anchor_fallback", reasonCode: "ANCHOR_FALLBACK" });
+        setCurrentGuidance({ ...current, anchorFallback: true });
+        return;
+      }
+      recordGuidanceDelivery({ guidanceId: current.definition.id, stage: "render_timeout", reasonCode: "RENDER_TIMEOUT" });
       setCurrentGuidance(null);
       trackFunnelEvent("guidance_render_failed", { guidance_id: current.definition.id, kind: current.definition.kind });
     }, GUIDANCE_RENDER_TIMEOUT_MS);
@@ -246,14 +274,30 @@ function GuidanceHostInner() {
   useEffect(() => {
     if (current || !context) return undefined;
     const candidate = selectGuidance(context);
-    if (!candidate) return undefined;
+    if (!candidate) {
+      // RC2.2.23 — coachmark pronto para sair, só sem âncora: espera uma vez
+      // (a página pode estar montando) e então libera o card não ancorado.
+      const waiting = explainGuidance(context).find((item) => item.reasonCode === "ANCHOR_MISSING" && item.surface && GUIDANCE_BY_ID.get(item.guidanceId)?.surfaces.includes(pathname));
+      if (!waiting) return undefined;
+      const timer = window.setTimeout(() => {
+        const anchor = GUIDANCE_BY_ID.get(waiting.guidanceId)?.anchor;
+        if (anchor && collectAnchors().has(anchor)) {
+          setTick((value) => value + 1);
+          return;
+        }
+        noteGuidanceAnchorMiss(waiting.guidanceId);
+        setTick((value) => value + 1);
+      }, ANCHOR_WAIT_MS);
+      return () => window.clearTimeout(timer);
+    }
     const timer = window.setTimeout(() => {
       // Confere de novo no instante de mostrar (PART K/DG/DQ).
       const fresh = selectGuidance({
         ...context,
         now: Date.now(),
         session: getGuidanceSession(),
-        activeLearning: Boolean(document.documentElement.dataset.lessonPlayer),
+        // RC2.2.23 — nunca durante lição, gravação ou reconhecimento de fala.
+        activeLearning: Boolean(document.documentElement.dataset.lessonPlayer) || ["RECORDING", "RECOGNITION"].includes(currentAudioOwner()),
         inputFocused: isTypingTarget(document.activeElement),
         otherCeremonyActive: otherOverlayOpen(),
         anchorsPresent: collectAnchors(),
@@ -264,6 +308,7 @@ function GuidanceHostInner() {
       }
       // Escolher não é mostrar: a sessão e o SHOWN só contam com evidência de render.
       setCurrentGuidance(fresh);
+      recordGuidanceDelivery({ guidanceId: fresh.definition.id, stage: "selected", reasonCode: fresh.anchorFallback ? "ANCHOR_FALLBACK" : null });
       if (fresh.definition.priority === "FEATURE_UNLOCK") {
         for (const feature of fresh.listedFeatures) trackFunnelEvent("feature_unlocked", { feature });
         // PART CJ/CK — 1 haptic e um som discreto já existente; coachmark comum: nenhum.
@@ -290,6 +335,7 @@ function GuidanceHostInner() {
       setGuidanceSession(recordShownInSession(getGuidanceSession(), shown));
       if (action === "now_not") setGuidanceSession(recordSnoozedInSession(getGuidanceSession(), shown));
       setCurrentGuidance(null);
+      recordGuidanceDelivery({ guidanceId: shown.definition.id, stage: "dismissed", reasonCode: null });
       trackFunnelEvent("guidance_dismissed", { guidance_id: shown.definition.id, action });
       if (action !== "primary") return;
       if (shown.definition.id === "notifications_offer_v1") {
@@ -519,9 +565,27 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
   const { definition } = presentation;
   useEscapeDismiss(onAction, definition.secondary);
 
+  const fallback = Boolean(presentation.anchorFallback);
   useLayoutEffect(() => {
-    const target = document.querySelector<HTMLElement>(`[data-coachmark-target="${definition.anchor ?? ""}"]`);
-    if (!target) return undefined;
+    const target = fallback ? null : document.querySelector<HTMLElement>(`[data-coachmark-target="${definition.anchor ?? ""}"]`);
+    if (!target) {
+      // RC2.2.23 — sem âncora: card inferior, acima da barra e da safe area.
+      const placeBottom = () => {
+        const card = cardRef.current;
+        if (!card) return;
+        const viewport = window.visualViewport;
+        const height = viewport?.height ?? window.innerHeight;
+        const width = viewport?.width ?? window.innerWidth;
+        const bottom = readCssPx("--app-bottom-nav-height") + readCssPx("--app-safe-bottom") + 12;
+        setPosition({ top: Math.max(readCssPx("--app-safe-top") + 8, height - card.offsetHeight - bottom), left: Math.max(16, (width - card.offsetWidth) / 2), placement: "fallback", arrowLeft: -100 });
+      };
+      const frame = requestAnimationFrame(placeBottom);
+      window.addEventListener("resize", placeBottom);
+      return () => {
+        cancelAnimationFrame(frame);
+        window.removeEventListener("resize", placeBottom);
+      };
+    }
     const rect = target.getBoundingClientRect();
     if (rect.top < 0 || rect.bottom > window.innerHeight) target.scrollIntoView({ block: "center" });
     let frame = 0;
@@ -551,7 +615,11 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
       window.removeEventListener("resize", place);
       window.removeEventListener("scroll", place, true);
     };
-  }, [definition.anchor]);
+  }, [definition.anchor, fallback]);
+
+  useEffect(() => {
+    if (position) recordGuidanceDelivery({ guidanceId: definition.id, stage: "render_started", reasonCode: fallback ? "ANCHOR_FALLBACK" : null });
+  }, [position !== null]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (position) focusPrimary(cardRef.current);
@@ -568,6 +636,7 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
       data-guidance-id={definition.id}
       data-guidance-render-evidence={evidence}
       data-coachmark-placement={position?.placement}
+      data-guidance-anchor={fallback || position?.placement === "fallback" ? "fallback" : "anchored"}
       data-native-back-dismiss
       role="dialog"
       aria-modal="false"
@@ -582,6 +651,7 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
     >
       <span
         aria-hidden
+        hidden={position?.placement === "fallback"}
         className={cx(
           "absolute h-3 w-3 rotate-45 border-accent/40 bg-surface",
           position?.placement === "above" ? "-bottom-1.5 border-b border-r" : "-top-1.5 border-l border-t"

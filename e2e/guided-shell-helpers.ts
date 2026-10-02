@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { fakeCanonicalMedia } from "./fake-canonical-media";
 
 /**
  * RC2.2.17B · PART CM/CN — heurísticas visuais medidas no DOM real.
@@ -116,6 +117,9 @@ export async function measureGuidedScreen(page: Page): Promise<GuidedScreen> {
 
 /** speechSynthesis controlado: "ok" dispara onstart/onend; "fail" dispara onerror. */
 export async function installFakeSpeech(page: Page, mode: "ok" | "fail") {
+  // RC2.2.28+ — conteúdo fixo toca pelo asset canônico e o TTS é só fallback:
+  // o mesmo modo controla os dois motores (determinístico em todo navegador).
+  await fakeCanonicalMedia(page, mode === "ok" ? "start" : "fail");
   await page.addInitScript((behavior: string) => {
     class FakeUtterance {
       text = "";

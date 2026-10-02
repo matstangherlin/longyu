@@ -94,6 +94,7 @@ const QaAudioDiscriminationPage = lazyNamed(
 );
 const QaHanziBuilderPage = lazyNamed(() => import("./features/qa/QaHanziBuilderPage"), "QaHanziBuilderPage");
 const QaStepLabPage = lazyNamed(() => import("./features/qa/QaStepLabPage"), "QaStepLabPage");
+const QaDevicePage = lazyNamed(() => import("./features/qa/QaDevicePage"), "QaDevicePage");
 const QaConversationScenePage = lazyNamed(
   () => import("./features/qa/QaConversationScenePage"),
   "QaConversationScenePage"
@@ -133,6 +134,16 @@ export const routes: RouteObject[] = [
       { path: "termos", element: <TermsPage /> },
       { path: "sobre", element: <AboutPage /> },
     ],
+  },
+  // RC2.2.20 — QA físico: fora do QA Fast Path (que é desligado no QA
+  // Candidate). A própria página redireciona quando `deviceQaEnabled()` é falso.
+  {
+    path: "qa/device",
+    element: (
+      <div className="min-h-dvh bg-bg px-4 py-6 text-ink">
+        <QaDevicePage />
+      </div>
+    ),
   },
   {
     element: <QaFastPathGate />,

@@ -1,0 +1,20 @@
+{
+  "wave": "RC2.2.29",
+  "title": "Launch Convergence, Full Audio Coverage & Owner Request Closure",
+  "parentWave": "RC2.2.28",
+  "parentPr": "matstangherlin/longyu#301",
+  "strategy": "STACKED",
+  "RC2_2_29_BASE_SHA": "6c7d54e8e6d186a6c4497ce73f4d2a56df20abcf",
+  "baseCapturedFrom": "HEAD final real do #301 após fix audio-playback-truth (6c7d54e8)",
+  "branch": "cursor/rc2-2-29-launch-convergence-c598",
+  "prTargetWhileParentOpen": "cursor/rc2-2-28-deterministic-audio-c598",
+  "prTargetAfterParentMerged": "main",
+  "notClosedBeta": true,
+  "nextWave": "RC2.2.30 — Closed Beta Entry & Real Learner Validation",
+  "preconditionsOn301": [
+    "platform boundary (nativeMedia)",
+    "TechEventDetail typing",
+    "completion deltas via Journey structure",
+    "guide-text-voice allows Longyu manifest assets"
+  ]
+}

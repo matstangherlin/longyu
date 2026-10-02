@@ -1,0 +1,29 @@
+{
+  "wave": "RC2.2.28",
+  "title": "Android deterministic audio / conversation deadlock",
+  "bugs": [
+    {
+      "id": "ANDROID_APK_AUDIO_NO_PLAY_CONTINUE_BLOCKED",
+      "severity": "P1",
+      "status": "FIXED_IN_CODE",
+      "fix": "Canonical asset + Media3 player; audio gate DEGRADED; Guided Try sem TTS no caminho normal"
+    },
+    {
+      "id": "ANDROID_CONVERSATION_DOES_NOT_ADVANCE_OR_AUDIO_ONLY_FIRST",
+      "severity": "P1",
+      "status": "FIXED_IN_CODE",
+      "fix": "Pure conversationReducer; audio after DOM; one requestId per node; audio failure never cancels transition"
+    },
+    {
+      "id": "BUILD_SHA_MERGE_VS_SOURCE_CONFUSION",
+      "severity": "P2",
+      "status": "FIXED_IN_CODE",
+      "fix": "Dual SHA provenance: sourceHeadSha vs workflowSha"
+    }
+  ],
+  "carriedFrom27": [
+    "ANDROID_TTS_HEARD_BUT_UI_NOT_ACKNOWLEDGED",
+    "ANDROID_SEQUENTIAL_TTS_STOPS_AFTER_FIRST_UTTERANCE"
+  ],
+  "note": "TTS bugs viram LEGACY/FALLBACK — não bloqueiam conteúdo fixo com core pack."
+}

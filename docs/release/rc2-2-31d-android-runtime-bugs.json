@@ -1,0 +1,35 @@
+{
+  "wave": "RC2_2_31D",
+  "bugs": [
+    {
+      "id": "P0_GUIDED_TRY_SILENT",
+      "severity": "P0",
+      "status": "CODE_FIX_AWAITING_PHYSICAL",
+      "symptom": "Guided Try listen → no audible audio → recovery"
+    },
+    {
+      "id": "P0_CONVERSATION_STUCK",
+      "severity": "P0",
+      "status": "CODE_FIX_AWAITING_PHYSICAL",
+      "symptom": "Continuar does not advance node"
+    },
+    {
+      "id": "P1_SYNC_ONLY_DIRECT_FALLBACK",
+      "severity": "P1",
+      "status": "FIXED_IN_SOURCE",
+      "symptom": "Direct prepareAsync errors never reached Media3"
+    },
+    {
+      "id": "P1_FAKE_INSTRUMENTED_COVERAGE",
+      "severity": "P1",
+      "status": "FIXED_IN_SOURCE",
+      "symptom": "ConversationTenNodeInstrumentedTest only asserted string array"
+    },
+    {
+      "id": "P1_NO_EMULATOR_RUNTIME_CI",
+      "severity": "P1",
+      "status": "FIXED_IN_SOURCE",
+      "symptom": "android-build never ran connectedDebugAndroidTest"
+    }
+  ]
+}
