@@ -28,18 +28,18 @@
 | Gates RC2.2.32 | `npm run gate:rc2-2-32` | **PASS** (12 mutações mortas + typecheck) |
 | Unit | `npm run test:rc232-unit` | **PASS** |
 | Typecheck | `npm run typecheck` | **PASS** |
-| Lint/build web | `npm run build` | a executar |
-| Android debug APK | `npm run android:debug` | a executar se SDK disponível |
-| Emulator / E2E | conforme pipeline | NOT_RUN nesta máquina se sem emulador |
+| Lint/build web | `npm run build` | **PASS** (Vite + PWA; log em artifacts) |
+| Android debug APK | `npm run android:debug` | **NOT_RUN** (SDK Android ausente neste ambiente) |
+| Emulator / E2E | conforme pipeline | NOT_RUN neste ambiente |
 | Físico owner | matriz `docs/release/rc2-2-32-physical-matrix.json` | **NOT_RUN** |
 
 ## Status de release (evidência verdadeira)
 
 | Gate | Valor |
 |---|---|
-| CODE_READY | **YES** (gates + typecheck) |
-| WEB_PASS | NOT_RUN |
-| APK_PASS | NOT_RUN |
+| CODE_READY | **YES** (gates + typecheck + web build) |
+| WEB_PASS | NOT_RUN (build OK; runtime E2E/owner ainda pendente) |
+| APK_PASS | NOT_RUN (sem Android SDK no agent; CI/owner) |
 | PHYSICAL_OWNER_PASS | NOT_RUN |
 
 **Não** declarar Closed Beta ready enquanto físicos estiverem `NOT_RUN`.
