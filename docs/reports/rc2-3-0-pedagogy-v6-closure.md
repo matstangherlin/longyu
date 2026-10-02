@@ -1,6 +1,7 @@
 # RC2.3.0 — Pedagogy V6 Closure
 
 **Base:** HEAD do PR #309 (`f8662ed…` / branch `cursor/rc2-2-32-voice-speech-guidance-25db`)  
+**Fingerprint:** `c48b008c9c1e` → `99cbc002710c` (exceção `RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION`)  
 **Não** rebaseado em `main` sem #309.  
 **#273:** não tocado.
 

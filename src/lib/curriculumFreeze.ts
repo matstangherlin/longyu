@@ -77,8 +77,15 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * Nenhuma lição, tópico, CultureItem ou StepKind novo; nenhum chunk novo — os
  * passos apontam para chunks que já estavam no registry e que o ciclo lexical
  * já declarava, mas que o planner nunca entregava ao aluno.
+ *
+ * RC2.3.0 avançou c48b008c9c1e → 99cbc002710c.
+ *
+ * Mudaram `src/data/journey.ts` (campos `pedagogyRole` / discovery no LessonStep)
+ * e `src/data/foundationTopicPlans.ts` (piloto humano “pela manhã” no Pass 1
+ * de mandarim). Contagens congeladas intactas: 134 lições, 113 tópicos, 30
+ * CultureItems. Sem StepKind novo. Ver `RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION`.
  */
-export const RC_BASE_FINGERPRINT = "c48b008c9c1e";
+export const RC_BASE_FINGERPRINT = "99cbc002710c";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -760,6 +767,35 @@ export const RC2_2_31D_APK_RUNTIME_PROOF_EXCEPTION = {
   ],
   fingerprint: "a91d31d0c0de",
   gate: "gate:rc2-2-31d-apk-runtime-proof",
+} as const;
+
+/**
+ * RC2.3.0 — Pedagogy V6 content exception (intentional fingerprint advance).
+ *
+ * Exceção estreita sob BETA_PEDAGOGY_FREEZE: o motor pedagógico muda
+ * (Descoberta, budgets 7–15, anti-repetição perceptiva, piloto visual/humano)
+ * e duas CURRICULUM_SOURCES recebem anotações/piloto — sem lição nova, sem
+ * CultureItem novo, sem StepKind novo, sem migração das 134.
+ */
+export const RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION = {
+  id: "RC2_3_0_PEDAGOGY_V6",
+  scope: "Discovery stage + progressive mastery budgets + perceptual variety on early Journey pilot",
+  allows: [
+    "LessonStep pedagogyRole / discovery annotations",
+    "foundation Pass-1 human-context copy (existing lesson)",
+    "mastery pass budget policy (runtime planner)",
+    "pedagogyV6 engine modules + LessonPlayer wire",
+  ],
+  forbids: [
+    "new lessons / lesson ids / topic order",
+    "new CultureItems / StepKinds",
+    "mass migration of 134 lessons",
+    "touching #273 / Android billing",
+    "declaring OWNER_PEDAGOGICAL_ACCEPTANCE without physical proof",
+  ],
+  previousFingerprint: "c48b008c9c1e",
+  fingerprint: "99cbc002710c",
+  gate: "gate:rc2-3-0-pedagogy-v6",
 } as const;
 
 /**

@@ -3,6 +3,8 @@
   "title": "Pedagogy V6: Discovery, Progressive Mastery & Perceptual Variety",
   "baseBranch": "cursor/rc2-2-32-voice-speech-guidance-25db",
   "baseHead": "f8662ed784fb3946e6c0b9779c4f0668fec712aa",
+  "curriculumFingerprint": "99cbc002710c",
+  "previousFingerprint": "c48b008c9c1e",
   "inherits": ["RC2.2.32"],
   "createdAt": "2026-10-02",
   "waveReadyForClosedBeta": false,
