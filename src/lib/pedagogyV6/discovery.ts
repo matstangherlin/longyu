@@ -45,6 +45,7 @@ export const PILOT_TEACHING_MOMENTS: readonly TeachingMoment[] = [
     exampleHanzi: "你好！",
     examplePinyin: "nǐ hǎo!",
     exampleMeaningPt: "Olá!",
+    visualConceptId: "street",
     pilotLessonIds: ["p1-o-que-e-mandarim", "l2"],
   },
   {
@@ -205,7 +206,7 @@ export function discoveryStepsFromMoment(moment: TeachingMoment): LessonStep[] {
       discoveryConceptIds: [...moment.conceptIds],
       objective: "Descoberta: exposição antes da avaliação",
       ...(moment.visualConceptId
-        ? { imageId: moment.visualConceptId, iconId: moment.visualConceptId }
+        ? { imageId: moment.visualConceptId, iconId: moment.visualConceptId, visualConceptId: moment.visualConceptId }
         : {}),
       ...(moment.hanzi ? { hanzi: moment.hanzi, targetHanzi: moment.hanzi } : {}),
       ...(moment.pinyin ? { pinyin: moment.pinyin, targetPinyin: moment.pinyin } : {}),

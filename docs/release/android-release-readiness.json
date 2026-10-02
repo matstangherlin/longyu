@@ -3,7 +3,7 @@
   "wave": "RC2.2.12",
   "baseBranch": "claude/rc2-2-11-experience-coherence",
   "baseNote": "Empilhada sobre o RC2.2.11 (#285 aberto) por instrução do owner ('não precisa esperar mergear'). Rebasear/mergear main quando #285 entrar.",
-  "fingerprint": "99cbc002710c",
+  "fingerprint": "c3861b5fb65f",
   "applicationId": "longyu.noba.com",
   "versionName": "0.2.0-beta.1",
   "versionCodeFloor": 1,

@@ -169,6 +169,8 @@ export interface LessonStep {
   targetMeaningPt?: string;
   imageOptions?: string[];
   correctImageId?: string;
+  /** RC2.3.1 — conceito visual curricular associado ao passo. */
+  visualConceptId?: string;
   /** Comparação visual curada: palavra → duas imagens ou imagem → duas palavras. */
   compareWithImageMode?: CompareWithImageMode;
   /** 1 = contraste evidente · 2 = mesma categoria · 3 = contraste semântico próximo. */

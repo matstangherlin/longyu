@@ -84,8 +84,14 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * e `src/data/foundationTopicPlans.ts` (piloto humano “pela manhã” no Pass 1
  * de mandarim). Contagens congeladas intactas: 134 lições, 113 tópicos, 30
  * CultureItems. Sem StepKind novo. Ver `RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION`.
+ *
+ * RC2.3.1 avançou 99cbc002710c → c3861b5fb65f.
+ *
+ * Adicionou `visualConceptId` em `LessonStep` e o motor Visual First
+ * (`resolveCurriculumVisual`, cenas, first exposure). Sem lição/StepKind novo.
+ * Ver `RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION`.
  */
-export const RC_BASE_FINGERPRINT = "99cbc002710c";
+export const RC_BASE_FINGERPRINT = "c3861b5fb65f";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -777,6 +783,14 @@ export const RC2_2_31D_APK_RUNTIME_PROOF_EXCEPTION = {
  * e duas CURRICULUM_SOURCES recebem anotações/piloto — sem lição nova, sem
  * CultureItem novo, sem StepKind novo, sem migração das 134.
  */
+export const RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION = {
+  id: "RC2_3_1_VISUAL_FIRST",
+  scope: "visualConceptId on LessonStep + Visual First curriculum resolver/scenes (no new lessons/StepKinds)",
+  previousFingerprint: "99cbc002710c",
+  fingerprint: "c3861b5fb65f",
+  gate: "gate:rc2-3-1-visual-first",
+} as const;
+
 export const RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION = {
   id: "RC2_3_0_PEDAGOGY_V6",
   scope: "Discovery stage + progressive mastery budgets + perceptual variety on early Journey pilot",

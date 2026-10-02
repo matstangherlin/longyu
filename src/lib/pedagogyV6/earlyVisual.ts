@@ -1,11 +1,15 @@
 /**
- * RC2.3.0 — contrato visual nas primeiras aulas (piloto).
- * Expansão completa = RC2.3.1.
+ * RC2.3.0/RC2.3.1 — contrato visual.
+ * RC2.3.1: resolveCurriculumVisual substitui o mapa manual EARLY_VISUAL_CONCRETE.
  */
 import type { LessonStep } from "../../data/journey";
 import { resolveVisualConcept, type VisualConceptId } from "../../data/visualVocabulary";
+import {
+  resolveCurriculumVisual,
+  VISUAL_SUPPORT_MISSING as VF_MISSING,
+} from "../visualFirst/resolveCurriculumVisual";
 
-/** Conceitos concretos do piloto que devem preferir visual na Descoberta/prática. */
+/** @deprecated Use resolveCurriculumVisual — mantido para compatibilidade de gates RC2.3.0. */
 export const EARLY_VISUAL_CONCRETE: Readonly<Record<string, VisualConceptId | string>> = {
   水: "water",
   饭: "rice",
@@ -18,9 +22,11 @@ export const EARLY_VISUAL_CONCRETE: Readonly<Record<string, VisualConceptId | st
   手机: "phone",
 };
 
-export const VISUAL_SUPPORT_MISSING = "VISUAL_SUPPORT_MISSING" as const;
+export const VISUAL_SUPPORT_MISSING = VF_MISSING;
 
 export function concreteVisualIdForText(text: string): string | null {
+  const resolved = resolveCurriculumVisual({ text, allowUntaughtTarget: true });
+  if (resolved.concept && resolved.visualClass === "CONCRETE_VISUAL") return resolved.concept.id;
   for (const [hanzi, id] of Object.entries(EARLY_VISUAL_CONCRETE)) {
     if (text.includes(hanzi)) return id;
   }
@@ -49,20 +55,16 @@ export function auditEarlyVisualSupport(
     const blob = [step.hanzi, step.targetHanzi, step.correctAnswer, step.answer, step.text, step.audioText]
       .filter(Boolean)
       .join("");
-    const conceptId = concreteVisualIdForText(blob);
-    if (!conceptId) continue;
+    const resolved = resolveCurriculumVisual({ text: blob, allowUntaughtTarget: true });
+    if (!resolved.concept || resolved.visualClass !== "CONCRETE_VISUAL") continue;
     const hasVisual =
       Boolean(step.imageId || step.iconId || step.correctImageId) ||
       step.kind === "image_choice" ||
       step.kind === "compare_with_image";
     if (hasVisual) continue;
-    const inBank = Boolean(resolveVisualConcept(conceptId as VisualConceptId));
-    if (!inBank && !EARLY_VISUAL_CONCRETE[Object.keys(EARLY_VISUAL_CONCRETE).find((k) => blob.includes(k)) ?? ""]) {
-      continue;
-    }
     findings.push({
       code: abstractLesson ? null : VISUAL_SUPPORT_MISSING,
-      conceptId,
+      conceptId: resolved.concept.id,
       stepKind: step.kind,
       justifiedAbstract: abstractLesson,
     });
@@ -74,13 +76,14 @@ export function auditEarlyVisualSupport(
 export function enrichStepWithVisual(step: LessonStep): LessonStep {
   if (step.imageId || step.iconId || step.kind === "image_choice") return step;
   const blob = [step.hanzi, step.targetHanzi, step.correctAnswer, step.answer, step.text].filter(Boolean).join("");
-  const conceptId = concreteVisualIdForText(blob);
-  if (!conceptId) return step;
-  const concept = resolveVisualConcept(conceptId as VisualConceptId);
-  if (!concept) return step;
+  const resolved = resolveCurriculumVisual({ text: blob, allowUntaughtTarget: true });
+  if (!resolved.concept || !resolved.hasLocalAsset || resolved.visualClass !== "CONCRETE_VISUAL") return step;
   return {
     ...step,
-    imageId: concept.id,
-    iconId: concept.id,
+    imageId: resolved.concept.id,
+    iconId: resolved.concept.id,
+    visualConceptId: resolved.concept.id,
   };
 }
+
+void resolveVisualConcept;

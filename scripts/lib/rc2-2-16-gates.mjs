@@ -50,7 +50,7 @@ export const BETA_BASELINE = {
   toneTransferPlayable: 12,
   conversationCapabilitiesRuntimeReady: 31,
 };
-export const BETA_FINGERPRINT = "99cbc002710c";
+export const BETA_FINGERPRINT = "c3861b5fb65f";
 export const RELEASE_STATES = [
   "PACKAGE_ALIGNED",
   "SIGNING_READY",

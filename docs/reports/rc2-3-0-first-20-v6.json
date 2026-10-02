@@ -1,7 +1,7 @@
 {
   "wave": "RC2.3.0",
   "version": "Pedagogy V6",
-  "generatedAt": "2026-10-02T23:47:08.736Z",
+  "generatedAt": "2026-10-02T23:56:24.316Z",
   "scope": "5 foundation topics × 4 passes = 20 sessions",
   "lessonIds": [
     "p1-o-que-e-mandarim",
@@ -14,8 +14,8 @@
     "sessions": 20,
     "discoveryInjected": 5,
     "saturationWarnings": 11,
-    "avgSteps": 7.85,
-    "avgHumanShare": 0.466
+    "avgSteps": 8.05,
+    "avgHumanShare": 0.481
   },
   "comparisonNote": "Comparação estrutural com RC2.2.x (repetição semântica). Não declara melhoria de retenção humana.",
   "previousSemanticAuditPresent": true,
@@ -798,15 +798,15 @@
       "ordinal": 17,
       "lessonId": "p1-primeiros-hanzi",
       "pass": 1,
-      "stepCount": 9,
+      "stepCount": 10,
       "discoveryInjected": true,
       "discoveryMomentId": "discover:hanzi-ni:v1",
       "perceptualRemoved": 0,
       "perceptualReordered": false,
       "saturation": {
-        "targetDominance": 0.4,
-        "interactionDominance": 0.6,
-        "presentationDominance": 0.2,
+        "targetDominance": 0.5,
+        "interactionDominance": 0.5,
+        "presentationDominance": 0.167,
         "semanticRedundancy": 0,
         "dominantTarget": "木",
         "dominantFamily": "listen",
@@ -814,15 +814,15 @@
         "redundant": 0
       },
       "human": {
-        "total": 9,
+        "total": 10,
         "metalinguistic": 3,
         "humanSituation": 3,
         "production": 0,
         "conversation": 0,
         "transfer": 0,
-        "visual": 0,
+        "visual": 1,
         "audio": 3,
-        "humanShare": 0.3333333333333333
+        "humanShare": 0.4
       },
       "visualMissing": 0,
       "contractFail": false,
@@ -831,14 +831,16 @@
       "interactionFamilies": {
         "intro": 4,
         "listen": 3,
+        "visual": 1,
         "build": 2
       },
       "cognitiveOperations": {
         "TEACH": 4,
         "HEAR": 3,
+        "RECOGNIZE": 1,
         "BUILD": 2
       },
-      "estimatedMinutesHint": 6.3
+      "estimatedMinutesHint": 7
     },
     {
       "ordinal": 18,
@@ -892,63 +894,66 @@
       "ordinal": 19,
       "lessonId": "p1-primeiros-hanzi",
       "pass": 3,
-      "stepCount": 9,
+      "stepCount": 11,
       "discoveryInjected": false,
       "discoveryMomentId": null,
       "perceptualRemoved": 0,
       "perceptualReordered": false,
       "saturation": {
-        "targetDominance": 0.333,
-        "interactionDominance": 0.5,
-        "presentationDominance": 0.167,
+        "targetDominance": 0.25,
+        "interactionDominance": 0.375,
+        "presentationDominance": 0.125,
         "semanticRedundancy": 0,
-        "dominantTarget": "月",
+        "dominantTarget": "木",
         "dominantFamily": "build",
         "warning": false,
         "redundant": 0
       },
       "human": {
-        "total": 9,
+        "total": 11,
         "metalinguistic": 6,
-        "humanSituation": 1,
+        "humanSituation": 2,
         "production": 0,
         "conversation": 0,
         "transfer": 0,
-        "visual": 0,
+        "visual": 1,
         "audio": 2,
-        "humanShare": 0.1111111111111111
+        "humanShare": 0.2727272727272727
       },
       "visualMissing": 0,
-      "contractFail": false,
+      "contractFail": true,
       "contractWarn": false,
-      "chargedBeforeTaught": 0,
+      "chargedBeforeTaught": 2,
       "interactionFamilies": {
         "intro": 3,
+        "visual": 1,
         "build": 3,
         "listen": 2,
-        "match": 1
+        "match": 1,
+        "choice": 1
       },
       "cognitiveOperations": {
         "TEACH": 3,
+        "RECOGNIZE": 2,
         "BUILD": 3,
         "HEAR": 2,
-        "RECOGNIZE": 1
+        "USE_IN_CONTEXT": 1
       },
-      "estimatedMinutesHint": 6.3
+      "estimatedMinutesHint": 7.7
     },
     {
       "ordinal": 20,
       "lessonId": "p1-primeiros-hanzi",
       "pass": 4,
-      "stepCount": 14,
+      "stepCount": 15,
       "discoveryInjected": false,
       "discoveryMomentId": null,
       "perceptualRemoved": 0,
       "perceptualReordered": false,
       "saturation": {
-        "targetDominance": 0.222,
-        "interactionDominance": 0.444,
-        "presentationDominance": 0.111,
+        "targetDominance": 0.2,
+        "interactionDominance": 0.4,
+        "presentationDominance": 0.1,
         "semanticRedundancy": 0,
         "dominantTarget": "水",
         "dominantFamily": "listen",
@@ -956,33 +961,35 @@
         "redundant": 0
       },
       "human": {
-        "total": 14,
+        "total": 15,
         "metalinguistic": 9,
-        "humanSituation": 1,
+        "humanSituation": 2,
         "production": 0,
         "conversation": 0,
         "transfer": 0,
         "visual": 0,
         "audio": 4,
-        "humanShare": 0.07142857142857142
+        "humanShare": 0.13333333333333333
       },
       "visualMissing": 0,
       "contractFail": true,
       "contractWarn": false,
-      "chargedBeforeTaught": 4,
+      "chargedBeforeTaught": 6,
       "interactionFamilies": {
         "intro": 5,
         "listen": 4,
         "build": 4,
-        "match": 1
+        "match": 1,
+        "choice": 1
       },
       "cognitiveOperations": {
         "TEACH": 5,
         "HEAR": 4,
         "BUILD": 4,
-        "RECOGNIZE": 1
+        "RECOGNIZE": 1,
+        "USE_IN_CONTEXT": 1
       },
-      "estimatedMinutesHint": 9.8
+      "estimatedMinutesHint": 10.5
     }
   ]
 }

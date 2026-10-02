@@ -1,6 +1,6 @@
 # RC2.3.0 — First 20 Sessions (Pedagogy V6)
 
-Gerado: 2026-10-02T23:47:08.736Z
+Gerado: 2026-10-02T23:56:24.316Z
 
 ## Escopo
 
@@ -13,8 +13,8 @@ Gerado: 2026-10-02T23:47:08.736Z
 | Sessões | 20 |
 | Descoberta injetada | 5 |
 | Warnings de saturação | 11 |
-| Média de passos | 7.85 |
-| Human share médio | 0.466 |
+| Média de passos | 8.05 |
+| Human share médio | 0.481 |
 
 ## Comparação RC2.2.x vs RC2.3.0
 
@@ -43,8 +43,8 @@ Gerado: 2026-10-02T23:47:08.736Z
 | 14 | p1-o-que-e-hanzi | 2 | 6 | no | yes | 0.50 | Peçaepalavra |
 | 15 | p1-o-que-e-hanzi | 3 | 5 | no | yes | 0.80 | 你好 |
 | 16 | p1-o-que-e-hanzi | 4 | 7 | no | no | 0.71 | 你好 |
-| 17 | p1-primeiros-hanzi | 1 | 9 | yes | yes | 0.33 | 木 |
+| 17 | p1-primeiros-hanzi | 1 | 10 | yes | yes | 0.40 | 木 |
 | 18 | p1-primeiros-hanzi | 2 | 8 | no | no | 0.25 | 口 |
-| 19 | p1-primeiros-hanzi | 3 | 9 | no | no | 0.11 | 月 |
-| 20 | p1-primeiros-hanzi | 4 | 14 | no | no | 0.07 | 水 |
+| 19 | p1-primeiros-hanzi | 3 | 11 | no | no | 0.27 | 木 |
+| 20 | p1-primeiros-hanzi | 4 | 15 | no | no | 0.13 | 水 |
 
