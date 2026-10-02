@@ -3,7 +3,11 @@ import { Button, ProgressBar } from "../ui/primitives";
 import { SpeakButton } from "../ui/SpeakButton";
 import { ToneContour } from "./ToneContour";
 import { ToneTrace } from "./ToneTrace";
-import { speak } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "TONE" });
+}
 import { buildToneMicrolesson } from "../../lib/toneMicrolesson";
 import type { MandarinToneNumber } from "../../data/toneKnowledge";
 import { TONE_SHORT_LABEL } from "../../data/toneTrainer";

@@ -1,12 +1,12 @@
 /**
  * RC2.2.28 — contrato de reprodução do áudio em mandarim.
+ * RC2.2.32 — FIXED_CONTENT: asset → player → DEGRADED (sem TTS silencioso).
  *
- * Ordem NOVA (Part 1):
- *   CANONICAL ASSET → NATIVE MEDIA PLAYER → fallback TTS → fallback textual
+ * Ordem para conteúdo fixo:
+ *   CANONICAL ASSET → NATIVE MEDIA PLAYER → estado degradado explícito
  *
- * TTS não é infraestrutura crítica para conteúdo fixo. Guided Try, aulas,
- * conversas autoradas, Review, Tone, Culture e Immersion usam asset quando
- * existir no manifesto. TTS permanece para dinâmico / QA / asset ausente.
+ * TTS permanece somente para DYNAMIC / QA. Conteúdo fixo que cairia em
+ * native/web TTS registra FIXED_CONTENT_NATIVE_TTS_FALLBACK (gate ZERO).
  *
  * Evolui o contrato RC2.2.17 (PlaybackState / PlaybackOutcome) — não é outro
  * motor de voz; é a mesma API com asset-first.
@@ -20,8 +20,9 @@ import { stopSpeaking } from "./tts";
 import { newTtsRequestId } from "./ttsCorrelation";
 import { nativeCancelSpeak } from "./platform/nativeSpeech";
 import { CANONICAL_AUDIO_ASSETS, audioEntryById, audioEntryByText, resolveCanonicalUri } from "../data/audioManifest.generated";
-import { decideAudioEngine, classifyAudioSource } from "./audio/audioEnginePolicy";
+import { decideAudioEngine, classifyAudioSource, fixedContentAllowsTtsEngine } from "./audio/audioEnginePolicy";
 import { playCanonicalAudio, cancelCanonicalAudio } from "./audio/canonicalPlayer";
+import { recordVoicePlayback, type VoicePlaybackEngine } from "./audio/voiceConsistency";
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -211,16 +212,49 @@ function engineFor(text: string, options: PlayMandarinOptions = {}): PlaybackEng
       if (asset) return "asset";
       continue;
     }
+    // RC2.2.32 — FIXED nunca seleciona TTS (mesmo se a ordem legada listar).
     if (pref === "native-tts") {
+      if (!fixedContentAllowsTtsEngine(decision)) continue;
       if (!ttsForcedUnavailable && usesNativeVoice()) return "native-tts";
       continue;
     }
     if (pref === "web-tts") {
+      if (!fixedContentAllowsTtsEngine(decision)) continue;
       if (!ttsForcedUnavailable && isTTSAvailable()) return "web-tts";
       continue;
     }
   }
   return "none";
+}
+
+function toVoiceEngine(engine: PlaybackEngine): VoicePlaybackEngine {
+  if (engine === "asset") return "canonical-asset";
+  if (engine === "native-media") return "native-media";
+  if (engine === "native-tts") return "native-tts";
+  if (engine === "web-tts") return "web-tts";
+  return "none";
+}
+
+function noteVoiceDecision(input: {
+  text: string;
+  source?: string;
+  audioId?: string | null;
+  engine: PlaybackEngine;
+  assetUri?: string | null;
+  fallbackOccurred?: boolean;
+  fallbackReason?: string | null;
+}): void {
+  const contentClass = classifyAudioSource(input.source);
+  recordVoicePlayback({
+    audioId: input.audioId,
+    text: input.text,
+    source: input.source,
+    contentClass,
+    engineSelected: toVoiceEngine(input.engine),
+    assetUsed: input.assetUri ?? null,
+    fallbackOccurred: input.fallbackOccurred,
+    fallbackReason: input.fallbackReason,
+  });
 }
 
 /**
@@ -287,11 +321,20 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     }
 
     record({ at: Date.now(), engine, event: "request", chars: clean.length, audioId: outcome.audioId });
+    noteVoiceDecision({
+      text: clean,
+      source: options.source,
+      audioId: outcome.audioId,
+      engine,
+      assetUri: asset?.uri ?? null,
+      fallbackOccurred: false,
+      fallbackReason: engine === "none" ? (asset ? "ASSET_ENGINE_UNAVAILABLE" : "FIXED_CONTENT_NO_ASSET_NO_TTS") : null,
+    });
 
     if (engine === "none") {
       outcome.unavailable = true;
       outcome.reason = ttsForcedUnavailable ? "TTS_FORCED_UNAVAILABLE" : "WEB_TTS_UNAVAILABLE";
-      // Fixed content sem asset e sem TTS: DEGRADED path — não trava UI.
+      // Fixed content sem asset: DEGRADED path — não trava UI e não troca de voz.
       if (classifyAudioSource(options.source) === "FIXED_CONTENT") {
         outcome.failed = true;
         outcome.unavailable = false;
@@ -403,8 +446,13 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
             return;
           }
           if (canonical.failed && !outcome.started) {
-            // Asset falhou → tentar TTS fallback SÓ se não forçado off e não for prova de independência.
-            if (!ttsForcedUnavailable && (usesNativeVoice() || isTTSAvailable())) {
+            // RC2.2.32 — FIXED_CONTENT: asset falhou → DEGRADED (sem TTS / outra voz).
+            // DYNAMIC/QA ainda podem cair em TTS.
+            const contentClass = classifyAudioSource(options.source);
+            const allowTts =
+              contentClass !== "FIXED_CONTENT" ||
+              options.qaOverride === true;
+            if (allowTts && !ttsForcedUnavailable && (usesNativeVoice() || isTTSAvailable())) {
               speak(clean || asset.audioId || " ", {
                 rate: options.rate,
                 requestId,
@@ -416,6 +464,15 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
               });
               outcome.engine = usesNativeVoice() ? "native-tts" : "web-tts";
               outcome.reason = "ASSET_FALLBACK_TTS";
+              noteVoiceDecision({
+                text: clean,
+                source: options.source,
+                audioId: outcome.audioId,
+                engine: outcome.engine,
+                assetUri: asset.uri,
+                fallbackOccurred: true,
+                fallbackReason: "ASSET_FALLBACK_TTS",
+              });
               return;
             }
             onError(canonical.reason ?? "ASSET_PLAYBACK_FAILED");

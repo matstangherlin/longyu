@@ -83,6 +83,7 @@ export function SpeakButton({
     // que a fala COMEÇOU. O toque sozinho não conta.
     void playMandarinAudio(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
+      source: "LESSON",
       onState: (state) => {
         if (state === "PLAYING") recordDailyTask("audioHeard");
       },

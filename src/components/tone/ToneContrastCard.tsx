@@ -18,7 +18,12 @@ import { useCallback, useRef } from "react";
 import { ToneContour } from "./ToneContour";
 import { Button } from "../ui/primitives";
 import { IconSound } from "../ui/Icon";
-import { speak } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+import { PedagogicalInlineTip } from "../guidance/PedagogicalInlineTip";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "TONE" });
+}
 import { t } from "../../i18n/catalog";
 import type { MandarinToneNumber } from "../../data/toneKnowledge";
 import {
@@ -117,6 +122,7 @@ export function ToneContrastCard({
       data-tone-contrast-base={set.baseSyllable}
       data-tone-contrast-flat={flat ? "true" : undefined}
     >
+      <PedagogicalInlineTip interaction="audio_contrast" className="mb-2" />
       {!flat && (
         <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
           {locale === "en" ? "Same syllable, different tone" : "Mesma sílaba, outro tom"}

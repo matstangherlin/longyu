@@ -17,7 +17,12 @@ import {
   type ToneTrainerRound,
 } from "../../data/toneTrainer";
 import { useStore, type ActivityReviewTarget } from "../../lib/store";
-import { hasChineseVoice, speak, stopSpeaking, warmUpVoices } from "../../lib/tts";
+import { hasChineseVoice, stopSpeaking, warmUpVoices } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "TONE" });
+}
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { playSoundFx } from "../../lib/soundFx";
 import { stripPinyinTone } from "../../lib/pinyin";

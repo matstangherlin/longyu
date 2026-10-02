@@ -11,7 +11,12 @@ import {
 import { Link } from "react-router-dom";
 import { getInterfaceLocale } from "../../i18n/locale";
 import type { GlossaryEntry, PhraseGlossary } from "../../data/gloss";
-import { isTTSAvailable, speak } from "../../lib/tts";
+import { isTTSAvailable } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON" });
+}
 import { IconChevron, IconSound } from "../ui/Icon";
 import { MandarinGlossaryPopover } from "./MandarinGlossaryPopover";
 import { MandarinHelpTooltip } from "./MandarinHelpTooltip";

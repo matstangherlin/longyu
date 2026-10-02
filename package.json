@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.2.0-beta.1",
   "type": "module",
-  "description": "Longyu (\u9f99\u8bed) \u2014 aprenda mandarim pela l\u00f3gica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+  "description": "Longyu (龙语) — aprenda mandarim pela lógica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
   "engines": {
     "node": ">=22"
   },
@@ -1062,7 +1062,21 @@
     "test:rc231d-fixed-content-fail-open": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test fixed-content-fail-open",
     "validate:rc231d-physical-truth": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate physical-truth",
     "test:rc231d-physical-truth": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test physical-truth",
-    "gate:rc2-2-31d-apk-runtime-proof": "npm run validate:rc231d-real-android-runtime-job && npm run test:rc231d-real-android-runtime-job && npm run validate:rc231d-no-fake-instrumentation && npm run test:rc231d-no-fake-instrumentation && npm run validate:rc231d-observer-never-blocks-action && npm run test:rc231d-observer-never-blocks-action && npm run validate:rc231d-state-first-conversation && npm run test:rc231d-state-first-conversation && npm run validate:rc231d-async-direct-fallback && npm run test:rc231d-async-direct-fallback && npm run validate:rc231d-fixed-content-fail-open && npm run test:rc231d-fixed-content-fail-open && npm run validate:rc231d-physical-truth && npm run test:rc231d-physical-truth && npm run typecheck"
+    "gate:rc2-2-31d-apk-runtime-proof": "npm run validate:rc231d-real-android-runtime-job && npm run test:rc231d-real-android-runtime-job && npm run validate:rc231d-no-fake-instrumentation && npm run test:rc231d-no-fake-instrumentation && npm run validate:rc231d-observer-never-blocks-action && npm run test:rc231d-observer-never-blocks-action && npm run validate:rc231d-state-first-conversation && npm run test:rc231d-state-first-conversation && npm run validate:rc231d-async-direct-fallback && npm run test:rc231d-async-direct-fallback && npm run validate:rc231d-fixed-content-fail-open && npm run test:rc231d-fixed-content-fail-open && npm run validate:rc231d-physical-truth && npm run test:rc231d-physical-truth && npm run typecheck",
+    "validate:rc232-voice-consistency": "node scripts/rc2-2-32-audio-learner-consistency.mjs validate voice-consistency",
+    "test:rc232-voice-consistency": "node scripts/rc2-2-32-audio-learner-consistency.mjs test voice-consistency",
+    "validate:rc232-speech-experience": "node scripts/rc2-2-32-audio-learner-consistency.mjs validate speech-experience",
+    "test:rc232-speech-experience": "node scripts/rc2-2-32-audio-learner-consistency.mjs test speech-experience",
+    "validate:rc232-guidance-delivery": "node scripts/rc2-2-32-audio-learner-consistency.mjs validate guidance-delivery",
+    "test:rc232-guidance-delivery": "node scripts/rc2-2-32-audio-learner-consistency.mjs test guidance-delivery",
+    "validate:rc232-sensory-feedback": "node scripts/rc2-2-32-audio-learner-consistency.mjs validate sensory-feedback",
+    "test:rc232-sensory-feedback": "node scripts/rc2-2-32-audio-learner-consistency.mjs test sensory-feedback",
+    "validate:rc232-conversation-integrity": "node scripts/rc2-2-32-audio-learner-consistency.mjs validate conversation-integrity",
+    "test:rc232-conversation-integrity": "node scripts/rc2-2-32-audio-learner-consistency.mjs test conversation-integrity",
+    "validate:rc232-physical-truth": "node scripts/rc2-2-32-audio-learner-consistency.mjs validate physical-truth",
+    "test:rc232-physical-truth": "node scripts/rc2-2-32-audio-learner-consistency.mjs test physical-truth",
+    "test:rc232-unit": "node scripts/test-rc2-2-32-unit.mjs",
+    "gate:rc2-2-32": "npm run validate:rc232-voice-consistency && npm run test:rc232-voice-consistency && npm run validate:rc232-speech-experience && npm run test:rc232-speech-experience && npm run validate:rc232-guidance-delivery && npm run test:rc232-guidance-delivery && npm run validate:rc232-sensory-feedback && npm run test:rc232-sensory-feedback && npm run validate:rc232-conversation-integrity && npm run test:rc232-conversation-integrity && npm run validate:rc232-physical-truth && npm run test:rc232-physical-truth && npm run test:rc232-unit && npm run typecheck"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
