@@ -44,22 +44,57 @@ public class LongyuMediaRuntimeInstrumentedTest {
             Thread.sleep(2500);
             WebViewRuntimeSupport.evalJs(webView,
                 "(function(){ try { Object.defineProperty(window,'speechSynthesis',{get:function(){return undefined;},configurable:true}); } catch(e){} return 'ok'; })()");
-            WebViewRuntimeSupport.evalJs(webView, "window.location.assign(\"/teste-guiado\")");
-            Thread.sleep(2000);
+            WebViewRuntimeSupport.evalJs(webView, "window.location.assign('/teste-guiado')");
 
-            // Advance intro → listen if needed.
-            WebViewRuntimeSupport.evalJs(webView,
-                "(function(){ var b=document.querySelector('[data-testid=\"intro-continue\"]');"
-                    + " if(b){ b.click(); return 'intro'; } return 'skip'; })()");
-            Thread.sleep(1200);
+            // A fresh install must choose a course before Guided Try can render.
+            String screen = "loading";
+            long screenDeadline = System.currentTimeMillis() + 20_000L;
+            while (System.currentTimeMillis() < screenDeadline) {
+                screen = WebViewRuntimeSupport.evalJs(webView,
+                    "(function(){ if(document.querySelector('[data-testid=course-picker]')) return 'course';"
+                        + " if(document.querySelector('[data-testid=guided-try]')) return 'guided';"
+                        + " return location.pathname + ':' + document.readyState; })()");
+                if ("course".equals(screen) || "guided".equals(screen)) break;
+                Thread.sleep(250);
+            }
+            assertTrue("Guided Try or course picker missing: " + screen,
+                "course".equals(screen) || "guided".equals(screen));
 
-            String listenBtn = WebViewRuntimeSupport.evalJs(webView,
-                "(function(){ var b=document.querySelector('[data-guided-listen], [data-testid=\"guided-listen\"]');"
-                    + " if(!b) return 'missing';"
-                    + " b.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));"
-                    + " b.dispatchEvent(new PointerEvent('pointerup',{bubbles:true}));"
-                    + " b.click(); return 'ok'; })()");
-            assertTrue("guided listen control missing", "ok".equals(listenBtn));
+            if ("course".equals(screen)) {
+                String choice = WebViewRuntimeSupport.evalJs(webView,
+                    "(function(){ var b=document.querySelector('[data-course-choice]');"
+                        + " if(!b) return 'missing'; b.click(); return 'chosen'; })()");
+                assertTrue("course choice missing", "chosen".equals(choice));
+
+                String confirm = "waiting";
+                long confirmDeadline = System.currentTimeMillis() + 10_000L;
+                while (System.currentTimeMillis() < confirmDeadline) {
+                    confirm = WebViewRuntimeSupport.evalJs(webView,
+                        "(function(){ var b=document.querySelector('[data-testid=course-picker-confirm]');"
+                            + " if(!b || b.disabled) return 'waiting'; b.click(); return 'confirmed'; })()");
+                    if ("confirmed".equals(confirm)) break;
+                    Thread.sleep(250);
+                }
+                assertTrue("course confirmation unavailable: " + confirm, "confirmed".equals(confirm));
+            }
+
+            String listenBtn = "loading";
+            long listenDeadline = System.currentTimeMillis() + 20_000L;
+            while (System.currentTimeMillis() < listenDeadline) {
+                listenBtn = WebViewRuntimeSupport.evalJs(webView,
+                    "(function(){ var b=document.querySelector('[data-guided-listen], [data-testid=guided-listen]');"
+                        + " if(b){ if(window.PointerEvent){"
+                        + " b.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));"
+                        + " b.dispatchEvent(new PointerEvent('pointerup',{bubbles:true}));"
+                        + " } b.click(); return 'ok'; }"
+                        + " var intro=document.querySelector('[data-testid=intro-continue]');"
+                        + " if(intro){ intro.click(); return 'intro'; }"
+                        + " var page=document.querySelector('[data-testid=guided-try]');"
+                        + " return location.pathname + ':' + (page ? page.getAttribute('data-guided-step') : 'not-guided'); })()");
+                if ("ok".equals(listenBtn)) break;
+                Thread.sleep(250);
+            }
+            assertTrue("guided listen control missing; last=" + listenBtn, "ok".equals(listenBtn));
 
             // Poll native player state via Capacitor plugin bridge.
             long deadline = System.currentTimeMillis() + 12_000L;
