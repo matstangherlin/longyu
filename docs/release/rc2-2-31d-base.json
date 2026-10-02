@@ -1,0 +1,20 @@
+{
+  "wave": "RC2_2_31D_APK_RUNTIME_PROOF",
+  "RC2_2_31D_BASE_SHA": "042f0f405a47da022e9c245d245d4823c4fc6af9",
+  "basePr": 306,
+  "stackedOn": "cursor/rc2-2-31c-android-webview-gesture-5b4f",
+  "status": "CODE_READY_AWAITING_PHYSICAL",
+  "closedBetaEntry": false,
+  "developmentUsable": "PENDING_RUNTIME",
+  "priorities": [
+    "real Android emulator connectedDebugAndroidTest",
+    "NativeSafeAction safeObserve + unmount cleanup + actionRef",
+    "state-first V1/V2/finish",
+    "async Direct→Media3 failover same requestId",
+    "AUDIO_BACKEND_FAILED non-terminal until local backends exhausted",
+    "audio focus for Direct MediaPlayer",
+    "pedagogical fail-open; Closed Beta still NO-GO without physical audio PASS"
+  ],
+  "nextWaveIfPass": "RC2.2.32 — Auth + Play Internal + Closed Beta Entry",
+  "nextWaveIfFail": "fix on same 31D branch with exact death-line diagnostics"
+}

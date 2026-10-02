@@ -145,7 +145,10 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
     await expectCultureLessonPlayer(page, "thanks-keqi");
     const persistBefore = await readCulturePersist(page);
     await playCultureLessonToVictory(page);
-    await expect(page.getByTestId("culture-xp")).toContainText("+0");
+    // RC2.2.27 — a conclusão só mostra o que mudou: replay sem XP novo não tem a
+    // etapa XP (nada de "+0"). O saldo persistido abaixo prova que não houve XP duplicado.
+    await expect(page.getByTestId("culture-score")).toHaveAttribute("data-completion-stages", /^(?!.*(?:^|,)XP(?:,|$))/);
+    await expect(page.getByTestId("culture-xp")).toHaveCount(0);
     const persistAfter = await readCulturePersist(page);
     expect(persistAfter.points).toBe(persistBefore.points);
   });

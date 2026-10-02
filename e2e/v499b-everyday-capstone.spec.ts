@@ -186,7 +186,9 @@ test.describe("V4.9.9B everyday + capstone", () => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width: 390, height: 844 });
     await openPlayer(page, "p7-conversa-cotidiana");
-    const reached = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 10, 50_000, { allowSkip: true });
+    // RC2.2.17B — micro-páginas guiadas gastam um passo por "Entendi": 10 era o limite exato
+    // e falhava de forma intermitente (4/6 local); 40 passos cobre a lição com folga.
+    const reached = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 40, 80_000, { allowSkip: true });
     expect(reached).toBeTruthy();
     await dismissLessonChrome(page);
     await expect(page.getByTestId("free-answer-mic").or(page.getByRole("button", { name: /Falar|Speak/i }))).toBeVisible();
@@ -200,7 +202,9 @@ test.describe("V4.9.9B everyday + capstone", () => {
     await seedInstructionLocale(page, "en", { force: true });
     await openPlayer(page, "p7-conversa-cotidiana");
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
-    const reached = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 10, 50_000, { allowSkip: true });
+    // RC2.2.17B — micro-páginas guiadas gastam um passo por "Entendi": 10 era o limite exato
+    // e falhava de forma intermitente (4/6 local); 40 passos cobre a lição com folga.
+    const reached = await advanceUntilSelector(page, '[data-current-step-kind="free_production"]', 40, 80_000, { allowSkip: true });
     expect(reached).toBeTruthy();
     await expect(page.getByRole("button", { name: /Speak|Falar/i }).or(page.getByTestId("free-answer-mic"))).toBeVisible();
   });

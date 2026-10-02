@@ -1,0 +1,352 @@
+{
+  "schema": "longyu-rc2-2-25-owner-product-debt/1",
+  "wave": "RC2.2.25",
+  "states": [
+    "NOT_IMPLEMENTED",
+    "CODE_READY",
+    "WEB_PASS",
+    "APK_PASS",
+    "OWNER_ACCEPTED"
+  ],
+  "rule": "Nenhuma função é concluída só porque existe no código. CODE_READY ≠ WEB_PASS ≠ APK_PASS ≠ OWNER_ACCEPTED. Mock não é prova física; o aceite visual é SIM/NÃO do owner, por superfície.",
+  "totals": {
+    "NOT_IMPLEMENTED": 1,
+    "CODE_READY": 8,
+    "WEB_PASS": 21,
+    "APK_PASS": 0,
+    "OWNER_ACCEPTED": 0
+  },
+  "ownerAccepted": 0,
+  "items": [
+    {
+      "id": "OD01",
+      "description": "Sair da conta encontrável sem rolar (Mais e Conta)",
+      "surface": "Mais/Conta",
+      "introducedWave": "RC2.2.19",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD02",
+      "description": "Logout em ≤ 2 níveis, cai na Landing/Login, nunca em 'Aluno local'",
+      "surface": "Mais (sheet)",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD03",
+      "description": "Conta muito menor no celular: primeira dobra avatar · nome · e-mail · status + Perfil/Aparência/Segurança/Sair",
+      "surface": "Conta",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD04",
+      "description": "Excluir conta separado no fim ('Zona de perigo')",
+      "surface": "Conta",
+      "introducedWave": "RC2.2.19",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD05",
+      "description": "Mais com VOCÊ no topo e ordem VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA",
+      "surface": "Mais",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD06",
+      "description": "Sair como linha full-width com ícone, não vermelho",
+      "surface": "Mais",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD07",
+      "description": "Aparência abre Sistema / Claro / Escuro",
+      "surface": "Aparência",
+      "introducedWave": "RC2.2.17",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD08",
+      "description": "Perfil: avatar, nome, @username, medalhas em destaque, Editar, Amigos e botão Conta visível",
+      "surface": "Perfil",
+      "introducedWave": "RC2.2.19",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD09",
+      "description": "Uma conta só: sem 'Perfis neste dispositivo' / 'Usar perfil' / 'Aluno local' em produção",
+      "surface": "Dados e backup",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-24-android-learning-parity.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD10",
+      "description": "Revisão = rodada curta guiada (5–8) sem análise durante a rodada",
+      "surface": "Revisão",
+      "introducedWave": "RC2.2.23",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD11",
+      "description": "Hànzì da revisão ≥ 64/48/44 px",
+      "surface": "Revisão",
+      "introducedWave": "RC2.2.19",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-23-product-convergence.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD12",
+      "description": "Atividade sem TabBar/logo/contadores/streak (Revisão, Pinyin, Fala, Imersão, Tons)",
+      "surface": "Atividades",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD13",
+      "description": "Tone Trainer: hub ≠ rodada; rodada sem Nota/Melhor/Fraco/Pack",
+      "surface": "Tons/Som",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-24-android-learning-parity.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD14",
+      "description": "Tone Trace por toque: linha → parcial → pontos → nada → escolha de memória; nunca afirma pitch",
+      "surface": "Tons/Som",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD15",
+      "description": "Teste guiado: Ouvir libera Continuar só com início real do áudio; falha explícita com saídas",
+      "surface": "Teste guiado",
+      "introducedWave": "RC2.2.17",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-24-android-learning-parity.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD16",
+      "description": "Conversa avança sempre (DOM do próximo nó visível; áudio só acompanha)",
+      "surface": "Lição / conversa",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-24-android-learning-parity.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD17",
+      "description": "Voltar à Jornada no nó certo (âncora), nunca no topo; pulso discreto 1–1,5 s",
+      "surface": "Jornada",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-24-android-learning-parity.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD18",
+      "description": "Tarefa de Cultura: 'Antes de continuar, entenda este costume.' [Ir para Cultura] → '✓ Cultura concluída' [Voltar para <unidade>]",
+      "surface": "Jornada/Cultura",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD19",
+      "description": "Fala: OUÇA → GRAVE → OUÇA VOCÊ → COMPARE → CONTINUE, sem motor/serviço/modelo/locale fora do QA",
+      "surface": "Fala / passo de fala",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD20",
+      "description": "Fallback de fala: 'Seu aparelho não conseguiu reconhecer mandarim agora.' [Gravar e comparar] [Continuar]",
+      "surface": "Passo de fala",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD21",
+      "description": "CTA diz a ação; nada de 'Continuar +20 XP' em botão",
+      "surface": "Todas",
+      "introducedWave": "RC2.2.19",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD22",
+      "description": "Imersão: cena com ONDE / COM QUEM / OBJETIVO e 'Você conseguiu…'",
+      "surface": "Imersão",
+      "introducedWave": "RC2.2.19",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD23",
+      "description": "Descoberta progressiva: conta nova vê Jornada + Mais, depois Praticar",
+      "surface": "TabBar",
+      "introducedWave": "RC2.2.23",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/progressive-nav.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD24",
+      "description": "Orientação: 1 automática por sessão normal, no máximo 2 no onboarding",
+      "surface": "Guidance",
+      "introducedWave": "RC2.2.18",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD25",
+      "description": "Energia acabou ≠ app travado (pouso suave)",
+      "surface": "Energia",
+      "introducedWave": "RC2.2.23",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-23-product-convergence.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD26",
+      "description": "Pinyin Lab em focus (hub mostra só [Começar])",
+      "surface": "Pinyin Lab",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "WEB_PASS",
+      "webEvidence": "e2e/rc2-2-25-product-experience-closure.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD27",
+      "description": "Sem rolagem em 390×844 e 375×667 nas atividades; 360×640 só compacta",
+      "surface": "Atividades",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "NOT_IMPLEMENTED",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD28",
+      "description": "Goldens das 15 superfícies × 5 viewports aceitos pelo owner (SIM/NÃO)",
+      "surface": "Todas",
+      "introducedWave": "RC2.2.25",
+      "implementationState": "CODE_READY",
+      "webEvidence": "e2e/rc2-2-25-goldens.spec.ts",
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD29",
+      "description": "TTS no APK reconhece o áudio ouvido (requestId/utteranceId)",
+      "surface": "Teste guiado / lições",
+      "introducedWave": "RC2.2.24",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    },
+    {
+      "id": "OD30",
+      "description": "Gravar e comparar: a própria voz é audível no Android",
+      "surface": "Passo de fala",
+      "introducedWave": "RC2.2.21",
+      "implementationState": "CODE_READY",
+      "webEvidence": null,
+      "physicalState": "NOT_RUN",
+      "apkState": "NOT_RUN",
+      "ownerAccepted": false
+    }
+  ]
+}

@@ -78,6 +78,8 @@ const NAMESPACES = [
   // RC2.2.18 — descoberta progressiva (coachmarks, revelações, recursos em espera).
   "guidance",
   "discovery",
+  // RC2.2.23 — zero Cargas: superfície calma com caminhos grátis.
+  "energySoftLanding",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));

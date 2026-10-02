@@ -25,6 +25,8 @@ jobs:
   android-build:
     name: Android foundation (contratos + debug APK/AAB)
     runs-on: ubuntu-latest
+    outputs:
+      artifact_name: ${{ steps.identity.outputs.base }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,8 +46,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install ffmpeg (audio quality gates)
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          # Apt Azure mirrors intermittently crawl (80+ packages) and hit step timeouts.
+          # Static build from GitHub CDN is one archive + predictable PATH install.
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            ffmpeg -version | head -1
+            exit 0
+          fi
+          ARCHIVE="$RUNNER_TEMP/ffmpeg-static.tar.xz"
+          curl -fsSL --retry 4 --retry-delay 2 \
+            -o "$ARCHIVE" \
+            "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz"
+          tar -xJf "$ARCHIVE" -C "$RUNNER_TEMP"
+          BIN="$(find "$RUNNER_TEMP" -type f -path '*/bin/ffmpeg' | head -1)"
+          PROBE="$(find "$RUNNER_TEMP" -type f -path '*/bin/ffprobe' | head -1)"
+          test -n "$BIN" && test -n "$PROBE"
+          sudo install -m 755 "$BIN" /usr/local/bin/ffmpeg
+          sudo install -m 755 "$PROBE" /usr/local/bin/ffprobe
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
+
       - name: Contratos Android + pipeline de entrega
-        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified
+        run: npm run gate:android-native-foundation && npm run gate:main-delivery-pipeline && npm run gate:rc2-2-12-android-release-readiness && npm run gate:rc2-2-13-native-mobile-experience && npm run gate:rc2-2-14-mobile-learning-polish && npm run gate:rc2-2-14b-locale-course-direction && npm run gate:rc2-2-16-play-internal-beta && npm run gate:rc2-2-17-guided-learning-reliability && npm run gate:rc2-2-17b-guided-journey-parity && npm run gate:rc2-2-18-progressive-discovery && npm run gate:rc2-2-19-guided-simple-verified && npm run gate:rc2-2-20-physical-beta-readiness && npm run gate:rc2-2-21-mobile-native-stability && npm run gate:rc2-2-22-closed-beta-candidate && npm run gate:rc2-2-23-product-convergence && npm run gate:rc2-2-24-android-learning-parity && npm run gate:rc2-2-25-product-experience-closure && npm run gate:rc2-2-26-android-physical-closure && npm run gate:rc2-2-27-android-tts-root-cause && npm run gate:rc2-2-28-deterministic-audio && npm run gate:rc2-2-29-launch-convergence && npm run gate:rc2-2-30-closed-beta-entry && npm run gate:rc2-2-31-android-runtime-closure && npm run gate:rc2-2-31b-android-runtime-final && npm run gate:rc2-2-31c-android-runtime-root-cause && npm run gate:rc2-2-31d-apk-runtime-proof
 
       - name: Release sem segredos bloqueia honestamente
         run: |
@@ -62,6 +87,15 @@ jobs:
         run: node scripts/play-upload.mjs --probe
 
       - name: Debug APK + AAB (build web + cap sync + Gradle)
+        # RC2.2.27 — o APK debug é o APK de DIAGNÓSTICO (contrato RC2.2.20):
+        # /qa/device › LEGACY/FALLBACK TTS FORENSICS, linha técnica do Teste Guiado e
+        # logs LongyuTTS só existem com VITE_DEVICE_QA. Nunca no release.
+        # RC2.2.28 — dual SHA: SOURCE_HEAD (PR head) + WORKFLOW (GITHUB_SHA merge).
+        env:
+          VITE_DEVICE_QA: "true"
+          VITE_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VITE_WORKFLOW_SHA: ${{ github.sha }}
+          VITE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           node scripts/android-cli.mjs debug
           node scripts/android-cli.mjs bundle:debug
@@ -71,12 +105,15 @@ jobs:
         run: |
           base=$(ls release-artifacts/*.provenance.json | head -n1 | xargs -n1 basename | sed 's/\.provenance\.json$//')
           echo "base=$base" >> "$GITHUB_OUTPUT"
+          SOURCE_HEAD="${{ github.event.pull_request.head.sha || github.sha }}"
+          WORKFLOW_SHA="${{ github.sha }}"
           {
             echo "### Android build — $base"
             echo ""
             echo "| Item | Resultado |"
             echo "| --- | --- |"
-            echo "| Fonte | \`${GITHUB_SHA}\` ($GITHUB_EVENT_NAME) |"
+            echo "| SOURCE HEAD | \`${SOURCE_HEAD:0:8}\` |"
+            echo "| CI MERGE | \`${WORKFLOW_SHA:0:8}\` |"
             echo "| Android debug APK/AAB | PASS |"
             echo "| Signed release | BLOCKED_SIGNING_SECRETS |"
             echo "| Play internal upload | BLOCKED_PLAY_CREDENTIALS (este workflow nunca publica) |"
@@ -92,3 +129,72 @@ jobs:
           path: release-artifacts/
           if-no-files-found: error
           retention-days: ${{ github.event_name == 'push' && 30 || 7 }}
+
+  # RC2.2.31D — BUILD PASS ≠ RUNTIME PASS.
+  # Boots emulator, installs the same debug app, runs connectedDebugAndroidTest
+  # against real MainActivity WebView (Guided Try + conversation scenes).
+  android-runtime-emulator:
+    name: Android runtime (emulator + connectedDebugAndroidTest)
+    needs: android-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm || true
+
+      - name: Build web + sync Capacitor (diagnostic APK)
+        env:
+          VITE_DEVICE_QA: "true"
+          VITE_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VITE_WORKFLOW_SHA: ${{ github.sha }}
+          VITE_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          npm run build
+          npx cap sync android
+
+      - name: Android runtime emulator tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          # android-emulator-runner runs each `script:` line in its own /bin/sh -c
+          # (dash): no pipefail, no heredoc, no `cd` carried to the next line.
+          # The whole connectedDebugAndroidTest run lives in one bash script.
+          script: bash scripts/android-emulator-runtime.sh
+        env:
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          WORKFLOW_SHA: ${{ github.sha }}
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-runtime-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: runtime-evidence/
+          if-no-files-found: warn
+          retention-days: 7

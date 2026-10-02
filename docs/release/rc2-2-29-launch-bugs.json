@@ -1,0 +1,24 @@
+{
+  "wave": "RC2.2.29",
+  "bugs": [
+    {
+      "id": "ANDROID_CONVERSATION_CONTINUE_STALL",
+      "severity": "P1",
+      "status": "FIXED_IN_CODE",
+      "fix": "transition lock + pure reducer + audio-after-DOM; physical APK click-truth still required",
+      "releaseBlocker": true
+    },
+    {
+      "id": "LEARNER_UI_DEBUG_POLLUTION",
+      "severity": "P1",
+      "status": "FIXED_IN_CODE",
+      "fix": "Removed TTS NATIVE/plugin/START/EVENT/QUERY/CTA and Copiar diagnóstico from Guided Try"
+    },
+    {
+      "id": "FIXED_CONTENT_MISSING_AUDIO",
+      "severity": "P1",
+      "status": "FIXED_IN_CODE",
+      "fix": "657 canonical assets; 0 fixed missing; 7 dynamic-only"
+    }
+  ]
+}

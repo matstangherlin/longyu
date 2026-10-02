@@ -40,7 +40,8 @@ async function openReviewPairs(page: Page) {
     ])
   );
   await seedUnlockedLessonSession(page, "p4-num-678", { srs, isPremium: true, serverIsPro: true });
-  await page.goto("/revisao");
+  // RC2.2.25 — a rodada é atividade: `iniciar=1` entra direto (sem o hub).
+  await page.goto("/revisao?iniciar=1");
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
   await expect(page.locator("[data-review-match-pairs-board]")).toBeVisible({ timeout: 15_000 });
@@ -154,7 +155,12 @@ test.describe("V4.9.2B review match pairs UX", () => {
         if (value === "light") document.documentElement.removeAttribute("data-theme");
         else document.documentElement.setAttribute("data-theme", value);
       }, theme);
-      await page.waitForTimeout(150);
+      // As peças usam `transition` (150 ms nas cores): medir só depois que a troca
+      // de tema termina, senão o contraste sai de um quadro intermediário.
+      await page.waitForTimeout(50);
+      await page.waitForFunction(() =>
+        document.getAnimations().every((a) => !(a instanceof CSSTransition) || a.playState !== "running")
+      );
 
       const worst = await page
         .locator("[data-review-match-pairs-board] [data-review-pair-tile]")

@@ -1,0 +1,2703 @@
+{
+  "schema": "longyu-audio-classification/1",
+  "fixedCanonical": 657,
+  "dynamicTts": 7,
+  "noAudioRequired": 0,
+  "fixedContentMissingAudio": 0,
+  "missingFixed": [],
+  "items": [
+    {
+      "textKey": "我很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "对不起",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "早上好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "晚上好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "晚安",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "没关系",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请问",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请坐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请进",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我叫Matheus",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "你叫什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我是巴西人",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你是哪国人",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请问你好吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我是学生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "认识你很高兴",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我有三个朋友",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不会说中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我会说一点中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我听不懂",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你会说英语吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我们走吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "等一下",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那是天",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那是人吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "车在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你呢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么时候",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "怎么样",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "多少钱",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这个多少钱",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要这个",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "太贵了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "便宜一点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很好吃",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我饿了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我想喝茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我想喝水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不喝茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不吃肉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我们吃饭吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要饭",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要菜",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要肉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要鱼",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要米饭",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我想吃米饭",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不要辣",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "买单",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "服务员",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "菜单",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "饭馆",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一杯茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要一杯茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请问几位",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一位",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "两位",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要菜单",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不要了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "两杯水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "面",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "面条",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "咖啡",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要面",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "火车",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "公交车",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我坐地铁",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁站在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我爸爸",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我妈妈",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我家",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我回家",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我喜欢中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我在学中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去学校",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是书",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我看书",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我坐出租车",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "火车站在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "票多少钱",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要票",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要工作",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "上班",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "下班",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我起床",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我睡觉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我坐飞机",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "飞机场在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "酒店在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "超市在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "银行在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "医院在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "公园在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去超市",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去医院",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我爷爷",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我奶奶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我有姐姐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我有弟弟",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我病了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我头疼",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要看医生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现在几点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现在八点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现在九点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "中午",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现在",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "昨天",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天上有云",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "山上有树",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "水里有鱼",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "下雨了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "花好看",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天上的星星",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天天气很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天气很热",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天气很冷",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "下雪了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天晴了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "有风",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "左边",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "右边",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "前面",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "后面",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "直走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "往左走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "往右走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "南边",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要买衣服",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这件衣服多少钱",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要这双鞋",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要这个苹果",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要香蕉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要牛奶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要手机",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好的",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "没问题",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "太好了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我也是",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我知道",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不知道",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我们",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你们",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "中国",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "朋友",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "上海",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "广州",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "深圳",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京在中国",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去北京",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要去北京",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要去上海",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我在北京",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京火车站在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "南京路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "人民路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "中山路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "长安街",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我在南京路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京路10号",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "上海市南京路20号",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "怎么走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "去哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "左转",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "右转",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一直走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁站",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "南京路地铁站在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "广东省",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京市",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "成都",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "西安",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "南京",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去成都",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "四川菜",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "辣",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不辣",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要四川菜",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "古城",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这里很老",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去西安",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我去南京",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "上海机场",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现金",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "微信支付",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "支付宝",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "可以刷卡吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现金可以吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要两个",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "手机",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "充电",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "充电器",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "护照",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "行李",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "房间",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "房卡",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "前台",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我有预订",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我的护照",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我的房间在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一晚",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "两晚",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我住酒店",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请慢一点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你忙吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你住在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你做什么工作",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你学习中文吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我有一个哥哥",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我没有姐姐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "洗手间在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我需要帮助",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "出口",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "入口",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "28元",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你是学生吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "是我是学生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你学习什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我学习中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我在学校学习",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你在哪里工作",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我在公司上班",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你几点上班",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你几点起床",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我七点起床",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我吃早饭",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我吃晚饭",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八点半",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "下午三点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "九点十分",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要去酒店",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "去北京路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "在这里停车",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "机场在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "登机口在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我的航班在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "有Wi-Fi吗",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "请给我护照",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "住几晚",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "三零五",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "登机口",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不舒服",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我肚子疼",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我发烧了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我需要医生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天天气怎么样",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天很热",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天很冷",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京今天很冷",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "上海今天很热",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "的",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "是",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "有",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "大",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "小",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "在",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "人",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "中",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "到",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "要",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "个",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "会",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "说",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "他",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "她",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "看",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "国",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "哪",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "来",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "们",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "也",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "学",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "家",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "木",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "火",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "山",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "口",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "日",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "月",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "女",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "子",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "休",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "林",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "安",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "二",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "三",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "四",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "五",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "六",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "七",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "九",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "十",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "森",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "朋",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "友",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "从",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "众",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "品",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "炎",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "咬",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "摇",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "问",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "叫",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "修",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "呢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "巴",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "西",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "名",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "字",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "几",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "谁",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "岁",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "爸",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "哥",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "姐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "弟",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "妹",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "昨",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "年",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "时",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "吃",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "喝",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "饭",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "菜",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "位",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "肉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "鱼",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "饿",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "多",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "少",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "钱",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "买",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "卖",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "贵",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "店",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "车",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "站",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "票",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "飞",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "机",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "语",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "书",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "读",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "写",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "听",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "懂",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "再",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "路",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "街",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "号",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "左",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "右",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "前",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "后",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "近",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "远",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "省",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "市",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "区",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "坐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "去",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "回",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "作",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "工",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "爱",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "喜",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "欢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "想",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "没",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "对",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "客",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "气",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "太",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "和",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "湿",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "使",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "老",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "师",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "米",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "习",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "校",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "半",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "头",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "服",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "疼",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "舒",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "热",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "订",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "预",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "酒",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "医",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "院",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "腰",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "可以",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不是",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好Matheus",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "我很好谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好吗我叫Matheus",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "你好我叫Wang",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "我很好你呢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好请问",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这个",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍我要这个水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好水",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不客气再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好你好吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你想喝茶吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是什么请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "茶谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好你要什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要三",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么三",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好三",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "多少钱三",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么太贵了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "太贵了谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好你是学生吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我是学生你呢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我也是这是你妈妈吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你妈妈好吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "她很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是你朋友吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我朋友",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "他是学生吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "他是学生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好朋友",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么我们走吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很好我们走吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "山在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请问山在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "在那里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "是人",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那是山",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是木",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不是木",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那是日吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "日不是月",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "是那是日",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那是月",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那是日",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不是月",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好你叫什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我叫Lin",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "我是巴西人你呢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我是中国人你是学生吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我也是你学习什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我听不懂请问",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "什么谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍我叫Matheus",
+      "class": "DYNAMIC_TTS",
+      "reason": "latin_or_name"
+    },
+    {
+      "textKey": "好明天见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是水茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你呢我很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这个吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这个好十",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "多少钱十",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "要吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不十",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "谢谢再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这个好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "二十八",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "多少钱二十八",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现金吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我饿了我们吃饭吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你要什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这个好你想喝茶吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "茶好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好吃吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好吃很好吃",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好一二三",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "四五六",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不是六七",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "七八九十",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "七八九十请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你有三个朋友吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "三朋友请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "三个朋友很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很好你好吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好吗我很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我很好这是什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不是木木林",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是林",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "林很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "三木是什么",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "木木木森",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "森很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是山吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "山请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "日月明",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "二十八要吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好十八",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要两个好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁站吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一直走左转",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请问入口在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好……再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我妈妈请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "爸爸请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天见再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好这是茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "茶请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很好明天见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天见请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "天请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "今天很好请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好这是我妈妈",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "家请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好你回家吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "回家请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我回家再见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好请问几位",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "两位吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "两位好请坐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你要菜单吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "菜单好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "米饭好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你要茶吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一位好请坐",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好不要了",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好吃好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "书请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好你看书吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "看书请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我看书谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "车请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "票请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我要票谢谢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍：我是学生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍：我学习中文",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你在哪里学习",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "在学校请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "七点吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "七点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八点",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八点吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八点见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "上班好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八点半吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "八点半好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现在好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好八点见",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好你怎么样",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "不舒服",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "头疼吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "医生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "医院",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天呢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天工作",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "很热请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "下雨了请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好今天天气很好不太好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "有预订吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "预订",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "两晚吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "三零五吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是房卡",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "十八号登机口",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "十八",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "十八吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一直走在那里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "那里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "十八号登机口在那里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "看医生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一直",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好一直走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好去哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "酒店吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "酒店好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "北京路好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你喜欢喝茶吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我喜欢茶",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不喜欢肉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍你喜欢茶吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我也喜欢茶你喜欢吃肉吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我喜欢肉",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你喜欢肉吗请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "好我们吃米饭吧",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "米饭好吗",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁站怎么走",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请再说一遍你去哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁站在左边",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我不喜欢",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "地铁站在左边请再说一遍",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "巴西人",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我朋友他是学生",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "这是我朋友她很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我上班",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "我下班",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "九月八号",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "昨天很冷",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "现在很冷",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "明天天气很好",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "一直走右转",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "请问地铁站在哪里",
+      "class": "FIXED_CANONICAL"
+    },
+    {
+      "textKey": "你好",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:guided-try:nihao:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "你",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:guided-try:ni:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "好",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:guided-try:hao:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "谢谢",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:guided-try:xiexie:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "再见",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:guided-try:zaijian:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "妈",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:tone:ma1:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "麻",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:tone:ma2:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "马",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:tone:ma3:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "骂",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:tone:ma4:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "你好吗",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:foundation:nihaoma:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "我叫",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:foundation:wojiao:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "不客气",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:foundation:bukeqi:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "你好！",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:conversation:store-greeting-01:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "你好，请问有什么可以帮您？",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:conversation:store-greeting-02:v1",
+      "pack": "core"
+    },
+    {
+      "textKey": "欢迎",
+      "class": "FIXED_CANONICAL",
+      "audioId": "audio:onboarding:welcome:v1",
+      "pack": "core"
+    }
+  ]
+}

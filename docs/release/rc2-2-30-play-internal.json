@@ -1,0 +1,34 @@
+{
+  "wave": "RC2.2.30",
+  "RC2_2_30_BASE_SHA": "017834c6915874150ddaec2921007c6e536ffcdb",
+  "package": "longyu.noba.com",
+  "signedAab": {
+    "status": "NOT_RUN",
+    "artifact": null,
+    "sha": null
+  },
+  "playAppSigning": {
+    "status": "OWNER_ACTION_REQUIRED"
+  },
+  "internalTrack": {
+    "status": "NOT_RUN",
+    "uploadId": null
+  },
+  "installFromPlay": {
+    "status": "NOT_RUN",
+    "note": "sideload does NOT count"
+  },
+  "firstPlayInstall": {
+    "status": "NOT_RUN",
+    "checks": [
+      "coldStart",
+      "auth",
+      "assets",
+      "canonicalAudio",
+      "notifications",
+      "haptics",
+      "safeArea"
+    ]
+  },
+  "closedBetaEntry": false
+}

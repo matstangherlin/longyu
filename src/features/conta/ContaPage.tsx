@@ -8,7 +8,9 @@ import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
 import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
-import { IconChevron, IconShield, IconStar, IconLibrary, IconGear } from "../../components/ui/Icon";
+import { IconChevron, IconShield, IconStar, IconLibrary, IconGear, IconLogout, IconSun, IconUser } from "../../components/ui/Icon";
+import { requestAccountDeletion } from "../../services/privacyService";
+import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -87,6 +89,7 @@ export function ContaPage() {
 
   const { signIn } = useCloudSignIn();
   const { signOut, canSignOut } = useCloudSignOut();
+  const endCloudSession = useStore((s) => s.endCloudSession);
 
   const [email, setEmail] = useState(account?.email ?? "");
   const [password, setPassword] = useState("");
@@ -116,6 +119,19 @@ export function ContaPage() {
     if (message) setNotice(message);
   }
 
+  async function onDeleteAccount() {
+    const typed = window.prompt(
+      `Esta ação é permanente. Digite ${ACCOUNT_DELETION_CONFIRMATION_TEXT} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.`
+    );
+    if (typed === null) return;
+    const result = await requestAccountDeletion(typed);
+    setNotice(result.message);
+    if (result.ok) {
+      endCloudSession();
+      navigate("/", { replace: true });
+    }
+  }
+
   const showLoginForm = backendReady && authMode !== "cloud";
 
   return (
@@ -142,46 +158,46 @@ export function ContaPage() {
         <span className="sr-only" data-cloud-sync-status={cloudSyncState.status} />
       )}
 
-      {/* Status da conta */}
-      <CompactCard>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-ink">{account?.name?.trim() || t("hub.defaultLearner")}</span>
+      {/* RC2.2.25 — primeira dobra: quem é você + as 4 ações principais.
+          "Sair da conta" visível SEM scroll, linha inteira, neutra. */}
+      <section className="rounded-2xl border border-line bg-surface p-4" data-testid="conta-first-fold">
+        <div className="flex items-center gap-3">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accent-soft text-lg font-semibold text-accent" aria-hidden data-testid="conta-avatar">
+            {(account?.name?.trim() || "你").charAt(0).toUpperCase()}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="truncate text-base font-semibold text-ink" data-testid="conta-name">{account?.name?.trim() || t("hub.defaultLearner")}</span>
               <Pill tone={status.tone}>{status.label}</Pill>
-              <SyncStatusChip />
             </div>
-            {account?.email && <div className="mt-0.5 truncate text-xs text-ink-soft">{account.email}</div>}
+            {account?.email && <div className="truncate text-sm text-ink-soft" data-testid="conta-email">{account.email}</div>}
           </div>
-          <ActionButton to="/perfil" variant="secondary" size="sm" trailingChevron>{displayInstruction("Ver perfil")}</ActionButton>
+          <SyncStatusChip />
         </div>
-        <p className="mt-2 text-[13px] leading-5 text-ink-soft">{status.blurb}</p>
-        {/* Onde o progresso está salvo, em uma linha — a informação que saiu da
-            Victory (P14.2) e que continua sendo do aluno. */}
-        <p className="mt-1 text-xs font-medium text-ink-faint" data-account-save-status="">
-          {status.where}
-        </p>
-      </CompactCard>
+        <nav className="mt-4 grid gap-2" aria-label={t("navigation.account")}>
+          <ContaRow to="/perfil" icon={IconUser} label={t("navigation.profile")} testId="conta-profile" />
+          <ContaRow to="/config/aparencia" icon={IconSun} label={t("navigation.appearance")} testId="conta-appearance" />
+          <ContaRow to="/esqueci-senha" icon={IconShield} label={t("navigation.securityPassword")} testId="conta-security" />
+          {canSignOut && (
+            <button
+              type="button"
+              onClick={() => void onSignOut()}
+              className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-line bg-surface px-4 text-left text-sm font-semibold text-ink transition hover:bg-surface-2"
+              data-testid="conta-sign-out"
+              data-sign-out-tone="neutral"
+              data-sign-out-layout="full-width"
+            >
+              <IconLogout width={18} height={18} className="text-ink-soft" />
+              {t("common.signOutAccount")}
+            </button>
+          )}
+        </nav>
+        {notice && <p className="mt-2 text-xs text-ink-soft">{displayInstruction(notice)}</p>}
+        <p className="mt-3 text-xs font-medium text-ink-faint" data-account-save-status="">{status.where}</p>
+      </section>
 
       {/* Login / sessão cloud */}
-      {authMode === "cloud" ? (
-        <CompactCard>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{displayInstruction("Sessão")}</div>
-          <p className="mt-1 text-[13px] leading-5 text-ink-soft">
-            {displayInstruction(
-              account?.email
-                ? `Você está conectado como ${account.email}. Ao sair, o progresso continua salvo na nuvem.`
-                : "Você está conectado. Ao sair, o progresso continua salvo na nuvem."
-            )}
-          </p>
-          {canSignOut && (
-            <ActionButton onClick={() => void onSignOut()} variant="secondary" size="sm" className="mt-3 border-wrong/30 text-wrong hover:bg-wrong-soft">
-              {displayInstruction("Sair da conta")}
-            </ActionButton>
-          )}
-          {notice && <p className="mt-2 text-xs text-ink-soft">{displayInstruction(notice)}</p>}
-        </CompactCard>
-      ) : showLoginForm ? (
+      {authMode === "cloud" ? null : showLoginForm ? (
         <CompactCard>
           <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
             {subscribeIntent ? displayInstruction("Conta para assinar o Pro") : displayInstruction("Entrar ou criar conta")}
@@ -231,6 +247,18 @@ export function ContaPage() {
           {displayInstruction("Refazer nivelamento")}
         </ActionButton>
       </CompactCard>
+
+      {/* RC2.2.25 — Excluir é encontrável, mas SEPARADO de Sair: no fim, em
+          "Zona de perigo", vermelho, com confirmação digitada. */}
+      {authMode === "cloud" && (
+        <section className="rounded-2xl border border-wrong/30 bg-wrong-soft/40 p-4" data-testid="conta-danger-zone">
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-wrong">{displayInstruction("Zona de perigo")}</div>
+          <p className="mt-1 text-[13px] leading-5 text-ink-soft">{displayInstruction("Excluir a conta apaga seus dados na nuvem. Não dá para desfazer.")}</p>
+          <button type="button" onClick={() => void onDeleteAccount()} className="mt-3 inline-flex min-h-11 items-center rounded-xl border border-wrong/40 px-4 text-sm font-semibold text-wrong hover:bg-wrong-soft" data-testid="conta-delete-account">
+            {displayInstruction("Excluir minha conta")}
+          </button>
+        </section>
+      )}
 
       <p className="flex items-center gap-1.5 px-1 text-[11px] leading-5 text-ink-faint">
         <IconShield width={13} height={13} /> {displayInstruction("Sua senha nunca é salva neste dispositivo. A anon key do backend é pública por design; o RLS protege os dados.")}
@@ -307,6 +335,17 @@ function AccountLink({
           </div>
         </div>
       </CompactCard>
+    </Link>
+  );
+}
+
+/** RC2.2.25 — linha de ação da primeira dobra da Conta (alvo ≥ 48 px). */
+function ContaRow({ to, icon: Icon, label, testId }: { to: string; icon: typeof IconStar; label: string; testId: string }) {
+  return (
+    <Link to={to} className="flex min-h-12 items-center gap-3 rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-2" data-testid={testId}>
+      <Icon width={18} height={18} className="text-accent" />
+      <span className="flex-1">{label}</span>
+      <IconChevron width={16} height={16} className="text-ink-faint" />
     </Link>
   );
 }

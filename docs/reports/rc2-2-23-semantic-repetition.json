@@ -1,0 +1,445 @@
+{
+  "schema": "longyu-rc2-2-23-semantic-repetition/1",
+  "note": "Definição semântica (alvo pela forma + operação + contexto). 'clean' só sem REDUNDANT e sem domínio de um alvo. Conteúdo congelado: achados viram bug, não edição de lição.",
+  "totals": {
+    "sessions": 20,
+    "redundant": 1,
+    "transformed": 58,
+    "interleaved": 0,
+    "sessionsDominated": [
+      5,
+      6,
+      16
+    ],
+    "sessionsClean": 17
+  },
+  "sessions": [
+    {
+      "session": 1,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 1,
+      "steps": 6,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "surface:你好|HEAR|FIRST",
+        "surface:你好|RECOGNIZE|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 2,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 2,
+      "steps": 6,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "chunk:nihao|RECOGNIZE|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "surface:你好|DISCRIMINATE|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 3,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 3,
+      "steps": 6,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "surface:你好|USE_IN_CONTEXT|FIRST",
+        "surface:你好|RECALL|TRANSFORMED",
+        "surface:你好|PRODUCE|TRANSFORMED",
+        "surface:你好|BUILD|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|FIRST"
+      ]
+    },
+    {
+      "session": 4,
+      "topicId": "p1-o-que-e-mandarim",
+      "pass": 4,
+      "steps": 5,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|USE_IN_CONTEXT|FIRST",
+        "chunk:nihao|RECOGNIZE|TRANSFORMED",
+        "surface:你好|RECALL|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 5,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 1,
+      "steps": 7,
+      "redundant": 0,
+      "transformed": 4,
+      "interleaved": 0,
+      "dominated": [
+        {
+          "semanticTargetKey": "chunk:nihao",
+          "count": 5,
+          "limit": 3
+        }
+      ],
+      "clean": false,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "surface:你好|HEAR|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|FIRST",
+        "chunk:nihao|RECOGNIZE|TRANSFORMED",
+        "chunk:nihao|DISCRIMINATE|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 6,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 2,
+      "steps": 7,
+      "redundant": 1,
+      "transformed": 4,
+      "interleaved": 0,
+      "dominated": [
+        {
+          "semanticTargetKey": "chunk:nihao",
+          "count": 6,
+          "limit": 3
+        }
+      ],
+      "clean": false,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|FIRST",
+        "chunk:nihao|RECOGNIZE|TRANSFORMED",
+        "chunk:nihao|DISCRIMINATE|TRANSFORMED",
+        "chunk:nihao|DISCRIMINATE|REDUNDANT",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 7,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 3,
+      "steps": 6,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|FIRST",
+        "chunk:nihao|RECOGNIZE|TRANSFORMED",
+        "chunk:nihao|DISCRIMINATE|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "surface:你好|RECALL|FIRST"
+      ]
+    },
+    {
+      "session": 8,
+      "topicId": "p1-o-que-e-pinyin",
+      "pass": 4,
+      "steps": 7,
+      "redundant": 0,
+      "transformed": 2,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "surface:guiar a pronúncia de 你好|USE_IN_CONTEXT|FIRST",
+        "chunk:nihao|RECOGNIZE|FIRST",
+        "surface:你好|DISCRIMINATE|FIRST",
+        "surface:你好|RECALL|TRANSFORMED",
+        "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
+        "surface:nǐ hǎo é pinyin; 你好 é hànzì|USE_IN_CONTEXT|FIRST"
+      ]
+    },
+    {
+      "session": 9,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 1,
+      "steps": 10,
+      "redundant": 0,
+      "transformed": 5,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "concept:tone-system|TEACH|FIRST",
+        "surface:妈|HEAR|FIRST",
+        "surface:妈|DISCRIMINATE|TRANSFORMED",
+        "concept:tone-system|TEACH|FIRST",
+        "surface:马|HEAR|FIRST",
+        "surface:马|DISCRIMINATE|TRANSFORMED",
+        "surface:妈|DISCRIMINATE|TRANSFORMED",
+        "surface:马|DISCRIMINATE|TRANSFORMED",
+        "concept:tone-system|USE_IN_CONTEXT|FIRST",
+        "concept:tone-system|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 10,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 2,
+      "steps": 9,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "concept:tone-system|TEACH|FIRST",
+        "surface:麻|HEAR|FIRST",
+        "surface:麻|DISCRIMINATE|TRANSFORMED",
+        "surface:骂|HEAR|FIRST",
+        "surface:骂|DISCRIMINATE|TRANSFORMED",
+        "concept:tone-system|TEACH|FIRST",
+        "surface:骂|DISCRIMINATE|TRANSFORMED",
+        "surface:马|DISCRIMINATE|FIRST",
+        "concept:tone-system|USE_IN_CONTEXT|FIRST"
+      ]
+    },
+    {
+      "session": 11,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 3,
+      "steps": 9,
+      "redundant": 0,
+      "transformed": 0,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "concept:tone-system|TEACH|FIRST",
+        "surface:妈|DISCRIMINATE|FIRST",
+        "surface:麻|DISCRIMINATE|FIRST",
+        "surface:马|DISCRIMINATE|FIRST",
+        "surface:骂|DISCRIMINATE|FIRST",
+        "concept:tone-system|TEACH|FIRST",
+        "concept:tone-system|USE_IN_CONTEXT|FIRST",
+        "char:ma_question|TEACH|FIRST",
+        "surface:吗|HEAR|FIRST"
+      ]
+    },
+    {
+      "session": 12,
+      "topicId": "p1-o-que-e-tom",
+      "pass": 4,
+      "steps": 7,
+      "redundant": 0,
+      "transformed": 2,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "chunk:nihao|TEACH|FIRST",
+        "surface:你好|DISCRIMINATE|FIRST",
+        "surface:好|DISCRIMINATE|FIRST",
+        "surface:骂|DISCRIMINATE|FIRST",
+        "chunk:nihao|USE_IN_CONTEXT|FIRST",
+        "surface:你好|HEAR|TRANSFORMED",
+        "surface:你好|RECALL|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 13,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 1,
+      "steps": 7,
+      "redundant": 0,
+      "transformed": 3,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "char:ni|TEACH|FIRST",
+        "surface:你好|HEAR|FIRST",
+        "char:ni|USE_IN_CONTEXT|FIRST",
+        "surface:好|USE_IN_CONTEXT|FIRST",
+        "char:ni|RECOGNIZE|TRANSFORMED",
+        "surface:你好|DISCRIMINATE|TRANSFORMED",
+        "surface:你好|USE_IN_CONTEXT|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 14,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 2,
+      "steps": 6,
+      "redundant": 0,
+      "transformed": 4,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "char:ni|TEACH|FIRST",
+        "char:ni|USE_IN_CONTEXT|FIRST",
+        "char:ni|RECOGNIZE|TRANSFORMED",
+        "char:ni|USE_IN_CONTEXT|TRANSFORMED",
+        "char:ni|USE_IN_CONTEXT|TRANSFORMED",
+        "char:ni|RECOGNIZE|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 15,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 3,
+      "steps": 6,
+      "redundant": 0,
+      "transformed": 2,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "char:ni|TEACH|FIRST",
+        "surface:你好|BUILD|FIRST",
+        "surface:你|USE_IN_CONTEXT|FIRST",
+        "surface:好|USE_IN_CONTEXT|FIRST",
+        "surface:你好|USE_IN_CONTEXT|TRANSFORMED",
+        "surface:你好|DISCRIMINATE|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 16,
+      "topicId": "p1-o-que-e-hanzi",
+      "pass": 4,
+      "steps": 7,
+      "redundant": 0,
+      "transformed": 4,
+      "interleaved": 0,
+      "dominated": [
+        {
+          "semanticTargetKey": "char:ni",
+          "count": 4,
+          "limit": 3
+        }
+      ],
+      "clean": false,
+      "sequence": [
+        "char:ni|TEACH|FIRST",
+        "surface:你好|DISCRIMINATE|FIRST",
+        "char:ni|USE_IN_CONTEXT|FIRST",
+        "char:ni|USE_IN_CONTEXT|TRANSFORMED",
+        "char:ni|USE_IN_CONTEXT|TRANSFORMED",
+        "surface:你好|USE_IN_CONTEXT|TRANSFORMED",
+        "char:ni|RECOGNIZE|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 17,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 1,
+      "steps": 7,
+      "redundant": 0,
+      "transformed": 2,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "char:mu|TEACH|FIRST",
+        "surface:木|HEAR|FIRST",
+        "char:mu|TEACH|FIRST",
+        "surface:木|BUILD|TRANSFORMED",
+        "surface:人|HEAR|FIRST",
+        "char:ren|TEACH|FIRST",
+        "surface:人|BUILD|TRANSFORMED"
+      ]
+    },
+    {
+      "session": 18,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 2,
+      "steps": 8,
+      "redundant": 0,
+      "transformed": 2,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "char:kou|TEACH|FIRST",
+        "surface:口|HEAR|FIRST",
+        "char:kou|TEACH|FIRST",
+        "surface:口|BUILD|TRANSFORMED",
+        "surface:日|HEAR|FIRST",
+        "char:ri|TEACH|FIRST",
+        "surface:日|BUILD|TRANSFORMED",
+        "char:kou|RECOGNIZE|FIRST"
+      ]
+    },
+    {
+      "session": 19,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 3,
+      "steps": 9,
+      "redundant": 0,
+      "transformed": 2,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "char:shan|TEACH|FIRST",
+        "surface:木|BUILD|FIRST",
+        "surface:月|HEAR|FIRST",
+        "char:yue|TEACH|FIRST",
+        "surface:月|BUILD|TRANSFORMED",
+        "surface:山|HEAR|FIRST",
+        "char:shan|TEACH|FIRST",
+        "surface:山|BUILD|TRANSFORMED",
+        "char:yue|RECOGNIZE|FIRST"
+      ]
+    },
+    {
+      "session": 20,
+      "topicId": "p1-primeiros-hanzi",
+      "pass": 4,
+      "steps": 14,
+      "redundant": 0,
+      "transformed": 4,
+      "interleaved": 0,
+      "dominated": [],
+      "clean": true,
+      "sequence": [
+        "concept:hanzi-components|TEACH|FIRST",
+        "surface:水|HEAR|FIRST",
+        "char:shui|TEACH|FIRST",
+        "surface:水|BUILD|TRANSFORMED",
+        "surface:火|HEAR|FIRST",
+        "char:huo|TEACH|FIRST",
+        "surface:火|BUILD|TRANSFORMED",
+        "surface:大|HEAR|FIRST",
+        "char:da|TEACH|FIRST",
+        "surface:大|BUILD|TRANSFORMED",
+        "surface:小|HEAR|FIRST",
+        "char:xiao|TEACH|FIRST",
+        "surface:小|BUILD|TRANSFORMED",
+        "char:shui|RECOGNIZE|FIRST"
+      ]
+    }
+  ]
+}

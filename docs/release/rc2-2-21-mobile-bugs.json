@@ -1,0 +1,279 @@
+{
+  "schema": "longyu-rc2-2-21-mobile-bugs/1",
+  "wave": "RC2.2.21",
+  "baseSha": "b43ca4465319cb9632c68982de9ebbbba6dbb003",
+  "statuses": [
+    "OPEN",
+    "REPRODUCED",
+    "ROOT_CAUSE_FOUND",
+    "FIXED_CODE",
+    "AUTOMATED_REGRESSION",
+    "PHYSICAL_RETEST_PENDING",
+    "PHYSICAL_PASS",
+    "WONT_FIX_WITH_REASON"
+  ],
+  "note": "PHYSICAL_RETEST_PENDING = código corrigido e regressão automatizada, mas NINGUÉM confirmou no aparelho. Nenhuma causa foi reproduzida fisicamente nesta onda.",
+  "counters": {
+    "P0": {
+      "total": 0,
+      "physicalPass": 0,
+      "openOrPending": 0
+    },
+    "P1": {
+      "total": 9,
+      "physicalPass": 0,
+      "openOrPending": 9
+    },
+    "P2": {
+      "total": 2,
+      "physicalPass": 0,
+      "openOrPending": 2
+    },
+    "releaseBlockingOpen": 8
+  },
+  "selfVoiceAudibleOnAndroid": "NOT_PROVEN",
+  "bugs": [
+    {
+      "id": "SELF_COMPARE_VOICE_NOT_AUDIBLE_ANDROID",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "handleOnPause apagava a gravação em QUALQUER pausa (diálogo de permissão, painel de notificações) — a primeira gravação sumia antes de tocar",
+          "o caminho Gravar e comparar nunca pedia o microfone: a gravação podia sair vazia/silenciosa",
+          "MediaPlayer sem AudioAttributes (uso/rota não garantidos), sem foco de áudio e sem prova de PLAYING — 'reproduziu' era reportado mesmo sem som",
+          "volume de mídia zerado aparecia como falha genérica"
+        ]
+      },
+      "fix": [
+        "onPause só interrompe (não apaga arquivo válido); onStop/onDestroy apagam",
+        "ensureMicPermission com explicação antes de gravar",
+        "AudioAttributes USAGE_MEDIA/CONTENT_TYPE_SPEECH antes do prepare; foco transitório sempre abandonado",
+        "PLAYING só após isPlaying(); códigos estáveis (NO_RECORDING…PLAYBACK_ERROR); MEDIA_VOLUME_ZERO com mensagem própria",
+        "amplitude (getMaxAmplitude), duração por MediaMetadataRetriever, rota de saída e volume no diagnóstico",
+        "[Ouvir minha voz] → [Reproduzindo… ■ Parar] → [Ouvir novamente]"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-voice-playback, mobile-lifecycle)",
+        "gate:rc2-2-19/2-2-20 (gravação = arquivo + reprodução)"
+      ],
+      "physicalTest": "selfPlaybackAudible"
+    },
+    {
+      "id": "NATIVE_SPEECH_NOT_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "startRecognition preferia o reconhecedor on-device mesmo sem zh-CN instalado nele → LANGUAGE_* e o aluno preso",
+          "sem sinal de voz (RMS) nem tipo de reconhecedor no diagnóstico: impossível separar 'não ouviu' de 'não entendeu'",
+          "ERROR_CLIENT sem categoria; repetição sem limite"
+        ]
+      },
+      "fix": [
+        "estratégia ON_DEVICE só com zh-CN instalado; senão o serviço",
+        "RMS pico + eventos created/ready/begin/end/destroyed",
+        "categorias estáveis (NO_SPEECH…CLIENT, UNKNOWN)",
+        "2 falhas seguidas → Gravar e comparar / Continuar sem falar"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-speech)"
+      ],
+      "physicalTest": "nativeSpeechZhCnRecognized"
+    },
+    {
+      "id": "ANDROID_TTS_NOT_PROVEN_ACROSS_SURFACES",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "motor TTS antigo seguia dizendo LANG_MISSING_DATA depois de instalar a voz",
+          "TTS, gravação e reconhecimento podiam disputar o áudio"
+        ]
+      },
+      "fix": [
+        "AudioAttributes MEDIA/SPEECH no TTS",
+        "reinit do motor ao voltar do instalador de voz",
+        "árbitro de áudio: um dono por vez (IDLE/TTS/SELF_PLAYBACK/RECORDING/RECOGNITION)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (native-speech, resource-cleanup)",
+        "test:audio-playback-truth"
+      ],
+      "physicalTest": "ttsModelVoiceAllSurfaces"
+    },
+    {
+      "id": "LESSON_ADVANCE_DEVICE_REGRESSION_RISK",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "step_continue/step_advanced/step_stalled no buffer técnico para achar ONDE o avanço se perde no aparelho"
+      ],
+      "tests": [
+        "gate:rc2-2-14/2-2-17 (contrato de avanço)",
+        "E2E existentes"
+      ],
+      "physicalTest": "lessonAdvanceDevice"
+    },
+    {
+      "id": "MOBILE_SIGNUP_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "sem mudança de código nesta onda (prazo e categorias vêm da RC2.2.20)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (auth-resilience)"
+      ],
+      "physicalTest": "mobileSignupDevice"
+    },
+    {
+      "id": "PASSWORD_RECOVERY_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "sem mudança de código nesta onda; OTP continua só em memória"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (auth-resilience)"
+      ],
+      "physicalTest": "passwordRecoveryDevice"
+    },
+    {
+      "id": "GUIDANCE_NOT_PHYSICALLY_PROVEN",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "NOT_FOUND",
+        "candidates": []
+      },
+      "fix": [
+        "VOLTAR fecha a orientação na ordem certa (depois de teclado e modal)"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "guidanceDevice"
+    },
+    {
+      "id": "ANDROID_LIFECYCLE_STATE_LOSS",
+      "severity": "P1",
+      "releaseBlocking": true,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CANDIDATE_FROM_CODE",
+        "candidates": [
+          "pausa transitória tratada como saída (apagava a gravação)"
+        ]
+      },
+      "fix": [
+        "pausa ≠ sair; app_paused/app_resumed (nativo e visibilidade) no buffer técnico"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-lifecycle)"
+      ],
+      "physicalTest": "lifecycleBackgroundResume"
+    },
+    {
+      "id": "MODAL_STACK_BACK_CLOSES_ALL",
+      "severity": "P1",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "cada ModalOverlay ouvia Escape no documento: um VOLTAR fechava todos os modais empilhados"
+        ]
+      },
+      "fix": [
+        "pilha de modais (modalStack): só o do topo reage"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "androidBackPriority"
+    },
+    {
+      "id": "BACKDROP_TAP_THROUGH",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "o fundo do modal fechava no mousedown: o click do mesmo toque caía no que estava embaixo"
+        ]
+      },
+      "fix": [
+        "fecha no click, só se o toque começou no fundo"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-layout)"
+      ],
+      "physicalTest": "androidBackPriority"
+    },
+    {
+      "id": "BACK_IGNORES_KEYBOARD",
+      "severity": "P2",
+      "releaseBlocking": false,
+      "status": "PHYSICAL_RETEST_PENDING",
+      "reproducedOnDevice": false,
+      "rootCause": {
+        "confidence": "CONFIRMED_IN_CODE",
+        "candidates": [
+          "decideBackAction não conhecia o teclado nem separava orientação de modal"
+        ]
+      },
+      "fix": [
+        "BACK_PRIORITY: keyboard → modal → guidance → subview → route → exit"
+      ],
+      "tests": [
+        "gate:rc2-2-21-mobile-native-stability (mobile-navigation)"
+      ],
+      "physicalTest": "androidBackPriority"
+    }
+  ],
+  "release": {
+    "PUBLIC_BETA": "NO_GO",
+    "CLOSED_BETA": "NO_GO",
+    "reason": "P1 mobile (voz própria audível, fala nativa, TTS, avanço, cadastro, recuperação, orientação, ciclo de vida) sem PHYSICAL PASS com evidência.",
+    "selfVoiceRule": "Se o owner ainda não ouvir a própria voz no Android, a RC2.2.21 NÃO está concluída.",
+    "package": "longyu.noba.com",
+    "androidInAppPurchase": "DISABLED_FOR_BETA",
+    "productionPlay": "NOT_ENABLED",
+    "pr273": "UNTOUCHED",
+    "prOpenedAutomatically": false
+  }
+}

@@ -167,7 +167,10 @@
   "p1Open": null,
   "bugs": [],
   "formalPass": false,
-  "extendedBy": "RC2.2.19",
+  "extendedBy": [
+    "RC2.2.19",
+    "RC2.2.20"
+  ],
   "playBuild": {
     "note": "RC2.2.16 — QA repetido no build DISTRIBUÍDO PELA PLAY (Internal testing), nunca só debug/adb. PASS exige: instalação pela Play Store (installer com.android.vending), aparelho físico, testedAt e evidência por teste.",
     "packageName": "longyu.noba.com",
@@ -275,5 +278,6 @@
     "dailyVocabulary": "DAILY_VOCABULARY_DEFERRED",
     "p0Open": null,
     "p1Open": null
-  }
+  },
+  "deviceMatrix": "docs/release/rc2-2-20-device-matrix.json"
 }

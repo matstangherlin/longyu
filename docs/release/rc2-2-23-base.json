@@ -1,0 +1,21 @@
+{
+  "wave": "RC2.2.23",
+  "title": "Product Convergence / Owner Physical Experience",
+  "parentWave": "RC2.2.22",
+  "strategy": "STACKED",
+  "stack": [
+    "RC2.2.19 / #292 (merged 3eb7df13)",
+    "RC2.2.20 + RC2.2.21 / #294",
+    "RC2.2.22 / #295",
+    "RC2.2.23"
+  ],
+  "baseBranch": "claude/rc2-2-22-closed-beta-candidate",
+  "RC2_2_23_BASE_SHA": "3b3d9222b695615c9fd59e2cf1aebf0336cb9c2e",
+  "baseCapturedFrom": "HEAD real do #295 no início da onda (inclui os fixes de gitleaks 2a41f4cd e 3b3d9222 do owner)",
+  "parentPr": 295,
+  "branch": "claude/rc2-2-23-product-convergence",
+  "prTargetWhileParentOpen": "claude/rc2-2-22-closed-beta-candidate",
+  "prTargetAfterParentMerged": "main",
+  "doNotDuplicateParentCommits": true,
+  "note": "Não é expansão de feature. Se o #295 receber correções, esta branch faz merge da branch do #295 (nunca cherry-pick, nunca recriar commits)."
+}

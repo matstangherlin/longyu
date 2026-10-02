@@ -233,7 +233,10 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await playCultureLessonToVictory(page);
-    await expect(page.getByTestId("culture-xp")).toContainText("+0");
+    // RC2.2.27 — a conclusão só mostra o que mudou: replay sem XP novo não tem a
+    // etapa XP (nada de "+0"). O saldo persistido abaixo prova que não houve XP duplicado.
+    await expect(page.getByTestId("culture-score")).toHaveAttribute("data-completion-stages", /^(?!.*(?:^|,)XP(?:,|$))/);
+    await expect(page.getByTestId("culture-xp")).toHaveCount(0);
     const afterReplay = await readPersist(page);
     expect(afterReplay.points).toBe(afterFirst.points);
   });

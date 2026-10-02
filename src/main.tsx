@@ -12,6 +12,7 @@ import { PageFallback } from "./components/system/PageFallback";
 import { I18nProvider } from "./i18n/provider";
 import { NativeExperienceBootstrap } from "./components/native/NativeExperienceBootstrap";
 import { initNativeShell } from "./lib/platform/nativeShell";
+import { installTechCapture, recordTechEvent } from "./lib/techEvents";
 import { bootstrapInterfaceLocale, refreshSystemInterfaceLocale, setSystemLanguageProvider } from "./i18n/locale";
 import { onSystemLanguageChange, systemLanguageTags } from "./lib/platform/systemLocale";
 import { bootstrapCourseDirection } from "./lib/courseDirectionState";
@@ -77,6 +78,18 @@ const router = createBrowserRouter([
     children: routes,
   },
 ]);
+
+// RC2.2.21 — QA: erros JS, rede, teclado, ciclo de vida e navegação no buffer
+// técnico em memória (no-op fora de DEV/Preview/QA). Instalado no boot para
+// valer em TODAS as rotas, inclusive as de fora da casca (ex.: /qa/device).
+installTechCapture();
+recordTechEvent("route_changed", { from: "", via: "BOOT" });
+let lastTechPath = router.state.location.pathname;
+router.subscribe((state) => {
+  if (state.location.pathname === lastTechPath) return;
+  recordTechEvent("route_changed", { from: lastTechPath, via: state.historyAction });
+  lastTechPath = state.location.pathname;
+});
 
 // RC2.2.10 — Android (Capacitor): BACK, deep links, links externos, teclado,
 // barras e splash entram pelo MESMO router. No web é no-op.

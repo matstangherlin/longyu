@@ -1,0 +1,22 @@
+{
+  "wave": "RC2.2.28",
+  "schema": "longyu-physical-matrix/1",
+  "note": "PASS físico só com evidência humana no APK real. Código nunca gera PHYSICAL PASS.",
+  "requiredChecks": [
+    { "id": "guidedTryTenColdStarts", "result": "NOT_RUN", "evidence": null },
+    { "id": "guidedTryTtsDisabled", "result": "NOT_RUN", "evidence": null },
+    { "id": "conversationTenNodesSilent", "result": "NOT_RUN", "evidence": null },
+    { "id": "conversationTenNodesWithAudio", "result": "NOT_RUN", "evidence": null },
+    { "id": "reviewAudio", "result": "NOT_RUN", "evidence": null },
+    { "id": "toneAudio", "result": "NOT_RUN", "evidence": null },
+    { "id": "cultureAudio", "result": "NOT_RUN", "evidence": null },
+    { "id": "immersionAudio", "result": "NOT_RUN", "evidence": null },
+    { "id": "selfCompareModelVsUser", "result": "NOT_RUN", "evidence": null },
+    { "id": "noScrollLesson390", "result": "NOT_RUN", "evidence": null },
+    { "id": "noScrollReview390", "result": "NOT_RUN", "evidence": null },
+    { "id": "noScrollPinyin390", "result": "NOT_RUN", "evidence": null },
+    { "id": "noScrollTone390", "result": "NOT_RUN", "evidence": null },
+    { "id": "apkConversationFixture", "result": "NOT_RUN", "evidence": null }
+  ],
+  "viewports": ["390x844", "375x667", "360x640"]
+}
