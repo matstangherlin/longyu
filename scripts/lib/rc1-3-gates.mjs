@@ -891,7 +891,7 @@ export function validateCompletionLayout(data = {}) {
 // ── validate:rc13-curriculum-freeze ────────────────────────────────────────
 
 export const RC13_FREEZE = {
-  fingerprint: "c48b008c9c1e",
+  fingerprint: "99cbc002710c",
   lessons: 134,
   teachingTopics: 113,
 };

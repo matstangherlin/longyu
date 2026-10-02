@@ -157,6 +157,13 @@ const PLANS: Record<string, Record<MasteryPass, LessonStep[]>> = {
       listen("你好", "nǐ hǎo", "Olá"),
       comprehend("你好", "nǐ hǎo", "Olá", ["Olá", "um número", "um nome", "uma pergunta"]),
       dialogue(
+        "Pela manhã",
+        "Você encontra alguém pela manhã. O que diz em mandarim?",
+        "你好",
+        ["你好", "谢谢", "再见", "对不起"],
+        "你好 é o cumprimento natural. Você ouviu e viu antes de escolher."
+      ),
+      dialogue(
         "O som é a língua",
         "O que você acabou de ouvir em 你好?",
         "mandarim falado",

@@ -16,7 +16,7 @@
   "androidGradlePlugin": "8.13.0",
   "gradle": "8.14.3",
   "java": 21,
-  "fingerprint": "c48b008c9c1e",
+  "fingerprint": "99cbc002710c",
   "pedagogyFrozen": true,
   "cloudDeferred": true,
   "signingContractReady": true,

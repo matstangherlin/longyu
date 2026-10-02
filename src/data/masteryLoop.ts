@@ -72,15 +72,15 @@ export const MASTERY_PASS_COUNT = 4;
 export const MASTERY_LEVEL_LABELS: Record<MasteryLevel, string> = {
   0: "Não iniciada",
   1: "Descoberta",
-  2: "Consolidação",
-  3: "Produção",
+  2: "Fixação",
+  3: "Uso",
   4: "Domínio",
 };
 
 export const MASTERY_PASS_LABELS: Record<MasteryPass, string> = {
   1: "Descoberta",
-  2: "Consolidação",
-  3: "Produção",
+  2: "Fixação",
+  3: "Uso",
   4: "Domínio",
 };
 
@@ -88,7 +88,7 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
   1: {
     pass: 1,
     namePt: "Descoberta",
-    objectivePt: "Compreender o material novo com apoio alto.",
+    objectivePt: "Ensinar, reconhecer, ouvir e associar com apoio alto.",
     preferredKinds: [
       "intro",
       "listen",
@@ -126,8 +126,8 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
   },
   2: {
     pass: 2,
-    namePt: "Consolidação",
-    objectivePt: "Diferenciar e recuperar com menos tradução.",
+    namePt: "Fixação",
+    objectivePt: "Discriminar, reconstruir, comparar e recuperar memória.",
     preferredKinds: [
       "listen_select",
       "comprehend",
@@ -166,8 +166,8 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
   },
   3: {
     pass: 3,
-    namePt: "Produção",
-    objectivePt: "Produzir o que foi aprendido com apoio mínimo de tradução.",
+    namePt: "Uso",
+    objectivePt: "Produzir, completar, responder, falar e conversar.",
     preferredKinds: [
       "sentence_build",
       "translation_build",
@@ -207,7 +207,7 @@ const PASS_PROFILES: Record<MasteryPass, MasteryPassProfile> = {
   4: {
     pass: 4,
     namePt: "Domínio",
-    objectivePt: "Usar o conteúdo em situação nova, com ajuda mínima.",
+    objectivePt: "Transferir e usar em contexto novo, com ajuda mínima.",
     preferredKinds: [
       "conversation_scene",
       "free_production",
@@ -364,15 +364,20 @@ export function isProductionOrTransferKind(kind: StepKind): boolean {
 }
 
 /**
- * V3.2 — orçamento de passos graduados por pass.
- * O plano pode ter muitos candidatos; o planner escolhe ~7–10 para
- * manter M1–M4 profundos sem sessões de 15+ exercícios.
+ * RC2.3.0 Pedagogy V6 — orçamento adaptativo por pass.
+ * 15 é teto, não obrigação. Sem variedade cognitiva, o planner NÃO preenche
+ * com repetição artificial (keepMasteryPassSteps + diversifyPerceptualSession).
+ *
+ * Pass 1 Descoberta/Reconhecimento  7–9
+ * Pass 2 Fixação/Discriminação       8–11
+ * Pass 3 Uso/Produção               10–13
+ * Pass 4 Domínio/Transferência      12–15
  */
 export const MASTERY_PASS_GRADED_BUDGET: Record<MasteryPass, { min: number; max: number }> = {
-  1: { min: 5, max: 8 },
-  2: { min: 6, max: 8 },
-  3: { min: 6, max: 9 },
-  4: { min: 6, max: 9 },
+  1: { min: 7, max: 9 },
+  2: { min: 8, max: 11 },
+  3: { min: 10, max: 13 },
+  4: { min: 12, max: 15 },
 };
 
 /** Respostas semanticamente equivalentes para produção M3/M4. */

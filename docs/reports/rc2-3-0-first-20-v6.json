@@ -1,0 +1,988 @@
+{
+  "wave": "RC2.3.0",
+  "version": "Pedagogy V6",
+  "generatedAt": "2026-10-02T23:47:08.736Z",
+  "scope": "5 foundation topics × 4 passes = 20 sessions",
+  "lessonIds": [
+    "p1-o-que-e-mandarim",
+    "p1-o-que-e-pinyin",
+    "p1-o-que-e-tom",
+    "p1-o-que-e-hanzi",
+    "p1-primeiros-hanzi"
+  ],
+  "summary": {
+    "sessions": 20,
+    "discoveryInjected": 5,
+    "saturationWarnings": 11,
+    "avgSteps": 7.85,
+    "avgHumanShare": 0.466
+  },
+  "comparisonNote": "Comparação estrutural com RC2.2.x (repetição semântica). Não declara melhoria de retenção humana.",
+  "previousSemanticAuditPresent": true,
+  "sessions": [
+    {
+      "ordinal": 1,
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 1,
+      "stepCount": 9,
+      "discoveryInjected": true,
+      "discoveryMomentId": "discover:nihao:v1",
+      "perceptualRemoved": 0,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.571,
+        "interactionDominance": 0.571,
+        "presentationDominance": 0.286,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "conversation",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 1,
+        "humanSituation": 6,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 2,
+        "humanShare": 0.6666666666666666
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": true,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 2,
+        "listen": 2,
+        "conversation": 4,
+        "choice": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 2,
+        "HEAR": 2,
+        "USE_IN_CONTEXT": 4,
+        "RECOGNIZE": 1
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 2,
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 2,
+      "stepCount": 6,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.4,
+        "interactionDominance": 0.6,
+        "presentationDominance": 0.4,
+        "semanticRedundancy": 0.2,
+        "dominantTarget": "dialogue_choice",
+        "dominantFamily": "conversation",
+        "warning": true,
+        "redundant": 1
+      },
+      "human": {
+        "total": 6,
+        "metalinguistic": 1,
+        "humanSituation": 4,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 1,
+        "humanShare": 0.6666666666666666
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": true,
+      "chargedBeforeTaught": 2,
+      "interactionFamilies": {
+        "intro": 1,
+        "match": 1,
+        "conversation": 3,
+        "listen": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "RECOGNIZE": 1,
+        "USE_IN_CONTEXT": 3,
+        "DISCRIMINATE": 1
+      },
+      "estimatedMinutesHint": 4.2
+    },
+    {
+      "ordinal": 3,
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 3,
+      "stepCount": 4,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 2,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.667,
+        "interactionDominance": 0.333,
+        "presentationDominance": 0.333,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "choice",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 4,
+        "metalinguistic": 0,
+        "humanSituation": 3,
+        "production": 1,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 0,
+        "humanShare": 1
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": true,
+      "chargedBeforeTaught": 4,
+      "interactionFamilies": {
+        "intro": 1,
+        "choice": 1,
+        "produce": 1,
+        "conversation": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "USE_IN_CONTEXT": 2,
+        "RECALL": 1
+      },
+      "estimatedMinutesHint": 2.8
+    },
+    {
+      "ordinal": 4,
+      "lessonId": "p1-o-que-e-mandarim",
+      "pass": 4,
+      "stepCount": 5,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.2,
+        "interactionDominance": 0.4,
+        "presentationDominance": 0.2,
+        "semanticRedundancy": 0,
+        "dominantTarget": "conversation_scene",
+        "dominantFamily": "conversation",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 5,
+        "metalinguistic": 0,
+        "humanSituation": 3,
+        "production": 1,
+        "conversation": 1,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 0,
+        "humanShare": 1
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": false,
+      "chargedBeforeTaught": 2,
+      "interactionFamilies": {
+        "conversation": 2,
+        "match": 1,
+        "produce": 1,
+        "choice": 1
+      },
+      "cognitiveOperations": {
+        "USE_IN_CONTEXT": 3,
+        "RECOGNIZE": 1,
+        "RECALL": 1
+      },
+      "estimatedMinutesHint": 3.5
+    },
+    {
+      "ordinal": 5,
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 1,
+      "stepCount": 9,
+      "discoveryInjected": true,
+      "discoveryMomentId": "discover:pinyin:v1",
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.286,
+        "interactionDominance": 0.429,
+        "presentationDominance": 0.286,
+        "semanticRedundancy": 0.143,
+        "dominantTarget": "你好",
+        "dominantFamily": "listen",
+        "warning": true,
+        "redundant": 1
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 3,
+        "humanSituation": 3,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 3,
+        "humanShare": 0.3333333333333333
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": true,
+      "chargedBeforeTaught": 4,
+      "interactionFamilies": {
+        "intro": 2,
+        "listen": 3,
+        "conversation": 3,
+        "match": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 2,
+        "HEAR": 2,
+        "USE_IN_CONTEXT": 3,
+        "RECOGNIZE": 1,
+        "DISCRIMINATE": 1
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 6,
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 2,
+      "stepCount": 7,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.333,
+        "interactionDominance": 0.5,
+        "presentationDominance": 0.167,
+        "semanticRedundancy": 0,
+        "dominantTarget": "nǐ",
+        "dominantFamily": "conversation",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 7,
+        "metalinguistic": 2,
+        "humanSituation": 3,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 2,
+        "humanShare": 0.42857142857142855
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": false,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 1,
+        "conversation": 3,
+        "match": 1,
+        "listen": 2
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "USE_IN_CONTEXT": 3,
+        "RECOGNIZE": 1,
+        "DISCRIMINATE": 2
+      },
+      "estimatedMinutesHint": 4.9
+    },
+    {
+      "ordinal": 7,
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 3,
+      "stepCount": 6,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.2,
+        "interactionDominance": 0.4,
+        "presentationDominance": 0.2,
+        "semanticRedundancy": 0,
+        "dominantTarget": "ocontornotonaldasílaba",
+        "dominantFamily": "conversation",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 6,
+        "metalinguistic": 2,
+        "humanSituation": 2,
+        "production": 1,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 1,
+        "humanShare": 0.5
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": false,
+      "chargedBeforeTaught": 4,
+      "interactionFamilies": {
+        "intro": 1,
+        "conversation": 2,
+        "match": 1,
+        "listen": 1,
+        "produce": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "USE_IN_CONTEXT": 2,
+        "RECOGNIZE": 1,
+        "DISCRIMINATE": 1,
+        "RECALL": 1
+      },
+      "estimatedMinutesHint": 4.2
+    },
+    {
+      "ordinal": 8,
+      "lessonId": "p1-o-que-e-pinyin",
+      "pass": 4,
+      "stepCount": 7,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.333,
+        "interactionDominance": 0.333,
+        "presentationDominance": 0.167,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "conversation",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 7,
+        "metalinguistic": 1,
+        "humanSituation": 4,
+        "production": 1,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 1,
+        "humanShare": 0.7142857142857143
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": false,
+      "chargedBeforeTaught": 8,
+      "interactionFamilies": {
+        "intro": 1,
+        "choice": 1,
+        "match": 1,
+        "listen": 1,
+        "produce": 1,
+        "conversation": 2
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "USE_IN_CONTEXT": 3,
+        "RECOGNIZE": 1,
+        "DISCRIMINATE": 1,
+        "RECALL": 1
+      },
+      "estimatedMinutesHint": 4.9
+    },
+    {
+      "ordinal": 9,
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 1,
+      "stepCount": 12,
+      "discoveryInjected": true,
+      "discoveryMomentId": "discover:tone-ma:v1",
+      "perceptualRemoved": 0,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.444,
+        "interactionDominance": 0.556,
+        "presentationDominance": 0.222,
+        "semanticRedundancy": 0,
+        "dominantTarget": "妈",
+        "dominantFamily": "listen",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 12,
+        "metalinguistic": 5,
+        "humanSituation": 2,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 5,
+        "humanShare": 0.16666666666666666
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": true,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 3,
+        "listen": 5,
+        "tone": 2,
+        "conversation": 2
+      },
+      "cognitiveOperations": {
+        "TEACH": 3,
+        "HEAR": 3,
+        "DISCRIMINATE": 4,
+        "USE_IN_CONTEXT": 2
+      },
+      "estimatedMinutesHint": 8.4
+    },
+    {
+      "ordinal": 10,
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 2,
+      "stepCount": 9,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.429,
+        "interactionDominance": 0.571,
+        "presentationDominance": 0.143,
+        "semanticRedundancy": 0,
+        "dominantTarget": "骂",
+        "dominantFamily": "listen",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 3,
+        "humanSituation": 2,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 4,
+        "humanShare": 0.2222222222222222
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": true,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 2,
+        "listen": 4,
+        "tone": 2,
+        "conversation": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 2,
+        "DISCRIMINATE": 4,
+        "HEAR": 2,
+        "USE_IN_CONTEXT": 1
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 11,
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 3,
+      "stepCount": 9,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.167,
+        "interactionDominance": 0.667,
+        "presentationDominance": 0.167,
+        "semanticRedundancy": 0,
+        "dominantTarget": "骂",
+        "dominantFamily": "tone",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 7,
+        "humanSituation": 1,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 1,
+        "humanShare": 0.1111111111111111
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": false,
+      "chargedBeforeTaught": 1,
+      "interactionFamilies": {
+        "intro": 3,
+        "tone": 4,
+        "conversation": 1,
+        "listen": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 3,
+        "DISCRIMINATE": 4,
+        "USE_IN_CONTEXT": 1,
+        "HEAR": 1
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 12,
+      "lessonId": "p1-o-que-e-tom",
+      "pass": 4,
+      "stepCount": 7,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.5,
+        "interactionDominance": 0.333,
+        "presentationDominance": 0.167,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "listen",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 7,
+        "metalinguistic": 3,
+        "humanSituation": 1,
+        "production": 1,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 2,
+        "humanShare": 0.2857142857142857
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": true,
+      "chargedBeforeTaught": 6,
+      "interactionFamilies": {
+        "intro": 1,
+        "listen": 2,
+        "tone": 2,
+        "conversation": 1,
+        "produce": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "DISCRIMINATE": 3,
+        "USE_IN_CONTEXT": 1,
+        "HEAR": 1,
+        "RECALL": 1
+      },
+      "estimatedMinutesHint": 4.9
+    },
+    {
+      "ordinal": 13,
+      "lessonId": "p1-o-que-e-hanzi",
+      "pass": 1,
+      "stepCount": 9,
+      "discoveryInjected": true,
+      "discoveryMomentId": "discover:hanzi-ni:v1",
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.429,
+        "interactionDominance": 0.429,
+        "presentationDominance": 0.143,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "listen",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 2,
+        "humanSituation": 4,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 3,
+        "humanShare": 0.4444444444444444
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": true,
+      "chargedBeforeTaught": 6,
+      "interactionFamilies": {
+        "intro": 2,
+        "listen": 3,
+        "conversation": 3,
+        "match": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 2,
+        "HEAR": 2,
+        "USE_IN_CONTEXT": 3,
+        "RECOGNIZE": 1,
+        "DISCRIMINATE": 1
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 14,
+      "lessonId": "p1-o-que-e-hanzi",
+      "pass": 2,
+      "stepCount": 6,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.2,
+        "interactionDominance": 0.6,
+        "presentationDominance": 0.2,
+        "semanticRedundancy": 0,
+        "dominantTarget": "Peçaepalavra",
+        "dominantFamily": "conversation",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 6,
+        "metalinguistic": 3,
+        "humanSituation": 3,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 0,
+        "humanShare": 0.5
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": true,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 1,
+        "conversation": 3,
+        "match": 2
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "USE_IN_CONTEXT": 3,
+        "RECOGNIZE": 2
+      },
+      "estimatedMinutesHint": 4.2
+    },
+    {
+      "ordinal": 15,
+      "lessonId": "p1-o-que-e-hanzi",
+      "pass": 3,
+      "stepCount": 5,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 1,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.5,
+        "interactionDominance": 0.5,
+        "presentationDominance": 0.25,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "conversation",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 5,
+        "metalinguistic": 0,
+        "humanSituation": 3,
+        "production": 1,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 1,
+        "humanShare": 0.8
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": true,
+      "chargedBeforeTaught": 4,
+      "interactionFamilies": {
+        "intro": 1,
+        "build": 1,
+        "conversation": 2,
+        "listen": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "BUILD": 1,
+        "USE_IN_CONTEXT": 2,
+        "DISCRIMINATE": 1
+      },
+      "estimatedMinutesHint": 3.5
+    },
+    {
+      "ordinal": 16,
+      "lessonId": "p1-o-que-e-hanzi",
+      "pass": 4,
+      "stepCount": 7,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": true,
+      "saturation": {
+        "targetDominance": 0.333,
+        "interactionDominance": 0.5,
+        "presentationDominance": 0.167,
+        "semanticRedundancy": 0,
+        "dominantTarget": "你好",
+        "dominantFamily": "conversation",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 7,
+        "metalinguistic": 1,
+        "humanSituation": 5,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 1,
+        "humanShare": 0.7142857142857143
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": false,
+      "chargedBeforeTaught": 4,
+      "interactionFamilies": {
+        "intro": 1,
+        "conversation": 3,
+        "listen": 1,
+        "choice": 1,
+        "match": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 1,
+        "USE_IN_CONTEXT": 4,
+        "DISCRIMINATE": 1,
+        "RECOGNIZE": 1
+      },
+      "estimatedMinutesHint": 4.9
+    },
+    {
+      "ordinal": 17,
+      "lessonId": "p1-primeiros-hanzi",
+      "pass": 1,
+      "stepCount": 9,
+      "discoveryInjected": true,
+      "discoveryMomentId": "discover:hanzi-ni:v1",
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.4,
+        "interactionDominance": 0.6,
+        "presentationDominance": 0.2,
+        "semanticRedundancy": 0,
+        "dominantTarget": "木",
+        "dominantFamily": "listen",
+        "warning": true,
+        "redundant": 0
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 3,
+        "humanSituation": 3,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 3,
+        "humanShare": 0.3333333333333333
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": true,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 4,
+        "listen": 3,
+        "build": 2
+      },
+      "cognitiveOperations": {
+        "TEACH": 4,
+        "HEAR": 3,
+        "BUILD": 2
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 18,
+      "lessonId": "p1-primeiros-hanzi",
+      "pass": 2,
+      "stepCount": 8,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.4,
+        "interactionDominance": 0.4,
+        "presentationDominance": 0.2,
+        "semanticRedundancy": 0,
+        "dominantTarget": "口",
+        "dominantFamily": "listen",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 8,
+        "metalinguistic": 4,
+        "humanSituation": 2,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 2,
+        "humanShare": 0.25
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": false,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 3,
+        "listen": 2,
+        "build": 2,
+        "match": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 3,
+        "HEAR": 2,
+        "BUILD": 2,
+        "RECOGNIZE": 1
+      },
+      "estimatedMinutesHint": 5.6
+    },
+    {
+      "ordinal": 19,
+      "lessonId": "p1-primeiros-hanzi",
+      "pass": 3,
+      "stepCount": 9,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.333,
+        "interactionDominance": 0.5,
+        "presentationDominance": 0.167,
+        "semanticRedundancy": 0,
+        "dominantTarget": "月",
+        "dominantFamily": "build",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 9,
+        "metalinguistic": 6,
+        "humanSituation": 1,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 2,
+        "humanShare": 0.1111111111111111
+      },
+      "visualMissing": 0,
+      "contractFail": false,
+      "contractWarn": false,
+      "chargedBeforeTaught": 0,
+      "interactionFamilies": {
+        "intro": 3,
+        "build": 3,
+        "listen": 2,
+        "match": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 3,
+        "BUILD": 3,
+        "HEAR": 2,
+        "RECOGNIZE": 1
+      },
+      "estimatedMinutesHint": 6.3
+    },
+    {
+      "ordinal": 20,
+      "lessonId": "p1-primeiros-hanzi",
+      "pass": 4,
+      "stepCount": 14,
+      "discoveryInjected": false,
+      "discoveryMomentId": null,
+      "perceptualRemoved": 0,
+      "perceptualReordered": false,
+      "saturation": {
+        "targetDominance": 0.222,
+        "interactionDominance": 0.444,
+        "presentationDominance": 0.111,
+        "semanticRedundancy": 0,
+        "dominantTarget": "水",
+        "dominantFamily": "listen",
+        "warning": false,
+        "redundant": 0
+      },
+      "human": {
+        "total": 14,
+        "metalinguistic": 9,
+        "humanSituation": 1,
+        "production": 0,
+        "conversation": 0,
+        "transfer": 0,
+        "visual": 0,
+        "audio": 4,
+        "humanShare": 0.07142857142857142
+      },
+      "visualMissing": 0,
+      "contractFail": true,
+      "contractWarn": false,
+      "chargedBeforeTaught": 4,
+      "interactionFamilies": {
+        "intro": 5,
+        "listen": 4,
+        "build": 4,
+        "match": 1
+      },
+      "cognitiveOperations": {
+        "TEACH": 5,
+        "HEAR": 4,
+        "BUILD": 4,
+        "RECOGNIZE": 1
+      },
+      "estimatedMinutesHint": 9.8
+    }
+  ]
+}
