@@ -28,10 +28,10 @@ const fail = (message) => failures.push(message);
 const warn = (message) => warnings.push(message);
 
 const BUDGET = {
-  1: { min: 5, max: 8 },
-  2: { min: 6, max: 8 },
-  3: { min: 6, max: 9 },
-  4: { min: 6, max: 9 },
+  1: { min: 7, max: 9 },
+  2: { min: 8, max: 11 },
+  3: { min: 10, max: 13 },
+  4: { min: 12, max: 15 },
 };
 
 const RECOGNITION = new Set([

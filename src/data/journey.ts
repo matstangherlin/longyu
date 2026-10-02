@@ -144,6 +144,15 @@ export interface LessonStep {
   pedagogyVariant?: PedagogyVariant;
   /** Automatic lesson rotation: first attempt, review attempt, challenge attempt. */
   practiceVariant?: "A" | "B" | "C";
+  /**
+   * RC2.3.0 — papel pedagógico no plano (Descoberta ≠ avaliação).
+   * discovery = exposição obrigatória de material novo; não conta como domínio.
+   */
+  pedagogyRole?: "discovery" | "graded" | "remediation" | "review_explain";
+  /** Id do TeachingMoment quando pedagogyRole === "discovery". */
+  discoveryMomentId?: string;
+  /** Conceitos marcados como ensinados ao completar a Descoberta. */
+  discoveryConceptIds?: string[];
   dictationMode?: DictationMode;
   /** Audio discrimination can compare two hidden stimuli without leaking hanzi. */
   audioSequence?: string[];

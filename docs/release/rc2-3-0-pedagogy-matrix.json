@@ -1,0 +1,36 @@
+{
+  "wave": "RC2.3.0",
+  "title": "Pedagogy V6: Discovery, Progressive Mastery & Perceptual Variety",
+  "baseBranch": "cursor/rc2-2-32-voice-speech-guidance-25db",
+  "baseHead": "f8662ed784fb3946e6c0b9779c4f0668fec712aa",
+  "inherits": ["RC2.2.32"],
+  "createdAt": "2026-10-02",
+  "waveReadyForClosedBeta": false,
+  "statuses": {
+    "ENGINE_READY": "YES",
+    "PILOT_CONTENT_READY": "YES",
+    "WEB_PASS": "NOT_RUN",
+    "ANDROID_BUILD_PASS": "NOT_RUN",
+    "APK_PASS": "NOT_RUN",
+    "OWNER_PEDAGOGICAL_ACCEPTANCE": "NOT_RUN"
+  },
+  "frozen": {
+    "issue273": "NOT_TOUCHED",
+    "fullCurriculumMigration": "OUT_OF_SCOPE",
+    "rc231_visual_first": "NOT_STARTED",
+    "rc232_human_everyday": "NOT_STARTED"
+  },
+  "ownerChecklist": [
+    "Instalação limpa → primeira Jornada",
+    "Encontrar Descoberta antes da cobrança",
+    "Completar 4 rodadas de um tópico",
+    "Rodada 2 diferente da 1?",
+    "Rodada 3 exige mais produção?",
+    "Rodada 4 é domínio ou só mais perguntas?",
+    "Imagens onde ajudam?",
+    "Aprendeu antes de ser testado?",
+    "Repetição perceptiva de 你好 aceitável?",
+    "Perguntas humanas?",
+    "Áudio canônico + Hànzì + fala + inline tip"
+  ]
+}
