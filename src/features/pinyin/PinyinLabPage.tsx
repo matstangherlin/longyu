@@ -34,7 +34,12 @@ import { ARTICULATION_DIAGRAMS } from "../../data/articulationTargets";
 import { IconCheck, IconChevron, IconHeadphones, IconRefresh, IconShield, IconSound, IconX } from "../../components/ui/Icon";
 import { ProPaywall } from "../../components/pro/ProPaywall";
 import { numericPinyinToDiacritics, stripPinyinTone } from "../../lib/pinyin";
-import { hasChineseVoice, speak, stopSpeaking, warmUpVoices } from "../../lib/tts";
+import { hasChineseVoice, stopSpeaking, warmUpVoices } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "PINYIN" });
+}
 import { useStore } from "../../lib/store";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
 import { playSoundFx } from "../../lib/soundFx";

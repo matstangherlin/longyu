@@ -1,5 +1,8 @@
 /**
  * RC2.2.18 — GuidanceOrchestrator (parte pura).
+ * RC2.2.32 — este módulo cobre só GLOBAL GUIDANCE (coachmarks / unlock reveals
+ * / tips de superfície). Microorientações pedagógicas INLINE vivem em
+ * `pedagogicalInlineGuidance.ts` e NÃO consomem o orçamento abaixo.
  *
  * Decide QUAL orientação aparece, QUANDO, e o que cada botão faz. Nenhuma
  * página abre dica, coachmark ou anúncio por conta própria: todas pedem a este
@@ -15,6 +18,8 @@
  * - Dicas desligadas suprimem tudo que não é essencial; áreas continuam
  *   liberando normalmente, porque disponibilidade não mora aqui (PART H/CX).
  * - Nada aqui dá XP, medalha, Qi ou mexe em domínio (PART CG).
+ * - CRITICAL_UX vence OPTIONAL_DISCOVERY quando o orçamento é 1 (primeira
+ *   utilização essencial não é engolida por dica opcional).
  */
 import type { MessageKey } from "../locales/pt-BR";
 import {

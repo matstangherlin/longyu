@@ -43,7 +43,9 @@ import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type Activi
 import { beginStoryEnergyAttestation } from "../../services/storyEnergyAttestation";
 import { todayKey } from "../../lib/storage";
 import { useTranslation } from "../../i18n/useTranslation";
-import { speak, stopSpeaking } from "../../lib/tts";
+import { stopSpeaking } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+import { cancelAllMandarinSpeech } from "../../lib/mandarinSpeech";
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
@@ -1550,6 +1552,7 @@ function ImmersionPlayer({
     runRef.current += 1;
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
     timerRef.current = null;
+    cancelAllMandarinSpeech();
     stopSpeaking();
     setIsPlaying(false);
   }, []);
@@ -1616,9 +1619,13 @@ function ImmersionPlayer({
         setPhase(session.mode === "guided_reading" ? "following" : "repeat");
         timerRef.current = window.setTimeout(moveNext, session.mode === "guided_reading" ? 2100 : 2900);
       };
-      speak(nextItem.audioText ?? nextItem.hanzi, {
+      // RC2.2.32 — Imersão usa asset canônico; progressão não depende do áudio.
+      void playMandarinAudio(nextItem.audioText ?? nextItem.hanzi, {
         rate: speed,
-        onend: afterSpeech,
+        source: "IMMERSION",
+        onState: (state) => {
+          if (state === "ENDED" || state === "FAILED" || state === "UNAVAILABLE") afterSpeech();
+        },
       });
       const fallbackDuration = Math.max(2800, Math.min(7000, 1200 + nextItem.hanzi.length * 500));
       timerRef.current = window.setTimeout(afterSpeech, fallbackDuration / speed);

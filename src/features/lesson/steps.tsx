@@ -13,7 +13,13 @@ import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
-import { speak, refreshNativeTtsStatus } from "../../lib/tts";
+import { refreshNativeTtsStatus } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+/** RC2.2.32 — conteúdo fixo da lição passa pelo player canônico (sem TTS silencioso). */
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON_AUDIO" });
+}
 import { requestMandarinSpeech, scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";

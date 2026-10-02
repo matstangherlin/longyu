@@ -67,7 +67,11 @@ import {
   PRO_LESSON_QI_BONUS,
   RETRY_QUESTION_QI,
 } from "../../data/economy";
-import { speak } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON_AUDIO" });
+}
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { cultureItemIdFromLessonId } from "../../data/cultureNative";
