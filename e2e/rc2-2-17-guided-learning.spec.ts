@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { fakeCanonicalMedia } from "./fake-canonical-media";
 import {
   chooseCourseIfAsked,
   dismissBlockingOverlays,
@@ -19,6 +20,9 @@ import {
 
 /** speechSynthesis controlado: "ok" dispara onstart/onend; "fail" dispara onerror. */
 async function installFakeSpeech(page: Page, mode: "ok" | "fail") {
+  // RC2.2.28+ — conteúdo fixo toca pelo asset canônico e o TTS é só fallback:
+  // o mesmo modo controla os dois motores (determinístico em todo navegador).
+  await fakeCanonicalMedia(page, mode === "ok" ? "start" : "fail");
   await page.addInitScript((behavior: string) => {
     class FakeUtterance {
       text = "";
@@ -145,13 +149,15 @@ test.describe("RC2.2.17 · onboarding único", () => {
     await page.locator("[data-guided-action]").click();
     await page.locator("[data-guided-listen]").click();
     await expect(page.getByTestId("guided-audio-failed")).toBeVisible();
-    // RC2.2.26+ copy: confirm-path title (not the old "Não conseguimos reproduzir…").
-    await expect(page.getByTestId("guided-audio-failed")).toContainText("Não consegui confirmar o áudio.");
+    // RC2.2.31C copy (gate rc2-2-31c exige este título).
+    await expect(page.getByTestId("guided-audio-failed")).toContainText("Não foi possível reproduzir o áudio.");
     await expect(page.getByTestId("guided-audio-retry")).toBeVisible();
     await expect(page.getByTestId("guided-reveal")).toContainText("你好");
     const action = page.locator("[data-guided-action]");
-    await expect(action).toHaveText("Continuar sem áudio");
-    await expect(page.getByTestId("guided-try")).toHaveAttribute("data-guided-audio", "NONE");
+    // RC2.2.28 — audio gate: falha vira DEGRADED e libera o CTA (nunca cinza
+    // eterno). O resultado registrado é DEGRADED_AUDIO, nunca AUDIO_HEARD.
+    await expect(action).toBeEnabled();
+    await expect(page.getByTestId("guided-try")).toHaveAttribute("data-guided-audio", "DEGRADED_AUDIO");
     await action.click();
     await expect(page.getByTestId("guided-try")).toHaveAttribute("data-guided-audio", "DEGRADED_AUDIO");
     await expect(page.getByTestId("guided-try")).toHaveAttribute("data-guided-step", "explain");

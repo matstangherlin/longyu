@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { fakeCanonicalMedia } from "./fake-canonical-media";
 import { allowE2ELocalSession, chooseCourseIfAsked, dismissBlockingOverlays, seedLessonPlayerReady, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 import { advanceUntilVisible } from "./lesson-player-helpers";
 
@@ -130,6 +131,8 @@ test.describe("RC2.2.27 · Teste Guiado nunca fica cinza para sempre", () => {
   });
 
   test("ouvido sem ACK → prazo → [Tocar novamente] [Eu ouvi] [Continuar sem áudio]", async ({ page }) => {
+    // RC2.2.28+ — o asset canônico toca sem ACK (o caso do APK).
+    await fakeCanonicalMedia(page, "silent");
     await fakeSpeech(page, "silent");
     await seedTelemetryDeclined(page);
     const { flow, action } = await openGuidedListen(page);
@@ -138,7 +141,8 @@ test.describe("RC2.2.27 · Teste Guiado nunca fica cinza para sempre", () => {
     await expect(page.getByTestId("guided-audio-retry")).toBeVisible();
     await expect(page.getByTestId("guided-audio-confirm-heard")).toBeVisible();
     await expect(action).toBeEnabled();
-    await expect(action).toHaveAttribute("data-guided-action-id", "listen-continue-degraded");
+    // RC2.2.28 — audio gate: o prazo vira DEGRADED (CTA liberado), nunca AUDIO_HEARD sem ACK.
+    await expect(flow).toHaveAttribute("data-guided-audio", "DEGRADED_AUDIO");
     await page.getByTestId("guided-audio-confirm-heard").click();
     await expect(flow).toHaveAttribute("data-guided-step", "explain");
   });
@@ -151,11 +155,18 @@ test.describe("RC2.2.27 · conversa: áudio nunca trava a conversa", () => {
   // e responder continua possível sem início nem fim de áudio. A request por
   // nó (speechKey) é provada no gate auto-speak-unification.
   test("fala pedida pelo autoplay; motor mudo não bloqueia Responder", async ({ page }) => {
+    await fakeCanonicalMedia(page, "silent");
     await fakeSpeech(page, "silent");
     await seed(page, { autoPlayAudio: true });
     await open(page, "/qa/conversation-scene");
     await expect(page.locator("[data-conversation-scene]").first()).toBeVisible({ timeout: 20_000 });
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __speaks: number }).__speaks)).toBeGreaterThanOrEqual(1);
+    // RC2.2.28+ — a fala do nó sai pelo asset canônico (ou pelo TTS, se não houver asset).
+    await expect
+      .poll(() => page.evaluate(() => {
+        const w = window as unknown as { __speaks: number; __mediaPlays: string[] };
+        return w.__speaks + w.__mediaPlays.length;
+      }))
+      .toBeGreaterThanOrEqual(1);
     const advance = page.getByTestId("conversation-advance").first();
     await expect(advance).toBeEnabled();
     await advance.click();

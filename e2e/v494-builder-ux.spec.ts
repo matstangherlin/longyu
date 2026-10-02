@@ -1,4 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
+import { audioEntryByText } from "../src/data/audioManifest.generated";
+import { fakeCanonicalMedia } from "./fake-canonical-media";
 import {
   allowE2ELocalSession,
   dismissBlockingOverlays,
@@ -234,6 +236,8 @@ test.describe("V4.9.4 — o som vem antes da resposta", () => {
   });
 
   test("15 · ouvir manda o hànzì-alvo para a fala, e repetir é livre", async ({ page }) => {
+    // RC2.2.28+ — o hànzì-alvo tem asset canônico: o "ouvir" toca o asset dele.
+    await fakeCanonicalMedia(page, "start");
     await page.addInitScript(() => {
       const spoken: string[] = [];
       (window as unknown as { __spoken: string[] }).__spoken = spoken;
@@ -274,21 +278,21 @@ test.describe("V4.9.4 — o som vem antes da resposta", () => {
     await openBuilder(page);
 
     const audio = page.locator("[data-builder-audio] button");
+    const heard = () =>
+      page.evaluate(() => {
+        const w = window as unknown as { __spoken: string[]; __mediaPlays: string[] };
+        return [...w.__mediaPlays, ...w.__spoken];
+      });
     await audio.click();
-    await expect
-      .poll(() => page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken.length))
-      .toBeGreaterThan(0);
-    const first = await page.evaluate(
-      () => (window as unknown as { __spoken: string[] }).__spoken[0]
-    );
-    // O que é falado é o caractere-alvo, não o rótulo da interface.
-    expect(first).toContain("森");
+    await expect.poll(async () => (await heard()).length).toBeGreaterThan(0);
+    // O que soa é o caractere-alvo (o asset dele), não o rótulo da interface.
+    const target = audioEntryByText("森");
+    expect(target, "森 tem asset canônico").not.toBeNull();
+    expect((await heard())[0]).toContain(target!.uri);
 
     // P0.4 — repetir quantas vezes quiser, sem penalidade.
     await audio.click();
-    await expect
-      .poll(() => page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken.length))
-      .toBeGreaterThan(1);
+    await expect.poll(async () => (await heard()).length).toBeGreaterThan(1);
     await expect(page.locator("[data-qa-builder-wrong]")).toHaveAttribute("data-qa-builder-wrong", "0");
   });
 

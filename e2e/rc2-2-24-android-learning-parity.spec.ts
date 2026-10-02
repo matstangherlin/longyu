@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { fakeCanonicalMedia } from "./fake-canonical-media";
 import { allowE2ELocalSession, chooseCourseIfAsked, dismissBlockingOverlays, matureDiscoveryState, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 
 /**
@@ -71,6 +72,8 @@ test.describe("RC2.2.24 · Teste Guiado: ouvir nunca deixa botão morto", () => 
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("motor confirma início → Continuar; Ouvir·Ouvir·Continuar avança UMA etapa", async ({ page }) => {
+    // RC2.2.28+ — o "Ouça" toca o asset canônico; o player confirma o início.
+    await fakeCanonicalMedia(page, "start");
     await fakeSpeech(page, "start");
     await seedTelemetryDeclined(page);
     await open(page, "/");
@@ -84,12 +87,15 @@ test.describe("RC2.2.24 · Teste Guiado: ouvir nunca deixa botão morto", () => 
     await page.locator("[data-guided-listen]").click();
     await page.locator("[data-guided-listen]").click();
     await expect(action).toBeEnabled();
-    await expect(page.getByTestId("guided-listen-status")).toHaveAttribute("data-cta-reason", /PLAYBACK/);
+    // CTA liberado por reprodução real (início confirmado), não por modo degradado.
+    await expect(page.getByTestId("guided-listen-status")).toHaveAttribute("data-listen-state", /PLAYING|HEARD/);
     await action.click();
     await expect(flow).toHaveAttribute("data-guided-step", "explain");
   });
 
   test("sem início confirmado: falha explícita com saídas, nunca botão morto", async ({ page }) => {
+    // Asset e fallback TTS terminam sem anunciar início.
+    await fakeCanonicalMedia(page, "end-only");
     await fakeSpeech(page, "end-only");
     await seedTelemetryDeclined(page);
     await open(page, "/");
