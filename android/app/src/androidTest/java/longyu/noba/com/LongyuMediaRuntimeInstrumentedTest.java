@@ -87,7 +87,8 @@ public class LongyuMediaRuntimeInstrumentedTest {
                         + " b.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));"
                         + " b.dispatchEvent(new PointerEvent('pointerup',{bubbles:true}));"
                         + " } b.click(); return 'ok'; }"
-                        + " var intro=document.querySelector('[data-testid=intro-continue]');"
+                        // GuidedTryPage marks its CTA with data-guided-action-id (no data-testid).
+                        + " var intro=document.querySelector('[data-guided-action-id=intro-continue], [data-testid=intro-continue]');"
                         + " if(intro){ intro.click(); return 'intro'; }"
                         + " var page=document.querySelector('[data-testid=guided-try]');"
                         + " return location.pathname + ':' + (page ? page.getAttribute('data-guided-step') : 'not-guided'); })()");
@@ -121,7 +122,7 @@ public class LongyuMediaRuntimeInstrumentedTest {
                 }
                 // Fail-open UX: continue CTA available after failure also counts as non-dead-end.
                 String cta = WebViewRuntimeSupport.evalJs(webView,
-                    "(function(){ var d=document.querySelector('[data-testid=\"listen-continue-degraded\"], [data-testid=\"listen-continue\"]');"
+                    "(function(){ var d=document.querySelector('[data-guided-action-id^=\"listen-continue\"], [data-testid=\"listen-continue-degraded\"], [data-testid=\"listen-continue\"]');"
                         + " if(!d) return 'no'; return d.disabled ? 'disabled' : 'enabled'; })()");
                 if ("enabled".equals(cta) && System.currentTimeMillis() > deadline - 2000) {
                     // Allow degraded continue as pedagogical unblock; release still fails physical.
