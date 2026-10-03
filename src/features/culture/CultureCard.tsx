@@ -1,3 +1,4 @@
+import { CultureKindBadge } from "./CultureKindBadge";
 import { Link } from "react-router-dom";
 import type { CultureCategory, CultureItem } from "../../data/culture";
 import { cultureProgressionGateForItem } from "../../data/cultureProgressionGates";
@@ -83,9 +84,12 @@ export function CultureCard({
       >
         <Card variant="interactive" className="flex h-full min-h-[7.5rem] flex-col p-3 pb-12">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
-              {cultureCategoryLabel(item.category, t)}
-            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+                {cultureCategoryLabel(item.category, t)}
+              </p>
+              <CultureKindBadge kind={item.kind} locale={locale} />
+            </div>
             <Pill tone={STATUS_TONE[status]}>{t(STATUS_KEYS[status])}</Pill>
           </div>
           <h3 className="mt-2 text-balance font-serif text-base font-semibold leading-snug text-ink">{title}</h3>

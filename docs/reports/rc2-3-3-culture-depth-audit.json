@@ -1,0 +1,2918 @@
+{
+  "generatedAt": "2026-10-03T01:03:01.587Z",
+  "summary": {
+    "total": 30,
+    "byClass": {
+      "SHALLOW": 0,
+      "BASIC": 0,
+      "DEEP": 21,
+      "FLAGSHIP_DEEP": 9
+    },
+    "flagshipCount": 9,
+    "flagshipsDeep": 9,
+    "shallowCount": 0,
+    "hubOnly": 10,
+    "journey": 20,
+    "editorialFindingCount": 0,
+    "seals": [
+      "visitor-ready",
+      "chinese-table",
+      "social-etiquette",
+      "gift-sense",
+      "festivals",
+      "urban-china",
+      "work-school"
+    ]
+  },
+  "items": [
+    {
+      "itemId": "visiting-home",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "home_visits",
+      "track": "home-visits",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p7-imersao-casa-amigo",
+        "l24",
+        "l2"
+      ],
+      "relatedChunks": [
+        "qingjin",
+        "qingzuo",
+        "xiexie"
+      ],
+      "relatedHanzi": [
+        "jia",
+        "qing_pls"
+      ],
+      "everydayIntents": [
+        "GREET",
+        "THANK",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "p7-imersao-casa-amigo",
+      "relatedGates": [],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p7-imersao-casa-amigo"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "host-insistence",
+      "kind": "documented_practice",
+      "scope": "informal",
+      "category": "home_visits",
+      "track": "home-visits",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p7-imersao-casa-amigo",
+        "l26",
+        "l4"
+      ],
+      "relatedChunks": [
+        "xiexie",
+        "bukeqi",
+        "woxiangheshui"
+      ],
+      "relatedHanzi": [
+        "cha_tea",
+        "ke_guest"
+      ],
+      "everydayIntents": [
+        "THANK",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "l26",
+      "relatedGates": [],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l26"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "shared-dishes",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "table_food",
+      "track": "table-food",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l26b",
+        "l26"
+      ],
+      "relatedChunks": [
+        "haochi",
+        "woyaocai",
+        "wobuchirou",
+        "womenchifanba"
+      ],
+      "relatedHanzi": [
+        "fan_rice",
+        "cha_tea"
+      ],
+      "everydayIntents": [
+        "ORDER_FOOD",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "l26b",
+      "relatedGates": [
+        "gate-chinese-table"
+      ],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l26b"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "chopsticks-rest",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "table_food",
+      "track": "table-food",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l26b",
+        "l26",
+        "l26c"
+      ],
+      "relatedChunks": [
+        "woyaomifan",
+        "haochi",
+        "maidan"
+      ],
+      "relatedHanzi": [
+        "fan_rice"
+      ],
+      "everydayIntents": [
+        "ORDER_FOOD",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "l26c",
+      "relatedGates": [
+        "gate-chinese-table"
+      ],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l26c"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "greetings-nihao",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "social_etiquette",
+      "track": "first-meetings",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l2",
+        "p1-primeira-conversa",
+        "l13-dialogo-ola",
+        "l3",
+        "l29"
+      ],
+      "relatedChunks": [
+        "nihao",
+        "nihaoma",
+        "wohenhao",
+        "nine"
+      ],
+      "relatedHanzi": [
+        "ni",
+        "hao"
+      ],
+      "everydayIntents": [
+        "GREET",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "journeyPlacement": "l2",
+      "relatedGates": [
+        "gate-social-etiquette"
+      ],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l2"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "thanks-keqi",
+      "kind": "documented_practice",
+      "scope": "informal",
+      "category": "social_etiquette",
+      "track": "first-meetings",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l4",
+        "p1-qingwen-cortesia",
+        "l2"
+      ],
+      "relatedChunks": [
+        "xiexie",
+        "bukeqi",
+        "meiguanxi"
+      ],
+      "relatedHanzi": [
+        "xie",
+        "ke_guest"
+      ],
+      "everydayIntents": [
+        "THANK",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "l4",
+      "relatedGates": [
+        "gate-social-etiquette"
+      ],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l4"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "qingwen-ask",
+      "kind": "documented_practice",
+      "scope": "formal",
+      "category": "communication_relations",
+      "track": "first-meetings",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p1-qingwen-cortesia",
+        "l11",
+        "p6-cidade-lugares"
+      ],
+      "relatedChunks": [
+        "qingwen",
+        "qingzaishuoyibian",
+        "xiexie"
+      ],
+      "relatedHanzi": [
+        "qing_pls"
+      ],
+      "everydayIntents": [
+        "ASK_FOR_HELP",
+        "ASK_WHERE"
+      ],
+      "journeyPlacement": "p1-qingwen-cortesia",
+      "relatedGates": [
+        "gate-social-etiquette"
+      ],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p1-qingwen-cortesia"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "family-terms",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "home_visits",
+      "track": "home-visits",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "l25",
+        "p7-imersao-casa-amigo"
+      ],
+      "relatedChunks": [
+        "zheshibaba",
+        "zheshimama",
+        "zheshiwodejia",
+        "renshinihengaoxing"
+      ],
+      "relatedHanzi": [
+        "jia"
+      ],
+      "everydayIntents": [
+        "TALK_FAMILY"
+      ],
+      "journeyPlacement": "l24",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l24"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "teacher-title",
+      "kind": "documented_practice",
+      "scope": "formal",
+      "category": "school_work",
+      "track": "everyday-china",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p6-rotina-trabalho",
+        "l9",
+        "l10"
+      ],
+      "relatedChunks": [
+        "woshixuesheng",
+        "nixuexizhongwenma",
+        "woxuexizhongwen",
+        "qingwen"
+      ],
+      "relatedHanzi": [
+        "ni"
+      ],
+      "everydayIntents": [
+        "GREET",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "l9",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l9"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "gift-receiving",
+      "kind": "documented_practice",
+      "scope": "formal",
+      "category": "gifts",
+      "track": "home-visits",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l4",
+        "p7-imersao-casa-amigo",
+        "p1-qingwen-cortesia"
+      ],
+      "relatedChunks": [
+        "xiexie",
+        "bukeqi",
+        "qingjin"
+      ],
+      "relatedHanzi": [
+        "xie",
+        "qing_pls"
+      ],
+      "everydayIntents": [
+        "THANK",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "l4",
+      "relatedGates": [],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l4"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "four-and-eight",
+      "kind": "symbol",
+      "scope": "regional",
+      "category": "gifts",
+      "track": "festivals",
+      "journeyOrHub": "journey",
+      "sources": 1,
+      "sourceRoles": [
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l19",
+        "l20",
+        "l27",
+        "p4-num-45"
+      ],
+      "relatedChunks": [
+        "duoshaoqian",
+        "ershibayuan"
+      ],
+      "relatedHanzi": [
+        "yi"
+      ],
+      "everydayIntents": [],
+      "journeyPlacement": "l19",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l19"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "spring-festival",
+      "kind": "festival",
+      "scope": "broad",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "journey",
+      "sources": 3,
+      "sourceRoles": [
+        "evergreen",
+        "year_specific",
+        "year_specific"
+      ],
+      "estimatedMinutes": 5,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "l25",
+        "p6-rotina-trabalho"
+      ],
+      "relatedChunks": [
+        "zheshiwodejia",
+        "zheshibaba",
+        "mingtianjian"
+      ],
+      "relatedHanzi": [
+        "jia"
+      ],
+      "everydayIntents": [],
+      "journeyPlacement": "l25",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l25"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "mid-autumn",
+      "kind": "festival",
+      "scope": "broad",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "journey",
+      "sources": 3,
+      "sourceRoles": [
+        "evergreen",
+        "year_specific",
+        "year_specific"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "l4",
+        "l26"
+      ],
+      "relatedChunks": [
+        "xiexie",
+        "zheshiwodejia"
+      ],
+      "relatedHanzi": [
+        "jia",
+        "yue"
+      ],
+      "everydayIntents": [],
+      "journeyPlacement": "l24",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l24"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "qingming",
+      "kind": "festival",
+      "scope": "historical",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "journey",
+      "sources": 4,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "year_specific",
+        "year_specific"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "p6-rotina-trabalho"
+      ],
+      "relatedChunks": [
+        "zheshiwodejia",
+        "mingtianjian"
+      ],
+      "relatedHanzi": [
+        "jia"
+      ],
+      "everydayIntents": [],
+      "journeyPlacement": "p6-rotina-trabalho",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p6-rotina-trabalho"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "dragon-boat",
+      "kind": "festival",
+      "scope": "regional",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "journey",
+      "sources": 3,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "year_specific"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l26",
+        "l26b",
+        "p6-natureza"
+      ],
+      "relatedChunks": [
+        "xiexie",
+        "haochi"
+      ],
+      "relatedHanzi": [
+        "fan_rice"
+      ],
+      "everydayIntents": [],
+      "journeyPlacement": "p6-natureza",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p6-natureza"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "digital-pay",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "contemporary_china",
+      "track": "everyday-china",
+      "journeyOrHub": "journey",
+      "sources": 1,
+      "sourceRoles": [
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l27",
+        "p6-compras",
+        "p6-survival-mandarin"
+      ],
+      "relatedChunks": [
+        "weixinzhifu",
+        "zhifubao",
+        "xianjin",
+        "keyishuaka",
+        "duoshaoqian"
+      ],
+      "relatedHanzi": [
+        "yao"
+      ],
+      "everydayIntents": [
+        "BUY",
+        "ASK_PRICE"
+      ],
+      "journeyPlacement": "l27",
+      "relatedGates": [
+        "gate-urban-china"
+      ],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after l27"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "metro-qr",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "transport_public",
+      "track": "everyday-china",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "year_specific"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p6-cidade-lugares",
+        "p7-imersao-estacao",
+        "p6-direcoes"
+      ],
+      "relatedChunks": [
+        "ditie",
+        "ditiezhanzainali",
+        "wozuoditie",
+        "chuko",
+        "ruko"
+      ],
+      "relatedHanzi": [
+        "zai"
+      ],
+      "everydayIntents": [
+        "TAKE_TRANSPORT"
+      ],
+      "journeyPlacement": "p6-cidade-lugares",
+      "relatedGates": [
+        "gate-urban-china"
+      ],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ok"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p6-cidade-lugares"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "office-hours",
+      "kind": "documented_practice",
+      "scope": "generational",
+      "category": "daily_life",
+      "track": "everyday-china",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p6-rotina-trabalho",
+        "p6-horarios",
+        "l9"
+      ],
+      "relatedChunks": [
+        "nizuoshenmegongzuo",
+        "wozaigongsishangban",
+        "nijidianshangban",
+        "woqidianqichuang"
+      ],
+      "relatedHanzi": [
+        "shi"
+      ],
+      "everydayIntents": [
+        "ASK_WHERE",
+        "SOCIAL_POLITENESS"
+      ],
+      "journeyPlacement": "p6-horarios",
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p6-horarios"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "bargaining-context",
+      "kind": "documented_practice",
+      "scope": "broad",
+      "category": "contemporary_china",
+      "track": "everyday-china",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p6-compras",
+        "p7-imersao-mercado",
+        "l27"
+      ],
+      "relatedChunks": [
+        "taiguile",
+        "pianyiyidian",
+        "duoshaoqian"
+      ],
+      "relatedHanzi": [
+        "mai_buy",
+        "qian_money"
+      ],
+      "everydayIntents": [
+        "BUY",
+        "ASK_PRICE"
+      ],
+      "journeyPlacement": "p6-compras",
+      "relatedGates": [],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ASSET_REQUIRED"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p6-compras"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "hotel-checkin-register",
+      "kind": "documented_practice",
+      "scope": "formal",
+      "category": "daily_life",
+      "track": "everyday-china",
+      "journeyOrHub": "journey",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 3,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "p6-survival-mandarin",
+        "p7-imersao-hotel"
+      ],
+      "relatedChunks": [
+        "huzhao",
+        "zheshiwodehuzhao",
+        "qinggeiwodehuzhao",
+        "qiantai"
+      ],
+      "relatedHanzi": [
+        "you"
+      ],
+      "everydayIntents": [
+        "CHECK_IN"
+      ],
+      "journeyPlacement": "p6-survival-mandarin",
+      "relatedGates": [],
+      "depthClass": "FLAGSHIP_DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "flagship visual ASSET_REQUIRED"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "after p6-survival-mandarin"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "lantern-festival",
+      "kind": "festival",
+      "scope": "broad",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "l25"
+      ],
+      "relatedChunks": [
+        "zheshiwodejia",
+        "mingtianjian"
+      ],
+      "relatedHanzi": [
+        "jia"
+      ],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "chinese-dragon",
+      "kind": "symbol",
+      "scope": "broad",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l26",
+        "p6-natureza"
+      ],
+      "relatedChunks": [
+        "xiexie"
+      ],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "sun-wukong",
+      "kind": "literature",
+      "scope": "historical",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "l9"
+      ],
+      "relatedChunks": [
+        "xiexie"
+      ],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "journey-to-the-west",
+      "kind": "literature",
+      "scope": "historical",
+      "category": "festivals",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": false,
+      "mandarin": true,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l24",
+        "l9"
+      ],
+      "relatedChunks": [
+        "xiexie"
+      ],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": false,
+          "note": "missing visual"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "china-history-timeline",
+      "kind": "history",
+      "scope": "historical",
+      "category": "school_work",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 2,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 5,
+      "story": true,
+      "visual": true,
+      "mandarin": false,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l9",
+        "l24"
+      ],
+      "relatedChunks": [],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "qin-unification",
+      "kind": "history",
+      "scope": "historical",
+      "category": "school_work",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 4,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": false,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l9",
+        "l19"
+      ],
+      "relatedChunks": [],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "han-dynasty",
+      "kind": "history",
+      "scope": "historical",
+      "category": "school_work",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 3,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": false,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l9",
+        "l19"
+      ],
+      "relatedChunks": [],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "tang-dynasty",
+      "kind": "history",
+      "scope": "historical",
+      "category": "school_work",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 3,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": false,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l9",
+        "l24"
+      ],
+      "relatedChunks": [],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "song-dynasty",
+      "kind": "history",
+      "scope": "historical",
+      "category": "school_work",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 3,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 4,
+      "story": true,
+      "visual": true,
+      "mandarin": false,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l9",
+        "l27"
+      ],
+      "relatedChunks": [],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    },
+    {
+      "itemId": "ming-qing",
+      "kind": "history",
+      "scope": "historical",
+      "category": "school_work",
+      "track": "festivals",
+      "journeyOrHub": "hub-only",
+      "sources": 6,
+      "sourceRoles": [
+        "evergreen",
+        "evergreen",
+        "evergreen",
+        "evergreen",
+        "evergreen",
+        "evergreen"
+      ],
+      "estimatedMinutes": 5,
+      "story": true,
+      "visual": true,
+      "mandarin": false,
+      "decision": true,
+      "reaction": true,
+      "guidedPractice": true,
+      "independentPractice": true,
+      "recall": true,
+      "memoryTarget": true,
+      "variability": true,
+      "relatedLessons": [
+        "l9",
+        "l24"
+      ],
+      "relatedChunks": [],
+      "relatedHanzi": [],
+      "everydayIntents": [],
+      "journeyPlacement": null,
+      "relatedGates": [],
+      "depthClass": "DEEP",
+      "dimensions": [
+        {
+          "dimension": "SOURCE",
+          "pass": true,
+          "note": "has sources"
+        },
+        {
+          "dimension": "CONTEXT",
+          "pass": true,
+          "note": "situation/context present"
+        },
+        {
+          "dimension": "VARIABILITY",
+          "pass": true,
+          "note": "scoped/variability ok"
+        },
+        {
+          "dimension": "STORY",
+          "pass": true,
+          "note": "story or kind renderer"
+        },
+        {
+          "dimension": "DECISION",
+          "pass": true,
+          "note": "decision ok for kind"
+        },
+        {
+          "dimension": "REACTION",
+          "pass": true,
+          "note": "meaningful reaction/feedback"
+        },
+        {
+          "dimension": "LANGUAGE",
+          "pass": true,
+          "note": "mandarin/intent/kind-exempt"
+        },
+        {
+          "dimension": "VISUAL",
+          "pass": true,
+          "note": "visual present"
+        },
+        {
+          "dimension": "MEMORY",
+          "pass": true,
+          "note": "concrete memory target"
+        },
+        {
+          "dimension": "JOURNEY_INTEGRATION",
+          "pass": true,
+          "note": "hub-only intentional"
+        }
+      ],
+      "editorialFindings": []
+    }
+  ],
+  "gates": [
+    {
+      "gateId": "gate-social-etiquette",
+      "required": true,
+      "reason": "Você já sabe as frases. Agora vamos ver como elas aparecem numa conversa de verdade, porque daqui em diante você vai se apresentar e pedir ajuda a pessoas reais.",
+      "nextLessonDependency": "l9",
+      "requiredCultureItemIds": [
+        "greetings-nihao",
+        "thanks-keqi",
+        "qingwen-ask"
+      ],
+      "estimatedInterruptionMinutes": 8,
+      "returnPath": "/jornada?gate=gate-social-etiquette&focus=l9",
+      "justified": true,
+      "justificationNote": "l9 assumes greetings/thanks/请问 frames already understood as social practice."
+    },
+    {
+      "gateId": "gate-urban-china",
+      "required": true,
+      "reason": "O próximo bloco é pagar, se virar no transporte e pedir ajuda na cidade. Vale entender antes como o pagamento por celular e o QR do metrô funcionam no dia a dia.",
+      "nextLessonDependency": "p6-survival-mandarin",
+      "requiredCultureItemIds": [
+        "digital-pay",
+        "metro-qr"
+      ],
+      "estimatedInterruptionMinutes": 10,
+      "returnPath": "/jornada?gate=gate-urban-china&focus=p6-survival-mandarin",
+      "justified": true,
+      "justificationNote": "p6-survival-mandarin survival phrases for metro/pay presuppose QR and digital-pay context."
+    },
+    {
+      "gateId": "gate-chinese-table",
+      "required": true,
+      "reason": "Você vai ser recebido na casa de alguém. A mesa tem combinados próprios, e conhecê-los antes deixa a visita muito mais leve.",
+      "nextLessonDependency": "p7-imersao-casa-amigo",
+      "requiredCultureItemIds": [
+        "shared-dishes",
+        "chopsticks-rest"
+      ],
+      "estimatedInterruptionMinutes": 10,
+      "returnPath": "/jornada?gate=gate-chinese-table&focus=p7-imersao-casa-amigo",
+      "justified": true,
+      "justificationNote": "p7-imersao-casa-amigo home dinner immersion presupposes shared-table / chopsticks norms."
+    }
+  ]
+}

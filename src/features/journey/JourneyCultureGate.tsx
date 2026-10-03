@@ -37,8 +37,10 @@ export function JourneyCultureGate({
   const title = en ? gate.titleEn : gate.titlePt;
   const reason = en ? gate.reasonEn : gate.reasonPt;
   // RC2.2.25 — pedido curto e claro: o costume vem antes do próximo trecho.
-  const lead = en ? "Before you continue, understand this custom." : "Antes de continuar, entenda este costume.";
-  const ctaLabel = en ? "Go to Culture" : "Ir para Cultura";
+  const lead = en
+    ? "Before you continue, understand this context."
+    : "Antes de continuar, entenda este contexto.";
+  const ctaLabel = en ? "Open Culture Moment" : "Abrir Culture Moment";
 
   return (
     <div
@@ -88,7 +90,10 @@ export function JourneyCultureGate({
 
       {nextItemId && (
         <Link
-          to={cultureLessonPlayerPath(nextItemId, `?src=jornada&from=${encodeURIComponent("/jornada")}&gate=${gate.id}`)}
+          to={cultureLessonPlayerPath(
+            nextItemId,
+            `?src=jornada&from=${encodeURIComponent("/jornada")}&gate=${gate.id}&mode=journey`
+          )}
           className="inline-flex h-10 items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-lift transition hover:bg-accent-strong"
           data-testid="culture-gate-cta"
           data-culture-gate-next={nextItemId}

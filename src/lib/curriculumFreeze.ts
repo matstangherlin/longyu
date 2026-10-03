@@ -96,6 +96,9 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * Adicionou metadata Everyday Mandarin em `LessonStep` + motor
  * `applyEverydayMandarinToPlan` (cenários/intents). Sem lição/StepKind novo.
  * Ver `RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION`.
+ *
+ * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
+ * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
 export const RC_BASE_FINGERPRINT = "e566a250c5a6";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
@@ -795,6 +798,31 @@ export const RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION = {
   previousFingerprint: "c3861b5fb65f",
   fingerprint: "e566a250c5a6",
   gate: "gate:rc2-3-2-human-everyday",
+} as const;
+
+/**
+ * RC2.3.3 — Culture Deep Journey (stories, moment/deep modes, editorial gates).
+ * No new CultureItems / lessons / StepKinds. Fingerprint unchanged from RC2.3.2.
+ */
+export const RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION = {
+  id: "RC2_3_3_CULTURE_DEEP",
+  scope: "CultureDeepContract + Moment/Deep modes + flagship story depth + editorial gates (no new CultureItems/lessons/StepKinds)",
+  allows: [
+    "CultureMission story/decision/reaction densification for existing 30 items",
+    "CultureVisualId registry + outcome kinds",
+    "Journey Culture Moment query mode=journey",
+    "EverydayIntent bridges to existing CultureItems",
+    "Device QA Culture Deep panel + audit reports",
+  ],
+  forbids: [
+    "new CultureItems / culture lesson ids beyond the frozen 30",
+    "new Mandarin lessons / StepKinds",
+    "touching #273 / Android billing",
+    "declaring OWNER_CULTURE_ACCEPTANCE or APK_PASS without physical proof",
+  ],
+  previousFingerprint: "e566a250c5a6",
+  fingerprint: "e566a250c5a6",
+  gate: "gate:rc2-3-3-culture-deep",
 } as const;
 
 export const RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION = {

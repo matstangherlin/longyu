@@ -1109,7 +1109,11 @@
     "validate:rc232-everyday-closure": "node scripts/rc2-3-2-human-everyday.mjs validate everyday-closure",
     "test:rc232-everyday-closure": "node scripts/rc2-3-2-human-everyday.mjs test everyday-closure",
     "gate:rc2-3-2-human-everyday": "npm run audit:rc232-everyday && npm run validate:rc232-everyday-engine && npm run test:rc232-everyday-engine && npm run validate:rc232-everyday-audit && npm run test:rc232-everyday-audit && npm run validate:rc232-everyday-closure && npm run test:rc232-everyday-closure && npm run simulate:rc232-learner-journey && npm run gate:rc2-3-1-visual-first",
-    "simulate:rc232-learner-journey": "node scripts/simulate-rc2-3-2-learner-journey.mjs"
+    "simulate:rc232-learner-journey": "node scripts/simulate-rc2-3-2-learner-journey.mjs",
+    "validate:culture-deep": "node scripts/validate-culture-deep.mjs",
+    "test:culture-deep": "node scripts/validate-culture-deep.mjs",
+    "test:culture-deep-flow": "node scripts/test-culture-deep-flow.mjs",
+    "gate:rc2-3-3-culture-deep": "npm run validate:culture-deep && npm run test:culture-deep && npm run test:culture-deep-flow && npm run validate:culture-source-coverage && npm run validate:culture-legend-vs-history && npm run validate:culture-progression-gates && npm run gate:rc2-3-2-human-everyday"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

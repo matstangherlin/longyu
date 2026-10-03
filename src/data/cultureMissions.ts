@@ -151,13 +151,28 @@ function insertTeachAfterStory(
 }
 
 function defaultReaction(option: CultureChoiceOption, stepId: string): CultureStoryBeat {
-  if (option.preferred) {
+  if (option.preferred || option.outcome === "PREFERRED_HERE") {
     return {
       id: `${stepId}-${option.id}-rx`,
       speaker: "mei",
       hanzi: "好。",
       pinyin: "Hǎo.",
-      text: loc("Mei aceita o tom da resposta e a conversa segue.", "Mei accepts the tone of the reply and the conversation continues."),
+      text: loc(
+        "Mei aceita o tom da resposta e a conversa segue naturalmente.",
+        "Mei accepts the tone of the reply and the conversation continues naturally."
+      ),
+    };
+  }
+  if (option.mayVary || option.outcome === "CONTEXT_DEPENDENT" || option.outcome === "ACCEPTABLE") {
+    return {
+      id: `${stepId}-${option.id}-rx`,
+      speaker: "mei",
+      hanzi: "嗯…",
+      pinyin: "Èn…",
+      text: loc(
+        "Mei entende, mas o momento fica um pouco menos fluido — nesta casa, outra leitura costuma ser mais natural.",
+        "Mei understands, but the moment feels a bit less smooth — in this home, another reading usually feels more natural."
+      ),
     };
   }
   return {
@@ -166,19 +181,27 @@ function defaultReaction(option: CultureChoiceOption, stepId: string): CultureSt
     hanzi: "好吧。",
     pinyin: "Hǎo ba.",
     text: loc(
-      "O tom ficou um pouco seco. Mei não interrompe, mas o momento ficou menos leve.",
-      "The tone felt a bit blunt. Mei does not stop, but the moment feels less light."
+      "O tom ficou um pouco seco. Mei não interrompe, mas o clima ficou menos leve.",
+      "The tone felt a bit blunt. Mei does not stop, but the mood feels less light."
     ),
   };
 }
 
-function withDialogueReactions(steps: CultureMissionStep[]): CultureMissionStep[] {
+function withChoiceReactions(steps: CultureMissionStep[]): CultureMissionStep[] {
   return steps.map((step) => {
-    if (step.kind !== "dialogue_choice" || !step.options) return step;
+    if (
+      (step.kind !== "dialogue_choice" && step.kind !== "scenario_choice") ||
+      !step.options
+    ) {
+      return step;
+    }
     return {
       ...step,
       options: step.options.map((option) => ({
         ...option,
+        outcome:
+          option.outcome ??
+          (option.preferred ? "PREFERRED_HERE" : option.mayVary ? "CONTEXT_DEPENDENT" : "UNLIKELY_HERE"),
         reaction: option.reaction ?? defaultReaction(option, step.id),
       })),
     };
@@ -320,6 +343,24 @@ function flagshipDemoStep(itemId: string, conceptId: string): CultureMissionStep
         },
       ],
     },
+    "hotel-checkin-register": {
+      prompt: loc("Veja o ritmo na 前台 antes de ser a sua vez.", "See the front-desk rhythm before it is your turn."),
+      beats: [
+        {
+          id: "ht-demo-n",
+          speaker: "narrator",
+          text: loc("A recepção pede o passaporte e digita o registro.", "The desk asks for the passport and types the registration."),
+          visual: "hotel-desk",
+        },
+        {
+          id: "ht-demo-lin",
+          speaker: "lin",
+          hanzi: "这是我的护照。",
+          pinyin: "Zhè shì wǒ de hùzhào.",
+          text: loc("Lin entrega o passaporte sem tratar o pedido como grosseria.", "Lin hands over the passport without treating the request as rudeness."),
+        },
+      ],
+    },
   };
   const demo = demos[itemId];
   if (!demo) return undefined;
@@ -339,7 +380,7 @@ function withTeachingLoop(mission: CultureMission): CultureMission {
   const item = itemOrThrow(mission.cultureItemId);
   const conceptId = mission.memoryTargets[0]?.id ?? `${mission.cultureItemId}-core`;
   const demo = mission.flagship ? flagshipDemoStep(mission.cultureItemId, conceptId) : undefined;
-  const steps = withDialogueReactions(insertTeachAfterStory(mission.steps, item, conceptId, demo));
+  const steps = withChoiceReactions(insertTeachAfterStory(mission.steps, item, conceptId, demo));
   return { ...mission, steps };
 }
 
@@ -745,6 +786,7 @@ const hostInsistence = ((): CultureMission => {
         kind: "story",
         scored: false,
         prompt: loc("Mei coloca mais comida no seu prato.", "Mei puts more food on your plate."),
+        visual: "shared-table",
         beats: [
           {
             id: "hi-1",
@@ -752,6 +794,7 @@ const hostInsistence = ((): CultureMission => {
             hanzi: "再吃一点吧！",
             pinyin: "Zài chī yīdiǎn ba!",
             text: loc("Você já disse que está satisfeito. Mei oferece de novo.", "You already said you are full. Mei offers again."),
+            visual: "shared-table",
           },
         ],
       },
@@ -759,6 +802,7 @@ const hostInsistence = ((): CultureMission => {
         id: "hi-read",
         kind: "scenario_choice",
         scored: true,
+        visual: "shared-table",
         prompt: loc("Como interpretar?", "How should you read this?"),
         options: miniChoices(item),
       },
@@ -1407,7 +1451,7 @@ const bargainingContext = ((): CultureMission => {
     routeId: "everyday-china",
     difficulty: 2,
     estimatedMinutes: 4,
-    flagship: false,
+    flagship: true,
     takeaways: [
       loc("Etiqueta visível: pagar o marcado é o usual.", "Visible tag: paying the marked price is usual."),
       loc("Banca com preço falado: 太贵了 pode caber.", "A stall with a spoken price: 太贵了 may fit."),
@@ -1421,11 +1465,13 @@ const bargainingContext = ((): CultureMission => {
         kind: "story",
         scored: false,
         prompt: loc(item.situationPt, item.situationEn),
+        visual: "bargain-stall",
         beats: [
           {
             id: "bc-n",
             speaker: "narrator",
             text: loc(item.noticePt, item.noticeEn),
+            visual: "bargain-stall",
           },
         ],
       },
@@ -1436,6 +1482,7 @@ const bargainingContext = ((): CultureMission => {
         scored: false,
         scoreWeight: 0,
         cultureConceptId: "bargaining-context-core",
+        visual: "bargain-stall",
         prompt: loc(
           "Wang lê dois estabelecimentos antes de falar.",
           "Wang reads two shops before he speaks."
@@ -1448,6 +1495,7 @@ const bargainingContext = ((): CultureMission => {
               "Loja de rede: preço na etiqueta. Wang não começa a pechincha.",
               "Chain shop: price on the tag. Wang does not start haggling."
             ),
+            visual: "bargain-stall",
           },
           {
             id: "bc-demo-lin",
@@ -1462,6 +1510,7 @@ const bargainingContext = ((): CultureMission => {
             hanzi: "这个十。",
             pinyin: "Zhège shí.",
             text: loc("Na banca o preço vem falado, sem etiqueta.", "At the stall the price is spoken, with no tag."),
+            visual: "bargain-stall",
           },
         ],
       },
@@ -1469,6 +1518,7 @@ const bargainingContext = ((): CultureMission => {
         id: "bc-chain",
         kind: "scenario_choice",
         scored: true,
+        visual: "bargain-stall",
         prompt: loc(
           "Wang entra numa loja de rede. O preço está na etiqueta. Você tentaria negociar?",
           "Wang walks into a chain shop. The price is on the tag. Would you try to bargain?"
@@ -1544,6 +1594,169 @@ const bargainingContext = ((): CultureMission => {
         ],
         ["notice", "decide", "act"]
       ),
+      recallStep(memory),
+      summaryStep(item),
+    ],
+  };
+})();
+
+const hotelCheckinRegister = ((): CultureMission => {
+  const item = itemOrThrow("hotel-checkin-register");
+  const memory = memoryFromItem(
+    item,
+    loc(
+      "Na recepção de hotel na China continental, entregar o passaporte para registro é o procedimento esperado — não um pedido pessoal.",
+      "At a mainland hotel desk, handing over the passport for registration is the expected procedure — not a personal request."
+    )
+  );
+  return {
+    id: "hotel-checkin-register",
+    cultureItemId: "hotel-checkin-register",
+    titlePt: "Check-in e registro",
+    titleEn: "Check-in and registration",
+    routeId: "everyday-china",
+    difficulty: 2,
+    estimatedMinutes: 5,
+    flagship: true,
+    takeaways: [
+      loc("这是我的护照 na 前台.", "这是我的护照 at 前台."),
+      loc("O registro em hotel não é a mesma regra da casa de amigo.", "Hotel registration is not the same rule as a friend's home."),
+      loc("Pode variar o fluxo digital, mas o passaporte costuma ser a chave.", "The digital flow may vary, but the passport is usually the key."),
+    ],
+    reward: { xp: CULTURE_MISSION_XP, sealIds: ["urban-china"] },
+    memoryTargets: [memory],
+    steps: [
+      {
+        id: "ht-story-1",
+        kind: "story",
+        scored: false,
+        prompt: loc("Você chega ao hotel depois de uma viagem.", "You arrive at the hotel after a trip."),
+        visual: "hotel-desk",
+        beats: [
+          {
+            id: "ht-desk",
+            speaker: "narrator",
+            text: loc(
+              "Na 前台, a recepcionista aponta para o balcão e espera o documento.",
+              "At 前台, the receptionist points to the desk and waits for the document."
+            ),
+            visual: "hotel-desk",
+          },
+          {
+            id: "ht-ask",
+            speaker: "wang",
+            hanzi: "请给我看一下护照。",
+            pinyin: "Qǐng gěi wǒ kàn yíxià hùzhào.",
+            text: loc("Ela pede o passaporte com tom de procedimento.", "She asks for the passport in a procedural tone."),
+            visual: "hotel-desk",
+          },
+        ],
+      },
+      {
+        id: "ht-choice",
+        kind: "scenario_choice",
+        scored: true,
+        role: "independent",
+        prompt: loc("O que essa solicitação costuma significar aqui?", "What does this request usually mean here?"),
+        visual: "hotel-desk",
+        options: [
+          {
+            id: "a",
+            label: loc(
+              "Registro legal da estadia em hotel — entregar o passaporte é o passo esperado.",
+              "Legal registration of the hotel stay — handing over the passport is the expected step."
+            ),
+            preferred: true,
+            outcome: "PREFERRED_HERE",
+            feedback: loc(
+              "Sim. Em hotel na China continental o registro com passaporte é o fluxo padrão documentado.",
+              "Yes. In a mainland hotel, passport registration is the documented standard flow."
+            ),
+          },
+          {
+            id: "b",
+            label: loc(
+              "É só curiosidade pessoal da recepcionista; você pode recusar sem consequência.",
+              "It is only the receptionist's personal curiosity; you can refuse with no consequence."
+            ),
+            preferred: false,
+            outcome: "MISUNDERSTANDING",
+            feedback: loc(
+              "Tratar o pedido como curiosidade pessoal apaga o contexto do registro.",
+              "Treating the request as personal curiosity erases the registration context."
+            ),
+          },
+          {
+            id: "c",
+            label: loc(
+              "É a mesma regra de dormir na casa de um amigo.",
+              "It is the same rule as sleeping at a friend's home."
+            ),
+            preferred: false,
+            mayVary: true,
+            outcome: "CONTEXT_DEPENDENT",
+            feedback: loc(
+              "Casa de amigo tem outro parágrafo (registro em prazo). Não misture com o fluxo da 前台.",
+              "A friend's home has another paragraph (register within a deadline). Do not mix it with the front-desk flow."
+            ),
+          },
+        ],
+      },
+      {
+        id: "ht-dialogue",
+        kind: "dialogue_choice",
+        scored: true,
+        role: "independent",
+        prompt: loc("Como você responde na 前台?", "How do you reply at 前台?"),
+        beats: [
+          {
+            id: "ht-wait",
+            speaker: "wang",
+            hanzi: "请给我看一下护照。",
+            pinyin: "Qǐng gěi wǒ kàn yíxià hùzhào.",
+            text: loc("A recepção espera o documento.", "The desk waits for the document."),
+            visual: "hotel-desk",
+          },
+        ],
+        options: [
+          {
+            id: "a",
+            label: loc("这是我的护照。", "这是我的护照。"),
+            preferred: true,
+            outcome: "PREFERRED_HERE",
+            feedback: loc("Entregar o passaporte fecha o gesto esperado sem drama.", "Handing over the passport closes the expected gesture without drama."),
+          },
+          {
+            id: "b",
+            label: loc("为什么？ Isso é invasivo.", "为什么？ That is invasive."),
+            preferred: false,
+            outcome: "UNLIKELY_HERE",
+            feedback: loc(
+              "O tom de confronto trata o procedimento como ofensa pessoal. Uma pergunta neutra depois do registro cabe melhor.",
+              "A confrontational tone treats the procedure as a personal insult. A neutral question after registration fits better."
+            ),
+          },
+          {
+            id: "c",
+            label: loc("我的朋友的家。", "我的朋友的家。"),
+            preferred: false,
+            outcome: "MISUNDERSTANDING",
+            feedback: loc("Você está no hotel, não na casa de um amigo.", "You are at the hotel, not at a friend's home."),
+          },
+        ],
+      },
+      {
+        id: "ht-vary",
+        kind: "scenario_choice",
+        scored: true,
+        role: "guided",
+        variability: loc(
+          "O fluxo digital pode mudar por rede hoteleira; o passaporte continua central.",
+          "The digital flow may change by hotel chain; the passport stays central."
+        ),
+        prompt: loc("O totem pede scan do passaporte. Qual leitura é mais segura?", "The kiosk asks for a passport scan. Which reading is safer?"),
+        options: miniChoices(item),
+      },
       recallStep(memory),
       summaryStep(item),
     ],
@@ -1886,21 +2099,6 @@ const SHORT_SPECS: Array<{
       loc("Você não deve o holerite.", "You do not owe a payslip."),
     ],
   },
-  {
-    id: "hotel-checkin-register",
-    concept: loc(
-      "Em hotel na China continental, a recepção registra o estrangeiro com o passaporte e envia isso ao órgão local.",
-      "In a mainland hotel, the desk registers the foreigner with the passport and submits that to the local organ."
-    ),
-    pairs: [
-      { id: "p1", left: loc("Recepção pede 护照", "The desk asks for 护照"), right: loc("Registro legal da estadia em hotel", "Legal registration of a hotel stay") },
-      { id: "p2", left: loc("Casa de amigo", "A friend's home"), right: loc("Outro parágrafo: registro em 24h", "The other paragraph: register within 24h") },
-    ],
-    takeaways: [
-      loc("这是我的护照 na 前台.", "这是我的护照 at 前台."),
-      loc("Não chame o registro de hotel de regra da casa de amigo.", "Do not call hotel registration the friend's-home rule."),
-    ],
-  },
 ];
 
 const SHORT_MISSIONS: CultureMission[] = SHORT_SPECS.map((spec) =>
@@ -1912,7 +2110,17 @@ const SHORT_MISSIONS: CultureMission[] = SHORT_SPECS.map((spec) =>
   })
 );
 
-const FLAGSHIP_MISSIONS = [visitingHome, hostInsistence, sharedDishes, giftReceiving, digitalPay, metroQr, chopsticksRest, bargainingContext];
+const FLAGSHIP_MISSIONS = [
+  visitingHome,
+  hostInsistence,
+  sharedDishes,
+  giftReceiving,
+  digitalPay,
+  metroQr,
+  chopsticksRest,
+  bargainingContext,
+  hotelCheckinRegister,
+];
 
 export const CULTURE_MISSIONS: CultureMission[] = CULTURE_ITEMS.map((item) => {
   const authored = [...FLAGSHIP_MISSIONS, ...SHORT_MISSIONS].find((mission) => mission.cultureItemId === item.id);

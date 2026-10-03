@@ -92,6 +92,59 @@ export function CultureVisual({ kind }: { kind?: CultureStoryBeat["visual"] }) {
       </div>
     );
   }
+  if (kind === "hotel-desk") {
+    return (
+      <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3 text-center text-sm text-ink" data-testid="culture-visual-hotel">
+        <p className="text-2xl" aria-hidden>
+          🏨
+        </p>
+        <p className="mt-1 text-xs text-ink-soft">前台 · passport</p>
+      </div>
+    );
+  }
+  if (kind === "bargain-stall") {
+    return (
+      <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3 text-center text-sm text-ink" data-testid="culture-visual-bargain">
+        <p className="text-2xl" aria-hidden>
+          🛒
+        </p>
+        <p className="mt-1 text-xs text-ink-soft">标签 / 口头价</p>
+      </div>
+    );
+  }
+  if (kind === "festival-lantern") {
+    return (
+      <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3 text-center text-2xl" data-testid="culture-visual-festival">
+        🏮
+      </div>
+    );
+  }
+  if (kind === "history-timeline") {
+    return (
+      <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3" data-testid="culture-visual-timeline">
+        <div className="flex items-center gap-2 text-[11px] text-ink-soft">
+          <span>秦</span>
+          <span className="h-px flex-1 bg-line" />
+          <span>汉</span>
+          <span className="h-px flex-1 bg-line" />
+          <span>唐</span>
+          <span className="h-px flex-1 bg-line" />
+          <span>宋</span>
+          <span className="h-px flex-1 bg-line" />
+          <span>明·清</span>
+        </div>
+      </div>
+    );
+  }
+  if (kind === "literature-scroll" || kind === "legend-mask" || kind === "symbol-mark" || kind === "scene-generic") {
+    const glyph =
+      kind === "literature-scroll" ? "📜" : kind === "legend-mask" ? "🐵" : kind === "symbol-mark" ? "✦" : "·";
+    return (
+      <div className="rounded-2xl border border-line bg-surface-2 px-4 py-3 text-center text-2xl" data-testid={`culture-visual-${kind}`}>
+        {glyph}
+      </div>
+    );
+  }
   return null;
 }
 
