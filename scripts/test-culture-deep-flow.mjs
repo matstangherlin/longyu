@@ -44,6 +44,10 @@ const ret = cultureReturnPath(
   true
 );
 assert.equal(ret, "/jornada?gate=gate-urban-china&cultureDone=1");
+assert.equal(
+  cultureReturnPath(new URLSearchParams("src=jornada"), true),
+  "/jornada"
+);
 
 // Mastery: teach-only (scoredCount 0) cannot jump to mastered
 function blankMaps() {

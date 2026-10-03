@@ -343,6 +343,25 @@ function flagshipDemoStep(itemId: string, conceptId: string): CultureMissionStep
         },
       ],
     },
+    "chopsticks-rest": {
+      prompt: loc("Veja como Lin pousa os hashis antes de falar.", "See how Lin rests the chopsticks before speaking."),
+      beats: [
+        {
+          id: "cr-demo-n",
+          speaker: "narrator",
+          text: loc("A pausa na refeição: os hashis saem da mão.", "A pause in the meal: the chopsticks leave the hand."),
+          visual: "chopsticks-table",
+        },
+        {
+          id: "cr-demo-lin",
+          speaker: "lin",
+          hanzi: "好。",
+          pinyin: "Hǎo.",
+          text: loc("Lin pousa os hashis na horizontal, sem os deixar em pé na tigela.", "Lin rests the chopsticks horizontally, without standing them in the bowl."),
+          visual: "chopsticks-table",
+        },
+      ],
+    },
     "hotel-checkin-register": {
       prompt: loc("Veja o ritmo na 前台 antes de ser a sua vez.", "See the front-desk rhythm before it is your turn."),
       beats: [

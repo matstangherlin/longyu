@@ -8,15 +8,11 @@ export function cultureReturnPath(search: URLSearchParams, isCulture: boolean): 
     if (gate) params.set("gate", gate);
     params.set("cultureDone", "1");
     const qs = params.toString();
-    return qs ? `${from}?${qs}` : from;
+    const base = from.split("?")[0] ?? from;
+    return qs ? `${base}?${qs}` : base;
   }
   const src = search.get("src");
-  if (src === "jornada") {
-    const params = new URLSearchParams();
-    if (gate) params.set("gate", gate);
-    params.set("cultureDone", "1");
-    return `/jornada?${params.toString()}`;
-  }
+  if (src === "jornada") return "/jornada";
   if (src === "cultura" || isCulture) return "/cultura";
   return "/jornada";
 }
