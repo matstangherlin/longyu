@@ -1,3 +1,6 @@
+import type { CultureVisualId } from "../lib/cultureDeep/visuals";
+import type { CultureOutcomeKind } from "../lib/cultureDeep/outcomes";
+
 /**
  * V4.9.7A.1 — Culture Quest Engine.
  *
@@ -74,7 +77,8 @@ export type CultureStoryBeat = {
   hanzi?: string;
   pinyin?: string;
   text: CultureLocaleText;
-  visual?: "door-shoes" | "shared-table" | "chopsticks-table" | "qr-till" | "metro-door" | "gift-hands";
+  /** RC2.3.3 — resolved via CultureVisualId registry (legacy union still valid). */
+  visual?: CultureVisualId;
 };
 
 export type CultureChoiceOption = {
@@ -84,6 +88,8 @@ export type CultureChoiceOption = {
   feedback: CultureLocaleText;
   mayVary?: boolean;
   reaction?: CultureStoryBeat;
+  /** RC2.3.3 — richer outcome than binary preferred. */
+  outcome?: CultureOutcomeKind;
 };
 
 export type CultureSequenceItem = {
@@ -124,7 +130,7 @@ export type CultureMissionStep = {
   matchPairs?: CultureMatchPair[];
   scored?: boolean;
   memoryTargetId?: string;
-  visual?: CultureStoryBeat["visual"];
+  visual?: CultureVisualId;
 };
 
 export type CultureReviewVariantKind = "scenario_choice" | "story_error" | "sequence";
@@ -287,9 +293,12 @@ export const CULTURE_FLAGSHIP_ITEM_IDS = [
   "visiting-home",
   "host-insistence",
   "shared-dishes",
+  "chopsticks-rest",
   "gift-receiving",
   "digital-pay",
   "metro-qr",
+  "bargaining-context",
+  "hotel-checkin-register",
 ] as const;
 
 export type CultureMasteryRecord = {
@@ -331,8 +340,10 @@ export function cultureScoreWeight(step: CultureMissionStep): number {
   if (step.scored === false || isCultureTeachStep(step) || step.kind === "story" || step.kind === "culture_summary") {
     return 0;
   }
-  if (step.role === "guided") return 0.4;
-  if (step.kind === "culture_recall" || step.role === "recall") return 1.2;
+  if (step.role === "guided") return 0.35;
+  if (step.kind === "match") return 0.45;
+  if (step.kind === "culture_recall" || step.role === "recall") return 1.3;
+  if (step.role === "independent") return 1.15;
   return 1;
 }
 

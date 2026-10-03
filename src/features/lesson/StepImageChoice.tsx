@@ -14,6 +14,7 @@ import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import type { StepProps } from "./steps";
 import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
+import { PedagogicalInlineTip } from "../../components/guidance/PedagogicalInlineTip";
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -128,6 +129,7 @@ export function StepImageChoice({ step, onDone, onSkip, onMistake }: StepProps) 
 
   return (
     <div>
+      <PedagogicalInlineTip interaction="image_choice" className="mb-2" />
       <Eyebrow>{t("player.visualMatch")}</Eyebrow>
 
       {(mode === "choose_hanzi" || mode === "choose_pinyin" || mode === "choose_meaning") && concept && (

@@ -16,6 +16,7 @@ import {
   type ToneTraceLevel,
   type TracePoint,
 } from "../../lib/toneTrace";
+import { PedagogicalInlineTip } from "../guidance/PedagogicalInlineTip";
 
 const SAMPLES = 48;
 
@@ -144,6 +145,7 @@ export function ToneTrace({ tone, onTraced }: { tone: MandarinToneNumber; onTrac
 
   return (
     <div className="flex w-full flex-col items-center" data-tone-trace={tone} data-trace-level={level} data-trace-completions={completions}>
+      <PedagogicalInlineTip interaction="tone_trace" className="mb-1 w-full max-w-sm" />
       <p className="text-center text-base font-semibold text-ink">{TONE_TRACE_INSTRUCTION}</p>
       <svg
         ref={svgRef}

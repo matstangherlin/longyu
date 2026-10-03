@@ -79,7 +79,7 @@ const MUTATIONS = {
     ["moldura não entra em focus", "ACTIVITY_KEEPS_CHROME", src("frame", "  useFocusActivity(true);\n", "")],
   ],
   "speaking-flow": [
-    ["[23] motor exposto ao aluno", "ENGINE_TALK_TO_LEARNER", src("speech", 'return "Seu aparelho não conseguiu reconhecer mandarim agora.";', 'return "O SpeechRecognizer zh-CN não está instalado.";')],
+    ["[23] motor exposto ao aluno", "ENGINE_TALK_TO_LEARNER", src("speech", 'return "Não consegui analisar sua fala agora.";', 'return "O SpeechRecognizer zh-CN não está instalado.";')],
     ["[24] estágios da fala fora de ordem", "SPEAKING_STAGES_WRONG", src("gold", 'export const SPEAKING_STAGES = ["OUCA", "GRAVE", "OUCA_VOCE", "COMPARE", "CONTINUE"] as const;', 'export const SPEAKING_STAGES = ["GRAVE", "OUCA", "OUCA_VOCE", "COMPARE", "CONTINUE"] as const;')],
     ["[25] trilha OUÇA→…→CONTINUE escondida", "SPEAKING_STAGES_HIDDEN", src("selfCompare", "<SpeakingStageStrip stage={speakingStageFor(", "<SpeakingStageHidden stage={speakingStageFor(")],
     ["fallback volta a falar de serviço", "ENGINE_TALK_TO_LEARNER", src("localePt", 'speechFallbackTitle: "Seu aparelho não conseguiu reconhecer mandarim agora."', 'speechFallbackTitle: "Sem serviço de reconhecimento."')],
@@ -93,9 +93,10 @@ const MUTATIONS = {
     ["[28] Imersão sem ONDE", "IMMERSION_NO_CONTEXT", src("immersion", "text-ink-faint\">Onde</div>", "text-ink-faint\">Local</div>")],
   ],
   "culture-task-handoff": [
-    ["[29] marco cultural sem explicação", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", '"Antes de continuar, entenda este costume."', '"Continue."')],
+    ["[29] marco cultural sem explicação", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", '"Antes de continuar, entenda este contexto."', '"Continue."')],
     ["[30] volta da Cultura genérica", "CULTURE_RETURN_GENERIC", src("player", 'const journeyCta = cultureReturnUnit\n      ? t("common.backTo", { target: cultureReturnUnit })', 'const journeyCta = cultureReturnUnit\n      ? t("player.backToJourney")')],
-    ["CTA antigo 'Continuar pela Cultura'", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", ': "Ir para Cultura";', ': "Continuar pela Cultura";')],
+    ["CTA antigo 'Continuar pela Cultura'", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", ': "Abrir Culture Moment";', ': "Continuar pela Cultura";')],
+    ["handoff perde modo Jornada", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", "&mode=journey", "&mode=deep")],
   ],
   "journey-return-pulse": [
     ["[31] pulso longo/piscando", "RETURN_PULSE_WRONG", src("anchor", "export const JOURNEY_RETURN_PULSE_MS = 1300;", "export const JOURNEY_RETURN_PULSE_MS = 4000;")],

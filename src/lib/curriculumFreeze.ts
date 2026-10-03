@@ -77,8 +77,31 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * Nenhuma lição, tópico, CultureItem ou StepKind novo; nenhum chunk novo — os
  * passos apontam para chunks que já estavam no registry e que o ciclo lexical
  * já declarava, mas que o planner nunca entregava ao aluno.
+ *
+ * RC2.3.0 avançou c48b008c9c1e → 99cbc002710c.
+ *
+ * Mudaram `src/data/journey.ts` (campos `pedagogyRole` / discovery no LessonStep)
+ * e `src/data/foundationTopicPlans.ts` (piloto humano “pela manhã” no Pass 1
+ * de mandarim). Contagens congeladas intactas: 134 lições, 113 tópicos, 30
+ * CultureItems. Sem StepKind novo. Ver `RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION`.
+ *
+ * RC2.3.1 avançou 99cbc002710c → c3861b5fb65f.
+ *
+ * Adicionou `visualConceptId` em `LessonStep` e o motor Visual First
+ * (`resolveCurriculumVisual`, cenas, first exposure). Sem lição/StepKind novo.
+ * Ver `RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION`.
+ *
+ * RC2.3.2 avançou c3861b5fb65f → e566a250c5a6.
+ *
+ * Adicionou metadata Everyday Mandarin em `LessonStep` + motor
+ * `applyEverydayMandarinToPlan` (cenários/intents). Sem lição/StepKind novo.
+ * Ver `RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION`.
+ *
+ * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
+ * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
-export const RC_BASE_FINGERPRINT = "c48b008c9c1e";
+// PR #314: planner budget bug fix; content counts and catalog stay frozen.
+export const RC_BASE_FINGERPRINT = "5a64821d0b7d";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -760,6 +783,112 @@ export const RC2_2_31D_APK_RUNTIME_PROOF_EXCEPTION = {
   ],
   fingerprint: "a91d31d0c0de",
   gate: "gate:rc2-2-31d-apk-runtime-proof",
+} as const;
+
+/**
+ * RC2.3.0 — Pedagogy V6 content exception (intentional fingerprint advance).
+ *
+ * Exceção estreita sob BETA_PEDAGOGY_FREEZE: o motor pedagógico muda
+ * (Descoberta, budgets 7–15, anti-repetição perceptiva, piloto visual/humano)
+ * e duas CURRICULUM_SOURCES recebem anotações/piloto — sem lição nova, sem
+ * CultureItem novo, sem StepKind novo, sem migração das 134.
+ */
+export const RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION = {
+  id: "RC2_3_2_HUMAN_EVERYDAY",
+  scope: "everydayIntent metadata on LessonStep + Everyday Mandarin scenarios/apply (no new lessons/StepKinds)",
+  previousFingerprint: "c3861b5fb65f",
+  fingerprint: "e566a250c5a6",
+  gate: "gate:rc2-3-2-human-everyday",
+} as const;
+
+/**
+ * RC2.3.3 — Culture Deep Journey (stories, moment/deep modes, editorial gates).
+ * No new CultureItems / lessons / StepKinds. Fingerprint unchanged from RC2.3.2.
+ */
+export const RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION = {
+  id: "RC2_3_3_CULTURE_DEEP",
+  scope: "CultureDeepContract + Moment/Deep modes + flagship story depth + editorial gates (no new CultureItems/lessons/StepKinds)",
+  allows: [
+    "CultureMission story/decision/reaction densification for existing 30 items",
+    "CultureVisualId registry + outcome kinds",
+    "Journey Culture Moment query mode=journey",
+    "EverydayIntent bridges to existing CultureItems",
+    "Device QA Culture Deep panel + audit reports",
+  ],
+  forbids: [
+    "new CultureItems / culture lesson ids beyond the frozen 30",
+    "new Mandarin lessons / StepKinds",
+    "touching #273 / Android billing",
+    "declaring OWNER_CULTURE_ACCEPTANCE or APK_PASS without physical proof",
+  ],
+  previousFingerprint: "e566a250c5a6",
+  fingerprint: "e566a250c5a6",
+  gate: "gate:rc2-3-3-culture-deep",
+} as const;
+
+/**
+ * RC2.3.4 — Hànzì Progressive Writing (trace / memory / form evidence).
+ * No new lessons / StepKinds. Fingerprint unchanged. Builder SVG ≠ handwriting truth.
+ */
+export const RC2_3_4_HANZI_WRITING_CONTENT_EXCEPTION = {
+  id: "RC2_3_4_HANZI_PROGRESSIVE_WRITING",
+  scope: "HanziLearningStage + HandwritingReference + local canvas scoring + form evidence (no new lessons/StepKinds)",
+  allows: [
+    "Verified authorial handwriting references (subset)",
+    "Trace / memory / draw_missing_stroke practice modes",
+    "LessonStep writing metadata annotations via applyHanziProgressiveWritingToPlan",
+    "Local form evidence channels separate from meaning",
+    "Device QA Hànzì Writing panel + audit/coverage reports",
+  ],
+  forbids: [
+    "grading handwriting from HanziBuilder SVG / font outlines",
+    "new Mandarin lessons / StepKinds",
+    "OCR / remote handwriting APIs / cloud sync",
+    "touching #273 / Android billing",
+    "declaring OWNER_HANZI_ACCEPTANCE or APK_PASS without physical proof",
+    "parallel second Hànzì system replacing builders",
+  ],
+  previousFingerprint: "e566a250c5a6",
+  fingerprint: "e566a250c5a6",
+  gate: "gate:rc2-3-4-hanzi-writing",
+} as const;
+
+/** PR #314: reserve all pass bonuses and mandatory capability closure steps. */
+export const RC2_3_4_CI_BUDGET_CORRECTION = {
+  id: "RC2_3_4_CI_BUDGET_CORRECTION",
+  scope: "Existing mastery pass selection budget only; no lesson, topic, vocabulary or StepKind additions",
+  previousFingerprint: "e566a250c5a6",
+  fingerprint: "5a64821d0b7d",
+  gate: "validate:topic-mastery-depth",
+} as const;
+
+export const RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION = {
+  id: "RC2_3_1_VISUAL_FIRST",
+  scope: "visualConceptId on LessonStep + Visual First curriculum resolver/scenes (no new lessons/StepKinds)",
+  previousFingerprint: "99cbc002710c",
+  fingerprint: "c3861b5fb65f",
+  gate: "gate:rc2-3-1-visual-first",
+} as const;
+
+export const RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION = {
+  id: "RC2_3_0_PEDAGOGY_V6",
+  scope: "Discovery stage + progressive mastery budgets + perceptual variety on early Journey pilot",
+  allows: [
+    "LessonStep pedagogyRole / discovery annotations",
+    "foundation Pass-1 human-context copy (existing lesson)",
+    "mastery pass budget policy (runtime planner)",
+    "pedagogyV6 engine modules + LessonPlayer wire",
+  ],
+  forbids: [
+    "new lessons / lesson ids / topic order",
+    "new CultureItems / StepKinds",
+    "mass migration of 134 lessons",
+    "touching #273 / Android billing",
+    "declaring OWNER_PEDAGOGICAL_ACCEPTANCE without physical proof",
+  ],
+  previousFingerprint: "c48b008c9c1e",
+  fingerprint: "99cbc002710c",
+  gate: "gate:rc2-3-0-pedagogy-v6",
 } as const;
 
 /**

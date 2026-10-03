@@ -14,6 +14,7 @@ import { resolveInstructionText } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "../../features/lesson/LessonActionRegion";
+import { PedagogicalInlineTip } from "../guidance/PedagogicalInlineTip";
 
 type BuilderPiece =
   | { kind: "stroke"; id: string; stroke: HanziStroke; correct: boolean }
@@ -272,6 +273,7 @@ export function HanziBuilderExercise({
       data-builder-id={builder.id}
       className="pb-[calc(var(--app-safe-bottom)+0.5rem)]"
     >
+      <PedagogicalInlineTip interaction="hanzi_builder" className="mb-2" />
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
         {modeLabelFor(builder)}
       </div>

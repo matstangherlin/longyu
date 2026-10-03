@@ -4,7 +4,7 @@
   "totals": {
     "sessions": 20,
     "redundant": 1,
-    "transformed": 58,
+    "transformed": 59,
     "interleaved": 0,
     "sessionsDominated": [
       5,
@@ -18,9 +18,9 @@
       "session": 1,
       "topicId": "p1-o-que-e-mandarim",
       "pass": 1,
-      "steps": 6,
+      "steps": 7,
       "redundant": 0,
-      "transformed": 3,
+      "transformed": 4,
       "interleaved": 0,
       "dominated": [],
       "clean": true,
@@ -28,6 +28,7 @@
         "chunk:nihao|TEACH|FIRST",
         "surface:你好|HEAR|FIRST",
         "surface:你好|RECOGNIZE|TRANSFORMED",
+        "surface:你好|USE_IN_CONTEXT|TRANSFORMED",
         "chunk:nihao|USE_IN_CONTEXT|FIRST",
         "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED",
         "chunk:nihao|USE_IN_CONTEXT|TRANSFORMED"

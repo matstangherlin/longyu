@@ -1,12 +1,14 @@
 /**
  * RC2.2.28 — política do motor de áudio.
+ * RC2.2.32 — FIXED_CONTENT nunca cai em TTS silenciosamente.
  *
- * FIXED_CONTENT  → asset canônico obrigatório (TTS só fallback justificado).
+ * FIXED_CONTENT  → asset canônico → player nativo → estado degradado explícito.
  * DYNAMIC_CONTENT → TTS permitido (nome do aluno, QA, frases geradas).
  * QA              → override explícito permitido.
  *
  * O curso não pergunta se o telefone tem voz chinesa para decidir se a aula
- * funciona. A frase fixa já tem (ou deve ter) o seu áudio.
+ * funciona. A frase fixa já tem (ou deve ter) o seu áudio. Se o asset falhar,
+ * a UI entra em DEGRADED — nunca troca de locutor via TTS do aparelho.
  */
 export type AudioContentClass = "FIXED_CONTENT" | "DYNAMIC_CONTENT" | "QA";
 
@@ -17,8 +19,18 @@ export type AudioEnginePreference =
   | "web-tts"
   | "textual-fallback";
 
-/** Ordem canônica: asset → player nativo/web → TTS → textual. */
+/**
+ * RC2.2.32 — ordem canônica para conteúdo fixo:
+ * asset → player nativo/web → textual (DEGRADED). Sem TTS.
+ */
 export const FIXED_CONTENT_ENGINE_ORDER: readonly AudioEnginePreference[] = [
+  "canonical-asset",
+  "native-media",
+  "textual-fallback",
+] as const;
+
+/** @deprecated RC2.2.32 — mantido só para auditoria/legado; FIXED não usa mais TTS. */
+export const FIXED_CONTENT_LEGACY_TTS_ORDER: readonly AudioEnginePreference[] = [
   "canonical-asset",
   "native-media",
   "native-tts",
@@ -57,13 +69,18 @@ export function classifyAudioSource(source: string | null | undefined): AudioCon
     s === "PLACEMENT" ||
     s === "PHASE_CHALLENGE" ||
     s === "SELF_COMPARE_MODEL" ||
+    s === "SPEAKING_MODEL" ||
+    s === "LESSON_AUDIO" ||
     s.includes("GUIDED") ||
     s.includes("LESSON") ||
     s.includes("CONVERSATION") ||
     s.includes("TONE") ||
     s.includes("CULTURE") ||
     s.includes("IMMERSION") ||
-    s.includes("REVIEW")
+    s.includes("REVIEW") ||
+    s.includes("PINYIN") ||
+    s.includes("HANZI") ||
+    s.includes("SPEAKING")
   ) {
     return "FIXED_CONTENT";
   }
@@ -102,11 +119,12 @@ export function decideAudioEngine(input: {
       ttsWithoutJustificationFailsGate: true,
     };
   }
+  // Sem asset: degradado explícito — não inventar locutor via TTS.
   return {
     contentClass: "FIXED_CONTENT",
     preferred: FIXED_CONTENT_ENGINE_ORDER,
     ttsWithoutJustificationFailsGate: true,
-    justification: input.ttsJustification ?? "ASSET_MISSING_FALLBACK",
+    justification: input.ttsJustification ?? "ASSET_MISSING_DEGRADED",
   };
 }
 
@@ -114,6 +132,10 @@ export function decideAudioEngine(input: {
 export function fixedContentTtsIsReleaseBlocker(decision: AudioEngineDecision, engineUsed: AudioEnginePreference): boolean {
   if (decision.contentClass !== "FIXED_CONTENT") return false;
   if (engineUsed !== "native-tts" && engineUsed !== "web-tts") return false;
-  if (decision.justification && decision.justification !== "ASSET_MISSING_FALLBACK") return false;
-  return decision.ttsWithoutJustificationFailsGate && !decision.justification;
+  return decision.ttsWithoutJustificationFailsGate;
+}
+
+/** RC2.2.32 — FIXED_CONTENT nunca deve selecionar TTS. */
+export function fixedContentAllowsTtsEngine(decision: AudioEngineDecision): boolean {
+  return decision.contentClass !== "FIXED_CONTENT";
 }

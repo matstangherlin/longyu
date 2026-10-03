@@ -5,10 +5,10 @@
     "lessons": 134,
     "premiumLessons": 35,
     "plansBuilt": 536,
-    "conversationScenes": 43,
+    "conversationScenes": 47,
     "conversationV1": 0,
-    "conversationV2": 43,
-    "premiumConversationScenes": 27,
+    "conversationV2": 47,
+    "premiumConversationScenes": 31,
     "stepKinds": 42
   },
   "conversationScenes": [
@@ -64,6 +64,17 @@
       "hasWrongBranch": true
     },
     {
+      "sceneId": "como-esta-o-tempo",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "p6-clima"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
       "sceneId": "como-se-chama",
       "version": "V2",
       "nodes": 8,
@@ -71,10 +82,14 @@
       "lessons": [
         "l1",
         "l2",
+        "l22",
+        "l23",
         "l4",
-        "p1-qingwen-cortesia"
+        "l9-qual-nome",
+        "p1-qingwen-cortesia",
+        "p4-char-shi"
       ],
-      "premium": false,
+      "premium": true,
       "hasWrongBranch": true
     },
     {
@@ -132,6 +147,7 @@
       "nodes": 12,
       "lines": 9,
       "lessons": [
+        "l13",
         "p1-ate-logo",
         "p2-tons-nihao",
         "p5-nv-zi-hao"
@@ -146,6 +162,7 @@
       "lines": 7,
       "lessons": [
         "l11-falo-pouco",
+        "l12",
         "l13-dialogo-ola"
       ],
       "premium": false,
@@ -167,6 +184,7 @@
         "p4-char-ren",
         "p4-char-ri",
         "p4-char-shan",
+        "p4-char-tian",
         "p4-char-wo",
         "p4-char-xiao",
         "p4-char-yue",
@@ -231,9 +249,21 @@
       "nodes": 8,
       "lines": 6,
       "lessons": [
+        "l9",
         "p1-primeira-conversa"
       ],
       "premium": false,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "mostrar-livro",
+      "version": "V2",
+      "nodes": 9,
+      "lines": 7,
+      "lessons": [
+        "l29"
+      ],
+      "premium": true,
       "hasWrongBranch": true
     },
     {
@@ -245,6 +275,17 @@
         "p7-imersao-saude"
       ],
       "premium": true,
+      "hasWrongBranch": true
+    },
+    {
+      "sceneId": "nao-entendi-reparo",
+      "version": "V2",
+      "nodes": 11,
+      "lines": 8,
+      "lessons": [
+        "l11"
+      ],
+      "premium": false,
       "hasWrongBranch": true
     },
     {
@@ -301,6 +342,7 @@
       "lines": 8,
       "lessons": [
         "l25",
+        "p6-china-cidades",
         "p6-cidade-lugares"
       ],
       "premium": true,
@@ -323,6 +365,7 @@
       "nodes": 8,
       "lines": 6,
       "lessons": [
+        "l14-frase-minima",
         "l28",
         "l9-tudo-bem",
         "p7-imersao-casa-amigo",
@@ -355,12 +398,24 @@
       "hasWrongBranch": true
     },
     {
+      "sceneId": "packet-exchange-family",
+      "version": "V2",
+      "nodes": 8,
+      "lines": 6,
+      "lessons": [
+        "l25"
+      ],
+      "premium": true,
+      "hasWrongBranch": true
+    },
+    {
       "sceneId": "packet-exchange-greetings",
       "version": "V2",
       "nodes": 8,
       "lines": 6,
       "lessons": [
-        "l12"
+        "l12",
+        "l13-dialogo-ola"
       ],
       "premium": false,
       "hasWrongBranch": true
@@ -371,6 +426,7 @@
       "nodes": 8,
       "lines": 6,
       "lessons": [
+        "l10",
         "l13",
         "l22",
         "l23",
@@ -460,6 +516,7 @@
       "lines": 7,
       "lessons": [
         "l4-rev",
+        "l9-tudo-bem",
         "p2-sons-brasileiros",
         "p3-qing-zai-shuo-yibian"
       ],
@@ -571,9 +628,9 @@
     },
     {
       "kind": "audio_discrimination",
-      "occurrences": 56,
-      "lessons": 27,
-      "premiumLessons": 11,
+      "occurrences": 85,
+      "lessons": 32,
+      "premiumLessons": 13,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -607,8 +664,8 @@
     },
     {
       "kind": "comprehend",
-      "occurrences": 432,
-      "lessons": 99,
+      "occurrences": 469,
+      "lessons": 100,
       "premiumLessons": 21,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -625,16 +682,16 @@
     },
     {
       "kind": "conversation_repair",
-      "occurrences": 104,
-      "lessons": 48,
-      "premiumLessons": 19,
+      "occurrences": 113,
+      "lessons": 49,
+      "premiumLessons": 20,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
     },
     {
       "kind": "conversation_scene",
-      "occurrences": 438,
+      "occurrences": 456,
       "lessons": 110,
       "premiumLessons": 34,
       "focus": true,
@@ -643,8 +700,8 @@
     },
     {
       "kind": "decompose",
-      "occurrences": 16,
-      "lessons": 4,
+      "occurrences": 21,
+      "lessons": 6,
       "premiumLessons": 1,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -652,9 +709,9 @@
     },
     {
       "kind": "dialogue_choice",
-      "occurrences": 419,
-      "lessons": 119,
-      "premiumLessons": 26,
+      "occurrences": 590,
+      "lessons": 123,
+      "premiumLessons": 29,
       "focus": true,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -670,18 +727,18 @@
     },
     {
       "kind": "dictation",
-      "occurrences": 50,
-      "lessons": 23,
-      "premiumLessons": 5,
+      "occurrences": 101,
+      "lessons": 42,
+      "premiumLessons": 7,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
     },
     {
       "kind": "fill_blank",
-      "occurrences": 420,
-      "lessons": 101,
-      "premiumLessons": 27,
+      "occurrences": 510,
+      "lessons": 107,
+      "premiumLessons": 31,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -697,7 +754,7 @@
     },
     {
       "kind": "free_production",
-      "occurrences": 333,
+      "occurrences": 361,
       "lessons": 86,
       "premiumLessons": 27,
       "focus": true,
@@ -706,16 +763,16 @@
     },
     {
       "kind": "hanzi_build",
-      "occurrences": 169,
-      "lessons": 62,
-      "premiumLessons": 10,
+      "occurrences": 318,
+      "lessons": 85,
+      "premiumLessons": 20,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
     },
     {
       "kind": "image_choice",
-      "occurrences": 355,
+      "occurrences": 530,
       "lessons": 100,
       "premiumLessons": 29,
       "focus": false,
@@ -724,16 +781,16 @@
     },
     {
       "kind": "intro",
-      "occurrences": 195,
-      "lessons": 92,
-      "premiumLessons": 19,
+      "occurrences": 236,
+      "lessons": 94,
+      "premiumLessons": 20,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
     },
     {
       "kind": "listen",
-      "occurrences": 336,
+      "occurrences": 371,
       "lessons": 47,
       "premiumLessons": 13,
       "focus": true,
@@ -742,9 +799,9 @@
     },
     {
       "kind": "listen_select",
-      "occurrences": 408,
-      "lessons": 99,
-      "premiumLessons": 16,
+      "occurrences": 442,
+      "lessons": 105,
+      "premiumLessons": 20,
       "focus": true,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -760,7 +817,7 @@
     },
     {
       "kind": "match_pairs",
-      "occurrences": 68,
+      "occurrences": 81,
       "lessons": 29,
       "premiumLessons": 5,
       "focus": false,
@@ -787,7 +844,7 @@
     },
     {
       "kind": "odd_one_out",
-      "occurrences": 47,
+      "occurrences": 68,
       "lessons": 23,
       "premiumLessons": 8,
       "focus": false,
@@ -814,7 +871,7 @@
     },
     {
       "kind": "produce",
-      "occurrences": 35,
+      "occurrences": 40,
       "lessons": 17,
       "premiumLessons": 2,
       "focus": false,
@@ -823,8 +880,8 @@
     },
     {
       "kind": "recognize",
-      "occurrences": 57,
-      "lessons": 24,
+      "occurrences": 88,
+      "lessons": 33,
       "premiumLessons": 5,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -850,9 +907,9 @@
     },
     {
       "kind": "sentence_build",
-      "occurrences": 460,
-      "lessons": 107,
-      "premiumLessons": 31,
+      "occurrences": 575,
+      "lessons": 109,
+      "premiumLessons": 33,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -877,9 +934,9 @@
     },
     {
       "kind": "spot_error",
-      "occurrences": 47,
-      "lessons": 38,
-      "premiumLessons": 9,
+      "occurrences": 98,
+      "lessons": 45,
+      "premiumLessons": 10,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -895,8 +952,8 @@
     },
     {
       "kind": "tone",
-      "occurrences": 101,
-      "lessons": 18,
+      "occurrences": 130,
+      "lessons": 20,
       "premiumLessons": 1,
       "focus": true,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -904,8 +961,8 @@
     },
     {
       "kind": "tone_pair",
-      "occurrences": 26,
-      "lessons": 9,
+      "occurrences": 31,
+      "lessons": 10,
       "premiumLessons": 5,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -913,7 +970,7 @@
     },
     {
       "kind": "transfer_task",
-      "occurrences": 20,
+      "occurrences": 24,
       "lessons": 17,
       "premiumLessons": 14,
       "focus": false,
@@ -922,8 +979,8 @@
     },
     {
       "kind": "translation_build",
-      "occurrences": 6,
-      "lessons": 2,
+      "occurrences": 9,
+      "lessons": 4,
       "premiumLessons": 1,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -931,7 +988,7 @@
     },
     {
       "kind": "write",
-      "occurrences": 65,
+      "occurrences": 66,
       "lessons": 7,
       "premiumLessons": 4,
       "focus": false,

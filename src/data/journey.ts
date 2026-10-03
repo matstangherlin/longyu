@@ -144,6 +144,15 @@ export interface LessonStep {
   pedagogyVariant?: PedagogyVariant;
   /** Automatic lesson rotation: first attempt, review attempt, challenge attempt. */
   practiceVariant?: "A" | "B" | "C";
+  /**
+   * RC2.3.0 — papel pedagógico no plano (Descoberta ≠ avaliação).
+   * discovery = exposição obrigatória de material novo; não conta como domínio.
+   */
+  pedagogyRole?: "discovery" | "graded" | "remediation" | "review_explain";
+  /** Id do TeachingMoment quando pedagogyRole === "discovery". */
+  discoveryMomentId?: string;
+  /** Conceitos marcados como ensinados ao completar a Descoberta. */
+  discoveryConceptIds?: string[];
   dictationMode?: DictationMode;
   /** Audio discrimination can compare two hidden stimuli without leaking hanzi. */
   audioSequence?: string[];
@@ -160,6 +169,19 @@ export interface LessonStep {
   targetMeaningPt?: string;
   imageOptions?: string[];
   correctImageId?: string;
+  /** RC2.3.1 — conceito visual curricular associado ao passo. */
+  visualConceptId?: string;
+  /**
+   * RC2.3.2 — contrato comunicativo Everyday Mandarin.
+   * Preferir metadata estrutural a classificar só por regex.
+   */
+  everydayIntent?: string;
+  realWorldDomain?: string;
+  contextRole?: "TARGET" | "CONTEXTUAL_REUSE" | "NPC_PROMPT" | "SCAFFOLD";
+  learnerAgency?: "RECOGNIZE" | "CHOOSE" | "COMPLETE" | "PRODUCE" | "SPEAK" | "TRANSFER";
+  interactionPurpose?: string;
+  humanContext?: string;
+  everydayScenarioId?: string;
   /** Comparação visual curada: palavra → duas imagens ou imagem → duas palavras. */
   compareWithImageMode?: CompareWithImageMode;
   /** 1 = contraste evidente · 2 = mesma categoria · 3 = contraste semântico próximo. */

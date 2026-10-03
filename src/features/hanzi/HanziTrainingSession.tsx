@@ -35,6 +35,8 @@ import {
   makePiecesQuestion,
   type HanziQuizQuestion,
 } from "./hanziTrainingModes";
+import { listVerifiedHandwritingCharacters } from "../../lib/hanziWriting/handwritingReference";
+import { HanziWritingExercise } from "./writing/HanziWritingExercise";
 
 type Completion = {
   roundKey: string;
@@ -113,7 +115,17 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
     return Array.from({ length: HANZI_PRACTICE_ROUND }, () => (mode === "meaning" ? makeMeaningQuestion() : makePiecesQuestion()));
   }, [meta.kind, mode, round]);
 
-  const total = meta.kind === "builder" ? builders.length : questions.length;
+  const writingChars = useMemo(() => {
+    if (meta.kind !== "writing") return [];
+    const verified = listVerifiedHandwritingCharacters();
+    const pool = verified
+      .map((h) => CHARACTERS.find((c) => c.hanzi === h))
+      .filter((c): c is (typeof CHARACTERS)[number] => Boolean(c));
+    return practiceRoundSlice(pool.length > 0 ? pool : CHARACTERS.filter((c) => verified.includes(c.hanzi)), round);
+  }, [meta.kind, round]);
+
+  const total =
+    meta.kind === "builder" ? builders.length : meta.kind === "writing" ? writingChars.length : questions.length;
 
   // Uma carga por rodada. A chave é da sessão + rodada: um re-render ou o
   // efeito duplo do StrictMode não cobra de novo (consumeCharge é idempotente).
@@ -244,6 +256,33 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
               playSoundFx(ok ? "success" : "task", soundEffects);
               haptic(ok ? "answerCorrect" : "answerWrong");
               window.setTimeout(() => next(ok), 850);
+            }}
+          />
+        )}
+        {meta.kind === "writing" && writingChars[index] && (
+          <HanziWritingExercise
+            key={`${round}:${writingChars[index]!.id}:${mode}`}
+            character={writingChars[index]!.hanzi}
+            charId={writingChars[index]!.id}
+            stage={mode === "memory" ? "MEMORY_WRITE" : "TRACE"}
+            masteryPass={mode === "memory" ? 4 : 3}
+            meaningPt={writingChars[index]!.meaningPt}
+            pinyin={writingChars[index]!.pinyin}
+            prompt={
+              mode === "memory"
+                ? {
+                    kind: "meaning",
+                    promptPt: writingChars[index]!.meaningPt,
+                    promptEn: writingChars[index]!.meaningPt,
+                    meaningPt: writingChars[index]!.meaningPt,
+                  }
+                : undefined
+            }
+            evaluative={mode === "memory"}
+            onComplete={(r) => {
+              gradeForm(writingChars[index]!.id, "forma", r.correct);
+              playSoundFx(r.correct ? "success" : "task", soundEffects);
+              window.setTimeout(() => next(r.correct), 600);
             }}
           />
         )}

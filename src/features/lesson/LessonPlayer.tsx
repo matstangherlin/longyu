@@ -67,7 +67,11 @@ import {
   PRO_LESSON_QI_BONUS,
   RETRY_QUESTION_QI,
 } from "../../data/economy";
-import { speak } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON_AUDIO" });
+}
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { cultureItemIdFromLessonId } from "../../data/cultureNative";
@@ -187,6 +191,7 @@ import {
 } from "./reviewSessionPlan";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import { withToneContrastTeaching } from "./toneContrastEnrichment";
+import { applyPedagogyV6ToPlan, loadTaughtConcepts, markConceptsTaught } from "../../lib/pedagogyV6";
 import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
@@ -2340,6 +2345,25 @@ export function LessonPlayer() {
        * plano ensina o par antes de cobrá-lo sem tocar em `journey.ts`.
        */
       planned = withToneContrastTeaching(foundLesson, planned);
+      // RC2.3.0 — Pedagogy V6: Descoberta + anti-repetição perceptiva (piloto).
+      try {
+        const liveMastery = useStore.getState().lessonMasteryById?.[foundLesson.id];
+        const livePass = Math.min(
+          4,
+          Math.max(1, (liveMastery?.level ?? 0) + 1)
+        );
+        const v6 = applyPedagogyV6ToPlan({
+          lessonId: foundLesson.id,
+          masteryPass: livePass,
+          steps: planned as LessonStep[],
+          taughtConceptIds: loadTaughtConcepts(),
+          completedLessons: useStore.getState().completedLessons,
+          pilotOnly: true,
+        });
+        planned = v6.steps;
+      } catch {
+        // Falha do V6 nunca bloqueia a sessão.
+      }
       if (gen !== planGenRef.current) return;
       if (idxRef.current > 0 || stepInteractedRef.current) {
         // O aluno já está respondendo: o plano exibido (travado acima) fica.
@@ -3430,6 +3454,12 @@ export function LessonPlayer() {
   function completeCurrentStep(currentStep: LessonStep, wasCorrect: boolean | undefined, meta: StepDoneMetaInput | undefined) {
     let nextStreak = answerStreak;
     const currentStepIsGraded = isGradedStep(currentStep);
+    // RC2.3.0 — Descoberta prova EXPOSIÇÃO (não domínio).
+    if (currentStep.pedagogyRole === "discovery" && currentStep.discoveryConceptIds?.length) {
+      safeSideEffect("discovery_taught", () => {
+        markConceptsTaught(currentStep.discoveryConceptIds!);
+      });
+    }
     // VAR-015/016/017 — memória de variedade entre modos. Só atividades
     // avaliadas contam; repetição por recuperação vai rotulada para não ser
     // confundida com repetição acidental.

@@ -278,7 +278,7 @@ export function validateRc12Freeze(data = {}) {
   const { fail, failures } = failList();
   const fingerprint = data.fingerprint;
   const counts = data.counts;
-  const EXPECTED = { fingerprint: "c48b008c9c1e", lessons: 134, topics: 113 };
+  const EXPECTED = { fingerprint: "5a64821d0b7d", lessons: 134, topics: 113 };
 
   if (fingerprint && fingerprint !== EXPECTED.fingerprint) {
     fail("FINGERPRINT", "journey", `fingerprint ${fingerprint} ≠ ${EXPECTED.fingerprint}`);

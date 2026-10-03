@@ -18,7 +18,7 @@ import type { MessageKey } from "../../locales/pt-BR";
  */
 export interface HanziModeMeta {
   id: HanziPracticeMode;
-  kind: "builder" | "quiz";
+  kind: "builder" | "quiz" | "writing";
   titleKey: MessageKey;
   descKey: MessageKey;
   glyph: string;
@@ -31,6 +31,8 @@ export const HANZI_MODE_META: readonly HanziModeMeta[] = [
   { id: "complete", kind: "builder", titleKey: "hanziHub.modeComplete", descKey: "hanziHub.modeCompleteDesc", glyph: "口" },
   { id: "pieces", kind: "quiz", titleKey: "hanziHub.modePieces", descKey: "hanziHub.modePiecesDesc", glyph: "亻" },
   { id: "sentences", kind: "builder", titleKey: "hanziHub.modeSentences", descKey: "hanziHub.modeSentencesDesc", glyph: "你" },
+  { id: "trace", kind: "writing", titleKey: "hanziHub.modeTrace", descKey: "hanziHub.modeTraceDesc", glyph: "水" },
+  { id: "memory", kind: "writing", titleKey: "hanziHub.modeMemory", descKey: "hanziHub.modeMemoryDesc", glyph: "山" },
 ];
 
 export function hanziModeMeta(id: HanziPracticeMode): HanziModeMeta {

@@ -102,7 +102,7 @@ export const FEATURE_TRUTH = {
     status: "available",
     requiresPro: true,
     gatedBy: "hanzi",
-    because: "Laboratório de decomposição no ar; a profundidade completa é do Pro.",
+    because: "Escrita progressiva (trace/memória) no núcleo; laboratório Pro continua para profundidade extra.",
     metrics: ["hanziDecomposed"],
   },
   pinyin_lab: {

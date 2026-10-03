@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { allowE2ELocalSession, dismissBlockingOverlays, matureDiscoveryState, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 import { activityDensityAccepted, ctaCarriesReward, screenDensityScore } from "../src/lib/productGoldStandard";
+import { ALL_LESSONS } from "../src/data/journey";
+import { CULTURE_PROGRESSION_GATES } from "../src/data/cultureProgressionGates";
 
 /**
  * RC2.2.25 — Product Experience Closure (parte Web/E2E). Prova o CONTRATO no
@@ -226,13 +228,25 @@ test.describe("RC2.2.25 · Tone Trace e Cultura", () => {
     await expect(page.getByTestId("tone-trace-message")).not.toContainText(/correto|pitch/i);
   });
 
-  test("marco cultural: 'Antes de continuar, entenda este costume.' + [Ir para Cultura]", async ({ page }) => {
-    await seed(page, { completedLessons: THROUGH_L2 });
+  test("marco cultural explica o contexto e abre Culture Moment no modo Jornada", async ({ page }) => {
+    const firstGate = CULTURE_PROGRESSION_GATES[0];
+    const gateIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === firstGate.beforeTopicId);
+    expect(gateIndex).toBeGreaterThan(0);
+    const completedLessons = ALL_LESSONS.slice(0, gateIndex).map((lesson) => lesson.id);
+    await seed(page, {
+      ...matureDiscoveryState(),
+      completedLessons,
+      lessonMasteryById: Object.fromEntries(completedLessons.map((id) => [id, { level: 4 }])),
+      cultureCompletedIds: [],
+      cultureMasteryById: {},
+      cultureSeals: [],
+    });
     await open(page, "/jornada");
-    const gate = page.locator("[data-journey-culture-gate]").first();
-    if (!(await gate.count())) test.skip(true, "nenhum marco cultural pendente nesta semente");
+    const gate = page.locator(`[data-journey-culture-gate="${firstGate.id}"]`);
+    await expect(gate).toBeVisible();
     await gate.scrollIntoViewIfNeeded();
-    await expect(gate.getByTestId("culture-gate-lead")).toHaveText("Antes de continuar, entenda este costume.");
-    await expect(gate.getByTestId("culture-gate-cta")).toHaveText("Ir para Cultura");
+    await expect(gate.getByTestId("culture-gate-lead")).toHaveText("Antes de continuar, entenda este contexto.");
+    await expect(gate.getByTestId("culture-gate-cta")).toHaveText("Abrir Culture Moment");
+    await expect(gate.getByTestId("culture-gate-cta")).toHaveAttribute("href", /[?&]mode=journey(?:&|$)/);
   });
 });

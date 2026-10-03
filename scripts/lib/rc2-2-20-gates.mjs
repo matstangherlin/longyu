@@ -571,7 +571,7 @@ export async function validateRelease(s) {
     if (man.closedBeta?.CLOSED_BETA_READY === true && !ready) fail("CLOSED_BETA_PREMATURE", "manifest.closedBeta", "CLOSED_BETA_READY só com todos os requisitos");
     if (man.recoveryTemplate?.ownerApplied === "PASS" || man.recoveryTemplate?.physicallyVerified === "PASS") fail("OWNER_ACTION_HIDDEN", "manifest.recoveryTemplate", "só o owner aplica e verifica");
     for (const [key, status] of Object.entries(man.releaseResidual ?? {})) if (status === "PASS" || status === "COMPLETE") fail("RESIDUAL_HIDDEN", `manifest.releaseResidual.${key}`, "nenhum resíduo vira PASS por código");
-    if (man.fingerprint !== "c48b008c9c1e" && !man.pedagogyContentException) fail("FINGERPRINT_DRIFT", "manifest.fingerprint", "fingerprint honesto ou exceção registrada");
+    if (man.fingerprint !== "5a64821d0b7d" && !man.pedagogyContentException) fail("FINGERPRINT_DRIFT", "manifest.fingerprint", "fingerprint honesto ou exceção registrada");
   } else fail("MANIFEST_MISSING", "docs/release/rc2-2-20-manifest.json", "manifesto");
   const owner = s.ownerActions;
   if (!owner) fail("OWNER_ACTION_HIDDEN", "docs/release/rc2-2-20-owner-actions.json", "ações do owner");

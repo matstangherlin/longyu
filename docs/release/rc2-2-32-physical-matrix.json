@@ -1,0 +1,137 @@
+{
+  "wave": "RC2.2.32",
+  "title": "Canonical Voice, Speech UX, Guidance Delivery & Sensory Consistency",
+  "base": "main after PR #308 merge",
+  "baseSha": "d6339330",
+  "createdAt": "2026-10-02",
+  "waveReadyForClosedBeta": false,
+  "statuses": {
+    "CODE_READY": "YES",
+    "WEB_PASS": "NOT_RUN",
+    "APK_PASS": "NOT_RUN",
+    "PHYSICAL_OWNER_PASS": "NOT_RUN"
+  },
+  "frozen": {
+    "issue273": "NOT_TOUCHED",
+    "supabaseCloud": "NOT_STARTED",
+    "pedagogyV6": "NOT_STARTED"
+  },
+  "requiredChecks": [
+    {
+      "id": "guidedTry",
+      "label": "Guided Try completa sem travar",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "canonicalVoice10Utterances",
+      "label": "Ouvir 10 falas fixas com a mesma voz canônica",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "completeLesson",
+      "label": "Completar uma lição da Jornada",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "conversation10Nodes",
+      "label": "Conversa com pelo menos 10 nodes",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "recordVoice",
+      "label": "Gravar voz (Self Compare / fala)",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "hearSelfRecording",
+      "label": "Ouvir a própria gravação",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "recognitionFallback",
+      "label": "Fallback sem reconhecimento (mensagem humana + continuar)",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "hanziInteractive",
+      "label": "Abrir Hànzì interativo / builder",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "hapticFeel",
+      "label": "Sentir haptic em acerto/erro/peça (Android)",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "answerWrong",
+      "label": "Errar uma questão e ver feedback claro",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "answerCorrect",
+      "label": "Acertar uma questão e ver feedback positivo",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "lessonCompleteCeremony",
+      "label": "Concluir lição e ver cerimônia",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "firstGuidance",
+      "label": "Ver primeira orientação (global ou inline)",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "cultureEntry",
+      "label": "Entrar em Cultura",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "returnJourney",
+      "label": "Voltar à Jornada no ponto certo",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    },
+    {
+      "id": "reviewEntry",
+      "label": "Abrir Review",
+      "result": "NOT_RUN",
+      "evidence": "PENDING_OWNER"
+    }
+  ],
+  "ownerChecklist": [
+    "1. Guided Try",
+    "2. Ouvir 10 falas",
+    "3. Verificar se a voz permanece a mesma",
+    "4. Completar uma lição",
+    "5. Executar conversa de pelo menos 10 nodes",
+    "6. Gravar voz",
+    "7. Ouvir a própria gravação",
+    "8. Usar fallback sem reconhecimento",
+    "9. Abrir Hànzì",
+    "10. Sentir haptic",
+    "11. Errar uma questão",
+    "12. Acertar uma questão",
+    "13. Concluir uma lição",
+    "14. Verificar primeira orientação",
+    "15. Entrar em Cultura",
+    "16. Voltar à Jornada",
+    "17. Abrir Review"
+  ],
+  "notes": "Nunca declarar PHYSICAL_OWNER_PASS sem evidência do owner. Nunca chamar Closed Beta ready enquanto checks NOT_RUN."
+}

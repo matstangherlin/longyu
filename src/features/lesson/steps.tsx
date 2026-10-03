@@ -13,7 +13,13 @@ import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
 import { LessonActionPortal, useLessonActionRegion } from "./LessonActionRegion";
 import { traceLessonStep } from "../../lib/lessonStepTrace";
 import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
-import { speak, refreshNativeTtsStatus } from "../../lib/tts";
+import { refreshNativeTtsStatus } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+/** RC2.2.32 — conteúdo fixo da lição passa pelo player canônico (sem TTS silencioso). */
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON_AUDIO" });
+}
 import { requestMandarinSpeech, scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
@@ -48,6 +54,8 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
+import { HanziWritingExercise } from "../hanzi/writing/HanziWritingExercise";
+import { asWritingStep } from "../../lib/hanziWriting/applyWriting";
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { type PatternSlot } from "../../data/productionTasks";
 import { conceptForSlot, formatConceptLabel, resolveSlotLabel } from "../../data/structuralConcepts";
@@ -3318,6 +3326,46 @@ function StepTranslationBuild(props: StepProps) {
 }
 
 function StepHanziBuild(props: StepProps) {
+  // RC2.3.4 — progressive writing overlay when annotated by pedagogy plan.
+  const writingStep = asWritingStep(props.step);
+  const writingMode = writingStep.hanziWritingMode;
+  if (writingMode && writingMode !== "none" && props.step.hanzi) {
+    const charId = writingStep.handwritingCharId ?? props.step.charId ?? props.step.hanzi;
+    const stage =
+      writingStep.hanziWritingStage ??
+      (writingMode === "memory_write" ? "MEMORY_WRITE" : writingMode === "draw_missing_stroke" ? "COMPLETE" : "TRACE");
+    return (
+      <div data-testid="lesson-hanzi-writing">
+        <HanziWritingExercise
+          character={props.step.hanzi}
+          charId={charId}
+          stage={stage}
+          masteryPass={writingMode === "memory_write" ? 4 : 3}
+          meaningPt={props.step.pt ?? props.step.targetMeaningPt}
+          pinyin={props.step.pinyin ?? props.step.targetPinyin}
+          missingStrokeIndex={writingMode === "draw_missing_stroke" ? 1 : undefined}
+          evaluative={writingMode === "memory_write"}
+          onComplete={(r) => props.onDone(r.correct)}
+          onFallbackAssemble={() => {
+            /* accessibility path via details below */
+          }}
+        />
+        {writingStep.hanziWritingFallback === "assemble" && props.step.builderId ? (
+          <details className="mt-3">
+            <summary className="cursor-pointer text-sm text-ink-soft">Praticar por montagem</summary>
+            <HanziBuilderExercise
+              builder={getHanziBuilder(props.step.builderId)!}
+              externalRetry={Boolean(props.onMistake)}
+              onWrong={props.onMistake}
+              onCorrect={(firstTry) => props.onDone(firstTry)}
+            />
+          </details>
+        ) : null}
+        <SkipStepButton onSkip={props.onSkip} />
+      </div>
+    );
+  }
+
   // Novo formato: carta visual de montagem (fragments/components/complete).
   const builder = getHanziBuilder(props.step.builderId);
   if (builder) {

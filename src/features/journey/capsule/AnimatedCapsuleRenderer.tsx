@@ -5,7 +5,11 @@ import { IconCheck, IconChevron, IconSound } from "../../../components/ui/Icon";
 import { Button, ProgressBar } from "../../../components/ui/primitives";
 import type { LessonCapsuleLocalizedContent } from "../../../data/lessonCapsules";
 import type { InstructionLocale } from "../../../i18n/config";
-import { speak } from "../../../lib/tts";
+import { playMandarinAudio } from "../../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON" });
+}
 import { trackMediaEvent } from "../../../services/mediaEvents";
 import { CapsuleMicroCheck } from "./CapsuleMicroCheck";
 

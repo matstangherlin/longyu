@@ -22,6 +22,7 @@ import { claimAudio, releaseAudio } from "../../lib/audioArbiter";
 import { recordTechEvent } from "../../lib/techEvents";
 import { selfPlaybackMessageKey, type SelfPlaybackErrorCode } from "../../lib/selfPlayback";
 import { SPEAKING_STAGES, SPEAKING_STAGE_LABEL, speakingStageFor, type SpeakingStage } from "../../lib/productGoldStandard";
+import { PedagogicalInlineTip } from "../../components/guidance/PedagogicalInlineTip";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -426,6 +427,7 @@ export function SelfComparePractice({
       data-self-compare-phase={phase}
       data-self-playback={playState}
     >
+      <PedagogicalInlineTip interaction="speech_self_compare" className="mb-2" />
       <p className="text-sm font-semibold text-ink">{t("player.selfCompareTitle")}</p>
       <SpeakingStageStrip stage={speakingStageFor({ modelHeard, phase, playState })} />
       {reason && <p className="mt-1 text-xs leading-5 text-ink-soft" data-testid="self-compare-reason">{reason}</p>}
