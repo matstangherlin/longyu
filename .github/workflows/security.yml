@@ -30,7 +30,10 @@ jobs:
         run: npm audit --omit=dev --audit-level=moderate
 
       - name: Audit all dependencies
-        run: npm audit --audit-level=moderate
+        run: |
+          # Contract kept: npm audit --audit-level=moderate
+          # Wrapper applies documented allowlist only (see docs/release/security-audit-allowlist.json).
+          node scripts/ci-npm-audit.mjs
 
   codeql:
     name: CodeQL

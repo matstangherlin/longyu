@@ -119,10 +119,6 @@ export function culturePlacementForItem(itemId: string): CultureJourneyPlacement
 export function cultureLessonPlayerPath(itemId: string, search = ""): string {
   const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
   if (!params.get("src")) params.set("src", "cultura");
-  // RC2.3.3 — Hub opens Deep Dive; Journey gates pass mode=journey explicitly.
-  if (!params.get("mode")) {
-    params.set("mode", params.get("src") === "jornada" || params.get("gate") ? "journey" : "deep");
-  }
   const query = params.toString();
   return `/licao/${cultureLessonIdForItem(itemId)}/player${query ? `?${query}` : ""}`;
 }

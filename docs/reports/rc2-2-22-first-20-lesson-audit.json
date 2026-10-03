@@ -4,7 +4,7 @@
   "heuristic": "complexityLevel(ctas, paragraphs, chips, interactiveControls, instructionChars) — src/lib/screenComplexity.ts",
   "totals": {
     "sessions": 20,
-    "steps": 149,
+    "steps": 150,
     "badRepetitions": 0,
     "overloadedSteps": 0,
     "highSteps": 3,
@@ -34,7 +34,7 @@
       "topicId": "p1-o-que-e-mandarim",
       "pass": 1,
       "objective": "Uma língua falada",
-      "stepCount": 6,
+      "stepCount": 7,
       "interactionFamilies": [
         "TEACH",
         "LISTEN",
@@ -50,14 +50,14 @@
       "newMaterial": 5,
       "reviewMaterial": 0,
       "targetRepetition": {
-        "maxSameTargetInSession": 6,
+        "maxSameTargetInSession": 7,
         "badRepetitions": 0
       },
       "visualSupportSteps": 0,
       "realLifeTransfer": true,
       "complexity": {
         "LOW": 1,
-        "GOOD": 5,
+        "GOOD": 6,
         "HIGH": 0,
         "OVERLOADED": 0
       },

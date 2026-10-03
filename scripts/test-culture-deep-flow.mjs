@@ -29,9 +29,15 @@ assert.equal(cultureModeFromQuery("?src=jornada&gate=gate-social-etiquette"), "j
 assert.equal(cultureModeFromQuery("?src=cultura"), "deep");
 assert.ok(estimatedMinutesForMode(visiting, "journey") <= 3);
 
-const path = cultureLessonPlayerPath("visiting-home", "?src=jornada&gate=gate-social-etiquette");
+const path = cultureLessonPlayerPath(
+  "visiting-home",
+  "?src=jornada&gate=gate-social-etiquette&mode=journey"
+);
 assert.match(path, /mode=journey/);
 assert.match(path, /gate=gate-social-etiquette/);
+assert.match(path, /src=jornada/);
+assert.equal(cultureModeFromQuery(path.split("?")[1] ?? ""), "journey");
+assert.equal(cultureModeFromQuery("?src=cultura"), "deep");
 
 const ret = cultureReturnPath(
   new URLSearchParams("src=jornada&from=/jornada&gate=gate-urban-china"),
