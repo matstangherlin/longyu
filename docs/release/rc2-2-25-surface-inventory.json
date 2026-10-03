@@ -296,7 +296,7 @@
     {
       "kind": "audio_discrimination",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 87,
+      "occurrences": 85,
       "lessons": 32,
       "premiumLessons": 13
     },
@@ -317,14 +317,14 @@
     {
       "kind": "compare_with_image",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 6,
+      "occurrences": 5,
       "lessons": 3,
       "premiumLessons": 3
     },
     {
       "kind": "comprehend",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 470,
+      "occurrences": 469,
       "lessons": 100,
       "premiumLessons": 21
     },
@@ -345,7 +345,7 @@
     {
       "kind": "conversation_scene",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 458,
+      "occurrences": 456,
       "lessons": 110,
       "premiumLessons": 34
     },
@@ -359,7 +359,7 @@
     {
       "kind": "dialogue_choice",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 593,
+      "occurrences": 590,
       "lessons": 123,
       "premiumLessons": 29
     },
@@ -373,14 +373,14 @@
     {
       "kind": "dictation",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 102,
-      "lessons": 43,
-      "premiumLessons": 8
+      "occurrences": 101,
+      "lessons": 42,
+      "premiumLessons": 7
     },
     {
       "kind": "fill_blank",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 517,
+      "occurrences": 510,
       "lessons": 107,
       "premiumLessons": 31
     },
@@ -401,14 +401,14 @@
     {
       "kind": "hanzi_build",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 319,
-      "lessons": 86,
-      "premiumLessons": 21
+      "occurrences": 318,
+      "lessons": 85,
+      "premiumLessons": 20
     },
     {
       "kind": "image_choice",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 540,
+      "occurrences": 530,
       "lessons": 100,
       "premiumLessons": 29
     },
@@ -422,14 +422,14 @@
     {
       "kind": "listen",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 372,
+      "occurrences": 371,
       "lessons": 47,
       "premiumLessons": 13
     },
     {
       "kind": "listen_select",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 443,
+      "occurrences": 442,
       "lessons": 105,
       "premiumLessons": 20
     },
@@ -492,9 +492,9 @@
     {
       "kind": "recognize",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 89,
-      "lessons": 34,
-      "premiumLessons": 6
+      "occurrences": 88,
+      "lessons": 33,
+      "premiumLessons": 5
     },
     {
       "kind": "reverse_recall",
@@ -513,7 +513,7 @@
     {
       "kind": "sentence_build",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 578,
+      "occurrences": 575,
       "lessons": 109,
       "premiumLessons": 33
     },
@@ -1320,7 +1320,7 @@
     {
       "lessonId": "l26b",
       "premium": true,
-      "stepKinds": 20,
+      "stepKinds": 19,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1334,7 +1334,7 @@
     {
       "lessonId": "l27",
       "premium": true,
-      "stepKinds": 19,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1516,7 +1516,7 @@
     {
       "lessonId": "p7-imersao-casa-amigo",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     }

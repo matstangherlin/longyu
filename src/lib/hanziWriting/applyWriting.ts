@@ -3,7 +3,7 @@
  * No new StepKind. Reuses hanzi_build / recognize steps + optional writingMode.
  *
  * Writing fields live on a runtime overlay type — NOT on LessonStep in
- * journey.ts — so CURRICULUM_SOURCES fingerprint stays e566a250c5a6.
+ * journey.ts - writing metadata does not change CURRICULUM_SOURCES.
  */
 
 import type { LessonStep } from "../../data/journey";

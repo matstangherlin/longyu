@@ -11,7 +11,7 @@
     "RC2.3.2",
     "RC2.3.3"
   ],
-  "curriculumFingerprint": "e566a250c5a6",
+  "curriculumFingerprint": "5a64821d0b7d",
   "generatedAt": "2026-10-03T01:45:00.000Z",
   "statuses": {
     "HANZI_PROGRESSIVE_ENGINE_READY": "PASS",
@@ -27,7 +27,19 @@
     "APK_PASS": "NOT_RUN",
     "OWNER_HANZI_ACCEPTANCE": "NOT_RUN"
   },
-  "verifiedCharacters": ["人", "口", "木", "日", "月", "山", "水", "火", "大", "小", "中"],
+  "verifiedCharacters": [
+    "人",
+    "口",
+    "木",
+    "日",
+    "月",
+    "山",
+    "水",
+    "火",
+    "大",
+    "小",
+    "中"
+  ],
   "verifiedCount": 11,
   "stages": [
     "RECOGNIZE",

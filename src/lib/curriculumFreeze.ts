@@ -100,7 +100,8 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
  * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
-export const RC_BASE_FINGERPRINT = "e566a250c5a6";
+// PR #314: planner budget bug fix; content counts and catalog stay frozen.
+export const RC_BASE_FINGERPRINT = "5a64821d0b7d";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -850,6 +851,15 @@ export const RC2_3_4_HANZI_WRITING_CONTENT_EXCEPTION = {
   previousFingerprint: "e566a250c5a6",
   fingerprint: "e566a250c5a6",
   gate: "gate:rc2-3-4-hanzi-writing",
+} as const;
+
+/** PR #314: reserve all pass bonuses and mandatory capability closure steps. */
+export const RC2_3_4_CI_BUDGET_CORRECTION = {
+  id: "RC2_3_4_CI_BUDGET_CORRECTION",
+  scope: "Existing mastery pass selection budget only; no lesson, topic, vocabulary or StepKind additions",
+  previousFingerprint: "e566a250c5a6",
+  fingerprint: "5a64821d0b7d",
+  gate: "validate:topic-mastery-depth",
 } as const;
 
 export const RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION = {
