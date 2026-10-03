@@ -1,4 +1,5 @@
 import { CultureKindBadge } from "./CultureKindBadge";
+import { CultureMayVary } from "./CultureMayVary";
 import { Link } from "react-router-dom";
 import type { CultureCategory, CultureItem } from "../../data/culture";
 import { cultureProgressionGateForItem } from "../../data/cultureProgressionGates";
@@ -7,6 +8,7 @@ import { cultureLessonIdForItem } from "../../data/cultureNative";
 import { Card, Pill } from "../../components/ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
+import { loc } from "../../data/cultureQuest";
 
 const CATEGORY_KEYS: Record<CultureCategory, MessageKey> = {
   home_visits: "culture.categoryHomeVisits",
@@ -100,6 +102,13 @@ export function CultureCard({
             >
               🐉 {gateLabel}
             </p>
+          )}
+          {(item.variabilityPt || item.variabilityEn) && (
+            <CultureMayVary
+              note={loc(item.variabilityPt ?? item.variabilityEn ?? "", item.variabilityEn ?? item.variabilityPt ?? "")}
+              locale={locale}
+              compact
+            />
           )}
           <p className="mt-auto pt-3 text-xs text-ink-soft">
             {t("culture.minutes", { n: item.estimatedMinutes })}

@@ -7,6 +7,10 @@ import type { CultureJourneyBridge } from "../../data/cultureJourneyBridges";
 import { Button } from "../../components/ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import { CultureBeat, CultureVisual } from "./CultureQuestVisuals";
+import { CultureMayVary } from "./CultureMayVary";
+import { CultureWhyMore } from "./CultureWhyMore";
+import { getCultureItem } from "../../data/culture";
+import { loc } from "../../data/cultureQuest";
 
 export function JourneyCultureBridgePanel({
   bridge,
@@ -26,6 +30,24 @@ export function JourneyCultureBridgePanel({
 
   const selectedOption: CultureChoiceOption | undefined = bridge.options?.find((option) => option.id === selected);
   const sequenceReady = (bridge.sequence?.length ?? 0) > 0 && order.length === (bridge.sequence?.length ?? 0);
+  const cultureItem = getCultureItem(bridge.cultureItemId);
+  const uiLocale = locale === "en" ? "en" : "pt-BR";
+  const whyMore = cultureItem
+    ? {
+        motive: loc(cultureItem.whyPt, cultureItem.whyEn),
+        context: loc(cultureItem.situationPt, cultureItem.situationEn),
+        variation:
+          cultureItem.variabilityPt || cultureItem.variabilityEn
+            ? loc(cultureItem.variabilityPt ?? "", cultureItem.variabilityEn ?? "")
+            : undefined,
+        sourceNote: cultureItem.sources[0]
+          ? loc(
+              `${cultureItem.sources[0].publisher} — ${cultureItem.sources[0].title}`,
+              `${cultureItem.sources[0].publisher} — ${cultureItem.sources[0].title}`
+            )
+          : undefined,
+      }
+    : null;
 
   const grade = useMemo(() => {
     if (bridge.sequenceCorrect) return bridge.sequenceCorrect.join() === order.join();
@@ -120,6 +142,14 @@ export function JourneyCultureBridgePanel({
             {selectedOption ? cultureText(selectedOption.feedback, locale) : ok ? t("culture.checkCorrect") : t("culture.checkTryAgain")}
           </p>
           {selectedOption?.reaction ? <CultureBeat beat={selectedOption.reaction} locale={locale} /> : null}
+          <CultureWhyMore whyMore={whyMore} locale={uiLocale} />
+          {cultureItem?.variabilityPt || cultureItem?.variabilityEn ? (
+            <CultureMayVary
+              note={loc(cultureItem.variabilityPt ?? "", cultureItem.variabilityEn ?? "")}
+              locale={uiLocale}
+              compact
+            />
+          ) : null}
         </div>
       ) : null}
       <Button className="min-h-12 w-full" disabled={ctaDisabled} onClick={onContinue} data-testid="culture-bridge-continue">
