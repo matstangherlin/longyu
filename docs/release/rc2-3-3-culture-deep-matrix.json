@@ -1,0 +1,68 @@
+{
+  "wave": "RC2.3.3",
+  "title": "Culture Deep Journey: Stories, Context, Decisions & Cultural Mastery",
+  "parentPr": 312,
+  "baseBranch": "cursor/rc2-3-2-human-everyday-mandarin-25db",
+  "inherits": [
+    "RC2.2.32",
+    "RC2.3.0",
+    "RC2.3.1",
+    "RC2.3.2"
+  ],
+  "curriculumFingerprint": "e566a250c5a6",
+  "generatedAt": "2026-10-03T01:03:01.588Z",
+  "statuses": {
+    "CULTURE_ENGINE_READY": "PASS",
+    "SOURCE_INTEGRITY_PASS": "PASS",
+    "TYPE_INTEGRITY_PASS": "PASS",
+    "FLAGSHIPS_DEEP": "PASS",
+    "ALL_CULTURE_ITEMS_AUDITED": "PASS",
+    "JOURNEY_GATE_PASS": "PASS",
+    "JOURNEY_RETURN_PASS": "PASS",
+    "CULTURE_LANGUAGE_LEAK_PASS": "PASS",
+    "CULTURE_MASTERY_PASS": "PASS",
+    "CULTURE_MEMORY_PASS": "PASS",
+    "CULTURE_REVIEW_PASS": "PASS",
+    "CULTURE_ABSOLUTE_CLAIM_PASS": "PASS",
+    "WEB_PASS": "PASS",
+    "ANDROID_BUILD_PASS": "NOT_RUN",
+    "APK_PASS": "NOT_RUN",
+    "OWNER_CULTURE_ACCEPTANCE": "NOT_RUN"
+  },
+  "depthSummary": {
+    "total": 30,
+    "byClass": {
+      "SHALLOW": 0,
+      "BASIC": 0,
+      "DEEP": 21,
+      "FLAGSHIP_DEEP": 9
+    },
+    "flagshipCount": 9,
+    "flagshipsDeep": 9,
+    "shallowCount": 0,
+    "hubOnly": 10,
+    "journey": 20,
+    "editorialFindingCount": 0,
+    "seals": [
+      "visitor-ready",
+      "chinese-table",
+      "social-etiquette",
+      "gift-sense",
+      "festivals",
+      "urban-china",
+      "work-school"
+    ]
+  },
+  "flagshipIds": [
+    "visiting-home",
+    "host-insistence",
+    "shared-dishes",
+    "chopsticks-rest",
+    "digital-pay",
+    "metro-qr",
+    "bargaining-context",
+    "gift-receiving",
+    "hotel-checkin-register"
+  ],
+  "cloud273": "NOT_TOUCHED"
+}

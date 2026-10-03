@@ -286,12 +286,19 @@ export function applyCultureMissionComplete(
   );
 
   const conceptId = conceptIdForItem(itemId);
+  // RC2.3.3 — mastered needs recall evidence + non-trivial weighted score (not teach-only).
+  const masteryEvent =
+    result.memoryCorrect && result.score >= 0.55 && (result.scoredCount ?? 0) >= 1
+      ? "mastered"
+      : result.scoredCount > 0
+        ? "practiced"
+        : "introduced";
   const cultureKnowledgeById = applyCultureKnowledgeEvent(
     maps.cultureKnowledgeById ?? {},
     {
       conceptId,
       cultureItemId: itemId,
-      event: result.memoryCorrect ? "mastered" : "practiced",
+      event: masteryEvent,
       source: "mission",
     },
     now
