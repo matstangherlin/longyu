@@ -1,6 +1,9 @@
 /**
  * RC2.3.4 — annotate lesson plans with progressive writing metadata.
  * No new StepKind. Reuses hanzi_build / recognize steps + optional writingMode.
+ *
+ * Writing fields live on a runtime overlay type — NOT on LessonStep in
+ * journey.ts — so CURRICULUM_SOURCES fingerprint stays e566a250c5a6.
  */
 
 import type { LessonStep } from "../../data/journey";
@@ -13,8 +16,23 @@ import { getFormEvidence } from "./evidence";
 
 export type HanziWritingMode = "trace" | "memory_write" | "draw_missing_stroke" | "none";
 
+/** Runtime overlay on LessonStep — keep out of curriculum-fingerprint sources. */
+export type LessonStepWritingOverlay = {
+  hanziWritingStage?: HanziLearningStage;
+  hanziWritingMode?: HanziWritingMode;
+  handwritingCharId?: string;
+  hanziGuideLevel?: 0 | 1 | 2 | 3;
+  hanziWritingFallback?: "assemble" | "stroke_order_quiz" | "skip_gesture";
+};
+
+export type LessonStepWithWriting = LessonStep & LessonStepWritingOverlay;
+
+export function asWritingStep(step: LessonStep): LessonStepWithWriting {
+  return step as LessonStepWithWriting;
+}
+
 export interface HanziWritingPlanResult {
-  steps: LessonStep[];
+  steps: LessonStepWithWriting[];
   writingInjected: number;
   blockedByLeak: number;
   blockedByData: number;
@@ -77,7 +95,7 @@ export function applyHanziProgressiveWritingToPlan(input: {
   let blockedByLeak = 0;
   let blockedByData = 0;
   const budget = MAX_HANDWRITING_PRODUCTIONS_PER_SESSION;
-  const out: LessonStep[] = [];
+  const out: LessonStepWithWriting[] = [];
 
   for (const step of input.steps) {
     const isForm =

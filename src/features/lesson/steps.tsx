@@ -55,6 +55,7 @@ import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziConceptSlide } from "../../components/hanzi/HanziConceptSlide";
 import { HanziBuilderExercise } from "../../components/hanzi/HanziBuilderExercise";
 import { HanziWritingExercise } from "../hanzi/writing/HanziWritingExercise";
+import { asWritingStep } from "../../lib/hanziWriting/applyWriting";
 import { getHanziBuilder } from "../../data/hanziBuilder";
 import { type PatternSlot } from "../../data/productionTasks";
 import { conceptForSlot, formatConceptLabel, resolveSlotLabel } from "../../data/structuralConcepts";
@@ -3326,10 +3327,13 @@ function StepTranslationBuild(props: StepProps) {
 
 function StepHanziBuild(props: StepProps) {
   // RC2.3.4 — progressive writing overlay when annotated by pedagogy plan.
-  const writingMode = props.step.hanziWritingMode;
+  const writingStep = asWritingStep(props.step);
+  const writingMode = writingStep.hanziWritingMode;
   if (writingMode && writingMode !== "none" && props.step.hanzi) {
-    const charId = props.step.handwritingCharId ?? props.step.charId ?? props.step.hanzi;
-    const stage = props.step.hanziWritingStage ?? (writingMode === "memory_write" ? "MEMORY_WRITE" : writingMode === "draw_missing_stroke" ? "COMPLETE" : "TRACE");
+    const charId = writingStep.handwritingCharId ?? props.step.charId ?? props.step.hanzi;
+    const stage =
+      writingStep.hanziWritingStage ??
+      (writingMode === "memory_write" ? "MEMORY_WRITE" : writingMode === "draw_missing_stroke" ? "COMPLETE" : "TRACE");
     return (
       <div data-testid="lesson-hanzi-writing">
         <HanziWritingExercise
@@ -3343,11 +3347,10 @@ function StepHanziBuild(props: StepProps) {
           evaluative={writingMode === "memory_write"}
           onComplete={(r) => props.onDone(r.correct)}
           onFallbackAssemble={() => {
-            /* fall through to builder below by clearing mode is not available —
-               render builder as accessibility path */
+            /* accessibility path via details below */
           }}
         />
-        {props.step.hanziWritingFallback === "assemble" && props.step.builderId ? (
+        {writingStep.hanziWritingFallback === "assemble" && props.step.builderId ? (
           <details className="mt-3">
             <summary className="cursor-pointer text-sm text-ink-soft">Praticar por montagem</summary>
             <HanziBuilderExercise

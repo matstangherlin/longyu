@@ -252,22 +252,6 @@ export interface LessonStep {
   hanziMode?: "pinyin_first";
   /** hanzi_build: id de um exercício em data/hanziBuilder.ts (carta visual). */
   builderId?: string;
-  /**
-   * RC2.3.4 — progressive writing overlay (no new StepKind).
-   * Annotated by applyHanziProgressiveWritingToPlan.
-   */
-  hanziWritingStage?:
-    | "RECOGNIZE"
-    | "COMPONENTS"
-    | "ASSEMBLE"
-    | "COMPLETE"
-    | "TRACE"
-    | "MEMORY_WRITE"
-    | "CONTEXT_USE";
-  hanziWritingMode?: "trace" | "memory_write" | "draw_missing_stroke" | "none";
-  handwritingCharId?: string;
-  hanziGuideLevel?: 0 | 1 | 2 | 3;
-  hanziWritingFallback?: "assemble" | "stroke_order_quiz" | "skip_gesture";
   /** conversation_scene: id canônico da cena. */
   sceneId?: string;
   /**

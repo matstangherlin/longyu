@@ -94,7 +94,7 @@ export function applyPedagogyV6ToPlan(input: {
     taught: input.taughtConceptIds,
     completedLessons: input.completedLessons,
   });
-  steps = writing.steps;
+  steps = writing.steps as LessonStep[];
 
   return {
     steps,
