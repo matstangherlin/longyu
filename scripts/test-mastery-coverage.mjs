@@ -90,13 +90,28 @@ try {
   // ————————————————————————————————————————————————————————————————
   let pilot = null;
   let lessonRoundStepsFor = null;
+  let authoredPlanFor = () => null;
   try {
     const full = await compileAndRequire(
-      ["src/data/masteryPilot.ts", "src/features/lesson/lessonTasks.ts"],
+      [
+        "src/data/masteryPilot.ts", "src/features/lesson/lessonTasks.ts",
+        "src/data/identityPeoplePlans.ts", "src/data/routineTimePlans.ts",
+        "src/data/everydaySurvivalPlans.ts", "src/data/capstoneSurvivalPlans.ts",
+        "src/data/mobilitySurvivalPlans.ts", "src/data/healthSurvivalPlans.ts",
+        "src/data/foundationTopicPlans.ts",
+      ],
       "longyu-mastery-coverage-pilot-"
     );
     pilot = full["src/data/masteryPilot.ts"];
     lessonRoundStepsFor = full["src/features/lesson/lessonTasks.ts"].lessonRoundStepsFor;
+    authoredPlanFor = (lesson, pass) =>
+      full["src/data/everydaySurvivalPlans.ts"].everydaySurvivalPlanFor(lesson) ??
+      full["src/data/capstoneSurvivalPlans.ts"].capstoneSurvivalPlanFor(lesson, { masteryPass: pass, masteryLevel: pass - 1 }) ??
+      full["src/data/identityPeoplePlans.ts"].identityPeoplePlanFor(lesson, pass) ??
+      full["src/data/routineTimePlans.ts"].routineTimePlanFor(lesson, pass) ??
+      full["src/data/mobilitySurvivalPlans.ts"].mobilitySurvivalPlanFor(lesson, pass) ??
+      full["src/data/healthSurvivalPlans.ts"].saudeSurvivalPlanFor(lesson, pass) ??
+      full["src/data/foundationTopicPlans.ts"].foundationAuthoredPlanFor(lesson.id, pass);
   } catch (error) {
     warn(
       `masteryPilot.ts/lessonTasks.ts não compilaram agora (provável edição em andamento por outra IA) — checagens dependentes de piloto/plano ficam em aviso. Detalhe: ${
@@ -249,13 +264,22 @@ try {
       for (const pass of [1, 2, 3, 4]) {
         const plan = plans[pass - 1];
         const budget = mastery.MASTERY_PASS_GRADED_BUDGET[pass];
+        const authored = authoredPlanFor(lesson, pass);
+        if (authored) {
+          assert.ok(authored.length > 0, `${lesson.id} pass ${pass}: plano autorado vazio`);
+          assert.equal(
+            planSignature(plan.slice(0, authored.length)), planSignature(authored),
+            `${lesson.id} pass ${pass}: progressao autorada deve ser preservada`
+          );
+        }
+        const minimum = authored ? authored.length : budget.min - 2;
         assert.ok(
           plan.length <= budget.max + 6,
           `${lesson.id} pass ${pass}: plano não deve explodir (${plan.length} > ${budget.max + 6})`
         );
         assert.ok(
-          plan.length >= budget.min - 2,
-          `${lesson.id} pass ${pass}: plano precisa de massa mínima (${plan.length} < ${budget.min - 2})`
+          plan.length >= minimum,
+          `${lesson.id} pass ${pass}: plano precisa de massa mínima (${plan.length} < ${minimum})`
         );
       }
     }

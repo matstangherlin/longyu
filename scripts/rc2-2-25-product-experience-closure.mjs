@@ -93,9 +93,10 @@ const MUTATIONS = {
     ["[28] Imersão sem ONDE", "IMMERSION_NO_CONTEXT", src("immersion", "text-ink-faint\">Onde</div>", "text-ink-faint\">Local</div>")],
   ],
   "culture-task-handoff": [
-    ["[29] marco cultural sem explicação", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", '"Antes de continuar, entenda este costume."', '"Continue."')],
+    ["[29] marco cultural sem explicação", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", '"Antes de continuar, entenda este contexto."', '"Continue."')],
     ["[30] volta da Cultura genérica", "CULTURE_RETURN_GENERIC", src("player", 'const journeyCta = cultureReturnUnit\n      ? t("common.backTo", { target: cultureReturnUnit })', 'const journeyCta = cultureReturnUnit\n      ? t("player.backToJourney")')],
-    ["CTA antigo 'Continuar pela Cultura'", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", ': "Ir para Cultura";', ': "Continuar pela Cultura";')],
+    ["CTA antigo 'Continuar pela Cultura'", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", ': "Abrir Culture Moment";', ': "Continuar pela Cultura";')],
+    ["handoff perde modo Jornada", "CULTURE_TASK_UNEXPLAINED", src("cultureGate", "&mode=journey", "&mode=deep")],
   ],
   "journey-return-pulse": [
     ["[31] pulso longo/piscando", "RETURN_PULSE_WRONG", src("anchor", "export const JOURNEY_RETURN_PULSE_MS = 1300;", "export const JOURNEY_RETURN_PULSE_MS = 4000;")],

@@ -226,13 +226,14 @@ test.describe("RC2.2.25 · Tone Trace e Cultura", () => {
     await expect(page.getByTestId("tone-trace-message")).not.toContainText(/correto|pitch/i);
   });
 
-  test("marco cultural: 'Antes de continuar, entenda este costume.' + [Ir para Cultura]", async ({ page }) => {
+  test("marco cultural explica o contexto e abre Culture Moment no modo Jornada", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2 });
     await open(page, "/jornada");
     const gate = page.locator("[data-journey-culture-gate]").first();
     if (!(await gate.count())) test.skip(true, "nenhum marco cultural pendente nesta semente");
     await gate.scrollIntoViewIfNeeded();
-    await expect(gate.getByTestId("culture-gate-lead")).toHaveText("Antes de continuar, entenda este costume.");
-    await expect(gate.getByTestId("culture-gate-cta")).toHaveText("Ir para Cultura");
+    await expect(gate.getByTestId("culture-gate-lead")).toHaveText("Antes de continuar, entenda este contexto.");
+    await expect(gate.getByTestId("culture-gate-cta")).toHaveText("Abrir Culture Moment");
+    await expect(gate.getByTestId("culture-gate-cta")).toHaveAttribute("href", /[?&]mode=journey(?:&|$)/);
   });
 });

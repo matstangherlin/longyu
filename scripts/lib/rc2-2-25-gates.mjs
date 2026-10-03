@@ -97,7 +97,7 @@ export const FILES = {
   goldens: "e2e/rc2-2-25-goldens.spec.ts",
 };
 
-const read = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8");
+const read = (rel) => fs.readFileSync(path.join(ROOT, rel), "utf8").replace(/\r\n?/g, "\n");
 const exists = (rel) => fs.existsSync(path.join(ROOT, rel));
 const optionalJson = (rel) => (exists(rel) ? JSON.parse(read(rel)) : null);
 const optionalText = (rel) => (exists(rel) ? read(rel) : "");
@@ -378,8 +378,8 @@ export async function validateImmersionScene(s) {
 
 export async function validateCultureTaskHandoff(s) {
   const { failures, fail } = collector();
-  if (!/"Antes de continuar, entenda este costume\."/.test(s.src.cultureGate) || !/data-testid="culture-gate-lead"/.test(s.src.cultureGate)) fail("CULTURE_TASK_UNEXPLAINED", FILES.cultureGate, "'Antes de continuar, entenda este costume.'");
-  if (!/: "Ir para Cultura";/.test(s.src.cultureGate)) fail("CULTURE_TASK_UNEXPLAINED", FILES.cultureGate, "[Ir para Cultura]");
+  if (!/"Antes de continuar, entenda este contexto\."/.test(s.src.cultureGate) || !/data-testid="culture-gate-lead"/.test(s.src.cultureGate)) fail("CULTURE_TASK_UNEXPLAINED", FILES.cultureGate, "'Antes de continuar, entenda este contexto.'");
+  if (!/: "Abrir Culture Moment";/.test(s.src.cultureGate) || !/mode=journey/.test(s.src.cultureGate)) fail("CULTURE_TASK_UNEXPLAINED", FILES.cultureGate, "[Abrir Culture Moment] no modo Jornada");
   if (!/const journeyCta = cultureReturnUnit\s*\? t\("common\.backTo", \{ target: cultureReturnUnit \}\)/.test(s.src.player) || !/peekJourneyReturnAnchor\(\)\?\.lessonId/.test(s.src.player)) fail("CULTURE_RETURN_GENERIC", FILES.player, "[Voltar para <unidade>] pela âncora");
   if (!/lessonComplete: "✓ Cultura concluída"/.test(s.src.localePt)) fail("CULTURE_RETURN_GENERIC", FILES.localePt, "'✓ Cultura concluída'");
   return failures;
