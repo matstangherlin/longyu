@@ -79,7 +79,7 @@ const MUTATIONS = {
     ["moldura não entra em focus", "ACTIVITY_KEEPS_CHROME", src("frame", "  useFocusActivity(true);\n", "")],
   ],
   "speaking-flow": [
-    ["[23] motor exposto ao aluno", "ENGINE_TALK_TO_LEARNER", src("speech", 'return "Seu aparelho não conseguiu reconhecer mandarim agora.";', 'return "O SpeechRecognizer zh-CN não está instalado.";')],
+    ["[23] motor exposto ao aluno", "ENGINE_TALK_TO_LEARNER", src("speech", 'return "Não consegui analisar sua fala agora.";', 'return "O SpeechRecognizer zh-CN não está instalado.";')],
     ["[24] estágios da fala fora de ordem", "SPEAKING_STAGES_WRONG", src("gold", 'export const SPEAKING_STAGES = ["OUCA", "GRAVE", "OUCA_VOCE", "COMPARE", "CONTINUE"] as const;', 'export const SPEAKING_STAGES = ["GRAVE", "OUCA", "OUCA_VOCE", "COMPARE", "CONTINUE"] as const;')],
     ["[25] trilha OUÇA→…→CONTINUE escondida", "SPEAKING_STAGES_HIDDEN", src("selfCompare", "<SpeakingStageStrip stage={speakingStageFor(", "<SpeakingStageHidden stage={speakingStageFor(")],
     ["fallback volta a falar de serviço", "ENGINE_TALK_TO_LEARNER", src("localePt", 'speechFallbackTitle: "Seu aparelho não conseguiu reconhecer mandarim agora."', 'speechFallbackTitle: "Sem serviço de reconhecimento."')],

@@ -13,6 +13,7 @@ import path from "node:path";
 import process from "node:process";
 import ts from "typescript";
 import { finalizeReport, reportProvenanceLines } from "./lib/report-meta.mjs";
+import { masteryPlanOverlap } from "./lib/mastery-plan-overlap.mjs";
 import {
   extractCanonicalCjk,
   isIndependentProduction,
@@ -67,19 +68,6 @@ const TRANSFER = new Set(["transfer_task", "conversation_scene", "conversation_r
 
 const GREETING_OK =
   /mandarim|pinyin|hànzì|hanzi|tom|nihao|olá|cumpriment|engine-2|primeiros-hanzi|\bl2\b|l2-rev/i;
-
-function kindSig(plan) {
-  return plan.map((step) => `${step.kind}:${step.correctAnswer ?? step.answer ?? step.audioText ?? step.title ?? ""}`).join("|");
-}
-
-function overlap(a, b) {
-  if (!a.length || !b.length) return 0;
-  const setB = new Set(b.split("|"));
-  const parts = a.split("|");
-  let hit = 0;
-  for (const part of parts) if (setB.has(part)) hit += 1;
-  return hit / Math.max(parts.length, setB.size);
-}
 
 function allowsNihao(lesson) {
   return GREETING_OK.test(`${lesson.id} ${lesson.title}`);
@@ -211,7 +199,7 @@ try {
       [2, 3],
       [3, 4],
     ]) {
-      const ratio = overlap(kindSig(plans[a]), kindSig(plans[b]));
+      const ratio = masteryPlanOverlap(plans[a], plans[b]);
       if (ratio >= 0.92) {
         fail(`${lesson.id}: M${a} e M${b} são cópias mecânicas (overlap ${ratio.toFixed(2)})`);
       }
