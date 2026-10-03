@@ -1,0 +1,40 @@
+{
+  "wave": "RC2.3.1",
+  "title": "Visual First: Curriculum-Wide Visual Learning & Context Scenes",
+  "parentPr": 310,
+  "baseBranch": "cursor/rc2-3-0-pedagogy-v6-25db",
+  "baseHead": "ba00438c",
+  "inherits": [
+    "RC2.2.32",
+    "RC2.3.0"
+  ],
+  "createdAt": "2026-10-02",
+  "waveReadyForClosedBeta": false,
+  "statuses": {
+    "VISUAL_ENGINE_READY": "YES",
+    "VISUAL_CURRICULUM_MIGRATED": "YES",
+    "FIRST_EXPOSURE_PASS": "YES",
+    "FIRST20_VISUAL_PASS": "YES",
+    "FULL_CURRICULUM_AUDITED": "YES",
+    "WEB_PASS": "PASS",
+    "ANDROID_BUILD_PASS": "NOT_RUN",
+    "APK_PASS": "NOT_RUN",
+    "OWNER_VISUAL_ACCEPTANCE": "NOT_RUN"
+  },
+  "frozen": {
+    "issue273": "NOT_TOUCHED",
+    "rc232_human_everyday": "NOT_STARTED",
+    "rc234_hanzi_writing": "API_PREP_ONLY"
+  },
+  "ownerChecklist": [
+    "Instalação limpa → Descoberta com imagem em conceito concreto",
+    "image → palavra / áudio → imagem / Hànzì → imagem",
+    "context scene",
+    "Passes 1–4: visual deixa de entregar a resposta",
+    "Sem imagem repetida excessiva / distratores plausíveis",
+    "Hànzì legível + CTA acessível + offline + voz canônica",
+    "QA Visual First só em /qa/device"
+  ],
+  "curriculumFingerprint": "c3861b5fb65f",
+  "previousFingerprint": "99cbc002710c"
+}

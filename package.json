@@ -1092,7 +1092,15 @@
     "validate:rc230-first20-closure": "node scripts/rc2-3-0-pedagogy-v6.mjs validate first20-closure",
     "test:rc230-first20-closure": "node scripts/rc2-3-0-pedagogy-v6.mjs test first20-closure",
     "audit:rc230-first20-v6": "node scripts/audit-rc2-3-0-first-20-v6.mjs",
-    "gate:rc2-3-0-pedagogy-v6": "npm run audit:rc230-first20-v6 && npm run validate:rc230-discovery-stage && npm run test:rc230-discovery-stage && npm run validate:rc230-progressive-mastery && npm run test:rc230-progressive-mastery && npm run validate:rc230-perceptual-repetition && npm run test:rc230-perceptual-repetition && npm run validate:rc230-early-visual && npm run test:rc230-early-visual && npm run validate:rc230-human-context && npm run test:rc230-human-context && npm run validate:rc230-activity-contract && npm run test:rc230-activity-contract && npm run validate:rc230-first20-closure && npm run test:rc230-first20-closure && npm run gate:rc2-2-32 && npm run typecheck"
+    "gate:rc2-3-0-pedagogy-v6": "npm run audit:rc230-first20-v6 && npm run validate:rc230-discovery-stage && npm run test:rc230-discovery-stage && npm run validate:rc230-progressive-mastery && npm run test:rc230-progressive-mastery && npm run validate:rc230-perceptual-repetition && npm run test:rc230-perceptual-repetition && npm run validate:rc230-early-visual && npm run test:rc230-early-visual && npm run validate:rc230-human-context && npm run test:rc230-human-context && npm run validate:rc230-activity-contract && npm run test:rc230-activity-contract && npm run validate:rc230-first20-closure && npm run test:rc230-first20-closure && npm run gate:rc2-2-32 && npm run typecheck",
+    "audit:rc231-visual": "node scripts/audit-rc2-3-1-visual.mjs",
+    "validate:rc231-visual-engine": "node scripts/rc2-3-1-visual-first.mjs validate visual-engine",
+    "test:rc231-visual-engine": "node scripts/rc2-3-1-visual-first.mjs test visual-engine",
+    "validate:rc231-visual-audit": "node scripts/rc2-3-1-visual-first.mjs validate visual-audit",
+    "test:rc231-visual-audit": "node scripts/rc2-3-1-visual-first.mjs test visual-audit",
+    "validate:rc231-visual-closure": "node scripts/rc2-3-1-visual-first.mjs validate visual-closure",
+    "test:rc231-visual-closure": "node scripts/rc2-3-1-visual-first.mjs test visual-closure",
+    "gate:rc2-3-1-visual-first": "npm run audit:rc231-visual && npm run validate:rc231-visual-engine && npm run test:rc231-visual-engine && npm run validate:rc231-visual-audit && npm run test:rc231-visual-audit && npm run validate:rc231-visual-closure && npm run test:rc231-visual-closure && npm run gate:rc2-3-0-pedagogy-v6"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

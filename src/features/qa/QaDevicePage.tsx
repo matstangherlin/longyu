@@ -53,6 +53,7 @@ import { CanonicalMediaForensicsPanel } from "./CanonicalMediaForensicsPanel";
 import { BetaQaConsole } from "./BetaQaConsole";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
+import { VisualFirstQaPanel } from "./VisualFirstQaPanel";
 
 /**
  * RC2.2.20 — /qa/device: a superfície ÚNICA do QA físico.
@@ -136,6 +137,8 @@ function QaDeviceSurface() {
           CODE PASS, E2E, screenshot automatizado e emulador não são PHYSICAL PASS. Registre só o que você viu e ouviu neste aparelho.
         </p>
       </header>
+
+      <VisualFirstQaPanel />
 
       <section className="rounded-2xl border border-line bg-surface p-4" data-testid="qa-device-build">
         <h2 className="text-sm font-semibold text-ink">Build e aparelho</h2>

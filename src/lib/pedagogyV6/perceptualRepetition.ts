@@ -76,7 +76,8 @@ export function semanticTargetOfStep(step: LessonStep): string {
 export function presentationKeyOfStep(step: LessonStep): string {
   const family = interactionFamilyFor(step.kind);
   const target = semanticTargetOfStep(step);
-  return `${family}|${target}|${step.kind}`;
+  const visual = step.visualConceptId || step.imageId || step.correctImageId || "";
+  return `${family}|${target}|${step.kind}|${visual}`;
 }
 
 export function perceptualItemFromStep(step: LessonStep, index: number): PerceptualItem {
