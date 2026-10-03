@@ -11,6 +11,8 @@
  */
 export type PedagogicalInteractionId =
   | "hanzi_builder"
+  | "hanzi_trace"
+  | "hanzi_memory_write"
   | "tone_trace"
   | "speech_self_compare"
   | "image_choice"
@@ -31,6 +33,18 @@ export const PEDAGOGICAL_INLINE_DEFINITIONS: readonly PedagogicalInlineDefinitio
     interaction: "hanzi_builder",
     bodyPt: "Arraste as partes para formar o caractere.",
     bodyEn: "Drag the parts to form the character.",
+  },
+  {
+    id: "inline_hanzi_trace_v1",
+    interaction: "hanzi_trace",
+    bodyPt: "Siga o traço na direção indicada.",
+    bodyEn: "Follow the stroke in the indicated direction.",
+  },
+  {
+    id: "inline_hanzi_memory_write_v1",
+    interaction: "hanzi_memory_write",
+    bodyPt: "Agora escreva sem o guia.",
+    bodyEn: "Now write without the guide.",
   },
   {
     id: "inline_tone_trace_v1",

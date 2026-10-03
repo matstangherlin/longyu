@@ -28,6 +28,9 @@ import { isHanziPracticeMode } from "../../lib/hanziPracticeRounds";
 import { HanziTrainingSession } from "./HanziTrainingSession";
 import { HanziModeGrid } from "./IdeogramasPage";
 import { BUILDERS_BY_MODE, charIdByHanzi } from "./hanziTrainingModes";
+import { HanziWritingLab } from "./writing/HanziWritingLab";
+import { getFormEvidence, writingStateLabelPt } from "../../lib/hanziWriting/evidence";
+import { isHandwritingReferenceVerified } from "../../lib/hanziWriting/handwritingReference";
 
 export function HanziPage() {
   const navigate = useNavigate();
@@ -38,6 +41,7 @@ export function HanziPage() {
   const [selected, setSelected] = useState(() => CHARACTERS.find((char) => char.id === requestedCharId) ?? DECOMPOSABLE[0]);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [labNotice, setLabNotice] = useState<string | null>(null);
+  const [labOpen, setLabOpen] = useState(() => searchParams.get("lab") === "1");
   const isPremium = useIsPro();
   const hanziLabAccess = canAccessHanziLab({ isPremium });
   const completedLessons = useStore((s) => s.completedLessons);
@@ -125,24 +129,31 @@ export function HanziPage() {
       <section className="rounded-xl bg-surface px-4 py-3">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Hànzì profundo · Pro</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Hànzì · escrita progressiva</div>
             <h2 className="mt-1 font-serif text-lg font-semibold text-ink">Laboratório de caracteres</h2>
-            <p className="mt-1 text-sm text-ink-soft">Componentes, pistas sonoras e evolução visual.</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Componentes, ordem dos traços, traçado e escrita de memória para caracteres com referência verificada.
+            </p>
           </div>
           <Button
             variant="outline"
+            data-testid="hanzi-lab-open"
             onClick={() => {
-              if (hanziLabAccess.pro) {
-                setLabNotice("Em breve, o laboratório profundo de caracteres ficará disponível nesta área.");
-                return;
-              }
-              setPaywallOpen(true);
+              // Core progressive writing is free/curriculum; Pro teaser remains for atlas depth elsewhere.
+              setLabOpen(true);
+              setLabNotice(null);
+              void hanziLabAccess;
             }}
           >
-            {hanziLabAccess.pro ? "Laboratório em breve" : "Explorar laboratório"}
+            Abrir laboratório
           </Button>
         </div>
         {labNotice && <p className="mt-3 text-xs leading-5 text-ink-faint">{labNotice}</p>}
+        {labOpen && (
+          <div className="mt-4 rounded-2xl border border-line bg-bg p-3">
+            <HanziWritingLab onClose={() => setLabOpen(false)} initialChar={selected.hanzi} />
+          </div>
+        )}
       </section>
 
       <Card className="overflow-hidden">
@@ -154,6 +165,21 @@ export function HanziPage() {
               <SpeakButton text={selected.hanzi} size="sm" />
             </div>
             <div className="mt-2 text-lg font-medium text-ink">{selected.meaningPt}</div>
+            {isHandwritingReferenceVerified(selected.hanzi) && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-ink-soft">
+                  Escrita: {writingStateLabelPt(getFormEvidence(selected.id, selected.hanzi).writingState)}
+                </p>
+                <Button
+                  variant="soft"
+                  className="w-full"
+                  data-testid="hanzi-practice-writing-cta"
+                  onClick={() => setLabOpen(true)}
+                >
+                  Praticar escrita
+                </Button>
+              </div>
+            )}
             <p className="mt-4 max-w-sm text-sm text-ink-soft">{lesson.coreIdea}</p>
             {lesson.caution && (
               <div className="mt-4 rounded-2xl bg-surface px-4 py-3 text-sm text-accent">

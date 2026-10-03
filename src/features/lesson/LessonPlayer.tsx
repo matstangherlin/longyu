@@ -2357,6 +2357,7 @@ export function LessonPlayer() {
           masteryPass: livePass,
           steps: planned as LessonStep[],
           taughtConceptIds: loadTaughtConcepts(),
+          completedLessons: useStore.getState().completedLessons,
           pilotOnly: true,
         });
         planned = v6.steps;

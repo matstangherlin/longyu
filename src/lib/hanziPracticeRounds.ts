@@ -15,7 +15,7 @@ export const HANZI_PRACTICE_ROUND_XP = 6;
 /** Rodadas por modo, por dia, que ainda pagam XP. */
 export const HANZI_PRACTICE_XP_ROUNDS_PER_DAY = 3;
 
-export const HANZI_PRACTICE_MODES = ["fragments", "complete", "components", "sentences", "meaning", "pieces"] as const;
+export const HANZI_PRACTICE_MODES = ["fragments", "complete", "components", "sentences", "meaning", "pieces", "trace", "memory"] as const;
 export type HanziPracticeMode = (typeof HANZI_PRACTICE_MODES)[number];
 
 export function isHanziPracticeMode(value: unknown): value is HanziPracticeMode {
@@ -64,6 +64,6 @@ export function recommendedHanziMode(
   learnedCount: number
 ): HanziPracticeMode {
   if (learnedCount < 3) return "fragments";
-  const order: HanziPracticeMode[] = ["fragments", "components", "meaning", "complete", "pieces", "sentences"];
+  const order: HanziPracticeMode[] = ["fragments", "components", "meaning", "complete", "trace", "pieces", "sentences", "memory"];
   return order.find((mode) => paidRoundsToday(keys, accountId, mode, date) === 0) ?? "fragments";
 }

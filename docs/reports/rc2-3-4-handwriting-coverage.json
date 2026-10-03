@@ -1,0 +1,46 @@
+{
+  "charactersTotal": 175,
+  "charactersTaughtCandidates": 4,
+  "builderSupported": 19,
+  "handwritingReferenceVerified": 11,
+  "traceSupported": 11,
+  "memoryWriteSupported": 11,
+  "contextWriteSupported": 11,
+  "dataRequired": 8,
+  "curriculumLeaks": 0,
+  "verifiedCharacters": [
+    "人",
+    "口",
+    "木",
+    "日",
+    "月",
+    "山",
+    "水",
+    "火",
+    "大",
+    "小",
+    "中"
+  ],
+  "builderOnlyCharacters": [
+    "文",
+    "我",
+    "林",
+    "森",
+    "明",
+    "好",
+    "休",
+    "你"
+  ],
+  "unsupportedForWriting": [
+    "我",
+    "你",
+    "好",
+    "休",
+    "林",
+    "明",
+    "森",
+    "文"
+  ],
+  "builderGeometryPolicy": "BUILDER_GEOMETRY_NOT_GRADING_SOURCE",
+  "uniqueBuilderCharacters": 19
+}

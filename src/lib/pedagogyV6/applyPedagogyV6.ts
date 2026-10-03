@@ -1,6 +1,6 @@
 /**
  * RC2.3.0 — orquestra Descoberta + anti-repetição + Visual First (RC2.3.1)
- * + Everyday Mandarin (RC2.3.2).
+ * + Everyday Mandarin (RC2.3.2) + Hànzì Progressive Writing (RC2.3.4).
  */
 import type { LessonStep } from "../../data/journey";
 import { withDiscoveryStage, type TaughtConceptMap } from "./discovery";
@@ -9,6 +9,7 @@ import { enrichStepWithVisual, isAbstractPedagogyLesson } from "./earlyVisual";
 import { PEDAGOGY_V6_VERSION } from "./discovery";
 import { applyVisualFirstToPlan } from "../visualFirst/applyVisualFirst";
 import { applyEverydayMandarinToPlan } from "../everydayMandarin/applyEverydayMandarin";
+import { applyHanziProgressiveWritingToPlan } from "../hanziWriting/applyWriting";
 
 export interface PedagogyV6PlanResult {
   steps: LessonStep[];
@@ -20,6 +21,7 @@ export interface PedagogyV6PlanResult {
   visualInjectedScenes?: number;
   everydayInjectedScenarios?: number;
   everydayHumanizedPrompts?: number;
+  hanziWritingInjected?: number;
   version: typeof PEDAGOGY_V6_VERSION;
 }
 
@@ -30,6 +32,7 @@ export function applyPedagogyV6ToPlan(input: {
   taughtConceptIds?: TaughtConceptMap;
   unitIndex?: number;
   taughtHanzi?: readonly string[];
+  completedLessons?: readonly string[];
   /** Piloto V6: discovery/diversify só no early set. Visual First + Everyday aplicam ao currículo. */
   pilotOnly?: boolean;
 }): PedagogyV6PlanResult {
@@ -84,6 +87,15 @@ export function applyPedagogyV6ToPlan(input: {
     perceptualReordered = perceptualReordered || again.reordered;
   }
 
+  const writing = applyHanziProgressiveWritingToPlan({
+    lessonId: input.lessonId,
+    masteryPass: input.masteryPass,
+    steps,
+    taught: input.taughtConceptIds,
+    completedLessons: input.completedLessons,
+  });
+  steps = writing.steps;
+
   return {
     steps,
     discoveryInjected,
@@ -94,6 +106,7 @@ export function applyPedagogyV6ToPlan(input: {
     visualInjectedScenes: visual.injectedScenes,
     everydayInjectedScenarios: everyday.injectedScenarios,
     everydayHumanizedPrompts: everyday.humanizedPrompts,
+    hanziWritingInjected: writing.writingInjected,
     version: PEDAGOGY_V6_VERSION,
   };
 }

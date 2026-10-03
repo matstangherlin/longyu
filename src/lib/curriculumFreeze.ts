@@ -825,6 +825,33 @@ export const RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION = {
   gate: "gate:rc2-3-3-culture-deep",
 } as const;
 
+/**
+ * RC2.3.4 — Hànzì Progressive Writing (trace / memory / form evidence).
+ * No new lessons / StepKinds. Fingerprint unchanged. Builder SVG ≠ handwriting truth.
+ */
+export const RC2_3_4_HANZI_WRITING_CONTENT_EXCEPTION = {
+  id: "RC2_3_4_HANZI_PROGRESSIVE_WRITING",
+  scope: "HanziLearningStage + HandwritingReference + local canvas scoring + form evidence (no new lessons/StepKinds)",
+  allows: [
+    "Verified authorial handwriting references (subset)",
+    "Trace / memory / draw_missing_stroke practice modes",
+    "LessonStep writing metadata annotations via applyHanziProgressiveWritingToPlan",
+    "Local form evidence channels separate from meaning",
+    "Device QA Hànzì Writing panel + audit/coverage reports",
+  ],
+  forbids: [
+    "grading handwriting from HanziBuilder SVG / font outlines",
+    "new Mandarin lessons / StepKinds",
+    "OCR / remote handwriting APIs / cloud sync",
+    "touching #273 / Android billing",
+    "declaring OWNER_HANZI_ACCEPTANCE or APK_PASS without physical proof",
+    "parallel second Hànzì system replacing builders",
+  ],
+  previousFingerprint: "e566a250c5a6",
+  fingerprint: "e566a250c5a6",
+  gate: "gate:rc2-3-4-hanzi-writing",
+} as const;
+
 export const RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION = {
   id: "RC2_3_1_VISUAL_FIRST",
   scope: "visualConceptId on LessonStep + Visual First curriculum resolver/scenes (no new lessons/StepKinds)",

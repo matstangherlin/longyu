@@ -637,10 +637,13 @@ function candidatesForDomain(
       return reps % 2 === 1
         ? [buildPinyinAssembly(input, entity), buildListenPinyinChoice(input, entity), buildPinyinExercise(input, entity), fallback]
         : [buildPinyinExercise(input, entity), buildListenPinyinChoice(input, entity), buildPinyinAssembly(input, entity), fallback];
-    case "forma":
-      return entity.type === "char" && reps % 2 === 1
-        ? [buildImageChoiceReview(input, entity), buildHanziBuilderExercise(input, entity), buildHanziFromMeaning(input, entity), buildFormExercise(input, entity), fallback]
-        : [buildFormExercise(input, entity), buildImageChoiceReview(input, entity), buildHanziBuilderExercise(input, entity), buildHanziFromMeaning(input, entity), fallback];
+    case "forma": {
+      // RC2.3.4 — when writing evidence is weak, prefer assembly/complete builders over meaning→hanzi.
+      const preferAssembly = entity.type === "char";
+      return preferAssembly && reps % 2 === 1
+        ? [buildHanziBuilderExercise(input, entity), buildImageChoiceReview(input, entity), buildFormExercise(input, entity), buildHanziFromMeaning(input, entity), fallback]
+        : [buildFormExercise(input, entity), buildHanziBuilderExercise(input, entity), buildImageChoiceReview(input, entity), buildHanziFromMeaning(input, entity), fallback];
+    }
     case "significado":
       return reps % 2 === 0
         ? [buildImageChoiceReview(input, entity), buildMeaningContextChoice(input, entity), buildMeaningExercise(input, entity), fallback]
