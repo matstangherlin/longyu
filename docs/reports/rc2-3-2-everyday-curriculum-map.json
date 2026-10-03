@@ -1,0 +1,3423 @@
+{
+  "wave": "RC2.3.2",
+  "generatedAt": "2026-10-03T00:36:10.582Z",
+  "totalLessons": 134,
+  "scenarioBankSize": 14,
+  "lessonsWithCommunicativeOutcome": 134,
+  "lessonsWeakOutcome": 0,
+  "productionShareByPass": {
+    "1": 0.19809941520467836,
+    "2": 0.276525198938992,
+    "3": 0.5042735042735043,
+    "4": 0.45865384615384613
+  },
+  "transferShareByPass": {
+    "1": 0.03070175438596491,
+    "2": 0.03050397877984085,
+    "3": 0.02815485168426345,
+    "4": 0.13028846153846155
+  },
+  "contextQualityErrors": 0,
+  "curriculumLeakErrors": 0,
+  "lessons": [
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "title": "O que é mandarim?",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "METALINGUISTIC"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER",
+        "FOUNDATION"
+      ],
+      "scenarios": [
+        "everyday:greet-street"
+      ],
+      "communicativeOutcomeCount": 1,
+      "communicativeOutcomes": [
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "title": "O que é pinyin?",
+      "intents": [
+        "GREET",
+        "UNKNOWN"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:greet-street"
+      ],
+      "communicativeOutcomeCount": 1,
+      "communicativeOutcomes": [
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "title": "O que é tom?",
+      "intents": [
+        "TALK_FAMILY",
+        "UNKNOWN",
+        "GREET"
+      ],
+      "domains": [
+        "PERSONAL",
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "TALK_FAMILY",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p1-o-que-e-hanzi",
+      "title": "O que é hànzì?",
+      "intents": [
+        "GREET",
+        "UNKNOWN"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:greet-street"
+      ],
+      "communicativeOutcomeCount": 1,
+      "communicativeOutcomes": [
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p1-primeiros-hanzi",
+      "title": "Montando primeiros hànzì",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "title": "Laboratório de exercícios",
+      "intents": [
+        "ORDER_DRINK",
+        "UNKNOWN",
+        "THANK",
+        "ASK_HOW_ARE_YOU",
+        "GIVE_DIRECTION",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "FOOD",
+        "OTHER",
+        "SOCIAL",
+        "LOCATION"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "THANK",
+        "ASK_HOW_ARE_YOU",
+        "GIVE_DIRECTION",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l1",
+      "title": "Mandarim, pinyin e tom",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l2",
+      "title": "Olá",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "l3",
+      "title": "Tudo bem?",
+      "intents": [
+        "ORDER_DRINK",
+        "UNKNOWN",
+        "ASK_HOW_ARE_YOU",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "FOOD",
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "ASK_HOW_ARE_YOU",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l1-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l4",
+      "title": "Obrigado",
+      "intents": [
+        "THANK",
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "APOLOGIZE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "THANK",
+        "GREET",
+        "RESPOND_STATE",
+        "APOLOGIZE"
+      ]
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "title": "Até logo",
+      "intents": [
+        "SAY_GOODBYE",
+        "GREET",
+        "UNKNOWN",
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "SAY_GOODBYE",
+        "GREET",
+        "THANK",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "title": "Primeira conversa",
+      "intents": [
+        "SAY_GOODBYE",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "UNKNOWN",
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "SAY_GOODBYE",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "title": "Com licença",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l2-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-ma-primeiro-tom",
+      "title": "1º tom com ma",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "title": "2º tom com ma",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "title": "我很好 — Estou bem",
+      "intents": [
+        "RESPOND_STATE",
+        "UNKNOWN",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "title": "3º tom com ma",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "title": "4º tom com ma",
+      "intents": [
+        "THANK",
+        "UNKNOWN",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "THANK",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "title": "Tons em 你好",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p2-comparar-tom-1-4",
+      "title": "Comparar 1º e 4º tom",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-comparar-tom-2-3",
+      "title": "Comparar 2º e 3º tom",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-tons-xiexie",
+      "title": "Tons em 谢谢",
+      "intents": [
+        "THANK",
+        "UNKNOWN",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "THANK",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l5",
+      "title": "Quatro tons",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l6",
+      "title": "Treino guiado",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "l3-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l7",
+      "title": "A sílaba yao",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l8",
+      "title": "Tons em 好 e 谢",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l8-compare",
+      "title": "Compare tons",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l8-shi",
+      "title": "A sílaba shi",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "SAY_GOODBYE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "SAY_GOODBYE"
+      ]
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "title": "Sons que brasileiros confundem",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "title": "Números por som",
+      "intents": [
+        "ASK_PRICE",
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SHOPPING",
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l4-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l9",
+      "title": "Me apresentar",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "THANK",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "title": "Tudo bem?",
+      "intents": [
+        "ASK_HOW_ARE_YOU",
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "ASK_HOW_ARE_YOU",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY"
+      ]
+    },
+    {
+      "lessonId": "l9-qual-nome",
+      "title": "Como você se chama?",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l10",
+      "title": "De onde sou",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "TALK_FAMILY",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "TALK_FAMILY",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p3-wobuhui-shuo-zhongwen",
+      "title": "我不会说中文",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "HEALTH_BASIC"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL",
+        "HEALTH"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "HEALTH_BASIC"
+      ]
+    },
+    {
+      "lessonId": "p3-qing-zai-shuo-yibian",
+      "title": "请再说一遍",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "HEALTH_BASIC"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "HEALTH"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "HEALTH_BASIC"
+      ]
+    },
+    {
+      "lessonId": "l11",
+      "title": "Não entendi",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_FOR_HELP",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_FOR_HELP",
+        "ASK_HOW_ARE_YOU"
+      ]
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "title": "Falo um pouco",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_WHERE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "LOCATION"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_WHERE"
+      ]
+    },
+    {
+      "lessonId": "l12",
+      "title": "Peças da frase",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ]
+    },
+    {
+      "lessonId": "l13",
+      "title": "Microtexto 1",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l13-dialogo-ola",
+      "title": "Microdiálogo: cumprimentar",
+      "intents": [
+        "RESPOND_STATE",
+        "GREET",
+        "UNKNOWN",
+        "THANK",
+        "ORDER_DRINK"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER",
+        "FOOD"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET",
+        "THANK",
+        "ORDER_DRINK"
+      ]
+    },
+    {
+      "lessonId": "l13-dialogo-nome",
+      "title": "Microdiálogo: se apresentar",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p3-ordem-das-palavras",
+      "title": "A ordem importa",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ]
+    },
+    {
+      "lessonId": "p3-nomes-da-frase",
+      "title": "Nomes das peças",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l5-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l14",
+      "title": "Radicais básicos",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-num-123",
+      "title": "一 二 三",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ]
+    },
+    {
+      "lessonId": "p4-num-45",
+      "title": "四 五",
+      "intents": [
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-num-678",
+      "title": "六 七 八",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p4-num-910",
+      "title": "九 十",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "title": "木",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "title": "人",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ORDER_DRINK"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "FOOD"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ORDER_DRINK"
+      ]
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "title": "口",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "title": "日",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "title": "月",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p4-char-shan",
+      "title": "山",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p4-char-shui",
+      "title": "水",
+      "intents": [
+        "UNKNOWN",
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "FOOD",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-tian",
+      "title": "天",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-huo",
+      "title": "火",
+      "intents": [
+        "UNKNOWN",
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "FOOD",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-da",
+      "title": "大",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p4-char-xiao",
+      "title": "小",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-zhong",
+      "title": "中",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-bu",
+      "title": "不",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-shi",
+      "title": "是",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p4-char-wo",
+      "title": "我",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ORDER_DRINK"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "FOOD"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ORDER_DRINK"
+      ]
+    },
+    {
+      "lessonId": "p4-char-ni",
+      "title": "你",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l14-numeros-visuais",
+      "title": "Números visuais",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l14-pecas-natureza",
+      "title": "Peças da natureza",
+      "intents": [
+        "UNKNOWN",
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "FOOD",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l14-frase-minima",
+      "title": "Caracteres de frase",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l14-char-rev",
+      "title": "Revisão de reconhecimento",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l15",
+      "title": "Repetir intensifica",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l6-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l16",
+      "title": "妈: sentido + som",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l17",
+      "title": "Sol e lua",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "ORDER_DRINK",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "FOOD"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ORDER_DRINK",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l18",
+      "title": "Amigo",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l7-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p4-checkpoint-fundamentos",
+      "title": "Checkpoint dos fundamentos",
+      "intents": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "UNKNOWN",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "title": "木 + 木 = 林",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "title": "木 + 木 + 木 = 森",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "title": "日 + 月 = 明",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "title": "人 + 木 = 休",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "ORDER_DRINK",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "FOOD"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ORDER_DRINK",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "title": "女 + 子 = 好",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "title": "人 + 人 = 从",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "title": "人 + 人 + 人 = 众",
+      "intents": [
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "title": "女 + 马 = 妈",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "GREET",
+        "TALK_FAMILY"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET",
+        "TALK_FAMILY"
+      ]
+    },
+    {
+      "lessonId": "p5-kou-ma-pergunta",
+      "title": "口 + 马 = 吗",
+      "intents": [
+        "ASK_HOW_ARE_YOU",
+        "UNKNOWN",
+        "THANK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "title": "Árvore vira floresta",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ]
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "title": "Luz e bom",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "title": "Pessoas juntas",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l19-logica-ma",
+      "title": "Quando 马 dá som",
+      "intents": [
+        "UNKNOWN",
+        "TALK_FAMILY",
+        "THANK",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "PERSONAL",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "TALK_FAMILY",
+        "THANK",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l19-logica-rev",
+      "title": "Revisão de peças",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU"
+      ]
+    },
+    {
+      "lessonId": "l19",
+      "title": "Um a cinco",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l20",
+      "title": "Seis a dez",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ]
+    },
+    {
+      "lessonId": "l8-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l21",
+      "title": "Nós e vocês",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU"
+      ]
+    },
+    {
+      "lessonId": "l22",
+      "title": "China e amigos",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l23",
+      "title": "Microtexto 2",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l9-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 2,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l24",
+      "title": "Pai e mãe",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l25",
+      "title": "Perguntas úteis",
+      "intents": [
+        "IDENTIFY_OBJECT",
+        "UNKNOWN",
+        "ASK_WHERE",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "SAY_GOODBYE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "LOCATION",
+        "PERSONAL",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "ASK_WHERE",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "SAY_GOODBYE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l26",
+      "title": "Fome e gosto",
+      "intents": [
+        "UNKNOWN",
+        "HEALTH_BASIC",
+        "THANK",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "HEALTH",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "HEALTH_BASIC",
+        "THANK",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l26b",
+      "title": "No cardápio",
+      "intents": [
+        "ORDER_DRINK",
+        "RESPOND_STATE",
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "ORDER_FOOD",
+        "ASK_PRICE"
+      ],
+      "domains": [
+        "FOOD",
+        "SOCIAL",
+        "OTHER",
+        "SHOPPING"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "ORDER_FOOD",
+        "ASK_PRICE"
+      ]
+    },
+    {
+      "lessonId": "l26c",
+      "title": "Imersão: almoce num restaurante",
+      "intents": [
+        "ORDER_FOOD",
+        "UNKNOWN",
+        "SAY_GOODBYE",
+        "IDENTIFY_OBJECT",
+        "ORDER_DRINK",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "FOOD",
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 7,
+      "communicativeOutcomes": [
+        "ORDER_FOOD",
+        "SAY_GOODBYE",
+        "IDENTIFY_OBJECT",
+        "ORDER_DRINK",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l27",
+      "title": "Na loja",
+      "intents": [
+        "ASK_PRICE",
+        "UNKNOWN",
+        "ORDER_DRINK",
+        "THANK",
+        "SAY_GOODBYE",
+        "BUY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "SHOPPING",
+        "OTHER",
+        "FOOD",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 7,
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "ORDER_DRINK",
+        "THANK",
+        "SAY_GOODBYE",
+        "BUY",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l28",
+      "title": "Vamos embora",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "title": "Rotina e trabalho",
+      "intents": [
+        "HEALTH_BASIC",
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "HEALTH",
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "HEALTH_BASIC",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p6-cidade-lugares",
+      "title": "Cidade e lugares",
+      "intents": [
+        "BUY",
+        "UNKNOWN",
+        "GREET",
+        "CHECK_IN",
+        "TAKE_TRANSPORT",
+        "RESPOND_STATE",
+        "HEALTH_BASIC",
+        "IDENTIFY_OBJECT",
+        "ASK_WHERE",
+        "TALK_FAMILY"
+      ],
+      "domains": [
+        "SHOPPING",
+        "OTHER",
+        "SOCIAL",
+        "HOTEL",
+        "TRANSPORT",
+        "HEALTH",
+        "LOCATION",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 9,
+      "communicativeOutcomes": [
+        "BUY",
+        "GREET",
+        "CHECK_IN",
+        "TAKE_TRANSPORT",
+        "RESPOND_STATE",
+        "HEALTH_BASIC",
+        "IDENTIFY_OBJECT",
+        "ASK_WHERE",
+        "TALK_FAMILY"
+      ]
+    },
+    {
+      "lessonId": "p6-china-cidades",
+      "title": "Cidades da China",
+      "intents": [
+        "UNKNOWN",
+        "ASK_WHERE",
+        "TAKE_TRANSPORT",
+        "BUY",
+        "CHECK_IN",
+        "RESPOND_STATE",
+        "HEALTH_BASIC",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "LOCATION",
+        "TRANSPORT",
+        "SHOPPING",
+        "HOTEL",
+        "SOCIAL",
+        "HEALTH"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 7,
+      "communicativeOutcomes": [
+        "ASK_WHERE",
+        "TAKE_TRANSPORT",
+        "BUY",
+        "CHECK_IN",
+        "RESPOND_STATE",
+        "HEALTH_BASIC",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "title": "Mais cidades: Chengdu, Xi'an, Nanjing",
+      "intents": [
+        "UNKNOWN",
+        "ORDER_DRINK",
+        "THANK",
+        "SAY_GOODBYE",
+        "ORDER_FOOD",
+        "RESPOND_STATE",
+        "GREET",
+        "ASK_WHERE"
+      ],
+      "domains": [
+        "OTHER",
+        "FOOD",
+        "SOCIAL",
+        "LOCATION"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 7,
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "THANK",
+        "SAY_GOODBYE",
+        "ORDER_FOOD",
+        "RESPOND_STATE",
+        "GREET",
+        "ASK_WHERE"
+      ]
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "title": "Ruas e endereços",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "CHECK_IN",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "TAKE_TRANSPORT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "HOTEL",
+        "LOCATION",
+        "TRANSPORT"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "GREET",
+        "CHECK_IN",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "TAKE_TRANSPORT"
+      ]
+    },
+    {
+      "lessonId": "p6-saude",
+      "title": "Saúde",
+      "intents": [
+        "RESPOND_STATE",
+        "UNKNOWN",
+        "GREET",
+        "HEALTH_BASIC",
+        "ASK_WHERE"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER",
+        "HEALTH",
+        "LOCATION"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET",
+        "HEALTH_BASIC",
+        "ASK_WHERE"
+      ]
+    },
+    {
+      "lessonId": "p6-horarios",
+      "title": "Que horas são?",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p6-natureza",
+      "title": "A natureza",
+      "intents": [
+        "UNKNOWN",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "ASK_WHERE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "PERSONAL",
+        "LOCATION"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "ASK_WHERE"
+      ]
+    },
+    {
+      "lessonId": "p6-clima",
+      "title": "O tempo (clima)",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ]
+    },
+    {
+      "lessonId": "p6-direcoes",
+      "title": "Direções",
+      "intents": [
+        "GIVE_DIRECTION",
+        "UNKNOWN",
+        "GREET",
+        "CHECK_IN",
+        "TAKE_TRANSPORT",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "LOCATION",
+        "OTHER",
+        "SOCIAL",
+        "HOTEL",
+        "TRANSPORT"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "GIVE_DIRECTION",
+        "GREET",
+        "CHECK_IN",
+        "TAKE_TRANSPORT",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p6-compras",
+      "title": "Compras: roupas e itens",
+      "intents": [
+        "UNKNOWN",
+        "BUY",
+        "ASK_PRICE",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SHOPPING",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "BUY",
+        "ASK_PRICE",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "title": "Survival: pagar, hotel, ajuda",
+      "intents": [
+        "UNKNOWN",
+        "BUY",
+        "HEALTH_BASIC",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "ASK_PRICE",
+        "CHECK_IN",
+        "GREET",
+        "ASK_FOR_HELP"
+      ],
+      "domains": [
+        "OTHER",
+        "SHOPPING",
+        "HEALTH",
+        "SOCIAL",
+        "LOCATION",
+        "HOTEL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 8,
+      "communicativeOutcomes": [
+        "BUY",
+        "HEALTH_BASIC",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "ASK_PRICE",
+        "CHECK_IN",
+        "GREET",
+        "ASK_FOR_HELP"
+      ]
+    },
+    {
+      "lessonId": "l10-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "UNKNOWN",
+        "GREET",
+        "ASK_PRICE",
+        "ORDER_FOOD",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "SHOPPING",
+        "FOOD"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_PRICE",
+        "ORDER_FOOD",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "l29",
+      "title": "Eu e meus amigos",
+      "intents": [
+        "UNKNOWN",
+        "ASK_PRICE",
+        "ORDER_DRINK",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SHOPPING",
+        "FOOD",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 4,
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "ORDER_DRINK",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l30",
+      "title": "Leitura em voz alta",
+      "intents": [
+        "UNKNOWN",
+        "BUY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "OTHER",
+        "SHOPPING",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "BUY",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "l11-rev",
+      "title": "Revisão do módulo",
+      "intents": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "UNKNOWN",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:greet-street",
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 3,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "title": "Imersão: no mercado",
+      "intents": [
+        "ASK_PRICE",
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "HEALTH_BASIC",
+        "RESPOND_STATE",
+        "BUY",
+        "GREET"
+      ],
+      "domains": [
+        "SHOPPING",
+        "OTHER",
+        "HEALTH",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "HEALTH_BASIC",
+        "RESPOND_STATE",
+        "BUY",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-estacao",
+      "title": "Imersão: na estação",
+      "intents": [
+        "TAKE_TRANSPORT",
+        "UNKNOWN",
+        "CHECK_IN",
+        "GIVE_DIRECTION",
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "GREET",
+        "BUY",
+        "THANK"
+      ],
+      "domains": [
+        "TRANSPORT",
+        "OTHER",
+        "HOTEL",
+        "LOCATION",
+        "SHOPPING",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 10,
+      "communicativeOutcomes": [
+        "TAKE_TRANSPORT",
+        "CHECK_IN",
+        "GIVE_DIRECTION",
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "GREET",
+        "BUY",
+        "THANK"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-hotel",
+      "title": "Imersão: check-in no hotel",
+      "intents": [
+        "CHECK_IN",
+        "UNKNOWN",
+        "TALK_FAMILY",
+        "THANK",
+        "ASK_WHERE",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "HOTEL",
+        "OTHER",
+        "PERSONAL",
+        "SOCIAL",
+        "LOCATION"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "CHECK_IN",
+        "TALK_FAMILY",
+        "THANK",
+        "ASK_WHERE",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-aeroporto",
+      "title": "Imersão: no aeroporto",
+      "intents": [
+        "ASK_WHERE",
+        "UNKNOWN",
+        "ASK_PRICE",
+        "GIVE_DIRECTION",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "domains": [
+        "LOCATION",
+        "OTHER",
+        "SHOPPING",
+        "PERSONAL",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 7,
+      "communicativeOutcomes": [
+        "ASK_WHERE",
+        "ASK_PRICE",
+        "GIVE_DIRECTION",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "GREET"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-saude",
+      "title": "Imersão: não estou bem",
+      "intents": [
+        "UNKNOWN",
+        "ASK_FOR_HELP",
+        "ASK_WHERE",
+        "HEALTH_BASIC",
+        "GIVE_DIRECTION",
+        "TALK_FAMILY",
+        "THANK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "SOCIAL",
+        "LOCATION",
+        "HEALTH",
+        "PERSONAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 8,
+      "communicativeOutcomes": [
+        "ASK_FOR_HELP",
+        "ASK_WHERE",
+        "HEALTH_BASIC",
+        "GIVE_DIRECTION",
+        "TALK_FAMILY",
+        "THANK",
+        "GREET",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p7-conversa-cotidiana",
+      "title": "Imersão: conversa cotidiana",
+      "intents": [
+        "GREET",
+        "UNKNOWN",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT"
+      ],
+      "domains": [
+        "SOCIAL",
+        "OTHER"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 5,
+      "communicativeOutcomes": [
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT"
+      ]
+    },
+    {
+      "lessonId": "p7-china-survival",
+      "title": "Imersão: um dia na China",
+      "intents": [
+        "UNKNOWN",
+        "ASK_WHERE",
+        "ORDER_FOOD",
+        "GREET",
+        "CHECK_IN",
+        "BUY",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "OTHER",
+        "LOCATION",
+        "FOOD",
+        "SOCIAL",
+        "HOTEL",
+        "SHOPPING"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "ASK_WHERE",
+        "ORDER_FOOD",
+        "GREET",
+        "CHECK_IN",
+        "BUY",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-viagem",
+      "title": "Imersão: hotel ao aeroporto",
+      "intents": [
+        "CHECK_IN",
+        "GIVE_DIRECTION",
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "UNKNOWN",
+        "TALK_FAMILY",
+        "GREET",
+        "ASK_WHERE",
+        "BUY",
+        "RESPOND_STATE"
+      ],
+      "domains": [
+        "HOTEL",
+        "LOCATION",
+        "SHOPPING",
+        "OTHER",
+        "PERSONAL",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 9,
+      "communicativeOutcomes": [
+        "CHECK_IN",
+        "GIVE_DIRECTION",
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "GREET",
+        "ASK_WHERE",
+        "BUY",
+        "RESPOND_STATE"
+      ]
+    },
+    {
+      "lessonId": "p7-imersao-casa-amigo",
+      "title": "Imersão: visita à casa da amiga",
+      "intents": [
+        "UNKNOWN",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "GREET",
+        "THANK"
+      ],
+      "domains": [
+        "OTHER",
+        "PERSONAL",
+        "SOCIAL"
+      ],
+      "scenarios": [
+        "everyday:respond-well"
+      ],
+      "communicativeOutcomeCount": 6,
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "GREET",
+        "THANK"
+      ]
+    }
+  ]
+}

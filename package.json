@@ -1100,7 +1100,16 @@
     "test:rc231-visual-audit": "node scripts/rc2-3-1-visual-first.mjs test visual-audit",
     "validate:rc231-visual-closure": "node scripts/rc2-3-1-visual-first.mjs validate visual-closure",
     "test:rc231-visual-closure": "node scripts/rc2-3-1-visual-first.mjs test visual-closure",
-    "gate:rc2-3-1-visual-first": "npm run audit:rc231-visual && npm run validate:rc231-visual-engine && npm run test:rc231-visual-engine && npm run validate:rc231-visual-audit && npm run test:rc231-visual-audit && npm run validate:rc231-visual-closure && npm run test:rc231-visual-closure && npm run gate:rc2-3-0-pedagogy-v6"
+    "gate:rc2-3-1-visual-first": "npm run audit:rc231-visual && npm run validate:rc231-visual-engine && npm run test:rc231-visual-engine && npm run validate:rc231-visual-audit && npm run test:rc231-visual-audit && npm run validate:rc231-visual-closure && npm run test:rc231-visual-closure && npm run gate:rc2-3-0-pedagogy-v6",
+    "audit:rc232-everyday": "node scripts/audit-rc2-3-2-everyday.mjs",
+    "validate:rc232-everyday-engine": "node scripts/rc2-3-2-human-everyday.mjs validate everyday-engine",
+    "test:rc232-everyday-engine": "node scripts/rc2-3-2-human-everyday.mjs test everyday-engine",
+    "validate:rc232-everyday-audit": "node scripts/rc2-3-2-human-everyday.mjs validate everyday-audit",
+    "test:rc232-everyday-audit": "node scripts/rc2-3-2-human-everyday.mjs test everyday-audit",
+    "validate:rc232-everyday-closure": "node scripts/rc2-3-2-human-everyday.mjs validate everyday-closure",
+    "test:rc232-everyday-closure": "node scripts/rc2-3-2-human-everyday.mjs test everyday-closure",
+    "gate:rc2-3-2-human-everyday": "npm run audit:rc232-everyday && npm run validate:rc232-everyday-engine && npm run test:rc232-everyday-engine && npm run validate:rc232-everyday-audit && npm run test:rc232-everyday-audit && npm run validate:rc232-everyday-closure && npm run test:rc232-everyday-closure && npm run simulate:rc232-learner-journey && npm run gate:rc2-3-1-visual-first",
+    "simulate:rc232-learner-journey": "node scripts/simulate-rc2-3-2-learner-journey.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

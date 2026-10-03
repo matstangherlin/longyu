@@ -14,6 +14,11 @@ export interface FirstExposureFinding {
 /**
  * Audita se a primeira Descoberta/exposição de conceitos concretos usa visual
  * quando o asset existe.
+ *
+ * Sempre emite um finding por conceito concreto na primeira exposição:
+ * - code=null + sem exceção → coberto (aluno encontra o visual)
+ * - justifiedException=ASSET_REQUIRED → sem asset (não conta como PASS nem fail duro)
+ * - code=CONCRETE_FIRST_EXPOSURE_WITHOUT_VISUAL → fail (salvo exceção justificada)
  */
 export function auditConcreteFirstExposure(input: {
   lessonId: string;
@@ -27,7 +32,7 @@ export function auditConcreteFirstExposure(input: {
     const blob = [step.hanzi, step.targetHanzi, step.text, step.audioText].filter(Boolean).join("");
     const resolved = resolveCurriculumVisual({
       text: blob,
-      conceptId: step.imageId,
+      conceptId: step.visualConceptId || step.imageId,
       unitIndex: input.unitIndex ?? 0,
       allowUntaughtTarget: true,
     });
@@ -35,11 +40,14 @@ export function auditConcreteFirstExposure(input: {
     if (seen.has(resolved.concept.id)) continue;
     seen.add(resolved.concept.id);
 
-    const isExposure = step.pedagogyRole === "discovery" || step.kind === "intro" || step.kind === "listen" || step.kind === "flashcard";
+    const isExposure =
+      step.pedagogyRole === "discovery" ||
+      step.kind === "intro" ||
+      step.kind === "listen" ||
+      step.kind === "flashcard";
     if (!isExposure) continue;
 
-    const hasVisual = Boolean(step.imageId || step.iconId || step.kind === "image_choice");
-    if (hasVisual && resolved.hasLocalAsset) continue;
+    const hasVisual = Boolean(step.imageId || step.iconId || step.visualConceptId || step.kind === "image_choice");
 
     if (!resolved.hasLocalAsset) {
       findings.push({
@@ -47,6 +55,15 @@ export function auditConcreteFirstExposure(input: {
         conceptId: resolved.concept.id,
         hanzi: resolved.concept.hanzi,
         justifiedException: "ASSET_REQUIRED",
+      });
+      continue;
+    }
+
+    if (hasVisual) {
+      findings.push({
+        code: null,
+        conceptId: resolved.concept.id,
+        hanzi: resolved.concept.hanzi,
       });
       continue;
     }

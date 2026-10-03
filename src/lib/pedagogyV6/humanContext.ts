@@ -1,8 +1,13 @@
 /**
  * RC2.3.0 — piloto de contexto humano no início da Jornada.
- * Expansão completa = RC2.3.2.
+ * RC2.3.2 — classificador delega ao contrato EverydayIntent (regex = fallback).
  */
 import type { LessonStep } from "../../data/journey";
+import {
+  inferEverydayIntentFromText,
+  intentIsCommunicative,
+  type EverydayIntent,
+} from "../everydayMandarin/intents";
 
 export type HumanContextKind =
   | "METALINGUISTIC"
@@ -13,23 +18,24 @@ export type HumanContextKind =
   | "VISUAL"
   | "AUDIO";
 
-const META_HINT =
-  /o que é|qual (é|destes)|tradução correta|camada|pinyin|hànzì|hanzi|tom\b|alfabeto|variedade padrão|mandarim é/i;
-
-const HUMAN_HINT =
-  /pessoa|manhã|encontra|cumpriment|diz |você |amigo|garçom|na rua|ao chegar|quando alguém|olha para você|situação/i;
-
 export function classifyHumanContext(step: LessonStep): HumanContextKind {
   if (step.kind === "conversation_scene" || step.kind === "conversation_repair") return "CONVERSATION";
-  if (step.kind === "transfer_task") return "TRANSFER";
+  if (step.kind === "transfer_task" || step.learnerAgency === "TRANSFER") return "TRANSFER";
   if (step.kind === "image_choice" || step.kind === "compare_with_image") return "VISUAL";
   if (step.kind === "listen" || step.kind === "listen_select" || step.kind === "audio_discrimination") return "AUDIO";
-  if (/produc|write|free_production|sentence_build|reverse_recall/.test(step.kind)) return "PRODUCTION";
-  const blob = [step.title, step.prompt, step.promptPt, step.dialoguePrompt, step.body].filter(Boolean).join(" ");
-  if (HUMAN_HINT.test(blob) || step.kind === "dialogue_choice" || step.kind === "contextual_choice") {
+  if (/produc|write|free_production|sentence_build|reverse_recall|dialogue_completion/.test(step.kind)) {
+    return "PRODUCTION";
+  }
+
+  const intent = (step.everydayIntent as EverydayIntent | undefined) ||
+    inferEverydayIntentFromText(
+      [step.title, step.prompt, step.promptPt, step.dialoguePrompt, step.body].filter(Boolean).join(" ")
+    ).everydayIntent;
+
+  if (intentIsCommunicative(intent) || step.kind === "dialogue_choice" || step.kind === "contextual_choice") {
     return "HUMAN_SITUATION";
   }
-  if (META_HINT.test(blob) || step.kind === "intro") return "METALINGUISTIC";
+  if (intent === "METALINGUISTIC" || step.kind === "intro") return "METALINGUISTIC";
   return "METALINGUISTIC";
 }
 

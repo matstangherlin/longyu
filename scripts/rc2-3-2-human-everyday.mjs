@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { VALIDATORS, loadState, report } from "./lib/rc2-3-1-gates.mjs";
+import { VALIDATORS, loadState, report } from "./lib/rc2-3-2-gates.mjs";
 
 const [mode, area] = process.argv.slice(2);
 const gate = VALIDATORS[area];
@@ -24,26 +24,27 @@ const src = (key, from, to) => (s) => {
 };
 
 const MUTATIONS = {
-  "visual-engine": [
-    ["[1] resolve removed", "RESOLVE", src("resolve", "resolveCurriculumVisual", "resolveLegacyVisual")],
-    ["[2] apply unwired", "WIRE", src("pedagogyApply", "applyVisualFirstToPlan", "applyLegacyVisualPlan")],
+  "everyday-engine": [
+    ["[1] apply unwired", "WIRE", src("pedagogyApply", "applyEverydayMandarinToPlan", "applyLegacyEveryday")],
+    ["[2] intent removed", "INTENT", src("intents", "EverydayIntent", "LegacyIntent")],
   ],
-  "visual-audit": [["[3] audit lessons wiped", "LESSONS", (s) => { s.audit = { ...(s.audit ?? {}), totalLessons: 2 }; }]],
-  "visual-closure": [
-    ["[4] billing enabled", "BILLING", src("appGradle", "implementation project(':capacitor-android')", "implementation 'com.android.billingclient:billing:7.0.0'\n    implementation project(':capacitor-android')")],
-    ["[5] fake owner PASS", "FAKE_OWNER", (s) => { s.matrix = { ...(s.matrix ?? {}), statuses: { ...(s.matrix?.statuses ?? {}), OWNER_VISUAL_ACCEPTANCE: "PASS" } }; }],
+  "everyday-audit": [
+    ["[3] leak invented", "EVERYDAY_CURRICULUM_LEAK", (s) => { s.map = { ...(s.map ?? {}), curriculumLeakErrors: 3 }; }],
     [
-      "[6] matrix/audit mismatch",
+      "[4] matrix/audit mismatch",
       "MATRIX_STATUS_MUST_MATCH_AUDIT",
       (s) => {
-        s.matrix = {
-          ...(s.matrix ?? {}),
-          statuses: { ...(s.matrix?.statuses ?? {}), FIRST_EXPOSURE_PASS: "YES" },
+        s.matrix231 = {
+          ...(s.matrix231 ?? {}),
+          statuses: { ...(s.matrix231?.statuses ?? {}), FIRST_EXPOSURE_PASS: "YES" },
         };
-        s.audit = { ...(s.audit ?? {}), firstExposureMissing: 9, firstExposureCovered: 0 };
-        s.full = { ...(s.full ?? {}), firstExposureMissing: 9, firstExposureCovered: 0 };
+        s.audit231 = { ...(s.audit231 ?? {}), firstExposureMissing: 5, firstExposureCovered: 0 };
       },
     ],
+  ],
+  "everyday-closure": [
+    ["[5] fake owner PASS", "FAKE_OWNER", (s) => { s.matrix = { ...(s.matrix ?? {}), statuses: { ...(s.matrix?.statuses ?? {}), OWNER_HUMAN_ACCEPTANCE: "PASS" } }; }],
+    ["[6] billing enabled", "BILLING", src("appGradle", "implementation project(':capacitor-android')", "implementation 'com.android.billingclient:billing:7.0.0'\n    implementation project(':capacitor-android')")],
   ],
 };
 

@@ -30,7 +30,7 @@ runMutations("test:android-native-foundation", base, validateAndroidNativeFounda
   ["manifesto declara release assinado", (s) => { s.releaseManifest.releaseSigningEvidence = true; }, "UNPROVEN_CLAIM"],
   ["manifesto declara Play Console", (s) => { s.releaseManifest.playConsoleConfigured = true; }, "UNPROVEN_CLAIM"],
   ["Public Beta GO", (s) => { s.releaseManifest.publicBetaVerdict = "GO"; }, "PUBLIC_BETA_VERDICT"],
-  ["#22 fingerprint pedagógico muda (freeze)", (s) => { s.curriculumFreezeSource = swap(s.curriculumFreezeSource, 'RC_BASE_FINGERPRINT = "c3861b5fb65f"', 'RC_BASE_FINGERPRINT = "d00000000000"'); }, "FINGERPRINT_DRIFT"],
+  ["#22 fingerprint pedagógico muda (freeze)", (s) => { s.curriculumFreezeSource = swap(s.curriculumFreezeSource, 'RC_BASE_FINGERPRINT = "e566a250c5a6"', 'RC_BASE_FINGERPRINT = "d00000000000"'); }, "FINGERPRINT_DRIFT"],
   ["fingerprint do manifesto muda", (s) => { s.releaseManifest.fingerprint = "d00000000000"; }, "FINGERPRINT_DRIFT"],
   ["#23 BETA_PEDAGOGY_FREEZE removido", (s) => { s.curriculumFreezeSource = swap(s.curriculumFreezeSource, "export const BETA_PEDAGOGY_FREEZE", "const LEGACY_PEDAGOGY_FREEZE"); }, "BETA_PEDAGOGY_FREEZE_REMOVED"],
   ["#24 curriculum source modificado", (s) => { s.curriculumSources["src/data/journey.ts"] += "\n// ajuste mobile\n"; }, "CURRICULUM_SOURCE_MODIFIED"],

@@ -18,7 +18,7 @@ import ts from "typescript";
 import { CURRICULUM_SOURCES } from "./report-meta.mjs";
 import { ANDROID_APPLICATION_ID, LEGACY_ANDROID_APPLICATION_IDS } from "./android-package-identity.mjs";
 
-export const EXPECTED_FINGERPRINT = "c3861b5fb65f";
+export const EXPECTED_FINGERPRINT = "e566a250c5a6";
 /** RC2.2.16 — package do app no Google Play Console (congelado). */
 export const EXPECTED_APP_ID = ANDROID_APPLICATION_ID;
 const LEGACY_SCHEME = LEGACY_ANDROID_APPLICATION_IDS[0];

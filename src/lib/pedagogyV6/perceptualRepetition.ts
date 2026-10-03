@@ -31,6 +31,8 @@ export interface PerceptualItem {
   cognitiveOperation: CognitiveOperation;
   interactionFamily: InteractionFamily;
   presentationKey: string;
+  /** RC2.3.2 — TARGET_REPEAT vs CONTEXTUAL_REUSE. */
+  targetRole?: "TARGET" | "CONTEXTUAL_REUSE" | "OTHER";
   remediation?: boolean;
   index: number;
 }
@@ -77,7 +79,8 @@ export function presentationKeyOfStep(step: LessonStep): string {
   const family = interactionFamilyFor(step.kind);
   const target = semanticTargetOfStep(step);
   const visual = step.visualConceptId || step.imageId || step.correctImageId || "";
-  return `${family}|${target}|${step.kind}|${visual}`;
+  const role = step.contextRole === "CONTEXTUAL_REUSE" ? "reuse" : "target";
+  return `${family}|${target}|${step.kind}|${visual}|${role}`;
 }
 
 export function perceptualItemFromStep(step: LessonStep, index: number): PerceptualItem {
@@ -86,6 +89,12 @@ export function perceptualItemFromStep(step: LessonStep, index: number): Percept
     cognitiveOperation: cognitiveOperationFor(step.kind),
     interactionFamily: interactionFamilyFor(step.kind),
     presentationKey: presentationKeyOfStep(step),
+    targetRole:
+      step.contextRole === "CONTEXTUAL_REUSE"
+        ? "CONTEXTUAL_REUSE"
+        : step.contextRole === "TARGET"
+          ? "TARGET"
+          : "OTHER",
     remediation: step.pedagogyRole === "remediation",
     index,
   };
@@ -121,7 +130,10 @@ export function saturationScore(items: readonly PerceptualItem[]): SaturationSco
   const familyCounts = new Map<string, number>();
   const presentationCounts = new Map<string, number>();
   for (const item of practice) {
-    targetCounts.set(item.semanticTargetKey, (targetCounts.get(item.semanticTargetKey) ?? 0) + 1);
+    // CONTEXTUAL_REUSE (你好 como ferramenta) não conta igual a TARGET_REPEAT.
+    if (item.targetRole !== "CONTEXTUAL_REUSE") {
+      targetCounts.set(item.semanticTargetKey, (targetCounts.get(item.semanticTargetKey) ?? 0) + 1);
+    }
     familyCounts.set(item.interactionFamily, (familyCounts.get(item.interactionFamily) ?? 0) + 1);
     presentationCounts.set(item.presentationKey, (presentationCounts.get(item.presentationKey) ?? 0) + 1);
   }
@@ -180,6 +192,7 @@ function practiceTargetCount(steps: readonly LessonStep[], target: string): numb
     (s) =>
       cognitiveOperationFor(s.kind) !== "TEACH" &&
       s.pedagogyRole !== "discovery" &&
+      s.contextRole !== "CONTEXTUAL_REUSE" &&
       semanticTargetOfStep(s) === target
   ).length;
 }

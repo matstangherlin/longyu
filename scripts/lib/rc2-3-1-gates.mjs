@@ -114,6 +114,29 @@ export async function validateVisualQaAndClosure(s) {
       fail("FAKE_OWNER", FILES.matrix, "owner visual acceptance without physical");
     }
     if (s.matrix.waveReadyForClosedBeta === true) fail("BETA_CLAIM", FILES.matrix, "must not claim beta");
+    // MATRIX_STATUS_MUST_MATCH_AUDIT — PASS só quando o audit sustenta o PASS.
+    const fePass = s.matrix.statuses?.FIRST_EXPOSURE_PASS;
+    const covered = Number(s.audit?.firstExposureCovered ?? s.full?.firstExposureCovered ?? 0);
+    const missing = Number(s.audit?.firstExposureMissing ?? s.full?.firstExposureMissing ?? 0);
+    if ((fePass === "YES" || fePass === "PASS") && missing > 0) {
+      fail(
+        "MATRIX_STATUS_MUST_MATCH_AUDIT",
+        FILES.matrix,
+        `FIRST_EXPOSURE_PASS=${fePass} but audit firstExposureMissing=${missing} (covered=${covered})`
+      );
+    }
+    if ((fePass === "YES" || fePass === "PASS") && covered === 0 && missing === 0) {
+      // Nenhum concreto em exposição: não é evidência de cobertura visual first-exposure.
+      // Aceitável só se o audit declarar explicitamente zero candidatos concretos.
+      const candidates = Number(s.audit?.concreteConcepts ?? 0);
+      if (candidates > 0) {
+        fail(
+          "MATRIX_STATUS_MUST_MATCH_AUDIT",
+          FILES.matrix,
+          "FIRST_EXPOSURE_PASS sem findings cobertos no audit"
+        );
+      }
+    }
   }
   if (/billingclient|BillingClient/i.test(s.src.appGradle)) fail("BILLING", FILES.appGradle, "#273 frozen");
   // EARLY_VISUAL_CONCRETE may remain as compat shim, but resolveCurriculumVisual must be the resolver
