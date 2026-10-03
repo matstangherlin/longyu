@@ -11,7 +11,7 @@ import {
   visualDistractorsForPass,
 } from "./resolveCurriculumVisual";
 import { preferredImageChoiceMode, visualScaffoldForPass } from "./masteryVisualScaffold";
-import { PEDAGOGY_VISUAL_SCENES, sceneAnchorAsset } from "./contextScenes";
+import { PEDAGOGY_VISUAL_SCENES, sceneAnchorAsset, scenePromptForPass } from "./contextScenes";
 import { isAbstractPedagogyLesson } from "../pedagogyV6/earlyVisual";
 
 export interface VisualFirstPlanResult {
@@ -99,21 +99,23 @@ export function applyVisualFirstToPlan(input: {
       allowUntaughtTarget: step.pedagogyRole === "discovery" || input.masteryPass === 1,
     });
     if (!resolved.concept || !resolved.hasLocalAsset) return step;
-    if (step.pedagogyRole === "discovery" && !alreadyHasVisual(step)) {
-      enrichedDiscovery += 1;
+    const firstExposureKind =
+      step.pedagogyRole === "discovery" ||
+      step.kind === "intro" ||
+      step.kind === "listen" ||
+      step.kind === "flashcard";
+    if (
+      !alreadyHasVisual(step) &&
+      resolved.visualClass === "CONCRETE_VISUAL" &&
+      (firstExposureKind || resolved.allowedByUnit)
+    ) {
+      if (firstExposureKind) enrichedDiscovery += 1;
       return {
         ...step,
         imageId: resolved.concept.id,
         iconId: resolved.concept.id,
         visualConceptId: resolved.concept.id,
       } as LessonStep;
-    }
-    if (!alreadyHasVisual(step) && resolved.visualClass === "CONCRETE_VISUAL" && resolved.allowedByUnit) {
-      return {
-        ...step,
-        imageId: resolved.concept.id,
-        iconId: resolved.concept.id,
-      };
     }
     return step;
   });
@@ -179,22 +181,29 @@ export function applyVisualFirstToPlan(input: {
     if (scene && !steps.some((s) => (s as { sceneId?: string }).sceneId === scene.id)) {
       const anchor = sceneAnchorAsset(scene);
       if (anchor) {
+        const passPrompt = scenePromptForPass(scene, input.masteryPass);
         const sceneStep: LessonStep = {
-          kind: "contextual_choice",
+          kind: passPrompt.agency === "PRODUCE" || passPrompt.agency === "TRANSFER" ? "dialogue_completion" : "contextual_choice",
           title: scene.wherePt,
-          promptPt: scene.learnerPromptPt,
-          body: scene.npcLinePt,
-          hanzi: scene.npcLineHanzi,
-          pinyin: scene.npcLinePinyin,
+          promptPt: passPrompt.promptPt,
+          body: passPrompt.showNpc ? scene.npcLinePt : undefined,
+          hanzi: passPrompt.showNpc ? scene.npcLineHanzi : undefined,
+          pinyin: passPrompt.showNpc ? scene.npcLinePinyin : undefined,
           imageId: anchor.id,
           iconId: anchor.id,
           correctAnswer: scene.expectedHanzi,
-          options: scene.expectedHanzi
-            ? [scene.expectedHanzi, "谢谢", "再见"].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3)
-            : undefined,
+          options:
+            passPrompt.agency === "TRANSFER"
+              ? undefined
+              : scene.expectedHanzi
+                ? [scene.expectedHanzi, "谢谢", "再见"].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3)
+                : undefined,
           pedagogyRole: "graded",
           sceneId: scene.id,
           visualConceptId: anchor.id,
+          learnerAgency: passPrompt.agency,
+          contextRole: "TARGET",
+          humanContext: `${scene.wherePt} · ${scene.goalPt}`,
         } as LessonStep;
         steps = [...steps, sceneStep];
         injectedScenes += 1;

@@ -1,5 +1,6 @@
 /**
- * RC2.3.0 — orquestra Descoberta + anti-repetição + Visual First (RC2.3.1).
+ * RC2.3.0 — orquestra Descoberta + anti-repetição + Visual First (RC2.3.1)
+ * + Everyday Mandarin (RC2.3.2).
  */
 import type { LessonStep } from "../../data/journey";
 import { withDiscoveryStage, type TaughtConceptMap } from "./discovery";
@@ -7,6 +8,7 @@ import { diversifyPerceptualSession } from "./perceptualRepetition";
 import { enrichStepWithVisual, isAbstractPedagogyLesson } from "./earlyVisual";
 import { PEDAGOGY_V6_VERSION } from "./discovery";
 import { applyVisualFirstToPlan } from "../visualFirst/applyVisualFirst";
+import { applyEverydayMandarinToPlan } from "../everydayMandarin/applyEverydayMandarin";
 
 export interface PedagogyV6PlanResult {
   steps: LessonStep[];
@@ -16,6 +18,8 @@ export interface PedagogyV6PlanResult {
   perceptualReordered: boolean;
   visualInjectedImageChoices?: number;
   visualInjectedScenes?: number;
+  everydayInjectedScenarios?: number;
+  everydayHumanizedPrompts?: number;
   version: typeof PEDAGOGY_V6_VERSION;
 }
 
@@ -25,7 +29,8 @@ export function applyPedagogyV6ToPlan(input: {
   steps: LessonStep[];
   taughtConceptIds?: TaughtConceptMap;
   unitIndex?: number;
-  /** Piloto V6: discovery/diversify só no early set. Visual First aplica ao currículo. */
+  taughtHanzi?: readonly string[];
+  /** Piloto V6: discovery/diversify só no early set. Visual First + Everyday aplicam ao currículo. */
   pilotOnly?: boolean;
 }): PedagogyV6PlanResult {
   const pilotLesson =
@@ -54,7 +59,6 @@ export function applyPedagogyV6ToPlan(input: {
     perceptualReordered = diversified.reordered;
   }
 
-  // RC2.3.1 — Visual First curriculum-wide (não limitado ao piloto V6).
   const visual = applyVisualFirstToPlan({
     lessonId: input.lessonId,
     masteryPass: input.masteryPass,
@@ -62,15 +66,34 @@ export function applyPedagogyV6ToPlan(input: {
     steps,
     taughtConceptIds: Object.keys(input.taughtConceptIds ?? {}).filter((k) => input.taughtConceptIds?.[k]),
   });
+  steps = visual.steps;
+
+  const everyday = applyEverydayMandarinToPlan({
+    lessonId: input.lessonId,
+    masteryPass: input.masteryPass,
+    unitIndex: input.unitIndex ?? 0,
+    steps,
+    taughtHanzi: input.taughtHanzi,
+  });
+  steps = everyday.steps;
+
+  if (everyday.injectedScenarios > 0 || everyday.injectedDialogueCompletions > 0) {
+    const again = diversifyPerceptualSession(steps);
+    steps = again.steps;
+    perceptualRemoved += again.removed;
+    perceptualReordered = perceptualReordered || again.reordered;
+  }
 
   return {
-    steps: visual.steps,
+    steps,
     discoveryInjected,
     discoveryMomentId,
     perceptualRemoved: perceptualRemoved + visual.saturatedVisualsRemoved,
     perceptualReordered,
     visualInjectedImageChoices: visual.injectedImageChoices,
     visualInjectedScenes: visual.injectedScenes,
+    everydayInjectedScenarios: everyday.injectedScenarios,
+    everydayHumanizedPrompts: everyday.humanizedPrompts,
     version: PEDAGOGY_V6_VERSION,
   };
 }

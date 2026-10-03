@@ -90,8 +90,14 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * Adicionou `visualConceptId` em `LessonStep` e o motor Visual First
  * (`resolveCurriculumVisual`, cenas, first exposure). Sem lição/StepKind novo.
  * Ver `RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION`.
+ *
+ * RC2.3.2 avançou c3861b5fb65f → e566a250c5a6.
+ *
+ * Adicionou metadata Everyday Mandarin em `LessonStep` + motor
+ * `applyEverydayMandarinToPlan` (cenários/intents). Sem lição/StepKind novo.
+ * Ver `RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION`.
  */
-export const RC_BASE_FINGERPRINT = "c3861b5fb65f";
+export const RC_BASE_FINGERPRINT = "e566a250c5a6";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -783,6 +789,14 @@ export const RC2_2_31D_APK_RUNTIME_PROOF_EXCEPTION = {
  * e duas CURRICULUM_SOURCES recebem anotações/piloto — sem lição nova, sem
  * CultureItem novo, sem StepKind novo, sem migração das 134.
  */
+export const RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION = {
+  id: "RC2_3_2_HUMAN_EVERYDAY",
+  scope: "everydayIntent metadata on LessonStep + Everyday Mandarin scenarios/apply (no new lessons/StepKinds)",
+  previousFingerprint: "c3861b5fb65f",
+  fingerprint: "e566a250c5a6",
+  gate: "gate:rc2-3-2-human-everyday",
+} as const;
+
 export const RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION = {
   id: "RC2_3_1_VISUAL_FIRST",
   scope: "visualConceptId on LessonStep + Visual First curriculum resolver/scenes (no new lessons/StepKinds)",

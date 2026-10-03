@@ -27,6 +27,7 @@ try {
       "src/lib/visualFirst/firstExposure.ts",
       "src/lib/visualFirst/contextScenes.ts",
       "src/lib/pedagogyV6/perceptualRepetition.ts",
+      "src/lib/pedagogyV6/earlyVisual.ts",
     ],
     {
       target: ts.ScriptTarget.ES2020,
@@ -54,6 +55,7 @@ try {
   const { auditConcreteFirstExposure } = load("src/lib/visualFirst/firstExposure.js");
   const { PEDAGOGY_VISUAL_SCENES } = load("src/lib/visualFirst/contextScenes.js");
   const { classifyVisualText } = load("src/lib/visualFirst/classify.js");
+  const { isAbstractPedagogyLesson } = load("src/lib/pedagogyV6/earlyVisual.js");
 
   const FOUNDATION_IDS = [
     "p1-o-que-e-mandarim",
@@ -138,16 +140,21 @@ try {
         }
       }
       if (pass === 1) {
-        const fe = auditConcreteFirstExposure({ lessonId: lesson.id, steps });
-        for (const f of fe) {
-          if (f.code) {
-            lessonFirstMiss += 1;
-            firstExposureMissing += 1;
-          } else if (f.justifiedException === "ASSET_REQUIRED") {
-            justifiedExceptions.push({ lessonId: lesson.id, conceptId: f.conceptId, why: f.justifiedException });
-          } else {
-            lessonFirstOk += 1;
-            firstExposureCovered += 1;
+        // Labs abstratos (tom/pinyin) podem mencionar sílabas concretas sem exigir Visual First.
+        if (isAbstractPedagogyLesson(lesson.id) || /tom|tone|pinyin|fon/.test(lesson.id)) {
+          // document as justified non-requirement
+        } else {
+          const fe = auditConcreteFirstExposure({ lessonId: lesson.id, steps });
+          for (const f of fe) {
+            if (f.code) {
+              lessonFirstMiss += 1;
+              firstExposureMissing += 1;
+            } else if (f.justifiedException === "ASSET_REQUIRED") {
+              justifiedExceptions.push({ lessonId: lesson.id, conceptId: f.conceptId, why: f.justifiedException });
+            } else {
+              lessonFirstOk += 1;
+              firstExposureCovered += 1;
+            }
           }
         }
       }

@@ -155,10 +155,10 @@ export async function validateFirst20AndClosure(s) {
   if (!/RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION/.test(s.src.curriculumFreeze)) {
     fail("FP_EXCEPTION", FILES.curriculumFreeze, "RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION");
   }
-  if (!/RC_BASE_FINGERPRINT = "c3861b5fb65f"/.test(s.src.curriculumFreeze)) {
-    fail("FP_BUMP", FILES.curriculumFreeze, "fingerprint c3861b5fb65f");
+  if (!/RC_BASE_FINGERPRINT = "e566a250c5a6"/.test(s.src.curriculumFreeze)) {
+    fail("FP_BUMP", FILES.curriculumFreeze, "fingerprint e566a250c5a6");
   }
-  if (s.matrix && s.matrix.curriculumFingerprint !== "c3861b5fb65f") {
+  if (s.matrix && s.matrix.curriculumFingerprint !== "e566a250c5a6") {
     fail("MATRIX_FP", FILES.matrix, "curriculumFingerprint");
   }
   return failures;

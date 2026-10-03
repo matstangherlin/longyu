@@ -1,7 +1,6 @@
 /**
- * RC2.3.1 — cenas pedagógicas reutilizáveis (infra; Everyday completo = RC2.3.2).
- *
- * Usa assets de conceitos existentes como âncora visual da cena — sem URLs externas.
+ * RC2.3.1 — cenas pedagógicas reutilizáveis.
+ * RC2.3.2 — evolução por mastery pass (reconhecer → associar → responder → transferir).
  */
 import type { VisualStyle, VisualBackground } from "../../data/visualVocabulary";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
@@ -100,10 +99,14 @@ export const PEDAGOGY_VISUAL_SCENES: readonly PedagogyVisualScene[] = [
     id: "scene:hotel-checkin",
     intent: "checkin",
     wherePt: "hotel",
-    goalPt: "reconhecer hotel",
+    withWhomPt: "recepcionista",
+    goalPt: "chegar ao hotel / pedir quarto",
     anchorConceptId: "hotel",
-    learnerPromptPt: "Onde você está?",
-    expectedHanzi: "酒店",
+    npcLineHanzi: "你好！",
+    npcLinePinyin: "nǐ hǎo!",
+    npcLinePt: "Olá!",
+    learnerPromptPt: "Você chegou ao hotel. O que diz?",
+    expectedHanzi: "你好",
     imageAltPt: "Fachada de hotel",
     visualStyle: "flat_illustration",
     backgroundStyle: "contextual",
@@ -198,4 +201,38 @@ export function scenesForUnit(unitIndex: number): PedagogyVisualScene[] {
 
 export function sceneAnchorAsset(scene: PedagogyVisualScene) {
   return resolveVisualConcept(scene.anchorConceptId);
+}
+
+/** Prompt da cena conforme mastery pass — mesma cena, menos scaffold. */
+export function scenePromptForPass(scene: PedagogyVisualScene, masteryPass: number): {
+  promptPt: string;
+  showNpc: boolean;
+  agency: "RECOGNIZE" | "CHOOSE" | "PRODUCE" | "TRANSFER";
+} {
+  if (masteryPass <= 1) {
+    return { promptPt: scene.learnerPromptPt, showNpc: true, agency: "RECOGNIZE" };
+  }
+  if (masteryPass === 2) {
+    return {
+      promptPt: scene.expectedHanzi
+        ? `Associe a cena a ${scene.expectedHanzi}.`
+        : scene.learnerPromptPt,
+      showNpc: Boolean(scene.npcLineHanzi),
+      agency: "CHOOSE",
+    };
+  }
+  if (masteryPass === 3) {
+    return {
+      promptPt: scene.npcLineHanzi
+        ? `${scene.withWhomPt ?? "Alguém"}: ${scene.npcLineHanzi} — o que você responde?`
+        : `Em ${scene.wherePt}: ${scene.goalPt}. Responda.`,
+      showNpc: true,
+      agency: "PRODUCE",
+    };
+  }
+  return {
+    promptPt: `Você chegou a ${scene.wherePt}. Objetivo: ${scene.goalPt}.`,
+    showNpc: true,
+    agency: "TRANSFER",
+  };
 }

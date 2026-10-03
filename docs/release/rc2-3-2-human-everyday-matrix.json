@@ -1,0 +1,75 @@
+{
+  "wave": "RC2.3.2",
+  "title": "Human & Everyday Mandarin: Real-Life Context, Conversation & Transfer",
+  "parentPr": 311,
+  "baseBranch": "cursor/rc2-3-1-visual-first-25db",
+  "baseHead": "26de55bfe439427de9e3cafac2c2259709074b68",
+  "inherits": [
+    "RC2.2.32",
+    "RC2.3.0",
+    "RC2.3.1"
+  ],
+  "createdAt": "2026-10-03",
+  "waveReadyForClosedBeta": false,
+  "statuses": {
+    "EVERYDAY_ENGINE_READY": "YES",
+    "COMMUNICATIVE_MAP_READY": "YES",
+    "FIRST20_HUMAN_PASS": "YES",
+    "FULL_CURRICULUM_AUDITED": "YES",
+    "CONTEXT_QUALITY_PASS": "YES",
+    "CURRICULUM_LEAK_PASS": "YES",
+    "PRODUCTION_PROGRESSION_PASS": "YES",
+    "TRANSFER_PROGRESSION_PASS": "YES",
+    "WEB_PASS": "PASS",
+    "ANDROID_BUILD_PASS": "NOT_RUN",
+    "APK_PASS": "NOT_RUN",
+    "OWNER_HUMAN_ACCEPTANCE": "NOT_RUN"
+  },
+  "evidence": {
+    "scenarioBankSize": 14,
+    "lessonsWithCommunicativeOutcome": 134,
+    "curriculumLeakErrors": 0,
+    "contextQualityErrors": 0,
+    "productionShareByPass": {
+      "1": 0.2,
+      "2": 0.28,
+      "3": 0.5,
+      "4": 0.46
+    },
+    "transferShareByPass": {
+      "1": 0.03,
+      "2": 0.03,
+      "3": 0.03,
+      "4": 0.13
+    },
+    "first20Capabilities": {
+      "greeted": true,
+      "dialogue": true,
+      "production": true,
+      "visual": true,
+      "humanSituation": true
+    },
+    "inheritedFirstExposureFix": {
+      "covered": 20,
+      "missing": 0,
+      "matrixMustMatchAudit": true
+    }
+  },
+  "frozen": {
+    "issue273": "NOT_TOUCHED",
+    "cultureDeep": "NOT_STARTED",
+    "hanziWriting": "API_PREP_ONLY",
+    "personalMastery": "NOT_STARTED"
+  },
+  "ownerChecklist": [
+    "Início parece língua usada por pessoas?",
+    "Fundamentos (pinyin/tons/Hànzì) ainda claros?",
+    "Situações humanas cedo + perguntas naturais?",
+    "Pass 3 produz / Pass 4 transfere?",
+    "你好 como alvo vs reuso contextual?",
+    "Diálogos curtos / áudio canônico / visual útil?",
+    "Sem painel QA em produção"
+  ],
+  "curriculumFingerprint": "e566a250c5a6",
+  "previousFingerprint": "c3861b5fb65f"
+}

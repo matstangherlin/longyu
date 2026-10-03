@@ -1,0 +1,35 @@
+{
+  "schema": "longyu-security-audit-allowlist/1",
+  "updatedAt": "2026-10-03",
+  "policy": {
+    "silentIgnore": "PROHIBIDO",
+    "npmAuditFixForce": "NEVER_AUTOMATIC",
+    "productionMustBeClean": true,
+    "allowlistRequires": [
+      "shippedToUsers=false",
+      "decision=ACCEPTED_PENDING_UPSTREAM",
+      "documented advisory id",
+      "no available non-breaking patch"
+    ]
+  },
+  "entries": [
+    {
+      "package": "braces",
+      "advisories": ["GHSA-VFJ7-8CJW-P6XM"],
+      "severity": "high",
+      "vulnerableRange": "<=3.0.3",
+      "currentVersion": "3.0.3",
+      "dependencyType": "transitive",
+      "scope": "dev",
+      "dependencyPath": [
+        "tailwindcss@3 → chokidar → braces",
+        "tailwindcss@3 → micromatch → braces"
+      ],
+      "shippedToUsers": false,
+      "realImpact": "Dev/build CSS tooling only. No learner input reaches braces. Production npm audit --omit=dev is clean.",
+      "fixAvailable": "Only suggested remediation is a breaking Tailwind 4 major; no patched braces release yet.",
+      "decision": "ACCEPTED_PENDING_UPSTREAM",
+      "reviewWhen": "braces >3.0.3 ships a fix, or Tailwind 3 drops the vulnerable path"
+    }
+  ]
+}

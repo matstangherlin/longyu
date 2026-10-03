@@ -3,7 +3,7 @@
   "wave": "RC2.2.20 — Physical Beta Readiness",
   "RC2_2_20_BASE_SHA": "3eb7df133f2826ce70bc9e347a7d4cc705fccbc4",
   "baseDescription": "main após o merge do matstangherlin/longyu#292 (RC2.2.19)",
-  "fingerprint": "c3861b5fb65f",
+  "fingerprint": "e566a250c5a6",
   "pedagogyContentException": "RC2_3_1_VISUAL_FIRST",
   "states": [
     "CODE_PASS",

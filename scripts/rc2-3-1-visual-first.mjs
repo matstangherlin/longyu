@@ -32,6 +32,18 @@ const MUTATIONS = {
   "visual-closure": [
     ["[4] billing enabled", "BILLING", src("appGradle", "implementation project(':capacitor-android')", "implementation 'com.android.billingclient:billing:7.0.0'\n    implementation project(':capacitor-android')")],
     ["[5] fake owner PASS", "FAKE_OWNER", (s) => { s.matrix = { ...(s.matrix ?? {}), statuses: { ...(s.matrix?.statuses ?? {}), OWNER_VISUAL_ACCEPTANCE: "PASS" } }; }],
+    [
+      "[6] matrix/audit mismatch",
+      "MATRIX_STATUS_MUST_MATCH_AUDIT",
+      (s) => {
+        s.matrix = {
+          ...(s.matrix ?? {}),
+          statuses: { ...(s.matrix?.statuses ?? {}), FIRST_EXPOSURE_PASS: "YES" },
+        };
+        s.audit = { ...(s.audit ?? {}), firstExposureMissing: 9, firstExposureCovered: 0 };
+        s.full = { ...(s.full ?? {}), firstExposureMissing: 9, firstExposureCovered: 0 };
+      },
+    ],
   ],
 };
 

@@ -9,6 +9,7 @@
     "RC2.3.0"
   ],
   "createdAt": "2026-10-02",
+  "updatedAt": "2026-10-03",
   "waveReadyForClosedBeta": false,
   "statuses": {
     "VISUAL_ENGINE_READY": "YES",
@@ -21,9 +22,15 @@
     "APK_PASS": "NOT_RUN",
     "OWNER_VISUAL_ACCEPTANCE": "NOT_RUN"
   },
+  "firstExposureEvidence": {
+    "firstExposureCovered": 20,
+    "firstExposureMissing": 0,
+    "firstExposureVisualCoverage": 1,
+    "note": "RC2.3.2 corrigiu contagem (sucessos agora reportados) + enrichment intro/listen; labs de tom excluídos com justificativa pedagógica."
+  },
   "frozen": {
     "issue273": "NOT_TOUCHED",
-    "rc232_human_everyday": "NOT_STARTED",
+    "rc232_human_everyday": "STARTED_IN_RC2_3_2",
     "rc234_hanzi_writing": "API_PREP_ONLY"
   },
   "ownerChecklist": [
@@ -35,6 +42,6 @@
     "Hànzì legível + CTA acessível + offline + voz canônica",
     "QA Visual First só em /qa/device"
   ],
-  "curriculumFingerprint": "c3861b5fb65f",
-  "previousFingerprint": "99cbc002710c"
+  "curriculumFingerprint": "e566a250c5a6",
+  "previousFingerprint": "c3861b5fb65f"
 }
