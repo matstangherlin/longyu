@@ -27,9 +27,11 @@ const ignoredDirectories = new Set([
   "tmp",
 ]);
 
+/**
+ * Classic UTF-8→Latin-1 mojibake sequences (e.g. "ção" → "Ã§Ã£o").
+ * Do NOT include bare "Ã" / "Â": those are valid Portuguese letters (NÃO, Ângela).
+ */
 const forbiddenPatterns = [
-  "Â",
-  "Ã",
   "Ã¡",
   "Ã©",
   "Ãª",
@@ -39,10 +41,12 @@ const forbiddenPatterns = [
   "Ã³",
   "Ã­",
   "Ãº",
-  "liÃ",
+  "liÃ§",
   "Ã£o",
   "Âº",
   "Â·",
+  "â€",
+  "Ã\u0083",
 ];
 
 async function* walk(directory) {
