@@ -1,7 +1,7 @@
 # RC2.3.1 — Visual First Closure
 
 **Parent:** PR #310 · HEAD `ba00438c` (`cursor/rc2-3-0-pedagogy-v6-25db`)  
-**#273:** não tocado.  
+**#273:** não tocado — `docs/release/rc2-candidate.json` restaurado ao hash congelado `6a1d612ff2…` (main); fingerprint curricular vive só em `curriculumFreeze.ts` / content-freeze.  
 **Budgets V6:** preservados (7–9 / 8–11 / 10–13 / 12–15).
 
 ## Arquitetura

@@ -1,8 +1,8 @@
 {
   "wave": "RC2.3.1",
-  "generatedAt": "2026-10-02T23:56:19.317Z",
+  "generatedAt": "2026-10-03T00:00:18.017Z",
   "comparison": {
-    "rc230_avgSteps": 7.85,
+    "rc230_avgSteps": 8.05,
     "rc230_saturationWarnings": 11,
     "rc231_sessionsWithVisual": 5,
     "rc231_imageExercises": 2,
