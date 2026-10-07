@@ -113,7 +113,8 @@ const MUTATIONS = {
     ["ED41. Web usa navigator.vibrate", "WEB_VIBRATE_USED", file("src/lib/platform/nativeHaptics.ts", "export function hasNativeHaptics(): boolean {", "export function hasNativeHaptics(): boolean {\n  navigator.vibrate(10);")],
     ["ED42. todo botão vibra", "HAPTIC_ON_EVERY_TAP", file("src/components/ui/primitives.tsx", "import ", 'import { haptic } from "../../lib/haptics";\nimport ')],
     ["ED43. vibração desligada por padrão", "HAPTICS_PREF_MISSING", src("store", "      hapticsEnabled: true,", "      hapticsEnabled: false,")],
-    ["ED44. sem orçamento por ação", "HAPTIC_BUDGET_MISSING", src("haptics", "  if (now - lastAt < HAPTIC_GESTURE_WINDOW_MS && weight <= lastWeight) return;\n", "")],
+    // RC2.3.7 — o orçamento por gesto mora em hapticPolicy.ts (puro); a mutação o remove lá.
+    ["ED44. sem orçamento por ação", "HAPTIC_BUDGET_MISSING", src("hapticPolicy", '  if (since < HAPTIC_GESTURE_WINDOW_MS && weight <= input.lastWeight) return { fire: false, reason: "gesture_window" };\n', "")],
     ["ED45. PASS físico inventado", "FAKE_PHYSICAL_PASS", (s) => {
       s.qa.hapticCorrect = "PASS";
     }],

@@ -65,3 +65,25 @@ export function seedLegacyBaselineOnce(items: readonly LegacyItemPrior[]): numbe
 export function resetRecorderMemo(): void {
   memo = null;
 }
+
+const CELEBRATED_KEY = "longyu:mastery-celebrated-v1";
+
+/** Promotions already shown to the learner (shown once, ever). */
+export function celebratedPromotions(): Set<string> {
+  try {
+    if (typeof localStorage === "undefined") return new Set();
+    return new Set(JSON.parse(localStorage.getItem(CELEBRATED_KEY) ?? "[]") as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+export function markPromotionsCelebrated(keys: readonly string[]): void {
+  if (!keys.length) return;
+  try {
+    const all = [...celebratedPromotions(), ...keys].slice(-500);
+    localStorage.setItem(CELEBRATED_KEY, JSON.stringify(all));
+  } catch {
+    /* optional */
+  }
+}

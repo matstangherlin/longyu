@@ -58,6 +58,7 @@ import { EverydayMandarinQaPanel } from "./EverydayMandarinQaPanel";
 import { CultureDeepQaPanel } from "./CultureDeepQaPanel";
 import { HanziWritingQaPanel } from "./HanziWritingQaPanel";
 import { PersonalMasteryQaPanel } from "./PersonalMasteryQaPanel";
+import { SensoryQaPanel } from "./SensoryQaPanel";
 
 /**
  * RC2.2.20 — /qa/device: a superfície ÚNICA do QA físico.
@@ -147,6 +148,7 @@ function QaDeviceSurface() {
       <CultureDeepQaPanel />
       <HanziWritingQaPanel />
       <PersonalMasteryQaPanel />
+      <SensoryQaPanel />
 
       <section className="rounded-2xl border border-line bg-surface p-4" data-testid="qa-device-build">
         <h2 className="text-sm font-semibold text-ink">Build e aparelho</h2>

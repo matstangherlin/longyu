@@ -7,7 +7,7 @@ import {
 import { simulateVirtualKeyboard } from "./lesson-player-mobile-helpers";
 
 /**
- * B003 — após Verificar na revisão, o feedback Certo/Errado e um CTA Continuar
+ * B003 — após Verificar na revisão, o feedback Certo/Quase e um CTA Continuar
  * precisam ficar visíveis (regressão iPhone/Safari: revealed sem ação).
  *
  * Cobre: resposta correta, errada, próximo item, fim da revisão,
@@ -61,7 +61,7 @@ async function pickOption(page: Page, wantCorrect: boolean | null) {
   return "none";
 }
 
-async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Errado") {
+async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Quase") {
   const verify = page.getByRole("button", { name: /Verificar|Conferir resposta/i });
   await expect(verify).toBeVisible({ timeout: 15_000 });
 
@@ -77,7 +77,7 @@ async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Errado"
   if (expected) {
     await expect(page.getByText(new RegExp(`^${expected}$`))).toBeVisible();
   } else {
-    await expect(page.getByText(/^(Certo|Errado|Erro corrigido!|Confira a resposta)$/)).toBeVisible();
+    await expect(page.getByText(/^(Certo|Quase|Erro corrigido!|Confira a resposta)$/)).toBeVisible();
   }
 
   const continueBtn = page.locator("[data-review-continue]");
@@ -89,7 +89,7 @@ async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Errado"
 test.describe("B003 — revisão continua após revelar", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("Verificar → Certo/Errado + Continuar sticky acessível", async ({ page }) => {
+  test("Verificar → Certo/Quase + Continuar sticky acessível", async ({ page }) => {
     await openReviewItem(page);
     await pickOption(page, null);
     const continueBtn = await verifyAndAssertFeedback(page);
@@ -117,7 +117,7 @@ test.describe("B003 — revisão continua após revelar", () => {
     }
   });
 
-  test("resposta errada → Errado + Errei continuar", async ({ page }) => {
+  test("resposta errada → Quase + Errei continuar", async ({ page }) => {
     test.setTimeout(90_000);
     await openReviewItem(page);
     const kind = await pickOption(page, false);
@@ -129,7 +129,7 @@ test.describe("B003 — revisão continua após revelar", () => {
 
     const continueBtn = await verifyAndAssertFeedback(page);
     const label = await continueBtn.innerText();
-    // Errado usa "Errei — continuar"; Certo (se fallback acertou) usa Continuar.
+    // Quase usa "Errei — continuar"; Certo (se fallback acertou) usa Continuar.
     expect(/continuar/i.test(label)).toBe(true);
     await expect(continueBtn).toBeInViewport();
     await continueBtn.click();

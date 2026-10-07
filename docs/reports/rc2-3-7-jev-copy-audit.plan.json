@@ -1,0 +1,162 @@
+{
+  "model": "jev-latest",
+  "questions": {
+    "ambiguous": {
+      "type": "noul",
+      "instructions": "A learner of a language app could understand this message in a confusing or ambiguous way"
+    },
+    "clarity": {
+      "type": "score",
+      "instructions": "How clear is what the learner should do next after reading this message",
+      "criteria": [
+        "Unclear",
+        "Somewhat unclear",
+        "Clear",
+        "Very clear"
+      ]
+    },
+    "intent": {
+      "type": "choice",
+      "instructions": "Main intent of this message shown to a learner",
+      "criteria": {
+        "instruction": "Tells the learner what to do",
+        "feedback": "Reacts to an answer",
+        "error": "Reports a problem",
+        "celebration": "Celebrates progress",
+        "explanation": "Explains why something is shown"
+      }
+    }
+  },
+  "items": [
+    {
+      "key": "guidance.welcome.body",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (guidance):\n\"Aqui começa sua Jornada: toque para abrir a primeira lição.\"",
+      "hash": "6ec99e5186c68e63"
+    },
+    {
+      "key": "guidance.practiceFirstUse.body",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (guidance):\n\"O Longyu escolhe uma prática baseada no que você já estudou.\"",
+      "hash": "882dc0d173448657"
+    },
+    {
+      "key": "guidance.reviewFirstUse.body",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (guidance):\n\"A revisão traz de volta o que está começando a enfraquecer.\"",
+      "hash": "b20744bb512b312e"
+    },
+    {
+      "key": "guidance.masteryFirstUse.body",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (guidance):\n\"Seu Domínio mostra o que você já demonstrou e o que ainda está consolidando.\"",
+      "hash": "b146426067f46f8c"
+    },
+    {
+      "key": "guidance.practiceNeedFirstUse.body",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (guidance):\n\"Esta prática usa dificuldades e revisões recentes para escolher atividades.\"",
+      "hash": "ef04cc7449ef7454"
+    },
+    {
+      "key": "guidance.cultureFirstUse.body",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (guidance):\n\"Comece por esta recomendação.\"",
+      "hash": "6a0ada3db5ea070c"
+    },
+    {
+      "key": "review.feedbackWrong",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (feedback):\n\"Quase\"",
+      "hash": "48221673840af32e"
+    },
+    {
+      "key": "review.feedbackRight",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (feedback):\n\"Certo\"",
+      "hash": "66604731b9eb059d"
+    },
+    {
+      "key": "player.correctShort",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (feedback):\n\"Correto.\"",
+      "hash": "c79a7528d479c89b"
+    },
+    {
+      "key": "player.almost",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (feedback):\n\"Quase\"",
+      "hash": "48221673840af32e"
+    },
+    {
+      "key": "review.feedbackRetry",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (feedback):\n\"Quase — veja a resposta certa.\"",
+      "hash": "96d9023795b3fd22"
+    },
+    {
+      "key": "auth.errors.supabaseUnavailable",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (error):\n\"Não foi possível conectar à sua conta agora. Tente novamente em instantes.\"",
+      "hash": "76828a09a31a871c"
+    },
+    {
+      "key": "auth.errors.offline",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (error):\n\"Sem conexão. Verifique a internet e tente de novo.\"",
+      "hash": "c42f22c564ec2967"
+    },
+    {
+      "key": "player.micHttpsOnly",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (error):\n\"O microfone não está disponível nesta página. Você pode continuar sem falar.\"",
+      "hash": "54434dd249cc5ead"
+    },
+    {
+      "key": "player.stepStalled",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (error):\n\"Isto demorou para avançar. Toque para tentar de novo.\"",
+      "hash": "4c514a0b7082d68c"
+    },
+    {
+      "key": "player.voiceUnavailable",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (error):\n\"Voz não disponível aqui. Ouça e repita em voz alta.\"",
+      "hash": "5f3abe09a82e81fa"
+    },
+    {
+      "key": "player.speechPermissionNeeded",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (error):\n\"O microfone está bloqueado. Libere nos ajustes do Android para falar; por enquanto, ouça o modelo e siga.\"",
+      "hash": "a40b694fcdecc225"
+    },
+    {
+      "key": "player.lessonComplete",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (completion):\n\"Lição concluída!\"",
+      "hash": "d93592b9609b8139"
+    },
+    {
+      "key": "player.youAdvanced",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (completion):\n\"Você avançou!\"",
+      "hash": "ea03fb72d4b43146"
+    },
+    {
+      "key": "player.youLearned",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (completion):\n\"Você aprendeu\"",
+      "hash": "90fab25d40cc032c"
+    },
+    {
+      "key": "why.REPEATED_DIFFICULTY.listening",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (mastery_why):\n\"Nas últimas vezes, reconhecer de ouvido não saiu como esperado.\"",
+      "hash": "1cf3af76c3826a6f"
+    },
+    {
+      "key": "why.BELOW_MIN_EVIDENCE.listening",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (mastery_why):\n\"Ainda são poucas tentativas para dizer mais — tudo bem.\"",
+      "hash": "a433b62e13b05a36"
+    },
+    {
+      "key": "why.CEILING_DEVELOPING.listening",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (mastery_why):\n\"Até agora você praticou isto escolhendo entre opções; usar livremente vem depois.\"",
+      "hash": "3b109976b11ddff3"
+    },
+    {
+      "key": "why.SRS_DUE.listening",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (mastery_why):\n\"Já faz um tempo — relembrar agora ajuda a memória a durar.\"",
+      "hash": "47c8b3eafa4204f7"
+    },
+    {
+      "key": "why.NEEDS_MORE_INDEPENDENT_SUCCESS.listening",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (mastery_why):\n\"Os acertos até agora tiveram ajuda — é parte do caminho.\"",
+      "hash": "8e405f748377b6b7"
+    },
+    {
+      "key": "STATE_LABEL_PT",
+      "state": "Message shown to a Brazilian learner of Mandarin in a learning app (mastery_label):\n\"Ainda não visto · Você já viu · Em construção · Vale praticar · Firme · Consolidado · Hora de revisar\"",
+      "hash": "811ec099d9edbc5a"
+    }
+  ]
+}

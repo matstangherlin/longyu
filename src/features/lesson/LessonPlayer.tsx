@@ -217,7 +217,10 @@ import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
 import { markDevicePerf } from "../../lib/devicePerf";
 import { stepToEvidence } from "../../lib/mastery/adapters";
-import { recordLearningEvidence } from "../../lib/mastery/recorder";
+import { celebratedPromotions, currentRecord, markPromotionsCelebrated, recordLearningEvidence } from "../../lib/mastery/recorder";
+import { createPersonalMastery, masteryPromotions, promotionLinePt, snapshotViews, type ViewSnapshot } from "../../lib/mastery/personalMastery";
+import { knowledgeGraph } from "../../lib/mastery/knowledgeGraph";
+import { textTarget } from "../../lib/mastery/adapters";
 
 const GUIDED_COLUMN = GUIDED_CLASS.column;
 
@@ -1951,6 +1954,17 @@ export function LessonPlayer() {
     []
   );
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
+  // RC2.3.7 — snapshot the Personal Mastery state of this lesson's items before it starts.
+  useEffect(() => {
+    if (!foundLesson || masteryBeforeRef.current?.lessonId === foundLesson.id) return;
+    try {
+      const ids = learnedItemsForLesson(foundLesson, locale).map((item) => textTarget(item.hanzi).targetId);
+      const pm = createPersonalMastery({ record: currentRecord(), graph: knowledgeGraph(), completedLessons: [] });
+      masteryBeforeRef.current = { lessonId: foundLesson.id, ids, snapshot: snapshotViews(pm, ids) };
+    } catch {
+      masteryBeforeRef.current = null;
+    }
+  }, [foundLesson, locale]);
 
   const completeLesson = useStore((s) => s.completeLesson);
   const startCultureItem = useStore((s) => s.startCultureItem);
@@ -2193,6 +2207,9 @@ export function LessonPlayer() {
   const [planNonce, setPlanNonce] = useState(0);
   /** RC2.3.6 — identidade desta sessão no Learner Evidence Record (idempotência por tentativa). */
   const evidenceSessionRef = useRef(Date.now().toString(36));
+  /** RC2.3.7 — Personal Mastery state of this lesson's items before it starts (for the completion line). */
+  const masteryBeforeRef = useRef<{ lessonId: string; ids: string[]; snapshot: ViewSnapshot } | null>(null);
+  const victoryMasteryRef = useRef<{ key: string; lines: string[] } | null>(null);
   const planGenRef = useRef(0);
   const firstPaintMarkedRef = useRef(false);
   /**
@@ -4695,6 +4712,26 @@ export function LessonPlayer() {
           : undefined;
     const victoryContext =
       lesson.lessonDomain === "culture" ? "culture" : lesson.isReview ? "review" : "lesson";
+    // RC2.3.7 — real promotions to Firme/Consolidado during this lesson, shown once ever.
+    let victoryMasteryLines: string[] | undefined;
+    const masteryBefore = masteryBeforeRef.current;
+    if (masteryBefore && masteryBefore.lessonId === lesson.id) {
+      const key = `${lesson.id}|${planNonce}|${evidenceSessionRef.current}`;
+      if (victoryMasteryRef.current?.key !== key) {
+        let lines: string[] = [];
+        try {
+          const pm = createPersonalMastery({ record: currentRecord(), graph: knowledgeGraph(), completedLessons: [] });
+          const promotions = masteryPromotions(masteryBefore.snapshot, snapshotViews(pm, masteryBefore.ids), celebratedPromotions());
+          const graph = knowledgeGraph();
+          lines = promotions.map((p) => promotionLinePt(graph.targets.get(p.targetId)?.label ?? p.targetId.split(":")[1] ?? "", p.view, p.state));
+          markPromotionsCelebrated(promotions.map((p) => p.key));
+        } catch {
+          lines = [];
+        }
+        victoryMasteryRef.current = { key, lines };
+      }
+      victoryMasteryLines = victoryMasteryRef.current?.lines;
+    }
     const victoryHeadline =
       lesson.lessonDomain === "culture"
         ? t("culture.lessonComplete")
@@ -4725,7 +4762,9 @@ export function LessonPlayer() {
           displayName={studentFirstName(accountName)}
           locale={locale === "en" ? "en" : "pt"}
           guided={guidedShell}
-          learned={guidedShell ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
+          // RC2.3.7 — every lesson opens its result with what was learned (XP/Qi come after).
+          learned={!isPlusRoundSession && victoryContext !== "culture" ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
+          masteryLines={victoryMasteryLines}
           cultureNext={
             victoryNextIsCulture && !hasUnclaimedRewards && !plusResult
               ? {

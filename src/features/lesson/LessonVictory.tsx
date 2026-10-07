@@ -49,6 +49,7 @@ export function LessonVictory({
   onPrimary,
   guided = false,
   learned,
+  masteryLines,
   cultureNext,
   qi,
   streakAdvanced,
@@ -80,6 +81,8 @@ export function LessonVictory({
   guided?: boolean;
   /** O que a lição ensinou (hànzì · pinyin · sentido), no máximo 3. */
   learned?: Array<{ hanzi: string; pinyin?: string; meaning?: string }>;
+  /** RC2.3.7 — real promotions to Firme/Consolidado during this lesson (≤ 2, shown once). */
+  masteryLines?: string[];
   /**
    * RC2.2.19 — o "Continuar" leva à aula de Cultura RECOMENDADA do tópico:
    * a tela diz isso e oferece voltar à Jornada (recomendação, não pedágio).
@@ -312,6 +315,14 @@ export function LessonVictory({
                 ))}
               </ul>
             </div>
+          ) : null}
+
+          {masteryLines && masteryLines.length > 0 ? (
+            <ul className="mx-auto mt-2 w-full max-w-sm space-y-1 text-left text-sm font-medium text-[rgb(var(--good))]" data-victory-mastery>
+              {masteryLines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
           ) : null}
 
           <div className="mt-3 flex items-center justify-center gap-1.5" data-victory-stars>

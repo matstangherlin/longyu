@@ -243,7 +243,7 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     kind: "COACHMARK",
     priority: "CRITICAL_UX",
     essential: true,
-    surfaces: ["/som", "/treino/tons", "/tons"],
+    surfaces: ["/som"],
     anchor: "tone-trace",
     titleKey: "guidance.toneTraceFirstUse.title",
     bodyKey: "guidance.toneTraceFirstUse.body",
@@ -258,7 +258,7 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     kind: "INLINE_TIP",
     priority: "PEDAGOGICAL_TIP",
     essential: false,
-    surfaces: ["/som", "/treino/tons", "/tons"],
+    surfaces: ["/som"],
     bodyKey: "guidance.toneConfusion23.body",
     primaryKey: "guidance.toneConfusion23.primary",
     secondary: "now_not",
@@ -313,6 +313,34 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     surfaces: ["/hanzi/atlas"],
     anchor: "atlas-first-char",
     bodyKey: "guidance.atlasFirstUse.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
+    // RC2.3.7 — Seu Domínio: uma frase, na primeira visita. Sem algoritmo, sem números.
+    id: "mastery_first_use_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: ["/dominio"],
+    anchor: "dominio-header",
+    bodyKey: "guidance.masteryFirstUse.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
+    // RC2.3.7 — "Praticar o que preciso": V0 é determinística (nunca "IA escolheu").
+    id: "practice_need_first_use_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: ["/dominio"],
+    anchor: "practice-what-i-need",
+    bodyKey: "guidance.practiceNeedFirstUse.body",
     primaryKey: "guidance.common.gotIt",
     secondary: "skip",
     offerSkipAll: false,
@@ -645,6 +673,11 @@ function featureConditionMet(definition: GuidanceDefinition, ctx: GuidanceContex
       return ctx.visibility.culture === "AVAILABLE";
     case "atlas_first_use_v1":
       return ctx.visibility.atlas === "AVAILABLE";
+    case "mastery_first_use_v1":
+      return true;
+    case "practice_need_first_use_v1":
+      // Só depois de entender a tela (a frase de Seu Domínio já resolvida).
+      return guidanceResolved(ctx.state.records["mastery_first_use_v1"]);
     case "review_session_intro_v1":
       return ctx.visibility.review === "AVAILABLE";
     case "profile_entry_v1":

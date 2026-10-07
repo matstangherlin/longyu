@@ -139,7 +139,7 @@ export function LanguageAndCourseSettings() {
                 onClick={() => {
                   if (!draft) return;
                   chooseCourseDirection(draft);
-                  haptic("answerCorrect");
+                  haptic("selection"); // RC2.3.7 — confirmar escolha não é "resposta correta"
                   setSheet(null);
                 }}
               >
