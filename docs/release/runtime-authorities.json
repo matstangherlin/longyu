@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "generatedFor": "rc2-3-9-stack-convergence",
+  "baseCommit": "dbb6f11",
+  "statusVocabulary": ["CONVERGED", "ACCEPTED_SHIM", "DUPLICATE"],
+  "domains": {
+    "audio": {
+      "canonical": ["src/lib/audioPlayback.ts"],
+      "supporting": [
+        "src/lib/audioArbiter.ts",
+        "src/lib/audioOwnerState.ts",
+        "src/lib/audio/canonicalPlayer.ts",
+        "src/lib/audio/audioEnginePolicy.ts",
+        "src/lib/audio/audioGate.ts",
+        "src/lib/audio/voiceConsistency.ts",
+        "src/lib/mandarinSpeech.ts",
+        "src/lib/useAutoSpeak.ts",
+        "src/lib/platform/nativeMedia.ts"
+      ],
+      "playbackConstructors": {
+        "src/lib/audio/canonicalPlayer.ts": "Mandarin canonical asset element (new Audio(), web path; Media3 via nativeMedia on Android), driven only by audioPlayback.ts",
+        "src/lib/soundFx.ts": "UI sound effects on one shared AudioContext; reads audioOwnerState to stay out of the way of Mandarin audio, recording and self playback",
+        "src/features/lesson/SelfComparePractice.tsx": "playback of the learner's own recording (new Audio(blobUrl)) under claimAudio('SELF_PLAYBACK')"
+      },
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "shims": [
+        "src/lib/audio/audioEnginePolicy.ts#FIXED_CONTENT_LEGACY_TTS_ORDER (@deprecated, audit-only constant)",
+        "src/lib/mandarinSpeech.ts (request/identity wrapper over playMandarinAudio, same arbiter and same engine)"
+      ],
+      "status": "CONVERGED"
+    },
+    "speech": {
+      "canonical": ["src/lib/speech.ts", "src/lib/tts.ts"],
+      "supporting": ["src/lib/platform/nativeSpeech.ts", "src/lib/recognitionCapability.ts", "src/lib/speechEvidence.ts", "src/lib/selfPlayback.ts", "src/lib/speechDiagnostics.ts"],
+      "legacy": [],
+      "duplicates": [
+        "src/features/lesson/FreeAnswerField.tsx (learner path: recognizeOnce() without claimAudio('RECOGNITION'), unlike PronunciationPractice.tsx:365, so lesson audio/SFX can overlap an open mic)"
+      ],
+      "deadAdapters": [],
+      "gateOnly": ["src/lib/speechPilot.ts (tsRequire'd by scripts/lib/speech-gates.mjs; no runtime importer)"],
+      "shims": [
+        "src/features/settings/SettingsPage.tsx:708 tts.speak() voice test (QA/DYNAMIC, bypasses arbiter, outside the learner path)",
+        "src/components/native/NativeSettingsSections.tsx:218 tts.speak() and :121 recognizeOnce() device tests (settings diagnostics, bypass arbiter)"
+      ],
+      "status": "DUPLICATE"
+    },
+    "guidance": {
+      "canonical": ["src/lib/guidanceOrchestrator.ts"],
+      "supporting": ["src/components/guidance/GuidanceHost.tsx", "src/components/guidance/guidanceRuntime.ts", "src/lib/guidanceSuppression.ts", "src/lib/coachmarkPosition.ts", "src/lib/progressiveDiscovery.ts", "src/lib/pedagogicalInlineGuidance.ts", "src/lib/guideDialogueMachine.ts", "src/components/guide/GuideDialogue.tsx", "src/components/guide/GuideLine.tsx"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "shims": [],
+      "status": "CONVERGED"
+    },
+    "haptics": {
+      "canonical": ["src/lib/haptics.ts"],
+      "supporting": ["src/lib/hapticPolicy.ts", "src/lib/platform/nativeHaptics.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "gateOnly": ["src/lib/sensoryPolicy.ts (barrel, tsRequire'd by scripts/lib/sensory-guidance-gates.mjs)", "src/lib/sensoryFeedbackMatrix.ts (read by scripts/lib/rc2-2-32-gates.mjs)"],
+      "shims": [],
+      "status": "CONVERGED"
+    },
+    "soundEffects": {
+      "canonical": ["src/lib/soundFx.ts"],
+      "supporting": ["src/lib/sfxPolicy.ts", "src/lib/audioOwnerState.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "shims": [],
+      "status": "CONVERGED"
+    },
+    "pedagogyPlanning": {
+      "canonical": ["src/features/lesson/lessonTasks.ts", "src/lib/pedagogyV6/applyPedagogyV6.ts"],
+      "pipeline": "LessonPlayer.runPlanner: lessonRoundStepsFor (lessonTasks.ts) -> buildPlusRoundSession (Plus) -> withToneContrastTeaching -> applyPedagogyV6ToPlan (discovery + enrichStepWithVisual + diversifyPerceptualSession [pilot lessons only, pilotOnly:true] -> applyVisualFirstToPlan -> applyEverydayMandarinToPlan -> applyHanziProgressiveWritingToPlan)",
+      "supporting": ["src/lib/pedagogyV6/discovery.ts", "src/lib/pedagogyV6/perceptualRepetition.ts", "src/lib/pedagogyV6/earlyVisual.ts", "src/lib/pedagogyV6/index.ts", "src/features/lesson/toneContrastEnrichment.ts", "src/features/lesson/plusRoundSession.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "shims": ["src/lib/pedagogyV6/earlyVisual.ts#EARLY_VISUAL_CONCRETE (@deprecated, reachable only via concreteVisualIdForText/auditEarlyVisualSupport in scripts/audit-rc2-3-0-first-20-v6.mjs; runtime enrichStepWithVisual uses resolveCurriculumVisual)"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "visualResolver": {
+      "canonical": ["src/lib/visualFirst/resolveCurriculumVisual.ts"],
+      "supporting": ["src/data/visualVocabulary.ts (concept registry: resolveVisualConcept)", "src/lib/visualFirst/applyVisualFirst.ts", "src/lib/visualFirst/classify.ts", "src/lib/visualFirst/masteryVisualScaffold.ts", "src/lib/visualFirst/contextScenes.ts"],
+      "separateRegistries": ["src/lib/cultureDeep/visuals.ts#resolveCultureVisual (culture art, own domain)", "src/data/lessonCatalog.ts#resolveLessonMediaAsset (photographic lesson media)"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": ["src/lib/visualFirst/index.ts (barrel, zero importers)"],
+      "gateOnly": ["src/lib/visualFirst/firstExposure.ts (reached only through the dead barrel at runtime; used by scripts/lib/rc2-3-1-gates.mjs etc.)"],
+      "shims": ["src/lib/pedagogyV6/earlyVisual.ts#EARLY_VISUAL_CONCRETE"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "everydayScenarios": {
+      "canonical": ["src/lib/everydayMandarin/applyEverydayMandarin.ts"],
+      "supporting": ["src/lib/everydayMandarin/scenarios.ts", "src/lib/everydayMandarin/intents.ts", "src/lib/everydayMandarin/quality.ts", "src/data/everydaySurvivalPlans.ts (authored survival plans consumed by lessonTasks.ts)"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": ["src/lib/everydayMandarin/index.ts (barrel, zero importers)"],
+      "gateOnly": ["src/data/chinaSurvivalRestaurant.ts", "src/data/chinaSurvivalShopping.ts", "src/data/chinaSurvivalTravel.ts", "src/data/chinaSurvivalHotel.ts", "src/data/chinaSurvivalAirport.ts", "src/data/chinaSurvivalEmergency.ts", "src/data/survivalMandarin.ts"],
+      "shims": [],
+      "status": "CONVERGED"
+    },
+    "culturePlayer": {
+      "canonical": ["src/features/lesson/LessonPlayer.tsx"],
+      "supporting": ["src/features/culture/CultureItemPage.tsx (/cultura/:id -> <Navigate> to cultureLessonPlayerPath)", "src/features/culture/CultureReviewPage.tsx (renders StepRenderer from steps.tsx + store.reviewCultureMemory)", "src/lib/cultureMastery.ts", "src/lib/cultureReview.ts"],
+      "legacy": ["src/features/culture/CultureMissionPlayer.tsx (marked LEGACY; redirect-only; unreachable: no route, no importer)"],
+      "duplicates": [],
+      "deadAdapters": ["src/features/culture/CultureMissionPlayer.tsx (read as text by scripts/lib/v495a-runtime.mjs)", "src/features/culture/JourneyCultureBridge.tsx#JourneyCultureBridgePanel (zero importers)", "src/lib/cultureDeep/index.ts (barrel, zero importers)"],
+      "shims": [],
+      "status": "CONVERGED"
+    },
+    "hanzi": {
+      "canonical": ["src/components/hanzi/HanziBuilderExercise.tsx", "src/features/hanzi/writing/HanziWritingExercise.tsx", "src/lib/hanziWriting/applyWriting.ts"],
+      "supporting": ["src/features/hanzi/HanziPage.tsx", "src/features/hanzi/HanziTrainingSession.tsx", "src/features/hanzi/writing/HanziWritingLab.tsx", "src/lib/hanziWriting/evidence.ts", "src/data/hanziBuilder.ts", "src/lib/hanziPracticeRounds.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": ["src/lib/hanziWriting/index.ts (barrel, zero importers)"],
+      "shims": ["src/lib/hanziWriting/evidence.ts (channel log longyu:hanzi-form-evidence-v1, account-scoped, forwards to recordLearningEvidence)"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "masteryEvidence": {
+      "canonical": ["src/lib/mastery/recorder.ts"],
+      "supporting": ["src/lib/mastery/evidence.ts", "src/lib/mastery/adapters.ts", "src/lib/mastery/personalMastery.ts", "src/lib/mastery/knowledgeGraph.ts", "src/lib/mastery/competency.ts", "src/lib/mastery/practiceQueue.ts", "src/features/dominio/useLearnerMastery.ts"],
+      "legacy": ["src/lib/domainMastery.ts + src/lib/engineIntelligence.ts (completion-percentage view over completedLessons/srs for AccountPage/ProfilePage; read-only, writes nothing)"],
+      "duplicates": [],
+      "deadAdapters": ["src/components/progress/DomainMasteryCard.tsx (zero importers)"],
+      "shims": ["src/lib/speechEvidence.ts (channel log -> recordLearningEvidence)", "src/lib/hanziWriting/evidence.ts (channel log -> recordLearningEvidence)", "src/lib/store.ts:2737 culture -> recordLearningEvidence"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "auth": {
+      "canonical": ["src/lib/supabaseClient.ts"],
+      "supporting": ["src/services/authService.ts", "src/services/oauthService.ts", "src/components/auth/AuthBootstrap.tsx", "src/hooks/useCloudSignIn.ts", "src/hooks/useCloudSignOut.ts", "src/lib/auth/localAuthPolicy.ts", "src/lib/auth/sessionAudience.ts", "src/lib/auth/cloudSession.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "shims": ["src/services/oauthService.ts#getOAuthClient (second createClient: flowType pkce, storageKey longyu:oauth-pkce, autoRefreshToken:false; only starts OAuth and exchanges the code, then main.auth.setSession hands the session to the main client, oauthService.ts:192)"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "account": {
+      "canonical": ["src/lib/supabaseClient.ts"],
+      "projection": "src/lib/store.ts (accounts/currentAccountId; activateCloudAccount/endCloudSession), written only from AuthBootstrap.onAuthStateChange and cloudSyncCoordinator.restoreCloudSessionIfPresent/syncAuthSessionProgress",
+      "supporting": ["src/lib/store.ts", "src/components/auth/AuthBootstrap.tsx", "src/services/cloudSyncCoordinator.ts", "src/lib/accountStorageBinding.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": [],
+      "shims": ["src/services/oauthService.ts#getOAuthClient (transient PKCE exchange client; holds no long-lived session)"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "progressStorage": {
+      "canonical": ["src/lib/store.ts", "src/services/cloudSyncCoordinator.ts"],
+      "supporting": ["src/lib/accountStorage.ts", "src/lib/accountStorageBinding.ts", "src/lib/syncMerge.ts", "src/lib/progressSnapshot.ts", "src/lib/repositories/learningRepository.ts", "src/lib/repositories/supabaseLearningRepository.ts", "src/lib/persistenceSecurity.ts"],
+      "legacy": ["src/services/syncService.ts#importLocalProgress/requestCloudMigration/restoreProgressFromCloud (pre-coordinator MVP sync API)"],
+      "duplicates": [],
+      "deadAdapters": ["src/services/syncService.ts#importLocalProgress", "src/services/syncService.ts#requestCloudMigration", "src/services/syncService.ts#restoreProgressFromCloud"],
+      "shims": ["src/services/syncService.ts#fetchRemoteEntitlements (only live export; used by EntitlementBootstrap/privacyService)"],
+      "status": "ACCEPTED_SHIM"
+    },
+    "entitlements": {
+      "canonical": ["src/lib/proAccess.ts"],
+      "supporting": ["src/lib/entitlements.ts (effectivePremium)", "src/services/entitlementService.ts (server fetch)", "src/lib/entitlementStatus.ts (non-persisted zustand: checking/detail)", "src/components/auth/EntitlementBootstrap.tsx", "src/lib/pearlPro.ts", "src/lib/accessTier.ts"],
+      "legacy": [],
+      "duplicates": [],
+      "deadAdapters": ["src/lib/subscription.ts (re-export of services/subscriptionService; no runtime importer; path listed in scripts/lib/rc2-2-31c-gates.mjs)"],
+      "gateOnly": ["src/commercial/entitlements.ts#resolveEffectiveEntitlement (client mirror of the server precedence model; only scripts/test-effective-entitlement.mjs, validate-effective-entitlement.mjs, rc2-2-16-gates.mjs)"],
+      "shims": [],
+      "status": "CONVERGED"
+    }
+  }
+}

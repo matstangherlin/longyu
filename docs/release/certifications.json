@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "description": "Formal certifications that unlock release statuses in the Product Truth Manifest. A null entry means NOT certified. Only the certifying wave may fill an entry, with evidence paths; nothing here is ever set to make CI green.",
+  "cloud": null,
+  "cloudCertifyingWave": "RC2.3.10 — Cloud Launch Certification",
+  "monetization": null,
+  "monetizationDecidingWave": "RC2.3.11 — Monetization & Final Pricing"
+}

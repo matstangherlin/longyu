@@ -6,12 +6,71 @@ on:
   pull_request:
 
 jobs:
-  quality:
-    name: Portão de qualidade (validate:beta + build)
+  # RC2.3.9 — Stack Convergence. validate:beta is the canonical runner over
+  # scripts/release/canonical-suites.mjs. Each suite runs in its OWN job on a
+  # fresh checkout (no shared files between suites), so the old 400-step
+  # sequential chain becomes parallel without changing what runs: the
+  # convergence gate proves every legacy step still runs in exactly one suite.
+  release-truth:
+    name: Release truth (fast failure)
     runs-on: ubuntu-latest
     steps:
       # Full history: RC2.2.22 release-truth exige que RC2_2_22_BASE_SHA
       # seja ancestral do HEAD (clone shallow = BASE_SHA_AMBIGUOUS falso).
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Product truth, stack convergence, typecheck, security boundaries,
+      # freezes and fingerprint chain: cheap and fundamental, so they fail
+      # in minutes instead of after the whole suite matrix.
+      - name: Canonical suite release-truth
+        run: npm run validate:beta -- --suite release-truth --json reports/beta-gates-release-truth.json
+
+      - name: Upload gate result (JSON)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-gates-release-truth
+          path: reports/beta-gates-release-truth.json
+          if-no-files-found: warn
+
+  beta-suites:
+    name: Beta suite ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    needs: release-truth
+    strategy:
+      # Every suite reports; one red suite still turns the quality gate red.
+      fail-fast: false
+      matrix:
+        include:
+          - id: learner-systems
+            suites: --suite learner-systems
+          - id: pedagogy-structure
+            suites: --suite pedagogy-structure
+          - id: pedagogy-mastery
+            suites: --suite pedagogy-mastery
+          - id: pedagogy-progression
+            suites: --suite pedagogy-progression
+          - id: conversation-everyday
+            suites: --suite conversation-everyday
+          - id: experience
+            suites: --suite experience
+          - id: culture-identity-v6
+            suites: --suite culture --suite identity-commercial --suite pedagogy-v6-stack
+          - id: android-foundation
+            suites: --suite android-foundation
+          - id: android-runtime
+            suites: --suite android-runtime
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -47,9 +106,52 @@ jobs:
           ffmpeg -version | head -1
           ffprobe -version | head -1
 
-      - name: Validate beta
-        run: npm run validate:beta
+      - name: Validate beta (canonical suites)
+        run: npm run validate:beta -- ${{ matrix.suites }} --json reports/beta-gates-${{ matrix.id }}.json
 
+      - name: Upload gate result (JSON)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-gates-${{ matrix.id }}
+          path: reports/beta-gates-${{ matrix.id }}.json
+          if-no-files-found: warn
+
+      # Relatórios de qualidade regenerados pela cadeia beta (com procedência
+      # e hash de integridade). Todos são gerados na suite pedagogy-progression,
+      # que termina com validate:report-freshness — sempre anexados, mesmo em falha.
+      - name: Upload quality reports
+        if: always() && matrix.id == 'pedagogy-progression'
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports
+          path: |
+            reports/exercise-depth-report.md
+            reports/image-coverage-report.md
+            reports/conversation-coverage-report.md
+            reports/conversation-pedagogy-report.md
+            reports/lesson-novelty-report.md
+          if-no-files-found: error
+
+  quality:
+    name: Portão de qualidade (validate:beta + build)
+    runs-on: ubuntu-latest
+    needs: [release-truth, beta-suites]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # validate:beta already passed suite by suite (release-truth + beta-suites);
+      # this job only runs once every suite is green.
       - name: Build
         run: npm run build
 
@@ -72,51 +174,6 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 30
-
-      # Relatórios de qualidade regenerados pela cadeia beta (com procedência
-      # e hash de integridade) — sempre anexados, mesmo em falha, para triagem.
-      - name: Upload quality reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: quality-reports
-          path: |
-            reports/exercise-depth-report.md
-            reports/image-coverage-report.md
-            reports/conversation-coverage-report.md
-            reports/conversation-pedagogy-report.md
-            reports/lesson-novelty-report.md
-          if-no-files-found: error
-
-  # RC2.3.4A — the RC2.3.0–RC2.3.3 wave gates existed but no workflow ran them.
-  # Parallel job so the main quality gate keeps its duration.
-  rc2-3-stack-gates:
-    name: RC2.3 stack gates (pedagogy V6 · visual · everyday · culture deep)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: RC2.3.0 Pedagogy V6
-        run: npm run gate:rc2-3-0-pedagogy-v6
-
-      - name: RC2.3.1 Visual First
-        run: npm run gate:rc2-3-1-visual-first
-
-      - name: RC2.3.2 Human Everyday
-        run: npm run gate:rc2-3-2-human-everyday
-
-      - name: RC2.3.3 Culture Deep
-        run: npm run gate:rc2-3-3-culture-deep
 
   e2e:
     name: Testes E2E (Playwright)

@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import { journeyFingerprint } from "./lib/report-meta.mjs";
 import { require as tsRequire } from "./lib/v495a-runtime.mjs";
 import { RC_FINGERPRINT_ANCHOR, fingerprintRecords, verifyFingerprintChain } from "./lib/fingerprint-chain.mjs";
+import { canonicalBetaChain } from "./lib/canonical-beta.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
@@ -184,7 +185,7 @@ if (pkg.scripts?.["validate:release-candidate"] !== "node scripts/validate-relea
 if (pkg.scripts?.["validate:production-no-fixtures"] !== "node scripts/validate-production-no-fixtures.mjs") {
   fail("package.json deve expor validate:production-no-fixtures");
 }
-if (!String(pkg.scripts?.["validate:beta"] ?? "").includes("validate:release-candidate")) {
+if (!canonicalBetaChain(pkg.scripts ?? {}).includes("validate:release-candidate")) {
   fail("validate:beta deve encadear validate:release-candidate");
 }
 

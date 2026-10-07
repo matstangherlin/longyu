@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "wave": "RC2.3.10",
+  "preparedIn": "RC2.3.9",
+  "generatedAt": "2026-10-07",
+  "destructiveActionsInRC239": "NONE",
+  "guarantees": [
+    "RC2.3.9 made no cloud read or write: no migration, no provider change, no pause/delete/restore, no paid resource, no secret written.",
+    "Facts are carried from the RC2.3.4A and RC2.3.8 read-only checks; only the repo migration and Edge Function counts were recounted."
+  ],
+  "summary": {
+    "items": 16,
+    "byStatus": {
+      "BLOCKED": 2,
+      "CODE_READY": 4,
+      "CONFIG_REQUIRED": 3,
+      "NOT_RUN": 3,
+      "OWNER_ACTION_REQUIRED": 4
+    },
+    "ownerApprovalRequired": [
+      "CH-01-MIGRATION-HISTORY",
+      "CH-02-SCHEMA-DIFF",
+      "CH-03-EXPORT-BACKUP",
+      "CH-04-TELEMETRY-RETENTION",
+      "CH-08-AUTH-PROVIDERS",
+      "CH-10-EDGE-FUNCTIONS",
+      "CH-16-ISSUE-273"
+    ]
+  },
+  "items": [
+    {
+      "id": "CH-01-MIGRATION-HISTORY",
+      "area": "database",
+      "currentTruth": "Production supabase_migrations had 35 rows (RC2.3.4A read, 2026-10-07) whose names/versions do not match the repo. Repo recount in RC2.3.9: 53 files in supabase/migrations (22 legacy NNN_ prefixed + 31 timestamped; newest 20261007120000_jev_feedback_triage.sql, which the audit's figure of 52 predates). Whether the 35 rows include the jev_feedback_triage application was not re-read (no cloud reads in RC2.3.9).",
+      "requiredAction": "Owner decision (OA-MIGRATION-RECONCILIATION-DECISION). Recommended: a checked-in ledger mapping every production row to a repo file (non-destructive) plus a gate comparing list_migrations names to the ledger. Any repair of the history table only after export + schema diff.",
+      "risk": "A migration 'tested' locally can hit a different production schema; a history repair done wrong can re-apply or skip migrations.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/ROADMAP.md"
+      ],
+      "status": "BLOCKED",
+      "repoMigrationFiles": 53,
+      "productionHistoryRows": 35,
+      "productionHistoryReadAt": "2026-10-07 (RC2.3.4A)"
+    },
+    {
+      "id": "CH-02-SCHEMA-DIFF",
+      "area": "database",
+      "currentTruth": "Local == repo is proven in CI (backend-contract applies all migrations from zero). Repo == production is not proven; no diff artifact exists.",
+      "requiredAction": "Owner runs a read-only schema-only diff against MandarimProject from the owner machine (OA-SCHEMA-DIFF); attach schema output only to the RC2.3.10 report.",
+      "risk": "Undetected drift (dashboard/MCP-applied changes) breaks the next production migration.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "CH-03-EXPORT-BACKUP",
+      "area": "database",
+      "currentTruth": "Free plan: no backups, no PITR. No owner-held export exists.",
+      "requiredAction": "Before every production migration: schema-only dump + data export of user_progress, subscriptions, economy_ledger (+ auth tables per Supabase guidance), stored privately by the owner (OA-DATA-EXPORT).",
+      "risk": "Any destructive or faulty migration is unrecoverable.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "CH-04-TELEMETRY-RETENTION",
+      "area": "database",
+      "currentTruth": "Raw telemetry kept forever. beta_pedagogy_events 1 851 rows / 3.0 MB (largest table). Projection: DB passes 500 MB near 1 000 MAU without retention; about 0.25 GB at 1 000 MAU with 30-day raw retention.",
+      "requiredAction": "Owner approves a retention policy (OA-TELEMETRY-RETENTION-DECISION); then a migration/cron that aggregates to daily metrics and deletes raw rows older than the window.",
+      "risk": "Deleting job = data loss by design; free-tier DB exhaustion if not done.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "CH-05-RESEND-DOMAIN",
+      "area": "email",
+      "currentTruth": "Resend free plan, 0 domains, 0 e-mails sent; no code calls Resend.",
+      "requiredAction": "Verify a sending domain (OA-RESEND-DOMAIN).",
+      "risk": "Auth/recovery mail deliverability at launch.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "CH-06-SUPABASE-SMTP",
+      "area": "email",
+      "currentTruth": "Supabase Auth uses the built-in mailer; repo workflow only sets mailer_autoconfirm=false; no custom SMTP. Code-based recovery template application unconfirmed (RC2.2.20).",
+      "requiredAction": "After the domain: Resend SMTP credentials only in Supabase Auth -> SMTP; apply the recovery template; send test confirmation + recovery to a test inbox (OA-SUPABASE-SMTP, OA-AUTH-RECOVERY-TEMPLATE).",
+      "risk": "Built-in mailer has low rate limits and is not for production volume; sign-up/recovery could silently fail.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/release/rc2-2-20-owner-actions.json"
+      ],
+      "status": "CONFIG_REQUIRED"
+    },
+    {
+      "id": "CH-07-SENTRY",
+      "area": "observability",
+      "currentTruth": "Sentry org exists, 0 projects, no SDK in the app, CSP connect-src has no Sentry host. Sampling plan written.",
+      "requiredAction": "Create the project (OA-SENTRY-PROJECT); add SDK + CSP host + DSN via build env in RC2.3.10 code; verify one test error arrives.",
+      "risk": "No crash/error visibility in production.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/launch/platform-responsibility-map.md"
+      ],
+      "status": "CONFIG_REQUIRED"
+    },
+    {
+      "id": "CH-08-AUTH-PROVIDERS",
+      "area": "auth",
+      "currentTruth": "Read-only settings (RC2.3.8): e-mail on, google/apple/azure off, anonymous sign-ins off, signup on, autoconfirm off; auth.identities holds only e-mail identities. Social code CODE_READY + E2E 9/9; manual linking off.",
+      "requiredAction": "Redirect allowlist, provider configuration, VITE_AUTH_PROVIDERS, manual-linking decision, real Android OAuth test (OA-AUTH-*).",
+      "risk": "Misconfigured redirect = open-redirect or broken callback; enabling automatic linking is an account-merge policy decision.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/reports/rc2-3-8-auth-system-truth.md",
+        "docs/reports/rc2-3-8-provider-matrix.md",
+        "docs/reports/rc2-3-8-owner-actions.md",
+        "docs/reports/rc2-3-8-security.md"
+      ],
+      "status": "CONFIG_REQUIRED"
+    },
+    {
+      "id": "CH-09-RLS",
+      "area": "database",
+      "currentTruth": "RLS negative matrix PASS in CI against a local stack built from repo migrations (backend-contract). Production RLS not independently certified; production advisors not read in RC2.3.9.",
+      "requiredAction": "After CH-02: run the Supabase security advisors (read-only) and the RLS negative matrix against the reconciled schema; record results.",
+      "risk": "If production drifted, RLS proven locally may not match production policies.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/reports/rc2-3-4a-closure.md"
+      ],
+      "status": "CODE_READY"
+    },
+    {
+      "id": "CH-10-EDGE-FUNCTIONS",
+      "area": "backend",
+      "currentTruth": "Repo has 11 Edge Functions (commit-placement, create-account, create-billing-portal, create-checkout-session, delete-account, finalize-onboarding, issue-anon-ingestion-session, sign-in-identifier, stripe-webhook, submit-business-lead, triage-feedback). Production had 8 deployed at the RC2.3.4A read; invocations UNKNOWN; triage-feedback production v1 predates the Jev guardrails.",
+      "requiredAction": "Reconcile deployed list vs repo (names + versions, read-only), redeploy triage-feedback after merge (OA-JEV-CONSOLE-CHECK), read invocation usage (OA-USAGE-READINGS).",
+      "risk": "Deployed code differs from reviewed code; unguarded paid AI calls from the old triage-feedback.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/reports/rc2-3-4a-closure.md"
+      ],
+      "status": "CODE_READY",
+      "repoEdgeFunctions": 11,
+      "productionDeployedAtLastRead": 8
+    },
+    {
+      "id": "CH-11-RATE-LIMITS",
+      "area": "security",
+      "currentTruth": "Sign-up rate limits, IP/e-mail abuse controls, Turnstile captcha and economy anti-cheat exist as migrations/Edge code and pass local CI; Supabase Auth's own rate limits are dashboard settings not read in RC2.3.9.",
+      "requiredAction": "Read (not change) Auth rate limits in the dashboard; confirm Turnstile secret present in Vault by name; include in cloud smoke.",
+      "risk": "Abuse/sign-up spam on free tier quotas; e-mail send limits with the built-in mailer.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "status": "CODE_READY"
+    },
+    {
+      "id": "CH-12-SECURITY-HEADERS",
+      "area": "security",
+      "currentTruth": "netlify.toml sets CSP (no unsafe-inline scripts), X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy (microphone self). Deploy preview header rules check PASS on #314 parent. No explicit Strict-Transport-Security header in netlify.toml.",
+      "requiredAction": "Verify headers on the production URL after the next [release] deploy; decide on an explicit HSTS header; add the Sentry ingest host to connect-src when CH-07 lands.",
+      "risk": "Header regression on production; CSP blocking monitoring once added.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "netlify.toml",
+        "docs/reports/rc2-3-4a-stack-truth.md"
+      ],
+      "status": "CODE_READY"
+    },
+    {
+      "id": "CH-13-ROLLBACK",
+      "area": "operations",
+      "currentTruth": "Policy written (additive migrations preferred; each migration ships with a down-script or an 'irreversible - restore from export' note). Rollback drill runbook exists but was never executed.",
+      "requiredAction": "Run the Netlify rollback drill once (OA-ROLLBACK-DRILL); attach the restore note to each production migration.",
+      "risk": "Slow or impossible recovery from a bad release.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/release/evidence/rollback-drill.md"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "CH-14-CLOUD-SMOKE",
+      "area": "operations",
+      "currentTruth": "No post-deploy cloud smoke exists.",
+      "requiredAction": "Add a read-only RPC/health smoke + one synthetic test account (never real users) run after a [release] deploy.",
+      "risk": "A broken production deploy is found by learners first.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/ROADMAP.md"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "CH-15-FREE-TIER-BUDGET",
+      "area": "cost",
+      "currentTruth": "Supabase DB 4 %, MAU <0.1 %, storage 0 %; egress, Edge invocations and Netlify credits UNKNOWN (dashboard only). Option B viable for closed beta (~500-1 000 MAU).",
+      "requiredAction": "Owner reads the missing usage numbers (OA-USAGE-READINGS); no plan upgrade (ALLOW_PAID_OVERAGE=false).",
+      "risk": "Silent quota exhaustion pauses the site (Netlify credits) or the project.",
+      "ownerApprovalRequired": false,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "CH-16-ISSUE-273",
+      "area": "governance",
+      "currentTruth": "#273 reopened in RC2.3.4A as a free-tier-first audit: decision Option B (single cloud project + local Supabase/CI QA), no cloud QA project, no paid plan, sibling project untouched. Remaining blockers: CH-01, CH-02, CH-03, CH-04.",
+      "requiredAction": "Owner approves the runbook (OA-273-RUNBOOK-APPROVAL); close #273 only when every RC2.3.10 row above is PASS with evidence.",
+      "risk": "Closing #273 on architecture alone would certify a cloud that was never smoked.",
+      "ownerApprovalRequired": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/ROADMAP.md",
+        "docs/reports/rc2-2-1-cloud-certification.md"
+      ],
+      "status": "BLOCKED"
+    }
+  ]
+}

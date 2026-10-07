@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "description": "RC2.3.9 — every release invariant has exactly ONE canonical owner (a package.json script that runs in a canonical suite). secondaryEvidence may overlap; owner may not. Checked by gate:rc2-3-9-stack-convergence (INVARIANT_OWNERSHIP).",
+  "invariants": {
+    "FIXED_SPEECH_CANONICAL_VOICE": {
+      "statement": "Mandarin speech always uses the canonical fixed voice (recorded asset first, TTS only as fallback); no per-surface voice drift.",
+      "owner": "gate:rc2-2-32",
+      "secondaryEvidence": ["gate:rc2-2-28-deterministic-audio", "gate:rc2-3-5-speech"],
+      "introducedBy": "RC2.2.32",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "AUDIO_SINGLE_AUTHORITY": {
+      "statement": "One audio arbiter owns playback; no second audio engine, no overlapping voices.",
+      "owner": "gate:rc2-2-28-deterministic-audio",
+      "secondaryEvidence": ["gate:rc2-2-31c-android-runtime-root-cause", "gate:rc2-3-7-sensory-guidance"],
+      "introducedBy": "RC2.2.28",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "LESSON_PROGRESSION_NON_BLOCKING": {
+      "statement": "Audio, speech or observers never block the learner from advancing (fail-open, observer never blocks action).",
+      "owner": "gate:rc2-2-31d-apk-runtime-proof",
+      "secondaryEvidence": ["gate:rc2-2-28-deterministic-audio", "gate:rc2-3-5-speech"],
+      "introducedBy": "RC2.2.31D",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "TEACH_BEFORE_TEST": {
+      "statement": "Every graded task is preceded by teaching/exposure of its target across the whole Journey.",
+      "owner": "validate:teach-before-test:journey",
+      "secondaryEvidence": ["validate:teach-before-test", "validate:tone-teach-before-test", "validate:first-contacts-teach-before-test", "gate:rc2-3-0-pedagogy-v6"],
+      "introducedBy": "V4.9.0",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "CULTURE_TEACH_BEFORE_TEST": {
+      "statement": "Culture lessons teach before they assess.",
+      "owner": "validate:culture-teach-before-test",
+      "secondaryEvidence": ["test:culture-teach-before-test", "gate:rc2-3-3-culture-deep"],
+      "introducedBy": "V4.9.8A",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "CURRICULUM_LEAK": {
+      "statement": "No vocabulary/target from a future lesson is assessed or recommended before it is introduced.",
+      "owner": "gate:rc2-3-2-human-everyday",
+      "secondaryEvidence": ["gate:rc2-3-6-personal-mastery", "gate:rc2-3-4-hanzi-writing"],
+      "introducedBy": "RC2.3.2",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "PEDAGOGY_V6_PASS_BUDGETS": {
+      "statement": "Discovery → Fixation → Use → Mastery with pass budgets P1 7–9, P2 8–11, P3 10–13, P4 12–15.",
+      "owner": "gate:rc2-3-0-pedagogy-v6",
+      "secondaryEvidence": ["validate:beta-pedagogy-freeze"],
+      "introducedBy": "RC2.3.0",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "VISUAL_FIRST_ASSOCIATION": {
+      "statement": "Visual-first images map to the taught concept; abstract concepts never get a misleading picture.",
+      "owner": "gate:rc2-3-1-visual-first",
+      "secondaryEvidence": ["validate:visual-association-integrity"],
+      "introducedBy": "RC2.3.1",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "HANZI_WRITING_ELIGIBILITY": {
+      "statement": "NOT_INTRODUCED → INTRODUCED_NO_WRITING_DATA → TRACE_ELIGIBLE → MEMORY_ELIGIBLE → PRODUCTION_ELIGIBLE; no graded writing for an untaught character.",
+      "owner": "gate:rc2-3-4-hanzi-writing",
+      "secondaryEvidence": [],
+      "introducedBy": "RC2.3.4A",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "SPEECH_TECHNICAL_FAILURE_NON_PENALTY": {
+      "statement": "ASR/mic/network failure never becomes a learner failure; ASR is not a tone grader; recordings stay local and temporary.",
+      "owner": "gate:rc2-3-5-speech",
+      "secondaryEvidence": ["gate:rc2-2-32"],
+      "introducedBy": "RC2.3.5",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "PERSONAL_MASTERY_EVIDENCE_SEMANTICS": {
+      "statement": "Evidence Record semantics (dimensions, independence, spacing, variety, SRS decay, UNKNOWN ≠ WEAK); mastery only prioritises practice, never Journey eligibility.",
+      "owner": "gate:rc2-3-6-personal-mastery",
+      "secondaryEvidence": [],
+      "introducedBy": "RC2.3.6",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "GUIDANCE_BUDGET_AND_SENSORY": {
+      "statement": "Guidance surfaces are real routes, respect the orchestrator budget; haptics/sound follow the sensory contract.",
+      "owner": "gate:rc2-3-7-sensory-guidance",
+      "secondaryEvidence": ["gate:rc2-2-32"],
+      "introducedBy": "RC2.3.7",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "ACCOUNT_ISOLATION": {
+      "statement": "Canonical identity is the Supabase user id; storage is namespaced local / cloud:<uid>; logout/switch never leaks another account's data.",
+      "owner": "gate:rc2-3-8-auth-identity",
+      "secondaryEvidence": ["test:cloud-first-auth"],
+      "introducedBy": "RC2.3.8",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "PROGRESS_CLAIM_LOSSLESS": {
+      "statement": "Local progress claim is idempotent (claim ledger), never last-write-wins, per-field economy policy, evidence deduped by stable id, mastery re-derived.",
+      "owner": "gate:rc2-3-8-auth-identity",
+      "secondaryEvidence": ["validate:sync-merge"],
+      "introducedBy": "RC2.3.8",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "OAUTH_REDIRECT_SAFETY": {
+      "statement": "PKCE, redirect allowlist, internal-only return routes, single-flight callback.",
+      "owner": "gate:rc2-3-8-auth-identity",
+      "secondaryEvidence": [],
+      "introducedBy": "RC2.3.8",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "ENTITLEMENT_SERVER_AUTHORITY": {
+      "statement": "Pro/entitlements are decided server-side only; never persisted or claimed from the client.",
+      "owner": "validate:effective-entitlement",
+      "secondaryEvidence": ["test:entitlements", "test:free-tier-guardrails", "gate:rc2-3-8-auth-identity"],
+      "introducedBy": "V4.10A",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "NO_SECRETS_IN_CLIENT": {
+      "statement": "No service_role key, OAuth client secret or provider token ships in src/dist/Android assets.",
+      "owner": "validate:security-boundaries",
+      "secondaryEvidence": ["validate:frontend-secrets", "gate:rc2-3-8-auth-identity"],
+      "introducedBy": "V4.7",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "JEV_RUNTIME_DISABLED": {
+      "statement": "Jev never runs in the learner runtime (JEV_RUNTIME_ENABLED=false); only server-side triage and DEV_AUDIT.",
+      "owner": "test:free-tier-guardrails",
+      "secondaryEvidence": ["gate:rc2-3-6-personal-mastery", "gate:rc2-3-7-sensory-guidance", "gate:rc2-3-9-stack-convergence"],
+      "introducedBy": "RC2.3.4A",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "RELEASE_FINGERPRINT_CHAIN": {
+      "statement": "The curriculum fingerprint only advances through typed EXPECTED_FINGERPRINT_ADVANCE records from one shared anchor; every validator reads the same chain.",
+      "owner": "validate:release-candidate",
+      "secondaryEvidence": ["test:fingerprint-chain", "validate:rc2-content-freeze"],
+      "introducedBy": "RC2.3.4A",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "ANDROID_NATIVE_CONTRACT": {
+      "statement": "Capacitor platform boundaries, signing contract and native foundation stay intact.",
+      "owner": "gate:android-native-foundation",
+      "secondaryEvidence": ["gate:rc2-2-12-android-release-readiness"],
+      "introducedBy": "RC2.2.10",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "CULTURE_CONTENT_TRUTH": {
+      "statement": "Culture content is sourced, history vs legend separated, festival dates follow policy, no lexical pollution.",
+      "owner": "gate:rc2-3-3-culture-deep",
+      "secondaryEvidence": ["validate:culture-truth-classification", "validate:culture-legend-vs-history", "validate:culture-source-coverage"],
+      "introducedBy": "RC2.3.3",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "PRODUCT_TRUTH_HONEST": {
+      "statement": "docs/release/product-truth.json is generated, fresh, uses the single status vocabulary and never reports PASS for unconfigured/unrun items.",
+      "owner": "gate:rc2-3-9-stack-convergence",
+      "secondaryEvidence": [],
+      "introducedBy": "RC2.3.9",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    },
+    "CANONICAL_GATE_COVERAGE": {
+      "statement": "Every legacy validate:beta step still runs in exactly one canonical suite or is retired with recorded equivalence; no hidden skips on release gates.",
+      "owner": "gate:rc2-3-9-stack-convergence",
+      "secondaryEvidence": [],
+      "introducedBy": "RC2.3.9",
+      "criticality": "BLOCK_RELEASE",
+      "active": true
+    }
+  }
+}

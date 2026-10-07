@@ -51,6 +51,7 @@ import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
 import { AndroidTtsForensicsPanel } from "./AndroidTtsForensicsPanel";
 import { CanonicalMediaForensicsPanel } from "./CanonicalMediaForensicsPanel";
 import { BetaQaConsole } from "./BetaQaConsole";
+import { ReleaseTruthPanel } from "./ReleaseTruthPanel";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
 import { VisualFirstQaPanel } from "./VisualFirstQaPanel";
@@ -151,6 +152,7 @@ function QaDeviceSurface() {
       <PersonalMasteryQaPanel />
       <SensoryQaPanel />
       <AuthQaPanel />
+      <ReleaseTruthPanel />
 
       <section className="rounded-2xl border border-line bg-surface p-4" data-testid="qa-device-build">
         <h2 className="text-sm font-semibold text-ink">Build e aparelho</h2>

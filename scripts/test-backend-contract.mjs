@@ -15,6 +15,7 @@ import {
 } from "./lib/v477-constants.mjs";
 import { assertFrozenMigrations, edgeSourceCatalog } from "./lib/schema-canonical.mjs";
 import { LONGYU_PRODUCTION_PROJECT_ID } from "./lib/staging-guard.mjs";
+import { canonicalBetaChain } from "./lib/canonical-beta.mjs";
 
 const root = projectRoot();
 const errors = [];
@@ -97,8 +98,8 @@ const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"))
 assert(pkg.scripts["test:backend-contract"] === "node scripts/test-backend-contract.mjs", "script test:backend-contract");
 assert(pkg.scripts["rehearse:backend-contract"] === "node scripts/rehearse-backend-contract.mjs", "script rehearse:backend-contract");
 assert(pkg.scripts["generate:backend-contracts"] === "node scripts/generate-backend-contracts.mjs", "script generate:backend-contracts");
-assert(pkg.scripts["validate:beta"].includes("test:backend-contract"), "validate:beta includes test:backend-contract");
-assert(!pkg.scripts["validate:beta"].includes("rehearse:backend-contract"), "validate:beta does not start ephemeral supabase");
+assert(canonicalBetaChain(pkg.scripts).includes("test:backend-contract"), "validate:beta includes test:backend-contract");
+assert(!canonicalBetaChain(pkg.scripts).includes("rehearse:backend-contract"), "validate:beta does not start ephemeral supabase");
 
 const workflow = fs.readFileSync(path.join(root, ".github/workflows/backend-contract.yml"), "utf8");
 assert(/node-version:\s*"22"/.test(workflow), "backend-contract Node 22");

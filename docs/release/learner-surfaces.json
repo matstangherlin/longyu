@@ -1,0 +1,402 @@
+{
+  "schemaVersion": 1,
+  "description": "RC2.3.9 — every route the app exposes. A route not listed here is an undeclared learner feature (gate UNDECLARED_LEARNER_FEATURE). New routes must be added together with the wave that introduces them; RC2.3.9 adds none.",
+  "baselineWave": "RC2.3.8 (#319 @ 8a1b763)",
+  "routes": [
+    {
+      "path": "/",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/teste-guiado",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/curso",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/aprender-mandarim",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/curso-de-mandarim-online",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/tons-do-mandarim",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/aprender-pinyin",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/aprender-hanzi",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/mandarim-para-brasileiros",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/como-funciona",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/metodo-longyu",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/business",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/business/login",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/convite/:code",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "/familia/convite/:token",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "comecar",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "login",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "auth/callback",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "esqueci-senha",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "redefinir-senha",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "confirmar-email",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "finalizar-cadastro",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "salvar-progresso",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "privacidade",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "termos",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "sobre",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "qa/device",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa/player",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa/audio-discrimination",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa/hanzi-builder",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa/step-lab",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa/conversation-scene",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "qa/:scenario",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "jornada",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "jornada/capsula/:capsuleId",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "jornada/reforco/:nodeId",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "treino",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "praticar",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "arcade/blitz",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "missoes",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "loja",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "som",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "pinyin",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "hanzi",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "ideogramas",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "hanzi/atlas",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "fala",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "leitura",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "revisao",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "dominio",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "cultura",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "cultura/revisao",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "cultura/colecao/:collectionId",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "cultura/:id",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "biblioteca",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "imersao",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "ligas",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "amigos",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "convide",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "familia",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "business/dashboard",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "business/members",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "conquistas",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "pro",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "plano",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "perfil",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "conta",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "dados-locais",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "config",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "config/:category",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "ajustes",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "mais",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "admin/feedback",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": false
+    },
+    {
+      "path": "licao/:lessonId",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "licao/:lessonId/player",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "teste/:unitId",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "teste/fase/:phaseId",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "*",
+      "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    }
+  ]
+}

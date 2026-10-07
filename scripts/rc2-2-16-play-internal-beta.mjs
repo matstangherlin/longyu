@@ -183,7 +183,7 @@ const MUTATIONS = {
     ["40. fingerprint muda", "FINGERPRINT_DRIFT", (s) => { s.freeze.fingerprint = "000000000000"; }],
     ["41. 31 READY regride", "CAPABILITY_READY_DRIFT", (s) => { s.freeze.counts.conversationCapabilitiesRuntimeReady = 30; }],
     ["42. Daily Vocabulary cria outro SRS", "NEW_SRS", (s) => { s.freeze.systemModules.push("src/lib/dailyVocabularySrs.ts"); }],
-    ["43. locale/course sai da cadeia", "LOCALE_COURSE_GATE_REMOVED", (s) => { s.scripts["validate:beta"] = swap(s.scripts["validate:beta"], " && npm run gate:rc2-2-14b-locale-course-direction", ""); }],
+    ["43. locale/course sai da cadeia", "LOCALE_COURSE_GATE_REMOVED", (s) => { s.betaChain = swap(s.betaChain, " && npm run gate:rc2-2-14b-locale-course-direction", ""); }],
     ["43b. CourseDirection sai do gate", "LOCALE_COURSE_GATE_REMOVED", (s) => { s.scripts["gate:rc2-2-14b-locale-course-direction"] = swap(s.scripts["gate:rc2-2-14b-locale-course-direction"], "npm run validate:course-direction && ", ""); }],
     ["44. contrato de progressão da lição removido", "LESSON_PROGRESSION_CONTRACT_REMOVED", (s) => { delete s.scripts["validate:lesson-step-progression"]; }],
     ["CL. login por username ligado", "USERNAME_FLAG_ENABLED", (s) => { s.src.envProduction += "\nVITE_USERNAME_LOGIN_ENABLED=true\n"; }],

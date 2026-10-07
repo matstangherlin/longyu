@@ -20,6 +20,7 @@ import {
   V478_REMESSA_STATUS,
 } from "./lib/v478-backend-rc.mjs";
 import { V477_LOCAL_ONLY_CLASS } from "./lib/v477-constants.mjs";
+import { canonicalBetaChain } from "./lib/canonical-beta.mjs";
 
 const root = projectRoot();
 const errors = [];
@@ -116,8 +117,8 @@ const pkg = JSON.parse(read("package.json"));
 assert(pkg.scripts["test:mastery-monotonic-contract"] === "node scripts/test-mastery-monotonic-contract.mjs", "script mastery");
 assert(pkg.scripts["test:v478-hosted-gate"] === "node scripts/test-v478-hosted-gate.mjs", "script hosted gate");
 assert(pkg.scripts["v478:identity"] === "node scripts/v478-identity.mjs", "script identity");
-assert(pkg.scripts["validate:beta"].includes("test:mastery-monotonic-contract"), "validate:beta includes mastery contract");
-assert(pkg.scripts["validate:beta"].includes("test:v478-hosted-gate"), "validate:beta includes hosted gate");
+assert(canonicalBetaChain(pkg.scripts).includes("test:mastery-monotonic-contract"), "validate:beta includes mastery contract");
+assert(canonicalBetaChain(pkg.scripts).includes("test:v478-hosted-gate"), "validate:beta includes hosted gate");
 
 const identityRun = spawnSync(process.execPath, [path.join(root, "scripts/v478-identity.mjs")], {
   cwd: root,

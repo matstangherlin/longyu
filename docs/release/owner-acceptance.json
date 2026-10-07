@@ -1,0 +1,1361 @@
+{
+  "schemaVersion": 1,
+  "wave": "RC2.3.9",
+  "generatedAt": "2026-10-07",
+  "statusVocabulary": [
+    "PASS",
+    "CODE_READY",
+    "ACCOUNT_VERIFIED",
+    "CONFIG_REQUIRED",
+    "OWNER_ACTION_REQUIRED",
+    "NOT_RUN",
+    "BLOCKED",
+    "PAID_PLAN_REQUIRED"
+  ],
+  "rules": [
+    "Owner physical acceptance is NOT_RUN unless a report proves the owner ran it on the current build. No report in RC2.2.20-RC2.3.8 does.",
+    "Web/E2E PASS, emulator PASS and APK generated never promote realDevice or ownerPhysical.",
+    "Each flow appears once; sourceChecklists lists every historical checklist it replaces.",
+    "Record device model, Android version, APK artifact id and date for every owner run. Never record e-mail, password, OTP, token, recording or other PII."
+  ],
+  "consolidation": {
+    "sourceChecklistCount": 27,
+    "sourceItemCount": 588,
+    "uniqueFlowCount": 28,
+    "report": "docs/reports/rc2-3-9-owner-acceptance-convergence.md"
+  },
+  "areas": {
+    "audio": {
+      "status": "OWNER_ACTION_REQUIRED",
+      "ownerPhysicalAcceptance": "NOT_RUN",
+      "summary": "Canonical audio, conversation, contrast and speech are CODE/WEB PASS; OWNER_AUDIO_ACCEPTANCE was never run on a current APK. Earlier owner runs (PR #303/#305 builds) FAILED and were fixed in code (RC2.2.31B-D) without a new owner run.",
+      "evidence": [
+        "docs/reports/rc2-3-5-device-acceptance.md",
+        "docs/reports/rc2-3-5-closure.md",
+        "docs/reports/rc2-2-32-speech-experience.md",
+        "docs/reports/rc2-2-32-voice-consistency.md",
+        "docs/reports/rc2-2-31d-apk-runtime-proof.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/rc2-2-31d-physical-matrix.json"
+      ],
+      "checklistIds": [
+        "DM-06-CANONICAL-AUDIO",
+        "DM-07-CONVERSATION",
+        "DM-08-CONTRAST-LISTENING",
+        "DM-09-SPEECH-RECORD-COMPARE",
+        "DM-10-PRACTICE-SURFACES"
+      ]
+    },
+    "hanzi": {
+      "status": "OWNER_ACTION_REQUIRED",
+      "ownerPhysicalAcceptance": "NOT_RUN",
+      "summary": "Eligibility CODE/WEB PASS (9/9 E2E at 360/375/390); emulator is generic only; OWNER_PHYSICAL_PASS NOT_RUN.",
+      "evidence": [
+        "docs/reports/rc2-3-4a-hanzi-physical-acceptance.md",
+        "docs/reports/rc2-3-4a-hanzi-eligibility.md",
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/release/rc2-3-4-hanzi-writing-matrix.json"
+      ],
+      "checklistIds": [
+        "DM-11-HANZI-WRITING"
+      ]
+    },
+    "ux": {
+      "status": "OWNER_ACTION_REQUIRED",
+      "ownerPhysicalAcceptance": "NOT_RUN",
+      "summary": "Pedagogy V6, Visual First, Everyday, Culture, Personal Mastery, sensory/guidance/completion are WEB PASS; OWNER_PEDAGOGICAL / VISUAL / HUMAN / CULTURE / MASTERY / UX acceptance all NOT_RUN.",
+      "evidence": [
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/reports/rc2-3-7-closure.md",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/reports/rc2-3-3-culture-human-validation.md",
+        "docs/release/rc2-3-0-pedagogy-matrix.json",
+        "docs/release/rc2-3-1-visual-matrix.json",
+        "docs/release/rc2-3-2-human-everyday-matrix.json",
+        "docs/release/rc2-2-25-owner-human-script.md"
+      ],
+      "checklistIds": [
+        "DM-02-ONBOARDING",
+        "DM-03-FIRST-LESSON",
+        "DM-04-PEDAGOGY-ROUNDS",
+        "DM-05-VISUAL-FIRST",
+        "DM-12-CULTURE",
+        "DM-13-REVIEW",
+        "DM-14-PERSONAL-MASTERY",
+        "DM-15-ANSWER-FEEDBACK-SENSORY",
+        "DM-16-GUIDANCE",
+        "DM-17-LESSON-COMPLETION",
+        "DM-25-LAYOUT-A11Y",
+        "DM-26-FREE-USE-ENTITLEMENT"
+      ]
+    },
+    "auth": {
+      "status": "CONFIG_REQUIRED",
+      "ownerPhysicalAcceptance": "NOT_RUN",
+      "summary": "E-mail auth verified; Google/Apple/Microsoft CODE_READY but disabled in Supabase (read-only check); manual identity linking off; OWNER_AUTH_ACCEPTANCE NOT_RUN.",
+      "evidence": [
+        "docs/reports/rc2-3-8-closure.md",
+        "docs/reports/rc2-3-8-provider-matrix.md",
+        "docs/reports/rc2-3-8-owner-actions.md",
+        "docs/reports/rc2-3-8-auth-system-truth.md",
+        "docs/reports/rc2-3-8-security.md"
+      ],
+      "checklistIds": [
+        "DM-18-EMAIL-AUTH-LOGOUT-LOGIN",
+        "DM-19-SOCIAL-SIGN-IN",
+        "DM-20-ANDROID-OAUTH-DEEP-LINK",
+        "DM-21-PROGRESS-CLAIM"
+      ]
+    },
+    "android": {
+      "status": "OWNER_ACTION_REQUIRED",
+      "ownerPhysicalAcceptance": "NOT_RUN",
+      "summary": "Android build + emulator runtime PASS on parent heads; APK generated but never accepted on a device for the current stack; Play internal track NOT_RUN (upload key / identity owner actions open).",
+      "evidence": [
+        "docs/reports/rc2-2-31d-apk-runtime-proof.md",
+        "docs/reports/rc2-3-4a-stack-truth.md",
+        "docs/release/android-physical-qa.json",
+        "docs/release/rc2-2-30-play-internal.json",
+        "docs/release/play-console-status.json",
+        "docs/release/rc2-2-20-owner-actions.json"
+      ],
+      "checklistIds": [
+        "DM-01-CLEAN-INSTALL",
+        "DM-22-ANDROID-BACK",
+        "DM-23-OFFLINE",
+        "DM-24-RESUME-LIFECYCLE",
+        "DM-27-PLAY-INSTALL-UPDATE",
+        "DM-28-NOTIFICATIONS"
+      ]
+    }
+  },
+  "deviceMatrix": [
+    {
+      "id": "DM-01-CLEAN-INSTALL",
+      "area": "android",
+      "flow": "Clean install -> cold start -> landing -> sign-up -> first Jornada screen (no local profiles, no DEV/QA chrome)",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "ACCOUNT_ISOLATION",
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/rc2-3-0-pedagogy-matrix.json",
+        "docs/release/rc2-3-1-visual-matrix.json",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/release/rc2-2-30-play-internal.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "rc2-2-25 #1-3",
+        "apkBuildMatchesHead",
+        "nativePlatformAndroid",
+        "noLocalProfiles",
+        "signupCleanInstall",
+        "noLocalIdentity",
+        "coldStarts20",
+        "Instalacao limpa (RC2.3.0/RC2.3.1)",
+        "Seu Dominio #1/#11",
+        "firstPlayInstall.coldStart",
+        "coldStart",
+        "splashIcon",
+        "landingMobile",
+        "freshAccountMinimalSurface"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-25-product-experience-closure.spec.ts",
+          "e2e/rc2-2-20-physical-readiness.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-02-ONBOARDING",
+      "area": "ux",
+      "flow": "Onboarding / first run: course and locale, single onboarding, daily goal once, placement opt-in, first guidance budget",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "TEACH_BEFORE_TEST"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "RC2.3.7 Primeiro uso",
+        "singleOnboardingFirstRun",
+        "dailyGoalOnce",
+        "experiencedPlacementOptIn",
+        "coursePicker",
+        "systemLocaleDetection",
+        "systemLocaleChange",
+        "welcomeGuidanceOnce",
+        "permissionFirstRun"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-7-sensory-guidance.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-03-FIRST-LESSON",
+      "area": "ux",
+      "flow": "First lesson: Discovery before any check, one idea per screen, no scroll, Continuar without XP noise",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "TEACH_BEFORE_TEST",
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "CURRICULUM_LEAK"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/rc2-3-0-pedagogy-matrix.json",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "rc2-2-25 #4",
+        "Encontrar Descoberta antes da cobranca",
+        "Aprendeu antes de ser testado?",
+        "Primeira licao comeca rapidamente",
+        "completeLesson",
+        "guidedJourneyL1",
+        "guidedJourneyL2"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-25-product-experience-closure.spec.ts",
+          "e2e/rc2-2-23-product-convergence.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-04-PEDAGOGY-ROUNDS",
+      "area": "ux",
+      "flow": "Topic rounds 1-4 (Pedagogy V6 + Everyday): round 2 differs, round 3 produces, round 4 transfers; human questions",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "TEACH_BEFORE_TEST",
+        "CURRICULUM_LEAK"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-3-0-pedagogy-matrix.json",
+        "docs/release/rc2-3-2-human-everyday-matrix.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "Completar 4 rodadas",
+        "Rodada 2/3/4",
+        "Repeticao perceptiva de 你好",
+        "Perguntas humanas?",
+        "Inicio parece lingua usada por pessoas?",
+        "Pass 3 produz / Pass 4 transfere?",
+        "guidedJourneyIntermediate",
+        "guidedJourneyAdvanced"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "docs/release/rc2-3-0-pedagogy-matrix.json",
+          "docs/release/rc2-3-2-human-everyday-matrix.json"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-05-VISUAL-FIRST",
+      "area": "ux",
+      "flow": "Visual First: concrete concepts discovered with image; image->word, audio->image, Hanzi->image; visuals stop giving the answer in passes 1-4",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "TEACH_BEFORE_TEST",
+        "FIXED_SPEECH_CANONICAL_VOICE"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-3-1-visual-matrix.json",
+        "docs/release/rc2-3-0-pedagogy-matrix.json"
+      ],
+      "sourceItems": [
+        "RC2.3.1 ownerChecklist (7)",
+        "Imagens onde ajudam?"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "docs/release/rc2-3-1-visual-matrix.json"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-06-CANONICAL-AUDIO",
+      "area": "audio",
+      "flow": "Canonical Mandarin audio on every surface (Guided Try, lesson, review, tones, culture, immersion, placement, atlas); 10 cold starts; TTS disabled still progresses; no overlap",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "FIXED_SPEECH_CANONICAL_VOICE",
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-28-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-31-physical-matrix.json",
+        "docs/release/rc2-2-31b-physical-matrix.json",
+        "docs/release/rc2-2-31c-physical-matrix.json",
+        "docs/release/rc2-2-31d-physical-matrix.json",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json",
+        "docs/release/rc2-2-25-owner-human-script.md"
+      ],
+      "sourceItems": [
+        "guidedTry*",
+        "tts* (RC2.2.27)",
+        "stopModeA/B",
+        "audioOwnerRecoveryChain",
+        "reviewAudio",
+        "toneAudio",
+        "cultureAudio",
+        "immersionAudio",
+        "allFixedAudioAssets",
+        "guidedTryAudio",
+        "guidedTry10ColdStarts",
+        "canonicalVoice10Utterances",
+        "RC2.3.7 Audio",
+        "ttsModelVoiceAllSurfaces",
+        "ttsAfterVoiceInstall",
+        "audioStressSequence",
+        "audioOwnerChain",
+        "bluetoothConnectDisconnect",
+        "focusLossOtherApp",
+        "audioMatrix*",
+        "guidedTryAudioHeard",
+        "guidedTryDegradedAudio",
+        "ttsInstallFlow",
+        "rc2-2-25 #6"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-28-deterministic-audio.spec.ts",
+          "e2e/rc2-2-27-android-tts-root-cause.spec.ts"
+        ]
+      },
+      "priorOwnerObservation": "Owner ran earlier APKs: Guided Try audio, conversation continue and sequential audio FAIL on PR #303/#305 builds; ANDROID_TTS_HEARD_BUT_UI_NOT_ACKNOWLEDGED reproduced on device (RC2.2.26/27). No owner run on any build after the RC2.2.31D fixes.",
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-07-CONVERSATION",
+      "area": "audio",
+      "flow": "Conversation: each tap shows the next line; >=10 and 20 transitions with audio on and off; wrong branch; state-first continue",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "FIXED_SPEECH_CANONICAL_VOICE"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-28-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-31-physical-matrix.json",
+        "docs/release/rc2-2-31b-physical-matrix.json",
+        "docs/release/rc2-2-31c-physical-matrix.json",
+        "docs/release/rc2-2-31d-physical-matrix.json",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/rc2-2-20-device-matrix.json",
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "conversationFirstGreeting",
+        "conversationMultiNode",
+        "conversationWrongBranch",
+        "conversationFiveDialogues",
+        "conversationTenLines",
+        "conversationTenNodesSilent/WithAudio",
+        "apkConversationFixture",
+        "conversationPointerDown/Click/HandlerEnter/StateCommit/DomNextVisible",
+        "conversation20Transitions",
+        "conversationContinueClickTruth",
+        "conversationContinue",
+        "conversationSequentialAudio",
+        "audioOff/OnConversation20",
+        "conversation10Nodes",
+        "conversationContinueDevice",
+        "rc2-2-25 #7",
+        "conversationAdvanceDevicePath",
+        "guidedJourneyConversation"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-24-android-learning-parity.spec.ts",
+          "docs/reports/rc2-2-31d-apk-runtime-proof.md"
+        ]
+      },
+      "priorOwnerObservation": "FAIL on PR #303/#305 owner APKs (conversationContinue, conversationSequentialAudio); current head NOT_RUN.",
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-08-CONTRAST-LISTENING",
+      "area": "audio",
+      "flow": "A/B contrast listening (tone, initial, final): both sides same canonical voice and level; replay; families without assets show 'audio em preparacao' and do not grade",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "FIXED_SPEECH_CANONICAL_VOICE",
+        "TEACH_BEFORE_TEST"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-5-device-acceptance.md",
+        "docs/reports/rc2-2-32-speech-experience.md"
+      ],
+      "sourceItems": [
+        "RC2.3.5 A. Contrast (6)",
+        "Modelos A/B de contraste com a mesma voz"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-5-speech-contrast.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-09-SPEECH-RECORD-COMPARE",
+      "area": "audio",
+      "flow": "Speech: mic explanation -> permission (allow / deny / permanent deny) -> record -> hear myself -> compare -> recognition or record-and-compare fallback -> continue without speaking; recording deleted",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "SPEECH_TECHNICAL_FAILURE_NON_PENALTY",
+        "FIXED_SPEECH_CANONICAL_VOICE",
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "PERSONAL_MASTERY_EVIDENCE_SEMANTICS"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-5-device-acceptance.md",
+        "docs/reports/rc2-2-32-speech-experience.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-28-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-20-device-matrix.json",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "RC2.3.5 B/C/D (15)",
+        "RC2.3.5 torture matrix (16)",
+        "Gravar voz / Ouvir propria gravacao / Fallback / Continuar sem falar",
+        "recordVoice",
+        "hearSelfRecording",
+        "recognitionFallback",
+        "selfRecordingCaptured",
+        "selfPlaybackAudible",
+        "nativeSpeechZhCn",
+        "speechFallback",
+        "selfCompareModelVsUser",
+        "selfCompareOwnerHear",
+        "nativeSpeechRecognitionZhCn",
+        "selfCompareRecordingPlayback",
+        "selfPlayback* (RC2.2.21/22)",
+        "nativeSpeech* (RC2.2.21/22)",
+        "rc2-2-25 #14-15",
+        "RC2.3.7 Fala",
+        "Seu Dominio #6",
+        "microphone",
+        "permissionDenial",
+        "microphonePermission",
+        "micPrePermission",
+        "nativeSpeech",
+        "recognitionSupportCheck",
+        "recognitionModelDownload",
+        "selfCompareRecording",
+        "selfComparePrivacyDeletion",
+        "guidedJourneySpeech"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-5-speech-contrast.spec.ts",
+          "e2e/rc2-2-20-physical-readiness.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-10-PRACTICE-SURFACES",
+      "area": "audio",
+      "flow": "Practice surfaces: Tones hub vs round, Tone Trace touch, Pinyin Lab, Fala hub, Immersion, articulation/story scenes",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "FIXED_SPEECH_CANONICAL_VOICE",
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-28-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-20-device-matrix.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "rc2-2-25 #10-13, #18",
+        "toneTrainerFocus",
+        "toneTraceTouch",
+        "pinyinFocus",
+        "immersionFocus",
+        "noScrollPinyin390",
+        "noScrollTone390",
+        "toneGuidanceVisible",
+        "storySceneDevice",
+        "articulationDiagramsDevice",
+        "toneGuidedVisual",
+        "guidedJourneyTone"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-25-product-experience-closure.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-11-HANZI-WRITING",
+      "area": "hanzi",
+      "flow": "Hanzi: builder pieces -> trace (人 口 木 水 + multi-stroke) -> memory write after one correct trace; writing locked before teaching; undo/clear; no page scroll; canvas survives resume/audio/modal",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "HANZI_WRITING_ELIGIBILITY",
+        "CURRICULUM_LEAK",
+        "TEACH_BEFORE_TEST",
+        "PERSONAL_MASTERY_EVIDENCE_SEMANTICS"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-4a-hanzi-physical-acceptance.md",
+        "docs/reports/rc2-2-32-sensory-feedback.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "RC2.3.4A TRACE (7) / MEMORY (4) / UX (6)",
+        "Peca de Hanzi coloca com snap + haptic leve",
+        "hanziInteractive",
+        "RC2.3.7 Hanzi (3)",
+        "Seu Dominio #7-#8",
+        "hanziHub",
+        "hanziBuilder",
+        "guidedJourneyHanzi"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-4a-hanzi-writing-acceptance.spec.ts",
+          "e2e/rc2-3-4-hanzi-writing-screens.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-12-CULTURE",
+      "area": "ux",
+      "flow": "Culture: Journey gate -> exact Culture Lesson -> moment -> return to the same Journey node; flagships; kind integrity; review & seal",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "CURRICULUM_LEAK",
+        "FIXED_SPEECH_CANONICAL_VOICE",
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-3-culture-human-validation.md",
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "RC2.3.3 Flows A-E (24)",
+        "rc2-2-25 #16-17",
+        "cultureEntry",
+        "cultureHandoff",
+        "RC2.3.7 Cultura (2)",
+        "culturePrimaryNav",
+        "cultureUnlockReveal"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "docs/release/rc2-3-3-culture-deep-matrix.json"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-13-REVIEW",
+      "area": "ux",
+      "flow": "Review hub -> review round (no tab bar, Hanzi large, only taught items)",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "CURRICULUM_LEAK"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-28-physical-matrix.json",
+        "docs/release/rc2-2-20-device-matrix.json",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md"
+      ],
+      "sourceItems": [
+        "rc2-2-25 #8-9",
+        "reviewEntry",
+        "reviewReadable",
+        "noScrollReview390",
+        "reviewRoundsDevice",
+        "Seu Dominio #13"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-25-product-experience-closure.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-14-PERSONAL-MASTERY",
+      "area": "ux",
+      "flow": "Personal Mastery / Seu Dominio: empty state, firm only after repeated unaided spaced success, 'Por que estou vendo isto?', 'Praticar o que preciso' (taught items only) and return",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "PERSONAL_MASTERY_EVIDENCE_SEMANTICS",
+        "CURRICULUM_LEAK",
+        "SPEECH_TECHNICAL_FAILURE_NON_PENALTY",
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md"
+      ],
+      "sourceItems": [
+        "Seu Dominio #2-#5, #9, #12, #19, #20",
+        "RC2.3.7 Personal Mastery (3)"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-6-personal-mastery.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-15-ANSWER-FEEDBACK-SENSORY",
+      "area": "ux",
+      "flow": "Answer feedback, SFX and haptics: correct vs wrong distinct, one vibration per moment, SFX never over Mandarin or into a recording, OFF is OFF, 20-correct fatigue, reduced motion",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "FIXED_SPEECH_CANONICAL_VOICE"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-2-32-sensory-feedback.md",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/reports/rc2-3-4a-hanzi-physical-acceptance.md",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "RC2.2.32 Prova fisica Android (4)",
+        "hapticFeel",
+        "answerWrong",
+        "answerCorrect",
+        "RC2.3.7 Respostas (4)",
+        "RC2.3.4A haptics sensible",
+        "reducedMotion",
+        "haptic* / hapticsEnabled / haptics"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-7-sensory-guidance.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-16-GUIDANCE",
+      "area": "ux",
+      "flow": "Guidance: at most 1 per session (2 on first), inline tips on first Hanzi/speech/tone trace/image choice, no popup during recording, skip/off respected, anchors on small screens",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-20-device-matrix.json",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "guidanceVisible",
+        "guidanceShownOnDevice",
+        "guidanceMatureAccountNoRelock",
+        "guidanceDevice",
+        "profileGuidanceVisible",
+        "firstGuidance",
+        "RC2.3.7 Guidance nao exagera",
+        "firstLessonUnlockReveal",
+        "guidanceNoRepeatAfterRestart",
+        "guidanceSkipAll",
+        "guidanceOffNoPopup",
+        "coachmarkSmallDevice",
+        "lockedFeatureDeepLink"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-7-sensory-guidance.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-17-LESSON-COMPLETION",
+      "area": "ux",
+      "flow": "Lesson completion: 'Voce aprendeu' first, real mastery change shown once, one vibration, reward does not dominate, return to the exact Journey node",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "PERSONAL_MASTERY_EVIDENCE_SEMANTICS"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-32-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "completeLesson",
+        "lessonCompleteCeremony",
+        "returnJourney",
+        "completionAnimation/Sound/Haptic",
+        "journeyReturnExact",
+        "completionSequenceOwner",
+        "journeyReturnAnchor",
+        "lessonAdvanceAfterAudio",
+        "lessonAdvanceDevice",
+        "rc2-2-25 #5",
+        "RC2.3.7 Conclusao (4)",
+        "RC2.3.7 Retorno exato a Jornada",
+        "lessonProgression",
+        "practiceRewards"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-7-sensory-guidance.spec.ts",
+          "e2e/rc2-2-25-product-experience-closure.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-18-EMAIL-AUTH-LOGOUT-LOGIN",
+      "area": "auth",
+      "flow": "E-mail sign-up, OTP recovery, Conta first fold, logout in <=2 taps, login again, switch account without seeing the previous account's data, offline logout",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "ACCOUNT_ISOLATION",
+        "ENTITLEMENT_SERVER_AUTHORITY"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-8-closure.md",
+        "docs/release/rc2-2-25-owner-human-script.md",
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-20-device-matrix.json",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "OWNER_AUTH_ACCEPTANCE: logout -> switch account",
+        "OWNER_AUTH_ACCEPTANCE: offline logout",
+        "rc2-2-25 #2, #19-#23",
+        "mobileSignup",
+        "passwordRecoveryOtp",
+        "logoutVisible",
+        "logoutUnder5Seconds",
+        "otpRecovery",
+        "mobileSignupDevice",
+        "passwordRecoveryOtpDevice",
+        "passwordRecoveryDevice",
+        "profileAccountLogoutDevice",
+        "authFullCycle",
+        "deleteAccountVisible",
+        "keyboard"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-8-auth-identity.spec.ts",
+          "e2e/rc2-2-25-product-experience-closure.spec.ts"
+        ]
+      },
+      "priorOwnerObservation": "Owner could not find 'Sair' on an earlier APK (LOGOUT_DISCOVERABILITY_OWNER_FAIL, docs/reports/rc2-2-25-product-experience-closure.md); fixed in code, not re-run by the owner.",
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-19-SOCIAL-SIGN-IN",
+      "area": "auth",
+      "flow": "Google / Apple / Microsoft: new user lands in Jornada with a profile; cancel -> 'Acesso cancelado.'; link a second method; remove only with >=2; conflict copy; Apple hidden e-mail label",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "OAUTH_REDIRECT_SAFETY",
+        "ACCOUNT_ISOLATION"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-8-closure.md",
+        "docs/reports/rc2-3-8-provider-matrix.md",
+        "docs/reports/rc2-3-8-identity-linking.md"
+      ],
+      "sourceItems": [
+        "OWNER_AUTH_ACCEPTANCE items 1, 2, 5, 6, 7"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-8-auth-identity.spec.ts"
+        ]
+      },
+      "blockedBy": [
+        "OA-AUTH-GOOGLE",
+        "OA-AUTH-APPLE",
+        "OA-AUTH-MICROSOFT",
+        "OA-AUTH-MANUAL-LINKING",
+        "OA-AUTH-REDIRECT-URLS"
+      ],
+      "status": "CONFIG_REQUIRED"
+    },
+    {
+      "id": "DM-20-ANDROID-OAUTH-DEEP-LINK",
+      "area": "auth",
+      "flow": "Android OAuth callback via longyu.noba.com://auth/callback: cold start, warm start, back from the browser, double callback ignored",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "OAUTH_REDIRECT_SAFETY",
+        "ACCOUNT_ISOLATION"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-8-closure.md",
+        "docs/release/android-physical-qa.json",
+        "docs/reports/rc2-3-8-deep-link.md"
+      ],
+      "sourceItems": [
+        "OWNER_AUTH_ACCEPTANCE item 8",
+        "deepLinks"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-8-auth-identity.spec.ts"
+        ]
+      },
+      "blockedBy": [
+        "OA-AUTH-GOOGLE",
+        "OA-AUTH-REDIRECT-URLS"
+      ],
+      "status": "CONFIG_REQUIRED"
+    },
+    {
+      "id": "DM-21-PROGRESS-CLAIM",
+      "area": "auth",
+      "flow": "Progress claim: local progress then login -> 'Salvar na conta' keeps lessons/evidence; 'Agora nao' parks local progress; repeat login does not duplicate; entitlements never taken from local",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "PROGRESS_CLAIM_LOSSLESS",
+        "ACCOUNT_ISOLATION",
+        "ENTITLEMENT_SERVER_AUTHORITY",
+        "PERSONAL_MASTERY_EVIDENCE_SEMANTICS"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-8-closure.md",
+        "docs/reports/rc2-3-8-progress-claim.md"
+      ],
+      "sourceItems": [
+        "OWNER_AUTH_ACCEPTANCE items 3, 4"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-8-auth-identity.spec.ts"
+        ]
+      },
+      "note": "Testable with e-mail login today; the social-login variant waits for DM-19.",
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-22-ANDROID-BACK",
+      "area": "android",
+      "flow": "Android back: priority (sheet/modal -> activity -> parent), Seu Dominio -> Revisao, coachmark back, back from OAuth browser",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "OAUTH_REDIRECT_SAFETY"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json",
+        "docs/reports/rc2-3-8-closure.md"
+      ],
+      "sourceItems": [
+        "RC2.3.7 Voltar do Android em Seu Dominio",
+        "androidBackPriority",
+        "backNavigation",
+        "coachmarkAndroidBack",
+        "OWNER_AUTH_ACCEPTANCE back from browser"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-3-7-sensory-guidance.spec.ts",
+          "e2e/rc2-2-21-mobile-native-stability.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-23-OFFLINE",
+      "area": "android",
+      "flow": "Offline: airplane mode learning, Wi-Fi/mobile/offline switch, speech without network falls back, offline logout, nothing lost on reconnect",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "PROGRESS_CLAIM_LOSSLESS",
+        "SPEECH_TECHNICAL_FAILURE_NON_PENALTY"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json",
+        "docs/reports/rc2-3-5-device-acceptance.md",
+        "docs/release/rc2-3-1-visual-matrix.json",
+        "docs/reports/rc2-3-8-closure.md"
+      ],
+      "sourceItems": [
+        "Seu Dominio #10",
+        "offlineResume",
+        "networkWifiMobileOffline",
+        "networkLoss",
+        "RC2.3.5 torture: No internet",
+        "RC2.3.1 offline",
+        "OWNER_AUTH_ACCEPTANCE offline logout"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-21-mobile-native-stability.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-24-RESUME-LIFECYCLE",
+      "area": "android",
+      "flow": "Resume: background/foreground, lock/unlock, process death, long session; recording discarded cleanly, no stuck player, canvas still draws",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING",
+        "SPEECH_TECHNICAL_FAILURE_NON_PENALTY",
+        "PROGRESS_CLAIM_LOSSLESS"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-4a-hanzi-physical-acceptance.md",
+        "docs/reports/rc2-3-5-device-acceptance.md",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "RC2.3.4A background -> foreground / after audio or modal",
+        "RC2.3.5 E. Lifecycle (4)",
+        "RC2.3.5 torture: background while recording/playing, interruption, rapid taps",
+        "lifecycleBackgroundResume",
+        "lifecycleProcessDeath",
+        "longSession10",
+        "transitions50",
+        "idleResourceCounters",
+        "doubleTapCritical",
+        "backgroundResume",
+        "processDeath",
+        "performance"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-21-mobile-native-stability.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-25-LAYOUT-A11Y",
+      "area": "ux",
+      "flow": "Layout & accessibility: 360/375/390 without horizontal or unexpected scroll, Android safe area (top, gesture bar, record button, canvas), font 130 %, TalkBack, dark mode, no DEV/QA chrome",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+        "docs/reports/rc2-3-5-device-acceptance.md",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-28-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/release/rc2-2-21-device-qa.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md",
+        "docs/reports/rc2-3-3-culture-human-validation.md",
+        "docs/release/rc2-3-1-visual-matrix.json",
+        "docs/release/rc2-3-2-human-everyday-matrix.json"
+      ],
+      "sourceItems": [
+        "RC2.3.7 Aparelho (4)",
+        "RC2.3.5 F. UX (6)",
+        "noScroll* (RC2.2.27-30)",
+        "noDebugLearnerUi",
+        "safeAreaLayout",
+        "smallScreen360",
+        "keyboardLayout",
+        "largeFont130",
+        "talkBackCriticalFlow",
+        "diagnosticCopy",
+        "safeArea*",
+        "fontScale",
+        "talkback",
+        "mobileNav",
+        "mobileSettings",
+        "appearanceSystemMode",
+        "externalLinks",
+        "Seu Dominio #14-#17",
+        "RC2.3.3 Flow E",
+        "QA Visual First so em /qa/device",
+        "Sem painel QA em producao"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-25-goldens.spec.ts",
+          "e2e/rc2-3-7-sensory-guidance.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-26-FREE-USE-ENTITLEMENT",
+      "area": "ux",
+      "flow": "Free use: zero charges still usable, Pro conversation gated by server entitlement only, no new currency/paywall around mastery",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "ENTITLEMENT_SERVER_AUTHORITY",
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-26-physical-matrix.json",
+        "docs/release/rc2-2-27-physical-matrix.json",
+        "docs/release/rc2-2-29-physical-matrix.json",
+        "docs/release/rc2-2-30-physical-matrix.json",
+        "docs/reports/rc2-3-6-personal-mastery-qa.md"
+      ],
+      "sourceItems": [
+        "zeroChargesUsable",
+        "conversationPro",
+        "Seu Dominio #18"
+      ],
+      "automated": {
+        "status": "PASS",
+        "evidence": [
+          "e2e/rc2-2-22-closed-beta-candidate.spec.ts"
+        ]
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    },
+    {
+      "id": "DM-27-PLAY-INSTALL-UPDATE",
+      "area": "android",
+      "flow": "Install from the Play internal track (sideload does not count), parity with the QA APK, N -> N+1 update keeps progress",
+      "viewports": [],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "PROGRESS_CLAIM_LOSSLESS",
+        "ACCOUNT_ISOLATION"
+      ],
+      "sourceChecklists": [
+        "docs/release/rc2-2-30-play-internal.json",
+        "docs/release/rc2-2-22-device-qa.json",
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "firstPlayInstall (auth, assets, canonicalAudio, notifications, haptics, safeArea)",
+        "playInternalInstall",
+        "playVsQaApkParity",
+        "nToNPlus1Play",
+        "playInstall",
+        "upgrade"
+      ],
+      "automated": {
+        "status": "NOT_RUN",
+        "evidence": []
+      },
+      "blockedBy": [
+        "OA-PLAY-DEVELOPER-IDENTITY",
+        "OA-PLAY-UPLOAD-KEY",
+        "OA-PLAY-INTERNAL-RELEASE"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "id": "DM-28-NOTIFICATIONS",
+      "area": "android",
+      "flow": "Notifications: permission offered after a session, streak reminder, notification deep link opens the right screen",
+      "viewports": [
+        "360x640",
+        "375x667",
+        "390x844"
+      ],
+      "realDevice": "OWNER_ACTION_REQUIRED",
+      "ownerPhysical": "NOT_RUN",
+      "protects": [
+        "LESSON_PROGRESSION_NON_BLOCKING"
+      ],
+      "sourceChecklists": [
+        "docs/release/android-physical-qa.json"
+      ],
+      "sourceItems": [
+        "notificationPermission",
+        "streakNotification",
+        "notificationDeepLink",
+        "notificationOfferAfterSession"
+      ],
+      "automated": {
+        "status": "CODE_READY",
+        "evidence": []
+      },
+      "status": "OWNER_ACTION_REQUIRED"
+    }
+  ]
+}

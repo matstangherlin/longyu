@@ -1,0 +1,3755 @@
+{
+ "schemaVersion": 1,
+ "description": "RC2.3.9 local baseline: every leaf of the legacy validate:beta chain timed in order on #319 @ 8a1b763 (sequential, this container). Duplicates counted as executed.",
+ "measuredOnSha": "8a1b7633a79b48516b279529348deaedce0ac8cd",
+ "environment": "Claude Code cloud container (shared CPU), node 22",
+ "totalMs": 4919636,
+ "leafExecutions": 936,
+ "duplicateExecutionMs": 208758,
+ "leaves": [
+  {
+   "command": "node scripts/validate-culture-content.mjs",
+   "ms": 2389
+  },
+  {
+   "command": "node scripts/test-culture-content.mjs",
+   "ms": 1634
+  },
+  {
+   "command": "node scripts/validate-culture-collections.mjs",
+   "ms": 1404
+  },
+  {
+   "command": "node scripts/test-culture-collections.mjs",
+   "ms": 1532
+  },
+  {
+   "command": "node scripts/validate-culture-source-coverage.mjs",
+   "ms": 1367
+  },
+  {
+   "command": "node scripts/test-culture-source-coverage.mjs",
+   "ms": 1324
+  },
+  {
+   "command": "node scripts/validate-culture-festival-date-policy.mjs",
+   "ms": 1328
+  },
+  {
+   "command": "node scripts/test-culture-festival-date-policy.mjs",
+   "ms": 1428
+  },
+  {
+   "command": "node scripts/validate-culture-truth-classification.mjs",
+   "ms": 1284
+  },
+  {
+   "command": "node scripts/test-culture-truth-classification.mjs",
+   "ms": 1471
+  },
+  {
+   "command": "node scripts/validate-culture-legend-vs-history.mjs",
+   "ms": 1363
+  },
+  {
+   "command": "node scripts/test-culture-legend-vs-history.mjs",
+   "ms": 1290
+  },
+  {
+   "command": "node scripts/validate-culture-no-lexical-pollution.mjs",
+   "ms": 1346
+  },
+  {
+   "command": "node scripts/test-culture-no-lexical-pollution.mjs",
+   "ms": 1358
+  },
+  {
+   "command": "node scripts/validate-culture-hub-collections.mjs",
+   "ms": 1320
+  },
+  {
+   "command": "node scripts/test-culture-hub-collections.mjs",
+   "ms": 1366
+  },
+  {
+   "command": "node scripts/validate-culture-history-integrity.mjs",
+   "ms": 1438
+  },
+  {
+   "command": "node scripts/test-culture-history-integrity.mjs",
+   "ms": 1576
+  },
+  {
+   "command": "node scripts/validate-culture-history-chronology.mjs",
+   "ms": 1567
+  },
+  {
+   "command": "node scripts/test-culture-history-chronology.mjs",
+   "ms": 1527
+  },
+  {
+   "command": "node scripts/validate-culture-distribution.mjs",
+   "ms": 1483
+  },
+  {
+   "command": "node scripts/test-culture-distribution.mjs",
+   "ms": 1485
+  },
+  {
+   "command": "node scripts/validate-culture-missions.mjs",
+   "ms": 1500
+  },
+  {
+   "command": "node scripts/test-culture-missions.mjs",
+   "ms": 1463
+  },
+  {
+   "command": "node scripts/validate-culture-memory.mjs",
+   "ms": 1459
+  },
+  {
+   "command": "node scripts/test-culture-memory.mjs",
+   "ms": 1661
+  },
+  {
+   "command": "node scripts/validate-culture-gamification.mjs",
+   "ms": 1585
+  },
+  {
+   "command": "node scripts/test-culture-gamification.mjs",
+   "ms": 1626
+  },
+  {
+   "command": "node scripts/validate-culture-teach-before-test.mjs",
+   "ms": 1565
+  },
+  {
+   "command": "node scripts/test-culture-teach-before-test.mjs",
+   "ms": 1718
+  },
+  {
+   "command": "node scripts/validate-culture-explanation-depth.mjs",
+   "ms": 1598
+  },
+  {
+   "command": "node scripts/test-culture-explanation-depth.mjs",
+   "ms": 1451
+  },
+  {
+   "command": "node scripts/validate-culture-journey-integration.mjs",
+   "ms": 1472
+  },
+  {
+   "command": "node scripts/test-culture-journey-integration.mjs",
+   "ms": 1487
+  },
+  {
+   "command": "node scripts/validate-culture-native-lessons.mjs",
+   "ms": 1372
+  },
+  {
+   "command": "node scripts/test-culture-native-lessons.mjs",
+   "ms": 1543
+  },
+  {
+   "command": "node scripts/validate-culture-journey-nodes.mjs",
+   "ms": 1397
+  },
+  {
+   "command": "node scripts/test-culture-journey-nodes.mjs",
+   "ms": 1618
+  },
+  {
+   "command": "node scripts/validate-guide-dialogue-contract.mjs",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/test-guide-dialogue.mjs",
+   "ms": 574
+  },
+  {
+   "command": "node scripts/validate-guide-dialogue-motion.mjs",
+   "ms": 44
+  },
+  {
+   "command": "node scripts/test-guide-dialogue-motion.mjs",
+   "ms": 551
+  },
+  {
+   "command": "node scripts/validate-culture-progression-gates.mjs",
+   "ms": 1307
+  },
+  {
+   "command": "node scripts/test-culture-progression-gates.mjs",
+   "ms": 1275
+  },
+  {
+   "command": "node scripts/validate-guide-text-voice.mjs",
+   "ms": 92
+  },
+  {
+   "command": "node scripts/test-guide-text-voice.mjs",
+   "ms": 689
+  },
+  {
+   "command": "node scripts/validate-mobile-beta-readiness.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/test-mobile-beta-readiness.mjs",
+   "ms": 108
+  },
+  {
+   "command": "node scripts/validate-pwa-release-readiness.mjs",
+   "ms": 53
+  },
+  {
+   "command": "node scripts/test-pwa-upgrade-preflight.mjs",
+   "ms": 60471
+  },
+  {
+   "command": "node scripts/validate-public-beta-feature-freeze.mjs",
+   "ms": 1422
+  },
+  {
+   "command": "node scripts/validate-public-beta-core.mjs",
+   "ms": 620
+  },
+  {
+   "command": "node scripts/test-public-beta-core.mjs",
+   "ms": 608
+  },
+  {
+   "command": "node scripts/validate-journey-culture-moments.mjs",
+   "ms": 1337
+  },
+  {
+   "command": "node scripts/test-journey-culture-moments.mjs",
+   "ms": 645
+  },
+  {
+   "command": "node scripts/validate-journey-guide-explanations.mjs",
+   "ms": 52
+  },
+  {
+   "command": "node scripts/test-journey-guide-explanations.mjs",
+   "ms": 637
+  },
+  {
+   "command": "node scripts/validate-culture-standard-tasks.mjs",
+   "ms": 1338
+  },
+  {
+   "command": "node scripts/test-culture-standard-tasks.mjs",
+   "ms": 1393
+  },
+  {
+   "command": "node scripts/validate-exercise-affordance.mjs",
+   "ms": 1442
+  },
+  {
+   "command": "node scripts/validate-culture-playability.mjs",
+   "ms": 1413
+  },
+  {
+   "command": "node scripts/test-culture-playability.mjs",
+   "ms": 1497
+  },
+  {
+   "command": "node scripts/validate-culture-story-audio.mjs",
+   "ms": 1501
+  },
+  {
+   "command": "node scripts/test-culture-story-audio.mjs",
+   "ms": 1566
+  },
+  {
+   "command": "node scripts/validate-culture-rewards.mjs",
+   "ms": 1439
+  },
+  {
+   "command": "node scripts/test-culture-rewards.mjs",
+   "ms": 1510
+  },
+  {
+   "command": "node scripts/validate-live-league.mjs",
+   "ms": 1542
+  },
+  {
+   "command": "node scripts/test-live-league.mjs",
+   "ms": 1491
+  },
+  {
+   "command": "node scripts/validate-china-survival-restaurant.mjs",
+   "ms": 14322
+  },
+  {
+   "command": "node scripts/test-china-survival-restaurant.mjs",
+   "ms": 14071
+  },
+  {
+   "command": "node scripts/validate-conversation-decisions.mjs",
+   "ms": 16109
+  },
+  {
+   "command": "node scripts/test-conversation-decisions.mjs",
+   "ms": 15799
+  },
+  {
+   "command": "node scripts/validate-china-survival-shopping.mjs",
+   "ms": 16354
+  },
+  {
+   "command": "node scripts/test-china-survival-shopping.mjs",
+   "ms": 16198
+  },
+  {
+   "command": "node scripts/validate-china-survival-mobility.mjs",
+   "ms": 11780
+  },
+  {
+   "command": "node scripts/test-china-survival-mobility.mjs",
+   "ms": 11379
+  },
+  {
+   "command": "node scripts/validate-china-survival-hotel.mjs",
+   "ms": 16232
+  },
+  {
+   "command": "node scripts/test-china-survival-hotel.mjs",
+   "ms": 16099
+  },
+  {
+   "command": "node scripts/validate-china-survival-airport.mjs",
+   "ms": 16849
+  },
+  {
+   "command": "node scripts/test-china-survival-airport.mjs",
+   "ms": 16694
+  },
+  {
+   "command": "node scripts/validate-china-survival-health.mjs",
+   "ms": 15546
+  },
+  {
+   "command": "node scripts/test-china-survival-health.mjs",
+   "ms": 15936
+  },
+  {
+   "command": "node scripts/validate-china-survival-emergency.mjs",
+   "ms": 15826
+  },
+  {
+   "command": "node scripts/test-china-survival-emergency.mjs",
+   "ms": 16389
+  },
+  {
+   "command": "node scripts/validate-health-conversation-naturalness.mjs",
+   "ms": 16212
+  },
+  {
+   "command": "node scripts/test-health-conversation-naturalness.mjs",
+   "ms": 15654
+  },
+  {
+   "command": "node scripts/validate-china-survival-everyday.mjs",
+   "ms": 2027
+  },
+  {
+   "command": "node scripts/test-china-survival-everyday.mjs",
+   "ms": 2133
+  },
+  {
+   "command": "node scripts/validate-china-survival-capstone.mjs",
+   "ms": 1954
+  },
+  {
+   "command": "node scripts/test-china-survival-capstone.mjs",
+   "ms": 2343
+  },
+  {
+   "command": "node scripts/validate-capstone-no-new-vocabulary.mjs",
+   "ms": 2070
+  },
+  {
+   "command": "node scripts/test-capstone-no-new-vocabulary.mjs",
+   "ms": 2129
+  },
+  {
+   "command": "node scripts/validate-capstone-transfer.mjs",
+   "ms": 2116
+  },
+  {
+   "command": "node scripts/test-capstone-transfer.mjs",
+   "ms": 2154
+  },
+  {
+   "command": "node scripts/validate-travel-conversation-naturalness.mjs",
+   "ms": 20223
+  },
+  {
+   "command": "node scripts/test-travel-conversation-naturalness.mjs",
+   "ms": 20928
+  },
+  {
+   "command": "node scripts/validate-conversation-lexical-bridge.mjs",
+   "ms": 1484
+  },
+  {
+   "command": "node scripts/test-conversation-lexical-bridge.mjs",
+   "ms": 1311
+  },
+  {
+   "command": "node scripts/validate-production-scaffolding.mjs",
+   "ms": 15772
+  },
+  {
+   "command": "node scripts/test-production-scaffolding.mjs",
+   "ms": 16763
+  },
+  {
+   "command": "node scripts/validate-hanzi-fill-integration.mjs",
+   "ms": 1403
+  },
+  {
+   "command": "node scripts/test-hanzi-fill-integration.mjs",
+   "ms": 1382
+  },
+  {
+   "command": "node scripts/validate-lesson-ui-consistency.mjs",
+   "ms": 67
+  },
+  {
+   "command": "node scripts/test-lesson-ui-consistency.mjs",
+   "ms": 74
+  },
+  {
+   "command": "node scripts/validate-conversation-auto-reveal.mjs",
+   "ms": 65
+  },
+  {
+   "command": "node scripts/test-conversation-auto-reveal.mjs",
+   "ms": 72
+  },
+  {
+   "command": "node scripts/validate-culture-journey-placement.mjs",
+   "ms": 1471
+  },
+  {
+   "command": "node scripts/test-culture-journey-placement.mjs",
+   "ms": 1733
+  },
+  {
+   "command": "node scripts/validate-completion-experience.mjs",
+   "ms": 2270
+  },
+  {
+   "command": "node scripts/test-completion-experience.mjs",
+   "ms": 732
+  },
+  {
+   "command": "node scripts/validate-identity-people.mjs",
+   "ms": 3343
+  },
+  {
+   "command": "node scripts/test-identity-people.mjs",
+   "ms": 3879
+  },
+  {
+   "command": "node scripts/validate-routine-time.mjs",
+   "ms": 3172
+  },
+  {
+   "command": "node scripts/test-routine-time.mjs",
+   "ms": 3796
+  },
+  {
+   "command": "node scripts/validate-conversation-coherence.mjs",
+   "ms": 1999
+  },
+  {
+   "command": "node scripts/test-conversation-coherence.mjs",
+   "ms": 1863
+  },
+  {
+   "command": "node scripts/validate-hanzi-memory-integration.mjs",
+   "ms": 1790
+  },
+  {
+   "command": "node scripts/test-hanzi-memory-integration.mjs",
+   "ms": 1506
+  },
+  {
+   "command": "node scripts/validate-tone-integration.mjs",
+   "ms": 1366
+  },
+  {
+   "command": "node scripts/test-tone-integration.mjs",
+   "ms": 1338
+  },
+  {
+   "command": "node scripts/validate-review-advance.mjs",
+   "ms": 407
+  },
+  {
+   "command": "node scripts/test-review-advance.mjs",
+   "ms": 475
+  },
+  {
+   "command": "node scripts/validate-feedback-audio.mjs",
+   "ms": 429
+  },
+  {
+   "command": "node scripts/test-feedback-audio.mjs",
+   "ms": 524
+  },
+  {
+   "command": "node scripts/validate-task-modality-coherence.mjs",
+   "ms": 57695
+  },
+  {
+   "command": "node scripts/test-task-modality-coherence.mjs",
+   "ms": 508
+  },
+  {
+   "command": "node scripts/validate-adaptive-plus-round.mjs",
+   "ms": 523
+  },
+  {
+   "command": "node scripts/test-adaptive-plus-round.mjs",
+   "ms": 625
+  },
+  {
+   "command": "node scripts/validate-adaptive-remediation-diversity.mjs",
+   "ms": 539
+  },
+  {
+   "command": "node scripts/test-adaptive-remediation-diversity.mjs",
+   "ms": 547
+  },
+  {
+   "command": "node scripts/validate-victory-minimalism.mjs",
+   "ms": 492
+  },
+  {
+   "command": "node scripts/test-victory-minimalism.mjs",
+   "ms": 516
+  },
+  {
+   "command": "node scripts/validate-rc-learning-loop-freeze.mjs",
+   "ms": 1291
+  },
+  {
+   "command": "node scripts/validate-navigation-history-integrity.mjs",
+   "ms": 45
+  },
+  {
+   "command": "node scripts/test-navigation-history-integrity.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/validate-operational-evidence.mjs",
+   "ms": 44
+  },
+  {
+   "command": "node scripts/test-operational-evidence.mjs",
+   "ms": 52
+  },
+  {
+   "command": "node scripts/validate-release-evidence-freshness.mjs",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/test-release-evidence-freshness.mjs",
+   "ms": 58
+  },
+  {
+   "command": "node scripts/validate-rc1-2-freeze.mjs",
+   "ms": 1265
+  },
+  {
+   "command": "node scripts/validate-review-finite-session.mjs",
+   "ms": 513
+  },
+  {
+   "command": "node scripts/test-review-finite-session.mjs",
+   "ms": 588
+  },
+  {
+   "command": "node scripts/validate-review-task-parity.mjs",
+   "ms": 59766
+  },
+  {
+   "command": "node scripts/test-review-task-parity.mjs",
+   "ms": 69247
+  },
+  {
+   "command": "node scripts/validate-review-answer-integrity.mjs",
+   "ms": 57617
+  },
+  {
+   "command": "node scripts/test-review-answer-integrity.mjs",
+   "ms": 56932
+  },
+  {
+   "command": "node scripts/validate-review-help-parity.mjs",
+   "ms": 58489
+  },
+  {
+   "command": "node scripts/test-review-help-parity.mjs",
+   "ms": 58085
+  },
+  {
+   "command": "node scripts/validate-visual-asset-transparency.mjs",
+   "ms": 15704
+  },
+  {
+   "command": "node scripts/validate-visual-association-integrity.mjs",
+   "ms": 637
+  },
+  {
+   "command": "node scripts/test-visual-association-integrity.mjs",
+   "ms": 16717
+  },
+  {
+   "command": "node scripts/validate-tone-contrast-progression.mjs",
+   "ms": 3102
+  },
+  {
+   "command": "node scripts/test-tone-contrast-progression.mjs",
+   "ms": 3287
+  },
+  {
+   "command": "node scripts/validate-tone-contrast-no-new-vocab.mjs",
+   "ms": 1960
+  },
+  {
+   "command": "node scripts/validate-completion-layout.mjs",
+   "ms": 419
+  },
+  {
+   "command": "node scripts/validate-rc1-3-freeze.mjs",
+   "ms": 1288
+  },
+  {
+   "command": "node scripts/validate-feature-truth.mjs",
+   "ms": 544
+  },
+  {
+   "command": "node scripts/test-feature-truth.mjs",
+   "ms": 429
+  },
+  {
+   "command": "node scripts/validate-product-claims.mjs",
+   "ms": 809
+  },
+  {
+   "command": "node scripts/test-product-claims.mjs",
+   "ms": 457
+  },
+  {
+   "command": "node scripts/validate-ghost-features.mjs",
+   "ms": 1571
+  },
+  {
+   "command": "node scripts/test-ghost-features.mjs",
+   "ms": 466
+  },
+  {
+   "command": "node scripts/validate-learning-event-semantics.mjs",
+   "ms": 987
+  },
+  {
+   "command": "node scripts/test-learning-event-semantics.mjs",
+   "ms": 435
+  },
+  {
+   "command": "node scripts/validate-speech-attempt-integrity.mjs",
+   "ms": 422
+  },
+  {
+   "command": "node scripts/test-speech-attempt-integrity.mjs",
+   "ms": 404
+  },
+  {
+   "command": "node scripts/validate-mission-speech-integrity.mjs",
+   "ms": 619
+  },
+  {
+   "command": "node scripts/test-mission-speech-integrity.mjs",
+   "ms": 471
+  },
+  {
+   "command": "node scripts/validate-rc15-freeze.mjs",
+   "ms": 1139
+  },
+  {
+   "command": "node scripts/typecheck.mjs",
+   "ms": 35823
+  },
+  {
+   "command": "node scripts/validate-node-runtime-alignment.mjs",
+   "ms": 93
+  },
+  {
+   "command": "node scripts/validate-i18n.mjs",
+   "ms": 687
+  },
+  {
+   "command": "node scripts/test-i18n.mjs",
+   "ms": 720
+  },
+  {
+   "command": "node scripts/validate-first-20-en.mjs",
+   "ms": 8516
+  },
+  {
+   "command": "node scripts/test-first-20-locale-parity.mjs",
+   "ms": 11789
+  },
+  {
+   "command": "node scripts/validate-journey-en.mjs",
+   "ms": 49369
+  },
+  {
+   "command": "node scripts/test-topics-21-50-locale-parity.mjs",
+   "ms": 24342
+  },
+  {
+   "command": "node scripts/test-topics-51-80-locale-parity.mjs",
+   "ms": 31464
+  },
+  {
+   "command": "node scripts/test-topics-81-113-locale-parity.mjs",
+   "ms": 47560
+  },
+  {
+   "command": "node scripts/test-stable-pedagogy-ids.mjs",
+   "ms": 4614
+  },
+  {
+   "command": "node scripts/validate-en-core-surfaces.mjs",
+   "ms": 678
+  },
+  {
+   "command": "node scripts/validate-structure-exposure-index.mjs",
+   "ms": 18709
+  },
+  {
+   "command": "node scripts/validate-encoding.js",
+   "ms": 452
+  },
+  {
+   "command": "node scripts/validate-pinyin-display.mjs",
+   "ms": 752
+  },
+  {
+   "command": "node scripts/validate-lessons.mjs",
+   "ms": 45402
+  },
+  {
+   "command": "node scripts/validate-pedagogy-wave-one.mjs",
+   "ms": 54959
+  },
+  {
+   "command": "node scripts/test-mastery-loop.mjs",
+   "ms": 5660
+  },
+  {
+   "command": "node scripts/test-topic-mastery-path.mjs",
+   "ms": 3035
+  },
+  {
+   "command": "node scripts/test-lab-mastery-pass4.mjs",
+   "ms": 6517
+  },
+  {
+   "command": "node scripts/validate-generated-task-integrity.mjs",
+   "ms": 88719
+  },
+  {
+   "command": "node scripts/test-generated-task-integrity.mjs",
+   "ms": 93687
+  },
+  {
+   "command": "node scripts/validate-mastery-planner-integrity.mjs",
+   "ms": 3433
+  },
+  {
+   "command": "node scripts/test-generated-task-regressions.mjs",
+   "ms": 90988
+  },
+  {
+   "command": "node scripts/validate-generated-answer-ref-consistency.mjs",
+   "ms": 88869
+  },
+  {
+   "command": "node scripts/validate-generated-explanation-integrity.mjs",
+   "ms": 1939
+  },
+  {
+   "command": "node scripts/validate-generated-help-integrity.mjs",
+   "ms": 1946
+  },
+  {
+   "command": "node scripts/validate-generated-audio-integrity.mjs",
+   "ms": 1977
+  },
+  {
+   "command": "node scripts/validate-generated-option-integrity.mjs",
+   "ms": 8973
+  },
+  {
+   "command": "node scripts/validate-generated-semantic-diff.mjs",
+   "ms": 510
+  },
+  {
+   "command": "node scripts/validate-rc14-curriculum-topology.mjs",
+   "ms": 1938
+  },
+  {
+   "command": "node scripts/validate-rc14-no-vocab-growth.mjs",
+   "ms": 2062
+  },
+  {
+   "command": "node scripts/test-generated-task-objective.mjs",
+   "ms": 3363
+  },
+  {
+   "command": "node scripts/test-topic-mastery-depth.mjs",
+   "ms": 11924
+  },
+  {
+   "command": "node scripts/validate-topic-mastery-depth.mjs",
+   "ms": 91749
+  },
+  {
+   "command": "node scripts/validate-topic-fidelity.mjs",
+   "ms": 5443
+  },
+  {
+   "command": "node scripts/validate-exercise-feasibility.mjs",
+   "ms": 53727
+  },
+  {
+   "command": "node scripts/test-exercise-feasibility.mjs",
+   "ms": 3172
+  },
+  {
+   "command": "node scripts/test-pinyin-topic-fidelity.mjs",
+   "ms": 5256
+  },
+  {
+   "command": "node scripts/test-china-real.mjs",
+   "ms": 5175
+  },
+  {
+   "command": "node scripts/test-mastery-v32.mjs",
+   "ms": 15456
+  },
+  {
+   "command": "node scripts/test-mastery-coverage.mjs",
+   "ms": 40319
+  },
+  {
+   "command": "node scripts/test-mastery-coverage-strict.mjs",
+   "ms": 34818
+  },
+  {
+   "command": "node scripts/test-mastery-quality.mjs",
+   "ms": 35125
+  },
+  {
+   "command": "node scripts/test-mastery-quality-all.mjs",
+   "ms": 35007
+  },
+  {
+   "command": "node scripts/validate-mastery-network-growth.mjs",
+   "ms": 27120
+  },
+  {
+   "command": "node scripts/validate-review-mastery.mjs",
+   "ms": 3361
+  },
+  {
+   "command": "node scripts/validate-transfer-review.mjs",
+   "ms": 3047
+  },
+  {
+   "command": "node scripts/validate-lesson-options.mjs",
+   "ms": 29786
+  },
+  {
+   "command": "node scripts/validate-hanzi-builder-coverage.mjs",
+   "ms": 30610
+  },
+  {
+   "command": "node scripts/test-hanzi-builder-integrity.mjs",
+   "ms": 1718
+  },
+  {
+   "command": "node scripts/test-pedagogy-runtime-qa.mjs",
+   "ms": 8443
+  },
+  {
+   "command": "node scripts/validate-corpus.mjs",
+   "ms": 12477
+  },
+  {
+   "command": "node scripts/validate-hanzi-atlas.mjs",
+   "ms": 3442
+  },
+  {
+   "command": "node scripts/validate-lesson-recovery.mjs",
+   "ms": 59
+  },
+  {
+   "command": "node scripts/test-immediate-remediation.mjs",
+   "ms": 6847
+  },
+  {
+   "command": "node scripts/test-review-ux.mjs",
+   "ms": 2157
+  },
+  {
+   "command": "node scripts/validate-review-content-integrity.mjs",
+   "ms": 10626
+  },
+  {
+   "command": "node scripts/test-assembly-ux.mjs",
+   "ms": 3318
+  },
+  {
+   "command": "node scripts/test-piece-bank-shuffle.mjs",
+   "ms": 48
+  },
+  {
+   "command": "node scripts/test-body-scroll-lock.mjs",
+   "ms": 67
+  },
+  {
+   "command": "node scripts/test-session-plan-lock.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/test-progress-loading.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/test-placement-v2.mjs",
+   "ms": 1921
+  },
+  {
+   "command": "node scripts/test-placement-locale-parity.mjs",
+   "ms": 2206
+  },
+  {
+   "command": "node scripts/test-cloud-first-auth.mjs",
+   "ms": 578
+  },
+  {
+   "command": "node scripts/test-onboarding-handoff.mjs",
+   "ms": 597
+  },
+  {
+   "command": "node scripts/test-create-account-locale-contract.mjs",
+   "ms": 523
+  },
+  {
+   "command": "node scripts/test-brazil-beta-readiness.mjs",
+   "ms": 581
+  },
+  {
+   "command": "node scripts/test-staging-activation.mjs",
+   "ms": 398
+  },
+  {
+   "command": "node scripts/test-v476-live-validation.mjs",
+   "ms": 1014
+  },
+  {
+   "command": "node scripts/test-backend-contract.mjs",
+   "ms": 81
+  },
+  {
+   "command": "node scripts/test-mastery-monotonic-contract.mjs",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/test-v478-hosted-gate.mjs",
+   "ms": 180
+  },
+  {
+   "command": "node scripts/test-v489-production-preflight.mjs",
+   "ms": 375
+  },
+  {
+   "command": "node scripts/test-ops-correlation-crypto.mjs",
+   "ms": 473
+  },
+  {
+   "command": "node scripts/test-longyu-only-backend.mjs",
+   "ms": 243
+  },
+  {
+   "command": "node scripts/test-qa-regression-guard.mjs",
+   "ms": 34141
+  },
+  {
+   "command": "node scripts/test-player-ux.mjs",
+   "ms": 60
+  },
+  {
+   "command": "node scripts/validate-teach-before-test.mjs",
+   "ms": 3423
+  },
+  {
+   "command": "node scripts/validate-journey-readiness-authority.mjs",
+   "ms": 12045
+  },
+  {
+   "command": "node scripts/validate-exercise-theme-tokens.mjs",
+   "ms": 74
+  },
+  {
+   "command": "node scripts/validate-lesson-media.mjs",
+   "ms": 3708
+  },
+  {
+   "command": "node scripts/test-media-progress.mjs",
+   "ms": 1561
+  },
+  {
+   "command": "node scripts/test-media-runtime-contracts.mjs --suite=resume",
+   "ms": 3051
+  },
+  {
+   "command": "node scripts/test-media-runtime-contracts.mjs --suite=completion",
+   "ms": 3109
+  },
+  {
+   "command": "node scripts/test-media-runtime-contracts.mjs --suite=fallback",
+   "ms": 3007
+  },
+  {
+   "command": "node scripts/test-media-runtime-contracts.mjs --suite=locale",
+   "ms": 3156
+  },
+  {
+   "command": "node scripts/test-media-runtime-contracts.mjs --suite=telemetry",
+   "ms": 3269
+  },
+  {
+   "command": "node scripts/validate-capsule-pedagogy-handoff.mjs",
+   "ms": 3534
+  },
+  {
+   "command": "node scripts/validate-lesson-catalog.mjs",
+   "ms": 3185
+  },
+  {
+   "command": "node scripts/validate-foundation-capsules.mjs --suite=slots",
+   "ms": 3675
+  },
+  {
+   "command": "node scripts/validate-foundation-capsules.mjs --suite=capsules",
+   "ms": 3617
+  },
+  {
+   "command": "node scripts/validate-foundation-capsules.mjs --suite=parity",
+   "ms": 3468
+  },
+  {
+   "command": "node scripts/validate-foundation-capsules.mjs --suite=locale",
+   "ms": 3536
+  },
+  {
+   "command": "node scripts/validate-first20-instruction-order.mjs",
+   "ms": 3488
+  },
+  {
+   "command": "node scripts/build-foundation-production-packs.mjs --check",
+   "ms": 3363
+  },
+  {
+   "command": "node scripts/validate-first-contacts.mjs --suite=theme",
+   "ms": 3341
+  },
+  {
+   "command": "node scripts/validate-first-contacts.mjs --suite=teach",
+   "ms": 3462
+  },
+  {
+   "command": "node scripts/validate-first-contacts.mjs --suite=conversation",
+   "ms": 3441
+  },
+  {
+   "command": "node scripts/validate-first-contacts.mjs --suite=checkpoint",
+   "ms": 3378
+  },
+  {
+   "command": "node scripts/validate-first-contacts.mjs --suite=locale",
+   "ms": 3533
+  },
+  {
+   "command": "node scripts/test-learner-response.mjs",
+   "ms": 1698
+  },
+  {
+   "command": "node scripts/test-v490-orchestration.mjs",
+   "ms": 6551
+  },
+  {
+   "command": "node scripts/validate-tone-teach-before-test.mjs",
+   "ms": 3102
+  },
+  {
+   "command": "node scripts/validate-tone-transfer-coverage.mjs",
+   "ms": 7441
+  },
+  {
+   "command": "node scripts/validate-tone-transfer-honesty.mjs",
+   "ms": 1192
+  },
+  {
+   "command": "node scripts/test-tone-transfer.mjs",
+   "ms": 13046
+  },
+  {
+   "command": "node scripts/test-tone-learning-ladder.mjs",
+   "ms": 3461
+  },
+  {
+   "command": "node scripts/validate-answer-position-fairness.mjs",
+   "ms": 1540
+  },
+  {
+   "command": "node scripts/test-placement-option-permutation.mjs",
+   "ms": 1570
+  },
+  {
+   "command": "node scripts/validate-journey-option-position.mjs",
+   "ms": 3091
+  },
+  {
+   "command": "node scripts/test-v491-boosters.mjs",
+   "ms": 2956
+  },
+  {
+   "command": "node scripts/validate-teach-before-test-journey.mjs",
+   "ms": 3230
+  },
+  {
+   "command": "node scripts/validate-streak-recovery.mjs",
+   "ms": 92
+  },
+  {
+   "command": "node scripts/validate-module-skip-access.mjs",
+   "ms": 6328
+  },
+  {
+   "command": "node scripts/validate-module-review-coverage.mjs",
+   "ms": 22289
+  },
+  {
+   "command": "node scripts/validate-image-exercises.mjs",
+   "ms": 38394
+  },
+  {
+   "command": "node scripts/validate-listening-affordance.mjs",
+   "ms": 66832
+  },
+  {
+   "command": "node scripts/validate-modality-contract.mjs",
+   "ms": 103886
+  },
+  {
+   "command": "node scripts/validate-compare-with-image.mjs",
+   "ms": 16337
+  },
+  {
+   "command": "node scripts/validate-visual-consistency.mjs",
+   "ms": 3911
+  },
+  {
+   "command": "node scripts/validate-visual-assets.mjs",
+   "ms": 3925
+  },
+  {
+   "command": "node scripts/validate-tone-progression.mjs",
+   "ms": 3107
+  },
+  {
+   "command": "node scripts/validate-conversation-scenes.mjs",
+   "ms": 63324
+  },
+  {
+   "command": "node scripts/test-conversation-vocabulary.mjs",
+   "ms": 2632
+  },
+  {
+   "command": "node scripts/test-conversation-vocabulary-srs.mjs",
+   "ms": 2383
+  },
+  {
+   "command": "node scripts/validate-conversation-loop.mjs",
+   "ms": 31215
+  },
+  {
+   "command": "node scripts/test-conversation-pedagogy-fixtures.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/validate-conversation-pedagogy.mjs",
+   "ms": 31651
+  },
+  {
+   "command": "node scripts/test-conversation-migration.mjs",
+   "ms": 5627
+  },
+  {
+   "command": "npm run validate:exercise-depth -- --beta",
+   "ms": 30193
+  },
+  {
+   "command": "node scripts/validate-lesson-novelty.mjs",
+   "ms": 30021
+  },
+  {
+   "command": "node scripts/validate-perception-drills.mjs",
+   "ms": 31242
+  },
+  {
+   "command": "node scripts/validate-lexical-progression.mjs",
+   "ms": 6247
+  },
+  {
+   "command": "node scripts/validate-atlas-utilization.mjs",
+   "ms": 4987
+  },
+  {
+   "command": "node scripts/validate-lexical-growth.mjs",
+   "ms": 4835
+  },
+  {
+   "command": "node scripts/validate-seed-decay.mjs",
+   "ms": 4971
+  },
+  {
+   "command": "node scripts/validate-conversation-lexical-growth.mjs",
+   "ms": 8215
+  },
+  {
+   "command": "node scripts/validate-lexical-registry.mjs",
+   "ms": 2376
+  },
+  {
+   "command": "node scripts/validate-vocabulary-packets.mjs",
+   "ms": 1639
+  },
+  {
+   "command": "node scripts/test-vocabulary-packet-conversation.mjs",
+   "ms": 2175
+  },
+  {
+   "command": "node scripts/validate-productive-vocabulary.mjs",
+   "ms": 4723
+  },
+  {
+   "command": "node scripts/validate-conversation-capabilities.mjs",
+   "ms": 61307
+  },
+  {
+   "command": "node scripts/validate-productive-core.mjs",
+   "ms": 2139
+  },
+  {
+   "command": "node scripts/validate-conversation-capabilities.mjs",
+   "ms": 3991
+  },
+  {
+   "command": "node scripts/validate-first-50-audit.mjs",
+   "ms": 3111
+  },
+  {
+   "command": "node scripts/validate-journey-51-100-roadmap.mjs",
+   "ms": 1489
+  },
+  {
+   "command": "node scripts/validate-atlas-roadmap.mjs",
+   "ms": 5332
+  },
+  {
+   "command": "node scripts/validate-lexical-aging.mjs",
+   "ms": 5012
+  },
+  {
+   "command": "node scripts/validate-pedagogy-v38.mjs",
+   "ms": 5894
+  },
+  {
+   "command": "node scripts/validate-production-transfer.mjs",
+   "ms": 65396
+  },
+  {
+   "command": "node scripts/test-cognitive-budget.mjs",
+   "ms": 3038
+  },
+  {
+   "command": "node scripts/validate-transfer-integrity.mjs",
+   "ms": 46625
+  },
+  {
+   "command": "node scripts/validate-transfer-prerequisites.mjs",
+   "ms": 44069
+  },
+  {
+   "command": "node scripts/validate-structural-concepts.mjs",
+   "ms": 30476
+  },
+  {
+   "command": "node scripts/validate-prerequisite-progression.mjs",
+   "ms": 30913
+  },
+  {
+   "command": "node scripts/test-transfer-scaffold.mjs",
+   "ms": 2010
+  },
+  {
+   "command": "node scripts/test-early-transfer.mjs",
+   "ms": 6369
+  },
+  {
+   "command": "node scripts/test-early-transfer-negative.mjs",
+   "ms": 3035
+  },
+  {
+   "command": "node scripts/validate-error-diagnosis.mjs",
+   "ms": 70631
+  },
+  {
+   "command": "node scripts/validate-onboarding-pace.mjs",
+   "ms": 6726
+  },
+  {
+   "command": "node scripts/test-pedagogical-cjk.mjs",
+   "ms": 43
+  },
+  {
+   "command": "node scripts/validate-first-communicative-win.mjs --gate=win",
+   "ms": 63843
+  },
+  {
+   "command": "node scripts/validate-first-communicative-win.mjs --gate=momentum",
+   "ms": 63631
+  },
+  {
+   "command": "node scripts/validate-early-transfer-ladder.mjs",
+   "ms": 28995
+  },
+  {
+   "command": "node scripts/validate-report-freshness.mjs",
+   "ms": 114
+  },
+  {
+   "command": "node scripts/validate-progress-snapshot.mjs",
+   "ms": 43
+  },
+  {
+   "command": "node scripts/validate-sync-merge.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/validate-glossary-ui.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/validate-tone-trainer.mjs",
+   "ms": 1924
+  },
+  {
+   "command": "node scripts/test-srs-steps.mjs",
+   "ms": 1500
+  },
+  {
+   "command": "node scripts/test-speech.mjs",
+   "ms": 1699
+  },
+  {
+   "command": "node scripts/test-mandarin-speech-text.mjs",
+   "ms": 451
+  },
+  {
+   "command": "node scripts/test-leagues.mjs",
+   "ms": 95
+  },
+  {
+   "command": "node scripts/test-subscribe-auth-redirect.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/validate-lesson-victory-ui.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/validate-plans.mjs",
+   "ms": 74
+  },
+  {
+   "command": "node scripts/test-v486-commercial-foundation.mjs",
+   "ms": 692
+  },
+  {
+   "command": "node scripts/test-entitlements.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/test-pearl-economy.mjs",
+   "ms": 554
+  },
+  {
+   "command": "node scripts/test-subscription-webhook.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/test-pro-offer-engine.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/test-business-foundation.mjs",
+   "ms": 53
+  },
+  {
+   "command": "node scripts/test-business-hardening.mjs",
+   "ms": 54
+  },
+  {
+   "command": "node scripts/validate-commercial-pricing.mjs",
+   "ms": 519
+  },
+  {
+   "command": "node scripts/test-commercial-pricing.mjs",
+   "ms": 572
+  },
+  {
+   "command": "node scripts/validate-family-plan.mjs",
+   "ms": 519
+  },
+  {
+   "command": "node scripts/test-family-plan.mjs",
+   "ms": 549
+  },
+  {
+   "command": "node scripts/validate-effective-entitlement.mjs",
+   "ms": 52
+  },
+  {
+   "command": "node scripts/test-effective-entitlement.mjs",
+   "ms": 612
+  },
+  {
+   "command": "node scripts/validate-business-schema-reuse.mjs",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/test-business-schema-reuse.mjs",
+   "ms": 69
+  },
+  {
+   "command": "node scripts/validate-business-seat-reservation.mjs",
+   "ms": 52
+  },
+  {
+   "command": "node scripts/test-business-seat-reservation.mjs",
+   "ms": 67
+  },
+  {
+   "command": "node scripts/validate-business-seat-concurrency.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/test-business-seat-concurrency.mjs",
+   "ms": 63
+  },
+  {
+   "command": "node scripts/validate-business-overview-rpc.mjs",
+   "ms": 56
+  },
+  {
+   "command": "node scripts/test-business-overview-rpc.mjs",
+   "ms": 59
+  },
+  {
+   "command": "node scripts/validate-business-progress-privacy.mjs",
+   "ms": 53
+  },
+  {
+   "command": "node scripts/test-business-progress-privacy.mjs",
+   "ms": 64
+  },
+  {
+   "command": "node scripts/validate-family-experience.mjs",
+   "ms": 62
+  },
+  {
+   "command": "node scripts/test-family-experience.mjs",
+   "ms": 63
+  },
+  {
+   "command": "node scripts/validate-commercial-product-truth.mjs",
+   "ms": 478
+  },
+  {
+   "command": "node scripts/test-commercial-product-truth.mjs",
+   "ms": 47
+  },
+  {
+   "command": "node scripts/validate-v410a1-freeze.mjs",
+   "ms": 1207
+  },
+  {
+   "command": "node scripts/validate-economy.mjs",
+   "ms": 61
+  },
+  {
+   "command": "node scripts/validate-economy-server.mjs",
+   "ms": 63
+  },
+  {
+   "command": "node scripts/test-economy-server.mjs",
+   "ms": 60
+  },
+  {
+   "command": "node scripts/validate-backend-ready.mjs",
+   "ms": 59
+  },
+  {
+   "command": "node scripts/test-entitlements.mjs",
+   "ms": 54
+  },
+  {
+   "command": "node scripts/test-referrals.mjs",
+   "ms": 56
+  },
+  {
+   "command": "node scripts/test-create-account-hardening.mjs",
+   "ms": 64
+  },
+  {
+   "command": "node scripts/validate-app-environment.mjs",
+   "ms": 74
+  },
+  {
+   "command": "node scripts/test-qa-fast-path.mjs",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/report-first-20-sessions.mjs --check",
+   "ms": 3253
+  },
+  {
+   "command": "node scripts/test-rc-hardening.mjs",
+   "ms": 56
+  },
+  {
+   "command": "node scripts/validate-privacy-consent.mjs",
+   "ms": 54
+  },
+  {
+   "command": "node scripts/validate-client-diagnostics.mjs",
+   "ms": 46
+  },
+  {
+   "command": "node scripts/test-stale-bundle.mjs",
+   "ms": 1601
+  },
+  {
+   "command": "node scripts/validate-pedagogy-rpc-hardening.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/validate-security-boundaries.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/test-feedback-csv-safety.mjs",
+   "ms": 94
+  },
+  {
+   "command": "node scripts/test-anonymous-ingestion-hardening.mjs",
+   "ms": 48
+  },
+  {
+   "command": "node scripts/test-referral-qualification-hardening.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/test-economy-reward-trust.mjs",
+   "ms": 47
+  },
+  {
+   "command": "node scripts/test-subscription-event-ordering.mjs",
+   "ms": 48
+  },
+  {
+   "command": "node scripts/test-admin-roles-user-id.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/test-economy-anti-cheat.mjs",
+   "ms": 53
+  },
+  {
+   "command": "node scripts/test-abuse-controls.mjs",
+   "ms": 60
+  },
+  {
+   "command": "node scripts/test-client-reward-claims.mjs",
+   "ms": 47
+  },
+  {
+   "command": "node scripts/test-business-foundation.mjs",
+   "ms": 57
+  },
+  {
+   "command": "node scripts/test-business-hardening.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/validate-social-profile-security.mjs",
+   "ms": 66
+  },
+  {
+   "command": "node scripts/validate-account-deletion-security.mjs",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/validate-seo.mjs",
+   "ms": 45
+  },
+  {
+   "command": "node scripts/validate-production-no-fixtures.mjs",
+   "ms": 47
+  },
+  {
+   "command": "node scripts/validate-rc2-content-freeze.mjs",
+   "ms": 1487
+  },
+  {
+   "command": "node scripts/test-rc2-content-freeze.mjs",
+   "ms": 59
+  },
+  {
+   "command": "node scripts/validate-rc2-candidate-config.mjs",
+   "ms": 65
+  },
+  {
+   "command": "node scripts/test-rc2-candidate-config.mjs",
+   "ms": 46
+  },
+  {
+   "command": "node scripts/validate-rc2-candidate-drift.mjs",
+   "ms": 47
+  },
+  {
+   "command": "node scripts/test-rc2-candidate-drift.mjs",
+   "ms": 64
+  },
+  {
+   "command": "node scripts/validate-rc2-candidate-infra.mjs",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/test-rc2-candidate-infra.mjs",
+   "ms": 80
+  },
+  {
+   "command": "node scripts/validate-release-candidate.mjs",
+   "ms": 25423
+  },
+  {
+   "command": "node scripts/test-fingerprint-chain.mjs",
+   "ms": 555
+  },
+  {
+   "command": "node scripts/validate-hanzi-writing-eligibility.mjs",
+   "ms": 57175
+  },
+  {
+   "command": "node scripts/test-hanzi-writing-eligibility.mjs",
+   "ms": 60358
+  },
+  {
+   "command": "node scripts/test-hanzi-writing-geometry.mjs",
+   "ms": 3548
+  },
+  {
+   "command": "node scripts/test-hanzi-writing-pointer.mjs",
+   "ms": 63
+  },
+  {
+   "command": "node scripts/test-free-tier-guardrails.mjs",
+   "ms": 766
+  },
+  {
+   "command": "node scripts/validate-rc2-3-5-speech.mjs",
+   "ms": 1216
+  },
+  {
+   "command": "node scripts/test-rc2-3-5-speech.mjs",
+   "ms": 1341
+  },
+  {
+   "command": "node scripts/test-rc2-2-32-unit.mjs",
+   "ms": 65
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate self-compare",
+   "ms": 1419
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test self-compare",
+   "ms": 1344
+  },
+  {
+   "command": "node scripts/validate-rc2-3-6-personal-mastery.mjs",
+   "ms": 2764
+  },
+  {
+   "command": "node scripts/test-rc2-3-6-personal-mastery.mjs",
+   "ms": 18720
+  },
+  {
+   "command": "node scripts/validate-rc2-3-7-sensory-guidance.mjs",
+   "ms": 1743
+  },
+  {
+   "command": "node scripts/test-rc2-3-7-sensory-guidance.mjs",
+   "ms": 6959
+  },
+  {
+   "command": "node scripts/validate-rc2-3-8-auth-identity.mjs",
+   "ms": 925
+  },
+  {
+   "command": "node scripts/test-rc2-3-8-auth-identity.mjs",
+   "ms": 3663
+  },
+  {
+   "command": "node scripts/validate-human-qa-prebeta.mjs",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/test-human-qa-prebeta.mjs",
+   "ms": 84
+  },
+  {
+   "command": "node scripts/validate-public-beta-trust.mjs",
+   "ms": 66
+  },
+  {
+   "command": "node scripts/test-public-beta-trust.mjs",
+   "ms": 276
+  },
+  {
+   "command": "node scripts/validate-culture-guide-voice.mjs",
+   "ms": 501
+  },
+  {
+   "command": "node scripts/test-culture-guide-voice.mjs",
+   "ms": 1363
+  },
+  {
+   "command": "node scripts/test-streak-recovery-prompt.mjs",
+   "ms": 623
+  },
+  {
+   "command": "node scripts/validate-sync-ux.mjs",
+   "ms": 533
+  },
+  {
+   "command": "node scripts/test-sync-ux.mjs",
+   "ms": 541
+  },
+  {
+   "command": "node scripts/validate-review-learning-ux.mjs",
+   "ms": 460
+  },
+  {
+   "command": "node scripts/test-review-gloss-learning.mjs",
+   "ms": 577
+  },
+  {
+   "command": "node scripts/validate-achievement-culture.mjs",
+   "ms": 422
+  },
+  {
+   "command": "node scripts/test-profile-medal-showcase.mjs",
+   "ms": 1185
+  },
+  {
+   "command": "node scripts/validate-pearl-shop-utility.mjs",
+   "ms": 470
+  },
+  {
+   "command": "node scripts/test-pearl-cosmetics.mjs",
+   "ms": 1310
+  },
+  {
+   "command": "node scripts/validate-hanzi-atlas-study-sets.mjs",
+   "ms": 478
+  },
+  {
+   "command": "node scripts/test-hanzi-atlas-study-sets.mjs",
+   "ms": 1290
+  },
+  {
+   "command": "node scripts/validate-phase-challenge-economy.mjs",
+   "ms": 457
+  },
+  {
+   "command": "node scripts/test-phase-challenge.mjs",
+   "ms": 1365
+  },
+  {
+   "command": "node scripts/validate-email-only-public-account.mjs",
+   "ms": 472
+  },
+  {
+   "command": "node scripts/test-email-only-public-account.mjs",
+   "ms": 590
+  },
+  {
+   "command": "node scripts/validate-capability-runtime-evidence.mjs",
+   "ms": 3475
+  },
+  {
+   "command": "node scripts/test-capability-runtime-evidence.mjs",
+   "ms": 30425
+  },
+  {
+   "command": "node scripts/validate-partial-capability-closure.mjs",
+   "ms": 3347
+  },
+  {
+   "command": "node scripts/test-partial-capability-closure.mjs",
+   "ms": 3461
+  },
+  {
+   "command": "node scripts/validate-beta-pedagogy-freeze.mjs",
+   "ms": 1348
+  },
+  {
+   "command": "node scripts/test-beta-pedagogy-freeze.mjs",
+   "ms": 1229
+  },
+  {
+   "command": "node scripts/validate-android-native-foundation.mjs",
+   "ms": 582
+  },
+  {
+   "command": "node scripts/test-android-native-foundation.mjs",
+   "ms": 799
+  },
+  {
+   "command": "node scripts/validate-android-signing-contract.mjs",
+   "ms": 592
+  },
+  {
+   "command": "node scripts/test-android-signing-contract.mjs",
+   "ms": 720
+  },
+  {
+   "command": "node scripts/validate-android-platform-boundaries.mjs",
+   "ms": 712
+  },
+  {
+   "command": "node scripts/test-android-platform-boundaries.mjs",
+   "ms": 1174
+  },
+  {
+   "command": "node scripts/validate-beta-pedagogy-freeze.mjs",
+   "ms": 1411
+  },
+  {
+   "command": "node scripts/validate-delivery-pipeline.mjs",
+   "ms": 757
+  },
+  {
+   "command": "node scripts/test-delivery-pipeline.mjs",
+   "ms": 6592
+  },
+  {
+   "command": "node scripts/validate-release-identity.mjs",
+   "ms": 657
+  },
+  {
+   "command": "node scripts/test-release-identity.mjs",
+   "ms": 3763
+  },
+  {
+   "command": "node scripts/validate-android-release-safety.mjs",
+   "ms": 653
+  },
+  {
+   "command": "node scripts/test-android-release-safety.mjs",
+   "ms": 3834
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate culture-gloss-integration",
+   "ms": 540
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test culture-gloss-integration",
+   "ms": 872
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate culture-dragon-lesson",
+   "ms": 832
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test culture-dragon-lesson",
+   "ms": 840
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate culture-journey-reactivation",
+   "ms": 546
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test culture-journey-reactivation",
+   "ms": 878
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate immersion-dialogue-ux",
+   "ms": 576
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test immersion-dialogue-ux",
+   "ms": 662
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate character-identity",
+   "ms": 608
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test character-identity",
+   "ms": 674
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate sync-notice-policy",
+   "ms": 501
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test sync-notice-policy",
+   "ms": 634
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate league-fast-path",
+   "ms": 572
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test league-fast-path",
+   "ms": 667
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate achievement-rarity",
+   "ms": 1308
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test achievement-rarity",
+   "ms": 1362
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate profile-layout",
+   "ms": 572
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test profile-layout",
+   "ms": 659
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate username-contract",
+   "ms": 494
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test username-contract",
+   "ms": 751
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs validate smart-back-navigation",
+   "ms": 705
+  },
+  {
+   "command": "node scripts/rc2-2-11-experience-coherence.mjs test smart-back-navigation",
+   "ms": 710
+  },
+  {
+   "command": "node scripts/validate-beta-pedagogy-freeze.mjs",
+   "ms": 1444
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs validate android-physical-readiness",
+   "ms": 1468
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs test android-physical-readiness",
+   "ms": 1391
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs validate android-release-candidate",
+   "ms": 1348
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs test android-release-candidate",
+   "ms": 1563
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs validate play-internal-readiness",
+   "ms": 1396
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs validate play-internal-readiness",
+   "ms": 1471
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs test play-internal-readiness",
+   "ms": 1376
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs test play-internal-readiness",
+   "ms": 1619
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs validate android-upgrade-contract",
+   "ms": 1413
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs test android-upgrade-contract",
+   "ms": 1371
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate android-safe-area",
+   "ms": 1278
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test android-safe-area",
+   "ms": 1879
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate mobile-navigation-density",
+   "ms": 1274
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test mobile-navigation-density",
+   "ms": 1756
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate mobile-visual-density",
+   "ms": 1425
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test mobile-visual-density",
+   "ms": 1697
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate native-tts",
+   "ms": 1402
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test native-tts",
+   "ms": 2274
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate native-speech-recognition",
+   "ms": 1386
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test native-speech-recognition",
+   "ms": 2142
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate native-permissions",
+   "ms": 1457
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test native-permissions",
+   "ms": 2563
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs validate streak-notifications",
+   "ms": 1322
+  },
+  {
+   "command": "node scripts/rc2-2-13-native-mobile.mjs test streak-notifications",
+   "ms": 2598
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate mobile-landing-focus",
+   "ms": 1417
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test mobile-landing-focus",
+   "ms": 1994
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate guided-learning-try",
+   "ms": 1536
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test guided-learning-try",
+   "ms": 1658
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate lesson-step-progression",
+   "ms": 55599
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test lesson-step-progression",
+   "ms": 2364
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate hanzi-mobile-focus",
+   "ms": 1449
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test hanzi-mobile-focus",
+   "ms": 2045
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate practice-reward-integrity",
+   "ms": 1306
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test practice-reward-integrity",
+   "ms": 1672
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate native-haptics",
+   "ms": 1452
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test native-haptics",
+   "ms": 2414
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs validate mobile-settings-density",
+   "ms": 1428
+  },
+  {
+   "command": "node scripts/rc2-2-14-mobile-learning-polish.mjs test mobile-settings-density",
+   "ms": 1829
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs validate interface-locale-resolution",
+   "ms": 1491
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs test interface-locale-resolution",
+   "ms": 2273
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs validate course-direction",
+   "ms": 1514
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs test course-direction",
+   "ms": 2094
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs validate course-direction-migration",
+   "ms": 1614
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs test course-direction-migration",
+   "ms": 1934
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs validate mobile-language-ux",
+   "ms": 1437
+  },
+  {
+   "command": "node scripts/rc2-2-14b-locale-course-direction.mjs test mobile-language-ux",
+   "ms": 1853
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs validate android-release-identity",
+   "ms": 1437
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs test android-release-identity",
+   "ms": 1793
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs validate signed-aab",
+   "ms": 1500
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs test signed-aab",
+   "ms": 1607
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs validate play-internal-readiness",
+   "ms": 1355
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs validate play-internal-readiness",
+   "ms": 1443
+  },
+  {
+   "command": "node scripts/rc2-2-12-android-release.mjs test play-internal-readiness",
+   "ms": 1463
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs test play-internal-readiness",
+   "ms": 1871
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs validate play-policy-readiness",
+   "ms": 1611
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs test play-policy-readiness",
+   "ms": 1881
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs validate play-beta-regression",
+   "ms": 1449
+  },
+  {
+   "command": "node scripts/rc2-2-16-play-internal-beta.mjs test play-beta-regression",
+   "ms": 1558
+  },
+  {
+   "command": "node scripts/validate-android-native-foundation.mjs",
+   "ms": 615
+  },
+  {
+   "command": "node scripts/test-android-native-foundation.mjs",
+   "ms": 800
+  },
+  {
+   "command": "node scripts/validate-android-signing-contract.mjs",
+   "ms": 665
+  },
+  {
+   "command": "node scripts/test-android-signing-contract.mjs",
+   "ms": 721
+  },
+  {
+   "command": "node scripts/validate-android-platform-boundaries.mjs",
+   "ms": 631
+  },
+  {
+   "command": "node scripts/test-android-platform-boundaries.mjs",
+   "ms": 1164
+  },
+  {
+   "command": "node scripts/validate-beta-pedagogy-freeze.mjs",
+   "ms": 1215
+  },
+  {
+   "command": "node scripts/validate-beta-pedagogy-freeze.mjs",
+   "ms": 1249
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate audio-playback-truth",
+   "ms": 1209
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test audio-playback-truth",
+   "ms": 1265
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate lesson-advance-integrity",
+   "ms": 1332
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test lesson-advance-integrity",
+   "ms": 1587
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate speech-capability",
+   "ms": 1358
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test speech-capability",
+   "ms": 1375
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate single-onboarding",
+   "ms": 1235
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test single-onboarding",
+   "ms": 1556
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate guided-lesson-layer",
+   "ms": 1369
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test guided-lesson-layer",
+   "ms": 1425
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate tone-truth",
+   "ms": 1358
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test tone-truth",
+   "ms": 1365
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate settings-visibility",
+   "ms": 1376
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test settings-visibility",
+   "ms": 1594
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate release-residual",
+   "ms": 1239
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test release-residual",
+   "ms": 1267
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs validate mobile-information-budget",
+   "ms": 1403
+  },
+  {
+   "command": "node scripts/rc2-2-17-guided-learning-reliability.mjs test mobile-information-budget",
+   "ms": 1469
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs validate guided-shell",
+   "ms": 1600
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs test guided-shell",
+   "ms": 1980
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs validate presentation-contracts",
+   "ms": 1577
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs test presentation-contracts",
+   "ms": 2393
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs validate presentation-stage",
+   "ms": 1727
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs test presentation-stage",
+   "ms": 1888
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs validate guided-action-dock",
+   "ms": 1396
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs test guided-action-dock",
+   "ms": 1587
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs validate guided-parity-release",
+   "ms": 1564
+  },
+  {
+   "command": "node scripts/rc2-2-17b-guided-journey-parity.mjs test guided-parity-release",
+   "ms": 1751
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs validate feature-registry",
+   "ms": 1557
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs test feature-registry",
+   "ms": 4308
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs validate guidance-orchestrator",
+   "ms": 1682
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs test guidance-orchestrator",
+   "ms": 4246
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs validate navigation-disclosure",
+   "ms": 1598
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs test navigation-disclosure",
+   "ms": 1848
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs validate guidance-surfaces",
+   "ms": 1888
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs test guidance-surfaces",
+   "ms": 2361
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs validate guidance-copy-settings",
+   "ms": 1412
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs test guidance-copy-settings",
+   "ms": 1379
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs validate discovery-release",
+   "ms": 1459
+  },
+  {
+   "command": "node scripts/rc2-2-18-progressive-discovery.mjs test discovery-release",
+   "ms": 1362
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs validate guidance-truth",
+   "ms": 1688
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs test guidance-truth",
+   "ms": 4609
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs validate device-traces",
+   "ms": 1703
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs test device-traces",
+   "ms": 2952
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs validate auth-recovery",
+   "ms": 1863
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs test auth-recovery",
+   "ms": 2197
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs validate review-composer",
+   "ms": 1561
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs test review-composer",
+   "ms": 3447
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs validate product-release",
+   "ms": 1471
+  },
+  {
+   "command": "node scripts/rc2-2-19-guided-simple-verified.mjs test product-release",
+   "ms": 1366
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs validate physical-evidence",
+   "ms": 1719
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs test physical-evidence",
+   "ms": 3450
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs validate device-contracts",
+   "ms": 1490
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs test device-contracts",
+   "ms": 3331
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs validate review-auth",
+   "ms": 2003
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs test review-auth",
+   "ms": 3265
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs validate pedagogy",
+   "ms": 1291
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs test pedagogy",
+   "ms": 1435
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs validate release",
+   "ms": 1752
+  },
+  {
+   "command": "node scripts/rc2-2-20-physical-beta-readiness.mjs test release",
+   "ms": 2938
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate native-voice-playback",
+   "ms": 1407
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test native-voice-playback",
+   "ms": 1606
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate native-speech",
+   "ms": 1428
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test native-speech",
+   "ms": 1612
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate mobile-lifecycle",
+   "ms": 1416
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test mobile-lifecycle",
+   "ms": 1527
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate mobile-layout",
+   "ms": 1297
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test mobile-layout",
+   "ms": 1623
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate mobile-navigation",
+   "ms": 1448
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test mobile-navigation",
+   "ms": 1584
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate auth-resilience",
+   "ms": 1280
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test auth-resilience",
+   "ms": 1441
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate state-integrity",
+   "ms": 1402
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test state-integrity",
+   "ms": 1627
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate resource-cleanup",
+   "ms": 1384
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test resource-cleanup",
+   "ms": 1433
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs validate release-truth",
+   "ms": 1376
+  },
+  {
+   "command": "node scripts/rc2-2-21-mobile-native-stability.mjs test release-truth",
+   "ms": 1449
+  },
+  {
+   "command": "node scripts/audit-rc2-2-22-first-20.mjs --check",
+   "ms": 343
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate security",
+   "ms": 1321
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test security",
+   "ms": 1940
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate readiness",
+   "ms": 1574
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test readiness",
+   "ms": 5938
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate device-compatibility",
+   "ms": 1824
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test device-compatibility",
+   "ms": 4205
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate beta-feedback",
+   "ms": 1883
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test beta-feedback",
+   "ms": 4320
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate product-lint",
+   "ms": 1694
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test product-lint",
+   "ms": 3672
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate stability",
+   "ms": 1795
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test stability",
+   "ms": 3658
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs validate release-truth",
+   "ms": 1544
+  },
+  {
+   "command": "node scripts/rc2-2-22-closed-beta-candidate.mjs test release-truth",
+   "ms": 2785
+  },
+  {
+   "command": "node scripts/audit-rc2-2-23-semantic-repetition.mjs --check",
+   "ms": 307
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate guidance-delivery",
+   "ms": 1474
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test guidance-delivery",
+   "ms": 4215
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate energy-soft-landing",
+   "ms": 1698
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test energy-soft-landing",
+   "ms": 2706
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate progressive-navigation",
+   "ms": 1342
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test progressive-navigation",
+   "ms": 1424
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate mobile-density",
+   "ms": 1287
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test mobile-density",
+   "ms": 1464
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate review-repetition",
+   "ms": 1690
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test review-repetition",
+   "ms": 2981
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate review-hanzi",
+   "ms": 1640
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test review-hanzi",
+   "ms": 2295
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate guided-tones",
+   "ms": 1593
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test guided-tones",
+   "ms": 2543
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate immersion-depth",
+   "ms": 1706
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test immersion-depth",
+   "ms": 1819
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate profile-account",
+   "ms": 1350
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test profile-account",
+   "ms": 1258
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs validate physical-truth",
+   "ms": 1309
+  },
+  {
+   "command": "node scripts/rc2-2-23-product-convergence.mjs test physical-truth",
+   "ms": 1886
+  },
+  {
+   "command": "node scripts/audit-rc2-2-24-native-step-parity.mjs --check",
+   "ms": 54679
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate native-tts-correlation",
+   "ms": 1460
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test native-tts-correlation",
+   "ms": 1537
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate guided-try-advance",
+   "ms": 1315
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test guided-try-advance",
+   "ms": 1312
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate conversation-transition",
+   "ms": 1452
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test conversation-transition",
+   "ms": 1463
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate step-render-truth",
+   "ms": 1330
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test step-render-truth",
+   "ms": 1479
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate journey-return-anchor",
+   "ms": 1469
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test journey-return-anchor",
+   "ms": 1577
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate cross-feature-handoff",
+   "ms": 1379
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test cross-feature-handoff",
+   "ms": 1853
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate guided-activity-shell",
+   "ms": 1638
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test guided-activity-shell",
+   "ms": 1529
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate tone-trainer-focus",
+   "ms": 1443
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test tone-trainer-focus",
+   "ms": 1405
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate tone-trace",
+   "ms": 1571
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test tone-trace",
+   "ms": 1441
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate all-lessons-guided-parity",
+   "ms": 1380
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test all-lessons-guided-parity",
+   "ms": 1367
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate single-account-production",
+   "ms": 1342
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test single-account-production",
+   "ms": 1344
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate release-truth",
+   "ms": 1388
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test release-truth",
+   "ms": 1545
+  },
+  {
+   "command": "node scripts/audit-rc2-2-25-surfaces.mjs --check",
+   "ms": 56928
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate gold-standard",
+   "ms": 1255
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test gold-standard",
+   "ms": 1667
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate stepkind-classification",
+   "ms": 1415
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test stepkind-classification",
+   "ms": 1396
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate all-lessons-audit",
+   "ms": 1329
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test all-lessons-audit",
+   "ms": 1363
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate surface-inventory",
+   "ms": 1453
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test surface-inventory",
+   "ms": 1429
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate density-score",
+   "ms": 1427
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test density-score",
+   "ms": 1310
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate hub-activity-modes",
+   "ms": 1399
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test hub-activity-modes",
+   "ms": 1545
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate review-round",
+   "ms": 1663
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test review-round",
+   "ms": 1372
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate focus-frame",
+   "ms": 1462
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test focus-frame",
+   "ms": 1409
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate speaking-flow",
+   "ms": 1518
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test speaking-flow",
+   "ms": 1491
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate tone-trace-memory",
+   "ms": 1512
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test tone-trace-memory",
+   "ms": 1578
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate immersion-scene",
+   "ms": 1477
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test immersion-scene",
+   "ms": 1455
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate culture-task-handoff",
+   "ms": 1396
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test culture-task-handoff",
+   "ms": 1438
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate journey-return-pulse",
+   "ms": 1509
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test journey-return-pulse",
+   "ms": 1539
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate progressive-discovery",
+   "ms": 1411
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test progressive-discovery",
+   "ms": 1331
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate conta-first-fold",
+   "ms": 1357
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test conta-first-fold",
+   "ms": 1366
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate logout-discoverability",
+   "ms": 1314
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test logout-discoverability",
+   "ms": 1486
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate more-order",
+   "ms": 1490
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test more-order",
+   "ms": 1503
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate appearance",
+   "ms": 1405
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test appearance",
+   "ms": 1351
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate profile-first-fold",
+   "ms": 1346
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test profile-first-fold",
+   "ms": 1283
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate cta-normalization",
+   "ms": 1367
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test cta-normalization",
+   "ms": 1289
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate owner-product-debt",
+   "ms": 1260
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test owner-product-debt",
+   "ms": 1280
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate goldens-human-script",
+   "ms": 1380
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test goldens-human-script",
+   "ms": 1372
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs validate release-truth",
+   "ms": 1313
+  },
+  {
+   "command": "node scripts/rc2-2-25-product-experience-closure.mjs test release-truth",
+   "ms": 1590
+  },
+  {
+   "command": "node scripts/rc2-2-26-android-physical-closure.mjs",
+   "ms": 12579
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate native-tts-correlation",
+   "ms": 1512
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test native-tts-correlation",
+   "ms": 1555
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs validate conversation-transition",
+   "ms": 1395
+  },
+  {
+   "command": "node scripts/rc2-2-24-android-learning-parity.mjs test conversation-transition",
+   "ms": 1508
+  },
+  {
+   "command": "node scripts/typecheck.mjs",
+   "ms": 35316
+  },
+  {
+   "command": "node scripts/audit-rc2-2-27-audio-gated-steps.mjs --check",
+   "ms": 144
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate build-identity",
+   "ms": 1416
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test build-identity",
+   "ms": 1437
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate native-tts-engine-truth",
+   "ms": 1344
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test native-tts-engine-truth",
+   "ms": 1369
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate is-speaking-probe",
+   "ms": 2232
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test is-speaking-probe",
+   "ms": 8288
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate sequential-tts",
+   "ms": 4268
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test sequential-tts",
+   "ms": 29226
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate request-lifecycle",
+   "ms": 1879
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test request-lifecycle",
+   "ms": 3647
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate request-cancellation",
+   "ms": 1411
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test request-cancellation",
+   "ms": 1483
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate auto-speak-unification",
+   "ms": 1413
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test auto-speak-unification",
+   "ms": 1429
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate conversation-sequence",
+   "ms": 1247
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test conversation-sequence",
+   "ms": 1259
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate guided-try",
+   "ms": 1485
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test guided-try",
+   "ms": 1448
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate lesson-audio-gates",
+   "ms": 1415
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test lesson-audio-gates",
+   "ms": 1459
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate audio-arbiter-recovery",
+   "ms": 1494
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test audio-arbiter-recovery",
+   "ms": 1269
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate completion-sequence",
+   "ms": 1530
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test completion-sequence",
+   "ms": 1509
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate celebration-queue",
+   "ms": 1362
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test celebration-queue",
+   "ms": 1385
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs validate physical-truth",
+   "ms": 1274
+  },
+  {
+   "command": "node scripts/rc2-2-27-android-tts-root-cause.mjs test physical-truth",
+   "ms": 1408
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate canonical-audio-manifest",
+   "ms": 1411
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test canonical-audio-manifest",
+   "ms": 1499
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate core-audio-pack",
+   "ms": 1399
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test core-audio-pack",
+   "ms": 1447
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate native-media-player",
+   "ms": 1334
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test native-media-player",
+   "ms": 1656
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate web-asset-player",
+   "ms": 1581
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test web-asset-player",
+   "ms": 1451
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate tts-fallback-only",
+   "ms": 1364
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test tts-fallback-only",
+   "ms": 1326
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate guided-try-no-tts",
+   "ms": 1557
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test guided-try-no-tts",
+   "ms": 1471
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate conversation-reducer",
+   "ms": 1403
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test conversation-reducer",
+   "ms": 1519
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate conversation-audio-after-render",
+   "ms": 1489
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test conversation-audio-after-render",
+   "ms": 1586
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate promise-safety",
+   "ms": 1424
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test promise-safety",
+   "ms": 1647
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate build-provenance",
+   "ms": 1550
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test build-provenance",
+   "ms": 1497
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate completion-deltas",
+   "ms": 1351
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test completion-deltas",
+   "ms": 1399
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate no-scroll-expanded",
+   "ms": 1354
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test no-scroll-expanded",
+   "ms": 1534
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate tts-independence",
+   "ms": 1342
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test tts-independence",
+   "ms": 1280
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs validate physical-truth",
+   "ms": 1328
+  },
+  {
+   "command": "node scripts/rc2-2-28-deterministic-audio.mjs test physical-truth",
+   "ms": 1378
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate ci-green",
+   "ms": 1323
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test ci-green",
+   "ms": 1471
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate audio-coverage",
+   "ms": 1347
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test audio-coverage",
+   "ms": 1320
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate audio-quality",
+   "ms": 1321
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test audio-quality",
+   "ms": 1380
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate tts-fallback-only",
+   "ms": 1414
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test tts-fallback-only",
+   "ms": 1409
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate conversation-zero-stall",
+   "ms": 1449
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test conversation-zero-stall",
+   "ms": 1464
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate owner-request-register",
+   "ms": 1425
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test owner-request-register",
+   "ms": 1574
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate no-debug-ui",
+   "ms": 1298
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test no-debug-ui",
+   "ms": 1418
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate guided-parity",
+   "ms": 1494
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test guided-parity",
+   "ms": 1469
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate no-local-profiles",
+   "ms": 1634
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test no-local-profiles",
+   "ms": 1459
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate guidance-delivery",
+   "ms": 1392
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test guidance-delivery",
+   "ms": 1317
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate completion-sequence",
+   "ms": 1290
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test completion-sequence",
+   "ms": 1362
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs validate physical-truth",
+   "ms": 1325
+  },
+  {
+   "command": "node scripts/rc2-2-29-launch-convergence.mjs test physical-truth",
+   "ms": 1288
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate release-truth",
+   "ms": 1363
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test release-truth",
+   "ms": 1364
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate physical-proof",
+   "ms": 1244
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test physical-proof",
+   "ms": 1225
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate play-internal",
+   "ms": 1366
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test play-internal",
+   "ms": 1311
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate play-upgrade",
+   "ms": 1291
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test play-upgrade",
+   "ms": 1326
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate conversation",
+   "ms": 1318
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test conversation",
+   "ms": 1371
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate guided-try",
+   "ms": 1254
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test guided-try",
+   "ms": 1260
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate auth",
+   "ms": 1230
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test auth",
+   "ms": 1294
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate recovery",
+   "ms": 1292
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test recovery",
+   "ms": 1312
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate self-compare",
+   "ms": 1315
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test self-compare",
+   "ms": 1157
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate guidance",
+   "ms": 1276
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test guidance",
+   "ms": 1365
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate energy",
+   "ms": 1292
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test energy",
+   "ms": 1330
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate navigation",
+   "ms": 1384
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test navigation",
+   "ms": 1323
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate completion",
+   "ms": 1319
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test completion",
+   "ms": 1215
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate stability",
+   "ms": 1220
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test stability",
+   "ms": 1304
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate human-learning",
+   "ms": 1222
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test human-learning",
+   "ms": 1394
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs validate owner-acceptance",
+   "ms": 1241
+  },
+  {
+   "command": "node scripts/rc2-2-30-closed-beta-entry.mjs test owner-acceptance",
+   "ms": 1334
+  },
+  {
+   "command": "node scripts/validate-audio-quality-v2.mjs validate",
+   "ms": 3483
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate request-aware-cancel",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test request-aware-cancel",
+   "ms": 56
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate stale-callback-rejection",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test stale-callback-rejection",
+   "ms": 54
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate asset-path-preflight",
+   "ms": 43
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test asset-path-preflight",
+   "ms": 55
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate listener-lifecycle",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test listener-lifecycle",
+   "ms": 59
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate audio-owner-separation",
+   "ms": 50
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test audio-owner-separation",
+   "ms": 54
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate conversation-single-source",
+   "ms": 49
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test conversation-single-source",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate audio-quality-v2",
+   "ms": 51
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test audio-quality-v2",
+   "ms": 70
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate media-position-proof",
+   "ms": 65
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test media-position-proof",
+   "ms": 64
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs validate physical-truth",
+   "ms": 48
+  },
+  {
+   "command": "node scripts/rc2-2-31-android-runtime-closure.mjs test physical-truth",
+   "ms": 46
+  },
+  {
+   "command": "node scripts/typecheck.mjs",
+   "ms": 35318
+  },
+  {
+   "command": "node scripts/validate-audio-quality-v3.mjs validate",
+   "ms": 79829
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate full-fixed-speech",
+   "ms": 65
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test full-fixed-speech",
+   "ms": 68
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate audio-quality-v3",
+   "ms": 56
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test audio-quality-v3",
+   "ms": 74
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate session-scoped-listeners",
+   "ms": 68
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test session-scoped-listeners",
+   "ms": 72
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate promise-terminal-state",
+   "ms": 72
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test promise-terminal-state",
+   "ms": 76
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate conversation-real-input-trace",
+   "ms": 62
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test conversation-real-input-trace",
+   "ms": 62
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate full-apk-packaging",
+   "ms": 60
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test full-apk-packaging",
+   "ms": 90
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs validate physical-proof",
+   "ms": 64
+  },
+  {
+   "command": "node scripts/rc2-2-31b-android-runtime-final.mjs test physical-proof",
+   "ms": 73
+  },
+  {
+   "command": "node scripts/typecheck.mjs",
+   "ms": 38510
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate webview-speechSynthesis-absence",
+   "ms": 1346
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test webview-speechSynthesis-absence",
+   "ms": 1396
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate gesture-no-throw",
+   "ms": 1264
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test gesture-no-throw",
+   "ms": 1185
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate gesture-not-in-navigation-critical-path",
+   "ms": 1210
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test gesture-not-in-navigation-critical-path",
+   "ms": 1363
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate canonical-request-always-reaches-player",
+   "ms": 1373
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test canonical-request-always-reaches-player",
+   "ms": 1281
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate direct-asset-player",
+   "ms": 1366
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test direct-asset-player",
+   "ms": 1370
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate no-false-start",
+   "ms": 1337
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test no-false-start",
+   "ms": 1339
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate guided-try-real-audio",
+   "ms": 1306
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test guided-try-real-audio",
+   "ms": 1265
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate conversation-chaos",
+   "ms": 1275
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test conversation-chaos",
+   "ms": 1251
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs validate physical-truth",
+   "ms": 1324
+  },
+  {
+   "command": "node scripts/rc2-2-31c-android-runtime-root-cause.mjs test physical-truth",
+   "ms": 1259
+  },
+  {
+   "command": "node scripts/typecheck.mjs",
+   "ms": 36114
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate real-android-runtime-job",
+   "ms": 1216
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test real-android-runtime-job",
+   "ms": 1200
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate no-fake-instrumentation",
+   "ms": 1172
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test no-fake-instrumentation",
+   "ms": 1266
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate observer-never-blocks-action",
+   "ms": 1243
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test observer-never-blocks-action",
+   "ms": 1157
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate state-first-conversation",
+   "ms": 1316
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test state-first-conversation",
+   "ms": 1393
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate async-direct-fallback",
+   "ms": 1295
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test async-direct-fallback",
+   "ms": 1254
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate fixed-content-fail-open",
+   "ms": 1103
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test fixed-content-fail-open",
+   "ms": 1201
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs validate physical-truth",
+   "ms": 1302
+  },
+  {
+   "command": "node scripts/rc2-2-31d-apk-runtime-proof.mjs test physical-truth",
+   "ms": 1248
+  },
+  {
+   "command": "node scripts/typecheck.mjs",
+   "ms": 34860
+  }
+ ]
+}
