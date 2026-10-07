@@ -154,6 +154,11 @@ export function runSensoryGate(rt) {
       ids.add(d.id);
       if (d.kind === "COACHMARK" && d.anchor && !Object.values(rt.srcFiles).some((t) => t.includes(`data-coachmark-target="${d.anchor}"`) || t.includes(`coachmarkTarget: "${d.anchor}"`))) fail("GUIDANCE_BUDGET", d.id, `anchor "${d.anchor}" does not exist`);
       for (const key of [d.bodyKey, d.primaryKey, d.titleKey].filter(Boolean)) if (!rt.messages.pt[key]) fail("NO_ENGINE_LANGUAGE", d.id, `missing copy ${key}`);
+      // Every surface must be a real route (obsolete surfaces = guidance that can never show).
+      for (const surface of d.surfaces) {
+        const seg = surface.replace(/^\//, "");
+        if (!new RegExp(`path: "${seg.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`).test(rt.srcFiles["src/routes.tsx"] ?? "")) fail("GUIDANCE_BUDGET", d.id, `surface "${surface}" is not a route`);
+      }
     }
   }
 

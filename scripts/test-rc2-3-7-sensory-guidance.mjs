@@ -41,6 +41,7 @@ const cases = [
   ["16. Seu Domínio mostra nota crua", src("dominio", "{STATE_LABEL_PT[state]}", "{STATE_LABEL_PT[state]} {Math.round(pm.getDimensionState(r.targetId, r.view).estimate * 100)}%"), "MASTERY_NO_RAW_SCORE"],
   ["17. Jev ligado no runtime do aluno", { srcFiles: { ...base.srcFiles, "src/lib/jevLearner.ts": "fetch('https://api.typesafe.ai/v1/systemone')" } }, "JEV_RUNTIME_OFF"],
   ["17b. flag JEV_RUNTIME_ENABLED true", src("budgetPolicy", /JEV_RUNTIME_ENABLED:\s*false/.exec(base.src.budgetPolicy)[0], "JEV_RUNTIME_ENABLED: true"), "JEV_RUNTIME_OFF"],
+  ["19. orientação em rota que não existe", { guidance: { ...base.guidance, GUIDANCE_DEFINITIONS: [...base.guidance.GUIDANCE_DEFINITIONS, { ...base.guidance.GUIDANCE_DEFINITIONS[0], id: "ghost_v1", surfaces: ["/tons"] }] } }, "GUIDANCE_BUDGET"],
   ["18. som de acerto não cansa? (fadiga desligada)", { sfxDecision: (i) => ({ ...base.sfxDecision(i), gain: 1 }) }, "SFX_FATIGUE"],
 ];
 
