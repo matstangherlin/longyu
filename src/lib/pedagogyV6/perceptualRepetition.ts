@@ -222,6 +222,11 @@ export function diversifyPerceptualSession(steps: LessonStep[]): {
   const familyRecent: InteractionFamily[] = [];
   let removed = 0;
   const deferred: LessonStep[] = [];
+  // Teach-before-test: "adiar" só move um passo para DEPOIS. Ele nunca volta
+  // para antes de um passo que o precedia no plano autorado — senão uma
+  // cobrança sobe para antes do ensino/exposição (ex.: montar 木 antes de
+  // "Note a forma de 木", ou escolher 你好 antes da escuta NOTICE de 你好).
+  const bodyOrder = new Map<LessonStep, number>(body.map((step, index) => [step, index]));
 
   for (const step of body) {
     const target = semanticTargetOfStep(step);
@@ -264,7 +269,13 @@ export function diversifyPerceptualSession(steps: LessonStep[]): {
       continue;
     }
     let inserted = false;
-    for (let i = Math.max(head.length, 1); i <= out.length; i += 1) {
+    const originalIndex = bodyOrder.get(step) ?? 0;
+    let afterPredecessors = 0;
+    out.forEach((placed, position) => {
+      const placedIndex = bodyOrder.get(placed);
+      if (placedIndex != null && placedIndex < originalIndex) afterPredecessors = position + 1;
+    });
+    for (let i = Math.max(head.length, 1, afterPredecessors); i <= out.length; i += 1) {
       const prevFamily = i > 0 ? interactionFamilyFor(out[i - 1].kind) : null;
       const nextFamily = i < out.length ? interactionFamilyFor(out[i].kind) : null;
       if (prevFamily === family && nextFamily === family) continue;

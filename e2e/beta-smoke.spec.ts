@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
 import {
+  advancePastDiscoverySteps,
   advancePastGuideDialogue,
   clickStable,
   dismissBlockingOverlays,
@@ -279,6 +280,9 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // RC2.3.0 — conta nova: a Descoberta (cartão de ensino de 你好 + escuta,
+    // não graduada) abre a sessão antes da introdução autorada.
+    expect(await advancePastDiscoverySteps(page)).toBeGreaterThan(0);
     await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
@@ -303,6 +307,8 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // RC2.3.0 — a Descoberta de 你/好 abre a sessão; nada é cobrado nela.
+    await advancePastDiscoverySteps(page);
     await expect(page.getByRole("heading", { name: /Peças visuais, não desenhos aleatórios|Monte peça por peça/ })).toBeVisible({
       timeout: 20_000,
     });
@@ -319,9 +325,16 @@ test.describe("beta smoke — aprendizagem", () => {
       /^Continuar$/,
     ]);
     expect(leftExposure).toBe(true);
-    await expect(page.getByRole("heading", { name: /Note a forma de 木/ })).toBeVisible();
+    // RC2.3.1/2.3.2 — o plano V6 pode intercalar uma cena cotidiana (你好, já
+    // ensinado) e, depois do ensino de 木, a associação visual; a ordem
+    // exposição → "Note a forma de 木" → Builder se mantém.
+    const noteMu = page.getByRole("heading", { name: /Note a forma de 木/ });
+    await advanceUntilVisible(page, noteMu, 4);
+    await expect(noteMu).toBeVisible();
     await advancePastGuideDialogue(page);
-    await expect(page.locator("[data-hanzi-builder]")).toBeVisible();
+    const builder = page.locator("[data-hanzi-builder]");
+    await advanceUntilVisible(page, builder, 4);
+    await expect(builder).toBeVisible();
   });
 
   test("imagem real: foto de conceito visual carrega no player", async ({ page }) => {
@@ -422,6 +435,9 @@ test.describe("beta smoke — aprendizagem", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // RC2.3.0 — conta nova: a Descoberta (cartão de ensino de 你好 + escuta,
+    // não graduada) abre a sessão antes da introdução autorada.
+    expect(await advancePastDiscoverySteps(page)).toBeGreaterThan(0);
     await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });

@@ -123,9 +123,9 @@ export function applyVisualFirstToPlan(input: {
   // 2) Inject image_choice when pass wants visual association and session lacks it
   const hasImageExercise = steps.some((s) => s.kind === "image_choice" || s.kind === "compare_with_image");
   if (!abstract && !hasImageExercise && input.masteryPass <= 3) {
-    const candidate = steps
-      .map((s) => resolveCurriculumVisual({ text: stepBlob(s), unitIndex, allowUntaughtTarget: true }))
-      .find((r) => r.concept && r.hasLocalAsset && r.visualClass === "CONCRETE_VISUAL");
+    const resolvedPerStep = steps.map((s) => resolveCurriculumVisual({ text: stepBlob(s), unitIndex, allowUntaughtTarget: true }));
+    const sourceIndex = resolvedPerStep.findIndex((r) => r.concept && r.hasLocalAsset && r.visualClass === "CONCRETE_VISUAL");
+    const candidate = sourceIndex >= 0 ? resolvedPerStep[sourceIndex] : undefined;
     if (candidate?.concept) {
       const mode = preferredImageChoiceMode(input.masteryPass);
       const distractors = visualDistractorsForPass({
@@ -165,9 +165,13 @@ export function applyVisualFirstToPlan(input: {
                 correctAnswer: visual.hanzi,
               }),
         } as LessonStep;
-        // Insert after discovery/intro head
+        // Insert after discovery/intro head — and never before the alvo is
+        // shown: teach-before-test exige a 1ª exposição do conceito (e o
+        // ensino que a segue, ex. "Note a forma de 木") antes da cobrança.
         const headCount = steps.findIndex((s) => s.pedagogyRole !== "discovery" && s.kind !== "intro");
-        const at = headCount < 0 ? 1 : Math.max(1, headCount);
+        let afterExposure = sourceIndex + 1;
+        while (afterExposure < steps.length && steps[afterExposure].kind === "intro") afterExposure += 1;
+        const at = Math.max(headCount < 0 ? 1 : Math.max(1, headCount), afterExposure);
         steps = [...steps.slice(0, at), injected, ...steps.slice(at)];
         injectedImageChoices += 1;
       }

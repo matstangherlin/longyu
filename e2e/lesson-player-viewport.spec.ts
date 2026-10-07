@@ -81,9 +81,12 @@ test.describe("lesson player — viewport & scroll", () => {
       .toBeGreaterThan(100);
 
     // GuideDialogue / intro: advance until the step changes (scroll must reset).
+    // RC2.3.0 — conta nova abre na Descoberta: o cartão de ensino fala em
+    // vários balões (explicação, 你好 · nǐ hǎo, visual, exemplo); cada balão
+    // pede um toque para completar e outro para seguir.
     const progress = page.locator("[data-lesson-player-frame]").getByText(/\d+\/\d+/).first();
     const before = ((await progress.textContent().catch(() => "")) ?? "").trim();
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < 16; i += 1) {
       const top = await scroller.evaluate((node) => node.scrollTop);
       if (top === 0) break;
       const guideContinue = page.getByTestId("guide-continue");
