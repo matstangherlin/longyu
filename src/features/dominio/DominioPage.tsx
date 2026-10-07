@@ -89,16 +89,20 @@ export function DominioPage() {
 
   return (
     <HubPage compact data-testid="dominio-page">
-      <HubHeader eyebrow="Seu progresso" title="Seu Domínio" desc="O que você já usa bem e o que vale praticar — a partir do que você fez." />
+      <div data-coachmark-target="dominio-header">
+        <HubHeader eyebrow="Seu progresso" title="Seu Domínio" desc="O que você já usa bem e o que vale praticar — a partir do que você fez." />
+      </div>
       {empty ? (
         <Card className="p-4 text-sm text-ink-soft" data-testid="dominio-empty">
-          Ainda não há atividades suficientes para mostrar algo aqui. Continue a Jornada — isto se preenche sozinho.
+          Continue praticando para vermos seu progresso. Esta página se preenche a partir do que você faz na Jornada e na Revisão.
         </Card>
       ) : null}
       {canPractice ? (
-        <ButtonLink to="/revisao?sessao=dominio&iniciar=1" className="w-full" data-testid="practice-what-i-need">
-          Praticar o que preciso
-        </ButtonLink>
+        <div data-coachmark-target="practice-what-i-need">
+          <ButtonLink to="/revisao?sessao=dominio&iniciar=1" className="w-full" data-testid="practice-what-i-need">
+            Praticar o que preciso
+          </ButtonLink>
+        </div>
       ) : null}
       {renderGroup("Você está firme em", groups.strong, "dominio-strong")}
       {renderGroup("Vale praticar", groups.practice, "dominio-practice")}

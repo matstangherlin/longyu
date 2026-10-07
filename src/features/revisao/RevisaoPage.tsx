@@ -1841,8 +1841,9 @@ export function RevisaoPage() {
               ) : (
                 // RC2.2.23 — fim claro: voltar ou continuar, nada em volta competindo.
                 <div className="mt-5 flex flex-wrap justify-center gap-3" data-review-end>
-                  <ButtonLink to="/jornada" variant="outline" data-testid="review-end-back">
-                    {t("review.endBack")}
+                  <ButtonLink to={masterySession ? "/dominio" : "/jornada"} variant="outline" data-testid="review-end-back">
+                    {/* RC2.3.7 — volta exatamente de onde a prática começou. */}
+                    {masterySession ? "Voltar a Seu Domínio" : t("review.endBack")}
                   </ButtonLink>
                   {moreDueAfterSession > 0 && (
                     <Button onClick={continueReviewing} data-testid="review-end-continue">

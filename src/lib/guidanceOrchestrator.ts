@@ -319,6 +319,34 @@ export const GUIDANCE_DEFINITIONS: readonly GuidanceDefinition[] = [
     dragon: false,
   },
   {
+    // RC2.3.7 — Seu Domínio: uma frase, na primeira visita. Sem algoritmo, sem números.
+    id: "mastery_first_use_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: ["/dominio"],
+    anchor: "dominio-header",
+    bodyKey: "guidance.masteryFirstUse.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
+    // RC2.3.7 — "Praticar o que preciso": V0 é determinística (nunca "IA escolheu").
+    id: "practice_need_first_use_v1",
+    kind: "COACHMARK",
+    priority: "OPTIONAL_DISCOVERY",
+    essential: false,
+    surfaces: ["/dominio"],
+    anchor: "practice-what-i-need",
+    bodyKey: "guidance.practiceNeedFirstUse.body",
+    primaryKey: "guidance.common.gotIt",
+    secondary: "skip",
+    offerSkipAll: false,
+    dragon: false,
+  },
+  {
     // RC2.2.19 — primeira revisão: rodadas curtas, erro volta de outro jeito.
     id: "review_session_intro_v1",
     kind: "INLINE_TIP",
@@ -645,6 +673,11 @@ function featureConditionMet(definition: GuidanceDefinition, ctx: GuidanceContex
       return ctx.visibility.culture === "AVAILABLE";
     case "atlas_first_use_v1":
       return ctx.visibility.atlas === "AVAILABLE";
+    case "mastery_first_use_v1":
+      return true;
+    case "practice_need_first_use_v1":
+      // Só depois de entender a tela (a frase de Seu Domínio já resolvida).
+      return guidanceResolved(ctx.state.records["mastery_first_use_v1"]);
     case "review_session_intro_v1":
       return ctx.visibility.review === "AVAILABLE";
     case "profile_entry_v1":

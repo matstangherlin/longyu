@@ -237,7 +237,7 @@ export const en: MessageCatalog = {
       confirmBeforeContinue: "Confirm your email, then sign in again.",
       invalidProfileSession: "Invalid session for updating the profile.",
       profileSaveFailed: "We could not save the profile. Confirm your email and sign in again.",
-      supabaseUnavailable: "Supabase client unavailable.",
+      supabaseUnavailable: "We could not reach your account right now. Try again in a moment.",
       resetEmailSent: "If this email is registered, we will send the instructions.",
       recoveryCodeInvalid: "Invalid or expired code. Check the latest email or request a new code.",
       recoveryCodeOk: "Code confirmed. Create your new password.",
@@ -707,7 +707,7 @@ export const en: MessageCatalog = {
     tryAgain: "Try again",
     gotIt: "Got it",
     stepStalled: "This step took too long to move on. Tap to try again.",
-    stepStalledRetry: "Try to continue",
+    stepStalledRetry: "Try again",
     stepStalledReload: "Reload this step",
     correct: "Correct! +Qi",
     correctShort: "Correct.",
@@ -812,7 +812,7 @@ export const en: MessageCatalog = {
     youLabel: "You",
     targetLabel: "Target",
     yourRecording: "Your recording",
-    micHttpsOnly: "The microphone only works over HTTPS.",
+    micHttpsOnly: "The microphone is not available on this page. You can continue without speaking.",
     voiceUnavailable: "Voice isn't available here. Listen and repeat out loud.",
     stopWhenDone: "Tap Stop when you are done.",
     visualMatch: "Visual match",
@@ -1356,7 +1356,7 @@ export const en: MessageCatalog = {
     checkAnswerTitle: "Check the answer",
     errorCorrected: "Mistake fixed!",
     feedbackRight: "Right",
-    feedbackWrong: "Wrong",
+    feedbackWrong: "Not quite",
     backToSpaced: "This phrase is back in spaced review.",
     probableReason: "Likely reason: {reason}",
     willReturnQueue: "This mistake will return at the end of the queue so you can fix it now.",
@@ -1980,7 +1980,7 @@ export const en: MessageCatalog = {
     aboutAccountCloudDesc:
       "You can create an account, sign in on another device, and recover progress. Real Pro billing will come with Stripe.",
     aboutAccountLocalDesc:
-      "By default everything stays local. With Supabase configured, you can create an account and sync progress.",
+      "By default everything stays on this device. With an account, your progress is saved and synced.",
     aboutFeedbackTitle: "Your feedback matters",
     aboutFeedbackDesc:
       "Reporting bugs, confusion, or ideas helps us prioritize what to build before public launch.",
@@ -2947,6 +2947,12 @@ export const en: MessageCatalog = {
     },
     practiceFirstUse: {
       body: "Longyu picks a practice based on what you have already studied.",
+    },
+    masteryFirstUse: {
+      body: "Your Mastery shows what you have already shown and what is still settling.",
+    },
+    practiceNeedFirstUse: {
+      body: "This practice uses recent difficulties and reviews to choose activities.",
     },
     reviewFirstUse: {
       body: "Review brings back what is starting to fade.",

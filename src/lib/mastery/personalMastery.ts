@@ -53,22 +53,54 @@ export const VIEW_LABEL_PT: Record<CompetencyView, string> = {
   handwriting: "Escrever à mão",
 };
 
-const RULE_PT: Record<string, string> = {
-  NO_EVIDENCE: "Ainda não há atividades sobre isto.",
-  ONLY_EXPOSURE: "Você viu isto, mas ainda não praticou.",
-  BELOW_MIN_EVIDENCE: "Ainda há poucas tentativas para dizer mais.",
-  REPEATED_DIFFICULTY: "Algumas tentativas recentes não saíram como esperado.",
-  SPACED_INDEPENDENT_VARIED: "Você acertou sozinho, em dias diferentes e em atividades diferentes.",
-  CONSISTENT_INDEPENDENT: "Você vem acertando sem ajuda.",
-  STABLE_NEEDS_SPACING_OR_VARIETY: "Para consolidar, falta repetir em outros dias ou outras atividades.",
-  NEEDS_MORE_INDEPENDENT_SUCCESS: "Os acertos até agora tiveram ajuda — tudo bem, é parte do caminho.",
-  MIXED_RESULTS: "Às vezes sai, às vezes não: está se formando.",
-  RECENT_FAILURES_OVERRIDE: "As duas últimas tentativas não saíram; vale relembrar.",
-  CEILING_DEVELOPING: "Este tipo de atividade ainda não mostra uso livre.",
-  CEILING_STRONG: "Para consolidar, falta usar em uma atividade mais livre.",
-  SRS_DUE: "Já passou um tempo: hora de relembrar.",
-  STALE: "Faz um tempo que você não pratica isto.",
+/** What the learner did, per view — used to make "why" concrete. */
+const VIEW_ACTION_PT: Record<CompetencyView, string> = {
+  meaning: "entender o significado",
+  listening: "reconhecer de ouvido",
+  form: "reconhecer a escrita",
+  production: "usar numa resposta",
+  handwriting: "escrever à mão",
 };
+
+/**
+ * RC2.3.7 — "Por que estou vendo isto?": short, concrete, based on what the
+ * learner did. Never algorithm, score or target ids.
+ */
+export function whyLinePt(rule: string, view: CompetencyView): string {
+  const act = VIEW_ACTION_PT[view];
+  switch (rule) {
+    case "NO_EVIDENCE":
+      return "Você ainda não praticou isto. Continue praticando para vermos seu progresso.";
+    case "ONLY_EXPOSURE":
+      return "Você já viu isto, mas ainda não praticou.";
+    case "BELOW_MIN_EVIDENCE":
+      return "Ainda são poucas tentativas para dizer mais — tudo bem.";
+    case "REPEATED_DIFFICULTY":
+      return `Nas últimas vezes, ${act} não saiu como esperado.`;
+    case "SPACED_INDEPENDENT_VARIED":
+      return `Você conseguiu ${act} sozinho, em dias e atividades diferentes.`;
+    case "CONSISTENT_INDEPENDENT":
+      return `Você vem conseguindo ${act} sem ajuda.`;
+    case "STABLE_NEEDS_SPACING_OR_VARIETY":
+      return "Para consolidar, falta repetir em outro dia ou em outra atividade.";
+    case "NEEDS_MORE_INDEPENDENT_SUCCESS":
+      return "Os acertos até agora tiveram ajuda — é parte do caminho.";
+    case "MIXED_RESULTS":
+      return "Às vezes sai, às vezes não: está se formando.";
+    case "RECENT_FAILURES_OVERRIDE":
+      return `As duas últimas tentativas de ${act} não saíram; vale relembrar.`;
+    case "CEILING_DEVELOPING":
+      return "Até agora você praticou isto escolhendo entre opções; usar livremente vem depois.";
+    case "CEILING_STRONG":
+      return "Para consolidar, falta usar isto numa atividade mais livre.";
+    case "SRS_DUE":
+      return "Já faz um tempo — relembrar agora ajuda a memória a durar.";
+    case "STALE":
+      return "Faz um tempo que você não pratica isto.";
+    default:
+      return rule.startsWith("CEILING_") ? "Este tipo de atividade ainda não mostra uso livre." : "";
+  }
+}
 
 function indexEvents(record: LearnerEvidenceRecord) {
   const raw = new Map<string, LearningEvidence[]>();
@@ -161,7 +193,7 @@ export function createPersonalMastery(input: PersonalMasteryInput) {
           statePt: STATE_LABEL_PT[v.state],
           confidence: v.confidence,
           rules: v.rules,
-          whyPt: v.rules.map((r) => RULE_PT[r] ?? r),
+          whyPt: v.rules.map((r) => whyLinePt(r, view)).filter(Boolean),
           evidence: v.evidenceIds.map((id) => evidenceById.get(id)).filter((e): e is LearningEvidence => !!e),
         };
       }),
@@ -305,4 +337,45 @@ export function nextRecoveryStep(task: PracticeTask, missesInSession: number): P
 export function masteryReviewPriority(pm: PersonalMastery, targetId: string): number {
   const h = pm.getTargetState(targetId).headline;
   return h === "NEEDS_PRACTICE" ? 0 : h === "REVIEW_DUE" ? 1 : h === "DEVELOPING" ? 2 : h === "STRONG" ? 3 : h === "STABLE" ? 4 : 2;
+}
+
+// ---------------------------------------------------------------------------
+// RC2.3.7 — mastery change micro-moment (completion), once per change
+// ---------------------------------------------------------------------------
+
+export type ViewSnapshot = Record<string, CompetencyState>;
+
+/** State of each target × view right now (for a before/after comparison). */
+export function snapshotViews(pm: PersonalMastery, targetIds: readonly string[]): ViewSnapshot {
+  const out: ViewSnapshot = {};
+  for (const id of targetIds) {
+    const t = pm.getTargetState(id);
+    for (const view of COMPETENCY_VIEWS) out[`${id}|${view}`] = t.views[view].state;
+  }
+  return out;
+}
+
+const FIRM: readonly CompetencyState[] = ["STRONG", "STABLE"];
+
+/**
+ * Only real promotions into Firme/Consolidado. Small numeric moves, review-due
+ * flips and anything already celebrated are ignored. At most `max` lines.
+ */
+export function masteryPromotions(before: ViewSnapshot, after: ViewSnapshot, celebrated: ReadonlySet<string>, max = 2): { key: string; targetId: string; view: CompetencyView; state: CompetencyState }[] {
+  const out: { key: string; targetId: string; view: CompetencyView; state: CompetencyState }[] = [];
+  for (const [k, state] of Object.entries(after)) {
+    if (!FIRM.includes(state) || FIRM.includes(before[k] ?? "UNSEEN") || before[k] === "REVIEW_DUE") continue;
+    const key = `${k}|${state}`;
+    if (celebrated.has(key)) continue;
+    const [targetId, view] = k.split("|") as [string, CompetencyView];
+    out.push({ key, targetId, view, state });
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+/** Learner copy for a promotion: short, no numbers. */
+export function promotionLinePt(label: string, view: CompetencyView, state: CompetencyState): string {
+  const what = view === "handwriting" ? `Escrita de ${label}` : view === "listening" ? `Ouvir ${label}` : view === "production" ? `Usar ${label}` : view === "form" ? `Reconhecer ${label}` : label;
+  return `✓ ${what} agora está ${state === "STABLE" ? "consolidado" : "firme"}.`;
 }
