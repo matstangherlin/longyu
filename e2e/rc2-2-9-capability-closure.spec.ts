@@ -2,6 +2,15 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { dismissBlockingOverlays, seedUnlockedLessonSession, waitForLazyPage } from "./helpers";
 import { advanceUntilVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
+import { PEDAGOGY_VISUAL_SCENES } from "../src/lib/visualFirst/contextScenes";
+import { lessonQaSteps } from "./guided-shell-helpers";
+
+/**
+ * RC2.3.1 (Visual First) — nas rodadas 3–4 o player acrescenta uma cena visual
+ * de contexto DEPOIS do plano de `lessonRoundStepsFor`. "Perto do fim" conta a
+ * partir do fim desse plano, então essas cenas finais não entram na conta.
+ */
+const VISUAL_FIRST_SCENE_IDS = new Set<string>(PEDAGOGY_VISUAL_SCENES.map((scene) => scene.id));
 
 /**
  * RC2.2.9 — as 11 capacidades que eram PARTIAL, jogadas no player real.
@@ -49,7 +58,12 @@ async function openNearEnd(page: Page, lessonId: string, pass: number, fromEnd =
   const label = page.locator("[data-lesson-progress-label]").first();
   await expect(label).toHaveText(/^\d+\/\d+$/, { timeout: 20_000 });
   const total = Number(((await label.textContent()) ?? "").split("/")[1]);
-  const stepIndex = total - 1 - fromEnd;
+  const planned = await lessonQaSteps(page);
+  let appendedScenes = 0;
+  for (let i = planned.length - 1; i >= 0 && VISUAL_FIRST_SCENE_IDS.has(planned[i]?.sceneId ?? ""); i -= 1) {
+    appendedScenes += 1;
+  }
+  const stepIndex = total - 1 - fromEnd - appendedScenes;
   expect(stepIndex, `rodada de ${lessonId}/M${pass} curta demais (${total})`).toBeGreaterThan(0);
   await page.evaluate(
     ({ id, cursor }) => {

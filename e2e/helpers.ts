@@ -6,6 +6,7 @@ import {
   requiredCultureItemIdsForGate,
 } from "../src/data/cultureProgressionGates";
 import { TONE_TRAINER_PACKS } from "../src/data/toneTrainer";
+import { PILOT_TEACHING_MOMENTS, TAUGHT_CONCEPTS_STORAGE_KEY } from "../src/lib/pedagogyV6/discovery";
 
 /** V4.8.6 pricing chrome — locale-keyed, no hardcoded trial price. */
 export const PRO_PRICING_HEADLINE =
@@ -384,6 +385,84 @@ export async function advancePastGuideDialogue(page: Page, timeoutMs = 20_000) {
     break;
   }
   await passGuidedListenPage(page);
+}
+
+/**
+ * RC2.3.0 (Pedagogy V6) — o aluno que concluiu as lições anteriores a
+ * `lessonId` já passou pelas Descobertas delas (o player grava os conceitos em
+ * `longyu:taught-concepts-v6` ao concluir a Descoberta). Os seeds de progresso
+ * não gravam isso; este helper grava, para que a lição alvo não repita uma
+ * Descoberta que um aluno real já viu.
+ */
+export async function seedDiscoveryTaughtBefore(page: Page, lessonId: string) {
+  const targetIndex = ALL_LESSONS.findIndex((lesson) => lesson.id === lessonId);
+  const earlier = new Set(ALL_LESSONS.slice(0, Math.max(0, targetIndex)).map((lesson) => lesson.id));
+  const conceptIds = [
+    ...new Set(
+      PILOT_TEACHING_MOMENTS.filter((moment) => moment.pilotLessonIds.some((id) => earlier.has(id))).flatMap(
+        (moment) => moment.conceptIds
+      )
+    ),
+  ];
+  await page.addInitScript(
+    ({ key, ids }) => {
+      if (localStorage.getItem(key) !== null) return;
+      const at = Date.now();
+      localStorage.setItem(key, JSON.stringify(Object.fromEntries(ids.map((id) => [id, at]))));
+    },
+    { key: TAUGHT_CONCEPTS_STORAGE_KEY, ids: conceptIds }
+  );
+}
+
+/**
+ * RC2.3.0 (Pedagogy V6) — lições piloto abrem com passos de Descoberta
+ * (`pedagogyRole: "discovery"`: cartão de ensino + escuta do modelo) antes do
+ * plano autorado. Eles são exposição, não avaliação; specs que verificam o
+ * primeiro passo AUTORADO passam por eles aqui. Chave estável:
+ * `[data-lesson-step-frame][data-pedagogy-role="discovery"]`.
+ *
+ * Devolve quantos passos de Descoberta foram atravessados.
+ */
+export async function advancePastDiscoverySteps(page: Page, timeoutMs = 30_000): Promise<number> {
+  const frame = page.locator("[data-lesson-step-frame]").first();
+  await frame.waitFor({ state: "visible", timeout: 20_000 }).catch(() => undefined);
+  const discovery = page.locator('[data-lesson-step-frame][data-pedagogy-role="discovery"]').first();
+  const deadline = Date.now() + timeoutMs;
+  let passed = 0;
+  while (Date.now() < deadline && (await discovery.isVisible().catch(() => false))) {
+    const index = await discovery.getAttribute("data-current-step-index").catch(() => null);
+    const kind = await discovery.getAttribute("data-current-step-kind").catch(() => null);
+    if (index == null) break;
+    if (kind === "listen") {
+      await passGuidedListenPage(page);
+      for (const name of [
+        /^Continuar sem áudio$|^Continue without audio$/,
+        /Não posso falar agora|I can't speak now/,
+        /^Continuar(?:\s*>)?$|^Continue(?:\s*>)?$/,
+        /Não posso ouvir agora|I can't listen now/,
+      ]) {
+        const button = page.getByRole("button", { name }).first();
+        if (await button.isVisible().catch(() => false)) {
+          await button.click({ timeout: 2_000 }).catch(() => undefined);
+          break;
+        }
+      }
+    } else {
+      // Cartão de ensino: o primeiro "Entendi" completa o texto do guia, o seguinte avança.
+      const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$|^Continuar$|^Continue$/i }).first();
+      await entendi.click({ timeout: 2_000 }).catch(() => undefined);
+    }
+    await page
+      .locator(`[data-lesson-step-frame][data-current-step-index="${index}"]`)
+      .first()
+      .waitFor({ state: "detached", timeout: 1_500 })
+      .then(() => {
+        passed += 1;
+      })
+      .catch(() => undefined);
+    await dismissBlockingOverlays(page);
+  }
+  return passed;
 }
 
 /**

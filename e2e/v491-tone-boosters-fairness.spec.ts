@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import {
+  advancePastDiscoverySteps,
   advancePastGuideDialogue,
   dismissBlockingOverlays,
   seedInstructionLocale,
@@ -31,13 +32,32 @@ async function advanceToToneGuidedNotice(page: Page, tone: 1 | 2 | 3 | 4) {
       await page.waitForTimeout(150);
       continue;
     }
+    // RC2.3.2 (Everyday Mandarin) — o plano V6 intercala uma cena cotidiana
+    // de cumprimento (你好, já ensinado) entre a exposição e a nota guiada.
+    // Não é item tonal: responde 你好 e segue.
+    const everydayGreeting = page
+      .locator('[data-lesson-step-frame][data-current-step-kind="dialogue_choice"]')
+      .filter({ has: page.getByRole("heading", { name: /^cumprimentar$/ }) });
+    const greetingAnswer = everydayGreeting
+      .getByRole("button", { name: /^Opção \d+: 你好$/ })
+      .and(page.locator("button:enabled"))
+      .first();
+    if (await greetingAnswer.isVisible().catch(() => false)) {
+      await greetingAnswer.click();
+      const check = page.getByRole("button", { name: /^(Verificar|Check)$/ }).first();
+      if (await check.isEnabled().catch(() => false)) await check.click();
+      await page.waitForTimeout(150);
+      continue;
+    }
     const continueBtn = page.getByRole("button", { name: /^(Continuar|Continue)$/ });
     if (await continueBtn.isVisible().catch(() => false) && !(await continueBtn.isDisabled().catch(() => true))) {
       await continueBtn.click();
       await page.waitForTimeout(150);
       continue;
     }
-    const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ });
+    // O cartão de contraste tem uma dica inline com o próprio "Entendi"; o CTA
+    // que avança o passo é o último na ordem do documento.
+    const entendi = page.getByRole("button", { name: /^(Entendi|Got it)$/ }).last();
     if (await entendi.isVisible().catch(() => false)) {
       await entendi.click();
       await page.waitForTimeout(150);
@@ -97,6 +117,9 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await page.goto("/qa/tone");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // RC2.3.0 — a Descoberta (O tom muda o significado: 妈/马, não graduada)
+    // abre a sessão antes da introdução autorada do contorno.
+    expect(await advancePastDiscoverySteps(page)).toBeGreaterThan(0);
 
     await expect(page.getByRole("heading", { name: "A curva faz parte da palavra" })).toBeVisible();
     await page.getByRole("button", { name: /^Entendi$/ }).click();
@@ -202,7 +225,9 @@ test.describe("V4.9.1 tone learning, boosters, and assessment fairness", () => {
     await expect(contrastCard).toHaveCount(1);
     await advancePastGuideDialogue(page);
     // Plain intro ContinueBtn (no GuideDialogue) still uses a single Entendi.
-    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i });
+    // A dica inline do cartão ("Ouça a curva…") tem o próprio "Entendi": o que
+    // avança é o CTA do passo (o último na ordem do documento).
+    const entendi = page.getByRole("button", { name: /^Entendi$|^Got it$/i }).last();
     if (await entendi.isVisible().catch(() => false)) {
       await entendi.click();
     }
