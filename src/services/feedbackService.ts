@@ -262,6 +262,26 @@ export interface BetaFeedbackRow {
   created_at: string;
   status: FeedbackStatusId;
   admin_note: string | null;
+  /** Triagem TypeSafe Jev (Edge triage-feedback); null até rodar. */
+  ai_kind?: string | null;
+  ai_area?: string | null;
+  ai_severity?: number | null;
+  ai_needs_human?: number | null;
+  ai_confidence?: number | null;
+  ai_triaged_at?: string | null;
+}
+
+export async function triagePendingFeedback(): Promise<{ triaged: number; failed: number; firstError: string | null }> {
+  const client = getSupabaseClient();
+  if (!client) throw new Error("backend_unavailable");
+  const { data, error } = await client.functions.invoke<{
+    triaged?: number;
+    failed?: number;
+    firstError?: string | null;
+    error?: string;
+  }>("triage-feedback", { body: {} });
+  if (error) throw error;
+  return { triaged: data?.triaged ?? 0, failed: data?.failed ?? 0, firstError: data?.firstError ?? null };
 }
 
 export async function fetchAdminFeedback(): Promise<BetaFeedbackRow[]> {

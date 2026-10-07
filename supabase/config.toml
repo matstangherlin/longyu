@@ -52,6 +52,10 @@ verify_jwt = false
 [functions.commit-placement]
 verify_jwt = true
 
+# Triagem de feedback beta via TypeSafe Jev: JWT obrigatório + is_beta_admin no handler.
+[functions.triage-feedback]
+verify_jwt = true
+
 # Finaliza onboarding a partir do draft no servidor (nova aba / outro dispositivo).
 [functions.finalize-onboarding]
 verify_jwt = true
