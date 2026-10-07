@@ -103,7 +103,8 @@ for (const viewport of VIEWPORTS) {
       await page.getByTestId("self-compare-play-mine").click();
       await page.getByTestId("self-compare-continue").click();
 
-      const events = await page.evaluate(() => JSON.parse(localStorage.getItem("longyu:speech-evidence-v1") ?? "{}").events ?? []);
+      // RC2.3.8: evidence lives in the account namespace (`<key>::local` for an anonymous learner).
+      const events = await page.evaluate(() => JSON.parse(localStorage.getItem("longyu:speech-evidence-v1::local") ?? "{}").events ?? []);
       const perception = events.find((e: { mode: string }) => e.mode === "PERCEPTION");
       const compare = events.find((e: { mode: string }) => e.mode === "SELF_COMPARE");
       expect(perception?.conceptId).toBe("contrast:j-q-x");

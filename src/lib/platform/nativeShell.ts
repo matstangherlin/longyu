@@ -1,5 +1,6 @@
 import { SystemBars, SystemBarsStyle } from "@capacitor/core";
 import { closeKeyboard, decideBackAction, dismissTopOverlay, isGuidanceOpen, isKeyboardOpen, isModalOpen, routerCanGoBack } from "./backNavigation";
+import { isOAuthCallbackUrl, setNativeCallbackUrl } from "../../services/oauthService";
 import { recordTechEvent } from "../techEvents";
 import { previousInAppPath, runBackGuard, smartBackFallback } from "../navigation/smartBack";
 import { resolveDeepLink } from "./deepLinks";
@@ -72,12 +73,23 @@ async function installAppListeners(router: NativeShellRouter): Promise<void> {
     await App.addListener("resume", () => recordTechEvent("app_resumed", { via: "native" }));
 
     await App.addListener("appUrlOpen", ({ url }) => {
+      // RC2.3.8 — OAuth return: handed to the single callback router (dedupe by code there).
+      if (isOAuthCallbackUrl(url)) {
+        setNativeCallbackUrl(url);
+        void router.navigate("/auth/callback", { replace: true });
+        return;
+      }
       const route = resolveDeepLink(url);
       if (route) void router.navigate(route);
     });
 
     // Cold start via deep link: o app abriu pelo link.
     const launch = await App.getLaunchUrl();
+    if (launch?.url && isOAuthCallbackUrl(launch.url)) {
+      setNativeCallbackUrl(launch.url);
+      void router.navigate("/auth/callback", { replace: true });
+      return;
+    }
     const route = launch?.url ? resolveDeepLink(launch.url) : null;
     if (route && route !== router.pathname()) void router.navigate(route, { replace: true });
   } catch {

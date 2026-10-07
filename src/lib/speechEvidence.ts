@@ -17,6 +17,7 @@
 
 import { speechToEvidence } from "./mastery/adapters";
 import { recordLearningEvidence } from "./mastery/recorder";
+import { readScoped, writeScoped } from "./accountStorage";
 
 export const SPEECH_EVIDENCE_STORAGE_KEY = "longyu:speech-evidence-v1";
 export const SPEECH_EVIDENCE_SCHEMA_VERSION = 1;
@@ -95,7 +96,7 @@ export function normalizeSpeechEvidence(input: SpeechEvidenceInput, now = Date.n
 function readEvents(): SpeechLearningEvidence[] {
   if (typeof localStorage === "undefined") return [];
   try {
-    const raw = localStorage.getItem(SPEECH_EVIDENCE_STORAGE_KEY);
+    const raw = readScoped(SPEECH_EVIDENCE_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as { version?: number; events?: SpeechLearningEvidence[] };
     return Array.isArray(parsed?.events) ? parsed.events : [];
@@ -107,7 +108,7 @@ function readEvents(): SpeechLearningEvidence[] {
 function writeEvents(events: SpeechLearningEvidence[]): void {
   if (typeof localStorage === "undefined") return;
   try {
-    localStorage.setItem(
+    writeScoped(
       SPEECH_EVIDENCE_STORAGE_KEY,
       JSON.stringify({ version: SPEECH_EVIDENCE_SCHEMA_VERSION, events: events.slice(-MAX_EVENTS) })
     );

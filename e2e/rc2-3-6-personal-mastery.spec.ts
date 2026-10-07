@@ -132,6 +132,14 @@ test("evidence record carries no raw speech or handwriting", async ({ page }) =>
   await seed(page);
   await page.goto("/dominio");
   await waitForLazyPage(page);
-  const raw = await page.evaluate(() => localStorage.getItem("longyu:learner-evidence-v1") ?? "");
+  // RC2.3.8: the record is account-scoped (`longyu:learner-evidence-v1::<namespace>`); read every
+  // namespace and require that the record was actually found, so this cannot pass on an empty key.
+  const raw = await page.evaluate(() =>
+    Object.keys(localStorage)
+      .filter((key) => key === "longyu:learner-evidence-v1" || key.startsWith("longyu:learner-evidence-v1::"))
+      .map((key) => localStorage.getItem(key) ?? "")
+      .join("\n")
+  );
+  expect(raw.length).toBeGreaterThan(0);
   expect(raw).not.toMatch(/transcript|audioUrl|blob:|strokes|voiceprint/i);
 });

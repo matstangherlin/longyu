@@ -8,7 +8,7 @@ Relatório computado pelo gate `npm run validate:teach-before-test`. A camada V4
 - targetsWithPrerequisiteMetadata: 455
 - firstGradedBeforeExposure: 0
 - insufficientScaffoldBeforeFirstGrade: 0
-- unknownDistractorCount: 0
+- unknownDistractorCount: 8
 - hiddenSkillDistractorCount: 0
 - first20TeachBeforeTestViolations: 0
 - first20HiddenSkillViolations: 0

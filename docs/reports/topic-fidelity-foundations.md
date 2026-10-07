@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | c48b008c9c1e |
-| HEAD no instante da geração | 7fbf9c984efac71dc2aa8e544c6bd660da29b816 |
+| Hash da Jornada | 5a64821d0b7d |
+| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-24T11:40:47.073Z |
+| Gerado em | 2026-10-07T07:21:16.206Z |
 | Lições | 134 |
 
 
@@ -26,16 +26,17 @@ Promessa: Mandarim é a língua padrão ensinada no Longyu — falada, distinta 
 
 | passos | scored | DIRECT | SUPPORTING | GENERIC | ~min | passivo max |
 |---:|---:|---:|---:|---:|---:|---:|
-| 6 | 4 | 75% | 25% | 0% | 3.7 | 2 |
+| 7 | 5 | 80% | 20% | 0% | 4.5 | 2 |
 
 | # | kind | relação | título / razão |
 |---:|---|---|---|
 | 1 | intro | PASSIVE | Uma língua falada |
 | 2 | listen | PASSIVE | apoia o tema (scaffold/uso) — listen |
 | 3 | comprehend | SUPPORTING_TOPIC | apoia o tema (scaffold/uso) — comprehend |
-| 4 | dialogue_choice | DIRECT_TOPIC | O som é a língua |
-| 5 | dialogue_choice | DIRECT_TOPIC | Fala × escrita |
-| 6 | dialogue_choice | DIRECT_TOPIC | O exemplo não é o tema |
+| 4 | dialogue_choice | DIRECT_TOPIC | Pela manhã |
+| 5 | dialogue_choice | DIRECT_TOPIC | O som é a língua |
+| 6 | dialogue_choice | DIRECT_TOPIC | Fala × escrita |
+| 7 | dialogue_choice | DIRECT_TOPIC | O exemplo não é o tema |
 
 ### M2 · Distinguir mandarim falado, pinyin, hànzì e tradução sem virar aula teórica.
 
@@ -289,5 +290,5 @@ Promessa: Hànzì é o sistema de escrita; um caractere não é automaticamente 
 | 6 | dialogue_choice | DIRECT_TOPIC | Qual hànzì na tela? |
 | 7 | match_pairs | DIRECT_TOPIC | Prova final |
 
-<!-- integridade:c78742da3bb1d1b8 -->
+<!-- integridade:119c3b840bb40e4e -->
 

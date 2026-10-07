@@ -7,6 +7,7 @@
 import type { HanziLearningStage } from "./stages";
 import { hanziFormToEvidence } from "../mastery/adapters";
 import { recordLearningEvidence } from "../mastery/recorder";
+import { readScoped, writeScoped } from "../accountStorage";
 import type { HanziFormEvidence, HanziWritingState, HanziWritingTelemetryEvent } from "./types";
 
 export const HANZI_FORM_EVIDENCE_STORAGE_KEY = "longyu:hanzi-form-evidence-v1";
@@ -45,7 +46,7 @@ function emptyEvidence(character: string, charId: string): HanziFormEvidence {
 export function loadFormEvidenceMap(): HanziFormEvidenceMap {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(HANZI_FORM_EVIDENCE_STORAGE_KEY);
+    const raw = readScoped(HANZI_FORM_EVIDENCE_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw) as { version?: number; items?: HanziFormEvidenceMap };
     if (!parsed || typeof parsed !== "object") return {};
@@ -58,7 +59,7 @@ export function loadFormEvidenceMap(): HanziFormEvidenceMap {
 export function saveFormEvidenceMap(map: HanziFormEvidenceMap): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(
+    writeScoped(
       HANZI_FORM_EVIDENCE_STORAGE_KEY,
       JSON.stringify({ version: HANZI_FORM_EVIDENCE_SCHEMA_VERSION, items: map, cloudMergeReady: true })
     );
@@ -190,12 +191,12 @@ export function prefersWritingReview(ev: HanziFormEvidence): boolean {
 export function appendWritingTelemetry(event: HanziWritingTelemetryEvent): void {
   if (typeof window === "undefined") return;
   try {
-    const raw = window.localStorage.getItem(HANZI_WRITING_TELEMETRY_STORAGE_KEY);
+    const raw = readScoped(HANZI_WRITING_TELEMETRY_STORAGE_KEY);
     const list: HanziWritingTelemetryEvent[] = raw ? (JSON.parse(raw) as HanziWritingTelemetryEvent[]) : [];
     list.push(event);
     // Cap local ring buffer — never store stroke coordinates.
     const trimmed = list.slice(-200);
-    window.localStorage.setItem(HANZI_WRITING_TELEMETRY_STORAGE_KEY, JSON.stringify(trimmed));
+    writeScoped(HANZI_WRITING_TELEMETRY_STORAGE_KEY, JSON.stringify(trimmed));
   } catch {
     /* ignore */
   }
@@ -204,7 +205,7 @@ export function appendWritingTelemetry(event: HanziWritingTelemetryEvent): void 
 export function loadWritingTelemetry(): HanziWritingTelemetryEvent[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(HANZI_WRITING_TELEMETRY_STORAGE_KEY);
+    const raw = readScoped(HANZI_WRITING_TELEMETRY_STORAGE_KEY);
     return raw ? (JSON.parse(raw) as HanziWritingTelemetryEvent[]) : [];
   } catch {
     return [];

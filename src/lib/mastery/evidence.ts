@@ -14,6 +14,7 @@
  *  - storage is bounded: recent raw window + compact aggregates.
  */
 import type { CompetencyDimension } from "../../data/masteryLoop";
+import { readScoped, writeScoped } from "../accountStorage";
 
 export type { CompetencyDimension };
 
@@ -357,7 +358,7 @@ export function mergeRecords(local: LearnerEvidenceRecord, remote: LearnerEviden
 export function loadRecord(): LearnerEvidenceRecord {
   if (typeof localStorage === "undefined") return emptyRecord();
   try {
-    const raw = localStorage.getItem(LER_STORAGE_KEY);
+    const raw = readScoped(LER_STORAGE_KEY);
     if (!raw) return emptyRecord(newDeviceId());
     const parsed = JSON.parse(raw) as LearnerEvidenceRecord;
     if (!parsed || parsed.version !== LER_SCHEMA_VERSION || !Array.isArray(parsed.recent)) return emptyRecord(newDeviceId());
@@ -373,7 +374,7 @@ export function loadRecord(): LearnerEvidenceRecord {
 export function saveRecord(record: LearnerEvidenceRecord): void {
   if (typeof localStorage === "undefined") return;
   try {
-    localStorage.setItem(LER_STORAGE_KEY, JSON.stringify(record));
+    writeScoped(LER_STORAGE_KEY, JSON.stringify(record));
   } catch {
     /* quota — evidence is optional, learning never blocks on it */
   }
