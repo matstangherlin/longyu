@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   allowE2ELocalSession,
   dismissBlockingOverlays,
+  seedDiscoveryTaughtBefore,
   seedLessonPlayerReady,
   seedTelemetryDeclined,
   seedUnlockedLessonSession,
@@ -38,9 +39,17 @@ const CHOICE_KINDS = ["dialogue_choice", "listen_select", "audio_to_action", "co
 async function openLesson(
   page: Page,
   lessonId: string,
-  options: { prepare?: boolean; legacy?: boolean; masteryLevel?: number; isPremium?: boolean; seedThrough?: string } = {}
+  options: {
+    prepare?: boolean;
+    legacy?: boolean;
+    masteryLevel?: number;
+    isPremium?: boolean;
+    seedThrough?: string;
+    discoveryTaught?: boolean;
+  } = {}
 ) {
   await seedLessonPlayerReady(page, options.seedThrough ?? lessonId, { masteryLevel: options.masteryLevel, isPremium: options.isPremium });
+  if (options.discoveryTaught) await seedDiscoveryTaughtBefore(page, options.seedThrough ?? lessonId);
   if (options.prepare) await enableGuidedPrepare(page);
   if (options.legacy) await forceLegacyShell(page);
   await page.goto(`/licao/${lessonId}/player`);
@@ -94,7 +103,9 @@ test.describe("RC2.2.17B · shell guiado da Jornada", () => {
   });
 
   test("N–Q/DC — PREPARE é micro-passo real: Dragão + título, sem mexer em idx, XP ou Qi", async ({ page }) => {
-    await openLesson(page, "l2", { prepare: true });
+    // RC2.3.0 — quem chega a l2 já viu a Descoberta de 你好 (p1-o-que-e-mandarim);
+    // sem isso a sessão abriria num cartão de ensino (intro), que dispensa o PREPARE.
+    await openLesson(page, "l2", { prepare: true, discoveryTaught: true });
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem("longyu-v1") ?? "{}").state);
     await expect(page.locator("[data-guided-prepare]")).toBeVisible();
     await expect(page.getByTestId("lesson-prepare-line")).toBeVisible();

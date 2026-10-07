@@ -146,7 +146,8 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await playCultureLessonToVictory(page);
     await leaveCultureVictory(page);
     await waitForLazyPage(page);
-    await expect(page).toHaveURL(/\/licao\/l26c$/);
+    // RC2.3.3 — a volta depois da vitória carimba a origem com cultureDone=1.
+    await expect(page).toHaveURL(/\/licao\/l26c\?cultureDone=1$/);
   });
 
   test("culture review session does not use lexical SRS chrome", async ({ page }) => {
