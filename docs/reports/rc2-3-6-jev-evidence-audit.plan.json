@@ -1,0 +1,161 @@
+{
+  "model": "jev-latest",
+  "questions": {
+    "competency": {
+      "type": "choice",
+      "instructions": "Which language competency does a correct answer in this activity mainly show",
+      "criteria": {
+        "meaning": "Understanding what it means",
+        "listening": "Recognizing it by ear",
+        "form": "Recognizing its written form (characters or pinyin)",
+        "production": "Producing it: writing, typing, building or saying it"
+      }
+    },
+    "strength": {
+      "type": "score",
+      "instructions": "How strongly ONE correct answer in this activity proves the learner can do it independently in real use",
+      "criteria": [
+        "Proves almost nothing",
+        "Weak evidence",
+        "Moderate evidence",
+        "Strong evidence"
+      ]
+    },
+    "ambiguous": {
+      "type": "noul",
+      "instructions": "A correct answer could easily happen without the skill (guessing, copying a visible guide, or the activity not checking it)"
+    },
+    "remediation": {
+      "type": "choice",
+      "instructions": "After the learner fails this activity several times, what is the best next step",
+      "criteria": {
+        "easier_same_skill": "An easier activity on the same skill",
+        "perception_first": "Go back to listening and perception before producing",
+        "model_and_retry": "Show a model again and retry",
+        "meaning_first": "Review the meaning first"
+      }
+    }
+  },
+  "items": [
+    {
+      "skill": "ASR_TEXT",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nA speech recognizer transcribes what the learner said and the transcription matches the target words. The recognizer does not evaluate tones.",
+      "hash": "a073b020677a6967"
+    },
+    {
+      "skill": "CONTEXTUAL_CHOICE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nIn a short everyday situation, the learner chooses the right Chinese phrase from options.",
+      "hash": "aa86aa8b92aee69c"
+    },
+    {
+      "skill": "CONVERSATIONAL_TRANSFER",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner completes a multi-turn conversation in a new situation, answering each turn.",
+      "hash": "2dc1714c159b2815"
+    },
+    {
+      "skill": "CULTURE_OBSERVED",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner reads a short culture note.",
+      "hash": "7342583b20697572"
+    },
+    {
+      "skill": "CULTURE_PRACTICE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner answers one question right after reading a culture note.",
+      "hash": "685e1b0297321014"
+    },
+    {
+      "skill": "CULTURE_RECALL",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nDays later, the learner recalls a cultural concept without seeing the note.",
+      "hash": "9fab32e3bc787e98"
+    },
+    {
+      "skill": "CULTURE_SCENARIO",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner applies a cultural concept to decide what to do in a realistic scenario.",
+      "hash": "66d900abca1807f2"
+    },
+    {
+      "skill": "DIALOGUE_COMPLETION",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner completes a missing line in a short dialogue, choosing or ordering pieces.",
+      "hash": "2b090f4d9f956c59"
+    },
+    {
+      "skill": "FORM_RECOGNITION",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner identifies the correct pinyin or written form among options.",
+      "hash": "638040ba7300c13b"
+    },
+    {
+      "skill": "FREE_PRODUCTION",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner writes their own Chinese answer to an open situation with no options.",
+      "hash": "b62e06da06f007e1"
+    },
+    {
+      "skill": "HANZI_ASSEMBLY",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner assembles a character by choosing its components in the right positions.",
+      "hash": "58f0625e62d69273"
+    },
+    {
+      "skill": "HANZI_COMPLETE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner completes a character where one component is missing.",
+      "hash": "a8ef91abae3f9a6a"
+    },
+    {
+      "skill": "HANZI_CONTEXT_USE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner handwrites a character from memory to fill a blank inside a sentence.",
+      "hash": "cfdab0f7533147a9"
+    },
+    {
+      "skill": "HANZI_MEMORY_WRITE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner handwrites a character from memory with no guide visible.",
+      "hash": "52dab80240dd9757"
+    },
+    {
+      "skill": "HANZI_RECOGNITION",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner recognizes a Chinese character among similar-looking options.",
+      "hash": "122f97e1158f5c13"
+    },
+    {
+      "skill": "HANZI_TRACE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner traces a character over a visible guide that shows every stroke.",
+      "hash": "ad7f85c5f1d94688"
+    },
+    {
+      "skill": "LEGACY_PRIOR",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nBefore this system existed, the learner had already met this word in some lesson; no details were kept.",
+      "hash": "a6fa420d72f8e646"
+    },
+    {
+      "skill": "LISTENING_CHOICE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner hears a Chinese word and picks which written option they heard.",
+      "hash": "af4b8f523a130b2f"
+    },
+    {
+      "skill": "MEANING_CHOICE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner picks the Portuguese meaning of a Chinese word from 3-4 options.",
+      "hash": "34831ebc62e33f92"
+    },
+    {
+      "skill": "PRODUCTION_STEP",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner types the Chinese answer for a prompt with no options shown.",
+      "hash": "639c9874157cf315"
+    },
+    {
+      "skill": "SENTENCE_PRODUCTION",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner builds a full Chinese sentence for a situation by ordering words.",
+      "hash": "d4fafb189e45293d"
+    },
+    {
+      "skill": "SPEECH_PERCEPTION",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner hears two Chinese syllables that differ in one sound or tone and identifies which one was played, over several rounds.",
+      "hash": "caee58a001dd24e1"
+    },
+    {
+      "skill": "SPEECH_SELF_COMPARE",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nThe learner records their own voice saying a word and listens to it next to a native model. Nothing is graded.",
+      "hash": "74425c680f51c40a"
+    },
+    {
+      "skill": "SRS_REVIEW",
+      "state": "Activity in a Mandarin learning app for Portuguese speakers.\nSpaced-repetition review: the learner recalls the meaning of a word they studied days ago.",
+      "hash": "1c5ad7ad5337c924"
+    }
+  ]
+}
