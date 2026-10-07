@@ -12,4 +12,6 @@ regexes = [
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxIn0\.abcdefghij''',
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.abc''',
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkw\.abc''',
+  # RC2.3.8 NO_SERVICE_ROLE mutation: fake {"role":"service_role"} with a literal "signaturesig" signature.
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UifQ\.c2lnbmF0dXJlc2ln''',
 ]
