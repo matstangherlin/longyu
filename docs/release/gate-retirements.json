@@ -9,12 +9,13 @@
       "equivalenceEvidence": "Same command string, same checkout, no file under src/ written in between: the canonical runner executes the first occurrence and skips later identical commands within one invocation (scripts/run-canonical-beta-gates.mjs, dedupe by exact command).",
       "mutationParity": "Unchanged — the mutation scripts are the same commands; each still runs once.",
       "legacyDuplicateExecutions": 29
-    },
+    }
+  ],
+  "keptDuplicates": [
     {
       "id": "ANDROID_WORKFLOW_GATE_RERUN",
       "what": ".github/workflows/android-build.yml re-ran the 26 Android/RC2.2 wave gates that validate:beta (suite android-native) already runs on the same events (pull_request, push main).",
-      "equivalenceEvidence": "Identical npm scripts executed by ci.yml suite `android-native` on pull_request and push to main; android-build.yml keeps them only for workflow_dispatch (manual runs, where ci.yml does not trigger).",
-      "mutationParity": "Unchanged — same scripts, now executed once per commit.",
+      "whyKept": "gate:rc2-2-16-play-internal-beta (LOCALE_COURSE_GATE_REMOVED / GATE_INCOMPLETE) and other Android gates require android-build.yml to carry its own contract chain. Removing it needs those gates re-owned first (candidate for RC2.3.10). It runs in a parallel job, off the E2E critical path.",
       "legacyDuplicateExecutions": 26
     }
   ]
