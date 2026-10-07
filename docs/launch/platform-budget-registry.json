@@ -1,0 +1,184 @@
+{
+  "id": "longyu-platform-budget-registry",
+  "wave": "RC2.3.4A",
+  "generatedAt": "2026-10-07T02:18:30Z",
+  "policy": {
+    "FREE_TIER_FIRST": true,
+    "ALLOW_PAID_OVERAGE": false,
+    "JEV_RUNTIME_ENABLED": false,
+    "JEV_DEV_AUDIT_ENABLED": true,
+    "MARKETING_EMAIL_ENABLED": false,
+    "HIGH_VOLUME_REPLAY_ENABLED": false,
+    "source": "supabase/functions/_shared/budgetPolicy.ts (COST_POLICY_DEFAULTS); env can only switch optional spend off, never enable paid overage"
+  },
+  "thresholds": {
+    "warningThreshold": 0.7,
+    "criticalThreshold": 0.85,
+    "stopThreshold": 0.95,
+    "levels": ["GREEN", "WARN", "CRITICAL", "DEGRADE_NONESSENTIAL", "EXHAUSTED", "UNKNOWN"],
+    "neverDegrade": ["auth_login", "account_recovery_email", "payment_email", "security_email", "entitlement_truth", "progress_sync"],
+    "degradeFirst": ["marketing_email", "jev_learner_runtime", "jev_dev_audit", "session_replay", "performance_tracing", "noncritical_analytics", "background_enrichment"]
+  },
+  "notes": [
+    "Quotas change. Every limit below carries verifiedAt + source. Re-verify before relying on a number; code never hard-codes these values.",
+    "ACCOUNT = read through the connected integration in this session. PUBLIC_PRICING = provider pricing page as summarised by the cited sources (provider domains were not reachable from the audit container). UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION = could not be read from the account."
+  ],
+  "providers": [
+    {
+      "provider": "supabase",
+      "account": "org Noba (cwvlptpndrekubhhtoln)",
+      "plan": "free",
+      "planSource": "ACCOUNT: Supabase MCP get_organization → plan=free, tier=tier_free",
+      "verifiedAt": "2026-10-07T02:10:00Z",
+      "projects": [
+        { "name": "MandarimProject", "ref": "drjcfalvlbbeblmmyhwj", "role": "Longyu production", "status": "ACTIVE_HEALTHY" },
+        { "name": "atomurus", "ref": "ylofdottauzcqcifnnpm", "role": "other product — DO NOT pause/delete (owner rule)", "status": "ACTIVE_HEALTHY" },
+        { "name": "longyu-preview", "ref": "wpnmygzxqvmpdlcuwrjp", "role": "former cloud QA", "status": "INACTIVE" }
+      ],
+      "limits": {
+        "activeProjects": 2,
+        "databaseSizeBytes": 524288000,
+        "monthlyActiveUsers": 50000,
+        "egressBytes": 5368709120,
+        "cachedEgressBytes": 5368709120,
+        "fileStorageBytes": 1073741824,
+        "edgeFunctionInvocations": 500000,
+        "inactivityPauseDays": 7,
+        "backups": "none (no PITR on free)",
+        "source": "PUBLIC_PRICING via https://uibakery.io/blog/supabase-pricing, https://makerkit.dev/blog/saas/supabase-pricing (2026) — re-check https://supabase.com/pricing",
+        "verifiedAt": "2026-10-07T02:15:00Z"
+      },
+      "currentUsage": {
+        "activeProjects": 2,
+        "databaseSizeBytes": 20417683,
+        "authUsersTotal": 15,
+        "monthlyActiveUsers30d": 4,
+        "signups30d": 2,
+        "fileStorageBytes": 0,
+        "storageBuckets": 0,
+        "realtimePublishedTables": 0,
+        "cronJobs": 1,
+        "edgeFunctionsDeployed": 8,
+        "egressBytes": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+        "edgeFunctionInvocations": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+        "source": "ACCOUNT: execute_sql (pg_database_size, auth.users, storage.objects, cron.job, pg_publication_tables) + list_edge_functions",
+        "verifiedAt": "2026-10-07T02:10:00Z"
+      },
+      "levels": {
+        "activeProjects": "EXHAUSTED (2/2 — why longyu-preview cannot be restored for free)",
+        "databaseSize": "GREEN (≈3.9%)",
+        "monthlyActiveUsers": "GREEN (<0.1%)",
+        "fileStorage": "GREEN (0%)",
+        "egress": "UNKNOWN",
+        "edgeFunctionInvocations": "UNKNOWN"
+      }
+    },
+    {
+      "provider": "netlify",
+      "account": "team matheus-stangherlin2 (Personal, 1 member)",
+      "plan": "free (site plan nf_team_dev)",
+      "planSource": "ACCOUNT: Netlify MCP get-projects / get-team",
+      "verifiedAt": "2026-10-07T02:12:00Z",
+      "sites": [
+        { "name": "singular-meringue-7838cd", "role": "Longyu web (production context main)" },
+        { "name": "216y56y", "role": "atomurus.com — shares the same credit pool" },
+        { "name": "unrivaled-daffodil-6664a2", "role": "tefilot.app — shares the same credit pool" },
+        { "name": "shiny-flan-46d125", "role": "unknown / no current deploy" }
+      ],
+      "limits": {
+        "monthlyCredits": 300,
+        "hardCap": "sites pause when credits run out; no overage on free",
+        "creditCosts": { "productionDeploy": 15, "bandwidthPerGB": 20, "webRequestsPer10k": 2, "computePerGBHour": 10, "deployPreview": 0, "branchDeploy": 0, "failedDeploy": 0 },
+        "source": "PUBLIC_PRICING via https://netli.fyi/blog/netlify-free-plan-limits-2026, https://costbench.com/software/cloud-infrastructure/netlify/free-plan/ — re-check https://www.netlify.com/pricing",
+        "verifiedAt": "2026-10-07T02:15:00Z"
+      },
+      "currentUsage": {
+        "creditsUsedThisCycle": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+        "productionDeploysThisCycle": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+        "source": "Netlify MCP exposes no usage/credits endpoint — read Team → Usage in the dashboard"
+      },
+      "risk": "Three products share 300 credits. Before RC2.3.4A every merge to main was a production deploy (~20/month max). Now gated by netlify.toml `ignore` (scripts/netlify-ignore-build.mjs)."
+    },
+    {
+      "provider": "cloudflare",
+      "plan": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+      "verifiedAt": "2026-10-07T02:13:00Z",
+      "currentUsage": {
+        "workers": 0,
+        "r2": "NOT_ENABLED (API 10042: enable R2 in dashboard) — not enabled by this audit",
+        "turnstile": "in use (VITE_TURNSTILE_SITE_KEY set in netlify.toml; secret in Supabase Vault)",
+        "dns": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION (connector covers Workers/KV/R2/D1/Hyperdrive only)",
+        "source": "ACCOUNT: Cloudflare Developer Platform MCP workers_list, r2_buckets_list"
+      },
+      "limits": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+      "staticMediaToday": { "publicDirBytesApprox": "8.5 MB (audio 4.3 MB, logos/mascot ~4 MB)", "files": 676, "buildDistApprox": "17 MB", "source": "du -sh public dist on RC2.3.4A branch" }
+    },
+    {
+      "provider": "resend",
+      "plan": "free",
+      "verifiedAt": "2026-10-07T02:12:30Z",
+      "limits": {
+        "emailsPerDay": 100,
+        "emailsPerMonth": 3000,
+        "contacts": 1000,
+        "segments": 3,
+        "domains": 3,
+        "apiRateLimit": "10 requests / second",
+        "source": "ACCOUNT: Resend MCP get-usage"
+      },
+      "currentUsage": { "emailsToday": 0, "emailsThisMonth": 0, "contacts": 0, "segments": 1, "domains": 0, "source": "ACCOUNT: get-usage, list-domains" },
+      "integration": "NOT_INTEGRATED — no code calls api.resend.com; Supabase Auth has no custom SMTP configured in repo (configure-supabase-auth.yml only sets mailer_autoconfirm=false)",
+      "risk": "Auth confirmation/recovery mail currently relies on Supabase's built-in mailer, which is not meant for production volume. Needs a verified sending domain (0/3) before real launch."
+    },
+    {
+      "provider": "sentry",
+      "account": "org noba-2r (us.sentry.io)",
+      "plan": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+      "verifiedAt": "2026-10-07T02:13:00Z",
+      "currentUsage": { "projects": 0, "sdkInApp": false, "source": "ACCOUNT: Sentry MCP find_organizations/find_projects; package.json has no @sentry/* dependency" },
+      "limits": {
+        "developerPlanReference": { "errorsPerMonth": 5000, "spansPerMonth": "5M–10M (sources disagree)", "replaysPerMonth": 50, "users": 1 },
+        "source": "PUBLIC_PRICING via https://www.joinsecret.com/sentry/pricing, https://toolradar.com/tools/sentry/pricing — org quota itself not readable through the connector",
+        "verifiedAt": "2026-10-07T02:15:00Z"
+      },
+      "recommendedSampling": { "sampleRate": 1.0, "tracesSampleRate": 0.02, "replaysSessionSampleRate": 0.0, "replaysOnErrorSampleRate": 0.1, "note": "errors > traces > replays; only when a project + DSN exist" }
+    },
+    {
+      "provider": "stripe",
+      "account": "Noba (acct_1Kuk2ABtqIZtQQj8)",
+      "verifiedAt": "2026-10-07T02:13:30Z",
+      "modesVisible": { "test": true, "live": false },
+      "currentUsage": { "testProducts": 0, "testWebhookEndpoints": 0, "source": "ACCOUNT: Stripe MCP GetProducts, GetWebhookEndpoints (test mode)" },
+      "integration": "Edge functions create-checkout-session / create-billing-portal / stripe-webhook exist; the Stripe account behind their STRIPE_SECRET_KEY could not be verified from here (secrets are not readable). The connected account shows no products or webhooks in test mode.",
+      "fees": "PUBLIC_PRICING — per-transaction; no fixed monthly cost. Not quantified in this wave (RC2.3.11).",
+      "limits": "not quota-based"
+    },
+    {
+      "provider": "typesafe-jev",
+      "plan": "early access (waitlist since 2026-09-15)",
+      "verifiedAt": "2026-10-07T02:15:00Z",
+      "pricing": {
+        "inputUSDPerMillionTokens": 0.042,
+        "outputUSDPerMillionTokens": 0,
+        "source": "PUBLIC_PRICING via https://flaviocopes.com/jev-pricing/, https://www.layer3labs.io/guides/jev-pricing (Sept 2026)"
+      },
+      "limits": {
+        "requestsPerMinute": 1200,
+        "tokensPerSecond": 250000,
+        "freeAllowance": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION (no documented free tier)",
+        "source": "PUBLIC_PRICING via https://opentweet.io/jev/limits (Sept 2026)"
+      },
+      "currentUsage": {
+        "credits": "UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION",
+        "calls": "0 confirmed — typesafe.ai is blocked from the audit container; console.typesafe.ai is the source of truth",
+        "keyStorage": "Supabase Vault secret TYPESAFE_API_KEY (never in repo, never VITE_*)"
+      },
+      "usage": "DEV_AUDIT only (admin feedback triage). JEV_RUNTIME_ENABLED=false — not a learner runtime dependency at launch.",
+      "guardrails": ["3 s timeout", "circuit breaker 3 failures / 60 s", "input-hash dedupe within batch", "reuse of an identical message already triaged", "batch ≤ 25, concurrency 5", "kill switch JEV_DEV_AUDIT_ENABLED=false"]
+    }
+  ],
+  "betaProjection": {
+    "source": "docs/launch/rc2-3-4a-cloud-free-tier-audit.md §Projection (assumptions listed there)",
+    "cohorts": [100, 500, 1000, 5000, 10000]
+  }
+}
