@@ -19,6 +19,7 @@ import {
   checkIsBetaAdmin,
   fetchAdminFeedback,
   feedbackToCsv,
+  triagePendingFeedback,
   updateAdminFeedback,
   type BetaFeedbackRow,
 } from "../../services/feedbackService";
@@ -77,6 +78,7 @@ export function AdminFeedbackPage() {
   const [categoryFilter, setCategoryFilter] = useState<FeedbackCategoryId | "all">("all");
   const [lessonFilter, setLessonFilter] = useState("all");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [triaging, setTriaging] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -216,6 +218,22 @@ export function AdminFeedbackPage() {
     }
   }
 
+  async function runTriage() {
+    setTriaging(true);
+    setError(null);
+    try {
+      const result = await triagePendingFeedback();
+      if (result.failed > 0) {
+        setError(`Triagem: ${result.failed} falharam${result.firstError ? ` (${result.firstError})` : ""}.`);
+      }
+      await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha na triagem.");
+    } finally {
+      setTriaging(false);
+    }
+  }
+
   function exportCsv() {
     const csv = feedbackToCsv(filtered);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -249,6 +267,9 @@ export function AdminFeedbackPage() {
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => void reload()} disabled={loading}>
               Atualizar
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => void runTriage()} disabled={loading || triaging}>
+              {triaging ? "Triando…" : "Triar com IA"}
             </Button>
             <Button variant="soft" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
               Exportar CSV
@@ -371,6 +392,20 @@ export function AdminFeedbackPage() {
                       {row.exercise_kind}
                       {typeof row.exercise_index === "number" ? ` #${row.exercise_index + 1}` : ""}
                     </Pill>
+                  )}
+                  {row.ai_triaged_at && (
+                    <>
+                      {row.ai_kind && <Pill tone="muted">IA: {row.ai_kind}</Pill>}
+                      {row.ai_area && <Pill tone="muted">{row.ai_area}</Pill>}
+                      {typeof row.ai_severity === "number" && (
+                        <Pill tone={row.ai_severity >= 2 ? "warning" : "muted"}>
+                          gravidade {row.ai_severity.toFixed(1)}/3
+                        </Pill>
+                      )}
+                      {typeof row.ai_needs_human === "number" && row.ai_needs_human >= 0.5 && (
+                        <Pill tone="accent">responder ({Math.round(row.ai_needs_human * 100)}%)</Pill>
+                      )}
+                    </>
                   )}
                 </div>
                 <p className="mt-3 whitespace-pre-wrap text-sm text-ink">{row.message}</p>

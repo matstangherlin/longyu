@@ -2358,6 +2358,7 @@ export function LessonPlayer() {
           steps: planned as LessonStep[],
           taughtConceptIds: loadTaughtConcepts(),
           completedLessons: useStore.getState().completedLessons,
+          learnedCharIds: useStore.getState().learnedChars,
           pilotOnly: true,
         });
         planned = v6.steps;
@@ -3738,7 +3739,8 @@ export function LessonPlayer() {
       });
     }
     playSoundFx("phaseExit", soundEffects);
-    navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
+    // Saída antes da vitória: volta à origem, mas sem carimbar a aula como feita.
+    navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture", { completed: finished }));
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
@@ -5076,6 +5078,7 @@ export function LessonPlayer() {
           data-lesson-task-body
           data-current-step-kind={step.kind}
           data-current-step-index={idx}
+          data-pedagogy-role={step.pedagogyRole}
           data-guidance-level={guidance}
           data-guided-phase={guidedPhaseForStep(step.kind, idx)}
           onPointerDownCapture={() => {
@@ -5094,6 +5097,7 @@ export function LessonPlayer() {
         data-lesson-task-body
         data-current-step-kind={step.kind}
         data-current-step-index={idx}
+        data-pedagogy-role={step.pedagogyRole}
         data-guidance-level={guidance}
         data-guided-phase={guidedPhaseForStep(step.kind, idx)}
         onPointerDownCapture={() => {

@@ -88,6 +88,36 @@ jobs:
             reports/lesson-novelty-report.md
           if-no-files-found: error
 
+  # RC2.3.4A — the RC2.3.0–RC2.3.3 wave gates existed but no workflow ran them.
+  # Parallel job so the main quality gate keeps its duration.
+  rc2-3-stack-gates:
+    name: RC2.3 stack gates (pedagogy V6 · visual · everyday · culture deep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: RC2.3.0 Pedagogy V6
+        run: npm run gate:rc2-3-0-pedagogy-v6
+
+      - name: RC2.3.1 Visual First
+        run: npm run gate:rc2-3-1-visual-first
+
+      - name: RC2.3.2 Human Everyday
+        run: npm run gate:rc2-3-2-human-everyday
+
+      - name: RC2.3.3 Culture Deep
+        run: npm run gate:rc2-3-3-culture-deep
+
   e2e:
     name: Testes E2E (Playwright)
     runs-on: ubuntu-latest

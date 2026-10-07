@@ -10,6 +10,13 @@ import { getFormEvidence, writingStateLabelPt } from "../../../lib/hanziWriting/
 import { interleavedBoosterQueue } from "../../../lib/hanziWriting/booster";
 import type { HanziLearningStage } from "../../../lib/hanziWriting/stages";
 import { HanziWritingExercise } from "./HanziWritingExercise";
+import { useStore } from "../../../lib/store";
+import { loadTaughtConcepts } from "../../../lib/pedagogyV6/discovery";
+import {
+  eligibilityAllowsStage,
+  hanziWritingEligibility,
+  type HanziWritingEligibility,
+} from "../../../lib/hanziWriting/curriculumLeak";
 import type { MemoryWritePrompt } from "../../../lib/hanziWriting/types";
 
 type LabMode = "trace" | "memory" | "missing";
@@ -22,7 +29,24 @@ export function HanziWritingLab({
   onClose?: () => void;
 }) {
   const verified = listVerifiedHandwritingCharacters();
-  const [hanzi, setHanzi] = useState(initialChar && verified.includes(initialChar) ? initialChar : verified[0] ?? "木");
+  const completedLessons = useStore((s) => s.completedLessons);
+  const learnedCharIds = useStore((s) => s.learnedChars);
+  // RC2.3.4A — referência verificada não é permissão: o aluno precisa ter aprendido.
+  const eligibilityByHanzi = useMemo(() => {
+    const knowledge = { taught: loadTaughtConcepts(), completedLessons, learnedCharIds };
+    return new Map<string, HanziWritingEligibility>(
+      verified.map((h) => {
+        const c = CHARACTERS.find((x) => x.hanzi === h);
+        return [h, hanziWritingEligibility({ charId: c?.id ?? h, character: h, knowledge })];
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- verified é estático
+  }, [completedLessons, learnedCharIds]);
+  const canTrace = (h: string) => eligibilityAllowsStage(eligibilityByHanzi.get(h) ?? "NOT_INTRODUCED", "TRACE");
+  const firstOpen = verified.find(canTrace);
+  const [hanzi, setHanzi] = useState(
+    initialChar && verified.includes(initialChar) && canTrace(initialChar) ? initialChar : firstOpen ?? verified[0] ?? "木"
+  );
   const [mode, setMode] = useState<LabMode>("trace");
   const char = CHARACTERS.find((c) => c.hanzi === hanzi);
   const evidence = getFormEvidence(char?.id ?? hanzi, hanzi);
@@ -30,6 +54,8 @@ export function HanziWritingLab({
 
   const stage: HanziLearningStage =
     mode === "memory" ? "MEMORY_WRITE" : mode === "missing" ? "COMPLETE" : "TRACE";
+  const eligibility = eligibilityByHanzi.get(hanzi) ?? "NOT_INTRODUCED";
+  const stageOpen = eligibilityAllowsStage(eligibility, stage);
 
   const prompt: MemoryWritePrompt | undefined =
     mode === "memory"
@@ -62,15 +88,18 @@ export function HanziWritingLab({
         {verified.map((h) => {
           const c = CHARACTERS.find((x) => x.hanzi === h);
           const st = getFormEvidence(c?.id ?? h, h).writingState;
+          const open = canTrace(h);
           return (
             <button
               key={h}
               type="button"
+              disabled={!open}
+              data-eligibility={eligibilityByHanzi.get(h)}
               onClick={() => setHanzi(h)}
-              className={`hanzi min-h-12 min-w-12 rounded-xl border px-3 text-2xl ${
+              className={`hanzi min-h-12 min-w-12 rounded-xl border px-3 text-2xl disabled:opacity-40 ${
                 h === hanzi ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface"
               }`}
-              aria-label={`${h} · ${writingStateLabelPt(st)}`}
+              aria-label={open ? `${h} · ${writingStateLabelPt(st)}` : `${h} · ainda não aprendido na Jornada`}
             >
               {h}
             </button>
@@ -103,6 +132,13 @@ export function HanziWritingLab({
         ))}
       </div>
 
+      {!stageOpen ? (
+        <p className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-ink-soft" data-testid="hanzi-writing-locked">
+          {eligibility === "NOT_INTRODUCED"
+            ? "Aprenda este hànzì na Jornada antes de escrevê-lo."
+            : "Trace este hànzì corretamente antes de escrever de memória."}
+        </p>
+      ) : (
       <HanziWritingExercise
         key={`${hanzi}-${mode}`}
         character={hanzi}
@@ -115,6 +151,7 @@ export function HanziWritingLab({
         missingStrokeIndex={mode === "missing" ? Math.max(0, (char ? 1 : 1)) : undefined}
         evaluative={mode === "memory"}
       />
+      )}
 
       {boosters.length > 0 && (
         <section className="rounded-xl bg-surface-2 px-3 py-2 text-xs text-ink-soft">

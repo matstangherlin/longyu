@@ -2823,6 +2823,8 @@ export const ptBR = {
     missionReady: "Missão pronta para resgatar",
     pearls: "Pérolas",
     noCharges: "Sem cargas de treino extra agora.",
+    writingLockedTrace: "Traçar abre para os hànzì que você já aprendeu na Jornada. Faça a lição “Montando primeiros hànzì” primeiro.",
+    writingLockedMemory: "Escrever de memória abre depois que você traçar um hànzì aprendido corretamente.",
   },
   guidedTry: {
     exit: "Sair do teste",

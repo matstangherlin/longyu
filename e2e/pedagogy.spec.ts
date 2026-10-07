@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
+  advancePastDiscoverySteps,
   advancePastGuideDialogue,
   clickStable,
   dismissBlockingOverlays,
@@ -27,7 +28,10 @@ test.describe("lição", () => {
     await page.goto("/licao/p1-o-que-e-mandarim/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    // A introdução autorada abre o plano; o exercício com 你好 vem em seguida.
+    // RC2.3.0 — conta nova: a Descoberta (cartão de ensino de 你好 + escuta)
+    // abre a sessão; depois dela, a introdução autorada abre o plano e o
+    // exercício com 你好 vem em seguida.
+    expect(await advancePastDiscoverySteps(page)).toBeGreaterThan(0);
     await expect(page.getByRole("heading", { name: /Uma língua falada|A língua padrão|Língua, não alfabeto/i })).toBeVisible({
       timeout: 20_000,
     });
@@ -63,6 +67,8 @@ test.describe("lição", () => {
     await page.goto("/licao/p1-o-que-e-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // RC2.3.0 — a Descoberta de 你/好 vem antes da introdução conceitual.
+    await advancePastDiscoverySteps(page);
     await expect(page.getByText(/Sistema de escrita|O que é Hànzì|caracteres do chinês escrito/i).first()).toBeVisible({
       timeout: 20_000,
     });
@@ -91,6 +97,8 @@ test.describe("lição", () => {
     await page.goto("/licao/p1-primeiros-hanzi/player");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    // RC2.3.0 — a Descoberta de 你/好 vem antes; nada é cobrado nela.
+    await advancePastDiscoverySteps(page);
     // A lição abre com orientação explícita antes de cobrar a montagem de 木.
     await expect(page.getByRole("heading", { name: /Peças visuais, não desenhos aleatórios|Monte peça por peça/ })).toBeVisible({
       timeout: 20_000,

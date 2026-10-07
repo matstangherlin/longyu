@@ -73,8 +73,12 @@ function nextWritingMode(
     return null;
   }
   if (pass >= 4) {
-    if (canGradeMemoryWrite(character)) {
+    // RC2.3.4A — memory only after a recorded correct trace; otherwise trace again.
+    if (canGradeMemoryWrite(character) && ev.tracingCorrect >= 1) {
       return { stage: "MEMORY_WRITE", mode: "memory_write", guide: 0 };
+    }
+    if (canOfferTrace(character)) {
+      return { stage: "TRACE", mode: "trace", guide: 1 };
     }
   }
   return null;
@@ -90,6 +94,7 @@ export function applyHanziProgressiveWritingToPlan(input: {
   steps: LessonStep[];
   taught?: TaughtConceptMap;
   completedLessons?: readonly string[];
+  learnedCharIds?: readonly string[];
 }): HanziWritingPlanResult {
   let writingInjected = 0;
   let blockedByLeak = 0;
@@ -127,10 +132,11 @@ export function applyHanziProgressiveWritingToPlan(input: {
       stage: plan.stage,
       taught: input.taught,
       completedLessons: input.completedLessons,
+      learnedCharIds: input.learnedCharIds,
     });
 
     if (!gate.ok) {
-      if (gate.code === "HANDWRITING_CURRICULUM_LEAK") blockedByLeak += 1;
+      if (gate.code === "HANDWRITING_CURRICULUM_LEAK" || gate.code === "HANDWRITING_PROGRESSION_REQUIRED") blockedByLeak += 1;
       else blockedByData += 1;
       out.push({
         ...step,

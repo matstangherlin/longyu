@@ -9,6 +9,8 @@ export const BUILDER_GEOMETRY_NOT_GRADING_SOURCE = "BUILDER_GEOMETRY_NOT_GRADING
 export const STROKE_ORDER_DATA_MISSING = "STROKE_ORDER_DATA_MISSING" as const;
 export const HANDWRITING_CURRICULUM_LEAK = "HANDWRITING_CURRICULUM_LEAK" as const;
 export const HANDWRITING_DATA_REQUIRED = "HANDWRITING_DATA_REQUIRED" as const;
+/** RC2.3.4A — taught + verified, but memory/production before recorded progression. */
+export const HANDWRITING_PROGRESSION_REQUIRED = "HANDWRITING_PROGRESSION_REQUIRED" as const;
 
 /** Explicit separation: builder SVG paths are didactic approximations only. */
 export const GEOMETRY_SOURCE = {
@@ -25,6 +27,7 @@ export const HANZI_WRITING_GATE_CODES = [
   STROKE_ORDER_DATA_MISSING,
   HANDWRITING_CURRICULUM_LEAK,
   HANDWRITING_DATA_REQUIRED,
+  HANDWRITING_PROGRESSION_REQUIRED,
 ] as const;
 
 export type HanziWritingGateCode = (typeof HANZI_WRITING_GATE_CODES)[number];

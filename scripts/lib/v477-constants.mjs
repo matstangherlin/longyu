@@ -153,6 +153,12 @@ export const V477_LOCAL_ONLY_CLASS = {
     purpose: "beta_feedback / beta_admins / submit RPCs exist on production.",
     objects: ["beta_feedback", "submit_beta_feedback"],
   },
+  "20261007120000_jev_feedback_triage.sql": {
+    class: "RENAMED_EQUIVALENT",
+    purpose:
+      "Applied out of band to MandarimProject on 2026-10-07 as remote 20261007013220 jev_feedback_triage (additive: Vault RPC + nullable beta_feedback ai_* columns + partial index). The read-only remote snapshot predates it, so it still reads as LOCAL_ONLY here.",
+    objects: ["_edge_get_typesafe_api_key", "beta_feedback.ai_triaged_at"],
+  },
   "019_turnstile_vault_secret.sql": {
     class: "RENAMED_EQUIVALENT",
     purpose: "Same RPC as hosted turnstile_secret_vault_rpc.",

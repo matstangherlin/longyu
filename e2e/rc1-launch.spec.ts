@@ -1,4 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import * as curriculumFreezeModule from "../src/lib/curriculumFreeze";
 import {
   CURRICULUM_FREEZE,
   RC1_EXPECTED_LESSON_COUNT,
@@ -17,9 +21,39 @@ import {
 const crashTitle = /Algo saiu do prumo|Something went off track|Unexpected Application Error/i;
 
 test.describe("RC1 launch surfaces", () => {
-  test("freeze contract still matches the shipped Journey", () => {
+  test("freeze contract still matches the shipped Journey", async () => {
     expect(CURRICULUM_FREEZE).toBe("RC2_CONTENT_FREEZE");
-    expect(RC_BASE_FINGERPRINT).toBe("e566a250c5a6");
+    // RC2.3.4A — o fingerprint só avança por registros tipados
+    // (EXPECTED_FINGERPRINT_ADVANCE) em curriculumFreeze.ts. Mesma fonte de
+    // verdade de validate:release-candidate: âncora certificada → cadeia
+    // linear → fingerprint vivo da Jornada, que tem de ser o declarado.
+    const root = process.cwd();
+    const chainLib = (await import(pathToFileURL(path.join(root, "scripts/lib/fingerprint-chain.mjs")).href)) as {
+      RC_FINGERPRINT_ANCHOR: string;
+      fingerprintRecords: (module: unknown) => unknown[];
+      verifyFingerprintChain: (input: {
+        anchor: string;
+        declared: string;
+        live: string;
+        records: unknown[];
+        knownScripts: Set<string>;
+      }) => { errors: string[]; path: string[] };
+    };
+    const reportMeta = (await import(pathToFileURL(path.join(root, "scripts/lib/report-meta.mjs")).href)) as {
+      journeyFingerprint: (rootDir: string) => string;
+    };
+    const live = reportMeta.journeyFingerprint(root);
+    const chain = chainLib.verifyFingerprintChain({
+      anchor: chainLib.RC_FINGERPRINT_ANCHOR,
+      declared: RC_BASE_FINGERPRINT,
+      live,
+      records: chainLib.fingerprintRecords(curriculumFreezeModule),
+      knownScripts: new Set(Object.keys(JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")).scripts ?? {})),
+    });
+    expect(chain.errors).toEqual([]);
+    expect(chain.path[0]).toBe(chainLib.RC_FINGERPRINT_ANCHOR);
+    expect(RC_BASE_FINGERPRINT).toBe(chain.path[chain.path.length - 1]);
+    expect(RC_BASE_FINGERPRINT).toBe(live);
     expect(ALL_LESSONS).toHaveLength(RC1_EXPECTED_LESSON_COUNT);
     expect(
       ALL_LESSONS.filter((lesson) => !lesson.isReview && !lesson.reviewMasteryMode)
