@@ -110,7 +110,24 @@ test.describe("RC2.2.20 · /qa/device", () => {
 test.describe("RC2.2.20 · Pronunciation Core BR", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("contraste b × p: ver → ouvir → comparar → identificar → produzir (opcional)", async ({ page }) => {
+  // RC2.3.5 — o fluxo completo usa g × k (个gè / 客kè, os dois com voz canônica).
+  // b × p ainda não tem asset canônico para 趴: o drill fica em "ver" em vez de
+  // tocar um lado mudo e cobrar identificação no chute.
+  test("contraste sem voz canônica completa (b × p) não cobra identificação", async ({ page }) => {
+    await seed(page, { completedLessons: THROUGH_L2 });
+    await open(page, "/pinyin");
+    await page.getByRole("button", { name: "Iniciais", exact: true }).first().click();
+    const section = page.getByTestId("pronunciation-core-br");
+    await section.scrollIntoViewIfNeeded();
+    await section.locator('[data-contrast-open="b-p"]').click();
+    const drill = page.getByTestId("contrast-drill");
+    await expect(drill).toHaveAttribute("data-audio-ready", "false");
+    await expect(page.getByTestId("contrast-audio-pending")).toBeVisible();
+    await expect(drill.locator("[data-contrast-option]")).toHaveCount(0);
+    await expect(page.getByTestId("contrast-play")).toHaveCount(0);
+  });
+
+  test("contraste g × k: ver → ouvir → comparar → identificar → produzir (opcional)", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2 });
     await open(page, "/pinyin");
     // No celular a seção vive na aba "Iniciais" (junto com "Como a boca faz").
@@ -118,8 +135,9 @@ test.describe("RC2.2.20 · Pronunciation Core BR", () => {
     const section = page.getByTestId("pronunciation-core-br");
     await section.scrollIntoViewIfNeeded();
     await expect(section.locator("[data-contrast-open]")).toHaveCount(11);
-    await section.locator('[data-contrast-open="b-p"]').click();
+    await section.locator('[data-contrast-open="g-k"]').click();
     const drill = page.getByTestId("contrast-drill");
+    await expect(drill).toHaveAttribute("data-audio-ready", "true");
     await expect(drill).toHaveAttribute("data-stage", "see");
     await expect(page.getByTestId("contrast-note")).toContainText("sem sopro");
     // Não há opção de resposta antes de ouvir: começa por ver.

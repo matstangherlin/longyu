@@ -149,7 +149,7 @@ export async function validateSpeechExperience(s) {
   if (!/sameCanonicalVoiceRequired/.test(s.src.contrast)) {
     fail("CONTRAST_SAME_VOICE", FILES.contrast, "contrast pairs require same canonical voice");
   }
-  if (!/contrast:xi-shi:v1/.test(s.src.contrast) || !/contrast:ma-tones/.test(s.src.contrast)) {
+  if (!/contrast:xi-shi:v2/.test(s.src.contrast) || !/contrast:ma-tones/.test(s.src.contrast)) {
     fail("CONTRAST_SEED", FILES.contrast, "xī/shí and mā tones seed pairs");
   }
   if (!/PedagogicalInlineTip/.test(s.src.selfCompare)) {
