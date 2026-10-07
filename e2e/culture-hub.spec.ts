@@ -244,7 +244,13 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
     await expect(page.locator("[data-lesson-player-frame]")).toBeVisible();
     await advanceUntilVisible(page, page.getByTestId("culture-bridge"), 8);
     await expect(page.getByTestId("culture-bridge")).toHaveCount(0);
+  });
 
+  // RC2.2.18 gates the Hub on reaching the 你好 culture node (after l2). The
+  // learner above is still mid-l2 (RC2.3.0 Discovery made l2 longer than the
+  // 8-step walk), so the Hub half needs the honest precondition of its own.
+  test("Hub still marks Journey-practiced concepts once the Journey reached it", async ({ page }) => {
+    await seedMissionsSession(page, { completedLessons: CULTURE_DISCOVERED_LESSONS });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
