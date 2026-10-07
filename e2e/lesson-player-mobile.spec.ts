@@ -132,20 +132,23 @@ for (const viewport of MOBILE_VIEWPORTS) {
       const distractor = page.getByRole("button", {
         name: /Opção \d+: (ensinar só hànzì|ensinar só pinyin|só um alfabeto|só um conjunto de desenhos|a tradução|um alfabeto|um desenho|uma tradução|Obrigado|Até logo|De nada|谢谢|再见)/,
       });
-      if (await distractor.first().isVisible().catch(() => false)) {
-        await distractor.first().click();
-      } else {
-        const count = await page.locator("[data-option-index]").count();
-        await page.locator("[data-option-index]").nth(count > 1 ? count - 1 : 0).click();
-      }
-      await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+      // Option order is shuffled: a known distractor first, positional pick only as fallback.
+      const pickWrong = async (fallbackIndex: (count: number) => number) => {
+        if (await distractor.first().isVisible().catch(() => false)) {
+          await distractor.first().click();
+        } else {
+          const count = await page.locator("[data-option-index]").count();
+          await page.locator("[data-option-index]").nth(fallbackIndex(count)).click();
+        }
+        await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+      };
+      await pickWrong((count) => (count > 1 ? count - 1 : 0));
       // If that was somehow correct, try another option via fresh open.
       const wrongDialog = page.getByRole("dialog", { name: /Quer tentar de novo|Quase/i });
-      if (!(await wrongDialog.isVisible().catch(() => false))) {
+      const sawWrong = await wrongDialog.waitFor({ state: "visible", timeout: 3_000 }).then(() => true, () => false);
+      if (!sawWrong) {
         await openListenSelectStep(page);
-        const count = await page.locator("[data-option-index]").count();
-        await page.locator("[data-option-index]").nth(count > 1 ? 1 : 0).click();
-        await clickFirstVisible(page, [/^Verificar$/, /^Confirmar$/, /^Conferir$/]);
+        await pickWrong((count) => (count > 1 ? 1 : 0));
       }
       await assertModalActionAccessible(page);
       await assertPageScrollLocked(page);
