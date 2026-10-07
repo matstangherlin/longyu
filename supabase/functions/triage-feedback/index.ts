@@ -2,7 +2,7 @@
 // precisa de resposta humana. Só admin beta (is_beta_admin) pode disparar.
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { askJev, resolveTypesafeApiKey, type JevQuestion } from "../_shared/jev.ts";
+import { askJev, jevAllowed, jevInputHash, resolveTypesafeApiKey, type JevQuestion, type JevResponse } from "../_shared/jev.ts";
 import { logOpsEdge } from "../_shared/opsCorrelation.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
@@ -128,6 +128,11 @@ serve(async (req) => {
     return json(req, { ok: false, error: "Acesso negado." }, 403);
   }
 
+  // RC2.3.4A — internal semantic audit only; kill switch JEV_DEV_AUDIT_ENABLED=false.
+  if (!jevAllowed("DEV_AUDIT")) {
+    return json(req, { ok: false, error: "Triagem por IA desligada pela política de custo." }, 503);
+  }
+
   const admin = createClient(supabaseUrl, serviceRole, { auth: { persistSession: false } });
   const apiKey = await resolveTypesafeApiKey(admin);
   if (!apiKey) {
@@ -147,13 +152,46 @@ serve(async (req) => {
 
   const pending = (rows ?? []) as FeedbackRow[];
   let triaged = 0;
+  let reused = 0;
   const failures: string[] = [];
+  // No duplicate evaluation: identical input in this batch shares one call,
+  // and an identical message already triaged earlier is copied, not re-sent.
+  const inFlight = new Map<string, Promise<JevResponse>>();
+  const evaluate = (state: string) => {
+    const key = jevInputHash(state, QUESTIONS);
+    let call = inFlight.get(key);
+    if (call) reused += 1;
+    else {
+      call = askJev(apiKey, state, QUESTIONS, "DEV_AUDIT");
+      inFlight.set(key, call);
+    }
+    return call;
+  };
 
   for (let i = 0; i < pending.length; i += CONCURRENCY) {
     await Promise.all(
       pending.slice(i, i + CONCURRENCY).map(async (row) => {
         try {
-          const result = await askJev(apiKey, feedbackState(row), QUESTIONS);
+          const { data: prior } = await admin
+            .from("beta_feedback")
+            .select("ai_kind, ai_area, ai_severity, ai_needs_human, ai_confidence, ai_model")
+            .eq("message", row.message)
+            .eq("category", row.category)
+            .eq("route", row.route)
+            .not("ai_triaged_at", "is", null)
+            .limit(1)
+            .maybeSingle();
+          if (prior) {
+            const { error } = await admin
+              .from("beta_feedback")
+              .update({ ...prior, ai_triaged_at: new Date().toISOString() })
+              .eq("id", row.id);
+            if (error) throw new Error(error.message);
+            reused += 1;
+            triaged += 1;
+            return;
+          }
+          const result = await evaluate(feedbackState(row));
           const kind = result.answers.kind;
           const area = result.answers.area;
           const severity = result.answers.severity;
@@ -190,6 +228,7 @@ serve(async (req) => {
     ok: failures.length === 0,
     pending: pending.length,
     triaged,
+    reused,
     failed: failures.length,
     firstError: failures[0] ?? null,
   });

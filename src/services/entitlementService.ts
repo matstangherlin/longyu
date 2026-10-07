@@ -88,6 +88,8 @@ export async function fetchServerSubscription(): Promise<ServerSubscriptionSnaps
 
 export interface ServerEntitlementRpcResult {
   isPro: boolean | null;
+  /** RC2.3.4A — the RPC did not answer (outage), as opposed to answering "free". */
+  transportFailed?: boolean;
   pearlProExpiresAt: number | null;
   source?: string;
   entitlement: ServerEntitlement;
@@ -107,7 +109,9 @@ async function fetchServerEntitlementRpc(): Promise<ServerEntitlementRpcResult> 
   const client = getSupabaseClient();
   if (!client) return { isPro: null, pearlProExpiresAt: null, entitlement: { ...EMPTY_SERVER_ENTITLEMENT } };
   const { data, error } = await client.rpc("get_server_entitlement");
-  if (error) return { isPro: null, pearlProExpiresAt: null, entitlement: { ...EMPTY_SERVER_ENTITLEMENT } };
+  if (error) {
+    return { isPro: null, transportFailed: true, pearlProExpiresAt: null, entitlement: { ...EMPTY_SERVER_ENTITLEMENT } };
+  }
   if (data && typeof data === "object") {
     const row = data as {
       is_pro?: boolean;
@@ -155,6 +159,10 @@ export async function fetchServerEntitlement(): Promise<ServerEntitlement> {
   if (rpc.isPro !== null) return publish(rpc.entitlement);
 
   const snapshot = await fetchServerSubscription();
+  // RC2.3.4A — provider outage ≠ downgrade: if the server did not answer at
+  // all, keep the entitlement this session already received from it.
+  const previous = useEntitlementStatus.getState().detail;
+  if (rpc.transportFailed && snapshot === null && previous) return previous;
   if (subscriptionGrantsPro(snapshot)) {
     return publish({
       tier: "pro",
