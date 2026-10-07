@@ -7,6 +7,8 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 import { flushSocialEventQueue } from "./socialActivityQueue";
 import { syncSocialProfileFromStore } from "./socialService";
 import { useStore } from "../lib/store";
+import { claimAnonymousEvidence } from "../lib/auth/evidenceClaim";
+import { claimId, classifyClaim, CLAIM_LEDGER_KEY, emptyLedger, recordClaim, type ClaimInput, type ClaimLedger } from "../lib/auth/progressClaim";
 import {
   buildLocalEconomyMigrationPayload,
   fetchServerEconomy,
@@ -177,7 +179,66 @@ export async function restoreCloudSessionIfPresent(): Promise<{ ok: boolean; mes
   return syncAuthSessionProgress();
 }
 
-export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message: string }> {
+// ─────────────────────────────────────────────────────────────────────────
+// RC2.3.8 — progress claim (idempotent; never loses, never sums wallets)
+// ─────────────────────────────────────────────────────────────────────────
+
+export const PARKED_LOCAL_PROGRESS_KEY = "longyu:parked-local-progress:v1";
+
+function readLedger(): ClaimLedger {
+  try {
+    return { ...emptyLedger(), ...(JSON.parse(localStorage.getItem(CLAIM_LEDGER_KEY) ?? "{}") as Partial<ClaimLedger>) };
+  } catch {
+    return emptyLedger();
+  }
+}
+
+function writeLedger(ledger: ClaimLedger): void {
+  try {
+    localStorage.setItem(CLAIM_LEDGER_KEY, JSON.stringify(ledger));
+  } catch {
+    /* quota */
+  }
+}
+
+function progressFingerprint(source: Parameters<typeof getProgressScore>[0]): string {
+  const p = source && "snapshot" in (source as object) ? (source as { snapshot: { progress: ProgressSnapshotBody["progress"] } }).snapshot.progress : (source as ProgressSnapshotBody["progress"] | null);
+  if (!p) return "empty";
+  return [[...(p.completedLessons ?? [])].sort().join(","), p.xpTotal ?? 0, Object.keys(p.srs ?? {}).length, p.streak ?? 0].join("|");
+}
+
+/** Inspect the claim case for the signed-in user BEFORE syncing (for the "Salvar na conta?" step). */
+export async function inspectProgressClaim(): Promise<{ ok: boolean; input?: ClaimInput; case?: ReturnType<typeof classifyClaim>; id?: string }> {
+  const client = getSupabaseClient();
+  if (!client || !isSupabaseBackendEnabled()) return { ok: false };
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  if (!user?.id) return { ok: false };
+  const local = activeLearningRepository().exportSnapshot();
+  const remote = await withTimeout(activeLearningRepository().fetchSnapshot());
+  if (!remote.ok) return { ok: false };
+  const input: ClaimInput = {
+    localMeaningful: isMeaningfulProgress(local),
+    remoteMeaningful: isMeaningfulProgress(remote.snapshot),
+    localFingerprint: progressFingerprint(local),
+    remoteFingerprint: progressFingerprint(remote.snapshot ?? null),
+    localScore: getProgressScore(local),
+    remoteScore: getProgressScore(remote.snapshot),
+  };
+  const id = claimId(useStore.getState().currentAccountId, user.id, input.localFingerprint);
+  return { ok: true, input, case: classifyClaim(input), id };
+}
+
+/** After a successful claim: anonymous evidence moves into the account, once. */
+function completeClaim(userId: string, id: string | null): void {
+  claimAnonymousEvidence(`cloud:${userId}`);
+  if (!id) return;
+  const { ledger, changed } = recordClaim(readLedger(), id, "claimed");
+  if (changed) writeLedger(ledger);
+}
+
+export async function syncAuthSessionProgress(options: { keepLocalParked?: boolean; claimId?: string } = {}): Promise<{ ok: boolean; message: string }> {
   if (isQaTestStateActive()) {
     return { ok: false, message: "QA test state: sync desligado." };
   }
@@ -205,6 +266,28 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
     if (!remote.ok) {
       markCloudSync("error", "Erro ao sincronizar — seu progresso local está seguro.");
       return remote;
+    }
+
+    // RC2.3.8 — "Agora não": the device progress is parked (never deleted) and the cloud is restored.
+    if (options.keepLocalParked && remote.snapshot && isMeaningfulProgress(remote.snapshot)) {
+      try {
+        localStorage.setItem(PARKED_LOCAL_PROGRESS_KEY, JSON.stringify({ at: Date.now(), claimId: options.claimId ?? null, snapshot: exported }));
+      } catch {
+        /* quota: keep the user cache path below as the fallback copy */
+      }
+      if (options.claimId) {
+        const { ledger, changed } = recordClaim(readLedger(), options.claimId, "parked");
+        if (changed) writeLedger(ledger);
+      }
+      store.activateCloudAccount(
+        { userId: user.id, email: user.email, name: remote.snapshot.snapshot.account.name ?? store.accounts[store.currentAccountId]?.name ?? "Aluno Longyu" },
+        remote.snapshot.snapshot.progress
+      );
+      markCloudSync("synced", "Progresso sincronizado.");
+      persistNamespacedCache(user.id);
+      await migrateEconomyAfterCloudLogin(user.id);
+      await refreshServerEntitlementAfterLogin();
+      return { ok: true, message: "Progresso da conta restaurado; o deste aparelho ficou guardado." };
     }
 
     const localProgress = localSnapshot.snapshot.progress;
@@ -241,6 +324,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
         push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
       );
       if (push.ok) {
+        completeClaim(user.id, options.claimId ?? null);
         persistNamespacedCache(user.id);
         await migrateEconomyAfterCloudLogin(user.id);
         await refreshServerEntitlementAfterLogin();
@@ -261,6 +345,7 @@ export async function syncAuthSessionProgress(): Promise<{ ok: boolean; message:
         push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
       );
       if (push.ok) {
+        completeClaim(user.id, options.claimId ?? null);
         persistNamespacedCache(user.id);
         await migrateEconomyAfterCloudLogin(user.id);
         await refreshServerEntitlementAfterLogin();
