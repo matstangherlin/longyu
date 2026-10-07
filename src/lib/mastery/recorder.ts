@@ -7,9 +7,22 @@
  */
 import { appendEvidence, loadRecord, saveRecord, type LearnerEvidenceRecord, type LearningEvidence } from "./evidence";
 import { legacyPriorToEvidence, type LegacyItemPrior } from "./adapters";
+import { onStorageNamespaceChange, readScoped, writeScoped } from "../accountStorage";
 
 let memo: LearnerEvidenceRecord | null = null;
 const listeners = new Set<() => void>();
+
+// RC2.3.8 — switching account switches the evidence namespace: drop the in-memory copy.
+onStorageNamespaceChange(() => {
+  memo = null;
+  for (const fn of listeners) {
+    try {
+      fn();
+    } catch {
+      /* ignore */
+    }
+  }
+});
 
 export function currentRecord(): LearnerEvidenceRecord {
   memo ??= loadRecord();
@@ -52,9 +65,9 @@ const LEGACY_FLAG = "longyu:learner-evidence-legacy-v1";
  */
 export function seedLegacyBaselineOnce(items: readonly LegacyItemPrior[]): number {
   try {
-    if (typeof localStorage === "undefined" || localStorage.getItem(LEGACY_FLAG)) return 0;
+    if (typeof localStorage === "undefined" || readScoped(LEGACY_FLAG)) return 0;
     const added = recordLearningEvidence(legacyPriorToEvidence(items));
-    localStorage.setItem(LEGACY_FLAG, String(Date.now()));
+    writeScoped(LEGACY_FLAG, String(Date.now()));
     return added;
   } catch {
     return 0;
@@ -72,7 +85,7 @@ const CELEBRATED_KEY = "longyu:mastery-celebrated-v1";
 export function celebratedPromotions(): Set<string> {
   try {
     if (typeof localStorage === "undefined") return new Set();
-    return new Set(JSON.parse(localStorage.getItem(CELEBRATED_KEY) ?? "[]") as string[]);
+    return new Set(JSON.parse(readScoped(CELEBRATED_KEY) ?? "[]") as string[]);
   } catch {
     return new Set();
   }
@@ -82,7 +95,7 @@ export function markPromotionsCelebrated(keys: readonly string[]): void {
   if (!keys.length) return;
   try {
     const all = [...celebratedPromotions(), ...keys].slice(-500);
-    localStorage.setItem(CELEBRATED_KEY, JSON.stringify(all));
+    writeScoped(CELEBRATED_KEY, JSON.stringify(all));
   } catch {
     /* optional */
   }
