@@ -366,6 +366,13 @@
       "name": "family_entitlement",
       "sha256": "c434a900f868be5fb3a2391e4d6730e4600a0da130627b055c6ba5aef744d19f",
       "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20261007120000_jev_feedback_triage.sql",
+      "version": "20261007120000",
+      "name": "jev_feedback_triage",
+      "sha256": "ed9fab4221afdfb41cf3d6dbf0af6552fe3b58b06fbed123696d884ed4206858",
+      "status": "FROZEN"
     }
   ]
 }
