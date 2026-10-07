@@ -56,7 +56,7 @@ check("contrast seed texts in corpus", () => {
 check("contrast pairs require same voice", () => {
   const contrast = read("src/lib/audioContrastPairs.ts");
   assert.match(contrast, /sameCanonicalVoiceRequired:\s*true/);
-  assert.match(contrast, /contrast:xi-shi:v1/);
+  assert.match(contrast, /contrast:xi-shi:v2/); // RC2.3.5: v1 (西xī × 十shí) also changed tone
   assert.match(contrast, /auditAudioContrastPairs/);
 });
 

@@ -1,0 +1,785 @@
+{
+  "id": "rc2-3-5-contrast-library",
+  "total": 68,
+  "byKind": {
+    "final": 5,
+    "initial": 17,
+    "tone": 46
+  },
+  "byFamily": {
+    "final:ai×ei": 1,
+    "final:ao×ou": 4,
+    "initial:c×z": 1,
+    "initial:ch×q": 1,
+    "initial:ch×sh": 1,
+    "initial:g×k": 1,
+    "initial:j×q": 1,
+    "initial:j×x": 1,
+    "initial:l×n": 2,
+    "initial:q×x": 1,
+    "initial:s×sh": 3,
+    "initial:sh×x": 5,
+    "tone:1x2": 4,
+    "tone:1x3": 6,
+    "tone:1x4": 8,
+    "tone:2x3": 6,
+    "tone:2x4": 8,
+    "tone:3x4": 14
+  },
+  "curriculumBacked": 62,
+  "discoveryOnly": 3,
+  "rejected": [
+    {
+      "key": "八|趴",
+      "a": "八bā",
+      "b": "趴pā",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    },
+    {
+      "key": "他|搭",
+      "a": "他tā",
+      "b": "搭dā",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    },
+    {
+      "key": "绿|路",
+      "a": "绿lǜ",
+      "b": "路lù",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    },
+    {
+      "key": "漏|肉",
+      "a": "漏lòu",
+      "b": "肉ròu",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    },
+    {
+      "key": "帮|班",
+      "a": "帮bāng",
+      "b": "班bān",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    },
+    {
+      "key": "根|耕",
+      "a": "根gēn",
+      "b": "耕gēng",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    },
+    {
+      "key": "心|星",
+      "a": "心xīn",
+      "b": "星xīng",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ],
+      "reason": "MISSING_CANONICAL_AUDIO"
+    }
+  ],
+  "accepted": [
+    {
+      "id": "contrast:final:卖妹",
+      "kind": "final",
+      "family": "final:ai×ei",
+      "a": "卖|mài|audio:fixed:u-df45a91413:v1",
+      "b": "妹|mèi|audio:fixed:u-28f8949739:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:final:友咬",
+      "kind": "final",
+      "family": "final:ao×ou",
+      "a": "友|yǒu|audio:fixed:u-6cca7a3ec0:v1",
+      "b": "咬|yǎo|audio:fixed:u-b6bdac54fa:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:final:右要",
+      "kind": "final",
+      "family": "final:ao×ou",
+      "a": "右|yòu|audio:fixed:u-851cdd6091:v1",
+      "b": "要|yào|audio:fixed:u-93e27107a1:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:final:号后",
+      "kind": "final",
+      "family": "final:ao×ou",
+      "a": "号|hào|audio:fixed:u-7f5716be5c:v1",
+      "b": "后|hòu|audio:fixed:u-7b55d5a1d4:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "SEED"
+      ]
+    },
+    {
+      "id": "contrast:final:咬有",
+      "kind": "final",
+      "family": "final:ao×ou",
+      "a": "咬|yǎo|audio:fixed:u-b6bdac54fa:v1",
+      "b": "有|yǒu|audio:fixed:u-fbd5b75066:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:在菜",
+      "kind": "initial",
+      "family": "initial:c×z",
+      "a": "在|zài|audio:fixed:u-686b703f41:v1",
+      "b": "菜|cài|audio:fixed:u-7b4bb888fb:v1",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ]
+    },
+    {
+      "id": "contrast:initial:七吃",
+      "kind": "initial",
+      "family": "initial:ch×q",
+      "a": "七|qī|audio:fixed:u-7db1eeb5c3:v1",
+      "b": "吃|chī|audio:fixed:u-a10d4d5a63:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:吃师",
+      "kind": "initial",
+      "family": "initial:ch×sh",
+      "a": "吃|chī|audio:fixed:u-a10d4d5a63:v1",
+      "b": "师|shī|audio:fixed:u-021a21d909:v1",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ]
+    },
+    {
+      "id": "contrast:initial:个客",
+      "kind": "initial",
+      "family": "initial:g×k",
+      "a": "个|gè|audio:fixed:u-f7b2a6ee68:v1",
+      "b": "客|kè|audio:fixed:u-1d9eee0cf2:v1",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ]
+    },
+    {
+      "id": "contrast:initial:七机",
+      "kind": "initial",
+      "family": "initial:j×q",
+      "a": "七|qī|audio:fixed:u-7db1eeb5c3:v1",
+      "b": "机|jī|audio:fixed:u-0d73d884a9:v1",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ]
+    },
+    {
+      "id": "contrast:initial:机西",
+      "kind": "initial",
+      "family": "initial:j×x",
+      "a": "机|jī|audio:fixed:u-0d73d884a9:v1",
+      "b": "西|xī|audio:fixed:u-2f64b5a67e:v1",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ]
+    },
+    {
+      "id": "contrast:initial:了呢",
+      "kind": "initial",
+      "family": "initial:l×n",
+      "a": "了|le|audio:fixed:u-a5933e2a9e:v1",
+      "b": "呢|ne|audio:fixed:u-dcf66dcd60:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:你里",
+      "kind": "initial",
+      "family": "initial:l×n",
+      "a": "你|nǐ|audio:guided-try:ni:v1",
+      "b": "里|lǐ|audio:fixed:u-c5a8f40bc0:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:七西",
+      "kind": "initial",
+      "family": "initial:q×x",
+      "a": "七|qī|audio:fixed:u-7db1eeb5c3:v1",
+      "b": "西|xī|audio:fixed:u-2f64b5a67e:v1",
+      "sources": [
+        "PRONUNCIATION_CORE_BR"
+      ]
+    },
+    {
+      "id": "contrast:initial:三山",
+      "kind": "initial",
+      "family": "initial:s×sh",
+      "a": "三|sān|audio:fixed:u-49ddb069d5:v1",
+      "b": "山|shān|audio:fixed:u-0e248e5603:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:四市",
+      "kind": "initial",
+      "family": "initial:s×sh",
+      "a": "四|sì|audio:fixed:u-4f88740b34:v1",
+      "b": "市|shì|audio:fixed:u-7c130d80b8:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:四是",
+      "kind": "initial",
+      "family": "initial:s×sh",
+      "a": "四|sì|audio:fixed:u-4f88740b34:v1",
+      "b": "是|shì|audio:fixed:u-30160a21b9:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:习十",
+      "kind": "initial",
+      "family": "initial:sh×x",
+      "a": "习|xí|audio:fixed:u-b047fcdc80:v1",
+      "b": "十|shí|audio:fixed:u-aa107f05b6:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:习时",
+      "kind": "initial",
+      "family": "initial:sh×x",
+      "a": "习|xí|audio:fixed:u-b047fcdc80:v1",
+      "b": "时|shí|audio:fixed:u-a34801ad9c:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:使喜",
+      "kind": "initial",
+      "family": "initial:sh×x",
+      "a": "使|shǐ|audio:fixed:u-f6901ca318:v1",
+      "b": "喜|xǐ|audio:fixed:u-d21b4e3093:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:师西",
+      "kind": "initial",
+      "family": "initial:sh×x",
+      "a": "师|shī|audio:fixed:u-021a21d909:v1",
+      "b": "西|xī|audio:fixed:u-2f64b5a67e:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:initial:湿西",
+      "kind": "initial",
+      "family": "initial:sh×x",
+      "a": "湿|shī|audio:fixed:u-7c069d7926:v1",
+      "b": "西|xī|audio:fixed:u-2f64b5a67e:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "SEED"
+      ]
+    },
+    {
+      "id": "contrast:tone:习西",
+      "kind": "tone",
+      "family": "tone:1x2",
+      "a": "习|xí|audio:fixed:u-b047fcdc80:v1",
+      "b": "西|xī|audio:fixed:u-2f64b5a67e:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:十湿",
+      "kind": "tone",
+      "family": "tone:1x2",
+      "a": "十|shí|audio:fixed:u-aa107f05b6:v1",
+      "b": "湿|shī|audio:fixed:u-7c069d7926:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:和喝",
+      "kind": "tone",
+      "family": "tone:1x2",
+      "a": "和|hé|audio:fixed:u-9a3eb34097:v1",
+      "b": "喝|hē|audio:fixed:u-9982c5ced1:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:妈麻",
+      "kind": "tone",
+      "family": "tone:1x2",
+      "a": "妈|mā|audio:tone:ma1:v1",
+      "b": "麻|má|audio:tone:ma2:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "SEED"
+      ]
+    },
+    {
+      "id": "contrast:tone:使湿",
+      "kind": "tone",
+      "family": "tone:1x3",
+      "a": "使|shǐ|audio:fixed:u-f6901ca318:v1",
+      "b": "湿|shī|audio:fixed:u-7c069d7926:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:几机",
+      "kind": "tone",
+      "family": "tone:1x3",
+      "a": "几|jǐ|audio:fixed:u-68bf29eb00:v1",
+      "b": "机|jī|audio:fixed:u-0d73d884a9:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:喜西",
+      "kind": "tone",
+      "family": "tone:1x3",
+      "a": "喜|xǐ|audio:fixed:u-d21b4e3093:v1",
+      "b": "西|xī|audio:fixed:u-2f64b5a67e:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:妈马",
+      "kind": "tone",
+      "family": "tone:1x3",
+      "a": "妈|mā|audio:tone:ma1:v1",
+      "b": "马|mǎ|audio:tone:ma3:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "TONE_CONTRAST_SET"
+      ]
+    },
+    {
+      "id": "contrast:tone:姐街",
+      "kind": "tone",
+      "family": "tone:1x3",
+      "a": "姐|jiě|audio:fixed:u-a151a26775:v1",
+      "b": "街|jiē|audio:fixed:u-e5dd1a0b8f:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:生省",
+      "kind": "tone",
+      "family": "tone:1x3",
+      "a": "生|shēng|audio:fixed:u-3eb31f888c:v1",
+      "b": "省|shěng|audio:fixed:u-45ad4f70b6:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:七气",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "七|qī|audio:fixed:u-7db1eeb5c3:v1",
+      "b": "气|qì|audio:fixed:u-b08d2c770a:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:个哥",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "个|gè|audio:fixed:u-f7b2a6ee68:v1",
+      "b": "哥|gē|audio:fixed:u-cdfd26daa2:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:中众",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "中|zhōng|audio:fixed:u-0869071c92:v1",
+      "b": "众|zhòng|audio:fixed:u-d2beda89ac:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:今近",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "今|jīn|audio:fixed:u-d2130d70a0:v1",
+      "b": "近|jìn|audio:fixed:u-d8c84172ac:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:八爸",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "八|bā|audio:fixed:u-2142fb62fd:v1",
+      "b": "爸|bà|audio:fixed:u-a732e56e22:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:区去",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "区|qū|audio:fixed:u-b6cdfecb16:v1",
+      "b": "去|qù|audio:fixed:u-033fd274f0:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:妈骂",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "妈|mā|audio:tone:ma1:v1",
+      "b": "骂|mà|audio:tone:ma4:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "TONE_CONTRAST_SET"
+      ]
+    },
+    {
+      "id": "contrast:tone:是湿",
+      "kind": "tone",
+      "family": "tone:1x4",
+      "a": "是|shì|audio:fixed:u-30160a21b9:v1",
+      "b": "湿|shī|audio:fixed:u-7c069d7926:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:习喜",
+      "kind": "tone",
+      "family": "tone:2x3",
+      "a": "习|xí|audio:fixed:u-b047fcdc80:v1",
+      "b": "喜|xǐ|audio:fixed:u-d21b4e3093:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:使十",
+      "kind": "tone",
+      "family": "tone:2x3",
+      "a": "使|shǐ|audio:fixed:u-f6901ca318:v1",
+      "b": "十|shí|audio:fixed:u-aa107f05b6:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:咬摇",
+      "kind": "tone",
+      "family": "tone:2x3",
+      "a": "咬|yǎo|audio:fixed:u-b6bdac54fa:v1",
+      "b": "摇|yáo|audio:fixed:u-1b517b8e44:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:左昨",
+      "kind": "tone",
+      "family": "tone:2x3",
+      "a": "左|zuǒ|audio:fixed:u-df3ee66760:v1",
+      "b": "昨|zuó|audio:fixed:u-8f0005d18f:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:语鱼",
+      "kind": "tone",
+      "family": "tone:2x3",
+      "a": "语|yǔ|audio:fixed:u-21c857be01:v1",
+      "b": "鱼|yú|audio:fixed:u-92468fdf7c:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:马麻",
+      "kind": "tone",
+      "family": "tone:2x3",
+      "a": "马|mǎ|audio:tone:ma3:v1",
+      "b": "麻|má|audio:tone:ma2:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "TONE_CONTRAST_SET"
+      ]
+    },
+    {
+      "id": "contrast:tone:会回",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "会|huì|audio:fixed:u-577cfff298:v1",
+      "b": "回|huí|audio:fixed:u-5b722ab415:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:十是",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "十|shí|audio:fixed:u-aa107f05b6:v1",
+      "b": "是|shì|audio:fixed:u-30160a21b9:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:坐昨",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "坐|zuò|audio:fixed:u-4a1e3b19fa:v1",
+      "b": "昨|zuó|audio:fixed:u-8f0005d18f:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:妹没",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "妹|mèi|audio:fixed:u-28f8949739:v1",
+      "b": "没|méi|audio:fixed:u-ca0bc5e27c:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:摇要",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "摇|yáo|audio:fixed:u-1b517b8e44:v1",
+      "b": "要|yào|audio:fixed:u-93e27107a1:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:文问",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "文|wén|audio:fixed:u-1d56b27a5e:v1",
+      "b": "问|wèn|audio:fixed:u-be9cb728a5:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:预鱼",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "预|yù|audio:fixed:u-bb65ba0a65:v1",
+      "b": "鱼|yú|audio:fixed:u-92468fdf7c:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:骂麻",
+      "kind": "tone",
+      "family": "tone:2x4",
+      "a": "骂|mà|audio:tone:ma4:v1",
+      "b": "麻|má|audio:tone:ma2:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:买卖",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "买|mǎi|audio:fixed:u-b6c5a7139f:v1",
+      "b": "卖|mài|audio:fixed:u-df45a91413:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:使是",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "使|shǐ|audio:fixed:u-f6901ca318:v1",
+      "b": "是|shì|audio:fixed:u-30160a21b9:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:写谢",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "写|xiě|audio:fixed:u-144d2cba11:v1",
+      "b": "谢|xiè|audio:fixed:u-b27c6fd4c5:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:右有",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "右|yòu|audio:fixed:u-851cdd6091:v1",
+      "b": "有|yǒu|audio:fixed:u-fbd5b75066:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:号好",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "号|hào|audio:fixed:u-7f5716be5c:v1",
+      "b": "好|hǎo|audio:guided-try:hao:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:咬要",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "咬|yǎo|audio:fixed:u-b6bdac54fa:v1",
+      "b": "要|yào|audio:fixed:u-93e27107a1:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:哪那",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "哪|nǎ|audio:fixed:u-cd963c6bfd:v1",
+      "b": "那|nà|audio:fixed:u-327049aa37:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:坐左",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "坐|zuò|audio:fixed:u-4a1e3b19fa:v1",
+      "b": "左|zuǒ|audio:fixed:u-df3ee66760:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:子字",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "子|zǐ|audio:fixed:u-219e08c960:v1",
+      "b": "字|zì|audio:fixed:u-582c50066c:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:小校",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "小|xiǎo|audio:fixed:u-922517cc73:v1",
+      "b": "校|xiào|audio:fixed:u-5118ad88e3:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:店点",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "店|diàn|audio:fixed:u-22df192e24:v1",
+      "b": "点|diǎn|audio:fixed:u-1d59ea7cbb:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:语预",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "语|yǔ|audio:fixed:u-21c857be01:v1",
+      "b": "预|yù|audio:fixed:u-bb65ba0a65:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:远院",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "远|yuǎn|audio:fixed:u-e7338d5c8e:v1",
+      "b": "院|yuàn|audio:fixed:u-ead69987e3:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR"
+      ]
+    },
+    {
+      "id": "contrast:tone:马骂",
+      "kind": "tone",
+      "family": "tone:3x4",
+      "a": "马|mǎ|audio:tone:ma3:v1",
+      "b": "骂|mà|audio:tone:ma4:v1",
+      "sources": [
+        "CORPUS_MINIMAL_PAIR",
+        "SEED"
+      ]
+    }
+  ]
+}
