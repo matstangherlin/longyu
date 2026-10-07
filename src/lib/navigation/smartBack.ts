@@ -63,6 +63,8 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/fala", parent: "/treino" },
   { pattern: "/leitura", parent: "/treino" },
   { pattern: "/biblioteca", parent: "/treino" },
+  // RC2.3.6 — Seu Domínio nasce da Revisão (e volta para ela).
+  { pattern: "/dominio", parent: "/revisao" },
 
   // Cultura.
   { pattern: "/cultura/revisao", parent: "/cultura", ownBack: true },
