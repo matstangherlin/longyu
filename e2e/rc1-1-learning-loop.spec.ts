@@ -304,10 +304,11 @@ test.describe("RC1.1 · avanço", () => {
     const check = page
       .locator("button:has-text('Verificar'), button:has-text('Ver resposta'), button:has-text('Check')")
       .first();
-    if (!(await check.isVisible({ timeout: 10_000 }).catch(() => false))) {
-      test.skip(true, "conta sem itens devidos — a fila é coberta por validate:review-advance");
-      return;
-    }
+    // A conta é semeada com dueReviewSrs(): a fila TEM itens devidos. RC2.2.25
+    // separa hub e rodada — entra pela CTA do hub e espera (isVisible não
+    // espera) o item; fila vazia ou hub sem CTA é regressão, não skip.
+    await startReviewRound(page);
+    await expect(check, "fila semeada com itens devidos deve abrir um item com Verificar").toBeVisible({ timeout: 15_000 });
 
     const counter = page.locator("[data-review-position]");
     const before = (await counter.getAttribute("data-review-position").catch(() => null)) ?? "";
@@ -352,10 +353,11 @@ test.describe("RC1.1 · avanço", () => {
     const check = page
       .locator("button:has-text('Verificar'), button:has-text('Ver resposta'), button:has-text('Check')")
       .first();
-    if (!(await check.isVisible({ timeout: 10_000 }).catch(() => false))) {
-      test.skip(true, "conta sem itens devidos");
-      return;
-    }
+    // A conta é semeada com dueReviewSrs(): a fila TEM itens devidos. RC2.2.25
+    // separa hub e rodada — entra pela CTA do hub e espera (isVisible não
+    // espera) o item; fila vazia ou hub sem CTA é regressão, não skip.
+    await startReviewRound(page);
+    await expect(check, "fila semeada com itens devidos deve abrir um item com Verificar").toBeVisible({ timeout: 15_000 });
 
     await answerCurrentReviewItem(page);
     await check.click();
@@ -425,6 +427,15 @@ async function readXp(page: Page): Promise<number> {
   if (!raw) return 0;
   const state = (JSON.parse(raw) as { state?: { xpTotal?: number } }).state;
   return state?.xpTotal ?? 0;
+}
+
+/** RC2.2.25 — /revisao abre no hub; a rodada começa em [Começar revisão]. */
+async function startReviewRound(page: Page) {
+  const start = page.getByTestId("review-start");
+  await expect(start, "fila semeada com itens devidos deve oferecer [Começar revisão] no hub").toBeVisible({
+    timeout: 15_000,
+  });
+  await start.click();
 }
 
 async function answerCurrentReviewItem(page: Page) {

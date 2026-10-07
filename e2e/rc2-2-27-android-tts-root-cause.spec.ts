@@ -203,7 +203,9 @@ test.describe("RC2.2.27 · conclusão sequencial (só apresentação)", () => {
       if (await victory.isVisible().catch(() => false)) break;
       await advanceUntilVisible(page, victory, 1);
     }
-    test.skip(!(await victory.isVisible().catch(() => false)), "a lição não chegou à Victory neste plano");
+    // Seed determinístico (l2, domínio 3): 40 avanços sempre bastam para a
+    // Victory — não chegar é regressão de avanço/conclusão, não skip.
+    await expect(victory, "l2 (domínio 3) deve chegar à Victory em até 40 avanços").toBeVisible();
     const score = page.getByTestId("lesson-victory-score");
     const stages = ((await score.getAttribute("data-completion-stages")) ?? "").split(",");
     expect(stages[0]).toBe("CHECK");

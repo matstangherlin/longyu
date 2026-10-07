@@ -176,7 +176,8 @@ test.describe("RC2.2.8 — P5 sync silencioso", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     const ready = await page.waitForFunction(() => typeof window.__longyuSetEconomySyncMessage === "function", null, { timeout: 10_000 }).then(() => true).catch(() => false);
-    test.skip(!ready, "fixture de banner indisponível neste ambiente");
+    // VITE_USE_TEST_FIXTURES=true no webServer E2E garante o hook; sem ele é regressão.
+    expect(ready, "window.__longyuSetEconomySyncMessage deve existir com VITE_USE_TEST_FIXTURES=true").toBe(true);
     const banner = page.locator("[data-economy-sync-banner]");
     for (let i = 0; i < 3; i += 1) {
       for (const message of ["Sincronizando carga...", "Sincronizando Qi...", "Migrando economia..."]) {

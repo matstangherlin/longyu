@@ -1,5 +1,5 @@
-import { test } from "@playwright/test";
-import { dismissBlockingOverlays, seedFoundationThrough, waitForLazyPage } from "./helpers";
+import { expect, test } from "@playwright/test";
+import { dismissBlockingOverlays, seedFoundationThrough, seedMissionsSession, waitForLazyPage } from "./helpers";
 import {
   advanceUntilSelector,
   assertLessonActionDockedOutsideAnswers,
@@ -44,7 +44,9 @@ for (const viewport of VIEWPORTS) {
       await waitForLazyPage(page);
       await dismissBlockingOverlays(page);
       const reached = await advanceUntilSelector(page, "[data-hanzi-builder]");
-      test.skip(!reached, "HanziBuilder não apareceu no plano desta execução.");
+      // Seed determinístico (fundação até p1-o-que-e-hanzi): p1-primeiros-hanzi
+      // tem de chegar ao HanziBuilder; não chegar é regressão do plano/player.
+      expect(reached, "p1-primeiros-hanzi deve chegar ao HanziBuilder").toBe(true);
 
       // A barra agora ocupa uma faixa irmã do scroller. Nenhum padding medido
       // é necessário, porque peças e CTA não compartilham a mesma geometria.
@@ -65,15 +67,30 @@ test.describe("barra fixa · revisão", () => {
   test.use({ viewport: { width: 393, height: 851 } });
 
   test("montagem de frase na revisão não fica sob a barra", async ({ page }) => {
+    // RC2.3.9 — sem fila semeada o teste caía sempre no skip (vacuo). Semeia
+    // itens realmente devidos e exige que a rodada abra num item com Verificar.
+    const now = Date.now();
+    const base = { ease: 2.5, intervalDays: 1, due: now - 100_000, reps: 1, lapses: 0, createdAt: now - 200_000 };
+    await seedMissionsSession(page, {
+      completedLessons: ["l1", "l2", "l3"],
+      learnedChunks: ["nihao", "xiexie", "zaijian"],
+      srs: {
+        "chunk:nihao": { id: "chunk:nihao", type: "chunk", itemId: "nihao", ...base },
+        "chunk:xiexie": { id: "chunk:xiexie", type: "chunk", itemId: "xiexie", ...base },
+        "chunk:zaijian": { id: "chunk:zaijian", type: "chunk", itemId: "zaijian", ...base },
+      },
+    });
     await page.goto("/revisao");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const started = await page
-      .locator("[data-review-start], [data-review-question]")
-      .first()
-      .isVisible()
-      .catch(() => false);
-    test.skip(!started, "Sem fila de revisão nesta sessão semeada.");
+    // RC2.2.25 — /revisao abre no hub; a rodada começa em [Começar revisão].
+    const start = page.getByTestId("review-start");
+    await expect(start, "fila semeada deve oferecer [Começar revisão]").toBeVisible({ timeout: 15_000 });
+    await start.click();
+    await expect(
+      page.getByRole("button", { name: /Verificar|Conferir resposta|Ver resposta/i }).first(),
+      "a rodada semeada deve abrir um item de revisão"
+    ).toBeVisible({ timeout: 15_000 });
     await assertNoStickyBarOverlap(page);
   });
 });

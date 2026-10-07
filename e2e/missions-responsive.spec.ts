@@ -167,7 +167,9 @@ test.describe("V4.3 /missoes — gramática e no-overlap", () => {
         window.__longyuSetEconomySyncMessage("Qi não confirmado pelo servidor.");
         return true;
       });
-      test.skip(!injected, "fixture de banner indisponível neste ambiente");
+      // O webServer E2E sempre builda com VITE_USE_TEST_FIXTURES=true, então o
+      // hook do banner tem de existir: ausência é regressão, não ambiente.
+      expect(injected, "window.__longyuSetEconomySyncMessage deve existir com VITE_USE_TEST_FIXTURES=true").toBe(true);
       await expect(page.locator("[data-economy-sync-banner]")).toBeVisible();
       await expect(page.locator("[data-economy-sync-banner]")).toHaveAttribute("aria-live", "polite");
       await assertNoInteractiveOverlap(page);

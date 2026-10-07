@@ -25,9 +25,17 @@ async function openReviewItem(page: Page) {
   await dismissBlockingOverlays(page);
   await waitForLazyPage(page);
 
-  if (await page.locator("[data-hanzi-builder], [data-builder-id]").first().isVisible().catch(() => false)) {
-    test.skip(true, "Item atual é Hanzi Builder — coberto por outro fluxo.");
-  }
+  // RC2.3.9 — o seed é determinístico: um único erro pendente listen_select
+  // (你好) da l1. Espera o item renderizar e exige que NÃO seja Hanzi Builder;
+  // antes isto virava skip de todos os testes do arquivo.
+  await expect(
+    page.getByRole("button", { name: /Verificar|Conferir resposta/i }),
+    "o item de correção semeado deve abrir com Verificar"
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.locator("[data-hanzi-builder], [data-builder-id]"),
+    "o erro semeado (listen_select 你好) não pode abrir como Hanzi Builder"
+  ).toHaveCount(0);
 }
 
 async function pickOption(page: Page, wantCorrect: boolean | null) {
@@ -103,7 +111,7 @@ test.describe("B003 — revisão continua após revelar", () => {
     test.setTimeout(90_000);
     await openReviewItem(page);
     const kind = await pickOption(page, true);
-    if (kind === "none") test.skip(true, "Sem opções clicáveis neste item.");
+    expect(kind, "o item semeado (listen_select) deve ter opções clicáveis").not.toBe("none");
 
     const continueBtn = await verifyAndAssertFeedback(page);
     // Se o fallback pegou a errada, ainda assim Continuar deve funcionar.
@@ -121,7 +129,7 @@ test.describe("B003 — revisão continua após revelar", () => {
     test.setTimeout(90_000);
     await openReviewItem(page);
     const kind = await pickOption(page, false);
-    if (kind === "none") test.skip(true, "Sem opções clicáveis neste item.");
+    expect(kind, "o item semeado (listen_select) deve ter opções clicáveis").not.toBe("none");
     if (kind === "piece") {
       // sentence_build: montar só a primeira peça tende a errar.
       await pickOption(page, null);
