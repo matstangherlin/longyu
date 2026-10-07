@@ -11,8 +11,8 @@ Result: **434/434 steps, 907/907 leaves, 0 retirements** — nothing was removed
 ## Semantic parity
 | Dimension | Old | Converged | Evidence |
 |---|---|---|---|
-| PASS/FAIL of the full chain | EXIT 0 (4 920 s, 8a1b763) | RESULT_PENDING | docs/release/beta-baseline-timing.json · converged-result |
-| Per-suite isolation (fresh checkout each) | n/a | RESULT_PENDING | isolation run |
+| PASS/FAIL of the full chain | EXIT 0 (4 920 s, 936 executions, 8a1b763) | **EXIT 0 (4 810 s, 12/12 suites, 156 repeated executions skipped, 8bf7a2b)** | docs/release/beta-baseline-timing.json · runner JSON |
+| Per-suite isolation (fresh checkout each) | n/a | **12/12 PASS** locally (clean reset between suites) and 9/9 hosted suite jobs PASS on #320 | isolation run · run 37682199737 |
 | Mutations | every legacy `test:*` still runs | + 24 new (rc2-3-9) | test:rc2-3-9-stack-convergence |
 | Invariants | implicit | 23 owned | invariant-ownership.json |
 | Fingerprint | 5a64821d0b7d | 5a64821d0b7d (unchanged) | product-truth.json |

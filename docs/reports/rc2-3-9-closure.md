@@ -9,13 +9,13 @@ Parent: #319 @ `dbb6f11`. Branch `cursor/rc2-3-9-stack-convergence`. No new lear
 | GATE_INVENTORY_COMPLETE | PASS | 1 043 scripts classified — `gate-registry.json` |
 | CANONICAL_GATE_REGISTRY_PASS | PASS | generated + drift-gated |
 | INVARIANT_OWNERSHIP_PASS | PASS | 23/23 invariants, one owner each |
-| GATE_PARITY_PASS | see gate-parity | 434/434 steps, 907/907 leaves structurally; full-run result recorded there |
+| GATE_PARITY_PASS | PASS | 434/434 steps, 907/907 leaves; converged full run EXIT 0; 12/12 suites pass in isolation; mutations 24/24 |
 | PRODUCT_TRUTH_PASS | PASS | vocabulary + no-false-PASS rules, 24 mutations |
 | PRODUCT_TRUTH_FRESH | PASS | inputs + evidence digests match |
 | REPORT_FRESHNESS_PASS | PASS | REPORT_EVIDENCE_STALE gate (product truth, registry) + validate:report-freshness ordered after generators |
 | RUNTIME_CONVERGENCE_PASS | PASS | one player, one recorder, one auth state, one audio engine; the one DUPLICATE found (FreeAnswerField mic without the audio arbiter) fixed; 7 accepted shims documented |
 | CI_DUPLICATION_REDUCED | PASS | 29 repeated executions per run → 0; Android-workflow re-run kept and documented |
-| CI_PERFORMANCE_PASS | NOT_RUN | needs the first hosted run (ci-performance.md) |
+| CI_PERFORMANCE_PASS | PASS | hosted quality path 23.4 min vs 65.6 min (ci-performance.md) |
 | OWNER_ACCEPTANCE_CONSOLIDATED | PASS | 588 checklist items / 27 lists → 28 unique device flows |
 | CLOUD_HANDOFF_READY | PASS | `docs/launch/rc2-3-10-cloud-handoff.json` (16 items, 0 executed) |
 | WEB_PASS / ANDROID_BUILD_PASS / SECURITY_PASS / BACKEND_REHEARSAL_PASS | hosted, on the PR | — |
