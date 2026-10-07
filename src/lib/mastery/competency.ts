@@ -113,10 +113,12 @@ export interface DeriveInput {
   /** True when the existing SRS says a review of this target is due. */
   srsDue?: boolean;
   now?: number;
+  /** Test seam (mutation gates): override the rule tables. Never set in product code. */
+  rules?: { ceiling?: Partial<Record<EvidenceSkill, CompetencyState>>; handwritingSkills?: readonly EvidenceSkill[]; policy?: Partial<typeof COMPETENCY_POLICY> };
 }
 
-function inView(view: CompetencyView, skill: EvidenceSkill, dimension: CompetencyDimension): boolean {
-  if (view === "handwriting") return HANDWRITING_SKILLS.includes(skill);
+function inView(view: CompetencyView, skill: EvidenceSkill, dimension: CompetencyDimension, handwriting: readonly EvidenceSkill[] = HANDWRITING_SKILLS): boolean {
+  if (view === "handwriting") return handwriting.includes(skill);
   return dimension === view;
 }
 
@@ -124,12 +126,14 @@ const VALUE = { SUCCESS: 1, PARTIAL: 0.5, FAILURE: 0 } as const;
 
 export function deriveViewState(input: DeriveInput): ViewState {
   const now = input.now ?? Date.now();
-  const P = COMPETENCY_POLICY;
+  const P = { ...COMPETENCY_POLICY, ...(input.rules?.policy ?? {}) };
+  const CEIL = { ...SKILL_CEILING, ...(input.rules?.ceiling ?? {}) };
+  const hw = input.rules?.handwritingSkills;
   const rules: string[] = [];
   const events = input.events
-    .filter((e) => e.result !== "SKIPPED_TECHNICAL" && inView(input.view, e.skill, e.dimension))
+    .filter((e) => e.result !== "SKIPPED_TECHNICAL" && inView(input.view, e.skill, e.dimension, hw))
     .sort((a, b) => b.timestamp - a.timestamp);
-  const aggs = (input.aggregates ?? []).filter((a) => inView(input.view, a.skill, a.dimension));
+  const aggs = (input.aggregates ?? []).filter((a) => inView(input.view, a.skill, a.dimension, hw));
 
   const recency = (at: number) => Math.max(P.recencyFloor, Math.pow(0.5, (now - at) / (P.halfLifeDays * DAY)));
   let wSum = 0;
@@ -153,14 +157,14 @@ export function deriveViewState(input: DeriveInput): ViewState {
     graded += 1;
     const w = EVIDENCE_SKILLS[e.skill].strength * Math.max(0.1, e.independence) * recency(e.timestamp);
     wSum += w;
-    vSum += w * VALUE[e.result];
+    vSum += w * VALUE[e.result as keyof typeof VALUE];
     if (e.result === "SUCCESS") {
       successes += 1;
       if (e.independence >= P.independentAt) {
         independentSuccesses += 1;
         days.add(Math.floor(e.timestamp / DAY));
         activities.add(e.source.activityId.split(":").slice(0, 2).join(":"));
-        if (RANK[SKILL_CEILING[e.skill]] > RANK[ceiling]) ceiling = SKILL_CEILING[e.skill];
+        if (RANK[CEIL[e.skill]] > RANK[ceiling]) ceiling = CEIL[e.skill];
       } else if (RANK[ceiling] < RANK.DEVELOPING) ceiling = "DEVELOPING";
     }
     if (e.result === "FAILURE") failures += 1;
@@ -181,7 +185,7 @@ export function deriveViewState(input: DeriveInput): ViewState {
     if (a.success > 0) {
       days.add(Math.floor(a.lastAt / DAY));
       activities.add(`agg:${a.skill}`);
-      const c = minState(SKILL_CEILING[a.skill], "STRONG");
+      const c = minState(CEIL[a.skill], "STRONG");
       if (RANK[c] > RANK[ceiling]) ceiling = c;
     }
   }

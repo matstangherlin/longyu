@@ -274,6 +274,38 @@ export function compactInto(aggregates: Record<string, EvidenceAggregate>, e: Le
   a.lastAt = Math.max(a.lastAt, e.timestamp);
 }
 
+const MONTH = 30 * 24 * 60 * 60 * 1000;
+/** Weekly buckets for 8 weeks, monthly up to ~6 months, then one all-time bucket. */
+export const LER_ROLLUP = { weeklyFor: 8 * WEEK, monthlyFor: 6 * MONTH } as const;
+
+function periodStart(at: number, newest: number): number {
+  const age = newest - at;
+  if (age <= LER_ROLLUP.weeklyFor) return Math.floor(at / WEEK) * WEEK;
+  if (age <= LER_ROLLUP.monthlyFor) return Math.floor(at / MONTH) * MONTH;
+  return 0; // all-time
+}
+
+/** Merge old buckets into coarser ones so history stays bounded per target × skill. */
+export function rollupAggregates(aggregates: Record<string, EvidenceAggregate>, newest: number): Record<string, EvidenceAggregate> {
+  const out: Record<string, EvidenceAggregate> = {};
+  for (const a of Object.values(aggregates)) {
+    const week = periodStart(a.lastAt, newest);
+    const key = `${a.targetId}|${a.dimension}|${a.skill}|${week}`;
+    const b = out[key];
+    if (!b) out[key] = { ...a, week };
+    else {
+      b.success += a.success;
+      b.partial += a.partial;
+      b.failure += a.failure;
+      b.observed += a.observed;
+      b.weight += a.weight;
+      b.firstAt = Math.min(b.firstAt, a.firstAt);
+      b.lastAt = Math.max(b.lastAt, a.lastAt);
+    }
+  }
+  return out;
+}
+
 /** Append idempotently; compact the oldest raw events beyond the window. */
 export function appendEvidence(record: LearnerEvidenceRecord, events: readonly LearningEvidence[]): { record: LearnerEvidenceRecord; added: number } {
   const seen = new Set(record.seen);
@@ -287,8 +319,13 @@ export function appendEvidence(record: LearnerEvidenceRecord, events: readonly L
   }
   if (added === 0) return { record, added };
   recent.sort((a, b) => a.timestamp - b.timestamp);
-  const aggregates = { ...record.aggregates };
-  while (recent.length > LER_RECENT_WINDOW) compactInto(aggregates, recent.shift()!);
+  let aggregates = { ...record.aggregates };
+  let compacted = false;
+  while (recent.length > LER_RECENT_WINDOW) {
+    compactInto(aggregates, recent.shift()!);
+    compacted = true;
+  }
+  if (compacted) aggregates = rollupAggregates(aggregates, recent[recent.length - 1]?.timestamp ?? Date.now());
   const seenList = [...seen];
   return {
     record: { ...record, recent, aggregates, seen: seenList.slice(-LER_SEEN_ID_WINDOW) },

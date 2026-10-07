@@ -216,6 +216,8 @@ import {
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
 import { markDevicePerf } from "../../lib/devicePerf";
+import { stepToEvidence } from "../../lib/mastery/adapters";
+import { recordLearningEvidence } from "../../lib/mastery/recorder";
 
 const GUIDED_COLUMN = GUIDED_CLASS.column;
 
@@ -2189,6 +2191,8 @@ export function LessonPlayer() {
    * "Tentar de novo" após terminar). Não sobe a cada resposta.
    */
   const [planNonce, setPlanNonce] = useState(0);
+  /** RC2.3.6 — identidade desta sessão no Learner Evidence Record (idempotência por tentativa). */
+  const evidenceSessionRef = useRef(Date.now().toString(36));
   const planGenRef = useRef(0);
   const firstPaintMarkedRef = useRef(false);
   /**
@@ -3461,6 +3465,24 @@ export function LessonPlayer() {
         markConceptsTaught(currentStep.discoveryConceptIds!);
       });
     }
+    // RC2.3.6 — Learner Evidence Record: UM evento por resultado de passo
+    // (nunca a acurácia da lição espalhada por todos os itens). Ajuda reduz
+    // independência; não transforma acerto em erro.
+    safeSideEffect("learner_evidence", () => {
+      recordLearningEvidence(
+        stepToEvidence({
+          step: currentStep,
+          wasCorrect: currentStepIsGraded ? wasCorrect : undefined,
+          helpLevel: meta?.helpLevel,
+          helpRequests: meta?.helpRequests,
+          lessonId: lesson.id,
+          masteryPass: lessonMasteryById?.[lesson.id]?.level,
+          attemptKey: `${evidenceSessionRef.current}|${planNonce}|${idx}|${stepAttempt}`,
+          activityId: `journey:${currentStep.kind}`,
+          glyphForCharId: (id) => charById.get(id)?.hanzi,
+        })
+      );
+    });
     // VAR-015/016/017 — memória de variedade entre modos. Só atividades
     // avaliadas contam; repetição por recuperação vai rotulada para não ser
     // confundida com repetição acidental.
