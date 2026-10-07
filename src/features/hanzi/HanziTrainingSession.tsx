@@ -36,6 +36,8 @@ import {
   type HanziQuizQuestion,
 } from "./hanziTrainingModes";
 import { listVerifiedHandwritingCharacters } from "../../lib/hanziWriting/handwritingReference";
+import { eligibleWritingCharacters } from "../../lib/hanziWriting/curriculumLeak";
+import { loadTaughtConcepts } from "../../lib/pedagogyV6/discovery";
 import { HanziWritingExercise } from "./writing/HanziWritingExercise";
 
 type Completion = {
@@ -79,6 +81,7 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
   const grantPracticeRoundXp = useStore((s) => s.grantPracticeRoundXp);
   const maybeClaimPearls = useStore((s) => s.maybeClaimPearlMilestonesFromProgress);
   const learnedCharIds = useStore((s) => s.learnedChars);
+  const completedLessons = useStore((s) => s.completedLessons);
   const builderProgress = useStore((s) => s.hanziBuilderProgressByChar);
 
   const [round, setRound] = useState(0);
@@ -115,14 +118,20 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
     return Array.from({ length: HANZI_PRACTICE_ROUND }, () => (mode === "meaning" ? makeMeaningQuestion() : makePiecesQuestion()));
   }, [meta.kind, mode, round]);
 
+  // RC2.3.4A — só hànzì já ensinados (e, para memória, já traçados) entram.
   const writingChars = useMemo(() => {
     if (meta.kind !== "writing") return [];
-    const verified = listVerifiedHandwritingCharacters();
-    const pool = verified
-      .map((h) => CHARACTERS.find((c) => c.hanzi === h))
-      .filter((c): c is (typeof CHARACTERS)[number] => Boolean(c));
-    return practiceRoundSlice(pool.length > 0 ? pool : CHARACTERS.filter((c) => verified.includes(c.hanzi)), round);
-  }, [meta.kind, round]);
+    const verified = new Set(listVerifiedHandwritingCharacters());
+    const pool = CHARACTERS.filter((c) => verified.has(c.hanzi));
+    const eligible = eligibleWritingCharacters(pool, mode === "memory" ? "MEMORY_WRITE" : "TRACE", {
+      taught: loadTaughtConcepts(),
+      completedLessons,
+      learnedCharIds,
+    });
+    return eligible.length > 0 ? practiceRoundSlice(eligible, round) : [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- o corte é fixado por rodada
+  }, [meta.kind, mode, round]);
+  const writingLocked = meta.kind === "writing" && writingChars.length === 0;
 
   const total =
     meta.kind === "builder" ? builders.length : meta.kind === "writing" ? writingChars.length : questions.length;
@@ -130,12 +139,13 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
   // Uma carga por rodada. A chave é da sessão + rodada: um re-render ou o
   // efeito duplo do StrictMode não cobra de novo (consumeCharge é idempotente).
   useEffect(() => {
+    if (writingLocked) return; // sem hànzì elegível: não cobra carga
     if (roundStartRef.current?.round === round) return;
     const charged = consumeCharge("extra_training", `hanzi-practice-start:${accountId}:${mode}:${sessionId}:${round}`);
     roundStartRef.current = { round, missions: missionSnapshot(), pearls: hanziMilestonesClaimed(), charged };
     formsRef.current = 0;
     if (!charged) setBlocked(true);
-  }, [accountId, consumeCharge, mode, round, sessionId]);
+  }, [accountId, consumeCharge, mode, round, sessionId, writingLocked]);
 
   function gradeForm(itemId: string | undefined, domain: "forma" | "significado", ok: boolean) {
     if (!itemId) return;
@@ -200,6 +210,16 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
   useTapThroughGuard(`${round}:${index}:${completion ? "done" : "play"}`, "[data-hanzi-content], [data-hanzi-action-region]");
 
   const exit = () => navigate("/ideogramas");
+
+  if (writingLocked) {
+    return (
+      <FocusFrame title={t(meta.titleKey)} onExit={exit}>
+        <p className="mt-10 text-center text-sm text-ink-soft" data-testid="hanzi-writing-locked">
+          {t(mode === "memory" ? "hanziHub.writingLockedMemory" : "hanziHub.writingLockedTrace")}
+        </p>
+      </FocusFrame>
+    );
+  }
 
   if (blocked) {
     return (

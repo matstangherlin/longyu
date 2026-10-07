@@ -33,6 +33,8 @@ export function applyPedagogyV6ToPlan(input: {
   unitIndex?: number;
   taughtHanzi?: readonly string[];
   completedLessons?: readonly string[];
+  /** Char ids studied through SRS (`store.learnedChars`) — writing eligibility. */
+  learnedCharIds?: readonly string[];
   /** Piloto V6: discovery/diversify só no early set. Visual First + Everyday aplicam ao currículo. */
   pilotOnly?: boolean;
 }): PedagogyV6PlanResult {
@@ -93,6 +95,7 @@ export function applyPedagogyV6ToPlan(input: {
     steps,
     taught: input.taughtConceptIds,
     completedLessons: input.completedLessons,
+    learnedCharIds: input.learnedCharIds,
   });
   steps = writing.steps as LessonStep[];
 

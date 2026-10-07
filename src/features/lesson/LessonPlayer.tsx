@@ -2358,6 +2358,7 @@ export function LessonPlayer() {
           steps: planned as LessonStep[],
           taughtConceptIds: loadTaughtConcepts(),
           completedLessons: useStore.getState().completedLessons,
+          learnedCharIds: useStore.getState().learnedChars,
           pilotOnly: true,
         });
         planned = v6.steps;

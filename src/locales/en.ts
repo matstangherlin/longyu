@@ -2818,6 +2818,8 @@ export const en: MessageCatalog = {
     missionReady: "Mission ready to claim",
     pearls: "Pearls",
     noCharges: "No extra training charges right now.",
+    writingLockedTrace: "Tracing opens for the hànzì you have already learned in the Journey. Do the “Building first hànzì” lesson first.",
+    writingLockedMemory: "Writing from memory opens after you correctly trace a hànzì you have learned.",
   },
   guidedTry: {
     exit: "Leave the try",

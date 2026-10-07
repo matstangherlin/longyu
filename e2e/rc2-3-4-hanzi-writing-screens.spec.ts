@@ -8,11 +8,22 @@ import { ALL_LESSONS } from "../src/data/journey";
 import path from "node:path";
 
 const DONE = ALL_LESSONS.slice(0, ALL_LESSONS.findIndex((lesson) => lesson.id === "l5-rev") + 1).map((lesson) => lesson.id);
-const OUT = "/opt/cursor/artifacts";
-
-test("RC2.3.4 writing surfaces screenshots", async ({ page }) => {
+test("RC2.3.4 writing surfaces screenshots", async ({ page }, testInfo) => {
+  // RC2.3.4A: write into the test output dir (CI runners cannot write /opt).
+  const OUT = testInfo.outputDir;
   await page.setViewportSize({ width: 390, height: 844 });
   await seedOnboardedSession(page, DONE);
+  // RC2.3.4A: memory write only opens after a recorded correct trace.
+  await page.addInitScript(() => {
+    const items: Record<string, unknown> = {};
+    for (const [charId, character] of [["mu", "木"], ["ren", "人"], ["ri", "日"], ["yue", "月"], ["kou", "口"], ["shan", "山"]]) {
+      items[charId] = { character, charId, tracingCorrect: 1, tracingAttempts: 1, memoryWriteCorrect: 0, memoryWriteAttempts: 0,
+        recognitionCorrect: 1, recognitionAttempts: 1, assemblyCorrect: 1, assemblyAttempts: 1, completeCorrect: 0,
+        completeAttempts: 0, strokeOrderOk: 1, strokeOrderAttempts: 1, contextWriteCorrect: 0, contextWriteAttempts: 0,
+        helpUsedCount: 0, undoUsedCount: 0, replayUsedCount: 0, lastStage: "TRACE", writingState: "TRACED", updatedAt: Date.now() };
+    }
+    localStorage.setItem("longyu:hanzi-form-evidence-v1", JSON.stringify({ version: 1, items, cloudMergeReady: true }));
+  });
 
   await page.goto("/ideogramas");
   await waitForLazyPage(page);
