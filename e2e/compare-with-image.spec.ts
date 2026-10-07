@@ -7,7 +7,11 @@ import {
 } from "./lesson-player-mobile-helpers";
 
 async function openComparison(page: Page): Promise<Locator> {
-  await seedLessonPlayerReady(page, "l26b");
+  // A comparação autorada de l26b entra no plano real na pass 2 (Fixação:
+  // "discriminar, comparar"). Desde 7f2ecf7 o orçamento da pass 1 reserva o
+  // teto para os seis passos de fechamento (RC2.2.9) e o recorte não a mantém
+  // — abrimos o tema na pass 2, onde o planner a entrega.
+  await seedLessonPlayerReady(page, "l26b", { masteryLevel: 1 });
   await seedProOnTopOfSession(page);
   await page.goto("/licao/l26b/player");
   await waitForLazyPage(page);
@@ -23,7 +27,8 @@ test.describe("compare_with_image — comparação visual", () => {
   test.setTimeout(120_000);
   test("renderiza na jornada e aceita a imagem correta", async ({ page }) => {
     const comparison = await openComparison(page);
-    await expect(comparison).toHaveAttribute("data-compare-level", "1");
+    // O nível acompanha a pass de maestria (applyScaffoldToStep): pass 2 → nível 2.
+    await expect(comparison).toHaveAttribute("data-compare-level", "2");
     const tiles = comparison.locator("[data-image-choice-ready] button");
     await expect(tiles).toHaveCount(2);
     await expect(comparison.locator('[data-image-choice-ready="1"]')).toBeVisible({ timeout: 12_000 });

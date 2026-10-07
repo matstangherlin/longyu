@@ -9,6 +9,13 @@
  * and undocumented jumps all fail.
  */
 
+/**
+ * Last fingerprint a gate certified (RC2.2.9). Historical anchor — never
+ * retargeted by hand. Shared by validate:release-candidate and the E2E freeze
+ * sentinel (e2e/rc1-launch.spec.ts) so both walk the same chain.
+ */
+export const RC_FINGERPRINT_ANCHOR = "c48b008c9c1e";
+
 /** Typed advance records exported by curriculumFreeze.ts. */
 export function fingerprintRecords(freezeModule) {
   return Object.entries(freezeModule)
