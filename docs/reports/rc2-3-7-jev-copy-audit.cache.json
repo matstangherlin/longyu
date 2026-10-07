@@ -1,0 +1,280 @@
+{
+  "answers": {
+    "1cf3af76c3826a6f": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.3
+      },
+      "ambiguous": {
+        "noul": 0.56
+      }
+    },
+    "3b109976b11ddff3": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 1.28
+      },
+      "ambiguous": {
+        "noul": 0.54
+      }
+    },
+    "47c8b3eafa4204f7": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 1.03
+      },
+      "ambiguous": {
+        "noul": 0.41
+      }
+    },
+    "48221673840af32e": {
+      "intent": {
+        "choice": "feedback"
+      },
+      "clarity": {
+        "score": 0.3
+      },
+      "ambiguous": {
+        "noul": 0.64
+      }
+    },
+    "4c514a0b7082d68c": {
+      "intent": {
+        "choice": "error"
+      },
+      "clarity": {
+        "score": 2.71
+      },
+      "ambiguous": {
+        "noul": 0.62
+      }
+    },
+    "54434dd249cc5ead": {
+      "intent": {
+        "choice": "error"
+      },
+      "clarity": {
+        "score": 2.66
+      },
+      "ambiguous": {
+        "noul": 0.45
+      }
+    },
+    "5f3abe09a82e81fa": {
+      "intent": {
+        "choice": "error"
+      },
+      "clarity": {
+        "score": 2.74
+      },
+      "ambiguous": {
+        "noul": 0.52
+      }
+    },
+    "66604731b9eb059d": {
+      "intent": {
+        "choice": "feedback"
+      },
+      "clarity": {
+        "score": 0.16
+      },
+      "ambiguous": {
+        "noul": 0.51
+      }
+    },
+    "6a0ada3db5ea070c": {
+      "intent": {
+        "choice": "instruction"
+      },
+      "clarity": {
+        "score": 1.47
+      },
+      "ambiguous": {
+        "noul": 0.39
+      }
+    },
+    "6ec99e5186c68e63": {
+      "intent": {
+        "choice": "instruction"
+      },
+      "clarity": {
+        "score": 2.99
+      },
+      "ambiguous": {
+        "noul": 0.25
+      }
+    },
+    "76828a09a31a871c": {
+      "intent": {
+        "choice": "error"
+      },
+      "clarity": {
+        "score": 2.59
+      },
+      "ambiguous": {
+        "noul": 0.38
+      }
+    },
+    "811ec099d9edbc5a": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.86
+      },
+      "ambiguous": {
+        "noul": 0.57
+      }
+    },
+    "882dc0d173448657": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.8
+      },
+      "ambiguous": {
+        "noul": 0.53
+      }
+    },
+    "8e405f748377b6b7": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.17
+      },
+      "ambiguous": {
+        "noul": 0.67
+      }
+    },
+    "90fab25d40cc032c": {
+      "intent": {
+        "choice": "celebration"
+      },
+      "clarity": {
+        "score": 0.18
+      },
+      "ambiguous": {
+        "noul": 0.47
+      }
+    },
+    "96d9023795b3fd22": {
+      "intent": {
+        "choice": "feedback"
+      },
+      "clarity": {
+        "score": 2.39
+      },
+      "ambiguous": {
+        "noul": 0.4
+      }
+    },
+    "a40b694fcdecc225": {
+      "intent": {
+        "choice": "error"
+      },
+      "clarity": {
+        "score": 2.75
+      },
+      "ambiguous": {
+        "noul": 0.48
+      }
+    },
+    "a433b62e13b05a36": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 1.22
+      },
+      "ambiguous": {
+        "noul": 0.6
+      }
+    },
+    "b146426067f46f8c": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.24
+      },
+      "ambiguous": {
+        "noul": 0.64
+      }
+    },
+    "b20744bb512b312e": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.73
+      },
+      "ambiguous": {
+        "noul": 0.48
+      }
+    },
+    "c42f22c564ec2967": {
+      "intent": {
+        "choice": "error"
+      },
+      "clarity": {
+        "score": 2.98
+      },
+      "ambiguous": {
+        "noul": 0.18
+      }
+    },
+    "c79a7528d479c89b": {
+      "intent": {
+        "choice": "feedback"
+      },
+      "clarity": {
+        "score": 0.25
+      },
+      "ambiguous": {
+        "noul": 0.24
+      }
+    },
+    "d93592b9609b8139": {
+      "intent": {
+        "choice": "celebration"
+      },
+      "clarity": {
+        "score": 0.28
+      },
+      "ambiguous": {
+        "noul": 0.21
+      }
+    },
+    "ea03fb72d4b43146": {
+      "intent": {
+        "choice": "celebration"
+      },
+      "clarity": {
+        "score": 0.12
+      },
+      "ambiguous": {
+        "noul": 0.28
+      }
+    },
+    "ef04cc7449ef7454": {
+      "intent": {
+        "choice": "explanation"
+      },
+      "clarity": {
+        "score": 0.34
+      },
+      "ambiguous": {
+        "noul": 0.52
+      }
+    }
+  },
+  "servedModel": "jev-1.13.0"
+}
