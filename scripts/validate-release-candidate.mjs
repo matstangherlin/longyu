@@ -11,6 +11,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { journeyFingerprint } from "./lib/report-meta.mjs";
 import { require as tsRequire } from "./lib/v495a-runtime.mjs";
+import { fingerprintRecords, verifyFingerprintChain } from "./lib/fingerprint-chain.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
@@ -18,7 +19,13 @@ const fail = (message) => errors.push(message);
 const read = (rel) => fs.readFileSync(path.join(root, rel), "utf8");
 
 const FREEZE = "RC2_CONTENT_FREEZE";
-const FINGERPRINT = "c48b008c9c1e";
+/**
+ * Last fingerprint this gate certified (RC2.2.9). Historical anchor — never
+ * retargeted by hand. Every later advance must be a typed record in
+ * curriculumFreeze.ts forming an unbroken chain to the live fingerprint
+ * (RC2.3.4A: replaces the stale literal that broke CI from RC2.3.0 on).
+ */
+const FINGERPRINT_ANCHOR = "c48b008c9c1e";
 const LESSONS = 134;
 const TEACHING = 113;
 const MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
@@ -36,8 +43,10 @@ const freezeSrc = read("src/lib/curriculumFreeze.ts");
 if (!freezeSrc.includes(`CURRICULUM_FREEZE = "${FREEZE}"`)) {
   fail(`CURRICULUM_FREEZE deve ser ${FREEZE}`);
 }
-if (!freezeSrc.includes(`RC_BASE_FINGERPRINT = "${FINGERPRINT}"`)) {
-  fail(`RC_BASE_FINGERPRINT deve ser ${FINGERPRINT}`);
+const freezeModule = tsRequire("../../src/lib/curriculumFreeze.ts");
+const declaredFingerprint = freezeModule.RC_BASE_FINGERPRINT;
+if (typeof declaredFingerprint !== "string" || !/^[0-9a-f]{12}$/.test(declaredFingerprint)) {
+  fail("RC_BASE_FINGERPRINT ausente ou malformado");
 }
 if (!freezeSrc.includes(`RC1_EXPECTED_LESSON_COUNT = ${LESSONS}`)) {
   fail(`RC1_EXPECTED_LESSON_COUNT deve ser ${LESSONS}`);
@@ -53,10 +62,16 @@ if (freezeSrc.includes('RC1_MERGE_SHA = "241386c8fc814ebdfa166dde1035bc3d7ca195f
 }
 
 const fingerprint = journeyFingerprint(root);
-if (fingerprint !== FINGERPRINT) {
-  fail(
-    `fingerprint da Jornada ${fingerprint} ≠ ${FINGERPRINT}. RC1 não cria currículo; se mudou, documente BLOCKER.`
-  );
+const packageScripts = new Set(Object.keys(JSON.parse(read("package.json")).scripts ?? {}));
+const chain = verifyFingerprintChain({
+  anchor: FINGERPRINT_ANCHOR,
+  declared: declaredFingerprint,
+  live: fingerprint,
+  records: fingerprintRecords(freezeModule),
+  knownScripts: packageScripts,
+});
+for (const message of chain.errors) {
+  fail(`${message}. RC1 não cria currículo; se mudou, documente EXPECTED_FINGERPRINT_ADVANCE tipado.`);
 }
 
 const { ALL_LESSONS } = tsRequire("../../src/data/journey.ts");
@@ -91,7 +106,7 @@ try {
 
 if (checksDoc) {
   if (checksDoc.curriculum_freeze !== FREEZE) fail(`operational-checks.curriculum_freeze ≠ ${FREEZE}`);
-  if (checksDoc.base_fingerprint !== FINGERPRINT) fail("operational-checks.base_fingerprint drift");
+  if (checksDoc.base_fingerprint !== declaredFingerprint) fail("operational-checks.base_fingerprint drift");
   if (checksDoc.merge_sha !== MERGE_SHA) fail("operational-checks.merge_sha deve ser o merge real da #254");
   if (checksDoc.merge_sha === "241386c8fc814ebdfa166dde1035bc3d7ca195f5") {
     fail("operational-checks não pode usar o SHA da branch 9B");
@@ -128,7 +143,7 @@ if (checksDoc) {
 
 const report = read("docs/reports/rc1-launch-readiness.md");
 if (!report.includes("NO-GO")) fail("relatório RC1 deve declarar NO-GO");
-if (!report.includes(FINGERPRINT)) fail("relatório RC1 deve citar o fingerprint");
+if (!report.includes(FINGERPRINT_ANCHOR)) fail("relatório RC1 deve citar o fingerprint certificado (âncora)");
 if (!report.includes(MERGE_SHA)) fail("relatório RC1 deve citar o SHA real da #254");
 if (/Real merge SHA[\s\S]{0,80}241386c8fc814ebdfa166dde1035bc3d7ca195f5/.test(report)) {
   fail("relatório RC1 não pode tratar o SHA da branch 9B como merge SHA");

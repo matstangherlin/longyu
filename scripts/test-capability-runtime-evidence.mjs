@@ -100,7 +100,16 @@ const cases = [
   ],
   [
     "6. remover a tarefa de escuta",
-    (ctx) => editSteps(ctx, (step) => AUDIO.has(step.kind) && /便宜一点/.test(norm(step.audioText))),
+    // Todos os canais que a evidência ouve (audioText, audioTextB, audioSequence):
+    // desde a pilha RC2.3.x o plano entrega uma segunda escuta independente da
+    // frase (p6-compras M2), e remover só `audioText` deixava a escuta viva.
+    (ctx) =>
+      editSteps(
+        ctx,
+        (step) =>
+          AUDIO.has(step.kind) &&
+          [step.audioText, step.audioTextB, ...(step.audioSequence ?? [])].some((text) => /便宜一点/.test(norm(text)))
+      ),
     ["DECLARED_READY_WITHOUT_EVIDENCE"],
   ],
   [
@@ -135,7 +144,17 @@ const cases = [
   ],
   [
     "11. transferência só como transferScenarios",
-    (ctx) => editSteps(ctx, (step, plan) => plan.lesson.id === "p7-imersao-casa-amigo" && says(step, "我没有姐姐")),
+    // Remove TODA tarefa que a evidência real conta como transferência de
+    // talk_family: desde a pilha RC2.3.x existe uma segunda (l25 M4,
+    // packet-exchange-family), e remover só a de p7 deixava a dimensão viva.
+    (ctx) => {
+      const refs = base.evidenceById.get("talk_family").transfer;
+      assert.ok(refs.length > 0, "talk_family precisa de transferência real antes da mutação");
+      const doomed = new Set(refs.map((ref) => `${ref.lessonId}#${ref.pass}#${ref.stepIndex}`));
+      for (const plan of ctx.plans) {
+        plan.steps = plan.steps.filter((_, stepIndex) => !doomed.has(`${plan.lesson.id}#${plan.pass}#${stepIndex}`));
+      }
+    },
     ["METADATA_CLAIM_UNPROVEN"],
   ],
   [
