@@ -130,7 +130,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
       await openListenSelectStep(page);
       // Prefer known distractors for p1 dialogue cards.
       const distractor = page.getByRole("button", {
-        name: /Opção \d+: (ensinar só hànzì|ensinar só pinyin|um alfabeto|um desenho|uma tradução|Obrigado|Até logo|De nada|谢谢|再见)/,
+        name: /Opção \d+: (ensinar só hànzì|ensinar só pinyin|só um alfabeto|só um conjunto de desenhos|a tradução|um alfabeto|um desenho|uma tradução|Obrigado|Até logo|De nada|谢谢|再见)/,
       });
       if (await distractor.first().isVisible().catch(() => false)) {
         await distractor.first().click();

@@ -11,7 +11,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { journeyFingerprint } from "./lib/report-meta.mjs";
 import { require as tsRequire } from "./lib/v495a-runtime.mjs";
-import { fingerprintRecords, verifyFingerprintChain } from "./lib/fingerprint-chain.mjs";
+import { RC_FINGERPRINT_ANCHOR, fingerprintRecords, verifyFingerprintChain } from "./lib/fingerprint-chain.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
@@ -25,7 +25,7 @@ const FREEZE = "RC2_CONTENT_FREEZE";
  * curriculumFreeze.ts forming an unbroken chain to the live fingerprint
  * (RC2.3.4A: replaces the stale literal that broke CI from RC2.3.0 on).
  */
-const FINGERPRINT_ANCHOR = "c48b008c9c1e";
+const FINGERPRINT_ANCHOR = RC_FINGERPRINT_ANCHOR;
 const LESSONS = 134;
 const TEACHING = 113;
 const MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

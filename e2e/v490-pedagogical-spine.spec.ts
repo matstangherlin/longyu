@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { dismissBlockingOverlays, advancePastGuideDialogue, seedInstructionLocale, seedUnlockedLessonSession, switchCourseInSettings, waitForLazyPage } from "./helpers";
+import { dismissBlockingOverlays, advancePastDiscoverySteps, advancePastGuideDialogue, seedInstructionLocale, seedUnlockedLessonSession, switchCourseInSettings, waitForLazyPage } from "./helpers";
 
 const SHOTS = path.join(process.cwd(), "docs/reports/v490-screenshots");
 
@@ -14,6 +14,9 @@ test.describe("V4.9.0 pedagogical spine", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
+    // RC2.3.0 — a Descoberta (cartão de ensino de 你好 + escuta, não graduada)
+    // abre a sessão; a introdução autorada vem logo depois, ainda antes da nota.
+    expect(await advancePastDiscoverySteps(page)).toBeGreaterThan(0);
     await expect(page.getByRole("heading", { name: "Uma língua falada" })).toBeVisible();
     await advancePastGuideDialogue(page);
     await expect(page.locator("[data-testid=pedagogical-notice]")).toBeVisible();
