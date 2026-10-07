@@ -6,6 +6,7 @@
  * RC2.2.31 — asset canônico NAO usa owner "TTS".
  */
 import { recordTechEvent } from "./techEvents";
+import { setAudioOwnerState } from "./audioOwnerState";
 
 export const AUDIO_OWNERS = ["IDLE", "CANONICAL_MEDIA", "TTS", "SELF_PLAYBACK", "RECORDING", "RECOGNITION"] as const;
 export type AudioOwner = (typeof AUDIO_OWNERS)[number];
@@ -33,6 +34,7 @@ export function claimAudio(next: Exclude<AudioOwner, "IDLE">, stop?: () => void)
     }
   }
   owner = next;
+  setAudioOwnerState(next);
   token += 1;
   if (stop) stoppers.set(next, stop);
   else stoppers.delete(next);
@@ -45,6 +47,7 @@ export function releaseAudio(who: Exclude<AudioOwner, "IDLE">, claimToken?: numb
   if (owner !== who) return;
   if (claimToken != null && claimToken !== token) return;
   owner = "IDLE";
+  setAudioOwnerState("IDLE");
   stoppers.delete(who);
 }
 
@@ -54,6 +57,7 @@ export function currentAudioOwner(): AudioOwner {
 
 export function resetAudioArbiterForTests(): void {
   owner = "IDLE";
+  setAudioOwnerState("IDLE");
   token = 0;
   stoppers.clear();
 }

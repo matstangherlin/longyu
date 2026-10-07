@@ -1,5 +1,5 @@
 import { useStore } from "./store";
-import { currentAudioOwner } from "./audioArbiter";
+import { audioOwnerState } from "./audioOwnerState";
 import { logSensory } from "./sensoryLog";
 import { SUCCESS_FATIGUE, sfxDecision } from "./sfxPolicy";
 
@@ -140,7 +140,7 @@ export function playSoundFx(kind: SoundKind, enabled: boolean) {
     kind,
     enabled,
     soundEffectsSetting: state.soundEffects !== false,
-    audioOwner: currentAudioOwner(),
+    audioOwner: audioOwnerState(),
     now,
     lastKind,
     lastKindAt,

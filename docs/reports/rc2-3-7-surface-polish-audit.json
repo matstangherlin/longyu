@@ -1,0 +1,719 @@
+{
+  "generatedBy": "scripts/generate-rc2-3-7-surface-audit.mjs",
+  "surfaces": 20,
+  "rows": [
+    {
+      "surface": "Jornada",
+      "route": "/jornada",
+      "files": [
+        "src/features/journey/JourneyPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": true
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 2,
+        "kinds": [
+          "qiGain"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": true
+      },
+      "firstUseGuidance": [
+        "welcome_journey_v1",
+        "new_features_v1",
+        "practice_unlocked_v1",
+        "missions_unlocked_v1",
+        "culture_unlocked_v1",
+        "hanzi_unlocked_v1",
+        "atlas_unlocked_v1",
+        "league_unlocked_v1",
+        "shop_introduction_v1",
+        "immersion_unlocked_v1",
+        "tone_direction_tip_v1",
+        "profile_entry_v1",
+        "journey_culture_bridge_v1",
+        "notifications_offer_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": true
+    },
+    {
+      "surface": "Lesson Player",
+      "route": "/licao/:id/player",
+      "files": [
+        "src/features/lesson/LessonPlayer.tsx",
+        "src/features/lesson/LessonVictory.tsx",
+        "src/features/lesson/steps.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": true
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 70,
+        "kinds": [
+          "blocked",
+          "lessonComplete",
+          "success",
+          "error",
+          "streak",
+          "step",
+          "phaseExit",
+          "chestReady",
+          "qiSpend",
+          "qiGain",
+          "pieceSelect",
+          "tap"
+        ]
+      },
+      "haptic": {
+        "calls": 5,
+        "events": [
+          "answerWrong",
+          "answerCorrect",
+          "lessonComplete"
+        ]
+      },
+      "animation": {
+        "reducedMotion": true,
+        "animated": true
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": true,
+      "safeArea": true
+    },
+    {
+      "surface": "Revisão",
+      "route": "/revisao",
+      "files": [
+        "src/features/revisao/RevisaoPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": true
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 3,
+        "kinds": [
+          "pieceSelect"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": true
+      },
+      "firstUseGuidance": [
+        "review_session_intro_v1"
+      ],
+      "mobileScroll": true,
+      "safeArea": false
+    },
+    {
+      "surface": "Praticar",
+      "route": "/treino",
+      "files": [
+        "src/features/treino/TreinoPage.tsx"
+      ],
+      "primaryAction": false,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "tone_trace_first_use_v1",
+        "tone_confusion_2_3_v1",
+        "practice_first_use_v1",
+        "review_first_use_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Seu Domínio",
+      "route": "/dominio",
+      "files": [
+        "src/features/dominio/DominioPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": false,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": false,
+      "completion": false,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "mastery_first_use_v1",
+        "practice_need_first_use_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Praticar o que preciso",
+      "route": "/revisao?sessao=dominio",
+      "files": [
+        "src/features/revisao/RevisaoPage.tsx",
+        "src/lib/mastery/personalMastery.ts"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": true
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 3,
+        "kinds": [
+          "pieceSelect"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": true
+      },
+      "firstUseGuidance": [
+        "review_session_intro_v1"
+      ],
+      "mobileScroll": true,
+      "safeArea": false
+    },
+    {
+      "surface": "Pinyin Lab",
+      "route": "/pinyin",
+      "files": [
+        "src/features/pinyin/PinyinLabPage.tsx",
+        "src/features/pinyin/PronunciationContrastDrill.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 2,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Tons",
+      "route": "/som",
+      "files": [
+        "src/features/som/SomPage.tsx",
+        "src/components/tone/ToneTrace.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 3,
+        "kinds": [
+          "qiGain"
+        ]
+      },
+      "haptic": {
+        "calls": 3,
+        "events": [
+          "selection",
+          "piecePlaced"
+        ]
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "tone_trace_first_use_v1",
+        "tone_confusion_2_3_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Fala",
+      "route": "/fala",
+      "files": [
+        "src/features/fala/FalaPage.tsx",
+        "src/features/lesson/SelfComparePractice.tsx",
+        "src/features/lesson/PronunciationPractice.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": true,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 2,
+        "kinds": [
+          "qiGain"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": true
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Hànzì",
+      "route": "/hanzi",
+      "files": [
+        "src/features/hanzi/HanziPage.tsx",
+        "src/features/hanzi/writing/HanziWritingExercise.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 1,
+        "kinds": [
+          "streak"
+        ]
+      },
+      "haptic": {
+        "calls": 6,
+        "events": [
+          "answerCorrect",
+          "answerWrong",
+          "piecePlaced"
+        ]
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "atlas_first_use_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Atlas",
+      "route": "/hanzi/atlas",
+      "files": [
+        "src/features/hanzi/HanziAtlasPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "atlas_first_use_v1"
+      ],
+      "mobileScroll": true,
+      "safeArea": false
+    },
+    {
+      "surface": "Ideogramas",
+      "route": "/ideogramas",
+      "files": [
+        "src/features/hanzi/IdeogramasPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": false,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": false,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Culture Hub",
+      "route": "/cultura",
+      "files": [
+        "src/features/culture/CultureHubPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "culture_first_use_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Culture Lesson",
+      "route": "/cultura/:id",
+      "files": [
+        "src/features/culture/CultureItemPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": false,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": false,
+      "errorState": false,
+      "completion": false,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "culture_first_use_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Imersão",
+      "route": "/imersao",
+      "files": [
+        "src/features/immersion/ImmersionPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 3,
+        "kinds": [
+          "qiGain"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": true
+      },
+      "firstUseGuidance": [
+        "immersion_first_use_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Missões",
+      "route": "/missoes",
+      "files": [
+        "src/features/missoes/MissoesPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 2,
+        "kinds": [
+          "chestReady"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": true,
+      "safeArea": true
+    },
+    {
+      "surface": "Phase Challenge",
+      "route": "/teste/fase/:id",
+      "files": [
+        "src/features/challenge/PhaseChallengePage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": true,
+      "sound": {
+        "calls": 4,
+        "kinds": [
+          "blocked",
+          "spend"
+        ]
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": false,
+      "safeArea": true
+    },
+    {
+      "surface": "Perfil",
+      "route": "/perfil",
+      "files": [
+        "src/features/perfil/ProfilePage.tsx"
+      ],
+      "primaryAction": false,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Mais",
+      "route": "/mais",
+      "files": [
+        "src/features/more/MorePage.tsx"
+      ],
+      "primaryAction": false,
+      "navigation": {
+        "exit": false,
+        "returnAnchor": false
+      },
+      "loading": false,
+      "emptyState": false,
+      "errorState": false,
+      "completion": true,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [
+        "account_appearance_v1"
+      ],
+      "mobileScroll": false,
+      "safeArea": false
+    },
+    {
+      "surface": "Premium",
+      "route": "/pro",
+      "files": [
+        "src/features/pro/ProPage.tsx"
+      ],
+      "primaryAction": true,
+      "navigation": {
+        "exit": true,
+        "returnAnchor": true
+      },
+      "loading": false,
+      "emptyState": true,
+      "errorState": true,
+      "completion": false,
+      "sound": {
+        "calls": 0,
+        "kinds": []
+      },
+      "haptic": {
+        "calls": 0,
+        "events": []
+      },
+      "animation": {
+        "reducedMotion": false,
+        "animated": false
+      },
+      "firstUseGuidance": [],
+      "mobileScroll": false,
+      "safeArea": true
+    }
+  ]
+}

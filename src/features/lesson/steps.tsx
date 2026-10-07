@@ -1199,7 +1199,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
         {picked.length === 0 && <span className="text-sm font-medium text-ink-faint">{t("player.tapPiecesShort")}</span>}
         {picked.map((p, i) => (
           <button key={i} onClick={() => {
-            playSoundFx("tap", soundEffects);
+            // RC2.3.7 — remover peça não toca som (matriz sensorial: pieceRemoved = sem som).
             setPicked((arr) => arr.filter((_, idx) => idx !== i));
           }} className={engineTileClass({ cjk: isCjkText(p), active: true })}>
             <ExerciseText value={p} type={isCjkText(p) ? "hanzi" : "pt"} speakOnClick />
@@ -1234,7 +1234,6 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
           </div>
           <div className="mt-4">
             <Button variant="good" className="w-full shadow-lift" onClick={() => {
-              playSoundFx("tap", soundEffects);
               setPicked([]);
             }}>
               {t("player.tryAgain")}
@@ -2973,8 +2972,8 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
 
   function removePiece(index: number) {
     if (locked) return;
+    // RC2.3.7 — a peça já fala em mandarim; sem SFX por cima (e pieceRemoved não tem som).
     speakExercisePiece(picked[index]?.value);
-    playSoundFx("tap", soundEffects);
     setPicked((current) => current.filter((_, i) => i !== index));
     setFeedback(null);
     setAssemblyHint(null);
