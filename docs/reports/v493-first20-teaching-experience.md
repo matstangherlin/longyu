@@ -19,7 +19,7 @@ quanto apoio.
 
 | # | tópico | pass | aula recebida | ensinado | perguntado | assumido | scaffold | carga | produção |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | p1-o-que-e-mandarim | M1 | instruction:foundation:mandarin | 5 | 5 | — | 4/4 | 0 | RECEPTIVE |
+| 1 | p1-o-que-e-mandarim | M1 | instruction:foundation:mandarin | 5 | 5 | — | 5/5 | 0 | RECEPTIVE |
 | 2 | p1-o-que-e-mandarim | M2 | — | 3 | 5 | — | 5/5 | 0 | RECEPTIVE |
 | 3 | p1-o-que-e-mandarim | M3 | — | 3 | 5 | — | 5/5 | 0 | PRODUCTIVE |
 | 4 | p1-o-que-e-mandarim | M4 | — | 0 | 5 | — | 5/5 | 0 | RECEPTIVE |

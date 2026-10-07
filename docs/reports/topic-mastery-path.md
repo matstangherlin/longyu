@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | c48b008c9c1e |
-| HEAD no instante da geração | 7fbf9c984efac71dc2aa8e544c6bd660da29b816 |
+| Hash da Jornada | 5a64821d0b7d |
+| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-24T11:40:38.723Z |
+| Gerado em | 2026-10-07T07:21:09.558Z |
 | Lições | 134 |
 
 
@@ -30,8 +30,8 @@ Estrelas (TM-017): qualidade, não o anel 4/4.
 | Exceções (review/checkpoint) | 21 |
 | Specs autoradas | 38 |
 | Sessões estimadas | 473 |
-| Horas estimadas | 21.5 |
-| Média de passos/pass | 8.3 |
+| Horas estimadas | 26.5 |
+| Média de passos/pass | 10.9 |
 
 ## Primeira vitória (sessão + minutos)
 
@@ -40,9 +40,9 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 | Métrica | Sessão | Minutos até o início | Onde |
 |---------|------:|---------------------:|------|
 | timeToFirstInteraction | 1 | 0.0 | O que é mandarim? M1 |
-| timeToFirstConversation | 4 | 5.7 | O que é mandarim? M4 |
-| timeToFirstIndependentProduction | 3 | 3.8 | O que é mandarim? M3 |
-| timeToFirstTransfer | 4 | 5.7 | O que é mandarim? M4 |
+| timeToFirstConversation | 4 | 6.0 | O que é mandarim? M4 |
+| timeToFirstIndependentProduction | 3 | 4.1 | O que é mandarim? M3 |
+| timeToFirstTransfer | 4 | 6.0 | O que é mandarim? M4 |
 
 ## Exceções
 
@@ -107,18 +107,50 @@ Métricas antigas por `lessonIndex` continuam em `reports/first-communicative-wi
 
 ## Avisos
 
-- p1-primeiros-hanzi M4: 14 passos (alvo 6–9)
-- l18 M4: 3 passos (alvo 6–9)
-- l26b M1: 14 passos (alvo 5–8)
-- p6-cidade-lugares M1: 14 passos (alvo 5–8)
-- p6-china-ruas M1: 14 passos (alvo 5–8)
-- p6-horarios M1: 14 passos (alvo 5–8)
-- p6-direcoes M1: 14 passos (alvo 5–8)
-- p7-imersao-estacao M1: 14 passos (alvo 5–8)
-- p7-imersao-estacao M2: 13 passos (alvo 6–8)
+- p1-o-que-e-mandarim M3: 6 passos (alvo 10–13)
+- p1-o-que-e-mandarim M4: 5 passos (alvo 12–15)
+- p1-o-que-e-pinyin M3: 6 passos (alvo 10–13)
+- p1-o-que-e-pinyin M4: 7 passos (alvo 12–15)
+- p1-o-que-e-tom M4: 7 passos (alvo 12–15)
+- p1-o-que-e-hanzi M3: 6 passos (alvo 10–13)
+- p1-o-que-e-hanzi M4: 7 passos (alvo 12–15)
+- p1-engine-2-lab M4: 7 passos (alvo 12–15)
+- p2-ma-primeiro-tom M4: 9 passos (alvo 12–15)
+- p2-ma-segundo-tom M3: 6 passos (alvo 10–13)
+- p2-ma-segundo-tom M4: 6 passos (alvo 12–15)
+- p2-ma-terceiro-tom M3: 6 passos (alvo 10–13)
+- p2-ma-terceiro-tom M4: 6 passos (alvo 12–15)
+- p2-ma-quarto-tom M4: 8 passos (alvo 12–15)
+- p2-comparar-tom-1-4 M4: 9 passos (alvo 12–15)
+- p2-comparar-tom-2-3 M4: 9 passos (alvo 12–15)
+- l8 M3: 7 passos (alvo 10–13)
+- l8 M4: 7 passos (alvo 12–15)
+- l8-compare M4: 9 passos (alvo 12–15)
+- l11-falo-pouco M4: 4 passos (alvo 12–15)
+- l13-dialogo-nome M2: 5 passos (alvo 8–11)
+- l13-dialogo-nome M3: 4 passos (alvo 10–13)
+- l13-dialogo-nome M4: 4 passos (alvo 12–15)
+- l18 M2: 5 passos (alvo 8–11)
+- l18 M3: 6 passos (alvo 10–13)
+- l18 M4: 3 passos (alvo 12–15)
+- l24 M4: 4 passos (alvo 12–15)
+- p6-rotina-trabalho M4: 5 passos (alvo 12–15)
+- p6-cidade-lugares M1: 14 passos (alvo 7–9)
+- p6-china-ruas M1: 14 passos (alvo 7–9)
+- p6-china-ruas M3: 4 passos (alvo 10–13)
+- p6-china-ruas M4: 4 passos (alvo 12–15)
+- p6-saude M3: 4 passos (alvo 10–13)
+- p6-saude M4: 4 passos (alvo 12–15)
+- p6-horarios M1: 14 passos (alvo 7–9)
+- p6-horarios M3: 6 passos (alvo 10–13)
+- p6-direcoes M1: 14 passos (alvo 7–9)
+- p6-direcoes M3: 6 passos (alvo 10–13)
+- p6-direcoes M4: 7 passos (alvo 12–15)
+- p7-imersao-estacao M1: 14 passos (alvo 7–9)
+- p7-imersao-estacao M4: 9 passos (alvo 12–15)
 
 ## Falhas
 
 Nenhuma.
 
-<!-- integridade:06cb31fbe1c56745 -->
+<!-- integridade:4a27cba9550b25c7 -->
