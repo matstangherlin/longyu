@@ -15,6 +15,9 @@
  * Fica só no aparelho; sync de nuvem é decisão da arquitetura existente.
  */
 
+import { speechToEvidence } from "./mastery/adapters";
+import { recordLearningEvidence } from "./mastery/recorder";
+
 export const SPEECH_EVIDENCE_STORAGE_KEY = "longyu:speech-evidence-v1";
 export const SPEECH_EVIDENCE_SCHEMA_VERSION = 1;
 const MAX_EVENTS = 200;
@@ -116,6 +119,12 @@ function writeEvents(events: SpeechLearningEvidence[]): void {
 export function recordSpeechEvidence(input: SpeechEvidenceInput): SpeechLearningEvidence {
   const event = normalizeSpeechEvidence(input);
   writeEvents([...readEvents(), event]);
+  // RC2.3.6 — hand-off to the Learner Evidence Record (counts only, never audio).
+  try {
+    recordLearningEvidence(speechToEvidence(event));
+  } catch {
+    /* evidence is optional */
+  }
   return event;
 }
 

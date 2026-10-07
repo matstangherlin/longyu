@@ -1,0 +1,155 @@
+{
+  "generatedBy": "scripts/generate-rc2-3-6-reports.mjs",
+  "journeyFingerprint": "5a64821d0b7d",
+  "gate": {
+    "failures": 0
+  },
+  "graph": {
+    "targets": 966,
+    "relations": 4048,
+    "byType": {
+      "WORD": 158,
+      "HANZI": 280,
+      "SYLLABLE": 143,
+      "TONE": 4,
+      "COMPONENT": 19,
+      "COMMUNICATIVE_INTENT": 18,
+      "SCENARIO": 47,
+      "CULTURE_CONCEPT": 14,
+      "CHUNK": 204,
+      "PRONUNCIATION_CONTRAST": 79
+    },
+    "byRelation": {
+      "pronounced_as": 154,
+      "uses_tone": 136,
+      "composed_of": 79,
+      "prerequisite_of": 1424,
+      "contains": 1372,
+      "expresses_intent": 136,
+      "appears_in": 543,
+      "used_in_scenario": 145,
+      "culture_related": 59
+    },
+    "journeyTargets": 931,
+    "notTaughtTargets": 24,
+    "pinyinLabTargets": 11,
+    "orphans": [
+      "hanzi:做",
+      "hanzi:航",
+      "hanzi:午",
+      "hanzi:花",
+      "hanzi:星",
+      "hanzi:晴",
+      "hanzi:风",
+      "chunk:wifi"
+    ],
+    "duplicateIdenticalAliases": 0,
+    "danglingRelations": 0,
+    "missingPrerequisites": [
+      "chunk:wifi"
+    ],
+    "prerequisiteCycles": 0,
+    "prerequisiteOrderViolations": 0,
+    "KNOWLEDGE_GRAPH_CURRICULUM_LEAK": 0,
+    "coveragePilot": {
+      "lessons": 20,
+      "targets": 128,
+      "byType": {
+        "WORD": 16,
+        "HANZI": 39,
+        "SYLLABLE": 33,
+        "TONE": 4,
+        "COMPONENT": 14,
+        "COMMUNICATIVE_INTENT": 9,
+        "SCENARIO": 6,
+        "CULTURE_CONCEPT": 3,
+        "CHUNK": 1,
+        "PRONUNCIATION_CONTRAST": 3
+      }
+    }
+  },
+  "profiles": [
+    {
+      "id": "A",
+      "title": "Novo aluno, sem evidência",
+      "pass": true,
+      "message": "ok",
+      "session": 0
+    },
+    {
+      "id": "B",
+      "title": "Aluno constante, acertos sozinho e espaçados",
+      "pass": true,
+      "message": "ok",
+      "strong": 10,
+      "session": 6
+    },
+    {
+      "id": "C",
+      "title": "Dificuldade de escuta repetida",
+      "pass": true,
+      "message": "ok",
+      "weak": 3,
+      "session": 5
+    },
+    {
+      "id": "D",
+      "title": "Acerta só com ajuda",
+      "pass": true,
+      "message": "ok",
+      "strong": 0,
+      "developing": 2
+    },
+    {
+      "id": "E",
+      "title": "Microfone bloqueado",
+      "pass": true,
+      "message": "ok"
+    },
+    {
+      "id": "F",
+      "title": "Volta depois de 90 dias",
+      "pass": true,
+      "message": "ok",
+      "reviewDue": 3
+    }
+  ],
+  "storage": [
+    {
+      "events": 100,
+      "recent": 100,
+      "aggregates": 0,
+      "seenIds": 100,
+      "bytes": 26866,
+      "appendMs": 0,
+      "deriveAllMs": 2
+    },
+    {
+      "events": 1000,
+      "recent": 1000,
+      "aggregates": 0,
+      "seenIds": 1000,
+      "bytes": 268066,
+      "appendMs": 0,
+      "deriveAllMs": 2
+    },
+    {
+      "events": 10000,
+      "recent": 1500,
+      "aggregates": 3675,
+      "seenIds": 6000,
+      "bytes": 1416342,
+      "appendMs": 108,
+      "deriveAllMs": 4
+    },
+    {
+      "events": 50000,
+      "recent": 1500,
+      "aggregates": 3675,
+      "seenIds": 6000,
+      "bytes": 1420134,
+      "appendMs": 724,
+      "deriveAllMs": 4
+    }
+  ]
+}

@@ -2,6 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { capTargetPerRound } from "../../lib/semanticRepetition";
 import { useSearchParams } from "react-router-dom";
+import { srsReviewToEvidence } from "../../lib/mastery/adapters";
+import { recordLearningEvidence } from "../../lib/mastery/recorder";
+import { buildPracticeSession } from "../../lib/mastery/personalMastery";
+import { practiceTasksToReviewRefs } from "../../lib/mastery/practiceQueue";
+import { useLearnerMastery } from "../dominio/useLearnerMastery";
 import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
 import { todayKey } from "../../lib/storage";
 import { useStore, type Track } from "../../lib/store";
@@ -1293,6 +1298,10 @@ export function RevisaoPage() {
   // RC2.2.8 · F1 — "Treinar este conjunto" do Atlas: a lista vem na URL, os
   // itens são do MESMO srs. Só entra quem ainda é elegível (aprendido).
   const atlasStudySet = useMemo(() => parseAtlasStudySet(searchParams), [searchParams]);
+  // RC2.3.6 — "Praticar o que preciso": a fila vem do Personal Mastery (prioridade),
+  // os itens são do MESMO srs e só entram itens que o aluno já tem (ensinados).
+  const masterySession = searchParams.get("sessao") === "dominio";
+  const personalMastery = useLearnerMastery();
   const learnedCharsForStudySet = useStore((s) => s.learnedChars);
   const moduleUnit = moduleUnitId ? findUnitById(moduleUnitId) : undefined;
   const suggestedModuleId = useMemo(() => latestReviewableModuleId(completedLessons), [completedLessons]);
@@ -1309,7 +1318,19 @@ export function RevisaoPage() {
   const sessionQueueRef = useRef<ReviewQueueEntry[] | null>(null);
   // RC2.2.23 — "Continuar revisando" recongela a fila com o SRS já atualizado.
   const [sessionNonce, setSessionNonce] = useState(0);
+  const reviewEvidenceSessionRef = useRef(Date.now().toString(36));
   const fullQueue = useMemo(() => {
+    if (masterySession) {
+      if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
+      const now = Date.now();
+      const refs = practiceTasksToReviewRefs(buildPracticeSession(personalMastery, { now }), srs);
+      const entries: ReviewQueueEntry[] = refs.map((ref) => {
+        const existing = srs[ref.key] ?? newItem(ref.type, ref.itemId, { reviewDomain: ref.domain, now });
+        return { kind: "srs", id: `dominio:${ref.key}`, item: { ...existing, due: Math.min(existing.due, now) } };
+      });
+      sessionQueueRef.current = entries;
+      return entries;
+    }
     if (atlasStudySet) {
       if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
       const learnedSet = new Set(learnedCharsForStudySet);
@@ -1337,7 +1358,7 @@ export function RevisaoPage() {
     }
     return sessionQueueRef.current;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `sessionNonce` recongela a fila de propósito
-  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, moduleUnitId, srs, sessionNonce]);
+  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, masterySession, moduleUnitId, personalMastery, srs, sessionNonce]);
   // Modos de revisão: recuperar erros da tentativa/recentes, reforçar itens
   // fracos ou percorrer a fila inteligente inteira. O modo só filtra a fila já
   // congelada — não reconstrói SRS nem duplica nada.
@@ -1356,6 +1377,7 @@ export function RevisaoPage() {
       wantsCorrectionSession ||
       searchParams.has("modulo") ||
       searchParams.get("iniciar") === "1" ||
+      searchParams.get("sessao") === "dominio" ||
       atlasStudySet != null
   );
   // A Jornada grava a âncora ao desmontar (no mesmo commit em que esta tela
@@ -1957,6 +1979,20 @@ export function RevisaoPage() {
       setReturningItems((items) => (items.includes(itemLabelText) ? items : [...items, itemLabelText]));
     }
     gradeSrs(item.type, item.itemId, effectiveGrade, item.track, item.reviewDomain);
+    // RC2.3.6 — Learner Evidence Record: nota efetiva (ajuda já limita a nota e a independência).
+    try {
+      recordLearningEvidence([
+        srsReviewToEvidence({
+          text: activeExercise.entity?.hanzi ?? data?.hanzi ?? itemLabelText,
+          reviewDomain: domain,
+          grade: effectiveGrade,
+          help: reviewAssistanceUsed ? ["hint"] : [],
+          attemptKey: `${reviewEvidenceSessionRef.current}|${reviewKey}`,
+        }),
+      ]);
+    } catch {
+      /* evidence is optional */
+    }
     if (effectiveGrade === "again" && activeExercise.canAutoCheck) {
       if (sourceError) {
         recordActivityErrorReviewAttempt(sourceError.id);
@@ -2097,6 +2133,11 @@ export function RevisaoPage() {
       <div className="mb-3">
         <GuidanceInlineSlot surface="/revisao" />
       </div>
+      )}
+      {!inRound && (
+        <div className="flex flex-wrap gap-2" data-testid="review-mastery-links">
+          <ButtonLink to="/dominio" variant="outline" size="sm" data-testid="review-open-dominio">Seu Domínio · Praticar o que preciso</ButtonLink>
+        </div>
       )}
 
       {detailedErrorsAllowed && !inRound && (

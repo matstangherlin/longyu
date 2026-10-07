@@ -5,6 +5,8 @@
  */
 
 import type { HanziLearningStage } from "./stages";
+import { hanziFormToEvidence } from "../mastery/adapters";
+import { recordLearningEvidence } from "../mastery/recorder";
 import type { HanziFormEvidence, HanziWritingState, HanziWritingTelemetryEvent } from "./types";
 
 export const HANZI_FORM_EVIDENCE_STORAGE_KEY = "longyu:hanzi-form-evidence-v1";
@@ -138,6 +140,24 @@ export function recordFormEvidence(input: {
   ev.updatedAt = Date.now();
   map[input.charId] = ev;
   saveFormEvidenceMap(map);
+  // RC2.3.6 — same event in the Learner Evidence Record, channel kept separate
+  // (tracing is guided; it never counts as writing from memory).
+  try {
+    const now = Date.now();
+    recordLearningEvidence([
+      hanziFormToEvidence({
+        character: input.character,
+        channel: input.channel,
+        correct: input.correct,
+        helpUsed: input.helpUsed,
+        replayUsed: input.replayUsed,
+        attemptKey: `${input.charId}|${input.channel}|${input.stage ?? "-"}|${now}`,
+        timestamp: now,
+      }),
+    ]);
+  } catch {
+    /* evidence is optional */
+  }
   return ev;
 }
 
