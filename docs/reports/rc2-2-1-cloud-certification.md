@@ -104,4 +104,4 @@ FREE-TIER-FIRST strategy; the re-validated state, the local-Supabase QA architec
 (**OPTION B — FREE_TIER_VIABLE_WITH_ARCHITECTURAL_CHANGES**) live in
 [`docs/launch/rc2-3-4a-cloud-free-tier-audit.md`](../launch/rc2-3-4a-cloud-free-tier-audit.md) and
 [`docs/launch/platform-budget-registry.json`](../launch/platform-budget-registry.json).
-No project was restored, paused, deleted or upgraded; `atomurus` untouched.
+No project was restored, paused, deleted or upgraded; `sibling-free-tier-project` untouched.

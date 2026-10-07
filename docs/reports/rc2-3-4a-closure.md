@@ -24,7 +24,7 @@ Allowed statuses: PASS · CODE_READY · ACCOUNT_VERIFIED · NOT_RUN · OWNER_ACT
 ## Guarantees for this wave
 
 - **No paid resources created.** No plan bought, no auto-recharge, no branch, no R2 enable, no Stripe live object.
-- **No destructive cloud operation.** No project paused/deleted/restored; **`atomurus` untouched**.
+- **No destructive cloud operation.** No project paused/deleted/restored; **`sibling-free-tier-project` untouched**.
 - **No production migration during RC2.3.4A.** Earlier in this session (before this wave's rules) the additive `jev_feedback_triage` migration and the `triage-feedback` Edge Function v1 were applied, and the `TYPESAFE_API_KEY` Vault secret was stored.
 - **No secret in repo, report or log.** The TypeSafe key is referenced only by its Vault name.
 - **No gate weakened.** Every fix is causal and covered by mutations (`test:fingerprint-chain` 8/8, `test:hanzi-writing-eligibility` 12/12, `test:capability-runtime-evidence` 19/19, `test:free-tier-guardrails` 144 checks).

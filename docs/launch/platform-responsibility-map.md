@@ -7,7 +7,7 @@ Status vocabulary: PASS · CODE_READY · ACCOUNT_VERIFIED · NOT_RUN · OWNER_AC
 | Platform | Owns (only this) | Explicitly NOT | Today | Status |
 |---|---|---|---|---|
 | **Supabase** (`MandarimProject`) | PostgreSQL, Auth, entitlement state, progress sync, small server functions (account creation, checkout session, webhook, onboarding, admin audit) | Static hosting, media CDN, email delivery engine, analytics warehouse | Free, 20 MB DB, 8 Edge Functions, no Storage, no Realtime | ACCOUNT_VERIFIED |
-| **Netlify** | Web/PWA build, deploy previews, production frontend | Server logic (no Netlify Functions in use), media origin | Free, 300-credit pool **shared with atomurus.com and tefilot.app** | ACCOUNT_VERIFIED (usage UNKNOWN) |
+| **Netlify** | Web/PWA build, deploy previews, production frontend | Server logic (no Netlify Functions in use), media origin | Free, 300-credit pool **shared with another team site and another team site** | ACCOUNT_VERIFIED (usage UNKNOWN) |
 | **Cloudflare** | Turnstile (signup bot protection) today; DNS/CDN only if the domain moves there | A second dynamic proxy in front of Netlify/Supabase; R2 before there is a measured need | 0 Workers, R2 not enabled, Turnstile in use | ACCOUNT_VERIFIED (plan UNKNOWN) |
 | **Resend** | Transactional email: auth confirmation, recovery, payment, security; later onboarding/reminder | Marketing blasts at launch | Free 100/day · 3 000/month, **0 domains**, not integrated | OWNER_ACTION_REQUIRED |
 | **Sentry** | Production errors; low-volume performance evidence; release diagnostics | 100 % tracing or session replay | Org exists, **0 projects**, no SDK in app | NOT_RUN |

@@ -4,18 +4,18 @@ Audit date: 2026-10-07 · Machine-readable companion: [`platform-budget-registry
 Historical #273 evidence: [`docs/reports/rc2-2-1-cloud-certification.md`](../reports/rc2-2-1-cloud-certification.md) (kept unchanged; an addendum points here).
 
 **Nothing was bought, upgraded, restored, paused, deleted or migrated.** All provider reads were read-only.
-`atomurus` was not touched. No production migration was executed in this wave.
+`sibling-free-tier-project` was not touched. No production migration was executed in this wave.
 
 ## 1. Why #273 stopped (re-validated today, not copied from September)
 
 | Fact (Sept 2026, #273) | Re-checked 2026-10-07 through the connected Supabase integration |
 |---|---|
-| Free plan, 2/2 active projects | **Still true** — org `Noba` `plan=free`; `MandarimProject` + `atomurus` ACTIVE_HEALTHY |
-| `longyu-preview` (`wpnm…wrjp`) INACTIVE, restore blocked | **Still true** — status `INACTIVE`; restoring needs a free slot |
+| Free plan, 2/2 active projects | **Still true** — org `Noba` `plan=free`; `MandarimProject` + `sibling-free-tier-project` ACTIVE_HEALTHY |
+| `qa-candidate-project` (`wpnm…wrjp`) INACTIVE, restore blocked | **Still true** — status `INACTIVE`; restoring needs a free slot |
 | Branching requires Pro | Not re-attempted (would be a paid-resource probe) — `NOT_RUN_REQUIRES_OWNER_APPROVAL` |
 | Netlify candidate access missing | **Now available** — Netlify connector reads the team and the Longyu site |
 
-So #273's blocker was never technical. It was: *"the only way to get a cloud QA database is to free a slot (pause/delete atomurus) or pay"*. The owner has authorised neither, and asked whether a cloud QA project is needed at all.
+So #273's blocker was never technical. It was: *"the only way to get a cloud QA database is to free a slot (pause/delete `sibling-free-tier-project`) or pay"*. The owner has authorised neither, and asked whether a cloud QA project is needed at all.
 
 ## 2. Proposed architecture — no paid cloud QA
 
@@ -102,7 +102,7 @@ Storage and Realtime stay at 0 (not used). Auth MAU is never the binding constra
 
 ### **OPTION B — FREE_TIER_VIABLE_WITH_ARCHITECTURAL_CHANGES**
 
-- A single cloud project (`MandarimProject`) + local Supabase/CI as QA is **viable for closed beta (≈ ≤ 500–1 000 MAU)** without buying anything and without touching `atomurus`.
+- A single cloud project (`MandarimProject`) + local Supabase/CI as QA is **viable for closed beta (≈ ≤ 500–1 000 MAU)** without buying anything and without touching `sibling-free-tier-project`.
 - It is **not** Option A because three things must change first: (1) migration-history reconciliation + schema diff, (2) an owner-held export before every production migration (free plan has no backups), (3) telemetry retention / progress-sync egress control — otherwise the DB crosses 500 MB around 1 000 MAU.
 - It is **not** Option C because nothing in the closed-beta range requires a paid plan; the binding constraints at 5 000+ MAU (egress, DB, Netlify credits) are a **public-launch** decision (RC2.3.10/RC2.3.11), not a beta blocker.
 

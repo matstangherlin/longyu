@@ -32,8 +32,8 @@
       "verifiedAt": "2026-10-07T02:10:00Z",
       "projects": [
         { "name": "MandarimProject", "ref": "drjcfalvlbbeblmmyhwj", "role": "Longyu production", "status": "ACTIVE_HEALTHY" },
-        { "name": "atomurus", "ref": "ylofdottauzcqcifnnpm", "role": "other product — DO NOT pause/delete (owner rule)", "status": "ACTIVE_HEALTHY" },
-        { "name": "longyu-preview", "ref": "wpnmygzxqvmpdlcuwrjp", "role": "former cloud QA", "status": "INACTIVE" }
+        { "name": "sibling-free-tier-project", "ref": "(ref omitted — LON-001)", "role": "other product — DO NOT pause/delete (owner rule)", "status": "ACTIVE_HEALTHY" },
+        { "name": "qa-candidate-project", "ref": "(ref omitted — LON-001)", "role": "former cloud QA", "status": "INACTIVE" }
       ],
       "limits": {
         "activeProjects": 2,
@@ -65,7 +65,7 @@
         "verifiedAt": "2026-10-07T02:10:00Z"
       },
       "levels": {
-        "activeProjects": "EXHAUSTED (2/2 — why longyu-preview cannot be restored for free)",
+        "activeProjects": "EXHAUSTED (2/2 — why qa-candidate-project cannot be restored for free)",
         "databaseSize": "GREEN (≈3.9%)",
         "monthlyActiveUsers": "GREEN (<0.1%)",
         "fileStorage": "GREEN (0%)",
@@ -81,8 +81,8 @@
       "verifiedAt": "2026-10-07T02:12:00Z",
       "sites": [
         { "name": "singular-meringue-7838cd", "role": "Longyu web (production context main)" },
-        { "name": "216y56y", "role": "atomurus.com — shares the same credit pool" },
-        { "name": "unrivaled-daffodil-6664a2", "role": "tefilot.app — shares the same credit pool" },
+        { "name": "216y56y", "role": "another team site — shares the same credit pool" },
+        { "name": "unrivaled-daffodil-6664a2", "role": "another team site — shares the same credit pool" },
         { "name": "shiny-flan-46d125", "role": "unknown / no current deploy" }
       ],
       "limits": {
