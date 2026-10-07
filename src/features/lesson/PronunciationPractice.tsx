@@ -28,6 +28,7 @@ import {
   type RecognizeErrorCode,
   type RecognizeHandle,
 } from "../../lib/speech";
+import { recordSpeechEvidence } from "../../lib/speechEvidence";
 import { Button } from "../../components/ui/primitives";
 import { IconCheck, IconX, IconChevron } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
@@ -63,11 +64,34 @@ function verdictCopy(heard: string, analysis: PronunciationAnalysis | null, corr
 // disputa o mic com o SpeechRecognition e o quebra.
 export function PronunciationPractice({
   target,
-  onContinue,
+  onContinue: continueAfter,
 }: {
   target: string;
   onContinue: () => void;
 }) {
+  // RC2.3.5 — evidência ASR: só "tentou" e "o aparelho transcreveu o alvo".
+  // Nunca vira nota de pronúncia nem de tom; a transcrição não é guardada.
+  const asrAttemptsRef = useRef(0);
+  const asrMatchedRef = useRef(false);
+  const asrEvidenceSentRef = useRef(false);
+  const onContinue = () => {
+    if (!asrEvidenceSentRef.current && asrAttemptsRef.current > 0) {
+      asrEvidenceSentRef.current = true;
+      recordSpeechEvidence({
+        conceptId: `phrase:${target}`,
+        activityId: `pronunciation:${target}`,
+        mode: "ASR",
+        modelHeard: false,
+        recordingCaptured: false,
+        selfPlaybackHeard: false,
+        recognitionAttempted: true,
+        recognitionSucceeded: asrMatchedRef.current,
+        retryCount: Math.max(0, asrAttemptsRef.current - 1),
+        completed: true,
+      });
+    }
+    continueAfter();
+  };
   const secure = isSecureMicContext();
   const supported = isRecognitionAvailable();
   const touchUi = isTouchUi();
@@ -255,6 +279,8 @@ export function PronunciationPractice({
       failureCategory: heardSomething ? null : "NO_SPEECH",
     });
     const r = analyzePronunciation(transcript, target);
+    asrAttemptsRef.current += 1;
+    if (r.correct) asrMatchedRef.current = true;
     setHeard(transcript);
     setCorrect(r.correct);
     setAnalysis(r);
@@ -285,6 +311,7 @@ export function PronunciationPractice({
     const rawCode = lastNativeRecognitionDiagnostics()?.rawCode ?? code;
     recordTechEvent("speech_failed", { code: rawCode, category, nativeCategory: nativeRecognitionCategory(rawCode) });
     failuresRef.current += 1;
+    asrAttemptsRef.current += 1;
     // RC2.2.17 · Y — idioma/serviço indisponível: não insistir 10 vezes.
     // Troca para a autoavaliação gravando (quando der para gravar).
     if (recognitionErrorForcesFallback(code)) {
