@@ -104,6 +104,7 @@ const FILES = {
   appShell: "src/components/layout/AppShell.tsx",
   store: "src/lib/store.ts",
   haptics: "src/lib/haptics.ts",
+  hapticPolicy: "src/lib/hapticPolicy.ts",
   nativeHaptics: "src/lib/platform/nativeHaptics.ts",
   achievements: "src/components/achievements/AchievementsWatcher.tsx",
   settingsPage: "src/features/settings/SettingsPage.tsx",
@@ -403,10 +404,11 @@ export async function validateNativeHaptics(s) {
     if (rel !== "src/lib/platform/nativeHaptics.ts" && /from "@capacitor\/haptics"|import\("@capacitor\/haptics"\)/.test(text)) fail("HAPTICS_OUTSIDE_ADAPTER", rel, "só o adapter importa o plugin");
     if (/navigator\.vibrate/.test(stripComments(text))) fail("WEB_VIBRATE_USED", rel, "Web é no-op (sem navigator.vibrate)");
   }
-  const haptics = stripComments(s.src.haptics);
+  // RC2.3.7 — the closed map and the per-gesture budget moved to hapticPolicy.ts (pure); same assertions.
+  const haptics = stripComments(`${s.src.haptics}\n${s.src.hapticPolicy}`);
   if (!/hapticsEnabled: true,/.test(s.src.store) || !/useStore\.getState\(\)\.hapticsEnabled !== false/.test(haptics))
     fail("HAPTICS_PREF_MISSING", "store.ts / haptics.ts", "hapticsEnabled (padrão ligado) respeitado");
-  if (!/if \(now - lastAt < HAPTIC_GESTURE_WINDOW_MS && weight <= lastWeight\) return;/.test(haptics))
+  if (!/if \(since < HAPTIC_GESTURE_WINDOW_MS && weight <= input\.lastWeight\) return \{ fire: false/.test(haptics) || !/hapticDecision\(\{ enabled: hapticsEnabled\(\), event, now, lastAt, lastWeight \}\)/.test(haptics))
     fail("HAPTIC_BUDGET_MISSING", "haptics.ts", "uma vibração por ação");
   const map = /export const HAPTIC_MAP: Record<HapticEvent, NativeHapticPattern> = \{([\s\S]*?)\};/.exec(haptics)?.[1] ?? "";
   for (const event of ["selection", "piecePlaced", "answerCorrect", "answerWrong", "lessonComplete", "practiceComplete", "achievementReveal", "streakMilestone", "chestOpen"])

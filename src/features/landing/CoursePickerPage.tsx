@@ -52,7 +52,7 @@ export function CoursePickerPage() {
           onClick={() => {
             if (!selected) return;
             chooseCourseDirection(selected);
-            haptic("answerCorrect");
+            haptic("selection"); // RC2.3.7 — confirmar escolha não é "resposta correta"
             navigate(next, { replace: true });
           }}
         >
