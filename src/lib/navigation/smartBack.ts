@@ -102,6 +102,8 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/teste-guiado", parent: "/", public: true, ownBack: true },
   { pattern: "/curso", parent: "/", public: true, ownBack: true },
   { pattern: "/login", parent: "/", public: true, ownBack: true },
+  // RC2.3.8 — OAuth return (web/PWA). Android returns via the app scheme.
+  { pattern: "/auth/callback", parent: "/login", public: true, ownBack: true },
   { pattern: "/esqueci-senha", parent: "/login", public: true, ownBack: true },
   { pattern: "/redefinir-senha", parent: "/login", public: true, ownBack: true },
   { pattern: "/confirmar-email", parent: "/login", public: true, ownBack: true },

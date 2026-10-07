@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { AccessMethodsCard } from "../../components/auth/AccessMethodsCard";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useStore, type CloudSyncState } from "../../lib/store";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -247,6 +248,9 @@ export function ContaPage() {
           {displayInstruction("Refazer nivelamento")}
         </ActionButton>
       </CompactCard>
+
+      {/* RC2.3.8 — métodos de acesso (vincular/remover; nunca o último). */}
+      {authMode === "cloud" && <AccessMethodsCard />}
 
       {/* RC2.2.25 — Excluir é encontrável, mas SEPARADO de Sair: no fim, em
           "Zona de perigo", vermelho, com confirmação digitada. */}
