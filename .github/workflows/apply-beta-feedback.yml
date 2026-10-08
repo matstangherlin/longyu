@@ -1,34 +1,70 @@
 name: Apply Beta Feedback
 
+# RC2.3.10C — fail-closed. This workflow used to run `db:apply-api`, which
+# replays every file in supabase/migrations against production. That path is
+# refused. Production writes go through PRODUCTION_MIGRATION_READY with an
+# explicit migration id, expected SHA, and the MandarimProject ref.
+
 on:
   workflow_dispatch:
+    inputs:
+      migration_id:
+        description: "Id específico da migration (sem wildcard)"
+        type: string
+        required: true
+      confirm:
+        description: "Digite APPLY-<migration_id>"
+        type: string
+        required: true
+      expected_sha:
+        description: "SHA revisado que o checkout precisa ser"
+        type: string
+        required: true
+      project_ref:
+        description: "Ref do projeto (deve ser o de produção Longyu)"
+        type: string
+        required: true
+        default: drjcfalvlbbeblmmyhwj
 
 permissions:
   contents: read
+
+concurrency:
+  group: production-migration
+  cancel-in-progress: false
 
 jobs:
   apply:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Apply pending database migrations
+      - name: Guard — recusa apply-all
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_REF: drjcfalvlbbeblmmyhwj
-        run: npm run db:apply-api
-
-      - name: Verify beta feedback RPCs
-        env:
-          VITE_SUPABASE_URL: https://drjcfalvlbbeblmmyhwj.supabase.co
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        run: node scripts/verify-beta-feedback.mjs
+          MIGRATION_ID: ${{ inputs.migration_id }}
+          CONFIRM: ${{ inputs.confirm }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          PROJECT_REF: ${{ inputs.project_ref }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then
+            echo "NOT_MANUAL"; exit 6
+          fi
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "SOURCE_NOT_MAIN: $GITHUB_REF"; exit 6
+          fi
+          case "$MIGRATION_ID" in
+            ""|*\**|*..*|*/*|"all"|"*") echo "WILDCARD_REFUSED: $MIGRATION_ID"; exit 6 ;;
+          esac
+          if [ "$CONFIRM" != "APPLY-$MIGRATION_ID" ]; then
+            echo "CONFIRMATION_MISSING: digite APPLY-$MIGRATION_ID"; exit 6
+          fi
+          if [ "$PROJECT_REF" != "drjcfalvlbbeblmmyhwj" ]; then
+            echo "PROJECT_REF_MISMATCH"; exit 6
+          fi
+          if [ -z "$EXPECTED_SHA" ]; then
+            echo "EXPECTED_SHA_REQUIRED"; exit 6
+          fi
+          echo "Guard ok. Apply-all permanece desligado."
+          echo "PRODUCTION_MIGRATION_NOT_WIRED: este workflow não reaplica o histórico."
+          echo "Aplique só via gate PRODUCTION_MIGRATION_READY com backup verificado."
+          exit 6

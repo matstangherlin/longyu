@@ -4,7 +4,7 @@ Estado: `cloud.certification = BLOCKED`. Nada abaixo exige copiar senha, chave o
 
 ## NÃO FAÇA (ainda)
 
-- **Não rode** a Action "Apply Beta Feedback" (nem `npm run db:apply-api`) contra produção: ela reaplica **todas** as migrations do repositório em ordem e sobrescreve funções de segurança mais novas (`004`, `006`, `013`, `017`). **Não rode** "Deploy Leagues": reaplica `004_leagues.sql`, que recria a policy com recursão.
+- **Apply Beta Feedback** e **Deploy Leagues** agora falham fechados (RC2.3.10C): não reaplicam o histórico nem `004_leagues.sql`. `npm run db:apply-api` também recusa o projeto de produção. Não contorne isso com SQL solto no editor.
 - **Não rode** "Configure Supabase Auth" nem `configure-supabase-auth`: ele **substitui** a lista de Redirect URLs e não inclui `longyu.noba.com://auth/callback`.
 - Não aplique nenhuma migration de `supabase/pending/` à mão. Só via `PRODUCTION_MIGRATION_READY`.
 

@@ -167,8 +167,12 @@ assert(!/^\s*pull_request\s*:/m.test(deployWorkflow), "workflow de producao nao 
 assert(/^\s*workflow_dispatch\s*:/m.test(deployWorkflow), "workflow permanece manual");
 assert(/^\s*environment:\s*production\s*$/m.test(deployWorkflow), "workflow usa environment production");
 assert(
-  deployWorkflow.includes("npm run db:apply-api"),
-  "workflow aplica apenas migrations pendentes pelo ledger"
+  !/^\s*run:\s*.*db:apply-api/m.test(deployWorkflow) && !deployWorkflow.includes("npm run db:apply-api"),
+  "workflow de produção não reaplica o histórico (db:apply-api desligado)"
+);
+assert(
+  deployWorkflow.includes("WILDCARD_REFUSED") && deployWorkflow.includes("EXPECTED_SHA"),
+  "workflow exige migration id específico e SHA esperado"
 );
 assert(
   legacyBetaDeploy.includes('import("./apply-migrations-api.mjs")') &&
