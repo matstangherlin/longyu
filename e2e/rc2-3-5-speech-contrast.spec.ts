@@ -17,9 +17,11 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
 ];
 
-// Chromium: fake capture device of the engine itself. Firefox/WebKit reject the
-// Chromium flags and the "microphone" permission, so they get a synthetic
-// microphone (installSyntheticMicrophone) feeding the app's real MediaRecorder.
+// Chromium: fake capture device of the engine itself feeding the app's real
+// MediaRecorder. Firefox/WebKit reject the Chromium flags and the "microphone"
+// permission, so they get a deterministic capture double
+// (installSyntheticMicrophone): Chromium proves the capture pipeline, the other
+// engines prove the same UI flow and evidence contract.
 test.use({
   permissions: async ({ browserName }, use) => use(browserName === "chromium" ? ["microphone"] : []),
   launchOptions: [
@@ -36,7 +38,17 @@ test.use({
   ],
 });
 
-/** A real MediaStream (oscillator → MediaStreamDestination) returned by getUserMedia. */
+/**
+ * Firefox/WebKit capture double.
+ *
+ * getUserMedia returns a real MediaStream (oscillator → MediaStreamDestination)
+ * without awaiting AudioContext.resume(): under the engine's autoplay policy that
+ * promise can stay pending, leaving the app on "Preparando…" forever. Hosted CI
+ * showed exactly that on both engines (no "Gravando…" in 15 s) while the same
+ * flow passes in Chromium. MediaRecorder is replaced by a double that yields a
+ * short valid WAV on stop, so the result never depends on the engine's encoder
+ * for a synthetic stream.
+ */
 async function installSyntheticMicrophone(page: Page) {
   await page.addInitScript(() => {
     const devices = navigator.mediaDevices;
@@ -49,9 +61,57 @@ async function installSyntheticMicrophone(page: Page) {
       const out = ctx.createMediaStreamDestination();
       osc.connect(out);
       osc.start();
-      await ctx.resume().catch(() => undefined);
+      void ctx.resume().catch(() => undefined);
       return out.stream;
     };
+
+    /** 0.5 s mono 16-bit 220 Hz WAV. */
+    const wavBlob = () => {
+      const rate = 8000;
+      const samples = rate / 2;
+      const view = new DataView(new ArrayBuffer(44 + samples * 2));
+      const text = (offset: number, value: string) => {
+        for (let i = 0; i < value.length; i += 1) view.setUint8(offset + i, value.charCodeAt(i));
+      };
+      text(0, "RIFF");
+      view.setUint32(4, 36 + samples * 2, true);
+      text(8, "WAVE");
+      text(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, rate, true);
+      view.setUint32(28, rate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      text(36, "data");
+      view.setUint32(40, samples * 2, true);
+      for (let i = 0; i < samples; i += 1) view.setInt16(44 + i * 2, Math.round(Math.sin((2 * Math.PI * 220 * i) / rate) * 8000), true);
+      return new Blob([view], { type: "audio/wav" });
+    };
+
+    class SyntheticMediaRecorder {
+      static isTypeSupported() {
+        return true;
+      }
+      state: RecordingState = "inactive";
+      readonly mimeType = "audio/wav";
+      ondataavailable: ((event: { data: Blob }) => void) | null = null;
+      onstop: (() => void) | null = null;
+      constructor(readonly stream: MediaStream) {}
+      start() {
+        this.state = "recording";
+      }
+      stop() {
+        if (this.state === "inactive") return;
+        this.state = "inactive";
+        setTimeout(() => {
+          this.ondataavailable?.({ data: wavBlob() });
+          this.onstop?.();
+        }, 0);
+      }
+    }
+    (window as unknown as { MediaRecorder: unknown }).MediaRecorder = SyntheticMediaRecorder;
   });
 }
 
