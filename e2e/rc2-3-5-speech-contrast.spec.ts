@@ -1,7 +1,7 @@
 /**
  * RC2.3.5 — Speech & Contrast (WEB evidence only).
  *
- * Chromium with a fake microphone proves the web flow: contrast drill gated by
+ * Chromium (engine fake device) and Firefox/WebKit (synthetic in-page microphone) prove the web flow: contrast drill gated by
  * canonical voice, then OUÇA → GRAVE → OUÇA VOCÊ → CONTINUE with no dead end,
  * and a local speech-evidence record that carries no audio or transcript.
  * WEB_PASS ≠ ANDROID / OWNER_AUDIO_ACCEPTANCE.
@@ -17,15 +17,46 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
 ];
 
+// Chromium: fake capture device of the engine itself. Firefox/WebKit reject the
+// Chromium flags and the "microphone" permission, so they get a synthetic
+// microphone (installSyntheticMicrophone) feeding the app's real MediaRecorder.
 test.use({
-  permissions: ["microphone"],
-  launchOptions: {
-    args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
-    ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}),
-  },
+  permissions: async ({ browserName }, use) => use(browserName === "chromium" ? ["microphone"] : []),
+  launchOptions: [
+    async ({ browserName }, use) =>
+      use(
+        browserName === "chromium"
+          ? {
+              args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+              ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}),
+            }
+          : {}
+      ),
+    { scope: "worker" },
+  ],
 });
 
-async function seed(page: Page) {
+/** A real MediaStream (oscillator → MediaStreamDestination) returned by getUserMedia. */
+async function installSyntheticMicrophone(page: Page) {
+  await page.addInitScript(() => {
+    const devices = navigator.mediaDevices;
+    if (!devices) return;
+    devices.getUserMedia = async (constraints?: MediaStreamConstraints) => {
+      if (!constraints?.audio) throw new DOMException("Only audio is faked", "NotSupportedError");
+      const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const out = ctx.createMediaStreamDestination();
+      osc.connect(out);
+      osc.start();
+      await ctx.resume().catch(() => undefined);
+      return out.stream;
+    };
+  });
+}
+
+async function seed(page: Page, browserName: string) {
+  if (browserName !== "chromium") await installSyntheticMicrophone(page);
   await seedTelemetryDeclined(page);
   await allowE2ELocalSession(page);
   const payload = JSON.stringify({
@@ -81,8 +112,8 @@ for (const viewport of VIEWPORTS) {
   test.describe(`RC2.3.5 speech @ ${viewport.width}×${viewport.height}`, () => {
     test.use({ viewport });
 
-    test("contrast → record → hear myself → continue; evidence has no audio", async ({ page }) => {
-      await seed(page);
+    test("contrast → record → hear myself → continue; evidence has no audio", async ({ page, browserName }) => {
+      await seed(page, browserName);
       const drill = await openContrast(page, "j-q-x");
       await expect(drill).toHaveAttribute("data-audio-ready", "true");
       await walkToProduce(page);
@@ -119,8 +150,8 @@ for (const viewport of VIEWPORTS) {
       expect(overflow).toBeLessThanOrEqual(1);
     });
 
-    test("cannot speak is always an exit", async ({ page }) => {
-      await seed(page);
+    test("cannot speak is always an exit", async ({ page, browserName }) => {
+      await seed(page, browserName);
       await openContrast(page, "g-k");
       await walkToProduce(page);
       await page.getByRole("button", { name: /Não posso falar agora|I can.t speak now/i }).first().click();

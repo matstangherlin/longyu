@@ -364,7 +364,13 @@ export async function openListenSelectStep(page: Page) {
     await clickThroughGuideDialogue(page, 10_000);
     // Prática de fala/escuta (não avaliada): navegador de teste sem voz sai pela saída honesta.
     const exit = page.getByRole("button", { name: /Não posso falar agora|Não posso ouvir agora|I can't speak now|I can't listen now/ }).first();
-    if (await exit.isVisible().catch(() => false)) await exit.click().catch(() => undefined);
+    if (await exit.isVisible().catch(() => false)) {
+      await exit.click().catch(() => undefined);
+    } else if (await page.locator('[data-guided-listen-stage="speak"]').first().isVisible().catch(() => false)) {
+      // Motor sem microfone/reconhecimento (WebKit): a micro-página de fala diz
+      // "Voz não disponível aqui" e oferece só Continuar — a saída honesta.
+      await page.getByRole("button", { name: /^Continuar$|^Continue$/ }).first().click().catch(() => undefined);
+    }
     await dismissBlockingOverlays(page);
     await options.waitFor({ state: "visible", timeout: 1_500 }).catch(() => undefined);
   }
