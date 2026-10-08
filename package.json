@@ -1157,6 +1157,9 @@
     "test:rc2-3-10-cloud": "node scripts/rc2-3-10-cloud-certification.mjs test",
     "gate:rc2-3-10-cloud": "npm run validate:rc2-3-10-cloud && npm run test:rc2-3-10-cloud",
     "validate:apk-provenance": "node scripts/rc2-3-10-cloud-certification.mjs provenance",
+    "validate:rc2-3-10b": "node scripts/rc2-3-10b-certification.mjs validate",
+    "test:rc2-3-10b": "node scripts/rc2-3-10b-certification.mjs test",
+    "gate:rc2-3-10b": "npm run validate:rc2-3-10b && npm run test:rc2-3-10b",
     "smoke:cloud": "node scripts/cloud-smoke.mjs"
   },
   "dependencies": {
