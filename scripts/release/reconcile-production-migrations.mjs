@@ -212,7 +212,7 @@ function countBy(entries, key, values) {
 }
 
 function renderMarkdown(report) {
-  const cell = (text) => String(text ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
+  const cell = (text) => String(text ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
   const lines = [
     "# RC2.3.10B migration forensics",
     "",
