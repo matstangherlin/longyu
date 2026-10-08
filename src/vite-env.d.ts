@@ -11,6 +11,12 @@ interface ImportMetaEnv {
   readonly VITE_APP_VERSION?: string;
   /** Git commit SHA baked at build time for candidate identity (public). */
   readonly VITE_COMMIT_SHA?: string;
+  /** RC2.3.10 — curriculum fingerprint embedded at build time (scripts/vite-build.mjs). */
+  readonly VITE_CURRICULUM_FINGERPRINT?: string;
+  /** RC2.3.10 — release channel of this artifact: dev | internal | closed | production. */
+  readonly VITE_BUILD_CHANNEL?: string;
+  /** RC2.3.10 — Sentry DSN (public by design). Empty = error reporting off and the SDK never loads. */
+  readonly VITE_SENTRY_DSN?: string;
   readonly VITE_SOURCE_HEAD_SHA?: string;
   readonly VITE_WORKFLOW_SHA?: string;
   /** development | preview | qa_candidate | production_beta */

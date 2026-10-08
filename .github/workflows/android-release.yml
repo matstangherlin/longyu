@@ -137,6 +137,8 @@ jobs:
           LONGYU_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.LONGYU_ANDROID_KEYSTORE_PASSWORD }}
           LONGYU_ANDROID_KEY_ALIAS: ${{ secrets.LONGYU_ANDROID_KEY_ALIAS }}
           LONGYU_ANDROID_KEY_PASSWORD: ${{ secrets.LONGYU_ANDROID_KEY_PASSWORD }}
+          # RC2.3.10 — provenance: o bundle e o version.json dizem para qual canal este AAB foi feito.
+          VITE_BUILD_CHANNEL: ${{ inputs.channel }}
         run: node scripts/android-cli.mjs bundle:release
 
       - name: Remove keystore temporário

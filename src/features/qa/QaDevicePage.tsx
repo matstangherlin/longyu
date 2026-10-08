@@ -51,7 +51,7 @@ import { MobileDiagnosticConsole } from "./MobileDiagnosticConsole";
 import { AndroidTtsForensicsPanel } from "./AndroidTtsForensicsPanel";
 import { CanonicalMediaForensicsPanel } from "./CanonicalMediaForensicsPanel";
 import { BetaQaConsole } from "./BetaQaConsole";
-import { ReleaseTruthPanel } from "./ReleaseTruthPanel";
+import { ReleaseTruthPanel, currentExpectedSha } from "./ReleaseTruthPanel";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
 import { VisualFirstQaPanel } from "./VisualFirstQaPanel";
@@ -87,6 +87,7 @@ const ERROR_COPY: Record<DeviceQaResultError, string> = {
   PASS_ON_WEB_OR_EMULATOR: "Navegador ou emulador não é PHYSICAL PASS.",
   FAIL_WITHOUT_NOTE: "FAIL precisa de uma nota que reproduza o problema.",
   NOTE_HAS_PII: "A nota parece ter e-mail, código ou token. Descreva sem dados pessoais.",
+  PHYSICAL_QA_INVALID_WRONG_BUILD: "Este aparelho roda outro build: o SHA não é o SHA certificado (Release truth). Instale o APK certo antes de registrar PASS.",
 };
 
 function QaDeviceSurface() {
@@ -330,7 +331,7 @@ function DeviceQaTestCard({
         evidenceType: evidenceType || null,
         note,
       },
-      { native: build.runtime === "native", emulator: build.emulator }
+      { native: build.runtime === "native", emulator: build.emulator, expectedSha: currentExpectedSha() }
     );
     setErrors(found);
     if (!found.length) onCommit(next);

@@ -1,0 +1,328 @@
+{
+ "schema": "longyu-cloud-matrix/1",
+ "wave": "RC2.3.10",
+ "generatedAt": "2026-10-08",
+ "baseSha": "7d1890adf8350d839463a290aaa01dd604e4618f",
+ "productionProject": {
+  "ref": "drjcfalvlbbeblmmyhwj",
+  "name": "MandarimProject",
+  "plan": "free"
+ },
+ "rules": [
+  "PASS needs evidence; evidence older than 30 days is stale.",
+  "OWNER_CLOUD_ACCEPTANCE is PASS only with ownerSignature.",
+  "overall = worst required gate."
+ ],
+ "overall": "BLOCKED",
+ "gates": {
+  "PARENT_HOSTED_TRUTH_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-parent-ci-truth.md"
+   ],
+   "blocker": "Hosted cross-engine run of the #322 head pending; WebKit was red on #321 and main 7d1890a."
+  },
+  "WEBKIT_CROSS_ENGINE_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-parent-ci-truth.md"
+   ],
+   "blocker": "Fix a47a7b4 reproduced and verified in Chromium; WebKit proof is the hosted run."
+  },
+  "APK_PROVENANCE_PASS": {
+   "status": "CODE_READY",
+   "evidence": [
+    "docs/reports/rc2-3-10-apk-provenance.md",
+    "scripts/rc2-3-10-cloud-certification.mjs",
+    ".github/workflows/android-build.yml"
+   ],
+   "blocker": "PASS when the hosted Android build of this head unpacks the APK and the provenance step passes."
+  },
+  "PRODUCTION_WEB_SHA_IDENTIFIED": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-apk-provenance.md"
+   ],
+   "ownerAction": "OA-PROD-WEB-SHA",
+   "blocker": "*.netlify.app unreachable from the agent; Netlify posts no status on main."
+  },
+  "MIGRATION_HISTORY_PASS": {
+   "status": "BLOCKED",
+   "evidence": [
+    "docs/launch/production-migration-ledger.json",
+    "docs/reports/rc2-3-10-migration-reconciliation.md"
+   ],
+   "readAt": "2026-10-08",
+   "ownerAction": "OA-MIGRATION-RECONCILIATION-DECISION",
+   "blocker": "11 UNKNOWN (content differs / placeholder rows), 6 PROD_ONLY."
+  },
+  "PRODUCTION_SCHEMA_TRUTH_PASS": {
+   "status": "BLOCKED",
+   "evidence": [
+    "docs/reports/rc2-3-10-production-schema-diff.md",
+    "docs/launch/production-snapshot.json"
+   ],
+   "readAt": "2026-10-08",
+   "ownerAction": "OA-SCHEMA-DIFF",
+   "blocker": "MISSING_IN_PROD objects the client calls (social, family, business, placement, pearl); PROD_ONLY _jev_triage_tmp; column-level diff not run."
+  },
+  "BACKUP_EXPORT_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/launch/production-backup-runbook.md"
+   ],
+   "ownerAction": "OA-DATA-EXPORT",
+   "blocker": "Free plan: no backups, no PITR."
+  },
+  "TELEMETRY_RETENTION_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-free-tier-budget.md",
+    "supabase/pending/rc2-3-10-telemetry-retention.sql"
+   ],
+   "ownerAction": "OA-TELEMETRY-RETENTION-DECISION"
+  },
+  "RESEND_DOMAIN_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-email-production-certification.md"
+   ],
+   "ownerAction": "OA-RESEND-DOMAIN"
+  },
+  "SUPABASE_SMTP_PASS": {
+   "status": "CONFIG_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-email-production-certification.md"
+   ],
+   "ownerAction": "OA-SUPABASE-SMTP"
+  },
+  "AUTH_GOOGLE_PASS": {
+   "status": "CONFIG_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "ownerAction": "OA-AUTH-GOOGLE"
+  },
+  "AUTH_APPLE_PASS": {
+   "status": "CONFIG_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "ownerAction": "OA-AUTH-APPLE"
+  },
+  "AUTH_MICROSOFT_PASS": {
+   "status": "CONFIG_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "ownerAction": "OA-AUTH-MICROSOFT"
+  },
+  "ANDROID_OAUTH_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "ownerAction": "OA-AUTH-ANDROID-OAUTH-TEST"
+  },
+  "PRODUCTION_RLS_PASS": {
+   "status": "BLOCKED",
+   "evidence": [
+    "docs/reports/rc2-3-10-production-rls.md",
+    "docs/launch/production-snapshot.json"
+   ],
+   "readAt": "2026-10-08",
+   "ownerAction": "OA-LEAGUE-POLICY-FIX",
+   "blocker": "Isolation proven (anon/synthetic user read 0 rows of 18 tables; cross-user UPDATE 0 rows; cross-user INSERT refused 42501). league_memberships policy recursion (42P17) and least-privilege grants not applied."
+  },
+  "EDGE_FUNCTIONS_PASS": {
+   "status": "BLOCKED",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md",
+    "docs/launch/production-snapshot.json"
+   ],
+   "readAt": "2026-10-08",
+   "blocker": "8 deployed vs 11 in repo (commit-placement, finalize-onboarding, submit-business-lead absent); repo versions of 6 deployed functions are newer and depend on migrations not in production."
+  },
+  "JEV_SERVER_TRIAGE_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-jev-production-certification.md",
+    ".github/workflows/deploy-edge-function.yml"
+   ],
+   "ownerAction": "OA-JEV-CONSOLE-CHECK",
+   "blocker": "Production v1 lacks kill switch, breaker and dedupe; redeploy from main via the new workflow after merge."
+  },
+  "JEV_LEARNER_RUNTIME_DISABLED": {
+   "status": "PASS",
+   "evidence": [
+    "docs/reports/rc2-3-10-jev-production-certification.md",
+    "supabase/functions/_shared/budgetPolicy.ts",
+    "docs/release/product-truth.json"
+   ],
+   "readAt": "2026-10-08",
+   "note": "JEV_RUNTIME_ENABLED:false default; production triage is admin-only (is_beta_admin) and no learner path calls Jev; bundle scan finds no api.typesafe.ai."
+  },
+  "RATE_LIMIT_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-production-security-headers.md",
+    "docs/launch/production-snapshot.json"
+   ],
+   "ownerAction": "OA-AUTH-RATE-LIMITS-READ",
+   "blocker": "DB-level signup/login/ingestion limits present in production; Auth dashboard limits not readable by the agent."
+  },
+  "TURNSTILE_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-production-security-headers.md",
+    "docs/launch/production-snapshot.json"
+   ],
+   "ownerAction": "OA-EDGE-SECRET-NAMES",
+   "blocker": "Fail-closed code + Vault secret present; absence of TURNSTILE_ALLOW_SKIP among Edge secrets unconfirmed."
+  },
+  "SECURITY_HEADERS_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-production-security-headers.md",
+    "netlify.toml"
+   ],
+   "blocker": "netlify.toml audited (CODE level); live headers need OA-CLOUD-SMOKE-RUN (security_headers step).",
+   "ownerAction": "OA-CLOUD-SMOKE-RUN"
+  },
+  "SENTRY_PASS": {
+   "status": "CONFIG_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-observability.md"
+   ],
+   "ownerAction": "OA-SENTRY-PROJECT"
+  },
+  "ROLLBACK_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-rollback-drill.md"
+   ],
+   "ownerAction": "OA-ROLLBACK-DRILL"
+  },
+  "CLOUD_SMOKE_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-cloud-smoke.md",
+    "scripts/cloud-smoke.mjs",
+    ".github/workflows/cloud-smoke.yml"
+   ],
+   "ownerAction": "OA-CLOUD-SMOKE-RUN"
+  },
+  "FREE_TIER_BUDGET_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-free-tier-budget.md",
+    "docs/launch/production-snapshot.json"
+   ],
+   "ownerAction": "OA-USAGE-READINGS",
+   "blocker": "DB 20.7 MB / 500 MB and 15 users read; egress, Edge invocations, Netlify credits not readable."
+  },
+  "DATA_PRIVACY_PASS": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [
+    "docs/reports/rc2-3-10-production-data-privacy.md"
+   ],
+   "ownerAction": "OA-PRIVACY-SNAPSHOT-EMAIL",
+   "blocker": "No recordings/strokes/transcripts/tokens in production; account e-mail duplicated in 12 progress snapshots (owner-only by RLS) awaits a keep/drop decision."
+  },
+  "ISSUE_273_RESOLUTION_READY": {
+   "status": "BLOCKED",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "ownerAction": "OA-273-RUNBOOK-APPROVAL"
+  },
+  "WEB_PASS": {
+   "status": "CODE_READY",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "blocker": "Build passes; live production SHA unproven (OA-PROD-WEB-SHA)."
+  },
+  "ANDROID_BUILD_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-closure.md"
+   ],
+   "blocker": "Hosted Android build of this head pending."
+  },
+  "APK_PASS": {
+   "status": "NOT_RUN",
+   "evidence": [
+    "docs/reports/rc2-3-10-apk-provenance.md"
+   ],
+   "blocker": "APK of this head not built yet."
+  },
+  "OWNER_CLOUD_ACCEPTANCE": {
+   "status": "OWNER_ACTION_REQUIRED",
+   "evidence": [],
+   "ownerAction": "OA-OWNER-CLOUD-ACCEPTANCE"
+  }
+ },
+ "provenance": {
+  "certifiedSha": null,
+  "note": "No release is certified in this wave. Each surface lists the SHA it actually carries; a physical test is valid only when its SHA equals the certified SHA (INVALID_RELEASE_EVIDENCE otherwise).",
+  "surfaces": [
+   {
+    "surface": "WEB (production)",
+    "sha": null,
+    "fingerprint": null,
+    "channel": "production",
+    "verified": "OWNER_ACTION_REQUIRED",
+    "how": "OA-PROD-WEB-SHA (/version.json)"
+   },
+   {
+    "surface": "APK (CI debug, PR head)",
+    "sha": null,
+    "fingerprint": "5a64821d0b7d",
+    "channel": "dev",
+    "verified": "NOT_RUN",
+    "how": "android-build.yml › Provenance do APK"
+   },
+   {
+    "surface": "AAB (release)",
+    "sha": null,
+    "fingerprint": null,
+    "channel": "internal",
+    "verified": "NOT_RUN",
+    "how": "android-release.yml (signing secrets absent — BLOCKED_SIGNING_SECRETS)"
+   },
+   {
+    "surface": "Product Truth",
+    "sha": null,
+    "fingerprint": "5a64821d0b7d",
+    "channel": null,
+    "verified": "NOT_RUN",
+    "how": "docs/release/product-truth.json generatedFromSha"
+   },
+   {
+    "surface": "Physical QA",
+    "sha": null,
+    "fingerprint": null,
+    "channel": null,
+    "verified": "OWNER_ACTION_REQUIRED",
+    "how": "OA-PHYSICAL-PROVENANCE (/qa/device MATCH)"
+   }
+  ]
+ },
+ "productionReads": [
+  "Supabase MCP: list_projects, get_organization, list_migrations, list_edge_functions, get_edge_function (triage-feedback, create-account), list_extensions, get_advisors(security), read-only SQL on catalogs, supabase_migrations, cron.job, vault.secrets (names only), aggregate counts"
+ ],
+ "productionWrites": {
+  "executed": [],
+  "notExecuted": [
+   "triage-feedback redeploy (owner-dispatched workflow after merge)",
+   "league_memberships policy fix (pending migration)",
+   "telemetry retention (pending migration, dry-run first)",
+   "_jev_triage_tmp drop",
+   "any supabase_migrations repair",
+   "Auth/SMTP/provider settings",
+   "Netlify rollback drill"
+  ],
+  "rlsProbes": "Inside rolled-back sub-blocks as anon / a synthetic uuid; DELETE probes were held by the MCP confirmation and never ran (row counts re-read unchanged)."
+ }
+}

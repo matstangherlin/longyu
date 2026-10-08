@@ -1,0 +1,586 @@
+{
+ "schema": "longyu-migration-ledger/1",
+ "project": "drjcfalvlbbeblmmyhwj",
+ "productionReadAt": "2026-10-08",
+ "method": "md5 of the applied SQL after removing `--` comments and every whitespace/semicolon run (Postgres: regexp_replace(regexp_replace(array_to_string(statements, E'\\n'), '--[^\\n]*', '', 'g'), '[\\s;]+', '', 'g')); repo side uses the same normalization",
+ "counts": {
+  "productionRows": 36,
+  "repoFiles": 56,
+  "MATCH": 19,
+  "LEGACY_EQUIVALENT": 0,
+  "PROD_ONLY": 6,
+  "REPO_ONLY": 27,
+  "UNKNOWN": 11
+ },
+ "status": "BLOCKED",
+ "rule": "MATCH only on equal normalized content. Name-only or placeholder rows are UNKNOWN. Nothing here changes supabase_migrations.",
+ "entries": [
+  {
+   "version": "20260804032032",
+   "name": "pedagogy_analytics_consent",
+   "repoFile": "supabase/migrations/011_pedagogy_analytics_consent.sql",
+   "state": "MATCH",
+   "normalizedMd5": "63ab0bf7bc4c5e523e38041c6ee59691",
+   "evidence": "normalized content md5 63ab0bf7bc4c5e523e38041c6ee59691 equals supabase/migrations/011_pedagogy_analytics_consent.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804032109",
+   "name": "subscription_event_ordering",
+   "repoFile": "supabase/migrations/014_subscription_event_ordering.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "5276ccb439398c90cf34d43bbf0baaad",
+   "evidence": "name matches supabase/migrations/014_subscription_event_ordering.sql but normalized content differs (prod 5276ccb439398c90cf34d43bbf0baaad vs repo 816da9ca8cacd013719f73b6bc5cbf24)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260804032252",
+   "name": "pedagogy_consent_rpc_gate",
+   "repoFile": "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "5da681477cb27b186b529f356ac7b355",
+   "evidence": "name matches supabase/migrations/012_pedagogy_consent_rpc_gate.sql but normalized content differs (prod 5da681477cb27b186b529f356ac7b355 vs repo 59182810e9e61fd7db11160aa40185ae)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260804032353",
+   "name": "pedagogy_rpc_hardening",
+   "repoFile": "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+   "state": "MATCH",
+   "normalizedMd5": "35457a21625ee4ed838508eba89c660e",
+   "evidence": "normalized content md5 35457a21625ee4ed838508eba89c660e equals supabase/migrations/013_pedagogy_rpc_hardening.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804032737",
+   "name": "fix_apply_subscription_event_rowcount",
+   "repoFile": "supabase/migrations/015_fix_apply_subscription_event_rowcount.sql",
+   "state": "MATCH",
+   "normalizedMd5": "ac416f34917014ab36df84362e30efb2",
+   "evidence": "normalized content md5 ac416f34917014ab36df84362e30efb2 equals supabase/migrations/015_fix_apply_subscription_event_rowcount.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804042502",
+   "name": "fix_leagues_cohort_finalize",
+   "repoFile": "supabase/migrations/016_fix_leagues_cohort_finalize.sql",
+   "state": "MATCH",
+   "normalizedMd5": "7991456969d976332e6d92883f7a5e68",
+   "evidence": "normalized content md5 7991456969d976332e6d92883f7a5e68 equals supabase/migrations/016_fix_leagues_cohort_finalize.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804082814",
+   "name": "referrals_mvp",
+   "repoFile": null,
+   "state": "UNKNOWN",
+   "normalizedMd5": "d41d8cd98f00b204e9800998ecf8427e",
+   "evidence": "history row is a placeholder (52 chars): real SQL was applied outside supabase_migrations",
+   "action": "prove the objects it stands for by object-level diff (OA-SCHEMA-DIFF); never re-run or repair blindly"
+  },
+  {
+   "version": "20260804083127",
+   "name": "017_referrals",
+   "repoFile": "supabase/migrations/017_referrals.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "73e7ae2076c77ec1daaaf9feec59796e",
+   "evidence": "name matches supabase/migrations/017_referrals.sql but normalized content differs (prod 73e7ae2076c77ec1daaaf9feec59796e vs repo e44e546e836f9f6a9967d8bc141fd99c)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260804171838",
+   "name": "018_signup_rate_limits",
+   "repoFile": "supabase/migrations/018_signup_rate_limits.sql",
+   "state": "MATCH",
+   "normalizedMd5": "afe9832054ea053b5dfd3709df02fc5c",
+   "evidence": "normalized content md5 afe9832054ea053b5dfd3709df02fc5c equals supabase/migrations/018_signup_rate_limits.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804175935",
+   "name": "turnstile_secret_vault_rpc",
+   "repoFile": "supabase/migrations/019_turnstile_vault_secret.sql",
+   "state": "MATCH",
+   "normalizedMd5": "15d36433bc695e0636a99005c9e31f27",
+   "evidence": "normalized content md5 15d36433bc695e0636a99005c9e31f27 equals supabase/migrations/019_turnstile_vault_secret.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804182833",
+   "name": "020_signup_cleanup_job",
+   "repoFile": "supabase/migrations/020_signup_cleanup_job.sql",
+   "state": "MATCH",
+   "normalizedMd5": "597f87e6d0861987392974ac7c386232",
+   "evidence": "normalized content md5 597f87e6d0861987392974ac7c386232 equals supabase/migrations/020_signup_cleanup_job.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260804231003",
+   "name": "ensure_own_profile",
+   "repoFile": "supabase/migrations/021_ensure_own_profile.sql",
+   "state": "MATCH",
+   "normalizedMd5": "4750e5975602202938a99eca77b8b93a",
+   "evidence": "normalized content md5 4750e5975602202938a99eca77b8b93a equals supabase/migrations/021_ensure_own_profile.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260807175927",
+   "name": "022_fix_referral_try_qualify",
+   "repoFile": "supabase/migrations/022_fix_referral_try_qualify.sql",
+   "state": "MATCH",
+   "normalizedMd5": "45a73dbda6e7af092c3be02ca36f51f4",
+   "evidence": "normalized content md5 45a73dbda6e7af092c3be02ca36f51f4 equals supabase/migrations/022_fix_referral_try_qualify.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260808065946",
+   "name": "harden_function_privileges",
+   "repoFile": "supabase/migrations/20260808064852_harden_function_privileges.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "646bf3eb8b2db997a1430ad17faa7f7b",
+   "evidence": "name matches supabase/migrations/20260808064852_harden_function_privileges.sql but normalized content differs (prod 646bf3eb8b2db997a1430ad17faa7f7b vs repo 61c805e5bd28cd0c434af2224ae7656e)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260808071731",
+   "name": "secure_social_profile_boundary",
+   "repoFile": "supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+   "state": "MATCH",
+   "normalizedMd5": "783f600af4ac07cee9c644511c70993a",
+   "evidence": "normalized content md5 783f600af4ac07cee9c644511c70993a equals supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260808074952",
+   "name": "erase_account_personal_data",
+   "repoFile": "supabase/migrations/20260808073233_erase_account_personal_data.sql",
+   "state": "MATCH",
+   "normalizedMd5": "e0130961e4416353e31432ac1d4610e6",
+   "evidence": "normalized content md5 e0130961e4416353e31432ac1d4610e6 equals supabase/migrations/20260808073233_erase_account_personal_data.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260808084551",
+   "name": "harden_anonymous_ingestion",
+   "repoFile": "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "cbbb3ea8f0f514d61f089786c9715673",
+   "evidence": "name matches supabase/migrations/20260808081000_harden_anonymous_ingestion.sql but normalized content differs (prod cbbb3ea8f0f514d61f089786c9715673 vs repo c58a019c90e1e0c9f4aeac13bd6f8c4c)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260808122646",
+   "name": "harden_referral_qualification",
+   "repoFile": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+   "state": "MATCH",
+   "normalizedMd5": "b616d88a267ac0322062480b75f0d9db",
+   "evidence": "normalized content md5 b616d88a267ac0322062480b75f0d9db equals supabase/migrations/20260808093000_harden_referral_qualification.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260808133923",
+   "name": "harden_economy_claim_mission",
+   "repoFile": null,
+   "state": "PROD_ONLY",
+   "normalizedMd5": "ee965d0039b6b50875be67990de02ec3",
+   "evidence": "no repo file with this name or content",
+   "action": "trace the change; add it to the repo or document why production carries it"
+  },
+  {
+   "version": "20260808134006",
+   "name": "harden_economy_grant_story_energy",
+   "repoFile": null,
+   "state": "PROD_ONLY",
+   "normalizedMd5": "ac0c0667bd3ca9ed604089ccca8478e5",
+   "evidence": "no repo file with this name or content",
+   "action": "trace the change; add it to the repo or document why production carries it"
+  },
+  {
+   "version": "20260808134007",
+   "name": "harden_economy_claim_league_week_reward",
+   "repoFile": null,
+   "state": "PROD_ONLY",
+   "normalizedMd5": "b002b2ab7dbe42229d9cd941f3cbd78f",
+   "evidence": "no repo file with this name or content",
+   "action": "trace the change; add it to the repo or document why production carries it"
+  },
+  {
+   "version": "20260808134009",
+   "name": "harden_economy_add_league_weekly_xp",
+   "repoFile": null,
+   "state": "PROD_ONLY",
+   "normalizedMd5": "dac92f47ea94f83650b394193c54fefe",
+   "evidence": "no repo file with this name or content",
+   "action": "trace the change; add it to the repo or document why production carries it"
+  },
+  {
+   "version": "20260808134010",
+   "name": "harden_economy_grant_lesson_reward",
+   "repoFile": null,
+   "state": "PROD_ONLY",
+   "normalizedMd5": "b1f73650cc5b99b0ccb978b0a6b284cd",
+   "evidence": "no repo file with this name or content",
+   "action": "trace the change; add it to the repo or document why production carries it"
+  },
+  {
+   "version": "20260808134045",
+   "name": "admin_roles_user_id",
+   "repoFile": "supabase/migrations/20260808130200_admin_roles_user_id.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "4eb532f4ed3f671d459abafdf339f478",
+   "evidence": "name matches supabase/migrations/20260808130200_admin_roles_user_id.sql but normalized content differs (prod 4eb532f4ed3f671d459abafdf339f478 vs repo bca330b0eb2cf8b6c4a052763dd2386f)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260808134047",
+   "name": "harden_subscription_event_ordering",
+   "repoFile": "supabase/migrations/20260808130100_harden_subscription_event_ordering.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "e7fcfd93f0a8079aa79a4712dfa4985d",
+   "evidence": "name matches supabase/migrations/20260808130100_harden_subscription_event_ordering.sql but normalized content differs (prod e7fcfd93f0a8079aa79a4712dfa4985d vs repo 2601a4b5bdea0c7ac487e57cd50c3c86)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260808134325",
+   "name": "profiles_social_columns",
+   "repoFile": null,
+   "state": "PROD_ONLY",
+   "normalizedMd5": "1bd5a81fc4e08c346e567937c57f4eba",
+   "evidence": "no repo file with this name or content",
+   "action": "trace the change; add it to the repo or document why production carries it"
+  },
+  {
+   "version": "20260808134407",
+   "name": "abuse_controls_ip_email_snapshot",
+   "repoFile": "supabase/migrations/20260808150000_abuse_controls_ip_email_snapshot.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "b77b9f2bf172bb371c442635c11cef85",
+   "evidence": "name matches supabase/migrations/20260808150000_abuse_controls_ip_email_snapshot.sql but normalized content differs (prod b77b9f2bf172bb371c442635c11cef85 vs repo f903932d031429b3b74bd9f65006779e)",
+   "action": "diff the applied SQL against the repo file before calling it equivalent"
+  },
+  {
+   "version": "20260808134423",
+   "name": "economy_anti_cheat_qi",
+   "repoFile": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "f6bf37efedbc0a2dfffc1caf5088d86e",
+   "evidence": "history row is a placeholder (140 chars): real SQL was applied outside supabase_migrations",
+   "action": "prove the objects it stands for by object-level diff (OA-SCHEMA-DIFF); never re-run or repair blindly"
+  },
+  {
+   "version": "20260808134424",
+   "name": "harden_economy_reward_trust",
+   "repoFile": "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+   "state": "UNKNOWN",
+   "normalizedMd5": "f6bf37efedbc0a2dfffc1caf5088d86e",
+   "evidence": "history row is a placeholder (84 chars): real SQL was applied outside supabase_migrations",
+   "action": "prove the objects it stands for by object-level diff (OA-SCHEMA-DIFF); never re-run or repair blindly"
+  },
+  {
+   "version": "20260808174114",
+   "name": "revoke_economy_user_is_pro_client",
+   "repoFile": "supabase/migrations/20260808160000_revoke_economy_user_is_pro_client.sql",
+   "state": "MATCH",
+   "normalizedMd5": "17ff1518c80b995f35a0756ef6585180",
+   "evidence": "normalized content md5 17ff1518c80b995f35a0756ef6585180 equals supabase/migrations/20260808160000_revoke_economy_user_is_pro_client.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260808183305",
+   "name": "harden_client_reward_claims",
+   "repoFile": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+   "state": "MATCH",
+   "normalizedMd5": "5ff27f6a7f4bafdac8c71000246b0509",
+   "evidence": "normalized content md5 5ff27f6a7f4bafdac8c71000246b0509 equals supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260809161017",
+   "name": "require_referral_reward_review",
+   "repoFile": "supabase/migrations/20260809160306_require_referral_reward_review.sql",
+   "state": "MATCH",
+   "normalizedMd5": "ed8c71d5c359824c2469e6c72bba350b",
+   "evidence": "normalized content md5 ed8c71d5c359824c2469e6c72bba350b equals supabase/migrations/20260809160306_require_referral_reward_review.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260809161213",
+   "name": "index_referral_review_reviewer",
+   "repoFile": "supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
+   "state": "MATCH",
+   "normalizedMd5": "6051ed34efe7b6557a504e70921bc6e1",
+   "evidence": "normalized content md5 6051ed34efe7b6557a504e70921bc6e1 equals supabase/migrations/20260809161134_index_referral_review_reviewer.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260810175737",
+   "name": "beta_experience_telemetry",
+   "repoFile": "supabase/migrations/20260810170000_beta_experience_telemetry.sql",
+   "state": "MATCH",
+   "normalizedMd5": "8ab128c6ec92b69d9e49d86fe1847bc6",
+   "evidence": "normalized content md5 8ab128c6ec92b69d9e49d86fe1847bc6 equals supabase/migrations/20260810170000_beta_experience_telemetry.sql",
+   "action": "none"
+  },
+  {
+   "version": "20260924140545",
+   "name": "rc2_2_11_username_identifier_login",
+   "repoFile": "supabase/pending/rc2-2-11-username-identifier.sql",
+   "state": "MATCH",
+   "normalizedMd5": "3adb9b90d22f828443f2f8827322117e",
+   "evidence": "normalized content md5 3adb9b90d22f828443f2f8827322117e equals supabase/pending/rc2-2-11-username-identifier.sql",
+   "action": "none"
+  },
+  {
+   "version": "20261007013220",
+   "name": "jev_feedback_triage",
+   "repoFile": "supabase/migrations/20261007120000_jev_feedback_triage.sql",
+   "state": "MATCH",
+   "normalizedMd5": "006c905fdfd157277552fc417e5e4567",
+   "evidence": "normalized content md5 006c905fdfd157277552fc417e5e4567 equals supabase/migrations/20261007120000_jev_feedback_triage.sql",
+   "action": "none"
+  },
+  {
+   "version": null,
+   "name": "initial_schema",
+   "repoFile": "supabase/migrations/001_initial_schema.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "1ec06645c1ecdcc4b6535fe1b799a13e",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "client_snapshot",
+   "repoFile": "supabase/migrations/002_client_snapshot.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "55d69bf5f924ae8f8bb000ae2b353dad",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "profile_trigger",
+   "repoFile": "supabase/migrations/003_profile_trigger.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "60e34d8f395b8ee92a5fcc07742d3f33",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "leagues",
+   "repoFile": "supabase/migrations/004_leagues.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "68d0a0ad945e3230cb24d2bacad95bad",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "social",
+   "repoFile": "supabase/migrations/005_social.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "4443b8441a2be3b7efb7e59c49eb2ce1",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "economy_server",
+   "repoFile": "supabase/migrations/006_economy_server.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "86215ac3784559090f4d54508c0a4007",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "internal_test_pro",
+   "repoFile": "supabase/migrations/007_internal_test_pro.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "c5e9202a11a91d3482391c1b63b1dccc",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "server_entitlement_rpc",
+   "repoFile": "supabase/migrations/008_server_entitlement_rpc.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "0138f5f8b5dac40d2e2c0dbd0f34a532",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "profile_admin",
+   "repoFile": "supabase/migrations/009_profile_admin.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "ebe138a6576e52bab8fa5b922835d1e0",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "beta_feedback",
+   "repoFile": "supabase/migrations/010_beta_feedback.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "4044cb569e765d43596cedd225e2915e",
+   "evidence": "no production history row with this name or content",
+   "action": "pre-history baseline file: confirm its objects exist in production (schema diff) before treating as applied"
+  },
+  {
+   "version": null,
+   "name": "production_help_telemetry",
+   "repoFile": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "fa0b72a6680b7184a5777e1736a65fc9",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "pearl_pro_economy",
+   "repoFile": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "fbd696b36289d7659a20b259e1149e31",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "mastery_pass_telemetry",
+   "repoFile": "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "bcd3723ddad4aa12536b8d82b14f8772",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "business_foundation",
+   "repoFile": "supabase/migrations/20260825043000_business_foundation.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "13cef4817c78650ec7b2b529e353d124",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "business_operational_hardening",
+   "repoFile": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "6b937c284d39b268cfc32abe0a376b0f",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "placement_onboarding",
+   "repoFile": "supabase/migrations/20260826230000_placement_onboarding.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "284905e6cbf6fe2e16708b0b077cf18f",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "placement_onboarding_handoff",
+   "repoFile": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "0294c71bc5913129ee7e9fcd0e550497",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "api_role_table_grants",
+   "repoFile": "supabase/migrations/20260828013000_api_role_table_grants.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "a4750ba1bd88151313703b7376b0667c",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "least_privilege_api_grants",
+   "repoFile": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "65b5255b13b7647fc90d074bef63e86c",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "progress_mastery_monotonic",
+   "repoFile": "supabase/migrations/20260828030000_progress_mastery_monotonic.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "ccc12b4fdf5bba6592115b49a67d3f5e",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "progress_mastery_monotonic_clamp",
+   "repoFile": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "bf160f7b7d7c8af8595c64d9867d9bc7",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "family_plan_foundation",
+   "repoFile": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "f078a7be88b8ec89a3761dfee9089fb4",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "business_seat_integrity",
+   "repoFile": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "6926e09b5e05d1f624b4fc960f03430c",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "family_invite_flow",
+   "repoFile": "supabase/migrations/20260914200000_family_invite_flow.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "2a4f09d10ada321ae0e15d723c2d2356",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "family_entitlement",
+   "repoFile": "supabase/migrations/20260914210000_family_entitlement.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "ac70f42d33985b6b9bb3c3d75ceee170",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "rc2-3-10-league-memberships-policy-recursion",
+   "repoFile": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "bdd7b0b171518d5d1f82106571e5fcab",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "rc2-3-10-telemetry-retention",
+   "repoFile": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "25ba160e72dedf7f3b48554b7220c223",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  }
+ ]
+}

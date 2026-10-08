@@ -1145,7 +1145,13 @@
     "validate:gate-registry": "node scripts/generate-gate-registry.mjs --check",
     "validate:rc2-3-9-stack-convergence": "node scripts/validate-rc2-3-9-stack-convergence.mjs",
     "test:rc2-3-9-stack-convergence": "node scripts/test-rc2-3-9-stack-convergence.mjs",
-    "gate:rc2-3-9-stack-convergence": "npm run validate:rc2-3-9-stack-convergence && npm run test:rc2-3-9-stack-convergence"
+    "gate:rc2-3-9-stack-convergence": "npm run validate:rc2-3-9-stack-convergence && npm run test:rc2-3-9-stack-convergence",
+    "ledger:production-migrations": "node scripts/rc2-3-10-cloud-certification.mjs ledger",
+    "validate:rc2-3-10-cloud": "node scripts/rc2-3-10-cloud-certification.mjs validate",
+    "test:rc2-3-10-cloud": "node scripts/rc2-3-10-cloud-certification.mjs test",
+    "gate:rc2-3-10-cloud": "npm run validate:rc2-3-10-cloud && npm run test:rc2-3-10-cloud",
+    "validate:apk-provenance": "node scripts/rc2-3-10-cloud-certification.mjs provenance",
+    "smoke:cloud": "node scripts/cloud-smoke.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
@@ -1157,6 +1163,7 @@
     "@capacitor/local-notifications": "8.3.1",
     "@capacitor/network": "8.0.1",
     "@capacitor/splash-screen": "8.0.2",
+    "@sentry/browser": "10.75.3",
     "@supabase/supabase-js": "^2.110.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

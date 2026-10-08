@@ -14,6 +14,7 @@ import { NativeExperienceBootstrap } from "./components/native/NativeExperienceB
 import { initNativeShell } from "./lib/platform/nativeShell";
 import { bindAccountStorageNamespace } from "./lib/accountStorageBinding";
 import { installTechCapture, recordTechEvent } from "./lib/techEvents";
+import { initErrorReporting } from "./lib/observability/errorReporting";
 import { bootstrapInterfaceLocale, refreshSystemInterfaceLocale, setSystemLanguageProvider } from "./i18n/locale";
 import { onSystemLanguageChange, systemLanguageTags } from "./lib/platform/systemLocale";
 import { bootstrapCourseDirection } from "./lib/courseDirectionState";
@@ -84,6 +85,8 @@ const router = createBrowserRouter([
 // técnico em memória (no-op fora de DEV/Preview/QA). Instalado no boot para
 // valer em TODAS as rotas, inclusive as de fora da casca (ex.: /qa/device).
 installTechCapture();
+// RC2.3.10 — Sentry only with VITE_SENTRY_DSN in a production env; never blocks boot.
+void initErrorReporting();
 recordTechEvent("route_changed", { from: "", via: "BOOT" });
 let lastTechPath = router.state.location.pathname;
 router.subscribe((state) => {
