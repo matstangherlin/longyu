@@ -1,0 +1,1263 @@
+{
+  "wave": "RC2.3.1",
+  "generatedAt": "Sat Oct 03 2026 00:31:08 GMT+0000 (Coordinated Universal Time)",
+  "totalLessons": 134,
+  "concreteLessons": 121,
+  "concreteConcepts": 280,
+  "visualConceptsInBank": 87,
+  "visualConceptsCovered": 56,
+  "firstExposureCovered": 20,
+  "firstExposureMissing": 0,
+  "visualExercises": 539,
+  "contextScenes": 10,
+  "contextScenesUsed": 752,
+  "missingAssets": 0,
+  "justifiedExceptions": 0,
+  "styleViolations": 0,
+  "curriculumLeakViolations": 0,
+  "unusedVisualAssetCount": 31,
+  "unusedVisualAssetIds": [
+    "son",
+    "daughter",
+    "female_friend",
+    "girlfriend",
+    "boyfriend",
+    "crowd",
+    "cat",
+    "dog",
+    "tea",
+    "coffee",
+    "apple",
+    "vegetables",
+    "drinking_water",
+    "beer",
+    "bread",
+    "egg",
+    "phone",
+    "keys",
+    "cup",
+    "table",
+    "chair",
+    "door",
+    "window",
+    "backpack",
+    "bill",
+    "bank_card",
+    "bathroom",
+    "bedroom",
+    "kitchen",
+    "travel",
+    "shopping_mall"
+  ],
+  "concreteConceptCoverage": 1,
+  "firstExposureVisualCoverage": 1,
+  "visualExerciseCoverage": 1.0055970149253732,
+  "lessons": [
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 0,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-o-que-e-hanzi",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 2,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-primeiros-hanzi",
+      "concreteConcepts": 10,
+      "withAsset": 10,
+      "visualExercises": 2,
+      "contextScenes": 3,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 2,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l1",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l2",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 5,
+      "contextScenes": 6,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l3",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l1-rev",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 8,
+      "contextScenes": 2,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l4",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 5,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 5,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l2-rev",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-ma-primeiro-tom",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 0,
+      "contextScenes": 1,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 1,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 0,
+      "contextScenes": 1,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 0,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-comparar-tom-1-4",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 1,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-comparar-tom-2-3",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 1,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-tons-xiexie",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l5",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l6",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 1,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l3-rev",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 6,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l7",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l8",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 2,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l8-compare",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 2,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l8-shi",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "concreteConcepts": 5,
+      "withAsset": 5,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 2,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l4-rev",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 7,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l9",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 3,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l9-qual-nome",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 8,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l10",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 2,
+      "contextScenes": 8,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p3-wobuhui-shuo-zhongwen",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p3-qing-zai-shuo-yibian",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l11",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 8,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 4,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l12",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 2,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l13",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l13-dialogo-ola",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l13-dialogo-nome",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 1,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p3-ordem-das-palavras",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p3-nomes-da-frase",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l5-rev",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l14",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 7,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-num-123",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-num-45",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-num-678",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-num-910",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 7,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-shan",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-shui",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 7,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-tian",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 5,
+      "contextScenes": 8,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-huo",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 7,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-da",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-xiao",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-zhong",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-bu",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-shi",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 9,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-wo",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-char-ni",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l14-numeros-visuais",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 7,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l14-pecas-natureza",
+      "concreteConcepts": 4,
+      "withAsset": 4,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l14-frase-minima",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l14-char-rev",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l15",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l6-rev",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l16",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l17",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l18",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 1,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l7-rev",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p4-checkpoint-fundamentos",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 7,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "concreteConcepts": 4,
+      "withAsset": 4,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "concreteConcepts": 4,
+      "withAsset": 4,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p5-kou-ma-pergunta",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 7,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l19-logica-ma",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l19-logica-rev",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 2,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l19",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 5,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l20",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l8-rev",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l21",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l22",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 6,
+      "contextScenes": 8,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l23",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 6,
+      "contextScenes": 9,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l9-rev",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 8,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l24",
+      "concreteConcepts": 6,
+      "withAsset": 6,
+      "visualExercises": 3,
+      "contextScenes": 4,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l25",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l26",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l26b",
+      "concreteConcepts": 6,
+      "withAsset": 6,
+      "visualExercises": 11,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l26c",
+      "concreteConcepts": 4,
+      "withAsset": 4,
+      "visualExercises": 12,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l27",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l28",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 3,
+      "contextScenes": 8,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 1,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-cidade-lugares",
+      "concreteConcepts": 8,
+      "withAsset": 8,
+      "visualExercises": 11,
+      "contextScenes": 5,
+      "firstExposureCovered": 5,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-china-cidades",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 0,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-saude",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 4,
+      "firstExposureCovered": 1,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-horarios",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 2,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-natureza",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-clima",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 8,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-direcoes",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 4,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-compras",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 7,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 5,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l10-rev",
+      "concreteConcepts": 0,
+      "withAsset": 0,
+      "visualExercises": 0,
+      "contextScenes": 3,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l29",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 6,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l30",
+      "concreteConcepts": 2,
+      "withAsset": 2,
+      "visualExercises": 4,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "l11-rev",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 12,
+      "contextScenes": 7,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "concreteConcepts": 5,
+      "withAsset": 5,
+      "visualExercises": 8,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-estacao",
+      "concreteConcepts": 10,
+      "withAsset": 10,
+      "visualExercises": 9,
+      "contextScenes": 5,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-hotel",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 12,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-aeroporto",
+      "concreteConcepts": 5,
+      "withAsset": 5,
+      "visualExercises": 12,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-saude",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 12,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-conversa-cotidiana",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 3,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-china-survival",
+      "concreteConcepts": 1,
+      "withAsset": 1,
+      "visualExercises": 0,
+      "contextScenes": 18,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-viagem",
+      "concreteConcepts": 4,
+      "withAsset": 4,
+      "visualExercises": 12,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    },
+    {
+      "lessonId": "p7-imersao-casa-amigo",
+      "concreteConcepts": 3,
+      "withAsset": 3,
+      "visualExercises": 6,
+      "contextScenes": 6,
+      "firstExposureCovered": 0,
+      "firstExposureMissing": 0
+    }
+  ]
+}

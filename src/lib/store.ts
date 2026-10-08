@@ -27,6 +27,8 @@ import {
   migrateCultureV21ToQuest,
   type CultureMissionResult,
 } from "./cultureMastery";
+import { cultureToEvidence } from "./mastery/adapters";
+import { recordLearningEvidence } from "./mastery/recorder";
 import {
   CONVERSATION_HISTORY_LIMIT,
   CONVERSATION_VARIANT_LEVELS,
@@ -2728,6 +2730,16 @@ function applyRewardToState(s: AppState, reward: RewardGrant): AppState {
   return next;
 }
 
+/** RC2.3.6 — culture events also feed the Learner Evidence Record (never blocks the store). */
+function cultureEvidence(conceptId: string, event: "introduced" | "practiced" | "scenario" | "recall_ok" | "recall_miss", activityId: string) {
+  try {
+    const now = Date.now();
+    recordLearningEvidence([cultureToEvidence({ conceptId, event, activityId, attemptKey: `${conceptId}|${event}|${now}`, timestamp: now })]);
+  } catch {
+    /* evidence is optional */
+  }
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -4349,6 +4361,7 @@ export const useStore = create<AppState>()(
 
       completeCultureBridge: (input) => {
         if (!input?.conceptId || !input.cultureItemId || !getCultureItem(input.cultureItemId)) return;
+        cultureEvidence(input.conceptId, "practiced", "culture:bridge");
         set((s) => {
           const cultureKnowledgeById = applyCultureBridgeComplete(s.cultureKnowledgeById ?? {}, input);
           const next = { ...s, cultureKnowledgeById };
@@ -4358,6 +4371,7 @@ export const useStore = create<AppState>()(
 
       recordCultureKnowledge: (conceptId, cultureItemId, event, source) => {
         if (!conceptId || !cultureItemId || !getCultureItem(cultureItemId)) return;
+        cultureEvidence(conceptId, event === "mastered" ? "scenario" : event === "practiced" ? "practiced" : "introduced", `culture:${source ?? "journey"}`);
         set((s) => {
           const cultureKnowledgeById = applyCultureKnowledgeEvent(s.cultureKnowledgeById ?? {}, {
             conceptId,
@@ -4371,6 +4385,7 @@ export const useStore = create<AppState>()(
       },
 
       reviewCultureMemory: (targetId, correct, source = "mission") => {
+        cultureEvidence(targetId, correct ? "recall_ok" : "recall_miss", `culture:memory:${source}`);
         set((s) => {
           const cultureMemoryById = applyCultureMemoryReview(s.cultureMemoryById ?? {}, targetId, correct);
           const row = cultureMemoryById[targetId];

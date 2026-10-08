@@ -13,6 +13,14 @@ export const TECH_EVENT_LIMIT = 150;
 
 export const TECH_EVENT_NAMES = [
   "route_changed",
+  // RC2.3.8 — auth (safe metadata only: provider, stage, safe code — never tokens/codes/e-mail)
+  "auth_provider_started",
+  "auth_provider_cancelled",
+  "auth_callback_failed",
+  "auth_callback_duplicate",
+  "auth_success",
+  "progress_claim_started",
+  "progress_claim_completed",
   "app_paused",
   "app_resumed",
   "keyboard_opened",

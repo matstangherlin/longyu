@@ -296,9 +296,9 @@
     {
       "kind": "audio_discrimination",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 56,
-      "lessons": 27,
-      "premiumLessons": 11
+      "occurrences": 85,
+      "lessons": 32,
+      "premiumLessons": 13
     },
     {
       "kind": "audio_to_action",
@@ -324,8 +324,8 @@
     {
       "kind": "comprehend",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 432,
-      "lessons": 99,
+      "occurrences": 469,
+      "lessons": 100,
       "premiumLessons": 21
     },
     {
@@ -338,30 +338,30 @@
     {
       "kind": "conversation_repair",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 104,
-      "lessons": 48,
-      "premiumLessons": 19
+      "occurrences": 113,
+      "lessons": 49,
+      "premiumLessons": 20
     },
     {
       "kind": "conversation_scene",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 438,
+      "occurrences": 456,
       "lessons": 110,
       "premiumLessons": 34
     },
     {
       "kind": "decompose",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 16,
-      "lessons": 4,
+      "occurrences": 21,
+      "lessons": 6,
       "premiumLessons": 1
     },
     {
       "kind": "dialogue_choice",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 419,
-      "lessons": 119,
-      "premiumLessons": 26
+      "occurrences": 590,
+      "lessons": 123,
+      "premiumLessons": 29
     },
     {
       "kind": "dialogue_completion",
@@ -373,16 +373,16 @@
     {
       "kind": "dictation",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 50,
-      "lessons": 23,
-      "premiumLessons": 5
+      "occurrences": 101,
+      "lessons": 42,
+      "premiumLessons": 7
     },
     {
       "kind": "fill_blank",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 420,
-      "lessons": 101,
-      "premiumLessons": 27
+      "occurrences": 510,
+      "lessons": 107,
+      "premiumLessons": 31
     },
     {
       "kind": "flashcard",
@@ -394,44 +394,44 @@
     {
       "kind": "free_production",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 333,
+      "occurrences": 361,
       "lessons": 86,
       "premiumLessons": 27
     },
     {
       "kind": "hanzi_build",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 169,
-      "lessons": 62,
-      "premiumLessons": 10
+      "occurrences": 318,
+      "lessons": 85,
+      "premiumLessons": 20
     },
     {
       "kind": "image_choice",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 355,
+      "occurrences": 530,
       "lessons": 100,
       "premiumLessons": 29
     },
     {
       "kind": "intro",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 195,
-      "lessons": 92,
-      "premiumLessons": 19
+      "occurrences": 236,
+      "lessons": 94,
+      "premiumLessons": 20
     },
     {
       "kind": "listen",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 336,
+      "occurrences": 371,
       "lessons": 47,
       "premiumLessons": 13
     },
     {
       "kind": "listen_select",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 408,
-      "lessons": 99,
-      "premiumLessons": 16
+      "occurrences": 442,
+      "lessons": 105,
+      "premiumLessons": 20
     },
     {
       "kind": "map_direction",
@@ -443,7 +443,7 @@
     {
       "kind": "match_pairs",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 68,
+      "occurrences": 81,
       "lessons": 29,
       "premiumLessons": 5
     },
@@ -464,7 +464,7 @@
     {
       "kind": "odd_one_out",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 47,
+      "occurrences": 68,
       "lessons": 23,
       "premiumLessons": 8
     },
@@ -485,15 +485,15 @@
     {
       "kind": "produce",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 35,
+      "occurrences": 40,
       "lessons": 17,
       "premiumLessons": 2
     },
     {
       "kind": "recognize",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 57,
-      "lessons": 24,
+      "occurrences": 88,
+      "lessons": 33,
       "premiumLessons": 5
     },
     {
@@ -513,9 +513,9 @@
     {
       "kind": "sentence_build",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 460,
-      "lessons": 107,
-      "premiumLessons": 31
+      "occurrences": 575,
+      "lessons": 109,
+      "premiumLessons": 33
     },
     {
       "kind": "sentence_transform",
@@ -534,9 +534,9 @@
     {
       "kind": "spot_error",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 47,
-      "lessons": 38,
-      "premiumLessons": 9
+      "occurrences": 98,
+      "lessons": 45,
+      "premiumLessons": 10
     },
     {
       "kind": "substitution_drill",
@@ -548,35 +548,35 @@
     {
       "kind": "tone",
       "guidedClass": "GUIDED_NATIVE",
-      "occurrences": 101,
-      "lessons": 18,
+      "occurrences": 130,
+      "lessons": 20,
       "premiumLessons": 1
     },
     {
       "kind": "tone_pair",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 26,
-      "lessons": 9,
+      "occurrences": 31,
+      "lessons": 10,
       "premiumLessons": 5
     },
     {
       "kind": "transfer_task",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 20,
+      "occurrences": 24,
       "lessons": 17,
       "premiumLessons": 14
     },
     {
       "kind": "translation_build",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 6,
-      "lessons": 2,
+      "occurrences": 9,
+      "lessons": 4,
       "premiumLessons": 1
     },
     {
       "kind": "write",
       "guidedClass": "GUIDED_COMPATIBLE",
-      "occurrences": 65,
+      "occurrences": 66,
       "lessons": 7,
       "premiumLessons": 4
     }
@@ -634,14 +634,14 @@
     {
       "lessonId": "l2",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l3",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -676,7 +676,7 @@
     {
       "lessonId": "p1-qingwen-cortesia",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -823,14 +823,14 @@
     {
       "lessonId": "l9",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l9-tudo-bem",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -844,14 +844,14 @@
     {
       "lessonId": "l10",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p3-wobuhui-shuo-zhongwen",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -865,7 +865,7 @@
     {
       "lessonId": "l11",
       "premium": false,
-      "stepKinds": 16,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -879,21 +879,21 @@
     {
       "lessonId": "l12",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l13",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l13-dialogo-ola",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -907,7 +907,7 @@
     {
       "lessonId": "p3-ordem-das-palavras",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -928,35 +928,35 @@
     {
       "lessonId": "l14",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p4-num-123",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p4-num-45",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 14,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p4-num-678",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p4-num-910",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -984,21 +984,21 @@
     {
       "lessonId": "p4-char-ri",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 14,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p4-char-yue",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 14,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p4-char-shan",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1026,7 +1026,7 @@
     {
       "lessonId": "p4-char-da",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 14,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1061,7 +1061,7 @@
     {
       "lessonId": "p4-char-wo",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1075,14 +1075,14 @@
     {
       "lessonId": "l14-numeros-visuais",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 14,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l14-pecas-natureza",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1103,7 +1103,7 @@
     {
       "lessonId": "l15",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1117,14 +1117,14 @@
     {
       "lessonId": "l16",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l17",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1152,14 +1152,14 @@
     {
       "lessonId": "p5-mu-mu-lin",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p5-mu-mu-mu-sen",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1173,7 +1173,7 @@
     {
       "lessonId": "p5-ren-mu-xiu",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1187,28 +1187,28 @@
     {
       "lessonId": "p5-ren-ren-cong",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p5-ren-ren-ren-zhong",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p5-nv-ma-mae",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p5-kou-ma-pergunta",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1222,21 +1222,21 @@
     {
       "lessonId": "l19-logica-luz",
       "premium": false,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l19-logica-pessoas",
       "premium": false,
-      "stepKinds": 14,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l19-logica-ma",
       "premium": false,
-      "stepKinds": 13,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1250,14 +1250,14 @@
     {
       "lessonId": "l19",
       "premium": false,
-      "stepKinds": 17,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l20",
       "premium": false,
-      "stepKinds": 17,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1271,7 +1271,7 @@
     {
       "lessonId": "l21",
       "premium": false,
-      "stepKinds": 17,
+      "stepKinds": 19,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1306,21 +1306,21 @@
     {
       "lessonId": "l25",
       "premium": true,
-      "stepKinds": 15,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l26",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l26b",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 19,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1341,7 +1341,7 @@
     {
       "lessonId": "l28",
       "premium": true,
-      "stepKinds": 15,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1355,21 +1355,21 @@
     {
       "lessonId": "p6-cidade-lugares",
       "premium": true,
-      "stepKinds": 15,
+      "stepKinds": 19,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p6-china-cidades",
       "premium": true,
-      "stepKinds": 15,
+      "stepKinds": 17,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p6-china-cidades-2",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1397,14 +1397,14 @@
     {
       "lessonId": "p6-natureza",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "p6-clima",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1418,7 +1418,7 @@
     {
       "lessonId": "p6-compras",
       "premium": true,
-      "stepKinds": 17,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1439,14 +1439,14 @@
     {
       "lessonId": "l29",
       "premium": true,
-      "stepKinds": 17,
+      "stepKinds": 18,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
     {
       "lessonId": "l30",
       "premium": true,
-      "stepKinds": 16,
+      "stepKinds": 19,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1460,7 +1460,7 @@
     {
       "lessonId": "p7-imersao-mercado",
       "premium": true,
-      "stepKinds": 12,
+      "stepKinds": 16,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     },
@@ -1516,7 +1516,7 @@
     {
       "lessonId": "p7-imersao-casa-amigo",
       "premium": true,
-      "stepKinds": 13,
+      "stepKinds": 15,
       "legacySteps": 0,
       "guidedClass": "GUIDED_COMPATIBLE"
     }

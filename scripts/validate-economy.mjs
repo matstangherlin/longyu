@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { canonicalBetaChain } from "./lib/canonical-beta.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -136,7 +137,7 @@ const pkg = JSON.parse(read("package.json"));
 if (!pkg.scripts?.["validate:economy"]) {
   fail('package.json sem script "validate:economy"');
 }
-if (!pkg.scripts?.["validate:beta"]?.includes("validate:economy")) {
+if (!canonicalBetaChain(pkg.scripts ?? {}).includes("validate:economy")) {
   fail("validate:beta deve incluir validate:economy");
 }
 

@@ -27,9 +27,9 @@ test("hub: Treinar agora acima da dobra, modos em 2 colunas, Atlas e Pro depois"
   expect(ctaBox!.height).toBeGreaterThanOrEqual(48);
 
   const modes = page.locator("[data-hanzi-mode]");
-  await expect(modes).toHaveCount(6);
+  await expect(modes).toHaveCount(8);
   const xs = new Set<number>();
-  for (let i = 0; i < 6; i += 1) xs.add(Math.round((await modes.nth(i).boundingBox())!.x));
+  for (let i = 0; i < 8; i += 1) xs.add(Math.round((await modes.nth(i).boundingBox())!.x));
   expect(xs.size).toBe(2);
 
   const gridBottom = (await page.getByTestId("hanzi-mode-grid").boundingBox())!;

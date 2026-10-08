@@ -284,7 +284,7 @@ export async function validateAndroidReleaseCandidate(s) {
   }
   // Freeze (fingerprint + contagens).
   for (const failure of validateBetaPedagogyFreeze(s.freeze)) fail(failure.code === "FINGERPRINT_DRIFT" ? "FINGERPRINT_DRIFT" : "CURRICULUM_COUNT_DRIFT", failure.where, failure.why);
-  if (r.fingerprint !== "c48b008c9c1e") fail("FINGERPRINT_DRIFT", "android-release-readiness.json", r.fingerprint);
+  if (r.fingerprint !== "5a64821d0b7d") fail("FINGERPRINT_DRIFT", "android-release-readiness.json", r.fingerprint);
   // #273 intocada.
   const checks = s.operational.checks ?? {};
   for (const id of CLOUD_CHECKS) if (checks[id]?.pass !== false) fail("CLOUD_273_TOUCHED", id, "cloud segue adiada (#273)");

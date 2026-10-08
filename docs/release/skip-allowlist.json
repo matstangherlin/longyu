@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "generatedFor": "rc2-3-9-stack-convergence",
+  "baseCommit": "dbb6f11",
+  "patterns": {
+    "test.skip": "\\b(?:test|describe|it)(?:\\.describe)?\\.(?:skip|fixme)\\(",
+    "continue-on-error": "continue-on-error:\\s*true",
+    "|| true": "\\|\\|\\s*true\\b",
+    "|| :": "\\|\\|\\s*:\\s*(?:$|[;)\"'])"
+  },
+  "scope": [
+    "e2e/**/*.ts",
+    "scripts/**/*.mjs",
+    ".github/workflows/*.yml",
+    "package.json"
+  ],
+  "excluded": [
+    "scripts/lib/stack-convergence-gates.mjs",
+    "scripts/test-rc2-3-9-stack-convergence.mjs"
+  ],
+  "counts": {
+    "total": 42,
+    "LEGIT": 42,
+    "HIDDEN_SKIP": 0
+  },
+  "entries": [
+    {
+      "file": ".github/workflows/android-build.yml",
+      "line": 164,
+      "pattern": "|| true",
+      "snippet": "ls -l /dev/kvm || true",
+      "classification": "LEGIT",
+      "reason": "Diagnostic listing before the emulator step. It is not a gate, and the emulator step itself fails hard."
+    },
+    {
+      "file": ".github/workflows/backend-rehearsal.yml",
+      "line": 83,
+      "pattern": "|| true",
+      "snippet": "supabase stop --no-backup || true",
+      "classification": "LEGIT",
+      "reason": "Cleanup between registry retries inside the start loop. The step still fails if no registry starts, so this is not a gate result."
+    },
+    {
+      "file": ".github/workflows/backend-rehearsal.yml",
+      "line": 137,
+      "pattern": "|| true",
+      "snippet": "supabase stop --no-backup || true",
+      "classification": "LEGIT",
+      "reason": "Cleanup between registry retries inside the start loop. The step still fails if no registry starts, so this is not a gate result."
+    },
+    {
+      "file": ".github/workflows/ci.yml",
+      "line": 213,
+      "pattern": "continue-on-error",
+      "snippet": "# Até aqui o passo era `continue-on-error: true`, justificado por flakes de",
+      "classification": "LEGIT",
+      "reason": "Comment documenting that continue-on-error was REMOVED from the WebKit step (no live YAML key). test-rc-hardening.mjs asserts its absence."
+    },
+    {
+      "file": "e2e/business.spec.ts",
+      "line": 167,
+      "pattern": "test.skip",
+      "snippet": "test.skip(skipHeavyMatrix(browserName, viewport.label), \"matriz completa só no Chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/en-core-surfaces.spec.ts",
+      "line": 249,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"Victory playthrough is Chromium-only.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/en-core-surfaces.spec.ts",
+      "line": 274,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"Screenshot pack is Chromium-only.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/en-core-surfaces.spec.ts",
+      "line": 320,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"QA surfaces are Chromium-only.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/guided-journey-culture.spec.ts",
+      "line": 285,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"webkit\", \"WebKit-only contract\");",
+      "classification": "LEGIT",
+      "reason": "Engine-specific contract (WebKit-only). Other engines are not a target of this test."
+    },
+    {
+      "file": "e2e/i18n-first-20-journey.spec.ts",
+      "line": 121,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"4/4 EN walk is Chromium-only; node parity covers all 20 topics.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/i18n-topics-21-50.spec.ts",
+      "line": 149,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"M1 EN walk is Chromium-only; node parity covers all 30 topics.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/i18n-topics-51-80.spec.ts",
+      "line": 161,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"M1 EN walk is Chromium-only; node parity covers all 30 topics.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/i18n-topics-81-113.spec.ts",
+      "line": 219,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"M1 EN walk is Chromium-only; node parity covers all 33 topics.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/missions-responsive.spec.ts",
+      "line": 28,
+      "pattern": "test.skip",
+      "snippet": "test.skip(skipHeavyMatrix(browserName, viewport.label), \"matriz completa só no Chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/missions-responsive.spec.ts",
+      "line": 43,
+      "pattern": "test.skip",
+      "snippet": "test.skip(skipHeavyMatrix(browserName, viewport.label), \"matriz completa só no Chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/missions-responsive.spec.ts",
+      "line": 57,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"matriz tablet no Chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/missions-responsive.spec.ts",
+      "line": 74,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"landscape principal no Chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/missions-responsive.spec.ts",
+      "line": 185,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/missions-responsive.spec.ts",
+      "line": 199,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 25,
+      "pattern": "test.skip",
+      "snippet": "test.skip(true, \"Sem toque neste projeto (motor de mesa).\");",
+      "classification": "LEGIT",
+      "reason": "Project-conditional: the touch-only test needs a hasTouch project. Desktop projects have no touch input, so the skip reflects a platform capability."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 56,
+      "pattern": "test.skip",
+      "snippet": "test.skip(true, \"Sem toque neste projeto (motor de mesa).\");",
+      "classification": "LEGIT",
+      "reason": "Project-conditional: the touch-only test needs a hasTouch project. Desktop projects have no touch input, so the skip reflects a platform capability."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 203,
+      "pattern": "test.skip",
+      "snippet": "if (!hasSW) test.skip(true, \"Sem service worker neste ambiente.\");",
+      "classification": "LEGIT",
+      "reason": "Platform capability: the browser context exposes no navigator.serviceWorker."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 220,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!controlled && browserName !== \"chromium\", \"SW sem controle fora do Chromium — gate de device real (Safari/Firefox).\");",
+      "classification": "LEGIT",
+      "reason": "Engine limitation, not an app condition. RC2.3.9 split the old unconditional skip: on every Chromium project (chromium, mobile-chrome, tablet-portrait, tablet-landscape, reduced-motion) the test now ASSERTS navigator.serviceWorker.controller after reload (expect(controlled).toBe(true)), so a PWA/precache regression fails. This skip can only fire when browserName !== 'chromium' AND the SW did not take control: Playwright documents service-worker support as Chromium-only, and WebKit/Gecko offline takeover is a real-device gate (Safari/Firefox). Evidence: `playwright test e2e/mobile-device.spec.ts -g offline --project=chromium --project=mobile-chrome --project=tablet-portrait --project=tablet-landscape --project=reduced-motion` passes (SW takes control, not skipped); the webkit/firefox engines are not installed in this sandbox, so non-Chromium takeover could not be exercised here."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 272,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"Throttling via CDP só no Chromium.\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 301,
+      "pattern": "test.skip",
+      "snippet": "test.skip(true, \"Sem toque neste projeto (motor de mesa).\");",
+      "classification": "LEGIT",
+      "reason": "Project-conditional: the touch-only test needs a hasTouch project. Desktop projects have no touch input, so the skip reflects a platform capability."
+    },
+    {
+      "file": "e2e/mobile-device.spec.ts",
+      "line": 338,
+      "pattern": "test.skip",
+      "snippet": "test.skip(true, \"Sem toque neste projeto (motor de mesa).\");",
+      "classification": "LEGIT",
+      "reason": "Project-conditional: the touch-only test needs a hasTouch project. Desktop projects have no touch input, so the skip reflects a platform capability."
+    },
+    {
+      "file": "e2e/rc1-4-generated-learning-integrity.spec.ts",
+      "line": 35,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName !== \"chromium\", \"anel 4/4 ponta a ponta no Chromium\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/rc2-2-14-screenshots.spec.ts",
+      "line": 27,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!process.env.SHOT_PACK, \"pacote de screenshots: rode com SHOT_PACK=1\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-14-screenshots.spec.ts",
+      "line": 69,
+      "pattern": "test.skip",
+      "snippet": "test.skip(TARGET === \"before\", \"não existia antes\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-14b-screenshots.spec.ts",
+      "line": 19,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!process.env.SHOT_PACK, \"pacote de screenshots: rode com SHOT_PACK=1\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-17-screenshots.spec.ts",
+      "line": 119,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!SHOT, \"SHOT_PACK=1 para gerar a matriz visual\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-17b-guided-journey-parity.spec.ts",
+      "line": 365,
+      "pattern": "test.skip",
+      "snippet": "test.skip(testInfo.project.name !== \"chromium\", \"varredura estrutural roda uma vez (Chromium)\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/rc2-2-17b-guided-journey-parity.spec.ts",
+      "line": 451,
+      "pattern": "test.skip",
+      "snippet": "test.skip(testInfo.project.name !== \"chromium\", \"varredura de contrato roda uma vez (Chromium)\");",
+      "classification": "LEGIT",
+      "reason": "Engine-conditional dedup: the heavy matrix/walk runs once on Chromium, and Firefox/WebKit cover the invariants in their own specs (documented in webkit-ci-notes and the reason string)."
+    },
+    {
+      "file": "e2e/rc2-2-17b-screenshots.spec.ts",
+      "line": 66,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!SHOT, \"SHOT_PACK=1 para gerar o pacote visual\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-18-screenshots.spec.ts",
+      "line": 62,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!SHOT, \"SHOT_PACK=1 para gerar a matriz visual\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-19-screenshots.spec.ts",
+      "line": 50,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!SHOT, \"SHOT_PACK=1 para gerar o pacote visual\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/rc2-2-25-goldens.spec.ts",
+      "line": 48,
+      "pattern": "test.skip",
+      "snippet": "test.skip(!process.env.RC2225_GOLDENS, \"goldens sob demanda: RC2225_GOLDENS=1\");",
+      "classification": "LEGIT",
+      "reason": "On-demand screenshot/golden artifact pack, gated by an env var. It does not belong to any gate chain and produces images, not assertions of record."
+    },
+    {
+      "file": "e2e/topic-mastery-path.spec.ts",
+      "line": 126,
+      "pattern": "test.skip",
+      "snippet": "test.skip(",
+      "classification": "LEGIT",
+      "reason": "Multi-line skip whose condition (next line) is browserName !== \"chromium\". This is a documented V4.7.4 Chromium-only 4/4 walk, and Firefox/WebKit run topic-mastery-hardening."
+    },
+    {
+      "file": "e2e/topic-mastery-path.spec.ts",
+      "line": 203,
+      "pattern": "test.skip",
+      "snippet": "test.skip(",
+      "classification": "LEGIT",
+      "reason": "Multi-line skip whose condition (next line) is browserName !== \"chromium\". This is a documented V4.7.4 Chromium-only 4/4 walk, and Firefox/WebKit run topic-mastery-hardening."
+    },
+    {
+      "file": "e2e/topic-pass-return.spec.ts",
+      "line": 248,
+      "pattern": "test.skip",
+      "snippet": "test.skip(",
+      "classification": "LEGIT",
+      "reason": "Multi-line skip whose condition (next line) is browserName !== \"chromium\". This is a documented V4.7.4 Chromium-only 4/4 walk, and Firefox/WebKit run topic-mastery-hardening."
+    },
+    {
+      "file": "scripts/rc2-2-22-closed-beta-candidate.mjs",
+      "line": 51,
+      "pattern": "continue-on-error",
+      "snippet": "[\"audit desligado com continue-on-error\", \"AUDIT_DISABLED\", src(\"securityWorkflow\", \"      - name: Audit all dependencies\\n\", \"      - name: Audit all dependencies\\n        continue-on-error: true\\n\")],",
+      "classification": "LEGIT",
+      "reason": "Mutation-test data: the gate injects 'continue-on-error: true' into the security workflow and expects AUDIT_DISABLED to fire. This is not a live soft-fail."
+    },
+    {
+      "file": "scripts/rc2-2-25-product-experience-closure.mjs",
+      "line": 139,
+      "pattern": "test.skip",
+      "snippet": "[\"goldens viram aceite automático\", \"GOLDENS_AUTO_ACCEPT\", src(\"goldens\", \"test.skip(!process.env.RC2225_GOLDENS\", \"test.skip(false\")],",
+      "classification": "LEGIT",
+      "reason": "Mutation-test data: rewrites the goldens skip to test.skip(false and expects GOLDENS_AUTO_ACCEPT to fire."
+    }
+  ],
+  "nonPatternFindings": [
+    {
+      "file": "scripts/validate-mastery-network-growth.mjs",
+      "line": 66,
+      "pattern": "catch-swallow-exit-0",
+      "snippet": "process.exit(0);",
+      "classification": "FIXED",
+      "reason": "A compile failure of masteryPilot.ts/lessonTasks.ts is caught, prints 'SKIP validate:mastery-network-growth' and exits 0, and the validator is chained inside validate:beta. A broken compile therefore passes the chain. It should exit 1.",
+      "resolution": "RC2.3.9: a compile failure now prints FAIL and exits 1 (scripts/validate-mastery-network-growth.mjs)."
+    },
+    {
+      "file": "scripts/test-create-account-hardening.mjs",
+      "line": 22,
+      "pattern": "pass-without-execution",
+      "snippet": "process.exit(0);",
+      "classification": "LEGIT",
+      "reason": "Manual live smoke (npm run test:create-account-hardening), referenced by no gate/validate chain. With no Supabase URL/anon key it prints SKIP."
+    },
+    {
+      "file": "scripts/lib/rc2-2-16-gates.mjs",
+      "line": 153,
+      "pattern": "pass-without-execution",
+      "snippet": "if (!fs.existsSync(dir)) return [];",
+      "classification": "LEGIT",
+      "reason": "release-artifacts/ exists only after android-release.yml. Artifact checks are conditional by design, and the source invariants of the gate still run."
+    },
+    {
+      "file": ".github/workflows/android-build.yml",
+      "line": 77,
+      "pattern": "set +e",
+      "snippet": "set +e",
+      "classification": "LEGIT",
+      "reason": "Captures the exit code of bundle:release and then asserts it equals 4 (BLOCKED_SIGNING_SECRETS), otherwise exit 1. This is a negative test, not a soft-fail."
+    },
+    {
+      "file": "scripts/android-emulator-runtime.sh",
+      "line": 14,
+      "pattern": "|| true",
+      "snippet": "adb logcat -d -s LongyuMedia:I LongyuGesture:I LongyuConversation:I > ../runtime-evidence/logcat-sanitized.txt || true",
+      "classification": "LEGIT",
+      "reason": "Evidence collection after the run (.sh, outside the gate scan scope)."
+    }
+  ]
+}

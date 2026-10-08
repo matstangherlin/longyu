@@ -12,6 +12,7 @@ import { PageFallback } from "./components/system/PageFallback";
 import { I18nProvider } from "./i18n/provider";
 import { NativeExperienceBootstrap } from "./components/native/NativeExperienceBootstrap";
 import { initNativeShell } from "./lib/platform/nativeShell";
+import { bindAccountStorageNamespace } from "./lib/accountStorageBinding";
 import { installTechCapture, recordTechEvent } from "./lib/techEvents";
 import { bootstrapInterfaceLocale, refreshSystemInterfaceLocale, setSystemLanguageProvider } from "./i18n/locale";
 import { onSystemLanguageChange, systemLanguageTags } from "./lib/platform/systemLocale";
@@ -93,6 +94,9 @@ router.subscribe((state) => {
 
 // RC2.2.10 — Android (Capacitor): BACK, deep links, links externos, teclado,
 // barras e splash entram pelo MESMO router. No web é no-op.
+// RC2.3.8 — evidence storage follows the active account before anything reads it.
+bindAccountStorageNamespace();
+
 initNativeShell({
   navigate: (to, options) => (typeof to === "number" ? router.navigate(to) : router.navigate(to, options)),
   pathname: () => router.state.location.pathname,

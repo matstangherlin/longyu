@@ -94,3 +94,14 @@ No local backend, no production QA, no invent-deploy, no cloud PASS, no new scaf
 
 After (1) or (2)/(3): same path — restore QA → migrate → Edge core → Netlify C → identity → cloud_auth → cloud_sync → feedback → NO-GO remaining device checks.
 
+
+---
+
+## Addendum — RC2.3.4A (2026-10-07), by reference only
+
+The evidence above is historical (September 2026) and is **not** edited. #273 was reopened under a
+FREE-TIER-FIRST strategy; the re-validated state, the local-Supabase QA architecture and the decision
+(**OPTION B — FREE_TIER_VIABLE_WITH_ARCHITECTURAL_CHANGES**) live in
+[`docs/launch/rc2-3-4a-cloud-free-tier-audit.md`](../launch/rc2-3-4a-cloud-free-tier-audit.md) and
+[`docs/launch/platform-budget-registry.json`](../launch/platform-budget-registry.json).
+No project was restored, paused, deleted or upgraded; `sibling-free-tier-project` untouched.

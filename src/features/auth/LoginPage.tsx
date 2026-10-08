@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
+import { SocialAuthButtons } from "../../components/auth/SocialAuthButtons";
 import { Mascot } from "../../components/brand/Mascot";
 import { Card, Pill } from "../../components/ui/primitives";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
@@ -118,6 +119,8 @@ export function LoginPage() {
       </div>
 
       <Card className="p-5 sm:p-6">
+        {/* RC2.3.8 — social providers first (only those switched on); e-mail always stays. */}
+        <SocialAuthButtons returnTo={postAuthPath} onOtherMethod={() => document.querySelector<HTMLInputElement>('input[name="identifier"]')?.focus()} />
         <CloudLoginForm
           email={email}
           password={password}

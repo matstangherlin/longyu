@@ -12,6 +12,7 @@ import {
   isProductionProjectId,
 } from "./lib/staging-guard.mjs";
 import { LONGYU_EDGE_FUNCTIONS, verifyJwtForSlug } from "./lib/edge-functions.mjs";
+import { canonicalBetaChain } from "./lib/canonical-beta.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -183,7 +184,7 @@ assert(pkg.scripts["deploy:staging-functions"], "script deploy:staging-functions
 assert(pkg.scripts["test:staging-activation"], "script test:staging-activation");
 assert(pkg.scripts["test:rls:staging"], "script test:rls:staging");
 assert(
-  pkg.scripts["validate:beta"].includes("test:staging-activation"),
+  canonicalBetaChain(pkg.scripts).includes("test:staging-activation"),
   "validate:beta inclui test:staging-activation"
 );
 

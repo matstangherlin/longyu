@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_BACKEND_MODE?: string;
   readonly VITE_SUPABASE_URL?: string;
   readonly VITE_SUPABASE_ANON_KEY?: string;
+  /** RC2.3.8 — providers the owner enabled in Supabase Auth (comma list: google,apple,azure). Public, never secrets. */
+  readonly VITE_AUTH_PROVIDERS?: string;
   readonly VITE_ADMIN_EMAILS?: string;
   readonly VITE_APP_VERSION?: string;
   /** Git commit SHA baked at build time for candidate identity (public). */

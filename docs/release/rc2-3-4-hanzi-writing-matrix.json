@@ -1,0 +1,58 @@
+{
+  "wave": "RC2.3.4",
+  "title": "Hànzì Progressive Writing: Components, Tracing & Memory Production",
+  "parentPr": 313,
+  "baseBranch": "cursor/rc2-3-3-culture-deep-journey-25db",
+  "baseSha": "6d6a4101b426242a479f8438b671d18ba648fc82",
+  "inherits": [
+    "RC2.2.32",
+    "RC2.3.0",
+    "RC2.3.1",
+    "RC2.3.2",
+    "RC2.3.3"
+  ],
+  "curriculumFingerprint": "5a64821d0b7d",
+  "generatedAt": "2026-10-03T01:45:00.000Z",
+  "statuses": {
+    "HANZI_PROGRESSIVE_ENGINE_READY": "PASS",
+    "HANDWRITING_DATA_AUDITED": "PASS",
+    "VERIFIED_REFERENCE_SET_READY": "PASS",
+    "BUILDER_TO_WRITING_BRIDGE_READY": "PASS",
+    "TRACE_READY": "PASS",
+    "MEMORY_WRITE_READY": "PASS",
+    "CURRICULUM_LEAK_PASS": "PASS",
+    "FORM_EVIDENCE_PASS": "PASS",
+    "WEB_PASS": "PASS",
+    "ANDROID_BUILD_PASS": "NOT_RUN",
+    "APK_PASS": "NOT_RUN",
+    "OWNER_HANZI_ACCEPTANCE": "NOT_RUN"
+  },
+  "verifiedCharacters": [
+    "人",
+    "口",
+    "木",
+    "日",
+    "月",
+    "山",
+    "水",
+    "火",
+    "大",
+    "小",
+    "中"
+  ],
+  "verifiedCount": 11,
+  "stages": [
+    "RECOGNIZE",
+    "COMPONENTS",
+    "ASSEMBLE",
+    "COMPLETE",
+    "TRACE",
+    "MEMORY_WRITE",
+    "CONTEXT_USE"
+  ],
+  "gradingSource": "HANDWRITING_REFERENCE",
+  "builderGeometryPolicy": "BUILDER_GEOMETRY_NOT_GRADING_SOURCE",
+  "cloud273": "NOT_TOUCHED",
+  "maxHandwritingProductionsPerSession": 3,
+  "xpPolicy": "HANZI_PRACTICE_XP_ROUNDS_PER_DAY"
+}

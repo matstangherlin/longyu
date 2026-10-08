@@ -35,6 +35,10 @@ import {
   makePiecesQuestion,
   type HanziQuizQuestion,
 } from "./hanziTrainingModes";
+import { listVerifiedHandwritingCharacters } from "../../lib/hanziWriting/handwritingReference";
+import { eligibleWritingCharacters } from "../../lib/hanziWriting/curriculumLeak";
+import { loadTaughtConcepts } from "../../lib/pedagogyV6/discovery";
+import { HanziWritingExercise } from "./writing/HanziWritingExercise";
 
 type Completion = {
   roundKey: string;
@@ -77,6 +81,7 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
   const grantPracticeRoundXp = useStore((s) => s.grantPracticeRoundXp);
   const maybeClaimPearls = useStore((s) => s.maybeClaimPearlMilestonesFromProgress);
   const learnedCharIds = useStore((s) => s.learnedChars);
+  const completedLessons = useStore((s) => s.completedLessons);
   const builderProgress = useStore((s) => s.hanziBuilderProgressByChar);
 
   const [round, setRound] = useState(0);
@@ -113,17 +118,34 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
     return Array.from({ length: HANZI_PRACTICE_ROUND }, () => (mode === "meaning" ? makeMeaningQuestion() : makePiecesQuestion()));
   }, [meta.kind, mode, round]);
 
-  const total = meta.kind === "builder" ? builders.length : questions.length;
+  // RC2.3.4A — só hànzì já ensinados (e, para memória, já traçados) entram.
+  const writingChars = useMemo(() => {
+    if (meta.kind !== "writing") return [];
+    const verified = new Set(listVerifiedHandwritingCharacters());
+    const pool = CHARACTERS.filter((c) => verified.has(c.hanzi));
+    const eligible = eligibleWritingCharacters(pool, mode === "memory" ? "MEMORY_WRITE" : "TRACE", {
+      taught: loadTaughtConcepts(),
+      completedLessons,
+      learnedCharIds,
+    });
+    return eligible.length > 0 ? practiceRoundSlice(eligible, round) : [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- o corte é fixado por rodada
+  }, [meta.kind, mode, round]);
+  const writingLocked = meta.kind === "writing" && writingChars.length === 0;
+
+  const total =
+    meta.kind === "builder" ? builders.length : meta.kind === "writing" ? writingChars.length : questions.length;
 
   // Uma carga por rodada. A chave é da sessão + rodada: um re-render ou o
   // efeito duplo do StrictMode não cobra de novo (consumeCharge é idempotente).
   useEffect(() => {
+    if (writingLocked) return; // sem hànzì elegível: não cobra carga
     if (roundStartRef.current?.round === round) return;
     const charged = consumeCharge("extra_training", `hanzi-practice-start:${accountId}:${mode}:${sessionId}:${round}`);
     roundStartRef.current = { round, missions: missionSnapshot(), pearls: hanziMilestonesClaimed(), charged };
     formsRef.current = 0;
     if (!charged) setBlocked(true);
-  }, [accountId, consumeCharge, mode, round, sessionId]);
+  }, [accountId, consumeCharge, mode, round, sessionId, writingLocked]);
 
   function gradeForm(itemId: string | undefined, domain: "forma" | "significado", ok: boolean) {
     if (!itemId) return;
@@ -189,6 +211,16 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
 
   const exit = () => navigate("/ideogramas");
 
+  if (writingLocked) {
+    return (
+      <FocusFrame title={t(meta.titleKey)} onExit={exit}>
+        <p className="mt-10 text-center text-sm text-ink-soft" data-testid="hanzi-writing-locked">
+          {t(mode === "memory" ? "hanziHub.writingLockedMemory" : "hanziHub.writingLockedTrace")}
+        </p>
+      </FocusFrame>
+    );
+  }
+
   if (blocked) {
     return (
       <FocusFrame title={t(meta.titleKey)} onExit={exit}>
@@ -244,6 +276,33 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
               playSoundFx(ok ? "success" : "task", soundEffects);
               haptic(ok ? "answerCorrect" : "answerWrong");
               window.setTimeout(() => next(ok), 850);
+            }}
+          />
+        )}
+        {meta.kind === "writing" && writingChars[index] && (
+          <HanziWritingExercise
+            key={`${round}:${writingChars[index]!.id}:${mode}`}
+            character={writingChars[index]!.hanzi}
+            charId={writingChars[index]!.id}
+            stage={mode === "memory" ? "MEMORY_WRITE" : "TRACE"}
+            masteryPass={mode === "memory" ? 4 : 3}
+            meaningPt={writingChars[index]!.meaningPt}
+            pinyin={writingChars[index]!.pinyin}
+            prompt={
+              mode === "memory"
+                ? {
+                    kind: "meaning",
+                    promptPt: writingChars[index]!.meaningPt,
+                    promptEn: writingChars[index]!.meaningPt,
+                    meaningPt: writingChars[index]!.meaningPt,
+                  }
+                : undefined
+            }
+            evaluative={mode === "memory"}
+            onComplete={(r) => {
+              gradeForm(writingChars[index]!.id, "forma", r.correct);
+              playSoundFx(r.correct ? "success" : "task", soundEffects);
+              window.setTimeout(() => next(r.correct), 600);
             }}
           />
         )}

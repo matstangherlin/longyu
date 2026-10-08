@@ -35,7 +35,9 @@ test.describe("QA-027 · pacote de regressão dos screenshots", () => {
     await dismissBlockingOverlays(page);
 
     const reached = await advanceUntilSelector(page, "[data-hanzi-builder]");
-    test.skip(!reached, "HanziBuilder não apareceu no plano desta execução.");
+    // Seed determinístico (fundação até p1-o-que-e-hanzi): p1-primeiros-hanzi
+    // tem de chegar ao HanziBuilder; não chegar é regressão do plano/player.
+    expect(reached, "p1-primeiros-hanzi deve chegar ao HanziBuilder").toBe(true);
 
     await assertNoStickyBarOverlap(page);
     await page.screenshot({ path: "test-results/qa027-1-hanzi-mobile.png" });

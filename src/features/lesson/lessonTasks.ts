@@ -7160,7 +7160,9 @@ export function applyMasteryPassToPlan(
 
   const budget = MASTERY_PASS_GRADED_BUDGET[pass];
   const bonusDraft = masteryBonusStepsFor(lesson.id, pass);
-  const bonusRoom = Math.min(bonusDraft.length, 3);
+  // Closure steps are appended after this pass; reserve room for them too.
+  const bonusRoom = bonusDraft.length + capabilityClosureStepsFor(lesson.id, pass).length;
+  const baseMax = Math.max(1, budget.max - bonusRoom);
   const reserved = keepMasteryPassSteps(
     scored.map(
       (item): ScoredBudgetItem<LessonRoundStep> => ({
@@ -7169,7 +7171,7 @@ export function applyMasteryPassToPlan(
         index: item.index,
       })
     ),
-    { pass, min: budget.min, max: Math.max(budget.min, budget.max - bonusRoom) }
+    { pass, min: Math.min(budget.min, baseMax), max: baseMax }
   );
   const kept: LessonRoundStep[] = reserved.map((step) => applyScaffoldToStep(step, pass));
 

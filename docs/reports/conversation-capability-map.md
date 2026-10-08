@@ -29,12 +29,12 @@ READY requires runtime evidence (RC2.2.9): lexical + structural + productive + l
 | use_train | READY | READY | strict | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | use_taxi | READY | READY | presence | 0.75 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | airport_basic | READY | READY | presence | 0.75 | 0.75 | 1.00 | 1.00 | 1.00 | 1.00 | — |
-| hotel_checkin | READY | READY | presence | 0.75 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| hotel_checkin | READY | READY | presence | 0.69 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | ask_for_help | READY | READY | strict | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | say_dont_understand | READY | READY | presence | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | ask_repeat | READY | READY | strict | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | health_basic | READY | READY | presence | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
-| weather_smalltalk | READY | READY | presence | 1.00 | 0.67 | 1.00 | 1.00 | 1.00 | 1.00 | — |
+| weather_smalltalk | READY | READY | presence | 0.91 | 0.67 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | express_preference | READY | READY | strict | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 | make_simple_plan | READY | READY | strict | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | — |
 

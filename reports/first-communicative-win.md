@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | c48b008c9c1e |
-| HEAD no instante da geração | 9caed0a6a1bd16a72039856ff5d1e6c72b085f90 |
+| Hash da Jornada | 5a64821d0b7d |
+| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
 | Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-09-24T12:16:53.036Z |
+| Gerado em | 2026-10-07T07:56:06.272Z |
 | Lições | 134 |
 
 ## Resumo
@@ -30,9 +30,9 @@ Produção **não** é um único interruptor. Montar `你 + 好` com peças à v
 | longestNonCommunicativeLessonRun (20) | 0 |
 | consecutiveTheoryOrLabLessons (20) | 3 |
 | sessionToFirstMandarinInteraction | 1 |
-| sessionMinutesToFirstConversation | 5.7 |
-| sessionMinutesToFirstIndependentProduction | 3.8 |
-| sessionMinutesToFirstTransfer | 5.7 |
+| sessionMinutesToFirstConversation | 6.0 |
+| sessionMinutesToFirstIndependentProduction | 4.1 |
+| sessionMinutesToFirstTransfer | 6.0 |
 
 V4.6: `lessonTo*` continua medindo o plano-base por índice de lição (compatibilidade).
 `session*` mede cada pass M1–M4 do aluno novo — a unidade que o anel 4/4 realmente cobra.
@@ -80,4 +80,4 @@ IDs das lições de fundação e da parede de tons **não mudaram**. Progresso a
 
 Nenhuma.
 
-<!-- integridade:52a865aabcd92816 -->
+<!-- integridade:3523847cede0a49c -->

@@ -1,0 +1,49 @@
+{
+  "id": "rc2-3-4a-stack-truth",
+  "generatedAt": "2026-10-07T02:30:00Z",
+  "parent": {
+    "pr": "matstangherlin/longyu#314",
+    "headSha": "9819607ba90648ebd68fdaf757a84e360ad63b89",
+    "baseRef": "main",
+    "baseSha": "d6339330df5e19dddc8a8977015fc7cc8bb5620d",
+    "stackBelow": { "pr": "matstangherlin/longyu#313", "tipSha": "6d6a4101b426242a479f8438b671d18ba648fc82" },
+    "state": "open/draft/blocked"
+  },
+  "branch": "claude/quirky-sagan-vzpuaa",
+  "hostedEvidence": [
+    { "check": "Portão de qualidade (validate:beta + build)", "sha": "9819607", "conclusion": "failure", "runId": 37098442286, "jobId": 111133039588 },
+    { "check": "Testes E2E (Playwright)", "sha": "9819607", "conclusion": "skipped", "runId": 37098442286 },
+    { "check": "Ephemeral backend contract", "sha": "9819607", "conclusion": "success", "runId": 37098442290, "jobId": 111133039742 },
+    { "check": "Android foundation (contratos + debug APK/AAB)", "sha": "9819607", "conclusion": "success", "runId": 37098442288, "jobId": 111133039697, "artifact": { "id": 11264584668, "name": "longyu-android-debug-0.2.0-beta.1-ff5ae88", "expiresAt": "2026-10-10T05:15:23Z" } },
+    { "check": "Android runtime (emulator + connectedDebugAndroidTest)", "sha": "9819607", "conclusion": "success", "runId": 37098442288, "jobId": 111135349954 },
+    { "check": "CodeQL / gitleaks / npm audit", "sha": "9819607", "conclusion": "success", "runId": 37098442302 },
+    { "check": "Portão de qualidade (validate:beta + build)", "sha": "6d6a410", "conclusion": "failure", "runId": 37085557345, "note": "#313 already red — inherited" }
+  ],
+  "failures": [
+    { "id": "F1", "gate": "validate:release-candidate", "cause": "stale literal FINGERPRINT c48b008c9c1e since RC2.3.0; consumers disagreed on rc1-operational-checks.base_fingerprint", "introducedBy": "ba00438 (RC2.3.0)", "fix": "typed fingerprint chain (scripts/lib/fingerprint-chain.mjs) + test:fingerprint-chain 8/8", "weakened": false },
+    { "id": "F1b", "gate": "validate:release-candidate (chain)", "cause": "RC2_3_4 freeze record points at non-existent gate:rc2-3-4-hanzi-writing", "introducedBy": "6270214 (#314)", "fix": "gate created and wired into validate:beta", "weakened": false },
+    { "id": "F2", "gate": "test:capability-runtime-evidence #6", "cause": "second independent listening of 便宜一点 (p6-compras M2); mutation removed only audioText matches", "introducedBy": "RC2.3.x stack (present at 6d6a410)", "fix": "mutation removes all audio channels the evidence reads", "weakened": false },
+    { "id": "F3", "gate": "test:capability-runtime-evidence #11", "cause": "talk_family transfer evidence added in l25 M4; mutation removed only the p7 step", "introducedBy": "RC2.3.x stack (present at 6d6a410)", "fix": "mutation removes exactly the steps the real evidence attributes to talk_family.transfer", "weakened": false }
+  ],
+  "fingerprintChain": {
+    "anchor": "c48b008c9c1e",
+    "path": ["c48b008c9c1e", "99cbc002710c", "c3861b5fb65f", "e566a250c5a6", "5a64821d0b7d"],
+    "records": [
+      { "export": "RC2_3_0_PEDAGOGY_V6_CONTENT_EXCEPTION", "from": "c48b008c9c1e", "to": "99cbc002710c", "gate": "gate:rc2-3-0-pedagogy-v6", "classification": "EXPECTED_FINGERPRINT_ADVANCE" },
+      { "export": "RC2_3_1_VISUAL_FIRST_CONTENT_EXCEPTION", "from": "99cbc002710c", "to": "c3861b5fb65f", "gate": "gate:rc2-3-1-visual-first", "classification": "EXPECTED_FINGERPRINT_ADVANCE" },
+      { "export": "RC2_3_2_HUMAN_EVERYDAY_CONTENT_EXCEPTION", "from": "c3861b5fb65f", "to": "e566a250c5a6", "gate": "gate:rc2-3-2-human-everyday", "classification": "EXPECTED_FINGERPRINT_ADVANCE" },
+      { "export": "RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION", "from": "e566a250c5a6", "to": "e566a250c5a6", "gate": "gate:rc2-3-3-culture-deep", "classification": "NO_ADVANCE" },
+      { "export": "RC2_3_4_HANZI_WRITING_CONTENT_EXCEPTION", "from": "e566a250c5a6", "to": "e566a250c5a6", "gate": "gate:rc2-3-4-hanzi-writing", "classification": "NO_ADVANCE" },
+      { "export": "RC2_3_4_CI_BUDGET_CORRECTION", "from": "e566a250c5a6", "to": "5a64821d0b7d", "gate": "validate:topic-mastery-depth", "classification": "EXPECTED_FINGERPRINT_ADVANCE" }
+    ],
+    "anomalies": [ { "export": "RC2_2_31D_APK_RUNTIME_PROOF_EXCEPTION", "fingerprint": "a91d31d0c0de", "note": "no previousFingerprint; live fingerprint on main was c48b008c9c1e; historical record left untouched" } ]
+  },
+  "frozenCounts": { "lessons": 134, "teachingTopics": 113, "cultureItems": 30, "changed": false },
+  "migrations": {
+    "repoFiles": 53,
+    "productionApplied": 36,
+    "note": "production migration names/versions do not map 1:1 to repo files (history drift). 36 includes jev_feedback_triage applied earlier in this session (additive: function + nullable columns + partial index). No migration executed during the RC2.3.4A wave."
+  },
+  "ciWiringAdded": ["rc2-3-stack-gates job (gate:rc2-3-0..3)", "test:fingerprint-chain", "gate:rc2-3-4-hanzi-writing", "test:free-tier-guardrails"],
+  "notRun": ["hosted CI on this PR head", "APK_PASS", "OWNER_PHYSICAL_PASS", "OWNER_HANZI_ACCEPTANCE"]
+}

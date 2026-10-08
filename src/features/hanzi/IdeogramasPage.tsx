@@ -81,6 +81,21 @@ export function IdeogramasPage() {
         <IconChevron width={16} height={16} className="shrink-0 text-ink-faint" />
       </Link>
 
+      <Link
+        to="/hanzi?mode=trace"
+        data-testid="hanzi-continue-writing"
+        className="flex min-h-14 items-center gap-3 rounded-2xl border border-accent/20 bg-accent-soft/30 px-4 py-3 transition hover:bg-accent-soft/50"
+      >
+        <span className="hanzi grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface text-2xl text-accent" aria-hidden>
+          木
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold text-ink">{t("hanziHub.continueWriting")}</span>
+          <span className="block truncate text-xs text-ink-soft">{t("hanziHub.modeTraceDesc")}</span>
+        </span>
+        <IconChevron width={16} height={16} className="shrink-0 text-ink-faint" />
+      </Link>
+
       <div data-testid="hanzi-pro-lab">
         <HubProStrip isPremium={isPremium} />
       </div>

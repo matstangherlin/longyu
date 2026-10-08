@@ -35,6 +35,7 @@ const HanziAtlasPage = lazyNamed(() => import("./features/hanzi/HanziAtlasPage")
 const FalaPage = lazyNamed(() => import("./features/fala/FalaPage"), "FalaPage");
 const LeituraPage = lazyNamed(() => import("./features/leitura/LeituraPage"), "LeituraPage");
 const RevisaoPage = lazyNamed(() => import("./features/revisao/RevisaoPage"), "RevisaoPage");
+const DominioPage = lazyNamed(() => import("./features/dominio/DominioPage"), "DominioPage");
 const CultureHubPage = lazyNamed(() => import("./features/culture/CultureHubPage"), "CultureHubPage");
 const CultureCollectionPage = lazyNamed(
   () => import("./features/culture/CultureCollectionPage"),
@@ -60,6 +61,7 @@ const AchievementsPage = lazyNamed(() => import("./features/conquistas/Achieveme
 const MorePage = lazyNamed(() => import("./features/more/MorePage"), "MorePage");
 const AboutPage = lazyNamed(() => import("./features/about/AboutPage"), "AboutPage");
 const LoginPage = lazyNamed(() => import("./features/auth/LoginPage"), "LoginPage");
+const OAuthCallbackPage = lazyNamed(() => import("./features/auth/OAuthCallbackPage"), "OAuthCallbackPage");
 const ForgotPasswordPage = lazyNamed(() => import("./features/auth/ForgotPasswordPage"), "ForgotPasswordPage");
 const ResetPasswordPage = lazyNamed(() => import("./features/auth/ResetPasswordPage"), "ResetPasswordPage");
 const ConfirmEmailPage = lazyNamed(() => import("./features/auth/ConfirmEmailPage"), "ConfirmEmailPage");
@@ -125,6 +127,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: "comecar", element: <ComecarRoute /> },
       { path: "login", element: <LoginPage /> },
+      { path: "auth/callback", element: <OAuthCallbackPage /> },
       { path: "esqueci-senha", element: <ForgotPasswordPage /> },
       { path: "redefinir-senha", element: <ResetPasswordPage /> },
       { path: "confirmar-email", element: <ConfirmEmailPage /> },
@@ -180,6 +183,7 @@ export const routes: RouteObject[] = [
       { path: "fala", element: <FalaPage /> },
       { path: "leitura", element: <LeituraPage /> },
       { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },
+      { path: "dominio", element: <DominioPage /> },
       { path: "cultura", element: <FeatureRouteGate><CultureHubPage /></FeatureRouteGate> },
       { path: "cultura/revisao", element: <FeatureRouteGate><CultureReviewPage /></FeatureRouteGate> },
       { path: "cultura/colecao/:collectionId", element: <FeatureRouteGate><CultureCollectionPage /></FeatureRouteGate> },

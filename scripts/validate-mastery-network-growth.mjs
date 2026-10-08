@@ -58,12 +58,11 @@ try {
   ({ getLesson } = require(path.join(outDir, "src/data/journey.js")));
   ({ lessonRoundStepsFor } = require(path.join(outDir, "src/features/lesson/lessonTasks.js")));
 } catch (error) {
-  console.warn(
-    "SKIP validate:mastery-network-growth — masteryPilot.ts/lessonTasks.ts não compilaram agora (provável edição em andamento por outra IA)."
-  );
-  console.warn("  Detalhe:", error instanceof Error ? error.message : String(error));
+  // RC2.3.9 — a compile failure is a FAILURE, never a silent SKIP (CONVERGENCE_HIDDEN_SKIP).
+  console.error("FAIL validate:mastery-network-growth — masteryPilot.ts/lessonTasks.ts não compilaram.");
+  console.error("  Detalhe:", error instanceof Error ? error.message : String(error));
   await rm(outDir, { recursive: true, force: true });
-  process.exit(0);
+  process.exit(1);
 }
 
 try {

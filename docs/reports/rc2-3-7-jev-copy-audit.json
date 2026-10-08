@@ -1,0 +1,247 @@
+{
+  "generatedBy": "scripts/jev-copy-audit.mjs",
+  "purpose": "DEV_AUDIT",
+  "learnerRuntime": "DISABLED",
+  "rewrites": "NEVER",
+  "model": "jev-latest",
+  "servedModel": "jev-1.13.0",
+  "runStatus": "INGESTED",
+  "items": 26,
+  "review": 7,
+  "rows": [
+    {
+      "group": "guidance",
+      "key": "guidance.welcome.body",
+      "text": "Aqui começa sua Jornada: toque para abrir a primeira lição.",
+      "ambiguous": 0.25,
+      "clarity": 2.99,
+      "intent": "instruction",
+      "status": "OK"
+    },
+    {
+      "group": "guidance",
+      "key": "guidance.practiceFirstUse.body",
+      "text": "O Longyu escolhe uma prática baseada no que você já estudou.",
+      "ambiguous": 0.53,
+      "clarity": 0.8,
+      "intent": "explanation",
+      "status": "OK"
+    },
+    {
+      "group": "guidance",
+      "key": "guidance.reviewFirstUse.body",
+      "text": "A revisão traz de volta o que está começando a enfraquecer.",
+      "ambiguous": 0.48,
+      "clarity": 0.73,
+      "intent": "explanation",
+      "status": "OK"
+    },
+    {
+      "group": "guidance",
+      "key": "guidance.masteryFirstUse.body",
+      "text": "Seu Domínio mostra o que você já demonstrou e o que ainda está consolidando.",
+      "ambiguous": 0.64,
+      "clarity": 0.24,
+      "intent": "explanation",
+      "status": "REVIEW"
+    },
+    {
+      "group": "guidance",
+      "key": "guidance.practiceNeedFirstUse.body",
+      "text": "Esta prática usa dificuldades e revisões recentes para escolher atividades.",
+      "ambiguous": 0.52,
+      "clarity": 0.34,
+      "intent": "explanation",
+      "status": "OK"
+    },
+    {
+      "group": "guidance",
+      "key": "guidance.cultureFirstUse.body",
+      "text": "Comece por esta recomendação.",
+      "ambiguous": 0.39,
+      "clarity": 1.47,
+      "intent": "instruction",
+      "status": "REVIEW"
+    },
+    {
+      "group": "feedback",
+      "key": "review.feedbackWrong",
+      "text": "Quase",
+      "ambiguous": 0.64,
+      "clarity": 0.3,
+      "intent": "feedback",
+      "status": "REVIEW"
+    },
+    {
+      "group": "feedback",
+      "key": "review.feedbackRight",
+      "text": "Certo",
+      "ambiguous": 0.51,
+      "clarity": 0.16,
+      "intent": "feedback",
+      "status": "OK"
+    },
+    {
+      "group": "feedback",
+      "key": "player.correctShort",
+      "text": "Correto.",
+      "ambiguous": 0.24,
+      "clarity": 0.25,
+      "intent": "feedback",
+      "status": "OK"
+    },
+    {
+      "group": "feedback",
+      "key": "player.almost",
+      "text": "Quase",
+      "ambiguous": 0.64,
+      "clarity": 0.3,
+      "intent": "feedback",
+      "status": "REVIEW"
+    },
+    {
+      "group": "feedback",
+      "key": "review.feedbackRetry",
+      "text": "Quase — veja a resposta certa.",
+      "ambiguous": 0.4,
+      "clarity": 2.39,
+      "intent": "feedback",
+      "status": "OK"
+    },
+    {
+      "group": "error",
+      "key": "auth.errors.supabaseUnavailable",
+      "text": "Não foi possível conectar à sua conta agora. Tente novamente em instantes.",
+      "ambiguous": 0.38,
+      "clarity": 2.59,
+      "intent": "error",
+      "status": "OK"
+    },
+    {
+      "group": "error",
+      "key": "auth.errors.offline",
+      "text": "Sem conexão. Verifique a internet e tente de novo.",
+      "ambiguous": 0.18,
+      "clarity": 2.98,
+      "intent": "error",
+      "status": "OK"
+    },
+    {
+      "group": "error",
+      "key": "player.micHttpsOnly",
+      "text": "O microfone não está disponível nesta página. Você pode continuar sem falar.",
+      "ambiguous": 0.45,
+      "clarity": 2.66,
+      "intent": "error",
+      "status": "OK"
+    },
+    {
+      "group": "error",
+      "key": "player.stepStalled",
+      "text": "Isto demorou para avançar. Toque para tentar de novo.",
+      "ambiguous": 0.62,
+      "clarity": 2.71,
+      "intent": "error",
+      "status": "REVIEW"
+    },
+    {
+      "group": "error",
+      "key": "player.voiceUnavailable",
+      "text": "Voz não disponível aqui. Ouça e repita em voz alta.",
+      "ambiguous": 0.52,
+      "clarity": 2.74,
+      "intent": "error",
+      "status": "OK"
+    },
+    {
+      "group": "error",
+      "key": "player.speechPermissionNeeded",
+      "text": "O microfone está bloqueado. Libere nos ajustes do Android para falar; por enquanto, ouça o modelo e siga.",
+      "ambiguous": 0.48,
+      "clarity": 2.75,
+      "intent": "error",
+      "status": "OK"
+    },
+    {
+      "group": "completion",
+      "key": "player.lessonComplete",
+      "text": "Lição concluída!",
+      "ambiguous": 0.21,
+      "clarity": 0.28,
+      "intent": "celebration",
+      "status": "OK"
+    },
+    {
+      "group": "completion",
+      "key": "player.youAdvanced",
+      "text": "Você avançou!",
+      "ambiguous": 0.28,
+      "clarity": 0.12,
+      "intent": "celebration",
+      "status": "OK"
+    },
+    {
+      "group": "completion",
+      "key": "player.youLearned",
+      "text": "Você aprendeu",
+      "ambiguous": 0.47,
+      "clarity": 0.18,
+      "intent": "celebration",
+      "status": "OK"
+    },
+    {
+      "group": "mastery_why",
+      "key": "why.REPEATED_DIFFICULTY.listening",
+      "text": "Nas últimas vezes, reconhecer de ouvido não saiu como esperado.",
+      "ambiguous": 0.56,
+      "clarity": 0.3,
+      "intent": "explanation",
+      "status": "OK"
+    },
+    {
+      "group": "mastery_why",
+      "key": "why.BELOW_MIN_EVIDENCE.listening",
+      "text": "Ainda são poucas tentativas para dizer mais — tudo bem.",
+      "ambiguous": 0.6,
+      "clarity": 1.22,
+      "intent": "explanation",
+      "status": "REVIEW"
+    },
+    {
+      "group": "mastery_why",
+      "key": "why.CEILING_DEVELOPING.listening",
+      "text": "Até agora você praticou isto escolhendo entre opções; usar livremente vem depois.",
+      "ambiguous": 0.54,
+      "clarity": 1.28,
+      "intent": "explanation",
+      "status": "OK"
+    },
+    {
+      "group": "mastery_why",
+      "key": "why.SRS_DUE.listening",
+      "text": "Já faz um tempo — relembrar agora ajuda a memória a durar.",
+      "ambiguous": 0.41,
+      "clarity": 1.03,
+      "intent": "explanation",
+      "status": "OK"
+    },
+    {
+      "group": "mastery_why",
+      "key": "why.NEEDS_MORE_INDEPENDENT_SUCCESS.listening",
+      "text": "Os acertos até agora tiveram ajuda — é parte do caminho.",
+      "ambiguous": 0.67,
+      "clarity": 0.17,
+      "intent": "explanation",
+      "status": "REVIEW"
+    },
+    {
+      "group": "mastery_label",
+      "key": "STATE_LABEL_PT",
+      "text": "Ainda não visto · Você já viu · Em construção · Vale praticar · Firme · Consolidado · Hora de revisar",
+      "ambiguous": 0.57,
+      "clarity": 0.86,
+      "intent": "explanation",
+      "status": "OK"
+    }
+  ]
+}

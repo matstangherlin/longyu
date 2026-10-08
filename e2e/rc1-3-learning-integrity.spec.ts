@@ -421,7 +421,9 @@ test.describe("RC1.3 · Victory desktop", () => {
       if (await victory.isVisible().catch(() => false)) break;
       await advanceUntilVisible(page, victory, 1);
     }
-    test.skip(!(await victory.isVisible().catch(() => false)), "a lição não chegou à Victory neste plano");
+    // Seed determinístico (l2, domínio 3): 40 avanços sempre bastam para a
+    // Victory — não chegar é regressão de avanço/conclusão, não skip.
+    await expect(victory, "l2 (domínio 3) deve chegar à Victory em até 40 avanços").toBeVisible();
 
     const summary = page.locator("[data-victory-summary]");
     const actions = page.locator("[data-lesson-victory-actions]");
@@ -455,7 +457,9 @@ test.describe("RC1.3 · Victory desktop", () => {
       if (await victory.isVisible().catch(() => false)) break;
       await advanceUntilVisible(page, victory, 1);
     }
-    test.skip(!(await victory.isVisible().catch(() => false)), "a lição não chegou à Victory neste plano");
+    // Seed determinístico (l2, domínio 3): 40 avanços sempre bastam para a
+    // Victory — não chegar é regressão de avanço/conclusão, não skip.
+    await expect(victory, "l2 (domínio 3) deve chegar à Victory em até 40 avanços").toBeVisible();
 
     const actions = page.locator("[data-lesson-victory-actions]");
     await expect(actions).toBeVisible();

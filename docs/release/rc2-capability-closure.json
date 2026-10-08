@@ -3,7 +3,7 @@
   "generatedBy": "npm run validate:capability-runtime-evidence",
   "baseMainSha": "700aa83264cee8429313ad0e52881e90b09fa2e8",
   "fingerprintBefore": "327de1df0f33",
-  "fingerprint": "c48b008c9c1e",
+  "fingerprint": "5a64821d0b7d",
   "contract": {
     "strict": "RC2.2.9 closure: lexical=1, structural=1, productive/listening/conversation/transfer com evidência de runtime",
     "presence": "READY anteriores: nenhuma dimensão ausente em runtime; todo chunk exigido chega ao aluno"
@@ -97,16 +97,16 @@
               "lessonId": "l3",
               "lessonIndex": 8,
               "pass": 1,
-              "step": 8,
+              "step": 9,
               "kind": "match_pairs",
               "text": "我很好"
             },
             "firstTest": {
               "lessonId": "l3",
               "lessonIndex": 8,
-              "pass": 3,
-              "step": 2,
-              "kind": "reverse_recall",
+              "pass": 2,
+              "step": 6,
+              "kind": "produce",
               "text": "我很好"
             }
           }
@@ -164,7 +164,7 @@
               "lessonId": "l2",
               "lessonIndex": 7,
               "pass": 2,
-              "step": 5,
+              "step": 8,
               "kind": "contextual_choice",
               "text": "你好吗"
             }
@@ -237,7 +237,7 @@
             "lessonId": "l3",
             "lessonIndex": 8,
             "pass": 2,
-            "step": 5,
+            "step": 9,
             "kind": "conversation_scene",
             "sceneId": "perguntando-se-esta-bem",
             "nodeId": "perguntando-se-esta-bem-3",
@@ -247,7 +247,7 @@
             "lessonId": "l3",
             "lessonIndex": 8,
             "pass": 3,
-            "step": 5,
+            "step": 8,
             "kind": "conversation_scene",
             "sceneId": "perguntando-se-esta-bem",
             "nodeId": "perguntando-se-esta-bem-3",
@@ -281,10 +281,10 @@
           }
         ],
         "counts": {
-          "productive": 197,
-          "listening": 52,
-          "conversation": 123,
-          "transfer": 169
+          "productive": 250,
+          "listening": 67,
+          "conversation": 126,
+          "transfer": 172
         }
       }
     },
@@ -380,7 +380,7 @@
               "lessonId": "l2",
               "lessonIndex": 7,
               "pass": 3,
-              "step": 9,
+              "step": 13,
               "kind": "sentence_transform",
               "text": "你好我叫"
             },
@@ -401,7 +401,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "我是巴西人"
@@ -410,7 +410,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 6,
+              "step": 7,
               "kind": "sentence_build",
               "text": "我是巴西人"
             },
@@ -418,7 +418,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "我是巴西人"
@@ -448,7 +448,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -468,7 +468,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 1,
-            "step": 8,
+            "step": 6,
             "kind": "listen_select",
             "text": "你好"
           },
@@ -496,7 +496,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -506,7 +506,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 3,
-            "step": 4,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -518,7 +518,7 @@
             "lessonId": "l2",
             "lessonIndex": 7,
             "pass": 1,
-            "step": 8,
+            "step": 9,
             "kind": "contextual_choice",
             "text": "你好"
           },
@@ -534,16 +534,16 @@
             "lessonId": "l2",
             "lessonIndex": 7,
             "pass": 2,
-            "step": 5,
+            "step": 8,
             "kind": "contextual_choice",
             "text": "你好吗"
           }
         ],
         "counts": {
-          "productive": 174,
-          "listening": 82,
-          "conversation": 171,
-          "transfer": 171
+          "productive": 195,
+          "listening": 86,
+          "conversation": 181,
+          "transfer": 178
         }
       }
     },
@@ -648,7 +648,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -658,7 +658,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 3,
-            "step": 4,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -666,6 +666,14 @@
           }
         ],
         "listening": [
+          {
+            "lessonId": "l9",
+            "lessonIndex": 34,
+            "pass": 3,
+            "step": 10,
+            "kind": "dictation",
+            "text": "你叫什么"
+          },
           {
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
@@ -677,18 +685,10 @@
           {
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
-            "pass": 3,
-            "step": 1,
-            "kind": "dictation",
-            "text": "你叫什么"
-          },
-          {
-            "lessonId": "l14",
-            "lessonIndex": 49,
-            "pass": 1,
-            "step": 6,
+            "pass": 2,
+            "step": 4,
             "kind": "listen_select",
-            "text": "我叫Matheus"
+            "text": "你叫什么"
           }
         ],
         "conversation": [
@@ -706,7 +706,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -716,7 +716,7 @@
             "lessonId": "l1",
             "lessonIndex": 6,
             "pass": 3,
-            "step": 4,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-se-chama",
             "nodeId": "como-se-chama-5",
@@ -728,7 +728,7 @@
             "lessonId": "l2",
             "lessonIndex": 7,
             "pass": 3,
-            "step": 9,
+            "step": 13,
             "kind": "sentence_transform",
             "text": "你好我叫"
           },
@@ -750,10 +750,10 @@
           }
         ],
         "counts": {
-          "productive": 214,
-          "listening": 74,
-          "conversation": 136,
-          "transfer": 221
+          "productive": 229,
+          "listening": 76,
+          "conversation": 143,
+          "transfer": 227
         }
       }
     },
@@ -774,7 +774,7 @@
         "lessonId": "l9-qual-nome",
         "lessonIndex": 36,
         "pass": 1,
-        "step": 4,
+        "step": 5,
         "kind": "conversation_scene",
         "sceneId": "packet-exchange-introductions",
         "text": "我是巴西人"
@@ -783,7 +783,7 @@
         "lessonId": "l9-qual-nome",
         "lessonIndex": 36,
         "pass": 1,
-        "step": 6,
+        "step": 7,
         "kind": "sentence_build",
         "text": "我是巴西人"
       },
@@ -797,7 +797,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "我是巴西人"
@@ -806,7 +806,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 6,
+              "step": 7,
               "kind": "sentence_build",
               "text": "我是巴西人"
             }
@@ -820,7 +820,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "我是巴西人"
@@ -829,7 +829,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 6,
+              "step": 7,
               "kind": "sentence_build",
               "text": "我是巴西人"
             },
@@ -837,7 +837,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "我是巴西人"
@@ -849,7 +849,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 1,
-            "step": 6,
+            "step": 7,
             "kind": "sentence_build",
             "text": "我是巴西人"
           },
@@ -857,7 +857,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 4,
-            "step": 7,
+            "step": 10,
             "kind": "sentence_build",
             "text": "我是巴西人"
           },
@@ -880,18 +880,18 @@
             "text": "我是巴西人"
           },
           {
-            "lessonId": "l12",
-            "lessonIndex": 42,
-            "pass": 2,
-            "step": 7,
-            "kind": "listen_select",
+            "lessonId": "l10",
+            "lessonIndex": 37,
+            "pass": 3,
+            "step": 10,
+            "kind": "dictation",
             "text": "我是巴西人"
           },
           {
-            "lessonId": "l13",
-            "lessonIndex": 43,
+            "lessonId": "l12",
+            "lessonIndex": 42,
             "pass": 2,
-            "step": 8,
+            "step": 4,
             "kind": "listen_select",
             "text": "我是巴西人"
           }
@@ -901,7 +901,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 1,
-            "step": 4,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-introductions",
             "nodeId": "packet-exchange-introductions-5",
@@ -911,7 +911,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 4,
-            "step": 5,
+            "step": 8,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-introductions",
             "nodeId": "packet-exchange-introductions-5",
@@ -957,10 +957,10 @@
           }
         ],
         "counts": {
-          "productive": 69,
-          "listening": 17,
-          "conversation": 48,
-          "transfer": 65
+          "productive": 84,
+          "listening": 30,
+          "conversation": 49,
+          "transfer": 66
         }
       }
     },
@@ -981,7 +981,7 @@
         "lessonId": "l9-qual-nome",
         "lessonIndex": 36,
         "pass": 1,
-        "step": 4,
+        "step": 5,
         "kind": "conversation_scene",
         "sceneId": "packet-exchange-introductions",
         "text": "你是哪国人"
@@ -1004,7 +1004,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "你是哪国人"
@@ -1027,7 +1027,7 @@
               "lessonId": "l9-qual-nome",
               "lessonIndex": 36,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-introductions",
               "text": "你是哪国人"
@@ -1055,7 +1055,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 1,
-            "step": 6,
+            "step": 7,
             "kind": "sentence_build",
             "text": "我是巴西人"
           },
@@ -1063,7 +1063,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 4,
-            "step": 7,
+            "step": 10,
             "kind": "sentence_build",
             "text": "我是巴西人"
           },
@@ -1086,19 +1086,19 @@
             "text": "我是巴西人"
           },
           {
-            "lessonId": "l13",
-            "lessonIndex": 43,
-            "pass": 2,
-            "step": 8,
-            "kind": "listen_select",
+            "lessonId": "l10",
+            "lessonIndex": 37,
+            "pass": 3,
+            "step": 10,
+            "kind": "dictation",
             "text": "我是巴西人"
           },
           {
-            "lessonId": "p3-ordem-das-palavras",
-            "lessonIndex": 46,
-            "pass": 1,
-            "step": 1,
-            "kind": "listen_select",
+            "lessonId": "l12",
+            "lessonIndex": 42,
+            "pass": 3,
+            "step": 4,
+            "kind": "dictation",
             "text": "我是巴西人"
           }
         ],
@@ -1107,7 +1107,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 1,
-            "step": 4,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-introductions",
             "nodeId": "packet-exchange-introductions-5",
@@ -1117,7 +1117,7 @@
             "lessonId": "l9-qual-nome",
             "lessonIndex": 36,
             "pass": 4,
-            "step": 5,
+            "step": 8,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-introductions",
             "nodeId": "packet-exchange-introductions-5",
@@ -1162,10 +1162,10 @@
           }
         ],
         "counts": {
-          "productive": 57,
-          "listening": 9,
-          "conversation": 48,
-          "transfer": 65
+          "productive": 62,
+          "listening": 16,
+          "conversation": 49,
+          "transfer": 66
         }
       }
     },
@@ -1237,7 +1237,7 @@
               "lessonId": "p7-imersao-casa-amigo",
               "lessonIndex": 133,
               "pass": 2,
-              "step": 7,
+              "step": 10,
               "kind": "listen_select",
               "text": "这是我妈妈"
             }
@@ -1254,7 +1254,14 @@
               "kind": "flashcard",
               "text": "我有姐姐"
             },
-            "firstTest": null
+            "firstTest": {
+              "lessonId": "l25",
+              "lessonIndex": 103,
+              "pass": 4,
+              "step": 15,
+              "kind": "free_production",
+              "text": "我有姐姐"
+            }
           },
           {
             "ref": "chunk:woyouyigegege",
@@ -1272,7 +1279,7 @@
               "lessonId": "p7-imersao-casa-amigo",
               "lessonIndex": 133,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "reverse_recall",
               "text": "我有一个哥哥"
             }
@@ -1372,8 +1379,8 @@
             "use": {
               "lessonId": "p3-ordem-das-palavras",
               "lessonIndex": 46,
-              "pass": 3,
-              "step": 1,
+              "pass": 2,
+              "step": 2,
               "kind": "free_production",
               "text": "我有三个朋友"
             }
@@ -1401,7 +1408,7 @@
               "lessonId": "p7-imersao-casa-amigo",
               "lessonIndex": 133,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "reverse_recall",
               "text": "我有一个哥哥我没有姐姐"
             }
@@ -1446,7 +1453,7 @@
             "lessonId": "p7-imersao-casa-amigo",
             "lessonIndex": 133,
             "pass": 2,
-            "step": 7,
+            "step": 10,
             "kind": "listen_select",
             "text": "这是我妈妈"
           }
@@ -1461,23 +1468,60 @@
             "sceneId": "identificar-pessoa",
             "nodeId": "pessoa-2",
             "text": "这是我妈妈"
+          },
+          {
+            "lessonId": "l25",
+            "lessonIndex": 103,
+            "pass": 4,
+            "step": 13,
+            "kind": "conversation_scene",
+            "sceneId": "packet-exchange-family",
+            "nodeId": "packet-exchange-family-2",
+            "text": "我有姐姐"
+          },
+          {
+            "lessonId": "l25",
+            "lessonIndex": 103,
+            "pass": 4,
+            "step": 13,
+            "kind": "conversation_scene",
+            "sceneId": "packet-exchange-family",
+            "nodeId": "packet-exchange-family-5",
+            "text": "我有姐姐"
           }
         ],
         "transfer": [
           {
+            "lessonId": "l25",
+            "lessonIndex": 103,
+            "pass": 4,
+            "step": 13,
+            "kind": "conversation_scene",
+            "sceneId": "packet-exchange-family",
+            "text": "我有姐姐"
+          },
+          {
+            "lessonId": "l25",
+            "lessonIndex": 103,
+            "pass": 4,
+            "step": 15,
+            "kind": "free_production",
+            "text": "我有姐姐"
+          },
+          {
             "lessonId": "p7-imersao-casa-amigo",
             "lessonIndex": 133,
             "pass": 3,
-            "step": 10,
+            "step": 13,
             "kind": "reverse_recall",
             "text": "我有一个哥哥我没有姐姐"
           }
         ],
         "counts": {
-          "productive": 7,
+          "productive": 8,
           "listening": 2,
-          "conversation": 1,
-          "transfer": 1
+          "conversation": 3,
+          "transfer": 3
         }
       }
     },
@@ -1525,10 +1569,10 @@
               "text": "我是学生"
             },
             "firstTest": {
-              "lessonId": "l13-dialogo-ola",
-              "lessonIndex": 44,
-              "pass": 1,
-              "step": 6,
+              "lessonId": "l12",
+              "lessonIndex": 42,
+              "pass": 4,
+              "step": 5,
               "kind": "sentence_build",
               "text": "我是学生"
             }
@@ -1563,7 +1607,7 @@
               "lessonId": "l29",
               "lessonIndex": 122,
               "pass": 3,
-              "step": 8,
+              "step": 5,
               "kind": "free_production",
               "text": "我去学校"
             }
@@ -1653,10 +1697,10 @@
               "text": "是我是学生"
             },
             "productive": {
-              "lessonId": "l13-dialogo-ola",
-              "lessonIndex": 44,
-              "pass": 1,
-              "step": 6,
+              "lessonId": "l12",
+              "lessonIndex": 42,
+              "pass": 4,
+              "step": 5,
               "kind": "sentence_build",
               "text": "是我是学生"
             },
@@ -1693,7 +1737,7 @@
               "lessonId": "l12",
               "lessonIndex": 42,
               "pass": 3,
-              "step": 2,
+              "step": 5,
               "kind": "free_production",
               "text": "我在学中文"
             }
@@ -1706,7 +1750,7 @@
               "lessonId": "l29",
               "lessonIndex": 122,
               "pass": 3,
-              "step": 8,
+              "step": 5,
               "kind": "free_production",
               "text": "我去学校"
             },
@@ -1714,7 +1758,7 @@
               "lessonId": "l29",
               "lessonIndex": 122,
               "pass": 3,
-              "step": 8,
+              "step": 5,
               "kind": "free_production",
               "text": "我去学校"
             }
@@ -1767,7 +1811,7 @@
             "lessonId": "l13-dialogo-ola",
             "lessonIndex": 44,
             "pass": 3,
-            "step": 7,
+            "step": 10,
             "kind": "listen_select",
             "text": "我在学校学习"
           }
@@ -1809,7 +1853,7 @@
             "lessonId": "l12",
             "lessonIndex": 42,
             "pass": 3,
-            "step": 2,
+            "step": 5,
             "kind": "free_production",
             "text": "我在学中文"
           },
@@ -1818,24 +1862,24 @@
             "lessonIndex": 42,
             "pass": 4,
             "step": 3,
-            "kind": "free_production",
-            "text": "我在学中文"
-          },
-          {
-            "lessonId": "l13-dialogo-ola",
-            "lessonIndex": 44,
-            "pass": 1,
-            "step": 4,
             "kind": "conversation_scene",
             "sceneId": "falar-de-estudo",
             "text": "是我是学生"
+          },
+          {
+            "lessonId": "l12",
+            "lessonIndex": 42,
+            "pass": 4,
+            "step": 15,
+            "kind": "free_production",
+            "text": "我在学中文"
           }
         ],
         "counts": {
-          "productive": 102,
+          "productive": 112,
           "listening": 11,
-          "conversation": 50,
-          "transfer": 83
+          "conversation": 53,
+          "transfer": 91
         }
       }
     },
@@ -2006,8 +2050,8 @@
             "use": {
               "lessonId": "p6-china-cidades-2",
               "lessonIndex": 112,
-              "pass": 4,
-              "step": 5,
+              "pass": 3,
+              "step": 7,
               "kind": "free_production",
               "text": "我要工作"
             }
@@ -2139,8 +2183,16 @@
           {
             "lessonId": "p6-china-cidades-2",
             "lessonIndex": 112,
+            "pass": 3,
+            "step": 7,
+            "kind": "free_production",
+            "text": "我要工作"
+          },
+          {
+            "lessonId": "p6-china-cidades-2",
+            "lessonIndex": 112,
             "pass": 4,
-            "step": 5,
+            "step": 7,
             "kind": "free_production",
             "text": "我要工作"
           },
@@ -2148,24 +2200,16 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 3,
-            "step": 4,
-            "kind": "free_production",
-            "text": "我要工作"
-          },
-          {
-            "lessonId": "p6-clima",
-            "lessonIndex": 117,
-            "pass": 4,
-            "step": 4,
+            "step": 13,
             "kind": "free_production",
             "text": "我要工作"
           }
         ],
         "counts": {
-          "productive": 14,
+          "productive": 15,
           "listening": 1,
           "conversation": 10,
-          "transfer": 11
+          "transfer": 12
         }
       }
     },
@@ -2237,7 +2281,7 @@
               "lessonId": "p6-natureza",
               "lessonIndex": 116,
               "pass": 3,
-              "step": 8,
+              "step": 13,
               "kind": "free_production",
               "text": "我睡觉"
             }
@@ -2357,7 +2401,7 @@
               "lessonId": "p6-natureza",
               "lessonIndex": 116,
               "pass": 3,
-              "step": 8,
+              "step": 13,
               "kind": "free_production",
               "text": "我睡觉了"
             },
@@ -2365,7 +2409,7 @@
               "lessonId": "p6-natureza",
               "lessonIndex": 116,
               "pass": 3,
-              "step": 8,
+              "step": 13,
               "kind": "free_production",
               "text": "我睡觉了"
             }
@@ -2467,7 +2511,7 @@
             "lessonId": "p6-natureza",
             "lessonIndex": 116,
             "pass": 3,
-            "step": 8,
+            "step": 13,
             "kind": "free_production",
             "text": "我回家了"
           },
@@ -2481,10 +2525,10 @@
           }
         ],
         "counts": {
-          "productive": 10,
+          "productive": 11,
           "listening": 1,
           "conversation": 3,
-          "transfer": 4
+          "transfer": 5
         }
       }
     },
@@ -2762,7 +2806,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 4,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-time",
             "text": "现在八点"
@@ -2985,7 +3029,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 4,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-time",
             "nodeId": "packet-exchange-time-2",
@@ -3006,7 +3050,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 4,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-time",
             "text": "现在八点"
@@ -3037,16 +3081,15 @@
         "lessonId": "l26b",
         "lessonIndex": 105,
         "pass": 1,
-        "step": 2,
-        "kind": "conversation_scene",
-        "sceneId": "pedir-cardapio",
-        "text": "我要米饭"
+        "step": 7,
+        "kind": "flashcard",
+        "text": "我想吃米饭"
       },
       "firstTest": {
         "lessonId": "l26b",
         "lessonIndex": 105,
         "pass": 2,
-        "step": 9,
+        "step": 11,
         "kind": "audio_to_action",
         "text": "不要辣"
       },
@@ -3059,7 +3102,7 @@
             "firstTeach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3069,7 +3112,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "我要米饭"
             }
@@ -3082,7 +3125,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 11,
+              "step": 7,
               "kind": "flashcard",
               "text": "我想吃米饭"
             },
@@ -3103,7 +3146,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 12,
+              "step": 8,
               "kind": "flashcard",
               "text": "不要辣"
             },
@@ -3111,7 +3154,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 2,
-              "step": 9,
+              "step": 11,
               "kind": "audio_to_action",
               "text": "不要辣"
             }
@@ -3145,7 +3188,7 @@
             "firstTeach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3169,10 +3212,9 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 2,
-              "kind": "conversation_scene",
-              "sceneId": "pedir-cardapio",
-              "text": "我要菜单"
+              "step": 6,
+              "kind": "flashcard",
+              "text": "我要水"
             },
             "productive": {
               "lessonId": "l26b",
@@ -3198,7 +3240,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 11,
+              "step": 7,
               "kind": "flashcard",
               "text": "我想吃米饭"
             },
@@ -3213,7 +3255,7 @@
             "use": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3227,7 +3269,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 12,
+              "step": 8,
               "kind": "flashcard",
               "text": "不要辣"
             },
@@ -3235,7 +3277,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "我要米饭不要辣"
             },
@@ -3243,7 +3285,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 4,
-              "step": 10,
+              "step": 15,
               "kind": "reverse_recall",
               "text": "不要辣"
             }
@@ -3254,7 +3296,7 @@
             "lessonId": "l26b",
             "lessonIndex": 105,
             "pass": 3,
-            "step": 10,
+            "step": 13,
             "kind": "sentence_build",
             "text": "我要米饭不要辣"
           },
@@ -3262,7 +3304,7 @@
             "lessonId": "l26b",
             "lessonIndex": 105,
             "pass": 4,
-            "step": 10,
+            "step": 15,
             "kind": "reverse_recall",
             "text": "不要辣"
           },
@@ -3280,7 +3322,7 @@
             "lessonId": "l26b",
             "lessonIndex": 105,
             "pass": 2,
-            "step": 9,
+            "step": 11,
             "kind": "audio_to_action",
             "text": "不要辣"
           },
@@ -3305,7 +3347,7 @@
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
-            "pass": 1,
+            "pass": 2,
             "step": 2,
             "kind": "conversation_scene",
             "sceneId": "pedir-cardapio",
@@ -3315,7 +3357,7 @@
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
-            "pass": 1,
+            "pass": 2,
             "step": 2,
             "kind": "conversation_scene",
             "sceneId": "pedir-cardapio",
@@ -3325,8 +3367,8 @@
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
-            "pass": 2,
-            "step": 2,
+            "pass": 3,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "pedir-cardapio",
             "nodeId": "cardapio-3",
@@ -3362,10 +3404,10 @@
           }
         ],
         "counts": {
-          "productive": 17,
+          "productive": 19,
           "listening": 5,
-          "conversation": 26,
-          "transfer": 17
+          "conversation": 24,
+          "transfer": 19
         }
       }
     },
@@ -3386,10 +3428,9 @@
         "lessonId": "l26b",
         "lessonIndex": 105,
         "pass": 1,
-        "step": 2,
-        "kind": "conversation_scene",
-        "sceneId": "pedir-cardapio",
-        "text": "我要一杯茶"
+        "step": 5,
+        "kind": "flashcard",
+        "text": "我想喝水"
       },
       "firstTest": {
         "lessonId": "l26b",
@@ -3409,7 +3450,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 9,
+              "step": 5,
               "kind": "flashcard",
               "text": "我想喝水"
             },
@@ -3430,7 +3471,7 @@
               "lessonId": "l26b",
               "lessonIndex": 105,
               "pass": 1,
-              "step": 10,
+              "step": 6,
               "kind": "flashcard",
               "text": "我要水"
             },
@@ -3450,7 +3491,7 @@
             "firstTeach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3460,7 +3501,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 6,
+              "step": 3,
               "kind": "free_production",
               "text": "我要一杯茶"
             }
@@ -3472,7 +3513,7 @@
             "firstTeach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3482,7 +3523,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 6,
+              "step": 3,
               "kind": "free_production",
               "text": "一杯茶"
             }
@@ -3496,7 +3537,7 @@
               "lessonId": "p5-kou-ma-pergunta",
               "lessonIndex": 89,
               "pass": 1,
-              "step": 3,
+              "step": 4,
               "kind": "conversation_scene",
               "sceneId": "o-que-e-isto",
               "text": "我想喝茶"
@@ -3513,7 +3554,7 @@
               "lessonId": "p5-kou-ma-pergunta",
               "lessonIndex": 89,
               "pass": 1,
-              "step": 3,
+              "step": 4,
               "kind": "conversation_scene",
               "sceneId": "o-que-e-isto",
               "text": "我想喝茶"
@@ -3525,7 +3566,7 @@
             "teach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3535,14 +3576,14 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 6,
+              "step": 3,
               "kind": "free_production",
               "text": "我要一杯茶"
             },
             "use": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -3591,7 +3632,7 @@
             "lessonId": "p5-kou-ma-pergunta",
             "lessonIndex": 89,
             "pass": 1,
-            "step": 3,
+            "step": 4,
             "kind": "conversation_scene",
             "sceneId": "o-que-e-isto",
             "nodeId": "isto-6",
@@ -3611,7 +3652,7 @@
             "lessonId": "p5-kou-ma-pergunta",
             "lessonIndex": 89,
             "pass": 3,
-            "step": 4,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "o-que-e-isto",
             "nodeId": "isto-6",
@@ -3648,10 +3689,10 @@
           }
         ],
         "counts": {
-          "productive": 31,
+          "productive": 48,
           "listening": 1,
-          "conversation": 30,
-          "transfer": 32
+          "conversation": 29,
+          "transfer": 38
         }
       }
     },
@@ -3672,7 +3713,7 @@
         "lessonId": "l27",
         "lessonIndex": 107,
         "pass": 2,
-        "step": 8,
+        "step": 10,
         "kind": "comprehend",
         "text": "多少钱"
       },
@@ -3694,7 +3735,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 8,
+              "step": 10,
               "kind": "comprehend",
               "text": "多少钱"
             },
@@ -3724,7 +3765,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 2,
+              "step": 4,
               "kind": "free_production",
               "text": "这个多少钱"
             }
@@ -3738,7 +3779,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 8,
+              "step": 10,
               "kind": "comprehend",
               "text": "多少钱"
             },
@@ -3775,7 +3816,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 2,
+              "step": 4,
               "kind": "free_production",
               "text": "这个多少钱"
             },
@@ -3783,7 +3824,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 2,
+              "step": 4,
               "kind": "free_production",
               "text": "这个多少钱"
             }
@@ -3802,7 +3843,7 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 4,
-            "step": 2,
+            "step": 3,
             "kind": "reverse_recall",
             "text": "多少钱"
           },
@@ -3810,7 +3851,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 4,
-            "step": 9,
+            "step": 3,
             "kind": "reverse_recall",
             "text": "这件衣服多少钱"
           }
@@ -3848,7 +3889,7 @@
             "lessonId": "l29",
             "lessonIndex": 122,
             "pass": 2,
-            "step": 4,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-shopping",
             "nodeId": "packet-exchange-shopping-2",
@@ -3858,7 +3899,7 @@
             "lessonId": "l29",
             "lessonIndex": 122,
             "pass": 3,
-            "step": 5,
+            "step": 6,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-shopping",
             "nodeId": "packet-exchange-shopping-2",
@@ -3878,7 +3919,7 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 4,
-            "step": 2,
+            "step": 3,
             "kind": "reverse_recall",
             "text": "多少钱"
           },
@@ -3886,16 +3927,16 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 2,
-            "step": 8,
+            "step": 11,
             "kind": "contextual_choice",
             "text": "这件衣服多少钱"
           }
         ],
         "counts": {
-          "productive": 15,
+          "productive": 18,
           "listening": 2,
           "conversation": 7,
-          "transfer": 21
+          "transfer": 22
         }
       }
     },
@@ -3938,7 +3979,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 8,
+              "step": 10,
               "kind": "comprehend",
               "text": "多少钱"
             },
@@ -3959,7 +4000,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 5,
+              "step": 4,
               "kind": "conversation_scene",
               "sceneId": "pedir-agua",
               "text": "我要这个"
@@ -3981,7 +4022,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 12,
+              "step": 9,
               "kind": "flashcard",
               "text": "太贵了"
             },
@@ -3989,7 +4030,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "太贵了"
             }
@@ -4010,7 +4051,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 9,
+              "step": 11,
               "kind": "audio_to_action",
               "text": "便宜一点"
             }
@@ -4024,7 +4065,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 5,
+              "step": 4,
               "kind": "conversation_scene",
               "sceneId": "pedir-agua",
               "text": "请再说一遍我要这个水"
@@ -4041,7 +4082,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 5,
+              "step": 7,
               "kind": "contextual_choice",
               "text": "我要这个"
             }
@@ -4053,7 +4094,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 8,
+              "step": 10,
               "kind": "comprehend",
               "text": "多少钱"
             },
@@ -4096,7 +4137,7 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 3,
-            "step": 10,
+            "step": 13,
             "kind": "sentence_build",
             "text": "太贵了便宜一点"
           }
@@ -4114,17 +4155,17 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 2,
-            "step": 9,
+            "step": 11,
             "kind": "audio_to_action",
             "text": "便宜一点"
           },
           {
-            "lessonId": "p7-imersao-mercado",
-            "lessonIndex": 125,
-            "pass": 1,
-            "step": 1,
-            "kind": "audio_to_action",
-            "text": "多少钱"
+            "lessonId": "p6-compras",
+            "lessonIndex": 119,
+            "pass": 2,
+            "step": 9,
+            "kind": "listen_select",
+            "text": "便宜一点"
           }
         ],
         "conversation": [
@@ -4132,7 +4173,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 1,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "nodeId": "loja-1",
@@ -4142,7 +4183,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 1,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "nodeId": "loja-3",
@@ -4152,7 +4193,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 2,
-            "step": 2,
+            "step": 4,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "nodeId": "loja-1",
@@ -4172,7 +4213,7 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "contextual_choice",
             "text": "我要这个"
           },
@@ -4186,10 +4227,10 @@
           }
         ],
         "counts": {
-          "productive": 50,
-          "listening": 3,
+          "productive": 55,
+          "listening": 4,
           "conversation": 36,
-          "transfer": 51
+          "transfer": 54
         }
       }
     },
@@ -4218,7 +4259,7 @@
         "lessonId": "l27",
         "lessonIndex": 107,
         "pass": 2,
-        "step": 9,
+        "step": 11,
         "kind": "audio_to_action",
         "text": "便宜一点"
       },
@@ -4232,7 +4273,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 12,
+              "step": 9,
               "kind": "flashcard",
               "text": "太贵了"
             },
@@ -4240,7 +4281,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "太贵了"
             }
@@ -4261,7 +4302,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 9,
+              "step": 11,
               "kind": "audio_to_action",
               "text": "便宜一点"
             }
@@ -4275,7 +4316,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 12,
+              "step": 9,
               "kind": "flashcard",
               "text": "太贵了"
             },
@@ -4283,7 +4324,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "太贵了便宜一点"
             },
@@ -4291,7 +4332,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 4,
-              "step": 10,
+              "step": 15,
               "kind": "reverse_recall",
               "text": "太贵了便宜一点"
             }
@@ -4311,7 +4352,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "太贵了便宜一点"
             },
@@ -4319,7 +4360,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 4,
-              "step": 10,
+              "step": 15,
               "kind": "reverse_recall",
               "text": "太贵了便宜一点"
             }
@@ -4330,7 +4371,7 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 3,
-            "step": 10,
+            "step": 13,
             "kind": "sentence_build",
             "text": "太贵了便宜一点"
           },
@@ -4338,7 +4379,7 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 4,
-            "step": 10,
+            "step": 15,
             "kind": "reverse_recall",
             "text": "太贵了便宜一点"
           },
@@ -4356,8 +4397,16 @@
             "lessonId": "l27",
             "lessonIndex": 107,
             "pass": 2,
-            "step": 9,
+            "step": 11,
             "kind": "audio_to_action",
+            "text": "便宜一点"
+          },
+          {
+            "lessonId": "p6-compras",
+            "lessonIndex": 119,
+            "pass": 2,
+            "step": 9,
+            "kind": "listen_select",
             "text": "便宜一点"
           }
         ],
@@ -4366,7 +4415,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 1,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "nodeId": "loja-3",
@@ -4376,7 +4425,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 2,
-            "step": 2,
+            "step": 4,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "nodeId": "loja-3",
@@ -4386,7 +4435,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 3,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "nodeId": "loja-3",
@@ -4398,7 +4447,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 1,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "text": "太贵了"
@@ -4407,7 +4456,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 2,
-            "step": 2,
+            "step": 4,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "text": "太贵了"
@@ -4416,7 +4465,7 @@
             "lessonId": "p6-compras",
             "lessonIndex": 119,
             "pass": 3,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "conversa-na-loja",
             "text": "太贵了"
@@ -4424,7 +4473,7 @@
         ],
         "counts": {
           "productive": 13,
-          "listening": 1,
+          "listening": 2,
           "conversation": 19,
           "transfer": 24
         }
@@ -4446,7 +4495,7 @@
       "firstTeach": {
         "lessonId": "l26b",
         "lessonIndex": 105,
-        "pass": 1,
+        "pass": 2,
         "step": 2,
         "kind": "conversation_scene",
         "sceneId": "pedir-cardapio",
@@ -4455,7 +4504,7 @@
       "firstTest": {
         "lessonId": "l26b",
         "lessonIndex": 105,
-        "pass": 1,
+        "pass": 2,
         "step": 4,
         "kind": "listen_select",
         "text": "买单"
@@ -4469,7 +4518,7 @@
             "firstTeach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -4478,7 +4527,7 @@
             "firstTest": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 4,
               "kind": "listen_select",
               "text": "买单"
@@ -4492,7 +4541,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 9,
+              "step": 6,
               "kind": "flashcard",
               "text": "微信支付"
             },
@@ -4500,7 +4549,7 @@
               "lessonId": "p7-imersao-mercado",
               "lessonIndex": 125,
               "pass": 3,
-              "step": 8,
+              "step": 12,
               "kind": "free_production",
               "text": "微信支付"
             }
@@ -4513,7 +4562,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 11,
+              "step": 8,
               "kind": "flashcard",
               "text": "可以刷卡吗"
             },
@@ -4521,7 +4570,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 2,
-              "step": 3,
+              "step": 4,
               "kind": "reverse_recall",
               "text": "可以刷卡吗"
             }
@@ -4534,7 +4583,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 10,
+              "step": 7,
               "kind": "flashcard",
               "text": "现金"
             },
@@ -4542,7 +4591,7 @@
               "lessonId": "p7-imersao-mercado",
               "lessonIndex": 125,
               "pass": 3,
-              "step": 8,
+              "step": 12,
               "kind": "free_production",
               "text": "现金"
             }
@@ -4555,7 +4604,7 @@
             "teach": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -4572,7 +4621,7 @@
             "use": {
               "lessonId": "l26b",
               "lessonIndex": 105,
-              "pass": 1,
+              "pass": 2,
               "step": 2,
               "kind": "conversation_scene",
               "sceneId": "pedir-cardapio",
@@ -4586,7 +4635,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 1,
-              "step": 11,
+              "step": 8,
               "kind": "flashcard",
               "text": "可以刷卡吗"
             },
@@ -4594,7 +4643,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 2,
-              "step": 3,
+              "step": 4,
               "kind": "reverse_recall",
               "text": "可以刷卡吗"
             },
@@ -4602,23 +4651,13 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 2,
-              "step": 3,
+              "step": 4,
               "kind": "reverse_recall",
               "text": "可以刷卡吗"
             }
           }
         ],
         "productive": [
-          {
-            "lessonId": "l26b",
-            "lessonIndex": 105,
-            "pass": 1,
-            "step": 2,
-            "kind": "conversation_scene",
-            "sceneId": "pedir-cardapio",
-            "nodeId": "cardapio-6",
-            "text": "买单"
-          },
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
@@ -4638,17 +4677,19 @@
             "sceneId": "pedir-cardapio",
             "nodeId": "cardapio-6",
             "text": "买单"
-          }
-        ],
-        "listening": [
+          },
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
-            "pass": 1,
-            "step": 4,
-            "kind": "listen_select",
+            "pass": 4,
+            "step": 8,
+            "kind": "conversation_scene",
+            "sceneId": "pedir-cardapio",
+            "nodeId": "cardapio-6",
             "text": "买单"
-          },
+          }
+        ],
+        "listening": [
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
@@ -4664,19 +4705,17 @@
             "step": 7,
             "kind": "listen_select",
             "text": "买单"
-          }
-        ],
-        "conversation": [
+          },
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
-            "pass": 1,
-            "step": 2,
-            "kind": "conversation_scene",
-            "sceneId": "pedir-cardapio",
-            "nodeId": "cardapio-6",
+            "pass": 4,
+            "step": 10,
+            "kind": "listen_select",
             "text": "买单"
-          },
+          }
+        ],
+        "conversation": [
           {
             "lessonId": "l26b",
             "lessonIndex": 105,
@@ -4692,6 +4731,16 @@
             "lessonIndex": 105,
             "pass": 3,
             "step": 5,
+            "kind": "conversation_scene",
+            "sceneId": "pedir-cardapio",
+            "nodeId": "cardapio-6",
+            "text": "买单"
+          },
+          {
+            "lessonId": "l26b",
+            "lessonIndex": 105,
+            "pass": 4,
+            "step": 8,
             "kind": "conversation_scene",
             "sceneId": "pedir-cardapio",
             "nodeId": "cardapio-6",
@@ -4727,9 +4776,9 @@
           }
         ],
         "counts": {
-          "productive": 23,
-          "listening": 4,
-          "conversation": 16,
+          "productive": 22,
+          "listening": 3,
+          "conversation": 15,
           "transfer": 14
         }
       }
@@ -4759,7 +4808,7 @@
         "lessonId": "l25",
         "lessonIndex": 103,
         "pass": 1,
-        "step": 5,
+        "step": 6,
         "kind": "sentence_build",
         "text": "在哪里"
       },
@@ -4781,7 +4830,7 @@
               "lessonId": "l25",
               "lessonIndex": 103,
               "pass": 1,
-              "step": 5,
+              "step": 6,
               "kind": "sentence_build",
               "text": "在哪里"
             }
@@ -4817,7 +4866,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 4,
-              "step": 9,
+              "step": 15,
               "kind": "reverse_recall",
               "text": "洗手间在哪里"
             }
@@ -4839,7 +4888,7 @@
               "lessonId": "l25",
               "lessonIndex": 103,
               "pass": 1,
-              "step": 5,
+              "step": 6,
               "kind": "sentence_build",
               "text": "在哪里"
             },
@@ -4847,7 +4896,7 @@
               "lessonId": "l25",
               "lessonIndex": 103,
               "pass": 1,
-              "step": 4,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "onde-esta",
               "text": "山在哪里"
@@ -4859,7 +4908,7 @@
             "lessonId": "l25",
             "lessonIndex": 103,
             "pass": 1,
-            "step": 4,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "onde-esta",
             "nodeId": "onde-3",
@@ -4869,7 +4918,7 @@
             "lessonId": "l25",
             "lessonIndex": 103,
             "pass": 1,
-            "step": 5,
+            "step": 6,
             "kind": "sentence_build",
             "text": "在哪里"
           },
@@ -4877,7 +4926,7 @@
             "lessonId": "l25",
             "lessonIndex": 103,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "onde-esta",
             "nodeId": "onde-3",
@@ -4915,16 +4964,6 @@
             "lessonId": "l25",
             "lessonIndex": 103,
             "pass": 1,
-            "step": 4,
-            "kind": "conversation_scene",
-            "sceneId": "onde-esta",
-            "nodeId": "onde-3",
-            "text": "山在哪里"
-          },
-          {
-            "lessonId": "l25",
-            "lessonIndex": 103,
-            "pass": 2,
             "step": 5,
             "kind": "conversation_scene",
             "sceneId": "onde-esta",
@@ -4934,8 +4973,18 @@
           {
             "lessonId": "l25",
             "lessonIndex": 103,
+            "pass": 2,
+            "step": 7,
+            "kind": "conversation_scene",
+            "sceneId": "onde-esta",
+            "nodeId": "onde-3",
+            "text": "山在哪里"
+          },
+          {
+            "lessonId": "l25",
+            "lessonIndex": 103,
             "pass": 4,
-            "step": 4,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "onde-esta",
             "nodeId": "onde-3",
@@ -4947,7 +4996,7 @@
             "lessonId": "p6-cidade-lugares",
             "lessonIndex": 110,
             "pass": 4,
-            "step": 2,
+            "step": 3,
             "kind": "reverse_recall",
             "text": "医院在哪里"
           },
@@ -4970,9 +5019,9 @@
           }
         ],
         "counts": {
-          "productive": 64,
+          "productive": 67,
           "listening": 3,
-          "conversation": 32,
+          "conversation": 33,
           "transfer": 45
         }
       }
@@ -5333,7 +5382,7 @@
         "lessonId": "p6-china-cidades",
         "lessonIndex": 111,
         "pass": 3,
-        "step": 10,
+        "step": 13,
         "kind": "sentence_build",
         "text": "地铁"
       },
@@ -5355,7 +5404,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "地铁"
             }
@@ -5368,7 +5417,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "我坐地铁"
@@ -5377,7 +5426,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "我坐地铁"
             }
@@ -5411,7 +5460,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "地铁站在哪里"
@@ -5455,7 +5504,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "我坐地铁"
@@ -5464,7 +5513,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "我坐地铁"
             },
@@ -5472,7 +5521,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "我坐地铁"
@@ -5485,7 +5534,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "地铁站在哪里"
@@ -5541,7 +5590,7 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 3,
-            "step": 10,
+            "step": 13,
             "kind": "sentence_build",
             "text": "我坐地铁"
           },
@@ -5585,7 +5634,7 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 1,
-            "step": 3,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-transport",
             "nodeId": "packet-exchange-transport-2",
@@ -5595,7 +5644,7 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 4,
-            "step": 4,
+            "step": 8,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-transport",
             "nodeId": "packet-exchange-transport-2",
@@ -5664,7 +5713,7 @@
         "lessonId": "p6-china-cidades",
         "lessonIndex": 111,
         "pass": 1,
-        "step": 3,
+        "step": 5,
         "kind": "conversation_scene",
         "sceneId": "packet-exchange-transport",
         "text": "火车"
@@ -5673,7 +5722,7 @@
         "lessonId": "l29",
         "lessonIndex": 122,
         "pass": 3,
-        "step": 8,
+        "step": 5,
         "kind": "free_production",
         "text": "火车"
       },
@@ -5687,7 +5736,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "火车"
@@ -5696,7 +5745,7 @@
               "lessonId": "l29",
               "lessonIndex": 122,
               "pass": 3,
-              "step": 8,
+              "step": 5,
               "kind": "free_production",
               "text": "火车"
             }
@@ -5709,7 +5758,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "火车站在哪里"
@@ -5767,7 +5816,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "火车站在哪里"
@@ -5823,7 +5872,15 @@
             "lessonId": "l29",
             "lessonIndex": 122,
             "pass": 3,
-            "step": 8,
+            "step": 5,
+            "kind": "free_production",
+            "text": "我去火车站"
+          },
+          {
+            "lessonId": "l29",
+            "lessonIndex": 122,
+            "pass": 4,
+            "step": 4,
             "kind": "free_production",
             "text": "我去火车站"
           },
@@ -5834,14 +5891,6 @@
             "step": 11,
             "kind": "free_production",
             "text": "火车站在哪里"
-          },
-          {
-            "lessonId": "p7-imersao-estacao",
-            "lessonIndex": 126,
-            "pass": 3,
-            "step": 12,
-            "kind": "reverse_recall",
-            "text": "我要票"
           }
         ],
         "listening": [
@@ -5914,7 +5963,7 @@
           }
         ],
         "counts": {
-          "productive": 10,
+          "productive": 11,
           "listening": 1,
           "conversation": 8,
           "transfer": 6
@@ -5938,7 +5987,7 @@
         "lessonId": "l27",
         "lessonIndex": 107,
         "pass": 2,
-        "step": 8,
+        "step": 10,
         "kind": "comprehend",
         "text": "多少钱"
       },
@@ -5968,7 +6017,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 4,
+              "step": 6,
               "kind": "sentence_build",
               "text": "我坐出租车"
             }
@@ -5988,8 +6037,8 @@
             "firstTest": {
               "lessonId": "p6-china-cidades-2",
               "lessonIndex": 112,
-              "pass": 4,
-              "step": 5,
+              "pass": 3,
+              "step": 7,
               "kind": "free_production",
               "text": "我要去酒店"
             }
@@ -6044,7 +6093,7 @@
               "lessonId": "l27",
               "lessonIndex": 107,
               "pass": 2,
-              "step": 8,
+              "step": 10,
               "kind": "comprehend",
               "text": "多少钱"
             },
@@ -6074,7 +6123,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 4,
+              "step": 6,
               "kind": "sentence_build",
               "text": "我坐出租车"
             },
@@ -6082,7 +6131,7 @@
               "lessonId": "p6-china-cidades",
               "lessonIndex": 111,
               "pass": 1,
-              "step": 3,
+              "step": 5,
               "kind": "conversation_scene",
               "sceneId": "packet-exchange-transport",
               "text": "我坐出租车"
@@ -6102,16 +6151,16 @@
             "productive": {
               "lessonId": "p6-china-cidades-2",
               "lessonIndex": 112,
-              "pass": 4,
-              "step": 5,
+              "pass": 3,
+              "step": 7,
               "kind": "free_production",
               "text": "我要去酒店"
             },
             "use": {
               "lessonId": "p6-china-cidades-2",
               "lessonIndex": 112,
-              "pass": 4,
-              "step": 5,
+              "pass": 3,
+              "step": 7,
               "kind": "free_production",
               "text": "我要去酒店"
             }
@@ -6180,6 +6229,14 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 1,
+            "step": 6,
+            "kind": "sentence_build",
+            "text": "我坐出租车"
+          },
+          {
+            "lessonId": "p6-china-cidades",
+            "lessonIndex": 111,
+            "pass": 3,
             "step": 4,
             "kind": "sentence_build",
             "text": "我坐出租车"
@@ -6188,17 +6245,9 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 4,
-            "step": 5,
+            "step": 9,
             "kind": "sentence_build",
             "text": "我坐出租车"
-          },
-          {
-            "lessonId": "p6-china-cidades-2",
-            "lessonIndex": 112,
-            "pass": 4,
-            "step": 5,
-            "kind": "free_production",
-            "text": "我要去酒店"
           }
         ],
         "listening": [
@@ -6216,7 +6265,7 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 1,
-            "step": 3,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-transport",
             "nodeId": "packet-exchange-transport-5",
@@ -6226,7 +6275,7 @@
             "lessonId": "p6-china-cidades",
             "lessonIndex": 111,
             "pass": 4,
-            "step": 4,
+            "step": 8,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-transport",
             "nodeId": "packet-exchange-transport-5",
@@ -6247,8 +6296,16 @@
           {
             "lessonId": "p6-china-cidades-2",
             "lessonIndex": 112,
+            "pass": 3,
+            "step": 7,
+            "kind": "free_production",
+            "text": "我要去酒店"
+          },
+          {
+            "lessonId": "p6-china-cidades-2",
+            "lessonIndex": 112,
             "pass": 4,
-            "step": 5,
+            "step": 7,
             "kind": "free_production",
             "text": "我要去酒店"
           },
@@ -6260,21 +6317,13 @@
             "kind": "conversation_scene",
             "sceneId": "pegar-taxi",
             "text": "我要去酒店"
-          },
-          {
-            "lessonId": "p6-china-ruas",
-            "lessonIndex": 113,
-            "pass": 4,
-            "step": 2,
-            "kind": "free_production",
-            "text": "我要去酒店"
           }
         ],
         "counts": {
-          "productive": 13,
+          "productive": 15,
           "listening": 1,
           "conversation": 9,
-          "transfer": 11
+          "transfer": 12
         }
       }
     },
@@ -6303,7 +6352,7 @@
         "lessonId": "p6-china-cidades-2",
         "lessonIndex": 112,
         "pass": 4,
-        "step": 7,
+        "step": 13,
         "kind": "sentence_build",
         "text": "登机口在哪里"
       },
@@ -6354,7 +6403,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 10,
+              "step": 8,
               "kind": "sentence_build",
               "text": "护照"
             }
@@ -6397,7 +6446,7 @@
               "lessonId": "p6-china-cidades-2",
               "lessonIndex": 112,
               "pass": 4,
-              "step": 7,
+              "step": 13,
               "kind": "sentence_build",
               "text": "登机口在哪里"
             }
@@ -6433,7 +6482,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 10,
+              "step": 8,
               "kind": "sentence_build",
               "text": "这是我的护照"
             }
@@ -6498,7 +6547,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 10,
+              "step": 8,
               "kind": "sentence_build",
               "text": "这是我的护照"
             },
@@ -6528,7 +6577,7 @@
               "lessonId": "p6-china-cidades-2",
               "lessonIndex": 112,
               "pass": 4,
-              "step": 7,
+              "step": 13,
               "kind": "sentence_build",
               "text": "登机口在哪里"
             },
@@ -6548,7 +6597,7 @@
             "lessonId": "p6-china-cidades-2",
             "lessonIndex": 112,
             "pass": 4,
-            "step": 7,
+            "step": 13,
             "kind": "sentence_build",
             "text": "登机口在哪里"
           },
@@ -6556,7 +6605,7 @@
             "lessonId": "p6-survival-mandarin",
             "lessonIndex": 120,
             "pass": 3,
-            "step": 10,
+            "step": 8,
             "kind": "sentence_build",
             "text": "这是我的护照"
           },
@@ -6634,7 +6683,7 @@
             "lessonId": "p6-survival-mandarin",
             "lessonIndex": 120,
             "pass": 3,
-            "step": 8,
+            "step": 13,
             "kind": "contextual_choice",
             "text": "护照"
           },
@@ -6690,9 +6739,9 @@
         "lessonId": "p6-survival-mandarin",
         "lessonIndex": 120,
         "pass": 3,
-        "step": 10,
-        "kind": "sentence_build",
-        "text": "护照"
+        "step": 7,
+        "kind": "free_production",
+        "text": "我有预订"
       },
       "refs": {
         "lexical": [
@@ -6734,7 +6783,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 10,
+              "step": 8,
               "kind": "sentence_build",
               "text": "护照"
             }
@@ -6793,7 +6842,7 @@
           {
             "ref": "chunk:woyouyuding",
             "hanzi": "我有预订",
-            "ok": true,
+            "ok": false,
             "firstTeach": {
               "lessonId": "p7-imersao-hotel",
               "lessonIndex": 127,
@@ -6804,10 +6853,10 @@
               "text": "我有预订"
             },
             "firstTest": {
-              "lessonId": "p7-imersao-hotel",
-              "lessonIndex": 127,
-              "pass": 1,
-              "step": 21,
+              "lessonId": "p6-survival-mandarin",
+              "lessonIndex": 120,
+              "pass": 3,
+              "step": 7,
               "kind": "free_production",
               "text": "我有预订"
             }
@@ -6829,7 +6878,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 10,
+              "step": 8,
               "kind": "sentence_build",
               "text": "这是我的护照"
             }
@@ -6901,20 +6950,19 @@
               "text": "我有预订"
             },
             "productive": {
-              "lessonId": "p7-imersao-hotel",
-              "lessonIndex": 127,
-              "pass": 1,
-              "step": 21,
+              "lessonId": "p6-survival-mandarin",
+              "lessonIndex": 120,
+              "pass": 3,
+              "step": 7,
               "kind": "free_production",
               "text": "我有预订"
             },
             "use": {
-              "lessonId": "p7-imersao-hotel",
-              "lessonIndex": 127,
-              "pass": 1,
-              "step": 9,
-              "kind": "conversation_scene",
-              "sceneId": "checkin-hotel",
+              "lessonId": "p6-survival-mandarin",
+              "lessonIndex": 120,
+              "pass": 3,
+              "step": 7,
+              "kind": "free_production",
               "text": "我有预订"
             }
           },
@@ -6934,7 +6982,7 @@
               "lessonId": "p6-survival-mandarin",
               "lessonIndex": 120,
               "pass": 3,
-              "step": 10,
+              "step": 8,
               "kind": "sentence_build",
               "text": "这是我的护照"
             },
@@ -6984,25 +7032,25 @@
             "lessonId": "p6-survival-mandarin",
             "lessonIndex": 120,
             "pass": 3,
-            "step": 10,
+            "step": 7,
+            "kind": "free_production",
+            "text": "我有预订"
+          },
+          {
+            "lessonId": "p6-survival-mandarin",
+            "lessonIndex": 120,
+            "pass": 3,
+            "step": 8,
             "kind": "sentence_build",
             "text": "这是我的护照"
           },
           {
-            "lessonId": "p7-imersao-estacao",
-            "lessonIndex": 126,
-            "pass": 3,
-            "step": 11,
+            "lessonId": "p6-survival-mandarin",
+            "lessonIndex": 120,
+            "pass": 4,
+            "step": 8,
             "kind": "free_production",
-            "text": "酒店在哪里"
-          },
-          {
-            "lessonId": "p7-imersao-hotel",
-            "lessonIndex": 127,
-            "pass": 1,
-            "step": 7,
-            "kind": "sentence_build",
-            "text": "前台"
+            "text": "我有预订"
           }
         ],
         "listening": [
@@ -7091,7 +7139,7 @@
           }
         ],
         "counts": {
-          "productive": 41,
+          "productive": 43,
           "listening": 8,
           "conversation": 29,
           "transfer": 24
@@ -7115,7 +7163,7 @@
         "lessonId": "l11",
         "lessonIndex": 40,
         "pass": 1,
-        "step": 9,
+        "step": 8,
         "kind": "flashcard",
         "text": "我需要帮助"
       },
@@ -7123,7 +7171,7 @@
         "lessonId": "l11",
         "lessonIndex": 40,
         "pass": 2,
-        "step": 9,
+        "step": 11,
         "kind": "audio_to_action",
         "text": "我需要帮助"
       },
@@ -7137,7 +7185,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 1,
-              "step": 9,
+              "step": 8,
               "kind": "flashcard",
               "text": "我需要帮助"
             },
@@ -7145,7 +7193,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 2,
-              "step": 9,
+              "step": 11,
               "kind": "audio_to_action",
               "text": "我需要帮助"
             }
@@ -7159,7 +7207,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 1,
-              "step": 9,
+              "step": 8,
               "kind": "flashcard",
               "text": "我需要帮助"
             },
@@ -7212,7 +7260,7 @@
             "lessonId": "l11",
             "lessonIndex": 40,
             "pass": 2,
-            "step": 9,
+            "step": 11,
             "kind": "audio_to_action",
             "text": "我需要帮助"
           }
@@ -7310,7 +7358,7 @@
         "lessonId": "p2-sons-brasileiros",
         "lessonIndex": 31,
         "pass": 2,
-        "step": 7,
+        "step": 9,
         "kind": "listen_select",
         "text": "我听不懂"
       },
@@ -7332,7 +7380,7 @@
               "lessonId": "p2-sons-brasileiros",
               "lessonIndex": 31,
               "pass": 2,
-              "step": 7,
+              "step": 9,
               "kind": "listen_select",
               "text": "我听不懂"
             }
@@ -7354,8 +7402,8 @@
               "lessonId": "p3-wobuhui-shuo-zhongwen",
               "lessonIndex": 38,
               "pass": 1,
-              "step": 1,
-              "kind": "audio_to_action",
+              "step": 7,
+              "kind": "listen_select",
               "text": "我不会说中文"
             }
           },
@@ -7397,7 +7445,7 @@
               "lessonId": "l9",
               "lessonIndex": 34,
               "pass": 3,
-              "step": 9,
+              "step": 4,
               "kind": "conversation_repair",
               "text": "我听不懂"
             },
@@ -7405,7 +7453,7 @@
               "lessonId": "l9",
               "lessonIndex": 34,
               "pass": 3,
-              "step": 9,
+              "step": 4,
               "kind": "conversation_repair",
               "text": "我听不懂"
             }
@@ -7474,7 +7522,7 @@
             "lessonId": "l9",
             "lessonIndex": 34,
             "pass": 3,
-            "step": 9,
+            "step": 4,
             "kind": "conversation_repair",
             "text": "我听不懂"
           },
@@ -7482,7 +7530,7 @@
             "lessonId": "l9-tudo-bem",
             "lessonIndex": 35,
             "pass": 3,
-            "step": 6,
+            "step": 8,
             "kind": "conversation_repair",
             "text": "我听不懂"
           },
@@ -7500,7 +7548,7 @@
             "lessonId": "p2-sons-brasileiros",
             "lessonIndex": 31,
             "pass": 2,
-            "step": 7,
+            "step": 9,
             "kind": "listen_select",
             "text": "我听不懂"
           },
@@ -7508,7 +7556,7 @@
             "lessonId": "p2-sons-brasileiros",
             "lessonIndex": 31,
             "pass": 3,
-            "step": 1,
+            "step": 2,
             "kind": "listen_select",
             "text": "我听不懂"
           },
@@ -7516,8 +7564,8 @@
             "lessonId": "p3-wobuhui-shuo-zhongwen",
             "lessonIndex": 38,
             "pass": 1,
-            "step": 1,
-            "kind": "audio_to_action",
+            "step": 7,
+            "kind": "listen_select",
             "text": "我不会说中文"
           }
         ],
@@ -7536,7 +7584,7 @@
             "lessonId": "l3",
             "lessonIndex": 8,
             "pass": 4,
-            "step": 4,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "nao-falo-chinês",
             "nodeId": "nao-falo-chinês-5",
@@ -7567,7 +7615,7 @@
             "lessonId": "p3-wobuhui-shuo-zhongwen",
             "lessonIndex": 38,
             "pass": 1,
-            "step": 8,
+            "step": 9,
             "kind": "contextual_choice",
             "text": "我不会说中文"
           },
@@ -7575,15 +7623,15 @@
             "lessonId": "p3-wobuhui-shuo-zhongwen",
             "lessonIndex": 38,
             "pass": 2,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "nao-falo-chinês",
             "text": "我不会说中文"
           }
         ],
         "counts": {
-          "productive": 64,
-          "listening": 11,
+          "productive": 74,
+          "listening": 21,
           "conversation": 14,
           "transfer": 22
         }
@@ -7651,7 +7699,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 1,
-              "step": 7,
+              "step": 6,
               "kind": "comprehend",
               "text": "请慢一点"
             },
@@ -7703,7 +7751,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 1,
-              "step": 7,
+              "step": 6,
               "kind": "comprehend",
               "text": "请慢一点"
             },
@@ -7757,7 +7805,7 @@
             "lessonId": "p3-qing-zai-shuo-yibian",
             "lessonIndex": 39,
             "pass": 1,
-            "step": 7,
+            "step": 8,
             "kind": "audio_to_action",
             "text": "请再说一遍"
           },
@@ -7765,7 +7813,7 @@
             "lessonId": "p3-qing-zai-shuo-yibian",
             "lessonIndex": 39,
             "pass": 2,
-            "step": 2,
+            "step": 4,
             "kind": "listen_select",
             "text": "请再说一遍"
           },
@@ -7773,8 +7821,8 @@
             "lessonId": "p3-qing-zai-shuo-yibian",
             "lessonIndex": 39,
             "pass": 3,
-            "step": 2,
-            "kind": "dictation",
+            "step": 1,
+            "kind": "listen_select",
             "text": "请再说一遍"
           }
         ],
@@ -7793,7 +7841,7 @@
             "lessonId": "p2-sons-brasileiros",
             "lessonIndex": 31,
             "pass": 2,
-            "step": 2,
+            "step": 3,
             "kind": "conversation_scene",
             "sceneId": "pedir-repeticao",
             "nodeId": "pedir-repeticao-2",
@@ -7803,7 +7851,7 @@
             "lessonId": "p2-sons-brasileiros",
             "lessonIndex": 31,
             "pass": 3,
-            "step": 3,
+            "step": 5,
             "kind": "conversation_scene",
             "sceneId": "pedir-repeticao",
             "nodeId": "pedir-repeticao-2",
@@ -7812,10 +7860,19 @@
         ],
         "transfer": [
           {
+            "lessonId": "l9-tudo-bem",
+            "lessonIndex": 35,
+            "pass": 4,
+            "step": 12,
+            "kind": "conversation_scene",
+            "sceneId": "pedir-repeticao",
+            "text": "请再说一遍"
+          },
+          {
             "lessonId": "p3-wobuhui-shuo-zhongwen",
             "lessonIndex": 38,
             "pass": 3,
-            "step": 8,
+            "step": 12,
             "kind": "conversation_repair",
             "text": "请再说一遍"
           },
@@ -7827,21 +7884,13 @@
             "kind": "conversation_scene",
             "sceneId": "pedir-repeticao",
             "text": "请再说一遍"
-          },
-          {
-            "lessonId": "p3-qing-zai-shuo-yibian",
-            "lessonIndex": 39,
-            "pass": 1,
-            "step": 8,
-            "kind": "contextual_choice",
-            "text": "请再说一遍"
           }
         ],
         "counts": {
-          "productive": 176,
-          "listening": 5,
-          "conversation": 107,
-          "transfer": 144
+          "productive": 186,
+          "listening": 9,
+          "conversation": 110,
+          "transfer": 149
         }
       }
     },
@@ -7870,7 +7919,7 @@
         "lessonId": "p6-cidade-lugares",
         "lessonIndex": 110,
         "pass": 4,
-        "step": 2,
+        "step": 3,
         "kind": "reverse_recall",
         "text": "医院在哪里"
       },
@@ -7997,7 +8046,7 @@
               "lessonId": "p6-cidade-lugares",
               "lessonIndex": 110,
               "pass": 4,
-              "step": 2,
+              "step": 3,
               "kind": "reverse_recall",
               "text": "医院在哪里"
             }
@@ -8231,7 +8280,7 @@
               "lessonId": "p6-cidade-lugares",
               "lessonIndex": 110,
               "pass": 4,
-              "step": 2,
+              "step": 3,
               "kind": "reverse_recall",
               "text": "医院在哪里"
             },
@@ -8239,7 +8288,7 @@
               "lessonId": "p6-cidade-lugares",
               "lessonIndex": 110,
               "pass": 4,
-              "step": 2,
+              "step": 3,
               "kind": "reverse_recall",
               "text": "医院在哪里"
             }
@@ -8250,7 +8299,7 @@
             "lessonId": "p6-cidade-lugares",
             "lessonIndex": 110,
             "pass": 4,
-            "step": 2,
+            "step": 3,
             "kind": "reverse_recall",
             "text": "医院在哪里"
           },
@@ -8340,10 +8389,10 @@
           }
         ],
         "counts": {
-          "productive": 77,
+          "productive": 78,
           "listening": 1,
           "conversation": 31,
-          "transfer": 57
+          "transfer": 58
         }
       }
     },
@@ -8372,21 +8421,21 @@
         "lessonId": "p6-clima",
         "lessonIndex": 117,
         "pass": 2,
-        "step": 6,
-        "kind": "sentence_build",
-        "text": "下雨了"
+        "step": 4,
+        "kind": "listen_select",
+        "text": "今天天气很好"
       },
       "refs": {
         "lexical": [
           {
             "ref": "chunk:jintiantianqihenhao",
             "hanzi": "今天天气很好",
-            "ok": true,
+            "ok": false,
             "firstTeach": {
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 4,
+              "step": 6,
               "kind": "conversation_scene",
               "sceneId": "como-esta-o-tempo",
               "text": "今天天气很好"
@@ -8394,9 +8443,9 @@
             "firstTest": {
               "lessonId": "p6-clima",
               "lessonIndex": 117,
-              "pass": 3,
-              "step": 2,
-              "kind": "reverse_recall",
+              "pass": 2,
+              "step": 4,
+              "kind": "listen_select",
               "text": "今天天气很好"
             }
           },
@@ -8443,7 +8492,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 4,
+              "step": 6,
               "kind": "conversation_scene",
               "sceneId": "como-esta-o-tempo",
               "text": "下雨了"
@@ -8452,7 +8501,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 6,
+              "step": 8,
               "kind": "sentence_build",
               "text": "下雨了"
             }
@@ -8465,7 +8514,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 4,
+              "step": 6,
               "kind": "conversation_scene",
               "sceneId": "como-esta-o-tempo",
               "text": "今天天气怎么样"
@@ -8480,7 +8529,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 4,
+              "step": 6,
               "kind": "conversation_scene",
               "sceneId": "como-esta-o-tempo",
               "text": "今天很热"
@@ -8517,7 +8566,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 4,
+              "step": 6,
               "kind": "conversation_scene",
               "sceneId": "como-esta-o-tempo",
               "text": "好今天天气很好不太好"
@@ -8562,7 +8611,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 1,
-              "step": 8,
+              "step": 9,
               "kind": "contextual_choice",
               "text": "天气很热"
             }
@@ -8574,7 +8623,7 @@
               "lessonId": "p6-clima",
               "lessonIndex": 117,
               "pass": 2,
-              "step": 4,
+              "step": 6,
               "kind": "conversation_scene",
               "sceneId": "como-esta-o-tempo",
               "text": "今天天气怎么样"
@@ -8588,7 +8637,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 2,
-            "step": 6,
+            "step": 8,
             "kind": "sentence_build",
             "text": "下雨了"
           },
@@ -8604,36 +8653,32 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 3,
-            "step": 7,
+            "step": 9,
             "kind": "sentence_build",
             "text": "下雨了"
           }
         ],
         "listening": [
           {
+            "lessonId": "p6-clima",
+            "lessonIndex": 117,
+            "pass": 2,
+            "step": 4,
+            "kind": "listen_select",
+            "text": "今天天气很好"
+          },
+          {
+            "lessonId": "p6-clima",
+            "lessonIndex": 117,
+            "pass": 4,
+            "step": 11,
+            "kind": "dictation",
+            "text": "今天天气很好"
+          },
+          {
             "lessonId": "p7-conversa-cotidiana",
             "lessonIndex": 130,
             "pass": 1,
-            "step": 9,
-            "kind": "conversation_scene",
-            "sceneId": "conversa-cotidiana",
-            "nodeId": "cot-fine",
-            "text": "今天很冷"
-          },
-          {
-            "lessonId": "p7-conversa-cotidiana",
-            "lessonIndex": 130,
-            "pass": 2,
-            "step": 9,
-            "kind": "conversation_scene",
-            "sceneId": "conversa-cotidiana",
-            "nodeId": "cot-fine",
-            "text": "今天很冷"
-          },
-          {
-            "lessonId": "p7-conversa-cotidiana",
-            "lessonIndex": 130,
-            "pass": 3,
             "step": 9,
             "kind": "conversation_scene",
             "sceneId": "conversa-cotidiana",
@@ -8646,7 +8691,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 2,
-            "step": 4,
+            "step": 6,
             "kind": "conversation_scene",
             "sceneId": "como-esta-o-tempo",
             "nodeId": "clima-2",
@@ -8656,7 +8701,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 2,
-            "step": 4,
+            "step": 6,
             "kind": "conversation_scene",
             "sceneId": "como-esta-o-tempo",
             "nodeId": "clima-5",
@@ -8666,7 +8711,7 @@
             "lessonId": "p6-clima",
             "lessonIndex": 117,
             "pass": 3,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "como-esta-o-tempo",
             "nodeId": "clima-2",
@@ -8700,9 +8745,9 @@
           }
         ],
         "counts": {
-          "productive": 8,
-          "listening": 8,
-          "conversation": 4,
+          "productive": 9,
+          "listening": 10,
+          "conversation": 6,
           "transfer": 4
         }
       }
@@ -8804,7 +8849,7 @@
               "lessonId": "l28",
               "lessonIndex": 108,
               "pass": 3,
-              "step": 10,
+              "step": 13,
               "kind": "sentence_build",
               "text": "我不喜欢肉"
             },
@@ -8812,7 +8857,7 @@
               "lessonId": "l28",
               "lessonIndex": 108,
               "pass": 4,
-              "step": 10,
+              "step": 13,
               "kind": "conversation_scene",
               "sceneId": "gostos-na-casa",
               "text": "我不喜欢肉"
@@ -8840,7 +8885,7 @@
             "lessonId": "l26",
             "lessonIndex": 104,
             "pass": 4,
-            "step": 1,
+            "step": 4,
             "kind": "free_production",
             "text": "我喜欢中文"
           }
@@ -8850,7 +8895,7 @@
             "lessonId": "l28",
             "lessonIndex": 108,
             "pass": 2,
-            "step": 9,
+            "step": 11,
             "kind": "audio_to_action",
             "text": "我不喜欢茶"
           }
@@ -8860,7 +8905,7 @@
             "lessonId": "l28",
             "lessonIndex": 108,
             "pass": 4,
-            "step": 10,
+            "step": 13,
             "kind": "conversation_scene",
             "sceneId": "gostos-na-casa",
             "nodeId": "gosto-1",
@@ -8870,7 +8915,7 @@
             "lessonId": "l28",
             "lessonIndex": 108,
             "pass": 4,
-            "step": 10,
+            "step": 13,
             "kind": "conversation_scene",
             "sceneId": "gostos-na-casa",
             "nodeId": "gosto-4",
@@ -8890,7 +8935,7 @@
             "lessonId": "l28",
             "lessonIndex": 108,
             "pass": 4,
-            "step": 10,
+            "step": 13,
             "kind": "conversation_scene",
             "sceneId": "gostos-na-casa",
             "text": "我喜欢茶"
@@ -8899,13 +8944,13 @@
             "lessonId": "l28",
             "lessonIndex": 108,
             "pass": 4,
-            "step": 12,
+            "step": 15,
             "kind": "contextual_choice",
             "text": "我不喜欢肉"
           }
         ],
         "counts": {
-          "productive": 11,
+          "productive": 13,
           "listening": 1,
           "conversation": 2,
           "transfer": 8
@@ -8974,7 +9019,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 1,
-              "step": 10,
+              "step": 9,
               "kind": "flashcard",
               "text": "我们走吧"
             },
@@ -9026,7 +9071,7 @@
               "lessonId": "p2-tons-nihao",
               "lessonIndex": 20,
               "pass": 1,
-              "step": 7,
+              "step": 4,
               "kind": "sentence_build",
               "text": "明天见"
             },
@@ -9047,7 +9092,7 @@
               "lessonId": "l11",
               "lessonIndex": 40,
               "pass": 1,
-              "step": 10,
+              "step": 9,
               "kind": "flashcard",
               "text": "我们走吧"
             },
@@ -9112,7 +9157,7 @@
             "lessonId": "p1-ate-logo",
             "lessonIndex": 11,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "encontro-amanha",
             "nodeId": "amanha-2",
@@ -9122,7 +9167,7 @@
             "lessonId": "p1-ate-logo",
             "lessonIndex": 11,
             "pass": 3,
-            "step": 5,
+            "step": 6,
             "kind": "conversation_scene",
             "sceneId": "encontro-amanha",
             "nodeId": "amanha-2",
@@ -9170,7 +9215,7 @@
             "lessonId": "p1-ate-logo",
             "lessonIndex": 11,
             "pass": 2,
-            "step": 5,
+            "step": 7,
             "kind": "conversation_scene",
             "sceneId": "encontro-amanha",
             "nodeId": "amanha-2",
@@ -9180,7 +9225,7 @@
             "lessonId": "p1-ate-logo",
             "lessonIndex": 11,
             "pass": 3,
-            "step": 5,
+            "step": 6,
             "kind": "conversation_scene",
             "sceneId": "encontro-amanha",
             "nodeId": "amanha-2",
@@ -9192,7 +9237,7 @@
             "lessonId": "l13",
             "lessonIndex": 43,
             "pass": 3,
-            "step": 5,
+            "step": 12,
             "kind": "free_production",
             "text": "明天见"
           },
@@ -9200,7 +9245,7 @@
             "lessonId": "l13",
             "lessonIndex": 43,
             "pass": 4,
-            "step": 4,
+            "step": 10,
             "kind": "free_production",
             "text": "明天见"
           },
@@ -9214,10 +9259,10 @@
           }
         ],
         "counts": {
-          "productive": 55,
+          "productive": 59,
           "listening": 9,
-          "conversation": 28,
-          "transfer": 33
+          "conversation": 29,
+          "transfer": 34
         }
       }
     }

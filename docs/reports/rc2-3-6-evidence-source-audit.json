@@ -1,0 +1,91 @@
+{
+  "sources": [
+    {
+      "source": "CORE_LESSON_STEP",
+      "measures": "per-step correct/incorrect, help level, step kind → competency",
+      "doesNotMeasure": "mastery after one step; un-graded steps",
+      "storage": "LER",
+      "retention": "recent 1500 + rolled-up aggregates",
+      "canSyncLater": true,
+      "trust": "HIGH|LOW(discovery)"
+    },
+    {
+      "source": "LESSON_DIMENSIONS",
+      "measures": "lesson accuracy smeared over all refs",
+      "doesNotMeasure": "which item was right",
+      "storage": "store itemDimensionsByRef",
+      "retention": "whole history",
+      "canSyncLater": true,
+      "trust": "LOW (not used)"
+    },
+    {
+      "source": "LESSON_MASTERY",
+      "measures": "passes, last accuracy",
+      "doesNotMeasure": "per-item, per-skill competency",
+      "storage": "store lessonMasteryById",
+      "retention": "whole history",
+      "canSyncLater": true,
+      "trust": "LOW (legacy prior only)"
+    },
+    {
+      "source": "SPEECH",
+      "measures": "model heard, perception trials, recording, self playback, ASR attempt/match, retries",
+      "doesNotMeasure": "tone, pronunciation quality, ASR miss as error",
+      "storage": "longyu:speech-evidence-v1 + LER",
+      "retention": "200 events + LER",
+      "canSyncLater": true,
+      "trust": "perception HIGH, ASR MEDIUM, self-compare LOW, mic failure NONE"
+    },
+    {
+      "source": "HANZI_FORM",
+      "measures": "recognition, assembly, completion, stroke order, tracing, memory write, context write",
+      "doesNotMeasure": "handwriting from recognition; memory from tracing",
+      "storage": "longyu:hanzi-form-evidence-v1 + LER",
+      "retention": "per char + LER",
+      "canSyncLater": true,
+      "trust": "memory/context HIGH, trace LOW, recognition MEDIUM"
+    },
+    {
+      "source": "CULTURE",
+      "measures": "introduced, practiced, mission, memory recall",
+      "doesNotMeasure": "language production",
+      "storage": "store + LER",
+      "retention": "store + LER",
+      "canSyncLater": true,
+      "trust": "recall/scenario HIGH, practice MEDIUM, observed LOW"
+    },
+    {
+      "source": "EVERYDAY_INTENTS",
+      "measures": "intent + learner agency",
+      "doesNotMeasure": "free production from a contextual choice",
+      "storage": "step metadata → LER",
+      "retention": "LER",
+      "canSyncLater": true,
+      "trust": "choice LOW, completion MEDIUM, sentence/free/transfer HIGH"
+    },
+    {
+      "source": "SRS",
+      "measures": "effective grade per review domain",
+      "doesNotMeasure": "skills the domain does not exercise",
+      "storage": "store + LER",
+      "retention": "store + LER",
+      "canSyncLater": true,
+      "trust": "HIGH, MEDIUM when assisted"
+    },
+    {
+      "source": "SUPPORT",
+      "measures": "help used",
+      "doesNotMeasure": "—",
+      "storage": "LER supportUsed/independence",
+      "retention": "with event",
+      "canSyncLater": true,
+      "trust": "modifier only"
+    }
+  ],
+  "findings": [
+    "LESSON_WIDE_SMEAR",
+    "TECHNICAL_FAILURE_NOW_DATA",
+    "ASSISTED_REVIEW_LOWERS_INDEPENDENCE",
+    "NO_RAW_MEDIA_FIELDS"
+  ]
+}

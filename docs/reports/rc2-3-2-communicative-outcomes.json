@@ -1,0 +1,1299 @@
+{
+  "wave": "RC2.3.2",
+  "generatedAt": "2026-10-03T00:36:10.582Z",
+  "totalLessons": 134,
+  "withOutcome": 134,
+  "withoutOutcome": 0,
+  "lessons": [
+    {
+      "lessonId": "p1-o-que-e-mandarim",
+      "communicativeOutcomes": [
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-o-que-e-pinyin",
+      "communicativeOutcomes": [
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-o-que-e-tom",
+      "communicativeOutcomes": [
+        "TALK_FAMILY",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-o-que-e-hanzi",
+      "communicativeOutcomes": [
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-primeiros-hanzi",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-engine-2-lab",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "THANK",
+        "ASK_HOW_ARE_YOU",
+        "GIVE_DIRECTION",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l1",
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l2",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l3",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "ASK_HOW_ARE_YOU",
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l1-rev",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l4",
+      "communicativeOutcomes": [
+        "THANK",
+        "GREET",
+        "RESPOND_STATE",
+        "APOLOGIZE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-ate-logo",
+      "communicativeOutcomes": [
+        "SAY_GOODBYE",
+        "GREET",
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-primeira-conversa",
+      "communicativeOutcomes": [
+        "SAY_GOODBYE",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p1-qingwen-cortesia",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l2-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-ma-primeiro-tom",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-ma-segundo-tom",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p3-wohenhao",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-ma-terceiro-tom",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-ma-quarto-tom",
+      "communicativeOutcomes": [
+        "THANK",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-tons-nihao",
+      "communicativeOutcomes": [
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-comparar-tom-1-4",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-comparar-tom-2-3",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-tons-xiexie",
+      "communicativeOutcomes": [
+        "THANK",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l5",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l6",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l3-rev",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l7",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l8",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l8-compare",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l8-shi",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "SAY_GOODBYE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-sons-brasileiros",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p2-numeros-1-5",
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l4-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l9",
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l9-tudo-bem",
+      "communicativeOutcomes": [
+        "ASK_HOW_ARE_YOU",
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l9-qual-nome",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l10",
+      "communicativeOutcomes": [
+        "GREET",
+        "TALK_FAMILY",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p3-wobuhui-shuo-zhongwen",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "HEALTH_BASIC"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p3-qing-zai-shuo-yibian",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE",
+        "HEALTH_BASIC"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l11",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_FOR_HELP",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l11-falo-pouco",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_WHERE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l12",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l13",
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l13-dialogo-ola",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET",
+        "THANK",
+        "ORDER_DRINK"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l13-dialogo-nome",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p3-ordem-das-palavras",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p3-nomes-da-frase",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l5-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l14",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-num-123",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-num-45",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-num-678",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-num-910",
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-mu",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-ren",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ORDER_DRINK"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-kou",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-ri",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-yue",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-shan",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-shui",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-tian",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-huo",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-da",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-xiao",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-zhong",
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-bu",
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-shi",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-wo",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ORDER_DRINK"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-char-ni",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l14-numeros-visuais",
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l14-pecas-natureza",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l14-frase-minima",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l14-char-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l15",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l6-rev",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l16",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l17",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ORDER_DRINK",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l18",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l7-rev",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p4-checkpoint-fundamentos",
+      "communicativeOutcomes": [
+        "GREET",
+        "THANK",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-mu-mu-lin",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-mu-mu-mu-sen",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-ri-yue-ming",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-ren-mu-xiu",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ORDER_DRINK",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-nv-zi-hao",
+      "communicativeOutcomes": [
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-ren-ren-cong",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-ren-ren-ren-zhong",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-nv-ma-mae",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET",
+        "TALK_FAMILY"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p5-kou-ma-pergunta",
+      "communicativeOutcomes": [
+        "ASK_HOW_ARE_YOU",
+        "THANK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l19-logica-madeira",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l19-logica-luz",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l19-logica-pessoas",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l19-logica-ma",
+      "communicativeOutcomes": [
+        "TALK_FAMILY",
+        "THANK",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l19-logica-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l19",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l20",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l8-rev",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l21",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l22",
+      "communicativeOutcomes": [
+        "GREET",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l23",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l9-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l24",
+      "communicativeOutcomes": [
+        "GREET",
+        "TALK_FAMILY",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l25",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "ASK_WHERE",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "SAY_GOODBYE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l26",
+      "communicativeOutcomes": [
+        "HEALTH_BASIC",
+        "THANK",
+        "GREET",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l26b",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "ORDER_FOOD",
+        "ASK_PRICE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l26c",
+      "communicativeOutcomes": [
+        "ORDER_FOOD",
+        "SAY_GOODBYE",
+        "IDENTIFY_OBJECT",
+        "ORDER_DRINK",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l27",
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "ORDER_DRINK",
+        "THANK",
+        "SAY_GOODBYE",
+        "BUY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l28",
+      "communicativeOutcomes": [
+        "GREET",
+        "IDENTIFY_OBJECT",
+        "ASK_HOW_ARE_YOU",
+        "SAY_GOODBYE",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-rotina-trabalho",
+      "communicativeOutcomes": [
+        "HEALTH_BASIC",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-cidade-lugares",
+      "communicativeOutcomes": [
+        "BUY",
+        "GREET",
+        "CHECK_IN",
+        "TAKE_TRANSPORT",
+        "RESPOND_STATE",
+        "HEALTH_BASIC",
+        "IDENTIFY_OBJECT",
+        "ASK_WHERE",
+        "TALK_FAMILY"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-china-cidades",
+      "communicativeOutcomes": [
+        "ASK_WHERE",
+        "TAKE_TRANSPORT",
+        "BUY",
+        "CHECK_IN",
+        "RESPOND_STATE",
+        "HEALTH_BASIC",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-china-cidades-2",
+      "communicativeOutcomes": [
+        "ORDER_DRINK",
+        "THANK",
+        "SAY_GOODBYE",
+        "ORDER_FOOD",
+        "RESPOND_STATE",
+        "GREET",
+        "ASK_WHERE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-china-ruas",
+      "communicativeOutcomes": [
+        "GREET",
+        "CHECK_IN",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "TAKE_TRANSPORT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-saude",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "GREET",
+        "HEALTH_BASIC",
+        "ASK_WHERE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-horarios",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-natureza",
+      "communicativeOutcomes": [
+        "RESPOND_STATE",
+        "TALK_FAMILY",
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "ASK_WHERE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-clima",
+      "communicativeOutcomes": [
+        "GREET",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-direcoes",
+      "communicativeOutcomes": [
+        "GIVE_DIRECTION",
+        "GREET",
+        "CHECK_IN",
+        "TAKE_TRANSPORT",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-compras",
+      "communicativeOutcomes": [
+        "BUY",
+        "ASK_PRICE",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p6-survival-mandarin",
+      "communicativeOutcomes": [
+        "BUY",
+        "HEALTH_BASIC",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "ASK_PRICE",
+        "CHECK_IN",
+        "GREET",
+        "ASK_FOR_HELP"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l10-rev",
+      "communicativeOutcomes": [
+        "GREET",
+        "ASK_PRICE",
+        "ORDER_FOOD",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l29",
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "ORDER_DRINK",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l30",
+      "communicativeOutcomes": [
+        "BUY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "l11-rev",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-mercado",
+      "communicativeOutcomes": [
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "HEALTH_BASIC",
+        "RESPOND_STATE",
+        "BUY",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-estacao",
+      "communicativeOutcomes": [
+        "TAKE_TRANSPORT",
+        "CHECK_IN",
+        "GIVE_DIRECTION",
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "RESPOND_STATE",
+        "ASK_WHERE",
+        "GREET",
+        "BUY",
+        "THANK"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-hotel",
+      "communicativeOutcomes": [
+        "CHECK_IN",
+        "TALK_FAMILY",
+        "THANK",
+        "ASK_WHERE",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-aeroporto",
+      "communicativeOutcomes": [
+        "ASK_WHERE",
+        "ASK_PRICE",
+        "GIVE_DIRECTION",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "RESPOND_STATE",
+        "GREET"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-saude",
+      "communicativeOutcomes": [
+        "ASK_FOR_HELP",
+        "ASK_WHERE",
+        "HEALTH_BASIC",
+        "GIVE_DIRECTION",
+        "TALK_FAMILY",
+        "THANK",
+        "GREET",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-conversa-cotidiana",
+      "communicativeOutcomes": [
+        "GREET",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "ASK_HOW_ARE_YOU",
+        "IDENTIFY_OBJECT"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-china-survival",
+      "communicativeOutcomes": [
+        "ASK_WHERE",
+        "ORDER_FOOD",
+        "GREET",
+        "CHECK_IN",
+        "BUY",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-viagem",
+      "communicativeOutcomes": [
+        "CHECK_IN",
+        "GIVE_DIRECTION",
+        "ASK_PRICE",
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "GREET",
+        "ASK_WHERE",
+        "BUY",
+        "RESPOND_STATE"
+      ],
+      "weak": false
+    },
+    {
+      "lessonId": "p7-imersao-casa-amigo",
+      "communicativeOutcomes": [
+        "IDENTIFY_OBJECT",
+        "TALK_FAMILY",
+        "SAY_GOODBYE",
+        "RESPOND_STATE",
+        "GREET",
+        "THANK"
+      ],
+      "weak": false
+    }
+  ]
+}

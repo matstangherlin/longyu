@@ -235,7 +235,7 @@ export const ptBR = {
       confirmBeforeContinue: "Confirme seu email antes de continuar. Depois entre de novo.",
       invalidProfileSession: "Sessão inválida para atualizar o perfil.",
       profileSaveFailed: "Não foi possível salvar o perfil. Confirme o email e entre de novo.",
-      supabaseUnavailable: "Cliente Supabase indisponível.",
+      supabaseUnavailable: "Não foi possível conectar à sua conta agora. Tente novamente em instantes.",
       resetEmailSent: "Se este email estiver cadastrado, enviaremos as instruções.",
       recoveryCodeInvalid: "Código inválido ou expirado. Confira o e-mail mais recente ou peça um novo código.",
       recoveryCodeOk: "Código confirmado. Crie sua nova senha.",
@@ -704,7 +704,7 @@ export const ptBR = {
     tryAgain: "Tentar de novo",
     gotIt: "Entendi",
     stepStalled: "Isto demorou para avançar. Toque para tentar de novo.",
-    stepStalledRetry: "Tentar continuar",
+    stepStalledRetry: "Tentar novamente",
     stepStalledReload: "Recarregar etapa",
     correct: "Certo! +Qi",
     correctShort: "Correto.",
@@ -809,7 +809,7 @@ export const ptBR = {
     youLabel: "Você",
     targetLabel: "Alvo",
     yourRecording: "Sua gravação",
-    micHttpsOnly: "O microfone só funciona em HTTPS.",
+    micHttpsOnly: "O microfone não está disponível nesta página. Você pode continuar sem falar.",
     voiceUnavailable: "Voz não disponível aqui. Ouça e repita em voz alta.",
     stopWhenDone: "Toque em Parar quando terminar.",
     visualMatch: "Associação visual",
@@ -1354,7 +1354,7 @@ export const ptBR = {
     checkAnswerTitle: "Confira a resposta",
     errorCorrected: "Erro corrigido!",
     feedbackRight: "Certo",
-    feedbackWrong: "Errado",
+    feedbackWrong: "Quase",
     backToSpaced: "Agora essa frase voltou para revisão espaçada.",
     probableReason: "Motivo provável: {reason}",
     willReturnQueue: "Esse erro vai voltar no fim da fila para você corrigir agora.",
@@ -1984,7 +1984,7 @@ export const ptBR = {
     aboutAccountCloudDesc:
       "Você pode criar conta, entrar em outro aparelho e recuperar o progresso. Assinatura Pro real virá com Stripe.",
     aboutAccountLocalDesc:
-      "Por padrão tudo fica local. Com Supabase configurado, você pode criar conta e sincronizar progresso.",
+      "Por padrão tudo fica neste aparelho. Com uma conta, seu progresso é salvo e sincronizado.",
     aboutFeedbackTitle: "Seu feedback importa",
     aboutFeedbackDesc:
       "Relatar bugs, confusões ou ideias ajuda a priorizar o que construir antes do lançamento público.",
@@ -2805,6 +2805,11 @@ export const ptBR = {
     modePiecesDesc: "Qual peça dá o som ou o sentido.",
     modeSentences: "Em frases",
     modeSentencesDesc: "O hànzì que falta na frase.",
+    modeTrace: "Traçar",
+    modeTraceDesc: "Siga a ordem dos traços com o dedo.",
+    modeMemory: "Escrever de memória",
+    modeMemoryDesc: "Desenhe o hànzì a partir do significado ou do som.",
+    continueWriting: "Continue sua escrita",
     exitTraining: "Sair do treino",
     next: "Próximo",
     finishRound: "Concluir rodada",
@@ -2818,6 +2823,8 @@ export const ptBR = {
     missionReady: "Missão pronta para resgatar",
     pearls: "Pérolas",
     noCharges: "Sem cargas de treino extra agora.",
+    writingLockedTrace: "Traçar abre para os hànzì que você já aprendeu na Jornada. Faça a lição “Montando primeiros hànzì” primeiro.",
+    writingLockedMemory: "Escrever de memória abre depois que você traçar um hànzì aprendido corretamente.",
   },
   guidedTry: {
     exit: "Sair do teste",
@@ -2945,6 +2952,12 @@ export const ptBR = {
     },
     practiceFirstUse: {
       body: "O Longyu escolhe uma prática baseada no que você já estudou.",
+    },
+    masteryFirstUse: {
+      body: "Seu Domínio mostra o que você já demonstrou e o que ainda está consolidando.",
+    },
+    practiceNeedFirstUse: {
+      body: "Esta prática usa dificuldades e revisões recentes para escolher atividades.",
     },
     reviewFirstUse: {
       body: "A revisão traz de volta o que está começando a enfraquecer.",

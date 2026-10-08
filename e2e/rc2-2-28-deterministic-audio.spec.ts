@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { seedCourseDirection, seedTelemetryDeclined, waitForLazyPage } from "./helpers";
 
 /**
  * RC2.2.28 — deterministic audio + conversation + expanded no-scroll.
@@ -14,6 +15,26 @@ const VIEWPORTS = [
   { width: 375, height: 667 },
   { width: 360, height: 640 },
 ] as const;
+
+/**
+ * RC2.3.9 — Guided Try exige direção de curso (senão /teste-guiado cai em
+ * "Seu curso"). Semeia o curso, espera a página lazy e EXIGE a tela: antes o
+ * `count()` lido logo após o goto fazia o contrato virar skip em toda execução.
+ */
+async function openGuidedTry(page: Page) {
+  await seedTelemetryDeclined(page);
+  await seedCourseDirection(page, "pt-zh");
+  await page.goto("/teste-guiado");
+  await waitForLazyPage(page);
+  await expect(page.getByTestId("guided-try"), "Guided Try deve abrir com a direção de curso semeada").toBeVisible({
+    timeout: 15_000,
+  });
+}
+
+/** O CTA fixo do Guided Try expõe o id em `data-guided-action-id` (não data-testid). */
+function guidedAction(page: Page, ...ids: string[]) {
+  return page.locator(ids.map((id) => `[data-guided-action-id="${id}"]`).join(", "));
+}
 
 async function assertNoVerticalScroll(page: Page) {
   const overflow = await page.evaluate(() => {
@@ -31,20 +52,20 @@ async function assertNoVerticalScroll(page: Page) {
 test.describe("RC2.2.28 deterministic audio", () => {
   test("Guided Try listen uses audio gate (Continue when HEARD or DEGRADED)", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/curso?next=%2Fteste-guiado");
-    // Course direction may already be set in fixtures; try guided try directly.
-    await page.goto("/teste-guiado").catch(() => undefined);
-    const root = page.getByTestId("guided-try");
-    if (!(await root.count())) {
-      test.skip(true, "Guided Try requires course direction fixture in this env");
-      return;
-    }
-    await page.getByTestId("intro-continue").click();
-    await expect(page.getByTestId("guided-listen-status")).toBeVisible();
+    await openGuidedTry(page);
+    await guidedAction(page, "intro-continue").click();
+    // O status é uma live region que fica VAZIA em IDLE (largura 0 → "hidden"
+    // para o Playwright). Este assert nunca rodava (o teste sempre caía no skip);
+    // o contrato real do passo "Ouça" é: passo listen, status montado em IDLE e
+    // botão de ouvir visível.
+    await expect(page.getByTestId("guided-try")).toHaveAttribute("data-guided-step", "listen");
+    await expect(page.getByTestId("guided-listen-status")).toBeAttached();
+    await expect(page.getByTestId("guided-listen-status")).toHaveAttribute("data-listen-state", "IDLE");
+    await expect(page.locator("[data-guided-listen]")).toBeVisible();
     // Tap listen — asset or degraded path must not leave CTA forever disabled.
     await page.locator("[data-guided-listen]").click();
     await page.waitForTimeout(6000);
-    const continueBtn = page.getByTestId("listen-continue").or(page.getByTestId("listen-continue-degraded"));
+    const continueBtn = guidedAction(page, "listen-continue", "listen-continue-degraded");
     await expect(continueBtn).toBeEnabled({ timeout: 2000 });
   });
 
@@ -79,12 +100,8 @@ test.describe("RC2.2.28 deterministic audio", () => {
   for (const vp of VIEWPORTS) {
     test(`no-scroll Guided Try @ ${vp.width}x${vp.height}`, async ({ page }) => {
       await page.setViewportSize(vp);
-      await page.goto("/teste-guiado").catch(() => undefined);
-      if (!(await page.getByTestId("guided-try").count())) {
-        test.skip(true, "Guided Try unavailable without course direction");
-        return;
-      }
-      await page.getByTestId("intro-continue").click();
+      await openGuidedTry(page);
+      await guidedAction(page, "intro-continue").click();
       await assertNoVerticalScroll(page);
     });
 

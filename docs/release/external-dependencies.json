@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "wave": "RC2.3.9",
+  "generatedAt": "2026-10-07",
+  "note": "No provider was read or configured in RC2.3.9; facts come from the RC2.3.4A/RC2.3.8 read-only checks cited in evidence. tier is the plan in use (free / paid / n/a for usage-fee or not-a-plan services).",
+  "summary": {
+    "launchBlockers": [
+      "supabase",
+      "resend",
+      "sentry",
+      "googlePlay"
+    ],
+    "productionDependencies": [
+      "supabase",
+      "netlify",
+      "cloudflare",
+      "googlePlay"
+    ],
+    "paidTier": [
+      "appleSignIn",
+      "typesafeJev"
+    ]
+  },
+  "dependencies": {
+    "supabase": {
+      "purpose": "Auth (e-mail), Postgres (progress, entitlements, economy, telemetry), Edge Functions, Vault",
+      "status": "ACCOUNT_VERIFIED",
+      "tier": "free",
+      "ownerAction": "Migration-history reconciliation, schema diff, owner-held export before any production migration, redirect URLs, telemetry retention decision, usage readings",
+      "secretRequired": true,
+      "productionDependency": true,
+      "launchBlocker": true,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/reports/rc2-3-8-auth-system-truth.md"
+      ],
+      "facts": [
+        "Project MandarimProject, org plan free, 2/2 active projects (sibling project must not be paused/deleted)",
+        "E-mail auth enabled; google/apple/azure providers disabled; anonymous sign-ins disabled; autoconfirm off (read-only settings check, RC2.3.8)",
+        "DB 20.4 MB / 500 MB; no backups/PITR on free",
+        "Production migration history 35 rows vs 53 repo migration files (recounted RC2.3.9)"
+      ],
+      "launchBlockerReason": "Repo == production schema not proven; no backup on free plan.",
+      "ownerActionIds": [
+        "OA-MIGRATION-RECONCILIATION-DECISION",
+        "OA-SCHEMA-DIFF",
+        "OA-DATA-EXPORT",
+        "OA-TELEMETRY-RETENTION-DECISION",
+        "OA-USAGE-READINGS",
+        "OA-AUTH-REDIRECT-URLS"
+      ]
+    },
+    "netlify": {
+      "purpose": "Web/PWA hosting and production deploys",
+      "status": "ACCOUNT_VERIFIED",
+      "tier": "free",
+      "ownerAction": "Read Team -> Usage credits; confirm the [release]-only production deploy rule",
+      "secretRequired": false,
+      "productionDependency": true,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/reports/rc2-3-4a-closure.md"
+      ],
+      "facts": [
+        "Free team; 4 sites share 300 monthly credits",
+        "Production deploys only for [release] commits (netlify.toml ignore)",
+        "Security headers (CSP, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy) in netlify.toml; preview header check PASS"
+      ],
+      "ownerActionIds": [
+        "OA-USAGE-READINGS",
+        "OA-NETLIFY-RELEASE-RULE"
+      ]
+    },
+    "resend": {
+      "purpose": "Transactional/auth e-mail (planned Supabase custom SMTP)",
+      "status": "CONFIG_REQUIRED",
+      "tier": "free",
+      "ownerAction": "Verify a sending domain; set Resend as Supabase Auth SMTP",
+      "secretRequired": true,
+      "productionDependency": false,
+      "launchBlocker": true,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "facts": [
+        "Free plan 100/day, 3 000/month",
+        "0 domains, 0 sent, not integrated in code",
+        "Auth mail today uses Supabase's built-in mailer (not for production volume)"
+      ],
+      "launchBlockerReason": "Real-launch confirmation/recovery mail needs a verified domain + custom SMTP.",
+      "ownerActionIds": [
+        "OA-RESEND-DOMAIN",
+        "OA-SUPABASE-SMTP"
+      ]
+    },
+    "sentry": {
+      "purpose": "Error monitoring (planned)",
+      "status": "CONFIG_REQUIRED",
+      "tier": "free",
+      "ownerAction": "Create one project when RC2.3.10 starts; DSN in build env only",
+      "secretRequired": false,
+      "productionDependency": false,
+      "launchBlocker": true,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/launch/platform-responsibility-map.md"
+      ],
+      "facts": [
+        "Org exists, 0 projects, no SDK in package.json -> integration NOT_RUN",
+        "Plan/quota not readable via connector (developer-plan reference only)",
+        "CSP connect-src does not yet allow a Sentry ingest host"
+      ],
+      "launchBlockerReason": "ROADMAP RC2.3.10 requires Sentry certified; no crash/error visibility at launch otherwise.",
+      "secretNote": "The DSN is not a secret; a source-map upload auth token would be (CI secret only).",
+      "ownerActionIds": [
+        "OA-SENTRY-PROJECT"
+      ]
+    },
+    "cloudflare": {
+      "purpose": "Turnstile captcha on sign-up; R2/Workers not used",
+      "status": "ACCOUNT_VERIFIED",
+      "tier": "free",
+      "ownerAction": "None now; DNS/plan not readable via connector (needed only if the Resend domain DNS lives there)",
+      "secretRequired": true,
+      "productionDependency": true,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/launch/platform-budget-registry.json",
+        "docs/reports/rc2-3-4a-closure.md"
+      ],
+      "facts": [
+        "0 Workers; R2 not enabled (not enabled by any audit)",
+        "Turnstile in use: site key public in netlify.toml, secret in Supabase Vault",
+        "Static media 8.5 MB -> no R2 need now"
+      ],
+      "tierNote": "Turnstile is free; account plan itself UNKNOWN_REQUIRES_ACCOUNT_VERIFICATION."
+    },
+    "googleOAuth": {
+      "purpose": "Continuar com Google (Supabase provider google, PKCE)",
+      "status": "CONFIG_REQUIRED",
+      "tier": "free",
+      "ownerAction": "Create OAuth client; paste id/secret only into Supabase; enable provider",
+      "secretRequired": true,
+      "productionDependency": false,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/reports/rc2-3-8-provider-matrix.md",
+        "docs/reports/rc2-3-8-owner-actions.md",
+        "docs/reports/rc2-3-8-auth-system-truth.md"
+      ],
+      "facts": [
+        "Code CODE_READY; provider disabled in Supabase; web/Android test NOT_RUN"
+      ],
+      "launchBlockerReason": "Not a blocker while e-mail is the launch sign-in path; becomes one if the owner keeps social login in launch scope (ROADMAP RC2.3.12 lists social login).",
+      "ownerActionIds": [
+        "OA-AUTH-GOOGLE",
+        "OA-AUTH-ANDROID-OAUTH-TEST"
+      ]
+    },
+    "appleSignIn": {
+      "purpose": "Continuar com Apple (Supabase provider apple, PKCE)",
+      "status": "CONFIG_REQUIRED",
+      "tier": "paid",
+      "ownerAction": "Services ID + key; client secret only into Supabase; 6-month rotation",
+      "secretRequired": true,
+      "productionDependency": false,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/reports/rc2-3-8-provider-matrix.md",
+        "docs/reports/rc2-3-8-owner-actions.md",
+        "docs/reports/rc2-3-8-auth-system-truth.md"
+      ],
+      "facts": [
+        "Code CODE_READY; provider disabled in Supabase",
+        "Requires an Apple Developer Program membership (annual fee)"
+      ],
+      "launchBlockerReason": "Same as googleOAuth; no iOS app in scope.",
+      "ownerActionIds": [
+        "OA-AUTH-APPLE"
+      ]
+    },
+    "microsoftEntra": {
+      "purpose": "Continuar com Microsoft (Supabase provider azure, scope email)",
+      "status": "CONFIG_REQUIRED",
+      "tier": "free",
+      "ownerAction": "Entra app registration; id/secret only into Supabase",
+      "secretRequired": true,
+      "productionDependency": false,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/reports/rc2-3-8-provider-matrix.md",
+        "docs/reports/rc2-3-8-owner-actions.md",
+        "docs/reports/rc2-3-8-auth-system-truth.md"
+      ],
+      "facts": [
+        "Code CODE_READY; provider disabled in Supabase"
+      ],
+      "launchBlockerReason": "Same as googleOAuth.",
+      "ownerActionIds": [
+        "OA-AUTH-MICROSOFT"
+      ]
+    },
+    "googlePlay": {
+      "purpose": "Android distribution (internal -> closed -> production tracks)",
+      "status": "OWNER_ACTION_REQUIRED",
+      "tier": "n/a",
+      "ownerAction": "Developer identity, package registration, upload key + backups, Play App Signing, internal track, Play install, N -> N+1",
+      "secretRequired": true,
+      "productionDependency": true,
+      "launchBlocker": true,
+      "evidence": [
+        "docs/release/play-console-status.json",
+        "docs/release/google-play-internal.json",
+        "docs/release/rc2-2-30-play-internal.json",
+        "docs/release/rc2-2-20-owner-actions.json"
+      ],
+      "facts": [
+        "App created: OWNER_REPORTED only",
+        "Developer identity, package registration, Play App Signing, internal track: OWNER_CONFIRMATION_REQUIRED",
+        "Signed AAB, internal upload, install from Play: NOT_RUN",
+        "GitHub environments android-internal / android-production not configured (last read 2026-09-25)"
+      ],
+      "tierNote": "One-time developer registration (owner-reported done); store service fees apply to paid subscriptions (RC2.3.11).",
+      "launchBlockerReason": "No build has ever been installed from Play.",
+      "ownerActionIds": [
+        "OA-PLAY-DEVELOPER-IDENTITY",
+        "OA-PLAY-UPLOAD-KEY",
+        "OA-PLAY-INTERNAL-RELEASE",
+        "OA-PLAY-STORE-ASSETS"
+      ]
+    },
+    "stripe": {
+      "purpose": "Web checkout, billing portal, subscription webhook (server-side entitlement)",
+      "status": "ACCOUNT_VERIFIED",
+      "tier": "n/a",
+      "ownerAction": "Confirm the account behind the Edge secret; no live products before RC2.3.11",
+      "secretRequired": true,
+      "productionDependency": false,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json"
+      ],
+      "facts": [
+        "Connected account: test mode only, 0 products, 0 webhook endpoints",
+        "Webhook signature + stripe_event_id idempotency + server entitlement verified in code",
+        "Account behind the Edge STRIPE_SECRET_KEY not verifiable from the agent"
+      ],
+      "tierNote": "No monthly plan; per-transaction fees.",
+      "launchBlockerReason": "Only a blocker for a paid launch; pricing is decided in RC2.3.11.",
+      "ownerActionIds": [
+        "OA-STRIPE-ACCOUNT-CONFIRM",
+        "OA-PLAY-BILLING-COMPLIANCE"
+      ]
+    },
+    "typesafeJev": {
+      "purpose": "Feedback triage (server-side, admin) and DEV_AUDIT evidence/copy audits",
+      "status": "CODE_READY",
+      "tier": "paid",
+      "ownerAction": "Check credits in the TypeSafe console; redeploy triage-feedback with guardrails after merge",
+      "secretRequired": true,
+      "productionDependency": false,
+      "launchBlocker": false,
+      "evidence": [
+        "docs/reports/rc2-3-4a-closure.md",
+        "docs/launch/platform-budget-registry.json",
+        "docs/reports/rc2-3-6-jev-integration.md"
+      ],
+      "facts": [
+        "Feedback triage live server-side (triage-feedback Edge Function; production v1 predates guardrails)",
+        "DEV_AUDIT only for audits",
+        "Learner runtime disabled: JEV_RUNTIME_ENABLED=false (gated)",
+        "Key only in Supabase Vault (TYPESAFE_API_KEY)",
+        "Credits/quota UNKNOWN; no documented free tier (usage-based pricing)"
+      ],
+      "ownerActionIds": [
+        "OA-JEV-CONSOLE-CHECK"
+      ]
+    }
+  }
+}

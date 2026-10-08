@@ -284,12 +284,13 @@ export function speechErrorMessage(code: RecognizeErrorCode | string): string {
     case "busy":
       return "O reconhecimento ainda está ocupado. Espere um instante e tente de novo.";
     case "language-unavailable":
-      return "Seu aparelho não conseguiu reconhecer mandarim agora.";
+      // RC2.2.32 — mensagem humana; sem MODEL_MISSING / recognitionService.
+      return "Não consegui analisar sua fala agora.";
     case "insecure":
       return "O microfone só funciona em HTTPS.";
     case "unsupported":
       return native
-        ? "Seu aparelho não conseguiu reconhecer mandarim agora."
+        ? "Não consegui analisar sua fala agora."
         : "Este navegador não reconhece voz. Use Chrome ou Edge.";
     case "network":
       return "Sem internet agora. Confira a conexão e tente de novo.";

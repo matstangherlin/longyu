@@ -165,6 +165,10 @@ function buildSegmentMinimalPairs(): MinimalPairDrill[] {
     notePt: string
   ) => {
     if (a.toneless === b.toneless) return;
+    // RC2.3.5 — par mínimo de som só vale no MESMO tom: 是shì × 西xī muda
+    // inicial E tom, e o aluno não sabe qual diferença ouviu. Tom é contraste
+    // próprio (buildToneMinimalPairs).
+    if (a.tone !== b.tone) return;
     const key = [a.hanzi, b.hanzi].sort().join("|");
     if (seen.has(key)) return;
     seen.add(key);

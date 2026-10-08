@@ -12,53 +12,11 @@
  * Som e vibração são preferências independentes.
  */
 import { useStore } from "./store";
-import { playNativeHaptic, type NativeHapticPattern } from "./platform/nativeHaptics";
+import { playNativeHaptic } from "./platform/nativeHaptics";
+import { HAPTIC_MAP, HAPTIC_WEIGHT, hapticDecision, type HapticEvent } from "./hapticPolicy";
 
-export type HapticEvent =
-  | "selection"
-  | "piecePlaced"
-  | "pieceRemoved"
-  | "answerCorrect"
-  | "answerWrong"
-  | "lessonComplete"
-  | "practiceComplete"
-  | "achievementReveal"
-  | "streakMilestone"
-  | "chestOpen"
-  | "blocked";
-
-/** Mapa central evento → padrão físico (curtos; APIs de impacto/notificação). */
-export const HAPTIC_MAP: Record<HapticEvent, NativeHapticPattern> = {
-  selection: "impactLight",
-  piecePlaced: "impactLight",
-  pieceRemoved: "impactLight",
-  answerCorrect: "success",
-  answerWrong: "warning",
-  lessonComplete: "success",
-  practiceComplete: "success",
-  achievementReveal: "impactMedium",
-  streakMilestone: "impactMedium",
-  chestOpen: "impactMedium",
-  blocked: "warning",
-};
-
-/** Força relativa: dentro da mesma janela, só um evento mais forte substitui. */
-const HAPTIC_WEIGHT: Record<HapticEvent, number> = {
-  selection: 1,
-  piecePlaced: 1,
-  pieceRemoved: 1,
-  answerCorrect: 3,
-  answerWrong: 3,
-  blocked: 3,
-  lessonComplete: 4,
-  practiceComplete: 4,
-  achievementReveal: 4,
-  streakMilestone: 4,
-  chestOpen: 4,
-};
-
-/** Um gesto = um feedback: eventos disparados juntos por um só toque colapsam. */
-export const HAPTIC_GESTURE_WINDOW_MS = 120;
+export { HAPTIC_GESTURE_WINDOW_MS, HAPTIC_MAP, HAPTIC_RESULT_SETTLE_MS, hapticDecision, type HapticEvent } from "./hapticPolicy";
+import { logSensory } from "./sensoryLog";
 
 let lastAt = 0;
 let lastWeight = 0;
@@ -69,12 +27,15 @@ export function hapticsEnabled(): boolean {
 }
 
 export function haptic(event: HapticEvent): void {
-  if (!hapticsEnabled()) return;
   const now = Date.now();
-  const weight = HAPTIC_WEIGHT[event];
-  if (now - lastAt < HAPTIC_GESTURE_WINDOW_MS && weight <= lastWeight) return;
+  const decision = hapticDecision({ enabled: hapticsEnabled(), event, now, lastAt, lastWeight });
+  if (!decision.fire) {
+    logSensory({ channel: "haptic", event, outcome: "suppressed", reason: decision.reason });
+    return;
+  }
   lastAt = now;
-  lastWeight = weight;
+  lastWeight = HAPTIC_WEIGHT[event];
+  logSensory({ channel: "haptic", event, outcome: "played" });
   playNativeHaptic(HAPTIC_MAP[event]);
 }
 

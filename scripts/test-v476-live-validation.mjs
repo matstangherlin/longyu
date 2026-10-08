@@ -15,6 +15,7 @@ import {
   requireStagingProjectId,
 } from "./lib/staging-guard.mjs";
 import { parseJsonCell, jwtRole } from "./lib/ephemeral-backend.mjs";
+import { canonicalBetaChain } from "./lib/canonical-beta.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const errors = [];
@@ -282,10 +283,10 @@ assert(pkg.scripts["v476:placement-authority"], "script v476:placement-authority
 assert(pkg.scripts["v476:auth-identity"], "script v476:auth-identity");
 assert(pkg.scripts["v476:sync-identity"], "script v476:sync-identity");
 assert(pkg.scripts["rehearse:ephemeral"], "script rehearse:ephemeral");
-assert(pkg.scripts["validate:beta"].includes("test:v476-live-validation"), "validate:beta inclui v476");
-assert(pkg.scripts["validate:beta"].includes("test:backend-contract"), "validate:beta inclui V4.7.7 contract");
-assert(pkg.scripts["validate:beta"].includes("test:ops-correlation-crypto"), "validate:beta inclui crypto");
-assert(pkg.scripts["validate:beta"].includes("test:longyu-only-backend"), "validate:beta inclui longyu-only");
+assert(canonicalBetaChain(pkg.scripts).includes("test:v476-live-validation"), "validate:beta inclui v476");
+assert(canonicalBetaChain(pkg.scripts).includes("test:backend-contract"), "validate:beta inclui V4.7.7 contract");
+assert(canonicalBetaChain(pkg.scripts).includes("test:ops-correlation-crypto"), "validate:beta inclui crypto");
+assert(canonicalBetaChain(pkg.scripts).includes("test:longyu-only-backend"), "validate:beta inclui longyu-only");
 
 if (errors.length) {
   console.error("FAIL test:v476-live-validation:");

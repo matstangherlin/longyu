@@ -1,8 +1,8 @@
 /**
  * Pedagogia V4.0 — piso cognitivo por Mastery Pass.
  *
- * O orçamento do planner (~7–10 passos) não pode tratar conversa extra,
- * reforço e variedade cosmética como iguais à competência do pass:
+ * O orçamento do planner (V6: até 15 no Domínio; teto, não obrigação) não pode
+ * tratar conversa extra, reforço e variedade cosmética como iguais à competência:
  *
  *   M1 descoberta/compreensão
  *   M2 recuperação/consolidação

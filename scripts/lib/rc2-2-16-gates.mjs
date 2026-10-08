@@ -29,6 +29,7 @@ import { validateBetaPedagogyFreeze } from "./beta-pedagogy-freeze.mjs";
 import { loadBetaPedagogyFreezeState } from "./beta-pedagogy-freeze-state.mjs";
 import { RC2_CANDIDATE_FROZEN_SHA256, CLOUD_CHECKS } from "./rc2-2-12-gates.mjs";
 import { LEGACY_ANDROID_APPLICATION_IDS } from "./android-package-identity.mjs";
+import { canonicalBetaChain } from "./canonical-beta.mjs";
 
 const ROOT = process.cwd();
 
@@ -50,7 +51,7 @@ export const BETA_BASELINE = {
   toneTransferPlayable: 12,
   conversationCapabilitiesRuntimeReady: 31,
 };
-export const BETA_FINGERPRINT = "c48b008c9c1e";
+export const BETA_FINGERPRINT = "5a64821d0b7d";
 export const RELEASE_STATES = [
   "PACKAGE_ALIGNED",
   "SIGNING_READY",
@@ -162,6 +163,7 @@ export async function loadState() {
   const java = Object.fromEntries(listFiles("android/app/src", (name) => /\.(java|kt)$/.test(name)).map((rel) => [rel, read(rel)]));
   return {
     scripts: pkg.scripts,
+    betaChain: canonicalBetaChain(pkg.scripts),
     dependencies: { ...pkg.dependencies, ...pkg.devDependencies },
     tracked,
     java,
@@ -892,7 +894,7 @@ export async function validatePlayBetaRegression(s) {
   ]) {
     if (!s.scripts[script]) fail(code, "package.json", `${script} ausente`);
   }
-  const beta = s.scripts["validate:beta"] ?? "";
+  const beta = s.betaChain ?? "";
   const ciGates = s.src.buildWorkflow.match(/run: (npm run gate:android-native-foundation[^\n]*)/)?.[1] ?? "";
   for (const [where, chain] of [["validate:beta", beta], ["android-build.yml", ciGates]]) {
     if (!chain.includes("gate:rc2-2-14b-locale-course-direction")) fail("LOCALE_COURSE_GATE_REMOVED", where, "gate de locale/CourseDirection fora da cadeia");

@@ -5,7 +5,11 @@ import { CHUNKS } from "../../data/chunks";
 import { ExerciseText } from "../../components/hanzi/ExerciseText";
 import { Button, ButtonLink, Card, ProgressBar } from "../../components/ui/primitives";
 import { IconCheck, IconFlame, IconSound, IconX } from "../../components/ui/Icon";
-import { speak } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON" });
+}
 import { useStore } from "../../lib/store";
 import { buildMandarinBlitzDeck, reachedBlitzQuestionLimit, type BlitzSessionConfig } from "./blitzEngine";
 import { FOUNDATION_BLITZ_NODE } from "../../data/journeyOrchestrator";

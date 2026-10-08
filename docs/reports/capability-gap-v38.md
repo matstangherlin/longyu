@@ -29,11 +29,11 @@ READY **31/31**.
 | use_train | READY | 1.00 | yes | yes | — |
 | use_taxi | READY | 0.96 | yes | yes | — |
 | airport_basic | READY | 0.92 | yes | yes | — |
-| hotel_checkin | READY | 0.96 | yes | yes | — |
+| hotel_checkin | READY | 0.95 | yes | yes | — |
 | ask_for_help | READY | 1.00 | yes | yes | — |
 | say_dont_understand | READY | 1.00 | yes | yes | — |
 | ask_repeat | READY | 1.00 | yes | yes | — |
 | health_basic | READY | 1.00 | yes | yes | — |
-| weather_smalltalk | READY | 0.94 | yes | yes | — |
+| weather_smalltalk | READY | 0.93 | yes | yes | — |
 | express_preference | READY | 1.00 | yes | yes | — |
 | make_simple_plan | READY | 1.00 | yes | yes | — |

@@ -13,6 +13,7 @@ import {
   nativeStopPracticeRecording,
   hasNativeSpeech,
   onPracticeRecordingState,
+  openNativeAppSettings,
 } from "../../lib/platform/nativeSpeech";
 import { ensureMicPermission } from "../../lib/speech";
 import { GuidedDock, useGuidedPresentation } from "./GuidedLessonShell";
@@ -22,6 +23,8 @@ import { claimAudio, releaseAudio } from "../../lib/audioArbiter";
 import { recordTechEvent } from "../../lib/techEvents";
 import { selfPlaybackMessageKey, type SelfPlaybackErrorCode } from "../../lib/selfPlayback";
 import { SPEAKING_STAGES, SPEAKING_STAGE_LABEL, speakingStageFor, type SpeakingStage } from "../../lib/productGoldStandard";
+import { PedagogicalInlineTip } from "../../components/guidance/PedagogicalInlineTip";
+import { recordSpeechEvidence } from "../../lib/speechEvidence";
 
 /**
  * RC2.2.17 · Y–AF — modo autoavaliação (self-compare) quando o aparelho não
@@ -82,9 +85,11 @@ export function selfCompareRecordingAvailable(): boolean {
 
 export function SelfComparePractice({
   target,
-  onContinue,
-  onCannotSpeak,
+  onContinue: continueAfter,
+  onCannotSpeak: cannotSpeakAfter,
   reason,
+  conceptId,
+  activityId,
 }: {
   /** Frase-modelo em hànzì (o que o aluno deve dizer). */
   target: string;
@@ -92,6 +97,9 @@ export function SelfComparePractice({
   onCannotSpeak: () => void;
   /** Por que estamos aqui (texto curto e honesto, já traduzido). */
   reason?: string | null;
+  /** RC2.3.5 — conceito/atividade para a evidência de fala (default: o alvo). */
+  conceptId?: string;
+  activityId?: string;
 }) {
   const recordSpeechAttempt = useStore((s) => s.recordSpeechAttempt);
   const guided = useGuidedPresentation();
@@ -115,6 +123,36 @@ export function SelfComparePractice({
   const webUrlRef = useRef<string | null>(null);
   const playTokenRef = useRef<number | null>(null);
   webUrlRef.current = webUrl;
+  /** RC2.3.5 — evidência (contagens, nunca o áudio). */
+  const recordingsRef = useRef(0);
+  const selfHeardRef = useRef(false);
+  const modelHeardRef = useRef(false);
+  modelHeardRef.current = modelHeard;
+  const evidenceSentRef = useRef(false);
+
+  function sendEvidence(completed: boolean) {
+    if (evidenceSentRef.current) return;
+    evidenceSentRef.current = true;
+    recordSpeechEvidence({
+      conceptId: conceptId ?? `phrase:${target}`,
+      activityId: activityId ?? `self-compare:${target}`,
+      mode: "SELF_COMPARE",
+      modelHeard: modelHeardRef.current,
+      recordingCaptured: recordingsRef.current > 0,
+      selfPlaybackHeard: selfHeardRef.current,
+      recognitionAttempted: false,
+      retryCount: Math.max(0, recordingsRef.current - 1),
+      completed,
+    });
+  }
+  const onContinue = () => {
+    sendEvidence(true);
+    continueAfter();
+  };
+  const onCannotSpeak = () => {
+    sendEvidence(false);
+    cannotSpeakAfter();
+  };
 
   useEffect(() => {
     if (!native) return;
@@ -169,7 +207,25 @@ export function SelfComparePractice({
     [native]
   );
 
+  // RC2.3.5 — Web: aba em segundo plano para a captura e a reprodução (no
+  // Android o plugin já descarta a gravação no background real).
+  useEffect(() => {
+    if (native || typeof document === "undefined") return undefined;
+    const onHidden = () => {
+      if (document.visibilityState !== "hidden") return;
+      try {
+        if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+      } catch {
+        /* ignore */
+      }
+      audioRef.current?.pause();
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    return () => document.removeEventListener("visibilitychange", onHidden);
+  }, [native]);
+
   function countAttempt() {
+    recordingsRef.current += 1;
     // AF — só depois de gravação real concluída.
     recordSpeechAttempt({ id: `self-compare:${Date.now()}:${Math.random().toString(36).slice(2, 10)}`, captured: true });
   }
@@ -364,6 +420,7 @@ export function SelfComparePractice({
           return;
         }
         if (result.ok && result.played && result.playbackStarted) {
+          selfHeardRef.current = true;
           setPlayState("played");
           updateSpeechDiagnostics({ playbackStarted: "yes", playbackPlayed: "yes" });
           recordTechEvent("playback_completed");
@@ -393,6 +450,7 @@ export function SelfComparePractice({
     audio.onended = () => {
       if (playTokenRef.current != null) releaseAudio("SELF_PLAYBACK", playTokenRef.current);
       playTokenRef.current = null;
+      selfHeardRef.current = true;
       setPlayState("played");
       updateSpeechDiagnostics({ playbackPlayed: "yes" });
       recordTechEvent("playback_completed", { engine: "web" });
@@ -426,6 +484,7 @@ export function SelfComparePractice({
       data-self-compare-phase={phase}
       data-self-playback={playState}
     >
+      <PedagogicalInlineTip interaction="speech_self_compare" className="mb-2" />
       <p className="text-sm font-semibold text-ink">{t("player.selfCompareTitle")}</p>
       <SpeakingStageStrip stage={speakingStageFor({ modelHeard, phase, playState })} />
       {reason && <p className="mt-1 text-xs leading-5 text-ink-soft" data-testid="self-compare-reason">{reason}</p>}
@@ -513,6 +572,12 @@ export function SelfComparePractice({
           {failure !== "PERMISSION_DENIED" && (
             <Button variant="outline" className="w-full" onClick={() => void startRecording()} data-testid="self-compare-retry">
               {t("player.selfCompareRepeat")}
+            </Button>
+          )}
+          {/* RC2.3.5 — negado de vez no Android: caminho claro para os Ajustes. */}
+          {failure === "PERMISSION_DENIED" && native && (
+            <Button variant="outline" className="w-full" onClick={() => void openNativeAppSettings()} data-testid="self-compare-open-settings">
+              {t("player.micOpenSettings")}
             </Button>
           )}
         </div>

@@ -67,7 +67,11 @@ import {
   PRO_LESSON_QI_BONUS,
   RETRY_QUESTION_QI,
 } from "../../data/economy";
-import { speak } from "../../lib/tts";
+import { playMandarinAudio } from "../../lib/audioPlayback";
+
+function speak(text: string, options: { rate?: number } = {}) {
+  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON_AUDIO" });
+}
 import { playSoundFx } from "../../lib/soundFx";
 import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primitives";
 import { cultureItemIdFromLessonId } from "../../data/cultureNative";
@@ -187,6 +191,7 @@ import {
 } from "./reviewSessionPlan";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import { withToneContrastTeaching } from "./toneContrastEnrichment";
+import { applyPedagogyV6ToPlan, loadTaughtConcepts, markConceptsTaught } from "../../lib/pedagogyV6";
 import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
@@ -211,6 +216,11 @@ import {
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { isEvaluableQuestionStep } from "../../data/exerciseFeasibility";
 import { markDevicePerf } from "../../lib/devicePerf";
+import { stepToEvidence } from "../../lib/mastery/adapters";
+import { celebratedPromotions, currentRecord, markPromotionsCelebrated, recordLearningEvidence } from "../../lib/mastery/recorder";
+import { createPersonalMastery, masteryPromotions, promotionLinePt, snapshotViews, type ViewSnapshot } from "../../lib/mastery/personalMastery";
+import { knowledgeGraph } from "../../lib/mastery/knowledgeGraph";
+import { textTarget } from "../../lib/mastery/adapters";
 
 const GUIDED_COLUMN = GUIDED_CLASS.column;
 
@@ -1944,6 +1954,17 @@ export function LessonPlayer() {
     []
   );
   const foundLesson = lessonId ? getLesson(lessonId) : undefined;
+  // RC2.3.7 — snapshot the Personal Mastery state of this lesson's items before it starts.
+  useEffect(() => {
+    if (!foundLesson || masteryBeforeRef.current?.lessonId === foundLesson.id) return;
+    try {
+      const ids = learnedItemsForLesson(foundLesson, locale).map((item) => textTarget(item.hanzi).targetId);
+      const pm = createPersonalMastery({ record: currentRecord(), graph: knowledgeGraph(), completedLessons: [] });
+      masteryBeforeRef.current = { lessonId: foundLesson.id, ids, snapshot: snapshotViews(pm, ids) };
+    } catch {
+      masteryBeforeRef.current = null;
+    }
+  }, [foundLesson, locale]);
 
   const completeLesson = useStore((s) => s.completeLesson);
   const startCultureItem = useStore((s) => s.startCultureItem);
@@ -2184,6 +2205,11 @@ export function LessonPlayer() {
    * "Tentar de novo" após terminar). Não sobe a cada resposta.
    */
   const [planNonce, setPlanNonce] = useState(0);
+  /** RC2.3.6 — identidade desta sessão no Learner Evidence Record (idempotência por tentativa). */
+  const evidenceSessionRef = useRef(Date.now().toString(36));
+  /** RC2.3.7 — Personal Mastery state of this lesson's items before it starts (for the completion line). */
+  const masteryBeforeRef = useRef<{ lessonId: string; ids: string[]; snapshot: ViewSnapshot } | null>(null);
+  const victoryMasteryRef = useRef<{ key: string; lines: string[] } | null>(null);
   const planGenRef = useRef(0);
   const firstPaintMarkedRef = useRef(false);
   /**
@@ -2340,6 +2366,26 @@ export function LessonPlayer() {
        * plano ensina o par antes de cobrá-lo sem tocar em `journey.ts`.
        */
       planned = withToneContrastTeaching(foundLesson, planned);
+      // RC2.3.0 — Pedagogy V6: Descoberta + anti-repetição perceptiva (piloto).
+      try {
+        const liveMastery = useStore.getState().lessonMasteryById?.[foundLesson.id];
+        const livePass = Math.min(
+          4,
+          Math.max(1, (liveMastery?.level ?? 0) + 1)
+        );
+        const v6 = applyPedagogyV6ToPlan({
+          lessonId: foundLesson.id,
+          masteryPass: livePass,
+          steps: planned as LessonStep[],
+          taughtConceptIds: loadTaughtConcepts(),
+          completedLessons: useStore.getState().completedLessons,
+          learnedCharIds: useStore.getState().learnedChars,
+          pilotOnly: true,
+        });
+        planned = v6.steps;
+      } catch {
+        // Falha do V6 nunca bloqueia a sessão.
+      }
       if (gen !== planGenRef.current) return;
       if (idxRef.current > 0 || stepInteractedRef.current) {
         // O aluno já está respondendo: o plano exibido (travado acima) fica.
@@ -3430,6 +3476,30 @@ export function LessonPlayer() {
   function completeCurrentStep(currentStep: LessonStep, wasCorrect: boolean | undefined, meta: StepDoneMetaInput | undefined) {
     let nextStreak = answerStreak;
     const currentStepIsGraded = isGradedStep(currentStep);
+    // RC2.3.0 — Descoberta prova EXPOSIÇÃO (não domínio).
+    if (currentStep.pedagogyRole === "discovery" && currentStep.discoveryConceptIds?.length) {
+      safeSideEffect("discovery_taught", () => {
+        markConceptsTaught(currentStep.discoveryConceptIds!);
+      });
+    }
+    // RC2.3.6 — Learner Evidence Record: UM evento por resultado de passo
+    // (nunca a acurácia da lição espalhada por todos os itens). Ajuda reduz
+    // independência; não transforma acerto em erro.
+    safeSideEffect("learner_evidence", () => {
+      recordLearningEvidence(
+        stepToEvidence({
+          step: currentStep,
+          wasCorrect: currentStepIsGraded ? wasCorrect : undefined,
+          helpLevel: meta?.helpLevel,
+          helpRequests: meta?.helpRequests,
+          lessonId: lesson.id,
+          masteryPass: lessonMasteryById?.[lesson.id]?.level,
+          attemptKey: `${evidenceSessionRef.current}|${planNonce}|${idx}|${stepAttempt}`,
+          activityId: `journey:${currentStep.kind}`,
+          glyphForCharId: (id) => charById.get(id)?.hanzi,
+        })
+      );
+    });
     // VAR-015/016/017 — memória de variedade entre modos. Só atividades
     // avaliadas contam; repetição por recuperação vai rotulada para não ser
     // confundida com repetição acidental.
@@ -3708,7 +3778,8 @@ export function LessonPlayer() {
       });
     }
     playSoundFx("phaseExit", soundEffects);
-    navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture"));
+    // Saída antes da vitória: volta à origem, mas sem carimbar a aula como feita.
+    navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture", { completed: finished }));
   }
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
@@ -4641,6 +4712,26 @@ export function LessonPlayer() {
           : undefined;
     const victoryContext =
       lesson.lessonDomain === "culture" ? "culture" : lesson.isReview ? "review" : "lesson";
+    // RC2.3.7 — real promotions to Firme/Consolidado during this lesson, shown once ever.
+    let victoryMasteryLines: string[] | undefined;
+    const masteryBefore = masteryBeforeRef.current;
+    if (masteryBefore && masteryBefore.lessonId === lesson.id) {
+      const key = `${lesson.id}|${planNonce}|${evidenceSessionRef.current}`;
+      if (victoryMasteryRef.current?.key !== key) {
+        let lines: string[] = [];
+        try {
+          const pm = createPersonalMastery({ record: currentRecord(), graph: knowledgeGraph(), completedLessons: [] });
+          const promotions = masteryPromotions(masteryBefore.snapshot, snapshotViews(pm, masteryBefore.ids), celebratedPromotions());
+          const graph = knowledgeGraph();
+          lines = promotions.map((p) => promotionLinePt(graph.targets.get(p.targetId)?.label ?? p.targetId.split(":")[1] ?? "", p.view, p.state));
+          markPromotionsCelebrated(promotions.map((p) => p.key));
+        } catch {
+          lines = [];
+        }
+        victoryMasteryRef.current = { key, lines };
+      }
+      victoryMasteryLines = victoryMasteryRef.current?.lines;
+    }
     const victoryHeadline =
       lesson.lessonDomain === "culture"
         ? t("culture.lessonComplete")
@@ -4671,7 +4762,9 @@ export function LessonPlayer() {
           displayName={studentFirstName(accountName)}
           locale={locale === "en" ? "en" : "pt"}
           guided={guidedShell}
-          learned={guidedShell ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
+          // RC2.3.7 — every lesson opens its result with what was learned (XP/Qi come after).
+          learned={!isPlusRoundSession && victoryContext !== "culture" ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
+          masteryLines={victoryMasteryLines}
           cultureNext={
             victoryNextIsCulture && !hasUnclaimedRewards && !plusResult
               ? {
@@ -5046,6 +5139,7 @@ export function LessonPlayer() {
           data-lesson-task-body
           data-current-step-kind={step.kind}
           data-current-step-index={idx}
+          data-pedagogy-role={step.pedagogyRole}
           data-guidance-level={guidance}
           data-guided-phase={guidedPhaseForStep(step.kind, idx)}
           onPointerDownCapture={() => {
@@ -5064,6 +5158,7 @@ export function LessonPlayer() {
         data-lesson-task-body
         data-current-step-kind={step.kind}
         data-current-step-index={idx}
+        data-pedagogy-role={step.pedagogyRole}
         data-guidance-level={guidance}
         data-guided-phase={guidedPhaseForStep(step.kind, idx)}
         onPointerDownCapture={() => {

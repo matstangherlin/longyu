@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import { Button } from "../../components/ui/primitives";
 import { IconMic } from "../../components/ui/Icon";
 import { t } from "../../i18n/catalog";
+import { claimAudio, releaseAudio } from "../../lib/audioArbiter";
 import {
   ensureMicPermission,
   isRecognitionAvailable,
@@ -48,6 +49,8 @@ export function FreeAnswerField({
   const [composing, setComposing] = useState(false);
   const [pendingTranscript, setPendingTranscript] = useState<string | null>(null);
   const handleRef = useRef<RecognizeHandle | null>(null);
+  /** RC2.3.9 — the open mic owns the audio arbiter (same contract as PronunciationPractice). */
+  const audioClaimRef = useRef<number | null>(null);
   const speechSupported = isRecognitionAvailable() && isSecureMicContext();
   const listening = speechState === "listening";
 
@@ -56,13 +59,20 @@ export function FreeAnswerField({
     () => () => {
       cancelRecognition();
       handleRef.current?.stop();
+      releaseRecognitionAudio();
     },
     []
   );
 
+  function releaseRecognitionAudio() {
+    if (audioClaimRef.current != null) releaseAudio("RECOGNITION", audioClaimRef.current);
+    audioClaimRef.current = null;
+  }
+
   function stopListening() {
     handleRef.current?.stop();
     handleRef.current = null;
+    releaseRecognitionAudio();
     setSpeechState("idle");
   }
 
@@ -79,9 +89,12 @@ export function FreeAnswerField({
       return;
     }
     setSpeechState("listening");
+    // Lesson audio and sound effects stop while the learner speaks.
+    audioClaimRef.current = claimAudio("RECOGNITION", () => stopListening());
     handleRef.current = recognizeOnce(
       (transcript) => {
         handleRef.current = null;
+        releaseRecognitionAudio();
         setSpeechState("processing");
         window.setTimeout(() => {
           setSpeechState("idle");
@@ -92,6 +105,7 @@ export function FreeAnswerField({
       },
       (code) => {
         handleRef.current = null;
+        releaseRecognitionAudio();
         setSpeechState("idle");
         setMicError(speechErrorMessage(code));
       },

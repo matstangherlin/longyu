@@ -33,6 +33,11 @@ import { DecompositionCard } from "../../components/hanzi/DecompositionCard";
 import { HanziEvolutionCard } from "../../components/hanzi/HanziEvolutionCard";
 import { IconBook, IconChevron, IconLibrary, IconRefresh, IconStar, IconTarget, IconX } from "../../components/ui/Icon";
 import { markDevicePerf } from "../../lib/devicePerf";
+import {
+  getFormEvidence,
+  writingStateLabelPt,
+} from "../../lib/hanziWriting/evidence";
+import { isHandwritingReferenceVerified } from "../../lib/hanziWriting/handwritingReference";
 
 type FrequencyFilter = "300" | "1000" | "all";
 type ToneFilter = "all" | "1" | "2" | "3" | "4" | "5";
@@ -506,6 +511,7 @@ export function HanziAtlasPage() {
           onToggleFavorite={() => toggleFavoriteItem(`char:${selected.id}`)}
           onAddReview={() => addToReview(selected)}
           onLearn={() => navigate(`/hanzi?char=${selected.id}`)}
+          onPracticeWriting={() => navigate(`/hanzi?char=${selected.id}&lab=1`)}
           reviewNotice={reviewNotice?.id === selected.id ? reviewNotice.text : null}
           onOpenRelated={openDetail}
         />
@@ -714,6 +720,7 @@ function HanziDetailModal({
   onToggleFavorite,
   onAddReview,
   onLearn,
+  onPracticeWriting,
   reviewNotice,
   onOpenRelated,
 }: {
@@ -728,6 +735,7 @@ function HanziDetailModal({
   onToggleFavorite: () => void;
   onAddReview: () => void;
   onLearn: () => void;
+  onPracticeWriting?: () => void;
   reviewNotice: string | null;
   onOpenRelated: (item: HanziAtlasItem) => void;
 }) {
@@ -766,6 +774,18 @@ function HanziDetailModal({
               <SpeakButton text={item.hanzi} size="md" />
             </div>
             <div className="mt-2 text-lg font-semibold text-ink">{item.meaningPt}</div>
+            {isHandwritingReferenceVerified(item.hanzi) && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-ink-soft">
+                  {writingStateLabelPt(getFormEvidence(item.id, item.hanzi).writingState)}
+                </p>
+                {onPracticeWriting && (
+                  <Button variant="soft" className="w-full" data-testid="atlas-practice-writing" onClick={onPracticeWriting}>
+                    Praticar escrita
+                  </Button>
+                )}
+              </div>
+            )}
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Pill tone={availability === "learned" ? "good" : availability === "available" ? "accent" : "muted"}>
                 {availabilityLabel(availability)}

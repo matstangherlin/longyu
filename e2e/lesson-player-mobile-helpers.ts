@@ -1,5 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import {
+  advancePastDiscoverySteps,
   advancePastGuideDialogue as clickThroughGuideDialogue,
   dismissBlockingOverlays,
   dismissJourneyCultureBridgeIfOpen,
@@ -355,7 +356,25 @@ export async function assertVictoryWithoutPageScroll(page: Page) {
 export async function openListenSelectStep(page: Page) {
   await openPlayer(page);
   await dismissBlockingOverlays(page);
-  await expect(page.locator("[data-option-index]").first()).toBeVisible({ timeout: 20_000 });
+  // RC2.3.0 (Pedagogy V6) — teach-before-test: a 1ª escolha avaliada vem depois
+  // da Descoberta e do cartão que ensina o alvo. Passa só por passos de ensino.
+  const options = page.locator("[data-option-index]").first();
+  for (let i = 0; i < 6 && !(await options.isVisible().catch(() => false)); i += 1) {
+    await advancePastDiscoverySteps(page, 10_000);
+    await clickThroughGuideDialogue(page, 10_000);
+    // Prática de fala/escuta (não avaliada): navegador de teste sem voz sai pela saída honesta.
+    const exit = page.getByRole("button", { name: /Não posso falar agora|Não posso ouvir agora|I can't speak now|I can't listen now/ }).first();
+    if (await exit.isVisible().catch(() => false)) {
+      await exit.click().catch(() => undefined);
+    } else if (await page.locator('[data-guided-listen-stage="speak"]').first().isVisible().catch(() => false)) {
+      // Motor sem microfone/reconhecimento (WebKit): a micro-página de fala diz
+      // "Voz não disponível aqui" e oferece só Continuar — a saída honesta.
+      await page.getByRole("button", { name: /^Continuar$|^Continue$/ }).first().click().catch(() => undefined);
+    }
+    await dismissBlockingOverlays(page);
+    await options.waitFor({ state: "visible", timeout: 1_500 }).catch(() => undefined);
+  }
+  await expect(options).toBeVisible({ timeout: 20_000 });
 }
 
 /** Completa a primeira prática guiada e abre o próximo passo avaliado. */

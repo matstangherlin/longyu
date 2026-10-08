@@ -1,8 +1,24 @@
 import { CULTURE_JOURNEY_PLACEMENT, cultureLessonPlayerPath } from "../../data/cultureNative";
 
-export function cultureReturnPath(search: URLSearchParams, isCulture: boolean): string {
+/**
+ * `completed: false` (saída no meio da aula) volta à origem sem `cultureDone`:
+ * só a conclusão real carimba a volta como feita.
+ */
+export function cultureReturnPath(
+  search: URLSearchParams,
+  isCulture: boolean,
+  options: { completed?: boolean } = {}
+): string {
   const from = search.get("from");
-  if (from?.startsWith("/")) return from;
+  const gate = search.get("gate");
+  if (from?.startsWith("/")) {
+    const params = new URLSearchParams();
+    if (gate) params.set("gate", gate);
+    if (options.completed !== false) params.set("cultureDone", "1");
+    const qs = params.toString();
+    const base = from.split("?")[0] ?? from;
+    return qs ? `${base}?${qs}` : base;
+  }
   const src = search.get("src");
   if (src === "jornada") return "/jornada";
   if (src === "cultura" || isCulture) return "/cultura";
@@ -45,7 +61,7 @@ export function resolveVictoryContinuePath(input: {
     input.completedCultureIds ?? []
   );
   if (next) {
-    return cultureLessonPlayerPath(next.itemId, "?src=jornada&from=/jornada");
+    return cultureLessonPlayerPath(next.itemId, "?src=jornada&from=/jornada&mode=journey");
   }
   return cultureReturnPath(input.search, false);
 }

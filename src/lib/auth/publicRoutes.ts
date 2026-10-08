@@ -4,6 +4,7 @@ export const PUBLIC_APP_PATHS = [
   "/",
   "/comecar",
   "/login",
+  "/auth/callback",
   "/confirmar-email",
   "/finalizar-cadastro",
   "/esqueci-senha",

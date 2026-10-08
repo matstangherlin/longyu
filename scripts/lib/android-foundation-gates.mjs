@@ -18,7 +18,7 @@ import ts from "typescript";
 import { CURRICULUM_SOURCES } from "./report-meta.mjs";
 import { ANDROID_APPLICATION_ID, LEGACY_ANDROID_APPLICATION_IDS } from "./android-package-identity.mjs";
 
-export const EXPECTED_FINGERPRINT = "c48b008c9c1e";
+export const EXPECTED_FINGERPRINT = "5a64821d0b7d";
 /** RC2.2.16 — package do app no Google Play Console (congelado). */
 export const EXPECTED_APP_ID = ANDROID_APPLICATION_ID;
 const LEGACY_SCHEME = LEGACY_ANDROID_APPLICATION_IDS[0];
@@ -293,7 +293,7 @@ export function validateAndroidNativeFoundation(s) {
   if (frozenFp !== EXPECTED_FINGERPRINT) fail("FINGERPRINT_DRIFT", "RC_BASE_FINGERPRINT", `${frozenFp} ≠ ${EXPECTED_FINGERPRINT}`);
   const fp = fingerprintOf(s.curriculumSources ?? {});
   if (fp !== EXPECTED_FINGERPRINT) {
-    fail("CURRICULUM_SOURCE_MODIFIED", "CURRICULUM_SOURCES", `fingerprint ${fp} ≠ ${EXPECTED_FINGERPRINT}: RC2.2.10 não é pedagógica`);
+    fail("CURRICULUM_SOURCE_MODIFIED", "CURRICULUM_SOURCES", `fingerprint ${fp} ≠ ${EXPECTED_FINGERPRINT}: RC2.3.0 Pedagogy V6 avançou o fingerprint de propósito; divergência residual = regressão`);
   }
   return failures;
 }

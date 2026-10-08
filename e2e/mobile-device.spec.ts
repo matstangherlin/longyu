@@ -195,7 +195,7 @@ test.describe("dispositivo — prefers-reduced-motion", () => {
 });
 
 test.describe("dispositivo — offline (PWA)", () => {
-  test("app shell abre offline após precache do service worker", async ({ page, context }) => {
+  test("app shell abre offline após precache do service worker", async ({ page, context, browserName }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
 
@@ -209,9 +209,15 @@ test.describe("dispositivo — offline (PWA)", () => {
       .waitForFunction(() => navigator.serviceWorker.controller != null, null, { timeout: 15_000 })
       .then(() => true)
       .catch(() => false);
-    if (!controlled) {
-      test.skip(true, "Service worker não assumiu controle neste ambiente (verificar em device real).");
+    // RC2.3.9 — no Chromium (mobile-chrome, tablets, reduced-motion) o preview
+    // build faz o SW assumir o controle de forma determinística: falhar aqui é
+    // regressão de PWA/precache e deve QUEBRAR o teste, não virar skip.
+    if (browserName === "chromium") {
+      expect(controlled, "service worker deve assumir o controle no Chromium após reload").toBe(true);
     }
+    // Limitação de motor (não de app): o suporte a service worker do Playwright
+    // é documentado só para Chromium; em WebKit/Gecko a tomada de controle é gate de device real.
+    test.skip(!controlled && browserName !== "chromium", "SW sem controle fora do Chromium — gate de device real (Safari/Firefox).");
 
     // Corta a rede e recarrega: o shell precacheado deve renderizar mesmo assim.
     const offlineUrl = page.url();

@@ -1,4 +1,9 @@
 import { useStore } from "./store";
+import { audioOwnerState } from "./audioOwnerState";
+import { logSensory } from "./sensoryLog";
+import { SUCCESS_FATIGUE, sfxDecision } from "./sfxPolicy";
+
+export { SFX_DEDUPE_WINDOW_MS, SFX_YIELDS_TO_OWNERS, SUCCESS_FATIGUE, sfxDecision } from "./sfxPolicy";
 
 // ============================================================================
 // Longyu Sound FX — assinatura sonora original.
@@ -113,8 +118,15 @@ export function unlockAudio(): void {
   if (context.state === "suspended") void context.resume();
 }
 
+let lastKind: SoundKind | null = null;
+let lastKindAt = 0;
+const successTimes: number[] = [];
+
 export function playSoundFx(kind: SoundKind, enabled: boolean) {
-  if (!enabled || typeof window === "undefined") return;
+  if (!enabled || typeof window === "undefined") {
+    logSensory({ channel: "sound", event: kind, outcome: "suppressed", reason: "setting_off" });
+    return;
+  }
   const AudioContextCtor = window.AudioContext ?? window.webkitAudioContext;
   if (!AudioContextCtor) return;
 
@@ -122,7 +134,26 @@ export function playSoundFx(kind: SoundKind, enabled: boolean) {
   if (!design) return;
 
   const state = useStore.getState();
-  if (!state.soundEffects) return;
+  const now = Date.now();
+  while (successTimes.length && now - successTimes[0] > SUCCESS_FATIGUE.windowMs) successTimes.shift();
+  const decision = sfxDecision({
+    kind,
+    enabled,
+    soundEffectsSetting: state.soundEffects !== false,
+    audioOwner: audioOwnerState(),
+    now,
+    lastKind,
+    lastKindAt,
+    recentSuccesses: successTimes.length,
+  });
+  if (!decision.play) {
+    logSensory({ channel: "sound", event: kind, outcome: "suppressed", reason: decision.reason });
+    return;
+  }
+  lastKind = kind;
+  lastKindAt = now;
+  if (kind === "success") successTimes.push(now);
+  logSensory({ channel: "sound", event: kind, outcome: "played" });
 
   const context = getSharedContext(AudioContextCtor);
   if (!context) return;
@@ -132,7 +163,7 @@ export function playSoundFx(kind: SoundKind, enabled: boolean) {
   const theme = state.soundTheme ?? "longyu_classic";
   const themeSettings = THEME_SETTINGS[theme] ?? THEME_SETTINGS.longyu_classic;
   const preference = state.soundFxVolume ?? 0.85;
-  const volume = Math.max(0, Math.min(0.34, design.volume * preference * themeSettings.gain));
+  const volume = Math.max(0, Math.min(0.34, design.volume * preference * themeSettings.gain * decision.gain));
   if (volume === 0) return;
 
   // Pequena folga de agendamento evita cortes de ataque em mobile.

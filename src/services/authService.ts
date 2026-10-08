@@ -100,6 +100,21 @@ function profileFromName(name?: string): ProfileDetails {
   return { name: name?.trim() || "Aluno Longyu", onboardingCompleted: false };
 }
 
+/**
+ * RC2.3.8 — profile bootstrap after a social login: the SAME RPC as e-mail
+ * login (no separate Google/Apple/Microsoft onboarding). Provider metadata is
+ * only a suggestion for the display name; Apple may send none — that is fine.
+ */
+export async function ensureProfileForCurrentSession(suggestedName?: string | null): Promise<string | null> {
+  const client = getSupabaseClient();
+  if (!client) return "Cliente Supabase indisponível.";
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+  if (!session?.user?.id) return "Sem sessão ativa.";
+  return ensureProfile(session.user.id, profileFromName(suggestedName ?? undefined));
+}
+
 function isUnconfirmedEmailError(message: string): boolean {
   const lower = message.toLowerCase();
   return lower.includes("email not confirmed") || lower.includes("email_not_confirmed");
@@ -449,8 +464,13 @@ export async function logout(): Promise<AuthServiceResult> {
   if (!isSupabaseBackendEnabled()) return notImplemented();
   const client = getSupabaseClient();
   if (!client) return notImplemented();
-  const { error } = await client.auth.signOut();
-  if (error) return { status: "error", message: error.message };
+  // RC2.3.8 — offline logout: the local session stops granting access NOW,
+  // even if the server revoke fails (it is reconciled when the token expires).
+  const { error } = await client.auth.signOut().catch((e: unknown) => ({ error: e instanceof Error ? e : new Error("signout_failed") }));
+  if (error) {
+    await client.auth.signOut({ scope: "local" }).catch(() => undefined);
+    return { status: "ok", message: "Sessão encerrada neste aparelho." };
+  }
   return { status: "ok", message: "Sessão encerrada." };
 }
 

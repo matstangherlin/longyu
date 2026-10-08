@@ -7,7 +7,7 @@ import {
 import { simulateVirtualKeyboard } from "./lesson-player-mobile-helpers";
 
 /**
- * B003 — após Verificar na revisão, o feedback Certo/Errado e um CTA Continuar
+ * B003 — após Verificar na revisão, o feedback Certo/Quase e um CTA Continuar
  * precisam ficar visíveis (regressão iPhone/Safari: revealed sem ação).
  *
  * Cobre: resposta correta, errada, próximo item, fim da revisão,
@@ -25,9 +25,17 @@ async function openReviewItem(page: Page) {
   await dismissBlockingOverlays(page);
   await waitForLazyPage(page);
 
-  if (await page.locator("[data-hanzi-builder], [data-builder-id]").first().isVisible().catch(() => false)) {
-    test.skip(true, "Item atual é Hanzi Builder — coberto por outro fluxo.");
-  }
+  // RC2.3.9 — o seed é determinístico: um único erro pendente listen_select
+  // (你好) da l1. Espera o item renderizar e exige que NÃO seja Hanzi Builder;
+  // antes isto virava skip de todos os testes do arquivo.
+  await expect(
+    page.getByRole("button", { name: /Verificar|Conferir resposta/i }),
+    "o item de correção semeado deve abrir com Verificar"
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.locator("[data-hanzi-builder], [data-builder-id]"),
+    "o erro semeado (listen_select 你好) não pode abrir como Hanzi Builder"
+  ).toHaveCount(0);
 }
 
 async function pickOption(page: Page, wantCorrect: boolean | null) {
@@ -61,7 +69,7 @@ async function pickOption(page: Page, wantCorrect: boolean | null) {
   return "none";
 }
 
-async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Errado") {
+async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Quase") {
   const verify = page.getByRole("button", { name: /Verificar|Conferir resposta/i });
   await expect(verify).toBeVisible({ timeout: 15_000 });
 
@@ -77,7 +85,7 @@ async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Errado"
   if (expected) {
     await expect(page.getByText(new RegExp(`^${expected}$`))).toBeVisible();
   } else {
-    await expect(page.getByText(/^(Certo|Errado|Erro corrigido!|Confira a resposta)$/)).toBeVisible();
+    await expect(page.getByText(/^(Certo|Quase|Erro corrigido!|Confira a resposta)$/)).toBeVisible();
   }
 
   const continueBtn = page.locator("[data-review-continue]");
@@ -89,7 +97,7 @@ async function verifyAndAssertFeedback(page: Page, expected?: "Certo" | "Errado"
 test.describe("B003 — revisão continua após revelar", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("Verificar → Certo/Errado + Continuar sticky acessível", async ({ page }) => {
+  test("Verificar → Certo/Quase + Continuar sticky acessível", async ({ page }) => {
     await openReviewItem(page);
     await pickOption(page, null);
     const continueBtn = await verifyAndAssertFeedback(page);
@@ -103,7 +111,7 @@ test.describe("B003 — revisão continua após revelar", () => {
     test.setTimeout(90_000);
     await openReviewItem(page);
     const kind = await pickOption(page, true);
-    if (kind === "none") test.skip(true, "Sem opções clicáveis neste item.");
+    expect(kind, "o item semeado (listen_select) deve ter opções clicáveis").not.toBe("none");
 
     const continueBtn = await verifyAndAssertFeedback(page);
     // Se o fallback pegou a errada, ainda assim Continuar deve funcionar.
@@ -117,11 +125,11 @@ test.describe("B003 — revisão continua após revelar", () => {
     }
   });
 
-  test("resposta errada → Errado + Errei continuar", async ({ page }) => {
+  test("resposta errada → Quase + Errei continuar", async ({ page }) => {
     test.setTimeout(90_000);
     await openReviewItem(page);
     const kind = await pickOption(page, false);
-    if (kind === "none") test.skip(true, "Sem opções clicáveis neste item.");
+    expect(kind, "o item semeado (listen_select) deve ter opções clicáveis").not.toBe("none");
     if (kind === "piece") {
       // sentence_build: montar só a primeira peça tende a errar.
       await pickOption(page, null);
@@ -129,7 +137,7 @@ test.describe("B003 — revisão continua após revelar", () => {
 
     const continueBtn = await verifyAndAssertFeedback(page);
     const label = await continueBtn.innerText();
-    // Errado usa "Errei — continuar"; Certo (se fallback acertou) usa Continuar.
+    // Quase usa "Errei — continuar"; Certo (se fallback acertou) usa Continuar.
     expect(/continuar/i.test(label)).toBe(true);
     await expect(continueBtn).toBeInViewport();
     await continueBtn.click();

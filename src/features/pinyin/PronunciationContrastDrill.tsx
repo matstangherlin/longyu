@@ -6,6 +6,8 @@ import { ARTICULATION_DIAGRAMS } from "../../data/articulationTargets";
 import { type ContrastDrillStage, type ContrastSound, type PronunciationContrast } from "../../data/pronunciationCoreBr";
 import { playMandarinAudio } from "../../lib/audioPlayback";
 import { SelfComparePractice } from "../lesson/SelfComparePractice";
+import { soundsShareCanonicalVoice } from "../../lib/audioContrastPairs";
+import { recordSpeechEvidence } from "../../lib/speechEvidence";
 
 /**
  * RC2.2.20 · V5A — um contraste de pronúncia, na ordem da percepção:
@@ -22,6 +24,11 @@ type AudioState = "idle" | "playing" | "heard" | "failed";
 
 export function PronunciationContrastDrill({ contrast, onClose }: { contrast: PronunciationContrast; onClose: () => void }) {
   const diagram = ARTICULATION_DIAGRAMS.find((spec) => spec.id === contrast.id) ?? null;
+  // RC2.3.5 — A/B só tocam se TODOS os sons têm asset canônico do mesmo
+  // speaker. Sem isso, um lado ficaria mudo (conteúdo fixo nunca cai em TTS)
+  // e "identificar" viraria chute. O contraste fica em "ver" até o áudio existir.
+  const audioReady = useMemo(() => soundsShareCanonicalVoice(contrast.sounds.map((sound) => sound.hanzi)), [contrast]);
+  const [graded, setGraded] = useState(0);
   // "hear" percorre cada som (2 ou 3) antes de comparar.
   const [stage, setStage] = useState<ContrastDrillStage>("see");
   const [hearIndex, setHearIndex] = useState(0);
@@ -97,7 +104,7 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
   const target = roundTargets[round];
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4" data-testid="contrast-drill" data-contrast={contrast.id} data-stage={stage} data-audio={audio}>
+    <div className="rounded-2xl border border-line bg-surface p-4" data-testid="contrast-drill" data-contrast={contrast.id} data-stage={stage} data-audio={audio} data-audio-ready={audioReady ? "true" : "false"}>
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">{contrast.title}</p>
         <button type="button" onClick={onClose} className="min-h-11 px-2 text-sm font-semibold text-ink-soft hover:text-ink">
@@ -109,9 +116,20 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
         <div className="mt-2 space-y-3">
           {diagram ? <ArticulationDiagram spec={diagram} locale="pt" /> : null}
           <p className="text-[15px] leading-6 text-ink" data-testid="contrast-note">{contrast.notePt}</p>
-          <Button className="w-full" size="lg" onClick={() => next("hear_a")} data-testid="contrast-next">
-            Ouvir os sons
-          </Button>
+          {audioReady ? (
+            <Button className="w-full" size="lg" onClick={() => next("hear_a")} data-testid="contrast-next">
+              Ouvir os sons
+            </Button>
+          ) : (
+            <>
+              <p className="rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft" data-testid="contrast-audio-pending">
+                O áudio deste contraste ainda está sendo preparado com a mesma voz dos outros. Por enquanto, leia a explicação e repita em voz alta.
+              </p>
+              <Button className="w-full" size="lg" onClick={onClose} data-testid="contrast-next">
+                Entendi
+              </Button>
+            </>
+          )}
         </div>
       )}
 
@@ -186,6 +204,9 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
                   disabled={!heardOrFailed || picked != null}
                   onClick={() => {
                     setPicked(sound.label);
+                    // Sem áudio confirmado a escolha não vale ponto: seria chute.
+                    if (audio !== "heard") return;
+                    setGraded((value) => value + 1);
                     if (sound.label === target.label) setScore((value) => value + 1);
                   }}
                   className={[
@@ -201,7 +222,7 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
           </div>
           {picked != null && (
             <p className="text-sm font-medium text-ink" role="status" data-testid="contrast-feedback">
-              {picked === target.label ? "Isso." : `Era ${target.pinyin}.`} Ouça de novo e compare.
+              {audio !== "heard" ? "Sem áudio esta rodada não conta." : picked === target.label ? "Isso." : `Era ${target.pinyin}.`} Ouça de novo e compare.
             </p>
           )}
           <Button
@@ -214,6 +235,15 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
                 setPicked(null);
                 setAudio("idle");
               } else {
+                recordSpeechEvidence({
+                  conceptId: `contrast:${contrast.id}`,
+                  activityId: `pinyin-lab:${contrast.id}`,
+                  mode: "PERCEPTION",
+                  modelHeard: true,
+                  perceptionTrials: graded,
+                  perceptionCorrect: score,
+                  completed: true,
+                });
                 next("produce");
               }
             }}
@@ -227,10 +257,16 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
       {stage === "produce" && (
         <div className="mt-3 space-y-3">
           <p className="text-center text-sm text-ink" data-testid="contrast-score">
-            Você identificou {score} de {IDENTIFY_ROUNDS}.
+            Você identificou {score} de {graded}.
           </p>
           <p className="text-center text-sm text-ink-soft">Quer tentar falar? É opcional — grave e compare com o modelo.</p>
-          <SelfComparePractice target={contrast.sounds[contrast.sounds.length - 1].hanzi} onContinue={onClose} onCannotSpeak={onClose} />
+          <SelfComparePractice
+            target={contrast.sounds[contrast.sounds.length - 1].hanzi}
+            conceptId={`contrast:${contrast.id}`}
+            activityId={`pinyin-lab:${contrast.id}:produce`}
+            onContinue={onClose}
+            onCannotSpeak={onClose}
+          />
         </div>
       )}
     </div>
