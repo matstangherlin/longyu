@@ -1,0 +1,320 @@
+{
+  "schema": "longyu-static-proofs/1",
+  "wave": "RC2.3.10B",
+  "generatedFromSha": "ddafc071a18c538eaf8005e1d741aa85c078e7b3",
+  "safety": {
+    "productionWrites": false,
+    "rowData": false,
+    "secretValues": false
+  },
+  "method": "Offline scan of tracked and untracked-unignored files (git ls-files -co --exclude-standard). Each check is a rule over file text; violations are file:line. validate recomputes and requires an identical result.",
+  "summary": {
+    "JEV_LEARNER_RUNTIME_FREEZE": "PASS",
+    "SPEECH_RAW_AUDIO_NOT_UPLOADED": "PASS",
+    "HANZI_STROKE_PATH_NOT_PERSISTED": "PASS"
+  },
+  "proofs": [
+    {
+      "id": "JEV_LEARNER_RUNTIME_FREEZE",
+      "checks": [
+        {
+          "id": "J1",
+          "claim": "No TypeSafe/Jev host, key name or helper appears in any client source (web src/, public/, index.html, capacitor/vite config, Android java/res/manifest/gradle).",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "J2",
+          "claim": ".env.example declares no VITE_TYPESAFE*/VITE_JEV* variable.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "J3",
+          "claim": "No Edge Function other than triage-feedback imports or calls the Jev helper (learner-facing functions cannot reach the host).",
+          "result": "PASS",
+          "violations": [],
+          "serverSideReferences": [
+            "supabase/functions/_shared/jev.ts",
+            "supabase/functions/triage-feedback/index.ts"
+          ]
+        },
+        {
+          "id": "J4",
+          "claim": "Server-side Jev runtime kill switch defaults to off (JEV_RUNTIME_ENABLED: false).",
+          "result": "PASS",
+          "violations": [],
+          "file": "supabase/functions/_shared/budgetPolicy.ts"
+        },
+        {
+          "id": "J5",
+          "claim": "The web Content-Security-Policy connect-src exists and does not allow the TypeSafe host, so a browser could not call it even if code tried.",
+          "result": "PASS",
+          "violations": []
+        }
+      ],
+      "comments": {
+        "clientMentionsOfTheWordTypeSafe": [
+          "src/services/feedbackService.ts:265"
+        ],
+        "note": "words only; none is a host, key name or call"
+      }
+    },
+    {
+      "id": "SPEECH_RAW_AUDIO_NOT_UPLOADED",
+      "checks": [
+        {
+          "id": "S1",
+          "claim": "No speech/recording source file contains a network, upload or Supabase API.",
+          "result": "PASS",
+          "violations": [],
+          "files": [
+            "src/features/lesson/PronunciationPractice.tsx",
+            "src/features/lesson/SelfComparePractice.tsx",
+            "src/features/pinyin/PronunciationContrastDrill.tsx",
+            "src/lib/speech.ts",
+            "src/lib/speechEvidence.ts",
+            "src/lib/speechDiagnostics.ts",
+            "src/lib/speechFailure.ts",
+            "src/lib/speechPilot.ts"
+          ]
+        },
+        {
+          "id": "S2",
+          "claim": "Nothing in the client reads a recorded Blob back as data (no FileReader, arrayBuffer, base64 or data-URL conversion). Recordings are only played through a local blob: object URL.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "S3",
+          "claim": "Both recorder UIs create only local object URLs and revoke them on retry and unmount.",
+          "result": "PASS",
+          "violations": [],
+          "createObjectURL": [
+            "src/features/lesson/PronunciationPractice.tsx:233",
+            "src/features/lesson/SelfComparePractice.tsx:310"
+          ],
+          "revokeObjectURL": [
+            "src/features/lesson/PronunciationPractice.tsx:212",
+            "src/features/lesson/PronunciationPractice.tsx:232",
+            "src/features/lesson/SelfComparePractice.tsx:204",
+            "src/features/lesson/SelfComparePractice.tsx:243"
+          ]
+        },
+        {
+          "id": "S4",
+          "claim": "The client never calls Supabase Storage or any upload API.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "S5",
+          "claim": "Android native code has no network class (HttpURLConnection, OkHttp, java.net, WebSocket, Retrofit, DownloadManager).",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "S6",
+          "claim": "The native practice recording is a single cache-dir file that every start, failure, interruption and teardown path deletes.",
+          "result": "PASS",
+          "violations": [],
+          "cacheFile": "cache/longyu-practice.m4a",
+          "deleteCalls": 2,
+          "discardCalls": 9
+        },
+        {
+          "id": "S7",
+          "claim": "The native plugin returns metadata only to JavaScript (no path, URI, bytes or audio payload key).",
+          "result": "PASS",
+          "violations": [],
+          "metadataKeysSample": [
+            "code",
+            "currentState",
+            "durationMs",
+            "engineSpeakingCount",
+            "fileBytes",
+            "fileExists",
+            "isSpeaking",
+            "metadataDurationMs",
+            "peakAmplitude",
+            "peakRmsBucket",
+            "practiceState",
+            "signalDetected",
+            "state",
+            "wallDurationMs"
+          ]
+        },
+        {
+          "id": "S8",
+          "claim": "The persisted speech evidence schema has no audio, URL, blob, transcript or score field.",
+          "result": "PASS",
+          "violations": [],
+          "fields": [
+            "conceptId",
+            "activityId",
+            "mode",
+            "modelHeard",
+            "recordingCaptured",
+            "selfPlaybackHeard",
+            "recognitionAttempted",
+            "recognitionSucceeded",
+            "perceptionTrials",
+            "perceptionCorrect",
+            "retryCount",
+            "completed",
+            "at"
+          ]
+        },
+        {
+          "id": "S9",
+          "claim": "The cloud snapshot is NOT an allowlist (buildProgressSnapshot spreads every LearningAccount field), so the account type itself is audited: none of its fields has a media/geometry type (Blob, ArrayBuffer, File, MediaStream, AudioBuffer...) or a recording/voice/transcript/waveform/stroke/ink/pitch name.",
+          "result": "PASS",
+          "violations": [],
+          "accountFieldCount": 104,
+          "snapshotSpreadsAllAccountFields": true
+        },
+        {
+          "id": "S10",
+          "claim": "No Edge Function accepts audio, multipart or binary bodies.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "S11",
+          "claim": "No production table has a column that could hold audio or a transcript (name match or bytea type) across all 37 tables.",
+          "result": "PASS",
+          "violations": [],
+          "source": "docs/launch/rc2-3-10b-schema-column-extract.json"
+        },
+        {
+          "id": "S12",
+          "claim": "User-facing copy states that Longyu does not store the recording and that recognition may be processed by the device's speech service (en and pt-BR).",
+          "result": "PASS",
+          "violations": []
+        }
+      ],
+      "findings": [
+        {
+          "id": "F-SPEECH-1",
+          "severity": "MEDIUM",
+          "status": "OPEN",
+          "title": "Dictated free-text answers are stored as text and travel in the cloud snapshot",
+          "detail": "FreeAnswerField's microphone writes the recognizer transcript into the answer field. When a write-step answer is wrong, the raw text is kept as LessonMistakeRecord.userAnswer / ActivityErrorRecord.selectedAnswer (and UnrecognizedProductionRecord.answer, last 40). Those live in account state and buildProgressSnapshot spreads all account fields into user_progress.client_snapshot. This is text, not audio, and it is the same record a typed answer produces, so the 'raw recording is not uploaded' claim holds; but 'transcription of personal speech is not collected' (rc2-3-5-speech-evidence-contract.md, Not collected) is true only of the speech-evidence record, not of the account state.",
+          "evidence": {
+            "dictationFillsAnswerField": true,
+            "wrongWriteAnswerSentToMistakeHandler": true,
+            "mistakeKeepsRawText": true,
+            "mistakeFieldsInAccountState": true,
+            "snapshotSpreadsAccount": true,
+            "pedagogyTelemetryStripsAnswers": true
+          },
+          "server": "pedagogy telemetry already strips answer/freeText keys (src/services/pedagogyEvents.ts), so these strings do not reach beta_pedagogy_events; they do reach the user's own user_progress row (RLS own-row).",
+          "ownerDecision": "Fold into OA-PRIVACY-SNAPSHOT-EMAIL: the RC2.3.11 snapshot change should become an allowlist that excludes mistake/answer text, or the privacy policy must name free-text answers as stored data."
+        }
+      ],
+      "platformCaveat": {
+        "statement": "Recognition itself is delegated to the platform. The browser SpeechRecognition engine and the Android SpeechRecognizer service may stream audio to the vendor's speech service. Longyu code does not send audio anywhere; it cannot control what the platform engine does.",
+        "onDevicePreference": "LongyuSpeechPlugin uses SpeechRecognizer.createOnDeviceSpeechRecognizer on Android 12+ when available and preferred; otherwise the system service.",
+        "disclosedIn": [
+          "src/locales/en.ts speechPrivacy + privacy block",
+          "src/locales/pt-BR.ts speechPrivacy"
+        ],
+        "notProvenHere": "What a given browser or Google speech service retains is outside this repository and was not tested."
+      }
+    },
+    {
+      "id": "HANZI_STROKE_PATH_NOT_PERSISTED",
+      "checks": [
+        {
+          "id": "H1",
+          "claim": "No hànzì or tone-trace UI/engine file other than evidence.ts writes to any persistent store.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "H2",
+          "claim": "No hànzì writing, tone-trace or QA-panel file calls a network, upload or Supabase API.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "H3",
+          "claim": "The two persisted shapes (HanziFormEvidence counters, HanziWritingTelemetryEvent) contain counters, booleans and ids only: no points, path, samples or coordinates.",
+          "result": "PASS",
+          "violations": [],
+          "persistedShapes": [
+            "HanziFormEvidence",
+            "HanziWritingTelemetryEvent"
+          ]
+        },
+        {
+          "id": "H4",
+          "claim": "evidence.ts has exactly two writes: the form-evidence counter map and a 200-event telemetry ring buffer; the code comment forbids stroke coordinates.",
+          "result": "PASS",
+          "violations": [],
+          "writeCalls": 2
+        },
+        {
+          "id": "H5",
+          "claim": "The only call sites that persist writing results pass derived counts (samples.length) and flags, never the sampled points.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "H6",
+          "claim": "The optional live-ink callback (onInkChange) has no consumer, so the ink path never leaves the canvas component.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "H7",
+          "claim": "Ink lives in refs of the canvas component (inkRef/committedRef) and React state of the exercise (attempts); no module-level or global store holds it.",
+          "result": "PASS",
+          "violations": []
+        },
+        {
+          "id": "H8",
+          "claim": "The only hanzi data in the cloud snapshot (account field hanziBuilderProgressByChar) is counters and a boolean; no LearningAccount field has a geometry/media type or stroke/ink name. Writing evidence and telemetry live in separate device-only keys the snapshot builder never reads.",
+          "result": "PASS",
+          "violations": [],
+          "hanziAccountFields": [
+            "hanziBuilderProgressByChar: HanziBuilderProgressMap"
+          ]
+        },
+        {
+          "id": "H9",
+          "claim": "The only cross-namespace move of hànzì evidence (anonymous to account, on device) merges counters by max and never reads points.",
+          "result": "PASS",
+          "violations": []
+        }
+      ]
+    }
+  ],
+  "artifactScans": {
+    "localBuild": {
+      "scanned": true,
+      "buildCommitSha": "ddafc071a18c538eaf8005e1d741aa85c078e7b3",
+      "textFiles": 194,
+      "jsChunks": 175,
+      "jevHostOrKeyHits": [],
+      "mediaRecorderChunks": [
+        "SelfComparePractice-Dq1nkiSq.js",
+        "steps-vOioul4p.js"
+      ],
+      "mediaRecorderChunksWithNetworkApi": []
+    },
+    "liveProduction": {
+      "scanned": true,
+      "site": "https://singular-meringue-7838cd.netlify.app",
+      "servedCommitSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+      "jsChunksScanned": 167,
+      "chunksUnfetchable": 0,
+      "jevHostOrKeyHits": []
+    }
+  },
+  "limits": [
+    "Static text rules: they prove what the code in this repository can do, not what an installed APK or a vendor speech engine does at runtime.",
+    "The APK itself was not unpacked here (no APK in this environment); the web build output that Capacitor copies into the APK (dist/) was scanned when --dist was used.",
+    "Vendor speech recognition (browser SpeechRecognition, Android SpeechRecognizer service) may process audio off-device; see SPEECH_RAW_AUDIO_NOT_UPLOADED.platformCaveat."
+  ]
+}
