@@ -1,0 +1,217 @@
+{
+  "schema": "longyu-edge-parity/1",
+  "wave": "RC2.3.10B",
+  "generatedAt": "2026-10-08",
+  "inputs": {
+    "productionSnapshot": "docs/launch/production-snapshot.json (edgeFunctions, read 2026-10-08)",
+    "callGraph": "docs/launch/rc2-3-10b-client-backend-call-graph.json (backendDependencies)",
+    "plan": "docs/launch/rc2-3-10b-migration-plan.json (minimumSafeSet.edgeFunctionsToDeploy)",
+    "repo": "supabase/functions/*/index.ts, supabase/config.toml, git log per function",
+    "closure": "docs/reports/rc2-3-10-closure.md (source reads of create-account and triage-feedback)"
+  },
+  "safety": {
+    "redeployed": false,
+    "productionWrites": false,
+    "note": "Classification only. No function was deployed, deleted or re-versioned. The only deploy path is .github/workflows/deploy-edge-function.yml (workflow_dispatch, main only, allowlist: triage-feedback)."
+  },
+  "method": [
+    "Deployed bodies are not downloadable in bulk from the agent; only triage-feedback and create-account were read in full. For the others the snapshot gives version, updatedAt and verifyJwt.",
+    "DEPLOYED_STALE needs proof the repo is newer or different: a source read, or a repo change after the deploy that introduced code the deployed version cannot contain.",
+    "DEPLOYED_UNKNOWN_DIFF means the repo's last change precedes or coincides with the deploy but bytes were never compared. It is not CURRENT.",
+    "CURRENT requires sourceCompared=true. No function qualifies today."
+  ],
+  "vocabulary": {
+    "status": ["DEPLOYED_STALE", "DEPLOYED_STALE_WAIT_MIGRATION", "DEPLOYED_UNKNOWN_DIFF", "MISSING_WAIT_MIGRATION", "READY_TO_DEPLOY", "CURRENT"],
+    "deployGate": ["READY_TO_DEPLOY", "WAIT_MIGRATION", "DIFF_FIRST", "HOLD_MONETIZATION", "NO_ACTION"]
+  },
+  "counts": {
+    "DEPLOYED_STALE": 3,
+    "DEPLOYED_STALE_WAIT_MIGRATION": 1,
+    "DEPLOYED_UNKNOWN_DIFF": 4,
+    "MISSING_WAIT_MIGRATION": 3,
+    "READY_TO_DEPLOY": 0,
+    "CURRENT": 0,
+    "total": 11
+  },
+  "functions": [
+    {
+      "slug": "commit-placement",
+      "status": "MISSING_WAIT_MIGRATION",
+      "deployGate": "WAIT_MIGRATION",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "c5ca7b13", "at": "2026-08-27T22:33:13Z" } },
+      "production": { "version": null, "updatedAt": null, "verifyJwt": null, "sourceCompared": false },
+      "dependencies": {
+        "objectsMissingInProduction": ["rpc:commit_placement_result"],
+        "definedBy": ["supabase/migrations/20260826230000_placement_onboarding.sql"]
+      },
+      "evidence": [
+        "Snapshot edgeFunctions lists 8 functions; commit-placement is absent.",
+        "Call graph: functions/commit-placement MISSING, severity CRITICAL (sign-up / onboarding path), depends on absent commit_placement_result.",
+        "Plan minimumSafeSet.edgeFunctionsToDeploy includes it, after supabase/migrations/20260826230000_placement_onboarding.sql and 20260827023000_placement_onboarding_handoff.sql."
+      ],
+      "requiredBefore": ["Apply the placement migrations through PRODUCTION_MIGRATION_READY (backup first).", "Deploy in the same window, after the migration, with verify_jwt = true from supabase/config.toml."],
+      "risk": "The client calls it from /comecar, /confirmar-email and /finalizar-cadastro; today it is gated off by VITE_CLOUD_ONBOARDING_V2_ENABLED=false."
+    },
+    {
+      "slug": "create-account",
+      "status": "DEPLOYED_STALE_WAIT_MIGRATION",
+      "deployGate": "WAIT_MIGRATION",
+      "repo": { "verifyJwt": false, "lastChange": { "sha": "0582a896", "at": "2026-09-02T00:42:30Z" } },
+      "production": { "version": 9, "updatedAt": "2026-09-02T18:58:56Z", "verifyJwt": false, "sourceCompared": true },
+      "dependencies": {
+        "objectsMissingInProduction": ["rpc:save_placement_onboarding_draft"],
+        "definedBy": ["supabase/migrations/20260827023000_placement_onboarding_handoff.sql"]
+      },
+      "evidence": [
+        "docs/reports/rc2-3-10-closure.md: source read; production v9 has no placement handoff while the repo version calls save_placement_onboarding_draft.",
+        "Call graph: present edge function with a missing dependency (the only one).",
+        "Repo behaviour on rpc error: deletes the just-created auth user and answers placement_draft_failed (create-account/index.ts), so redeploying before the migration would break sign-up when placement evidence is sent.",
+        "Dates mislead here: the deploy (2026-09-02T18:58Z) is later than the repo's last change, yet the bodies differ."
+      ],
+      "requiredBefore": ["Apply 20260827023000_placement_onboarding_handoff.sql (and its dependency 20260826230000) through PRODUCTION_MIGRATION_READY.", "Only then redeploy create-account; Turnstile secret and verify_jwt=false stay as they are."],
+      "risk": "Do not redeploy ahead of the migration. Production sign-up works today with the old body."
+    },
+    {
+      "slug": "create-billing-portal",
+      "status": "DEPLOYED_UNKNOWN_DIFF",
+      "deployGate": "DIFF_FIRST",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "45ba8f78", "at": "2026-08-04T07:35:24Z" } },
+      "production": { "version": 9, "updatedAt": "2026-08-04T07:46:54Z", "verifyJwt": true, "sourceCompared": false },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Repo's last change (07:35:24Z) precedes the deploy (07:46:54Z) by 11 minutes; consistent, not proven.",
+        "Call graph: depends on table subscriptions, PRESENT.",
+        "Deployed body was never read."
+      ],
+      "requiredBefore": ["Read the deployed source (supabase functions download or get_edge_function) and diff against the repo."],
+      "risk": "Billing surface; monetization is frozen until RC2.3.11, so no deploy is needed."
+    },
+    {
+      "slug": "create-checkout-session",
+      "status": "DEPLOYED_STALE",
+      "deployGate": "HOLD_MONETIZATION",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "3fb4b87c", "at": "2026-08-30T09:55:03Z" } },
+      "production": { "version": 10, "updatedAt": "2026-08-04T07:46:28Z", "verifyJwt": true, "sourceCompared": false },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Repo changed 26 days after the deploy: 3fb4b87c (V4.8.6 international pricing and Family foundation) introduced src/commercial/billing.ts (server price matrix, STRIPE_PRICE_<PLAN>_<CYCLE>_<MARKET> slots, client price authority rejected). The deployed v10 predates that file.",
+        "No database dependency: the function reads only environment and the shared billing module.",
+        "Repo version refuses sk_live_ keys and answers PRICE_PENDING until the 8 price secrets exist (fail-closed)."
+      ],
+      "requiredBefore": ["RC2.3.11 pricing decision and Stripe TEST end-to-end.", "Owner confirms which Stripe account backs the functions (OA-STRIPE-ACCOUNT-CONFIRM)."],
+      "risk": "Redeploying changes the env contract (new secret names). Safe to hold; production keeps the old behaviour."
+    },
+    {
+      "slug": "delete-account",
+      "status": "DEPLOYED_UNKNOWN_DIFF",
+      "deployGate": "DIFF_FIRST",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "70b6c151", "at": "2026-08-08T07:54:04Z" } },
+      "production": { "version": 10, "updatedAt": "2026-08-08T07:51:07Z", "verifyJwt": true, "sourceCompared": false },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Repo's last change (07:54:04Z) and the deploy (07:51:07Z) are three minutes apart; the commit message is Fix account deletion privacy. Consistent, not proven.",
+        "erase_account_personal_data migration (20260808073233) is MATCH_EXACT in the ledger.",
+        "Deployed body was never read."
+      ],
+      "requiredBefore": ["Diff deployed source against supabase/functions/delete-account/index.ts and _shared/accountDeletion.ts."],
+      "risk": "Account deletion: any redeploy needs a deletion rehearsal on a synthetic account first."
+    },
+    {
+      "slug": "finalize-onboarding",
+      "status": "MISSING_WAIT_MIGRATION",
+      "deployGate": "WAIT_MIGRATION",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "c5ca7b13", "at": "2026-08-27T22:33:13Z" } },
+      "production": { "version": null, "updatedAt": null, "verifyJwt": null, "sourceCompared": false },
+      "dependencies": {
+        "objectsMissingInProduction": ["table:placement_onboarding_drafts", "rpc:commit_placement_result"],
+        "definedBy": ["supabase/migrations/20260826230000_placement_onboarding.sql", "supabase/migrations/20260827023000_placement_onboarding_handoff.sql"]
+      },
+      "evidence": [
+        "Snapshot edgeFunctions: absent.",
+        "Call graph: functions/finalize-onboarding MISSING, CRITICAL; needs absent placement_onboarding_drafts and commit_placement_result.",
+        "Plan lists it in edgeFunctionsToDeploy after the two placement migrations."
+      ],
+      "requiredBefore": ["Apply both placement migrations (handoff backfills profiles.country_code and is IRREVERSIBLE_WITHOUT_BACKUP: backup first).", "Deploy after the migration, same window as commit-placement."],
+      "risk": "Gated off in production builds by VITE_CLOUD_ONBOARDING_V2_ENABLED=false."
+    },
+    {
+      "slug": "issue-anon-ingestion-session",
+      "status": "DEPLOYED_UNKNOWN_DIFF",
+      "deployGate": "DIFF_FIRST",
+      "repo": { "verifyJwt": false, "lastChange": { "sha": "f4996036", "at": "2026-08-08T13:23:38Z" } },
+      "production": { "version": 3, "updatedAt": "2026-08-08T13:44:40Z", "verifyJwt": false, "sourceCompared": false },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Repo's last change precedes the deploy by 21 minutes; consistent, not proven.",
+        "Call graph: rpc issue_beta_anon_ingestion_session PRESENT.",
+        "Anonymous ingestion is PUBLIC_INTENTIONAL in the advisor classification only because this function issues the session token."
+      ],
+      "requiredBefore": ["Diff deployed source against the repo."],
+      "risk": "It is the gate in front of two anon-executable SECURITY DEFINER RPCs; do not touch without the diff."
+    },
+    {
+      "slug": "sign-in-identifier",
+      "status": "DEPLOYED_UNKNOWN_DIFF",
+      "deployGate": "DIFF_FIRST",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "0c5ad5ae", "at": "2026-09-24T20:19:59Z" } },
+      "production": { "version": 1, "updatedAt": "2026-09-24T14:09:03Z", "verifyJwt": true, "sourceCompared": false },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Repo was touched six hours after the deploy by squash commit 0c5ad5ae (RC2.2.13, 4 insertions and 3 deletions in index.ts); whether those lines reached production is unproven.",
+        "Call graph: resolve_login_identity and check_and_record_login_rate PRESENT (rc2_2_11_username_identifier_login is MATCH_EXACT).",
+        "Username login is flag-off in the app (VITE_USERNAME_LOGIN_ENABLED)."
+      ],
+      "requiredBefore": ["Diff deployed source against the repo (7-line change)."],
+      "risk": "Low: identifier login is not enabled for learners."
+    },
+    {
+      "slug": "stripe-webhook",
+      "status": "DEPLOYED_STALE",
+      "deployGate": "HOLD_MONETIZATION",
+      "repo": { "verifyJwt": false, "lastChange": { "sha": "c5ca7b13", "at": "2026-08-27T22:33:13Z" } },
+      "production": { "version": 11, "updatedAt": "2026-08-08T13:45:38Z", "verifyJwt": false, "sourceCompared": false },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Repo changed 19 days after the deploy: c5ca7b13 added _shared/opsCorrelation.ts (created 2026-08-27) and the logOpsEdge calls in this function, which v11 cannot contain.",
+        "Database side is present: apply_subscription_event(…, p_event_id) from 20260808134047_harden_subscription_event_ordering is applied; transactions and subscriptions tables PRESENT.",
+        "Signature verification, event-id idempotency and event.created ordering are identical in intent in both versions (see docs/reports/rc2-3-10b-stripe-test-hardening.md)."
+      ],
+      "requiredBefore": ["RC2.3.11 Stripe TEST end-to-end rehearsal.", "Check the logging-only delta; webhook secret name STRIPE_WEBHOOK_SECRET is unchanged."],
+      "risk": "Billing surface; the delta is additive logging, so holding is safe."
+    },
+    {
+      "slug": "submit-business-lead",
+      "status": "MISSING_WAIT_MIGRATION",
+      "deployGate": "WAIT_MIGRATION",
+      "repo": { "verifyJwt": false, "lastChange": { "sha": "b6a1b1c6", "at": "2026-08-27T03:08:25Z" } },
+      "production": { "version": null, "updatedAt": null, "verifyJwt": null, "sourceCompared": false },
+      "dependencies": {
+        "objectsMissingInProduction": ["table:business_funnel_events", "table:business_leads", "rpc:check_and_record_business_funnel_rate", "rpc:check_and_record_business_lead_rate"],
+        "definedBy": ["supabase/migrations/20260825043000_business_foundation.sql", "supabase/migrations/20260825062000_business_operational_hardening.sql"]
+      },
+      "evidence": [
+        "Snapshot edgeFunctions: absent.",
+        "Call graph: MISSING, HIGH; needs four absent business objects.",
+        "Plan class: business migrations are GATE_CLIENT_THEN_RECONCILE, not in the minimum safe set; the client path is gated by VITE_BACKEND_BUSINESS_ENABLED."
+      ],
+      "requiredBefore": ["Reconcile and apply the business migrations (UNSAFE_UNTIL_RECONCILED today: they define objects the least-privilege grants file also touches).", "Deploy after that, with TURNSTILE secret present and TURNSTILE_ALLOW_SKIP unset."],
+      "risk": "Not part of the beta launch path."
+    },
+    {
+      "slug": "triage-feedback",
+      "status": "DEPLOYED_STALE",
+      "deployGate": "READY_TO_DEPLOY",
+      "repo": { "verifyJwt": true, "lastChange": { "sha": "ec26ffcb", "at": "2026-10-08T05:35:25Z" } },
+      "production": { "version": 1, "updatedAt": "2026-10-07T01:33:07Z", "verifyJwt": true, "sourceCompared": true },
+      "dependencies": { "objectsMissingInProduction": [], "definedBy": [] },
+      "evidence": [
+        "Snapshot: sourceRead=true; deployed v1 guardrails = timeoutMs 8000, killSwitch false, circuitBreaker false, dedupe false, adminOnly true.",
+        "Repo adds jevAllowed(DEV_AUDIT) kill switch, createCircuitBreaker (3 failures, 60 s), 3 s timeout, jevInputHash dedupe and a 25-row batch cap; scripts/rc2-3-10-cloud-certification.mjs validate enforces all of them.",
+        "Dependencies PRESENT: beta_feedback, is_beta_admin, _edge_get_typesafe_api_key.",
+        ".github/workflows/deploy-edge-function.yml allowlists exactly this function (main only, typed confirmation)."
+      ],
+      "requiredBefore": ["Owner dispatches the workflow from main after merge (OA-JEV-CONSOLE-CHECK covers TypeSafe credits)."],
+      "risk": "Admin-only function, Jev learner runtime stays off. Old v1 must not be accepted as JEV_SERVER_TRIAGE_PASS."
+    }
+  ]
+}

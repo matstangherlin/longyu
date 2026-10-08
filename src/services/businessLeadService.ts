@@ -1,4 +1,5 @@
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { isBackendDomainAvailable } from "../lib/cloud/backendCapability";
 import {
   isBusinessHoneypotTriggered,
   validateBusinessLead,
@@ -23,6 +24,9 @@ export interface BusinessLeadSubmitResult {
 
 const SUCCESS_MESSAGE =
   "Recebemos seu pedido. O time comercial do Longyu responde em breve.";
+
+const UNAVAILABLE_MESSAGE =
+  "O envio de contato comercial ainda não está ativo nesta versão. Tente de novo em breve.";
 
 const PREVIEW_MESSAGE =
   "O envio à equipe comercial fica ativo no site principal do Longyu. Aqui o formulário só valida os dados.";
@@ -66,6 +70,10 @@ export async function submitBusinessLead(
   const validated = honeypot ? { ok: true as const, value: null } : validateBusinessLead(draft);
   if (!validated.ok) {
     return { status: "error", message: "Revise os campos destacados e tente de novo." };
+  }
+
+  if (!isBackendDomainAvailable("business")) {
+    return { status: "not_implemented", message: UNAVAILABLE_MESSAGE };
   }
 
   if (!isSupabaseBackendEnabled()) {

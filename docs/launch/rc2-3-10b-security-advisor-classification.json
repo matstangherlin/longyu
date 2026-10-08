@@ -1,0 +1,286 @@
+{
+  "schema": "longyu-security-advisor-classification/1",
+  "wave": "RC2.3.10B",
+  "reconsultedAt": "2026-10-08",
+  "project": "drjcfalvlbbeblmmyhwj",
+  "plan": "free",
+  "sources": [
+    "docs/launch/production-snapshot.json (advisors.security)",
+    "docs/launch/rc2-3-10b-live-facts.json (read-only pg_catalog reads, 2026-10-08)",
+    "supabase/migrations + supabase/pending (repo definitions of the same objects)"
+  ],
+  "safety": {
+    "productionWrites": false,
+    "migrationsApplied": false,
+    "policiesAdded": false,
+    "note": "Classification only. Nothing here was applied. Any change to a production object goes through PRODUCTION_MIGRATION_READY (verified export + schema diff + owner approval)."
+  },
+  "advisorTotals": {
+    "rls_enabled_no_policy": { "level": "INFO", "count": 16 },
+    "function_search_path_mutable": { "level": "WARN", "count": 14 },
+    "anon_security_definer_function_executable": { "level": "WARN", "count": 2 },
+    "authenticated_security_definer_function_executable": { "level": "WARN", "count": 28, "note": "28 = 27 function names + 1 extra overload (submit_beta_feedback has two authenticated-executable signatures)." },
+    "auth_leaked_password_protection": { "level": "WARN", "count": 1 }
+  },
+
+  "rlsNoPolicy": {
+    "vocabulary": ["DENY_ALL_INTENTIONAL", "SERVER_ONLY", "MISSING_POLICY", "OBSOLETE", "UNKNOWN"],
+    "rule": "A server/service-role-only table with RLS enabled and no policy is DENY_ALL_INTENTIONAL: RLS with zero policies denies anon/authenticated by default and SECURITY DEFINER functions (owner = postgres, bypasses RLS) plus service_role keep access. Document it; do NOT add policies just to silence the advisor.",
+    "counts": { "total": 16, "DENY_ALL_INTENTIONAL": 15, "SERVER_ONLY": 0, "MISSING_POLICY": 0, "OBSOLETE": 1, "UNKNOWN": 0 },
+    "clientDirectAccess": "No src/ file references any of the 16 tables through supabase.from(...) (grep of src, 2026-10-08). The learner client never reads or writes them directly.",
+    "leastPrivilegeFollowUp": "anon/authenticated still hold table-level grants on most public tables (least_privilege_api_grants not applied; production-snapshot rlsBehavior.tablePrivileges). RLS-without-policy is the only barrier today; the grant revoke is tracked in the migration plan (20260828020000_least_privilege_api_grants.sql, UNSAFE_UNTIL_RECONCILED) and is not part of silencing this advisor.",
+    "tables": [
+      {
+        "table": "_jev_triage_tmp",
+        "classification": "OBSOLETE",
+        "prodRows": 5,
+        "accessPath": [],
+        "evidence": "PROD_ONLY. No repo reference in src, supabase/migrations, supabase/pending or supabase/functions. Left over from a manual feedback-triage run through pg_net (docs/reports/rc2-3-10-production-schema-diff.md).",
+        "action": "Owner decision OA-JEV-TMP-TABLE: export first (OA-DATA-EXPORT), then approve DROP. Do not add a policy. Do not drop without owner approval.",
+        "exceptionRef": "docs/release/production-schema-exceptions.json#_jev_triage_tmp"
+      },
+      {
+        "table": "beta_anon_ingestion_quota_counters",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "prodRows": 823,
+        "accessPath": ["beta_anon_consume_ingestion_quota", "cleanup_beta_pedagogy_events"],
+        "evidence": "Rate-limit counters for anonymous ingestion. Written only by SECURITY DEFINER functions (20260808081000_harden_anonymous_ingestion.sql)."
+      },
+      {
+        "table": "beta_anon_ingestion_sessions",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["issue_beta_anon_ingestion_session", "beta_anon_resolve_ingestion_session", "cleanup_beta_pedagogy_events"],
+        "evidence": "Holds hashed anonymous-session tokens. Issued by the issue-anon-ingestion-session Edge Function (service role) and resolved inside submit_* RPCs. A client policy would leak token hashes."
+      },
+      {
+        "table": "beta_pedagogy_anon_sessions",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["issue_beta_pedagogy_anon_session", "beta_pedagogy_touch_anon_session", "cleanup_beta_pedagogy_events"],
+        "evidence": "Legacy anonymous pedagogy session store (013_pedagogy_rpc_hardening.sql); server-only."
+      },
+      {
+        "table": "economy_eligible_stories",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["start_story_energy_session", "grant_story_energy", "league_xp_server_amount"],
+        "evidence": "Server-side eligibility ledger for story energy rewards (20260808170000_harden_client_reward_claims.sql). Exposing it would let a client forge eligibility."
+      },
+      {
+        "table": "economy_story_sessions",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["start_story_energy_session", "grant_story_energy", "league_xp_server_amount"],
+        "evidence": "Server-side story session anti-cheat state; written only by the economy RPCs."
+      },
+      {
+        "table": "league_xp_events",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "prodRows": 169,
+        "accessPath": ["add_league_weekly_xp", "economy_verified_mission_metric"],
+        "evidence": "XP idempotency/audit events written by add_league_weekly_xp. Clients call the RPC; a direct table policy would allow XP forgery."
+      },
+      {
+        "table": "login_rate_events",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["check_and_record_login_rate"],
+        "evidence": "Login throttling buckets (supabase/pending/rc2-2-11-username-identifier.sql, already present in production). Contains hashed IP/identifier buckets; server-only."
+      },
+      {
+        "table": "referral_eligible_lessons",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["start_referral_lesson_session", "grant_lesson_reward", "_referral_verified_progress"],
+        "evidence": "Referral anti-abuse allowlist (20260808093000_harden_referral_qualification.sql); server-only."
+      },
+      {
+        "table": "referral_email_blocks",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["attribute_referral", "_referral_grant_reward", "erase_account_personal_data_before_auth_delete"],
+        "evidence": "Hashed-email block list against referral farming (017_referrals.sql). Must never be client-readable."
+      },
+      {
+        "table": "referral_lesson_sessions",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["start_referral_lesson_session", "complete_referral_lesson_session", "grant_lesson_reward"],
+        "evidence": "Server-issued lesson sessions proving real lesson time for referral qualification."
+      },
+      {
+        "table": "referral_qualification_reviews",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["review_referral_qualification"],
+        "evidence": "Reviewer queue for referral rewards (20260809160306_require_referral_reward_review.sql). review_referral_qualification is not executable by anon/authenticated; reviewed by service role only."
+      },
+      {
+        "table": "referral_verified_lesson_completions",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["complete_referral_lesson_session", "_referral_verified_progress", "grant_lesson_reward", "start_referral_lesson_session", "league_xp_server_amount"],
+        "evidence": "Server-verified completion ledger; forging rows would grant referral rewards."
+      },
+      {
+        "table": "reserved_usernames",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "prodRows": 80,
+        "accessPath": ["claim_own_username"],
+        "evidence": "Reserved-name deny list consulted inside claim_own_username. Clients learn availability only via the RPC result."
+      },
+      {
+        "table": "signup_cleanup_runs",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["run_signup_cleanup_job"],
+        "evidence": "Audit log of the weekly signup-cleanup cron (020_signup_cleanup_job.sql); operator-only."
+      },
+      {
+        "table": "signup_rate_events",
+        "classification": "DENY_ALL_INTENTIONAL",
+        "accessPath": ["check_and_record_signup_rate"],
+        "evidence": "Signup throttling buckets (018_signup_rate_limits.sql); called from the create-account Edge Function with the service role."
+      }
+    ]
+  },
+
+  "functionSearchPathMutable": {
+    "vocabulary": ["PURE_HELPER", "SECURITY_SENSITIVE"],
+    "verified": "Live read 2026-10-08: all 14 functions are SECURITY INVOKER (prosecdef = false) with proconfig = NULL (no search_path pinned). None is SECURITY DEFINER and none reads or writes a table in its production definition.",
+    "counts": { "total": 14, "PURE_HELPER": 14, "SECURITY_SENSITIVE": 0 },
+    "risk": "LOW. A mutable search_path only matters when a function runs with elevated privilege or resolves user-writable objects. Every body calls pg_catalog functions/operators only (md5, now, timezone, to_char, left, trim, random, floor, jsonb_*), which always resolve from pg_catalog first. They are invoked from SECURITY DEFINER callers that pin their own search_path.",
+    "proposedFix": "ALTER FUNCTION public.<name>(<args>) SET search_path = '' (metadata-only, additive, reversible with RESET search_path). Safe for all 14 because bodies only use pg_catalog objects (economy_row_to_json takes the public.user_economy row type, which is resolved at definition time, not by search_path). Apply as ONE forward migration together with the rest of the reconciled set after backup + owner approval; not applied here. Verify locally against a restored schema dump first.",
+    "doNotDo": "Do not re-run 006_economy_server.sql / 004_leagues.sql / 013_pedagogy_rpc_hardening.sql / 017_referrals.sql to 'fix' this: they are SUPERSEDED/UNSAFE_UNTIL_RECONCILED in docs/launch/rc2-3-10b-migration-plan.json and would overwrite newer production objects.",
+    "functions": [
+      { "name": "iso_week_key", "classification": "PURE_HELPER", "volatility": "STABLE", "definedIn": "004_leagues.sql", "note": "to_char(timezone('UTC', ...))" },
+      { "name": "week_ends_at", "classification": "PURE_HELPER", "volatility": "STABLE", "definedIn": "004_leagues.sql", "note": "date_trunc/interval arithmetic" },
+      { "name": "economy_row_to_json", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql (production copy); the repo's 20260813180000_pearl_pro_economy.sql redefines it with search_path = '' and reads pearl_milestone_claims, which is absent in production", "note": "Formats a user_economy row to jsonb. The repo pearl version is NOT what production runs; do not apply it ahead of the pearl reconciliation." },
+      { "name": "economy_rand01", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql", "note": "md5-seeded deterministic float, no secret" },
+      { "name": "economy_mission_reward", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql", "note": "constant lookup" },
+      { "name": "economy_mission_is_pro", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql", "note": "LIKE on mission id" },
+      { "name": "economy_activity_consumes_charge", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql", "note": "constant set membership" },
+      { "name": "economy_constants", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql", "note": "constant jsonb; execute already revoked from public" },
+      { "name": "economy_mission_goal", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "006_economy_server.sql", "note": "constant lookup" },
+      { "name": "beta_pedagogy_rate_bucket_key", "classification": "PURE_HELPER", "volatility": "STABLE", "definedIn": "013_pedagogy_rpc_hardening.sql", "note": "md5 of ids + UTC date; reads no table" },
+      { "name": "beta_pedagogy_context_digest", "classification": "PURE_HELPER", "volatility": "STABLE", "definedIn": "013_pedagogy_rpc_hardening.sql", "note": "daily-rotating md5 of a client context string; hardcoded salt is not a secret and is not relied on for authentication" },
+      { "name": "beta_pedagogy_identity_match", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "013_pedagogy_rpc_hardening.sql", "note": "boolean comparison of its arguments" },
+      { "name": "_referral_random_code", "classification": "PURE_HELPER", "volatility": "VOLATILE", "definedIn": "017_referrals.sql", "note": "random() referral-code suffix. Not a security token (codes are public identifiers; rewards are gated server-side). Underscore prefix, not executable by anon/authenticated." },
+      { "name": "sanitize_pedagogy_metadata", "classification": "PURE_HELPER", "volatility": "IMMUTABLE", "definedIn": "013 and later telemetry migrations (production copy hash in live facts)", "note": "jsonb allowlist filter for telemetry metadata; privacy-relevant logic but pure and invoker-only. Its production definition must be diffed before any redefine (20260812180000_production_help_telemetry.sql is PRODUCTION_DEFINITION_DRIFT_UNKNOWN)." }
+    ]
+  },
+
+  "anonSecurityDefiner": {
+    "vocabulary": ["PUBLIC_INTENTIONAL", "REVOKE_REQUIRED", "REFACTOR_REQUIRED"],
+    "rule": "PUBLIC_INTENTIONAL only if rate-limited AND session-token gated (anon callers cannot reach the insert without a server-issued token).",
+    "verified": "Live read 2026-10-08 (pg_proc + has_function_privilege + body checks).",
+    "counts": { "PUBLIC_INTENTIONAL": 2, "REVOKE_REQUIRED": 0, "REFACTOR_REQUIRED": 0 },
+    "functions": [
+      {
+        "name": "submit_beta_feedback",
+        "signature": "(p_category, p_message, p_anon_session_token, p_route, p_lesson_id, p_exercise_kind, p_exercise_index, p_app_version, p_browser, p_viewport, p_local_profile_id, p_client_dedupe_key)",
+        "classification": "PUBLIC_INTENTIONAL",
+        "anonExecute": true,
+        "searchPath": "\"\" (pinned)",
+        "gates": [
+          "Anonymous callers must pass p_anon_session_token; with no auth.uid() and no token it raises anon_session_required.",
+          "Token resolved by beta_anon_resolve_ingestion_session (hashed token, issued only by the issue-anon-ingestion-session Edge Function, which derives an HMAC rate-bucket key and returns 429 rate_limited on over-issuance).",
+          "beta_submit_feedback_core consumes beta_anon_consume_ingestion_quota buckets feedback_minute (1/min) and feedback_hour (8/h) for anon callers and beta_feedback_rate_limited for authenticated callers.",
+          "Message length (3..4000), category allowlist and forbidden-content filter enforced in the core."
+        ],
+        "legacyOverload": "The 11-argument overload without a token is executable by authenticated only (anon_exec = false) and raises anon_session_required when auth.uid() is null.",
+        "residualRisk": "Bounded: per-session quotas, but one token holder can still insert up to the quota. Accepted for closed beta.",
+        "action": "Keep. Advisor WARN is expected and accepted; document as intentional."
+      },
+      {
+        "name": "submit_beta_pedagogy_event",
+        "signature": "(p_event_type, p_route, p_lesson_id, p_exercise_kind, p_exercise_index, p_metadata, p_local_profile_id, p_client_dedupe_key, p_client_context, p_anon_session_token)",
+        "classification": "PUBLIC_INTENTIONAL",
+        "anonExecute": true,
+        "searchPath": "public (pinned)",
+        "gates": [
+          "Anonymous callers must present p_anon_session_token (anon_session_required; resolved by beta_anon_resolve_ingestion_session).",
+          "Authenticated callers must have profiles.pedagogy_analytics_consent = true (consent_required).",
+          "Anonymous quotas: pedagogy_minute 60/min, pedagogy_day 1000/day, plus per-event-type minute/day buckets; authenticated callers use beta_pedagogy_event_rate_limited / beta_pedagogy_event_type_rate_limited.",
+          "Event type allowlist, 2 KiB payload cap and sanitize_pedagogy_metadata allowlist."
+        ],
+        "residualRisk": "Telemetry only (no reward, no entitlement). search_path = public (not empty) is acceptable because the function is pinned; hardening to '' is optional and must be diffed against the production definition first.",
+        "action": "Keep. Advisor WARN is expected and accepted; document as intentional."
+      }
+    ]
+  },
+
+  "authenticatedSecurityDefiner": {
+    "counts": { "signatures": 28, "functionNames": 27, "pinnedSearchPath": 28, "usesAuthUid": 27, "adminGated": 1 },
+    "verified": "Live read 2026-10-08: every one of the 28 signatures pins search_path (public or ''), anon cannot execute any of them except the two PUBLIC_INTENTIONAL token overloads above, and all 27 non-admin names bind to auth.uid() (ensure_league_membership and sync_league_week take p_user_id but raise 'not authorized' unless it equals auth.uid()).",
+    "rule": "Signed-in learners are meant to call these RPCs; the WARN only says authenticated can execute a definer function. Classified by group, not revoked. The client's only write path to server economy/league/referral state is these RPCs, so REVOKE would break the product.",
+    "groups": [
+      {
+        "group": "economy",
+        "classification": "AUTHENTICATED_INTENTIONAL",
+        "functions": ["consume_charge", "spend_qi", "grant_lesson_reward", "grant_story_energy", "start_story_energy_session", "claim_mission", "open_chest", "get_server_economy", "migrate_local_economy"],
+        "gate": "auth.uid() binding + idempotency ledger (economy_ledger) + server-issued eligibility rows (economy_eligible_stories / economy_story_sessions). Reward amounts are computed server-side.",
+        "followUp": "pearl RPCs (activate_pearl_pro_pass, claim_pearl_milestone) are NOT in production; see client gates in src/lib/cloud/backendCapability.ts."
+      },
+      {
+        "group": "entitlement",
+        "classification": "AUTHENTICATED_INTENTIONAL",
+        "functions": ["get_server_entitlement"],
+        "gate": "Read-only for auth.uid(); Pro is Stripe-active OR active grant."
+      },
+      {
+        "group": "league",
+        "classification": "AUTHENTICATED_INTENTIONAL",
+        "functions": ["add_league_weekly_xp", "claim_league_week_reward", "ensure_league_membership", "get_league_standings", "sync_league_week"],
+        "gate": "auth.uid() binding; XP amounts validated by league_xp_server_amount / league_source_key_acceptable and recorded idempotently in league_xp_events.",
+        "followUp": "league_memberships_select_peers policy still fails closed (42P17) on direct SELECT; clients only use RPCs. Fix is supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql (batch A)."
+      },
+      {
+        "group": "referral",
+        "classification": "AUTHENTICATED_INTENTIONAL",
+        "functions": ["attribute_referral", "complete_referral_lesson_session", "ensure_referral_code", "get_referral_dashboard", "process_referral_pipeline", "start_referral_lesson_session"],
+        "gate": "auth.uid() binding; rewards require server-verified lesson sessions and a reviewer step (referral_qualification_reviews). Internal grant/qualify helpers (_referral_*) are not executable by clients."
+      },
+      {
+        "group": "identity",
+        "classification": "AUTHENTICATED_INTENTIONAL",
+        "functions": ["ensure_own_profile", "claim_own_username"],
+        "gate": "auth.uid() binding; reserved-username list and format checks run inside the RPC."
+      },
+      {
+        "group": "feedback_telemetry",
+        "classification": "AUTHENTICATED_INTENTIONAL",
+        "functions": ["submit_beta_feedback (2 overloads)", "submit_beta_pedagogy_event"],
+        "gate": "Rate-limited; telemetry requires consent. See anonSecurityDefiner."
+      },
+      {
+        "group": "admin",
+        "classification": "ADMIN_SAFE",
+        "functions": ["is_beta_admin", "update_beta_feedback_admin"],
+        "gate": "Executable by authenticated but self-guarded: is_beta_admin() checks beta_admins.user_id = auth.uid(); update_beta_feedback_admin raises not_admin first.",
+        "adminChecks": [
+          {
+            "name": "update_beta_feedback_admin",
+            "signature": "(p_id uuid, p_status text, p_admin_note text)",
+            "classification": "ADMIN_SAFE",
+            "requires": "public.is_beta_admin()",
+            "verifiedInRepoSql": "supabase/migrations/010_beta_feedback.sql: first statement of the body is `if not public.is_beta_admin() then raise exception 'not_admin'`; status allowlist (new|investigating|resolved|wontfix|duplicate); note capped at 2000 chars.",
+            "verifiedInProduction": "Live read 2026-10-08: prosecdef = true, search_path = public, anon_exec = false, authenticated_exec = true, body references is_beta_admin (callsIsBetaAdmin = true).",
+            "isBetaAdmin": "20260808130200_admin_roles_user_id.sql: SECURITY DEFINER, search_path = public, `exists (select 1 from beta_admins where user_id = auth.uid())`; anon revoked (20260808150000). Production body references beta_admins and auth.uid()."
+          }
+        ]
+      }
+    ],
+    "conclusion": "No REVOKE required. Advisor WARNs are by-design for an RPC-only write model. Re-evaluate only if a function is found that does not bind to auth.uid() (none found)."
+  },
+
+  "leakedPasswordProtection": {
+    "advisor": "auth_leaked_password_protection",
+    "level": "WARN",
+    "classification": "OWNER_ACTION_REQUIRED",
+    "ownerActionRef": "OA-AUTH-RATE-LIMITS-READ (docs/release/owner-actions.json)",
+    "enabled": false,
+    "planGate": {
+      "result": "PLAN_GATED_NOT_AVAILABLE_ON_FREE",
+      "evidence": "Supabase docs (Auth > Password security, searched via Supabase docs MCP on 2026-10-08): \"Leaked password protection is available on the Pro Plan and above.\" The repo's own script says the same (scripts/configure-supabase-leaked-passwords.mjs).",
+      "projectPlan": "free (production-snapshot.json project.plan)"
+    },
+    "dashboardPath": "Supabase Dashboard > project MandarimProject (drjcfalvlbbeblmmyhwj) > Authentication > Sign In / Providers > Email > \"Prevent use of leaked passwords\" (deep link: /dashboard/project/drjcfalvlbbeblmmyhwj/auth/providers?provider=Email). On the free plan the toggle is not available.",
+    "apiAlternative": "npm run configure:supabase-leaked-passwords -- --apply (PATCH /v1/projects/{ref}/config/auth {password_hibp_enabled:true}); only after the organization is on Pro. The script defaults to a dry run without --apply.",
+    "decision": {
+      "doNotEnableBlindly": true,
+      "freePlan": "ACCEPT_ADVISOR_WARN: document as a known, plan-gated limitation; compensating controls are signup/login rate limits (signup_rate_events, login_rate_events), Turnstile on create-account and the minimum password policy.",
+      "ifUpgradedToPro": "Owner enables the toggle, then re-run the security advisor and record 'leaked password protection: on'. Existing users are not re-checked; only new/changed passwords are."
+    }
+  }
+}

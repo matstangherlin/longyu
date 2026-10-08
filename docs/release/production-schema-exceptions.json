@@ -1,0 +1,176 @@
+{
+  "schema": "longyu-production-schema-exceptions/1",
+  "wave": "RC2.3.10B",
+  "project": "drjcfalvlbbeblmmyhwj",
+  "reviewedAt": "2026-10-08",
+  "purpose": "Production objects that legitimately differ from the repo migrations. Each entry names exactly ONE object and pins it to the definitionHash in docs/launch/rc2-3-10b-schema-fingerprint.json, so a later change to the object invalidates the exception.",
+  "rules": [
+    "No wildcards. Entries never use `public.*` or any pattern; one object per entry.",
+    "Only drift in the direction PROD_ONLY (production has it, the repo does not) can be an exception, and only with a stated reason, an owner and a disposition.",
+    "An object the repo defines and the client calls but production lacks (ABSENT / REPO_ONLY) is a BLOCKER, never an exception. See notExceptions.",
+    "An exception does not waive security review: its advisor findings are still classified in docs/launch/rc2-3-10b-security-advisor-classification.json.",
+    "A changed definitionHash voids the exception until it is re-reviewed."
+  ],
+  "exceptions": [
+    {
+      "id": "EXC-JEV-TRIAGE-TMP",
+      "type": "table",
+      "schema": "public",
+      "name": "_jev_triage_tmp",
+      "drift": "PROD_ONLY",
+      "disposition": "TEMPORARY",
+      "pinnedDefinitionHash": "md5:7d74060c12bc833c3f9bdfe594938fe0",
+      "pinnedHashBasis": "live-definition",
+      "reason": "Leftover scratch table (request_id bigint, feedback_id uuid, 5 rows) from a manual feedback-triage run through pg_net. No reference in src, supabase/migrations, supabase/pending or supabase/functions.",
+      "risk": "LOW. RLS is enabled with no policy, so anon/authenticated are denied; anon/authenticated still hold table-level grants until least-privilege grants are applied. Rows reference feedback ids only (no message text).",
+      "advisor": "rls_enabled_no_policy (INFO), classified OBSOLETE",
+      "owner": "OWNER",
+      "ownerActionRef": "OA-JEV-TMP-TABLE",
+      "requiredBefore": "PRODUCTION_MIGRATION_READY (export first via OA-DATA-EXPORT, then owner-approved DROP)",
+      "expiresWhen": "table dropped; then delete this entry",
+      "agentMayDrop": false
+    },
+    {
+      "id": "EXC-RLS-AUTO-ENABLE-FN",
+      "type": "function",
+      "schema": "public",
+      "name": "rls_auto_enable",
+      "drift": "PROD_ONLY",
+      "disposition": "PLATFORM_GUARD",
+      "pinnedDefinitionHash": "md5:d29c76091ec2bc92922809ca6c372cd5",
+      "pinnedHashBasis": "live-definition",
+      "reason": "Function behind the production event trigger `ensure_rls` (ddl_command_end on CREATE TABLE / CREATE TABLE AS / SELECT INTO, owner postgres, enabled). It turns RLS on for tables created in public. Not defined in any repo migration.",
+      "risk": "LOW and protective: new tables get RLS even if a migration forgets it. Not executable by anon/authenticated (snapshot: anonExecute=false, authenticatedExecute=false).",
+      "advisor": "none",
+      "owner": "OWNER",
+      "ownerActionRef": null,
+      "requiredBefore": "Before any migration is applied: the apply plan must expect RLS to be auto-enabled on new tables (migrations that rely on RLS being off, or that create tables and then add policies, still work).",
+      "expiresWhen": "Either the guard is captured in a repo migration (preferred, forward migration after reconcile) or removed with owner approval; then delete this entry",
+      "agentMayDrop": false
+    },
+    {
+      "id": "EXC-RLS-AUTO-ENABLE-EVENT-TRIGGER",
+      "type": "event_trigger",
+      "schema": null,
+      "name": "ensure_rls",
+      "drift": "PROD_ONLY",
+      "disposition": "PLATFORM_GUARD",
+      "pinnedDefinitionHash": null,
+      "pinnedHashBasis": "not-fingerprinted (event triggers are outside the table/view/function fingerprint)",
+      "reason": "Event trigger that calls public.rls_auto_enable() (see EXC-RLS-AUTO-ENABLE-FN). Read from pg_event_trigger on 2026-10-08: evtevent ddl_command_end, evtenabled O.",
+      "risk": "LOW and protective.",
+      "advisor": "none",
+      "owner": "OWNER",
+      "ownerActionRef": null,
+      "requiredBefore": "Same as EXC-RLS-AUTO-ENABLE-FN",
+      "expiresWhen": "Same as EXC-RLS-AUTO-ENABLE-FN",
+      "agentMayDrop": false
+    }
+  ],
+
+  "notExceptions": {
+    "note": "These differences are NOT exceptions. They are blockers or open reconciliation items and must not be added to `exceptions` to turn a gate green.",
+    "absentInProductionBlockers": [
+      {
+        "domain": "social",
+        "kind": "table",
+        "objects": ["user_follows", "social_activity_events"],
+        "status": "ABSENT",
+        "classification": "BLOCKER",
+        "clientCalls": "src/services/socialService.ts (/amigos, /ajustes, /conta, /config)",
+        "resolution": "Gate the client (src/lib/cloud/backendCapability.ts) AND reconcile 005_social.sql into a forward migration (UNSAFE_UNTIL_RECONCILED). Gating hides the failure; it does not make the absence legitimate.",
+        "factChecks": "friendships and friend_requests are not repo objects either (docs/launch/rc2-3-10b-migration-plan.json factChecks); the repo social model is user_follows + social_activity_events."
+      },
+      {
+        "domain": "social",
+        "kind": "function",
+        "objects": ["search_public_profiles", "get_public_profile_by_username", "get_public_profiles_by_ids"],
+        "status": "ABSENT",
+        "classification": "BLOCKER",
+        "resolution": "Same as above."
+      },
+      {
+        "domain": "social",
+        "kind": "view",
+        "objects": ["public_profiles"],
+        "status": "ABSENT",
+        "classification": "BLOCKER",
+        "resolution": "Same as above. Production has only admin_user_overview."
+      },
+      {
+        "domain": "family",
+        "kind": "table",
+        "objects": ["family_accounts", "family_memberships", "family_invites"],
+        "status": "ABSENT",
+        "classification": "BLOCKER",
+        "resolution": "Gate /familia; apply 20260914120000..20260914210000 only after reconcile (GATE_CLIENT_PREFERRED)."
+      },
+      {
+        "domain": "family",
+        "kind": "function",
+        "objects": ["get_family_overview", "create_family_invite", "revoke_family_invite", "remove_family_member", "accept_family_invite"],
+        "status": "ABSENT",
+        "classification": "BLOCKER"
+      },
+      {
+        "domain": "business",
+        "kind": "table",
+        "objects": ["organizations", "organization_members", "organization_invites", "organization_subscriptions", "organization_entitlement_grants", "business_leads", "business_lead_rate_events", "business_funnel_events"],
+        "status": "ABSENT",
+        "classification": "BLOCKER",
+        "resolution": "Gate /business; 20260825043000_business_foundation.sql is UNSAFE_UNTIL_RECONCILED."
+      },
+      {
+        "domain": "business",
+        "kind": "function",
+        "objects": ["get_business_overview", "get_business_members"],
+        "status": "ABSENT",
+        "classification": "BLOCKER"
+      },
+      {
+        "domain": "business",
+        "kind": "edge_function",
+        "objects": ["submit-business-lead"],
+        "status": "ABSENT",
+        "classification": "BLOCKER"
+      },
+      {
+        "domain": "pearl",
+        "kind": "table",
+        "objects": ["pearl_milestone_catalog", "pearl_journey_phase_catalog", "pearl_milestone_claims"],
+        "status": "ABSENT",
+        "classification": "BLOCKER",
+        "resolution": "Gate pearl RPC calls; 20260813180000_pearl_pro_economy.sql is UNSAFE_UNTIL_RECONCILED (would overwrite newer economy functions)."
+      },
+      {
+        "domain": "pearl",
+        "kind": "function",
+        "objects": ["activate_pearl_pro_pass", "claim_pearl_milestone"],
+        "status": "ABSENT",
+        "classification": "BLOCKER"
+      },
+      {
+        "domain": "placement",
+        "kind": "table",
+        "objects": ["placement_attempts", "placement_onboarding_drafts"],
+        "status": "ABSENT",
+        "classification": "BLOCKER_CRITICAL",
+        "resolution": "NOT gateable: sign-up/onboarding core flow. Apply 20260826230000_placement_onboarding.sql + 20260827023000_placement_onboarding_handoff.sql (BETA_REQUIRED, safe as written) and deploy the commit-placement and finalize-onboarding Edge Functions."
+      },
+      {
+        "domain": "telemetry",
+        "kind": "table",
+        "objects": ["telemetry_retention_runs"],
+        "status": "ABSENT",
+        "classification": "OPEN_ITEM",
+        "resolution": "supabase/pending/rc2-3-10-telemetry-retention.sql; owner decision OA-TELEMETRY-RETENTION."
+      }
+    ],
+    "unresolvedProdOnlyMigrations": {
+      "classification": "OPEN_RECONCILIATION_ITEM",
+      "versions": ["20260808133923", "20260808134006", "20260808134007", "20260808134009", "20260808134010", "20260808134325"],
+      "reason": "Production history rows with no repo file (docs/launch/production-migration-ledger.json state PROD_ONLY). Their effects on function bodies and profiles columns are not yet diffed, so they cannot be declared legitimate. Resolve by reading the applied SQL (read-only) and either adding it to the repo or documenting why production carries it."
+    },
+    "columnLevelDrift": "NOT_RUN. The snapshot is table-level; per-column drift (for example profiles columns added by profiles_social_columns) is unproven either way and is not covered by any exception."
+  }
+}

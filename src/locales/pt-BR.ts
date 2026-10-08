@@ -1572,6 +1572,7 @@ export const ptBR = {
     errorForbidden: "Esta conta não administra esta organização.",
     errorUnauthenticated: "Entre na sua conta para abrir o painel.",
     errorBackendOff: "O painel precisa da conta na nuvem. Este ambiente está sem backend.",
+    errorBackendUnavailable: "O painel para empresas ainda não está disponível nesta versão.",
     errorUnknown: "Não foi possível carregar o painel. Tente de novo.",
     roleOwner: "Dono",
     roleAdmin: "Administrador",
@@ -1635,6 +1636,7 @@ export const ptBR = {
     errorAlreadyInFamily: "Esta conta já participa de outra família.",
     errorOwnerCannotLeave: "O dono da assinatura não pode sair da própria família.",
     errorBackendOff: "A família precisa da conta na nuvem. Este ambiente está sem backend.",
+    errorBackendUnavailable: "O plano Família ainda não está disponível nesta versão.",
     errorUnknown: "Não foi possível concluir. Tente de novo.",
   },
   nativeApp: {
@@ -2099,6 +2101,7 @@ export const ptBR = {
     friendsDesc: "Busque por nome ou @apelido, siga amigos e compare XP da semana.",
     friendsNeedCloud:
       "Crie uma conta na nuvem em Perfil → Conta para usar amigos, ranking e atividade. Seu email nunca aparece para outros alunos.",
+    friendsUnavailable: "Amigos ainda não está disponível nesta versão. Seu progresso continua funcionando normalmente.",
     referrals: "Indicações",
     inviteCloudDesc: "Disponível com conta na nuvem.",
     inviteDesc: "Ganhe 7 dias de Longyu Pro por amigo que realmente estudar.",

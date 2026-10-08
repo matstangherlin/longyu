@@ -1,0 +1,57 @@
+{
+  "schema": "longyu-known-missing-backend/1",
+  "productionProject": "drjcfalvlbbeblmmyhwj",
+  "productionReadAt": "2026-10-08",
+  "source": "docs/launch/rc2-3-10b-client-backend-call-graph.json",
+  "rule": "A domain listed here has client call sites that production cannot serve. In production-like builds (production_beta, qa_candidate) the client skips those calls and fails soft. Remove the domain (or set its VITE_BACKEND_<DOMAIN>_ENABLED flag to true) only AFTER the backend objects exist in production and the schema fingerprint was refreshed. This list never replaces the migration work; it only keeps the UI from hard-failing meanwhile.",
+  "domains": {
+    "social": {
+      "flag": "VITE_BACKEND_SOCIAL_ENABLED",
+      "routes": ["/amigos"],
+      "missing": [
+        { "kind": "table", "name": "user_follows" },
+        { "kind": "table", "name": "social_activity_events" },
+        { "kind": "rpc", "name": "search_public_profiles" },
+        { "kind": "rpc", "name": "get_public_profile_by_username" },
+        { "kind": "rpc", "name": "get_public_profiles_by_ids" }
+      ]
+    },
+    "family": {
+      "flag": "VITE_BACKEND_FAMILY_ENABLED",
+      "routes": ["/familia", "/familia/convite/:token"],
+      "missing": [
+        { "kind": "rpc", "name": "get_family_overview" },
+        { "kind": "rpc", "name": "create_family_invite" },
+        { "kind": "rpc", "name": "revoke_family_invite" },
+        { "kind": "rpc", "name": "remove_family_member" },
+        { "kind": "rpc", "name": "accept_family_invite" }
+      ]
+    },
+    "business": {
+      "flag": "VITE_BACKEND_BUSINESS_ENABLED",
+      "routes": ["/business", "/business/dashboard", "/business/members"],
+      "missing": [
+        { "kind": "rpc", "name": "get_business_overview" },
+        { "kind": "rpc", "name": "get_business_members" },
+        { "kind": "edge", "name": "submit-business-lead" }
+      ]
+    },
+    "pearl": {
+      "flag": "VITE_BACKEND_PEARL_ENABLED",
+      "routes": [],
+      "missing": [
+        { "kind": "rpc", "name": "activate_pearl_pro_pass" },
+        { "kind": "rpc", "name": "claim_pearl_milestone" }
+      ]
+    }
+  },
+  "notGatedHere": {
+    "placement": {
+      "reason": "Sign-up/onboarding core flow. Already off in production-like builds through VITE_CLOUD_ONBOARDING_V2_ENABLED (src/lib/featureFlags.ts, netlify.toml). The fix is the BETA_REQUIRED placement migrations plus the commit-placement / finalize-onboarding Edge Functions, not a second gate.",
+      "missing": [
+        { "kind": "edge", "name": "commit-placement" },
+        { "kind": "edge", "name": "finalize-onboarding" }
+      ]
+    }
+  }
+}

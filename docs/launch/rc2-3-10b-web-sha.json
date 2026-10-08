@@ -1,0 +1,70 @@
+{
+  "schema": "longyu-prod-web-sha/1",
+  "wave": "RC2.3.10B",
+  "status": "PASS",
+  "sha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+  "shortSha": "ec26ffc",
+  "url": "https://singular-meringue-7838cd.netlify.app/version.json",
+  "site": "https://singular-meringue-7838cd.netlify.app",
+  "verifiedAt": "2026-10-08T22:54:19.831Z",
+  "method": [
+    "HTTP GET <site>/version.json (public build identity written by scripts/vite-build.mjs)",
+    "HTTP GET <site>/ then the served assets/index-*.js: the SHA must be embedded in the bundle the browser runs",
+    "git: SHA must be a commit of this repository and an ancestor of origin/main",
+    "Netlify deploy API NOT used (no NETLIFY_AUTH_TOKEN in this environment)"
+  ],
+  "reasons": [],
+  "identity": {
+    "schema": "longyu-build-identity/2",
+    "authority": "sha",
+    "commitSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+    "sourceHeadSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+    "workflowSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+    "embeddedSourceHeadSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+    "embeddedWorkflowSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+    "branch": "main",
+    "appVersion": "0.2.0-beta.1",
+    "platform": "web",
+    "environment": "production_beta",
+    "builtAt": "2026-10-08T05:36:37.673Z"
+  },
+  "fetch": {
+    "reachable": true,
+    "versionJsonOk": true,
+    "versionJsonHttp": 200,
+    "contentType": "application/json",
+    "cacheControl": "public,max-age=0,must-revalidate",
+    "netlifyRequestId": "01M4EVK0PVSJRRJTPKD9WRVRDP"
+  },
+  "bundle": {
+    "checked": true,
+    "asset": "assets/index-BAuS39Wg.js",
+    "shaFoundInBundle": true,
+    "shaOccurrences": 16
+  },
+  "git": {
+    "knownLocally": true,
+    "ancestorOfOriginMain": true,
+    "originMainHead": "7d1890adf8350d839463a290aaa01dd604e4618f",
+    "commitSubject": "[release] RC2.3.0–RC2.3.9 — Stack convergence: Pedagogy V6, Visual First, Everyday, Culture, Hànzì, Speech, Mastery, Auth (#320)",
+    "commitDate": "2026-10-08T02:35:25-03:00",
+    "commitsBehindOriginMain": 1,
+    "originMainIsServed": false,
+    "commitsAfterServedSha": [
+      {
+        "sha": "7d1890ad",
+        "subject": "Pós-#320: main verde (gates de ancestralidade pós-squash) + E2E de fala no Firefox/WebKit (#321)"
+      }
+    ]
+  },
+  "netlifyApi": {
+    "attempted": false,
+    "skipped": "NETLIFY_AUTH_TOKEN not set in this environment"
+  },
+  "limits": [
+    "version.json and the bundle are served by the same site, so they prove what the site serves now, not who published it or whether Netlify marks that deploy as published; the Netlify deploy record stays unverified without a token.",
+    "A later push to main would change what is served; this evidence is valid only at verifiedAt.",
+    "PASS here means PRODUCTION_WEB_SHA_IDENTIFIED only. It does not certify the web build, the cloud, or any other gate."
+  ],
+  "privacy": "Public build metadata only. No cookies, tokens or headers beyond content-type, cache-control and the Netlify request id were stored."
+}

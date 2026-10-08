@@ -1574,6 +1574,7 @@ export const en: MessageCatalog = {
     errorForbidden: "This account does not administer this organization.",
     errorUnauthenticated: "Sign in to open the workspace.",
     errorBackendOff: "The workspace needs the cloud account. This environment has no backend.",
+    errorBackendUnavailable: "The business workspace is not available in this version yet.",
     errorUnknown: "We could not load the workspace. Try again.",
     roleOwner: "Owner",
     roleAdmin: "Admin",
@@ -1637,6 +1638,7 @@ export const en: MessageCatalog = {
     errorAlreadyInFamily: "This account already belongs to another family.",
     errorOwnerCannotLeave: "The subscription owner cannot leave their own family.",
     errorBackendOff: "Family needs the cloud account. This environment has no backend.",
+    errorBackendUnavailable: "The Family plan is not available in this version yet.",
     errorUnknown: "We could not finish that. Try again.",
   },
   nativeApp: {
@@ -2095,6 +2097,7 @@ export const en: MessageCatalog = {
     friendsDesc: "Search by name or @username, follow friends, and compare this week's XP.",
     friendsNeedCloud:
       "Create a cloud account in Profile → Account to use friends, ranking, and activity. Your email never appears to other students.",
+    friendsUnavailable: "Friends is not available in this version yet. Your progress keeps working as usual.",
     referrals: "Referrals",
     inviteCloudDesc: "Available with a cloud account.",
     inviteDesc: "Earn 7 days of Longyu Pro for each friend who actually studies.",
