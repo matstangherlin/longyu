@@ -50,15 +50,19 @@ test.use({
  *   "Voz não disponível aqui" there, see openListenSelectStep), and the previous
  *   double returned early when navigator.mediaDevices was absent, so it never
  *   replaced MediaRecorder either.
- * The double now installs mediaDevices when the engine lacks it, returns an
- * empty MediaStream (no WebAudio), and replaces MediaRecorder with one that
- * yields a short valid WAV on stop. Chromium keeps the real capture pipeline.
+ * The double now installs mediaDevices when the engine lacks it, returns a
+ * stream stand-in (no WebAudio, no MediaStream constructor), and replaces
+ * MediaRecorder with one that yields a short valid WAV on stop. Chromium keeps
+ * the real capture pipeline.
  */
 async function installSyntheticMicrophone(page: Page) {
   await page.addInitScript(() => {
     const getUserMedia = async (constraints?: MediaStreamConstraints) => {
       if (!constraints?.audio) throw new DOMException("Only audio is faked", "NotSupportedError");
-      return typeof MediaStream === "function" ? new MediaStream() : ({ getTracks: () => [] } as unknown as MediaStream);
+      // A plain stand-in, never `new MediaStream()`: the CI WebKit build exposes the
+      // MediaStream interface without a capture engine and its constructor can throw.
+      // The MediaRecorder below is a double too, so the app only calls getTracks().
+      return { active: true, getTracks: () => [], getAudioTracks: () => [] } as unknown as MediaStream;
     };
     if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = getUserMedia;
     else Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: { getUserMedia } });
@@ -180,8 +184,15 @@ for (const viewport of VIEWPORTS) {
       await expect(self).toBeVisible();
       await expect(page.getByTestId("self-compare-privacy")).toBeVisible();
       await page.getByTestId("self-compare-record").click();
-      // "Gravando…" only once capture really started.
-      await expect(page.getByTestId("self-compare-recording-label")).toBeVisible({ timeout: 15_000 });
+      // "Gravando…" only once capture really started. On failure, say which phase
+      // the recorder is stuck in (preparing = capture never resolved; failed = threw).
+      try {
+        await expect(page.getByTestId("self-compare-recording-label")).toBeVisible({ timeout: 15_000 });
+      } catch (error) {
+        const phase = await self.getAttribute("data-self-compare-phase");
+        const category = await page.getByTestId("self-compare-failed").getAttribute("data-failure-category").catch(() => null);
+        throw new Error(`recording never started (phase=${phase}, failure=${category}): ${String(error).slice(0, 200)}`);
+      }
       await page.waitForTimeout(900);
       await page.getByTestId("self-compare-stop").click();
       await expect(page.getByTestId("self-compare-recorded")).toBeVisible({ timeout: 15_000 });
