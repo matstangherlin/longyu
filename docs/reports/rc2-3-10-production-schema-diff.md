@@ -1,6 +1,6 @@
 # RC2.3.10 — Production schema truth (repo × produção)
 
-- **Projeto:** MandarimProject `drjcfalvlbbeblmmyhwj` (org Noba, plano **free**, us-west-2, Postgres 17.6.1.155). Identificado por `.env.production` (`VITE_SUPABASE_URL`), `supabase/baseline/README.md` e `configure-supabase-auth.yml`. Os outros dois projetos da org (`longyu-preview`, inativo, o do #273; `atomurus`, que não é do Longyu) **não foram tocados**.
+- **Projeto:** MandarimProject `drjcfalvlbbeblmmyhwj` (org Noba, plano **free**, us-west-2, Postgres 17.6.1.155). Identificado por `.env.production` (`VITE_SUPABASE_URL`), `supabase/baseline/README.md` e `configure-supabase-auth.yml`. Os outros dois projetos da org (um preview `INACTIVE` ligado ao #273; um sibling ativo que não é Longyu) **não foram tocados** — nomes/refs omitidos por LON-001.
 - **Leitura:** 2026-10-08, só leitura, via Supabase MCP (catálogos `pg_*`, `information_schema`, `supabase_migrations`, `cron.job`, nomes em `vault.secrets`, contagens agregadas). Nenhuma linha de usuário foi lida.
 - **Evidência commitada:** `docs/launch/production-snapshot.json` (só fatos de schema e contagens; sem PII, sem valor de segredo).
 - **Escopo:** diff por **objeto** (tabelas, views, funções/RPCs, policies, extensões, cron, Edge Functions). O diff por **coluna** exige `npx supabase db diff --linked --schema public` rodado na máquina do owner (Supabase CLI 2.109.1, Docker) → `OA-SCHEMA-DIFF` (`NOT_RUN`).

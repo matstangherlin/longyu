@@ -16,20 +16,12 @@
    "supabase/baseline/README.md",
    ".github/workflows/configure-supabase-auth.yml"
   ],
-  "otherProjectsInOrg": [
-   {
-    "name": "longyu-preview",
-    "ref": "wpnmygzxqvmpdlcuwrjp",
-    "status": "INACTIVE",
-    "note": "#273 experiment; not touched"
-   },
-   {
-    "name": "atomurus",
-    "ref": "ylofdottauzcqcifnnpm",
-    "status": "ACTIVE_HEALTHY",
-    "note": "not Longyu; not touched"
-   }
-  ]
+  "otherProjectsInOrg": {
+   "count": 2,
+   "policy": "Sibling projects in the same org are out of scope for Longyu. Names and refs are intentionally omitted (LON-001). Neither was read beyond a count, neither was written, neither is a Longyu target.",
+   "statusesObserved": ["INACTIVE", "ACTIVE_HEALTHY"],
+   "touched": false
+  }
  },
  "migrations": [
   {

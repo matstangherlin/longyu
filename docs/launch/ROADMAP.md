@@ -22,7 +22,7 @@ Status vocabulary: PASS · CODE_READY · ACCOUNT_VERIFIED · NOT_RUN · OWNER_AC
 
 ## RC2.3.10 status (2026-10-08, PR #322)
 
-Measured, not assumed: production `MandarimProject` read-only via MCP. `cloud.certification = BLOCKED` — see [`rc2-3-10-closure.md`](../reports/rc2-3-10-closure.md) and `docs/release/rc2-3-10-cloud-matrix.json`. Production history now has **36** rows vs **56** repo files (19 content `MATCH`); social/family/business/pearl backends the client calls are absent in production. **#273** stays a governance/history record (its `longyu-preview` project is INACTIVE and untouched); it closes only when every RC2.3.10 gate is PASS with evidence.
+Measured, not assumed: production `MandarimProject` read-only via MCP. `cloud.certification = BLOCKED` — see [`rc2-3-10-closure.md`](../reports/rc2-3-10-closure.md) and `docs/release/rc2-3-10-cloud-matrix.json`. Production history now has **36** rows vs **56** repo files (19 content `MATCH`); social/family/business/pearl backends the client calls are absent in production. **#273** stays a governance/history record (its org preview project is INACTIVE and untouched); it closes only when every RC2.3.10 gate is PASS with evidence.
 
 ## RC2.3.4A → RC2.3.10 hand-off (from the free-tier audit)
 

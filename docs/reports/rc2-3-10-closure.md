@@ -85,7 +85,7 @@ Free tier: DB em 4 % (20,7 MB). Projeção: **SAFE a 100 MAU** com retenção de
 
 ## Governance: #273
 
-O #273 **não** deve ser mergeado. É a tentativa antiga de certificação cloud (stack obsoleta, projeto `longyu-preview`, hoje `INACTIVE`, que não foi tocado). Ele fica como **histórico/governança**. A RC2.3.10 resolve a necessidade direto no `MandarimProject`, sem ressuscitar essa arquitetura.
+O #273 **não** deve ser mergeado. É a tentativa antiga de certificação cloud (stack obsoleta, projeto de preview da org hoje `INACTIVE`, que não foi tocado). Ele fica como **histórico/governança**. A RC2.3.10 resolve a necessidade direto no `MandarimProject`, sem ressuscitar essa arquitetura.
 
 **Não pode ser fechado agora:** a matriz tem `BLOCKED`, `OWNER_ACTION_REQUIRED`, `CONFIG_REQUIRED` e `NOT_RUN`. Ele só vira `ISSUE_273_RESOLUTION_READY` quando migration history, schema, backup, retenção, RLS, Edge, auth, e-mail, observabilidade, rollback, smoke e orçamento estiverem `PASS` com evidência. A recomendação de fechamento sai daí (`OA-273-RUNBOOK-APPROVAL`).
 
