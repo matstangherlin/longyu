@@ -1,0 +1,4780 @@
+{
+  "schema": "longyu-migration-plan/1",
+  "generatedAt": "2026-10-08T21:47:51.365Z",
+  "generatedFromSha": "0e5e528ca357643b6b8a18462dd16f74020ccffd",
+  "inputs": {
+    "ledger": {
+      "path": "docs/launch/production-migration-ledger.json",
+      "productionReadAt": "2026-10-08",
+      "status": "BLOCKED"
+    },
+    "snapshot": {
+      "path": "docs/launch/production-snapshot.json",
+      "readAt": "2026-10-08"
+    },
+    "reconciliation": {
+      "path": "docs/launch/rc2-3-10b-migration-reconciliation.json",
+      "counts": {
+        "MATCH_EXACT": 19,
+        "MATCH_SEMANTIC": 3,
+        "PARTIAL_EQUIVALENT": 7,
+        "UNKNOWN": 34
+      }
+    },
+    "callGraph": {
+      "path": "docs/launch/rc2-3-10b-client-backend-call-graph.json",
+      "counts": {
+        "entries": 70,
+        "byKind": {
+          "edge": 10,
+          "rpc": 37,
+          "table": 8,
+          "auth": 15
+        },
+        "byStatus": {
+          "MISSING": 17,
+          "PRESENT": 45,
+          "UNKNOWN": 8
+        },
+        "bySeverity": {
+          "CRITICAL": 3,
+          "HIGH": 15,
+          "MEDIUM": 8,
+          "NONE": 44
+        },
+        "missingBackendObjects": 17,
+        "missingOnProductionPath": 17,
+        "presentEdgeFunctionsWithMissingDependencies": 1,
+        "dynamicCallSites": 0,
+        "filesScanned": 757
+      }
+    }
+  },
+  "safety": {
+    "productionWrites": false,
+    "note": "This plan is advisory. Nothing here was applied. Apply only through PRODUCTION_MIGRATION_READY (schema diff + verified export + owner approval)."
+  },
+  "rules": [
+    "A REPO_ONLY file whose every defined object already exists in production is SUPERSEDED (recording gap), never re-applied.",
+    "A file that defines an absent object which a production client path (or an edge function it invokes) calls is BETA_REQUIRED.",
+    "A file that defines absent objects nothing calls is FUTURE_FEATURE and is not applied blindly.",
+    "A needed file that would overwrite newer production definitions, reintroduce a dropped policy, rewrite a production constraint, or run DDL against absent objects is UNSAFE_UNTIL_RECONCILED; its underlyingClass records what it is needed for.",
+    "Where the client call is non-core, gating the client path is preferred over applying schema (recommendation GATE_CLIENT_PREFERRED); the resulting class if gated is FUTURE_FEATURE.",
+    "Edges: hard = unguarded DDL reference to an absent object; redefines = later create-or-replace of an object an earlier REPO_ONLY file defines; runtime = function-body reference; conditional = guarded DO block (ordering only)."
+  ],
+  "counts": {
+    "repoOnlyFiles": 27,
+    "byClass": {
+      "SUPERSEDED": 10,
+      "UNSAFE_UNTIL_RECONCILED": 8,
+      "BETA_REQUIRED": 4,
+      "FUTURE_FEATURE": 3,
+      "LAUNCH_REQUIRED": 2
+    },
+    "byUnderlyingClass": {
+      "SUPERSEDED": 10,
+      "BETA_REQUIRED": 9,
+      "UNDETERMINED": 2,
+      "LAUNCH_REQUIRED": 3,
+      "FUTURE_FEATURE": 3
+    },
+    "byRecommendation": {
+      "DO_NOT_APPLY": 10,
+      "GATE_CLIENT_THEN_RECONCILE": 5,
+      "DIFF_PRODUCTION_THEN_DECIDE": 2,
+      "APPLY": 4,
+      "RECONCILE_THEN_APPLY": 1,
+      "DEFER": 3,
+      "GATE_CLIENT_PREFERRED": 2
+    },
+    "edges": 13,
+    "hardEdges": 3
+  },
+  "factChecks": [
+    {
+      "claim": "friendships is absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoDefinition": null,
+      "note": "no repo migration defines a table named friendships; the repo social module is user_follows + social_activity_events (005_social.sql)"
+    },
+    {
+      "claim": "friend_requests is absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoDefinition": null,
+      "note": "no repo migration defines a table named friend_requests; the repo social module is user_follows + social_activity_events (005_social.sql)"
+    },
+    {
+      "claim": "placement_onboarding is absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoDefinition": null,
+      "note": "no repo migration defines a table named placement_onboarding; the repo uses placement_onboarding_drafts and placement_attempts"
+    },
+    {
+      "claim": "pearl_wallets is absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoDefinition": null,
+      "note": "no repo migration defines a table named pearl_wallets; pearls live in user_economy (dragon_pearls) and pearl-pass tables"
+    },
+    {
+      "claim": "family_* tables are absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoTables": [
+        "family_accounts",
+        "family_memberships",
+        "family_invites"
+      ]
+    },
+    {
+      "claim": "business_* tables are absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoTables": [
+        "business_leads",
+        "business_lead_rate_events",
+        "business_funnel_events"
+      ]
+    },
+    {
+      "claim": "organization* tables (business module) are absent in production",
+      "result": "CONFIRMED_ABSENT",
+      "repoTables": [
+        "organizations",
+        "organization_members",
+        "organization_invites",
+        "organization_subscriptions",
+        "organization_entitlement_grants"
+      ]
+    },
+    {
+      "claim": "profiles.username / avatar_key / league_tier are present",
+      "result": "OWNER_ASSERTED",
+      "note": "The snapshot lists tables, not columns. Treated as present when evaluating 005_social.sql; verify with a column-level read before relying on it."
+    },
+    {
+      "claim": "baseline 001-010 objects mostly exist except the 005 social tables",
+      "result": "CONFIRMED",
+      "perFile": [
+        {
+          "file": "supabase/migrations/001_initial_schema.sql",
+          "defined": 9,
+          "present": 9,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/002_client_snapshot.sql",
+          "defined": 0,
+          "present": 0,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/003_profile_trigger.sql",
+          "defined": 1,
+          "present": 1,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/004_leagues.sql",
+          "defined": 14,
+          "present": 14,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/005_social.sql",
+          "defined": 6,
+          "present": 1,
+          "missing": [
+            "table:user_follows",
+            "table:social_activity_events",
+            "view:public_profiles",
+            "function:search_public_profiles",
+            "function:get_public_profile_by_username"
+          ]
+        },
+        {
+          "file": "supabase/migrations/006_economy_server.sql",
+          "defined": 21,
+          "present": 21,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/007_internal_test_pro.sql",
+          "defined": 1,
+          "present": 1,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+          "defined": 1,
+          "present": 1,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/009_profile_admin.sql",
+          "defined": 1,
+          "present": 1,
+          "missing": []
+        },
+        {
+          "file": "supabase/migrations/010_beta_feedback.sql",
+          "defined": 8,
+          "present": 8,
+          "missing": []
+        }
+      ]
+    },
+    {
+      "claim": "league_memberships SELECT fails with 42P17 in production",
+      "result": "CONFIRMED_BY_SNAPSHOT",
+      "evidence": "authenticated read fails 42P17 infinite recursion in policy league_memberships_select_peers"
+    }
+  ],
+  "batches": [
+    {
+      "id": "A",
+      "purpose": "Security and blockers: league recursion policy fix and least-privilege API grants. Nothing here adds product surface.",
+      "migrations": [
+        {
+          "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+          "class": "LAUNCH_REQUIRED",
+          "reason": "Fixes policy league_memberships_select_peers, which fails closed with 42P17 on every direct authenticated SELECT in production (snapshot rlsBehavior). The client only reads leagues through SECURITY DEFINER RPCs, so beta is not blocked; launch should not ship a broken policy.",
+          "dependsOn": [],
+          "domain": null,
+          "recommendation": "APPLY",
+          "order": 0,
+          "dependencyDetail": [],
+          "definesTotal": 1,
+          "definesPresentInProduction": 0,
+          "missingObjects": [
+            "function:league_viewer_scope"
+          ],
+          "referencedTables": [
+            "league_memberships"
+          ],
+          "referencedFunctions": [],
+          "satisfiedByProduction": [
+            "table:league_memberships"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [],
+          "blockedUntil": [],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": []
+          },
+          "neededByProductionClient": [],
+          "clientGate": null,
+          "notes": []
+        },
+        {
+          "file": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "Least-privilege Data API grants (revokes broad anon/authenticated DML). Security hardening for launch. Production's current table grants are not in the snapshot, so the delta cannot be shown yet.",
+          "dependsOn": [
+            "supabase/migrations/20260825043000_business_foundation.sql"
+          ],
+          "underlyingClass": "LAUNCH_REQUIRED",
+          "domain": null,
+          "recommendation": "RECONCILE_THEN_APPLY",
+          "order": 6,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/20260825043000_business_foundation.sql",
+              "strength": "hard",
+              "via": [
+                "table:organizations",
+                "table:organization_members",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:organization_entitlement_grants"
+              ]
+            },
+            {
+              "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+              "strength": "conditional",
+              "via": [
+                "table:placement_attempts"
+              ]
+            },
+            {
+              "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+              "strength": "conditional",
+              "via": [
+                "table:placement_onboarding_drafts"
+              ]
+            }
+          ],
+          "definesTotal": 0,
+          "definesPresentInProduction": 0,
+          "missingObjects": [],
+          "referencedTables": [
+            "economy_ledger",
+            "organization_entitlement_grants",
+            "organization_invites",
+            "organization_members",
+            "organization_subscriptions",
+            "organizations",
+            "placement_attempts",
+            "placement_onboarding_drafts",
+            "profiles",
+            "subscriptions",
+            "transactions",
+            "user_achievements",
+            "user_chests",
+            "user_economy",
+            "user_missions",
+            "user_progress",
+            "user_srs"
+          ],
+          "referencedFunctions": [],
+          "satisfiedByProduction": [
+            "table:economy_ledger",
+            "table:profiles",
+            "table:subscriptions",
+            "table:transactions",
+            "table:user_achievements",
+            "table:user_chests",
+            "table:user_economy",
+            "table:user_missions",
+            "table:user_progress",
+            "table:user_srs"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "DDL_REFERENCES_ABSENT_OBJECTS",
+              "detail": "unguarded DDL (e.g. REVOKE/GRANT/ALTER) names objects absent in production; the migration fails unless their definers run first",
+              "items": [
+                "table:organizations",
+                "table:organization_members",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:organization_entitlement_grants"
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "DDL_REFERENCES_ABSENT_OBJECTS",
+              "condition": "Apply the defining migrations first, or guard the statements with to_regclass checks, and capture production's current grants (not in the snapshot) to show the delta.",
+              "objects": [
+                "table:organizations",
+                "table:organization_members",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:organization_entitlement_grants"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": []
+          },
+          "neededByProductionClient": [],
+          "clientGate": null,
+          "notes": [
+            "Production's table grants are not in the snapshot. Capture them (information_schema.role_table_grants) before deciding the delta."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "purpose": "Core backend the current product already calls: onboarding/placement, economy (pearl). Includes edge functions that must be deployed alongside.",
+      "migrations": [
+        {
+          "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "production client path calls absent object(s) it defines: activate_pearl_pro_pass, claim_pearl_milestone (worst severity HIGH)",
+          "dependsOn": [],
+          "underlyingClass": "BETA_REQUIRED",
+          "domain": "pearl",
+          "recommendation": "GATE_CLIENT_THEN_RECONCILE",
+          "order": 1,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/006_economy_server.sql",
+              "strength": "redefines",
+              "via": [
+                "function:economy_row_to_json"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            },
+            {
+              "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+              "strength": "redefines",
+              "via": [
+                "function:get_server_entitlement"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            }
+          ],
+          "definesTotal": 7,
+          "definesPresentInProduction": 2,
+          "missingObjects": [
+            "table:pearl_milestone_catalog",
+            "table:pearl_journey_phase_catalog",
+            "table:pearl_milestone_claims",
+            "function:activate_pearl_pro_pass",
+            "function:claim_pearl_milestone"
+          ],
+          "referencedTables": [
+            "entitlement_grants",
+            "referral_verified_lesson_completions",
+            "user_economy",
+            "user_missions"
+          ],
+          "referencedFunctions": [
+            "_user_stripe_pro_active",
+            "economy_ensure_row",
+            "economy_insert_ledger",
+            "economy_ledger_exists",
+            "user_has_entitlement_grant"
+          ],
+          "satisfiedByProduction": [
+            "function:_user_stripe_pro_active",
+            "function:economy_ensure_row",
+            "function:economy_insert_ledger",
+            "function:economy_ledger_exists",
+            "function:user_has_entitlement_grant",
+            "table:entitlement_grants",
+            "table:referral_verified_lesson_completions",
+            "table:user_economy",
+            "table:user_missions"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [
+            "insert into public.pearl_milestone_catalog ( milestone_id, amount, threshold, evidence_kind, enabled ) values ('streak:7', 1, 7, 'verified",
+            "insert into public.pearl_journey_phase_catalog (phase_id, lesson_ids) values ('p1', array[ 'p1-o-que-e-mandarim', 'p1-o-que-e-pinyin', 'p1-o"
+          ],
+          "replacesProductionObjects": [
+            "economy_row_to_json",
+            "get_server_entitlement"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "detail": "replaces 1 production function(s) whose current definition is not proven equal to any repo file",
+              "items": [
+                {
+                  "function": "get_server_entitlement",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/017_referrals.sql",
+                    "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                }
+              ]
+            },
+            {
+              "code": "CONSTRAINT_REWRITE_ON_PRODUCTION_TABLE",
+              "detail": "drops and re-adds a constraint on a production table; existing rows must satisfy it (non-blocking)",
+              "items": [
+                "entitlement_grants_source_check"
+              ],
+              "blocking": false
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+              "objects": [
+                "get_server_entitlement"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": [
+              {
+                "clientCall": ".rpc(\"activate_pearl_pro_pass\")",
+                "kind": "rpc",
+                "backendObject": "activate_pearl_pro_pass",
+                "objectKey": "function:activate_pearl_pro_pass",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"claim_pearl_milestone\")",
+                "kind": "rpc",
+                "backendObject": "claim_pearl_milestone",
+                "objectKey": "function:claim_pearl_milestone",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"get_server_entitlement\")",
+                "kind": "rpc",
+                "backendObject": "get_server_entitlement",
+                "objectKey": "function:get_server_entitlement",
+                "productionStatus": "PRESENT",
+                "severity": "NONE",
+                "productionPath": true,
+                "routes": [
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": ".rpc(\"activate_pearl_pro_pass\")",
+              "backendObject": "activate_pearl_pro_pass",
+              "severity": "HIGH",
+              "routes": [],
+              "inAppShell": true,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"claim_pearl_milestone\")",
+              "backendObject": "claim_pearl_milestone",
+              "severity": "HIGH",
+              "routes": [],
+              "inAppShell": true,
+              "via": null
+            }
+          ],
+          "clientGate": {
+            "feasible": true,
+            "routes": [],
+            "inAppShell": true,
+            "calls": [
+              ".rpc(\"activate_pearl_pro_pass\")",
+              ".rpc(\"claim_pearl_milestone\")"
+            ]
+          },
+          "notes": []
+        },
+        {
+          "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+          "class": "BETA_REQUIRED",
+          "reason": "production client path calls absent object(s) it defines: functions/commit-placement -> commit_placement_result, functions/finalize-onboarding -> commit_placement_result (worst severity CRITICAL)",
+          "dependsOn": [],
+          "domain": "placement",
+          "recommendation": "APPLY",
+          "order": 2,
+          "dependencyDetail": [],
+          "definesTotal": 2,
+          "definesPresentInProduction": 0,
+          "missingObjects": [
+            "table:placement_attempts",
+            "function:commit_placement_result"
+          ],
+          "referencedTables": [
+            "profiles",
+            "user_progress"
+          ],
+          "referencedFunctions": [],
+          "satisfiedByProduction": [
+            "table:profiles",
+            "table:user_progress"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "CONSTRAINT_REWRITE_ON_PRODUCTION_TABLE",
+              "detail": "drops and re-adds a constraint on a production table; existing rows must satisfy it (non-blocking)",
+              "items": [
+                "profiles_placement_attempt_fk"
+              ],
+              "blocking": false
+            }
+          ],
+          "blockedUntil": [],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [
+              {
+                "slug": "commit-placement",
+                "deployedInProduction": false,
+                "objects": [
+                  "function:commit_placement_result"
+                ]
+              },
+              {
+                "slug": "finalize-onboarding",
+                "deployedInProduction": false,
+                "objects": [
+                  "function:commit_placement_result"
+                ]
+              }
+            ],
+            "frontend": [
+              {
+                "clientCall": "functions.invoke(\"commit-placement\")",
+                "kind": "edge",
+                "backendObject": "functions/commit-placement -> commit_placement_result",
+                "objectKey": "function:commit_placement_result",
+                "productionStatus": "MISSING",
+                "severity": "CRITICAL",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/finalizar-cadastro"
+                ],
+                "inAppShell": false,
+                "coreFlow": true,
+                "via": "functions/commit-placement"
+              },
+              {
+                "clientCall": "functions.invoke(\"finalize-onboarding\")",
+                "kind": "edge",
+                "backendObject": "functions/finalize-onboarding -> commit_placement_result",
+                "objectKey": "function:commit_placement_result",
+                "productionStatus": "MISSING",
+                "severity": "CRITICAL",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/finalizar-cadastro"
+                ],
+                "inAppShell": false,
+                "coreFlow": true,
+                "via": "functions/finalize-onboarding"
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": "functions.invoke(\"commit-placement\")",
+              "backendObject": "functions/commit-placement -> commit_placement_result",
+              "severity": "CRITICAL",
+              "routes": [
+                "/comecar",
+                "/confirmar-email",
+                "/finalizar-cadastro"
+              ],
+              "inAppShell": false,
+              "via": "functions/commit-placement"
+            },
+            {
+              "clientCall": "functions.invoke(\"finalize-onboarding\")",
+              "backendObject": "functions/finalize-onboarding -> commit_placement_result",
+              "severity": "CRITICAL",
+              "routes": [
+                "/comecar",
+                "/confirmar-email",
+                "/finalizar-cadastro"
+              ],
+              "inAppShell": false,
+              "via": "functions/finalize-onboarding"
+            }
+          ],
+          "clientGate": {
+            "feasible": false,
+            "routes": [
+              "/comecar",
+              "/confirmar-email",
+              "/finalizar-cadastro"
+            ],
+            "inAppShell": false,
+            "calls": [
+              "functions.invoke(\"commit-placement\")",
+              "functions.invoke(\"finalize-onboarding\")"
+            ]
+          },
+          "notes": [
+            "Adds a foreign key from profiles to placement_attempts (constraint added on a production table; validate existing rows)."
+          ]
+        },
+        {
+          "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+          "class": "BETA_REQUIRED",
+          "reason": "production client path calls absent object(s) it defines: functions/commit-placement -> commit_placement_result, functions/create-account -> save_placement_onboarding_draft, functions/finalize-onboarding -> placement_onboarding_drafts, functions/finalize-onboarding -> commit_placement_result (worst severity CRITICAL)",
+          "dependsOn": [
+            "supabase/migrations/20260826230000_placement_onboarding.sql"
+          ],
+          "domain": "placement",
+          "recommendation": "APPLY",
+          "order": 3,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+              "strength": "redefines",
+              "via": [
+                "table:placement_attempts",
+                "function:commit_placement_result"
+              ]
+            }
+          ],
+          "definesTotal": 4,
+          "definesPresentInProduction": 1,
+          "missingObjects": [
+            "table:placement_onboarding_drafts",
+            "function:save_placement_onboarding_draft",
+            "function:commit_placement_result"
+          ],
+          "referencedTables": [
+            "placement_attempts",
+            "profiles",
+            "user_progress"
+          ],
+          "referencedFunctions": [],
+          "satisfiedByProduction": [
+            "table:profiles",
+            "table:user_progress"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [
+            "update public.profiles set"
+          ],
+          "seedData": [],
+          "replacesProductionObjects": [
+            "ensure_own_profile"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "IRREVERSIBLE_WITHOUT_BACKUP",
+          "hazards": [],
+          "blockedUntil": [],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [
+              {
+                "slug": "commit-placement",
+                "deployedInProduction": false,
+                "objects": [
+                  "function:commit_placement_result"
+                ]
+              },
+              {
+                "slug": "create-account",
+                "deployedInProduction": true,
+                "objects": [
+                  "function:save_placement_onboarding_draft"
+                ]
+              },
+              {
+                "slug": "finalize-onboarding",
+                "deployedInProduction": false,
+                "objects": [
+                  "table:placement_onboarding_drafts",
+                  "function:commit_placement_result"
+                ]
+              }
+            ],
+            "frontend": [
+              {
+                "clientCall": "functions.invoke(\"commit-placement\")",
+                "kind": "edge",
+                "backendObject": "functions/commit-placement -> commit_placement_result",
+                "objectKey": "function:commit_placement_result",
+                "productionStatus": "MISSING",
+                "severity": "CRITICAL",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/finalizar-cadastro"
+                ],
+                "inAppShell": false,
+                "coreFlow": true,
+                "via": "functions/commit-placement"
+              },
+              {
+                "clientCall": "functions.invoke(\"create-account\")",
+                "kind": "edge",
+                "backendObject": "functions/create-account -> save_placement_onboarding_draft",
+                "objectKey": "function:save_placement_onboarding_draft",
+                "productionStatus": "MISSING",
+                "severity": "CRITICAL",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/conta",
+                  "/esqueci-senha",
+                  "/login",
+                  "/redefinir-senha"
+                ],
+                "inAppShell": true,
+                "coreFlow": true,
+                "via": "functions/create-account"
+              },
+              {
+                "clientCall": "functions.invoke(\"finalize-onboarding\")",
+                "kind": "edge",
+                "backendObject": "functions/finalize-onboarding -> placement_onboarding_drafts",
+                "objectKey": "table:placement_onboarding_drafts",
+                "productionStatus": "MISSING",
+                "severity": "CRITICAL",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/finalizar-cadastro"
+                ],
+                "inAppShell": false,
+                "coreFlow": true,
+                "via": "functions/finalize-onboarding"
+              },
+              {
+                "clientCall": "functions.invoke(\"finalize-onboarding\")",
+                "kind": "edge",
+                "backendObject": "functions/finalize-onboarding -> commit_placement_result",
+                "objectKey": "function:commit_placement_result",
+                "productionStatus": "MISSING",
+                "severity": "CRITICAL",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/finalizar-cadastro"
+                ],
+                "inAppShell": false,
+                "coreFlow": true,
+                "via": "functions/finalize-onboarding"
+              },
+              {
+                "clientCall": ".rpc(\"ensure_own_profile\")",
+                "kind": "rpc",
+                "backendObject": "ensure_own_profile",
+                "objectKey": "function:ensure_own_profile",
+                "productionStatus": "PRESENT",
+                "severity": "NONE",
+                "productionPath": true,
+                "routes": [
+                  "/comecar",
+                  "/confirmar-email",
+                  "/conta",
+                  "/esqueci-senha",
+                  "/finalizar-cadastro",
+                  "/login",
+                  "/redefinir-senha"
+                ],
+                "inAppShell": true,
+                "coreFlow": true,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": "functions.invoke(\"commit-placement\")",
+              "backendObject": "functions/commit-placement -> commit_placement_result",
+              "severity": "CRITICAL",
+              "routes": [
+                "/comecar",
+                "/confirmar-email",
+                "/finalizar-cadastro"
+              ],
+              "inAppShell": false,
+              "via": "functions/commit-placement"
+            },
+            {
+              "clientCall": "functions.invoke(\"create-account\")",
+              "backendObject": "functions/create-account -> save_placement_onboarding_draft",
+              "severity": "CRITICAL",
+              "routes": [
+                "/comecar",
+                "/confirmar-email",
+                "/conta",
+                "/esqueci-senha",
+                "/login",
+                "/redefinir-senha"
+              ],
+              "inAppShell": true,
+              "via": "functions/create-account"
+            },
+            {
+              "clientCall": "functions.invoke(\"finalize-onboarding\")",
+              "backendObject": "functions/finalize-onboarding -> placement_onboarding_drafts",
+              "severity": "CRITICAL",
+              "routes": [
+                "/comecar",
+                "/confirmar-email",
+                "/finalizar-cadastro"
+              ],
+              "inAppShell": false,
+              "via": "functions/finalize-onboarding"
+            },
+            {
+              "clientCall": "functions.invoke(\"finalize-onboarding\")",
+              "backendObject": "functions/finalize-onboarding -> commit_placement_result",
+              "severity": "CRITICAL",
+              "routes": [
+                "/comecar",
+                "/confirmar-email",
+                "/finalizar-cadastro"
+              ],
+              "inAppShell": false,
+              "via": "functions/finalize-onboarding"
+            }
+          ],
+          "clientGate": {
+            "feasible": false,
+            "routes": [
+              "/comecar",
+              "/confirmar-email",
+              "/conta",
+              "/esqueci-senha",
+              "/finalizar-cadastro",
+              "/login",
+              "/redefinir-senha"
+            ],
+            "inAppShell": true,
+            "calls": [
+              "functions.invoke(\"commit-placement\")",
+              "functions.invoke(\"create-account\")",
+              "functions.invoke(\"finalize-onboarding\")"
+            ]
+          },
+          "notes": [
+            "Backfills profiles.country_code on production rows (update ... where country_code is null). Capture the affected row count before applying; the backfill is not reversible without a backup.",
+            "Replaces ensure_own_profile. Production's current definition matches 021_ensure_own_profile.sql (ledger MATCH); diff the handoff version against it before apply.",
+            "Needs the edge functions commit-placement and finalize-onboarding deployed; the deployed create-account already calls save_placement_onboarding_draft."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "purpose": "Social, family and business schema. Apply only if the client keeps exposing those routes; otherwise gate the routes and defer.",
+      "migrations": [
+        {
+          "file": "supabase/migrations/005_social.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "production client path calls absent object(s) it defines: get_public_profile_by_username, search_public_profiles, social_activity_events, user_follows (worst severity HIGH)",
+          "dependsOn": [],
+          "underlyingClass": "BETA_REQUIRED",
+          "domain": "social",
+          "recommendation": "GATE_CLIENT_THEN_RECONCILE",
+          "order": 4,
+          "dependencyDetail": [],
+          "definesTotal": 6,
+          "definesPresentInProduction": 1,
+          "missingObjects": [
+            "table:user_follows",
+            "table:social_activity_events",
+            "view:public_profiles",
+            "function:search_public_profiles",
+            "function:get_public_profile_by_username"
+          ],
+          "referencedTables": [
+            "profiles",
+            "user_progress"
+          ],
+          "referencedFunctions": [],
+          "satisfiedByProduction": [
+            "table:profiles",
+            "table:user_progress"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [
+            "sync_profile_public_stats"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "STALE_OVERWRITE",
+              "detail": "create or replace would overwrite 1 production function(s) that a later applied migration redefined",
+              "items": [
+                {
+                  "function": "sync_profile_public_stats",
+                  "newerAppliedDefinitions": [
+                    "supabase/migrations/20260808150000_abuse_controls_ip_email_snapshot.sql"
+                  ]
+                }
+              ]
+            },
+            {
+              "code": "REINTRODUCES_DROPPED_POLICY",
+              "detail": "creates a policy that a later applied migration deliberately dropped",
+              "items": [
+                {
+                  "policy": "profiles.profiles_select_social",
+                  "droppedByLaterApplied": [
+                    "supabase/migrations/20260808070849_secure_social_profile_boundary.sql"
+                  ]
+                }
+              ]
+            },
+            {
+              "code": "REINTRODUCES_DROPPED_CONSTRAINT",
+              "detail": "adds a constraint that a later applied migration dropped and replaced",
+              "items": [
+                {
+                  "constraint": "profiles_username_format",
+                  "droppedByLaterApplied": [
+                    "supabase/pending/rc2-2-11-username-identifier.sql"
+                  ]
+                }
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "STALE_OVERWRITE",
+              "condition": "Do not apply as written. Rebase the 1 stale function definition(s) on the production definition (OA-SCHEMA-DIFF), then apply a new forward migration.",
+              "objects": [
+                "sync_profile_public_stats"
+              ]
+            },
+            {
+              "hazard": "REINTRODUCES_DROPPED_POLICY",
+              "condition": "Write a forward migration that omits the dropped policy and uses the hardened boundary from the later applied migration; never apply this file verbatim.",
+              "objects": [
+                "profiles.profiles_select_social"
+              ]
+            },
+            {
+              "hazard": "REINTRODUCES_DROPPED_CONSTRAINT",
+              "condition": "Omit the superseded constraint in a forward migration; production carries the later definition.",
+              "objects": [
+                "profiles_username_format"
+              ]
+            }
+          ],
+          "productionChunks": [
+            {
+              "version": "20260808134325",
+              "status": "PARTIAL_EQUIVALENT"
+            }
+          ],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": [
+              {
+                "clientCall": ".rpc(\"get_public_profile_by_username\")",
+                "kind": "rpc",
+                "backendObject": "get_public_profile_by_username",
+                "objectKey": "function:get_public_profile_by_username",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/ajustes",
+                  "/amigos",
+                  "/config",
+                  "/config/:category",
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"search_public_profiles\")",
+                "kind": "rpc",
+                "backendObject": "search_public_profiles",
+                "objectKey": "function:search_public_profiles",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/ajustes",
+                  "/amigos",
+                  "/config",
+                  "/config/:category",
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".from(\"social_activity_events\")",
+                "kind": "table",
+                "backendObject": "social_activity_events",
+                "objectKey": "table:social_activity_events",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/ajustes",
+                  "/amigos",
+                  "/config",
+                  "/config/:category",
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".from(\"user_follows\")",
+                "kind": "table",
+                "backendObject": "user_follows",
+                "objectKey": "table:user_follows",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/ajustes",
+                  "/amigos",
+                  "/config",
+                  "/config/:category",
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": ".rpc(\"get_public_profile_by_username\")",
+              "backendObject": "get_public_profile_by_username",
+              "severity": "HIGH",
+              "routes": [
+                "/ajustes",
+                "/amigos",
+                "/config",
+                "/config/:category",
+                "/conta"
+              ],
+              "inAppShell": true,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"search_public_profiles\")",
+              "backendObject": "search_public_profiles",
+              "severity": "HIGH",
+              "routes": [
+                "/ajustes",
+                "/amigos",
+                "/config",
+                "/config/:category",
+                "/conta"
+              ],
+              "inAppShell": true,
+              "via": null
+            },
+            {
+              "clientCall": ".from(\"social_activity_events\")",
+              "backendObject": "social_activity_events",
+              "severity": "HIGH",
+              "routes": [
+                "/ajustes",
+                "/amigos",
+                "/config",
+                "/config/:category",
+                "/conta"
+              ],
+              "inAppShell": true,
+              "via": null
+            },
+            {
+              "clientCall": ".from(\"user_follows\")",
+              "backendObject": "user_follows",
+              "severity": "HIGH",
+              "routes": [
+                "/ajustes",
+                "/amigos",
+                "/config",
+                "/config/:category",
+                "/conta"
+              ],
+              "inAppShell": true,
+              "via": null
+            }
+          ],
+          "clientGate": {
+            "feasible": true,
+            "routes": [
+              "/ajustes",
+              "/amigos",
+              "/config",
+              "/config/:category",
+              "/conta"
+            ],
+            "inAppShell": true,
+            "calls": [
+              ".rpc(\"get_public_profile_by_username\")",
+              ".rpc(\"search_public_profiles\")",
+              ".from(\"social_activity_events\")",
+              ".from(\"user_follows\")"
+            ]
+          },
+          "notes": [
+            "Do not apply verbatim. 20260808070849_secure_social_profile_boundary.sql dropped profiles_select_social and replaced the public-profile RPCs with hardened versions, but it is already ledger-applied and its social block was a no-op in production (guarded by to_regclass('public.user_follows')). A safe social module needs a NEW forward migration: the 005 tables plus the hardened RPCs from the boundary migration, without the profiles_select_social policy, the public_profiles view, the v1 username constraint, or the older sync_profile_public_stats."
+          ]
+        },
+        {
+          "file": "supabase/migrations/20260825043000_business_foundation.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "production client path calls absent object(s) it defines: functions/submit-business-lead -> business_funnel_events, functions/submit-business-lead -> business_leads, functions/submit-business-lead -> check_and_record_business_lead_rate (worst severity HIGH)",
+          "dependsOn": [],
+          "underlyingClass": "BETA_REQUIRED",
+          "domain": "business",
+          "recommendation": "GATE_CLIENT_THEN_RECONCILE",
+          "order": 5,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/006_economy_server.sql",
+              "strength": "redefines",
+              "via": [
+                "function:economy_user_is_pro"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            },
+            {
+              "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+              "strength": "redefines",
+              "via": [
+                "function:get_server_entitlement"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            }
+          ],
+          "definesTotal": 14,
+          "definesPresentInProduction": 2,
+          "missingObjects": [
+            "table:organizations",
+            "table:organization_members",
+            "table:organization_invites",
+            "table:organization_subscriptions",
+            "table:organization_entitlement_grants",
+            "table:business_leads",
+            "table:business_lead_rate_events",
+            "table:business_funnel_events",
+            "function:is_organization_member",
+            "function:is_organization_admin",
+            "function:_user_organization_entitlement",
+            "function:check_and_record_business_lead_rate"
+          ],
+          "referencedTables": [
+            "subscriptions",
+            "user_economy"
+          ],
+          "referencedFunctions": [
+            "_user_stripe_pro_active",
+            "user_has_entitlement_grant"
+          ],
+          "satisfiedByProduction": [
+            "function:_user_stripe_pro_active",
+            "function:user_has_entitlement_grant",
+            "table:subscriptions",
+            "table:user_economy"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [
+            "get_server_entitlement",
+            "economy_user_is_pro"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "detail": "replaces 2 production function(s) whose current definition is not proven equal to any repo file",
+              "items": [
+                {
+                  "function": "get_server_entitlement",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/017_referrals.sql",
+                    "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                },
+                {
+                  "function": "economy_user_is_pro",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/017_referrals.sql",
+                    "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                }
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+              "objects": [
+                "get_server_entitlement",
+                "economy_user_is_pro"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [
+              {
+                "slug": "submit-business-lead",
+                "deployedInProduction": false,
+                "objects": [
+                  "table:business_funnel_events",
+                  "table:business_leads",
+                  "function:check_and_record_business_lead_rate"
+                ]
+              }
+            ],
+            "frontend": [
+              {
+                "clientCall": "functions.invoke(\"submit-business-lead\")",
+                "kind": "edge",
+                "backendObject": "functions/submit-business-lead -> business_funnel_events",
+                "objectKey": "table:business_funnel_events",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": "functions/submit-business-lead"
+              },
+              {
+                "clientCall": "functions.invoke(\"submit-business-lead\")",
+                "kind": "edge",
+                "backendObject": "functions/submit-business-lead -> business_leads",
+                "objectKey": "table:business_leads",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": "functions/submit-business-lead"
+              },
+              {
+                "clientCall": "functions.invoke(\"submit-business-lead\")",
+                "kind": "edge",
+                "backendObject": "functions/submit-business-lead -> check_and_record_business_lead_rate",
+                "objectKey": "function:check_and_record_business_lead_rate",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": "functions/submit-business-lead"
+              },
+              {
+                "clientCall": ".rpc(\"get_server_entitlement\")",
+                "kind": "rpc",
+                "backendObject": "get_server_entitlement",
+                "objectKey": "function:get_server_entitlement",
+                "productionStatus": "PRESENT",
+                "severity": "NONE",
+                "productionPath": true,
+                "routes": [
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": "functions.invoke(\"submit-business-lead\")",
+              "backendObject": "functions/submit-business-lead -> business_funnel_events",
+              "severity": "HIGH",
+              "routes": [
+                "/business"
+              ],
+              "inAppShell": false,
+              "via": "functions/submit-business-lead"
+            },
+            {
+              "clientCall": "functions.invoke(\"submit-business-lead\")",
+              "backendObject": "functions/submit-business-lead -> business_leads",
+              "severity": "HIGH",
+              "routes": [
+                "/business"
+              ],
+              "inAppShell": false,
+              "via": "functions/submit-business-lead"
+            },
+            {
+              "clientCall": "functions.invoke(\"submit-business-lead\")",
+              "backendObject": "functions/submit-business-lead -> check_and_record_business_lead_rate",
+              "severity": "HIGH",
+              "routes": [
+                "/business"
+              ],
+              "inAppShell": false,
+              "via": "functions/submit-business-lead"
+            }
+          ],
+          "clientGate": {
+            "feasible": true,
+            "routes": [
+              "/business"
+            ],
+            "inAppShell": false,
+            "calls": [
+              "functions.invoke(\"submit-business-lead\")"
+            ]
+          },
+          "notes": []
+        },
+        {
+          "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "production client path calls absent object(s) it defines: functions/submit-business-lead -> check_and_record_business_funnel_rate, functions/submit-business-lead -> check_and_record_business_lead_rate (worst severity HIGH)",
+          "dependsOn": [
+            "supabase/migrations/20260825043000_business_foundation.sql"
+          ],
+          "underlyingClass": "BETA_REQUIRED",
+          "domain": "business",
+          "recommendation": "GATE_CLIENT_THEN_RECONCILE",
+          "order": 7,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/20260825043000_business_foundation.sql",
+              "strength": "hard",
+              "via": [
+                "table:organization_members",
+                "table:organizations",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:business_lead_rate_events",
+                "table:business_leads",
+                "function:is_organization_member",
+                "function:is_organization_admin",
+                "function:_user_organization_entitlement",
+                "function:check_and_record_business_lead_rate"
+              ]
+            },
+            {
+              "file": "supabase/migrations/006_economy_server.sql",
+              "strength": "redefines",
+              "via": [
+                "function:economy_user_is_pro"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            },
+            {
+              "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+              "strength": "redefines",
+              "via": [
+                "function:get_server_entitlement"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            }
+          ],
+          "definesTotal": 11,
+          "definesPresentInProduction": 2,
+          "missingObjects": [
+            "table:organization_entitlement_grants",
+            "function:is_organization_member",
+            "function:is_organization_admin",
+            "function:organization_seat_entitlement",
+            "function:_user_organization_entitlement",
+            "function:organization_active_seat_count",
+            "function:organization_seats_within_entitlement",
+            "function:check_and_record_business_lead_rate",
+            "function:check_and_record_business_funnel_rate"
+          ],
+          "referencedTables": [
+            "business_lead_rate_events",
+            "business_leads",
+            "organization_invites",
+            "organization_members",
+            "organization_subscriptions",
+            "organizations",
+            "user_economy"
+          ],
+          "referencedFunctions": [
+            "_user_stripe_pro_active",
+            "user_has_entitlement_grant"
+          ],
+          "satisfiedByProduction": [
+            "function:_user_stripe_pro_active",
+            "function:user_has_entitlement_grant",
+            "table:user_economy"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [
+            "alter table organizations drop column seat_limit"
+          ],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [
+            "get_server_entitlement",
+            "economy_user_is_pro"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "detail": "replaces 2 production function(s) whose current definition is not proven equal to any repo file",
+              "items": [
+                {
+                  "function": "get_server_entitlement",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/017_referrals.sql",
+                    "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                },
+                {
+                  "function": "economy_user_is_pro",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/017_referrals.sql",
+                    "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                }
+              ]
+            },
+            {
+              "code": "DDL_REFERENCES_ABSENT_OBJECTS",
+              "detail": "unguarded DDL (e.g. REVOKE/GRANT/ALTER) names objects absent in production; the migration fails unless their definers run first",
+              "items": [
+                "table:organization_members",
+                "table:organizations",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:business_leads"
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+              "objects": [
+                "get_server_entitlement",
+                "economy_user_is_pro"
+              ]
+            },
+            {
+              "hazard": "DDL_REFERENCES_ABSENT_OBJECTS",
+              "condition": "Apply the defining migrations first, or guard the statements with to_regclass checks, and capture production's current grants (not in the snapshot) to show the delta.",
+              "objects": [
+                "table:organization_members",
+                "table:organizations",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:business_leads"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [
+              {
+                "slug": "submit-business-lead",
+                "deployedInProduction": false,
+                "objects": [
+                  "function:check_and_record_business_funnel_rate",
+                  "function:check_and_record_business_lead_rate"
+                ]
+              }
+            ],
+            "frontend": [
+              {
+                "clientCall": "functions.invoke(\"submit-business-lead\")",
+                "kind": "edge",
+                "backendObject": "functions/submit-business-lead -> check_and_record_business_funnel_rate",
+                "objectKey": "function:check_and_record_business_funnel_rate",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": "functions/submit-business-lead"
+              },
+              {
+                "clientCall": "functions.invoke(\"submit-business-lead\")",
+                "kind": "edge",
+                "backendObject": "functions/submit-business-lead -> check_and_record_business_lead_rate",
+                "objectKey": "function:check_and_record_business_lead_rate",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": "functions/submit-business-lead"
+              },
+              {
+                "clientCall": ".rpc(\"get_server_entitlement\")",
+                "kind": "rpc",
+                "backendObject": "get_server_entitlement",
+                "objectKey": "function:get_server_entitlement",
+                "productionStatus": "PRESENT",
+                "severity": "NONE",
+                "productionPath": true,
+                "routes": [
+                  "/conta"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": "functions.invoke(\"submit-business-lead\")",
+              "backendObject": "functions/submit-business-lead -> check_and_record_business_funnel_rate",
+              "severity": "HIGH",
+              "routes": [
+                "/business"
+              ],
+              "inAppShell": false,
+              "via": "functions/submit-business-lead"
+            },
+            {
+              "clientCall": "functions.invoke(\"submit-business-lead\")",
+              "backendObject": "functions/submit-business-lead -> check_and_record_business_lead_rate",
+              "severity": "HIGH",
+              "routes": [
+                "/business"
+              ],
+              "inAppShell": false,
+              "via": "functions/submit-business-lead"
+            }
+          ],
+          "clientGate": {
+            "feasible": true,
+            "routes": [
+              "/business"
+            ],
+            "inAppShell": false,
+            "calls": [
+              "functions.invoke(\"submit-business-lead\")"
+            ]
+          },
+          "notes": []
+        },
+        {
+          "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+          "class": "BETA_REQUIRED",
+          "reason": "prerequisite (runtime: table:family_accounts, table:family_invites, table:family_memberships, function:family_seats_used) of supabase/migrations/20260914200000_family_invite_flow.sql; originally FUTURE_FEATURE. defines 8 object(s) absent in production that no production client path or deployed edge function calls",
+          "dependsOn": [],
+          "domain": "family",
+          "recommendation": "GATE_CLIENT_PREFERRED",
+          "order": 8,
+          "dependencyDetail": [],
+          "definesTotal": 8,
+          "definesPresentInProduction": 0,
+          "missingObjects": [
+            "table:family_accounts",
+            "table:family_memberships",
+            "table:family_invites",
+            "function:family_seats_used",
+            "function:family_max_members",
+            "function:enforce_family_seat_limit",
+            "function:is_family_member",
+            "function:is_family_owner"
+          ],
+          "referencedTables": [
+            "subscriptions"
+          ],
+          "referencedFunctions": [],
+          "satisfiedByProduction": [
+            "table:subscriptions"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [],
+          "blockedUntil": [],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": []
+          },
+          "neededByProductionClient": [],
+          "clientGate": null,
+          "notes": []
+        },
+        {
+          "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "production client path calls absent object(s) it defines: get_business_members, get_business_overview (worst severity HIGH)",
+          "dependsOn": [
+            "supabase/migrations/20260825043000_business_foundation.sql",
+            "supabase/migrations/20260825062000_business_operational_hardening.sql"
+          ],
+          "underlyingClass": "BETA_REQUIRED",
+          "domain": "business",
+          "recommendation": "GATE_CLIENT_THEN_RECONCILE",
+          "order": 9,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/20260825043000_business_foundation.sql",
+              "strength": "hard",
+              "via": [
+                "table:organizations",
+                "table:organization_members",
+                "table:organization_invites",
+                "table:organization_subscriptions",
+                "table:organization_entitlement_grants"
+              ]
+            },
+            {
+              "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+              "strength": "redefines",
+              "via": [
+                "function:organization_seat_entitlement",
+                "function:organization_active_seat_count",
+                "function:organization_seats_within_entitlement"
+              ]
+            }
+          ],
+          "definesTotal": 6,
+          "definesPresentInProduction": 0,
+          "missingObjects": [
+            "function:organization_reserved_seat_count",
+            "function:organization_seats_within_entitlement",
+            "function:organization_has_seat_license",
+            "function:enforce_organization_seat_limit",
+            "function:get_business_overview",
+            "function:get_business_members"
+          ],
+          "referencedTables": [
+            "league_memberships",
+            "organization_entitlement_grants",
+            "organization_invites",
+            "organization_members",
+            "organization_subscriptions",
+            "organizations",
+            "profiles",
+            "user_progress"
+          ],
+          "referencedFunctions": [
+            "organization_active_seat_count",
+            "organization_seat_entitlement"
+          ],
+          "satisfiedByProduction": [
+            "table:league_memberships",
+            "table:profiles",
+            "table:user_progress"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "DDL_REFERENCES_ABSENT_OBJECTS",
+              "detail": "unguarded DDL (e.g. REVOKE/GRANT/ALTER) names objects absent in production; the migration fails unless their definers run first",
+              "items": [
+                "table:organizations",
+                "table:organization_members",
+                "table:organization_invites"
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "DDL_REFERENCES_ABSENT_OBJECTS",
+              "condition": "Apply the defining migrations first, or guard the statements with to_regclass checks, and capture production's current grants (not in the snapshot) to show the delta.",
+              "objects": [
+                "table:organizations",
+                "table:organization_members",
+                "table:organization_invites"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": [
+              {
+                "clientCall": ".rpc(\"get_business_members\")",
+                "kind": "rpc",
+                "backendObject": "get_business_members",
+                "objectKey": "function:get_business_members",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business/dashboard",
+                  "/business/members"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"get_business_overview\")",
+                "kind": "rpc",
+                "backendObject": "get_business_overview",
+                "objectKey": "function:get_business_overview",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/business/dashboard",
+                  "/business/members"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": ".rpc(\"get_business_members\")",
+              "backendObject": "get_business_members",
+              "severity": "HIGH",
+              "routes": [
+                "/business/dashboard",
+                "/business/members"
+              ],
+              "inAppShell": false,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"get_business_overview\")",
+              "backendObject": "get_business_overview",
+              "severity": "HIGH",
+              "routes": [
+                "/business/dashboard",
+                "/business/members"
+              ],
+              "inAppShell": false,
+              "via": null
+            }
+          ],
+          "clientGate": {
+            "feasible": true,
+            "routes": [
+              "/business/dashboard",
+              "/business/members"
+            ],
+            "inAppShell": false,
+            "calls": [
+              ".rpc(\"get_business_members\")",
+              ".rpc(\"get_business_overview\")"
+            ]
+          },
+          "notes": []
+        },
+        {
+          "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+          "class": "BETA_REQUIRED",
+          "reason": "production client path calls absent object(s) it defines: accept_family_invite, create_family_invite, get_family_overview, remove_family_member, revoke_family_invite (worst severity HIGH)",
+          "dependsOn": [
+            "supabase/migrations/20260914120000_family_plan_foundation.sql"
+          ],
+          "domain": "family",
+          "recommendation": "GATE_CLIENT_PREFERRED",
+          "order": 10,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+              "strength": "runtime",
+              "via": [
+                "table:family_accounts",
+                "table:family_invites",
+                "table:family_memberships",
+                "function:family_seats_used",
+                "function:family_max_members"
+              ]
+            }
+          ],
+          "definesTotal": 5,
+          "definesPresentInProduction": 0,
+          "missingObjects": [
+            "function:create_family_invite",
+            "function:revoke_family_invite",
+            "function:accept_family_invite",
+            "function:remove_family_member",
+            "function:get_family_overview"
+          ],
+          "referencedTables": [
+            "family_accounts",
+            "family_invites",
+            "family_memberships",
+            "profiles"
+          ],
+          "referencedFunctions": [
+            "family_max_members",
+            "family_seats_used"
+          ],
+          "satisfiedByProduction": [
+            "table:profiles"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [],
+          "blockedUntil": [],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": [
+              {
+                "clientCall": ".rpc(\"accept_family_invite\")",
+                "kind": "rpc",
+                "backendObject": "accept_family_invite",
+                "objectKey": "function:accept_family_invite",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/familia",
+                  "/familia/convite/:token"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"create_family_invite\")",
+                "kind": "rpc",
+                "backendObject": "create_family_invite",
+                "objectKey": "function:create_family_invite",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/familia",
+                  "/familia/convite/:token"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"get_family_overview\")",
+                "kind": "rpc",
+                "backendObject": "get_family_overview",
+                "objectKey": "function:get_family_overview",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/familia",
+                  "/familia/convite/:token"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"remove_family_member\")",
+                "kind": "rpc",
+                "backendObject": "remove_family_member",
+                "objectKey": "function:remove_family_member",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/familia",
+                  "/familia/convite/:token"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              },
+              {
+                "clientCall": ".rpc(\"revoke_family_invite\")",
+                "kind": "rpc",
+                "backendObject": "revoke_family_invite",
+                "objectKey": "function:revoke_family_invite",
+                "productionStatus": "MISSING",
+                "severity": "HIGH",
+                "productionPath": true,
+                "routes": [
+                  "/familia",
+                  "/familia/convite/:token"
+                ],
+                "inAppShell": false,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [
+            {
+              "clientCall": ".rpc(\"accept_family_invite\")",
+              "backendObject": "accept_family_invite",
+              "severity": "HIGH",
+              "routes": [
+                "/familia",
+                "/familia/convite/:token"
+              ],
+              "inAppShell": false,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"create_family_invite\")",
+              "backendObject": "create_family_invite",
+              "severity": "HIGH",
+              "routes": [
+                "/familia",
+                "/familia/convite/:token"
+              ],
+              "inAppShell": false,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"get_family_overview\")",
+              "backendObject": "get_family_overview",
+              "severity": "HIGH",
+              "routes": [
+                "/familia",
+                "/familia/convite/:token"
+              ],
+              "inAppShell": false,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"remove_family_member\")",
+              "backendObject": "remove_family_member",
+              "severity": "HIGH",
+              "routes": [
+                "/familia",
+                "/familia/convite/:token"
+              ],
+              "inAppShell": false,
+              "via": null
+            },
+            {
+              "clientCall": ".rpc(\"revoke_family_invite\")",
+              "backendObject": "revoke_family_invite",
+              "severity": "HIGH",
+              "routes": [
+                "/familia",
+                "/familia/convite/:token"
+              ],
+              "inAppShell": false,
+              "via": null
+            }
+          ],
+          "clientGate": {
+            "feasible": true,
+            "routes": [
+              "/familia",
+              "/familia/convite/:token"
+            ],
+            "inAppShell": false,
+            "calls": [
+              ".rpc(\"accept_family_invite\")",
+              ".rpc(\"create_family_invite\")",
+              ".rpc(\"get_family_overview\")",
+              ".rpc(\"remove_family_member\")",
+              ".rpc(\"revoke_family_invite\")"
+            ]
+          },
+          "notes": []
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "purpose": "Observability and retention: telemetry cleanup scheduling and telemetry schema.",
+      "migrations": [
+        {
+          "file": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "every object it defines exists in production by name, but it replaces sanitize_pedagogy_metadata, submit_beta_pedagogy_event and no later applied migration redefines them, so production may or may not carry this version of the definition",
+          "dependsOn": [],
+          "underlyingClass": "UNDETERMINED",
+          "domain": "telemetry",
+          "recommendation": "DIFF_PRODUCTION_THEN_DECIDE",
+          "order": 11,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/010_beta_feedback.sql",
+              "strength": "redefines",
+              "via": [
+                "function:submit_beta_pedagogy_event"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            }
+          ],
+          "definesTotal": 2,
+          "definesPresentInProduction": 2,
+          "missingObjects": [],
+          "referencedTables": [
+            "beta_pedagogy_events",
+            "profiles"
+          ],
+          "referencedFunctions": [
+            "beta_anon_consume_ingestion_quota",
+            "beta_anon_resolve_ingestion_session",
+            "beta_pedagogy_context_digest",
+            "beta_pedagogy_event_rate_limited",
+            "beta_pedagogy_event_type_rate_limited",
+            "beta_pedagogy_rate_bucket_key"
+          ],
+          "satisfiedByProduction": [
+            "function:beta_anon_consume_ingestion_quota",
+            "function:beta_anon_resolve_ingestion_session",
+            "function:beta_pedagogy_context_digest",
+            "function:beta_pedagogy_event_rate_limited",
+            "function:beta_pedagogy_event_type_rate_limited",
+            "function:beta_pedagogy_rate_bucket_key",
+            "table:beta_pedagogy_events",
+            "table:profiles"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [
+            "sanitize_pedagogy_metadata",
+            "submit_beta_pedagogy_event"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "detail": "replaces 1 production function(s) whose current definition is not proven equal to any repo file",
+              "items": [
+                {
+                  "function": "submit_beta_pedagogy_event",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+                    "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+                    "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+                    "supabase/migrations/20260810170000_beta_experience_telemetry.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                }
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "PRODUCTION_DEFINITION_DRIFT_UNKNOWN",
+              "condition": "Read pg_get_functiondef for the listed functions from production (read-only) and diff against this file; if production already matches, record the migration as LEGACY_EQUIVALENT in the ledger instead of applying.",
+              "objects": [
+                "sanitize_pedagogy_metadata",
+                "submit_beta_pedagogy_event"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": [
+              {
+                "clientCall": ".rpc(\"submit_beta_pedagogy_event\")",
+                "kind": "rpc",
+                "backendObject": "submit_beta_pedagogy_event",
+                "objectKey": "function:submit_beta_pedagogy_event",
+                "productionStatus": "PRESENT",
+                "severity": "NONE",
+                "productionPath": true,
+                "routes": [
+                  "/admin/feedback",
+                  "/cultura/revisao",
+                  "/jornada/reforco/:nodeId",
+                  "/licao/:lessonId/player"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [],
+          "clientGate": null,
+          "notes": [
+            "production definition source is not proven equal to a repo file (reconciliation PARTIAL/UNKNOWN)"
+          ]
+        },
+        {
+          "file": "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+          "class": "UNSAFE_UNTIL_RECONCILED",
+          "reason": "every object it defines exists in production by name, but it replaces sanitize_pedagogy_metadata, submit_beta_pedagogy_event and no later applied migration redefines them, so production may or may not carry this version of the definition",
+          "dependsOn": [
+            "supabase/migrations/20260812180000_production_help_telemetry.sql"
+          ],
+          "underlyingClass": "UNDETERMINED",
+          "domain": "telemetry",
+          "recommendation": "DIFF_PRODUCTION_THEN_DECIDE",
+          "order": 12,
+          "dependencyDetail": [
+            {
+              "file": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+              "strength": "redefines",
+              "via": [
+                "function:sanitize_pedagogy_metadata"
+              ]
+            },
+            {
+              "file": "supabase/migrations/010_beta_feedback.sql",
+              "strength": "redefines",
+              "via": [
+                "function:submit_beta_pedagogy_event"
+              ],
+              "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+            }
+          ],
+          "definesTotal": 2,
+          "definesPresentInProduction": 2,
+          "missingObjects": [],
+          "referencedTables": [
+            "beta_pedagogy_events",
+            "profiles"
+          ],
+          "referencedFunctions": [
+            "beta_anon_consume_ingestion_quota",
+            "beta_anon_resolve_ingestion_session",
+            "beta_pedagogy_context_digest",
+            "beta_pedagogy_event_rate_limited",
+            "beta_pedagogy_event_type_rate_limited",
+            "beta_pedagogy_rate_bucket_key"
+          ],
+          "satisfiedByProduction": [
+            "function:beta_anon_consume_ingestion_quota",
+            "function:beta_anon_resolve_ingestion_session",
+            "function:beta_pedagogy_context_digest",
+            "function:beta_pedagogy_event_rate_limited",
+            "function:beta_pedagogy_event_type_rate_limited",
+            "function:beta_pedagogy_rate_bucket_key",
+            "table:beta_pedagogy_events",
+            "table:profiles"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [
+            "sanitize_pedagogy_metadata",
+            "submit_beta_pedagogy_event"
+          ],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [
+            {
+              "code": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+              "detail": "replaces 1 production function(s) whose current definition is not proven equal to any repo file",
+              "items": [
+                {
+                  "function": "submit_beta_pedagogy_event",
+                  "productionDefinitionSources": [
+                    "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+                    "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+                    "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+                    "supabase/migrations/20260810170000_beta_experience_telemetry.sql"
+                  ],
+                  "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+                }
+              ]
+            }
+          ],
+          "blockedUntil": [
+            {
+              "hazard": "PRODUCTION_DEFINITION_DRIFT_UNKNOWN",
+              "condition": "Read pg_get_functiondef for the listed functions from production (read-only) and diff against this file; if production already matches, record the migration as LEGACY_EQUIVALENT in the ledger instead of applying.",
+              "objects": [
+                "sanitize_pedagogy_metadata",
+                "submit_beta_pedagogy_event"
+              ]
+            }
+          ],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": [
+              {
+                "clientCall": ".rpc(\"submit_beta_pedagogy_event\")",
+                "kind": "rpc",
+                "backendObject": "submit_beta_pedagogy_event",
+                "objectKey": "function:submit_beta_pedagogy_event",
+                "productionStatus": "PRESENT",
+                "severity": "NONE",
+                "productionPath": true,
+                "routes": [
+                  "/admin/feedback",
+                  "/cultura/revisao",
+                  "/jornada/reforco/:nodeId",
+                  "/licao/:lessonId/player"
+                ],
+                "inAppShell": true,
+                "coreFlow": false,
+                "via": null
+              }
+            ]
+          },
+          "neededByProductionClient": [],
+          "clientGate": null,
+          "notes": [
+            "production definition source is not proven equal to a repo file (reconciliation PARTIAL/UNKNOWN)"
+          ]
+        },
+        {
+          "file": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+          "class": "LAUNCH_REQUIRED",
+          "reason": "beta_pedagogy_events grows ~1.9k rows/10 weeks with cleanup unscheduled (snapshot telemetry.cleanupScheduled=false). Adds a dry-run weekly cron over the already-deployed cleanup_beta_pedagogy_events; needed before launch traffic, not for beta.",
+          "dependsOn": [],
+          "domain": "telemetry",
+          "recommendation": "APPLY",
+          "order": 13,
+          "dependencyDetail": [],
+          "definesTotal": 2,
+          "definesPresentInProduction": 0,
+          "missingObjects": [
+            "table:telemetry_retention_runs",
+            "function:run_telemetry_retention"
+          ],
+          "referencedTables": [
+            "beta_pedagogy_events"
+          ],
+          "referencedFunctions": [
+            "cleanup_beta_pedagogy_events"
+          ],
+          "satisfiedByProduction": [
+            "function:cleanup_beta_pedagogy_events",
+            "table:beta_pedagogy_events"
+          ],
+          "unresolvedReferences": [],
+          "additive": false,
+          "destructive": [],
+          "destructiveOnNewObjects": [],
+          "dataMigration": [],
+          "seedData": [],
+          "replacesProductionObjects": [],
+          "privilegeChanging": true,
+          "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+          "hazards": [],
+          "blockedUntil": [],
+          "productionChunks": [],
+          "consumers": {
+            "edgeFunctions": [],
+            "frontend": []
+          },
+          "neededByProductionClient": [],
+          "clientGate": null,
+          "notes": [
+            "Owner decision OA-TELEMETRY-RETENTION-DECISION is still open (recommended 30 days raw + daily aggregates). The cron it adds is a weekly DRY RUN; enabling real deletion is a separate owner-approved statement."
+          ]
+        }
+      ]
+    }
+  ],
+  "topologicalOrder": [
+    "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+    "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+    "supabase/migrations/20260826230000_placement_onboarding.sql",
+    "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+    "supabase/migrations/005_social.sql",
+    "supabase/migrations/20260825043000_business_foundation.sql",
+    "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+    "supabase/migrations/20260825062000_business_operational_hardening.sql",
+    "supabase/migrations/20260914120000_family_plan_foundation.sql",
+    "supabase/migrations/20260914180000_business_seat_integrity.sql",
+    "supabase/migrations/20260914200000_family_invite_flow.sql",
+    "supabase/migrations/20260812180000_production_help_telemetry.sql",
+    "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+    "supabase/pending/rc2-3-10-telemetry-retention.sql",
+    "supabase/migrations/001_initial_schema.sql",
+    "supabase/migrations/002_client_snapshot.sql",
+    "supabase/migrations/003_profile_trigger.sql",
+    "supabase/migrations/004_leagues.sql",
+    "supabase/migrations/006_economy_server.sql",
+    "supabase/migrations/007_internal_test_pro.sql",
+    "supabase/migrations/008_server_entitlement_rpc.sql",
+    "supabase/migrations/009_profile_admin.sql",
+    "supabase/migrations/010_beta_feedback.sql",
+    "supabase/migrations/20260828013000_api_role_table_grants.sql",
+    "supabase/migrations/20260828030000_progress_mastery_monotonic.sql",
+    "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+    "supabase/migrations/20260914210000_family_entitlement.sql"
+  ],
+  "topologicalOrderDetail": [
+    {
+      "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+      "batch": "A",
+      "class": "LAUNCH_REQUIRED",
+      "recommendation": "APPLY"
+    },
+    {
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "batch": "B",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "GATE_CLIENT_THEN_RECONCILE"
+    },
+    {
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "batch": "B",
+      "class": "BETA_REQUIRED",
+      "recommendation": "APPLY"
+    },
+    {
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "batch": "B",
+      "class": "BETA_REQUIRED",
+      "recommendation": "APPLY"
+    },
+    {
+      "file": "supabase/migrations/005_social.sql",
+      "batch": "C",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "GATE_CLIENT_THEN_RECONCILE"
+    },
+    {
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "batch": "C",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "GATE_CLIENT_THEN_RECONCILE"
+    },
+    {
+      "file": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+      "batch": "A",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "RECONCILE_THEN_APPLY"
+    },
+    {
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "batch": "C",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "GATE_CLIENT_THEN_RECONCILE"
+    },
+    {
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "batch": "C",
+      "class": "BETA_REQUIRED",
+      "recommendation": "GATE_CLIENT_PREFERRED"
+    },
+    {
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "batch": "C",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "GATE_CLIENT_THEN_RECONCILE"
+    },
+    {
+      "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "batch": "C",
+      "class": "BETA_REQUIRED",
+      "recommendation": "GATE_CLIENT_PREFERRED"
+    },
+    {
+      "file": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+      "batch": "D",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "DIFF_PRODUCTION_THEN_DECIDE"
+    },
+    {
+      "file": "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+      "batch": "D",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "recommendation": "DIFF_PRODUCTION_THEN_DECIDE"
+    },
+    {
+      "file": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+      "batch": "D",
+      "class": "LAUNCH_REQUIRED",
+      "recommendation": "APPLY"
+    },
+    {
+      "file": "supabase/migrations/001_initial_schema.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/002_client_snapshot.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/003_profile_trigger.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/004_leagues.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/006_economy_server.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/007_internal_test_pro.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/009_profile_admin.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/010_beta_feedback.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/20260828013000_api_role_table_grants.sql",
+      "batch": null,
+      "class": "SUPERSEDED",
+      "recommendation": "DO_NOT_APPLY"
+    },
+    {
+      "file": "supabase/migrations/20260828030000_progress_mastery_monotonic.sql",
+      "batch": null,
+      "class": "FUTURE_FEATURE",
+      "recommendation": "DEFER"
+    },
+    {
+      "file": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "batch": null,
+      "class": "FUTURE_FEATURE",
+      "recommendation": "DEFER"
+    },
+    {
+      "file": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "batch": null,
+      "class": "FUTURE_FEATURE",
+      "recommendation": "DEFER"
+    }
+  ],
+  "cycle": [],
+  "batchOrderViolations": [
+    {
+      "prerequisite": "supabase/migrations/20260825043000_business_foundation.sql",
+      "prerequisiteBatch": "C",
+      "dependent": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+      "dependentBatch": "A",
+      "via": [
+        "table:organizations",
+        "table:organization_members",
+        "table:organization_invites",
+        "table:organization_subscriptions",
+        "table:organization_entitlement_grants"
+      ]
+    }
+  ],
+  "minimumSafeSet": {
+    "definition": "BETA_REQUIRED or LAUNCH_REQUIRED files that are safe to apply as written, whose non-conditional prerequisites are all safe, and for which gating the client is not the preferred route. Ordered by topologicalOrder.",
+    "migrations": [
+      "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+      "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "supabase/pending/rc2-3-10-telemetry-retention.sql"
+    ],
+    "migrationDetail": [
+      {
+        "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+        "batch": "A",
+        "class": "LAUNCH_REQUIRED",
+        "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+        "additive": false,
+        "reason": "Fixes policy league_memberships_select_peers, which fails closed with 42P17 on every direct authenticated SELECT in production (snapshot rlsBehavior). The client only reads leagues through SECURITY DEFINER RPCs, so beta is not blocked; launch should not ship a broken policy."
+      },
+      {
+        "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+        "batch": "B",
+        "class": "BETA_REQUIRED",
+        "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+        "additive": false,
+        "reason": "production client path calls absent object(s) it defines: functions/commit-placement -> commit_placement_result, functions/finalize-onboarding -> commit_placement_result (worst severity CRITICAL)"
+      },
+      {
+        "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+        "batch": "B",
+        "class": "BETA_REQUIRED",
+        "reversibility": "IRREVERSIBLE_WITHOUT_BACKUP",
+        "additive": false,
+        "reason": "production client path calls absent object(s) it defines: functions/commit-placement -> commit_placement_result, functions/create-account -> save_placement_onboarding_draft, functions/finalize-onboarding -> placement_onboarding_drafts, functions/finalize-onboarding -> commit_placement_result (worst severity CRITICAL)"
+      },
+      {
+        "file": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+        "batch": "D",
+        "class": "LAUNCH_REQUIRED",
+        "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+        "additive": false,
+        "reason": "beta_pedagogy_events grows ~1.9k rows/10 weeks with cleanup unscheduled (snapshot telemetry.cleanupScheduled=false). Adds a dry-run weekly cron over the already-deployed cleanup_beta_pedagogy_events; needed before launch traffic, not for beta."
+      }
+    ],
+    "edgeFunctionsToDeploy": [
+      "commit-placement",
+      "finalize-onboarding"
+    ],
+    "clientGatingInsteadOfApply": [
+      {
+        "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+        "domain": "family",
+        "gateRoutes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "gateCalls": [
+          ".rpc(\"accept_family_invite\")",
+          ".rpc(\"create_family_invite\")",
+          ".rpc(\"get_family_overview\")",
+          ".rpc(\"remove_family_member\")",
+          ".rpc(\"revoke_family_invite\")"
+        ],
+        "inAppShell": false,
+        "resultingClassIfGated": "FUTURE_FEATURE"
+      },
+      {
+        "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+        "domain": "family",
+        "gateRoutes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "gateCalls": [
+          ".rpc(\"accept_family_invite\")",
+          ".rpc(\"create_family_invite\")",
+          ".rpc(\"get_family_overview\")",
+          ".rpc(\"remove_family_member\")",
+          ".rpc(\"revoke_family_invite\")"
+        ],
+        "inAppShell": false,
+        "resultingClassIfGated": "FUTURE_FEATURE"
+      }
+    ],
+    "residualMissingClientCalls": [
+      {
+        "clientCall": "functions.invoke(\"submit-business-lead\")",
+        "backendObject": "functions/submit-business-lead",
+        "severity": "HIGH",
+        "routes": [
+          "/business"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "business_funnel_events",
+          "business_leads",
+          "check_and_record_business_funnel_rate",
+          "check_and_record_business_lead_rate"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"accept_family_invite\")",
+        "backendObject": "accept_family_invite",
+        "severity": "HIGH",
+        "routes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "accept_family_invite"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"activate_pearl_pro_pass\")",
+        "backendObject": "activate_pearl_pro_pass",
+        "severity": "HIGH",
+        "routes": [],
+        "inAppShell": true,
+        "stillMissing": [
+          "activate_pearl_pro_pass"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"claim_pearl_milestone\")",
+        "backendObject": "claim_pearl_milestone",
+        "severity": "HIGH",
+        "routes": [],
+        "inAppShell": true,
+        "stillMissing": [
+          "claim_pearl_milestone"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"create_family_invite\")",
+        "backendObject": "create_family_invite",
+        "severity": "HIGH",
+        "routes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "create_family_invite"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"get_business_members\")",
+        "backendObject": "get_business_members",
+        "severity": "HIGH",
+        "routes": [
+          "/business/dashboard",
+          "/business/members"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "get_business_members"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"get_business_overview\")",
+        "backendObject": "get_business_overview",
+        "severity": "HIGH",
+        "routes": [
+          "/business/dashboard",
+          "/business/members"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "get_business_overview"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"get_family_overview\")",
+        "backendObject": "get_family_overview",
+        "severity": "HIGH",
+        "routes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "get_family_overview"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"get_public_profile_by_username\")",
+        "backendObject": "get_public_profile_by_username",
+        "severity": "HIGH",
+        "routes": [
+          "/ajustes",
+          "/amigos",
+          "/config",
+          "/config/:category",
+          "/conta"
+        ],
+        "inAppShell": true,
+        "stillMissing": [
+          "get_public_profile_by_username"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"get_public_profiles_by_ids\")",
+        "backendObject": "get_public_profiles_by_ids",
+        "severity": "HIGH",
+        "routes": [
+          "/ajustes",
+          "/amigos",
+          "/config",
+          "/config/:category",
+          "/conta"
+        ],
+        "inAppShell": true,
+        "stillMissing": [
+          "get_public_profiles_by_ids"
+        ],
+        "reason": "no REPO_ONLY migration defines it (the only repo definition is a ledger-applied conditional no-op); needs a new forward migration",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"remove_family_member\")",
+        "backendObject": "remove_family_member",
+        "severity": "HIGH",
+        "routes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "remove_family_member"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"revoke_family_invite\")",
+        "backendObject": "revoke_family_invite",
+        "severity": "HIGH",
+        "routes": [
+          "/familia",
+          "/familia/convite/:token"
+        ],
+        "inAppShell": false,
+        "stillMissing": [
+          "revoke_family_invite"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".rpc(\"search_public_profiles\")",
+        "backendObject": "search_public_profiles",
+        "severity": "HIGH",
+        "routes": [
+          "/ajustes",
+          "/amigos",
+          "/config",
+          "/config/:category",
+          "/conta"
+        ],
+        "inAppShell": true,
+        "stillMissing": [
+          "search_public_profiles"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".from(\"social_activity_events\")",
+        "backendObject": "social_activity_events",
+        "severity": "HIGH",
+        "routes": [
+          "/ajustes",
+          "/amigos",
+          "/config",
+          "/config/:category",
+          "/conta"
+        ],
+        "inAppShell": true,
+        "stillMissing": [
+          "social_activity_events"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      },
+      {
+        "clientCall": ".from(\"user_follows\")",
+        "backendObject": "user_follows",
+        "severity": "HIGH",
+        "routes": [
+          "/ajustes",
+          "/amigos",
+          "/config",
+          "/config/:category",
+          "/conta"
+        ],
+        "inAppShell": true,
+        "stillMissing": [
+          "user_follows"
+        ],
+        "reason": "its migration is not in the safe set (blocked, deferred or gate-preferred)",
+        "action": "gate the client path (feature flag / route gate) until the backend object exists"
+      }
+    ],
+    "preconditions": [
+      "PRODUCTION_MIGRATION_READY: schema diff, verified export and owner approval (supabase/pending/README.md).",
+      "Take a verified backup/export; the placement handoff migration backfills profiles.country_code and is not reversible without it.",
+      "Capture pg_get_functiondef, policies and grants for every object a file replaces (change.replacesProductionObjects) so the Down step is real.",
+      "Deploy the edge functions listed in edgeFunctionsToDeploy in the same window; they are absent in production today.",
+      "Refresh docs/launch/production-snapshot.json after applying, then rerun npm run analyze:client-backend-graph and npm run analyze:migration-dag."
+    ],
+    "stillBlocked": [
+      {
+        "file": "supabase/migrations/005_social.sql",
+        "underlyingClass": "BETA_REQUIRED",
+        "batch": "C"
+      },
+      {
+        "file": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+        "underlyingClass": "UNDETERMINED",
+        "batch": "D"
+      },
+      {
+        "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+        "underlyingClass": "BETA_REQUIRED",
+        "batch": "B"
+      },
+      {
+        "file": "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+        "underlyingClass": "UNDETERMINED",
+        "batch": "D"
+      },
+      {
+        "file": "supabase/migrations/20260825043000_business_foundation.sql",
+        "underlyingClass": "BETA_REQUIRED",
+        "batch": "C"
+      },
+      {
+        "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+        "underlyingClass": "BETA_REQUIRED",
+        "batch": "C"
+      },
+      {
+        "file": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+        "underlyingClass": "LAUNCH_REQUIRED",
+        "batch": "A"
+      },
+      {
+        "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+        "underlyingClass": "BETA_REQUIRED",
+        "batch": "C"
+      },
+      {
+        "file": "supabase/migrations/20260914210000_family_entitlement.sql",
+        "underlyingClass": "FUTURE_FEATURE",
+        "batch": null
+      }
+    ],
+    "emptyReason": null
+  },
+  "deferred": [
+    {
+      "file": "supabase/migrations/001_initial_schema.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 9 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 14,
+      "dependencyDetail": [],
+      "definesTotal": 9,
+      "definesPresentInProduction": 9,
+      "missingObjects": [],
+      "referencedTables": [],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [],
+      "unresolvedReferences": [],
+      "additive": true,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [],
+      "privilegeChanging": false,
+      "reversibility": "REVERSIBLE_BY_DROP",
+      "hazards": [
+        {
+          "code": "REINTRODUCES_DROPPED_POLICY",
+          "detail": "creates a policy that a later applied migration deliberately dropped",
+          "items": [
+            {
+              "policy": "user_economy.user_economy_insert_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "policy": "user_economy.user_economy_update_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "policy": "user_missions.user_missions_insert_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "policy": "user_missions.user_missions_update_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "policy": "user_chests.user_chests_insert_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "policy": "user_chests.user_chests_update_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "policy": "user_achievements.user_achievements_insert_own",
+              "droppedByLaterApplied": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [
+          {
+            "slug": "create-account",
+            "deployedInProduction": true,
+            "objects": [
+              "table:profiles"
+            ]
+          },
+          {
+            "slug": "create-billing-portal",
+            "deployedInProduction": true,
+            "objects": [
+              "table:subscriptions"
+            ]
+          },
+          {
+            "slug": "finalize-onboarding",
+            "deployedInProduction": false,
+            "objects": [
+              "table:profiles"
+            ]
+          },
+          {
+            "slug": "stripe-webhook",
+            "deployedInProduction": true,
+            "objects": [
+              "table:subscriptions",
+              "table:transactions"
+            ]
+          }
+        ],
+        "frontend": [
+          {
+            "clientCall": "functions.invoke(\"create-account\")",
+            "kind": "edge",
+            "backendObject": "functions/create-account -> profiles",
+            "objectKey": "table:profiles",
+            "productionStatus": "PRESENT",
+            "severity": "CRITICAL",
+            "productionPath": true,
+            "routes": [
+              "/comecar",
+              "/confirmar-email",
+              "/conta",
+              "/esqueci-senha",
+              "/login",
+              "/redefinir-senha"
+            ],
+            "inAppShell": true,
+            "coreFlow": true,
+            "via": "functions/create-account"
+          },
+          {
+            "clientCall": "functions.invoke(\"finalize-onboarding\")",
+            "kind": "edge",
+            "backendObject": "functions/finalize-onboarding -> profiles",
+            "objectKey": "table:profiles",
+            "productionStatus": "PRESENT",
+            "severity": "CRITICAL",
+            "productionPath": true,
+            "routes": [
+              "/comecar",
+              "/confirmar-email",
+              "/finalizar-cadastro"
+            ],
+            "inAppShell": false,
+            "coreFlow": true,
+            "via": "functions/finalize-onboarding"
+          },
+          {
+            "clientCall": "functions.invoke(\"create-billing-portal\")",
+            "kind": "edge",
+            "backendObject": "functions/create-billing-portal -> subscriptions",
+            "objectKey": "table:subscriptions",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/confirmar-email",
+              "/conta",
+              "/finalizar-cadastro",
+              "/login",
+              "/plano",
+              "/pro"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": "functions/create-billing-portal"
+          },
+          {
+            "clientCall": ".from(\"profiles\")",
+            "kind": "table",
+            "backendObject": "profiles",
+            "objectKey": "table:profiles",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/",
+              "/ajustes",
+              "/amigos",
+              "/auth/callback",
+              "/comecar",
+              "/config",
+              "/config/:category",
+              "/confirmar-email",
+              "/conta",
+              "/cultura/revisao",
+              "/esqueci-senha",
+              "/finalizar-cadastro",
+              "/jornada/capsula/:capsuleId",
+              "/login",
+              "/redefinir-senha"
+            ],
+            "inAppShell": true,
+            "coreFlow": true,
+            "via": null
+          },
+          {
+            "clientCall": ".from(\"subscriptions\")",
+            "kind": "table",
+            "backendObject": "subscriptions",
+            "objectKey": "table:subscriptions",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/conta"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".from(\"user_progress\")",
+            "kind": "table",
+            "backendObject": "user_progress",
+            "objectKey": "table:user_progress",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          }
+        ]
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/002_client_snapshot.sql",
+      "class": "SUPERSEDED",
+      "reason": "only adds 2 column(s) with 'if not exists' to table(s) that exist in production; the snapshot is table-level, so column presence is UNVERIFIED",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 15,
+      "dependencyDetail": [],
+      "definesTotal": 0,
+      "definesPresentInProduction": 0,
+      "missingObjects": [],
+      "referencedTables": [
+        "profiles",
+        "user_progress"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:profiles",
+        "table:user_progress"
+      ],
+      "unresolvedReferences": [],
+      "additive": true,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [],
+      "privilegeChanging": false,
+      "reversibility": "REVERSIBLE_BY_DROP",
+      "hazards": [],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/003_profile_trigger.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 1 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 16,
+      "dependencyDetail": [],
+      "definesTotal": 1,
+      "definesPresentInProduction": 1,
+      "missingObjects": [],
+      "referencedTables": [
+        "profiles"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:profiles"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [
+        "handle_new_user"
+      ],
+      "privilegeChanging": false,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [
+        {
+          "code": "STALE_OVERWRITE",
+          "detail": "create or replace would overwrite 1 production function(s) that a later applied migration redefined",
+          "items": [
+            {
+              "function": "handle_new_user",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/016_fix_leagues_cohort_finalize.sql"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/004_leagues.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 14 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 17,
+      "dependencyDetail": [
+        {
+          "file": "supabase/migrations/003_profile_trigger.sql",
+          "strength": "redefines",
+          "via": [
+            "function:handle_new_user"
+          ],
+          "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+        }
+      ],
+      "definesTotal": 14,
+      "definesPresentInProduction": 14,
+      "missingObjects": [],
+      "referencedTables": [
+        "profiles",
+        "subscriptions",
+        "user_economy",
+        "user_progress"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:profiles",
+        "table:subscriptions",
+        "table:user_economy",
+        "table:user_progress"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [
+        "insert into public.league_tiers ( id, name, order_index, icon, color, description, level_min, level_max, promotion_count, releg",
+        "insert into public.league_memberships (user_id, league_tier_id, current_week_key, weekly_xp) select p.id, 'bronze', public.iso_week"
+      ],
+      "replacesProductionObjects": [
+        "iso_week_key",
+        "week_ends_at",
+        "recalculate_league_ranks",
+        "ensure_league_membership",
+        "finalize_league_week_for_user",
+        "sync_league_week",
+        "add_league_weekly_xp",
+        "get_league_standings",
+        "claim_league_week_reward",
+        "handle_new_user"
+      ],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [
+        {
+          "code": "STALE_OVERWRITE",
+          "detail": "create or replace would overwrite 7 production function(s) that a later applied migration redefined",
+          "items": [
+            {
+              "function": "week_ends_at",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/016_fix_leagues_cohort_finalize.sql"
+              ]
+            },
+            {
+              "function": "ensure_league_membership",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808064852_harden_function_privileges.sql"
+              ]
+            },
+            {
+              "function": "finalize_league_week_for_user",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/016_fix_leagues_cohort_finalize.sql"
+              ]
+            },
+            {
+              "function": "sync_league_week",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/016_fix_leagues_cohort_finalize.sql",
+                "supabase/migrations/20260808064852_harden_function_privileges.sql"
+              ]
+            },
+            {
+              "function": "add_league_weekly_xp",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+                "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+              ]
+            },
+            {
+              "function": "claim_league_week_reward",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "function": "handle_new_user",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/016_fix_leagues_cohort_finalize.sql"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "REGRANTS_REVOKED_PRIVILEGE",
+          "detail": "grants on objects that a later applied migration revoked (role-level precision not checked)",
+          "items": [
+            {
+              "revokedBy": "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+              "objects": [
+                "add_league_weekly_xp",
+                "claim_league_week_reward"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+              "objects": [
+                "add_league_weekly_xp"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": [
+          {
+            "clientCall": ".rpc(\"add_league_weekly_xp\")",
+            "kind": "rpc",
+            "backendObject": "add_league_weekly_xp",
+            "objectKey": "function:add_league_weekly_xp",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/ligas",
+              "/perfil"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"claim_league_week_reward\")",
+            "kind": "rpc",
+            "backendObject": "claim_league_week_reward",
+            "objectKey": "function:claim_league_week_reward",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/ligas",
+              "/perfil"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"get_league_standings\")",
+            "kind": "rpc",
+            "backendObject": "get_league_standings",
+            "objectKey": "function:get_league_standings",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/ligas",
+              "/perfil"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"sync_league_week\")",
+            "kind": "rpc",
+            "backendObject": "sync_league_week",
+            "objectKey": "function:sync_league_week",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/ligas",
+              "/perfil"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          }
+        ]
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/006_economy_server.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 21 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 18,
+      "dependencyDetail": [
+        {
+          "file": "supabase/migrations/003_profile_trigger.sql",
+          "strength": "redefines",
+          "via": [
+            "function:handle_new_user"
+          ],
+          "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+        }
+      ],
+      "definesTotal": 21,
+      "definesPresentInProduction": 21,
+      "missingObjects": [],
+      "referencedTables": [
+        "profiles",
+        "subscriptions",
+        "user_chests",
+        "user_economy",
+        "user_missions"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:profiles",
+        "table:subscriptions",
+        "table:user_chests",
+        "table:user_economy",
+        "table:user_missions"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [
+        "economy_constants",
+        "economy_user_is_pro",
+        "economy_ensure_row",
+        "economy_row_to_json",
+        "economy_rand01",
+        "economy_ledger_exists",
+        "economy_insert_ledger",
+        "economy_mission_reward",
+        "economy_mission_goal",
+        "economy_mission_is_pro",
+        "economy_activity_consumes_charge",
+        "get_server_economy",
+        "consume_charge",
+        "spend_qi",
+        "grant_lesson_reward",
+        "grant_story_energy",
+        "claim_mission",
+        "open_chest",
+        "migrate_local_economy",
+        "handle_new_user"
+      ],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [
+        {
+          "code": "STALE_OVERWRITE",
+          "detail": "create or replace would overwrite 7 production function(s) that a later applied migration redefined",
+          "items": [
+            {
+              "function": "economy_user_is_pro",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/017_referrals.sql",
+                "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+              ]
+            },
+            {
+              "function": "consume_charge",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+              ]
+            },
+            {
+              "function": "grant_lesson_reward",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+                "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql",
+                "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+              ]
+            },
+            {
+              "function": "grant_story_energy",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+                "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+              ]
+            },
+            {
+              "function": "claim_mission",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+                "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+              ]
+            },
+            {
+              "function": "migrate_local_economy",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+              ]
+            },
+            {
+              "function": "handle_new_user",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/016_fix_leagues_cohort_finalize.sql"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "REGRANTS_REVOKED_PRIVILEGE",
+          "detail": "grants on objects that a later applied migration revoked (role-level precision not checked)",
+          "items": [
+            {
+              "revokedBy": "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+              "objects": [
+                "grant_lesson_reward",
+                "grant_story_energy",
+                "claim_mission",
+                "migrate_local_economy"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql",
+              "objects": [
+                "consume_charge",
+                "grant_lesson_reward",
+                "claim_mission"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+              "objects": [
+                "grant_lesson_reward",
+                "grant_story_energy"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": [
+          {
+            "clientCall": ".rpc(\"claim_mission\")",
+            "kind": "rpc",
+            "backendObject": "claim_mission",
+            "objectKey": "function:claim_mission",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"consume_charge\")",
+            "kind": "rpc",
+            "backendObject": "consume_charge",
+            "objectKey": "function:consume_charge",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"get_server_economy\")",
+            "kind": "rpc",
+            "backendObject": "get_server_economy",
+            "objectKey": "function:get_server_economy",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"grant_lesson_reward\")",
+            "kind": "rpc",
+            "backendObject": "grant_lesson_reward",
+            "objectKey": "function:grant_lesson_reward",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"grant_story_energy\")",
+            "kind": "rpc",
+            "backendObject": "grant_story_energy",
+            "objectKey": "function:grant_story_energy",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"migrate_local_economy\")",
+            "kind": "rpc",
+            "backendObject": "migrate_local_economy",
+            "objectKey": "function:migrate_local_economy",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"open_chest\")",
+            "kind": "rpc",
+            "backendObject": "open_chest",
+            "objectKey": "function:open_chest",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"spend_qi\")",
+            "kind": "rpc",
+            "backendObject": "spend_qi",
+            "objectKey": "function:spend_qi",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          }
+        ]
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/007_internal_test_pro.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 1 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 19,
+      "dependencyDetail": [
+        {
+          "file": "supabase/migrations/006_economy_server.sql",
+          "strength": "redefines",
+          "via": [
+            "function:economy_user_is_pro"
+          ],
+          "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+        }
+      ],
+      "definesTotal": 1,
+      "definesPresentInProduction": 1,
+      "missingObjects": [],
+      "referencedTables": [
+        "subscriptions"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:subscriptions"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [
+        "economy_user_is_pro"
+      ],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [
+        {
+          "code": "STALE_OVERWRITE",
+          "detail": "create or replace would overwrite 1 production function(s) that a later applied migration redefined",
+          "items": [
+            {
+              "function": "economy_user_is_pro",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/017_referrals.sql",
+                "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "REGRANTS_REVOKED_PRIVILEGE",
+          "detail": "grants on objects that a later applied migration revoked (role-level precision not checked)",
+          "items": [
+            {
+              "revokedBy": "supabase/migrations/20260808130200_admin_roles_user_id.sql",
+              "objects": [
+                "economy_user_is_pro"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808160000_revoke_economy_user_is_pro_client.sql",
+              "objects": [
+                "economy_user_is_pro"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 1 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 20,
+      "dependencyDetail": [],
+      "definesTotal": 1,
+      "definesPresentInProduction": 1,
+      "missingObjects": [],
+      "referencedTables": [
+        "subscriptions"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:subscriptions"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [
+        "insert into public.subscriptions ( user_id, status, stripe_subscription_id, current_period_start, current_period_end, ca"
+      ],
+      "seedData": [],
+      "replacesProductionObjects": [
+        "get_server_entitlement"
+      ],
+      "privilegeChanging": true,
+      "reversibility": "IRREVERSIBLE_WITHOUT_BACKUP",
+      "hazards": [
+        {
+          "code": "STALE_OVERWRITE",
+          "detail": "create or replace would overwrite 1 production function(s) that a later applied migration redefined",
+          "items": [
+            {
+              "function": "get_server_entitlement",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/017_referrals.sql",
+                "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "REGRANTS_REVOKED_PRIVILEGE",
+          "detail": "grants on objects that a later applied migration revoked (role-level precision not checked)",
+          "items": [
+            {
+              "revokedBy": "supabase/migrations/20260808130200_admin_roles_user_id.sql",
+              "objects": [
+                "get_server_entitlement"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": [
+          {
+            "clientCall": ".rpc(\"get_server_entitlement\")",
+            "kind": "rpc",
+            "backendObject": "get_server_entitlement",
+            "objectKey": "function:get_server_entitlement",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/conta"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          }
+        ]
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/009_profile_admin.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 1 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 21,
+      "dependencyDetail": [],
+      "definesTotal": 1,
+      "definesPresentInProduction": 1,
+      "missingObjects": [],
+      "referencedTables": [
+        "profiles",
+        "subscriptions",
+        "user_progress"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:profiles",
+        "table:subscriptions",
+        "table:user_progress"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/010_beta_feedback.sql",
+      "class": "SUPERSEDED",
+      "reason": "pre-history baseline file; all 8 objects it defines already exist in production (snapshot) and later applied migrations redefine/harden them, so re-applying would regress production",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 22,
+      "dependencyDetail": [],
+      "definesTotal": 8,
+      "definesPresentInProduction": 8,
+      "missingObjects": [],
+      "referencedTables": [],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [
+        "insert into public.beta_admins (user_id, email) select u.id, lower(u.email) from auth.users u where lower(u.email) in ( 'teste@l"
+      ],
+      "replacesProductionObjects": [
+        "is_beta_admin",
+        "beta_feedback_rate_limited",
+        "submit_beta_feedback",
+        "submit_beta_pedagogy_event",
+        "update_beta_feedback_admin"
+      ],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [
+        {
+          "code": "STALE_OVERWRITE",
+          "detail": "create or replace would overwrite 3 production function(s) that a later applied migration redefined",
+          "items": [
+            {
+              "function": "is_beta_admin",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808064852_harden_function_privileges.sql",
+                "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+              ]
+            },
+            {
+              "function": "submit_beta_feedback",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql"
+              ]
+            },
+            {
+              "function": "submit_beta_pedagogy_event",
+              "newerAppliedDefinitions": [
+                "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+                "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+                "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+                "supabase/migrations/20260810170000_beta_experience_telemetry.sql"
+              ]
+            }
+          ]
+        },
+        {
+          "code": "REGRANTS_REVOKED_PRIVILEGE",
+          "detail": "grants on objects that a later applied migration revoked (role-level precision not checked)",
+          "items": [
+            {
+              "revokedBy": "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+              "objects": [
+                "submit_beta_pedagogy_event"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+              "objects": [
+                "submit_beta_pedagogy_event"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+              "objects": [
+                "submit_beta_feedback",
+                "submit_beta_pedagogy_event"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808130200_admin_roles_user_id.sql",
+              "objects": [
+                "is_beta_admin"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260808150000_abuse_controls_ip_email_snapshot.sql",
+              "objects": [
+                "is_beta_admin"
+              ]
+            },
+            {
+              "revokedBy": "supabase/migrations/20260810170000_beta_experience_telemetry.sql",
+              "objects": [
+                "submit_beta_pedagogy_event"
+              ]
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [
+          {
+            "slug": "triage-feedback",
+            "deployedInProduction": true,
+            "objects": [
+              "table:beta_feedback",
+              "function:is_beta_admin"
+            ]
+          }
+        ],
+        "frontend": [
+          {
+            "clientCall": "functions.invoke(\"triage-feedback\")",
+            "kind": "edge",
+            "backendObject": "functions/triage-feedback -> beta_feedback",
+            "objectKey": "table:beta_feedback",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/mais",
+              "/sobre"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": "functions/triage-feedback"
+          },
+          {
+            "clientCall": "functions.invoke(\"triage-feedback\")",
+            "kind": "edge",
+            "backendObject": "functions/triage-feedback -> is_beta_admin",
+            "objectKey": "function:is_beta_admin",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/mais",
+              "/sobre"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": "functions/triage-feedback"
+          },
+          {
+            "clientCall": ".rpc(\"is_beta_admin\")",
+            "kind": "rpc",
+            "backendObject": "is_beta_admin",
+            "objectKey": "function:is_beta_admin",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/mais",
+              "/sobre"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"submit_beta_feedback\")",
+            "kind": "rpc",
+            "backendObject": "submit_beta_feedback",
+            "objectKey": "function:submit_beta_feedback",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/mais",
+              "/sobre"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"submit_beta_pedagogy_event\")",
+            "kind": "rpc",
+            "backendObject": "submit_beta_pedagogy_event",
+            "objectKey": "function:submit_beta_pedagogy_event",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/cultura/revisao",
+              "/jornada/reforco/:nodeId",
+              "/licao/:lessonId/player"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".rpc(\"update_beta_feedback_admin\")",
+            "kind": "rpc",
+            "backendObject": "update_beta_feedback_admin",
+            "objectKey": "function:update_beta_feedback_admin",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/mais",
+              "/sobre"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".from(\"beta_feedback\")",
+            "kind": "table",
+            "backendObject": "beta_feedback",
+            "objectKey": "table:beta_feedback",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/mais",
+              "/sobre"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          },
+          {
+            "clientCall": ".from(\"beta_pedagogy_events\")",
+            "kind": "table",
+            "backendObject": "beta_pedagogy_events",
+            "objectKey": "table:beta_pedagogy_events",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/admin/feedback",
+              "/cultura/revisao",
+              "/jornada/reforco/:nodeId",
+              "/licao/:lessonId/player"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          }
+        ]
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/20260828013000_api_role_table_grants.sql",
+      "class": "SUPERSEDED",
+      "reason": "Grants ALL on profiles/user_progress/user_srs/subscriptions/transactions to anon and authenticated. Its own header says production already has the platform default privileges, and 20260828020000_least_privilege_api_grants.sql explicitly walks that grant back. Applying it alone would widen privileges.",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DO_NOT_APPLY",
+      "order": 23,
+      "dependencyDetail": [
+        {
+          "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+          "strength": "conditional",
+          "via": [
+            "table:placement_attempts"
+          ]
+        }
+      ],
+      "definesTotal": 0,
+      "definesPresentInProduction": 0,
+      "missingObjects": [],
+      "referencedTables": [
+        "economy_ledger",
+        "placement_attempts",
+        "profiles",
+        "subscriptions",
+        "transactions",
+        "user_achievements",
+        "user_chests",
+        "user_economy",
+        "user_missions",
+        "user_progress",
+        "user_srs"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:economy_ledger",
+        "table:profiles",
+        "table:subscriptions",
+        "table:transactions",
+        "table:user_achievements",
+        "table:user_chests",
+        "table:user_economy",
+        "table:user_missions",
+        "table:user_progress",
+        "table:user_srs"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [],
+      "deferredBecause": "production already realises it or a later migration supersedes it"
+    },
+    {
+      "file": "supabase/migrations/20260828030000_progress_mastery_monotonic.sql",
+      "class": "FUTURE_FEATURE",
+      "reason": "defines 1 object(s) absent in production that no production client path or deployed edge function calls",
+      "dependsOn": [],
+      "domain": null,
+      "recommendation": "DEFER",
+      "order": 24,
+      "dependencyDetail": [],
+      "definesTotal": 1,
+      "definesPresentInProduction": 0,
+      "missingObjects": [
+        "function:merge_progress_mastery_monotonic"
+      ],
+      "referencedTables": [
+        "user_progress"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:user_progress"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [
+        "BEFORE UPDATE trigger on user_progress that rewrites client_snapshot. No client call references it, so it is FUTURE_FEATURE by the rules, but it guards against multi-device mastery regression; promote to LAUNCH_REQUIRED if that regression is observed. Rehearse against a copy of production user_progress first."
+      ],
+      "deferredBecause": "no production client path or deployed edge function needs it"
+    },
+    {
+      "file": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "class": "FUTURE_FEATURE",
+      "reason": "defines 4 object(s) absent in production that no production client path or deployed edge function calls",
+      "dependsOn": [
+        "supabase/migrations/20260828030000_progress_mastery_monotonic.sql"
+      ],
+      "domain": null,
+      "recommendation": "DEFER",
+      "order": 25,
+      "dependencyDetail": [
+        {
+          "file": "supabase/migrations/20260828030000_progress_mastery_monotonic.sql",
+          "strength": "redefines",
+          "via": [
+            "function:merge_progress_mastery_monotonic"
+          ]
+        }
+      ],
+      "definesTotal": 4,
+      "definesPresentInProduction": 0,
+      "missingObjects": [
+        "function:longyu_clamp_mastery_level",
+        "function:longyu_mastery_entry_level",
+        "function:longyu_merge_mastery_maps",
+        "function:merge_progress_mastery_monotonic"
+      ],
+      "referencedTables": [
+        "user_progress"
+      ],
+      "referencedFunctions": [],
+      "satisfiedByProduction": [
+        "table:user_progress"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [],
+      "blockedUntil": [],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": []
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [
+        "Supersedes 20260828030000 for the trigger function. Apply as a pair or not at all; same rehearsal requirement."
+      ],
+      "deferredBecause": "no production client path or deployed edge function needs it"
+    },
+    {
+      "file": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "class": "FUTURE_FEATURE",
+      "reason": "defines 1 object(s) absent in production that no production client path or deployed edge function calls",
+      "dependsOn": [
+        "supabase/migrations/20260825043000_business_foundation.sql",
+        "supabase/migrations/20260914120000_family_plan_foundation.sql"
+      ],
+      "domain": "family",
+      "recommendation": "DEFER",
+      "order": 26,
+      "dependencyDetail": [
+        {
+          "file": "supabase/migrations/20260825043000_business_foundation.sql",
+          "strength": "runtime",
+          "via": [
+            "function:_user_organization_entitlement"
+          ]
+        },
+        {
+          "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+          "strength": "runtime",
+          "via": [
+            "table:family_memberships",
+            "table:family_accounts"
+          ]
+        },
+        {
+          "file": "supabase/migrations/006_economy_server.sql",
+          "strength": "redefines",
+          "via": [
+            "function:economy_user_is_pro"
+          ],
+          "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+        },
+        {
+          "file": "supabase/migrations/008_server_entitlement_rpc.sql",
+          "strength": "redefines",
+          "via": [
+            "function:get_server_entitlement"
+          ],
+          "ignored": "prerequisite is SUPERSEDED (production already carries it)"
+        }
+      ],
+      "definesTotal": 3,
+      "definesPresentInProduction": 2,
+      "missingObjects": [
+        "function:_user_family_entitlement"
+      ],
+      "referencedTables": [
+        "family_accounts",
+        "family_memberships",
+        "user_economy"
+      ],
+      "referencedFunctions": [
+        "_user_organization_entitlement",
+        "_user_stripe_pro_active",
+        "user_has_entitlement_grant"
+      ],
+      "satisfiedByProduction": [
+        "function:_user_stripe_pro_active",
+        "function:user_has_entitlement_grant",
+        "table:user_economy"
+      ],
+      "unresolvedReferences": [],
+      "additive": false,
+      "destructive": [],
+      "destructiveOnNewObjects": [],
+      "dataMigration": [],
+      "seedData": [],
+      "replacesProductionObjects": [
+        "get_server_entitlement",
+        "economy_user_is_pro"
+      ],
+      "privilegeChanging": true,
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "hazards": [
+        {
+          "code": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+          "detail": "replaces 2 production function(s) whose current definition is not proven equal to any repo file",
+          "items": [
+            {
+              "function": "get_server_entitlement",
+              "productionDefinitionSources": [
+                "supabase/migrations/017_referrals.sql",
+                "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+              ],
+              "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+            },
+            {
+              "function": "economy_user_is_pro",
+              "productionDefinitionSources": [
+                "supabase/migrations/017_referrals.sql",
+                "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+              ],
+              "note": "production definition came from a migration whose applied SQL is not proven equal to the repo file"
+            }
+          ]
+        }
+      ],
+      "blockedUntil": [
+        {
+          "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+          "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+          "objects": [
+            "get_server_entitlement",
+            "economy_user_is_pro"
+          ]
+        }
+      ],
+      "productionChunks": [],
+      "consumers": {
+        "edgeFunctions": [],
+        "frontend": [
+          {
+            "clientCall": ".rpc(\"get_server_entitlement\")",
+            "kind": "rpc",
+            "backendObject": "get_server_entitlement",
+            "objectKey": "function:get_server_entitlement",
+            "productionStatus": "PRESENT",
+            "severity": "NONE",
+            "productionPath": true,
+            "routes": [
+              "/conta"
+            ],
+            "inAppShell": true,
+            "coreFlow": false,
+            "via": null
+          }
+        ]
+      },
+      "neededByProductionClient": [],
+      "clientGate": null,
+      "notes": [
+        "Grants Pro through a family seat by replacing get_server_entitlement and economy_user_is_pro. PRODUCT_TRUTH says family_plan cannot be purchased yet, so nothing consumes it today."
+      ],
+      "deferredBecause": "no production client path or deployed edge function needs it"
+    }
+  ],
+  "blockedUntil": [
+    {
+      "file": "supabase/migrations/005_social.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "BETA_REQUIRED",
+      "batch": "C",
+      "conditions": [
+        {
+          "hazard": "STALE_OVERWRITE",
+          "condition": "Do not apply as written. Rebase the 1 stale function definition(s) on the production definition (OA-SCHEMA-DIFF), then apply a new forward migration.",
+          "objects": [
+            "sync_profile_public_stats"
+          ]
+        },
+        {
+          "hazard": "REINTRODUCES_DROPPED_POLICY",
+          "condition": "Write a forward migration that omits the dropped policy and uses the hardened boundary from the later applied migration; never apply this file verbatim.",
+          "objects": [
+            "profiles.profiles_select_social"
+          ]
+        },
+        {
+          "hazard": "REINTRODUCES_DROPPED_CONSTRAINT",
+          "condition": "Omit the superseded constraint in a forward migration; production carries the later definition.",
+          "objects": [
+            "profiles_username_format"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260812180000_production_help_telemetry.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "UNDETERMINED",
+      "batch": "D",
+      "conditions": [
+        {
+          "hazard": "PRODUCTION_DEFINITION_DRIFT_UNKNOWN",
+          "condition": "Read pg_get_functiondef for the listed functions from production (read-only) and diff against this file; if production already matches, record the migration as LEGACY_EQUIVALENT in the ledger instead of applying.",
+          "objects": [
+            "sanitize_pedagogy_metadata",
+            "submit_beta_pedagogy_event"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "BETA_REQUIRED",
+      "batch": "B",
+      "conditions": [
+        {
+          "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+          "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+          "objects": [
+            "get_server_entitlement"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260814010000_mastery_pass_telemetry.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "UNDETERMINED",
+      "batch": "D",
+      "conditions": [
+        {
+          "hazard": "PRODUCTION_DEFINITION_DRIFT_UNKNOWN",
+          "condition": "Read pg_get_functiondef for the listed functions from production (read-only) and diff against this file; if production already matches, record the migration as LEGACY_EQUIVALENT in the ledger instead of applying.",
+          "objects": [
+            "sanitize_pedagogy_metadata",
+            "submit_beta_pedagogy_event"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "BETA_REQUIRED",
+      "batch": "C",
+      "conditions": [
+        {
+          "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+          "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+          "objects": [
+            "get_server_entitlement",
+            "economy_user_is_pro"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "BETA_REQUIRED",
+      "batch": "C",
+      "conditions": [
+        {
+          "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+          "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+          "objects": [
+            "get_server_entitlement",
+            "economy_user_is_pro"
+          ]
+        },
+        {
+          "hazard": "DDL_REFERENCES_ABSENT_OBJECTS",
+          "condition": "Apply the defining migrations first, or guard the statements with to_regclass checks, and capture production's current grants (not in the snapshot) to show the delta.",
+          "objects": [
+            "table:organization_members",
+            "table:organizations",
+            "table:organization_invites",
+            "table:organization_subscriptions",
+            "table:business_leads"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260828020000_least_privilege_api_grants.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "LAUNCH_REQUIRED",
+      "batch": "A",
+      "conditions": [
+        {
+          "hazard": "DDL_REFERENCES_ABSENT_OBJECTS",
+          "condition": "Apply the defining migrations first, or guard the statements with to_regclass checks, and capture production's current grants (not in the snapshot) to show the delta.",
+          "objects": [
+            "table:organizations",
+            "table:organization_members",
+            "table:organization_invites",
+            "table:organization_subscriptions",
+            "table:organization_entitlement_grants"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "class": "UNSAFE_UNTIL_RECONCILED",
+      "underlyingClass": "BETA_REQUIRED",
+      "batch": "C",
+      "conditions": [
+        {
+          "hazard": "DDL_REFERENCES_ABSENT_OBJECTS",
+          "condition": "Apply the defining migrations first, or guard the statements with to_regclass checks, and capture production's current grants (not in the snapshot) to show the delta.",
+          "objects": [
+            "table:organizations",
+            "table:organization_members",
+            "table:organization_invites"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "class": "FUTURE_FEATURE",
+      "underlyingClass": "FUTURE_FEATURE",
+      "batch": null,
+      "conditions": [
+        {
+          "hazard": "REPLACES_UNPROVEN_PRODUCTION_FUNCTION",
+          "condition": "Extract the applied production SQL for the replaced functions, diff against this file's definitions (npm run reconcile:production-migrations -- --prod-sql-dir=<dir>), and confirm the repo version is a superset.",
+          "objects": [
+            "get_server_entitlement",
+            "economy_user_is_pro"
+          ]
+        }
+      ]
+    }
+  ]
+}

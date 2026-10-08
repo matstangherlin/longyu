@@ -1,0 +1,2716 @@
+{
+  "schema": "longyu-client-backend-call-graph/1",
+  "generatedAt": "2026-10-08T21:47:51.736Z",
+  "generatedFromSha": "0e5e528ca357643b6b8a18462dd16f74020ccffd",
+  "productionSnapshot": {
+    "path": "docs/launch/production-snapshot.json",
+    "readAt": "2026-10-08",
+    "project": "drjcfalvlbbeblmmyhwj"
+  },
+  "ledger": {
+    "path": "docs/launch/production-migration-ledger.json",
+    "productionReadAt": "2026-10-08",
+    "status": "BLOCKED"
+  },
+  "method": [
+    "Static scan of src/**/*.{ts,tsx} (tests excluded) for .from('t'), .rpc('f'), functions.invoke('e'), .storage.from('b') and .auth.* calls, including literal calls routed through local wrapper functions (e.g. invokeRpc).",
+    "Backend object -> introducing migration comes from scripts/lib/sql-object-index.mjs over supabase/migrations and supabase/pending (earliest non-conditional create).",
+    "productionStatus is read from the production snapshot only: tables/views, functions, edge functions, storage buckets. Auth methods are PRESENT unless they depend on provider/SMTP config the snapshot marks NOT_READABLE_FROM_AGENT.",
+    "productionPath = the calling file is reachable from src/main.tsx (static imports) or from a non-/qa route in src/routes.tsx (static + lazy imports). Static reachability is an upper bound on runtime usage.",
+    "Edge functions list the tables/rpcs their repo source reads, resolved against the same snapshot."
+  ],
+  "limits": [
+    "Calls with a non-literal name cannot be resolved; they are listed under dynamicCalls.",
+    "Column-level drift (e.g. a selected column missing from an existing table) is not detected; the snapshot has table-level facts only.",
+    "Deployed edge-function source is not compared to the repo copy; PRESENT means a function with that slug is deployed."
+  ],
+  "counts": {
+    "entries": 70,
+    "byKind": {
+      "edge": 10,
+      "rpc": 37,
+      "table": 8,
+      "auth": 15
+    },
+    "byStatus": {
+      "MISSING": 17,
+      "PRESENT": 45,
+      "UNKNOWN": 8
+    },
+    "bySeverity": {
+      "CRITICAL": 3,
+      "HIGH": 15,
+      "MEDIUM": 8,
+      "NONE": 44
+    },
+    "missingBackendObjects": 17,
+    "missingOnProductionPath": 17,
+    "presentEdgeFunctionsWithMissingDependencies": 1,
+    "dynamicCallSites": 0,
+    "filesScanned": 757
+  },
+  "entries": [
+    {
+      "clientCall": "functions.invoke(\"commit-placement\")",
+      "backendObject": "functions/commit-placement",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/commit-placement",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/placementCommit.ts:45"
+      ],
+      "severity": "CRITICAL",
+      "severityReason": "missing object sits on the sign-up / login / onboarding path",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/finalizar-cadastro"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/finalizar-cadastro"
+      ],
+      "inAppShell": false,
+      "coreFlow": true,
+      "domain": "placement",
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "rpc",
+          "name": "commit_placement_result",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": [
+        "repo source also needs absent objects: commit_placement_result"
+      ]
+    },
+    {
+      "clientCall": "functions.invoke(\"create-account\")",
+      "backendObject": "functions/create-account",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/create-account",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:154"
+      ],
+      "severity": "CRITICAL",
+      "severityReason": "deployed edge function sits on the sign-up / login / onboarding path and its repo source calls objects absent in production",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "table",
+          "name": "profiles",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_turnstile_secret",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "check_and_record_signup_rate",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "save_placement_onboarding_draft",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": [
+        "deployed edge function reads objects absent in production: save_placement_onboarding_draft"
+      ]
+    },
+    {
+      "clientCall": "functions.invoke(\"finalize-onboarding\")",
+      "backendObject": "functions/finalize-onboarding",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/finalize-onboarding",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/finalizeOnboarding.ts:73"
+      ],
+      "severity": "CRITICAL",
+      "severityReason": "missing object sits on the sign-up / login / onboarding path",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/finalizar-cadastro"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/finalizar-cadastro"
+      ],
+      "inAppShell": false,
+      "coreFlow": true,
+      "domain": "placement",
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "table",
+          "name": "placement_onboarding_drafts",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "table",
+          "name": "profiles",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "commit_placement_result",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": [
+        "repo source also needs absent objects: placement_onboarding_drafts, commit_placement_result"
+      ]
+    },
+    {
+      "clientCall": "functions.invoke(\"submit-business-lead\")",
+      "backendObject": "functions/submit-business-lead",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/submit-business-lead",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/businessEvents.ts:54",
+        "src/services/businessLeadService.ts:114"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/business"
+      ],
+      "linkedRoutes": [
+        "/business"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "business",
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "table",
+          "name": "business_funnel_events",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "table",
+          "name": "business_leads",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_turnstile_secret",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "check_and_record_business_funnel_rate",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "rpc",
+          "name": "check_and_record_business_lead_rate",
+          "productionStatus": "MISSING"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": [
+        "repo source also needs absent objects: business_funnel_events, business_leads, check_and_record_business_funnel_rate, check_and_record_business_lead_rate"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"accept_family_invite\")",
+      "backendObject": "accept_family_invite",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914200000_family_invite_flow.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/familyService.ts:147"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "linkedRoutes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "family",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"activate_pearl_pro_pass\")",
+      "backendObject": "activate_pearl_pro_pass",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260813180000_pearl_pro_economy.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:300"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object reachable from the always-mounted app shell",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "pearl",
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"claim_pearl_milestone\")",
+      "backendObject": "claim_pearl_milestone",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260813180000_pearl_pro_economy.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:339"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object reachable from the always-mounted app shell",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "pearl",
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"create_family_invite\")",
+      "backendObject": "create_family_invite",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914200000_family_invite_flow.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/familyService.ts:118"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "linkedRoutes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "family",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_business_members\")",
+      "backendObject": "get_business_members",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914180000_business_seat_integrity.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/businessWorkspaceService.ts:98"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/business/dashboard",
+        "/business/members"
+      ],
+      "linkedRoutes": [
+        "/business/dashboard",
+        "/business/members"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "business",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_business_overview\")",
+      "backendObject": "get_business_overview",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914180000_business_seat_integrity.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/businessWorkspaceService.ts:67"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/business/dashboard",
+        "/business/members"
+      ],
+      "linkedRoutes": [
+        "/business/dashboard",
+        "/business/members"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "business",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_family_overview\")",
+      "backendObject": "get_family_overview",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914200000_family_invite_flow.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/familyService.ts:108"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "linkedRoutes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "family",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_public_profile_by_username\")",
+      "backendObject": "get_public_profile_by_username",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/005_social.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/005_social.sql",
+        "supabase/migrations/20260808070849_secure_social_profile_boundary.sql (conditional)"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/socialService.ts:136"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "social",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_public_profiles_by_ids\")",
+      "backendObject": "get_public_profiles_by_ids",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/migrations/20260808070849_secure_social_profile_boundary.sql (conditional)"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/socialService.ts:204"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "social",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "introducing migration is recorded as applied in production but the object is absent (conditional no-op or later drop)"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"remove_family_member\")",
+      "backendObject": "remove_family_member",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914200000_family_invite_flow.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/familyService.ts:138"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "linkedRoutes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "family",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"revoke_family_invite\")",
+      "backendObject": "revoke_family_invite",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/20260914200000_family_invite_flow.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/familyService.ts:129"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "linkedRoutes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "inAppShell": false,
+      "coreFlow": false,
+      "domain": "family",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"search_public_profiles\")",
+      "backendObject": "search_public_profiles",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/005_social.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/005_social.sql",
+        "supabase/migrations/20260808070849_secure_social_profile_boundary.sql (conditional)"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/socialService.ts:126"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "social",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"social_activity_events\")",
+      "backendObject": "social_activity_events",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/005_social.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/005_social.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/socialService.ts:297",
+        "src/services/socialService.ts:340"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "social",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"user_follows\")",
+      "backendObject": "user_follows",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/005_social.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/005_social.sql"
+      ],
+      "productionStatus": "MISSING",
+      "clientPaths": [
+        "src/services/socialService.ts:154",
+        "src/services/socialService.ts:174",
+        "src/services/socialService.ts:192",
+        "src/services/socialService.ts:193"
+      ],
+      "severity": "HIGH",
+      "severityReason": "missing object behind a route that the UI links to",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": "social",
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.exchangeCodeForSession()",
+      "backendObject": "supabase.auth.exchangeCodeForSession",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/oauthService.ts:183"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "linkedRoutes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on providersConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.getUserIdentities()",
+      "backendObject": "supabase.auth.getUserIdentities",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/oauthService.ts:237",
+        "src/services/oauthService.ts:254"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "linkedRoutes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on providersConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.linkIdentity()",
+      "backendObject": "supabase.auth.linkIdentity",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/oauthService.ts:88"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "linkedRoutes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on providersConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.resend()",
+      "backendObject": "supabase.auth.resend",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/authService.ts:362"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on smtpConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.resetPasswordForEmail()",
+      "backendObject": "supabase.auth.resetPasswordForEmail",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/authService.ts:384"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on smtpConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.signInWithOAuth()",
+      "backendObject": "supabase.auth.signInWithOAuth",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/oauthService.ts:92"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "linkedRoutes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on providersConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.unlinkIdentity()",
+      "backendObject": "supabase.auth.unlinkIdentity",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/oauthService.ts:260"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "linkedRoutes": [
+        "/auth/callback",
+        "/conta",
+        "/login"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on providersConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.verifyOtp()",
+      "backendObject": "supabase.auth.verifyOtp",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "UNKNOWN",
+      "clientPaths": [
+        "src/services/authService.ts:409"
+      ],
+      "severity": "MEDIUM",
+      "severityReason": "cannot be verified from the snapshot; reachable from a production path",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": [
+        "depends on smtpConfig, which is NOT_READABLE_FROM_AGENT in the snapshot"
+      ]
+    },
+    {
+      "clientCall": "auth.getSession()",
+      "backendObject": "supabase.auth.getSession",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/components/auth/EntitlementBootstrap.tsx:15",
+        "src/components/feedback/MyFeedbackList.tsx:31",
+        "src/features/auth/ConfirmEmailPage.tsx:80",
+        "src/features/auth/ResetPasswordPage.tsx:39",
+        "src/features/auth/ResetPasswordPage.tsx:50",
+        "src/features/qa/AuthQaPanel.tsx:23",
+        "src/hooks/useLeagueData.ts:66",
+        "src/lib/auth/cloudSession.ts:10",
+        "src/services/authService.ts:113",
+        "src/services/authService.ts:433",
+        "src/services/authService.ts:56",
+        "src/services/cloudSyncCoordinator.ts:174",
+        "src/services/feedbackService.ts:303",
+        "src/services/oauthService.ts:84",
+        "src/services/subscriptionService.ts:99"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/auth/callback",
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/ligas",
+        "/login",
+        "/mais",
+        "/perfil",
+        "/plano",
+        "/pro",
+        "/redefinir-senha",
+        "/sobre"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/auth/callback",
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/ligas",
+        "/login",
+        "/mais",
+        "/perfil",
+        "/plano",
+        "/pro",
+        "/redefinir-senha",
+        "/sobre"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.getUser()",
+      "backendObject": "supabase.auth.getUser",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/features/amigos/AmigosPage.tsx:59",
+        "src/lib/leagueXpSync.ts:97",
+        "src/lib/repositories/supabaseLearningRepository.ts:112",
+        "src/lib/repositories/supabaseLearningRepository.ts:68",
+        "src/services/anonymousIngestionSession.ts:81",
+        "src/services/authService.ts:482",
+        "src/services/cloudSyncCoordinator.ts:133",
+        "src/services/cloudSyncCoordinator.ts:216",
+        "src/services/cloudSyncCoordinator.ts:254",
+        "src/services/courseDirectionSync.ts:21",
+        "src/services/courseDirectionSync.ts:36",
+        "src/services/entitlementService.ts:74",
+        "src/services/leagueService.ts:123",
+        "src/services/leagueService.ts:167",
+        "src/services/leagueService.ts:182",
+        "src/services/postAuthOnboarding.ts:49",
+        "src/services/privacyService.ts:66",
+        "src/services/socialService.ts:26",
+        "src/services/telemetryConsent.ts:117",
+        "src/services/telemetryConsent.ts:64"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/auth/callback",
+        "/comecar",
+        "/config",
+        "/config/:category",
+        "/confirmar-email",
+        "/conta",
+        "/cultura/revisao",
+        "/dados-locais",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/jornada/capsula/:capsuleId",
+        "/ligas",
+        "/login",
+        "/perfil",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/auth/callback",
+        "/comecar",
+        "/config",
+        "/config/:category",
+        "/confirmar-email",
+        "/conta",
+        "/cultura/revisao",
+        "/dados-locais",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/jornada/capsula/:capsuleId",
+        "/ligas",
+        "/login",
+        "/perfil",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.onAuthStateChange()",
+      "backendObject": "supabase.auth.onAuthStateChange",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/components/auth/AuthBootstrap.tsx:46",
+        "src/components/auth/EntitlementBootstrap.tsx:62",
+        "src/components/i18n/CourseDirectionBootstrap.tsx:39",
+        "src/components/privacy/TelemetryConsentBootstrap.tsx:18",
+        "src/features/auth/ConfirmEmailPage.tsx:98",
+        "src/features/auth/ResetPasswordPage.tsx:48"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/confirmar-email",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/confirmar-email",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.setSession()",
+      "backendObject": "supabase.auth.setSession",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:330",
+        "src/services/oauthService.ts:192",
+        "src/services/oauthService.ts:87"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/auth/callback",
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/auth/callback",
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.signInWithPassword()",
+      "backendObject": "supabase.auth.signInWithPassword",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:284"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.signOut()",
+      "backendObject": "supabase.auth.signOut",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:456",
+        "src/services/authService.ts:469",
+        "src/services/authService.ts:471",
+        "src/services/oauthService.ts:193",
+        "src/services/privacyService.ts:95"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/auth/callback",
+        "/comecar",
+        "/config",
+        "/config/:category",
+        "/confirmar-email",
+        "/conta",
+        "/dados-locais",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/auth/callback",
+        "/comecar",
+        "/config",
+        "/config/:category",
+        "/confirmar-email",
+        "/conta",
+        "/dados-locais",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "auth.updateUser()",
+      "backendObject": "supabase.auth.updateUser",
+      "kind": "auth",
+      "introducingMigration": null,
+      "introducingMigrationKind": null,
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:441"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "functions.invoke(\"create-billing-portal\")",
+      "backendObject": "functions/create-billing-portal",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/create-billing-portal",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/subscriptionService.ts:160"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/confirmar-email",
+        "/conta",
+        "/finalizar-cadastro",
+        "/login",
+        "/plano",
+        "/pro"
+      ],
+      "linkedRoutes": [
+        "/confirmar-email",
+        "/conta",
+        "/finalizar-cadastro",
+        "/login",
+        "/plano",
+        "/pro"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "table",
+          "name": "subscriptions",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "clientCall": "functions.invoke(\"create-checkout-session\")",
+      "backendObject": "functions/create-checkout-session",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/create-checkout-session",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/subscriptionService.ts:105"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/confirmar-email",
+        "/conta",
+        "/finalizar-cadastro",
+        "/login",
+        "/plano",
+        "/pro"
+      ],
+      "linkedRoutes": [
+        "/confirmar-email",
+        "/conta",
+        "/finalizar-cadastro",
+        "/login",
+        "/plano",
+        "/pro"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": "functions.invoke(\"delete-account\")",
+      "backendObject": "functions/delete-account",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/delete-account",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/privacyService.ts:80"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ajustes",
+        "/config",
+        "/config/:category",
+        "/conta",
+        "/dados-locais"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/config",
+        "/config/:category",
+        "/conta",
+        "/dados-locais"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "clientCall": "functions.invoke(\"issue-anon-ingestion-session\")",
+      "backendObject": "functions/issue-anon-ingestion-session",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/issue-anon-ingestion-session",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/anonymousIngestionSession.ts:88"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "rpc",
+          "name": "issue_beta_anon_ingestion_session",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "clientCall": "functions.invoke(\"sign-in-identifier\")",
+      "backendObject": "functions/sign-in-identifier",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/sign-in-identifier",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:307"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "rpc",
+          "name": "check_and_record_login_rate",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "resolve_login_identity",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "clientCall": "functions.invoke(\"triage-feedback\")",
+      "backendObject": "functions/triage-feedback",
+      "kind": "edge",
+      "introducingMigration": "supabase/functions/triage-feedback",
+      "introducingMigrationKind": "edge-function-source",
+      "introducingMigrationLedgerState": null,
+      "definedIn": [],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/feedbackService.ts:277"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [
+        {
+          "kind": "table",
+          "name": "beta_feedback",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "is_beta_admin",
+          "productionStatus": "PRESENT"
+        },
+        {
+          "kind": "rpc",
+          "name": "_edge_get_typesafe_api_key",
+          "productionStatus": "PRESENT"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"add_league_weekly_xp\")",
+      "backendObject": "add_league_weekly_xp",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/004_leagues.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/004_leagues.sql",
+        "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+        "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/leagueService.ts:188"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "linkedRoutes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"attribute_referral\")",
+      "backendObject": "attribute_referral",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/017_referrals.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_UNPROVEN",
+      "definedIn": [
+        "supabase/migrations/017_referrals.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/referralService.ts:37"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/conta",
+        "/convide"
+      ],
+      "linkedRoutes": [
+        "/conta",
+        "/convide"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"claim_league_week_reward\")",
+      "backendObject": "claim_league_week_reward",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/004_leagues.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/004_leagues.sql",
+        "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/leagueService.ts:212"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "linkedRoutes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"claim_mission\")",
+      "backendObject": "claim_mission",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql",
+        "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+        "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:258"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"claim_own_username\")",
+      "backendObject": "claim_own_username",
+      "kind": "rpc",
+      "introducingMigration": "supabase/pending/rc2-2-11-username-identifier.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/pending/rc2-2-11-username-identifier.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:518"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"complete_referral_lesson_session\")",
+      "backendObject": "complete_referral_lesson_session",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/migrations/20260808093000_harden_referral_qualification.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/referralLearningAttestation.ts:102",
+        "src/services/referralLearningAttestation.ts:109"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/licao/:lessonId/player"
+      ],
+      "linkedRoutes": [
+        "/licao/:lessonId/player"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"consume_charge\")",
+      "backendObject": "consume_charge",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql",
+        "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:162"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"ensure_own_profile\")",
+      "backendObject": "ensure_own_profile",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/021_ensure_own_profile.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/migrations/021_ensure_own_profile.sql",
+        "supabase/migrations/20260827023000_placement_onboarding_handoff.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/authService.ts:67",
+        "src/services/postAuthOnboarding.ts:52"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/comecar",
+        "/confirmar-email",
+        "/conta",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_league_standings\")",
+      "backendObject": "get_league_standings",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/004_leagues.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/004_leagues.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/leagueService.ts:129"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "linkedRoutes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_referral_dashboard\")",
+      "backendObject": "get_referral_dashboard",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/017_referrals.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_UNPROVEN",
+      "definedIn": [
+        "supabase/migrations/017_referrals.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/referralService.ts:66"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/conta",
+        "/convide"
+      ],
+      "linkedRoutes": [
+        "/conta",
+        "/convide"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_server_economy\")",
+      "backendObject": "get_server_economy",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:151"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"get_server_entitlement\")",
+      "backendObject": "get_server_entitlement",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/008_server_entitlement_rpc.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/008_server_entitlement_rpc.sql",
+        "supabase/migrations/017_referrals.sql",
+        "supabase/migrations/20260808130200_admin_roles_user_id.sql",
+        "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+        "supabase/migrations/20260825043000_business_foundation.sql",
+        "supabase/migrations/20260825062000_business_operational_hardening.sql",
+        "supabase/migrations/20260914210000_family_entitlement.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/entitlementService.ts:111"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"grant_lesson_reward\")",
+      "backendObject": "grant_lesson_reward",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql",
+        "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+        "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql",
+        "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:213"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"grant_story_energy\")",
+      "backendObject": "grant_story_energy",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql",
+        "supabase/migrations/20260808130000_harden_economy_reward_trust.sql",
+        "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:237"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"is_beta_admin\")",
+      "backendObject": "is_beta_admin",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/010_beta_feedback.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/010_beta_feedback.sql",
+        "supabase/migrations/20260808064852_harden_function_privileges.sql",
+        "supabase/migrations/20260808130200_admin_roles_user_id.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/feedbackService.ts:334"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"migrate_local_economy\")",
+      "backendObject": "migrate_local_economy",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql",
+        "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:370"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"open_chest\")",
+      "backendObject": "open_chest",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:276"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"process_referral_pipeline\")",
+      "backendObject": "process_referral_pipeline",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/017_referrals.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_UNPROVEN",
+      "definedIn": [
+        "supabase/migrations/017_referrals.sql",
+        "supabase/migrations/20260809160306_require_referral_reward_review.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/referralLearningAttestation.ts:119",
+        "src/services/referralService.ts:56"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/conta",
+        "/convide",
+        "/licao/:lessonId/player"
+      ],
+      "linkedRoutes": [
+        "/conta",
+        "/convide",
+        "/licao/:lessonId/player"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"spend_qi\")",
+      "backendObject": "spend_qi",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/006_economy_server.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/006_economy_server.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:187"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [
+        "invokeRpc"
+      ],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"start_referral_lesson_session\")",
+      "backendObject": "start_referral_lesson_session",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/migrations/20260808093000_harden_referral_qualification.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/referralLearningAttestation.ts:40"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/licao/:lessonId/player"
+      ],
+      "linkedRoutes": [
+        "/licao/:lessonId/player"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"start_story_energy_session\")",
+      "backendObject": "start_story_energy_session",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/storyEnergyAttestation.ts:31"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/imersao"
+      ],
+      "linkedRoutes": [
+        "/imersao"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"submit_beta_feedback\")",
+      "backendObject": "submit_beta_feedback",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/010_beta_feedback.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/010_beta_feedback.sql",
+        "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/feedbackService.ts:101"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"submit_beta_pedagogy_event\")",
+      "backendObject": "submit_beta_pedagogy_event",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/010_beta_feedback.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/010_beta_feedback.sql",
+        "supabase/migrations/012_pedagogy_consent_rpc_gate.sql",
+        "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+        "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+        "supabase/migrations/20260810170000_beta_experience_telemetry.sql",
+        "supabase/migrations/20260812180000_production_help_telemetry.sql",
+        "supabase/migrations/20260814010000_mastery_pass_telemetry.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/pedagogyEvents.ts:140"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/cultura/revisao",
+        "/jornada/reforco/:nodeId",
+        "/licao/:lessonId/player"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/cultura/revisao",
+        "/jornada/reforco/:nodeId",
+        "/licao/:lessonId/player"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"sync_league_week\")",
+      "backendObject": "sync_league_week",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/004_leagues.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/004_leagues.sql",
+        "supabase/migrations/016_fix_leagues_cohort_finalize.sql",
+        "supabase/migrations/20260808064852_harden_function_privileges.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/leagueService.ts:169"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "linkedRoutes": [
+        "/ligas",
+        "/perfil"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".rpc(\"update_beta_feedback_admin\")",
+      "backendObject": "update_beta_feedback_admin",
+      "kind": "rpc",
+      "introducingMigration": "supabase/migrations/010_beta_feedback.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/010_beta_feedback.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/feedbackService.ts:323"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"beta_feedback\")",
+      "backendObject": "beta_feedback",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/010_beta_feedback.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/010_beta_feedback.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/feedbackService.ts:291",
+        "src/services/feedbackService.ts:307"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/mais",
+        "/sobre"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"beta_pedagogy_daily_metrics\")",
+      "backendObject": "beta_pedagogy_daily_metrics",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "APPLIED_MATCH",
+      "definedIn": [
+        "supabase/migrations/013_pedagogy_rpc_hardening.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/pedagogyEvents.ts:298"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/cultura/revisao",
+        "/jornada/reforco/:nodeId",
+        "/licao/:lessonId/player"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/cultura/revisao",
+        "/jornada/reforco/:nodeId",
+        "/licao/:lessonId/player"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"beta_pedagogy_events\")",
+      "backendObject": "beta_pedagogy_events",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/010_beta_feedback.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/010_beta_feedback.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/pedagogyEvents.ts:278"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/admin/feedback",
+        "/cultura/revisao",
+        "/jornada/reforco/:nodeId",
+        "/licao/:lessonId/player"
+      ],
+      "linkedRoutes": [
+        "/admin/feedback",
+        "/cultura/revisao",
+        "/jornada/reforco/:nodeId",
+        "/licao/:lessonId/player"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"profiles\")",
+      "backendObject": "profiles",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/001_initial_schema.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/001_initial_schema.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/auth/sessionAudience.ts:71",
+        "src/services/authService.ts:79",
+        "src/services/courseDirectionSync.ts:24",
+        "src/services/courseDirectionSync.ts:38",
+        "src/services/socialService.ts:100",
+        "src/services/socialService.ts:359",
+        "src/services/socialService.ts:52",
+        "src/services/socialService.ts:80",
+        "src/services/telemetryConsent.ts:121",
+        "src/services/telemetryConsent.ts:81"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/",
+        "/ajustes",
+        "/amigos",
+        "/auth/callback",
+        "/comecar",
+        "/config",
+        "/config/:category",
+        "/confirmar-email",
+        "/conta",
+        "/cultura/revisao",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/jornada/capsula/:capsuleId",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "linkedRoutes": [
+        "/ajustes",
+        "/amigos",
+        "/auth/callback",
+        "/comecar",
+        "/config",
+        "/config/:category",
+        "/confirmar-email",
+        "/conta",
+        "/cultura/revisao",
+        "/esqueci-senha",
+        "/finalizar-cadastro",
+        "/jornada/capsula/:capsuleId",
+        "/login",
+        "/redefinir-senha"
+      ],
+      "inAppShell": true,
+      "coreFlow": true,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"subscriptions\")",
+      "backendObject": "subscriptions",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/001_initial_schema.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/001_initial_schema.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/services/entitlementService.ts:78"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [
+        "/conta"
+      ],
+      "linkedRoutes": [
+        "/conta"
+      ],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    },
+    {
+      "clientCall": ".from(\"user_progress\")",
+      "backendObject": "user_progress",
+      "kind": "table",
+      "introducingMigration": "supabase/migrations/001_initial_schema.sql",
+      "introducingMigrationKind": "migration",
+      "introducingMigrationLedgerState": "REPO_ONLY",
+      "definedIn": [
+        "supabase/migrations/001_initial_schema.sql"
+      ],
+      "productionStatus": "PRESENT",
+      "clientPaths": [
+        "src/lib/repositories/supabaseLearningRepository.ts:25",
+        "src/lib/repositories/supabaseLearningRepository.ts:84"
+      ],
+      "severity": "NONE",
+      "severityReason": "object present in production snapshot",
+      "productionPath": true,
+      "routes": [],
+      "linkedRoutes": [],
+      "inAppShell": true,
+      "coreFlow": false,
+      "domain": null,
+      "wrappers": [],
+      "backendDependencies": [],
+      "notes": []
+    }
+  ],
+  "dynamicCalls": []
+}
