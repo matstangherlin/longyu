@@ -22,6 +22,7 @@ import {
   buildMigrationLedger,
   checkArtifactProvenance,
   checkCloudMatrix,
+  checkEvidenceFiles,
   checkJevGuardrails,
   checkMigrationLedger,
   checkTurnstileFailClosed,
@@ -106,6 +107,7 @@ if (mode === "validate") {
   bad += fail(checkMigrationLedger(committed ?? fresh, { production: readJson(SNAPSHOT).migrations, repo: repoMigrations() }), "ledger");
   const matrix = readJson(MATRIX);
   bad += fail(checkCloudMatrix(matrix), "matrix");
+  bad += fail(checkEvidenceFiles(matrix, (rel) => fs.existsSync(path.join(root, rel))), "matrix");
   if (matrix.gates?.MIGRATION_HISTORY_PASS?.status === "PASS" && fresh.status !== "PASS") bad += fail(["MIGRATION_HISTORY_PASS without a reconciled ledger"], "matrix");
   bad += fail(
     checkJevGuardrails({
@@ -225,6 +227,7 @@ if (mode === "test") {
   kill("owner acceptance auto-PASS", "OWNER_ACCEPTANCE_AUTO", checkCloudMatrix({ ...matrix, gates: { ...matrix.gates, OWNER_CLOUD_ACCEPTANCE: { status: "PASS", evidence: ["x"] } } }));
   kill("stale evidence", "STALE_EVIDENCE", checkCloudMatrix({ ...matrix, gates: { ...matrix.gates, [firstNonPass]: { status: "PASS", evidence: ["x"], readAt: "2020-01-01" } } }));
   kill("missing cloud evidence (gate dropped)", "MISSING_GATE", checkCloudMatrix({ ...matrix, gates: Object.fromEntries(Object.entries(matrix.gates).filter(([id]) => id !== "CLOUD_SMOKE_PASS")) }));
+  kill("evidence file never written", "MISSING_CLOUD_EVIDENCE", checkEvidenceFiles({ gates: { X: { status: "NOT_RUN", evidence: ["docs/reports/never-written.md"] } } }, (rel) => fs.existsSync(path.join(root, rel))));
   kill("overall PASS while blocked", "FALSE_PASS:overall", checkCloudMatrix({ ...matrix, overall: "PASS" }));
   kill("synonym status", "STATUS_VOCABULARY", checkCloudMatrix({ ...matrix, gates: { ...matrix.gates, [firstNonPass]: { status: "READY", evidence: [] } } }));
   kill("old APK certifies release", "INVALID_RELEASE_EVIDENCE", checkCloudMatrix({ ...matrix, provenance: { certifiedSha: sha, surfaces: [{ surface: "APK", sha: "b".repeat(40), verified: "PASS" }] } }));

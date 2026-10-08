@@ -158,6 +158,17 @@ export function checkCloudMatrix(matrix) {
   return errors;
 }
 
+/** Every evidence path a gate cites must exist (no gate may point at a report never written). */
+export function checkEvidenceFiles(matrix, exists) {
+  const errors = [];
+  for (const [id, gate] of Object.entries(matrix?.gates ?? {})) {
+    for (const ref of gate.evidence ?? []) {
+      if (/^[\w.-]+(\/[\w.-]+)+$/.test(ref) && !exists(ref)) errors.push(`MISSING_CLOUD_EVIDENCE:${id}:${ref}`);
+    }
+  }
+  return errors;
+}
+
 /** Cloud certification is PASS only when every required gate is PASS. */
 export function overallCloud(matrix) {
   const gates = matrix?.gates ?? {};

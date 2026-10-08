@@ -287,7 +287,7 @@
    "readOrWrite": "read-only",
    "risk": "None (schema only, no data).",
    "reason": "Table/function/policy-level diff is done (snapshot read 2026-10-08); a column-level diff needs a schema-only dump from production.",
-   "exactAction": "On your machine: `npx supabase db dump --linked --schema public --schema-only -f prod-schema.sql` (project drjcfalvlbbeblmmyhwj), then `npx supabase db diff` against a local stack built from supabase/migrations. Keep the dump private; paste only the diff summary (object names) into the PR.",
+   "exactAction": "On your machine (Supabase CLI 2.109.1, Docker running): `npx supabase link --project-ref drjcfalvlbbeblmmyhwj`, then `npx supabase db diff --linked --schema public` (diffs supabase/migrations against production, read-only). Paste only the list of differing object names into the PR; keep any dump private.",
    "evidenceExpected": "List of differing objects (names only)."
   },
   {
