@@ -1,0 +1,996 @@
+{
+  "schema": "longyu-production-schema-fingerprint/1",
+  "project": "drjcfalvlbbeblmmyhwj",
+  "snapshot": {
+    "path": "docs/launch/production-snapshot.json",
+    "readAt": "2026-10-08"
+  },
+  "liveFacts": {
+    "path": "docs/launch/rc2-3-10b-live-facts.json",
+    "sha256": "058d71d604c352d3ee757cc12848318d63137639bc040b8e25dc57c1a67a2b0d",
+    "readAt": "2026-10-08"
+  },
+  "privacy": "Hashes and object names only. No definitions, row content, emails or secret values.",
+  "note": "definitionHash with hashBasis live-definition is only comparable to another live-definition hash. Mixed fingerprints are valid for drift detection of the same objects, not for cross-basis comparison.",
+  "counts": {
+    "objects": 125,
+    "byType": {
+      "table": 37,
+      "view": 1,
+      "function": 87
+    },
+    "byHashBasis": {
+      "live-definition": 125,
+      "snapshot-facts": 0
+    }
+  },
+  "consistency": {
+    "liveFactsOnlyObjects": [],
+    "objectsWithoutLiveDefinition": []
+  },
+  "fingerprint": "sha256:254d9abe768a85d705258f308e7e1626698d09eeee890e0f4847558100918e7b",
+  "objects": [
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_edge_get_turnstile_secret",
+      "definitionHash": "md5:23e28c5f980001fe82022fa816d94b95",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_edge_get_typesafe_api_key",
+      "definitionHash": "md5:58b7ff6e6344845cbf65c1689653605d",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_referral_grant_reward",
+      "definitionHash": "md5:6ff3ab0f091062d0eddfd567c5963c50",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_referral_progress_from_snapshot",
+      "definitionHash": "md5:76496b52993a21818173b5f9639894e6",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_referral_random_code",
+      "definitionHash": "md5:75e6bc20c2a64e24ece02c61a51d20a7",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_referral_try_qualify",
+      "definitionHash": "md5:2ae9422c2c8fd901317d7fa5f9f589a4",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_referral_verified_progress",
+      "definitionHash": "md5:a67da38289d4e53d9d73eeefb7008aef",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_user_active_grant_end",
+      "definitionHash": "md5:53ae93f9be862e9af3d2d349b5d650bc",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_user_email_hash",
+      "definitionHash": "md5:3baaca3b250f846284d3b94a0b39c550",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_user_stripe_pro_active",
+      "definitionHash": "md5:4d3006611ba27149337b4bb9aca7a76a",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "_user_stripe_pro_period_end",
+      "definitionHash": "md5:df0ee71a000ab39eab68f7f4874b50d9",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "add_league_weekly_xp",
+      "definitionHash": "md5:51ed0e81fb2c5323b09af569a44db62f",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "admin_cleanup_unconfirmed_signups",
+      "definitionHash": "md5:edc4e7897adb010566baa2b7a4ae488d",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "apply_subscription_event",
+      "definitionHash": "md5:53ce9514414d02cc4aa0fc59ea5c2b80",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "attribute_referral",
+      "definitionHash": "md5:a8288d36534d2d2b26b0a635e7eb64b9",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_anon_consume_ingestion_quota",
+      "definitionHash": "md5:3970fa7d97757c6cbb9721d154b230c1",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_anon_resolve_ingestion_session",
+      "definitionHash": "md5:77b2b8ff3ee93ddfefe6681aaa50bd51",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_feedback_rate_limited",
+      "definitionHash": "md5:495f88dd512c7b8172fe2bcd7f8d4f1a",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_pedagogy_context_digest",
+      "definitionHash": "md5:08a057c00d8718fe4dc6184b93836c70",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_pedagogy_event_rate_limited",
+      "definitionHash": "md5:a85f3ecd7ad8fe36c6208d52a1c69530",
+      "hashBasis": "live-definition",
+      "overloads": 2
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_pedagogy_event_type_rate_limited",
+      "definitionHash": "md5:52b7253cbf9e29222e7f7b69dc5b478a",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_pedagogy_identity_match",
+      "definitionHash": "md5:b7127fe3faabc28b3724c2f329efdc8f",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_pedagogy_rate_bucket_key",
+      "definitionHash": "md5:d06bf5cd6a65ad014286050cb7dbe704",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_pedagogy_touch_anon_session",
+      "definitionHash": "md5:8a142ec0e91159decacf752697b5132f",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "beta_submit_feedback_core",
+      "definitionHash": "md5:7466ad711f5f30579a1e404ddb8aec31",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "canonicalize_email",
+      "definitionHash": "md5:3207462486673f49f57a95bc23e99b56",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "check_and_record_login_rate",
+      "definitionHash": "md5:7b75f5ca8cdb90e10e463907307f1d01",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "check_and_record_signup_rate",
+      "definitionHash": "md5:014851fe0f95fba7134594d2bf0302aa",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "claim_league_week_reward",
+      "definitionHash": "md5:b0e8efa45fdbae0288088b919002e14f",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "claim_mission",
+      "definitionHash": "md5:6000942087f694030ffc50463e238aeb",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "claim_own_username",
+      "definitionHash": "md5:a6cfd2db201b182ccb4f23ab739d135b",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "cleanup_beta_pedagogy_events",
+      "definitionHash": "md5:7e0ef39f78cb1d0a814598819e78c564",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "complete_referral_lesson_session",
+      "definitionHash": "md5:24934390d960a3f853e4f1d5b4c44f16",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "consume_charge",
+      "definitionHash": "md5:ed5e8957ba8e51e8d7be72803f18b5fe",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_activity_consumes_charge",
+      "definitionHash": "md5:1ce878417d62738cf2f2ae3c173f51cf",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_constants",
+      "definitionHash": "md5:1e5903cbc0f270e7493a2589ee6ab793",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_ensure_row",
+      "definitionHash": "md5:d57bb57705a096938e2b0756a124f23e",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_insert_ledger",
+      "definitionHash": "md5:3604ac9bad270c3aaae9816f46caa75d",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_ledger_exists",
+      "definitionHash": "md5:9f408f21d1ee4691b5d28f760c967c5b",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_mission_goal",
+      "definitionHash": "md5:c79760b470fc9d337410a9e8320f7f47",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_mission_is_pro",
+      "definitionHash": "md5:e4b679540e2ba33238db216eb8e9d527",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_mission_reward",
+      "definitionHash": "md5:d6c09a20924f716b0e8683c8b5c626c8",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_period_bounds",
+      "definitionHash": "md5:f9964c3ff20b80b02c0687ffb963aaec",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_period_key_acceptable",
+      "definitionHash": "md5:c40005600e0df22753a70501e7ed4877",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_rand01",
+      "definitionHash": "md5:44e83d5f67aa3e9129cf719cbc3f716d",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_row_to_json",
+      "definitionHash": "md5:04fee5bcb37b3ae12dbc5234db836193",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_user_is_pro",
+      "definitionHash": "md5:80c4686c232b205e6abfceafd9377534",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "economy_verified_mission_metric",
+      "definitionHash": "md5:8ae052a9067c1db958e46d8a3d1a0cc1",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "ensure_league_membership",
+      "definitionHash": "md5:85264352741c164cba0edf113be2cc66",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "ensure_own_profile",
+      "definitionHash": "md5:48911d254a6c63cc999ebd5a94523270",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "ensure_referral_code",
+      "definitionHash": "md5:97b9f0110600e659f52c02aa0b4c6082",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "erase_account_personal_data_before_auth_delete",
+      "definitionHash": "md5:1013636d007d3d48d372585737be5be1",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "finalize_league_cohort",
+      "definitionHash": "md5:7c8e6d0a5bc0972a9b58d922106f50b6",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "finalize_league_week_for_user",
+      "definitionHash": "md5:b7d52cd35ec483537e7fa43018216349",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "finalize_stale_league_cohorts",
+      "definitionHash": "md5:b8075a0fa8636ac9b16edc45ded1afb9",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "get_league_standings",
+      "definitionHash": "md5:8a9ac75507bc2052f129092656d93564",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "get_referral_dashboard",
+      "definitionHash": "md5:04bd699fed3ba398eb3e3625156dae44",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "get_server_economy",
+      "definitionHash": "md5:d1eea345e1bb0eb4d4dbeba6eceea31c",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "get_server_entitlement",
+      "definitionHash": "md5:e069728bb7abb57e9ca9d06b38b286c5",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "grant_lesson_reward",
+      "definitionHash": "md5:879be39e2d2681e41bd182b02aad76bb",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "grant_story_energy",
+      "definitionHash": "md5:ba2ac399345c6c0d1d4fbda3c9b5cce3",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "handle_new_user",
+      "definitionHash": "md5:2c24628496818ee45c79d829132c921b",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "is_beta_admin",
+      "definitionHash": "md5:e7dc0426023c8cb1761e95fa77bfbed1",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "iso_week_key",
+      "definitionHash": "md5:a3b1e2f428ed49f05336d9f385b641ee",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "issue_beta_anon_ingestion_session",
+      "definitionHash": "md5:ef9f53eef9788f322e63bd830c3cfe68",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "issue_beta_pedagogy_anon_session",
+      "definitionHash": "md5:7c261490f80b53be8afe86d91dda3ed1",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "league_source_key_acceptable",
+      "definitionHash": "md5:f432e2606c957f368810cade68dd14b4",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "league_xp_server_amount",
+      "definitionHash": "md5:fcf00691d31091f2dfd3742b8e692940",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "migrate_local_economy",
+      "definitionHash": "md5:214d86d720003084b7721da2d84909e8",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "open_chest",
+      "definitionHash": "md5:5123e3655caac79c79484bf8388218d6",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "process_referral_pipeline",
+      "definitionHash": "md5:72dcbcb24bae11522ff6b2cfc3aa6c14",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "recalculate_league_ranks",
+      "definitionHash": "md5:075a40bfdc1598c20654dbe868a67963",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "resolve_login_identity",
+      "definitionHash": "md5:d0fc96d31face2d67f58292acadc0fdf",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "review_referral_qualification",
+      "definitionHash": "md5:6d7db7e9112831b138499f9602e86d56",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "rls_auto_enable",
+      "definitionHash": "md5:d29c76091ec2bc92922809ca6c372cd5",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "run_signup_cleanup_job",
+      "definitionHash": "md5:dfbdd0f9b5e058f3e54381a4b737eac8",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "sanitize_pedagogy_metadata",
+      "definitionHash": "md5:f159406b80e77c3f92dce97d0178027f",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "spend_qi",
+      "definitionHash": "md5:8ef7bdf5f1444e179150c8e684bd7823",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "start_referral_lesson_session",
+      "definitionHash": "md5:d7f75f68c2608dfc46aa927217b9f259",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "start_story_energy_session",
+      "definitionHash": "md5:9cd8e0f6dbbc4175e6bff20fb0b32823",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "submit_beta_feedback",
+      "definitionHash": "md5:17c23c48dbe9435e176552afb9f4d943",
+      "hashBasis": "live-definition",
+      "overloads": 2
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "submit_beta_pedagogy_event",
+      "definitionHash": "md5:2f3196bee156daf1bc012d64a749abc3",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "sync_league_week",
+      "definitionHash": "md5:705f2671c30289ba8ed1f8de00e3edb5",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "sync_profile_public_stats",
+      "definitionHash": "md5:3961718ee5e730cb147b01fd2180cbb8",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "update_beta_feedback_admin",
+      "definitionHash": "md5:6ff3a3f0a0ed2550786213a1ed96ad06",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "user_has_entitlement_grant",
+      "definitionHash": "md5:89f9138a7a2facd93a7164e48442bbc2",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "function",
+      "schema": "public",
+      "name": "week_ends_at",
+      "definitionHash": "md5:7523db320979d642177968cd8af8eb85",
+      "hashBasis": "live-definition",
+      "overloads": 1
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "_jev_triage_tmp",
+      "definitionHash": "md5:7d74060c12bc833c3f9bdfe594938fe0",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_admins",
+      "definitionHash": "md5:340d0474d2f78b1c2396dce19326fb52",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_anon_ingestion_quota_counters",
+      "definitionHash": "md5:16b4f8623d1ca708c5bd4bb7de154c26",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_anon_ingestion_sessions",
+      "definitionHash": "md5:b830b4ff55b41fc77e5beae890d6236a",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_feedback",
+      "definitionHash": "md5:b2fca2844bdfbbb0f56c350546838ed8",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_pedagogy_anon_sessions",
+      "definitionHash": "md5:e21b57acc9c7216187bd1fb8a57040c0",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_pedagogy_daily_metrics",
+      "definitionHash": "md5:929f90bd7be044e08030268fc1ecab22",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "beta_pedagogy_events",
+      "definitionHash": "md5:71c447c85f29358e82f7dd4f1d6663a8",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "economy_eligible_stories",
+      "definitionHash": "md5:c263e35f22a2d03a53e01d3e2af7a080",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "economy_ledger",
+      "definitionHash": "md5:abac76e8fea5b0b64e26e3f8082219a8",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "economy_story_sessions",
+      "definitionHash": "md5:598b2204d92dd2e8570b36d7765966cf",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "entitlement_grants",
+      "definitionHash": "md5:740ccb36d3f27382588f10cafcb4df58",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "league_memberships",
+      "definitionHash": "md5:ea5ecab25a0a9c83352d19fd06a96dd1",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "league_tiers",
+      "definitionHash": "md5:3e2f755bb147153d6b597cb9ecaf87f5",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "league_weekly_results",
+      "definitionHash": "md5:f6544e16a6f2c1ae9211897829de0e6c",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "league_xp_events",
+      "definitionHash": "md5:9dc09e0a26b0d1c413bb36d13da8970d",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "login_rate_events",
+      "definitionHash": "md5:bc30eec75bf4c235720e83ed1e13c29c",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "profiles",
+      "definitionHash": "md5:34336d3abcf2ceab970c827641bfd016",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_codes",
+      "definitionHash": "md5:c9f377cfc5cf018ab2fb180376ea0aac",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_eligible_lessons",
+      "definitionHash": "md5:62994e8fc7c6d818253ac46821303024",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_email_blocks",
+      "definitionHash": "md5:a6560fecc0db87478451d700beb5bac3",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_lesson_sessions",
+      "definitionHash": "md5:992681b54a95b2f9d255c53cb357b259",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_qualification_reviews",
+      "definitionHash": "md5:9744857ffc88eb761c6e695d3b9c9c33",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_rewards",
+      "definitionHash": "md5:ef04caadd0f9bef542cd595e67139616",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referral_verified_lesson_completions",
+      "definitionHash": "md5:5788bd225d4f7eb254f320da52c374d6",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "referrals",
+      "definitionHash": "md5:b06ec4d8710867f019f1eb9f9d5abffe",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "reserved_usernames",
+      "definitionHash": "md5:33cd1d5e44cd745a0936479d3f302b2f",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "signup_cleanup_runs",
+      "definitionHash": "md5:57eb45bc3875bd4c3960d9d8b8502aad",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "signup_rate_events",
+      "definitionHash": "md5:cbed9f2cbcda6a4842b304733c899553",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "subscriptions",
+      "definitionHash": "md5:09043625b57f07f6314f08ef6a8e33a4",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "transactions",
+      "definitionHash": "md5:24a6a41e9206aa222ecf2830f2ff8f4e",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "user_achievements",
+      "definitionHash": "md5:290ef73622f591759410c0c48b530643",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "user_chests",
+      "definitionHash": "md5:1569d64d2b0b09085bfa5eaea963d64b",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "user_economy",
+      "definitionHash": "md5:48942723dfc06621b64c26858897a520",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "user_missions",
+      "definitionHash": "md5:6b517f0ce0ea34533e0dabe0d2d94b5b",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "user_progress",
+      "definitionHash": "md5:c68b386fad3a2d3ad1a9092e9e1eb151",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "table",
+      "schema": "public",
+      "name": "user_srs",
+      "definitionHash": "md5:ffe65521f595b252d3baacb1be236f49",
+      "hashBasis": "live-definition"
+    },
+    {
+      "type": "view",
+      "schema": "public",
+      "name": "admin_user_overview",
+      "definitionHash": "md5:6e1ac6539f0272c872ad923c3eb4cee8",
+      "hashBasis": "live-definition"
+    }
+  ]
+}

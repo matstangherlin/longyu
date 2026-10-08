@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { isBackendDomainAvailable } from "../../lib/cloud/backendCapability";
 import type { PublicProfile, SocialFollowRow } from "../../lib/social/types";
 import { friendsInviteUrl } from "../../lib/social/username";
 import {
@@ -33,6 +34,7 @@ export function AmigosPage() {
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name ?? "Aluno");
   const cloudReady = isSupabaseBackendEnabled() && authMode === "cloud";
+  const socialAvailable = isBackendDomainAvailable("social");
 
   const [searchParams] = useSearchParams();
   const inviteUsername = searchParams.get("u")?.trim() ?? "";
@@ -53,7 +55,7 @@ export function AmigosPage() {
   const inviteLink = useMemo(() => (username ? friendsInviteUrl(username) : null), [username]);
 
   const refresh = useCallback(async () => {
-    if (!cloudReady) return;
+    if (!cloudReady || !socialAvailable) return;
     setLoading(true);
     const client = getSupabaseClient();
     const userId = (await client?.auth.getUser())?.data.user?.id ?? null;
@@ -84,21 +86,21 @@ export function AmigosPage() {
       );
     }
     setLoading(false);
-  }, [cloudReady]);
+  }, [cloudReady, socialAvailable]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
   useEffect(() => {
-    if (!inviteUsername || !cloudReady) return;
+    if (!inviteUsername || !cloudReady || !socialAvailable) return;
     void getProfileByUsername(inviteUsername).then((result) => {
       if (result.ok && result.data) {
         setSearchResults([result.data]);
         setTab("buscar");
       }
     });
-  }, [cloudReady, inviteUsername]);
+  }, [cloudReady, inviteUsername, socialAvailable]);
 
   async function handleSearch(event: FormEvent) {
     event.preventDefault();
@@ -148,6 +150,17 @@ export function AmigosPage() {
         <HubHeader eyebrow={t("hub.social")} title={t("navigation.friends")} desc={t("hub.friendsCloudDesc")} />
         <Card className="p-5 text-sm leading-6 text-ink-soft">
           {t("hub.friendsNeedCloud")}
+        </Card>
+      </HubPage>
+    );
+  }
+
+  if (!socialAvailable) {
+    return (
+      <HubPage>
+        <HubHeader eyebrow={t("hub.social")} title={t("navigation.friends")} desc={t("hub.friendsCloudDesc")} />
+        <Card className="p-5 text-sm leading-6 text-ink-soft" data-testid="friends-unavailable">
+          {t("hub.friendsUnavailable")}
         </Card>
       </HubPage>
     );

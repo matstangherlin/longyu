@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { isBackendDomainAvailable } from "../lib/cloud/backendCapability";
 
 /**
  * Cliente do painel Business.
@@ -14,7 +15,12 @@ import { isSupabaseBackendEnabled } from "../lib/backendConfig";
  * empresa ao lado.
  */
 
-export type BusinessErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "BACKEND_OFF" | "UNKNOWN";
+export type BusinessErrorCode =
+  | "UNAUTHENTICATED"
+  | "FORBIDDEN"
+  | "BACKEND_OFF"
+  | "BACKEND_UNAVAILABLE"
+  | "UNKNOWN";
 
 export interface BusinessOverview {
   organizationId: string;
@@ -61,6 +67,7 @@ function codeFromError(error: { message?: string } | null): BusinessErrorCode {
 }
 
 export async function fetchBusinessOverview(organizationId: string): Promise<BusinessResult<BusinessOverview>> {
+  if (!isBackendDomainAvailable("business")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };
@@ -92,6 +99,7 @@ export async function fetchBusinessMembers(
   organizationId: string,
   page: { limit?: number; offset?: number } = {}
 ): Promise<BusinessResult<BusinessMembersPage>> {
+  if (!isBackendDomainAvailable("business")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };

@@ -1,4 +1,5 @@
 import { isSupabaseBackendEnabled } from "./backendConfig";
+import { BACKEND_CAPABILITY_MISSING, isBackendDomainAvailable } from "./cloud/backendCapability";
 import { getSupabaseClient } from "./supabaseClient";
 import { useStore } from "./store";
 import type { EconomyRpcResult, ServerEconomySnapshot } from "./economyTypes";
@@ -296,6 +297,9 @@ export async function serverActivatePearlProPass(
   expectedAccountId?: string
 ): Promise<EconomyRpcResult> {
   const requestAccountId = expectedAccountId ?? useStore.getState().currentAccountId;
+  if (!isBackendDomainAvailable("pearl")) {
+    return { ok: false, error: BACKEND_CAPABILITY_MISSING };
+  }
   setSyncing("Ativando Pro com Pérolas...");
   const { data, error } = await invokeRpc<EconomyRpcResult>("activate_pearl_pro_pass", {
     p_idempotency_key: idempotencyKey,
@@ -333,6 +337,9 @@ export async function serverClaimPearlMilestone(
   expectedAccountId?: string
 ): Promise<EconomyRpcResult> {
   const requestAccountId = expectedAccountId ?? useStore.getState().currentAccountId;
+  if (!isBackendDomainAvailable("pearl")) {
+    return { ok: false, error: BACKEND_CAPABILITY_MISSING };
+  }
   const idempotencyKey = `pearl-milestone:${milestoneId}`;
   // Claim de marco é automático (abre o app, fecha lição, filas offline).
   // Não mostrar toast — vira um aviso vago de "Pérola" cobrindo CTA.
@@ -402,6 +409,7 @@ export async function flushEconomyIntentQueue(): Promise<void> {
   for (const intent of listEconomyIntents()) {
     const isPearlIntent =
       intent.operation === "activate_pearl_pro_pass" || intent.operation === "claim_pearl_milestone";
+    if (isPearlIntent && !isBackendDomainAvailable("pearl")) continue;
     if (isPearlIntent && intent.accountId !== flushAccountId) {
       // Intenções antigas sem conta vinculada falham fechadas. Intenções de outro
       // perfil permanecem na fila até esse perfil voltar a ser o ativo.

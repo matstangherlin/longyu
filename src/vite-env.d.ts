@@ -38,6 +38,15 @@ interface ImportMetaEnv {
    * e depois produção. true em preview/dev. Não reativa conta local.
    */
   readonly VITE_CLOUD_ONBOARDING_V2_ENABLED?: string;
+  /**
+   * RC2.3.10B — liga/desliga domínios cujo backend de produção ainda não existe
+   * (src/lib/cloud/knownMissingBackend.json). Sem valor: indisponível em
+   * production-like enquanto o domínio constar na lista; disponível em dev/preview.
+   */
+  readonly VITE_BACKEND_SOCIAL_ENABLED?: string;
+  readonly VITE_BACKEND_FAMILY_ENABLED?: string;
+  readonly VITE_BACKEND_BUSINESS_ENABLED?: string;
+  readonly VITE_BACKEND_PEARL_ENABLED?: string;
   /** Site key pública do Cloudflare Turnstile. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   /** URL canônica do site (SEO: canonical, Open Graph, sitemap). */

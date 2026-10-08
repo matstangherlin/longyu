@@ -5,7 +5,7 @@ import { isProductionLikeEnv, type AppEnvironmentInput } from "./appEnvironment"
  * Desligar via variável de ambiente no Netlify e redeploy (sem apagar progresso).
  */
 
-function flagEnabled(value: string | undefined, defaultEnabled: boolean): boolean {
+export function flagEnabled(value: string | undefined, defaultEnabled: boolean): boolean {
   if (value === undefined || value === "") return defaultEnabled;
   const normalized = value.trim().toLowerCase();
   if (["0", "false", "off", "no"].includes(normalized)) return false;

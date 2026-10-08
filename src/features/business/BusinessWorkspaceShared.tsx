@@ -8,6 +8,7 @@ export const BUSINESS_ERROR_KEYS: Record<BusinessErrorCode, string> = {
   UNAUTHENTICATED: "business.errorUnauthenticated",
   FORBIDDEN: "business.errorForbidden",
   BACKEND_OFF: "business.errorBackendOff",
+  BACKEND_UNAVAILABLE: "business.errorBackendUnavailable",
   UNKNOWN: "business.errorUnknown",
 };
 

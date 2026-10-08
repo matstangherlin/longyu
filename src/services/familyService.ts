@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { isBackendDomainAvailable } from "../lib/cloud/backendCapability";
 
 /**
  * Cliente das RPCs de Family.
@@ -23,6 +24,7 @@ export type FamilyErrorCode =
   | "ALREADY_IN_ANOTHER_FAMILY"
   | "OWNER_CANNOT_LEAVE"
   | "BACKEND_OFF"
+  | "BACKEND_UNAVAILABLE"
   | "UNKNOWN";
 
 export interface FamilyMemberView {
@@ -102,6 +104,7 @@ function parseOverview(raw: unknown): FamilyOverview | null {
 }
 
 export async function fetchFamilyOverview(): Promise<FamilyResult<FamilyOverview | null>> {
+  if (!isBackendDomainAvailable("family")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };
@@ -112,6 +115,7 @@ export async function fetchFamilyOverview(): Promise<FamilyResult<FamilyOverview
 
 /** O token volta aqui e some depois de exibido. Não guardar, não registrar. */
 export async function createFamilyInvite(email: string): Promise<FamilyResult<{ token: string; expiresAt: string }>> {
+  if (!isBackendDomainAvailable("family")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };
@@ -123,6 +127,7 @@ export async function createFamilyInvite(email: string): Promise<FamilyResult<{ 
 }
 
 export async function revokeFamilyInvite(inviteId: string): Promise<FamilyResult<boolean>> {
+  if (!isBackendDomainAvailable("family")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };
@@ -132,6 +137,7 @@ export async function revokeFamilyInvite(inviteId: string): Promise<FamilyResult
 }
 
 export async function removeFamilyMember(userId: string): Promise<FamilyResult<boolean>> {
+  if (!isBackendDomainAvailable("family")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };
@@ -141,6 +147,7 @@ export async function removeFamilyMember(userId: string): Promise<FamilyResult<b
 }
 
 export async function acceptFamilyInvite(token: string): Promise<FamilyResult<{ familyId: string }>> {
+  if (!isBackendDomainAvailable("family")) return { ok: false, code: "BACKEND_UNAVAILABLE" };
   if (!isSupabaseBackendEnabled()) return { ok: false, code: "BACKEND_OFF" };
   const client = getSupabaseClient();
   if (!client) return { ok: false, code: "BACKEND_OFF" };
