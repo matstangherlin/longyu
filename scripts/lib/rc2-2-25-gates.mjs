@@ -31,13 +31,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import { stripComments } from "./rc2-2-8-gates.mjs";
 import { validateBetaPedagogyFreeze } from "./beta-pedagogy-freeze.mjs";
 import { loadBetaPedagogyFreezeState } from "./beta-pedagogy-freeze-state.mjs";
 import { RC2_CANDIDATE_FROZEN_SHA256 } from "./rc2-2-12-gates.mjs";
+import { headCarriesStackedWave } from "./stack-ancestry.mjs";
 
 const ROOT = process.cwd();
 export const RC2_2_25_BASE_SHA = "ab2a2d595073ac7acbdd752d316e8ee7f052a31d";
@@ -541,9 +541,7 @@ export async function validateReleaseTruth(s) {
   else {
     if (base.RC2_2_25_BASE_SHA !== RC2_2_25_BASE_SHA || base.parentWave !== "RC2.2.24" || base.strategy !== "STACKED") fail("BASE_SHA_AMBIGUOUS", "rc2-2-25-base.json", `STACKED sobre ${RC2_2_25_BASE_SHA}`);
     if (base.prTargetWhileParentOpen !== RC2_2_25_PARENT_BRANCH || base.doNotDuplicateParentCommits !== true || base.noNewEngines !== true) fail("PARENT_COMMITS_DUPLICATED", "rc2-2-25-base.json", "mira a RC2.2.24; nunca recriar commits; sem motor novo");
-    try {
-      execFileSync("git", ["merge-base", "--is-ancestor", RC2_2_25_BASE_SHA, "HEAD"], { cwd: ROOT, stdio: "ignore" });
-    } catch {
+    if (!headCarriesStackedWave(ROOT, RC2_2_25_BASE_SHA)) {
       if (!process.env.RC2_2_25_SKIP_ANCESTRY) fail("BASE_SHA_AMBIGUOUS", "git", `${RC2_2_25_BASE_SHA} ancestral do HEAD`);
     }
   }
