@@ -1,0 +1,41 @@
+{
+  "schema": "longyu-final-pre-beta-rc/1",
+  "status": "NOT_BUILT",
+  "rcId": "RC2.3.13-RC1",
+  "versionName": "0.2.0-rc.5",
+  "versionCode": 650,
+  "versionCodeNote": "Planned: floor(1)+firstParentCount at artifactSourceSha; refresh after mint.",
+  "wave": "RC2.3.13R.1",
+  "certificationHeadSha": "PENDING_STAMP",
+  "artifactSourceSha": "NOT_BUILT",
+  "fingerprint": "fea5455e1461",
+  "commercialMode": "FREE_ONLY",
+  "liveBilling": false,
+  "playPurchases": false,
+  "jevLearnerRuntime": false,
+  "deviceQaBuild": true,
+  "signedRelease": "BLOCKED_SIGNING_SECRETS",
+  "build": {
+    "androidRunId": null,
+    "androidWorkflow": "Android build",
+    "note": "Await hosted Android SUCCESS after REDUCED_MOTION guidance-surfaces fix."
+  },
+  "apk": {
+    "status": "NOT_BUILT",
+    "artifactName": null,
+    "sha256": null
+  },
+  "aab": {
+    "status": "NOT_BUILT",
+    "artifactName": null,
+    "sha256": null
+  },
+  "web": {
+    "status": "NOT_BUILT",
+    "artifactName": null,
+    "sha256": null
+  },
+  "priorBuiltRc": "RC2.3.12-RC2",
+  "supersedesNote": "RC2 / RC4 drafts cannot certify sticky chrome, Dynamic Aula, typography/motion closure.",
+  "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
+}

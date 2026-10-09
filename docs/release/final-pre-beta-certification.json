@@ -1,18 +1,19 @@
 {
-  "wave": "RC2.3.13R",
-  "title": "Final Pre-Beta RC — Typography & Motion Closure",
-  "parentPr": 339,
-  "parentHead": "51f8bd514d9e275fe5c83553fdb5d6e85f182262",
+  "wave": "RC2.3.13R.1",
+  "title": "Final Pre-Beta Artifact Mint, Physical Certification & Closed Beta Entry",
+  "parentPr": 340,
+  "parentHead": "b8f1e8dcfbc9c22ccf04b65beef4c0a12ebd9e85",
   "shaSemantics": {
-    "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
-    "certificationHeadSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
+    "certificationHeadSha": "PENDING_STAMP",
     "artifactSourceSha": "NOT_BUILT",
-    "note": "learnerRuntimeSha = last learner UI commit; certificationHeadSha = cert metadata commit; artifactSourceSha = exact checkout for APK/AAB/web. Do not conflate."
+    "note": "learnerRuntimeSha = last learner UI commit; certificationHeadSha = cert metadata commit; artifactSourceSha = exact checkout for APK/AAB/web. Do not conflate.",
+    "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
   },
   "identity": {
     "proposedRcId": "RC2.3.13-RC1",
-    "versionName": "PENDING_BUILD",
-    "versionCode": "PENDING_BUILD",
+    "rcId": "RC2.3.13-RC1",
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 650,
     "priorBuiltRc": "RC2.3.12-RC2",
     "status": "NOT_BUILT"
   },
@@ -56,7 +57,8 @@
     "RELEASE_TRUTH": "NOT_RUN",
     "BETA_SUITES": "NOT_RUN",
     "CHROMIUM": "NOT_RUN",
-    "CROSS_ENGINE": "NOT_RUN"
+    "CROSS_ENGINE": "NOT_RUN",
+    "note": "Re-query after R.1 push. #340 Android failed REDUCED_MOTION_IGNORED — fixed in this wave."
   },
   "artifacts": {
     "apk": "NOT_BUILT",
@@ -76,7 +78,12 @@
     "REVIEW": "NOT_RUN",
     "TALKBACK": "NOT_RUN",
     "FONT_SCALE": "NOT_RUN",
-    "REDUCED_MOTION_PHYSICAL": "NOT_RUN"
+    "REDUCED_MOTION_PHYSICAL": "NOT_RUN",
+    "ANDROID_BACK": "NOT_RUN",
+    "IME": "NOT_RUN",
+    "BACKGROUND_RESUME": "NOT_RUN",
+    "OFFLINE_RECONNECT": "NOT_RUN",
+    "LONG_SESSION_30MIN": "NOT_RUN"
   },
   "observability": {
     "SENTRY": "NOT_RUN"
@@ -112,6 +119,17 @@
   "entryDecision": {
     "CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "Code/typography/motion closure in progress; physical QA, Sentry, rollback, cloud smoke ×2, OAuth, and owner acceptance remain NOT_RUN. Artifacts not built."
-  }
+    "reason": "Artifact NOT_BUILT; physical/ops/owner acceptance NOT_RUN. Android blocker fixed; awaiting hosted mint + owner physical pack."
+  },
+  "remainingOwnerActions": [
+    "Install exact Final Pre-Beta APK after mint (SHA256 in OWNER_FINAL_PRE_BETA_RC_TEST.md)",
+    "Audio ×20",
+    "Guided Try ×10",
+    "Speech ×5",
+    "Conversation ×5",
+    "Hànzì / Review / TalkBack / font / reduced-motion / Back / IME",
+    "Android OAuth physical",
+    "Sentry + Netlify rollback evidence if not already recorded",
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE bound to APK SHA256"
+  ]
 }
