@@ -3,7 +3,8 @@
   "rcId": "RC2.3.12-RC4",
   "version": "0.2.0-rc.4",
   "wave": "RC2.3.13C",
-  "note": "Learning flow cognitive polish. Does not certify physical QA, Sentry, rollback, cloud smoke, or OAuth. RC3 from #332 does not certify this learning UI. VIEWPORT_* are code-ready ergonomics; physical device QA is OWNER_RC_LEARNING_FLOW_TEST / 13D.",
+  "note": "Learning flow cognitive polish. Does not certify physical QA, Sentry, rollback, cloud smoke, or OAuth. Designates RC2.3.12-RC4 / 0.2.0-rc.4 as identity, but artifacts are NOT_BUILT until the canonical pipeline mints them (see docs/release/rc2-3-12-rc4-identity.json). VIEWPORT_* are code ergonomics; physical QA is 13D.",
+  "rc4ArtifactStatus": "NOT_BUILT",
   "matrix": {
     "LESSON_PRIMARY_ACTION_PASS": "PASS",
     "AUDIO_FEEDBACK_PASS": "PASS",

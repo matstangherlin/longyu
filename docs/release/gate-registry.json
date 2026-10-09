@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 88,
+    "EVIDENCE_ONLY": 91,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 8
   },
-  "total": 1105,
+  "total": 1108,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1341,6 +1341,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13c-learning-flow",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13d-mobile-physical-ux",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13D",
+      "script": "npm run validate:rc2-3-13d-mobile-physical-ux && npm run test:rc2-3-13d-mobile-physical-ux",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13d-mobile-physical-ux",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -6967,6 +6985,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13C",
       "script": "node scripts/rc2-3-13c-learning-flow.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13d-mobile-physical-ux",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13D",
+      "script": "node scripts/rc2-3-13d-mobile-physical-ux.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -16464,6 +16500,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13d-mobile-physical-ux",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13D",
+      "script": "node scripts/rc2-3-13d-mobile-physical-ux.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13d-mobile-physical-ux",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -20008,5 +20062,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "713b0c2ac47e7ac0"
+  "evidenceDigest": "edfdf85a811924ef"
 }
