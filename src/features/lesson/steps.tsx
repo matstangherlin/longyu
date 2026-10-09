@@ -205,7 +205,13 @@ function ContinueBtn({ onClick, label }: { onClick: () => void; label?: string }
   });
   return (
     <StickyActionBar>
-      <Button className="w-full animate-pop shadow-lift" onClick={onClick}>
+      <Button
+        className="min-h-12 w-full animate-pop shadow-lift"
+        onClick={onClick}
+        data-guided-primary
+        data-cta-hierarchy="primary"
+        data-testid="lesson-continue"
+      >
         {resolved}
         <IconChevron width={18} height={18} aria-hidden="true" />
       </Button>
@@ -720,7 +726,15 @@ function GuidedStepListen({ step, onDone }: StepProps) {
     >
       <Eyebrow>{t("player.listenAndImitate")}</Eyebrow>
       <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{tr("player.guidedListenTitle")}</h2>
-      <GuidedAudioButton onPress={play} state={listen} failed={failed} label={tr("player.listen")} className="mt-6" data-guided-listen />
+      <GuidedAudioButton
+        onPress={play}
+        state={listen}
+        failed={failed}
+        label={tr("player.listen")}
+        className="mt-6"
+        data-guided-listen
+        data-cta-hierarchy={heard || failed ? "secondary" : "primary"}
+      />
       <p className="mt-3 min-h-5 text-sm font-medium text-ink-soft" role="status" aria-live="polite" data-testid="guided-listen-status">
         {listen === "STARTING"
           ? tr("guidedTry.audioStarting")
@@ -731,16 +745,16 @@ function GuidedStepListen({ step, onDone }: StepProps) {
               : ""}
       </p>
       {failed && (
-        // PART DG — o shell nunca esconde a falha de áudio.
-        <div className="mt-1 w-full text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
+        // PART DG — o shell nunca esconde a falha de áudio. Tech failure ≠ wrong answer.
+        <div className="mt-1 w-full text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined} data-tech-failure="audio">
           <p className="text-sm font-semibold text-ink">{tr("guidedTry.audioFailedTitle")}</p>
           <p className="mt-1 text-xs leading-5 text-ink-soft">{tr("guidedTry.audioFailedLead")}</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={play} data-testid="guided-audio-retry">
+            <Button size="sm" variant="outline" onClick={play} data-testid="guided-audio-retry" data-cta-hierarchy="secondary">
               {tr("guidedTry.audioRetry")}
             </Button>
             {canOfferVoiceInstall(failReason) && (
-              <Button size="sm" variant="outline" onClick={() => void installMandarinVoice()} data-testid="guided-audio-install">
+              <Button size="sm" variant="outline" onClick={() => void installMandarinVoice()} data-testid="guided-audio-install" data-cta-hierarchy="tertiary">
                 {tr("guidedTry.audioInstallVoice")}
               </Button>
             )}
@@ -753,13 +767,25 @@ function GuidedStepListen({ step, onDone }: StepProps) {
         </div>
       )}
       <StickyActionBar>
+        {!heard && !failed && (
+          <p
+            id="listen-continue-reason"
+            className="mb-1.5 text-center text-xs text-ink-faint"
+            data-testid="listen-continue-reason"
+            data-disabled-reason="listen-first"
+          >
+            {tr("player.listenFirstToContinue")}
+          </p>
+        )}
         <Button
           size="lg"
-          className="longyu-press-feedback w-full shadow-lift"
+          className="longyu-press-feedback min-h-12 w-full shadow-lift"
           disabled={!heard && !failed}
           onClick={() => setPage("speak")}
-          data-guided-primary
+          data-guided-primary={heard || failed ? true : undefined}
+          data-cta-hierarchy={heard || failed ? "primary" : "secondary"}
           data-testid={failed ? "listen-continue-degraded" : "listen-continue"}
+          aria-describedby={!heard && !failed ? "listen-continue-reason" : undefined}
         >
           {failed && !heard ? tr("guidedTry.continueWithoutAudio") : tr("player.continue")}
         </Button>
@@ -767,7 +793,9 @@ function GuidedStepListen({ step, onDone }: StepProps) {
           <button
             type="button"
             onClick={() => setPage("speak")}
-            className="mt-1 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+            className="mt-1 min-h-11 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+            data-cta-hierarchy="tertiary"
+            data-testid="listen-cannot-now"
           >
             {tr("player.cannotListenNow")}
           </button>

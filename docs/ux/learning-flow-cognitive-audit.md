@@ -1,14 +1,17 @@
-# RC2.3.13A — Learning flow audit (no broad redesign)
+# RC2.3.13C — Learning flow cognitive audit
 
-Polish is **RC2.3.13C**. Flags only.
+Supersedes the 13A flags-only note. State machine: `learning-flow-state-map.md`.
 
-| Flow | Multiple CTAs? | Unclear continue? | Feedback gaps | Unexpected scroll | Tiny targets |
+| Flow | Multiple CTAs? | Unclear continue? | Feedback | Scroll / targets | 13C status |
 | --- | --- | --- | --- | --- | --- |
-| Lesson shell | Sometimes listen + continue + hints | Usually Continuar clear | Loading usually present | Occasional | Mostly ≥44px |
-| Speech | Record + continue + fallback | Fallback path improved in RC2.2.25 | Device failure copy OK | Medium | Mic targets OK |
-| Hànzì | Trace + continue | Generally clear | Stroke feedback | Medium | Trace area large |
-| Review | Hub Começar then grades | Hub vs round exit OK | Grade buttons clean | Low | OK |
+| Lesson listen | Ouvir vs Continuar ranked | Reason when disabled | Audio states + tech failure tag | min-h-12 Continuar | PASS (code) |
+| Guided Try | Dock hierarchy | listen/answer/build reasons | Recovery ladder | Dock safe-area | PASS (code) |
+| Speech | Gravar primary | Mic settings / cannot-speak | Fallback ≠ wrong | min-h-12 | PASS (code) |
+| Review | Hub primary | Semantic grades | Hub vs round | OK | PASS (code) |
+| Completion | One victory primary | Ability before XP | No Store/League | Sticky dock | PASS (code) |
+| Conversation | Phase chrome + turn N of M | Stall retry | One primary advance | PASS (code) |
+| Hànzì | Stage label only; tools secondary | Tech ≠ wrong | Canvas ≥248, touch-none | PASS (code) |
 
-## 13A non-goals
+## Non-goals (unchanged)
 
-Do not change lesson mechanics, curriculum, speech engines, or mastery math in this wave.
+Curriculum, Pedagogy V6 logic, Mastery math, SRS, speech engine, ASR authority, Hànzì scoring model, economy, Jev, billing.

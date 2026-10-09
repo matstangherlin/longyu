@@ -468,12 +468,26 @@ export function LessonVictory({
               {cultureNext.line}
             </p>
           )}
-          <Button className={`min-h-12 w-full shadow-lift ${LESSON_UI_CLASS.cta}`} size="lg" data-testid={primaryTestId} data-victory-primary onClick={onPrimary}>
+          <Button
+            className={`min-h-12 w-full shadow-lift ${LESSON_UI_CLASS.cta}`}
+            size="lg"
+            data-testid={primaryTestId}
+            data-victory-primary
+            data-cta-hierarchy="primary"
+            onClick={onPrimary}
+          >
             {primaryLabel}
             <IconChevron width={18} height={18} />
           </Button>
           {cultureNext && journeyCultureAllowsSkip(cultureNext.type) && (
-            <Button variant="ghost" size="lg" className="mt-1 min-h-11 w-full" data-testid="victory-culture-skip" onClick={cultureNext.onSkip}>
+            <Button
+              variant="ghost"
+              size="lg"
+              className="mt-1 min-h-11 w-full"
+              data-testid="victory-culture-skip"
+              data-cta-hierarchy="tertiary"
+              onClick={cultureNext.onSkip}
+            >
               {cultureNext.skipLabel}
             </Button>
           )}
