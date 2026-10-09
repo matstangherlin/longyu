@@ -5,10 +5,10 @@
   "remoteMigrationName": "rc2_3_10_league_memberships_policy_recursion",
   "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
   "downFile": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.down.sql",
-  "candidateSha": "eeb0cafa3ae3f8d5a36f2abba3be7260c93bc64b",
+  "candidateSha": "2fdcca913c27ae25e771f6db69867af9c1398570",
   "projectRef": "drjcfalvlbbeblmmyhwj",
   "request": {
-    "candidateSha": "eeb0cafa3ae3f8d5a36f2abba3be7260c93bc64b",
+    "candidateSha": "2fdcca913c27ae25e771f6db69867af9c1398570",
     "schemaDiff": {
       "status": "PASS",
       "readAt": "2026-10-09T00:20:00Z",
@@ -24,7 +24,7 @@
       "verified": false,
       "sourceProject": null,
       "takenAt": null,
-      "note": "OWNER_ACTION_REQUIRED — follow docs/launch/production-backup-runbook.md. Dry-run preflight passed on 2026-10-09 for candidate eeb0cafa."
+      "note": "OWNER_ACTION_REQUIRED \u2014 follow docs/launch/production-backup-runbook.md. Dry-run preflight passed on 2026-10-09 for candidate 2fdcca91."
     },
     "review": {
       "reviewer": "cursor-agent",
@@ -60,7 +60,7 @@
     "Paste into PR #324: UTC time, project ref drjcfalvlbbeblmmyhwj, candidate SHA, per-table counts only.",
     "Reply OA-MIGRATION-RECONCILIATION-DECISION = ledger-as-authority.",
     "Reply OA-LEAGUE-POLICY-FIX = approve Batch A.",
-    "After merge to main: Actions → Apply Beta Feedback → migration_id=rc2-3-10-league-memberships-policy-recursion, confirm=APPLY-rc2-3-10-league-memberships-policy-recursion, expected_sha=<main merge SHA>, project_ref=drjcfalvlbbeblmmyhwj."
+    "After merge to main: Actions \u2192 Apply Beta Feedback \u2192 migration_id=rc2-3-10-league-memberships-policy-recursion, confirm=APPLY-rc2-3-10-league-memberships-policy-recursion, expected_sha=<main merge SHA>, project_ref=drjcfalvlbbeblmmyhwj."
   ],
   "explicitlyNotInThisBatch": [
     "placement migrations (need backup + irreversible handoff)",
