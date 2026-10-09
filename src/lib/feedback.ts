@@ -5,11 +5,22 @@ export const BETA_LABEL = "Longyu Beta";
 /** Email de contingência (mailto) se o backend estiver indisponível e o usuário pedir. */
 export const FEEDBACK_EMAIL = "beta@longyu.app";
 
+/**
+ * RC2.3.13G — problem-report categories (learner-facing).
+ * Keep ids stable for backend compatibility; labels may localize in UI.
+ */
 export const FEEDBACK_CATEGORIES = [
-  { id: "erro_conteudo", label: "Erro de conteúdo" },
+  { id: "erro_conteudo", label: "Aula" },
+  { id: "audio", label: "Áudio" },
+  { id: "fala", label: "Fala" },
+  { id: "hanzi", label: "Hànzì" },
+  { id: "jornada", label: "Jornada" },
+  { id: "cultura", label: "Cultura" },
+  { id: "conta_login", label: "Conta/Login" },
+  { id: "sincronizacao", label: "Sincronização" },
+  { id: "visual_layout", label: "Visual/Layout" },
   { id: "traducao", label: "Tradução" },
   { id: "pinyin", label: "Pinyin" },
-  { id: "audio", label: "Áudio" },
   { id: "imagem", label: "Imagem" },
   { id: "exercicio_confuso", label: "Exercício confuso" },
   { id: "erro_tecnico", label: "Erro técnico" },

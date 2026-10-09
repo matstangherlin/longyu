@@ -105,12 +105,12 @@ export const NAV: Record<string, NavItem> = {
 };
 
 /**
- * Barra inferior mobile — RC2.2.13: exatamente 5 destinos, Cultura é
- * navegação PRIMÁRIA (não fica escondida em Mais). Perfil sai da barra: o
- * acesso é pelo avatar da TopBar (e pelo catálogo completo em /mais).
- * Nunca 6+ itens.
+ * Barra inferior mobile — RC2.3.13G: Cultura sai da TabBar.
+ * Destinos: Jornada · Praticar · Missões · Mais (4 itens).
+ * Cultura vive no ProgressionShell `[ Jornada | Cultura ]`.
+ * Perfil continua pelo avatar da TopBar. Nunca 6+ itens.
  */
-export const MOBILE_PRIMARY_NAV_ROUTES = ["/jornada", "/treino", "/cultura", "/missoes", "/mais"] as const;
+export const MOBILE_PRIMARY_NAV_ROUTES = ["/jornada", "/treino", "/missoes", "/mais"] as const;
 
 /**
  * RC2.2.18 — rota de navegação → área progressiva. Itens sem entrada aqui
@@ -169,8 +169,8 @@ export function navItemEarnedTab(item: NavItem, completedLessons: number): boole
 /** Barra efetiva: a barra (já filtrada pela descoberta) menos o que o aluno ainda não conquistou. */
 export function earnedTabBar(items: NavItem[], completedLessons: number): NavItem[] {
   const earned = items.filter((item) => navItemEarnedTab(item, completedLessons));
-  // Maduro = a Cultura já foi revelada; antes disso, no máximo 3 itens.
-  if (earned.some((item) => item.to === "/cultura")) return earned;
+  // RC2.3.13G — Culture is never a TabBar destination; early accounts stay ≤3.
+  if (earned.length <= EARLY_NAV_MAX_ITEMS) return earned;
   const more = earned.find((item) => item.to === "/mais");
   const rest = earned.filter((item) => item.to !== "/mais").slice(0, EARLY_NAV_MAX_ITEMS - (more ? 1 : 0));
   return more ? [...rest, more] : rest;
@@ -180,7 +180,6 @@ export function mobileNavForStage(_stage: LearnerStage, visibility: FeatureVisib
   return [
     NAV.jornada,
     NAV.treino,
-    NAV.cultura,
     NAV.missoes,
     NAV.mais,
   ].filter((item) => isNavItemDiscovered(item, visibility));
@@ -307,7 +306,6 @@ export const DESKTOP_NAV: NavItem[] = [
 export const NAV_MOBILE: NavItem[] = [
   NAV.jornada,
   NAV.treino,
-  NAV.cultura,
   NAV.missoes,
   { ...NAV.mais, matches: [...MORE_MATCHES, "/loja", "/ligas"] },
 ];
@@ -324,8 +322,18 @@ export const LEAGUES_NAV: NavItem = NAV.ligas;
 export const SETTINGS_NAV: NavItem = NAV.ajustes;
 export const LIBRARY_NAV: NavItem = NAV.biblioteca;
 
+/**
+ * RC2.3.13G — Journey is the progression parent: `/cultura*` keeps the
+ * Jornada bottom-nav destination visually active (Culture is a submode).
+ */
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
   if (item.to === "/" && pathname === "/") return true;
+  if (
+    item.to === "/jornada" &&
+    (pathname === "/cultura" || pathname.startsWith("/cultura/"))
+  ) {
+    return true;
+  }
   if (item.to !== "/" && (pathname === item.to || pathname.startsWith(`${item.to}/`))) return true;
   return Boolean(item.matches?.some((match) => pathname === match || pathname.startsWith(`${match}/`)));
 }

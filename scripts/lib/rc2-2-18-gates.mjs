@@ -448,8 +448,11 @@ export async function validateNavigationDisclosure(s) {
   // BR/BU — barra derivada, ordem final estável.
   const bar = fnBody(nav, "export function mobileNavForStage(");
   const order = [...bar.matchAll(/NAV\.(\w+)/g)].map((m) => m[1]);
-  if (JSON.stringify(order) !== JSON.stringify(["jornada", "treino", "cultura", "missoes", "mais"]))
-    fail("TABBAR_ORDER_UNSTABLE", "nav.tsx mobileNavForStage", `ordem final Jornada · Praticar · Cultura · Missões · Mais (${order.join(",")})`);
+  // RC2.3.13G — Culture removed from TabBar; ProgressionShell owns the switch.
+  if (JSON.stringify(order) !== JSON.stringify(["jornada", "treino", "missoes", "mais"]))
+    fail("TABBAR_ORDER_UNSTABLE", "nav.tsx mobileNavForStage", `ordem final Jornada · Praticar · Missões · Mais (${order.join(",")})`);
+  if (order.includes("cultura"))
+    fail("CULTURE_BOTTOM_TAB_FORBIDDEN", "nav.tsx mobileNavForStage", "Cultura não é destino da TabBar");
   if (!/\]\.filter\(\(item\) => isNavItemDiscovered\(item, visibility\)\)/.test(bar) || !/mobileNavForStage\(profile\.stage, visibility\)/.test(tab))
     fail("CULTURE_VISIBLE_FRESH", "nav.tsx/TabBar.tsx", "a barra filtra pelo registro (conta nova: Jornada · Praticar · Mais)");
   const mapping = /export const NAV_DISCOVERY_FEATURE[^=]*= \{([\s\S]*?)\};/.exec(nav)?.[1] ?? "";

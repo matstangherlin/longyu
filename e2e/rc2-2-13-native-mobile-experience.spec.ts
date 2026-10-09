@@ -44,30 +44,33 @@ async function noHorizontalOverflow(page: Page) {
 
 test.describe("RC2.2.13 — navegação mobile", () => {
   for (const width of [360, 390, 412]) {
-    test(`TabBar ${width}px: Jornada · Praticar · Cultura · Missões · Mais`, async ({ page }) => {
+    test(`TabBar ${width}px: Jornada · Praticar · Missões · Mais (sem Cultura)`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
       await seed(page);
       await open(page, "/jornada");
       const labels = (await tabBar(page).locator("a, button").allInnerTexts()).map((label) => label.trim());
-      expect(labels).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
+      // RC2.3.13G — Cultura removed from TabBar; ProgressionShell owns Journey↔Culture.
+      expect(labels).toEqual(["Jornada", "Praticar", "Missões", "Mais"]);
+      expect(labels).not.toContain("Cultura");
       for (const box of await tabBar(page).locator("a, button").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height)))
         expect(box).toBeGreaterThanOrEqual(48);
       await noHorizontalOverflow(page);
     });
   }
 
-  test("Cultura é aba primária e não se repete no sheet Mais", async ({ page }) => {
+  test("Cultura não é aba; Jornada fica ativa em /cultura via ProgressionShell", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await seed(page);
     await open(page, "/jornada");
-    await tabBar(page).getByRole("link", { name: "Cultura" }).click();
+    await expect(tabBar(page).getByRole("link", { name: "Cultura" })).toHaveCount(0);
+    await expect(page.getByTestId("progression-tab-culture")).toBeVisible();
+    await page.getByTestId("progression-tab-culture").click();
     await expect(page).toHaveURL(/\/cultura$/);
-    await expect(tabBar(page).getByRole("link", { name: "Cultura" })).toHaveAttribute("aria-current", "page");
+    await expect(tabBar(page).getByRole("link", { name: "Jornada" })).toHaveAttribute("aria-current", "page");
     await expect(tabBar(page).getByRole("button", { name: "Mais" })).not.toHaveAttribute("aria-current", "page");
     await tabBar(page).getByRole("button", { name: "Mais" }).click();
     const more = page.getByRole("dialog", { name: "Mais opções" });
     await expect(more).toBeVisible();
-    await expect(more.getByRole("link", { name: "Cultura" })).toHaveCount(0);
     // RC2.2.23 — o Mais começa por Você: Perfil · Conta · Aparência.
     await expect(more.getByRole("link", { name: "Perfil" })).toHaveCount(1);
   });

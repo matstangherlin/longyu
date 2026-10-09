@@ -150,6 +150,9 @@ export function checkRoutesAndShell(src = loadCulture13fSources()) {
   if (!/ProgressionShell/.test(src.cultureJourney + src.shell)) errors.push("SEGMENTED_SWITCH_REMOVED");
   if (!/role="tablist"/.test(src.shell)) errors.push("SEGMENTED_SWITCH_REMOVED");
   const bar = (src.nav.match(/export function mobileNavForStage[\s\S]*?\n\}/) || [""])[0];
+  const tabs = [...bar.matchAll(/NAV\.(\w+)/g)].map((m) => m[1]);
+  // RC2.3.13G — Culture bottom tab forbidden; ProgressionShell is the only primary switch.
+  if (tabs.includes("cultura")) errors.push("CULTURE_BOTTOM_TAB_FORBIDDEN");
   if (/NAV\.cultura,\s*\n\s*NAV\.cultura/.test(bar)) errors.push("CULTURE_SIXTH_TAB");
   if (!/data-culture-current-path|CULTURE_V2_PATHS/.test(src.cultureJourney)) {
     errors.push("PATH_UX_MISSING");

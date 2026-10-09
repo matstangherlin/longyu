@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://longyu.app/schemas/beta-health-schema.json",
+  "title": "Longyu Beta Health Report",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "sampleSize", "metrics"],
+  "properties": {
+    "schemaVersion": { "const": "beta_health/1" },
+    "generatedAt": { "type": "string" },
+    "sourceSha": { "type": "string" },
+    "fingerprint": { "type": "string" },
+    "sampleSize": {
+      "type": "object",
+      "required": ["eligible", "withEvents"],
+      "properties": {
+        "eligible": { "type": "integer", "minimum": 0 },
+        "withEvents": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "enum": ["OK", "NO_DATA"] },
+          "numerator": { "type": "integer" },
+          "denominator": { "type": "integer" },
+          "p50": { "type": ["number", "null"] },
+          "p90": { "type": ["number", "null"] },
+          "n": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

@@ -65,15 +65,18 @@ const MUTATIONS = {
     ["DF10. toast da Loja sob o header", "TOAST_UNDER_HEADER", src("loja", "fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)]", "fixed inset-x-0 top-20")],
   ],
   "mobile-navigation-density": [
-    ["DG1. Perfil volta como 6ª aba", "TABBAR_TOO_MANY", src("nav", "    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}", "    NAV.missoes,\n    NAV.perfil,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}")],
-    ["DG2. Cultura some da barra (Perfil no lugar)", "CULTURE_HIDDEN_IN_MORE", src("nav", "    NAV.treino,\n    NAV.cultura,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}", "    NAV.treino,\n    NAV.perfil,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}")],
-    ["DG2b. Perfil na barra", "PROFILE_IN_TABBAR", src("nav", "    NAV.treino,\n    NAV.cultura,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}", "    NAV.treino,\n    NAV.perfil,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}")],
+    ["DG1. Perfil volta como 5ª aba", "TABBAR_TOO_MANY", src("nav", "    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}", "    NAV.missoes,\n    NAV.perfil,\n    NAV.loja,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}")],
+    // RC2.3.13G — Culture must NOT return to TabBar.
+    ["DG2. Cultura volta à TabBar", "CULTURE_BOTTOM_TAB_FORBIDDEN", src("nav", "    NAV.treino,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}", "    NAV.treino,\n    NAV.cultura,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}")],
+    ["DG2b. Perfil na barra", "PROFILE_IN_TABBAR", src("nav", "    NAV.treino,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}", "    NAV.treino,\n    NAV.perfil,\n    NAV.missoes,\n    NAV.mais,\n  ].filter((item) => isNavItemDiscovered(item, visibility));\n}")],
+    ["DG2c. switch ProgressionShell removido", "CULTURE_PROGRESSION_SWITCH_REQUIRED", src("progressionShell", 'data-testid="progression-tab-culture"', 'data-testid="progression-tab-removed"')],
+    ["DG2d. parent inativo em Cultura", "NAV_PARENT_INACTIVE_ON_CULTURE", src("nav", 'item.to === "/jornada" &&\n    (pathname === "/cultura" || pathname.startsWith("/cultura/"))', 'item.to === "/jornada" && false')],
     // RC2.3.13A — Mais sheet is VOCÊ/PROGRESSO/AJUDA (no learn group). Mutation still
     // injects Cultura without keep-filter so CULTURE_DUPLICATED_IN_MORE stays covered.
     ["DG3. Cultura duplicada no sheet Mais", "CULTURE_DUPLICATED_IN_MORE", src("nav", "const you = [NAV.perfil, NAV.conta, NAV.aparencia].filter((item) => !primaryTos.has(item.to));", "const you = [NAV.perfil, NAV.conta, NAV.aparencia, NAV.cultura];")],
     ["DG4. Fala escondida", "SPEAKING_HIDDEN", src("nav", "[NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.imersao, NAV.biblioteca]", "[NAV.ideogramas, NAV.pinyin, NAV.leitura, NAV.imersao, NAV.biblioteca]")],
     ["DG5. ordem do sheet Praticar", "PRACTICE_SHEET_ORDER", src("nav", "[NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.imersao, NAV.biblioteca]", "[NAV.ideogramas, NAV.pinyin, NAV.fala, NAV.leitura, NAV.biblioteca, NAV.imersao]")],
-    ["DG6. NAV_MOBILE diverge", "TABBAR_ITEMS_WRONG", src("nav", "export const NAV_MOBILE: NavItem[] = [\n  NAV.jornada,\n  NAV.treino,\n  NAV.cultura,", "export const NAV_MOBILE: NavItem[] = [\n  NAV.jornada,\n  NAV.treino,\n  NAV.imersao,")],
+    ["DG6. NAV_MOBILE diverge", "TABBAR_ITEMS_WRONG", src("nav", "export const NAV_MOBILE: NavItem[] = [\n  NAV.jornada,\n  NAV.treino,\n  NAV.missoes,", "export const NAV_MOBILE: NavItem[] = [\n  NAV.jornada,\n  NAV.treino,\n  NAV.imersao,")],
     ["DG7. Mais acende em /cultura", "CULTURE_UNDER_MORE_MATCH", src("nav", 'matches: [...MORE_MATCHES, "/loja", "/ligas"]', 'matches: [...MORE_MATCHES, "/loja", "/ligas", "/cultura"]')],
     ["DG8. Qi sempre visível", "TOPBAR_NOT_COMPACT", src("topBar", 'outerClassName="hidden min-[390px]:inline-flex"', 'outerClassName="inline-flex"')],
     ["DG9. avatar não leva ao Perfil", "PROFILE_ENTRY_MISSING", src("topBar", 'to="/perfil"\n          data-testid="topbar-avatar"', 'to="/conta"\n          data-testid="topbar-avatar"')],

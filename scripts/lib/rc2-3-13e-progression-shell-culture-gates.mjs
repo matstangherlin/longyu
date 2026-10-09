@@ -60,10 +60,8 @@ export function checkNavAndRoutes(src = loadProgressionShellSources()) {
   const bar = (src.nav.match(/export function mobileNavForStage[\s\S]*?\n\}/) || [""])[0];
   const tabs = [...bar.matchAll(/NAV\.(\w+)/g)].map((m) => m[1]);
   if (tabs.length > 5) errors.push("CULTURE_SIXTH_TAB");
-  if ((tabs.filter((t) => t === "cultura").length + (tabs.includes("cultura") ? 0 : 0)) > 1) {
-    errors.push("CULTURE_SIXTH_TAB");
-  }
-  // Sixth-tab mutation: duplicate culture entry
+  // RC2.3.13G — Culture is forbidden as an independent TabBar destination.
+  if (tabs.includes("cultura")) errors.push("CULTURE_BOTTOM_TAB_FORBIDDEN");
   if (/NAV\.cultura,\s*\n\s*NAV\.cultura/.test(bar)) errors.push("CULTURE_SIXTH_TAB");
   if (!/cultura\/explorar/.test(src.routes)) errors.push("ATLAS_ROUTE_MISSING");
   if (!/CultureHubPage|CultureJourneyPage/.test(src.routes + src.cultureHub)) {
