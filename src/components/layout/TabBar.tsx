@@ -19,8 +19,8 @@ import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
-import { useCloudSignOut } from "../../hooks/useCloudSignOut";
-import { IconLogout } from "../ui/Icon";
+import { SignOutControl } from "../account/SignOutControl";
+import { IconChevron } from "../ui/Icon";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 
 /**
@@ -84,12 +84,14 @@ export function TabBar() {
         praticar: {
           title: t("navigation.practice"),
           groups: [{ id: "practice", title: t("navigation.practice"), titleKey: "navigation.practice", items: practiceMobileSheetItems(items, visibility) }] as NavGroup[],
-          footer: { to: "/treino", label: t("navigation.openPractice") },
+          footer: { to: "/treino", label: t("navigation.openPractice"), hierarchy: "primary" as const },
+          showSignOut: false,
         },
         mais: {
           title: t("navigation.moreOptions"),
           groups: moreMobileSheetGroups(items, visibility),
-          footer: { to: "/mais", label: t("navigation.seeFullMenu") },
+          footer: { to: "/mais", label: t("common.seeAllOptions"), hierarchy: "tertiary" as const },
+          showSignOut: true,
         },
       }[sheet]
     : null;
@@ -124,15 +126,15 @@ export function TabBar() {
 
             const content = (
               <>
-                <span className={iconWrap}>
-                  <item.icon width={20} height={20} />
+                <span className={iconWrap} data-nav-active={active || open ? "true" : "false"}>
+                  <item.icon width={20} height={20} aria-hidden="true" />
                   {badge > 0 && !active && !open && (
                     <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-accent px-0.5 text-[8px] font-bold leading-none text-white">
                       {badge > 9 ? "9+" : badge}
                     </span>
                   )}
                 </span>
-                <span className="max-w-full truncate px-0.5">{navLabel(item, t)}</span>
+                <span className={cx("max-w-full truncate px-0.5", active || open ? "font-bold" : "")}>{navLabel(item, t)}</span>
               </>
             );
 
@@ -145,6 +147,7 @@ export function TabBar() {
                   aria-current={active ? "page" : undefined}
                   aria-haspopup="dialog"
                   aria-expanded={open}
+                  aria-label={navLabel(item, t)}
                   onClick={() => setSheet((current) => (current === kind ? null : kind))}
                 >
                   {content}
@@ -157,6 +160,7 @@ export function TabBar() {
                 key={item.to}
                 to={item.to}
                 aria-current={active ? "page" : undefined}
+                aria-label={navLabel(item, t)}
                 className={className}
               >
                 {content}
@@ -171,6 +175,7 @@ export function TabBar() {
           title={sheetConfig.title}
           groups={sheetConfig.groups}
           footer={sheetConfig.footer}
+          showSignOut={sheetConfig.showSignOut}
           pathname={location.pathname}
           onClose={() => setSheet(null)}
         />
@@ -183,12 +188,14 @@ function TabSheet({
   title,
   groups,
   footer,
+  showSignOut,
   pathname,
   onClose,
 }: {
   title: string;
   groups: NavGroup[];
-  footer: { to: string; label: string };
+  footer: { to: string; label: string; hierarchy: "primary" | "tertiary" };
+  showSignOut: boolean;
   pathname: string;
   onClose: () => void;
 }) {
@@ -217,6 +224,11 @@ function TabSheet({
     };
   }, []);
 
+  const footerPrimary =
+    "flex min-h-12 items-center justify-center rounded-2xl bg-accent px-4 text-sm font-bold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+  const footerTertiary =
+    "flex min-h-11 items-center justify-center gap-1 px-3 text-sm font-semibold text-ink-soft transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+
   return (
     <div
       className={cx(
@@ -224,6 +236,7 @@ function TabSheet({
         zLayerClass.sheet
       )}
       role="presentation"
+      data-cognitive-sheet={showSignOut ? "more-options" : "practice"}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -233,12 +246,12 @@ function TabSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="animate-pop flex w-full max-h-[min(32rem,78dvh)] flex-col rounded-t-[28px] border border-line/70 bg-surface shadow-lift"
-        style={{ paddingBottom: "max(1rem, var(--app-safe-bottom))" }}
+        className="animate-pop flex w-full max-h-[min(28rem,72dvh)] flex-col rounded-t-[28px] border border-line/70 bg-surface shadow-lift"
+        style={{ paddingBottom: "max(0.75rem, var(--app-safe-bottom))" }}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex flex-col items-center px-4 pt-3 pb-2">
-          <div className="h-1.5 w-10 rounded-full bg-line/80" aria-hidden="true" />
+          <div className="h-1.5 w-10 rounded-full bg-line/80" aria-hidden="true" data-sheet-handle="" />
           <h2 id={titleId} className="mt-3 text-base font-bold text-ink">
             {title}
           </h2>
@@ -248,14 +261,16 @@ function TabSheet({
           {groups.map((group, groupIndex) => (
             <div
               key={group.id || group.title}
-              className={groupIndex === 0 ? "" : "mt-3 border-t border-line/60 pt-3"}
+              className={groupIndex === 0 ? "" : "mt-3"}
+              data-more-group={group.id}
             >
               {groups.length > 1 && (
                 <div className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
                   {t(group.titleKey)}
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-2">
+              {/* RC2.3.13A — rows, not a card grid (Hick / card policy). */}
+              <div className="overflow-hidden rounded-2xl border border-line/70 bg-surface-2/40">
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const active = isNavItemActive(item, pathname);
@@ -264,61 +279,46 @@ function TabSheet({
                       key={item.to}
                       to={item.to}
                       onClick={onClose}
+                      aria-current={active ? "page" : undefined}
+                      data-settings-row=""
+                      data-cta-hierarchy="secondary"
                       className={[
-                        "flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
-                        active
-                          ? "border-accent/50 bg-accent-soft text-accent"
-                          : "border-line/60 bg-surface-2/80 text-ink hover:bg-surface-2",
+                        "flex min-h-12 items-center gap-3 border-b border-line/50 px-3 text-sm font-semibold transition last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45",
+                        active ? "bg-accent-soft text-accent" : "text-ink hover:bg-surface-2",
                       ].join(" ")}
                     >
-                      <Icon width={20} height={20} aria-hidden="true" />
-                      <span className="truncate">{navLabel(item, t)}</span>
+                      <span className={cx("grid h-9 w-9 place-items-center rounded-lg", active ? "bg-accent text-white" : "bg-surface text-accent")}>
+                        <Icon width={18} height={18} aria-hidden="true" />
+                      </span>
+                      <span className="flex-1 truncate">{navLabel(item, t)}</span>
+                      <IconChevron width={16} height={16} className="text-ink-faint" aria-hidden="true" />
                     </Link>
                   );
                 })}
               </div>
-              {group.id === "you" && <SheetSignOutRow onDone={onClose} />}
             </div>
           ))}
+
+          {showSignOut && (
+            <div className="mt-3 border-t border-line/60 pt-2" data-more-group="sign-out">
+              <SignOutControl testId="more-sheet-sign-out" onBeforeSignOut={onClose} />
+            </div>
+          )}
         </div>
 
-        <div className="border-t border-line/60 px-3 pt-3">
+        <div className={cx("px-3 pt-2", footer.hierarchy === "primary" ? "border-t border-line/60 pt-3" : "")}>
           <Link
             to={footer.to}
             onClick={onClose}
-            className="flex min-h-12 items-center justify-center rounded-2xl bg-accent px-4 text-sm font-bold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            data-cta-hierarchy={footer.hierarchy}
+            data-testid={showSignOut ? "more-sheet-see-all" : "practice-sheet-open"}
+            className={footer.hierarchy === "primary" ? footerPrimary : footerTertiary}
           >
             {footer.label}
+            {footer.hierarchy === "tertiary" ? <IconChevron width={14} height={14} aria-hidden="true" /> : null}
           </Link>
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * RC2.2.25 — LOGOUT_DISCOVERABILITY_OWNER_FAIL: no sheet do Mais, "Sair da
- * conta" é a linha inteira logo abaixo de VOCÊ (≤ 2 níveis de qualquer tela).
- * Neutra, com ícone; Excluir conta nunca mora aqui.
- */
-function SheetSignOutRow({ onDone }: { onDone: () => void }) {
-  const { t } = useTranslation();
-  const { signOut, canSignOut } = useCloudSignOut();
-  if (!canSignOut) return null;
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        onDone();
-        void signOut();
-      }}
-      className="mt-2 flex min-h-12 w-full items-center gap-2.5 rounded-2xl border border-line/60 bg-surface-2/80 px-3 text-left text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-      data-testid="more-sheet-sign-out"
-      data-sign-out-tone="neutral"
-      data-sign-out-layout="full-width"
-    >
-      <IconLogout width={20} height={20} aria-hidden="true" />
-      {t("common.signOutAccount")}
-    </button>
   );
 }

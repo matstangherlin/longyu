@@ -1,9 +1,9 @@
 {
   "name": "longyu",
   "private": true,
-  "version": "0.2.0-rc.1",
+  "version": "0.2.0-rc.2",
   "type": "module",
-  "description": "Longyu (\u9f99\u8bed) \u2014 aprenda mandarim pela l\u00f3gica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+  "description": "Longyu (龙语) — aprenda mandarim pela lógica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
   "engines": {
     "node": ">=22"
   },
@@ -1213,7 +1213,10 @@
     "gate:beta-wave3-entry": "node scripts/beta-wave-entry.mjs wave3",
     "gate:closed-beta-exit": "node scripts/beta-wave-entry.mjs exit",
     "gate:closed-beta-entry": "node scripts/rc2-3-12-closed-beta-entry.mjs",
-    "smoke:rc": "node scripts/smoke-rc.mjs"
+    "smoke:rc": "node scripts/smoke-rc.mjs",
+    "validate:rc2-3-13a-cognitive-ui": "node scripts/rc2-3-13a-cognitive-ui.mjs validate",
+    "test:rc2-3-13a-cognitive-ui": "node scripts/rc2-3-13a-cognitive-ui.mjs test",
+    "gate:rc2-3-13a-cognitive-ui": "npm run validate:rc2-3-13a-cognitive-ui && npm run test:rc2-3-13a-cognitive-ui"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

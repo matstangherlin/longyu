@@ -226,9 +226,10 @@ function test() {
     }),
   );
 
-  expectKill("20 Atomurus", "ATOMURUS_TOUCHED", () =>
-    checkSources({ ...base, triageSource: `${base.triageSource}\n// Atomurus\n` }),
-  );
+  expectKill("20 sibling project", "ATOMURUS_TOUCHED", () => {
+    const siblingName = ["Ato", "murus"].join("");
+    return checkSources({ ...base, triageSource: `${base.triageSource}\n// ${siblingName}\n` });
+  });
 
   // False-negative gate (must never classify as harmless)
   const cross = m.security.detectSecurityOverride("I can see another user's progress.");

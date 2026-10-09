@@ -8,7 +8,7 @@
   "appId": "longyu.noba.com",
   "appName": "Longyu",
   "webDir": "dist",
-  "versionName": "0.2.0-rc.1",
+  "versionName": "0.2.0-rc.2",
   "versionCode": 1,
   "versionCodeRole": "floor",
   "versionCodeAuthority": "docs/release/VERSION_AUTHORITY.md",
@@ -46,7 +46,7 @@
     "playStoreListingAssets": "ANDROID_BRAND_ASSET_REQUIRED"
   },
   "publicBetaVerdict": "NO-GO",
-  "notes": "Funda\u00e7\u00e3o de c\u00f3digo. Emulador/Playwright/Gradle n\u00e3o substituem android_real_device (dispositivo f\u00edsico + evid\u00eancia humana). Cloud (#273) segue adiada: cloud_auth/cloud_sync/feedback_backend continuam false.",
+  "notes": "Fundação de código. Emulador/Playwright/Gradle não substituem android_real_device (dispositivo físico + evidência humana). Cloud (#273) segue adiada: cloud_auth/cloud_sync/feedback_backend continuam false.",
   "debugBuildEvidence": {
     "where": "GitHub Actions (ubuntu-latest, Android SDK do runner, Temurin 21)",
     "workflow": ".github/workflows/android.yml",
@@ -58,7 +58,7 @@
   "appIdHistory": {
     "current": "longyu.noba.com",
     "since": "RC2.2.16",
-    "superseded": "com.longyu.app (SUPERSEDED \u2014 RC2.2.10\u2013RC2.2.14B, nunca publicado)",
+    "superseded": "com.longyu.app (SUPERSEDED — RC2.2.10–RC2.2.14B, nunca publicado)",
     "manifest": "docs/release/android-package-identity.json"
   },
   "curriculumFingerprint": "5a64821d0b7d"

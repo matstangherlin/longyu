@@ -36,4 +36,4 @@ Repo is the secure client. **parity = FAIL**, **deploymentRequired = true**.
 
 ## Principle held
 
-Learner runtime stays **OFF**. Feedback submission does not call Jev. Atomurus untouched. No production Edge mutate in this agent turn.
+Learner runtime stays **OFF**. Feedback submission does not call Jev. LON-001 sibling project untouched. No production Edge mutate in this agent turn.

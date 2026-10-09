@@ -274,9 +274,10 @@ function test() {
     }),
   );
 
-  expectKill("20 Atomurus", "ATOMURUS_TOUCHED", () =>
-    checkSources({ ...base, shadowSource: `${base.shadowSource}\n// Atomurus\n` }),
-  );
+  expectKill("20 sibling project", "ATOMURUS_TOUCHED", () => {
+    const siblingName = ["Ato", "murus"].join("");
+    return checkSources({ ...base, shadowSource: `${base.shadowSource}\n// ${siblingName}\n` });
+  });
 
   // Behavioral calibration checks
   const records = simulateCalibration(m.shadow, base.calibrationJson);

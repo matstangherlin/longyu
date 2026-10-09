@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-09T06:04:10.766Z",
-  "generatedFromSha": "e2f492d2f60dfccea37e556f58f995efdae235f8",
-  "inputsDigest": "f166e1e45804661b",
-  "evidenceDigest": "96de5e95100d8336",
+  "generatedAt": "2026-10-09T06:44:42.121Z",
+  "generatedFromSha": "9326efbec5286a519bc59c0a942fe98b07c9c7ce",
+  "inputsDigest": "eca9fd5f8515f8d4",
+  "evidenceDigest": "06e8b00043cd0d2e",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -33,7 +33,7 @@
   ],
   "product": {
     "name": "Longyu",
-    "version": "0.2.0-rc.1",
+    "version": "0.2.0-rc.2",
     "applicationId": "longyu.noba.com",
     "androidVersionCode": 1,
     "curriculumFingerprint": "5a64821d0b7d",

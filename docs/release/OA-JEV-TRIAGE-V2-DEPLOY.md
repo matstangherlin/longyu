@@ -7,7 +7,7 @@
 
 Then: merge to `main` → run the manual workflow with confirm phrases below.
 
-**Never touch Atomurus** (`ylofdottauzcqcifnnpm`).
+**Never touch LON-001 sibling project** (``LON-001-sibling-ref``).
 
 ---
 

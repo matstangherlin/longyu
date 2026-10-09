@@ -1,0 +1,18 @@
+{
+  "schema": "longyu-rc-identity/1",
+  "rcId": "RC2.3.12-RC2",
+  "version": "0.2.0-rc.2",
+  "versionCode": "PENDING_ANDROID_BUILD",
+  "versionCodeNote": "Computed Play/CI versionCode = android/version.properties floor + first-parent count. Must be > 570 (RC1). Do not reuse 570.",
+  "sourceWave": "RC2.3.13A",
+  "artifactStatus": "PENDING_HOSTED_ANDROID",
+  "supersedes": {
+    "rcId": "RC2.3.12-RC1",
+    "version": "0.2.0-rc.1",
+    "versionCode": 570,
+    "note": "RC1 remains historical provenance. Learner UI changed in 13A — RC1 does not certify this UI."
+  },
+  "apk": null,
+  "aab": null,
+  "physicalQaTarget": "RC2.3.12-RC2"
+}

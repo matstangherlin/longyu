@@ -9,13 +9,16 @@ import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
 import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
-import { IconChevron, IconShield, IconStar, IconLibrary, IconGear, IconLogout, IconSun, IconUser } from "../../components/ui/Icon";
+import { IconChevron, IconShield, IconStar, IconLibrary, IconGear, IconSun, IconUser, IconTarget, IconBook } from "../../components/ui/Icon";
 import { requestAccountDeletion } from "../../services/privacyService";
 import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
+import { SettingsGroup, SettingsRow } from "../../components/ui/SettingsRow";
+import { SignOutControl } from "../../components/account/SignOutControl";
+import type { ThemeName } from "../../lib/store";
 
 type AuthMode = "local" | "cloud_pending" | "cloud";
 
@@ -89,8 +92,10 @@ export function ContaPage() {
   const syncCopy = cloudSyncCopy(cloudSyncState, t);
 
   const { signIn } = useCloudSignIn();
-  const { signOut, canSignOut } = useCloudSignOut();
+  const { canSignOut } = useCloudSignOut();
   const endCloudSession = useStore((s) => s.endCloudSession);
+  const theme = useStore((s) => s.theme);
+  const followSystemTheme = useStore((s) => s.followSystemTheme);
 
   const [email, setEmail] = useState(account?.email ?? "");
   const [password, setPassword] = useState("");
@@ -115,11 +120,6 @@ export function ContaPage() {
     }
   }
 
-  async function onSignOut() {
-    const message = await signOut();
-    if (message) setNotice(message);
-  }
-
   async function onDeleteAccount() {
     const typed = window.prompt(
       `Esta ação é permanente. Digite ${ACCOUNT_DELETION_CONFIRMATION_TEXT} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.`
@@ -141,7 +141,7 @@ export function ContaPage() {
         back={{ to: "/mais", label: t("navigation.more") }}
         eyebrow={t("navigation.account")}
         title={t("navigation.account")}
-        subtitle={displayInstruction("Login, email e sessão. Seu progresso e estatísticas ficam no Perfil.")}
+        subtitle={t("common.manageAccount")}
       />
 
       {/* RC2.2.8 · C — só erro ganha faixa. pending/loading/synced viram o
@@ -159,42 +159,52 @@ export function ContaPage() {
         <span className="sr-only" data-cloud-sync-status={cloudSyncState.status} />
       )}
 
-      {/* RC2.2.25 — primeira dobra: quem é você + as 4 ações principais.
-          "Sair da conta" visível SEM scroll, linha inteira, neutra. */}
-      <section className="rounded-2xl border border-line bg-surface p-4" data-testid="conta-first-fold">
-        <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accent-soft text-lg font-semibold text-accent" aria-hidden data-testid="conta-avatar">
-            {(account?.name?.trim() || "你").charAt(0).toUpperCase()}
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="truncate text-base font-semibold text-ink" data-testid="conta-name">{account?.name?.trim() || t("hub.defaultLearner")}</span>
-              <Pill tone={status.tone}>{status.label}</Pill>
+      {/* RC2.3.13A — conventional Account IA: identity header + grouped rows.
+          Logout is compact destructive at the bottom (not a primary learning CTA). */}
+      <section className="space-y-3" data-testid="conta-first-fold" data-cognitive-account="">
+        <div className="rounded-2xl border border-line bg-surface p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accent-soft text-lg font-semibold text-accent" aria-hidden data-testid="conta-avatar">
+              {(account?.name?.trim() || "你").charAt(0).toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="truncate text-base font-semibold text-ink" data-testid="conta-name">{account?.name?.trim() || t("hub.defaultLearner")}</span>
+                <Pill tone={status.tone}>{status.label}</Pill>
+              </div>
+              {account?.email && <div className="truncate text-sm text-ink-soft" data-testid="conta-email">{account.email}</div>}
             </div>
-            {account?.email && <div className="truncate text-sm text-ink-soft" data-testid="conta-email">{account.email}</div>}
+            <SyncStatusChip />
           </div>
-          <SyncStatusChip />
+          <p className="mt-3 text-xs font-medium text-ink-faint" data-account-save-status="">{status.where}</p>
+          {notice && <p className="mt-2 text-xs text-ink-soft">{displayInstruction(notice)}</p>}
         </div>
-        <nav className="mt-4 grid gap-2" aria-label={t("navigation.account")}>
-          <ContaRow to="/perfil" icon={IconUser} label={t("navigation.profile")} testId="conta-profile" />
-          <ContaRow to="/config/aparencia" icon={IconSun} label={t("navigation.appearance")} testId="conta-appearance" />
-          <ContaRow to="/esqueci-senha" icon={IconShield} label={t("navigation.securityPassword")} testId="conta-security" />
-          {canSignOut && (
-            <button
-              type="button"
-              onClick={() => void onSignOut()}
-              className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-line bg-surface px-4 text-left text-sm font-semibold text-ink transition hover:bg-surface-2"
-              data-testid="conta-sign-out"
-              data-sign-out-tone="neutral"
-              data-sign-out-layout="full-width"
-            >
-              <IconLogout width={18} height={18} className="text-ink-soft" />
-              {t("common.signOutAccount")}
-            </button>
-          )}
-        </nav>
-        {notice && <p className="mt-2 text-xs text-ink-soft">{displayInstruction(notice)}</p>}
-        <p className="mt-3 text-xs font-medium text-ink-faint" data-account-save-status="">{status.where}</p>
+
+        <SettingsGroup>
+          <SettingsRow to="/perfil" icon={IconUser} label={t("navigation.profile")} subtitle={displayInstruction("Nome, avatar e perfil de estudo")} testId="conta-profile" />
+          <SettingsRow to="/esqueci-senha" icon={IconShield} label={t("common.accountSecurity")} subtitle={displayInstruction("Email, senha e sessão")} testId="conta-security" />
+          <SettingsRow to="/config/notificacoes" icon={IconTarget} label={t("settings.catNotifications")} testId="conta-notifications" />
+          <SettingsRow
+            to="/config/aparencia"
+            icon={IconSun}
+            label={t("navigation.appearance")}
+            trailing={<AppearanceTrailing theme={theme} followSystem={followSystemTheme} />}
+            testId="conta-appearance"
+          />
+          <SettingsRow to="/config/aprendizagem" icon={IconBook} label={t("common.language")} testId="conta-language" />
+        </SettingsGroup>
+
+        <SettingsGroup>
+          <SettingsRow to="/sobre#feedback" icon={IconTarget} label={t("common.reportProblem")} testId="conta-report" />
+          <SettingsRow to="/sobre" icon={IconLibrary} label={t("common.contact")} testId="conta-contact" />
+        </SettingsGroup>
+
+        <SettingsGroup>
+          <SettingsRow to="/privacidade" icon={IconShield} label={t("landing.privacy")} testId="conta-privacy" />
+          <SettingsRow to="/termos" icon={IconBook} label={t("landing.terms")} testId="conta-terms" />
+        </SettingsGroup>
+
+        {canSignOut ? <SignOutControl testId="conta-sign-out" /> : null}
       </section>
 
       {/* Login / sessão cloud */}
@@ -343,13 +353,19 @@ function AccountLink({
   );
 }
 
-/** RC2.2.25 — linha de ação da primeira dobra da Conta (alvo ≥ 48 px). */
-function ContaRow({ to, icon: Icon, label, testId }: { to: string; icon: typeof IconStar; label: string; testId: string }) {
+function AppearanceTrailing({ theme, followSystem }: { theme: ThemeName; followSystem: boolean }) {
+  const { t } = useTranslation();
+  const label = followSystem
+    ? t("common.themeSystem")
+    : theme === "dark"
+      ? t("common.themeDark")
+      : theme === "china"
+        ? t("common.themeChina")
+        : t("common.themeClay");
   return (
-    <Link to={to} className="flex min-h-12 items-center gap-3 rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-ink transition hover:bg-surface-2" data-testid={testId}>
-      <Icon width={18} height={18} className="text-accent" />
-      <span className="flex-1">{label}</span>
-      <IconChevron width={16} height={16} className="text-ink-faint" />
-    </Link>
+    <span className="flex items-center gap-1 text-xs font-medium text-ink-faint" data-testid="conta-appearance-value">
+      {label}
+      <IconChevron width={16} height={16} aria-hidden="true" />
+    </span>
   );
 }
