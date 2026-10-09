@@ -20,6 +20,8 @@ const KEYS = {
   cultureScroll: "longyu.progression.cultureScroll",
   cultureFirstGuide: "longyu.progression.cultureFirstGuideSeen",
   openOrigin: "longyu.progression.openOrigin",
+  /** Last progression mode before a segmented switch (RC2.3.13R enter direction). */
+  lastMode: "longyu.progression.lastMode",
 } as const;
 
 export type ProgressionOpenOrigin =
@@ -101,4 +103,24 @@ export function progressionModeFromPath(pathname: string): ProgressionMode | nul
   if (pathname === "/jornada" || pathname.startsWith("/jornada/")) return "journey";
   if (pathname === "/cultura" || pathname.startsWith("/cultura/")) return "culture";
   return null;
+}
+
+export function writeProgressionLastMode(mode: ProgressionMode): void {
+  storage()?.setItem(KEYS.lastMode, mode);
+}
+
+export function readProgressionLastMode(): ProgressionMode | null {
+  const v = storage()?.getItem(KEYS.lastMode);
+  return v === "journey" || v === "culture" ? v : null;
+}
+
+/** Enter direction for Journey ↔ Culture panel motion (spatial: Jornada left, Cultura right). */
+export function progressionEnterDirection(
+  mode: ProgressionMode,
+  from: ProgressionMode | null,
+): "from-left" | "from-right" | "none" {
+  if (!from || from === mode) return "none";
+  if (from === "journey" && mode === "culture") return "from-right";
+  if (from === "culture" && mode === "journey") return "from-left";
+  return "none";
 }

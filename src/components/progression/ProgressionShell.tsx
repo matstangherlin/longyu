@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -12,9 +13,12 @@ import { useTranslation } from "../../i18n/useTranslation";
 import { recordTechEvent } from "../../lib/techEvents";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import {
+  progressionEnterDirection,
   readProgressionAnchor,
+  readProgressionLastMode,
   readProgressionScroll,
   writeProgressionAnchor,
+  writeProgressionLastMode,
   writeProgressionScroll,
   type ProgressionMode,
 } from "../../lib/progressionShellState";
@@ -26,6 +30,8 @@ const CULTURE_HREF = "/cultura";
  * RC2.3.13H.1 — ProgressionStickyChrome (conceptual):
  * Global TopBar stays in AppShell; this switch sticks immediately beneath it.
  * Offset under Global TopBar — never park the switch at the viewport top edge.
+ *
+ * RC2.3.13R — selector thumb uses motion tokens; content panel enters directionally.
  */
 export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) {
   const { t } = useTranslation();
@@ -48,6 +54,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
       if (next === mode) return;
       // Persist current surface before leaving (scroll + last known anchor).
       writeProgressionScroll(mode, window.scrollY);
+      writeProgressionLastMode(mode);
       const href = next === "journey" ? JOURNEY_HREF : CULTURE_HREF;
       // replace — avoid endless history pollution from rapid toggling.
       navigate(href, { replace: true });
@@ -99,7 +106,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
       ].join(" ")}
       style={{ top: "var(--progression-sticky-offset)" }}
       data-testid="progression-shell-switch"
-      data-progression-shell="rc2-3-13h1"
+      data-progression-shell="rc2-3-13r"
       data-progression-sticky-chrome="true"
       data-scrolled={scrolled ? "true" : "false"}
     >
@@ -112,10 +119,12 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
         <span
           aria-hidden
           className={[
-            "pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-xl bg-surface shadow-sm transition-transform duration-200 ease-out motion-reduce:transition-none",
+            "pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-xl bg-surface shadow-sm motion-reduce:transition-none",
+            "transition-transform duration-[var(--motion-normal)] ease-[var(--ease-standard)]",
             mode === "culture" ? "translate-x-[calc(100%+0.25rem)] left-1" : "translate-x-0 left-1",
           ].join(" ")}
           data-testid="progression-switch-thumb"
+          data-motion="segment-indicator"
         />
         <button
           type="button"
@@ -127,7 +136,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
           data-testid="progression-tab-journey"
           data-cta-hierarchy="secondary"
           className={[
-            "relative z-10 min-h-11 rounded-xl px-3 text-sm font-semibold transition-colors",
+            "relative z-10 min-h-11 rounded-xl px-3 type-button transition-colors",
             mode === "journey" ? "text-ink" : "text-ink-soft",
           ].join(" ")}
           onClick={() => switchTo("journey")}
@@ -148,7 +157,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
           data-testid="progression-tab-culture"
           data-cta-hierarchy="secondary"
           className={[
-            "relative z-10 min-h-11 rounded-xl px-3 text-sm font-semibold transition-colors",
+            "relative z-10 min-h-11 rounded-xl px-3 type-button transition-colors",
             mode === "culture" ? "text-ink" : "text-ink-soft",
           ].join(" ")}
           onClick={() => switchTo("culture")}
@@ -177,23 +186,23 @@ export function ProgressionShell({
 }) {
   const restoreDone = useRef(false);
   const location = useLocation();
+  const fromMode = useRef(readProgressionLastMode());
+  const enter = progressionEnterDirection(mode, fromMode.current);
 
-  useEffect(() => {
+  // Restore scroll/anchor before paint so enter motion never flashes top then jumps.
+  useLayoutEffect(() => {
     if (restoreDone.current) return;
     restoreDone.current = true;
     const anchor = readProgressionAnchor(mode);
     const scrollY = readProgressionScroll(mode);
-    requestAnimationFrame(() => {
-      if (anchor) {
-        const el = document.querySelector(`[data-progression-anchor="${CSS.escape(anchor)}"]`);
-        if (el instanceof HTMLElement) {
-          // scroll-padding-top (html:has progression-shell) keeps node below sticky stack.
-          el.scrollIntoView({ block: "center", behavior: "auto" });
-          return;
-        }
+    if (anchor) {
+      const el = document.querySelector(`[data-progression-anchor="${CSS.escape(anchor)}"]`);
+      if (el instanceof HTMLElement) {
+        el.scrollIntoView({ block: "center", behavior: "auto" });
+        return;
       }
-      if (scrollY > 0) window.scrollTo({ top: scrollY, behavior: "auto" });
-    });
+    }
+    if (scrollY > 0) window.scrollTo({ top: scrollY, behavior: "auto" });
   }, [mode, location.pathname]);
 
   useEffect(() => {
@@ -215,20 +224,23 @@ export function ProgressionShell({
       data-testid="progression-shell"
       data-progression-mode={mode}
       data-progression-shell
+      data-motion-system="rc2-3-13r"
       className="mx-auto w-full max-w-[1180px]"
     >
       <ProgressionSegmentedSwitch mode={mode} />
-      {(headerTitle || headerDesc) && (
-        <header className="mb-3" data-testid={`progression-header-${mode}`}>
-          {headerTitle ? (
-            <h1 className="font-serif text-2xl font-semibold tracking-tight text-ink sm:text-[1.75rem]">
-              {headerTitle}
-            </h1>
-          ) : null}
-          {headerDesc ? <p className="mt-1 text-sm text-ink-soft">{headerDesc}</p> : null}
-        </header>
-      )}
-      <div id="progression-shell-panel" role="tabpanel" data-testid="progression-shell-panel">
+      <div
+        id="progression-shell-panel"
+        role="tabpanel"
+        data-testid="progression-shell-panel"
+        data-enter={enter}
+        className="progression-panel-enter"
+      >
+        {(headerTitle || headerDesc) && (
+          <header className="mb-3" data-testid={`progression-header-${mode}`}>
+            {headerTitle ? <h1 className="type-page-title">{headerTitle}</h1> : null}
+            {headerDesc ? <p className="type-supporting mt-1">{headerDesc}</p> : null}
+          </header>
+        )}
         {children}
       </div>
     </div>

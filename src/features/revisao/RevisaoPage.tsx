@@ -506,8 +506,8 @@ function ReviewSummaryTile({
     <Card className="rounded-xl p-3 shadow-none">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{label}</div>
-          <div className="mt-1 font-serif text-xl font-semibold text-ink">{value}</div>
+          <div className="type-eyebrow-muted">{label}</div>
+          <div className="type-card-title mt-1">{value}</div>
           <div className="mt-1 text-xs leading-5 text-ink-soft">{detail}</div>
         </div>
         <Pill tone={tone}>{tone === "accent" ? catalogT("review.priorityPill") : catalogT("common.ok")}</Pill>
@@ -1226,8 +1226,8 @@ function ErrorMetric({
         highlight ? "border-accent/35 bg-accent-soft/35" : "border-line/60 bg-surface-2/80",
       ].join(" ")}
     >
-      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
-      <div className="mt-1 font-serif text-xl font-semibold text-ink">{value}</div>
+      <div className="type-eyebrow-muted">{label}</div>
+      <div className="type-card-title mt-1">{value}</div>
     </div>
   );
 }
@@ -2083,11 +2083,11 @@ export function RevisaoPage() {
           <div className="rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] p-4 shadow-card sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+                <div className="type-eyebrow">
                   Rodada {currentRound} de {totalRounds}
                 </div>
-                <h1 className="mt-1 font-serif text-2xl font-semibold text-ink">{t("review.correctWeakPoints")}</h1>
-                <p className="mt-1 text-sm text-ink-soft">
+                <h1 className="type-page-title mt-1">{t("review.correctWeakPoints")}</h1>
+                <p className="type-supporting mt-1">
                   Tarefas variadas sobre o que você errou. Se falhar de novo, o item volta nesta fila.
                 </p>
               </div>

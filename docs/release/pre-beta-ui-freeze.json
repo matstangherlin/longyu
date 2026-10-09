@@ -1,18 +1,10 @@
 {
   "id": "PRE_BETA_UI_FREEZE",
-  "wave": "RC2.3.13H.1",
-  "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. GLOBAL TOP BAR is sticky/immobile on progression surfaces. Progression switch sticks immediately beneath it. Journey/Culture content scrolls. Journey and Culture share ProgressionPath bubble grammar. Mandatory foundation AULA uses DynamicTeachingSequence. NO 13I.",
+  "wave": "RC2.3.13R",
+  "statement": "FINAL learner UI freeze base after H.1 sticky chrome + 13R typography/motion closure. CULTURE IS NOT A BOTTOM NAV ITEM. Sticky Global TopBar + Jornada/Cultura switch. Semantic typography roles. Canonical motion tokens. Journey↔Culture directional content transition. Dynamic Aula preserved. NO 13I / 13J / 13K.",
   "navigationContract": {
-    "mobileTabBar": [
-      "/jornada",
-      "/treino",
-      "/missoes",
-      "/mais"
-    ],
-    "progressionSwitch": [
-      "journey",
-      "culture"
-    ],
+    "mobileTabBar": ["/jornada", "/treino", "/missoes", "/mais"],
+    "progressionSwitch": ["journey", "culture"],
     "cultureBottomNav": false,
     "culturePrimaryAccess": "ProgressionShell"
   },
@@ -28,6 +20,16 @@
     "collapsingHeader": false,
     "hideOnScroll": false
   },
+  "typography": {
+    "system": "src/index.css @layer components type-* roles",
+    "inventory": "docs/ux/final-typography-inventory.md"
+  },
+  "motion": {
+    "system": "CSS tokens --motion-* / --ease-*",
+    "doc": "docs/ux/final-motion-system.md",
+    "journeyCultureTransition": "progression-panel-enter",
+    "dependencyPolicy": "no framer-motion / gsap"
+  },
   "progressionGrammar": {
     "components": [
       "ProgressionPath",
@@ -35,12 +37,7 @@
       "ProgressionConnector",
       "ProgressionNodeLabel"
     ],
-    "states": [
-      "COMPLETED",
-      "CURRENT",
-      "AVAILABLE",
-      "LOCKED"
-    ]
+    "states": ["COMPLETED", "CURRENT", "AVAILABLE", "LOCKED"]
   },
   "dynamicAula": {
     "shell": "GuidedLessonShell / GuidedPresentationProvider",
@@ -69,6 +66,11 @@
     "missoes",
     "mais"
   ],
+  "shaSemantics": {
+    "learnerRuntimeSha": "PENDING_13R_HEAD",
+    "certificationHeadSha": "PENDING_13R_HEAD",
+    "artifactSourceSha": "NOT_BUILT"
+  },
   "allowedAfterFreeze": [
     "P0/P1 bugfix",
     "necessary P2 blockers",
@@ -82,8 +84,10 @@
     "Culture content expansion waves",
     "new bottom-nav destinations for Culture",
     "13I presentation redesign",
-    "collapsing / auto-hiding global top bar"
+    "13J / 13K waves",
+    "collapsing / auto-hiding global top bar",
+    "cosmetic motion experimentation"
   ],
-  "sourceSha": "1dd1af24e44cb9bcaf47e1d5bf1810000f489a08",
-  "frozenAt": "2026-10-09T20:47:46.243Z"
+  "sourceSha": "PENDING_13R_HEAD",
+  "frozenAt": "PENDING_13R_HEAD"
 }

@@ -84,9 +84,9 @@ export function PageHeader({
             </span>
           )}
           <div className="min-w-0">
-            {eyebrow && <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{eyebrow}</div>}
-            <h1 className="mt-0.5 break-words font-serif text-[1.4rem] font-semibold leading-tight text-ink sm:text-[1.6rem]">{title}</h1>
-            {subtitle && <p className="mt-0.5 max-w-xl text-xs leading-5 text-ink-soft sm:text-sm">{subtitle}</p>}
+            {eyebrow && <div className="type-eyebrow">{eyebrow}</div>}
+            <h1 className="type-page-title mt-0.5 break-words">{title}</h1>
+            {subtitle && <p className="type-supporting mt-0.5 max-w-xl">{subtitle}</p>}
           </div>
         </div>
         {action && <div className="shrink-0">{action}</div>}
@@ -94,7 +94,7 @@ export function PageHeader({
       {progress && (
         <div className="mt-3">
           {progress.label && (
-            <div className="mb-1 flex items-center justify-between text-[11px] font-semibold text-ink-faint">
+            <div className="type-caption mb-1 flex items-center justify-between font-semibold">
               <span>{progress.label}</span>
               <span className="tabular-nums">{progress.value}/{progress.max}</span>
             </div>
