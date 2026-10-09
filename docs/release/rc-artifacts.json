@@ -1,0 +1,40 @@
+{
+  "schema": "longyu-rc-artifacts/1",
+  "rcId": "RC2.3.12-RC1",
+  "sourceSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "workflowMergeSha": "2c56701775eb77b35a7a0bd397c375847f9ae515",
+  "consumedAt": "2026-10-09T03:16:00Z",
+  "androidRunId": "37877291018",
+  "androidRunUrl": "https://github.com/matstangherlin/longyu/actions/runs/37877291018",
+  "version": "0.2.0-rc.1",
+  "versionCode": 570,
+  "fingerprint": "5a64821d0b7d",
+  "channel": "dev-debug",
+  "note": "Hosted debug APK/AAB from android-build.yml on PR #328 HEAD. Embedded version.json.sourceHeadSha == sourceSha. deviceQaBuild=true (diagnostic). Signed release BLOCKED_SIGNING_SECRETS. Secret scan of JS chunks: no sk_live_/service_role/private key hits.",
+  "apk": {
+    "name": "longyu-android-debug-0.2.0-rc.1-2c56701.apk",
+    "ghArtifact": "longyu-android-debug-0.2.0-rc.1-2c56701",
+    "sha256": "dc99c03bd803a17d1ff55ab82964df2db820ce316f02568c7887a47a414cc492",
+    "bytes": 23634337,
+    "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+    "status": "BUILT",
+    "ownerPathHint": "/opt/cursor/artifacts/rc-apk/longyu-android-debug-0.2.0-rc.1-2c56701.apk"
+  },
+  "aab": {
+    "name": "longyu-android-debug-0.2.0-rc.1-2c56701.aab",
+    "ghArtifact": "longyu-android-debug-0.2.0-rc.1-2c56701",
+    "sha256": "c9f8f0981f4d3abdf10efe7b45e5dee30539afce352fe9f62ebc39fbaae29a85",
+    "bytes": 22082482,
+    "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+    "status": "BUILT"
+  },
+  "web": {
+    "status": "NOT_RUN",
+    "note": "Production Netlify currently serves older SHA (cloud-smoke saw ec26ffcb…); RC web candidate not yet promoted"
+  },
+  "secretScan": {
+    "status": "PASS",
+    "scope": "APK assets/public JS chunks",
+    "findings": []
+  }
+}

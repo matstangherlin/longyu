@@ -1,9 +1,9 @@
 {
   "schema": "longyu-closed-beta-entry-criteria/1",
-  "wave": "RC2.3.12",
+  "wave": "RC2.3.12C",
   "rcId": "RC2.3.12-RC1",
   "result": "OWNER_ACTION_REQUIRED",
-  "evaluatedAt": "2026-10-09T02:53:47.271Z",
+  "evaluatedAt": "2026-10-09T03:22:01.843Z",
   "commercialMode": "FREE_ONLY",
   "liveMonetization": "BLOCKED",
   "hostedCi": "PENDING",
@@ -16,9 +16,9 @@
     "FEATURE_FREEZE_PASS": "PASS",
     "RC_IDENTITY_PASS": "PASS",
     "PRODUCT_TRUTH_FRESH": "PENDING",
-    "APK_BUILD_PASS": "NOT_RUN",
-    "APK_PROVENANCE_PASS": "NOT_RUN",
-    "AAB_BUILD_PASS": "NOT_RUN",
+    "APK_BUILD_PASS": "PASS",
+    "APK_PROVENANCE_PASS": "PASS",
+    "AAB_BUILD_PASS": "PASS",
     "WEB_BUILD_PASS": "NOT_RUN",
     "SECURITY_PASS": "PENDING",
     "CORE_LEARNING_PASS": "CODE_READY",
@@ -69,5 +69,8 @@
     "wave2": 50,
     "wave3": 200,
     "basis": "free-tier cloud budget + support capacity + observability not yet PASS"
-  }
+  },
+  "notes": [
+    "APK/AAB from hosted run 37877291018 sourceHeadSha 2d64f0d7; physical/sentry/rollback/cloud-smoke still open"
+  ]
 }

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-09T02:56:18.549Z",
-  "generatedFromSha": "f3827a32f38127b78f7e4bd765dbab271b943fef",
-  "inputsDigest": "35f72f259964215d",
-  "evidenceDigest": "486dc726a298ca34",
+  "generatedAt": "2026-10-09T03:22:01.013Z",
+  "generatedFromSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "inputsDigest": "913062c6e2dbb210",
+  "evidenceDigest": "644c5125f9f7b1ae",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -321,14 +321,14 @@
     "BETA": "BLOCKED",
     "rcCandidate": {
       "rcId": "RC2.3.12-RC1",
-      "gitSha": "f3827a32f38127b78f7e4bd765dbab271b943fef",
+      "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
       "version": "0.2.0-rc.1",
-      "versionCode": 571,
+      "versionCode": 570,
       "fingerprint": "5a64821d0b7d",
       "commercialMode": "FREE_ONLY",
-      "phase": "NOT_BUILT",
-      "apk": "NOT_RUN",
-      "aab": "NOT_RUN",
+      "phase": "BUILT",
+      "apk": "BUILT",
+      "aab": "BUILT",
       "web": "NOT_RUN"
     }
   }

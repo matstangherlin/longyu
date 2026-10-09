@@ -17,9 +17,14 @@ export function checkRcIdentity({ candidate, packageJson, fingerprint, headSha }
   if (!candidate?.rcId || !/^RC2\.3\.12-RC\d+$/.test(candidate.rcId)) errors.push("RC_ID_INVALID");
   if (candidate?.version !== packageJson?.version) errors.push("RC_VERSION_MISMATCH");
   if (candidate?.fingerprint !== fingerprint) errors.push("FINGERPRINT_MISMATCH");
-  // SHA lock applies once the candidate leaves NOT_BUILT (artifact/evidence phase).
-  if (candidate?.status && candidate.status !== "NOT_BUILT") {
+  // SHA lock to workspace HEAD applies once the candidate is in owner/physical freeze.
+  // BUILT / CODE_VALIDATED may point at a certified source SHA while an execution
+  // branch (12C) still lands ops/docs commits — apkArtifact.gitSha must match candidate.
+  if (candidate?.status === "PHYSICAL_PENDING" || candidate?.status === "BETA_READY") {
     if (candidate?.gitSha && headSha && candidate.gitSha !== headSha) errors.push("RC_SHA_MISMATCH");
+  }
+  if (candidate?.apkArtifact?.gitSha && candidate?.gitSha && candidate.apkArtifact.gitSha !== candidate.gitSha) {
+    errors.push("RC_SHA_MISMATCH");
   }
   if (!Number.isInteger(candidate?.versionCode) || candidate.versionCode < 2) errors.push("VERSION_CODE_INVALID");
   if (candidate?.featureFreeze !== true) errors.push("FEATURE_FREEZE_MISSING");
