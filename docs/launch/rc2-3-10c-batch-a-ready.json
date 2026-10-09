@@ -60,7 +60,8 @@
     "Paste into PR #324: UTC time, project ref drjcfalvlbbeblmmyhwj, candidate SHA, per-table counts only.",
     "Reply OA-MIGRATION-RECONCILIATION-DECISION = ledger-as-authority.",
     "Reply OA-LEAGUE-POLICY-FIX = approve Batch A.",
-    "After merge to main: Actions \u2192 Apply Beta Feedback \u2192 migration_id=rc2-3-10-league-memberships-policy-recursion, confirm=APPLY-rc2-3-10-league-memberships-policy-recursion, expected_sha=<main merge SHA>, project_ref=drjcfalvlbbeblmmyhwj."
+    "Before merge: set request.candidateSha (and this file's candidateSha) to the intended main merge SHA, set ledger.status=PASS, backup.verified=true with sourceProject+takenAt, and ownerApproval.by/at.",
+    "After merge to main: Actions \u2192 Apply Beta Feedback \u2192 migration_id=rc2-3-10-league-memberships-policy-recursion, confirm=APPLY-rc2-3-10-league-memberships-policy-recursion, expected_sha=<that same main merge SHA>, project_ref=drjcfalvlbbeblmmyhwj."
   ],
   "explicitlyNotInThisBatch": [
     "placement migrations (need backup + irreversible handoff)",
