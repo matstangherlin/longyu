@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { test, expect, type Page, type Locator } from "@playwright/test";
 import {
   advancePastDiscoverySteps,
@@ -13,6 +16,12 @@ import {
   PRO_PRICING_HEADLINE,
   seedCourseDirection,
 } from "./helpers";
+
+/** Keep in sync with package.json / VITE_APP_VERSION (RC bumps must not hardcode beta.N). */
+const APP_VERSION = JSON.parse(
+  readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8")
+).version as string;
+const APP_VERSION_LABEL = new RegExp(`v${APP_VERSION.replace(/\./g, "\\.")}`, "i");
 
 async function clickFirstVisible(page: Page, names: RegExp[]) {
   for (const name of names) {
@@ -212,7 +221,7 @@ test.describe("beta smoke — fluxos públicos", () => {
     await expect(
       page.getByText(/O Longyu está em beta\. Algumas atividades ainda estão sendo aprimoradas/i)
     ).toBeVisible();
-    await expect(page.getByText(/v0\.2\.0-beta\.1/i)).toBeVisible();
+    await expect(page.getByText(APP_VERSION_LABEL)).toBeVisible();
     await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /Já tenho uma conta/i })).toBeVisible();
   });
@@ -250,7 +259,7 @@ test.describe("beta smoke — fluxos públicos", () => {
     await seedOnboardedSession(page, []);
     await page.goto("/sobre");
     await expect(page.getByRole("heading", { name: /Sobre o Longyu/i })).toBeVisible();
-    await expect(page.getByText(/v0\.2\.0-beta\.1/i).first()).toBeVisible();
+    await expect(page.getByText(APP_VERSION_LABEL).first()).toBeVisible();
     await expect(
       page.getByText(/O Longyu está em beta\. Algumas atividades ainda estão sendo aprimoradas/i)
     ).toBeVisible();
@@ -269,7 +278,7 @@ test.describe("beta smoke — fluxos públicos", () => {
     await page.goto("/jornada");
     await page.getByLabel(/Enviar feedback/i).click();
     await expect(page.getByRole("heading", { name: /Feedback beta/i })).toBeVisible();
-    await expect(page.getByText(/v0\.2\.0-beta\.1/i)).toBeVisible();
+    await expect(page.getByText(APP_VERSION_LABEL)).toBeVisible();
     await expect(page.getByRole("button", { name: /^Enviar$/i })).toBeVisible();
   });
 });
@@ -488,7 +497,7 @@ test.describe("beta smoke — mobile 360", () => {
   test("landing + versão em 360px", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: /Aprenda mandarim/i })).toBeVisible();
-    await expect(page.getByText(/v0\.2\.0-beta\.1/i)).toBeVisible();
+    await expect(page.getByText(APP_VERSION_LABEL)).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(1);
   });
