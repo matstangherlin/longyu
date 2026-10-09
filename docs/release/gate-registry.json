@@ -1315,6 +1315,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "gate:rc2-3-13b-home-cognitive",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13B",
+      "script": "npm run validate:rc2-3-13b-home-cognitive && npm run test:rc2-3-13b-home-cognitive",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13b-home-cognitive",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "gate:rc2-3-2-human-everyday",
       "status": "CANONICAL",
       "domain": "pedagogy-v6-stack",

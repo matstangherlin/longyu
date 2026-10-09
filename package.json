@@ -1216,7 +1216,10 @@
     "smoke:rc": "node scripts/smoke-rc.mjs",
     "validate:rc2-3-13a-cognitive-ui": "node scripts/rc2-3-13a-cognitive-ui.mjs validate",
     "test:rc2-3-13a-cognitive-ui": "node scripts/rc2-3-13a-cognitive-ui.mjs test",
-    "gate:rc2-3-13a-cognitive-ui": "npm run validate:rc2-3-13a-cognitive-ui && npm run test:rc2-3-13a-cognitive-ui"
+    "gate:rc2-3-13a-cognitive-ui": "npm run validate:rc2-3-13a-cognitive-ui && npm run test:rc2-3-13a-cognitive-ui",
+    "validate:rc2-3-13b-home-cognitive": "node scripts/rc2-3-13b-home-cognitive.mjs validate",
+    "test:rc2-3-13b-home-cognitive": "node scripts/rc2-3-13b-home-cognitive.mjs test",
+    "gate:rc2-3-13b-home-cognitive": "npm run validate:rc2-3-13b-home-cognitive && npm run test:rc2-3-13b-home-cognitive"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

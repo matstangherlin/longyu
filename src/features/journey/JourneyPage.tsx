@@ -13,8 +13,7 @@ import {
 } from "../../data/topicMastery";
 import { buildMissionViews, type MissionView } from "../../data/missions";
 import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
-import { reviewSessionSplit } from "../../lib/reviewSession";
-import { Card, Button, ButtonLink, Pill, ProgressBar } from "../../components/ui/primitives";
+import { Card, Button, Pill, ProgressBar } from "../../components/ui/primitives";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
   IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame,
@@ -41,7 +40,7 @@ import { useProOffer } from "../../hooks/useProOffer";
 import { ProOfferBanner } from "../../components/pro/ProOfferBanner";
 import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { useTranslation } from "../../i18n/useTranslation";
-import { displayInstruction, displayLessonTitle, localizedReviewPendingLabel, localizedReviewSessionLabel } from "../../i18n/overlays/journeyChrome";
+import { displayInstruction, displayLessonTitle } from "../../i18n/overlays/journeyChrome";
 import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
@@ -72,6 +71,16 @@ import {
   setJourneyReturnAnchor,
   JOURNEY_RETURN_PULSE_MS,
 } from "../../lib/journeyReturnAnchor";
+import { resolveHomeRecommendations } from "../../lib/home/homeRecommendations";
+import { useLearnerMastery } from "../dominio/useLearnerMastery";
+import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
+import {
+  HomeCompactChrome,
+  HomeContinueCard,
+  HomeExploreBlock,
+  HomeSeuMandarim,
+  HomeTodayForYou,
+} from "./HomeCognitiveBlocks";
 
 const SKILL_ICON: Record<Skill, typeof IconSound> = {
   som: IconSound,
@@ -322,12 +331,18 @@ export function JourneyPage() {
     ? displayInstruction(currentCheckpoint?.detail ?? currentContext.unit.goal, locale)
     : t("journey.completedLead");
   const reviewCount = useMemo(() => dueItems(srs).length, [srs]);
+  // RC2.3.13B — Home consumes mastery authority; does not redefine it.
+  const personalMastery = useLearnerMastery();
+  const { visibility: featureVisibility } = useFeatureVisibility();
+  const cultureAvailable = featureVisibility.culture === "AVAILABLE";
+  const cultureStartedIds = useStore((s) => s.cultureStartedIds) ?? [];
 
   // Faixa do Pro na Jornada. Quem decide se aparece é o proOfferEngine: Pro
   // nunca vê, o primeiro minuto de sessão é poupado e cada tipo de oferta tem
   // cooldown de 24h depois de dispensado. Passamos só o contexto verdadeiro —
   // sem cargas, ou um dia de estudo que já rendeu — para a mensagem casar com
   // a situação em vez de ser propaganda genérica.
+  // RC2.3.13B — offer stays below the cognitive Home (never first-fold promo).
   const outOfCharges = !isPremium && dailyEnergy.charges <= 0;
   // claimed é Record<string, boolean>, não lista: conta só as de valor true.
   const missionClaimed = Object.values(claimedMissions).some(Boolean);
@@ -503,38 +518,89 @@ export function JourneyPage() {
       ? pinyinCapsulePath
       : `/licao/${lessonId}`;
 
+  const hasAnyProgress =
+    completed.length > 0 || (currentId ? (lessonMasteryById?.[currentId]?.level ?? 0) > 0 : false);
+
+  const homeRecs = useMemo(
+    () =>
+      resolveHomeRecommendations({
+        currentLessonId: currentId,
+        routeForLesson,
+        hasAnyProgress,
+        reviewDueCount: reviewCount,
+        mastery: personalMastery,
+        cultureAvailable,
+        cultureCompletedIds: pageCultureCompletedIds ?? [],
+        cultureStartedIds,
+        completedLessons: completed,
+      }),
+    // routeForLesson is stable enough for lesson id mapping; omit identity churn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      currentId,
+      hasAnyProgress,
+      reviewCount,
+      personalMastery,
+      cultureAvailable,
+      pageCultureCompletedIds,
+      cultureStartedIds,
+      completed,
+    ]
+  );
+
+  const continueProgressLabel =
+    currentProgress && currentId
+      ? t("home.continueStep", {
+          done: currentProgress.done,
+          total: currentProgress.total,
+        })
+      : undefined;
+
+  const greeting = hasAnyProgress ? t("home.greetingReturn") : t("home.greetingNew");
+
   return (
     <>
-      <div className="mx-auto grid w-full max-w-[1180px] gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start">
-        <div className="min-w-0 space-y-5">
-          <ProOfferBanner offer={contextualOffer.offer} onDismiss={contextualOffer.dismiss} />
+      <div
+        className="mx-auto grid w-full max-w-[1180px] gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start"
+        data-testid="home-cognitive"
+        data-home-cognitive="rc2-3-13b"
+      >
+        <div className="min-w-0 space-y-4">
+          {/* RC2.3.13B — cognitive Home: Continue → Today → Mandarim → Explore */}
+          <HomeCompactChrome greeting={greeting} streak={streak} offline={!online} />
 
-          <JourneyHeader
+          <HomeContinueCard
+            rec={homeRecs.continue}
             phaseLabel={
               currentContext
                 ? t("journey.phaseUnit", { phase: currentContext.phase.order, unit: currentContext.unitNumber })
                 : t("journey.title")
             }
-            title={currentModuleTitle}
-            objective={currentObjective}
-            done={currentProgress?.done ?? ALL_LESSONS.length}
-            total={currentProgress?.total ?? ALL_LESSONS.length}
-            currentLessonTitle={currentLesson ? displayLessonTitle(currentLesson.title, locale) : undefined}
-            onContinue={currentId ? () => navigate(routeForLesson(currentId)) : undefined}
-            continueLabel={
-              completed.length > 0 || (currentId ? (lessonMasteryById?.[currentId]?.level ?? 0) > 0 : false)
-                ? t("journey.continue")
-                : t("journey.startFirstLesson")
+            moduleTitle={currentModuleTitle}
+            lessonTitle={currentLesson ? displayLessonTitle(currentLesson.title, locale) : undefined}
+            progressLabel={continueProgressLabel}
+            nextStepHint={
+              homeRecs.continue.kind === "CONTINUE_LESSON" || homeRecs.continue.kind === "START_FIRST"
+                ? currentObjective
+                : undefined
             }
             journeyComplete={journeyComplete}
-            reviewCount={reviewCount}
-            streak={streak}
-            offline={!online}
+            onContinue={() => {
+              if (homeRecs.continue.href) navigate(homeRecs.continue.href);
+            }}
           />
+
+          {homeRecs.today ? <HomeTodayForYou rec={homeRecs.today} /> : null}
+          <HomeSeuMandarim snapshot={homeRecs.mastery} />
+          {homeRecs.explore && cultureAvailable ? <HomeExploreBlock rec={homeRecs.explore} /> : null}
+
+          {/* Promo after learning priority — never competes with Continue. */}
+          <ProOfferBanner offer={contextualOffer.offer} onDismiss={contextualOffer.dismiss} />
 
           {/* RC2.2.18 — dica inline decidida pelo GuidanceOrchestrator (uma por vez). */}
           <GuidanceInlineSlot surface="/jornada" />
 
+          {/* Missions / streak chips — below cognitive Home (Hick: not first-fold competition). */}
           <JourneyMobileChips
             mission={primaryMission}
             streak={streak}
@@ -679,167 +745,6 @@ export function JourneyPage() {
   );
 }
 
-
-function UnitProgressRing({ done, total }: { done: number; total: number }) {
-  const { t } = useTranslation();
-  const safeTotal = Math.max(1, total);
-  const pct = Math.max(0, Math.min(1, done / safeTotal));
-  const radius = 26;
-  const circumference = 2 * Math.PI * radius;
-
-  return (
-    <div
-      className="relative grid h-14 w-14 shrink-0 place-items-center sm:h-[72px] sm:w-[72px]"
-      role="img"
-      aria-label={t("journey.unitProgress", { done, total: safeTotal })}
-    >
-      <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r={radius} fill="none" stroke="rgb(var(--line))" strokeWidth="5" strokeOpacity="0.6" />
-        <circle
-          cx="32"
-          cy="32"
-          r={radius}
-          fill="none"
-          stroke="rgb(var(--accent))"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeDasharray={`${circumference * pct} ${circumference}`}
-          className="transition-all duration-700 motion-reduce:transition-none"
-        />
-      </svg>
-      <span className="font-serif text-xs font-semibold tabular-nums text-ink sm:text-sm" aria-hidden="true">
-        {done}/{safeTotal}
-      </span>
-    </div>
-  );
-}
-
-function JourneyHeader({
-  phaseLabel,
-  title,
-  objective,
-  done,
-  total,
-  currentLessonTitle,
-  onContinue,
-  continueLabel,
-  journeyComplete,
-  reviewCount,
-  streak,
-  offline,
-}: {
-  phaseLabel: string;
-  title: string;
-  objective: string;
-  done: number;
-  total: number;
-  currentLessonTitle?: string;
-  onContinue?: () => void;
-  continueLabel?: string;
-  journeyComplete: boolean;
-  reviewCount: number;
-  streak: number;
-  offline: boolean;
-}) {
-  const { t } = useTranslation();
-  // REVIEW-026: o convite tem o tamanho de uma sessão; o backlog fica visível
-  // como informação secundária, não como tarefa monolítica.
-  const reviewSplit = reviewSessionSplit(reviewCount);
-  const pendingLabel = localizedReviewPendingLabel(reviewSplit, t);
-  return (
-    <Card
-      className="relative overflow-hidden border-accent/15 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
-    >
-      <div
-        className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
-        aria-hidden
-      />
-
-      {/* Contexto + estado (fase, sequência, offline) */}
-      <div className="relative flex items-center justify-between gap-2">
-        <span className="inline-flex items-center rounded-full bg-surface/85 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent shadow-card">
-          {phaseLabel}
-        </span>
-        <div className="flex shrink-0 items-center gap-1.5">
-          {offline && (
-            <Pill tone="muted" className="gap-1" data-testid="offline-indicator">
-              <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" aria-hidden /> {t("shell.offline")}
-            </Pill>
-          )}
-          {streak > 0 && (
-            <Pill tone="accent" className="gap-1" aria-label={t("shell.streakAria", { streak })}>
-              <IconFlame width={12} height={12} /> {streak}d
-            </Pill>
-          )}
-        </div>
-      </div>
-
-      <div className="relative mt-2 flex items-start gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-serif text-2xl font-semibold leading-tight text-ink sm:text-[1.7rem]">
-            {title}
-          </h1>
-          <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-ink-soft sm:text-sm">{objective}</p>
-          {!journeyComplete && currentLessonTitle && (
-            <p className="mt-1 truncate text-xs text-ink-faint sm:text-sm">
-              {t("journey.nextLesson")}: <span className="font-semibold text-ink">{currentLessonTitle}</span>
-            </p>
-          )}
-        </div>
-        {journeyComplete ? (
-          <Mascot size={64} variant="celebrate" className="shrink-0" />
-        ) : (
-          <UnitProgressRing done={done} total={total} />
-        )}
-      </div>
-
-      {/* Ação principal — full-width no mobile; compacta no desktop (evita faixa vermelha vazia). */}
-      {onContinue && (
-        <div className="relative mt-3.5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-          <Button
-            className="w-full border-b-[3px] border-b-[rgb(var(--accent-strong))] shadow-none active:translate-y-px active:border-b-[1px] sm:w-auto sm:min-w-[11rem] sm:px-6"
-            size="lg"
-            onClick={onContinue}
-            data-coachmark-target="journey-continue"
-          >
-            <span className="leading-none">{continueLabel ?? (done === 0 ? t("journey.startFirstLesson") : t("journey.continue"))}</span>
-            <IconChevron width={18} height={18} aria-hidden="true" />
-          </Button>
-          {reviewCount > 0 && (
-            <ButtonLink to="/revisao?modo=fracos&sessao=corrigir" variant="soft" size="lg" className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5">
-            <IconRefresh width={16} height={16} aria-hidden="true" />
-            <span className="leading-none">{localizedReviewSessionLabel(reviewSplit, t)}</span>
-          </ButtonLink>
-          )}
-        </div>
-      )}
-      {!onContinue && reviewCount > 0 && (
-        <div className="relative mt-3.5">
-          <ButtonLink
-            to="/revisao?modo=fracos&sessao=corrigir"
-            variant="soft"
-            size="lg"
-            className="w-full justify-center sm:w-auto sm:min-w-[11rem] sm:px-5"
-          >
-            <IconRefresh width={16} height={16} aria-hidden="true" />
-            <span className="leading-none">{localizedReviewSessionLabel(reviewSplit, t)}</span>
-          </ButtonLink>
-        </div>
-      )}
-      {journeyComplete && (
-        <p className="relative mt-3 rounded-xl bg-surface/70 px-3 py-2 text-xs leading-5 text-ink-soft">
-          {t("journey.availableComplete")}
-        </p>
-      )}
-      {reviewCount > 0 && (
-        <p className="relative mt-1.5 text-[11px] leading-4 text-ink-faint">
-          {t("journey.reviewTakesMinutes")}
-          {pendingLabel && <span className="ml-1 text-ink-faint">{pendingLabel}.</span>}
-        </p>
-      )}
-    </Card>
-  );
-}
 
 function JourneyMobileChips({
   mission,
