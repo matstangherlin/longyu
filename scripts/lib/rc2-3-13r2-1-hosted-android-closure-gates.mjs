@@ -59,7 +59,9 @@ export function checkAll(src = loadR21Sources()) {
   }
 
   // PEM fixture must not be contiguous in tracked source (release-safety).
-  if (/-----BEGIN RSA PRIVATE KEY-----/.test(src.r2Test)) {
+  // Marker joined at runtime so this gate file itself is not a SERVICE_ACCOUNT_COMMITTED hit.
+  const pemBegin = ["-----", "BEGIN", " RSA ", "PRIVATE KEY", "-----"].join("");
+  if (src.r2Test.includes(pemBegin)) {
     errors.push("PEM_FIXTURE_IN_SOURCE");
   }
 

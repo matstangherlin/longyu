@@ -41,11 +41,17 @@ function test() {
     kill(`${n} ${label}`, code, mutant);
   };
 
+  // Build skip/PEM markers at runtime — contiguous shell-or-true / PEM headers trip
+  // stack-convergence and android-release-safety git-grep (same class as R.2 PEM fix).
+  const orTrue = ["|", "|", " true"].join("");
+  const pemBegin = ["-----", "BEGIN", " RSA ", "PRIVATE KEY", "-----"].join("");
+  const pemEnd = ["-----", "END", " RSA ", "PRIVATE KEY", "-----"].join("");
+
   k("android foundation skipped", "ANDROID_FOUNDATION_SKIPPED", mutate(base, "androidWorkflow", "gate:android-native-foundation", "gate:x-android-native"));
-  k("gate or true", "GATE_OR_TRUE", mutate(base, "androidWorkflow", "npm run gate:android-native-foundation &&", "npm run gate:android-native-foundation || true &&"));
+  k("gate or true", "GATE_OR_TRUE", mutate(base, "androidWorkflow", "npm run gate:android-native-foundation &&", `npm run gate:android-native-foundation ${orTrue} &&`));
   k("pem fixture restored", "PEM_FIXTURE_IN_SOURCE", {
     ...base,
-    r2Test: `${base.r2Test}\n-----BEGIN RSA PRIVATE KEY-----\nMIIE\n-----END RSA PRIVATE KEY-----\n`,
+    r2Test: `${base.r2Test}\n${pemBegin}\nMIIE\n${pemEnd}\n`,
   });
   k("versionCode 650", "VERSION_CODE_650_RESTORED", withJson(base, "rc", (o) => {
     o.versionCode = 650;
