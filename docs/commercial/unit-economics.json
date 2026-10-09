@@ -1,0 +1,359 @@
+{
+  "schema": "longyu-unit-economics/1",
+  "wave": "RC2.3.11",
+  "verifiedAt": "2026-10-09T01:50:00Z",
+  "head": "99e69f4cd13c2d21ad05a06bb6fb70560c971b3d",
+  "productionWrite": false,
+  "inputs": {
+    "pricesSource": "src/commercial/billing.ts PUBLIC_COMMERCIAL_CATALOG (candidate BALANCED)",
+    "stripeFeesSource": "docs/commercial/stripe-brazil-fees.json",
+    "playFeesSource": "docs/commercial/google-play-billing-policy-brasil.md",
+    "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+    "jevLearnerRuntimeCost": 0,
+    "assumptions": {
+      "supabase_free_mau_share": 0.0,
+      "netlify_bandwidth_share": 0.002,
+      "email_resend_per_lifecycle": 0.001,
+      "sentry_event_share": 0.001,
+      "jev_learner_runtime": 0.0,
+      "support_estimate_per_paid_month": 0.5,
+      "refund_rate": 0.02,
+      "chargeback_rate": 0.005
+    },
+    "notes": [
+      "Support estimates are placeholders for sensitivity, not accounting facts.",
+      "Infra marginal on free tier is near-zero until platform free quotas are exhausted.",
+      "Fragile flag: netAfterAssumptions / gross < 55%."
+    ]
+  },
+  "products": [
+    {
+      "productKey": "pro_monthly_br",
+      "currency": "BRL",
+      "amount": 17.0,
+      "cycle": "monthly",
+      "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+      "webStripeCard": {
+        "gross": 17.0,
+        "paymentFee": 1.0683,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.34,
+        "chargebackDrag": 0.085,
+        "netAfterAssumptions": 15.0027,
+        "grossMarginPct": 88.25,
+        "fragile": false
+      },
+      "webStripePix": {
+        "gross": 17.0,
+        "paymentFee": 0.2023,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.34,
+        "chargebackDrag": 0.085,
+        "netAfterAssumptions": 15.8687,
+        "grossMarginPct": 93.35,
+        "fragile": false
+      },
+      "playBilling15": {
+        "gross": 17.0,
+        "paymentFee": 2.55,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.34,
+        "chargebackDrag": 0.085,
+        "netAfterAssumptions": 13.521,
+        "grossMarginPct": 79.54,
+        "fragile": false
+      },
+      "playUserChoicePlusStripe": {
+        "gross": 17.0,
+        "paymentFee": 2.9383,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.34,
+        "chargebackDrag": 0.085,
+        "netAfterAssumptions": 13.1327,
+        "grossMarginPct": 77.25,
+        "fragile": false
+      }
+    },
+    {
+      "productKey": "pro_annual_br",
+      "currency": "BRL",
+      "amount": 170.0,
+      "cycle": "annual",
+      "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+      "webStripeCard": {
+        "gross": 170.0,
+        "paymentFee": 7.173,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 3.4,
+        "chargebackDrag": 0.85,
+        "netAfterAssumptions": 153.573,
+        "grossMarginPct": 90.34,
+        "fragile": false
+      },
+      "webStripePix": {
+        "gross": 170.0,
+        "paymentFee": 2.023,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 3.4,
+        "chargebackDrag": 0.85,
+        "netAfterAssumptions": 158.723,
+        "grossMarginPct": 93.37,
+        "fragile": false
+      },
+      "playBilling15": {
+        "gross": 170.0,
+        "paymentFee": 25.5,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 3.4,
+        "chargebackDrag": 0.85,
+        "netAfterAssumptions": 135.246,
+        "grossMarginPct": 79.56,
+        "fragile": false
+      },
+      "playUserChoicePlusStripe": {
+        "gross": 170.0,
+        "paymentFee": 25.873,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 3.4,
+        "chargebackDrag": 0.85,
+        "netAfterAssumptions": 134.873,
+        "grossMarginPct": 79.34,
+        "fragile": false
+      }
+    },
+    {
+      "productKey": "pro_monthly_usd",
+      "currency": "USD",
+      "amount": 5.0,
+      "cycle": "monthly",
+      "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+      "webStripeCard": {
+        "gross": 5.0,
+        "paymentFee": 0.445,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.1,
+        "chargebackDrag": 0.025,
+        "netAfterAssumptions": 3.926,
+        "grossMarginPct": 78.52,
+        "fragile": false
+      },
+      "webStripePix": null,
+      "playBilling15": {
+        "gross": 5.0,
+        "paymentFee": 0.75,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.1,
+        "chargebackDrag": 0.025,
+        "netAfterAssumptions": 3.621,
+        "grossMarginPct": 72.42,
+        "fragile": false
+      },
+      "playUserChoicePlusStripe": {
+        "status": "ELIGIBILITY_REQUIRED"
+      }
+    },
+    {
+      "productKey": "pro_annual_usd",
+      "currency": "USD",
+      "amount": 50.0,
+      "cycle": "annual",
+      "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+      "webStripeCard": {
+        "gross": 50.0,
+        "paymentFee": 1.75,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 1.0,
+        "chargebackDrag": 0.25,
+        "netAfterAssumptions": 41.996,
+        "grossMarginPct": 83.99,
+        "fragile": false
+      },
+      "webStripePix": null,
+      "playBilling15": {
+        "gross": 50.0,
+        "paymentFee": 7.5,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 1.0,
+        "chargebackDrag": 0.25,
+        "netAfterAssumptions": 36.246,
+        "grossMarginPct": 72.49,
+        "fragile": false
+      },
+      "playUserChoicePlusStripe": {
+        "status": "ELIGIBILITY_REQUIRED"
+      }
+    },
+    {
+      "productKey": "family_monthly_br",
+      "currency": "BRL",
+      "amount": 27.0,
+      "cycle": "monthly",
+      "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+      "webStripeCard": {
+        "gross": 27.0,
+        "paymentFee": 1.4673,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.54,
+        "chargebackDrag": 0.135,
+        "netAfterAssumptions": 24.3537,
+        "grossMarginPct": 90.2,
+        "fragile": false
+      },
+      "webStripePix": {
+        "gross": 27.0,
+        "paymentFee": 0.3213,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.54,
+        "chargebackDrag": 0.135,
+        "netAfterAssumptions": 25.4997,
+        "grossMarginPct": 94.44,
+        "fragile": false
+      },
+      "playBilling15": {
+        "gross": 27.0,
+        "paymentFee": 4.05,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.54,
+        "chargebackDrag": 0.135,
+        "netAfterAssumptions": 21.771,
+        "grossMarginPct": 80.63,
+        "fragile": false
+      },
+      "playUserChoicePlusStripe": {
+        "gross": 27.0,
+        "paymentFee": 4.4373,
+        "infraMarginal": 0.004,
+        "supportEstimate": 0.5,
+        "refundDrag": 0.54,
+        "chargebackDrag": 0.135,
+        "netAfterAssumptions": 21.3837,
+        "grossMarginPct": 79.2,
+        "fragile": false
+      }
+    },
+    {
+      "productKey": "family_annual_br",
+      "currency": "BRL",
+      "amount": 270.0,
+      "cycle": "annual",
+      "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION",
+      "webStripeCard": {
+        "gross": 270.0,
+        "paymentFee": 11.163,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 5.4,
+        "chargebackDrag": 1.35,
+        "netAfterAssumptions": 247.083,
+        "grossMarginPct": 91.51,
+        "fragile": false
+      },
+      "webStripePix": {
+        "gross": 270.0,
+        "paymentFee": 3.213,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 5.4,
+        "chargebackDrag": 1.35,
+        "netAfterAssumptions": 255.033,
+        "grossMarginPct": 94.46,
+        "fragile": false
+      },
+      "playBilling15": {
+        "gross": 270.0,
+        "paymentFee": 40.5,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 5.4,
+        "chargebackDrag": 1.35,
+        "netAfterAssumptions": 217.746,
+        "grossMarginPct": 80.65,
+        "fragile": false
+      },
+      "playUserChoicePlusStripe": {
+        "gross": 270.0,
+        "paymentFee": 40.863,
+        "infraMarginal": 0.004,
+        "supportEstimate": 5.0,
+        "refundDrag": 5.4,
+        "chargebackDrag": 1.35,
+        "netAfterAssumptions": 217.383,
+        "grossMarginPct": 80.51,
+        "fragile": false
+      }
+    }
+  ],
+  "freeUserCostLadder": {
+    "perMauUsdEstimate": 0.015,
+    "basis": "CDN/audio egress share + auth/db share while on free cloud tiers; Jev learner = 0",
+    "scenarios": [
+      {
+        "mau": 100,
+        "estimatedMonthlyUsd": 1.5
+      },
+      {
+        "mau": 500,
+        "estimatedMonthlyUsd": 7.5
+      },
+      {
+        "mau": 1000,
+        "estimatedMonthlyUsd": 15.0
+      },
+      {
+        "mau": 5000,
+        "estimatedMonthlyUsd": 75.0
+      },
+      {
+        "mau": 10000,
+        "estimatedMonthlyUsd": 150.0
+      }
+    ]
+  },
+  "proUserCostLadder": {
+    "perMauUsdEstimate": 0.045,
+    "basis": "Higher speech/sync/email; still no Jev AI runtime cost",
+    "scenarios": [
+      {
+        "mau": 100,
+        "estimatedMonthlyUsd": 4.5
+      },
+      {
+        "mau": 500,
+        "estimatedMonthlyUsd": 22.5
+      },
+      {
+        "mau": 1000,
+        "estimatedMonthlyUsd": 45.0
+      },
+      {
+        "mau": 5000,
+        "estimatedMonthlyUsd": 225.0
+      },
+      {
+        "mau": 10000,
+        "estimatedMonthlyUsd": 450.0
+      }
+    ]
+  },
+  "recommendedPriceMarginSummary": {
+    "pro_monthly_br_web_card_grossMarginPct": 88.25,
+    "pro_monthly_br_play_15_grossMarginPct": 79.54,
+    "pro_annual_br_web_card_grossMarginPct": 90.34,
+    "verdict": "BALANCED BRL Pro prices leave healthy web margin; Play 15% still viable; User Choice+Stripe may be WORSE after stacking fees \u2014 eligibility not confirmed."
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "longyu-stripe-test-catalog/1",
+  "wave": "RC2.3.11",
+  "livemode": false,
+  "stripeAccount": "acct_1Kuk2ABtqIZtQQj8",
+  "createdAt": "2026-10-09T02:10:00Z",
+  "idempotent": true,
+  "note": "TEST MODE only. Price IDs are mapping values for Edge env secrets — never commit sk_ live/test secrets. Re-running setup uses lookup_key transfer.",
+  "products": [
+    {
+      "id": "longyu_pro",
+      "name": "Longyu Pro",
+      "metadata": {
+        "internal_product_family": "longyu_pro",
+        "environment": "test",
+        "version": "rc2-3-11"
+      }
+    },
+    {
+      "id": "longyu_family",
+      "name": "Longyu Family",
+      "metadata": {
+        "internal_product_family": "longyu_family",
+        "environment": "test",
+        "version": "rc2-3-11",
+        "launch_status": "POST_LAUNCH"
+      }
+    }
+  ],
+  "prices": [
+    {
+      "id": "price_1UOTA6BtqIZtQQj8i1G9tqPD",
+      "lookup_key": "longyu_pro_monthly_br",
+      "env": "STRIPE_PRICE_PRO_MONTHLY_BR",
+      "product": "longyu_pro",
+      "internal_product_key": "longyu_pro_monthly",
+      "currency": "brl",
+      "unit_amount": 1700,
+      "interval": "month"
+    },
+    {
+      "id": "price_1UOTA6BtqIZtQQj8OcV61uNF",
+      "lookup_key": "longyu_pro_annual_br",
+      "env": "STRIPE_PRICE_PRO_ANNUAL_BR",
+      "product": "longyu_pro",
+      "internal_product_key": "longyu_pro_annual",
+      "currency": "brl",
+      "unit_amount": 17000,
+      "interval": "year"
+    },
+    {
+      "id": "price_1UOTA7BtqIZtQQj85EcT9L9H",
+      "lookup_key": "longyu_pro_monthly_international",
+      "env": "STRIPE_PRICE_PRO_MONTHLY_INTERNATIONAL",
+      "product": "longyu_pro",
+      "internal_product_key": "longyu_pro_monthly",
+      "currency": "usd",
+      "unit_amount": 500,
+      "interval": "month"
+    },
+    {
+      "id": "price_1UOTA7BtqIZtQQj81wT5Vaxf",
+      "lookup_key": "longyu_pro_annual_international",
+      "env": "STRIPE_PRICE_PRO_ANNUAL_INTERNATIONAL",
+      "product": "longyu_pro",
+      "internal_product_key": "longyu_pro_annual",
+      "currency": "usd",
+      "unit_amount": 5000,
+      "interval": "year"
+    },
+    {
+      "id": "price_1UOTADBtqIZtQQj8dqfS6Xym",
+      "lookup_key": "longyu_family_monthly_br",
+      "env": "STRIPE_PRICE_FAMILY_MONTHLY_BR",
+      "product": "longyu_family",
+      "internal_product_key": "longyu_family_monthly",
+      "currency": "brl",
+      "unit_amount": 2700,
+      "interval": "month"
+    },
+    {
+      "id": "price_1UOTADBtqIZtQQj8HwrLp3b1",
+      "lookup_key": "longyu_family_annual_br",
+      "env": "STRIPE_PRICE_FAMILY_ANNUAL_BR",
+      "product": "longyu_family",
+      "internal_product_key": "longyu_family_annual",
+      "currency": "brl",
+      "unit_amount": 27000,
+      "interval": "year"
+    },
+    {
+      "id": "price_1UOTAEBtqIZtQQj8AY3c3CGs",
+      "lookup_key": "longyu_family_monthly_international",
+      "env": "STRIPE_PRICE_FAMILY_MONTHLY_INTERNATIONAL",
+      "product": "longyu_family",
+      "internal_product_key": "longyu_family_monthly",
+      "currency": "usd",
+      "unit_amount": 800,
+      "interval": "month"
+    },
+    {
+      "id": "price_1UOTAEBtqIZtQQj8kLno9VdG",
+      "lookup_key": "longyu_family_annual_international",
+      "env": "STRIPE_PRICE_FAMILY_ANNUAL_INTERNATIONAL",
+      "product": "longyu_family",
+      "internal_product_key": "longyu_family_annual",
+      "currency": "usd",
+      "unit_amount": 8000,
+      "interval": "year"
+    }
+  ],
+  "edgeSecretWiring": "OWNER_ACTION — set the 8 STRIPE_PRICE_* secrets on Supabase Edge from this mapping; do not enable sk_live_",
+  "status": "TEST_CATALOG_CREATED"
+}
