@@ -55,5 +55,10 @@
     "Physical QA / Sentry / Netlify rollback / cloud smoke deferred to final pre-beta RC entry",
     "Viewport emulated stamps after hosted CI green"
   ],
-  "head": "8ce011dffa839f9b38c64eebdac70a7554dbf46a"
+  "head": "47dfea75b965b940773e7eb890212ed961d7046a",
+  "closure": {
+    "successor": "RC2.3.13H.1",
+    "H": "Visual progression + Dynamic Aula",
+    "H1": "Closed global progression chrome (sticky TopBar + switch); pre-beta UI freeze"
+  }
 }

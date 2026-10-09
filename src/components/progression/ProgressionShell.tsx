@@ -3,12 +3,14 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "../../i18n/useTranslation";
 import { recordTechEvent } from "../../lib/techEvents";
+import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import {
   readProgressionAnchor,
   readProgressionScroll,
@@ -20,12 +22,26 @@ import {
 const JOURNEY_HREF = "/jornada";
 const CULTURE_HREF = "/cultura";
 
+/**
+ * RC2.3.13H.1 — ProgressionStickyChrome (conceptual):
+ * Global TopBar stays in AppShell; this switch sticks immediately beneath it.
+ * Offset under Global TopBar — never park the switch at the viewport top edge.
+ */
 export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const tablistId = useId();
   const journeyTabId = `${tablistId}-journey`;
   const cultureTabId = `${tablistId}-culture`;
+  const switchRef = useMeasuredHeightCssVar<HTMLDivElement>("--progression-switch-height");
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 2);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const switchTo = useCallback(
     (next: ProgressionMode) => {
@@ -75,14 +91,22 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
 
   return (
     <div
-      className="app-safe-top sticky top-0 z-20 -mx-1 mb-3 bg-bg/95 px-1 pb-2 pt-1 backdrop-blur-sm"
+      ref={switchRef}
+      className={[
+        // Stick under Global TopBar via --progression-sticky-offset (not viewport top).
+        "sticky z-20 -mx-1 mb-3 bg-bg px-1 pb-2 pt-1",
+        scrolled ? "shadow-sm border-b border-line/50" : "",
+      ].join(" ")}
+      style={{ top: "var(--progression-sticky-offset)" }}
       data-testid="progression-shell-switch"
-      data-progression-shell="rc2-3-13e"
+      data-progression-shell="rc2-3-13h1"
+      data-progression-sticky-chrome="true"
+      data-scrolled={scrolled ? "true" : "false"}
     >
       <div
         role="tablist"
         aria-label={t("progression.switchLabel")}
-        className="relative grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface-2 p-1"
+        className="relative mx-auto grid max-w-md grid-cols-2 gap-1 rounded-2xl border border-line bg-surface-2 p-1"
         onKeyDown={onKeyDown}
       >
         <span
@@ -163,6 +187,7 @@ export function ProgressionShell({
       if (anchor) {
         const el = document.querySelector(`[data-progression-anchor="${CSS.escape(anchor)}"]`);
         if (el instanceof HTMLElement) {
+          // scroll-padding-top (html:has progression-shell) keeps node below sticky stack.
           el.scrollIntoView({ block: "center", behavior: "auto" });
           return;
         }
@@ -186,7 +211,12 @@ export function ProgressionShell({
   }, [mode]);
 
   return (
-    <div data-testid="progression-shell" data-progression-mode={mode} className="mx-auto w-full max-w-[1180px]">
+    <div
+      data-testid="progression-shell"
+      data-progression-mode={mode}
+      data-progression-shell
+      className="mx-auto w-full max-w-[1180px]"
+    >
       <ProgressionSegmentedSwitch mode={mode} />
       {(headerTitle || headerDesc) && (
         <header className="mb-3" data-testid={`progression-header-${mode}`}>

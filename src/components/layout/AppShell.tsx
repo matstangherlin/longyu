@@ -77,7 +77,11 @@ export function AppShell() {
   }, [location.pathname, navigationType]);
 
   // Rola para o topo ao trocar de rota.
+  // RC2.3.13H.1 — only the progression list surfaces (/jornada, /cultura) skip
+  // forced top-reset so independent anchors can restore. Immersive /cultura/:id
+  // still resets like other routes.
   useEffect(() => {
+    if (location.pathname === "/jornada" || location.pathname === "/cultura") return;
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
