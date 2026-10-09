@@ -951,7 +951,11 @@ textarea {
   /* RC2.2.18 · CI — com movimento reduzido, só um fade simples. */
   .longyu-guidance-in,
   .longyu-unlock-reveal,
-  .longyu-tab-appear,
+  .longyu-tab-appear {
+    animation: longyu-fade-in 150ms linear both !important;
+  }
+
+  /* RC2.3.13R — progression enter: spatial slide → same short fade. */
   .progression-panel-enter[data-enter="from-right"],
   .progression-panel-enter[data-enter="from-left"],
   .culture-path-card-enter {
