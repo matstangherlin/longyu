@@ -22,7 +22,7 @@
 
 7. **Sentry projeto + DSN** — se quiser ingest real (código já scrub/lazy).
 
-8. **Jev triage v2** — só **depois** do merge em `main`: Deploy Edge `DEPLOY-triage-feedback` + expected_sha do merge. Confirme TypeSafe credits (número só).
+8. **Jev triage v2 (`OA-JEV-TRIAGE-V2-DEPLOY`)** — live ainda é **v1** (sem breaker/dedupe/3s/kill switch). Ler `docs/release/OA-JEV-TRIAGE-V2-DEPLOY.md`. Aprovar com `APPROVE OA-JEV-TRIAGE-V2-DEPLOY`, merge na `main`, workflow `DEPLOY-triage-feedback` + `expected_sha`. Confirme TypeSafe credits (número só). Até lá: `JEV_TRIAGE_LIVE=OWNER_ACTION_REQUIRED`.
 
 9. **Netlify deploy record** (opcional) — confirme publish = `ec26ffc` (agente não tem token Netlify).
 

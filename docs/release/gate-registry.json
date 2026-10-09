@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 69,
+    "EVIDENCE_ONLY": 73,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 5
   },
-  "total": 1083,
+  "total": 1087,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -369,6 +369,24 @@
       "executionPhase": "not-executed",
       "supersededBy": null,
       "estimatedRuntimeMs": 3043,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:jev-production-parity",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "npm run validate:jev-production-parity && npm run test:jev-answer-contract && npm run test:jev-production-parity",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:jev-production-parity",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
       "requiresNetwork": false,
       "requiresDevice": false,
       "requiresOwner": false,
@@ -4404,6 +4422,42 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:android-foundation"
+    },
+    {
+      "gateId": "test:jev-answer-contract",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-jev-answer-contract.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:jev-production-parity",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/jev-production-parity.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:journey-culture-moments",
@@ -13674,6 +13728,24 @@
       "canonicalOwner": "suite:android-foundation"
     },
     {
+      "gateId": "validate:jev-production-parity",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/jev-production-parity.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:jev-production-parity",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:journey-51-100-roadmap",
       "status": "CANONICAL",
       "domain": "pedagogy-progression",
@@ -19612,5 +19684,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "333428f3532967da"
+  "evidenceDigest": "c13475031b2d84fe"
 }

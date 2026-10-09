@@ -1,0 +1,53 @@
+{
+  "schema": "longyu-jev-production-parity/1",
+  "wave": "JEV-WAVE-1",
+  "projectRef": "drjcfalvlbbeblmmyhwj",
+  "projectName": "MandarimProject",
+  "repoHead": "7c3ced03e1d4c8523337e9527aea40c0bd02ed58",
+  "repoFunctionHash": "9a830ff630cd8d2ff36f68e849d48e2d3b6fdcffe9b8a2ad3a4d8c6ffd10e153",
+  "repoFileHashes": {
+    "supabase/functions/triage-feedback/index.ts": "e11bdf9e2840591cd9a3725b31fd3a63e33580ca9645e750a5d2a886e417e9b5",
+    "supabase/functions/_shared/jev.ts": "e1bff1e4fc83b505c6eebddf75667dba585c6cda16d6581264a21e0cf402a877",
+    "supabase/functions/_shared/jevAnswers.ts": "4efe8e10c53aaa02defac1de53ac7483be515faf58684a22f49cff102408cddc",
+    "supabase/functions/_shared/budgetPolicy.ts": "d577f9ae54396feb63127d578811b040003d187f8177a50a0ac5cc25bf587f45",
+    "supabase/functions/_shared/opsCorrelation.ts": "32cb0c57f502622441a05c57b53e214cf0a35e1c028fb9148ac9cf35bce8b8c1"
+  },
+  "liveVersion": 1,
+  "liveHash": "e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee",
+  "liveEzbrSha256": "e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee",
+  "liveVerifyJwt": true,
+  "liveObservedAt": "2026-10-09T04:50:00.000Z",
+  "targetLiveVersion": 2,
+  "parity": "FAIL",
+  "certified": false,
+  "deploymentRequired": true,
+  "missingGuards": [
+    "jevAllowed(DEV_AUDIT)",
+    "JEV_TIMEOUT_MS=3000",
+    "circuitBreaker(3/60s)",
+    "jevInputHash+inFlightDedupe",
+    "historicalReuse(message+category+route)",
+    "askJev purpose argument",
+    "validateJevAnswers(choice|score|noul)"
+  ],
+  "presentOnLive": [
+    "is_beta_admin",
+    "resolveTypesafeApiKey(env→vault)",
+    "BATCH_LIMIT=25",
+    "CONCURRENCY=5",
+    "verify_jwt=true",
+    "fail-open per-row catch"
+  ],
+  "liveGaps": [
+    "timeout 8000ms (repo 3000ms)",
+    "no jevAllowed / JEV_DEV_AUDIT kill switch",
+    "no circuit breaker",
+    "no jevInputHash / in-batch dedupe",
+    "no historical exact-match reuse",
+    "askJev without purpose",
+    "answers object check only (no choice/score/noul schema)"
+  ],
+  "learnerRuntimeEnabled": false,
+  "note": "Live triage-feedback v1 ≠ secure repo client. Deploy is an owner mutation (OA-JEV-TRIAGE-V2-DEPLOY). Do not claim PASS until post-deploy verify.",
+  "evaluatedAt": "2026-10-09T04:58:21.768Z"
+}
