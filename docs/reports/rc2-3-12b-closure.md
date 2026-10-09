@@ -8,6 +8,7 @@
 | Parent SHA (observed at branch create) | `5a402ce8838c47d91b412a4279324c56ece20c33` |
 | Grandparent #326 LON-001 fix | `ca354b026fd59ed0a6afb12a570f232545cfdbb6` |
 | This branch | `cursor/rc2-3-12b-beta-entry-closure-af1a` |
+| This PR | [#328](https://github.com/matstangherlin/longyu/pull/328) |
 
 ## Android root cause
 
