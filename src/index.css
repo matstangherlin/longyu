@@ -72,6 +72,12 @@ html:has([data-progression-shell]) {
   scroll-padding-top: var(--progression-sticky-height);
 }
 
+/* Progression list: cancel main top pad so switch sits flush under TopBar
+   before sticky engages (avoids a ~16px jump when sticky top activates). */
+main[data-app-main]:has([data-progression-shell]) {
+  padding-top: 0;
+}
+
 
 [data-theme="china"] {
   --bg: 255 249 247; /* #FFF9F7 */

@@ -54,6 +54,9 @@ export function checkStickyChrome(src = load13h1Sources()) {
   if (!/scroll-padding-top/.test(src.indexCss) || !/--progression-sticky-height/.test(src.indexCss)) {
     errors.push("PROGRESSION_OBSCURED_BY_SWITCH");
   }
+  if (!/main\[data-app-main\]:has\(\[data-progression-shell\]\)/.test(src.indexCss)) {
+    errors.push("PROGRESSION_OBSCURED_BY_SWITCH");
+  }
   if (
     !/--progression-switch-height/.test(src.indexCss) ||
     !/--progression-sticky-height/.test(src.indexCss) ||

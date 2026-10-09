@@ -19,7 +19,7 @@ Conceptual `ProgressionStickyChrome`:
 
 ## Scroll ownership
 
-Primary scroll remains `window` / document. Tokens:
+Primary scroll remains `window` / document. `main` top padding is zeroed when a progression shell is present so the switch does not jump when sticky engages. Tokens:
 
 - `--progression-switch-height` (measured)
 - `--progression-sticky-offset`

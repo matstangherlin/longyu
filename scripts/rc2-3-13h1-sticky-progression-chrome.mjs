@@ -55,6 +55,7 @@ function test() {
     ),
   });
   k("progression obscured", "PROGRESSION_OBSCURED_BY_SWITCH", mutate(base, "indexCss", "scroll-padding-top", "scroll-padding-x"));
+  k("main pad cancel gone", "PROGRESSION_OBSCURED_BY_SWITCH", mutate(base, "indexCss", "main[data-app-main]:has([data-progression-shell])", "main[data-app-main]:has([data-x])"));
   k("safe-top ignored", "SAFE_TOP_IGNORED", mutate(base, "indexCss", "--app-safe-top", "--app-safe-x"));
   k("magic top offsets", "MAGIC_TOP_OFFSETS", mutate(base, "indexCss", "--progression-switch-height", "--x-switch-height"));
   k("Journey scroll state lost", "JOURNEY_SCROLL_STATE_LOST", mutate(base, "progressionState", "writeProgressionScroll", "writeGone"));
