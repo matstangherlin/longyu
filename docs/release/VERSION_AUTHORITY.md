@@ -18,4 +18,12 @@ One authority. No hand-edited parallel versionCodes.
 
 ## RC identity policy (RC1 draft)
 
-`RC2.3.12-RC1` was never distributed or physically validated. RC2.3.12B **regenerates RC1 as draft** (same `rcId`) rather than minting RC2. If a future RC APK/AAB is uploaded to Play or side-loaded to testers, the next code change that alters the certified artifact SHA must mint `RC2.3.12-RC2`.
+`RC2.3.12-RC1` was never distributed or physically validated. RC2.3.12B **regenerates RC1 as draft** (same `rcId`) rather than minting RC2.
+
+### Immutability (RC2.3.12C)
+
+Implemented in `scripts/lib/rc-immutability.mjs`:
+
+- While `distributed !== true` and `physicallyAccepted !== true`, draft regeneration of RC1 is allowed.
+- The moment the owner sideloads/sends the APK to any tester (or marks physical accept), set `distributed: true` / `immutable: true`.
+- After that, any change that alters the certified artifact SHA **must** mint `RC2.3.12-RC2` via `nextRcId` — never mutate frozen RC1 identity.

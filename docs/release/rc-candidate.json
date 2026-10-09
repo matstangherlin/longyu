@@ -1,14 +1,14 @@
 {
   "schema": "longyu-rc-candidate/1",
   "rcId": "RC2.3.12-RC1",
-  "wave": "RC2.3.12",
-  "gitSha": "f3827a32f38127b78f7e4bd765dbab271b943fef",
+  "wave": "RC2.3.12C",
+  "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
   "version": "0.2.0-rc.1",
-  "versionCode": 571,
+  "versionCode": 570,
   "versionCodeFloor": 1,
   "versionCodeFormula": "floor + firstParentCommitCount",
   "fingerprint": "5a64821d0b7d",
-  "createdAt": "2026-10-09T02:56:17Z",
+  "createdAt": "2026-10-09T03:16:00Z",
   "featureFreeze": true,
   "featureFreezePolicy": "docs/release/RC_CHANGE_POLICY.md",
   "commercialMode": "TEST",
@@ -16,28 +16,43 @@
   "liveMonetization": false,
   "androidIap": "DISABLED_FOR_BETA",
   "buildChannel": "dev",
-  "status": "NOT_BUILT",
+  "status": "BUILT",
+  "distributed": false,
+  "immutable": false,
   "webArtifact": {
-    "status": "NOT_RUN"
+    "status": "NOT_RUN",
+    "note": "Netlify production still on older SHA; RC web not promoted"
   },
   "apkArtifact": {
-    "status": "NOT_RUN",
-    "reason": "ANDROID_SDK_ABSENT_IN_AGENT"
+    "status": "BUILT",
+    "sha256": "dc99c03bd803a17d1ff55ab82964df2db820ce316f02568c7887a47a414cc492",
+    "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+    "channel": "dev-debug",
+    "runId": "37877291018",
+    "name": "longyu-android-debug-0.2.0-rc.1-2c56701.apk",
+    "note": "debug diagnostic APK (deviceQaBuild=true); not Play release"
   },
   "aabArtifact": {
-    "status": "NOT_RUN",
-    "reason": "ANDROID_SDK_ABSENT_IN_AGENT"
+    "status": "BUILT",
+    "sha256": "c9f8f0981f4d3abdf10efe7b45e5dee30539afce352fe9f62ebc39fbaae29a85",
+    "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+    "channel": "dev-debug",
+    "runId": "37877291018",
+    "name": "longyu-android-debug-0.2.0-rc.1-2c56701.aab",
+    "note": "debug AAB; signed release BLOCKED_SIGNING_SECRETS"
   },
   "cloudSha": null,
   "parent": {
-    "pr": 326,
-    "branch": "cursor/rc2-3-11-monetization-final-pricing",
-    "shaAtBranchCreate": "8c03f8bff4e9d12926b74d6431f7f99a63f21d51"
+    "pr": 328,
+    "branch": "cursor/rc2-3-12b-beta-entry-closure-af1a",
+    "shaAtBranchCreate": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8"
   },
   "notes": [
     "status advances NOT_BUILT → BUILT → CODE_VALIDATED → PHYSICAL_PENDING → BETA_READY only with evidence",
-    "BETA_READY requires physical QA; never from compile alone"
+    "BETA_READY requires physical QA; never from compile alone",
+    "RC_SOURCE_SHA frozen to artifact sourceHeadSha 2d64f0d7 until distribution → then immutable"
   ],
   "versionAuthority": "docs/release/VERSION_AUTHORITY.md",
-  "rcDraftPolicy": "RC1 never distributed — 12B regenerates RC1 draft; mint RC2 after any distributed artifact SHA changes"
+  "rcDraftPolicy": "RC1 never distributed — regenerable until sideload; then mint RC2",
+  "artifactsManifest": "docs/release/rc-artifacts.json"
 }

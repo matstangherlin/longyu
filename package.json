@@ -1188,6 +1188,10 @@
     "validate:rc2-3-12b-beta-entry": "node scripts/rc2-3-12b-beta-entry.mjs validate",
     "test:rc2-3-12b-beta-entry": "node scripts/rc2-3-12b-beta-entry.mjs test",
     "gate:rc2-3-12b-beta-entry": "npm run validate:rc2-3-12b-beta-entry && npm run test:rc2-3-12b-beta-entry",
+    "validate:rc2-3-12c-beta-execution": "node scripts/rc2-3-12c-beta-execution.mjs validate",
+    "test:rc2-3-12c-beta-execution": "node scripts/rc2-3-12c-beta-execution.mjs test",
+    "gate:rc2-3-12c-beta-execution": "npm run validate:rc2-3-12c-beta-execution && npm run test:rc2-3-12c-beta-execution",
+    "consume:android-artifacts": "node scripts/consume-android-artifacts.mjs",
     "gate:closed-beta-entry": "node scripts/rc2-3-12-closed-beta-entry.mjs",
     "smoke:rc": "node scripts/smoke-rc.mjs"
   },
