@@ -1,0 +1,141 @@
+{
+  "schema": "longyu-rc2-3-10d-placement-decision/1",
+  "generatedAt": "2026-10-09T01:29:50Z",
+  "generatedFromSha": "b954ff245e018d456cfb4e255a2462e885591b26",
+  "productionWrite": false,
+  "question": "Is complete beta signup possible WITHOUT placement backend (commit-placement, finalize-onboarding, save_placement_onboarding_draft)?",
+  "verdict": "BETA_REQUIRED",
+  "completeSignupWithoutPlacementBackend": false,
+  "verdictNote": "Beginner and skip-placement funnels can create an account under the current production gate (VITE_CLOUD_ONBOARDING_V2_ENABLED=false + deployed create-account body without draft RPC). That is not enough for BETA_OPTIONAL_CAN_GATE: experienced users who finish the placement quiz still reach functions.invoke(\"commit-placement\") on the V2-off compat path, and project docs classify placement as NOT gateable / BETA_REQUIRED. finalize-onboarding is disabled by the V2 flag; commit-placement is not.",
+  "productionFlags": {
+    "VITE_CLOUD_ONBOARDING_V2_ENABLED": "false",
+    "evidence": [
+      "netlify.toml:[context.production.environment]",
+      "netlify.toml:[context.\"rc2-candidate\".environment]",
+      "src/lib/featureFlags.ts:isCloudOnboardingV2Enabled"
+    ]
+  },
+  "backendObjects": {
+    "commit-placement": {
+      "kind": "edge",
+      "productionStatus": "MISSING",
+      "clientCall": "functions.invoke(\"commit-placement\")",
+      "clientPaths": ["src/services/placementCommit.ts:45"],
+      "gatedByV2Flag": false,
+      "reachableWithV2Off": true,
+      "reachPath": "ConfirmEmailPage / ComecarPage → completeAuthenticatedOnboarding → pending.answers.length → commitPlacementToServer"
+    },
+    "finalize-onboarding": {
+      "kind": "edge",
+      "productionStatus": "MISSING",
+      "clientCall": "functions.invoke(\"finalize-onboarding\")",
+      "clientPaths": ["src/services/finalizeOnboarding.ts:73"],
+      "gatedByV2Flag": true,
+      "reachableWithV2Off": false,
+      "reachPath": "only when isCloudOnboardingV2Enabled() is true inside completeAuthenticatedOnboarding"
+    },
+    "save_placement_onboarding_draft": {
+      "kind": "rpc",
+      "productionStatus": "MISSING",
+      "directClientCall": false,
+      "via": "functions/create-account (repo body)",
+      "deployedCreateAccountCallsIt": false,
+      "repoCreateAccountCallsIt": true,
+      "conditional": "only when body.placement evidence is present and validates",
+      "evidence": [
+        "docs/launch/rc2-3-10b-edge-parity.json (create-account DEPLOYED_STALE_WAIT_MIGRATION; production v9 has no placement handoff)",
+        "supabase/functions/create-account/index.ts (rpc save_placement_onboarding_draft; placement_draft_failed deletes auth user)",
+        "src/services/authService.ts (placement = toServerPlacementEvidence(readPendingPlacement()))",
+        "src/lib/placement/evidence.ts (returns null when answers.length === 0)"
+      ]
+    }
+  },
+  "clientPaths": {
+    "signupEntry": "/comecar (LoginPage create-account links here)",
+    "funnels": {
+      "beginner": {
+        "steps": ["welcome", "dailyGoal", "account"],
+        "placementAnswers": false,
+        "invokesCommitPlacement": false,
+        "invokesFinalizeOnboardingWithV2Off": false,
+        "canCompleteSignupWithoutPlacementBackend": true,
+        "evidence": ["src/features/onboarding/ComecarPage.tsx:stepsFor"]
+      },
+      "experiencedSkipPlacement": {
+        "steps": ["welcome", "dailyGoal", "placementOffer", "account"],
+        "placementAnswers": false,
+        "invokesCommitPlacement": false,
+        "invokesFinalizeOnboardingWithV2Off": false,
+        "canCompleteSignupWithoutPlacementBackend": true,
+        "evidence": ["src/features/onboarding/ComecarPage.tsx:stepsFor", "placementOfferSkip"]
+      },
+      "experiencedWithQuiz": {
+        "steps": ["welcome", "dailyGoal", "placementOffer", "level", "quiz", "result", "account"],
+        "placementAnswers": true,
+        "invokesCommitPlacement": true,
+        "invokesFinalizeOnboardingWithV2Off": false,
+        "canCompleteSignupWithoutPlacementBackend": false,
+        "evidence": [
+          "src/features/onboarding/ComecarPage.tsx:stepsFor",
+          "src/services/postAuthOnboarding.ts (V2 off + pending.answers → commitPlacementToServer)",
+          "src/features/auth/ConfirmEmailPage.tsx (V2 off → completeAuthenticatedOnboarding)"
+        ]
+      }
+    },
+    "postConfirmV2Off": {
+      "file": "src/features/auth/ConfirmEmailPage.tsx",
+      "behavior": "isCloudOnboardingV2Enabled() false → completeAuthenticatedOnboarding(); does not navigate to /finalizar-cadastro"
+    },
+    "sessionAudienceV2Off": {
+      "file": "src/lib/auth/sessionAudience.ts",
+      "behavior": "isCloudOnboardingV2Enabled() false → return cloud_ready without reading profiles.onboarding_completed"
+    }
+  },
+  "createAccountEdge": {
+    "slug": "create-account",
+    "productionStatus": "PRESENT",
+    "deployGate": "WAIT_MIGRATION",
+    "productionNote": "Deployed body works for signup today without save_placement_onboarding_draft. Redeploying the repo body before the handoff migration breaks signup when placement evidence is sent (placement_draft_failed).",
+    "evidence": [
+      "docs/launch/rc2-3-10b-edge-parity.json",
+      "docs/launch/rc2-3-10b-client-backend-call-graph.json",
+      "supabase/functions/create-account/index.ts"
+    ]
+  },
+  "projectClassificationAlignment": {
+    "knownMissingBackend": {
+      "path": "src/lib/cloud/knownMissingBackend.json",
+      "placement": "notGatedHere.placement — already off via VITE_CLOUD_ONBOARDING_V2_ENABLED; fix is BETA_REQUIRED placement migrations + Edges, not a second backendCapability gate"
+    },
+    "productionSchemaExceptions": {
+      "path": "docs/release/production-schema-exceptions.json",
+      "placement": "BLOCKER_CRITICAL — NOT gateable; BETA_REQUIRED migrations + commit-placement / finalize-onboarding"
+    },
+    "migrationPlan": {
+      "path": "docs/launch/rc2-3-10b-migration-plan.json",
+      "files": [
+        "supabase/migrations/20260826230000_placement_onboarding.sql",
+        "supabase/migrations/20260827023000_placement_onboarding_handoff.sql"
+      ],
+      "class": "BETA_REQUIRED"
+    }
+  },
+  "evidencePaths": [
+    "src/lib/featureFlags.ts",
+    "netlify.toml",
+    "src/services/postAuthOnboarding.ts",
+    "src/services/placementCommit.ts",
+    "src/services/finalizeOnboarding.ts",
+    "src/services/authService.ts",
+    "src/lib/placement/evidence.ts",
+    "src/features/onboarding/ComecarPage.tsx",
+    "src/features/auth/ConfirmEmailPage.tsx",
+    "src/lib/auth/sessionAudience.ts",
+    "supabase/functions/create-account/index.ts",
+    "src/lib/cloud/knownMissingBackend.json",
+    "docs/release/production-schema-exceptions.json",
+    "docs/launch/rc2-3-10b-edge-parity.json",
+    "docs/launch/rc2-3-10b-client-backend-call-graph.json",
+    "docs/launch/rc2-3-10b-migration-plan.json"
+  ]
+}

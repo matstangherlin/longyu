@@ -47,7 +47,7 @@
   },
   "notGatedHere": {
     "placement": {
-      "reason": "Sign-up/onboarding core flow. Already off in production-like builds through VITE_CLOUD_ONBOARDING_V2_ENABLED (src/lib/featureFlags.ts, netlify.toml). The fix is the BETA_REQUIRED placement migrations plus the commit-placement / finalize-onboarding Edge Functions, not a second gate.",
+      "reason": "RC2.3.10D: finalize-onboarding stays behind VITE_CLOUD_ONBOARDING_V2_ENABLED=false. commit-placement is listed here so production-like builds skip the Edge invoke (local analysis only) until Batch B migrations + deploy land. Still BETA_REQUIRED for server-authoritative placement — not a permanent substitute.",
       "missing": [
         { "kind": "edge", "name": "commit-placement" },
         { "kind": "edge", "name": "finalize-onboarding" }

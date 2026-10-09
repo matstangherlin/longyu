@@ -1,0 +1,29 @@
+{
+  "schema": "longyu-batch-b-placement/1",
+  "status": "PACKAGED_NOT_APPLIED",
+  "verdict": "BETA_REQUIRED",
+  "productionWrite": false,
+  "dependsOn": ["OA-BATCH-A-EXECUTE completed OR independent backup still fresh", "OA-DATA-EXPORT"],
+  "migrations": [
+    {
+      "order": 1,
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reversibility": "REVERSIBLE_WITH_CAPTURED_PRIOR_DEFINITIONS",
+      "note": "single-file apply only; not via db:apply-api"
+    },
+    {
+      "order": 2,
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "reversibility": "IRREVERSIBLE_WITHOUT_BACKUP",
+      "note": "backfills country_code; requires verified backup"
+    }
+  ],
+  "edgeDeployOrderAfterDb": ["commit-placement", "finalize-onboarding", "create-account"],
+  "neverInverse": true,
+  "clientInterim": {
+    "commitPlacement": "local-only analysis in production-like until Edge exists (src/services/placementCommit.ts)",
+    "MISSING_AND_REACHABLE": 0
+  },
+  "ownerApprovalNeeded": true,
+  "note": "Do not apply in this wave without backup + explicit OA for irreversible handoff."
+}

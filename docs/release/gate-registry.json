@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 963,
+    "CANONICAL": 966,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
     "EVIDENCE_ONLY": 50,
     "OWNER_PHYSICAL": 0,
-    "CLOUD_ONLY": 4
+    "CLOUD_ONLY": 5
   },
-  "total": 1060,
+  "total": 1064,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1035,6 +1035,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-10c",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
+      "gateId": "gate:rc2-3-10d",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "RC2.3.10D",
+      "script": "npm run validate:rc2-3-10d && npm run test:rc2-3-10d",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-10d",
       "criticality": "BLOCK_RELEASE",
       "executionPhase": "suite:release-truth",
       "supersededBy": null,
@@ -6409,6 +6427,24 @@
       "domain": "release-truth",
       "introducedBy": "RC2.3.10C",
       "script": "node scripts/rc2-3-10c-certification.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
+      "gateId": "test:rc2-3-10d",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "RC2.3.10D",
+      "script": "node scripts/rc2-3-10d-certification.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -15672,6 +15708,24 @@
       "canonicalOwner": "suite:release-truth"
     },
     {
+      "gateId": "validate:rc2-3-10d",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "RC2.3.10D",
+      "script": "node scripts/rc2-3-10d-certification.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-10d",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -19162,6 +19216,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "verify:production-backup",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/verify-production-backup.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "verify:rc2-candidate-identity",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -19198,5 +19270,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "503d54769590e9f5"
+  "evidenceDigest": "2a49193b55c223ea"
 }

@@ -1,0 +1,77 @@
+{
+  "schema": "longyu-launch-blockers/1",
+  "generatedAt": "2026-10-09T01:35:00Z",
+  "cloudCertification": "BLOCKED",
+  "categories": {
+    "CLOUD": [
+      {
+        "id": "OA-BATCH-A-EXECUTE",
+        "blocker": "League policy fix not applied — needs owner backup + approval",
+        "ownerOnly": true
+      },
+      {
+        "id": "BACKUP_EXPORT",
+        "blocker": "Owner-held encrypted export + verify:production-backup",
+        "ownerOnly": true
+      },
+      {
+        "id": "BATCH_B_PLACEMENT",
+        "blocker": "Placement migrations + Edge order (after backup; irreversible handoff)",
+        "ownerOnly": true
+      },
+      {
+        "id": "JEV_TRIAGE_V2",
+        "blocker": "Deploy triage-feedback after merge to main",
+        "ownerOnly": true
+      },
+      {
+        "id": "CLOUD_SMOKE",
+        "blocker": "Manual cloud smoke with QA secrets",
+        "ownerOnly": true
+      },
+      {
+        "id": "AUTH_REDIRECTS",
+        "blocker": "Confirm redirect URL merge in Supabase Auth",
+        "ownerOnly": true
+      }
+    ],
+    "MONETIZATION": [
+      {
+        "id": "RC2_3_11",
+        "blocker": "Pricing + live Stripe/Play — frozen until cloud PASS",
+        "ownerOnly": true
+      }
+    ],
+    "PHYSICAL_QA": [
+      {
+        "id": "ANDROID_OAUTH",
+        "blocker": "Physical device OAuth for Google/Microsoft PASS",
+        "ownerOnly": true
+      }
+    ],
+    "STORE": [],
+    "LEGAL_PRIVACY": [
+      {
+        "id": "TELEMETRY_RETENTION",
+        "blocker": "Owner picks 30/60/90 raw retention",
+        "ownerOnly": true
+      },
+      {
+        "id": "SNAPSHOT_EMAIL_LEGACY",
+        "blocker": "New snapshots omit email; old rows not wiped",
+        "ownerOnly": false,
+        "status": "CODE_DONE_HISTORY_KEPT"
+      }
+    ]
+  },
+  "counts": {
+    "CLOUD": 6,
+    "MONETIZATION": 1,
+    "PHYSICAL_QA": 1,
+    "STORE": 0,
+    "LEGAL_PRIVACY": 2,
+    "ownerOnlyTotal": 9
+  },
+  "goal": "ownerOnlyTotal < 10",
+  "goalMet": true
+}
