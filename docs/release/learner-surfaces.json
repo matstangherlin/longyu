@@ -264,6 +264,11 @@
       "learnerFacing": true
     },
     {
+      "path": "cultura/explorar",
+      "declaredBy": "RC2.3.13E",
+      "learnerFacing": true
+    },
+    {
       "path": "cultura/revisao",
       "declaredBy": "RC2.3.8-baseline",
       "learnerFacing": true

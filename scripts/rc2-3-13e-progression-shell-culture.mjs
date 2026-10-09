@@ -180,8 +180,38 @@ function test() {
   expectKill("27 cert missing", "UX_CERT_MISSING", () =>
     checkDeepContent({ ...base, certification: "" }),
   );
+  expectKill("28 atlas undeclared surface", "ATLAS_UNDECLARED_LEARNER_SURFACE", () =>
+    checkNonBlockingAndMastery({
+      ...base,
+      learnerSurfaces: base.learnerSurfaces.replace(/"path":\s*"cultura\/explorar"/, '"path": "cultura/x"'),
+    }),
+  );
+  expectKill("29 shell freeze undeclared", "PROGRESSION_SHELL_FREEZE_UNDECLARED", () =>
+    checkNonBlockingAndMastery({
+      ...base,
+      curriculumFreeze: base.curriculumFreeze
+        .replace(/RC2_3_13E_PROGRESSION_SHELL_EXCEPTION/g, "X_EXCEPTION")
+        .replace(/"src\/lib\/progressionShellState\.ts"/g, '"src/lib/x.ts"'),
+    }),
+  );
+  expectKill("30 shell pedagogical authority", "PROGRESSION_SHELL_PEDAGOGICAL_AUTHORITY", () =>
+    checkNonBlockingAndMastery({
+      ...base,
+      curriculumFreeze: base.curriculumFreeze
+        .replace(/scope:\s*"UX_NAVIGATION_ONLY"/, 'scope: "PEDAGOGICAL_PROGRESSION"')
+        .replace(/pedagogicalAuthority:\s*"NONE"/, 'pedagogicalAuthority: "MANDARIN_UNLOCK"'),
+    }),
+  );
+  expectKill("31 shell second engine", "SHELL_SECOND_PROGRESSION_ENGINE", () =>
+    checkNonBlockingAndMastery({
+      ...base,
+      shellState: base.shellState
+        .replace(/PEDAGOGICAL_AUTHORITY:\s*NONE/g, "PEDAGOGICAL_AUTHORITY: FULL")
+        .concat("\nexport function unlockLesson() {}\n"),
+    }),
+  );
 
-  console.log("PASS test:rc2-3-13e-progression-shell-culture · 27 kills");
+  console.log("PASS test:rc2-3-13e-progression-shell-culture · 31 kills");
 }
 
 if (mode === "test") test();

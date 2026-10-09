@@ -60,3 +60,10 @@ Tabs + aria-selected + ≥44px targets + reduced-motion. Viewport E2E pending pr
 - Full 12-path corpus expansion → 13F  
 - Exhaustive physical QA → after 13F/13G UI freeze  
 - Tab bar still lists Cultura for RC2.2.13 compatibility (not a 6th tab); primary mode switch is ProgressionShell
+
+
+## Hosted closure (13E.1)
+
+- Declared `cultura/explorar` in `docs/release/learner-surfaces.json` (RC2.3.13E).
+- Declared `src/lib/progressionShellState.ts` in `BETA_PEDAGOGY_FREEZE.systemModules` with `RC2_3_13E_PROGRESSION_SHELL_EXCEPTION` (`UX_NAVIGATION_ONLY`, `PEDAGOGICAL_AUTHORITY: NONE`) — not a second Mandarin progression engine.
+- Gate kills expanded to **31/31** (atlas surface, freeze honesty, authority, second-engine).

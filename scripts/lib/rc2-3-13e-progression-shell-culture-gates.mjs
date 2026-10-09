@@ -35,6 +35,8 @@ export function loadProgressionShellSources() {
     contentPlan: read("docs/culture/CULTURE_V2_CONTENT_PLAN.md"),
     report: read("docs/reports/rc2-3-13e-progression-culture.md"),
     oaDeploy: read("docs/release/OA-JEV-TRIAGE-V2-DEPLOY.md"),
+    curriculumFreeze: read("src/lib/curriculumFreeze.ts"),
+    learnerSurfaces: read("docs/release/learner-surfaces.json"),
   };
 }
 
@@ -126,6 +128,29 @@ export function checkNonBlockingAndMastery(src = loadProgressionShellSources()) 
   }
   if (!/export function dueItems|export function grade/.test(src.srs)) {
     errors.push("SRS_CHANGED");
+  }
+  // Freeze honesty: module declared + UX_NAVIGATION_ONLY / PEDAGOGICAL_AUTHORITY NONE.
+  if (!/"src\/lib\/progressionShellState\.ts"/.test(src.curriculumFreeze)) {
+    errors.push("PROGRESSION_SHELL_FREEZE_UNDECLARED");
+  }
+  if (!/RC2_3_13E_PROGRESSION_SHELL_EXCEPTION/.test(src.curriculumFreeze)) {
+    errors.push("PROGRESSION_SHELL_FREEZE_UNDECLARED");
+  }
+  if (!/scope:\s*"UX_NAVIGATION_ONLY"/.test(src.curriculumFreeze)) {
+    errors.push("PROGRESSION_SHELL_PEDAGOGICAL_AUTHORITY");
+  }
+  if (!/pedagogicalAuthority:\s*"NONE"/.test(src.curriculumFreeze)) {
+    errors.push("PROGRESSION_SHELL_PEDAGOGICAL_AUTHORITY");
+  }
+  // Shell state must not grow into a second progression engine.
+  if (/unlockLesson|canStartLesson|dueItems|addXp|gradeReview|masteryLevel/.test(src.shellState)) {
+    errors.push("SHELL_SECOND_PROGRESSION_ENGINE");
+  }
+  if (!/PEDAGOGICAL_AUTHORITY:\s*NONE|PEDAGOGICAL_AUTHORITY: NONE/.test(src.shellState)) {
+    errors.push("SHELL_SECOND_PROGRESSION_ENGINE");
+  }
+  if (!/"path":\s*"cultura\/explorar"/.test(src.learnerSurfaces)) {
+    errors.push("ATLAS_UNDECLARED_LEARNER_SURFACE");
   }
   return [...new Set(errors)];
 }

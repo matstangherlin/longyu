@@ -1,6 +1,14 @@
 /**
  * RC2.3.13E — independent Journey / Culture progression positions.
  * Prefer node anchors over a single shared scroll offset.
+ *
+ * SYSTEM: ProgressionShell navigation-state preservation
+ * SCOPE: UX_NAVIGATION_ONLY
+ * PEDAGOGICAL_AUTHORITY: NONE
+ *
+ * May remember route / anchor / scroll / last mode.
+ * Must NOT unlock Mandarin lessons, Mastery, SRS, grading, XP, or economy.
+ * Canonical freeze: RC2_3_13E_PROGRESSION_SHELL_EXCEPTION + BETA_PEDAGOGY_FREEZE.systemModules.
  */
 
 export type ProgressionMode = "journey" | "culture";

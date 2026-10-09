@@ -33,7 +33,7 @@
     "BILLING_UNCHANGED": "PASS"
   },
   "gates": {
-    "gate:rc2-3-13e-progression-shell-culture": "REQUIRED"
+    "gate:rc2-3-13e-progression-shell-culture": "PASS_31_31"
   },
   "urlStrategy": {
     "cultura": "Culture Journey (primary progression)",
