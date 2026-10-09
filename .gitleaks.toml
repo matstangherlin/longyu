@@ -18,6 +18,14 @@ regexes = [
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.c2lnbmF0dXJlc2lnbmF0dXJl''',
   # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE stripe-access-token): alphabet filler, not a live key.
   '''sk_live_abcdefghijklmnop1234''',
+  # Historical Wave2 tip (9fcc6a27) committed a contiguous alphabet-filler Stripe shape in a PII
+  # redaction fixture; tip now builds it via join("_"). Regex uses a one-char class so the
+  # allowlist source itself is not a contiguous sk_live_[A-Za-z0-9]{24,} literal (R23), while
+  # still matching only that exact historical filler — not a broad sk_live_ allowlist.
+  '''sk_live_abcdefghijklmnopqrs[t]uvwxyz12''',
+  # Historical hosted-closure tip (23118792) kill-8 used a contiguous uvwxyz99 filler before
+  # runtime construction; same one-char-class pattern — exact filler only.
+  '''sk_live_abcdefghijklmnopqrs[t]uvwxyz99''',
   # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE): alphabet filler Sentry auth token shape.
   '''sntrys_abcdefghijklmnopqrstuvwxyz012345''',
 ]

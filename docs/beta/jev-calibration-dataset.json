@@ -1,0 +1,84 @@
+{
+  "schema": "longyu-jev-calibration-dataset/1",
+  "policyVersion": "feedback-v2",
+  "note": "Synthetic/manual labeled examples. No real learner PII. Human labels are reference.",
+  "cases": [
+    {
+      "id": "sec-cross-account",
+      "message": "I can see another user's progress on my Journey.",
+      "expectOverride": "cross_account",
+      "expectPMin": "P0",
+      "expectNotHarmless": true
+    },
+    {
+      "id": "sec-lost-progress",
+      "message": "My progress disappeared after I reinstalled the app.",
+      "expectOverride": "lost_progress",
+      "expectPMin": "P0",
+      "expectNotHarmless": true
+    },
+    {
+      "id": "sec-charge",
+      "message": "The app charged me twice for Pro this month.",
+      "expectOverride": "unexpected_charge",
+      "expectPMin": "P0",
+      "expectNotHarmless": true
+    },
+    {
+      "id": "praise-culture",
+      "message": "Great app, I liked the Culture lesson about tea.",
+      "expectKind": "praise",
+      "expectAreaHint": "culture",
+      "expectNotP0": true
+    },
+    {
+      "id": "audio-freeze",
+      "message": "The voice stops after the first sentence and sound froze.",
+      "expectAreaHint": "audio_speech",
+      "expectKind": "bug"
+    },
+    {
+      "id": "hanzi-canvas",
+      "message": "Hànzì tracing does not complete on 水.",
+      "expectAreaHint": "hanzi",
+      "expectKind": "bug"
+    },
+    {
+      "id": "mastery-confused",
+      "message": "I don't understand why Seu Domínio says this is strong.",
+      "expectAreaHint": "mastery",
+      "expectKind": "confusion"
+    },
+    {
+      "id": "sync-pt",
+      "message": "Meu progresso sumiu depois de trocar de celular.",
+      "expectOverride": "lost_progress",
+      "expectPMin": "P0"
+    },
+    {
+      "id": "auth-pt",
+      "message": "Não consigo apagar a conta nas configurações.",
+      "expectOverride": "cannot_delete",
+      "expectPMin": "P1"
+    },
+    {
+      "id": "pii-email",
+      "message": "My email joao.test@example.com doesn't work for login.",
+      "expectRedact": ["email"],
+      "expectKind": "bug",
+      "expectAreaHint": "auth_account"
+    },
+    {
+      "id": "perf",
+      "message": "Journey is very slow and freezes on low-end Android.",
+      "expectAreaHint": "performance",
+      "expectKind": "bug"
+    },
+    {
+      "id": "content",
+      "message": "Wrong pinyin on lesson greeting — should be nǐ hǎo.",
+      "expectKind": "content_error",
+      "expectAreaHint": "lesson"
+    }
+  ]
+}

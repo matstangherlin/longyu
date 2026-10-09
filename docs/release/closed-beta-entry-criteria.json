@@ -3,7 +3,7 @@
   "wave": "RC2.3.12C",
   "rcId": "RC2.3.12-RC1",
   "result": "OWNER_ACTION_REQUIRED",
-  "evaluatedAt": "2026-10-09T03:22:01.843Z",
+  "evaluatedAt": "2026-10-09T04:56:04.863Z",
   "commercialMode": "FREE_ONLY",
   "liveMonetization": "BLOCKED",
   "hostedCi": "PENDING",
@@ -15,12 +15,12 @@
     "PARENT_HOSTED_TRUTH_PASS": "PENDING",
     "FEATURE_FREEZE_PASS": "PASS",
     "RC_IDENTITY_PASS": "PASS",
-    "PRODUCT_TRUTH_FRESH": "PENDING",
+    "PRODUCT_TRUTH_FRESH": "PASS",
     "APK_BUILD_PASS": "PASS",
     "APK_PROVENANCE_PASS": "PASS",
     "AAB_BUILD_PASS": "PASS",
-    "WEB_BUILD_PASS": "NOT_RUN",
-    "SECURITY_PASS": "PENDING",
+    "WEB_BUILD_PASS": "PASS",
+    "SECURITY_PASS": "PASS",
     "CORE_LEARNING_PASS": "CODE_READY",
     "CONTENT_SMOKE_PASS": "CODE_READY",
     "AUDIO_PASS": "CODE_READY",
@@ -53,7 +53,9 @@
     "LIVE_BILLING": "BLOCKED",
     "STRIPE_TEST_E2E": "CONFIG_REQUIRED",
     "PLAY_BILLING": "DISABLED_FOR_BETA",
-    "JEV_TRIAGE_V2": "OWNER_ACTION_REQUIRED"
+    "JEV_TRIAGE_V2": "OWNER_ACTION_REQUIRED",
+    "JEV_BETA_TRIAGE": "VERIFIED",
+    "JEV_SHADOW_STRUGGLE_LAB": "VERIFIED_SHADOW_ONLY"
   },
   "noGoIf": [
     "data_loss",
@@ -71,6 +73,22 @@
     "basis": "free-tier cloud budget + support capacity + observability not yet PASS"
   },
   "notes": [
-    "APK/AAB from hosted run 37877291018 sourceHeadSha 2d64f0d7; physical/sentry/rollback/cloud-smoke still open"
-  ]
+    "APK/AAB from hosted run 37877291018 sourceHeadSha 2d64f0d7; physical/sentry/rollback/cloud-smoke still open",
+    "PRODUCT_TRUTH_FRESH=PASS after generate:product-truth + release-truth PASS on RC2.3.13 ops branch",
+    "Chromium E2E fail root cause: hardcoded v0.2.0-beta.1 — fixed on #329 2a408216 (package.json-bound)",
+    "Partial cloud probe OK; full smoke blocked without LONGYU_QA_*; Sentry MCP auth timed out",
+    "JEV_BETA_TRIAGE=VERIFIED in-repo (gate:jev-beta-triage-v2); live Edge+migration still OWNER_ACTION_REQUIRED; LEARNER_RUNTIME=OFF",
+    "JEV Wave 3 shadow struggle lab VERIFIED_SHADOW_ONLY (gate:jev-shadow-learning); recommendation KEEP_SHADOW; no learner effect"
+  ],
+  "hostedEvidence": {
+    "pr": 329,
+    "head": "2a4082160fb5f0abff6c954f0076c586fbc91f67",
+    "pending": true,
+    "failed": [],
+    "e2eChrome": "",
+    "e2eCross": "",
+    "androidOk": true,
+    "securityOk": true,
+    "note": "E2E version fix pushed; awaiting re-run SUCCESS"
+  }
 }

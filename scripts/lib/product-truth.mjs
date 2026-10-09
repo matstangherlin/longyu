@@ -226,7 +226,12 @@ export function buildProductTruth(inputs) {
     jev: {
       learnerRuntimeEnabled: inputs.jevRuntimeEnabled,
       learnerRuntime: inputs.jevRuntimeEnabled ? "BLOCKED" : "NOT_RUN",
+      shadowRuntimeEnabled: inputs.jevShadowRuntimeEnabled === true,
       serverSideTriage: deps.typesafeJev?.status ?? "NOT_RUN",
+      // Live promotion stays OWNER_ACTION_REQUIRED until OA deploy + smoke.
+      livePromotion: inputs.jevStatus?.live === "PASS" ? "PASS" : "OWNER_ACTION_REQUIRED",
+      deploymentRequired: inputs.jevStatus?.deploymentRequired === true,
+      detailDoc: "docs/jev/hosted-closure-status.json",
     },
     ownerAcceptance: ownerAreas,
     pendingOwnerActions: (inputs.ownerActions?.actions ?? []).filter((a) => a.status !== "PASS").map((a) => a.id),
@@ -293,6 +298,10 @@ export function checkProductTruth(manifest, inputs) {
 
   if (inputs.jevRuntimeEnabled !== false) fail("JEV_RUNTIME_ENABLED", "JEV_RUNTIME_ENABLED must be false (learner runtime off)");
   if (manifest.jev?.learnerRuntimeEnabled !== false) fail("JEV_RUNTIME_ENABLED", "manifest reports Jev learner runtime enabled");
+  if (inputs.jevShadowRuntimeEnabled !== false) fail("JEV_SHADOW_RUNTIME", "JEV_SHADOW_STRUGGLE_RUNTIME_ENABLED must be false");
+  if (manifest.jev?.livePromotion === "PASS" && manifest.jev?.deploymentRequired === true) {
+    fail("JEV_LIVE", "cannot claim livePromotion=PASS while deploymentRequired");
+  }
   if (manifest.product?.curriculumFingerprint !== inputs.identity.chainHead) {
     fail("UNKNOWN_FINGERPRINT", `curriculum fingerprint ${manifest.product?.curriculumFingerprint} is not the fingerprint chain head ${inputs.identity.chainHead}`);
   }

@@ -286,14 +286,16 @@ export function checkJevGuardrails({ jevSource, budgetPolicySource, triageSource
   const jev = String(jevSource);
   const policy = String(budgetPolicySource);
   const triage = String(triageSource);
-  if (!/JEV_TIMEOUT_MS\s*=\s*\d/.test(jev) || !/AbortController/.test(jev)) errors.push("JEV_TIMEOUT_MISSING");
+  if (!/JEV_TIMEOUT_MS\s*=\s*3_000/.test(jev) || !/AbortController/.test(jev)) errors.push("JEV_TIMEOUT_MISSING");
   if (!/createCircuitBreaker\(/.test(jev) || !/jev_circuit_open/.test(jev)) errors.push("JEV_CIRCUIT_BREAKER_MISSING");
   if (!/JEV_RUNTIME_ENABLED:\s*false/.test(policy)) errors.push("JEV_RUNTIME_ENABLED_BY_DEFAULT");
   if (!/out\.ALLOW_PAID_OVERAGE\s*=\s*false/.test(policy)) errors.push("PAID_OVERAGE_NOT_FORCED_OFF");
   if (!/jevAllowed\("DEV_AUDIT"\)/.test(triage)) errors.push("JEV_KILL_SWITCH_MISSING");
-  if (!/BATCH_LIMIT\s*=\s*\d+/.test(triage)) errors.push("JEV_BATCH_CAP_MISSING");
+  if (!/BATCH_LIMIT\s*=\s*25\b/.test(triage)) errors.push("JEV_BATCH_CAP_MISSING");
+  if (!/CONCURRENCY\s*=\s*5\b/.test(triage)) errors.push("JEV_CONCURRENCY_CAP_MISSING");
   if (!/jevInputHash\(/.test(triage)) errors.push("JEV_DEDUPE_MISSING");
   if (!/is_beta_admin/.test(triage)) errors.push("JEV_TRIAGE_NOT_ADMIN_ONLY");
   if (!/resolveTypesafeApiKey/.test(jev) || /VITE_/.test(jev)) errors.push("JEV_KEY_NOT_SERVER_ONLY");
+  if (!/validateJevAnswers\(/.test(jev)) errors.push("JEV_ANSWER_SCHEMA_MISSING");
   return errors;
 }

@@ -150,6 +150,7 @@ function loadWorld() {
     budgetPolicySource: read("supabase/functions/_shared/budgetPolicy.ts"),
     createAccountSource: edgeSources["create-account"],
     triageSource: edgeSources["triage-feedback"],
+    pipelineSource: read("supabase/functions/_shared/jevTriagePipeline.ts"),
     webhookSource: edgeSources["stripe-webhook"],
     checkoutSource: edgeSources["create-checkout-session"],
     stripeLiveGuardSource: read("supabase/functions/_shared/stripeLiveGuard.ts"),
@@ -222,7 +223,7 @@ function evaluate(w, { checkExitCode }) {
   ]);
   add("R36_smoke", checkCloudSmoke({ smokeSource: w.smokeSource, workflowText: w.workflows[".github/workflows/cloud-smoke.yml"] }));
   add("R38_retention", checkRetentionDryRun({ retentionSql: w.retentionSql }));
-  add("R39_pii", checkSnapshotEmailPii({ matrix: w.matrix, ownerActions: w.ownerActions, repositorySource: w.repositorySource, triageSource: w.triageSource, scrubSource: w.errorScrubSource }));
+  add("R39_pii", checkSnapshotEmailPii({ matrix: w.matrix, ownerActions: w.ownerActions, repositorySource: w.repositorySource, triageSource: w.triageSource, pipelineSource: w.pipelineSource, scrubSource: w.errorScrubSource }));
   add("R40_owner_actions", checkOwnerActions({ ownerActions: w.ownerActions, matrix: w.matrix }));
   add("R41_issue273", checkIssue273({ matrix: w.matrix }));
   add("R42_monetization", checkMonetizationOff({ certifications: w.certifications, productTruth: w.productTruth, checkoutSource: w.checkoutSource, ownerActions: w.ownerActions, stripeLiveGuardSource: w.stripeLiveGuardSource }));
@@ -525,7 +526,11 @@ if (mode === "test") {
   kill(38, "retention deletes by default", "RETENTION_NOT_DRY_RUN_BY_DEFAULT", editText("retentionSql", "p_dry_run boolean default true", "p_dry_run boolean default false"));
   kill(38, "retention scheduled as real delete", "RETENTION_SCHEDULED_AS_REAL_DELETE", editText("retentionSql", /run_telemetry_retention\(30, true\)/g, "run_telemetry_retention(30, false)"));
   kill(39, "e-mail snapshot accepted as PASS", "PII_EMAIL_IN_SNAPSHOT_ACCEPTED_AS_PASS", setGate("DATA_PRIVACY_PASS", { status: "PASS", evidence: ["x"] }));
-  kill(39, "PII sent to Jev", "PII_SENT_TO_JEV", editEdge("triage-feedback", (t) => t.replace("function feedbackState(row: FeedbackRow): string {", "function feedbackState(row: FeedbackRow): string {\n  const leak = `user ${row.user_id}`;")));
+  kill(39, "PII sent to Jev", "PII_SENT_TO_JEV", editText(
+    "pipelineSource",
+    "export function buildSanitizedFeedbackState(row: FeedbackRowV2): {",
+    "export function buildSanitizedFeedbackState(row: FeedbackRowV2): {\n  const leak = `user ${row.user_id}`;",
+  ));
   // 40-41
   kill(40, "owner action PASS without evidence", "OWNER_ACTION_PASS_WITHOUT_EVIDENCE", edit("ownerActions", (o) => {
     o.actions.find((a) => a.id === "OA-DATA-EXPORT").status = "PASS";

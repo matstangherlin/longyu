@@ -1,0 +1,61 @@
+{
+  "schema": "longyu-jev-beta-triage-v2/1",
+  "wave": "JEV-WAVE-2",
+  "JEV_BETA_TRIAGE": "VERIFIED",
+  "JEV_LEARNER_RUNTIME": "OFF",
+  "policyVersion": "feedback-v2",
+  "purpose": "DEV_AUDIT",
+  "advisoryOnly": true,
+  "neverAuto": [
+    "close_issue",
+    "deploy_fix",
+    "change_curriculum",
+    "ban_user",
+    "grant_entitlement",
+    "change_mastery",
+    "mark_P0_resolved"
+  ],
+  "areas": [
+    "lesson",
+    "audio_speech",
+    "hanzi",
+    "culture",
+    "mastery",
+    "review",
+    "journey",
+    "sync",
+    "auth_account",
+    "ui_navigation",
+    "performance",
+    "payments",
+    "social",
+    "other"
+  ],
+  "kinds": ["bug", "content_error", "confusion", "suggestion", "praise"],
+  "severityMapping": {
+    "note": "ai_severity is raw Jev score 0–3; ai_p_candidate is mapped P0–P3. Never store score as P-level.",
+    "0": "P3",
+    "1": "P2",
+    "2": "P1",
+    "3": "P0"
+  },
+  "confidencePolicy": {
+    "high": 0.8,
+    "medium": 0.6,
+    "lowNeedsHumanReview": true,
+    "p0p1AlwaysHumanReview": true
+  },
+  "dailyBudget": {
+    "warnAt": 40,
+    "degradeClusterAt": 60,
+    "maxEvaluations": 80,
+    "degradeOrder": ["semantic_clustering_first", "then_stop_new_evals", "feedback_storage_always_ok"]
+  },
+  "gate": "gate:jev-beta-triage-v2",
+  "healthReport": "docs/beta/jev-triage-health.json",
+  "calibrationDataset": "docs/beta/jev-calibration-dataset.json",
+  "migration": "supabase/migrations/20261009060000_jev_beta_triage_v2.sql",
+  "cohortAuthority": "human-confirmed P0/P1 only — Jev never authorizes 10→50 or 50→200 alone",
+  "liveDeploy": "OWNER_ACTION_REQUIRED — see docs/release/OA-JEV-TRIAGE-V2-DEPLOY.md",
+  "verifiedAt": "2026-10-09T05:00:00.000Z"
+}

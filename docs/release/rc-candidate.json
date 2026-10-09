@@ -3,6 +3,8 @@
   "rcId": "RC2.3.12-RC1",
   "wave": "RC2.3.12C",
   "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "artifactSourceSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "certificationHeadSha": "2a4082160fb5f0abff6c954f0076c586fbc91f67",
   "version": "0.2.0-rc.1",
   "versionCode": 570,
   "versionCodeFloor": 1,
@@ -54,5 +56,6 @@
   ],
   "versionAuthority": "docs/release/VERSION_AUTHORITY.md",
   "rcDraftPolicy": "RC1 never distributed — regenerable until sideload; then mint RC2",
-  "artifactsManifest": "docs/release/rc-artifacts.json"
+  "artifactsManifest": "docs/release/rc-artifacts.json",
+  "betaOpsHeadSha": "0a82e4f737ef8f5cde1779f470c7de8e6fd76957"
 }

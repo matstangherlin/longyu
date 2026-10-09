@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-09T03:22:01.013Z",
-  "generatedFromSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
-  "inputsDigest": "913062c6e2dbb210",
-  "evidenceDigest": "644c5125f9f7b1ae",
+  "generatedAt": "2026-10-09T06:04:10.766Z",
+  "generatedFromSha": "e2f492d2f60dfccea37e556f58f995efdae235f8",
+  "inputsDigest": "f166e1e45804661b",
+  "evidenceDigest": "96de5e95100d8336",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -167,11 +167,11 @@
         "status": "BLOCKED",
         "ledger": {
           "productionRows": 36,
-          "repoFiles": 56,
+          "repoFiles": 58,
           "MATCH": 19,
           "LEGACY_EQUIVALENT": 0,
           "PROD_ONLY": 6,
-          "REPO_ONLY": 27,
+          "REPO_ONLY": 29,
           "UNKNOWN": 11
         }
       },
@@ -258,7 +258,11 @@
   "jev": {
     "learnerRuntimeEnabled": false,
     "learnerRuntime": "NOT_RUN",
-    "serverSideTriage": "CODE_READY"
+    "shadowRuntimeEnabled": false,
+    "serverSideTriage": "CODE_READY",
+    "livePromotion": "OWNER_ACTION_REQUIRED",
+    "deploymentRequired": true,
+    "detailDoc": "docs/jev/hosted-closure-status.json"
   },
   "ownerAcceptance": {
     "audio": "OWNER_ACTION_REQUIRED",
