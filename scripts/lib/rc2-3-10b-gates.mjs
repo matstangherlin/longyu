@@ -690,13 +690,27 @@ export function checkRetentionDryRun({ retentionSql }) {
   return errors;
 }
 
-export function checkSnapshotEmailPii({ matrix, ownerActions, repositorySource, triageSource, scrubSource }) {
+/** Bodies that build the text sent to Jev (legacy local helper or Wave2 sanitizer). */
+function jevFeedbackStateBodies(...sources) {
+  const bodies = [];
+  for (const src of sources) {
+    const text = String(src ?? "");
+    const legacy = /function feedbackState[\s\S]*?\n\}\n/.exec(text)?.[0];
+    if (legacy) bodies.push(legacy);
+    const sanitized = /(?:export\s+)?function buildSanitizedFeedbackState[\s\S]*?\n\}\n/.exec(text)?.[0];
+    if (sanitized) bodies.push(sanitized);
+  }
+  return bodies.join("\n");
+}
+
+export function checkSnapshotEmailPii({ matrix, ownerActions, repositorySource, triageSource, pipelineSource, scrubSource }) {
   const errors = [];
   const writesEmail = /account:\s*{[^}]*email/.test(String(repositorySource ?? "")) || /\bemail:\s*(?:user|account|session)/.test(String(repositorySource ?? ""));
   const oa = (ownerActions?.actions ?? []).find((a) => a.id === "OA-PRIVACY-SNAPSHOT-EMAIL");
   if (writesEmail && matrix?.gates?.DATA_PRIVACY_PASS?.status === "PASS") errors.push("PII_EMAIL_IN_SNAPSHOT_ACCEPTED_AS_PASS");
   if (writesEmail && oa?.status === "PASS") errors.push("PII_EMAIL_OWNER_ACTION_CLOSED_WITHOUT_CODE_CHANGE");
-  if (/user_id|\.email|user\.email|profiles\b/.test(/function feedbackState[\s\S]*?\n}\n/.exec(String(triageSource ?? ""))?.[0] ?? "")) errors.push("PII_SENT_TO_JEV");
+  const stateBody = jevFeedbackStateBodies(triageSource, pipelineSource);
+  if (/user_id|\.email|user\.email|profiles\b/.test(stateBody)) errors.push("PII_SENT_TO_JEV");
   if (!/email|EMAIL/.test(String(scrubSource ?? ""))) errors.push("SENTRY_SCRUB_WITHOUT_EMAIL_MASK");
   return errors;
 }

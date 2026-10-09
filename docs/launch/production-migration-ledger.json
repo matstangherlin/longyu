@@ -5,11 +5,11 @@
  "method": "md5 of the applied SQL after removing `--` comments and every whitespace/semicolon run (Postgres: regexp_replace(regexp_replace(array_to_string(statements, E'\\n'), '--[^\\n]*', '', 'g'), '[\\s;]+', '', 'g')); repo side uses the same normalization",
  "counts": {
   "productionRows": 36,
-  "repoFiles": 56,
+  "repoFiles": 58,
   "MATCH": 19,
   "LEGACY_EQUIVALENT": 0,
   "PROD_ONLY": 6,
-  "REPO_ONLY": 27,
+  "REPO_ONLY": 29,
   "UNKNOWN": 11
  },
  "status": "BLOCKED",
@@ -561,6 +561,24 @@
    "repoFile": "supabase/migrations/20260914210000_family_entitlement.sql",
    "state": "REPO_ONLY",
    "normalizedMd5": "ac70f42d33985b6b9bb3c3d75ceee170",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "jev_beta_triage_v2",
+   "repoFile": "supabase/migrations/20261009060000_jev_beta_triage_v2.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "a6aae365850ae8c0c02e7067be784f84",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "jev_shadow_struggle_lab",
+   "repoFile": "supabase/migrations/20261009070000_jev_shadow_struggle_lab.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "747ecb3ae52e26d4d0e2ff77cda3dbdd",
    "evidence": "no production history row with this name or content",
    "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
   },

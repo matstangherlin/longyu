@@ -58,7 +58,7 @@ function walkTs(dir, out = []) {
   return out;
 }
 
-export function checkMigrationClassification(localOnlyClass = V477_LOCAL_ONLY_CLASS) {
+export function checkMigrationClassification(localOnlyClass = V477_LOCAL_ONLY_CLASS, ledgerPath) {
   const errors = [];
   const files = localMigrationFiles(ROOT);
   const drift = classifyMigrationDrift(files);
@@ -90,6 +90,28 @@ export function checkMigrationClassification(localOnlyClass = V477_LOCAL_ONLY_CL
       errors.push("070000_FALSELY_DEPLOYED");
     }
   }
+
+  // Cross-check RC2.3.10 cloud ledger ↔ V477 LOCAL_ONLY classification.
+  const ledgerFile = ledgerPath ?? path.join(ROOT, "docs/launch/production-migration-ledger.json");
+  if (fs.existsSync(ledgerFile)) {
+    const ledger = JSON.parse(fs.readFileSync(ledgerFile, "utf8"));
+    const entries = ledger.entries ?? [];
+    for (const mig of [TRIAGE_MIG, SHADOW_MIG]) {
+      const row = entries.find((e) => e.repoFile === `supabase/migrations/${mig}` || e.repoFile === mig);
+      const klass = localOnlyClass[mig];
+      if (klass && !row) errors.push("MIGRATION_TRUTH_SYSTEMS_DIVERGED");
+      if (row && DEPLOYED_LIKE.has(String(row.state))) {
+        errors.push(mig.startsWith("2026100906") ? "060000_FALSELY_DEPLOYED" : "070000_FALSELY_DEPLOYED");
+      }
+      if (row && row.state !== "REPO_ONLY" && row.state !== "UNKNOWN") {
+        // REPO_ONLY is the honest cloud-ledger state for not-yet-applied files.
+        if (DEPLOYED_LIKE.has(String(row.state)) || row.state === "MATCH") {
+          errors.push(mig.startsWith("2026100906") ? "060000_FALSELY_DEPLOYED" : "070000_FALSELY_DEPLOYED");
+        }
+      }
+    }
+  }
+
   return [...new Set(errors)];
 }
 
