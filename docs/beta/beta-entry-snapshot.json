@@ -13,5 +13,6 @@
   "commercialMode": "FREE_ONLY",
   "liveBilling": false,
   "testerTargetWave1": 10,
-  "activatedAt": null
+  "activatedAt": null,
+  "betaOpsHeadSha": "d3e2442d23da681c0df73efa6d04b3f740d6d094"
 }
