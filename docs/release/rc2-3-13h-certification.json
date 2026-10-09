@@ -54,5 +54,6 @@
   "knownGaps": [
     "Physical QA / Sentry / Netlify rollback / cloud smoke deferred to final pre-beta RC entry",
     "Viewport emulated stamps after hosted CI green"
-  ]
+  ],
+  "head": "ee43fb95154a152b0459b2b040b7ad0300087217"
 }
