@@ -1,0 +1,61 @@
+{
+  "wave": "RC2.3.13H.1",
+  "title": "Sticky Progression Chrome & Pre-Beta UI Freeze Closure",
+  "parentWave": "RC2.3.13H",
+  "headParent": "47dfea75b965b940773e7eb890212ed961d7046a",
+  "head": "PENDING_H1_HEAD",
+  "relationship": {
+    "H": "Visual progression + Dynamic Aula",
+    "H1": "Closed global progression chrome (sticky TopBar + switch)"
+  },
+  "matrix": {
+    "GLOBAL_TOPBAR_STICKY_PASS": "PASS",
+    "PROGRESSION_SWITCH_STICKY_PASS": "PASS",
+    "STICKY_STACK_ORDER_PASS": "PASS",
+    "SAFE_TOP_PASS": "PASS",
+    "SCROLL_CONTAINER_PASS": "PASS",
+    "SCROLL_PADDING_PASS": "PASS",
+    "NO_CONTENT_OVERLAP_PASS": "PASS",
+    "JOURNEY_SCROLL_PASS": "PASS",
+    "CULTURE_SCROLL_PASS": "PASS",
+    "JOURNEY_POSITION_RESTORE_PASS": "PASS",
+    "CULTURE_POSITION_RESTORE_PASS": "PASS",
+    "GLOBAL_BAR_NO_REMOUNT_PASS": "PASS",
+    "COUNTERS_LIVE_PASS": "PASS",
+    "PROFILE_ACTION_PASS": "PASS",
+    "BOTTOM_NAV_CONTRACT_PASS": "PASS",
+    "CULTURE_BOTTOM_TAB_ABSENT_PASS": "PASS",
+    "NAV_PARENT_ACTIVE_PASS": "PASS",
+    "LESSON_IMMERSIVE_HEADER_PASS": "PASS",
+    "DYNAMIC_AULA_PRESERVED_PASS": "PASS",
+    "JOURNEY_BUBBLE_V2_PRESERVED_PASS": "PASS",
+    "CULTURE_BUBBLE_PRESERVED_PASS": "PASS",
+    "MODAL_LAYERING_PASS": "PASS",
+    "VIEWPORT_360_PASS": "PENDING_HOSTED",
+    "VIEWPORT_375_PASS": "PENDING_HOSTED",
+    "VIEWPORT_390_PASS": "PENDING_HOSTED",
+    "FONT_SCALE_PASS": "PASS",
+    "SCREEN_READER_PASS": "PASS",
+    "REDUCED_MOTION_PASS": "PASS",
+    "LESSON_COUNT_FROZEN_PASS": "PASS",
+    "TOPIC_COUNT_FROZEN_PASS": "PASS",
+    "CULTURE_COUNT_FROZEN_PASS": "PASS",
+    "FINGERPRINT_FROZEN_PASS": "PASS",
+    "MASTERY_UNCHANGED": "PASS",
+    "SRS_UNCHANGED": "PASS",
+    "JEV_RUNTIME_OFF": "PASS",
+    "BILLING_UNCHANGED": "PASS"
+  },
+  "counts": {
+    "cultureItems": 36,
+    "cultureNativeLessons": 36,
+    "journeyCultureNodes": 20,
+    "culturePaths": 12,
+    "flagshipDeep": 11,
+    "fingerprint": "fea5455e1461"
+  },
+  "knownGaps": [
+    "Viewport hosted stamps remain PENDING_HOSTED until evidence",
+    "Physical sticky QA on final pre-beta RC artifact"
+  ]
+}

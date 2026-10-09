@@ -1,20 +1,24 @@
 {
   "id": "PRE_BETA_UI_FREEZE",
-  "wave": "RC2.3.13H",
-  "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. Culture is a ProgressionShell submode of the Journey progression destination. Journey and Culture share one ProgressionPath bubble grammar. Mandatory foundation AULA uses DynamicTeachingSequence presentation beats.",
+  "wave": "RC2.3.13H.1",
+  "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. GLOBAL TOP BAR is sticky/immobile on progression surfaces. Progression switch sticks immediately beneath it. Journey/Culture content scrolls. Journey and Culture share ProgressionPath bubble grammar. Mandatory foundation AULA uses DynamicTeachingSequence. NO 13I.",
   "navigationContract": {
-    "mobileTabBar": [
-      "/jornada",
-      "/treino",
-      "/missoes",
-      "/mais"
-    ],
-    "progressionSwitch": [
-      "journey",
-      "culture"
-    ],
+    "mobileTabBar": ["/jornada", "/treino", "/missoes", "/mais"],
+    "progressionSwitch": ["journey", "culture"],
     "cultureBottomNav": false,
     "culturePrimaryAccess": "ProgressionShell"
+  },
+  "stickyChrome": {
+    "globalTopBar": "sticky top-0 (AppShell TopBar)",
+    "progressionSwitch": "sticky top: var(--progression-sticky-offset)",
+    "tokens": [
+      "--app-header-height",
+      "--progression-switch-height",
+      "--progression-sticky-offset",
+      "--progression-sticky-height"
+    ],
+    "collapsingHeader": false,
+    "hideOnScroll": false
   },
   "progressionGrammar": {
     "components": [
@@ -23,12 +27,7 @@
       "ProgressionConnector",
       "ProgressionNodeLabel"
     ],
-    "states": [
-      "COMPLETED",
-      "CURRENT",
-      "AVAILABLE",
-      "LOCKED"
-    ]
+    "states": ["COMPLETED", "CURRENT", "AVAILABLE", "LOCKED"]
   },
   "dynamicAula": {
     "shell": "GuidedLessonShell / GuidedPresentationProvider",
@@ -69,8 +68,9 @@
     "new visual learner-facing features",
     "Culture content expansion waves",
     "new bottom-nav destinations for Culture",
-    "13I presentation redesign"
+    "13I presentation redesign",
+    "collapsing / auto-hiding global top bar"
   ],
-  "sourceSha": "8ce011dffa839f9b38c64eebdac70a7554dbf46a",
-  "frozenAt": "2026-10-09T20:05:51.037Z"
+  "sourceSha": "PENDING_H1_HEAD",
+  "frozenAt": "PENDING_H1_HEAD"
 }

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { IconFlame, IconShield, IconStar, IconUser } from "../ui/Icon";
@@ -67,12 +67,26 @@ export function TopBar() {
   const { signOut, canSignOut } = useCloudSignOut();
   // RC2.2.13 — Perfil saiu da TabBar: o avatar é a porta de entrada e mostra onde o aluno está.
   const onProfile = /^\/(perfil|conta|amigos)(\/|$)/.test(useLocation().pathname);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 2);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <header
       ref={headerRef}
       data-app-header
-      className="sticky top-0 z-20 flex min-h-[var(--app-header-height)] items-center justify-between gap-2 border-b border-line/60 bg-bg/90 pl-[max(0.75rem,var(--app-safe-left))] pr-[max(0.75rem,var(--app-safe-right))] pt-[var(--app-safe-top)] backdrop-blur-md sm:px-5"
+      data-testid="global-topbar"
+      data-scrolled={scrolled ? "true" : "false"}
+      className={[
+        // RC2.3.13H.1 — always visible; above progression switch (z-20).
+        "sticky top-0 z-[25] flex min-h-[var(--app-header-height)] items-center justify-between gap-2 border-b border-line/60 bg-bg pl-[max(0.75rem,var(--app-safe-left))] pr-[max(0.75rem,var(--app-safe-right))] pt-[var(--app-safe-top)] sm:px-5",
+        scrolled ? "shadow-sm" : "",
+      ].join(" ")}
     >
       <div className="min-w-0 shrink lg:hidden">
         <Link to="/jornada" aria-label="Longyu" className="flex min-h-12 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">

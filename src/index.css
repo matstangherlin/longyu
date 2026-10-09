@@ -17,6 +17,10 @@
   --app-safe-left: max(var(--safe-area-inset-left, 0px), env(safe-area-inset-left, 0px));
   --app-safe-right: max(var(--safe-area-inset-right, 0px), env(safe-area-inset-right, 0px));
   --app-header-height: calc(3.5rem + var(--app-safe-top));
+  /* RC2.3.13H.1 — sticky progression chrome under Global TopBar. */
+  --progression-switch-height: 3.75rem;
+  --progression-sticky-offset: var(--app-header-height);
+  --progression-sticky-height: calc(var(--app-header-height) + var(--progression-switch-height));
   --app-bottom-nav-height: calc(4.5rem + var(--app-safe-bottom));
   /* V4.3 · camadas (ver src/components/ui/layers.ts) */
   --z-page: 0;
@@ -61,6 +65,11 @@
    encostam no fim da área rolável, só respeitando a safe-area. */
 [data-lesson-player-frame] {
   --activity-actions-offset: calc(var(--app-safe-bottom) + 0.5rem);
+}
+
+/* RC2.3.13H.1 — scrollIntoView / anchors land below TopBar + progression switch. */
+html:has([data-progression-shell]) {
+  scroll-padding-top: var(--progression-sticky-height);
 }
 
 
