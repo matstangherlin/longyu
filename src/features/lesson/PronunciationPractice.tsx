@@ -578,17 +578,32 @@ export function PronunciationPractice({
       )}
       <GuidedDock>
         {micBlocked ? (
-          <Button className="w-full" size="lg" data-testid="speech-open-settings" onClick={() => void openNativeAppSettings()}>
+          <Button
+            className="min-h-12 w-full"
+            size="lg"
+            data-testid="speech-open-settings"
+            data-cta-hierarchy="primary"
+            onClick={() => void openNativeAppSettings()}
+          >
             {t("player.micOpenSettings")}
           </Button>
         ) : (
-          <Button className="w-full" size="lg" data-testid="speech-start" onClick={start} disabled={busy}>
+          <Button
+            className="min-h-12 w-full"
+            size="lg"
+            data-testid="speech-start"
+            data-cta-hierarchy="primary"
+            onClick={start}
+            disabled={busy}
+          >
             {micNeedsAsk ? t("player.micAllow") : t("player.speak")}
           </Button>
         )}
         <button
           onClick={onContinue}
-          className="w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+          className="min-h-11 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+          data-cta-hierarchy="tertiary"
+          data-testid="speech-cannot-now"
         >
           {t("player.cannotSpeakNow")}
         </button>

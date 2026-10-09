@@ -1219,7 +1219,10 @@
     "gate:rc2-3-13a-cognitive-ui": "npm run validate:rc2-3-13a-cognitive-ui && npm run test:rc2-3-13a-cognitive-ui",
     "validate:rc2-3-13b-home-cognitive": "node scripts/rc2-3-13b-home-cognitive.mjs validate",
     "test:rc2-3-13b-home-cognitive": "node scripts/rc2-3-13b-home-cognitive.mjs test",
-    "gate:rc2-3-13b-home-cognitive": "npm run validate:rc2-3-13b-home-cognitive && npm run test:rc2-3-13b-home-cognitive"
+    "gate:rc2-3-13b-home-cognitive": "npm run validate:rc2-3-13b-home-cognitive && npm run test:rc2-3-13b-home-cognitive",
+    "validate:rc2-3-13c-learning-flow": "node scripts/rc2-3-13c-learning-flow.mjs validate",
+    "test:rc2-3-13c-learning-flow": "node scripts/rc2-3-13c-learning-flow.mjs test",
+    "gate:rc2-3-13c-learning-flow": "npm run validate:rc2-3-13c-learning-flow && npm run test:rc2-3-13c-learning-flow"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

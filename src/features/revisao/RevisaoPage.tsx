@@ -2268,8 +2268,9 @@ export function RevisaoPage() {
         <div className="mx-auto max-w-xl" data-review-hub-start="">
           <Button
             size="lg"
-            className="w-full"
+            className="min-h-12 w-full"
             data-testid="review-start"
+            data-cta-hierarchy="primary"
             onClick={() => setRoundStarted(true)}
           >
             {t("review.startRound")}

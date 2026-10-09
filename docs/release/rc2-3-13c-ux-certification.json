@@ -1,0 +1,46 @@
+{
+  "schema": "longyu-rc2-3-13c-ux-certification/1",
+  "rcId": "RC2.3.12-RC4",
+  "version": "0.2.0-rc.4",
+  "wave": "RC2.3.13C",
+  "note": "Learning flow cognitive polish. Does not certify physical QA, Sentry, rollback, cloud smoke, or OAuth. RC3 from #332 does not certify this learning UI.",
+  "matrix": {
+    "LESSON_PRIMARY_ACTION_PASS": "PASS",
+    "AUDIO_FEEDBACK_PASS": "PASS",
+    "AUDIO_RECOVERY_PASS": "PASS",
+    "CONTINUE_TRUTH_PASS": "PASS",
+    "DISABLED_EXPLAINABILITY_PASS": "PASS",
+    "GUIDED_TRY_PASS": "PASS",
+    "SPEECH_HIERARCHY_PASS": "PASS",
+    "SPEECH_FAILURE_NON_PENALTY_PASS": "PASS",
+    "MIC_DENIAL_RECOVERY_PASS": "PASS",
+    "SELF_PLAYBACK_PASS": "PASS",
+    "CONVERSATION_ADVANCE_PASS": "CODE_READY",
+    "HANZI_HIERARCHY_PASS": "CODE_READY",
+    "HANZI_TOUCH_PASS": "CODE_READY",
+    "REVIEW_FLOW_PASS": "PASS",
+    "COMPLETION_HIERARCHY_PASS": "PASS",
+    "SAFE_AREA_PASS": "PASS",
+    "KEYBOARD_PASS": "CODE_READY",
+    "BACK_BEHAVIOR_PASS": "CODE_READY",
+    "ACCESSIBILITY_PASS": "PASS",
+    "VIEWPORT_360_CODE_PASS": "CODE_READY",
+    "VIEWPORT_375_CODE_PASS": "CODE_READY",
+    "VIEWPORT_390_CODE_PASS": "CODE_READY",
+    "CURRICULUM_UNCHANGED": "PASS",
+    "MASTERY_UNCHANGED": "PASS",
+    "JEV_RUNTIME_OFF": "PASS",
+    "BILLING_UNCHANGED": "PASS"
+  },
+  "gates": {
+    "gate:rc2-3-13c-learning-flow": "REQUIRED"
+  },
+  "betaBlockersUnchanged": [
+    "PHYSICAL_RC",
+    "OBSERVABILITY",
+    "ROLLBACK",
+    "CLOUD_SMOKE",
+    "ANDROID_OAUTH",
+    "CLOSED_BETA_ENTRY"
+  ]
+}
