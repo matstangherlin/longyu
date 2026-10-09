@@ -3,7 +3,7 @@
   "wave": "RC2.3.12C",
   "rcId": "RC2.3.12-RC1",
   "result": "OWNER_ACTION_REQUIRED",
-  "evaluatedAt": "2026-10-09T03:22:01.843Z",
+  "evaluatedAt": "2026-10-09T04:20:40.504Z",
   "commercialMode": "FREE_ONLY",
   "liveMonetization": "BLOCKED",
   "hostedCi": "PENDING",
@@ -19,8 +19,8 @@
     "APK_BUILD_PASS": "PASS",
     "APK_PROVENANCE_PASS": "PASS",
     "AAB_BUILD_PASS": "PASS",
-    "WEB_BUILD_PASS": "NOT_RUN",
-    "SECURITY_PASS": "PENDING",
+    "WEB_BUILD_PASS": "PASS",
+    "SECURITY_PASS": "PASS",
     "CORE_LEARNING_PASS": "CODE_READY",
     "CONTENT_SMOKE_PASS": "CODE_READY",
     "AUDIO_PASS": "CODE_READY",
@@ -72,5 +72,15 @@
   },
   "notes": [
     "APK/AAB from hosted run 37877291018 sourceHeadSha 2d64f0d7; physical/sentry/rollback/cloud-smoke still open"
-  ]
+  ],
+  "hostedEvidence": {
+    "pr": 329,
+    "head": "aca759cb179d9ce1aedaa9c7baa4a7165c6cf2cb",
+    "pending": true,
+    "failed": [],
+    "e2eChrome": "",
+    "e2eCross": "",
+    "androidOk": true,
+    "securityOk": true
+  }
 }

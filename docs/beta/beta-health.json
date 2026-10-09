@@ -1,0 +1,11 @@
+{
+  "schema": "longyu-beta-health/1",
+  "wave": 0,
+  "p0": 0,
+  "p1Core": 0,
+  "invited": 0,
+  "activated": 0,
+  "sentryBlind": true,
+  "feedbackBroken": false,
+  "note": "wave=0 until entry GO and Wave 1 starts"
+}

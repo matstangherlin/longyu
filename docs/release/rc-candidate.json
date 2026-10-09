@@ -3,6 +3,8 @@
   "rcId": "RC2.3.12-RC1",
   "wave": "RC2.3.12C",
   "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "artifactSourceSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "certificationHeadSha": "aca759cb179d9ce1aedaa9c7baa4a7165c6cf2cb",
   "version": "0.2.0-rc.1",
   "versionCode": 570,
   "versionCodeFloor": 1,

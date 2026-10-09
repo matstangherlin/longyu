@@ -1,0 +1,6 @@
+{
+  "schema": "longyu-beta-tester-registry/1",
+  "wave": "RC2.3.13",
+  "testers": [],
+  "note": "Empty until CLOSED_BETA_ENTRY=GO. Roles OWNER/QA/SYNTHETIC/DEVELOPER excluded from retention metrics."
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "longyu-beta-entry-snapshot/1",
+  "status": "BLOCKED",
+  "blockedReason": "CLOSED_BETA_ENTRY≠GO",
+  "rcId": "RC2.3.12-RC1",
+  "artifactSourceSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+  "certificationHeadSha": "aca759cb179d9ce1aedaa9c7baa4a7165c6cf2cb",
+  "apkSha256": "dc99c03bd803a17d1ff55ab82964df2db820ce316f02568c7887a47a414cc492",
+  "aabSha256": "c9f8f0981f4d3abdf10efe7b45e5dee30539afce352fe9f62ebc39fbaae29a85",
+  "version": "0.2.0-rc.1",
+  "versionCode": 570,
+  "fingerprint": "5a64821d0b7d",
+  "commercialMode": "FREE_ONLY",
+  "liveBilling": false,
+  "testerTargetWave1": 10,
+  "activatedAt": null
+}

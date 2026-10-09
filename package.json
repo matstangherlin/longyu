@@ -1192,6 +1192,12 @@
     "test:rc2-3-12c-beta-execution": "node scripts/rc2-3-12c-beta-execution.mjs test",
     "gate:rc2-3-12c-beta-execution": "npm run validate:rc2-3-12c-beta-execution && npm run test:rc2-3-12c-beta-execution",
     "consume:android-artifacts": "node scripts/consume-android-artifacts.mjs",
+    "validate:rc2-3-13-closed-beta": "node scripts/rc2-3-13-closed-beta.mjs validate",
+    "test:rc2-3-13-closed-beta": "node scripts/rc2-3-13-closed-beta.mjs test",
+    "gate:rc2-3-13-closed-beta": "npm run validate:rc2-3-13-closed-beta && npm run test:rc2-3-13-closed-beta",
+    "gate:beta-wave2-entry": "node scripts/beta-wave-entry.mjs wave2",
+    "gate:beta-wave3-entry": "node scripts/beta-wave-entry.mjs wave3",
+    "gate:closed-beta-exit": "node scripts/beta-wave-entry.mjs exit",
     "gate:closed-beta-entry": "node scripts/rc2-3-12-closed-beta-entry.mjs",
     "smoke:rc": "node scripts/smoke-rc.mjs"
   },
