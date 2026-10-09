@@ -3,7 +3,7 @@
   "wave": "RC2.3.12C",
   "rcId": "RC2.3.12-RC1",
   "result": "OWNER_ACTION_REQUIRED",
-  "evaluatedAt": "2026-10-09T04:25:41.094Z",
+  "evaluatedAt": "2026-10-09T04:28:01.487Z",
   "commercialMode": "FREE_ONLY",
   "liveMonetization": "BLOCKED",
   "hostedCi": "PENDING",
@@ -72,7 +72,9 @@
   },
   "notes": [
     "APK/AAB from hosted run 37877291018 sourceHeadSha 2d64f0d7; physical/sentry/rollback/cloud-smoke still open",
-    "PRODUCT_TRUTH_FRESH=PASS after generate:product-truth (inputs 45f848f477872ef7) + release-truth PASS on RC2.3.13 ops branch"
+    "PRODUCT_TRUTH_FRESH=PASS after generate:product-truth (inputs 1c93e78a5a09b121) + release-truth PASS on RC2.3.13 ops branch",
+    "Partial cloud probe: site+version.json+auth health OK; full smoke blocked without LONGYU_QA_*; live web still ec26ffcb / 0.2.0-beta.1",
+    "Sentry MCP auth timed out — OBSERVABILITY_PASS remains CONFIG_REQUIRED"
   ],
   "hostedEvidence": {
     "pr": 329,

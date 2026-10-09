@@ -57,5 +57,5 @@
   "versionAuthority": "docs/release/VERSION_AUTHORITY.md",
   "rcDraftPolicy": "RC1 never distributed — regenerable until sideload; then mint RC2",
   "artifactsManifest": "docs/release/rc-artifacts.json",
-  "betaOpsHeadSha": "d3e2442d23da681c0df73efa6d04b3f740d6d094"
+  "betaOpsHeadSha": "870a71a4d6f7faae801304344c9e1d915533b273"
 }
