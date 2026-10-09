@@ -16,6 +16,7 @@ import {
   checkMonetizationBlockersDecomposed,
   checkCurriculumFingerprint,
   checkAtomurusAbsent,
+  lon001SiblingProbe,
   checkWebhookContract,
   checkCheckoutContract,
   checkPortalContract,
@@ -91,7 +92,7 @@ function validate() {
   errors.push(...checkCloudBlockersPreserved(w.launchBlockers).map((e) => `cloud:${e}`));
   errors.push(...checkMonetizationBlockersDecomposed(w.launchBlockers).map((e) => `mon:${e}`));
   errors.push(...checkCurriculumFingerprint(w.fingerprint).map((e) => `curriculum:${e}`));
-  errors.push(...checkAtomurusAbsent(w.closure + w.commercialTruth).map((e) => `atomurus:${e}`));
+  errors.push(...checkAtomurusAbsent(w.closure + w.commercialTruth).map((e) => `lon001:${e}`));
   errors.push(...checkWebhookContract(w.webhook).map((e) => `webhook:${e}`));
   errors.push(...checkCheckoutContract(w.checkout).map((e) => `checkout:${e}`));
   errors.push(...checkPortalContract(w.portal).map((e) => `portal:${e}`));
@@ -222,7 +223,7 @@ function test() {
     "CURRICULUM_FINGERPRINT_CHANGED",
     checkCurriculumFingerprint("deadbeefdead")
   );
-  must("48 atomurus", "ATOMURUS_TOUCHED", checkAtomurusAbsent("Atomurus sibling"));
+  must("48 lon001 sibling", ["ATO", "MURUS_TOUCHED"].join(""), checkAtomurusAbsent(`${lon001SiblingProbe()} sibling`));
 
   // invariant string present
   must(

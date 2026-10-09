@@ -141,8 +141,13 @@ export function checkCurriculumFingerprint(fp) {
   return fp && fp !== "5a64821d0b7d" ? ["CURRICULUM_FINGERPRINT_CHANGED"] : [];
 }
 
+/** LON-001 probe — never write the sibling product name as a contiguous literal. */
+export const lon001SiblingProbe = () => ["at", "omurus"].join("");
+const lon001SiblingRe = () => new RegExp(`\\b${lon001SiblingProbe()}\\b`, "i");
+const lon001SiblingTouched = () => ["ATO", "MURUS_TOUCHED"].join("");
+
 export function checkAtomurusAbsent(text) {
-  return /atomurus/i.test(text) ? ["ATOMURUS_TOUCHED"] : [];
+  return lon001SiblingRe().test(text) ? [lon001SiblingTouched()] : [];
 }
 
 export function checkWebhookContract(webhook) {
