@@ -3,7 +3,7 @@
   "title": "Sticky Progression Chrome & Pre-Beta UI Freeze Closure",
   "parentWave": "RC2.3.13H",
   "headParent": "47dfea75b965b940773e7eb890212ed961d7046a",
-  "head": "f8ad470ddfea79388277eae35211a93981309f7e",
+  "head": "f6f721406614b8d6edcb9437f577361b861c445d",
   "relationship": {
     "H": "Visual progression + Dynamic Aula",
     "H1": "Closed global progression chrome (sticky TopBar + switch)"
