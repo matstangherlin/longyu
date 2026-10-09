@@ -82,7 +82,9 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/jornada/);
-    await expect(page.getByRole("heading", { level: 1, name: "Primeiro contato" })).toBeVisible();
+    // RC2.3.13B — Home h1 is Continue copy; module title stays "Primeiro contato".
+    await expect(page.getByTestId("home-continue")).toBeVisible();
+    await expect(page.getByTestId("home-continue")).toContainText(/Primeiro contato/i);
     await expect(page.getByRole("button", { name: /^Sair$/i })).toBeVisible();
     await page.getByRole("button", { name: /^Sair$/i }).click();
     await page.waitForURL(/\/$/);
@@ -93,7 +95,7 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     const guest = await context.newPage();
     await guest.goto("/jornada");
     await guest.waitForURL(/\/(comecar|login|salvar-progresso|finalizar-cadastro)(\?|$)/, { timeout: 15_000 });
-    await expect(guest.getByRole("heading", { level: 1, name: "Primeiro contato" })).toHaveCount(0);
+    await expect(guest.getByTestId("home-continue")).toHaveCount(0);
     await expect(guest.getByRole("button", { name: /^Sair$/i })).toHaveCount(0);
     await guest.close();
   });

@@ -15,6 +15,17 @@ function asRecord(value: unknown, fallback: Record<string, unknown> = {}): Recor
  * AchievementsWatcher then throw on `.length` / `.claimed` and React Router
  * replaces the whole shell.
  */
+function sanitizeSrsRecord(value: unknown, fallback: Record<string, unknown>): Record<string, unknown> {
+  const raw = asRecord(value, fallback);
+  const next: Record<string, unknown> = {};
+  for (const [key, entry] of Object.entries(raw)) {
+    // Drop null stubs and non-objects left by corrupted / partial persist.
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+    next[key] = entry;
+  }
+  return next;
+}
+
 export function sanitizeHydratedLearnerFields<T extends Record<string, unknown>>(
   state: T,
   fallback: T
@@ -22,7 +33,7 @@ export function sanitizeHydratedLearnerFields<T extends Record<string, unknown>>
   const dailyMissions = asRecord(state.dailyMissions, asRecord(fallback.dailyMissions));
   return {
     ...state,
-    srs: asRecord(state.srs, asRecord(fallback.srs)),
+    srs: sanitizeSrsRecord(state.srs, asRecord(fallback.srs)),
     learnedChunks: asArray(state.learnedChunks, asArray(fallback.learnedChunks, [])),
     learnedChars: asArray(state.learnedChars, asArray(fallback.learnedChars, [])),
     completedLessons: asArray(state.completedLessons, asArray(fallback.completedLessons, [])),

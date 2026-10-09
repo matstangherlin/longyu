@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "../../lib/store";
-import { dueItems } from "../../lib/srs";
+import { dueItems, isSrsItem } from "../../lib/srs";
 import { knowledgeGraph } from "../../lib/mastery/knowledgeGraph";
 import { createPersonalMastery, type PersonalMastery } from "../../lib/mastery/personalMastery";
 import { currentRecord, seedLegacyBaselineOnce, subscribeLearningEvidence } from "../../lib/mastery/recorder";
@@ -24,7 +24,8 @@ export function useLearnerMastery(): PersonalMastery {
   // Pre-RC2.3.6 progress becomes a weak "already met" prior — once, nothing invented.
   useEffect(() => {
     const items = new Map<string, { text: string; reps: number; lastAt: number }>();
-    for (const item of Object.values(srs ?? {})) {
+    // Corrupted persist can leave null / empty stubs in `srs` — skip them.
+    for (const item of Object.values(srs ?? {}).filter(isSrsItem)) {
       const text = item.type === "char" ? glyphByCharId.get(item.itemId) : item.type === "chunk" ? chunkById[item.itemId]?.hanzi : undefined;
       if (!text) continue;
       const prev = items.get(text);

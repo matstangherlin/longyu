@@ -55,8 +55,13 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await seed(page, { completedLessons: [] });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Começar primeira lição/i })).toBeVisible();
+    await expect(page.getByTestId("home-cognitive")).toBeVisible();
+    await expect(page.getByTestId("home-continue")).toBeVisible();
+    const cta = page.getByTestId("home-continue-cta");
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveAttribute("data-cta-hierarchy", "primary");
+    // RC2.3.13B — copy is "Começar minha primeira aula" (home.startFirstLesson).
+    await expect(cta).toHaveAttribute("aria-label", /Começar|Start/i);
     // A lição atual é reconhecível semanticamente.
     await expect(page.locator('[aria-current="step"]')).toHaveCount(1);
     await noOverflow(page);
@@ -66,8 +71,10 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await seed(page, firstLessons(3));
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    const continueBtn = page.getByRole("button", { name: /^Continuar$/ });
+    const continueBtn = page.getByTestId("home-continue-cta");
     await expect(continueBtn).toBeVisible();
+    await expect(continueBtn).toHaveAttribute("data-cta-hierarchy", "primary");
+    await expect(continueBtn).toHaveAttribute("aria-label", /^Continuar$/i);
     // Chevron ao lado do texto — não empilhado (botão baixo, não "torre").
     const box = await continueBtn.boundingBox();
     expect(box).toBeTruthy();
@@ -97,14 +104,19 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
     // Continuar continua como ação principal.
-    await expect(page.getByRole("button", { name: /^Continuar$/ })).toBeVisible();
-    // Revisão como link secundário positivo. O rótulo passou a ser do tamanho
-    // de uma SESSÃO ("Revisão de hoje · 10") em vez do total bruto da fila
-    // ("Revisar 260 itens"), que passava sensação de dívida infinita.
-    const review = page.getByRole("link", { name: /Revisão de hoje/i });
+    await expect(page.getByTestId("home-continue-cta")).toBeVisible();
+    await expect(page.getByTestId("home-continue-cta")).toHaveAttribute("aria-label", /^Continuar$/i);
+    // RC2.3.13B — Today for You (secondary): explainability + Praticar → revisão.
+    const today = page.getByTestId("home-today");
+    await expect(today).toBeVisible();
+    await expect(today).toHaveAttribute("data-cta-hierarchy", "secondary");
+    await expect(today).toHaveAttribute("data-today-kind", "REVIEW_DUE");
+    await expect(page.getByTestId("home-today-reason")).toContainText(/itens? prontos? para revisar/i);
+    const review = page.getByTestId("home-today-cta");
     await expect(review).toBeVisible();
     await expect(review).toHaveAttribute("href", "/revisao?modo=fracos&sessao=corrigir");
-    await expect(page.getByText(/Reforça o que você já aprendeu — leva/i)).toBeVisible();
+    // Never surface the old monolithic debt CTA.
+    await expect(page.getByRole("link", { name: /Revisar \d{3,} itens/i })).toHaveCount(0);
     await noOverflow(page);
   });
 
@@ -114,9 +126,15 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await seed(page, { completedLessons, lessonStarsById });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { level: 1, name: /Jornada concluída/i })).toBeVisible();
-    await expect(page.getByText(/Você concluiu a Jornada disponível/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /Continuar|Começar/i })).toHaveCount(0);
+    const continueCard = page.getByTestId("home-continue");
+    await expect(continueCard).toBeVisible();
+    const kind = await continueCard.getAttribute("data-continue-kind");
+    // Path complete: NONE card or a non-lesson fallback (review / practice / explore).
+    expect(["NONE", "FALLBACK_REVIEW", "FALLBACK_PRACTICE", "FALLBACK_EXPLORE"]).toContain(kind);
+    await expect(page.getByText(/Jornada concluída|Journey complete/i).first()).toBeVisible();
+    // No dead Continuar / Começar lesson CTA when the path is done.
+    await expect(page.getByTestId("home-continue-cta").filter({ hasText: /^(Continuar|Começar)/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^(Continuar|Começar primeira)/i })).toHaveCount(0);
     await noOverflow(page);
   });
 });
@@ -129,7 +147,7 @@ test.describe("Jornada — CTAs compactos no desktop", () => {
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
 
-    const continueBtn = page.getByRole("button", { name: /^Continuar$/ });
+    const continueBtn = page.getByTestId("home-continue-cta");
     await expect(continueBtn).toBeVisible();
     const continueBox = await continueBtn.boundingBox();
     expect(continueBox).toBeTruthy();
@@ -199,7 +217,7 @@ test.describe("Jornada — offline, reduced motion e desktop", () => {
     await page.evaluate(() => window.dispatchEvent(new Event("offline")));
     await expect(page.getByTestId("offline-indicator")).toBeVisible();
     // Conteúdo local continua acessível: a ação principal segue visível.
-    await expect(page.getByRole("button", { name: /^Continuar$/ })).toBeVisible();
+    await expect(page.getByTestId("home-continue-cta")).toBeVisible();
     await page.context().setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event("online")));
   });

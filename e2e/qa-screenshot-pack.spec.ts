@@ -77,18 +77,22 @@ test.describe("QA-027 · pacote de regressão dos screenshots", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    // O CTA antigo dizia "Revisar 260 itens". O convite agora tem o tamanho de
-    // uma sessão; o total pendente pode aparecer, mas nunca como a tarefa.
+    // O CTA antigo dizia "Revisar 260 itens". RC2.3.13B — Today secondary CTA
+    // is "Praticar"; the queue size lives in explainability, never as the task.
     const monolithic = page.getByRole("link", { name: /Revisar \d{3,} itens/ });
     await expect(monolithic).toHaveCount(0);
 
-    const sessionCta = page.getByRole("link", { name: /Revisão de hoje/ });
-    await expect(sessionCta.first()).toBeVisible();
-    const label = (await sessionCta.first().innerText()).trim();
-    const shown = Number(label.replace(/\D+/g, "") || "0");
-    expect(shown, `sessão do dia não pode ser enorme: "${label}"`).toBeLessThanOrEqual(20);
-    // O total pendente continua visível, mas como informação secundária.
-    await expect(page.getByText(/\+\d+ pendentes/)).toBeVisible();
+    const today = page.getByTestId("home-today");
+    await expect(today).toBeVisible();
+    await expect(today).toHaveAttribute("data-today-kind", "REVIEW_DUE");
+    await expect(page.getByTestId("home-today-reason")).toContainText(/itens? prontos? para revisar/i);
+    const sessionCta = page.getByTestId("home-today-cta");
+    await expect(sessionCta).toBeVisible();
+    await expect(sessionCta).toHaveAttribute("href", /\/revisao/);
+    const label = (await sessionCta.innerText()).trim();
+    // CTA itself must not encode the raw backlog size.
+    expect(label.replace(/\D+/g, "") || "0", `CTA não pode ser a dívida: "${label}"`).toMatch(/^0?$/);
+    expect(label.length, `CTA curto: "${label}"`).toBeLessThanOrEqual(24);
 
     await page.screenshot({ path: "test-results/qa027-2-jornada-mobile.png" });
   });

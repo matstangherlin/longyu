@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 82,
+    "EVIDENCE_ONLY": 85,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 8
   },
-  "total": 1099,
+  "total": 1102,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1305,6 +1305,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13a-cognitive-ui",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13b-home-cognitive",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13B",
+      "script": "npm run validate:rc2-3-13b-home-cognitive && npm run test:rc2-3-13b-home-cognitive",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13b-home-cognitive",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -6895,6 +6913,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13A",
       "script": "node scripts/rc2-3-13a-cognitive-ui.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13b-home-cognitive",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13B",
+      "script": "node scripts/rc2-3-13b-home-cognitive.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -16356,6 +16392,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13b-home-cognitive",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13B",
+      "script": "node scripts/rc2-3-13b-home-cognitive.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13b-home-cognitive",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -19900,5 +19954,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "a517c7b0571961e1"
+  "evidenceDigest": "2f04837c7791d3ff"
 }
