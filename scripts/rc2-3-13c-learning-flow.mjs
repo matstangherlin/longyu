@@ -141,7 +141,7 @@ function test() {
       billingAudit: base.billingAudit.replace(/DISABLED_FOR_BETA/g, "ENABLED"),
     }),
   );
-  expectKill("16 atomurus touched", "ATOMURUS_TOUCHED", () => {
+  expectKill("16 sibling project touched", "ATOMURUS_TOUCHED", () => {
     const sibling = ["Ato", "murus"].join("");
     return checkRuntimeGuards({
       ...base,

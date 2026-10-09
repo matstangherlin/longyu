@@ -50,7 +50,7 @@ One moment = one dominant action. Reduce interface decisions; preserve learning 
 
 ## Freeze
 
-Curriculum / Mastery math / SRS / JEV / billing / Atomurus unchanged (gated).
+Curriculum / Mastery math / SRS / JEV / billing / sibling projects unchanged (gated).
 
 ## Next
 

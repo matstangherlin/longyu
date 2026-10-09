@@ -2,7 +2,7 @@
 /**
  * npm run gate:rc2-3-13b-home-cognitive
  * Home Cognitive Redesign — Continue → Today → Mandarim → Explore.
- * No pedagogy / curriculum / JEV runtime / billing / Atomurus.
+ * No pedagogy / curriculum / JEV runtime / billing / sibling projects.
  */
 import {
   checkAll,
@@ -162,7 +162,7 @@ function test() {
       billingAudit: base.billingAudit.replace(/DISABLED_FOR_BETA/g, "ENABLED"),
     }),
   );
-  expectKill("17 atomurus touched", "ATOMURUS_TOUCHED", () => {
+  expectKill("17 sibling project touched", "ATOMURUS_TOUCHED", () => {
     const sibling = ["Ato", "murus"].join("");
     return checkRuntimeGuards({
       ...base,
