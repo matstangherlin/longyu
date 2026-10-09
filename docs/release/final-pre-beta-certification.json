@@ -4,8 +4,8 @@
   "parentPr": 339,
   "parentHead": "51f8bd514d9e275fe5c83553fdb5d6e85f182262",
   "shaSemantics": {
-    "learnerRuntimeSha": "PENDING_13R_HEAD",
-    "certificationHeadSha": "PENDING_13R_HEAD",
+    "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
+    "certificationHeadSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
     "artifactSourceSha": "NOT_BUILT",
     "note": "learnerRuntimeSha = last learner UI commit; certificationHeadSha = cert metadata commit; artifactSourceSha = exact checkout for APK/AAB/web. Do not conflate."
   },

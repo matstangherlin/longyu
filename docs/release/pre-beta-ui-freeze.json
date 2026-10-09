@@ -3,8 +3,16 @@
   "wave": "RC2.3.13R",
   "statement": "FINAL learner UI freeze base after H.1 sticky chrome + 13R typography/motion closure. CULTURE IS NOT A BOTTOM NAV ITEM. Sticky Global TopBar + Jornada/Cultura switch. Semantic typography roles. Canonical motion tokens. Journey↔Culture directional content transition. Dynamic Aula preserved. NO 13I / 13J / 13K.",
   "navigationContract": {
-    "mobileTabBar": ["/jornada", "/treino", "/missoes", "/mais"],
-    "progressionSwitch": ["journey", "culture"],
+    "mobileTabBar": [
+      "/jornada",
+      "/treino",
+      "/missoes",
+      "/mais"
+    ],
+    "progressionSwitch": [
+      "journey",
+      "culture"
+    ],
     "cultureBottomNav": false,
     "culturePrimaryAccess": "ProgressionShell"
   },
@@ -37,7 +45,12 @@
       "ProgressionConnector",
       "ProgressionNodeLabel"
     ],
-    "states": ["COMPLETED", "CURRENT", "AVAILABLE", "LOCKED"]
+    "states": [
+      "COMPLETED",
+      "CURRENT",
+      "AVAILABLE",
+      "LOCKED"
+    ]
   },
   "dynamicAula": {
     "shell": "GuidedLessonShell / GuidedPresentationProvider",
@@ -67,8 +80,8 @@
     "mais"
   ],
   "shaSemantics": {
-    "learnerRuntimeSha": "PENDING_13R_HEAD",
-    "certificationHeadSha": "PENDING_13R_HEAD",
+    "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
+    "certificationHeadSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
     "artifactSourceSha": "NOT_BUILT"
   },
   "allowedAfterFreeze": [
@@ -88,6 +101,6 @@
     "collapsing / auto-hiding global top bar",
     "cosmetic motion experimentation"
   ],
-  "sourceSha": "PENDING_13R_HEAD",
-  "frozenAt": "PENDING_13R_HEAD"
+  "sourceSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
+  "frozenAt": "2026-10-09T21:02:26.403Z"
 }
