@@ -2,6 +2,10 @@
 /**
  * gate:beta-wave2-entry | gate:beta-wave3-entry | gate:closed-beta-exit
  * Refuse expansion / exit while closed-beta-entry ≠ GO.
+ *
+ * Cohort gates consume human-confirmed P0/P1 counts from beta-health.json
+ * (health.p0 / health.p1Core). Raw Jev ai_p_candidate / ai_severity alone
+ * must NEVER authorize 10→50 or 50→200.
  */
 import fs from "node:fs";
 import path from "node:path";

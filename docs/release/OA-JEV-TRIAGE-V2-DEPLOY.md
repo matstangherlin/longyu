@@ -25,10 +25,11 @@
 
 | Field | Value |
 |---|---|
-| Source of truth | `supabase/functions/triage-feedback` + `_shared/{jev,jevAnswers,budgetPolicy,opsCorrelation}.ts` |
+| Source of truth | `supabase/functions/triage-feedback` + `_shared/jev*.ts` (Wave 1 guards + Wave 2 triage intelligence) |
 | Bundle hash | see `docs/jev/production-parity.json` → `repoFunctionHash` |
 | Expected next version | **≥ 2** |
 | Learner runtime | **OFF** (`JEV_RUNTIME_ENABLED=false`) |
+| Repo cert | `docs/jev/beta-triage-v2.json` → `JEV_BETA_TRIAGE=VERIFIED` |
 
 ### Expected changes after deploy
 
@@ -39,8 +40,10 @@
 5. Historical reuse only on exact `message`+`category`+`route`  
 6. `askJev(..., "DEV_AUDIT")` purpose  
 7. `validateJevAnswers` (choice / score / noul)  
+8. PII redaction before Jev; severity→P mapper; security overrides; confidence; release-scoped cluster suggestions  
+9. Fail-open `PENDING_AI_TRIAGE` + persistent `jev_ops_daily` budget  
 
-**No DB schema mutation** required for this deploy.
+**DB:** apply additive migration `20261009060000_jev_beta_triage_v2.sql` (owner backup gate) **before** or with Edge deploy. No destructive changes.
 
 ## Deploy method (canonical)
 
