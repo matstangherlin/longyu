@@ -6,7 +6,7 @@
   "versionCode": 650,
   "versionCodeNote": "Planned: floor(1)+firstParentCount at artifactSourceSha; refresh after mint.",
   "wave": "RC2.3.13R.1",
-  "certificationHeadSha": "PENDING_STAMP",
+  "certificationHeadSha": "ada7b23967c3c4d66ffa425842b20dea981ae18e",
   "artifactSourceSha": "NOT_BUILT",
   "fingerprint": "fea5455e1461",
   "commercialMode": "FREE_ONLY",
