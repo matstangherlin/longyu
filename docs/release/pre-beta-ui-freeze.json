@@ -1,0 +1,45 @@
+{
+  "id": "PRE_BETA_UI_FREEZE",
+  "wave": "RC2.3.13G",
+  "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. Culture is a ProgressionShell submode of the Journey progression destination.",
+  "navigationContract": {
+    "mobileTabBar": ["/jornada", "/treino", "/missoes", "/mais"],
+    "progressionSwitch": ["journey", "culture"],
+    "cultureBottomNav": false,
+    "culturePrimaryAccess": "ProgressionShell"
+  },
+  "cultureCounts": {
+    "cultureItems": 36,
+    "cultureNativeLessons": 36,
+    "journeyCultureNodes": 20,
+    "culturePaths": 12,
+    "flagshipDeep": 11
+  },
+  "fingerprint": "fea5455e1461",
+  "eventSchemaVersion": "beta_event/1",
+  "healthSchemaVersion": "beta_health/1",
+  "learnerFacingRoutes": [
+    "jornada",
+    "cultura",
+    "cultura/explorar",
+    "cultura/revisao",
+    "cultura/:id",
+    "treino",
+    "revisao",
+    "missoes",
+    "mais"
+  ],
+  "allowedAfterFreeze": [
+    "P0/P1 bugfix",
+    "necessary P2 blockers",
+    "release / provenance",
+    "accessibility blockers",
+    "observability / Sentry wiring",
+    "physical QA evidence"
+  ],
+  "forbiddenAfterFreeze": [
+    "new visual learner-facing features",
+    "Culture content expansion waves",
+    "new bottom-nav destinations for Culture"
+  ]
+}

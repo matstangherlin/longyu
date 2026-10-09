@@ -1231,7 +1231,11 @@
     "gate:rc2-3-13e-progression-shell-culture": "npm run validate:rc2-3-13e-progression-shell-culture && npm run test:rc2-3-13e-progression-shell-culture",
     "validate:rc2-3-13f-culture-deep-expansion": "node scripts/rc2-3-13f-culture-deep-expansion.mjs validate",
     "test:rc2-3-13f-culture-deep-expansion": "node scripts/rc2-3-13f-culture-deep-expansion.mjs test",
-    "gate:rc2-3-13f-culture-deep-expansion": "npm run validate:rc2-3-13f-culture-deep-expansion && npm run test:rc2-3-13f-culture-deep-expansion"
+    "gate:rc2-3-13f-culture-deep-expansion": "npm run validate:rc2-3-13f-culture-deep-expansion && npm run test:rc2-3-13f-culture-deep-expansion",
+    "generate:beta-health-report": "node scripts/generate-beta-health-report.mjs",
+    "validate:rc2-3-13g-beta-feedback-learner-health": "node scripts/rc2-3-13g-beta-feedback-learner-health.mjs validate",
+    "test:rc2-3-13g-beta-feedback-learner-health": "node scripts/rc2-3-13g-beta-feedback-learner-health.mjs test",
+    "gate:rc2-3-13g-beta-feedback-learner-health": "npm run validate:rc2-3-13g-beta-feedback-learner-health && npm run test:rc2-3-13g-beta-feedback-learner-health"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

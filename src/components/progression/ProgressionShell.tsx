@@ -39,6 +39,21 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
         next === "journey" ? "progression_switch_journey" : "progression_switch_culture",
         { from: mode, to: next },
       );
+      recordTechEvent("progression_mode_changed", {
+        from: mode === "journey" ? "JOURNEY" : "CULTURE",
+        to: next === "journey" ? "JOURNEY" : "CULTURE",
+      });
+      if (next === "culture") {
+        try {
+          const key = "longyu:culture-first-switch";
+          if (localStorage.getItem(key) !== "1") {
+            localStorage.setItem(key, "1");
+            recordTechEvent("culture_first_switch", { from: mode, to: next });
+          }
+        } catch {
+          /* ignore */
+        }
+      }
     },
     [mode, navigate],
   );

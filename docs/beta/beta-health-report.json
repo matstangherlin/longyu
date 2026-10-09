@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "beta_health/1",
+  "generatedAt": "2026-10-09T19:26:38.292Z",
+  "sourceSha": "c4006dc26c2abbf48f4d16a8548f30444fbfed08",
+  "fingerprint": "fea5455e1461",
+  "sampleSize": {
+    "eligible": 0,
+    "withEvents": 0
+  },
+  "metrics": {
+    "activated": {
+      "status": "NO_DATA",
+      "numerator": 0,
+      "denominator": 0
+    },
+    "firstLessonCompleted": {
+      "status": "NO_DATA",
+      "numerator": 0,
+      "denominator": 0
+    },
+    "cultureDiscovery": {
+      "status": "NO_DATA",
+      "numerator": 0,
+      "denominator": 0
+    },
+    "practiceDiscovery": {
+      "status": "NO_DATA",
+      "numerator": 0,
+      "denominator": 0
+    },
+    "masteryDiscovery": {
+      "status": "NO_DATA",
+      "numerator": 0,
+      "denominator": 0
+    },
+    "audioTechFailure": {
+      "status": "NO_DATA",
+      "numerator": 0,
+      "denominator": 0
+    },
+    "timeToFirstMandarin": {
+      "status": "NO_DATA",
+      "p50": null,
+      "p90": null,
+      "n": 0
+    }
+  },
+  "eventNamesSeen": [],
+  "digest": "4f53cda18c2baa0c"
+}
