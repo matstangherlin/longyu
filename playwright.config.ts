@@ -64,19 +64,19 @@ export default defineConfig({
     // Chromium é o portão padrão (roda em qualquer ambiente, inclusive só-Chromium).
     {
       name: "chromium",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, HOME_SCREENSHOT_SPEC, RUNBOOK_SPEC],
       use: { ...devices["Desktop Chrome"], ...chromiumLaunch },
     },
     // Gecko real (Firefox). Exige `npx playwright install firefox`.
     {
       name: "firefox",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, HOME_SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
       use: { ...devices["Desktop Firefox"] },
     },
     // WebKit ≈ motor do Safari (macOS e iOS). Exige `npx playwright install webkit`.
     {
       name: "webkit",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, HOME_SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
       use: { ...devices["Desktop Safari"] },
     },
 
