@@ -4,6 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { journeyFingerprint } from "./lib/report-meta.mjs";
 import { computeVersionCode, readGitState, readVersionFloor } from "./lib/release-identity.mjs";
@@ -26,15 +27,30 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readRel(root, rel);
 const readJson = (rel) => readJsonRel(root, rel);
 
+function firstParentCountAt(sha) {
+  try {
+    return Number(execFileSync("git", ["rev-list", "--count", "--first-parent", sha], { cwd: root, encoding: "utf8" }).trim());
+  } catch {
+    return NaN;
+  }
+}
+
 function load() {
   const git = readGitState(root);
   const floor = readVersionFloor(root);
-  const computed = computeVersionCode({ floor, firstParentCount: git.firstParentCount });
+  const candidate = readJson("docs/release/rc-candidate.json");
+  // Draft: versionCode is bound to candidate.gitSha (may lag HEAD by the lock commit).
+  // After NOT_BUILT, versionCode must match HEAD first-parent count.
+  const countForCode =
+    candidate?.status === "NOT_BUILT" && candidate?.gitSha
+      ? firstParentCountAt(candidate.gitSha) || git.firstParentCount
+      : git.firstParentCount;
+  const computed = computeVersionCode({ floor, firstParentCount: countForCode });
   return {
     git,
     floor,
     computed,
-    candidate: readJson("docs/release/rc-candidate.json"),
+    candidate,
     packageJson: readJson("package.json"),
     productTruth: readJson("docs/release/product-truth.json"),
     foundation: readJson("docs/release/android-native-foundation.json"),
@@ -67,15 +83,11 @@ function validate() {
       computedVersionCode: w.computed,
     }).map((e) => `version:${e}`)
   );
-  // While NOT_BUILT, SHA may lag one commit behind generators; require match after refresh tooling runs.
   if (w.candidate?.status && w.candidate.status !== "NOT_BUILT") {
     errors.push(...checkRcShaFresh({ candidate: w.candidate, headSha: w.git.sha }).map((e) => `sha:${e}`));
     errors.push(
       ...checkProductTruthFresh({ productTruth: w.productTruth, headSha: w.git.sha }).map((e) => `truth:${e}`)
     );
-  } else {
-    // Still require versionCode/name authority even in draft.
-    if (w.candidate?.versionCode !== w.computed) errors.push("version:VERSION_AUTHORITY_DRIFT");
   }
   errors.push(
     ...checkArtifactTriangle({ candidate: w.candidate, headSha: w.git.sha }).map((e) => `artifact:${e}`)
