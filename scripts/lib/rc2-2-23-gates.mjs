@@ -462,7 +462,10 @@ export async function validateProfileAccount(s) {
   const foldAt = profile.indexOf('data-testid="profile-first-fold-actions"');
   const fold = foldAt < 0 ? "" : profile.slice(foldAt, profile.indexOf("</Card>", foldAt));
   if (!/to="\/conta"/.test(fold) || !/to="\/amigos"/.test(fold)) fail("PROFILE_HIDDEN", FILES.profile, "[Editar] [Amigos] na primeira dobra");
-  if (!/data-testid="more-sign-out"/.test(s.src.more)) fail("LOGOUT_DEEP_ONLY", FILES.more, "Sair visível no Mais");
+  // RC2.3.13A — SignOutControl testId prop (renders data-testid at runtime).
+  if (!/SignOutControl[\s\S]{0,80}?testId="more-sign-out"/.test(s.src.more) && !/data-testid="more-sign-out"/.test(s.src.more) && !/testId="more-sign-out"/.test(s.src.more)) {
+    fail("LOGOUT_DEEP_ONLY", FILES.more, "Sair visível no Mais");
+  }
   return failures;
 }
 
