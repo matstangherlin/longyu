@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-09T02:55:40.599Z",
-  "generatedFromSha": "3f38daf70404135108fd0511574e3b9bd36f6200",
-  "inputsDigest": "2c4146250c21f2ac",
-  "evidenceDigest": "d8313f0655f2a727",
+  "generatedAt": "2026-10-09T02:56:18.549Z",
+  "generatedFromSha": "f3827a32f38127b78f7e4bd765dbab271b943fef",
+  "inputsDigest": "35f72f259964215d",
+  "evidenceDigest": "486dc726a298ca34",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -321,9 +321,9 @@
     "BETA": "BLOCKED",
     "rcCandidate": {
       "rcId": "RC2.3.12-RC1",
-      "gitSha": "3f38daf70404135108fd0511574e3b9bd36f6200",
+      "gitSha": "f3827a32f38127b78f7e4bd765dbab271b943fef",
       "version": "0.2.0-rc.1",
-      "versionCode": 570,
+      "versionCode": 571,
       "fingerprint": "5a64821d0b7d",
       "commercialMode": "FREE_ONLY",
       "phase": "NOT_BUILT",
