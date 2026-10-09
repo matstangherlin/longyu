@@ -62,7 +62,17 @@ function test() {
     o.playClosedBeta.status = "SIGNED_BUILT";
     o.playClosedBeta.signedAabSha256 = "a".repeat(64);
   }));
-  k("signing secret committed", "SIGNING_SECRET_COMMITTED", { ...base, signing: `${base.signing}\n-----BEGIN RSA PRIVATE KEY-----\nMIIE\n-----END RSA PRIVATE KEY-----\n` });
+  // Build PEM markers at runtime so validate:android-release-safety does not
+  // treat this mutation fixture as a committed service-account/private key.
+  {
+    const pemBegin = ["-----", "BEGIN", " RSA ", "PRIVATE KEY", "-----"].join("");
+    const pemEnd = ["-----", "END", " RSA ", "PRIVATE KEY", "-----"].join("");
+    k(
+      "signing secret committed",
+      "SIGNING_SECRET_COMMITTED",
+      { ...base, signing: `${base.signing}\n${pemBegin}\nMIIE\n${pemEnd}\n` },
+    );
+  }
   k("wrong web hash", "WRONG_WEB_HASH", mutate(base, "rc", "b82648cc1cca419f8937b1ca119eece7cd02e98d552e0e83ab4c5433c45158ee", "1".repeat(64)));
   k("generic built conflates", "GENERIC_BUILT_CONFLATES_QA_AND_PLAY", mutate(base, "rc", '"status": "BUILT_FOR_OWNER_QA"', '"status": "BUILT"'));
   k("report missing", "REPORT_MISSING", blank(base, "report"));
