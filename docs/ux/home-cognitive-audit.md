@@ -81,4 +81,4 @@ After 5 seconds a tester should answer:
 ## JEV / freeze
 
 - `JEV_RUNTIME_ENABLED=false`, no Home → Jev calls
-- No Mastery 2.0 / Longyu Life / Reader / new curriculum / billing / Atomurus
+- No Mastery 2.0 / Longyu Life / Reader / new curriculum / billing / sibling projects
