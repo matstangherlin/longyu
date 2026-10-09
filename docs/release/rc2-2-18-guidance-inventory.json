@@ -85,6 +85,12 @@
       "automatic": false
     },
     {
+      "file": "src/components/account/SignOutControl.tsx",
+      "surface": "sign-out confirmation (RC2.3.13A compact logout)",
+      "class": "CONFIRMATION",
+      "automatic": false
+    },
+    {
       "file": "src/features/account/AccountPage.tsx",
       "surface": "redo placement confirmation",
       "class": "CONFIRMATION",
