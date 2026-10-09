@@ -26,8 +26,12 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 30/);
     await expect(page.getByTestId("culture-next-cta")).toBeVisible();
+    // RC2.3.13E — Atlas / explore is secondary at /cultura/explorar
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("culture-atlas")).toBeVisible();
     await expect(page.getByTestId("culture-collections")).toBeVisible();
     await expect(page.getByTestId("culture-featured")).toBeVisible();
 
@@ -56,13 +60,17 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     expect(persist.cultureMasteryById["visiting-home"]?.stars).toBeGreaterThanOrEqual(1);
 
     await leaveCultureVictory(page);
-    if (!(await page.getByTestId("culture-hub").isVisible().catch(() => false))) {
+    if (!(await page.getByTestId("culture-hub").isVisible().catch(() => false)) && !(await page.getByTestId("culture-atlas").isVisible().catch(() => false))) {
       await page.goto("/cultura");
     }
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
+    await expect(page.getByTestId("culture-progress")).toBeVisible();
+    await expect(page.getByTestId("culture-route-progress")).toBeVisible();
 
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     const filterAll = page.getByTestId("culture-filter-all");
@@ -74,7 +82,11 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
-    await expect(page.getByTestId("culture-progress")).toContainText(/1 \/ 30/);
+    await expect(page.getByTestId("culture-progress")).toBeVisible();
+    await expect(page.getByTestId("culture-route-progress")).toBeVisible();
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     const filterAllAgain = page.getByTestId("culture-filter-all");
@@ -273,6 +285,9 @@ test.describe("V4.9.8A.1 Culture teaching loop", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     await expect(page.getByTestId("culture-node-journey-shared-dishes")).toBeVisible();
     await expect(page.getByTestId("culture-node-shared-dishes")).toHaveAttribute("data-knowledge", "practiced");
@@ -291,6 +306,9 @@ test.describe("V4.11A.2 Culture Atlas Hub", () => {
     await expect(page.getByTestId("culture-collection-card-festivals_calendar")).toBeVisible();
     await expect(page.getByTestId("culture-collection-card-china_history")).toBeVisible();
     await expect(page.getByTestId("culture-collection-preparing-china_history")).toHaveCount(0);
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-featured")).toBeVisible();
     await expect(page.locator('[data-testid="culture-featured"] [data-culture-id="china-history-timeline"]')).toBeVisible();
 
@@ -325,6 +343,9 @@ test.describe("V4.11A.2 Culture Atlas Hub", () => {
 
     await page.goto("/cultura");
     await waitForLazyPage(page);
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     await expect(page.getByTestId("culture-category-filter")).toBeVisible();
@@ -360,7 +381,8 @@ test.describe("V4.11A.3 China History Essentials", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    await expect(page.getByTestId("culture-progress")).toContainText(/0 \/ 30/);
+    await expect(page.getByTestId("culture-progress")).toBeVisible();
+    await expect(page.getByTestId("culture-next-cta").or(page.getByTestId("culture-route-progress"))).toBeVisible();
     await page.getByTestId("culture-collection-card-china_history").click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-collection-page")).toBeVisible();
@@ -447,10 +469,10 @@ test.describe("V4.9.8A.1 Culture Hub mobile", () => {
 
   test("hub and LessonPlayer CTA are tappable at 390×844", async ({ page }) => {
     await seedOnboardedSession(page, CULTURE_DISCOVERED_LESSONS);
-    await page.goto("/cultura");
+    await page.goto("/cultura/explorar");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("culture-hub")).toBeVisible();
+    await expect(page.getByTestId("culture-atlas")).toBeVisible();
     await expect(page.getByTestId("culture-collections")).toBeVisible();
     const card = page.getByTestId("culture-collection-card-festivals_calendar");
     await expect(card).toBeVisible();

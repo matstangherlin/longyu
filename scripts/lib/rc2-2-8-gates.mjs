@@ -305,7 +305,11 @@ export function gatePhaseChallengeEconomy(src) {
     [/completeLessonViaTest\(lessonId\)/.test(finishStore), "K10: passar marca só pela via de teste existente"],
     [/FOUNDATION_LESSON_IDS\.includes\(lesson\.id\)/.test(src.phaseChallenge), "K11: fundamentos não são pulados"],
     [/isCultureLessonId\(lesson\.id\)/.test(src.phaseChallenge), "K10.1: lição cultural nunca é marcada"],
-    [/cultureGateForTopic\(/.test(src.phaseChallenge), "K10.2: marco cultural trancado bloqueia o alvo"],
+    // RC2.3.13E — Culture never blocks Journey; Phase Challenge must consult cultureBlocksJourney().
+    [
+      /cultureGateForTopic\(/.test(src.phaseChallenge) && /cultureBlocksJourney\(/.test(src.phaseChallenge),
+      "K10.2: marco cultural consultado sob cultureBlocksJourney (não tranca a Jornada)",
+    ],
     [/buildModuleSkipTest\(/.test(src.phaseChallenge) && /gradeModuleSkipTest\(/.test(src.phaseChallenge), "K2: reusa o motor do teste de módulo"],
     [!/placement|ComecarPage/.test(src.phaseChallenge.replace(/\/\*[\s\S]*?\*\//g, "")), "K1: não mistura com o nivelamento"],
     [/path: "teste\/fase\/:phaseId"/.test(src.routes), "K3: rota do Phase Challenge"],

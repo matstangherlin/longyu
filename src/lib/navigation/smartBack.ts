@@ -67,6 +67,7 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/dominio", parent: "/revisao" },
 
   // Cultura.
+  { pattern: "/cultura/explorar", parent: "/cultura", ownBack: true },
   { pattern: "/cultura/revisao", parent: "/cultura", ownBack: true },
   { pattern: "/cultura/colecao/:collectionId", parent: "/cultura", ownBack: true },
   { pattern: "/cultura/:id", parent: "/cultura", ownBack: true },

@@ -1225,7 +1225,10 @@
     "gate:rc2-3-13c-learning-flow": "npm run validate:rc2-3-13c-learning-flow && npm run test:rc2-3-13c-learning-flow",
     "validate:rc2-3-13d-mobile-physical-ux": "node scripts/rc2-3-13d-mobile-physical-ux.mjs validate",
     "test:rc2-3-13d-mobile-physical-ux": "node scripts/rc2-3-13d-mobile-physical-ux.mjs test",
-    "gate:rc2-3-13d-mobile-physical-ux": "npm run validate:rc2-3-13d-mobile-physical-ux && npm run test:rc2-3-13d-mobile-physical-ux"
+    "gate:rc2-3-13d-mobile-physical-ux": "npm run validate:rc2-3-13d-mobile-physical-ux && npm run test:rc2-3-13d-mobile-physical-ux",
+    "validate:rc2-3-13e-progression-shell-culture": "node scripts/rc2-3-13e-progression-shell-culture.mjs validate",
+    "test:rc2-3-13e-progression-shell-culture": "node scripts/rc2-3-13e-progression-shell-culture.mjs test",
+    "gate:rc2-3-13e-progression-shell-culture": "npm run validate:rc2-3-13e-progression-shell-culture && npm run test:rc2-3-13e-progression-shell-culture"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
