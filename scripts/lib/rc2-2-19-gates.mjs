@@ -482,7 +482,8 @@ export async function validateProductRelease(s) {
     if (!fold.includes(needle)) fail("PROFILE_NOT_DISCOVERABLE", FILES.profile, `primeira dobra: ${needle}`);
   const more = stripComments(s.src.more);
   const you = fnBody(more, "function MoreYouBlock(");
-  for (const needle of ['to="/perfil"', 'to="/conta"', 'to="/config/aparencia"', "signOut()"])
+  // RC2.3.13A — logout is SignOutControl (compact + confirm), not inline signOut().
+  for (const needle of ['to="/perfil"', 'to="/conta"', 'to="/config/aparencia"', "SignOutControl", 'testId="more-sign-out"'])
     if (!you.includes(needle)) fail("LOGOUT_NOT_DISCOVERABLE", FILES.more, `Mais › Você: ${needle}`);
   if (/excluir|delete|DangerZone/i.test(you)) fail("DELETE_NOT_SEPARATED", FILES.more, "Excluir conta fica separado, nunca no bloco rápido");
   if (more.indexOf("<MoreYouBlock />") < 0 || more.indexOf("<MoreYouBlock />") > more.indexOf("{sections.map("))

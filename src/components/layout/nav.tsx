@@ -269,8 +269,9 @@ export function moreFlyoutGroups(
 }
 
 /**
- * Sheet mobile de Mais: atalhos que não cabem na barra (Loja, Ligas, …)
- * + sistema. O catálogo completo continua em `/mais`.
+ * Sheet mobile de Mais — RC2.3.13A (Hick): few simultaneous choices.
+ * VOCÊ · PROGRESSO · AJUDA. Terms/privacy/delete live in Conta/Ajustes.
+ * Full catalog remains at `/mais`.
  */
 export function moreMobileSheetGroups(
   primaryNav: NavItem[],
@@ -281,20 +282,13 @@ export function moreMobileSheetGroups(
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to) && isNavItemDiscovered(item, visibility);
 
-  // RC2.2.23 — o Mais começa por VOCÊ (Perfil · Conta). RC2.2.25 — ordem
-  // fixa VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA, cada grupo só com o
-  // que já foi descoberto. Nada se repete: `keep` tira o que já está na barra.
   const you = [NAV.perfil, NAV.conta, NAV.aparencia].filter((item) => !primaryTos.has(item.to));
-  const learn = [NAV.cultura, NAV.missoes].filter(keep);
-  const social = [NAV.ligas].filter(keep);
-  const progress = [NAV.conquistas, NAV.loja].filter(keep);
-  const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
+  const progress = [NAV.conquistas, NAV.ligas, NAV.loja].filter(keep);
+  const help = [NAV.ajuda, NAV.sobre].filter(keep);
   const groups: NavGroup[] = [];
   groups.push({ id: "you", title: "Você", titleKey: "navigation.groupYou", items: you });
-  if (learn.length) groups.push({ id: "learn", title: "Estudar", titleKey: "navigation.groupStudy", items: learn });
-  if (social.length) groups.push({ id: "social", title: "Social", titleKey: "navigation.groupSocial", items: social });
   if (progress.length) groups.push({ id: "progress", title: "Progresso", titleKey: "navigation.groupProgress", items: progress });
-  if (system.length) groups.push({ id: "system", title: "Sistema", titleKey: "navigation.groupSystem", items: system });
+  if (help.length) groups.push({ id: "help", title: "Ajuda", titleKey: "navigation.groupHelp", items: help });
   return groups;
 }
 

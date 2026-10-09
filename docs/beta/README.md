@@ -10,10 +10,10 @@
 
 | Identity | Field | Meaning |
 |---|---|---|
-| Artifact | `artifactSourceSha` | Code inside the RC1 APK/AAB |
+| Artifact | `artifactSourceSha` | Code inside the **RC2** APK/AAB (`RC2.3.12-RC2`) |
 | Certification | `certificationHeadSha` | Docs/gates/hashes on the orchestration commit |
 
-See `docs/release/rc-dual-sha.json`. Do not confuse them.
+See `docs/release/rc-dual-sha.json`. Do not confuse them. **Physical QA target is RC2** — RC1 does not certify the 13A UI (`docs/release/rc1-artifacts.json` is historical only).
 
 ## Cohorts
 
@@ -27,4 +27,4 @@ Commercial mode: **FREE_ONLY**. Live billing / Play purchase: **OFF**.
 
 ## Owner physical
 
-`docs/release/OWNER_DOWNLOAD.md` + `docs/release/OWNER_RC1_DEVICE_TEST.md`
+`docs/release/OWNER_DOWNLOAD.md` + `docs/release/OWNER_RC2_DEVICE_TEST.md` (RC1 checklist retained as historical reference only)

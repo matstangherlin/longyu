@@ -17,8 +17,11 @@ const truth = readJson("docs/release/product-truth.json");
 const fp = journeyFingerprint(root);
 const errors = [];
 
-if (candidate.rcId !== "RC2.3.12-RC1") errors.push("RC_ID");
+// RC2.3.13A — learner UI changed → current candidate is RC2 (RC1 historical in rc1-artifacts.json).
+if (candidate.rcId !== "RC2.3.12-RC2") errors.push("RC_ID");
 if (candidate.version !== pkg.version) errors.push("VERSION");
+if (candidate.versionCode !== 596) errors.push("VERSION_CODE");
+if (!(candidate.versionCode > 570)) errors.push("VERSION_CODE_REUSED_RC1");
 if (candidate.fingerprint !== fp) errors.push("FINGERPRINT");
 if (truth.product?.lessons !== 134) errors.push("LESSONS");
 if (truth.product?.teachingTopics !== 113) errors.push("TOPICS");

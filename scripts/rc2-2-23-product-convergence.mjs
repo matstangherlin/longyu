@@ -112,7 +112,7 @@ const MUTATIONS = {
   ],
   "profile-account": [
     ["[26b] perfil sem primeira dobra", "PROFILE_HIDDEN", src("profile", 'data-testid="profile-friends-link"', 'data-testid="profile-link"')],
-    ["[27] logout só no fundo", "LOGOUT_DEEP_ONLY", src("more", 'data-testid="more-sign-out"', 'data-testid="more-x"')],
+    ["[27] logout só no fundo", "LOGOUT_DEEP_ONLY", src("more", '{canSignOut ? <SignOutControl testId="more-sign-out" /> : null}', "{null}")],
   ],
   "physical-truth": [
     ["[29] fala bloqueia a lição", "SPEECH_BLOCKS_LESSON", src("pronunciation", "onCannotSpeak={onContinue}", "onCannotSpeak={() => undefined}")],

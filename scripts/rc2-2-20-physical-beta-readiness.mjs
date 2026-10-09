@@ -97,8 +97,8 @@ const MUTATIONS = {
     ["exceção de freeze ausente", "FREEZE_EXCEPTION_MISSING", src("curriculumFreeze", "RC2_2_20_PHYSICAL_BETA_READINESS_EXCEPTION", "RC2_2_20_UNREGISTERED")],
   ],
   release: [
-    ["[18] Perfil/Mais esconde Sair", "LOGOUT_HIDDEN", src("more", 'data-testid="more-sign-out"', 'data-testid="more-hidden"')],
-    ["[18b] Sair com cara de Excluir", "LOGOUT_STYLED_AS_DELETE", src("conta", 'data-testid="conta-sign-out"', 'className="text-wrong" data-testid="conta-sign-out"')],
+    ["[18] Perfil/Mais esconde Sair", "LOGOUT_HIDDEN", src("more", '{canSignOut ? <SignOutControl testId="more-sign-out" /> : null}', "{null}")],
+    ["[18b] Sair com cara de Excluir", "LOGOUT_STYLED_AS_DELETE", src("conta", '{canSignOut ? <SignOutControl testId="conta-sign-out" /> : null}', '{canSignOut ? <button type="button" variant="danger" className="bg-wrong" data-testid="conta-sign-out">Sair</button> : null}')],
     ["[19] update reseta orientação (comparação cega)", "GUIDANCE_RESET", src("upgrade", '    violations.push("GUIDANCE_RESET");', "    void 0;")],
     ["[19b] reabrir o app reseta orientações vistas", "GUIDANCE_RESET", src("orchestrator", 'if (legacy && r.status === "SEEN") {', 'if (legacy || r.status === "SHOWN") {')],
     ["[20] update duplica recompensa (comparação cega)", "REWARD_DUPLICATED", src("upgrade", '    violations.push("REWARD_DUPLICATED");', "    void 0;")],

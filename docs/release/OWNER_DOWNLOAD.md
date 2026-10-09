@@ -2,28 +2,30 @@
 
 | Field | Value |
 |---|---|
-| RC ID | **RC2.3.12-RC1** |
-| **artifactSourceSha** (code inside APK/AAB) | `2d64f0d7b59f38d761e4970a1770cbf703b8c1d8` |
-| certificationHeadSha (#329 orchestration only) | `2a4082160fb5f0abff6c954f0076c586fbc91f67` |
-| version | `0.2.0-rc.1` |
-| versionCode | `570` |
+| RC ID | **RC2.3.12-RC2** |
+| **artifactSourceSha** (code inside APK/AAB) | `529d2cd4a9c1b949d61e815dc434162d5fb3a589` |
+| workflowMergeSha (CI checkout) | `3f5cc1b3174cb1807ec181ec3e3b915c0f961428` |
+| version | `0.2.0-rc.2` |
+| versionCode | `596` |
 | fingerprint | `5a64821d0b7d` |
-| **APK** | `longyu-android-debug-0.2.0-rc.1-2c56701.apk` |
-| APK SHA256 | `dc99c03bd803a17d1ff55ab82964df2db820ce316f02568c7887a47a414cc492` |
-| AAB SHA256 | `c9f8f0981f4d3abdf10efe7b45e5dee30539afce352fe9f62ebc39fbaae29a85` |
-| Hosted run | https://github.com/matstangherlin/longyu/actions/runs/37877291018 |
+| **APK** | `longyu-android-debug-0.2.0-rc.2-3f5cc1b.apk` |
+| APK SHA256 | `b4c2a846e87af7bd1a8c495bbe2fc8b2b77ff740fc12d5b1c15dc6b61f1b57a0` |
+| AAB SHA256 | `d77b93503c7b0607b9d31cba714beecc27fd5f8cfd3552ac5dc8fe397ab2bdf4` |
+| Hosted run | https://github.com/matstangherlin/longyu/actions/runs/37908317177 |
 
-Do **not** confuse certification HEAD with artifact source SHA. QA Release Truth must show the **artifact** identity.
+**RC1 does not certify this UI** (cognitive UI foundation in RC2.3.13A). RC1 provenance is frozen in `docs/release/rc1-artifacts.json`.
+
+Do **not** confuse workflow merge SHA with artifact source SHA. QA Release Truth must show the **artifact** identity (`sourceHeadSha`).
 
 ## How to get the APK
 
-1. Open the run above → artifact **`longyu-android-debug-0.2.0-rc.1-2c56701`**  
-2. Or use agent path (same bytes): `/opt/cursor/artifacts/rc-apk/longyu-android-debug-0.2.0-rc.1-2c56701.apk`  
+1. Open the run above → artifact **`longyu-android-debug-0.2.0-rc.2-3f5cc1b`**  
+2. Or use agent path (same bytes): `/opt/cursor/artifacts/rc2-apk/longyu-android-debug-0.2.0-rc.2-3f5cc1b.apk`  
 3. Verify SHA256 before install.
 
 ## Rules
 
 1. Install **only** this APK (SHA256 must match).  
 2. This is a **debug diagnostic** build (`deviceQaBuild=true`) for physical certification — not a Play production upload.  
-3. After you install it on your phone (or send to any tester), reply: **RC1 distributed** → candidate becomes immutable (next code fix = RC2).  
-4. Then run `OWNER_RC1_DEVICE_TEST.md` (20 checkpoints).
+3. Physical beta QA must use **RC2**, not RC1.  
+4. Then run `OWNER_RC2_DEVICE_TEST.md` (or updated RC1 script renamed for RC2 identity).
