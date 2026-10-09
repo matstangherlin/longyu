@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 112,
+    "EVIDENCE_ONLY": 115,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 8
   },
-  "total": 1129,
+  "total": 1132,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1485,6 +1485,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13r-typography-motion",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r2-artifact-physical-go",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:rc2-3-13r2-artifact-physical-go && npm run test:rc2-3-13r2-artifact-physical-go && npm run validate:final-pre-beta-rc-entry && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r2-artifact-physical-go",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7255,6 +7273,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13R",
       "script": "node scripts/rc2-3-13r-typography-motion.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13r2-artifact-physical-go",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r2-artifact-physical-go.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -16896,6 +16932,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r2-artifact-physical-go",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r2-artifact-physical-go.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r2-artifact-physical-go",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -20440,5 +20494,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "a643b9d615f79add"
+  "evidenceDigest": "17aa8b413f3c0b01"
 }

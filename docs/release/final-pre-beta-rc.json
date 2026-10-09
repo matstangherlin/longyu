@@ -1,41 +1,78 @@
 {
-  "schema": "longyu-final-pre-beta-rc/1",
-  "status": "NOT_BUILT",
+  "schema": "longyu-final-pre-beta-rc/2",
+  "wave": "RC2.3.13R.2",
+  "status": "BUILT_FOR_OWNER_QA",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
-  "versionCode": 650,
-  "versionCodeNote": "Planned: floor(1)+firstParentCount at artifactSourceSha; refresh after mint.",
-  "wave": "RC2.3.13R.1",
-  "certificationHeadSha": "ada7b23967c3c4d66ffa425842b20dea981ae18e",
-  "artifactSourceSha": "NOT_BUILT",
+  "versionCode": 651,
+  "versionCodeAuthority": "Android provenance + AAB bundleInspection from workflow run 37995330174 (floor+firstParent at PR merge checkout).",
   "fingerprint": "fea5455e1461",
   "commercialMode": "FREE_ONLY",
   "liveBilling": false,
   "playPurchases": false,
   "jevLearnerRuntime": false,
-  "deviceQaBuild": true,
-  "signedRelease": "BLOCKED_SIGNING_SECRETS",
-  "build": {
-    "androidRunId": null,
-    "androidWorkflow": "Android build",
-    "note": "Await hosted Android SUCCESS after REDUCED_MOTION guidance-surfaces fix."
+  "packageId": "longyu.noba.com",
+  "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
+  "certificationHeadSha": "1bdc72e7fd14debda9622af8fed105aa3489b0df",
+  "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+  "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+  "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+  "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
+  "parentPr": 341,
+  "shaNote": "artifactSourceSha = embedded sourceHeadSha (branch tip used as web/Capacitor source). workflowMergeSha = temporary PR merge ref used by Actions checkout. Do not conflate.",
+  "ownerQaApk": {
+    "role": "OWNER_QA_APK",
+    "status": "BUILT",
+    "channel": "DEVICE_QA",
+    "buildType": "debug",
+    "deviceQaBuild": true,
+    "workflowRunId": 37995330174,
+    "workflowAttempt": 1,
+    "artifactId": 11646859473,
+    "artifactName": "longyu-android-debug-0.2.0-rc.5-3be0ade",
+    "apkFile": "longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
+    "sha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "bytes": 23674372,
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 651,
+    "packageId": "longyu.noba.com",
+    "builtAt": "2026-10-09T21:59:31.202Z",
+    "ownerPathHint": "/opt/cursor/artifacts/r2-apk/longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
+    "note": "Sideload / physical QA only. NOT Play-ready."
   },
-  "apk": {
-    "status": "NOT_BUILT",
-    "artifactName": null,
-    "sha256": null
-  },
-  "aab": {
-    "status": "NOT_BUILT",
-    "artifactName": null,
-    "sha256": null
+  "playClosedBeta": {
+    "role": "PLAY_CLOSED_BETA_AAB",
+    "status": "BLOCKED_SIGNING_SECRETS",
+    "debugAabPresent": true,
+    "debugAabFile": "longyu-android-debug-0.2.0-rc.5-3be0ade.aab",
+    "debugAabSha256": "9342258e158b4eab0c6724a342bd6034cf59ec95aa250359be9280a3699ffb50",
+    "debugAabBytes": 22119030,
+    "signedAab": null,
+    "signedAabSha256": null,
+    "note": "Debug AAB exists from android-build.yml but is NOT a Play Closed Testing upload candidate. Signed release requires LONGYU_ANDROID_KEYSTORE_* secrets (see docs/release/PLAY_SIGNING_HANDOFF.md)."
   },
   "web": {
-    "status": "NOT_BUILT",
-    "artifactName": null,
-    "sha256": null
+    "role": "WEB_CANDIDATE",
+    "status": "BUILT",
+    "artifactName": "longyu-web-5c27be3.tar.gz",
+    "sha256": "b82648cc1cca419f8937b1ca119eece7cd02e98d552e0e83ab4c5433c45158ee",
+    "bytes": 10885172,
+    "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "method": "deterministic tar+gzip of local npm run build dist (sorted paths, fixed mtime)",
+    "note": "Local web candidate digest for release provenance. Netlify production may still serve an older SHA until deploy."
   },
-  "priorBuiltRc": "RC2.3.12-RC2",
-  "supersedesNote": "RC2 / RC4 drafts cannot certify sticky chrome, Dynamic Aula, typography/motion closure.",
-  "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
+  "entry": {
+    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "reason": "Owner QA APK BUILT+hashed; physical/ops/owner acceptance NOT_RUN. Play Closed Beta blocked on signing secrets. Public HOLD."
+  },
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0,
+    "activated": 0,
+    "realTesterCount": 0,
+    "note": "Do not invite until PLAY_CLOSED_BETA_ENTRY=GO (or canonical distribution GO)."
+  },
+  "priorBuiltRc": "RC2.3.12-RC2"
 }

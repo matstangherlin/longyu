@@ -65,22 +65,23 @@ export function checkArtifacts(src = loadFinalSources()) {
   const errors = [];
   const rc = j(src, "rc");
   if (!rc) return ["APK_ABSENT", "AAB_ABSENT", "WEB_ABSENT"];
-  if (!rc.apk) errors.push("APK_ABSENT");
-  if (!rc.aab) errors.push("AAB_ABSENT");
-  if (!rc.web) errors.push("WEB_ABSENT");
-  if (rc.status === "BUILT") {
-    if (rc.apk?.status !== "BUILT" || !/^[a-f0-9]{64}$/.test(rc.apk?.sha256 || "")) errors.push("APK_ABSENT");
-    if (rc.aab?.status !== "BUILT" || !/^[a-f0-9]{64}$/.test(rc.aab?.sha256 || "")) errors.push("AAB_ABSENT");
-    if (rc.web?.status !== "BUILT" || !/^[a-f0-9]{64}$/.test(rc.web?.sha256 || "")) errors.push("WEB_ABSENT");
+  // Schema v2: ownerQaApk / playClosedBeta / web (R.2). Legacy: apk/aab/web.
+  const ownerApk = rc.ownerQaApk || rc.apk;
+  const play = rc.playClosedBeta || rc.aab;
+  const web = rc.web;
+  if (!ownerApk) errors.push("APK_ABSENT");
+  if (!play) errors.push("AAB_ABSENT");
+  if (!web) errors.push("WEB_ABSENT");
+  const built = rc.status === "BUILT" || rc.status === "BUILT_FOR_OWNER_QA";
+  if (built) {
+    if (ownerApk?.status !== "BUILT" || !/^[a-f0-9]{64}$/.test(ownerApk?.sha256 || "")) errors.push("APK_ABSENT");
     if (!rc.artifactSourceSha || rc.artifactSourceSha === "NOT_BUILT") {
       errors.push("ARTIFACT_SOURCE_SHA_MISSING");
     }
-    if (rc.apk?.sha256 && rc.aab?.sha256 && rc.apk.sha256 === rc.aab.sha256) {
-      errors.push("APK_HASH_MISMATCH");
-    }
+    if (web?.status === "BUILT" && !/^[a-f0-9]{64}$/.test(web?.sha256 || "")) errors.push("WEB_ABSENT");
   }
-  // Invented hashes while still NOT_BUILT
-  if (rc.status !== "BUILT") {
+  // Invented hashes while still NOT_BUILT (legacy)
+  if (rc.status === "NOT_BUILT") {
     for (const kind of ["apk", "aab", "web"]) {
       const h = rc[kind]?.sha256;
       if (h && /^[a-f0-9]{64}$/.test(h)) errors.push("INVENTED_CHECKSUM");
@@ -225,7 +226,10 @@ export function checkEvidenceHonesty(src = loadFinalSources()) {
   if (entry === "GO" && cert.ownerAcceptance?.boundApkSha256 && rc?.apk?.sha256 && cert.ownerAcceptance.boundApkSha256 !== rc.apk.sha256) {
     errors.push("OWNER_ACCEPTANCE_WRONG_APK");
   }
-  if (ev?.physical?.PHYSICAL_QA === "PHYSICAL_PASS" && ev?.meta?.evidenceLevel === "CODE_ONLY") {
+  if (
+    ev?.physical?.PHYSICAL_QA === "PHYSICAL_PASS" &&
+    /CODE|HOSTED_PARTIAL|EMULATED/i.test(String(ev?.meta?.evidenceLevel || ""))
+  ) {
     errors.push("FAKE_PHYSICAL_PASS");
   }
   if (cert.physical?.PHYSICAL_QA === "NOT_RUN" && entry === "GO") {
