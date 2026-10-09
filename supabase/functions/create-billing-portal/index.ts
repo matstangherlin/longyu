@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { refuseStripeLive } from "../_shared/stripeLiveGuard.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_BETA_ORIGINS = [
@@ -59,6 +60,8 @@ serve(async (req) => {
         headers: { ...headers, "Content-Type": "application/json" },
       });
     }
+    const liveRefusal = refuseStripeLive(stripeSecret, headers);
+    if (liveRefusal) return liveRefusal;
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
