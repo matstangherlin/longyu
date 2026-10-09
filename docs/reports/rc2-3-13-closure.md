@@ -6,7 +6,7 @@
 |---|---|
 | Parent | PR #329 |
 | Artifact source SHA | `2d64f0d7b59f38d761e4970a1770cbf703b8c1d8` |
-| Certification HEAD | `aca759cb179d9ce1aedaa9c7baa4a7165c6cf2cb` |
+| Certification HEAD | `2a4082160fb5f0abff6c954f0076c586fbc91f67` |
 | Beta ops HEAD (parent tip) | `870a71a4d6f7faae801304344c9e1d915533b273` |
 | APK SHA256 | `dc99c03bd803a17d1ff55ab82964df2db820ce316f02568c7887a47a414cc492` |
 | AAB SHA256 | `c9f8f0981f4d3abdf10efe7b45e5dee30539afce352fe9f62ebc39fbaae29a85` |
@@ -14,7 +14,9 @@
 
 ## Hosted (#329)
 
-Security SUCCESS · Android foundation+runtime SUCCESS · Release truth SUCCESS · quality gate SUCCESS. Chromium + WebKit/Firefox E2E still **IN_PROGRESS** at last reconsult. Pending ≠ PASS. `PARENT_HOSTED_TRUTH_PASS` stays PENDING until CI completes SUCCESS.
+Security SUCCESS · Android foundation+runtime SUCCESS · Release truth SUCCESS · quality gate SUCCESS.
+
+Chromium E2E initially **FAIL** (4): `beta-smoke` hardcoded `v0.2.0-beta.1` after package/`VITE_APP_VERSION` became `0.2.0-rc.1`. Fixed on #329 (`2a408216`, read version from `package.json`). Speech produce case was flaky (not counted as hard fail). WebKit step also failed once (known P2 `WEBKIT-E2E-FLAKES-10B`) — reconsult after re-run. Pending/failed ≠ PASS. `PARENT_HOSTED_TRUTH_PASS` stays PENDING until CI completes SUCCESS.
 
 ## Product truth
 

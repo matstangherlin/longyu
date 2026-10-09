@@ -72,18 +72,19 @@
   },
   "notes": [
     "APK/AAB from hosted run 37877291018 sourceHeadSha 2d64f0d7; physical/sentry/rollback/cloud-smoke still open",
-    "PRODUCT_TRUTH_FRESH=PASS after generate:product-truth (inputs 1c93e78a5a09b121) + release-truth PASS on RC2.3.13 ops branch",
-    "Partial cloud probe: site+version.json+auth health OK; full smoke blocked without LONGYU_QA_*; live web still ec26ffcb / 0.2.0-beta.1",
-    "Sentry MCP auth timed out — OBSERVABILITY_PASS remains CONFIG_REQUIRED"
+    "PRODUCT_TRUTH_FRESH=PASS after generate:product-truth + release-truth PASS on RC2.3.13 ops branch",
+    "Chromium E2E fail root cause: hardcoded v0.2.0-beta.1 — fixed on #329 2a408216 (package.json-bound)",
+    "Partial cloud probe OK; full smoke blocked without LONGYU_QA_*; Sentry MCP auth timed out"
   ],
   "hostedEvidence": {
     "pr": 329,
-    "head": "aca759cb179d9ce1aedaa9c7baa4a7165c6cf2cb",
+    "head": "2a4082160fb5f0abff6c954f0076c586fbc91f67",
     "pending": true,
     "failed": [],
     "e2eChrome": "",
     "e2eCross": "",
     "androidOk": true,
-    "securityOk": true
+    "securityOk": true,
+    "note": "E2E version fix pushed; awaiting re-run SUCCESS"
   }
 }

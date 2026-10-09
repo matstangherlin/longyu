@@ -4,7 +4,7 @@
 |---|---|
 | RC ID | **RC2.3.12-RC1** |
 | **artifactSourceSha** (code inside APK/AAB) | `2d64f0d7b59f38d761e4970a1770cbf703b8c1d8` |
-| certificationHeadSha (#329 orchestration only) | `aca759cb179d9ce1aedaa9c7baa4a7165c6cf2cb` |
+| certificationHeadSha (#329 orchestration only) | `2a4082160fb5f0abff6c954f0076c586fbc91f67` |
 | version | `0.2.0-rc.1` |
 | versionCode | `570` |
 | fingerprint | `5a64821d0b7d` |
