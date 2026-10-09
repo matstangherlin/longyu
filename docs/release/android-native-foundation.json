@@ -8,7 +8,7 @@
   "appId": "longyu.noba.com",
   "appName": "Longyu",
   "webDir": "dist",
-  "versionName": "0.2.0-rc.2",
+  "versionName": "0.2.0-rc.5",
   "versionCode": 1,
   "versionCodeRole": "floor",
   "versionCodeAuthority": "docs/release/VERSION_AUTHORITY.md",

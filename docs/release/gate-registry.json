@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 110,
+    "EVIDENCE_ONLY": 112,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 8
   },
-  "total": 1127,
+  "total": 1129,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -361,10 +361,10 @@
       "status": "EVIDENCE_ONLY",
       "domain": "none",
       "introducedBy": "RC2.3.13H",
-      "script": "npm run gate:rc2-3-13h1-sticky-progression-chrome && npm run gate:rc2-3-13r-typography-motion && npm run validate:product-truth",
+      "script": "npm run gate:rc2-3-13h1-sticky-progression-chrome && npm run gate:rc2-3-13r-typography-motion && npm run validate:final-pre-beta-rc-entry && npm run test:final-pre-beta-rc-entry && npm run validate:product-truth",
       "invariants": [],
       "supportsInvariants": [],
-      "mutationCoverage": "none",
+      "mutationCoverage": "test:final-pre-beta-rc-entry",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -3944,6 +3944,24 @@
       "executionPhase": "not-executed",
       "supersededBy": null,
       "estimatedRuntimeMs": 94,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:final-pre-beta-rc-entry",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/final-pre-beta-rc-entry.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
       "requiresNetwork": false,
       "requiresDevice": false,
       "requiresOwner": false,
@@ -13220,6 +13238,24 @@
       "canonicalOwner": "suite:learner-systems"
     },
     {
+      "gateId": "validate:final-pre-beta-rc-entry",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/final-pre-beta-rc-entry.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:final-pre-beta-rc-entry",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:first-20-en",
       "status": "CANONICAL",
       "domain": "pedagogy-structure",
@@ -20404,5 +20440,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "9c6ed2e542acc01e"
+  "evidenceDigest": "a643b9d615f79add"
 }

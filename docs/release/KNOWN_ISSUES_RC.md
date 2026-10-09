@@ -63,3 +63,44 @@
 **Beta blocker:** no (Chromium E2E green; investigate before public)  
 **Workaround:** monitor on RC hosted runs  
 **Notes:** Observed on ancestor 10B: speech contrast / tone trace / media fallback flakes.
+
+## R1-ARTIFACT-NOT-BUILT
+
+**ID:** R1-ARTIFACT-NOT-BUILT  
+**Severity:** P1  
+**Surface:** release / Android artifacts  
+**Reproducibility:** always until hosted mint  
+**Workaround:** wait for Android SUCCESS on R.1 branch; do not sideload RC2  
+**Beta blocker:** yes  
+**Status:** OPEN  
+**Notes:** Final Pre-Beta APK/AAB/web pending after reduced-motion CI fix.
+
+## R1-PHYSICAL-QA-NOT-RUN
+
+**ID:** R1-PHYSICAL-QA-NOT-RUN  
+**Severity:** P1  
+**Surface:** physical device  
+**Reproducibility:** n/a  
+**Workaround:** owner pack `OWNER_FINAL_PRE_BETA_RC_TEST.md`  
+**Beta blocker:** yes  
+**Status:** OPEN  
+
+## R1-SENTRY-NOT-RUN
+
+**ID:** R1-SENTRY-NOT-RUN  
+**Severity:** P1  
+**Surface:** observability  
+**Reproducibility:** n/a  
+**Workaround:** configure Sentry project + synthetic event  
+**Beta blocker:** yes for GO  
+**Status:** OPEN  
+
+## R1-ANDROID-OAUTH-NOT-RUN
+
+**ID:** R1-ANDROID-OAUTH-NOT-RUN  
+**Severity:** P1  
+**Surface:** Android OAuth  
+**Reproducibility:** n/a  
+**Workaround:** none for social login on device  
+**Beta blocker:** yes for GO  
+**Status:** OPEN  

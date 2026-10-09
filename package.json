@@ -1,7 +1,7 @@
 {
   "name": "longyu",
   "private": true,
-  "version": "0.2.0-rc.2",
+  "version": "0.2.0-rc.5",
   "type": "module",
   "description": "Longyu (龙语) — aprenda mandarim pela lógica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
   "engines": {
@@ -1245,7 +1245,9 @@
     "validate:rc2-3-13r-typography-motion": "node scripts/rc2-3-13r-typography-motion.mjs validate",
     "test:rc2-3-13r-typography-motion": "node scripts/rc2-3-13r-typography-motion.mjs test",
     "gate:rc2-3-13r-typography-motion": "npm run validate:rc2-3-13r-typography-motion && npm run test:rc2-3-13r-typography-motion",
-    "gate:final-pre-beta-rc-entry": "npm run gate:rc2-3-13h1-sticky-progression-chrome && npm run gate:rc2-3-13r-typography-motion && npm run validate:product-truth"
+    "gate:final-pre-beta-rc-entry": "npm run gate:rc2-3-13h1-sticky-progression-chrome && npm run gate:rc2-3-13r-typography-motion && npm run validate:final-pre-beta-rc-entry && npm run test:final-pre-beta-rc-entry && npm run validate:product-truth",
+    "validate:final-pre-beta-rc-entry": "node scripts/final-pre-beta-rc-entry.mjs validate",
+    "test:final-pre-beta-rc-entry": "node scripts/final-pre-beta-rc-entry.mjs test"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

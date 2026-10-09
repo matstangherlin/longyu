@@ -61,7 +61,7 @@ export interface FeedbackTechnicalContext {
 }
 
 export function getAppVersion(): string {
-  return String(import.meta.env.VITE_APP_VERSION ?? "0.2.0-rc.2");
+  return String(import.meta.env.VITE_APP_VERSION ?? "0.2.0-rc.5");
 }
 
 /** Public deploy identity — commit SHA only, never secrets. */

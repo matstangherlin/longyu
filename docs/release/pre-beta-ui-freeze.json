@@ -1,7 +1,7 @@
 {
   "id": "PRE_BETA_UI_FREEZE",
-  "wave": "RC2.3.13R",
-  "statement": "FINAL learner UI freeze base after H.1 sticky chrome + 13R typography/motion closure. CULTURE IS NOT A BOTTOM NAV ITEM. Sticky Global TopBar + Jornada/Cultura switch. Semantic typography roles. Canonical motion tokens. Journey↔Culture directional content transition. Dynamic Aula preserved. NO 13I / 13J / 13K.",
+  "wave": "RC2.3.13R.1",
+  "statement": "FINAL learner UI freeze after H.1 sticky + 13R typography/motion. R.1 is release execution only. NO 13I/13J/13K. FEATURE FREEZE ON.",
   "navigationContract": {
     "mobileTabBar": [
       "/jornada",
@@ -80,9 +80,9 @@
     "mais"
   ],
   "shaSemantics": {
-    "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
-    "certificationHeadSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
-    "artifactSourceSha": "NOT_BUILT"
+    "certificationHeadSha": "ada7b23967c3c4d66ffa425842b20dea981ae18e",
+    "artifactSourceSha": "NOT_BUILT",
+    "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
   },
   "allowedAfterFreeze": [
     "P0/P1 bugfix",
@@ -101,6 +101,6 @@
     "collapsing / auto-hiding global top bar",
     "cosmetic motion experimentation"
   ],
-  "sourceSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
-  "frozenAt": "2026-10-09T21:02:26.480Z"
+  "frozenAt": "2026-10-09T21:22:29.244Z",
+  "sourceSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
 }

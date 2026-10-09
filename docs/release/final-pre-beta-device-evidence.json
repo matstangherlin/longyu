@@ -1,0 +1,54 @@
+{
+  "schema": "longyu-final-pre-beta-device-evidence/1",
+  "wave": "RC2.3.13R.1",
+  "rcId": "RC2.3.13-RC1",
+  "meta": {
+    "evidenceLevel": "CODE_ONLY",
+    "note": "Do not promote CODE_PASS/EMULATED_PASS to PHYSICAL_PASS. Owner fills physical rows."
+  },
+  "hosted": {
+    "SECURITY": "NOT_RUN",
+    "CI": "NOT_RUN",
+    "ANDROID": "NOT_RUN",
+    "RELEASE_TRUTH": "NOT_RUN",
+    "BETA_SUITES": "NOT_RUN",
+    "CHROMIUM": "NOT_RUN",
+    "CROSS_ENGINE": "NOT_RUN",
+    "VIEWPORT_360": "PENDING_HOSTED",
+    "VIEWPORT_375": "PENDING_HOSTED",
+    "VIEWPORT_390": "PENDING_HOSTED",
+    "LARGE_FONT": "PENDING_HOSTED"
+  },
+  "physical": {
+    "PHYSICAL_QA": "NOT_RUN",
+    "TYPOGRAPHY_PHYSICAL": "NOT_RUN",
+    "MOTION_PHYSICAL": "NOT_RUN",
+    "STICKY_CHROME": "NOT_RUN",
+    "JOURNEY_CULTURE_SWITCH": "NOT_RUN",
+    "AUDIO_X20": "NOT_RUN",
+    "GUIDED_TRY_X10": "NOT_RUN",
+    "SPEECH_X5": "NOT_RUN",
+    "CONVERSATION_X5": "NOT_RUN",
+    "HANZI": "NOT_RUN",
+    "REVIEW": "NOT_RUN",
+    "DYNAMIC_AULA": "NOT_RUN",
+    "TALKBACK": "NOT_RUN",
+    "FONT_SCALE": "NOT_RUN",
+    "REDUCED_MOTION_PHYSICAL": "NOT_RUN",
+    "ANDROID_BACK": "NOT_RUN",
+    "IME": "NOT_RUN",
+    "BACKGROUND_RESUME": "NOT_RUN",
+    "OFFLINE_RECONNECT": "NOT_RUN",
+    "LONG_SESSION_30MIN": "NOT_RUN",
+    "ANDROID_OAUTH_PHYSICAL": "NOT_RUN"
+  },
+  "operations": {
+    "SENTRY": "NOT_RUN",
+    "NETLIFY_ROLLBACK_DRILL": "NOT_RUN",
+    "SMOKE_1": "NOT_RUN",
+    "SMOKE_2": "NOT_RUN"
+  },
+  "ownerAcceptance": {
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE": "NOT_RUN"
+  }
+}

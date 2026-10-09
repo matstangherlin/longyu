@@ -83,10 +83,15 @@ assert(
 );
 
 const pkg = JSON.parse(read("package.json"));
-assert(pkg.version === "0.2.0-rc.2", `package.json version deve ser 0.2.0-rc.2 (obtido ${pkg.version})`);
+assert(pkg.version === "0.2.0-rc.5", `package.json version deve ser 0.2.0-rc.5 (obtido ${pkg.version})`);
 
 const feedback = read("src/lib/feedback.ts");
-assert(feedback.includes("0.2.0-rc.2"), "getAppVersion default deve ser 0.2.0-rc.2");
+assert(feedback.includes("0.2.0-rc.5"), "getAppVersion default deve ser 0.2.0-rc.5");
+
+const netlifyToml = read("netlify.toml");
+for (const match of netlifyToml.matchAll(/VITE_APP_VERSION\s*=\s*"([^"]+)"/g)) {
+  assert(match[1] === pkg.version, `netlify VITE_APP_VERSION ${match[1]} deve igualar package.json ${pkg.version}`);
+}
 
 if (errors.length) {
   console.error("ERRO: validate:app-environment falhou.");
