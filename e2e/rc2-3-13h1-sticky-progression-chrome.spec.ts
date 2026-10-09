@@ -23,11 +23,17 @@ async function chromeRects(page: import("@playwright/test").Page) {
   const switchEl = page.getByTestId("progression-shell-switch");
   await expect(topbar).toBeVisible();
   await expect(switchEl).toBeVisible();
-  const topBox = await topbar.boundingBox();
-  const switchBox = await switchEl.boundingBox();
-  expect(topBox).toBeTruthy();
-  expect(switchBox).toBeTruthy();
-  return { topBox: topBox!, switchBox: switchBox! };
+  // Sticky remounts on mode switch can briefly yield null boundingBox; poll until stable.
+  await expect
+    .poll(async () => {
+      const t = await topbar.boundingBox();
+      const s = await switchEl.boundingBox();
+      return t != null && s != null && t.height > 0 && s.height > 0;
+    })
+    .toBe(true);
+  const topBox = (await topbar.boundingBox())!;
+  const switchBox = (await switchEl.boundingBox())!;
+  return { topBox, switchBox };
 }
 
 test.describe("RC2.3.13H.1 sticky progression chrome", () => {
@@ -75,11 +81,13 @@ test.describe("RC2.3.13H.1 sticky progression chrome", () => {
 
     await page.getByTestId("progression-tab-journey").click();
     await expect(page).toHaveURL(/\/jornada$/);
+    await expect(page.getByTestId("progression-shell")).toHaveAttribute("data-progression-mode", "journey");
     const journey = await chromeRects(page);
     expect(Math.abs(journey.topBox.y - before.topBox.y)).toBeLessThanOrEqual(1);
 
     await page.getByTestId("progression-tab-culture").click();
     await expect(page).toHaveURL(/\/cultura$/);
+    await expect(page.getByTestId("progression-shell")).toHaveAttribute("data-progression-mode", "culture");
     const back = await chromeRects(page);
     expect(Math.abs(back.topBox.y - before.topBox.y)).toBeLessThanOrEqual(1);
     expect(Math.abs(back.switchBox.y - before.switchBox.y)).toBeLessThanOrEqual(1);
