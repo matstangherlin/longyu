@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../../components/ui/primitives";
-import { IconSound } from "../../components/ui/Icon";
+import { IconChevron, IconSound } from "../../components/ui/Icon";
 import { ArticulationDiagram } from "../../components/pronunciation/ArticulationDiagram";
 import { ARTICULATION_DIAGRAMS } from "../../data/articulationTargets";
 import { type ContrastDrillStage, type ContrastSound, type PronunciationContrast } from "../../data/pronunciationCoreBr";
 import { playMandarinAudio } from "../../lib/audioPlayback";
-import { SelfComparePractice } from "../lesson/SelfComparePractice";
+import { SelfComparePractice, selfCompareRecordingAvailable } from "../lesson/SelfComparePractice";
+import { t } from "../../i18n/catalog";
 import { soundsShareCanonicalVoice } from "../../lib/audioContrastPairs";
 import { recordSpeechEvidence } from "../../lib/speechEvidence";
 
@@ -260,13 +261,24 @@ export function PronunciationContrastDrill({ contrast, onClose }: { contrast: Pr
             Você identificou {score} de {graded}.
           </p>
           <p className="text-center text-sm text-ink-soft">Quer tentar falar? É opcional — grave e compare com o modelo.</p>
-          <SelfComparePractice
-            target={contrast.sounds[contrast.sounds.length - 1].hanzi}
-            conceptId={`contrast:${contrast.id}`}
-            activityId={`pinyin-lab:${contrast.id}:produce`}
-            onContinue={onClose}
-            onCannotSpeak={onClose}
-          />
+          {/* Sem motor de gravação (WebView/navegador sem mediaDevices ou MediaRecorder):
+              saída honesta, igual ao passo de fala da lição — nunca um "Gravar" que só falha. */}
+          {selfCompareRecordingAvailable() ? (
+            <SelfComparePractice
+              target={contrast.sounds[contrast.sounds.length - 1].hanzi}
+              conceptId={`contrast:${contrast.id}`}
+              activityId={`pinyin-lab:${contrast.id}:produce`}
+              onContinue={onClose}
+              onCannotSpeak={onClose}
+            />
+          ) : (
+            <div data-testid="contrast-produce-unavailable">
+              <Button className="w-full" size="lg" onClick={onClose} data-testid="contrast-produce-continue">
+                {t("player.continue")} <IconChevron width={18} height={18} />
+              </Button>
+              <p className="mt-2 text-center text-xs text-ink-faint">{t("player.voiceUnavailable")}</p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,560 +1,733 @@
 {
-  "schemaVersion": 1,
-  "wave": "RC2.3.9",
-  "generatedAt": "2026-10-07",
-  "rules": [
-    "Nothing here becomes PASS from code. The agent never invents, reads, shows, logs or commits a password, key, token or DSN.",
-    "Secrets go only into the provider dashboard (Supabase Auth/Vault/Edge secrets, GitHub environments). Never into the repo, a report or the APK.",
-    "Supersedes the open items of docs/reports/rc2-3-8-owner-actions.md and docs/release/rc2-2-20-owner-actions.json (both kept as history)."
-  ],
-  "summary": {
-    "total": 32,
-    "byBlocksWave": {
-      "MERGE": 1,
-      "RC2.3.10": 21,
-      "RC2.3.11": 2,
-      "RC2.3.12": 8
-    },
-    "byStatus": {
-      "CONFIG_REQUIRED": 7,
-      "NOT_RUN": 1,
-      "OWNER_ACTION_REQUIRED": 24
-    }
+ "schemaVersion": 1,
+ "wave": "RC2.3.10",
+ "generatedAt": "2026-10-08",
+ "rules": [
+  "Nothing here becomes PASS from code. The agent never invents, reads, shows, logs or commits a password, key, token or DSN.",
+  "Secrets go only into the provider dashboard (Supabase Auth/Vault/Edge secrets, GitHub environments). Never into the repo, a report or the APK.",
+  "Supersedes the open items of docs/reports/rc2-3-8-owner-actions.md and docs/release/rc2-2-20-owner-actions.json (both kept as history)."
+ ],
+ "summary": {
+  "total": 41,
+  "byBlocksWave": {
+   "RC2.3.10": 30,
+   "RC2.3.12": 8,
+   "RC2.3.11": 2,
+   "MERGE": 1
   },
-  "actions": [
-    {
-      "id": "OA-AUTH-REDIRECT-URLS",
-      "title": "Add production, Android and preview callback URLs to Supabase Auth redirect allowlist",
-      "area": "auth",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-owner-actions.md",
-        "docs/reports/rc2-3-8-deep-link.md"
-      ],
-      "steps": [
-        "Supabase dashboard (MandarimProject) -> Auth -> URL Configuration.",
-        "Add https://<production host>/auth/callback, longyu.noba.com://auth/callback and each preview host you test.",
-        "No secret involved; record the list (hosts only) in the RC2.3.10 report."
-      ]
-    },
-    {
-      "id": "OA-AUTH-GOOGLE",
-      "title": "Configure Google sign-in (Google Cloud OAuth client -> Supabase provider)",
-      "area": "auth",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-owner-actions.md",
-        "docs/reports/rc2-3-8-provider-matrix.md",
-        "docs/reports/rc2-3-8-auth-system-truth.md"
-      ],
-      "steps": [
-        "Google Cloud Console: OAuth consent screen (external, app name Longyu, support e-mail).",
-        "Create a Web OAuth client; authorized redirect URI = the Supabase project auth callback.",
-        "Paste client id and secret only into Supabase -> Auth -> Providers -> Google, then enable it.",
-        "Never put the secret in the repo, .env files, the APK or a report."
-      ]
-    },
-    {
-      "id": "OA-AUTH-APPLE",
-      "title": "Configure Sign in with Apple (Services ID + key -> Supabase provider)",
-      "area": "auth",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-owner-actions.md",
-        "docs/reports/rc2-3-8-provider-matrix.md",
-        "docs/reports/rc2-3-8-auth-system-truth.md"
-      ],
-      "steps": [
-        "Apple Developer: App ID with Sign in with Apple, a Services ID, return URL = Supabase auth callback.",
-        "Create a .p8 key, generate the client secret per Supabase docs, paste only into Supabase -> Auth -> Providers -> Apple.",
-        "Calendar a rotation (client secret expires every 6 months).",
-        "If you e-mail private-relay addresses, register the sending domain with Apple."
-      ],
-      "note": "Apple Developer Program membership is a paid account; the owner decides whether Apple sign-in is in launch scope."
-    },
-    {
-      "id": "OA-AUTH-MICROSOFT",
-      "title": "Configure Microsoft sign-in (Entra app registration -> Supabase azure provider)",
-      "area": "auth",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-owner-actions.md",
-        "docs/reports/rc2-3-8-provider-matrix.md",
-        "docs/reports/rc2-3-8-auth-system-truth.md"
-      ],
-      "steps": [
-        "Microsoft Entra: app registration for personal + organizational accounts (or consumers only).",
-        "Redirect URI = Supabase auth callback; add the optional e-mail-verified claim per Supabase docs.",
-        "Paste application id and secret (and tenant URL if not common) only into Supabase -> Auth -> Providers -> Azure."
-      ]
-    },
-    {
-      "id": "OA-AUTH-BUILD-PROVIDERS",
-      "title": "List only configured providers in VITE_AUTH_PROVIDERS for Netlify and Android builds",
-      "area": "auth",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-owner-actions.md",
-        "docs/reports/rc2-3-8-provider-matrix.md"
-      ],
-      "steps": [
-        "After each provider is enabled, set VITE_AUTH_PROVIDERS (e.g. google,apple,azure - only the configured ones) in Netlify build env and the Android build env.",
-        "This is a public list, not a secret. With nothing set the login shows e-mail only."
-      ]
-    },
-    {
-      "id": "OA-AUTH-MANUAL-LINKING",
-      "title": "Decide and switch Supabase manual identity linking; confirm the automatic same-verified-e-mail linking policy",
-      "area": "auth",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-owner-actions.md",
-        "docs/reports/rc2-3-8-identity-linking.md",
-        "docs/reports/rc2-3-8-auth-system-truth.md"
-      ],
-      "steps": [
-        "Supabase -> Auth -> settings: enable manual linking (beta) if 'Vincular' in Conta should work.",
-        "Record the decision on automatic linking for same verified e-mail.",
-        "Until enabled, link/unlink stays OWNER_ACTION_REQUIRED."
-      ]
-    },
-    {
-      "id": "OA-AUTH-ANDROID-OAUTH-TEST",
-      "title": "Real Android OAuth test (cold start, warm start, back from browser)",
-      "area": "auth",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-closure.md",
-        "docs/reports/rc2-3-8-deep-link.md",
-        "docs/release/owner-acceptance.json"
-      ],
-      "steps": [
-        "Requires at least one provider configured (OA-AUTH-GOOGLE) and the redirect allowlist (OA-AUTH-REDIRECT-URLS).",
-        "Install the current APK; run device matrix rows DM-20-ANDROID-OAUTH-DEEP-LINK and DM-19-SOCIAL-SIGN-IN.",
-        "Record device, Android version, APK artifact id, date. No e-mail or token in the notes."
-      ],
-      "blockedBy": [
-        "OA-AUTH-REDIRECT-URLS",
-        "OA-AUTH-GOOGLE"
-      ]
-    },
-    {
-      "id": "OA-AUTH-OWNER-ACCEPTANCE",
-      "title": "Run OWNER_AUTH_ACCEPTANCE (e-mail, social, claim, logout/switch, offline logout)",
-      "area": "auth",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-8-closure.md",
-        "docs/release/owner-acceptance.json"
-      ],
-      "steps": [
-        "Run device matrix rows DM-18, DM-19, DM-20, DM-21 from docs/release/owner-acceptance.json.",
-        "E-mail rows (DM-18, DM-21) can run now; social rows wait for provider config."
-      ]
-    },
-    {
-      "id": "OA-AUTH-RECOVERY-TEMPLATE",
-      "title": "Apply the code-based password recovery e-mail template in Supabase",
-      "area": "auth",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/release/rc2-2-20-owner-actions.json",
-        "docs/release/rc2-2-19-recovery-template.md"
-      ],
-      "steps": [
-        "Supabase -> Authentication -> Email Templates -> Reset Password: paste supabase/templates/recovery.html.",
-        "Evidence: screenshot without secrets + a received e-mail with a 6-digit code (do not store the code)."
-      ]
-    },
-    {
-      "id": "OA-ACCEPT-HANZI",
-      "title": "Owner Hanzi physical acceptance (trace, memory, eligibility lock)",
-      "area": "hanzi",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/reports/rc2-3-4a-hanzi-physical-acceptance.md",
-        "docs/release/owner-acceptance.json"
-      ],
-      "steps": [
-        "Install the current APK; complete 'Montando primeiros hanzi' first (writing is locked before that by design).",
-        "Run DM-11-HANZI-WRITING plus the canvas parts of DM-24-RESUME-LIFECYCLE.",
-        "Only then may OWNER_PHYSICAL_PASS be claimed."
-      ],
-      "note": "Was the RC2.3.4A exit criterion; still open."
-    },
-    {
-      "id": "OA-ACCEPT-AUDIO-SPEECH",
-      "title": "Owner audio and speech acceptance (canonical audio, conversation, contrast, record/playback/compare, torture matrix)",
-      "area": "audio",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/reports/rc2-3-5-device-acceptance.md",
-        "docs/release/rc2-2-32-physical-matrix.json",
-        "docs/release/rc2-2-31d-physical-matrix.json",
-        "docs/release/owner-acceptance.json"
-      ],
-      "steps": [
-        "Run DM-06 to DM-10 on a real device with the current APK.",
-        "Earlier owner runs on PR #303/#305 builds FAILED; a new run on the current build is required - old results do not carry over.",
-        "Speech expansion beyond the 8-item pilot waits for this."
-      ],
-      "note": "Was the RC2.3.5 exit criterion (OWNER_AUDIO_ACCEPTANCE); still open."
-    },
-    {
-      "id": "OA-ACCEPT-UX",
-      "title": "Owner UX acceptance (first use, answers, completion, navigation, Culture, Visual First, Pedagogy, Personal Mastery)",
-      "area": "ux",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/reports/rc2-3-7-owner-ux-acceptance.md",
-        "docs/reports/rc2-3-6-personal-mastery-qa.md",
-        "docs/reports/rc2-3-3-culture-human-validation.md",
-        "docs/release/rc2-3-0-pedagogy-matrix.json",
-        "docs/release/rc2-3-1-visual-matrix.json",
-        "docs/release/rc2-3-2-human-everyday-matrix.json",
-        "docs/release/owner-acceptance.json"
-      ],
-      "steps": [
-        "Run every ux-area row of docs/release/owner-acceptance.json (DM-02..05, DM-12..17, DM-25, DM-26).",
-        "Answer the central question from RC2.3.7: one finished experience, or features glued together?"
-      ],
-      "note": "Replaces OWNER_PEDAGOGICAL / VISUAL / HUMAN / CULTURE / MASTERY / UX acceptance as separate runs."
-    },
-    {
-      "id": "OA-ACCEPT-ANDROID-CORE",
-      "title": "Owner Android core run (clean install, back, offline, resume, notifications)",
-      "area": "android",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/release/android-physical-qa.json",
-        "docs/release/rc2-2-22-device-qa.json",
-        "docs/release/owner-acceptance.json"
-      ],
-      "steps": [
-        "Run DM-01, DM-22, DM-23, DM-24, DM-28 with the current APK; record model, Android version, APK artifact id, date."
-      ]
-    },
-    {
-      "id": "OA-MIGRATION-RECONCILIATION-DECISION",
-      "title": "Decide how to reconcile production migration history with the repo",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/rc2-3-10-cloud-handoff.json"
-      ],
-      "steps": [
-        "Read docs/reports/rc2-3-9-cloud-handoff.md item CH-01.",
-        "Choose: (a) map existing production rows to repo files in a checked-in ledger without touching the database, or (b) repair the history table after an export. (a) is non-destructive and recommended first.",
-        "No change to production until OA-DATA-EXPORT and OA-SCHEMA-DIFF are done."
-      ]
-    },
-    {
-      "id": "OA-SCHEMA-DIFF",
-      "title": "Run a read-only schema diff production vs repo",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
-        "docs/launch/rc2-3-10-cloud-handoff.json"
-      ],
-      "steps": [
-        "From the owner machine: link the CLI to MandarimProject and run a schema-only diff (read-only).",
-        "The database password stays on the owner machine; never paste it into a chat, report or CI log.",
-        "Attach the diff output (schema only, no data) to the RC2.3.10 report."
-      ]
-    },
-    {
-      "id": "OA-DATA-EXPORT",
-      "title": "Owner-held export / backup before any production migration",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
-        "docs/launch/platform-budget-registry.json",
-        "docs/launch/rc2-3-10-cloud-handoff.json"
-      ],
-      "steps": [
-        "Free plan has no backups or PITR.",
-        "Before every production migration: schema-only dump + data export of user_progress, subscriptions, economy_ledger (and auth-related tables per Supabase docs).",
-        "Store it privately with the owner (not in the repo, not in a public artifact). Record only date + table list + row counts."
-      ]
-    },
-    {
-      "id": "OA-TELEMETRY-RETENTION-DECISION",
-      "title": "Approve raw telemetry retention (e.g. 30 days raw -> daily aggregates)",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
-        "docs/launch/platform-budget-registry.json"
-      ],
-      "steps": [
-        "Decide retention for beta_pedagogy_events and other raw telemetry.",
-        "Implementation is a deleting job, so it needs export first and explicit owner approval.",
-        "Without it the DB passes 500 MB around 1 000 MAU (audit projection)."
-      ]
-    },
-    {
-      "id": "OA-USAGE-READINGS",
-      "title": "Read the usage numbers connectors cannot see",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
-        "docs/launch/platform-budget-registry.json"
-      ],
-      "steps": [
-        "Supabase -> Usage: egress and Edge Function invocations for the current cycle.",
-        "Netlify -> Team -> Usage: credits used this cycle (shared by 4 sites).",
-        "Paste the numbers (no keys) into docs/launch/platform-budget-registry.json in RC2.3.10."
-      ]
-    },
-    {
-      "id": "OA-RESEND-DOMAIN",
-      "title": "Verify a sending domain in Resend",
-      "area": "email",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/platform-budget-registry.json"
-      ],
-      "steps": [
-        "Resend has 0 domains on the free plan (3 allowed).",
-        "Add the domain and the DNS records Resend shows at your DNS provider; wait for verification.",
-        "Do not create API keys in the repo."
-      ]
-    },
-    {
-      "id": "OA-SUPABASE-SMTP",
-      "title": "Set Resend as Supabase Auth custom SMTP",
-      "area": "email",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/platform-budget-registry.json"
-      ],
-      "steps": [
-        "After OA-RESEND-DOMAIN: create a sending-only Resend API key and paste it only into Supabase -> Auth -> SMTP settings.",
-        "Send a test confirmation and a recovery e-mail to a test inbox; record delivery yes/no only."
-      ],
-      "blockedBy": [
-        "OA-RESEND-DOMAIN"
-      ]
-    },
-    {
-      "id": "OA-SENTRY-PROJECT",
-      "title": "Create the Sentry project and decide on the SDK",
-      "area": "observability",
-      "status": "CONFIG_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/platform-budget-registry.json",
-        "docs/launch/platform-responsibility-map.md"
-      ],
-      "steps": [
-        "Org exists with 0 projects and there is no SDK in the app.",
-        "Create one project (browser/React) when RC2.3.10 starts; the DSN goes into build env only.",
-        "Sampling per platform-responsibility-map.md (errors 1.0, traces 0.02, session replay 0, replay on error 0.1).",
-        "The CSP connect-src in netlify.toml must then allow the Sentry ingest host (code change in RC2.3.10)."
-      ]
-    },
-    {
-      "id": "OA-NETLIFY-RELEASE-RULE",
-      "title": "Confirm the [release]-only production deploy rule",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md"
-      ],
-      "steps": [
-        "Production deploys only for commits marked [release] (netlify.toml ignore). It goes live on merge.",
-        "Confirm this is the intended behaviour before merging the stack."
-      ]
-    },
-    {
-      "id": "OA-ROLLBACK-DRILL",
-      "title": "Run the rollback drill once",
-      "area": "cloud",
-      "status": "NOT_RUN",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/release/evidence/rollback-drill.md",
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md"
-      ],
-      "steps": [
-        "Netlify: publish a previous deploy and back again; record times.",
-        "Database: confirm the 'irreversible - restore from export' note exists for each migration in the release."
-      ]
-    },
-    {
-      "id": "OA-JEV-CONSOLE-CHECK",
-      "title": "Check TypeSafe/Jev credits and redeploy triage-feedback with the guardrails",
-      "area": "jev",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/platform-budget-registry.json",
-        "docs/reports/rc2-3-6-jev-integration.md"
-      ],
-      "steps": [
-        "Read credits/quota in the TypeSafe console (not readable from the agent container).",
-        "After merge, redeploy the triage-feedback Edge Function: production v1 predates the timeout/breaker/dedupe guardrails.",
-        "Key stays only in Supabase Vault (TYPESAFE_API_KEY)."
-      ]
-    },
-    {
-      "id": "OA-STRIPE-ACCOUNT-CONFIRM",
-      "title": "Confirm which Stripe account backs the Edge Functions and keep live mode off until RC2.3.11",
-      "area": "billing",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.11",
-      "source": [
-        "docs/reports/rc2-3-4a-closure.md",
-        "docs/launch/platform-budget-registry.json"
-      ],
-      "steps": [
-        "Connected account shows test mode only, 0 products, 0 webhooks.",
-        "Confirm in the Supabase Edge secrets page (names only) which account the checkout/webhook functions use.",
-        "Create no live products before the RC2.3.11 pricing decision."
-      ]
-    },
-    {
-      "id": "OA-PLAY-BILLING-COMPLIANCE",
-      "title": "Record the Google Play billing compliance decision for Brazil before any in-APK checkout",
-      "area": "billing",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.11",
-      "source": [
-        "docs/launch/ROADMAP.md",
-        "docs/release/android-billing-audit.json"
-      ],
-      "steps": [
-        "Audit current Play policy (Play Billing, alternative/user-choice billing, external links, fees) for digital educational subscriptions in Brazil.",
-        "Technically working is not the same as allowed."
-      ]
-    },
-    {
-      "id": "OA-PLAY-DEVELOPER-IDENTITY",
-      "title": "Confirm Play developer identity, package registration and package name longyu.noba.com",
-      "area": "android",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/release/play-console-status.json",
-        "docs/release/rc2-2-20-owner-actions.json"
-      ],
-      "steps": [
-        "Play Console: confirm developer verification status, package registration, and that the app shows package longyu.noba.com.",
-        "If another package appears: do not upload, do not create a second app."
-      ]
-    },
-    {
-      "id": "OA-PLAY-UPLOAD-KEY",
-      "title": "Create the upload key, back it up twice, store passwords, configure GitHub environment secrets",
-      "area": "android",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/release/rc2-2-20-owner-actions.json",
-        "docs/release/google-play-internal.json"
-      ],
-      "steps": [
-        "Run the keystore init script on the owner machine with a path outside the repo; keytool asks for passwords in your terminal.",
-        "Two offline backups in different places; passwords in your password manager.",
-        "GitHub -> Settings -> Environments -> android-release: add the secrets (record names only, never values).",
-        "Record only the PUBLIC SHA-256 fingerprint of the upload certificate."
-      ]
-    },
-    {
-      "id": "OA-PLAY-INTERNAL-RELEASE",
-      "title": "First signed AAB, Play App Signing, internal track upload, install from Play, N -> N+1",
-      "area": "android",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/release/rc2-2-30-play-internal.json",
-        "docs/release/rc2-2-20-owner-actions.json",
-        "docs/release/google-play-internal.json"
-      ],
-      "steps": [
-        "Signed AAB from the release workflow; enable Play App Signing (Google-managed key).",
-        "Create the internal track, upload, install from Play (sideload does not count).",
-        "Repeat critical device rows on the Play build; then ship N+1 and verify the update keeps progress (DM-27)."
-      ],
-      "blockedBy": [
-        "OA-PLAY-DEVELOPER-IDENTITY",
-        "OA-PLAY-UPLOAD-KEY"
-      ]
-    },
-    {
-      "id": "OA-PLAY-STORE-ASSETS",
-      "title": "Store listing assets (feature graphic, final phone screenshots)",
-      "area": "android",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.12",
-      "source": [
-        "docs/release/rc2-2-20-owner-actions.json"
-      ],
-      "steps": [
-        "Produce the feature graphic and final phone screenshots from the release build."
-      ]
-    },
-    {
-      "id": "OA-273-RUNBOOK-APPROVAL",
-      "title": "Approve the schema-diff + export runbook for the first controlled production migration (#273)",
-      "area": "cloud",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "RC2.3.10",
-      "source": [
-        "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
-        "docs/launch/ROADMAP.md",
-        "docs/launch/rc2-3-10-cloud-handoff.json"
-      ],
-      "steps": [
-        "#273 stays open until every RC2.3.10 row in docs/launch/rc2-3-10-cloud-handoff.json is PASS.",
-        "Approve Option B (single cloud project + local Supabase/CI QA); no paid plan, no pause/delete of the sibling project."
-      ]
-    },
-    {
-      "id": "STACK_RETARGET_314",
-      "title": "Retarget #314 base from main to cursor/rc2-3-3-culture-deep-journey-25db (it already contains #309–#313; merging it first would land them unreviewed)",
-      "area": "release",
-      "status": "OWNER_ACTION_REQUIRED",
-      "blocksWave": "MERGE",
-      "source": [
-        "docs/release/rc2-stack-chain.json"
-      ],
-      "steps": [
-        "On GitHub, edit PR #314 and change its base branch from main to cursor/rc2-3-3-culture-deep-journey-25db.",
-        "Confirm the diff now shows only #314's own commits.",
-        "Merge the stack bottom-up, never #314 first."
-      ]
-    }
-  ]
+  "byStatus": {
+   "CONFIG_REQUIRED": 7,
+   "OWNER_ACTION_REQUIRED": 32,
+   "NOT_RUN": 1,
+   "PASS": 1
+  }
+ },
+ "actions": [
+  {
+   "id": "OA-AUTH-REDIRECT-URLS",
+   "title": "Add production, Android and preview callback URLs to Supabase Auth redirect allowlist",
+   "area": "auth",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-owner-actions.md",
+    "docs/reports/rc2-3-8-deep-link.md"
+   ],
+   "steps": [
+    "Supabase dashboard (MandarimProject) -> Auth -> URL Configuration.",
+    "Add https://<production host>/auth/callback, longyu.noba.com://auth/callback and each preview host you test.",
+    "No secret involved; record the list (hosts only) in the RC2.3.10 report."
+   ]
+  },
+  {
+   "id": "OA-AUTH-GOOGLE",
+   "title": "Configure Google sign-in (Google Cloud OAuth client -> Supabase provider)",
+   "area": "auth",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-owner-actions.md",
+    "docs/reports/rc2-3-8-provider-matrix.md",
+    "docs/reports/rc2-3-8-auth-system-truth.md"
+   ],
+   "steps": [
+    "Google Cloud Console: OAuth consent screen (external, app name Longyu, support e-mail).",
+    "Create a Web OAuth client; authorized redirect URI = the Supabase project auth callback.",
+    "Paste client id and secret only into Supabase -> Auth -> Providers -> Google, then enable it.",
+    "Never put the secret in the repo, .env files, the APK or a report."
+   ]
+  },
+  {
+   "id": "OA-AUTH-APPLE",
+   "title": "Configure Sign in with Apple (Services ID + key -> Supabase provider)",
+   "area": "auth",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-owner-actions.md",
+    "docs/reports/rc2-3-8-provider-matrix.md",
+    "docs/reports/rc2-3-8-auth-system-truth.md"
+   ],
+   "steps": [
+    "Apple Developer: App ID with Sign in with Apple, a Services ID, return URL = Supabase auth callback.",
+    "Create a .p8 key, generate the client secret per Supabase docs, paste only into Supabase -> Auth -> Providers -> Apple.",
+    "Calendar a rotation (client secret expires every 6 months).",
+    "If you e-mail private-relay addresses, register the sending domain with Apple."
+   ],
+   "note": "Apple Developer Program membership is a paid account; the owner decides whether Apple sign-in is in launch scope."
+  },
+  {
+   "id": "OA-AUTH-MICROSOFT",
+   "title": "Configure Microsoft sign-in (Entra app registration -> Supabase azure provider)",
+   "area": "auth",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-owner-actions.md",
+    "docs/reports/rc2-3-8-provider-matrix.md",
+    "docs/reports/rc2-3-8-auth-system-truth.md"
+   ],
+   "steps": [
+    "Microsoft Entra: app registration for personal + organizational accounts (or consumers only).",
+    "Redirect URI = Supabase auth callback; add the optional e-mail-verified claim per Supabase docs.",
+    "Paste application id and secret (and tenant URL if not common) only into Supabase -> Auth -> Providers -> Azure."
+   ]
+  },
+  {
+   "id": "OA-AUTH-BUILD-PROVIDERS",
+   "title": "List only configured providers in VITE_AUTH_PROVIDERS for Netlify and Android builds",
+   "area": "auth",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-owner-actions.md",
+    "docs/reports/rc2-3-8-provider-matrix.md"
+   ],
+   "steps": [
+    "After each provider is enabled, set VITE_AUTH_PROVIDERS (e.g. google,apple,azure - only the configured ones) in Netlify build env and the Android build env.",
+    "This is a public list, not a secret. With nothing set the login shows e-mail only."
+   ]
+  },
+  {
+   "id": "OA-AUTH-MANUAL-LINKING",
+   "title": "Decide and switch Supabase manual identity linking; confirm the automatic same-verified-e-mail linking policy",
+   "area": "auth",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-owner-actions.md",
+    "docs/reports/rc2-3-8-identity-linking.md",
+    "docs/reports/rc2-3-8-auth-system-truth.md"
+   ],
+   "steps": [
+    "Supabase -> Auth -> settings: enable manual linking (beta) if 'Vincular' in Conta should work.",
+    "Record the decision on automatic linking for same verified e-mail.",
+    "Until enabled, link/unlink stays OWNER_ACTION_REQUIRED."
+   ]
+  },
+  {
+   "id": "OA-AUTH-ANDROID-OAUTH-TEST",
+   "title": "Real Android OAuth test (cold start, warm start, back from browser)",
+   "area": "auth",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-closure.md",
+    "docs/reports/rc2-3-8-deep-link.md",
+    "docs/release/owner-acceptance.json"
+   ],
+   "steps": [
+    "Requires at least one provider configured (OA-AUTH-GOOGLE) and the redirect allowlist (OA-AUTH-REDIRECT-URLS).",
+    "Install the current APK; run device matrix rows DM-20-ANDROID-OAUTH-DEEP-LINK and DM-19-SOCIAL-SIGN-IN.",
+    "Record device, Android version, APK artifact id, date. No e-mail or token in the notes."
+   ],
+   "blockedBy": [
+    "OA-AUTH-REDIRECT-URLS",
+    "OA-AUTH-GOOGLE"
+   ]
+  },
+  {
+   "id": "OA-AUTH-OWNER-ACCEPTANCE",
+   "title": "Run OWNER_AUTH_ACCEPTANCE (e-mail, social, claim, logout/switch, offline logout)",
+   "area": "auth",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-8-closure.md",
+    "docs/release/owner-acceptance.json"
+   ],
+   "steps": [
+    "Run device matrix rows DM-18, DM-19, DM-20, DM-21 from docs/release/owner-acceptance.json.",
+    "E-mail rows (DM-18, DM-21) can run now; social rows wait for provider config."
+   ]
+  },
+  {
+   "id": "OA-AUTH-RECOVERY-TEMPLATE",
+   "title": "Apply the code-based password recovery e-mail template in Supabase",
+   "area": "auth",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/release/rc2-2-20-owner-actions.json",
+    "docs/release/rc2-2-19-recovery-template.md"
+   ],
+   "steps": [
+    "Supabase -> Authentication -> Email Templates -> Reset Password: paste supabase/templates/recovery.html.",
+    "Evidence: screenshot without secrets + a received e-mail with a 6-digit code (do not store the code)."
+   ]
+  },
+  {
+   "id": "OA-ACCEPT-HANZI",
+   "title": "Owner Hanzi physical acceptance (trace, memory, eligibility lock)",
+   "area": "hanzi",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/reports/rc2-3-4a-hanzi-physical-acceptance.md",
+    "docs/release/owner-acceptance.json"
+   ],
+   "steps": [
+    "Install the current APK; complete 'Montando primeiros hanzi' first (writing is locked before that by design).",
+    "Run DM-11-HANZI-WRITING plus the canvas parts of DM-24-RESUME-LIFECYCLE.",
+    "Only then may OWNER_PHYSICAL_PASS be claimed."
+   ],
+   "note": "Was the RC2.3.4A exit criterion; still open."
+  },
+  {
+   "id": "OA-ACCEPT-AUDIO-SPEECH",
+   "title": "Owner audio and speech acceptance (canonical audio, conversation, contrast, record/playback/compare, torture matrix)",
+   "area": "audio",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/reports/rc2-3-5-device-acceptance.md",
+    "docs/release/rc2-2-32-physical-matrix.json",
+    "docs/release/rc2-2-31d-physical-matrix.json",
+    "docs/release/owner-acceptance.json"
+   ],
+   "steps": [
+    "Run DM-06 to DM-10 on a real device with the current APK.",
+    "Earlier owner runs on PR #303/#305 builds FAILED; a new run on the current build is required - old results do not carry over.",
+    "Speech expansion beyond the 8-item pilot waits for this."
+   ],
+   "note": "Was the RC2.3.5 exit criterion (OWNER_AUDIO_ACCEPTANCE); still open."
+  },
+  {
+   "id": "OA-ACCEPT-UX",
+   "title": "Owner UX acceptance (first use, answers, completion, navigation, Culture, Visual First, Pedagogy, Personal Mastery)",
+   "area": "ux",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/reports/rc2-3-7-owner-ux-acceptance.md",
+    "docs/reports/rc2-3-6-personal-mastery-qa.md",
+    "docs/reports/rc2-3-3-culture-human-validation.md",
+    "docs/release/rc2-3-0-pedagogy-matrix.json",
+    "docs/release/rc2-3-1-visual-matrix.json",
+    "docs/release/rc2-3-2-human-everyday-matrix.json",
+    "docs/release/owner-acceptance.json"
+   ],
+   "steps": [
+    "Run every ux-area row of docs/release/owner-acceptance.json (DM-02..05, DM-12..17, DM-25, DM-26).",
+    "Answer the central question from RC2.3.7: one finished experience, or features glued together?"
+   ],
+   "note": "Replaces OWNER_PEDAGOGICAL / VISUAL / HUMAN / CULTURE / MASTERY / UX acceptance as separate runs."
+  },
+  {
+   "id": "OA-ACCEPT-ANDROID-CORE",
+   "title": "Owner Android core run (clean install, back, offline, resume, notifications)",
+   "area": "android",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/release/android-physical-qa.json",
+    "docs/release/rc2-2-22-device-qa.json",
+    "docs/release/owner-acceptance.json"
+   ],
+   "steps": [
+    "Run DM-01, DM-22, DM-23, DM-24, DM-28 with the current APK; record model, Android version, APK artifact id, date."
+   ]
+  },
+  {
+   "id": "OA-MIGRATION-RECONCILIATION-DECISION",
+   "title": "Decide how to reconcile production migration history with the repo",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/launch/production-migration-ledger.json",
+    "docs/reports/rc2-3-10-migration-reconciliation.md"
+   ],
+   "steps": [
+    "Read docs/reports/rc2-3-9-cloud-handoff.md item CH-01.",
+    "Choose: (a) map existing production rows to repo files in a checked-in ledger without touching the database, or (b) repair the history table after an export. (a) is non-destructive and recommended first.",
+    "No change to production until OA-DATA-EXPORT and OA-SCHEMA-DIFF are done."
+   ],
+   "blocking": true,
+   "readOrWrite": "decision (no write)",
+   "risk": "A wrong history repair re-applies or skips migrations.",
+   "reason": "Ledger: 19 MATCH, 11 UNKNOWN (content differs or placeholder rows such as \"select 1; -- applied via execute_sql chunks\"), 6 PROD_ONLY, 27 REPO_ONLY.",
+   "exactAction": "Read docs/launch/production-migration-ledger.json and choose: (a) keep history as-is and treat the ledger as the source of truth (recommended, non-destructive), or (b) a later, separate history repair after OA-DATA-EXPORT and OA-SCHEMA-DIFF.",
+   "evidenceExpected": "Your choice recorded in the PR (a or b). Nothing else."
+  },
+  {
+   "id": "OA-SCHEMA-DIFF",
+   "title": "Run a read-only schema diff production vs repo",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-10-production-schema-diff.md"
+   ],
+   "steps": [
+    "From the owner machine: link the CLI to MandarimProject and run a schema-only diff (read-only).",
+    "The database password stays on the owner machine; never paste it into a chat, report or CI log.",
+    "Attach the diff output (schema only, no data) to the RC2.3.10 report."
+   ],
+   "readOrWrite": "read-only",
+   "risk": "None (schema only, no data).",
+   "reason": "Table/function/policy-level diff is done (snapshot read 2026-10-08); a column-level diff needs a schema-only dump from production.",
+   "exactAction": "On your machine (Supabase CLI 2.109.1, Docker running): `npx supabase link --project-ref drjcfalvlbbeblmmyhwj`, then `npx supabase db diff --linked --schema public` (diffs supabase/migrations against production, read-only). Paste only the list of differing object names into the PR; keep any dump private.",
+   "evidenceExpected": "List of differing objects (names only)."
+  },
+  {
+   "id": "OA-DATA-EXPORT",
+   "title": "Owner-held export / backup before any production migration",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/launch/production-backup-runbook.md"
+   ],
+   "steps": [
+    "Free plan has no backups or PITR.",
+    "Before every production migration: schema-only dump + data export of user_progress, subscriptions, economy_ledger (and auth-related tables per Supabase docs).",
+    "Store it privately with the owner (not in the repo, not in a public artifact). Record only date + table list + row counts."
+   ],
+   "readOrWrite": "read-only export",
+   "risk": "A dump contains user data: keep it encrypted and private, never in Git.",
+   "exactAction": "Follow docs/launch/production-backup-runbook.md §2–§4 (schema-only dump + data export of the critical tables), verify the export with §5, store it encrypted offline.",
+   "evidenceExpected": "Timestamp, source project ref, candidate SHA and row counts per table (no data) pasted in the PR."
+  },
+  {
+   "id": "OA-TELEMETRY-RETENTION-DECISION",
+   "title": "Approve raw telemetry retention (e.g. 30 days raw -> daily aggregates)",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-10-free-tier-budget.md",
+    "supabase/pending/rc2-3-10-telemetry-retention.sql"
+   ],
+   "steps": [
+    "Decide retention for beta_pedagogy_events and other raw telemetry.",
+    "Implementation is a deleting job, so it needs export first and explicit owner approval.",
+    "Without it the DB passes 500 MB around 1 000 MAU (audit projection)."
+   ],
+   "readOrWrite": "decision; later a reviewed migration",
+   "reason": "beta_pedagogy_events keeps raw rows forever (1 888 rows, 3.0 MB on 2026-10-08); cleanup function exists in production but is not scheduled.",
+   "exactAction": "Choose A (30 d raw + aggregates, recommended), B (60 d) or C (90 d). supabase/pending/rc2-3-10-telemetry-retention.sql then ships in DRY RUN; switching to real deletes is a separate approved statement.",
+   "evidenceExpected": "A, B or C written in the PR."
+  },
+  {
+   "id": "OA-USAGE-READINGS",
+   "title": "Read the usage numbers connectors cannot see",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+    "docs/launch/platform-budget-registry.json"
+   ],
+   "steps": [
+    "Supabase -> Usage: egress and Edge Function invocations for the current cycle.",
+    "Netlify -> Team -> Usage: credits used this cycle (shared by 4 sites).",
+    "Paste the numbers (no keys) into docs/launch/platform-budget-registry.json in RC2.3.10."
+   ],
+   "exactAction": "Supabase → Project MandarimProject → Usage: egress and Edge Function invocations this cycle. Netlify → Team → Usage: credits used. Resend → Usage: emails this month. Paste numbers only.",
+   "evidenceExpected": "4 numbers with the date read.",
+   "readOrWrite": "read-only"
+  },
+  {
+   "id": "OA-RESEND-DOMAIN",
+   "title": "Verify a sending domain in Resend",
+   "area": "email",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-4a-closure.md",
+    "docs/launch/platform-budget-registry.json"
+   ],
+   "steps": [
+    "Resend has 0 domains on the free plan (3 allowed).",
+    "Add the domain and the DNS records Resend shows at your DNS provider; wait for verification.",
+    "Do not create API keys in the repo."
+   ]
+  },
+  {
+   "id": "OA-SUPABASE-SMTP",
+   "title": "Set Resend as Supabase Auth custom SMTP",
+   "area": "email",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-4a-closure.md",
+    "docs/launch/platform-budget-registry.json"
+   ],
+   "steps": [
+    "After OA-RESEND-DOMAIN: create a sending-only Resend API key and paste it only into Supabase -> Auth -> SMTP settings.",
+    "Send a test confirmation and a recovery e-mail to a test inbox; record delivery yes/no only."
+   ],
+   "blockedBy": [
+    "OA-RESEND-DOMAIN"
+   ]
+  },
+  {
+   "id": "OA-SENTRY-PROJECT",
+   "title": "Create the Sentry project and decide on the SDK",
+   "area": "observability",
+   "status": "CONFIG_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-10-observability.md"
+   ],
+   "steps": [
+    "Org exists with 0 projects and there is no SDK in the app.",
+    "Create one project (browser/React) when RC2.3.10 starts; the DSN goes into build env only.",
+    "Sampling per platform-responsibility-map.md (errors 1.0, traces 0.02, session replay 0, replay on error 0.1).",
+    "The CSP connect-src in netlify.toml must then allow the Sentry ingest host (code change in RC2.3.10)."
+   ],
+   "exactAction": "Create a Sentry project (platform: browser JavaScript), copy the DSN into Netlify env VITE_SENTRY_DSN (production context) and into the Android release env; tell the agent the ingest host (e.g. oXXXX.ingest.us.sentry.io — host only) so connect-src gets exactly that host.",
+   "evidenceExpected": "Ingest host name + a screenshot description of SENTRY_TEST_EVENT arriving.",
+   "readOrWrite": "write (provider config)"
+  },
+  {
+   "id": "OA-NETLIFY-RELEASE-RULE",
+   "title": "Confirm the [release]-only production deploy rule",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-4a-closure.md",
+    "docs/launch/rc2-3-4a-cloud-free-tier-audit.md"
+   ],
+   "steps": [
+    "Production deploys only for commits marked [release] (netlify.toml ignore). It goes live on merge.",
+    "Confirm this is the intended behaviour before merging the stack."
+   ]
+  },
+  {
+   "id": "OA-ROLLBACK-DRILL",
+   "title": "Run the rollback drill once",
+   "area": "cloud",
+   "status": "NOT_RUN",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-10-rollback-drill.md"
+   ],
+   "steps": [
+    "Netlify: publish a previous deploy and back again; record times.",
+    "Database: confirm the 'irreversible - restore from export' note exists for each migration in the release."
+   ],
+   "exactAction": "Netlify → site singular-meringue-7838cd → Deploys: note the published deploy and its version.json SHA; \"Publish deploy\" on the previous production deploy; open /version.json (must show the older SHA); publish the current one back; open /version.json again.",
+   "evidenceExpected": "The 4 SHAs/times (current → previous → current) and how long each switch took.",
+   "readOrWrite": "write (frontend only, no data)",
+   "risk": "A minute of the previous frontend; no database change."
+  },
+  {
+   "id": "OA-JEV-CONSOLE-CHECK",
+   "title": "Check TypeSafe/Jev credits and redeploy triage-feedback with the guardrails",
+   "area": "jev",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/reports/rc2-3-10-jev-production-certification.md",
+    ".github/workflows/deploy-edge-function.yml"
+   ],
+   "steps": [
+    "Read credits/quota in the TypeSafe console (not readable from the agent container).",
+    "After merge, redeploy the triage-feedback Edge Function: production v1 predates the timeout/breaker/dedupe guardrails.",
+    "Key stays only in Supabase Vault (TYPESAFE_API_KEY)."
+   ],
+   "reason": "Production triage-feedback is v1 (2026-10-07): 8 s timeout, no kill switch, no circuit breaker, no dedupe. Repo version carries all four.",
+   "exactAction": "(1) TypeSafe console → note remaining credits/quota (number only). (2) After this PR merges: GitHub → Actions → \"Deploy Edge Function (manual, from main)\" → function triage-feedback, confirm DEPLOY-triage-feedback, expected_sha = merge SHA.",
+   "evidenceExpected": "Credits number + the workflow run URL (its summary lists the new version).",
+   "readOrWrite": "write (Edge Function deploy, reversible by redeploying)",
+   "risk": "Low: admin-only function; previous v1 source is recorded in docs/reports/rc2-3-10-jev-production-certification.md."
+  },
+  {
+   "id": "OA-STRIPE-ACCOUNT-CONFIRM",
+   "title": "Confirm which Stripe account backs the Edge Functions and keep live mode off until RC2.3.11",
+   "area": "billing",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.11",
+   "source": [
+    "docs/reports/rc2-3-4a-closure.md",
+    "docs/launch/platform-budget-registry.json"
+   ],
+   "steps": [
+    "Connected account shows test mode only, 0 products, 0 webhooks.",
+    "Confirm in the Supabase Edge secrets page (names only) which account the checkout/webhook functions use.",
+    "Create no live products before the RC2.3.11 pricing decision."
+   ]
+  },
+  {
+   "id": "OA-PLAY-BILLING-COMPLIANCE",
+   "title": "Record the Google Play billing compliance decision for Brazil before any in-APK checkout",
+   "area": "billing",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.11",
+   "source": [
+    "docs/launch/ROADMAP.md",
+    "docs/release/android-billing-audit.json"
+   ],
+   "steps": [
+    "Audit current Play policy (Play Billing, alternative/user-choice billing, external links, fees) for digital educational subscriptions in Brazil.",
+    "Technically working is not the same as allowed."
+   ]
+  },
+  {
+   "id": "OA-PLAY-DEVELOPER-IDENTITY",
+   "title": "Confirm Play developer identity, package registration and package name longyu.noba.com",
+   "area": "android",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/release/play-console-status.json",
+    "docs/release/rc2-2-20-owner-actions.json"
+   ],
+   "steps": [
+    "Play Console: confirm developer verification status, package registration, and that the app shows package longyu.noba.com.",
+    "If another package appears: do not upload, do not create a second app."
+   ]
+  },
+  {
+   "id": "OA-PLAY-UPLOAD-KEY",
+   "title": "Create the upload key, back it up twice, store passwords, configure GitHub environment secrets",
+   "area": "android",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/release/rc2-2-20-owner-actions.json",
+    "docs/release/google-play-internal.json"
+   ],
+   "steps": [
+    "Run the keystore init script on the owner machine with a path outside the repo; keytool asks for passwords in your terminal.",
+    "Two offline backups in different places; passwords in your password manager.",
+    "GitHub -> Settings -> Environments -> android-release: add the secrets (record names only, never values).",
+    "Record only the PUBLIC SHA-256 fingerprint of the upload certificate."
+   ]
+  },
+  {
+   "id": "OA-PLAY-INTERNAL-RELEASE",
+   "title": "First signed AAB, Play App Signing, internal track upload, install from Play, N -> N+1",
+   "area": "android",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/release/rc2-2-30-play-internal.json",
+    "docs/release/rc2-2-20-owner-actions.json",
+    "docs/release/google-play-internal.json"
+   ],
+   "steps": [
+    "Signed AAB from the release workflow; enable Play App Signing (Google-managed key).",
+    "Create the internal track, upload, install from Play (sideload does not count).",
+    "Repeat critical device rows on the Play build; then ship N+1 and verify the update keeps progress (DM-27)."
+   ],
+   "blockedBy": [
+    "OA-PLAY-DEVELOPER-IDENTITY",
+    "OA-PLAY-UPLOAD-KEY"
+   ]
+  },
+  {
+   "id": "OA-PLAY-STORE-ASSETS",
+   "title": "Store listing assets (feature graphic, final phone screenshots)",
+   "area": "android",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.12",
+   "source": [
+    "docs/release/rc2-2-20-owner-actions.json"
+   ],
+   "steps": [
+    "Produce the feature graphic and final phone screenshots from the release build."
+   ]
+  },
+  {
+   "id": "OA-273-RUNBOOK-APPROVAL",
+   "title": "Approve the schema-diff + export runbook for the first controlled production migration (#273)",
+   "area": "cloud",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocksWave": "RC2.3.10",
+   "source": [
+    "docs/launch/rc2-3-4a-cloud-free-tier-audit.md",
+    "docs/launch/ROADMAP.md",
+    "docs/launch/rc2-3-10-cloud-handoff.json"
+   ],
+   "steps": [
+    "#273 stays open until every RC2.3.10 row in docs/launch/rc2-3-10-cloud-handoff.json is PASS.",
+    "Approve Option B (single cloud project + local Supabase/CI QA); no paid plan, no pause/delete of the sibling project."
+   ]
+  },
+  {
+   "id": "STACK_RETARGET_314",
+   "title": "Retarget #314 base from main to cursor/rc2-3-3-culture-deep-journey-25db (it already contains #309–#313; merging it first would land them unreviewed)",
+   "area": "release",
+   "status": "PASS",
+   "blocksWave": "MERGE",
+   "source": [
+    "docs/release/rc2-stack-chain.json"
+   ],
+   "steps": [
+    "On GitHub, edit PR #314 and change its base branch from main to cursor/rc2-3-3-culture-deep-journey-25db.",
+    "Confirm the diff now shows only #314's own commits.",
+    "Merge the stack bottom-up, never #314 first."
+   ],
+   "note": "Moot: #320 converged the whole stack on main (ec26ffc) and #321 followed (7d1890a). No retarget left to do."
+  },
+  {
+   "id": "OA-PROD-WEB-SHA",
+   "title": "Prove which commit is live on the production site",
+   "reason": "This agent session cannot reach *.netlify.app (egress policy) and Netlify posts no commit status on main, so the live SHA is unproven — including whether the [release] deploy of ec26ffc happened.",
+   "exactAction": "Open https://singular-meringue-7838cd.netlify.app/version.json and copy commitSha, curriculumFingerprint and buildChannel. If commitSha is not a main SHA after ec26ffc, the [release] deploy did not run: Netlify → Deploys → check the build log for \"[netlify-ignore]\".",
+   "evidenceExpected": "commitSha (40 hex), curriculumFingerprint, buildChannel.",
+   "readOrWrite": "read-only",
+   "risk": "None.",
+   "source": [
+    "docs/reports/rc2-3-10-apk-provenance.md"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-EDGE-SECRET-NAMES",
+   "title": "Confirm Edge Function secret NAMES (no values)",
+   "reason": "The MCP cannot list Edge secrets. create-account honors TURNSTILE_ALLOW_SKIP=1 when the Turnstile secret is missing; it must not exist in production.",
+   "exactAction": "Supabase → Edge Functions → Secrets: list the NAMES. TURNSTILE_ALLOW_SKIP must be absent. Note whether JEV_DEV_AUDIT_ENABLED / JEV_RUNTIME_ENABLED / TYPESAFE_API_KEY / TURNSTILE_SECRET_KEY are set as Edge secrets (Vault already holds TURNSTILE_SECRET_KEY and TYPESAFE_API_KEY).",
+   "evidenceExpected": "The list of secret names.",
+   "readOrWrite": "read-only",
+   "risk": "None.",
+   "source": [
+    "docs/reports/rc2-3-10-production-security-headers.md"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-AUTH-RATE-LIMITS-READ",
+   "title": "Read Supabase Auth rate limits and enable leaked-password protection",
+   "reason": "Auth dashboard settings are not readable by the agent; advisor reports leaked password protection disabled.",
+   "exactAction": "Supabase → Authentication → Rate Limits: note the values. Authentication → Policies/Passwords: enable \"Leaked password protection\" (HaveIBeenPwned).",
+   "evidenceExpected": "Rate-limit values + \"leaked password protection: on\".",
+   "readOrWrite": "read + one toggle",
+   "risk": "Low (rejects known-leaked passwords at signup/reset).",
+   "source": [
+    "docs/reports/rc2-3-10-production-rls.md"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-LEAGUE-POLICY-FIX",
+   "title": "Approve the league_memberships policy recursion fix",
+   "reason": "Direct SELECT on league_memberships by any signed-in user fails with 42P17 (infinite recursion) — in production and in repo 004_leagues.sql. Fails closed; app unaffected (uses RPCs).",
+   "exactAction": "Review supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql; approve it for the next controlled production migration (PRODUCTION_MIGRATION_READY).",
+   "evidenceExpected": "Approval in the PR.",
+   "readOrWrite": "decision; later a reviewed migration",
+   "risk": "Low (policy + one own-row helper).",
+   "source": [
+    "docs/reports/rc2-3-10-production-rls.md"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-JEV-TMP-TABLE",
+   "title": "Decide on production-only table public._jev_triage_tmp",
+   "reason": "5 rows (request_id, feedback_id) left from a manual pg_net triage run; not in the repo; RLS on with no policy (no client access) but anon/authenticated hold table grants.",
+   "exactAction": "After OA-DATA-EXPORT: approve dropping public._jev_triage_tmp (or tell the agent why it must stay).",
+   "evidenceExpected": "drop / keep.",
+   "readOrWrite": "decision; later a write",
+   "risk": "None for the app (no code reads it).",
+   "source": [
+    "docs/reports/rc2-3-10-production-schema-diff.md"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-PRIVACY-SNAPSHOT-EMAIL",
+   "title": "Decide whether progress snapshots keep the account e-mail",
+   "area": "privacy",
+   "reason": "12 of 14 user_progress.client_snapshot rows carry account.email (written by supabaseLearningRepository.ts). Only the owner of the row can read it (RLS), but the e-mail already lives in auth.users.",
+   "exactAction": "Choose: keep (documented) or drop from new snapshots (code change in RC2.3.11+, existing rows rewritten on next sync).",
+   "evidenceExpected": "keep / drop.",
+   "readOrWrite": "decision",
+   "risk": "Low either way.",
+   "blocking": false,
+   "source": [
+    "docs/reports/rc2-3-10-production-data-privacy.md"
+   ],
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED"
+  },
+  {
+   "id": "OA-CLOUD-SMOKE-RUN",
+   "title": "Run the cloud smoke after the next production deploy",
+   "reason": "Production hosts are unreachable from the agent session; the smoke runs from GitHub Actions with the seeded QA account.",
+   "exactAction": "GitHub → Actions → \"Cloud smoke (manual, production)\" → expected_sha = live SHA from OA-PROD-WEB-SHA.",
+   "evidenceExpected": "Run URL; artifact cloud-smoke-report shows PASS per step.",
+   "readOrWrite": "one namespaced [cloud-smoke] feedback row",
+   "risk": "None.",
+   "source": [
+    "docs/reports/rc2-3-10-cloud-smoke.md",
+    ".github/workflows/cloud-smoke.yml"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-PHYSICAL-PROVENANCE",
+   "title": "Physical QA on the certified APK only",
+   "area": "android",
+   "reason": "A physical test on an older APK cannot certify the current release.",
+   "exactAction": "Install the APK artifact of this PR head, open /qa/device?expect=<PR head SHA>, confirm MATCH before recording any physical result.",
+   "evidenceExpected": "MATCH + the SHA shown.",
+   "readOrWrite": "device only",
+   "risk": "None.",
+   "source": [
+    "docs/reports/rc2-3-10-apk-provenance.md"
+   ],
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  },
+  {
+   "id": "OA-OWNER-CLOUD-ACCEPTANCE",
+   "title": "Owner cloud acceptance",
+   "reason": "OWNER_CLOUD_ACCEPTANCE is only ever a person's signature.",
+   "exactAction": "When every RC2.3.10 gate is PASS, sign OWNER_CLOUD_ACCEPTANCE in docs/release/rc2-3-10-cloud-matrix.json (ownerSignature + date).",
+   "evidenceExpected": "Signature in the matrix.",
+   "readOrWrite": "decision",
+   "risk": "None.",
+   "source": [
+    "docs/release/rc2-3-10-cloud-matrix.json"
+   ],
+   "area": "cloud",
+   "blocksWave": "RC2.3.10",
+   "status": "OWNER_ACTION_REQUIRED",
+   "blocking": true
+  }
+ ]
 }

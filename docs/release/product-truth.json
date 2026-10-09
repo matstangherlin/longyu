@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-07T20:23:04.056Z",
-  "generatedFromSha": "78f33b8663d3f0029aaa86179f07806fba7d70ce",
-  "inputsDigest": "6ad10d71aa2aefe3",
-  "evidenceDigest": "c9cbd3d29c660b28",
+  "generatedAt": "2026-10-09T01:41:01.521Z",
+  "generatedFromSha": "b0713016e4c835798c1a65dd8c5af18d053ffe0a",
+  "inputsDigest": "db08a7f6684e3259",
+  "evidenceDigest": "bd1d5d157d56d33a",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -15,7 +15,9 @@
     "docs/release/owner-acceptance.json",
     "docs/release/owner-actions.json",
     "docs/release/external-dependencies.json",
-    "docs/release/certifications.json"
+    "docs/release/certifications.json",
+    "docs/release/rc2-3-10-cloud-matrix.json",
+    "docs/launch/production-migration-ledger.json"
   ],
   "schemaVersion": 1,
   "statusVocabulary": [
@@ -159,8 +161,83 @@
         "tier": "free"
       }
     },
-    "certification": "NOT_RUN",
+    "database": {
+      "migrationHistory": {
+        "status": "BLOCKED",
+        "ledger": {
+          "productionRows": 36,
+          "repoFiles": 56,
+          "MATCH": 19,
+          "LEGACY_EQUIVALENT": 0,
+          "PROD_ONLY": 6,
+          "REPO_ONLY": 27,
+          "UNKNOWN": 11
+        }
+      },
+      "schema": {
+        "status": "BLOCKED"
+      },
+      "backup": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "retention": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "rls": {
+        "status": "BLOCKED"
+      }
+    },
+    "backend": {
+      "edgeFunctions": {
+        "status": "BLOCKED"
+      },
+      "rateLimits": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "jevTriage": {
+        "status": "OWNER_ACTION_REQUIRED"
+      }
+    },
+    "email": {
+      "domain": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "smtp": {
+        "status": "CONFIG_REQUIRED"
+      },
+      "confirmation": {
+        "status": "CONFIG_REQUIRED"
+      },
+      "recovery": {
+        "status": "CONFIG_REQUIRED"
+      }
+    },
+    "observability": {
+      "sentry": {
+        "status": "CONFIG_REQUIRED"
+      }
+    },
+    "web": {
+      "productionSha": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "headers": {
+        "status": "NOT_RUN"
+      },
+      "rollback": {
+        "status": "NOT_RUN"
+      }
+    },
+    "certification": "BLOCKED",
     "certificationWave": "RC2.3.10"
+  },
+  "build": {
+    "artifactSha": null,
+    "artifactFingerprint": "5a64821d0b7d",
+    "artifactChannel": "dev",
+    "provenance": {
+      "status": "PASS"
+    }
   },
   "commercial": {
     "entitlementArchitecture": {
@@ -221,7 +298,15 @@
     "OA-PLAY-INTERNAL-RELEASE",
     "OA-PLAY-STORE-ASSETS",
     "OA-273-RUNBOOK-APPROVAL",
-    "STACK_RETARGET_314"
+    "OA-PROD-WEB-SHA",
+    "OA-EDGE-SECRET-NAMES",
+    "OA-AUTH-RATE-LIMITS-READ",
+    "OA-LEAGUE-POLICY-FIX",
+    "OA-JEV-TMP-TABLE",
+    "OA-PRIVACY-SNAPSHOT-EMAIL",
+    "OA-CLOUD-SMOKE-RUN",
+    "OA-PHYSICAL-PROVENANCE",
+    "OA-OWNER-CLOUD-ACCEPTANCE"
   ],
   "release": {
     "CODE": "CODE_READY",
@@ -229,7 +314,7 @@
     "ANDROID_BUILD": "CODE_READY",
     "APK": "NOT_RUN",
     "PHYSICAL": "CONFIG_REQUIRED",
-    "CLOUD": "CONFIG_REQUIRED",
+    "CLOUD": "BLOCKED",
     "MONETIZATION": "NOT_RUN",
     "RC": "BLOCKED",
     "BETA": "BLOCKED"

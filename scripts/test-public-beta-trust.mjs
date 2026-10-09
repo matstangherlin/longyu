@@ -39,6 +39,9 @@ const copyRel = [
   "docs/release/public-beta-launch-day.md",
   "docs/release/public-beta-observability-map.md",
   "docs/reports/rc2-2-4-public-beta-trust-ops.md",
+  "docs/reports/rc2-3-10-observability.md",
+  "src/lib/observability/errorScrub.ts",
+  "src/lib/observability/errorReporting.ts",
   "docs/release/human-qa-prebeta.json",
   "docs/release/rc1-operational-checks.json",
   "docs/release/public-beta-core.json",
@@ -126,11 +129,18 @@ kill("Launch-day checklist missing", (tmp) => {
   fs.unlinkSync(path.join(tmp, "docs/release/public-beta-launch-day.md"));
 });
 
-kill("Sentry dependency added", (tmp) => {
+kill("Sentry dependency added without decision", (tmp) => {
   const p = path.join(tmp, "package.json");
   const pkg = JSON.parse(fs.readFileSync(p, "utf8"));
   pkg.dependencies = { ...(pkg.dependencies || {}), "@sentry/react": "^8.0.0" };
   fs.writeFileSync(p, JSON.stringify(pkg, null, 2));
+  // Strip the RC2.3.10 decision + lazy wiring so undeclared Sentry still dies.
+  const decision = path.join(tmp, "docs/reports/rc2-3-10-observability.md");
+  if (fs.existsSync(decision)) fs.unlinkSync(decision);
+  const reporting = path.join(tmp, "src/lib/observability/errorReporting.ts");
+  if (fs.existsSync(reporting)) fs.unlinkSync(reporting);
+  const scrub = path.join(tmp, "src/lib/observability/errorScrub.ts");
+  if (fs.existsSync(scrub)) fs.unlinkSync(scrub);
 });
 
 kill("cloud_auth flipped PASS", (tmp) => {

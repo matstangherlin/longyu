@@ -7,11 +7,17 @@ title = "longyu"
 useDefault = true
 
 [allowlist]
-description = "Synthetic JWT fixtures used only to assert BUG_PACKET_SECRET / scrubbing"
+description = "Synthetic JWT / fake provider shapes used only to assert scrubbing and SECRET_IN_BUNDLE mutations. Not credentials. See docs/reports/rc2-3-10b-gitleaks-root-cause.md."
 regexes = [
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxIn0\.abcdefghij''',
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.abc''',
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkw\.abc''',
   # RC2.3.8 NO_SERVICE_ROLE mutation: fake {"role":"service_role"} with a literal "signaturesig" signature.
   '''eyJhbGciOiJIUzI1NiJ9\.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UifQ\.c2lnbmF0dXJlc2ln''',
+  # RC2.3.10 Sentry scrub mutation (FALSE_POSITIVE jwt): fake HS256 payload "1234567890" + "signaturesignature".
+  '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.c2lnbmF0dXJlc2lnbmF0dXJl''',
+  # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE stripe-access-token): alphabet filler, not a live key.
+  '''sk_live_abcdefghijklmnop1234''',
+  # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE): alphabet filler Sentry auth token shape.
+  '''sntrys_abcdefghijklmnopqrstuvwxyz012345''',
 ]

@@ -24,6 +24,17 @@ export const STATUS = Object.freeze([
 ]);
 const FORBIDDEN_WORDS = /^(READY|DONE|GOOD|OK|WORKS|YES|TRUE|VERIFIED|LIVE|GREEN)$/i;
 
+/** RC2.3.10 required cloud gates (scripts/lib/rc2-3-10-cloud.mjs REQUIRED_GATES). */
+export const CLOUD_REQUIRED_GATES = [
+  "PARENT_HOSTED_TRUTH_PASS", "WEBKIT_CROSS_ENGINE_PASS", "APK_PROVENANCE_PASS", "PRODUCTION_WEB_SHA_IDENTIFIED",
+  "MIGRATION_HISTORY_PASS", "PRODUCTION_SCHEMA_TRUTH_PASS", "BACKUP_EXPORT_PASS", "TELEMETRY_RETENTION_PASS",
+  "RESEND_DOMAIN_PASS", "SUPABASE_SMTP_PASS", "AUTH_GOOGLE_PASS", "AUTH_APPLE_PASS", "AUTH_MICROSOFT_PASS",
+  "ANDROID_OAUTH_PASS", "PRODUCTION_RLS_PASS", "EDGE_FUNCTIONS_PASS", "JEV_SERVER_TRIAGE_PASS",
+  "JEV_LEARNER_RUNTIME_DISABLED", "RATE_LIMIT_PASS", "TURNSTILE_PASS", "SECURITY_HEADERS_PASS", "SENTRY_PASS",
+  "ROLLBACK_PASS", "CLOUD_SMOKE_PASS", "FREE_TIER_BUDGET_PASS", "DATA_PRIVACY_PASS", "ISSUE_273_RESOLUTION_READY",
+  "WEB_PASS", "ANDROID_BUILD_PASS", "APK_PASS", "OWNER_CLOUD_ACCEPTANCE",
+];
+
 /** Worst-first order used to roll several statuses up into one. */
 const SEVERITY = ["BLOCKED", "PAID_PLAN_REQUIRED", "CONFIG_REQUIRED", "OWNER_ACTION_REQUIRED", "NOT_RUN", "CODE_READY", "ACCOUNT_VERIFIED", "PASS"];
 export function worstOf(statuses) {
@@ -69,9 +80,17 @@ export function buildProductTruth(inputs) {
   const cloudProviders = Object.fromEntries(
     ["supabase", "netlify", "resend", "sentry", "cloudflare"].map((id) => [id, { status: deps[id]?.status ?? "NOT_RUN", tier: deps[id]?.tier ?? "n/a" }])
   );
-  // Cloud is certified only by RC2.3.10 evidence — never by provider statuses alone.
-  const cloudCertified = Boolean(inputs.certification?.cloud?.evidence?.length);
-  const cloud = cloudCertified ? worstOf(Object.values(cloudProviders).map((p) => p.status)) : worstOf(["CONFIG_REQUIRED", ...Object.values(cloudProviders).map((p) => p.status)].filter((s) => s !== "PASS"));
+  // RC2.3.10 — cloud truth comes from the cloud matrix (evidence per gate); the
+  // certification is PASS only when every required gate is PASS AND a signed
+  // certification exists — never from provider statuses alone.
+  const gate = (id) => inputs.cloudMatrix?.gates?.[id]?.status ?? "NOT_RUN";
+  const matrixOverall = inputs.cloudMatrix ? worstOf(CLOUD_REQUIRED_GATES.map(gate)) : "NOT_RUN";
+  const cloudCertified = Boolean(inputs.certification?.cloud?.evidence?.length) && matrixOverall === "PASS";
+  const cloud = cloudCertified
+    ? "PASS"
+    : inputs.cloudMatrix
+      ? worstOf([matrixOverall === "PASS" ? "OWNER_ACTION_REQUIRED" : matrixOverall])
+      : worstOf(["CONFIG_REQUIRED", ...Object.values(cloudProviders).map((p) => p.status)].filter((s) => s !== "PASS"));
 
   const monetizationDecided = Boolean(inputs.certification?.monetization?.decision);
   const ownerAreas = Object.fromEntries(["audio", "hanzi", "ux", "auth", "android"].map((id) => [id, area(inputs.ownerAcceptance, id)]));
@@ -132,7 +151,41 @@ export function buildProductTruth(inputs) {
       accountIsolation: { status: owned("ACCOUNT_ISOLATION"), invariant: "ACCOUNT_ISOLATION" },
       deepLinks: { status: owned("OAUTH_REDIRECT_SAFETY"), invariant: "OAUTH_REDIRECT_SAFETY" },
     },
-    cloud: { providers: cloudProviders, certification: cloudCertified ? "PASS" : "NOT_RUN", certificationWave: "RC2.3.10" },
+    cloud: {
+      providers: cloudProviders,
+      database: {
+        migrationHistory: { status: gate("MIGRATION_HISTORY_PASS"), ledger: inputs.migrationLedger?.counts ?? null },
+        schema: { status: gate("PRODUCTION_SCHEMA_TRUTH_PASS") },
+        backup: { status: gate("BACKUP_EXPORT_PASS") },
+        retention: { status: gate("TELEMETRY_RETENTION_PASS") },
+        rls: { status: gate("PRODUCTION_RLS_PASS") },
+      },
+      backend: {
+        edgeFunctions: { status: gate("EDGE_FUNCTIONS_PASS") },
+        rateLimits: { status: worstOf([gate("RATE_LIMIT_PASS"), gate("TURNSTILE_PASS")]) },
+        jevTriage: { status: gate("JEV_SERVER_TRIAGE_PASS") },
+      },
+      email: {
+        domain: { status: gate("RESEND_DOMAIN_PASS") },
+        smtp: { status: gate("SUPABASE_SMTP_PASS") },
+        confirmation: { status: gate("SUPABASE_SMTP_PASS") === "PASS" ? gate("CLOUD_SMOKE_PASS") : gate("SUPABASE_SMTP_PASS") },
+        recovery: { status: gate("SUPABASE_SMTP_PASS") === "PASS" ? gate("CLOUD_SMOKE_PASS") : gate("SUPABASE_SMTP_PASS") },
+      },
+      observability: { sentry: { status: gate("SENTRY_PASS") } },
+      web: {
+        productionSha: { status: gate("PRODUCTION_WEB_SHA_IDENTIFIED") },
+        headers: { status: gate("SECURITY_HEADERS_PASS") },
+        rollback: { status: gate("ROLLBACK_PASS") },
+      },
+      certification: cloudCertified ? "PASS" : matrixOverall === "PASS" ? "OWNER_ACTION_REQUIRED" : matrixOverall,
+      certificationWave: "RC2.3.10",
+    },
+    build: {
+      artifactSha: inputs.cloudMatrix?.provenance?.certifiedSha ?? null,
+      artifactFingerprint: inputs.identity.fingerprint,
+      artifactChannel: "dev",
+      provenance: { status: gate("APK_PROVENANCE_PASS") },
+    },
     commercial: {
       entitlementArchitecture: { status: owned("ENTITLEMENT_SERVER_AUTHORITY"), invariant: "ENTITLEMENT_SERVER_AUTHORITY" },
       stripe: { status: deps.stripe?.status ?? "NOT_RUN", mode: "test" },
@@ -190,6 +243,10 @@ export function checkProductTruth(manifest, inputs) {
   for (const [id, s] of Object.entries(expected.release)) compare(`release.${id}`, manifest.release?.[id], s);
   for (const [id, row] of Object.entries(expected.cloud.providers)) compare(`cloud.providers.${id}`, manifest.cloud?.providers?.[id]?.status, row.status);
   compare("cloud.certification", manifest.cloud?.certification, expected.cloud.certification);
+  for (const section of ["database", "backend", "email", "observability", "web"]) {
+    for (const [id, row] of Object.entries(expected.cloud[section] ?? {})) compare(`cloud.${section}.${id}`, manifest.cloud?.[section]?.[id]?.status, row.status);
+  }
+  compare("build.provenance", manifest.build?.provenance?.status, expected.build.provenance.status);
   compare("commercial.pricingDecision", manifest.commercial?.pricingDecision, expected.commercial.pricingDecision);
 
   if (inputs.jevRuntimeEnabled !== false) fail("JEV_RUNTIME_ENABLED", "JEV_RUNTIME_ENABLED must be false (learner runtime off)");

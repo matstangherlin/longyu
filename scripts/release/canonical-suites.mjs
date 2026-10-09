@@ -14,6 +14,7 @@ export const SUITES = [
     description: "Fast failure first: convergence + product truth, typecheck, secrets/security boundaries, freezes, fingerprint chain, release evidence.",
     steps: [
       "gate:rc2-3-9-stack-convergence",
+      "gate:rc2-3-10-cloud",
       "validate:public-beta-feature-freeze",
       "validate:rc-learning-loop-freeze",
       "validate:operational-evidence",
@@ -537,6 +538,7 @@ export const SUITES = [
 /** Steps that run in canonical suites but were NOT in the legacy chain (coverage added by RC2.3.9). */
 export const ADDED_STEPS = Object.freeze({
   "gate:rc2-3-9-stack-convergence": "RC2.3.9 — new convergence/product-truth gate.",
+  "gate:rc2-3-10-cloud": "RC2.3.10 — cloud certification: migration ledger, cloud matrix, provenance, Jev/Turnstile guarantees, bundle secret patterns.",
   "gate:rc2-2-32": "RC2.2.32 voice/speech/guidance gate existed but no workflow or chain ran it.",
   "gate:rc2-3-0-pedagogy-v6": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
   "gate:rc2-3-1-visual-first": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",

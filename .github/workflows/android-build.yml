@@ -100,6 +100,18 @@ jobs:
           node scripts/android-cli.mjs debug
           node scripts/android-cli.mjs bundle:debug
 
+      - name: Provenance do APK (RC2.3.10 — SHA, fingerprint, canal, segredos)
+        # Lê o version.json DE DENTRO do APK gerado e varre o bundle embarcado:
+        # o artefato precisa dizer o SHA deste head e não carregar segredo nenhum.
+        run: |
+          apk=$(ls release-artifacts/*.apk | head -n1)
+          out="$RUNNER_TEMP/apk-unpacked"
+          rm -rf "$out" && mkdir -p "$out"
+          unzip -q "$apk" 'assets/public/*' -d "$out"
+          node scripts/rc2-3-10-cloud-certification.mjs provenance \
+            --dist "$out/assets/public" \
+            --expect-sha "${{ github.event.pull_request.head.sha || github.sha }}" | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Identidade do artefato
         id: identity
         run: |

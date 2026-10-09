@@ -161,6 +161,17 @@ test.describe("RC2.2.20 · Pronunciation Core BR", () => {
     }
     await expect(drill).toHaveAttribute("data-stage", "produce");
     await expect(page.getByTestId("contrast-score")).toBeVisible();
-    await expect(page.getByTestId("self-compare")).toBeVisible();
+    // RC2.3.10 — same rule as selfCompareRecordingAvailable(): an engine that can
+    // record offers the recorder; one that cannot (CI WebKit) offers the honest exit,
+    // never a record button that can only fail.
+    const canRecord = await page.evaluate(
+      () => Boolean(window.isSecureContext && typeof navigator.mediaDevices?.getUserMedia === "function" && typeof MediaRecorder !== "undefined")
+    );
+    if (canRecord) {
+      await expect(page.getByTestId("self-compare")).toBeVisible();
+    } else {
+      await expect(page.getByTestId("contrast-produce-unavailable")).toBeVisible();
+      await expect(page.getByTestId("self-compare-record")).toHaveCount(0);
+    }
   });
 });

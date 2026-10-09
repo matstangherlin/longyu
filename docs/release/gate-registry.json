@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 954,
+    "CANONICAL": 957,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 42,
+    "EVIDENCE_ONLY": 43,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 4
   },
-  "total": 1043,
+  "total": 1047,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -989,6 +989,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "gate:rc2-3-1-visual-first"
+    },
+    {
+      "gateId": "gate:rc2-3-10-cloud",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "RC2.3.10",
+      "script": "npm run validate:rc2-3-10-cloud && npm run test:rc2-3-10-cloud",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-10-cloud",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "gate:rc2-3-2-human-everyday",
@@ -6242,6 +6260,24 @@
       "canonicalOwner": "suite:identity-commercial"
     },
     {
+      "gateId": "test:rc2-3-10-cloud",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "RC2.3.10",
+      "script": "node scripts/rc2-3-10-cloud-certification.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "test:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -9948,6 +9984,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-mastery"
+    },
+    {
+      "gateId": "validate:apk-provenance",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.10",
+      "script": "node scripts/rc2-3-10-cloud-certification.mjs provenance",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "validate:app-environment",
@@ -15366,6 +15420,24 @@
       "canonicalOwner": "suite:release-truth"
     },
     {
+      "gateId": "validate:rc2-3-10-cloud",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "RC2.3.10",
+      "script": "node scripts/rc2-3-10-cloud-certification.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-10-cloud",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -18892,5 +18964,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "f2dae0b13e3fc744"
+  "evidenceDigest": "e7ede6edd6b4fb57"
 }

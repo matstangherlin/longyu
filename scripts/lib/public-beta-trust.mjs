@@ -121,7 +121,32 @@ export function assertPublicBetaTrust(root = process.cwd()) {
   push(!/Pro está disponível|buy Pro|purchase Family|Family is available/i.test(about), "About must not sell Pro/Family as available");
 
   const pkg = read(root, "package.json");
-  push(!/"@sentry\//.test(pkg) && !/"sentry"/.test(pkg), "No Sentry dependency without explicit decision");
+  const hasSentryDep = /"@sentry\//.test(pkg) || /"sentry"/.test(pkg);
+  if (hasSentryDep) {
+    // RC2.3.10 explicit decision: optional @sentry/browser, lazy, off without DSN,
+    // scrubbed, errors-only. Undeclared / always-on Sentry still fails.
+    const decision = path.join(root, "docs/reports/rc2-3-10-observability.md");
+    const obsMap = path.join(root, "docs/release/public-beta-observability-map.md");
+    const scrub = path.join(root, "src/lib/observability/errorScrub.ts");
+    const reporting = path.join(root, "src/lib/observability/errorReporting.ts");
+    push(fs.existsSync(decision), "Sentry dependency requires RC2.3.10 observability decision report");
+    push(fs.existsSync(scrub) && fs.existsSync(reporting), "Sentry dependency requires scrub + lazy errorReporting modules");
+    if (fs.existsSync(decision)) {
+      const text = read(root, "docs/reports/rc2-3-10-observability.md");
+      push(/VITE_SENTRY_DSN/.test(text) && /NO_DSN/.test(text), "Sentry decision must document off-without-DSN");
+      push(/sendDefaultPii:\s*false|scrubEvent/.test(text), "Sentry decision must document PII scrubbing");
+      push(/tracing 0|replay 0|só erros|errors only/i.test(text), "Sentry decision must keep errors-only sampling");
+    }
+    if (fs.existsSync(reporting)) {
+      const reportingSrc = read(root, "src/lib/observability/errorReporting.ts");
+      push(/import\("@sentry\/browser"\)/.test(reportingSrc), "Sentry must load as lazy dynamic import");
+      push(!/from ["']@sentry\//.test(reportingSrc), "Sentry must not be a static top-level import (keeps chunk optional)");
+    }
+    if (fs.existsSync(obsMap)) {
+      const map = read(root, "docs/release/public-beta-observability-map.md");
+      push(/optional|off without DSN|VITE_SENTRY_DSN/i.test(map), "Observability map must document optional Sentry decision");
+    }
+  }
 
   const incident = path.join(root, "docs/release/public-beta-incident-runbook.md");
   const launch = path.join(root, "docs/release/public-beta-launch-day.md");

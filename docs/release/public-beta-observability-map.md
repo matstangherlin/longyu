@@ -1,10 +1,10 @@
 # Public Beta — Observability Map
 
-**No automatic Sentry (or other heavy APM) in this remessa.** Reuse what exists.
+**Sentry is optional and off by default.** RC2.3.10 decided `@sentry/browser` may exist as a lazy chunk that loads only when `VITE_SENTRY_DSN` is set in a production-like env. Without the DSN, the SDK is never downloaded. See `docs/reports/rc2-3-10-observability.md`.
 
 | Signal | Where to inspect |
 | --- | --- |
-| Client runtime errors | User feedback + `clientDiagnostics` (sessionStorage → only if user includes technical context) |
+| Client runtime errors | Optional Sentry (DSN required) · user feedback · `clientDiagnostics` (sessionStorage → only if user includes technical context) |
 | Blank / crash UI | `ErrorBoundary` paths (Retry / Report / Journey / Reload) — no stack in production UI |
 | Feedback delivery | Supabase feedback RPC / table · local feedback queue flush · UI `data-feedback-delivery` |
 | Pedagogy telemetry | Only if consent = true · queue key cleared on revoke · RPC consent gate |
@@ -13,6 +13,12 @@
 | Account deletion | `delete-account` Edge Function logs · correlation ID (no PII in ID) |
 | Deploy / CDN | Netlify deploy logs · `sw.js` / manifest cache headers |
 | Version identity | `AppVersionLabel` · `/version.json` · `VITE_COMMIT_SHA` when set |
+
+## Sentry rules (when enabled)
+
+- Errors only (tracing 0, session replay 0).
+- `sendDefaultPii: false` + `scrubEvent` (no email, JWT, tokens, learner answers, speech, Hànzì strokes).
+- Failure of Sentry must never break learning (`captureError` is best-effort).
 
 ## Correlation IDs
 

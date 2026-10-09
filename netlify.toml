@@ -4,7 +4,7 @@
 
 [build]
   # Instalação limpa no Linux; build via node (evita "tsc: Permission denied" em .bin).
-  command = "node scripts/assert-netlify-env.mjs && npm ci && npm run build"
+  command = "node scripts/assert-netlify-env.mjs && npm ci && npm run build && node scripts/validate-frontend-secrets.mjs"
   publish = "dist"
   # RC2.3.4A — production publishes only commits marked [release]/[deploy]
   # (or env LONGYU_FORCE_PRODUCTION_DEPLOY=1). Deploy previews always build.

@@ -14,6 +14,7 @@
  * Nunca guardar: e-mail, senha, OTP, gravação de voz, token ou PII. Notas com
  * cara de e-mail, código de 6 dígitos ou token são recusadas.
  */
+import { shaMatches } from "./releaseProvenance";
 import { resolveAppEnvironment, type AppEnvironmentInput } from "./appEnvironment";
 
 export const DEVICE_QA_SCHEMA = "longyu-device-qa/1";
@@ -190,13 +191,17 @@ export type DeviceQaResultError =
   | "PASS_WITHOUT_EVIDENCE"
   | "PASS_ON_WEB_OR_EMULATOR"
   | "FAIL_WITHOUT_NOTE"
-  | "NOTE_HAS_PII";
+  | "NOTE_HAS_PII"
+  | "PHYSICAL_QA_INVALID_WRONG_BUILD";
 
 /**
  * Contrato de um resultado. PASS exige as cinco evidências; FAIL exige a nota
  * que reproduz o bug. Nada é aceito com PII.
  */
-export function validateDeviceQaResult(result: DeviceQaResult, context: { native?: boolean; emulator?: boolean } = {}): DeviceQaResultError[] {
+export function validateDeviceQaResult(
+  result: DeviceQaResult,
+  context: { native?: boolean; emulator?: boolean; expectedSha?: string | null } = {}
+): DeviceQaResultError[] {
   const errors: DeviceQaResultError[] = [];
   if (!DEVICE_QA_STATUSES.includes(result.status)) errors.push("UNKNOWN_STATUS");
   if (result.status === "PASS") {
@@ -207,6 +212,8 @@ export function validateDeviceQaResult(result: DeviceQaResult, context: { native
     if (!result.evidenceType || !DEVICE_QA_EVIDENCE_TYPES.includes(result.evidenceType)) errors.push("PASS_WITHOUT_EVIDENCE");
     // Navegador e emulador nunca são PHYSICAL PASS.
     if (context.native === false || context.emulator === true) errors.push("PASS_ON_WEB_OR_EMULATOR");
+    // RC2.3.10 — um teste físico num APK antigo nunca certifica a versão atual.
+    if (context.expectedSha && !shaMatches(result.buildSha, context.expectedSha)) errors.push("PHYSICAL_QA_INVALID_WRONG_BUILD");
   }
   if (result.status === "FAIL" && !String(result.note ?? "").trim()) errors.push("FAIL_WITHOUT_NOTE");
   if (looksLikePiiOrSecret(result.note)) errors.push("NOTE_HAS_PII");
@@ -218,7 +225,7 @@ export function recordDeviceQaResult(
   registry: DeviceQaRegistry,
   testId: string,
   result: DeviceQaResult,
-  context: { native?: boolean; emulator?: boolean } = {}
+  context: { native?: boolean; emulator?: boolean; expectedSha?: string | null } = {}
 ): { registry: DeviceQaRegistry; errors: DeviceQaResultError[] } {
   if (!DEVICE_QA_TEST_IDS.includes(testId)) return { registry, errors: ["UNKNOWN_STATUS"] };
   const errors = validateDeviceQaResult(result, context);

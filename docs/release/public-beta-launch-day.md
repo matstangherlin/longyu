@@ -47,5 +47,5 @@ Escalate SEV0/SEV1 via [`public-beta-incident-runbook.md`](./public-beta-inciden
 
 - No new pedagogical features
 - No Pro/Family self-serve flip
-- No Sentry install without an explicit decision
+- No always-on Sentry: optional `@sentry/browser` only with DSN + RC2.3.10 scrubbing decision (`docs/reports/rc2-3-10-observability.md`)
 - No production used as substitute for QA candidate evidence
