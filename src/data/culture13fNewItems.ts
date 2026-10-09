@@ -132,7 +132,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
       "Nem todo mundo usa Moments com a mesma frequência. Empresas jovens e escolas internacionais podem misturar WeChat com e-mail ou outros apps. Em zonas rurais ou entre idosos, o padrão muda.",
     variabilityEn:
       "Not everyone uses Moments at the same frequency. Young companies and international schools may mix WeChat with email or other apps. In rural areas or among older people, the pattern changes.",
-    relatedLessonIds: [],
+    relatedLessonIds: ["l27"],
     sources: [SRC.wechatBritannica, SRC.wechatChinaDaily],
     miniCheck: {
       promptPt: "Alguém diz que 'quase tudo' acontece no WeChat. Qual leitura é mais segura?",
@@ -169,7 +169,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
     category: "transport_public",
     kind: "documented_practice",
     scope: "broad",
-    estimatedMinutes: 6,
+    estimatedMinutes: 5,
     titlePt: "Trem de alta velocidade: estação, documento e embarque",
     titleEn: "High-speed rail: station, ID, and boarding",
     summaryPt:
@@ -198,7 +198,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
       "Estações menores são mais simples. Linhas e apps de bilhete mudam. Em feriados nacionais o volume explode — igual a pontes aéreas no Brasil em datas cheias.",
     variabilityEn:
       "Smaller stations are simpler. Lines and ticketing apps change. On national holidays volume explodes — like busy Brazilian air bridges on peak dates.",
-    relatedLessonIds: [],
+    relatedLessonIds: ["p6-cidade-lugares"],
     sources: [SRC.hsrBritannica, SRC.hsrStateCouncil],
     miniCheck: {
       promptPt: "Você vai pegar um trem G. Qual hábito ajuda mais na estação?",
@@ -264,7 +264,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
       "Províncias e anos mudam regras e datas. Famílias urbanas e rurais não vivem a preparação da mesma forma. Nem todo estudante segue o caminho clássico pós-gaokao.",
     variabilityEn:
       "Provinces and years change rules and dates. Urban and rural families do not live preparation the same way. Not every student follows the classic post-gaokao path.",
-    relatedLessonIds: [],
+    relatedLessonIds: ["l9"],
     sources: [SRC.gaokaoBritannica, SRC.gaokaoChinaDaily],
     miniCheck: {
       promptPt: "Qual leitura do gaokao é mais justa?",
@@ -330,7 +330,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
       "Geração, setor e cidade mudam o peso das redes. Ambientes internacionais e procedimentos online reduzem alguns papéis do guanxi — sem apagá-lo da vida social.",
     variabilityEn:
       "Generation, sector, and city change how much networks weigh. International settings and online procedures reduce some guanxi roles — without erasing them from social life.",
-    relatedLessonIds: [],
+    relatedLessonIds: ["l4"],
     sources: [SRC.guanxiBritannica, SRC.guanxiSecondary],
     miniCheck: {
       promptPt: "Qual definição de 关系 evita o estereótipo?",
@@ -396,7 +396,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
       "Cidades menores e zonas rurais têm cobertura diferente. Horários de pico e clima mudam o tempo de entrega. Nem todo prédio permite o mesmo fluxo de entregadores.",
     variabilityEn:
       "Smaller cities and rural areas have different coverage. Peak hours and weather change delivery time. Not every building allows the same courier flow.",
-    relatedLessonIds: [],
+    relatedLessonIds: ["l27"],
     sources: [SRC.deliveryChinaDaily, SRC.deliverySecondary],
     miniCheck: {
       promptPt: "Colegas pedem 外卖 no almoço. Qual leitura ajuda?",
@@ -433,7 +433,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
     category: "contemporary_china",
     kind: "documented_practice",
     scope: "regional",
-    estimatedMinutes: 6,
+    estimatedMinutes: 5,
     titlePt: "China regional: norte/sul, línguas e costumes",
     titleEn: "Regional China: north/south, languages, and customs",
     summaryPt:
@@ -462,7 +462,7 @@ export const CULTURE_13F_NEW_ITEMS: CultureItem[] = [
       "Megacidades misturam migrantes de muitas províncias. Geração jovem em escolas pode usar mais 普通话. Políticas linguísticas e prestígio social mudam o uso público de cada variedade.",
     variabilityEn:
       "Megacities mix migrants from many provinces. Younger school generations may use more 普通话. Language policy and social prestige change how each variety is used in public.",
-    relatedLessonIds: [],
+    relatedLessonIds: ["l24"],
     sources: [SRC.regionalBritannica, SRC.regionalUnesco],
     miniCheck: {
       promptPt: "Você ouve cantonês em Guangzhou. Qual leitura é correta?",

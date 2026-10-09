@@ -29,7 +29,7 @@ const storage = [100, 1000, 10000, 50000].map((n) => {
 });
 const out = {
   generatedBy: "scripts/generate-rc2-3-6-reports.mjs",
-  journeyFingerprint: "5a64821d0b7d",
+  journeyFingerprint: "fea5455e1461",
   gate: { failures: runMasteryGate(rt).length },
   graph: {
     targets: audit.targets,

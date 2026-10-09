@@ -5,6 +5,8 @@
  * "Chinese people always X" without scope. Summaries only — no copied source text.
  */
 
+import { CULTURE_13F_NEW_ITEMS } from "./culture13fNewItems";
+
 /** First mission completion XP. Same reward id as V4.9.6C (`culture-complete:<id>`). */
 export const CULTURE_COMPLETE_XP = 8;
 
@@ -1778,6 +1780,8 @@ export const CULTURE_ITEMS: CultureItem[] = [
       explanationEn: "Ming and Qing cover the final imperial block in this introductory Atlas.",
     },
   },
+  // RC2.3.13F — hub-only Culture V2 expansion (WeChat, HSR, Gaokao, guanxi, delivery, regional).
+  ...CULTURE_13F_NEW_ITEMS,
 ];
 
 export type CultureLocale = "pt-BR" | "en";

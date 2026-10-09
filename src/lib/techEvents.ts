@@ -86,6 +86,10 @@ export const TECH_EVENT_NAMES = [
   "culture_node_open",
   "culture_node_complete",
   "culture_bridge_open",
+  "culture_path_open",
+  "culture_atlas_open",
+  "culture_depth_expand",
+  "culture_decision_submit",
 ] as const;
 export type TechEventName = (typeof TECH_EVENT_NAMES)[number];
 

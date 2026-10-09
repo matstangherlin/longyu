@@ -8,6 +8,11 @@
  *
  * Fingerprint advanced: 943a8f9fb720 → 516692632525 because
  * `cultureNative.ts` + `cultureLessons.ts` are CURRICULUM_SOURCES.
+ *
+ * RC2.3.13F (Culture Deep Expansion) advanced 5a64821d0b7d → fea5455e1461:
+ * CultureItems 30 → 36, native lessons 30 → 36 (hub-only). Journey culture
+ * nodes stay 20. Mandarin lesson/topic counts unchanged. Fingerprint moves
+ * only because `cultureNative.ts` is a CURRICULUM_SOURCE.
  * Do not restore the prior fingerprint.
  *
  * CURRICULUM_FREEZE = RC2_CONTENT_FREEZE marks content closed for RC2.
@@ -100,15 +105,19 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
  * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
-// PR #314: planner budget bug fix; content counts and catalog stay frozen.
-export const RC_BASE_FINGERPRINT = "5a64821d0b7d";
+// RC2.3.13F: hub-only Culture V2 expansion (36 items / 36 native lessons).
+export const RC_BASE_FINGERPRINT = "fea5455e1461";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
 
-/** Culture Atlas counts frozen at V4.11A.3 closure. */
-export const RC2_EXPECTED_CULTURE_ITEMS = 30;
-export const RC2_EXPECTED_CULTURE_NATIVE_LESSONS = 30;
+/**
+ * Culture Atlas counts.
+ * RC2.3.13F intentionally expands hub-only CultureItems (36) + native lessons (36).
+ * Journey culture nodes stay at 20 — Mandarin fingerprint unchanged.
+ */
+export const RC2_EXPECTED_CULTURE_ITEMS = 36;
+export const RC2_EXPECTED_CULTURE_NATIVE_LESSONS = 36;
 export const RC2_EXPECTED_JOURNEY_CULTURE_NODES = 20;
 export const RC2_EXPECTED_HISTORY_ITEMS = 6;
 
@@ -164,6 +173,45 @@ export const RC2_3_13E_PROGRESSION_SHELL_EXCEPTION = {
   gate: "gate:rc2-3-13e-progression-shell-culture",
 } as const;
 
+/**
+ * RC2.3.13F — Culture Deep Expansion (hub-only CultureItems + 12-path taxonomy).
+ *
+ * SYSTEM: Culture V2 path model + FLAGSHIP_DEEP content
+ * SCOPE: CULTURE_CONTENT_ONLY
+ * PEDAGOGICAL_AUTHORITY: NONE for Mandarin Journey / Mastery / SRS
+ *
+ * Intentionally raises cultureItems/nativeLessons counts. Must NOT change
+ * Mandarin lesson count, teaching topics, Journey culture nodes, Mastery math,
+ * SRS, billing, or JEV learner runtime.
+ */
+export const RC2_3_13F_CULTURE_DEEP_EXPANSION_EXCEPTION = {
+  id: "RC2_3_13F_CULTURE_DEEP_EXPANSION",
+  system: "Culture V2 path model + FLAGSHIP_DEEP content",
+  scope: "CULTURE_CONTENT_ONLY",
+  pedagogicalAuthority: "NONE",
+  modules: [
+    "src/data/culturePaths.ts",
+    "src/data/culture13fNewItems.ts",
+    "src/data/cultureDeepSchema.ts",
+  ] as const,
+  forbids: [
+    "Mandarin curriculum change",
+    "Mastery math change",
+    "SRS algorithm change",
+    "Journey culture node count change",
+    "billing change",
+    "JEV learner runtime ON",
+  ],
+  /** Typed fingerprint advance: hub-only CultureItems 30→36 move cultureNative CURRICULUM_SOURCE. */
+  previousFingerprint: "5a64821d0b7d",
+  fingerprint: "fea5455e1461",
+  cultureItems: RC2_EXPECTED_CULTURE_ITEMS,
+  cultureNativeLessons: RC2_EXPECTED_CULTURE_NATIVE_LESSONS,
+  journeyCultureNodes: RC2_EXPECTED_JOURNEY_CULTURE_NODES,
+  culturePaths: 12,
+  gate: "gate:rc2-3-13f-culture-deep-expansion",
+} as const;
+
 export const BETA_PEDAGOGY_FREEZE = {
   id: "RC2_2_9_BETA_PEDAGOGY_FREEZE",
   since: "RC2.2.9",
@@ -171,8 +219,8 @@ export const BETA_PEDAGOGY_FREEZE = {
   counts: {
     lessons: 134,
     teachingTopics: 113,
-    cultureItems: 30,
-    cultureNativeLessons: 30,
+    cultureItems: 36,
+    cultureNativeLessons: 36,
     journeyCultureNodes: 20,
     cultureMoments: 5,
     toneTransferPlayable: 12,

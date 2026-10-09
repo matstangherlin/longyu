@@ -113,7 +113,7 @@ export function checkQaFlagsProduction({ netlify, featureFlags, envSample }) {
 
 export function checkCurriculumBaseline({ fingerprint, lessons, teaching }) {
   const errors = [];
-  if (fingerprint && fingerprint !== "5a64821d0b7d") errors.push("FINGERPRINT_DRIFT");
+  if (fingerprint && fingerprint !== "fea5455e1461") errors.push("FINGERPRINT_DRIFT");
   if (lessons != null && lessons !== 134) errors.push("LESSON_BASELINE_CHANGED");
   if (teaching != null && teaching !== 113) errors.push("TOPIC_BASELINE_CHANGED");
   return errors;

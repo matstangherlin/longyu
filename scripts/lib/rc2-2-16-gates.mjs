@@ -44,14 +44,14 @@ export const RC2_2_16_BASE_SHA = "96539372";
 export const BETA_BASELINE = {
   lessons: 134,
   teachingTopics: 113,
-  cultureItems: 30,
-  cultureNativeLessons: 30,
+  cultureItems: 36,
+  cultureNativeLessons: 36,
   journeyCultureNodes: 20,
   cultureMoments: 5,
   toneTransferPlayable: 12,
   conversationCapabilitiesRuntimeReady: 31,
 };
-export const BETA_FINGERPRINT = "5a64821d0b7d";
+export const BETA_FINGERPRINT = "fea5455e1461";
 export const RELEASE_STATES = [
   "PACKAGE_ALIGNED",
   "SIGNING_READY",
