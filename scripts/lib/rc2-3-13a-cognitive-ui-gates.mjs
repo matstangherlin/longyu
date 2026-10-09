@@ -40,8 +40,17 @@ export function checkMoreOptionsHierarchy(src = loadCognitiveSources()) {
   if (!/data-cognitive-sheet=\{showSignOut \? "more-options"/.test(tab) && !/data-cognitive-sheet="more-options"/.test(tab)) {
     errors.push("MORE_OPTIONS_PRIMARY_SEE_ALL");
   }
+  // More Options = settings rows; practice sheet keeps RC2.2.13 compact 2-col grid.
   if (!/data-settings-row=/.test(tab)) errors.push("MORE_OPTIONS_CARD_GRID");
-  if (/grid grid-cols-2 gap-2/.test(tab)) errors.push("MORE_OPTIONS_CARD_GRID");
+  if (!/data-cognitive-sheet=\{showSignOut \? "more-options"/.test(tab)) {
+    errors.push("MORE_OPTIONS_CARD_GRID");
+  }
+  // Bifurcation required: showSignOut → rows, else → grid-cols-2 (not card grid for Mais).
+  if (
+    !/showSignOut \? \([\s\S]*?data-settings-row=[\s\S]*?\) : \([\s\S]*?grid grid-cols-2 gap-2/.test(tab)
+  ) {
+    errors.push("MORE_OPTIONS_CARD_GRID");
+  }
   if ((tab.match(/hierarchy:\s*"primary"/g) ?? []).length > 2) errors.push("MORE_OPTIONS_MULTI_PRIMARY");
   return [...new Set(errors)];
 }

@@ -269,33 +269,63 @@ function TabSheet({
                   {t(group.titleKey)}
                 </div>
               )}
-              {/* RC2.3.13A — rows, not a card grid (Hick / card policy). */}
-              <div className="overflow-hidden rounded-2xl border border-line/70 bg-surface-2/40">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const active = isNavItemActive(item, pathname);
-                  return (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={onClose}
-                      aria-current={active ? "page" : undefined}
-                      data-settings-row=""
-                      data-cta-hierarchy="secondary"
-                      className={[
-                        "flex min-h-12 items-center gap-3 border-b border-line/50 px-3 text-sm font-semibold transition last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45",
-                        active ? "bg-accent-soft text-accent" : "text-ink hover:bg-surface-2",
-                      ].join(" ")}
-                    >
-                      <span className={cx("grid h-9 w-9 place-items-center rounded-lg", active ? "bg-accent text-white" : "bg-surface text-accent")}>
-                        <Icon width={18} height={18} aria-hidden="true" />
-                      </span>
-                      <span className="flex-1 truncate">{navLabel(item, t)}</span>
-                      <IconChevron width={16} height={16} className="text-ink-faint" aria-hidden="true" />
-                    </Link>
-                  );
-                })}
-              </div>
+              {showSignOut ? (
+                /* RC2.3.13A — More Options: settings rows (Hick / card policy). */
+                <div className="overflow-hidden rounded-2xl border border-line/70 bg-surface-2/40">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isNavItemActive(item, pathname);
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={onClose}
+                        aria-current={active ? "page" : undefined}
+                        data-settings-row=""
+                        data-cta-hierarchy="secondary"
+                        className={[
+                          "flex min-h-12 items-center gap-3 border-b border-line/50 px-3 text-sm font-semibold transition last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45",
+                          active ? "bg-accent-soft text-accent" : "text-ink hover:bg-surface-2",
+                        ].join(" ")}
+                      >
+                        <span className={cx("grid h-9 w-9 place-items-center rounded-lg", active ? "bg-accent text-white" : "bg-surface text-accent")}>
+                          <Icon width={18} height={18} aria-hidden="true" />
+                        </span>
+                        <span className="flex-1 truncate">{navLabel(item, t)}</span>
+                        <IconChevron width={16} height={16} className="text-ink-faint" aria-hidden="true" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* Practice sheet stays compact 2-col (RC2.2.13 density contract). */
+                <div className="grid grid-cols-2 gap-2">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isNavItemActive(item, pathname);
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={onClose}
+                        aria-current={active ? "page" : undefined}
+                        data-cta-hierarchy="secondary"
+                        className={[
+                          "flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                          active
+                            ? "border-accent/35 bg-accent-soft text-accent"
+                            : "border-line/70 bg-surface-2/70 text-ink hover:bg-surface-2",
+                        ].join(" ")}
+                      >
+                        <span className={cx("grid h-9 w-9 place-items-center rounded-xl", active ? "bg-accent text-white" : "bg-surface text-accent")}>
+                          <Icon width={18} height={18} aria-hidden="true" />
+                        </span>
+                        <span className="min-w-0 flex-1 truncate">{navLabel(item, t)}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ))}
 
