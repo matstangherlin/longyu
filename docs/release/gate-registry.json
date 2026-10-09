@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 76,
+    "EVIDENCE_ONLY": 79,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 5
   },
-  "total": 1090,
+  "total": 1093,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -401,6 +401,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:jev-production-parity",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:jev-shadow-learning",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "npm run validate:jev-shadow-learning && npm run test:jev-shadow-learning",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:jev-shadow-learning",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -4483,6 +4501,24 @@
       "domain": "none",
       "introducedBy": "PRE_RC2",
       "script": "node scripts/jev-production-parity.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:jev-shadow-learning",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/jev-shadow-learning.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -13800,6 +13836,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:jev-shadow-learning",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/jev-shadow-learning.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:jev-shadow-learning",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:journey-51-100-roadmap",
       "status": "CANONICAL",
       "domain": "pedagogy-progression",
@@ -19738,5 +19792,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "bf369f49cf9d3a3c"
+  "evidenceDigest": "69e1d0d6831c07c3"
 }

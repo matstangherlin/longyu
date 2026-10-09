@@ -1,0 +1,40 @@
+{
+  "schema": "longyu-jev-shadow-struggle-report/1",
+  "policyVersion": "shadow-struggle-v1",
+  "generatedAt": "2026-10-09T05:15:50.498Z",
+  "note": "Synthetic/calibration-backed shadow metrics. No PII. Learner runtime OFF.",
+  "events": 10,
+  "uniqueStates": 10,
+  "jevAvailable": true,
+  "interveneRate": 0.4,
+  "agreementRate": 0.2,
+  "falseInterruptionRate": 0.25,
+  "missedStruggleRate": 0.1667,
+  "lowConfidenceRate": 0.5,
+  "abstainRate": 0.5,
+  "estimatedCallsPer100Sessions": 9,
+  "costEstimate": 8,
+  "recommendation": "KEEP_SHADOW",
+  "sampleSource": "calibration-dataset",
+  "realBetaEvents": 0,
+  "learningMetrics": [
+    "falseInterruptionRate",
+    "missedStruggleRate",
+    "agreementRate"
+  ],
+  "nonLearningMetricsExcluded": [
+    "sessionLength",
+    "engagement",
+    "xp"
+  ],
+  "killSwitch": "JEV_SHADOW_STRUGGLE_RUNTIME_ENABLED=false",
+  "promotionBlockedUntil": [
+    "meaningful_sample_size",
+    "privacy_pass",
+    "cost_pass",
+    "false_interruption_acceptable",
+    "failure_fallback_verified",
+    "human_pedagogical_review",
+    "explicit_owner_approval"
+  ]
+}

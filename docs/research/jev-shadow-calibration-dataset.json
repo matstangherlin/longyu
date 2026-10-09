@@ -1,0 +1,180 @@
+{
+  "schema": "longyu-jev-shadow-calibration/1",
+  "policyVersion": "shadow-struggle-v1",
+  "note": "Synthetic struggle episodes for shadow lab. No PII, no raw audio, no stroke paths. Human-authored reference outcomes.",
+  "cases": [
+    {
+      "id": "listen-two-errors",
+      "signals": {
+        "competency": "listening",
+        "masteryState": "developing",
+        "errorCountBucket": "2",
+        "replayCountBucket": "1",
+        "helpUsed": false,
+        "activeTimeBucket": "medium",
+        "recentIndependentSuccessBucket": "0",
+        "currentExerciseFamily": "listening_choice",
+        "lessonStage": "practice"
+      },
+      "mockJev": { "choice": "REPLAY_MODEL", "confidence": 0.82, "shouldIntervene": 0.7 },
+      "outcome": "needed_help"
+    },
+    {
+      "id": "listen-false-interrupt",
+      "signals": {
+        "competency": "listening",
+        "masteryState": "developing",
+        "errorCountBucket": "2",
+        "replayCountBucket": "0",
+        "helpUsed": false,
+        "activeTimeBucket": "short",
+        "recentIndependentSuccessBucket": "1",
+        "currentExerciseFamily": "listening_choice",
+        "lessonStage": "practice"
+      },
+      "mockJev": { "choice": "SHOW_VISUAL_HINT", "confidence": 0.85, "shouldIntervene": 0.8 },
+      "outcome": "succeeded_naturally"
+    },
+    {
+      "id": "production-missed",
+      "signals": {
+        "competency": "production",
+        "masteryState": "emerging",
+        "errorCountBucket": "3plus",
+        "replayCountBucket": "2",
+        "helpUsed": true,
+        "activeTimeBucket": "long",
+        "recentIndependentSuccessBucket": "0",
+        "currentExerciseFamily": "production",
+        "lessonStage": "check"
+      },
+      "mockJev": { "choice": "CONTINUE", "confidence": 0.7, "shouldIntervene": 0.2 },
+      "outcome": "repeated_error"
+    },
+    {
+      "id": "abstain-low-conf",
+      "signals": {
+        "competency": "meaning",
+        "masteryState": "developing",
+        "errorCountBucket": "2",
+        "replayCountBucket": "1",
+        "helpUsed": false,
+        "activeTimeBucket": "medium",
+        "recentIndependentSuccessBucket": "1",
+        "currentExerciseFamily": "meaning_choice",
+        "lessonStage": "practice"
+      },
+      "mockJev": { "choice": "REDUCE_CHOICE_SET", "confidence": 0.4, "shouldIntervene": 0.55 },
+      "outcome": "needed_help"
+    },
+    {
+      "id": "speech-technical",
+      "signals": {
+        "competency": "production",
+        "masteryState": "developing",
+        "errorCountBucket": "1",
+        "replayCountBucket": "0",
+        "helpUsed": false,
+        "activeTimeBucket": "short",
+        "recentIndependentSuccessBucket": "2",
+        "currentExerciseFamily": "speech_self_compare",
+        "lessonStage": "practice",
+        "speech": {
+          "asrAvailable": false,
+          "selfCompareCompleted": false,
+          "technicalFailure": true,
+          "retryCountBucket": "1"
+        }
+      },
+      "mockJev": { "choice": "MODEL_AND_RETRY", "confidence": 0.9, "shouldIntervene": 0.9 },
+      "outcome": "needed_help"
+    },
+    {
+      "id": "hanzi-hint",
+      "signals": {
+        "competency": "form",
+        "masteryState": "emerging",
+        "errorCountBucket": "2",
+        "replayCountBucket": "0",
+        "helpUsed": false,
+        "activeTimeBucket": "medium",
+        "recentIndependentSuccessBucket": "0",
+        "currentExerciseFamily": "hanzi_memory",
+        "lessonStage": "practice",
+        "hanzi": {
+          "traceCompleted": true,
+          "memoryAttempt": true,
+          "hintUsed": false,
+          "retryBucket": "2"
+        }
+      },
+      "mockJev": { "choice": "SHOW_VISUAL_HINT", "confidence": 0.78, "shouldIntervene": 0.65 },
+      "outcome": "needed_help"
+    },
+    {
+      "id": "teach-stage-no-switch",
+      "signals": {
+        "competency": "meaning",
+        "masteryState": "none",
+        "errorCountBucket": "3plus",
+        "replayCountBucket": "1",
+        "helpUsed": false,
+        "activeTimeBucket": "medium",
+        "recentIndependentSuccessBucket": "0",
+        "currentExerciseFamily": "meaning_choice",
+        "lessonStage": "teach"
+      },
+      "mockJev": { "choice": "SWITCH_TO_EASIER_EVIDENCE", "confidence": 0.88, "shouldIntervene": 0.75 },
+      "outcome": "needed_help"
+    },
+    {
+      "id": "culture-defer",
+      "signals": {
+        "competency": "culture",
+        "masteryState": "developing",
+        "errorCountBucket": "2",
+        "replayCountBucket": "0",
+        "helpUsed": true,
+        "activeTimeBucket": "medium",
+        "recentIndependentSuccessBucket": "1",
+        "currentExerciseFamily": "culture_scenario",
+        "lessonStage": "check"
+      },
+      "mockJev": { "choice": "DEFER_TO_REVIEW", "confidence": 0.74, "shouldIntervene": 0.6 },
+      "outcome": "completed_lesson"
+    },
+    {
+      "id": "invent-rejected",
+      "signals": {
+        "competency": "listening",
+        "masteryState": "developing",
+        "errorCountBucket": "2",
+        "replayCountBucket": "1",
+        "helpUsed": false,
+        "activeTimeBucket": "short",
+        "recentIndependentSuccessBucket": "0",
+        "currentExerciseFamily": "listening_choice",
+        "lessonStage": "practice"
+      },
+      "mockJev": { "choice": "MAKE_NEW_DRILL", "confidence": 0.95, "shouldIntervene": 0.9 },
+      "outcome": "needed_help"
+    },
+    {
+      "id": "first-error-no-trigger",
+      "signals": {
+        "competency": "listening",
+        "masteryState": "developing",
+        "errorCountBucket": "1",
+        "replayCountBucket": "0",
+        "helpUsed": false,
+        "activeTimeBucket": "short",
+        "recentIndependentSuccessBucket": "2",
+        "currentExerciseFamily": "listening_choice",
+        "lessonStage": "practice"
+      },
+      "mockJev": { "choice": "REPLAY_MODEL", "confidence": 0.8, "shouldIntervene": 0.5 },
+      "outcome": "succeeded_naturally",
+      "expectNoTrigger": true
+    }
+  ]
+}
