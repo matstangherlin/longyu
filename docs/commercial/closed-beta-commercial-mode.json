@@ -1,0 +1,29 @@
+{
+  "schema": "longyu-closed-beta-commercial-mode/1",
+  "wave": "RC2.3.12",
+  "decision": "FREE_ONLY",
+  "alternatives": [
+    "FREE_ONLY",
+    "TEST_PURCHASES_ONLY"
+  ],
+  "rejected": [
+    "LIVE"
+  ],
+  "rationale": [
+    "Pedagogy Closed Beta should validate learning, not payment conversion",
+    "Cloud certification BLOCKED; LIVE_MONETIZATION_REQUIRES_CLOUD_PASS",
+    "Android IAP DISABLED_FOR_BETA",
+    "OA-FINAL-PRICING still open",
+    "Stripe TEST catalog exists for engineering validation outside beta cohort"
+  ],
+  "temporaryPro": {
+    "allowed": true,
+    "mechanism": "server-side admin/promo entitlement_grants only",
+    "forbidden": [
+      "client isPremium",
+      "localStorage",
+      "user_metadata"
+    ]
+  },
+  "paywallDuringBeta": "info-only honest CTA \u2014 no dead Buy button claiming live purchase"
+}

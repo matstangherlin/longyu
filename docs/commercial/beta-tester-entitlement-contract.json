@@ -1,0 +1,23 @@
+{
+  "schema": "longyu-beta-tester-entitlement/1",
+  "wave": "RC2.3.12",
+  "closedBetaCommercialMode": "FREE_ONLY",
+  "defaultLearner": "FREE",
+  "temporaryPro": {
+    "allowed": true,
+    "writer": "service_role → entitlement_grants / admin grant RPC only",
+    "requiredFields": ["user_id", "reason", "source", "granted_by", "expires_at", "created_at"],
+    "sourceEnum": ["ADMIN_GRANT", "PROMO", "BETA_COHORT"],
+    "forbidden": [
+      "client isPremium toggle",
+      "localStorage Pro",
+      "raw_user_meta_data",
+      "JWT user_metadata as authority"
+    ],
+    "audit": "billing/entitlement audit log with grant reason; no payment PII"
+  },
+  "paywall": {
+    "duringFreeOnlyBeta": "show Longyu Pro benefits + prices as informational; CTA must not claim live purchase",
+    "android": "DISABLED_FOR_BETA honest message"
+  }
+}

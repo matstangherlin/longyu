@@ -1,7 +1,7 @@
 {
   "schema": "longyu-rc2-3-12-commercial-handoff/1",
   "fromWave": "RC2.3.11",
-  "toWave": "RC2.3.12 — Release Candidate & Pre-Launch Operations",
+  "toWave": "RC2.3.12 \u2014 Release Candidate & Pre-Launch Operations",
   "generatedAt": "2026-10-09T02:00:00Z",
   "parentHead": "99e69f4cd13c2d21ad05a06bb6fb70560c971b3d",
   "monetizationMode": "TEST",
@@ -33,7 +33,9 @@
     "Commercial Terms legal review"
   ],
   "physicalPurchaseQa": "NOT_RUN",
-  "legalActions": ["COMMERCIAL_TERMS_REVIEW"],
+  "legalActions": [
+    "COMMERCIAL_TERMS_REVIEW"
+  ],
   "cloudBlockerCarryover": [
     "OA-BATCH-A-EXECUTE",
     "BACKUP_EXPORT",
@@ -44,7 +46,7 @@
     "ANDROID_OAUTH",
     "TELEMETRY_RETENTION"
   ],
-  "closedBetaCommercialMode": "FREE_ONLY_OR_TEST_PURCHASES_ONLY",
+  "closedBetaCommercialMode": "FREE_ONLY",
   "ownerCommercialActionsTarget": [
     "OA-FINAL-PRICING",
     "Stripe live activation (later)",
@@ -52,5 +54,7 @@
     "Billing policy enrollment if chosen",
     "Physical Android purchase QA",
     "Terms/legal review"
-  ]
+  ],
+  "toWaveStatus": "IN_PROGRESS",
+  "stripeCatalogVerifiedAt": "2026-10-09T02:20:00Z"
 }

@@ -1,0 +1,24 @@
+{
+  "schema": "longyu-stripe-test-catalog-verification/1",
+  "wave": "RC2.3.12",
+  "verifiedAt": "2026-10-09T02:20:00Z",
+  "livemode": false,
+  "stripeAccount": "acct_1Kuk2ABtqIZtQQj8",
+  "method": "Stripe MCP GetProducts + GetPrices",
+  "products": ["longyu_pro", "longyu_family"],
+  "priceCount": 8,
+  "matchCommercialCatalog": true,
+  "amountsVerified": {
+    "longyu_pro_monthly_br": 1700,
+    "longyu_pro_annual_br": 17000,
+    "longyu_pro_monthly_international": 500,
+    "longyu_pro_annual_international": 5000,
+    "longyu_family_monthly_br": 2700,
+    "longyu_family_annual_br": 27000,
+    "longyu_family_monthly_international": 800,
+    "longyu_family_annual_international": 8000
+  },
+  "edgeSecretWiring": "CONFIG_REQUIRED",
+  "liveKeyScan": "refuseStripeLive present; no sk_live_ activation",
+  "status": "CATALOG_VERIFIED"
+}

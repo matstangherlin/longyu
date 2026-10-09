@@ -1,0 +1,19 @@
+{
+  "schema": "longyu-play-data-safety-draft/1",
+  "wave": "RC2.3.12",
+  "disclaimer": "Draft from code behavior. Owner must confirm in Play Console. Do not invent sharing.",
+  "ads": false,
+  "accountRequired": false,
+  "accountOptional": true,
+  "collectedApprox": {
+    "personalInfo": ["email if account"],
+    "appActivity": ["in-app learning progress"],
+    "audioFiles": "microphone for speech practice — on-device; raw upload not part of current design",
+    "diagnostics": "crash/error if Sentry configured"
+  },
+  "sharedWithThirdParties": "processors for auth/hosting/payments as needed — list only after final wiring",
+  "encryptedInTransit": true,
+  "deletion": "in-app / account deletion flow required — verify end-to-end before Play submission",
+  "permissionsExpected": ["RECORD_AUDIO / microphone for speech"],
+  "unnecessaryPermissionsPolicy": "remove any permission without proven need"
+}
