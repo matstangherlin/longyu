@@ -3,20 +3,21 @@
   "wave": "RC2.3.13D",
   "parentPr": 333,
   "parentSha": "e8f4090ba81d84b8a8a1cb92787135c502f1457b",
-  "note": "Mobile accessibility & physical UX. CODE_* may pass from gates/E2E. *_PHYSICAL_PASS and OWNER_DEVICE_UX_ACCEPTANCE require real Android evidence. RC4 remains NOT_BUILT until artifact pipeline mints it. Not final beta RC.",
+  "proofSha": "local-pre-device-qa",
+  "note": "Mobile accessibility & physical UX. CODE_* / VIEWPORT_* may pass from gates/E2E. *_PHYSICAL_PASS and OWNER_DEVICE_UX_ACCEPTANCE require real Android evidence. RC4 remains NOT_BUILT until artifact pipeline mints it. Not final beta RC.",
   "rc4": "NOT_BUILT",
   "matrix": {
-    "SAFE_TOP_CODE_PASS": "CODE_READY",
-    "SAFE_BOTTOM_CODE_PASS": "CODE_READY",
-    "KEYBOARD_CODE_PASS": "CODE_READY",
-    "ANDROID_BACK_CODE_PASS": "CODE_READY",
-    "TOUCH_TARGET_CODE_PASS": "CODE_READY",
-    "FONT_SCALE_CODE_PASS": "CODE_READY",
-    "REDUCED_MOTION_CODE_PASS": "CODE_READY",
-    "A11Y_SEMANTICS_CODE_PASS": "CODE_READY",
-    "VIEWPORT_360_PASS": "CODE_READY",
-    "VIEWPORT_375_PASS": "CODE_READY",
-    "VIEWPORT_390_PASS": "CODE_READY",
+    "SAFE_TOP_CODE_PASS": "PASS",
+    "SAFE_BOTTOM_CODE_PASS": "PASS",
+    "KEYBOARD_CODE_PASS": "PASS",
+    "ANDROID_BACK_CODE_PASS": "PASS",
+    "TOUCH_TARGET_CODE_PASS": "PASS",
+    "FONT_SCALE_CODE_PASS": "PASS",
+    "REDUCED_MOTION_CODE_PASS": "PASS",
+    "A11Y_SEMANTICS_CODE_PASS": "PASS",
+    "VIEWPORT_360_PASS": "EMULATED_PASS",
+    "VIEWPORT_375_PASS": "EMULATED_PASS",
+    "VIEWPORT_390_PASS": "EMULATED_PASS",
     "AUDIO_PHYSICAL_PASS": "NOT_RUN",
     "GUIDED_TRY_PHYSICAL_PASS": "NOT_RUN",
     "CONVERSATION_PHYSICAL_PASS": "NOT_RUN",
@@ -32,7 +33,12 @@
     "BILLING_UNCHANGED": "PASS"
   },
   "gates": {
-    "gate:rc2-3-13d-mobile-physical-ux": "REQUIRED"
+    "gate:rc2-3-13d-mobile-physical-ux": "PASS_20_20"
+  },
+  "emulatedE2E": {
+    "spec": "e2e/rc2-3-13d-mobile-physical-ux.spec.ts",
+    "result": "PASS_4_4",
+    "viewports": ["360x640", "375x667", "390x844", "390x420-keyboard"]
   },
   "betaBlockersUnchanged": [
     "PHYSICAL_RC",

@@ -2,37 +2,75 @@
 
 ## Status
 
-Scaffold on parent **#333** `e8f4090`. Broad physical hardening waits until #333 Chromium E2E + cross-engine are SUCCESS.
+**CODE + EMULATED proof ready.** Physical DEVICE-QA blocked until parent **#333** Chromium E2E + cross-engine are SUCCESS, then #334 hosted green on exact SHA.
+
+| Check | SHA | Truth |
+| --- | --- | --- |
+| Parent #333 | `e8f4090ba81d84b8a8a1cb92787135c502f1457b` | Security/Android/beta/quality green; **Chromium E2E + cross-engine still pending** |
+| #334 | (this branch) | Security/Release truth green; beta suite flake on ffmpeg CDN 500 mitigated; physical **NOT_STARTED** |
+
+## Hosted
+
+- Do not treat #333 green as #334 evidence.
+- Exact SHA only for DEVICE-QA minting.
+
+## DEVICE-QA artifact
+
+| Field | Value |
+| --- | --- |
+| Label | `DEVICE-QA — NOT FINAL BETA` |
+| Status | **NOT_BUILT** |
+| sourceSha / APK SHA256 | null until real pipeline |
 
 ## RC4 truth
 
 | Item | Value |
 | --- | --- |
-| Designated identity | `RC2.3.12-RC4` / `0.2.0-rc.4` (13C cert) |
-| Canonical artifacts | **NOT_BUILT** — see `docs/release/rc2-3-12-rc4-identity.json` |
-| Live candidate | still `RC2.3.12-RC2` / `0.2.0-rc.2` / vc 596 |
+| Designated identity | `RC2.3.12-RC4` / `0.2.0-rc.4` (13C) |
+| Canonical artifacts | **NOT_BUILT** — `docs/release/rc2-3-12-rc4-identity.json` |
+| Live candidate | still `RC2.3.12-RC2` / `0.2.0-rc.2` |
 
-Do not invent APK/AAB/checksums. Device QA builds are labeled **DEVICE-QA — NOT FINAL BETA**.
+QA artifact ≠ RC artifact. Do not mint RC4 for DEVICE-QA.
 
 ## Vocabulary
 
 `CODE_PASS` · `EMULATED_PASS` · `PHYSICAL_PASS` — never promote code → physical.
 
-## Delivered (scaffold)
+## Automated proof (Phase 1)
 
-- Device matrix + Back/IME contracts — `docs/ux/mobile-device-matrix.md`
-- Device QA JSON — `docs/release/rc2-3-13d-device-qa.json`
-- UX cert (physical rows NOT_RUN) — `docs/release/rc2-3-13d-ux-certification.json`
-- Gate `gate:rc2-3-13d-mobile-physical-ux` (20 kills)
-- Emulated E2E 360/375/390 + keyboard-like height
+- `gate:rc2-3-13d-mobile-physical-ux` → **20/20** mutation kills
+- Emulated E2E `e2e/rc2-3-13d-mobile-physical-ux.spec.ts` → **4/4** (360×640, 375×667, 390×844, 390×420 keyboard-like)
+- Cert matrix: CODE_* → **PASS**; VIEWPORT_* → **EMULATED_PASS**; all `*_PHYSICAL_*` / `OWNER_DEVICE_UX_ACCEPTANCE` → **NOT_RUN**
+- CI hardening: `scripts/ci/install-ffmpeg.sh` (BtbN latest → pinned → johnvansickle → apt)
 
-## Next (after #333 hosted green)
+## Devices / Safe areas / Keyboard / Back / Touch / Font / TalkBack
 
-1. QA APK from exact 13D SHA  
-2. Physical matrix (audio×20, Guided Try×10, Speech×5, conversations×5, Hànzì)  
-3. Fix P0/P1 only — no pedagogy/Mastery/JEV/billing  
-4. Mark PHYSICAL_PASS only with device evidence  
+Physical rows: **NOT_RUN**. Code contracts: safe-area, conversation dock, Back confirm, touch targets, Hànzì canvas — gate-covered.
+
+## Audio / Guided Try / Conversation / Speech / Hànzì / Review / Lifecycle / Offline / Long session
+
+Physical: **NOT_RUN**. Owner pack: `docs/release/OWNER_RC_LEARNING_FLOW_TEST.md`.
+
+## Bugs found
+
+| Id | Severity | Notes |
+| --- | --- | --- |
+| HOSTED_FFMPEG_CDN_500 | P2 infra | pedagogy-mastery failed on BtbN HTTP 500; mitigated in workflow |
+
+## Bugs fixed
+
+- Workflow ffmpeg install resilience (no learner code change).
+
+## Remaining known issues
+
+- #333 E2E not terminal → no DEVICE-QA mint yet
+- All physical matrix rows open
+- `OWNER_DEVICE_UX_ACCEPTANCE` requires owner/device execution
+
+## Exit
+
+Current: **OWNER_ACTION_REQUIRED** for parent E2E terminal + DEVICE-QA build + physical checklist. Not **PASS**.
 
 ## Freeze
 
-Curriculum · Mastery math · SRS · JEV OFF · billing · sibling projects unchanged.
+Curriculum · Mastery math · SRS · JEV OFF · billing · sibling projects unchanged. No #335 / 13E until 13D physical closure.

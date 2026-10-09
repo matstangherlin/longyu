@@ -4,13 +4,17 @@
   "artifact": {
     "label": "DEVICE-QA — NOT FINAL BETA",
     "status": "NOT_BUILT",
-    "sourceSha": "e8f4090ba81d84b8a8a1cb92787135c502f1457b",
+    "sourceSha": null,
+    "buildSha": null,
     "parentPr": 333,
+    "parentSha": "e8f4090ba81d84b8a8a1cb92787135c502f1457b",
     "version": null,
     "versionCode": null,
     "apkSha256": null,
     "builtAt": null,
-    "note": "Generate QA APK from exact 13D starting SHA after #333 hosted green. Do not invent RC4. Do not treat as final beta."
+    "workflowRun": null,
+    "artifactId": null,
+    "note": "Build DEVICE-QA APK only after #333 Chromium+cross-engine SUCCESS and #334 hosted automated truth green on exact SHA. Do not invent RC4. Do not treat as final beta."
   },
   "rc4": {
     "rcId": "RC2.3.12-RC4",
@@ -19,15 +23,15 @@
   },
   "devices": [],
   "viewports": {
-    "360x640": { "code": "PENDING", "emulated": "PENDING", "physical": "NOT_RUN" },
-    "375x667": { "code": "PENDING", "emulated": "PENDING", "physical": "NOT_RUN" },
-    "390x844": { "code": "PENDING", "emulated": "PENDING", "physical": "NOT_RUN" }
+    "360x640": { "code": "PASS", "emulated": "PASS", "physical": "NOT_RUN" },
+    "375x667": { "code": "PASS", "emulated": "PASS", "physical": "NOT_RUN" },
+    "390x844": { "code": "PASS", "emulated": "PASS", "physical": "NOT_RUN" }
   },
   "fontScale": { "100": "NOT_RUN", "large": "NOT_RUN", "largest": "NOT_RUN" },
   "keyboard": { "conversationDock": "NOT_RUN", "textAnswer": "NOT_RUN", "backClosesIme": "NOT_RUN" },
   "safeArea": { "top": "NOT_RUN", "bottom": "NOT_RUN" },
   "touch": { "targets": "NOT_RUN", "oneHand": "NOT_RUN" },
-  "back": { "matrix": "CODE_READY", "physical": "NOT_RUN" },
+  "back": { "matrix": "CODE_PASS", "physical": "NOT_RUN" },
   "talkback": { "home": "NOT_RUN", "lesson": "NOT_RUN", "speech": "NOT_RUN", "hanzi": "NOT_RUN" },
   "audio": { "plays20": "NOT_RUN", "guidedTry10": "NOT_RUN" },
   "speech": { "flows5": "NOT_RUN", "micDeny": "NOT_RUN", "micReallow": "NOT_RUN" },
@@ -35,8 +39,15 @@
   "conversation": { "complete5": "NOT_RUN", "backgroundResume": "NOT_RUN" },
   "review": { "physical": "NOT_RUN" },
   "longSession": { "minutes30": "NOT_RUN" },
-  "result": "NOT_STARTED",
+  "result": "CODE_EMULATED_READY_AWAITING_PARENT_E2E",
   "p0": [],
   "p1": [],
-  "knownIssues": []
+  "knownIssues": [
+    {
+      "id": "HOSTED_FFMPEG_CDN_500",
+      "severity": "P2",
+      "status": "MITIGATED_IN_WORKFLOW",
+      "note": "#334 pedagogy-mastery failed once on BtbN latest HTTP 500 during ffmpeg install (infra). install-ffmpeg.sh adds pinned + johnvansickle + apt fallbacks. Not a learner regression."
+    }
+  ]
 }
