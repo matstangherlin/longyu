@@ -505,14 +505,15 @@ function CheckpointPanel({
         </>
       )}
 
-      {feedback !== "correct" && !(feedback === "wrong" && !onMistake) && (
+      {/* Show Check until correct, except when wrong-feedback panel owns the CTA. */}
+      {feedback !== "correct" && (feedback !== "wrong" || Boolean(onMistake)) && (
         <GuidedDock>
           <div className="flex gap-2" data-conversation-answer-dock>
             <Button
               className="min-h-12 flex-1 shadow-lift"
               data-cta-hierarchy="primary"
               data-testid="conversation-checkpoint-check"
-              disabled={feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)}
+              disabled={isOrder ? ordered.length === 0 : !picked}
               onClick={check}
             >
               {t("player.check")}
