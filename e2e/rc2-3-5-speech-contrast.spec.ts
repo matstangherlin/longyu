@@ -57,15 +57,35 @@ test.use({
  */
 async function installSyntheticMicrophone(page: Page) {
   await page.addInitScript(() => {
+    // Which parts of the double the app actually reached: read back on failure so a
+    // hosted run says whether the engine's own capture was used instead of the double.
+    const trace = { installed: "", getUserMedia: 0, recorderConstructed: 0, recorderStarted: 0 };
+    (window as unknown as { __syntheticMic: typeof trace }).__syntheticMic = trace;
+
     const getUserMedia = async (constraints?: MediaStreamConstraints) => {
+      trace.getUserMedia += 1;
       if (!constraints?.audio) throw new DOMException("Only audio is faked", "NotSupportedError");
       // A plain stand-in, never `new MediaStream()`: the CI WebKit build exposes the
       // MediaStream interface without a capture engine and its constructor can throw.
       // The MediaRecorder below is a double too, so the app only calls getTracks().
       return { active: true, getTracks: () => [], getAudioTracks: () => [] } as unknown as MediaStream;
     };
-    if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = getUserMedia;
-    else Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: { getUserMedia } });
+    // Replace the accessor itself, not a method on the engine's MediaDevices object:
+    // an engine whose getUserMedia lives on the prototype (or rejects own-property
+    // writes) would otherwise keep answering with its own, device-less capture.
+    const mediaDevices = {
+      getUserMedia,
+      enumerateDevices: async () => [] as MediaDeviceInfo[],
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    };
+    try {
+      Object.defineProperty(Navigator.prototype, "mediaDevices", { configurable: true, get: () => mediaDevices });
+      trace.installed = "prototype";
+    } catch {
+      Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: mediaDevices });
+      trace.installed = "instance";
+    }
 
     /** 0.5 s mono 16-bit 220 Hz WAV. */
     const wavBlob = () => {
@@ -100,8 +120,11 @@ async function installSyntheticMicrophone(page: Page) {
       readonly mimeType = "audio/wav";
       ondataavailable: ((event: { data: Blob }) => void) | null = null;
       onstop: (() => void) | null = null;
-      constructor(readonly stream: MediaStream) {}
+      constructor(readonly stream: MediaStream) {
+        trace.recorderConstructed += 1;
+      }
       start() {
+        trace.recorderStarted += 1;
         this.state = "recording";
       }
       stop() {
@@ -113,7 +136,7 @@ async function installSyntheticMicrophone(page: Page) {
         }, 0);
       }
     }
-    (window as unknown as { MediaRecorder: unknown }).MediaRecorder = SyntheticMediaRecorder;
+    Object.defineProperty(window, "MediaRecorder", { configurable: true, writable: true, value: SyntheticMediaRecorder });
   });
 }
 
@@ -191,7 +214,8 @@ for (const viewport of VIEWPORTS) {
       } catch (error) {
         const phase = await self.getAttribute("data-self-compare-phase");
         const category = await page.getByTestId("self-compare-failed").getAttribute("data-failure-category").catch(() => null);
-        throw new Error(`recording never started (phase=${phase}, failure=${category}): ${String(error).slice(0, 200)}`);
+        const mic = await page.evaluate(() => JSON.stringify((window as unknown as { __syntheticMic?: unknown }).__syntheticMic ?? null));
+        throw new Error(`recording never started (phase=${phase}, failure=${category}, syntheticMic=${mic}): ${String(error).slice(0, 200)}`);
       }
       await page.waitForTimeout(900);
       await page.getByTestId("self-compare-stop").click();

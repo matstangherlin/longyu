@@ -1,7 +1,7 @@
 {
  "schema": "longyu-cloud-matrix/1",
  "wave": "RC2.3.10",
- "generatedAt": "2026-10-08",
+ "generatedAt": "2026-10-09T01:40:45.645Z",
  "baseSha": "7d1890adf8350d839463a290aaa01dd604e4618f",
  "productionProject": {
   "ref": "drjcfalvlbbeblmmyhwj",
@@ -16,27 +16,43 @@
  "overall": "BLOCKED",
  "gates": {
   "PARENT_HOSTED_TRUTH_PASS": {
-   "status": "NOT_RUN",
+   "status": "BLOCKED",
    "evidence": [
     "docs/reports/rc2-3-10-parent-ci-truth.md"
    ],
-   "blocker": "Hosted cross-engine run of the #322 head pending; WebKit was red on #321 and main 7d1890a."
+   "hosted": {
+    "sha": "b0713016e4c835798c1a65dd8c5af18d053ffe0a",
+    "job": "https://github.com/matstangherlin/longyu/actions/runs/37860116157/job/113599799310"
+   },
+   "blocker": "Everything green on b0713016 (Security, Android, 9 beta suites, quality gate, Chromium E2E, Firefox) except the WebKit record test (WEBKIT_CROSS_ENGINE_PASS)."
   },
   "WEBKIT_CROSS_ENGINE_PASS": {
-   "status": "NOT_RUN",
+   "status": "BLOCKED",
    "evidence": [
     "docs/reports/rc2-3-10-parent-ci-truth.md"
    ],
-   "blocker": "Fix a47a7b4 reproduced and verified in Chromium; WebKit proof is the hosted run."
+   "hosted": {
+    "sha": "b0713016e4c835798c1a65dd8c5af18d053ffe0a",
+    "job": "https://github.com/matstangherlin/longyu/actions/runs/37860116157/job/113599799310",
+    "result": "webkit: 3 failed (rc2-3-5 record test, phase=failed failure=RECORDING_FAILURE), 3 flaky (tone-transfer), 948 passed; firefox: 943 passed"
+   },
+   "blocker": "WebKit record test still red on b0713016: capture is reached but the recorder fails. Next head replaces the navigator.mediaDevices accessor and reports which parts of the double ran."
   },
   "APK_PROVENANCE_PASS": {
-   "status": "CODE_READY",
+   "status": "PASS",
    "evidence": [
     "docs/reports/rc2-3-10-apk-provenance.md",
-    "scripts/rc2-3-10-cloud-certification.mjs",
     ".github/workflows/android-build.yml"
    ],
-   "blocker": "PASS when the hosted Android build of this head unpacks the APK and the provenance step passes."
+   "hosted": {
+    "sha": "b0713016e4c835798c1a65dd8c5af18d053ffe0a",
+    "job": "https://github.com/matstangherlin/longyu/actions/runs/37860116220/job/113593564356",
+    "artifact": "longyu-android-debug-0.2.0-beta.1-9086e5e",
+    "artifactZipSha256": "2fc9e41d7d1f9aee7dc0627409b68c1e045d2bcca4c6c114db5c488f938b0f2e",
+    "versionCode": "run-derived (debug)",
+    "result": "PASS validate:apk-provenance · sha b0713016e4c8 · fp 5a64821d0b7d · channel dev · 194 files scanned, no secret shape"
+   },
+   "note": "Proves the APK built from the PR head carries that head's SHA, the RC fingerprint, channel dev and no secret shape. It does not prove what is installed on any phone (OA-PHYSICAL-PROVENANCE)."
   },
   "PRODUCTION_WEB_SHA_IDENTIFIED": {
    "status": "OWNER_ACTION_REQUIRED",
@@ -244,18 +260,24 @@
    "blocker": "Build passes; live production SHA unproven (OA-PROD-WEB-SHA)."
   },
   "ANDROID_BUILD_PASS": {
-   "status": "NOT_RUN",
+   "status": "PASS",
    "evidence": [
-    "docs/reports/rc2-3-10-closure.md"
+    "docs/reports/rc2-3-10-closure.md",
+    ".github/workflows/android-build.yml"
    ],
-   "blocker": "Hosted Android build of this head pending."
+   "hosted": {
+    "sha": "b0713016e4c835798c1a65dd8c5af18d053ffe0a",
+    "foundation": "https://github.com/matstangherlin/longyu/actions/runs/37860116220/job/113593564356",
+    "runtime": "https://github.com/matstangherlin/longyu/actions/runs/37860116220/job/113600085587"
+   },
+   "note": "Debug APK/AAB build + contracts and emulator connectedDebugAndroidTest green on the PR head. Signed release stays BLOCKED_SIGNING_SECRETS; android_real_device=false."
   },
   "APK_PASS": {
    "status": "NOT_RUN",
    "evidence": [
     "docs/reports/rc2-3-10-apk-provenance.md"
    ],
-   "blocker": "APK of this head not built yet."
+   "blocker": "Debug APK of the head built and provenance-checked in CI (APK_PROVENANCE_PASS); APK_PASS needs the physical checklist on a real phone (OA-PHYSICAL-PROVENANCE)."
   },
   "OWNER_CLOUD_ACCEPTANCE": {
    "status": "OWNER_ACTION_REQUIRED",

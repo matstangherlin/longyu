@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-08T18:58:57.031Z",
-  "generatedFromSha": "b92b4e816b0aab5e55164e41d8de76291beb7a35",
-  "inputsDigest": "cc2f65afbeab46b3",
-  "evidenceDigest": "555a33f5a3c0fe12",
+  "generatedAt": "2026-10-09T01:41:01.521Z",
+  "generatedFromSha": "b0713016e4c835798c1a65dd8c5af18d053ffe0a",
+  "inputsDigest": "db08a7f6684e3259",
+  "evidenceDigest": "bd1d5d157d56d33a",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -236,7 +236,7 @@
     "artifactFingerprint": "5a64821d0b7d",
     "artifactChannel": "dev",
     "provenance": {
-      "status": "CODE_READY"
+      "status": "PASS"
     }
   },
   "commercial": {

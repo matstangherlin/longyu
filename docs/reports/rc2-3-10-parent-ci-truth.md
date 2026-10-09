@@ -51,6 +51,37 @@
 | `node scripts/typecheck.mjs` | PASS |
 | `npm run gate:rc2-3-9-stack-convergence` | PASS (441 passos, 24/24 mutações) |
 
-## Hosted (prova no WebKit)
+## Hosted no #322
 
-O resultado do run cross-engine do PR #322 está registrado na seção "Resultado hospedado do #322" do `docs/reports/rc2-3-10-closure.md`. `PARENT_HOSTED_TRUTH_PASS` e `WEBKIT_CROSS_ENGINE_PASS` só mudam na matriz quando esse run terminar.
+### `0e5e528` e `b0713016`
+
+| Job | `0e5e528` | `b0713016` |
+|---|---|---|
+| Security (CodeQL, gitleaks, npm audit) | PASS | PASS |
+| Android foundation + provenance do APK | PASS | PASS ([job](https://github.com/matstangherlin/longyu/actions/runs/37860116220/job/113593564356)) |
+| Android runtime (emulador) | PASS | PASS |
+| Release truth + 9 suites beta + `validate:beta` | PASS | PASS |
+| Playwright E2E (Chromium) | PASS | PASS |
+| Cross-engine: Firefox | PASS | PASS (943 passed) |
+| Cross-engine: **WebKit** | **FAIL** (fala ×3 + `lesson-step-progression`) | **FAIL**: 3 failed, 3 flaky, 948 passed ([job](https://github.com/matstangherlin/longyu/actions/runs/37860116157/job/113599799310)) |
+
+### O que `b0713016` mudou e mostrou
+
+- `lesson-step-progression` passou no WebKit.
+- O teste de gravação continua vermelho nos 3 viewports, mas agora com diagnóstico: `recording never started (phase=failed, failure=RECORDING_FAILURE)`.
+  - Leitura: o app chega ao `getUserMedia`/`MediaRecorder` e algo lança.
+  - `RECORDING_FAILURE` sem `PERMISSION_DENIED` é o que se espera se o WebKit continuar respondendo com a **própria** captura (sem dispositivo) em vez do dublê. A atribuição `navigator.mediaDevices.getUserMedia = …` sobre o objeto do motor não se mantém nesse WebKit.
+- Os 3 flaky (`tone-transfer` T4/T5/T6) são do `p1-primeira-conversa` e já apareciam antes. Não são desta wave.
+
+### Correção seguinte (head depois de `b0713016`)
+
+- O dublê troca o **acessor** `Navigator.prototype.mediaDevices`, não um método do objeto do motor.
+- `MediaRecorder` é instalado com `defineProperty`.
+- O dublê grava em `window.__syntheticMic` quais partes o app alcançou: instalação, `getUserMedia`, construtor e `start`. A mensagem de falha passa a trazer isso.
+- Local (Chromium):
+  - com o dublê forçado: 9/9;
+  - caminho real com `rc2-2-20`: 15/15.
+
+Nenhum assert removido, nenhum skip, nenhum timeout aumentado.
+
+`PARENT_HOSTED_TRUTH_PASS` e `WEBKIT_CROSS_ENGINE_PASS` ficam `BLOCKED` na matriz até um run hospedado do WebKit sair verde.
