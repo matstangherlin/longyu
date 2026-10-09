@@ -3,6 +3,8 @@ import { Card } from "../../../components/ui/primitives";
 import type { LessonCapsule } from "../../../data/lessonCapsules";
 import { resolveLessonMediaAsset } from "../../../data/lessonCatalog";
 import type { InstructionLocale } from "../../../i18n/config";
+import { GuidedPresentationProvider } from "../../lesson/GuidedLessonShell";
+import { DynamicTeachingSequence, hasDynamicPresentation } from "../../lesson/DynamicTeachingSequence";
 import { AnimatedCapsuleRenderer } from "./AnimatedCapsuleRenderer";
 import { CapsuleTranscript } from "./CapsuleTranscript";
 
@@ -18,11 +20,7 @@ const VideoCapsulePlayer = lazy(() =>
 
 /**
  * V4.9.2B — Parte G: uma casca, dois renderers.
- *
- * Título, objetivo, alvos de conhecimento, transcrição, conclusão e volta à
- * Jornada são iguais em animação e vídeo, e é isso que fica aqui. O que muda é
- * apenas como o conteúdo é apresentado — o que permite, mais tarde, a aula
- * híbrida da Parte R sem reescrever nenhum dos dois lados.
+ * RC2.3.13H — foundation CORE AULA uses DynamicTeachingSequence when declared.
  */
 export function LessonCapsulePlayer({
   capsule,
@@ -36,13 +34,26 @@ export function LessonCapsulePlayer({
   const content = capsule.localized[locale];
   const asset = useMemo(() => resolveLessonMediaAsset(content.mediaAssetId), [content.mediaAssetId]);
   const en = locale === "en";
+  const dynamic = hasDynamicPresentation(capsule.id);
 
-  // Um vídeo que falha cai para os segmentos interativos (Parte O). A cápsula
-  // é CORE: o aluno precisa poder concluir o tópico de qualquer maneira, então
-  // o fallback não é um aviso, é um caminho pedagógico completo.
   const [forcedFallback, setForcedFallback] = useState(false);
   const wantsVideo =
     capsule.mediaType === "VIDEO_CAPSULE" && asset?.kind === "VIDEO" && !forcedFallback;
+
+  if (dynamic && !wantsVideo) {
+    return (
+      <GuidedPresentationProvider guided>
+        <div data-testid="lesson-capsule-dynamic" data-dynamic-aula="true" data-capsule-id={capsule.id}>
+          <DynamicTeachingSequence
+            capsuleId={capsule.id}
+            locale={locale}
+            title={content.title}
+            onComplete={onComplete}
+          />
+        </div>
+      </GuidedPresentationProvider>
+    );
+  }
 
   return (
     <>
@@ -80,24 +91,12 @@ export function LessonCapsulePlayer({
             />
           </Suspense>
         ) : (
-          <>
-            {forcedFallback && (
-              <p
-                className="mb-4 rounded-xl border border-line bg-surface-2 px-3 py-2 text-xs leading-5 text-ink-soft"
-                data-testid="capsule-fallback-notice"
-              >
-                {en
-                  ? "Showing the interactive version of this lesson."
-                  : "Mostrando a versão interativa desta aula."}
-              </p>
-            )}
-            <AnimatedCapsuleRenderer
-              content={content}
-              locale={locale}
-              capsuleId={capsule.id}
-              onComplete={onComplete}
-            />
-          </>
+          <AnimatedCapsuleRenderer
+            content={content}
+            locale={locale}
+            capsuleId={capsule.id}
+            onComplete={onComplete}
+          />
         )}
       </Card>
 
@@ -110,11 +109,6 @@ export function LessonCapsulePlayer({
 
       <p className="mt-3 px-2 text-center text-xs text-ink-faint">{content.objective}</p>
 
-      {/*
-        Parte N — concluir a aula é INSTRUCTION_COMPLETED, não
-        VOCABULARY_MASTERED. Os alvos ficam visíveis para deixar claro o que a
-        aula apresentou; quem mede aprendizagem são os exercícios seguintes.
-      */}
       <p className="mt-1 px-2 text-center text-[10px] text-ink-faint" data-capsule-targets={capsule.knowledgeTargets.join(",")}>
         {en
           ? "Watching teaches; the exercises are what measure learning."

@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 100,
+    "EVIDENCE_ONLY": 103,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 8
   },
-  "total": 1117,
+  "total": 1120,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1413,6 +1413,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13g-beta-feedback-learner-health",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13h-visual-progression-dynamic-aula",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13H",
+      "script": "npm run validate:rc2-3-13h-visual-progression-dynamic-aula && npm run test:rc2-3-13h-visual-progression-dynamic-aula",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13h-visual-progression-dynamic-aula",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7111,6 +7129,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13G",
       "script": "node scripts/rc2-3-13g-beta-feedback-learner-health.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13h-visual-progression-dynamic-aula",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13H",
+      "script": "node scripts/rc2-3-13h-visual-progression-dynamic-aula.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -16680,6 +16716,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13h-visual-progression-dynamic-aula",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13H",
+      "script": "node scripts/rc2-3-13h-visual-progression-dynamic-aula.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13h-visual-progression-dynamic-aula",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -20224,5 +20278,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "92a5da35ebdff6ea"
+  "evidenceDigest": "b7145c238f6bb9ec"
 }

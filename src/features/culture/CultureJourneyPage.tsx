@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ProgressionShell, rememberProgressionAnchor } from "../../components/progression/ProgressionShell";
+import { ProgressionPath } from "../../components/progression/ProgressionPath";
+import type { ProgressionNodeState, ProgressionPathNode } from "../../components/progression/progressionTypes";
 import { ButtonLink } from "../../components/ui/primitives";
 import { cultureText } from "../../data/cultureQuest";
 import { getCultureItem, localizedCulture } from "../../data/culture";
@@ -24,8 +26,7 @@ import { recordTechEvent } from "../../lib/techEvents";
 import { GuideDialogue } from "../../components/guide/GuideDialogue";
 
 /**
- * RC2.3.13F — primary `/cultura` surface: Culture Journey with 12-path model.
- * Atlas / explore lives at `/cultura/explorar`.
+ * RC2.3.13H — Culture Journey with shared ProgressionPath bubbles.
  */
 export function CultureJourneyPage() {
   const { t, instructionLocale } = useTranslation();
@@ -76,7 +77,73 @@ export function CultureJourneyPage() {
     if (currentPath?.id) rememberProgressionAnchor("culture", `path:${currentPath.id}`);
   }, [currentPath?.id]);
 
+  useEffect(() => {
+    if (pathNextId) rememberProgressionAnchor("culture", `node:${pathNextId}`);
+  }, [pathNextId]);
+
   const primaryHref = pathNextId ? `/cultura/${pathNextId}` : "/cultura/explorar";
+
+  const pathNodes: ProgressionPathNode[] = useMemo(() => {
+    const nextIndex = pathNextId ? currentPath.orderedNodeIds.indexOf(pathNextId) : currentPath.orderedNodeIds.length;
+    return currentPath.orderedNodeIds.flatMap((itemId, index) => {
+      const item = getCultureItem(itemId);
+      if (!item) return [];
+      const title = localizedCulture(item, instructionLocale).title;
+      const doneNode = completedIds.includes(itemId);
+      const isNext = itemId === pathNextId;
+      let state: ProgressionNodeState;
+      if (doneNode) state = "COMPLETED";
+      else if (isNext) state = "CURRENT";
+      else if (nextIndex >= 0 && index > nextIndex + 2) state = "LOCKED";
+      else if (nextIndex >= 0 && index > nextIndex) state = "LOCKED";
+      else state = "AVAILABLE";
+
+      const conceptId = conceptIdForItem(itemId);
+      const knowledge = knowledgeById[conceptId];
+      const visible = visibleKnowledgeState(knowledge, memoryById[conceptId]);
+      const fromJourneyNode = knowledge?.source === "journey" && visible !== "unseen";
+      const stars = masteryById[itemId]?.stars ?? 0;
+
+      return [
+        {
+          id: itemId,
+          title,
+          state,
+          href: state === "LOCKED" ? undefined : `/cultura/${itemId}`,
+          statusLabel: doneNode
+            ? instructionLocale === "en"
+              ? "Done"
+              : "Feito"
+            : isNext
+              ? instructionLocale === "en"
+                ? "Continue"
+                : "Continuar"
+              : undefined,
+          metaLabel: fromJourneyNode
+            ? t("culture.seenOnJourney")
+            : stars > 0
+              ? `★${stars}`
+              : undefined,
+          testId: `culture-node-${itemId}`,
+          anchor: `node:${itemId}`,
+          onSelect: () => {
+            if (state === "LOCKED") return;
+            rememberProgressionAnchor("culture", `node:${itemId}`);
+            recordTechEvent("culture_node_open", { itemId, pathId: currentPath.id });
+          },
+        } satisfies ProgressionPathNode,
+      ];
+    });
+  }, [
+    currentPath,
+    completedIds,
+    pathNextId,
+    instructionLocale,
+    knowledgeById,
+    memoryById,
+    masteryById,
+    t,
+  ]);
 
   return (
     <ProgressionShell
@@ -84,7 +151,12 @@ export function CultureJourneyPage() {
       headerTitle={t("progression.cultureHeader")}
       headerDesc={t("progression.cultureDesc")}
     >
-      <div data-testid="culture-journey" data-culture-journey="rc2-3-13f" className="space-y-4">
+      <div
+        data-testid="culture-journey"
+        data-culture-journey="rc2-3-13h"
+        data-culture-path-bubbles="true"
+        className="space-y-4"
+      >
         {fromJourney && (
           <Link
             to="/jornada"
@@ -135,19 +207,18 @@ export function CultureJourneyPage() {
             ) : null}
           </p>
 
+          {/* Compact secondary CTA — current bubble is primary entry. */}
           {pathNextId ? (
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-              <p className="min-w-0 flex-1 text-sm text-ink" data-testid="culture-next-title">
-                <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
-                  {t("progression.nextNode")} ·{" "}
-                </span>
-                {nextTitle}
-              </p>
+            <p className="mt-2 text-sm text-ink-soft" data-testid="culture-next-title">
+              <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+                {t("progression.nextNode")} ·{" "}
+              </span>
+              {nextTitle}
               <ButtonLink
                 to={primaryHref}
-                className="min-h-12 shrink-0"
+                className="ml-2 inline-flex min-h-11 !px-3 text-sm"
                 data-testid="culture-next-cta"
-                data-cta-hierarchy="primary"
+                data-cta-hierarchy="secondary"
                 data-coachmark-target="culture-recommended"
                 onClick={() => {
                   writeProgressionOpenOrigin(fromJourney ? "journey" : "culture");
@@ -162,7 +233,7 @@ export function CultureJourneyPage() {
               >
                 {t("progression.continueCulture")}
               </ButtonLink>
-            </div>
+            </p>
           ) : (
             <div className="mt-3 space-y-2">
               <p className="text-sm text-ink-soft">{t("progression.cultureComplete")}</p>
@@ -247,50 +318,8 @@ export function CultureJourneyPage() {
           </div>
         ) : null}
 
-        <section aria-label={t("progression.currentPath")} className="space-y-2">
-          {currentPath.orderedNodeIds.map((itemId) => {
-            const item = getCultureItem(itemId);
-            if (!item) return null;
-            const title = localizedCulture(item, instructionLocale).title;
-            const doneNode = completedIds.includes(itemId);
-            const conceptId = conceptIdForItem(itemId);
-            const knowledge = knowledgeById[conceptId];
-            const visible = visibleKnowledgeState(knowledge, memoryById[conceptId]);
-            const fromJourneyNode = knowledge?.source === "journey" && visible !== "unseen";
-            const isNext = itemId === pathNextId;
-            return (
-              <Link
-                key={itemId}
-                to={`/cultura/${itemId}`}
-                data-testid={`culture-node-${itemId}`}
-                data-progression-anchor={`node:${itemId}`}
-                data-knowledge={visible}
-                data-cta-hierarchy={isNext ? "secondary" : "tertiary"}
-                className={[
-                  "flex min-h-12 items-center gap-3 rounded-2xl border px-3 py-2.5 transition",
-                  isNext ? "border-accent/50 bg-accent/5" : "border-line bg-surface",
-                  doneNode ? "opacity-80" : "",
-                ].join(" ")}
-                onClick={() => {
-                  rememberProgressionAnchor("culture", `node:${itemId}`);
-                  recordTechEvent("culture_node_open", { itemId, pathId: currentPath.id });
-                }}
-              >
-                <span aria-hidden className="text-base text-ink">
-                  {doneNode ? "●" : isNext ? "◉" : "○"}
-                </span>
-                <span className="min-w-0 flex-1 text-sm font-semibold text-ink">{title}</span>
-                {fromJourneyNode ? (
-                  <span className="text-[10px] text-accent" data-testid={`culture-node-journey-${itemId}`}>
-                    {t("culture.seenOnJourney")}
-                  </span>
-                ) : null}
-                {(masteryById[itemId]?.stars ?? 0) > 0 ? (
-                  <span className="text-xs text-ink-faint">★{masteryById[itemId]?.stars}</span>
-                ) : null}
-              </Link>
-            );
-          })}
+        <section aria-label={t("progression.currentPath")} data-testid="culture-progression-path">
+          <ProgressionPath nodes={pathNodes} personality="culture" testId="culture-path-bubbles" />
         </section>
 
         <Link

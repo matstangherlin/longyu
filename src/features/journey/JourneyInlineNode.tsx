@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   routeForJourneyNode,
   type JourneyNode,
@@ -23,6 +23,9 @@ import {
   IconTarget,
 } from "../../components/ui/Icon";
 import { JourneyGuideExplanation } from "./JourneyGuideExplanation";
+import { ProgressionNodeBubble } from "../../components/progression/ProgressionNodeBubble";
+import type { ProgressionNodeState } from "../../components/progression/progressionTypes";
+import { haptic } from "../../lib/haptics";
 
 const ICON_BY_TYPE = {
   LESSON_CAPSULE: IconPlay,
@@ -50,6 +53,7 @@ const ICON_BY_TYPE = {
  */
 export function JourneyInlineNode({ node }: { node: JourneyNode }) {
   const { t, instructionLocale } = useTranslation();
+  const navigate = useNavigate();
   const access = useJourneyNodeAccess(node);
   const completedLessons = useStore((state) => state.completedLessons);
   const complete =
@@ -59,6 +63,7 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
   const ready = access?.ready ?? false;
   const en = instructionLocale === "en";
   const Icon = ICON_BY_TYPE[node.type as keyof typeof ICON_BY_TYPE] ?? IconPlay;
+  const coreAula = node.priority === "CORE" && node.type === "LESSON_CAPSULE";
 
   // Uma cápsula publicada não tem entrada em `INLINE_LABELS` — ela nasceu
   // depois deste código. O título vem da própria aula, no idioma do curso;
@@ -117,13 +122,40 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
     </>
   );
 
-  // A aula da fundação ocupa mais espaço e tem borda sólida: ela é o caminho,
-  // e um reforço opcional não pode competir visualmente com ela. O node core
-  // fica maior que o booster e menor que a lição — a hierarquia da Parte Q.
+  // Core AULA uses the shared path bubble — never an "Optional" mini-card.
+  // Optional boosters stay smaller rectangular cards.
   const core = node.priority === "CORE";
+  if (coreAula) {
+    const state: ProgressionNodeState = complete ? "COMPLETED" : ready ? "CURRENT" : "LOCKED";
+    return (
+      <div
+        data-journey-inline-node={node.id}
+        data-core-aula="true"
+        data-ready={ready ? "true" : "false"}
+        className="flex w-full flex-col items-center"
+      >
+        <ProgressionNodeBubble
+          id={node.id}
+          title={label}
+          state={state}
+          personality="journey"
+          coreAula
+          statusLabel={en ? "Lesson" : "Aula"}
+          icon={<Icon width={20} height={20} />}
+          testId={`journey-aula-${node.id}`}
+          onSelect={() => {
+            if (!ready) return;
+            haptic("selection");
+            navigate(routeForJourneyNode(node));
+          }}
+        />
+      </div>
+    );
+  }
+
   const shell = [
     "flex w-full items-center gap-2.5 rounded-2xl border px-3 py-2 transition",
-    core ? "max-w-[17rem] py-2.5" : "max-w-[15rem]",
+    core ? "max-w-[17rem] py-2.5" : "max-w-[14rem] opacity-95",
   ].join(" ");
 
   if (!ready) {
@@ -146,11 +178,12 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
       data-journey-inline-node={node.id}
       data-canonical-lesson-id={node.type === "CULTURE_LESSON" ? node.sourceId : undefined}
       data-ready="true"
+      data-booster-optional={node.priority === "OPTIONAL" ? "true" : undefined}
       className={[
         shell,
         core
           ? "border-accent/45 bg-accent-soft/40 hover:-translate-y-0.5 hover:border-accent"
-          : "border-line/65 bg-surface hover:-translate-y-0.5 hover:border-accent-soft",
+          : "border-line/65 bg-surface hover:-translate-y-0.5 hover:border-accent-soft scale-[0.96]",
       ].join(" ")}
     >
       {body}

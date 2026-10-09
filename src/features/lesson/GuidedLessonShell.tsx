@@ -1,13 +1,12 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode, type Ref } from "react";
 import { GuidedBottomAction, GuidedProgressHeader, GUIDED_CLASS } from "../../components/guided/GuidedPrimitives";
-import { Mascot } from "../../components/brand/Mascot";
 import { IconChat, IconFlame } from "../../components/ui/Icon";
 import { t } from "../../i18n/catalog";
 import { isProductionBetaEnv } from "../../lib/appEnvironment";
 import { allowSeededLocalSession } from "../../lib/auth/localAuthPolicy";
 import { LessonActionPortal } from "./LessonActionRegion";
+import { TeacherSpeechBubble } from "./TeacherSpeechBubble";
 import {
-  GUIDED_DRAGON_SIZE,
   presentationContractFor,
   resolveLessonShellMode,
   showsBreathIndicator,
@@ -281,6 +280,7 @@ export function GuidedLessonActionDock({ dockRef }: { dockRef: Ref<HTMLDivElemen
 
 /**
  * Micro-passo visual de abertura: Dragão + balão curto + título da lição.
+ * RC2.3.13H — animated teacher bubble (tap finishes type-on).
  * Não é passo do currículo — não conta como idx, XP, domínio, tarefa nem SRS.
  */
 export function GuidedPrepareStage({ title, line }: { title: string; line: string }) {
@@ -289,16 +289,13 @@ export function GuidedPrepareStage({ title, line }: { title: string; line: strin
       className={["longyu-step-in flex min-h-full w-full flex-col justify-center gap-6 px-4", GUIDED_CLASS.column].join(" ")}
       data-guided-prepare
       data-guided-phase="PREPARE"
+      data-dynamic-prepare="true"
     >
       <p className="text-center text-xs font-semibold uppercase tracking-[0.14em] text-accent" data-guided-lesson-title>
         {title}
       </p>
-      <div className="flex items-end gap-3" data-testid="lesson-prepare-line">
-        <Mascot size={GUIDED_DRAGON_SIZE.default} className="shrink-0" />
-        <p className="relative min-w-0 rounded-2xl border border-line bg-surface px-4 py-3 text-base font-medium leading-6 text-ink shadow-card">
-          <span className="absolute -left-1.5 bottom-4 h-3 w-3 rotate-45 border-b border-l border-line bg-surface" aria-hidden="true" />
-          {line}
-        </p>
+      <div data-testid="lesson-prepare-line">
+        <TeacherSpeechBubble text={line} />
       </div>
     </div>
   );
