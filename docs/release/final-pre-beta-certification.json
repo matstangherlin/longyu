@@ -5,7 +5,7 @@
   "parentHead": "6b2a9e1fe10da4f3c2219a32208b46e458598edf",
   "shaSemantics": {
     "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
-    "certificationHeadSha": "2af4dd658edba88f8f8df32d372bc5f58dfce51c",
+    "certificationHeadSha": "8612f18d9692be5d8ae65d9adde873521cf38681",
     "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
@@ -62,7 +62,7 @@
     "CI": "NOT_RUN",
     "CHROMIUM": "IN_PROGRESS",
     "CROSS_ENGINE": "IN_PROGRESS",
-    "note": "Re-query after R.2.1 push. Root cause fixed locally; do not invent PASS."
+    "note": "R.2.1 follow-on: CONVERGENCE_HIDDEN_SKIP + report PEM scrubbed. Re-query hosted on exact HEAD; do not invent PASS."
   },
   "hostedRuns": [
     {
@@ -170,12 +170,12 @@
   "openCoreP1": false,
   "realTesterCount": 0,
   "remainingOwnerActions": [
-    "Configure Play signing secrets (LONGYU_ANDROID_KEYSTORE_* + Play service account) — see PLAY_SIGNING_HANDOFF.md",
+    "Configure Play signing secrets (LONGYU_ANDROID_KEYSTORE_* + Play service account) \u2014 see PLAY_SIGNING_HANDOFF.md",
     "Install OWNER QA APK sha256 fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
     "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint fea5455e1461)",
-    "Physical matrix: clean install, upgrade, sticky, Journey↔Culture, typography, motion",
-    "Audio ×20, Guided Try ×10, Speech ×5, Conversation ×5",
-    "Hànzì, Review, Dynamic Aula, TalkBack, font scale, reduced motion, Back, IME",
+    "Physical matrix: clean install, upgrade, sticky, Journey\u2194Culture, typography, motion",
+    "Audio \u00d720, Guided Try \u00d710, Speech \u00d75, Conversation \u00d75",
+    "H\u00e0nz\u00ec, Review, Dynamic Aula, TalkBack, font scale, reduced motion, Back, IME",
     "Background/resume, offline/reconnect, 30min session",
     "Android OAuth physical (intended providers)",
     "Sentry synthetic + Netlify rollback drill evidence",
