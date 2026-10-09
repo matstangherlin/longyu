@@ -17,7 +17,10 @@ export function checkRcIdentity({ candidate, packageJson, fingerprint, headSha }
   if (!candidate?.rcId || !/^RC2\.3\.12-RC\d+$/.test(candidate.rcId)) errors.push("RC_ID_INVALID");
   if (candidate?.version !== packageJson?.version) errors.push("RC_VERSION_MISMATCH");
   if (candidate?.fingerprint !== fingerprint) errors.push("FINGERPRINT_MISMATCH");
-  if (candidate?.gitSha && headSha && candidate.gitSha !== headSha) errors.push("RC_SHA_MISMATCH");
+  // SHA lock applies once the candidate leaves NOT_BUILT (artifact/evidence phase).
+  if (candidate?.status && candidate.status !== "NOT_BUILT") {
+    if (candidate?.gitSha && headSha && candidate.gitSha !== headSha) errors.push("RC_SHA_MISMATCH");
+  }
   if (!Number.isInteger(candidate?.versionCode) || candidate.versionCode < 2) errors.push("VERSION_CODE_INVALID");
   if (candidate?.featureFreeze !== true) errors.push("FEATURE_FREEZE_MISSING");
   if (candidate?.liveMonetization === true) errors.push("LIVE_MONETIZATION_ENABLED");
@@ -25,10 +28,12 @@ export function checkRcIdentity({ candidate, packageJson, fingerprint, headSha }
   return errors;
 }
 
-export function checkProductTruthFresh({ productTruth, headSha }) {
+export function checkProductTruthFresh({ productTruth, headSha, candidateStatus }) {
   const errors = [];
-  if (productTruth?.generatedFromSha && headSha && productTruth.generatedFromSha !== headSha) {
-    errors.push("STALE_PRODUCT_TRUTH");
+  if (candidateStatus && candidateStatus !== "NOT_BUILT") {
+    if (productTruth?.generatedFromSha && headSha && productTruth.generatedFromSha !== headSha) {
+      errors.push("STALE_PRODUCT_TRUTH");
+    }
   }
   if (productTruth?.product?.curriculumFingerprint && productTruth.product.curriculumFingerprint !== "5a64821d0b7d") {
     errors.push("CURRICULUM_FINGERPRINT_CHANGED");

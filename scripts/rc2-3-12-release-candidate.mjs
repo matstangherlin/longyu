@@ -82,11 +82,13 @@ function validate() {
       headSha: w.sha,
     }).map((e) => `id:${e}`)
   );
-  // Candidate may lag HEAD during working tree — require match only when status beyond NOT_BUILT
-  if (w.candidate.status !== "NOT_BUILT" && w.candidate.gitSha !== w.sha) {
-    errors.push("id:RC_SHA_MISMATCH");
-  }
-  errors.push(...checkProductTruthFresh({ productTruth: w.productTruth, headSha: w.sha }).map((e) => `truth:${e}`));
+  errors.push(
+    ...checkProductTruthFresh({
+      productTruth: w.productTruth,
+      headSha: w.sha,
+      candidateStatus: w.candidate.status,
+    }).map((e) => `truth:${e}`)
+  );
   errors.push(
     ...checkLiveBillingFrozen({
       monetizationMode: w.monetizationMode,
@@ -150,13 +152,17 @@ function test() {
   must(
     "1 stale product truth",
     "STALE_PRODUCT_TRUTH",
-    checkProductTruthFresh({ productTruth: { ...w.productTruth, generatedFromSha: "a".repeat(40) }, headSha: "b".repeat(40) })
+    checkProductTruthFresh({
+      productTruth: { ...w.productTruth, generatedFromSha: "a".repeat(40) },
+      headSha: "b".repeat(40),
+      candidateStatus: "BUILT",
+    })
   );
   must(
     "2 rc sha mismatch",
     "RC_SHA_MISMATCH",
     checkRcIdentity({
-      candidate: { ...w.candidate, gitSha: "a".repeat(40) },
+      candidate: { ...w.candidate, status: "BUILT", gitSha: "a".repeat(40) },
       packageJson: w.packageJson,
       fingerprint: w.fingerprint,
       headSha: "b".repeat(40),
