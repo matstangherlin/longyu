@@ -1235,7 +1235,10 @@
     "generate:beta-health-report": "node scripts/generate-beta-health-report.mjs",
     "validate:rc2-3-13g-beta-feedback-learner-health": "node scripts/rc2-3-13g-beta-feedback-learner-health.mjs validate",
     "test:rc2-3-13g-beta-feedback-learner-health": "node scripts/rc2-3-13g-beta-feedback-learner-health.mjs test",
-    "gate:rc2-3-13g-beta-feedback-learner-health": "npm run validate:rc2-3-13g-beta-feedback-learner-health && npm run test:rc2-3-13g-beta-feedback-learner-health"
+    "gate:rc2-3-13g-beta-feedback-learner-health": "npm run validate:rc2-3-13g-beta-feedback-learner-health && npm run test:rc2-3-13g-beta-feedback-learner-health",
+    "validate:rc2-3-13h-visual-progression-dynamic-aula": "node scripts/rc2-3-13h-visual-progression-dynamic-aula.mjs validate",
+    "test:rc2-3-13h-visual-progression-dynamic-aula": "node scripts/rc2-3-13h-visual-progression-dynamic-aula.mjs test",
+    "gate:rc2-3-13h-visual-progression-dynamic-aula": "npm run validate:rc2-3-13h-visual-progression-dynamic-aula && npm run test:rc2-3-13h-visual-progression-dynamic-aula"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

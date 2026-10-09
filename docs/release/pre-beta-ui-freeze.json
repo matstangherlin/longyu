@@ -1,12 +1,22 @@
 {
   "id": "PRE_BETA_UI_FREEZE",
-  "wave": "RC2.3.13G",
-  "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. Culture is a ProgressionShell submode of the Journey progression destination.",
+  "wave": "RC2.3.13H",
+  "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. Culture is a ProgressionShell submode of the Journey progression destination. Journey and Culture share one ProgressionPath bubble grammar. Mandatory foundation AULA uses DynamicTeachingSequence presentation beats.",
   "navigationContract": {
     "mobileTabBar": ["/jornada", "/treino", "/missoes", "/mais"],
     "progressionSwitch": ["journey", "culture"],
     "cultureBottomNav": false,
     "culturePrimaryAccess": "ProgressionShell"
+  },
+  "progressionGrammar": {
+    "components": ["ProgressionPath", "ProgressionNodeBubble", "ProgressionConnector", "ProgressionNodeLabel"],
+    "states": ["COMPLETED", "CURRENT", "AVAILABLE", "LOCKED"]
+  },
+  "dynamicAula": {
+    "shell": "GuidedLessonShell / GuidedPresentationProvider",
+    "sequence": "DynamicTeachingSequence",
+    "teacherBubble": "TeacherSpeechBubble",
+    "foundationCoverage": "DYNAMIC_PASS"
   },
   "cultureCounts": {
     "cultureItems": 36,
@@ -40,6 +50,7 @@
   "forbiddenAfterFreeze": [
     "new visual learner-facing features",
     "Culture content expansion waves",
-    "new bottom-nav destinations for Culture"
+    "new bottom-nav destinations for Culture",
+    "13I presentation redesign"
   ]
 }

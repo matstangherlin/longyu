@@ -106,6 +106,10 @@ export const TECH_EVENT_NAMES = [
   "culture_atlas_open",
   "culture_depth_expand",
   "culture_decision_submit",
+  // RC2.3.13H — dynamic AULA presentation (safe metadata only; no per-char reveals).
+  "dynamic_aula_started",
+  "dynamic_aula_completed",
+  "visual_example_viewed",
 ] as const;
 export type TechEventName = (typeof TECH_EVENT_NAMES)[number];
 

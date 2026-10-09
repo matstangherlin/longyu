@@ -48,6 +48,9 @@ import { cultureGateForTopic, type CultureProgressionProgress } from "../../lib/
 import { cultureBlocksJourney } from "../../lib/cultureJourneyPolicy";
 import { JourneyCultureGate } from "./JourneyCultureGate";
 import { ProgressionShell } from "../../components/progression/ProgressionShell";
+import { ProgressionNodeBubble, progressionOffsetForIndex } from "../../components/progression/ProgressionNodeBubble";
+import type { ProgressionNodeState } from "../../components/progression/progressionTypes";
+import { haptic } from "../../lib/haptics";
 import {
   auxiliaryJourneyNodesAfterTopic,
   PINYIN_CAPSULE_NODE,
@@ -91,8 +94,6 @@ const SKILL_ICON: Record<Skill, typeof IconSound> = {
   leitura: IconBook,
   sistema: IconStar,
 };
-
-const REVIEW_COLOR = "#B7791F";
 
 interface ThemeCheckpoint {
   title: string;
@@ -165,7 +166,14 @@ const JOURNEY_CHESTS: Record<string, JourneyChestConfig> = {
 };
 
 function offsetForIndex(i: number): number {
-  return Math.round(Math.sin(i * 1.1) * 26);
+  return progressionOffsetForIndex(i);
+}
+
+function toProgressionState(state: LessonState, isCurrent: boolean): ProgressionNodeState {
+  if (state === "done") return "COMPLETED";
+  if (state === "locked" || state === "premium") return "LOCKED";
+  if (isCurrent || state === "current") return "CURRENT";
+  return "AVAILABLE";
 }
 
 function currentUnitContext(lessonId: string | undefined) {
@@ -1393,67 +1401,20 @@ function JourneyChestRewardModal({
   );
 }
 
-function LessonStageRing({
-  value,
-  total,
-  color,
-  locked,
-  pulseSegment,
-}: {
-  value: number;
-  total: number;
-  color: string;
-  locked: boolean;
-  pulseSegment?: number;
-}) {
-  const safeTotal = Math.max(1, total);
-  const safeValue = Math.max(0, Math.min(safeTotal, value));
-  const radius = 35;
-  const circumference = 2 * Math.PI * radius;
-  const step = circumference / safeTotal;
-  const gap = 8;
-  const dash = Math.max(1, step - gap);
-  const inactive = locked ? "rgb(var(--text-faint))" : "rgb(var(--line))";
-
-  return (
-    <svg className="pointer-events-none absolute inset-0 h-full w-full -rotate-90 overflow-visible" viewBox="0 0 80 80" aria-hidden="true">
-      {Array.from({ length: safeTotal }, (_, index) => {
-        const active = index < safeValue;
-        return (
-          <circle
-            key={index}
-            cx="40"
-            cy="40"
-            r={radius}
-            fill="none"
-            stroke={active ? color : inactive}
-            strokeLinecap="round"
-            strokeOpacity={active ? 0.92 : 0.72}
-            strokeWidth={index === pulseSegment ? 6 : 4}
-            className={index === pulseSegment ? "topic-ring-segment-pulse" : undefined}
-            strokeDasharray={`${dash} ${circumference - dash}`}
-            strokeDashoffset={-index * step}
-          />
-        );
-      })}
-    </svg>
-  );
-}
-
 function LessonNode({
   lessonId,
   title,
   skill,
   state,
   premium,
-  color,
+  color: _color,
   isReview,
   isCurrent,
   attempted,
   stars,
   stageProgress,
   stageTotal,
-  pulseSegment,
+  pulseSegment: _pulseSegment,
   offset,
   onClick,
 }: {
@@ -1475,95 +1436,46 @@ function LessonNode({
 }) {
   const { t } = useTranslation();
   const Icon = SKILL_ICON[skill];
-  const isDone = state === "done";
-  const locked = state === "locked" || state === "premium";
-  const isPaywall = state === "premium";
-
-  const bg = locked
-    ? undefined
-    : isDone
-    ? color
-    : isReview
-    ? REVIEW_COLOR
-    : "rgb(var(--accent))";
-  const nodeSizeClass = isCurrent ? "h-[68px] w-[68px]" : isDone ? "h-[48px] w-[48px]" : "h-[54px] w-[54px]";
-  const ringSizeClass = isCurrent ? "h-[80px] w-[80px]" : isDone ? "h-[58px] w-[58px]" : "h-[64px] w-[64px]";
-  const iconSize = isCurrent ? 28 : isDone ? 20 : 22;
+  const progressionState = toProgressionState(state, isCurrent);
+  const locked = progressionState === "LOCKED";
   const safeStageTotal = Math.max(1, stageTotal);
   const safeStageProgress = Math.max(0, Math.min(safeStageTotal, stageProgress));
+  const iconSize = isCurrent ? 26 : 20;
 
   return (
-    <div className="relative z-[1] flex flex-col items-center" style={{ transform: `translateX(${offset}px)` }}>
-      {isCurrent && (
-        <div className="mb-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-card">
-          {isPaywall
+    <div data-journey-bubble-v2 data-lesson-id={lessonId} data-topic-progress={safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined}>
+      <ProgressionNodeBubble
+        id={lessonId}
+        title={title}
+        state={progressionState}
+        personality="journey"
+        offset={offset}
+        passRing={safeStageTotal > 1 ? { progress: safeStageProgress, total: safeStageTotal } : undefined}
+        statusLabel={
+          premium && progressionState !== "COMPLETED"
             ? "Pro"
             : isReview
               ? attempted
                 ? t("journey.almostBadge")
                 : t("journey.reviewBadge")
-              : `${safeStageProgress}/${safeStageTotal}`}
-        </div>
-      )}
-      <div className={["relative grid place-items-center", ringSizeClass].join(" ")}>
-        {isCurrent && (
-          <span className="absolute inset-0 animate-pulse rounded-full bg-accent/15 motion-reduce:animate-none" aria-hidden />
-        )}
-        <LessonStageRing
-          value={safeStageProgress}
-          total={safeStageTotal}
-          color={bg ?? "rgb(var(--accent))"}
-          locked={locked}
-          pulseSegment={pulseSegment}
-        />
-        <button
-          onClick={onClick}
-          aria-label={`${title}${safeStageTotal === 4 ? ` · ${t("player.ofTotal", { index: safeStageProgress, total: safeStageTotal })}` : ""}`}
-          data-lesson-id={lessonId}
-          data-topic-progress={safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined}
-          aria-disabled={locked}
-          aria-current={isCurrent ? "step" : undefined}
-          data-current={isCurrent ? "true" : undefined}
-          className={[
-            "relative flex items-center justify-center rounded-full transition active:scale-95",
-            nodeSizeClass,
-            isReview && !locked ? "rounded-2xl" : "",
-            isCurrent && "ring-[3px] ring-accent/40 shadow-glow",
-            isDone && !isCurrent && "opacity-90",
-            locked ? "cursor-help bg-surface-2 text-ink-faint" : "text-white shadow-card hover:brightness-105",
-          ].filter(Boolean).join(" ")}
-          style={bg ? { background: bg } : undefined}
-        >
-          {isDone ? (
-            <IconCheck width={iconSize} height={iconSize} />
-          ) : attempted && !locked ? (
+              : undefined
+        }
+        metaLabel={stars > 0 ? t("player.starsCount", { n: stars }) : undefined}
+        icon={
+          attempted && !locked ? (
             <IconRefresh width={iconSize} height={iconSize} />
-          ) : locked ? (
-            <IconLock width={iconSize} height={iconSize} />
-          ) : isReview ? (
+          ) : isReview && !locked ? (
             <IconStar width={iconSize} height={iconSize} fill="currentColor" />
           ) : (
             <Icon width={iconSize} height={iconSize} />
-          )}
-        </button>
-      </div>
-      {stars > 0 && (
-        <div className="mt-1 flex h-3 items-center gap-0.5 text-accent" aria-label={t("player.starsCount", { n: stars })}>
-          {[1, 2, 3].map((star) => (
-            <IconStar
-              key={star}
-              width={10}
-              height={10}
-              className={star <= stars ? "text-accent" : "text-line"}
-              fill={star <= stars ? "currentColor" : "none"}
-            />
-          ))}
-        </div>
-      )}
-      <span className={["mt-1 max-w-[112px] truncate text-center text-[11px] font-medium leading-tight", locked ? "text-ink-faint" : isCurrent ? "text-ink" : "text-ink-soft"].join(" ")}>
-        {title}
-        {premium && !isDone && <span className="mt-0.5 block text-[9px] uppercase tracking-wide text-gold">Pro</span>}
-      </span>
+          )
+        }
+        testId={`journey-node-${lessonId}`}
+        onSelect={() => {
+          if (!locked) haptic("selection");
+          onClick();
+        }}
+      />
     </div>
   );
 }
