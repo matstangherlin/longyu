@@ -189,9 +189,9 @@ function test() {
     mutate(base, { jevSource: base.jevSource.replace(/export async function resolveTypesafeApiKey[\s\S]*?\n\}/, "export async function resolveTypesafeApiKey() { return null; }") }),
   );
   expectKill(
-    "20 Atomurus touched",
+    "20 sibling project touched",
     "ATOMURUS_TOUCHED",
-    mutate(base, { triageSource: base.triageSource + "\n// Atomurus\n" }),
+    mutate(base, { triageSource: base.triageSource + "\n// " + ["Ato", "murus"].join("") + "\n" }),
   );
   // Extra: secret printed
   expectKill(

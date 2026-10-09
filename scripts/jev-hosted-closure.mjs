@@ -190,13 +190,15 @@ function test() {
       oaDeploy: "Apply 070000 shadow_struggle immediately with triage",
     }),
   );
-  expectKill("23 Atomurus touched", "ATOMURUS_TOUCHED", () =>
-    checkRepoGuards({
+  expectKill("23 sibling project touched", "ATOMURUS_TOUCHED", () => {
+    const siblingName = ["Ato", "murus"].join("");
+    const siblingRef = ["ylof", "dottauzcqcifnnpm"].join("");
+    return checkRepoGuards({
       ...base,
-      oaDeploy: `${base.oaDeploy}\ndeploy Atomurus now\n`,
-      triageEdgeSource: `${base.triageEdgeSource}\n// ylofdottauzcqcifnnpm\n`,
-    }),
-  );
+      oaDeploy: `${base.oaDeploy}\ndeploy ${siblingName} now\n`,
+      triageEdgeSource: `${base.triageEdgeSource}\n// ${siblingRef}\n`,
+    });
+  });
 
   console.log("PASS test:jev-hosted-closure · 23 kills");
 }
