@@ -131,9 +131,18 @@ export function ReleaseTruthPanel({ truth = productTruth }: { truth?: Truth }) {
         <Row label="Product Truth from" value={truth.generatedFromSha?.slice(0, 12)} />
       </div>
       <div className="space-y-1">
-        {Object.entries(truth.release).map(([id, status]) => (
-          <Row key={id} label={id} value={status} />
-        ))}
+        {Object.entries(truth.release).flatMap(([id, status]) => {
+          if (typeof status === "string" || typeof status === "number") {
+            return [<Row key={id} label={id} value={status} />];
+          }
+          if (status && typeof status === "object") {
+            // RC2.3.12 — release.rcCandidate is structured (phase NOT_BUILT…BETA_READY).
+            return Object.entries(status as Record<string, string | number | null>).map(([k, v]) => (
+              <Row key={`${id}.${k}`} label={`${id}.${k}`} value={v} />
+            ));
+          }
+          return [];
+        })}
       </div>
       <div className="space-y-1" data-testid="qa-cloud-truth">
         <h3 className="text-xs font-semibold">Cloud</h3>

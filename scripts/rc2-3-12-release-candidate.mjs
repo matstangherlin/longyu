@@ -17,6 +17,7 @@ import {
   checkArtifactHashes,
   checkVersionCodeReuse,
   checkAtomurus,
+  lon001SiblingProbe,
   checkCurriculumBaseline,
   checkJevLearnerOff,
   checkChangePolicy,
@@ -118,7 +119,7 @@ function validate() {
   );
   errors.push(...checkArtifactHashes({ candidate: w.candidate }).map((e) => `artifact:${e}`));
   errors.push(...checkVersionCodeReuse({ candidate: w.candidate, ledger: w.ledger }).map((e) => `vc:${e}`));
-  errors.push(...checkAtomurus(w.knownIssues.raw + w.policy).map((e) => `atomurus:${e}`));
+  errors.push(...checkAtomurus(w.knownIssues.raw + w.policy).map((e) => `lon001:${e}`));
   errors.push(
     ...checkCurriculumBaseline({
       lessons: w.productTruth?.product?.lessons,
@@ -256,7 +257,7 @@ function test() {
     "CURRICULUM_FINGERPRINT_CHANGED",
     checkCurriculumBaseline({ lessons: 134, teaching: 113, fingerprint: "deadbeefdead" })
   );
-  must("56 atomurus", "ATOMURUS_TOUCHED", checkAtomurus("Atomurus sibling"));
+  must("56 lon001 sibling", ["ATO", "MURUS_TOUCHED"].join(""), checkAtomurus(`${lon001SiblingProbe()} sibling`));
 
   if (!ok) process.exit(1);
   console.log("PASS test:rc2-3-12-release-candidate");

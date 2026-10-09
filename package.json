@@ -1184,6 +1184,10 @@
     "validate:rc2-3-12-release-candidate": "node scripts/rc2-3-12-release-candidate.mjs validate",
     "test:rc2-3-12-release-candidate": "node scripts/rc2-3-12-release-candidate.mjs test",
     "gate:rc2-3-12-release-candidate": "npm run validate:rc2-3-12-release-candidate && npm run test:rc2-3-12-release-candidate",
+    "refresh:rc-candidate": "node scripts/refresh-rc-candidate.mjs",
+    "validate:rc2-3-12b-beta-entry": "node scripts/rc2-3-12b-beta-entry.mjs validate",
+    "test:rc2-3-12b-beta-entry": "node scripts/rc2-3-12b-beta-entry.mjs test",
+    "gate:rc2-3-12b-beta-entry": "npm run validate:rc2-3-12b-beta-entry && npm run test:rc2-3-12b-beta-entry",
     "gate:closed-beta-entry": "node scripts/rc2-3-12-closed-beta-entry.mjs",
     "smoke:rc": "node scripts/smoke-rc.mjs"
   },
