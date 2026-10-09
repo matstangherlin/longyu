@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.2.0-beta.1",
   "type": "module",
-  "description": "Longyu (龙语) — aprenda mandarim pela lógica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
+  "description": "Longyu (\u9f99\u8bed) \u2014 aprenda mandarim pela l\u00f3gica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
   "engines": {
     "node": ">=22"
   },
@@ -1177,7 +1177,10 @@
     "proofs:rc2-3-10b-static": "node scripts/rc2-3-10b-static-proofs.mjs generate",
     "validate:rc2-3-10b-static": "node scripts/rc2-3-10b-static-proofs.mjs validate",
     "test:rc2-3-10b-static": "node scripts/rc2-3-10b-static-proofs.mjs test",
-    "smoke:cloud": "node scripts/cloud-smoke.mjs"
+    "smoke:cloud": "node scripts/cloud-smoke.mjs",
+    "validate:rc2-3-11-monetization": "node scripts/rc2-3-11-monetization.mjs validate",
+    "test:rc2-3-11-monetization": "node scripts/rc2-3-11-monetization.mjs test",
+    "gate:rc2-3-11-monetization": "npm run validate:rc2-3-11-monetization && npm run test:rc2-3-11-monetization"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

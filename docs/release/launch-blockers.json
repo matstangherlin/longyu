@@ -1,6 +1,6 @@
 {
   "schema": "longyu-launch-blockers/1",
-  "generatedAt": "2026-10-09T01:35:00Z",
+  "generatedAt": "2026-10-09T02:00:00Z",
   "cloudCertification": "BLOCKED",
   "categories": {
     "CLOUD": [
@@ -37,9 +37,26 @@
     ],
     "MONETIZATION": [
       {
-        "id": "RC2_3_11",
-        "blocker": "Pricing + live Stripe/Play — frozen until cloud PASS",
+        "id": "OA-FINAL-PRICING",
+        "blocker": "Owner signs BALANCED pricing pack (docs/commercial/oa-final-pricing.md)",
         "ownerOnly": true
+      },
+      {
+        "id": "STRIPE_TEST_E2E",
+        "blocker": "Stripe TEST catalog Price IDs + checkout/portal/webhook matrix PASS",
+        "ownerOnly": false,
+        "status": "CODE_READY_CONFIG_REQUIRED"
+      },
+      {
+        "id": "PLAY_BILLING_IMPL",
+        "blocker": "Play Billing Library + server verify + product publish (after compliance)",
+        "ownerOnly": true
+      },
+      {
+        "id": "LIVE_MONETIZATION_GATE",
+        "blocker": "LIVE mode requires cloud PASS + OA-FINAL-PRICING + store compliance + billing matrix",
+        "ownerOnly": true,
+        "invariant": "LIVE_MONETIZATION_REQUIRES_CLOUD_PASS"
       }
     ],
     "PHYSICAL_QA": [
@@ -61,17 +78,25 @@
         "blocker": "New snapshots omit email; old rows not wiped",
         "ownerOnly": false,
         "status": "CODE_DONE_HISTORY_KEPT"
+      },
+      {
+        "id": "COMMERCIAL_TERMS_REVIEW",
+        "blocker": "Legal review of auto-renew / cancel / refund / trial / account deletion copy",
+        "ownerOnly": true
       }
     ]
   },
   "counts": {
     "CLOUD": 6,
-    "MONETIZATION": 1,
+    "MONETIZATION": 4,
     "PHYSICAL_QA": 1,
     "STORE": 0,
-    "LEGAL_PRIVACY": 2,
-    "ownerOnlyTotal": 9
+    "LEGAL_PRIVACY": 3,
+    "ownerOnlyTotal": 12
   },
   "goal": "ownerOnlyTotal < 10",
-  "goalMet": true
+  "goalMet": false,
+  "goalNote": "RC2.3.11 added commercial owner actions; compress toward ≤8 commercial-specific owner actions before live (OA-FINAL-PRICING, Stripe live later, Play publish, compliance, physical purchase, Terms).",
+  "carryoverFrom": "RC2.3.10D / PR #325",
+  "monetizationMode": "TEST"
 }
