@@ -108,7 +108,7 @@
       "files": [
         "supabase/functions/stripe-webhook/index.ts"
       ],
-      "source_sha256": "25c68f8935b4eff5ce52fd5244308943dd9626029ea0696fc437d91a8467fa73",
+      "source_sha256": "d0e9c73f6cd549f9b702ebf2339d0871b63c2e2ab736d74cfc48647e3f407464",
       "request_schema": "see index.ts",
       "response_schema": "see index.ts",
       "required_secrets": [
