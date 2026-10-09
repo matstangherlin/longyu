@@ -27,6 +27,7 @@ export const PRODUCT_TRUTH_SOURCES = [
   "docs/release/external-dependencies.json",
   "docs/release/certifications.json",
   "docs/release/rc2-3-10-cloud-matrix.json",
+  "docs/release/rc-candidate.json",
   "docs/launch/production-migration-ledger.json",
 ];
 
@@ -75,6 +76,7 @@ export function loadProductTruthInputs(root) {
     invariantOwnership: readJson(root, "docs/release/invariant-ownership.json", { invariants: {} }),
     certification: readJson(root, "docs/release/certifications.json", { cloud: null, monetization: null }),
     cloudMatrix: readJson(root, "docs/release/rc2-3-10-cloud-matrix.json", null),
+    rcCandidate: readJson(root, "docs/release/rc-candidate.json", null),
     migrationLedger: (({ status, counts }) => ({ status, counts }))(readJson(root, "docs/launch/production-migration-ledger.json", { status: "NOT_RUN", counts: null })),
     suites: SUITES.map((suite) => ({ id: suite.id, steps: suite.steps })),
     jevRuntimeEnabled: jevMatch ? jevMatch[1] === "true" : true,

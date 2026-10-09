@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-09T02:28:07.167Z",
-  "generatedFromSha": "4241b0e0658f292808008e874295e5f82e834c72",
-  "inputsDigest": "ca66c14dbe02b611",
-  "evidenceDigest": "ab8e25ad22fb90e9",
+  "generatedAt": "2026-10-09T02:55:40.599Z",
+  "generatedFromSha": "3f38daf70404135108fd0511574e3b9bd36f6200",
+  "inputsDigest": "2c4146250c21f2ac",
+  "evidenceDigest": "d8313f0655f2a727",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -17,6 +17,7 @@
     "docs/release/external-dependencies.json",
     "docs/release/certifications.json",
     "docs/release/rc2-3-10-cloud-matrix.json",
+    "docs/release/rc-candidate.json",
     "docs/launch/production-migration-ledger.json"
   ],
   "schemaVersion": 1,
@@ -317,6 +318,18 @@
     "CLOUD": "BLOCKED",
     "MONETIZATION": "NOT_RUN",
     "RC": "BLOCKED",
-    "BETA": "BLOCKED"
+    "BETA": "BLOCKED",
+    "rcCandidate": {
+      "rcId": "RC2.3.12-RC1",
+      "gitSha": "3f38daf70404135108fd0511574e3b9bd36f6200",
+      "version": "0.2.0-rc.1",
+      "versionCode": 570,
+      "fingerprint": "5a64821d0b7d",
+      "commercialMode": "FREE_ONLY",
+      "phase": "NOT_BUILT",
+      "apk": "NOT_RUN",
+      "aab": "NOT_RUN",
+      "web": "NOT_RUN"
+    }
   }
 }

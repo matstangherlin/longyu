@@ -2,13 +2,13 @@
   "schema": "longyu-rc-candidate/1",
   "rcId": "RC2.3.12-RC1",
   "wave": "RC2.3.12",
-  "gitSha": "4241b0e0658f292808008e874295e5f82e834c72",
+  "gitSha": "3f38daf70404135108fd0511574e3b9bd36f6200",
   "version": "0.2.0-rc.1",
-  "versionCode": 567,
+  "versionCode": 570,
   "versionCodeFloor": 1,
   "versionCodeFormula": "floor + firstParentCommitCount",
   "fingerprint": "5a64821d0b7d",
-  "createdAt": "2026-10-09T02:19:59Z",
+  "createdAt": "2026-10-09T02:53:35Z",
   "featureFreeze": true,
   "featureFreezePolicy": "docs/release/RC_CHANGE_POLICY.md",
   "commercialMode": "TEST",
@@ -35,7 +35,9 @@
     "shaAtBranchCreate": "8c03f8bff4e9d12926b74d6431f7f99a63f21d51"
   },
   "notes": [
-    "status advances NOT_BUILT \u2192 BUILT \u2192 CODE_VALIDATED \u2192 PHYSICAL_PENDING \u2192 BETA_READY only with evidence",
+    "status advances NOT_BUILT → BUILT → CODE_VALIDATED → PHYSICAL_PENDING → BETA_READY only with evidence",
     "BETA_READY requires physical QA; never from compile alone"
-  ]
+  ],
+  "versionAuthority": "docs/release/VERSION_AUTHORITY.md",
+  "rcDraftPolicy": "RC1 never distributed — 12B regenerates RC1 draft; mint RC2 after any distributed artifact SHA changes"
 }

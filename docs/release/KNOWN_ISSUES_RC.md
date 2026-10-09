@@ -1,5 +1,13 @@
 # Known issues — RC2.3.12-RC1
 
+## VERSION-NAME-NETLIFY-DRIFT (REPAIRED in 12B)
+
+**Severity:** P1 (was)  
+**Surface:** Android hosted / release-identity  
+**Beta blocker:** no (fixed)  
+**Workaround:** n/a  
+**Notes:** `netlify.toml` `VITE_APP_VERSION` lagged at `0.2.0-beta.1` while package was `0.2.0-rc.1`, killing Android foundation before APK/AAB. Aligned in RC2.3.12B. See `VERSION_AUTHORITY.md`.
+
 ## CLOUD-CERT-BLOCKED
 
 **Severity:** P1  

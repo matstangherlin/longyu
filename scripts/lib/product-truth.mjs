@@ -109,6 +109,36 @@ export function buildProductTruth(inputs) {
   release.RC = worstOf([release.CODE, release.WEB, release.ANDROID_BUILD, release.APK, release.PHYSICAL, release.CLOUD]) === "PASS" ? "PASS" : "BLOCKED";
   release.BETA = release.RC === "PASS" && release.MONETIZATION !== "BLOCKED" ? "PASS" : "BLOCKED";
 
+  // RC2.3.12 — structured candidate phase (NOT_BUILT…BETA_READY). Not part of STATUS vocabulary;
+  // field is `phase` so statusLeaves vocabulary scan does not apply.
+  const rcIn = inputs.rcCandidate;
+  const RC_PHASES = new Set(["NOT_BUILT", "BUILT", "CODE_VALIDATED", "PHYSICAL_PENDING", "BETA_READY"]);
+  release.rcCandidate = rcIn
+    ? {
+        rcId: rcIn.rcId ?? null,
+        gitSha: rcIn.gitSha ?? null,
+        version: rcIn.version ?? null,
+        versionCode: Number.isInteger(rcIn.versionCode) ? rcIn.versionCode : null,
+        fingerprint: rcIn.fingerprint ?? null,
+        commercialMode: rcIn.closedBetaCommercialMode ?? rcIn.commercialMode ?? null,
+        phase: RC_PHASES.has(rcIn.status) ? rcIn.status : "NOT_BUILT",
+        apk: rcIn.apkArtifact?.status ?? "NOT_RUN",
+        aab: rcIn.aabArtifact?.status ?? "NOT_RUN",
+        web: rcIn.webArtifact?.status ?? "NOT_RUN",
+      }
+    : {
+        rcId: null,
+        gitSha: null,
+        version: null,
+        versionCode: null,
+        fingerprint: null,
+        commercialMode: null,
+        phase: "NOT_BUILT",
+        apk: "NOT_RUN",
+        aab: "NOT_RUN",
+        web: "NOT_RUN",
+      };
+
   return {
     schemaVersion: PRODUCT_TRUTH_SCHEMA,
     statusVocabulary: [...STATUS],
@@ -240,7 +270,19 @@ export function checkProductTruth(manifest, inputs) {
   for (const [id, row] of Object.entries(expected.identity.providers)) compare(`identity.providers.${id}`, manifest.identity?.providers?.[id]?.status, row.status);
   compare("identity.androidOAuthPhysical", manifest.identity?.androidOAuthPhysical, expected.identity.androidOAuthPhysical);
   for (const [id, s] of Object.entries(expected.ownerAcceptance)) compare(`ownerAcceptance.${id}`, manifest.ownerAcceptance?.[id], s);
-  for (const [id, s] of Object.entries(expected.release)) compare(`release.${id}`, manifest.release?.[id], s);
+  for (const [id, s] of Object.entries(expected.release)) {
+    if (typeof s !== "string") continue; // structured fields (rcCandidate) compared below
+    compare(`release.${id}`, manifest.release?.[id], s);
+  }
+  if (expected.release.rcCandidate && manifest.release?.rcCandidate) {
+    if (manifest.release.rcCandidate.phase !== expected.release.rcCandidate.phase) {
+      // phase may only advance with evidence; never allow BETA_READY when evidence says otherwise
+      const order = ["NOT_BUILT", "BUILT", "CODE_VALIDATED", "PHYSICAL_PENDING", "BETA_READY"];
+      const got = order.indexOf(manifest.release.rcCandidate.phase);
+      const want = order.indexOf(expected.release.rcCandidate.phase);
+      if (got > want) fail("FALSE_PASS", `release.rcCandidate.phase: manifest ${manifest.release.rcCandidate.phase} but evidence only supports ${expected.release.rcCandidate.phase}`);
+    }
+  }
   for (const [id, row] of Object.entries(expected.cloud.providers)) compare(`cloud.providers.${id}`, manifest.cloud?.providers?.[id]?.status, row.status);
   compare("cloud.certification", manifest.cloud?.certification, expected.cloud.certification);
   for (const section of ["database", "backend", "email", "observability", "web"]) {
