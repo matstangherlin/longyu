@@ -5,6 +5,7 @@
  */
 import {
   checkAll,
+  checkConversationAndHanzi,
   checkGuidedTryAndSpeech,
   checkLessonPrimaryCta,
   checkReviewVictoryInterruptions,
@@ -185,8 +186,38 @@ function test() {
   expectKill("24 curriculum freeze missing", "CURRICULUM_CHANGED", () =>
     checkRuntimeGuards({ ...base, curriculumFreeze: "" }),
   );
+  expectKill("25 conversation no phase", "CONVERSATION_NO_PHASE", () =>
+    checkConversationAndHanzi({
+      ...base,
+      conversation: base.conversation
+        .replace(/ConversationPhaseChrome/g, "X")
+        .replace(/data-conversation-phase/g, "data-x")
+        .replace(/conversation-turn-progress/g, "x"),
+    }),
+  );
+  expectKill("26 conversation no primary", "CONVERSATION_NO_PRIMARY", () =>
+    checkConversationAndHanzi({
+      ...base,
+      conversation: base.conversation
+        .replace(/data-cta-hierarchy="primary"/g, "")
+        .replace(/conversation-advance/g, "x"),
+    }),
+  );
+  expectKill("27 hanzi hierarchy broken", "HANZI_HIERARCHY_BROKEN", () =>
+    checkConversationAndHanzi({
+      ...base,
+      hanzi: base.hanzi.replace(/data-hanzi-hierarchy="rc2-3-13c"/g, "").replace(/hanzi-stage-label/g, "x"),
+    }),
+  );
+  expectKill("28 hanzi canvas too small", "HANZI_CANVAS_TOO_SMALL", () =>
+    checkConversationAndHanzi({
+      ...base,
+      hanzi: base.hanzi.replace(/data-hanzi-canvas-region/g, "").replace(/hanzi-canvas-region/g, "x"),
+      hanziCanvas: (base.hanziCanvas ?? "").replace(/touch-none/g, "x").replace(/Math\.max\(248/g, "Math.max(120"),
+    }),
+  );
 
-  console.log("PASS test:rc2-3-13c-learning-flow · 24 kills");
+  console.log("PASS test:rc2-3-13c-learning-flow · 28 kills");
 }
 
 if (mode === "test") test();

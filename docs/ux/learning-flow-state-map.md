@@ -53,8 +53,8 @@ Sources: `GuidedLessonShell`, `LessonPlayer`, `steps.tsx`, `GuidedTryPage`, `Pro
 | Audio button | `src/components/guided/GuidedPrimitives.tsx` `GuidedAudioButton` |
 | Guided Try | `src/features/landing/GuidedTryPage.tsx` |
 | Speech | `PronunciationPractice.tsx`, `SelfComparePractice.tsx` |
-| Conversation | `ConversationSceneStep.tsx` |
-| Hànzì | `HanziWritingExercise` / canvas |
+| Conversation | `ConversationSceneStep.tsx` (`ConversationPhaseChrome`, `data-conversation-phase`) |
+| Hànzì | `HanziWritingExercise` / `HanziWritingCanvas` (`data-hanzi-stage`, canvas ≥248) |
 | Review | `RevisaoPage.tsx` |
 | Completion | `LessonVictory.tsx` |
 | Gate | `gate:rc2-3-13c-learning-flow` |

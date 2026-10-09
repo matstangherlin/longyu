@@ -48,6 +48,24 @@ One moment = one dominant action. Reduce interface decisions; preserve learning 
 | **Change** | Explicit `data-cta-hierarchy` on victory primary; culture skip tertiary; gate forbids Store/League in victory actions |
 | **Evidence** | `LessonVictory.tsx` |
 
+### Conversation
+
+| | |
+| --- | --- |
+| **Before** | Guided mode hid turn progress; phase not labeled; advance CTA unmarked |
+| **Problem** | Invisible progression / Hick on check vs continue |
+| **Principle** | Progressive disclosure + one primary |
+| **Change** | `ConversationPhaseChrome` (Ouvindo… / Sua vez / Processando… + Fala N de M); `data-conversation-phase`; advance/check/continue hierarchy |
+| **Evidence** | `ConversationSceneStep.tsx`; gate kills 25–26 |
+
+### Hànzì
+
+| | |
+| --- | --- |
+| **Before** | Stage unlabeled; canvas min 220; tools equal to task |
+| **Change** | Single `STAGE_LABEL_PT` label; canvas ≥248 + `touch-action: none`; tools secondary; tech failure non-penalty copy |
+| **Evidence** | `HanziWritingExercise.tsx`, `HanziWritingCanvas.tsx`; gate kills 27–28 |
+
 ## Freeze
 
 Curriculum / Mastery math / SRS / JEV / billing / sibling projects unchanged (gated).

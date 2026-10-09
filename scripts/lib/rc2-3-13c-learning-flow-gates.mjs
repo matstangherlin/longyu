@@ -19,6 +19,7 @@ export function loadLearningFlowSources() {
     review: read("src/features/revisao/RevisaoPage.tsx"),
     conversation: read("src/features/lesson/ConversationSceneStep.tsx"),
     hanzi: read("src/features/hanzi/writing/HanziWritingExercise.tsx"),
+    hanziCanvas: read("src/features/hanzi/writing/HanziWritingCanvas.tsx"),
     player: read("src/features/lesson/LessonPlayer.tsx"),
     budgetPolicy: read("supabase/functions/_shared/budgetPolicy.ts"),
     featureFlags: read("docs/release/feature-flags.json"),
@@ -111,6 +112,33 @@ export function checkReviewVictoryInterruptions(src = loadLearningFlowSources())
   return [...new Set(errors)];
 }
 
+export function checkConversationAndHanzi(src = loadLearningFlowSources()) {
+  const errors = [];
+  if (!/ConversationPhaseChrome/.test(src.conversation) || !/data-conversation-phase/.test(src.conversation)) {
+    errors.push("CONVERSATION_NO_PHASE");
+  }
+  if (!/data-testid="conversation-turn-progress"/.test(src.conversation)) {
+    errors.push("CONVERSATION_NO_PHASE");
+  }
+  if (!/data-cta-hierarchy="primary"/.test(src.conversation) || !/conversation-advance/.test(src.conversation)) {
+    errors.push("CONVERSATION_NO_PRIMARY");
+  }
+  if (!/data-hanzi-hierarchy="rc2-3-13c"/.test(src.hanzi) || !/hanzi-stage-label/.test(src.hanzi)) {
+    errors.push("HANZI_HIERARCHY_BROKEN");
+  }
+  if (!/data-hanzi-canvas-region|hanzi-canvas-region/.test(src.hanzi)) {
+    errors.push("HANZI_CANVAS_TOO_SMALL");
+  }
+  const canvasSrc = src.hanziCanvas ?? "";
+  if (!/touch-none/.test(canvasSrc) || !/touchAction:\s*"none"/.test(canvasSrc)) {
+    errors.push("HANZI_CANVAS_TOO_SMALL");
+  }
+  if (!/Math\.max\(248/.test(canvasSrc)) errors.push("HANZI_CANVAS_TOO_SMALL");
+  if (!/registerBackGuard/.test(src.player)) errors.push("BACK_LOSES_PROGRESS");
+  if (!/visualViewport|app-safe-bottom/.test(src.steps)) errors.push("KEYBOARD_HIDES_CTA");
+  return [...new Set(errors)];
+}
+
 export function checkRuntimeGuards(src = loadLearningFlowSources()) {
   const errors = [];
   if (/JEV_RUNTIME_ENABLED:\s*true/.test(src.budgetPolicy)) errors.push("JEV_RUNTIME_ENABLED");
@@ -149,6 +177,7 @@ export function checkAll(src = loadLearningFlowSources()) {
     ...checkLessonPrimaryCta(src),
     ...checkGuidedTryAndSpeech(src),
     ...checkReviewVictoryInterruptions(src),
+    ...checkConversationAndHanzi(src),
     ...checkRuntimeGuards(src),
   ];
 }

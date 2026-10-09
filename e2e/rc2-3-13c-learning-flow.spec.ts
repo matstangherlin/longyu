@@ -87,4 +87,33 @@ test.describe("RC2.3.13C learning flow", () => {
     expect(box).toBeTruthy();
     expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(640 + 2);
   });
+
+  for (const viewport of [
+    { width: 360, height: 640 },
+    { width: 375, height: 667 },
+    { width: 390, height: 844 },
+  ] as const) {
+    test(`${viewport.width}×${viewport.height}: listen primary + reason stay in frame`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await seed(page);
+      await page.goto("/teste-guiado");
+      await dismissBlockingOverlays(page);
+      await expect(page.getByTestId("guided-try")).toBeVisible({ timeout: 20_000 });
+      const intro = page.getByTestId("intro-continue");
+      if (await intro.isVisible().catch(() => false)) {
+        await intro.click();
+      }
+      await expect(page.locator('[data-guided-step="listen"]')).toBeVisible({ timeout: 10_000 });
+      const audio = page.locator("[data-guided-listen]");
+      const reason = page.getByTestId("listen-continue-reason");
+      await expect(audio).toBeVisible();
+      await expect(reason).toBeVisible();
+      const audioBox = await audio.boundingBox();
+      const reasonBox = await reason.boundingBox();
+      expect(audioBox).toBeTruthy();
+      expect(reasonBox).toBeTruthy();
+      expect((audioBox?.y ?? 0) + (audioBox?.height ?? 0)).toBeLessThanOrEqual(viewport.height + 2);
+      expect((reasonBox?.y ?? 0) + (reasonBox?.height ?? 0)).toBeLessThanOrEqual(viewport.height + 2);
+    });
+  }
 });

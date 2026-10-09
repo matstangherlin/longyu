@@ -9,7 +9,8 @@ Supersedes the 13A flags-only note. State machine: `learning-flow-state-map.md`.
 | Speech | Gravar primary | Mic settings / cannot-speak | Fallback ≠ wrong | min-h-12 | PASS (code) |
 | Review | Hub primary | Semantic grades | Hub vs round | OK | PASS (code) |
 | Completion | One victory primary | Ability before XP | No Store/League | Sticky dock | PASS (code) |
-| Conversation / Hànzì | Existing contracts | Stall recovery | Canvas tools | CODE_READY deeper polish | Next waves |
+| Conversation | Phase chrome + turn N of M | Stall retry | One primary advance | PASS (code) |
+| Hànzì | Stage label only; tools secondary | Tech ≠ wrong | Canvas ≥248, touch-none | PASS (code) |
 
 ## Non-goals (unchanged)
 

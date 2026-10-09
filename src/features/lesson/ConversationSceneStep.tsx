@@ -1059,7 +1059,9 @@ function InteractionPanel({
 
       <div className="mt-4 flex gap-2">
         <Button
-          className="flex-1 shadow-lift"
+          className="min-h-12 flex-1 shadow-lift"
+          data-cta-hierarchy={feedback === "correct" ? "secondary" : "primary"}
+          data-testid="conversation-check"
           disabled={
             feedback === "correct" ||
             (isOrder ? ordered.length === 0 : isProduce ? produceAttempt().length === 0 : !picked)
@@ -1069,7 +1071,7 @@ function InteractionPanel({
           {t("player.check")}
         </Button>
         {onSkip && (
-          <Button variant="ghost" onClick={onSkip}>
+          <Button variant="ghost" data-cta-hierarchy="tertiary" onClick={onSkip}>
             {t("player.skip")}
           </Button>
         )}
@@ -1078,11 +1080,17 @@ function InteractionPanel({
       {feedback === "correct" && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
           <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
-            <IconCheck width={18} height={18} /> {t("player.almostQi")}
+            <IconCheck width={18} height={18} aria-hidden="true" /> {t("player.almostQi")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? t("player.conversationContinues")}</p>
-          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onCorrect(lastAttemptRef.current, { helpLevel, helpRequests })}>
-            {t("player.continue")} <IconChevron width={18} height={18} />
+          <Button
+            variant="good"
+            className="mt-4 min-h-12 w-full shadow-lift"
+            data-cta-hierarchy="primary"
+            data-testid="conversation-interaction-continue"
+            onClick={() => onCorrect(lastAttemptRef.current, { helpLevel, helpRequests })}
+          >
+            {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
           </Button>
         </div>
       )}
@@ -1090,12 +1098,18 @@ function InteractionPanel({
       {feedback === "wrong" && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-accent-soft bg-accent-soft/45 p-3.5">
           <div className="flex items-center gap-2 text-sm font-semibold text-accent">
-            <IconX width={18} height={18} /> {t("player.almost")}
+            <IconX width={18} height={18} aria-hidden="true" /> {t("player.almost")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {interaction.explanation ?? `Resposta sugerida: ${answer}`}
           </p>
-          <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
+          <Button
+            variant="good"
+            className="mt-4 min-h-12 w-full shadow-lift"
+            data-cta-hierarchy="primary"
+            data-testid="conversation-try-again"
+            onClick={retry}
+          >
             {t("player.tryAgain")}
           </Button>
         </div>
@@ -1354,6 +1368,48 @@ function ConversationStallPanel({
 // V2: caminha pelos nós da conversa. O erro leva ao ramo de reação do
 // personagem (quando existe) e a cena segue até um nó terminal; o resultado
 // final (onDone) considera se houve algum erro no caminho.
+/** RC2.3.13C — visible turn phase + lightweight progress (never a dashboard). */
+function ConversationPhaseChrome({
+  phase,
+  index,
+  total,
+}: {
+  phase: "listening" | "answering" | "revealing" | "repairing" | "finished" | "dialogue" | "checkpoint" | "processing";
+  index: number;
+  total: number;
+}) {
+  const phaseLabel =
+    phase === "listening" || phase === "dialogue"
+      ? t("player.listening")
+      : phase === "answering" || phase === "checkpoint"
+        ? t("player.yourTurn")
+        : phase === "finished"
+          ? t("player.continue")
+          : t("player.processingSpeech");
+  const safeTotal = Math.max(1, total);
+  const safeIndex = Math.min(Math.max(1, index), safeTotal);
+  return (
+    <div
+      className="mb-2 flex items-center justify-between gap-3 px-1"
+      data-conversation-phase-chrome
+      data-conversation-phase={phase}
+      data-conversation-turn-index={safeIndex}
+      data-conversation-turn-total={safeTotal}
+    >
+      <span
+        className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint"
+        data-testid="conversation-phase"
+        role="status"
+      >
+        {phaseLabel}
+      </span>
+      <span className="text-xs font-medium tabular-nums text-ink-faint" data-testid="conversation-turn-progress">
+        {t("player.lineOf", { index: safeIndex, total: safeTotal })}
+      </span>
+    </div>
+  );
+}
+
 function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   const guided = useGuidedPresentation();
   const characters = step.characters ?? [];
@@ -1646,6 +1702,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
     audioText: node.audioText,
   };
 
+  const turnTotal = Math.max(nodes.length, spokenCount);
+
   return (
     <div
       ref={sceneRootRef}
@@ -1655,6 +1713,8 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       data-conversation-node-id={node.id}
       data-conversation-transition-id={runtime.transitionId}
       data-conversation-spoken-count={spokenCount}
+      data-conversation-phase={runtime.mode}
+      data-learning-flow="rc2-3-13c"
     >
       {/* RC2.2.17B · PART AF — no shell guiado, só o título da cena (sem pílula nem "Fala N"). */}
       {!guided && <LessonKindLabel kind="conversation" />}
@@ -1665,6 +1725,7 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
       </div>
 
       <div className={guided ? "mt-4" : "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-3 pt-4 sm:px-4 sm:pb-4 sm:pt-5"}>
+        <ConversationPhaseChrome phase={runtime.mode} index={spokenCount} total={turnTotal} />
         <div className="mb-3 flex items-end justify-between gap-4 px-1 sm:mb-4" data-conversation-cast>
           {left && (
             <CharacterAvatar
@@ -1717,13 +1778,14 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
               <ExerciseText value={revealPending.answer} type={containsCjk(revealPending.answer) ? "hanzi" : "pt"} />
             </p>
             <Button
-              className="longyu-press-feedback pointer-events-auto relative z-10 mt-3 w-full touch-manipulation shadow-lift"
+              className="longyu-press-feedback pointer-events-auto relative z-10 mt-3 min-h-12 w-full touch-manipulation shadow-lift"
               data-testid="conversation-reveal-continue"
+              data-cta-hierarchy="primary"
               onPointerDown={revealSafe.onPointerDown}
               onPointerUp={revealSafe.onPointerUp}
               onClick={revealSafe.onClick}
             >
-              {t("player.continue")} <IconChevron width={18} height={18} />
+              {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
             </Button>
           </div>
         )}
@@ -1735,31 +1797,32 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
               <Button
                 type="button"
                 size="lg"
-                className="longyu-press-feedback pointer-events-auto relative z-10 w-full touch-manipulation shadow-lift"
+                className="longyu-press-feedback pointer-events-auto relative z-10 min-h-12 w-full touch-manipulation shadow-lift"
                 onPointerDown={onContinuePointerDown}
                 onPointerUp={onContinuePointerUp}
                 onClick={onContinueClick}
                 data-testid="conversation-advance"
+                data-cta-hierarchy="primary"
                 data-conversation-node={node.id}
               >
                 {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
-                <IconChevron width={18} height={18} />
+                <IconChevron width={18} height={18} aria-hidden="true" />
               </Button>
             </GuidedDock>
           ) : (
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-ink-faint">{t("player.lineN", { n: spokenCount })}</span>
+          <div className="mt-4">
             <Button
               type="button"
-              className="longyu-press-feedback pointer-events-auto relative z-10 min-w-[9.5rem] touch-manipulation shadow-lift"
+              className="longyu-press-feedback pointer-events-auto relative z-10 min-h-12 w-full touch-manipulation shadow-lift sm:ml-auto sm:w-auto sm:min-w-[9.5rem]"
               onPointerDown={onContinuePointerDown}
               onPointerUp={onContinuePointerUp}
               onClick={onContinueClick}
               data-testid="conversation-advance"
+              data-cta-hierarchy="primary"
               data-conversation-node={node.id}
             >
               {isTerminal ? t("player.finish") : node.interaction ? t("player.reply") : t("player.continue")}
-              <IconChevron width={18} height={18} />
+              <IconChevron width={18} height={18} aria-hidden="true" />
             </Button>
           </div>
           )
@@ -1949,8 +2012,18 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
     );
   }
 
+  const v1Phase =
+    phase === "dialogue" ? "listening" : phase === "checkpoint" ? "answering" : "finished";
+
   return (
-    <div ref={sceneRootRef} data-conversation-scene data-conversation-scene-id={step.sceneId} data-conversation-frame={guided ? "none" : "legacy"}>
+    <div
+      ref={sceneRootRef}
+      data-conversation-scene
+      data-conversation-scene-id={step.sceneId}
+      data-conversation-frame={guided ? "none" : "legacy"}
+      data-conversation-phase={v1Phase}
+      data-learning-flow="rc2-3-13c"
+    >
       {!guided && <LessonKindLabel kind="conversation" />}
       <h2 className={guided ? "text-center font-serif text-lg font-semibold text-ink sm:text-xl" : "mt-2 font-serif text-lg font-semibold text-ink sm:text-xl"}>{step.title}</h2>
 
@@ -1959,6 +2032,11 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
       </div>
 
       <div className={guided ? "mt-4" : "-mt-2 rounded-b-2xl border border-t-0 border-line bg-surface px-3 pb-4 pt-5 sm:px-4"}>
+        <ConversationPhaseChrome
+          phase={v1Phase}
+          index={Math.min(lineIndex + 1, Math.max(lines.length, 1))}
+          total={Math.max(lines.length, 1)}
+        />
         <div className="mb-4 flex items-end justify-between gap-4 px-1">
           {left && (
             <CharacterAvatar
@@ -2011,28 +2089,27 @@ function ConversationSceneV1({ step, onDone, onSkip, onMistake }: StepProps) {
             <GuidedDock>
               <Button
                 size="lg"
-                className="longyu-press-feedback pointer-events-auto relative z-10 w-full touch-manipulation shadow-lift"
+                className="longyu-press-feedback pointer-events-auto relative z-10 min-h-12 w-full touch-manipulation shadow-lift"
                 onPointerDown={v1ContinueSafe.onPointerDown}
                 onPointerUp={v1ContinueSafe.onPointerUp}
                 onClick={v1ContinueSafe.onClick}
                 data-testid="conversation-v1-advance"
+                data-cta-hierarchy="primary"
               >
-                {t("player.continue")} <IconChevron width={18} height={18} />
+                {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
               </Button>
             </GuidedDock>
           ) : (
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-ink-faint">
-              {t("player.lineOf", { index: lineIndex + 1, total: lines.length })}
-            </span>
+          <div className="mt-4">
             <Button
-              className="longyu-press-feedback pointer-events-auto relative z-10 min-w-[9.5rem] touch-manipulation shadow-lift"
+              className="longyu-press-feedback pointer-events-auto relative z-10 min-h-12 w-full touch-manipulation shadow-lift sm:ml-auto sm:w-auto sm:min-w-[9.5rem]"
               onPointerDown={v1ContinueSafe.onPointerDown}
               onPointerUp={v1ContinueSafe.onPointerUp}
               onClick={v1ContinueSafe.onClick}
               data-testid="conversation-v1-advance"
+              data-cta-hierarchy="primary"
             >
-              {t("player.continue")} <IconChevron width={18} height={18} />
+              {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
             </Button>
           </div>
           )
