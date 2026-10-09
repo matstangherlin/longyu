@@ -149,7 +149,13 @@ export function checkPlanDependencies({ plan }) {
 export function checkNoAutoApply({ workflows }) {
   const errors = [];
   for (const [file, text] of Object.entries(workflows ?? {})) {
-    if (!/db:apply-api|deploy:leagues|supabase db push|supabase functions deploy|apply-migrations|apply-sql/.test(text)) continue;
+    if (
+      !/db:apply-api|deploy:leagues|supabase db push|supabase functions deploy|apply-migrations|apply-sql|apply-production-migration|apply:production-migration/.test(
+        text
+      )
+    ) {
+      continue;
+    }
     const m = /^on:\s*\n([\s\S]*?)(?=^\S)/m.exec(text);
     const triggers = m ? m[1] : /^on:.*$/m.exec(text)?.[0] ?? "";
     if (/(^|\n)\s*(push|pull_request|pull_request_target|schedule|workflow_run|release):?/.test(triggers)) errors.push(`MIGRATION_AUTO_APPLY_TRIGGER:${file}`);

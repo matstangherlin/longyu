@@ -42,7 +42,12 @@ const readJson = (rel) => JSON.parse(read(rel));
 function repoMigrations() {
   const files = [];
   for (const dir of ["supabase/migrations", "supabase/pending"]) {
-    for (const name of fs.readdirSync(path.join(root, dir)).filter((f) => f.endsWith(".sql")).sort()) {
+    // Forward migrations only. `*.down.sql` companions are rollback notes, not
+    // PRODUCTION_MIGRATION_READY apply targets, so they stay out of the ledger.
+    for (const name of fs
+      .readdirSync(path.join(root, dir))
+      .filter((f) => f.endsWith(".sql") && !f.endsWith(".down.sql"))
+      .sort()) {
       const rel = `${dir}/${name}`;
       files.push({ file: rel, hash: normalizedMigrationHash(read(rel)) });
     }
