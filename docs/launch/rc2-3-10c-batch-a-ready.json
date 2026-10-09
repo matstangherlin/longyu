@@ -16,9 +16,9 @@
       "scope": "batch-a-league-policy-only"
     },
     "ledger": {
-      "status": "BLOCKED",
-      "path": "docs/launch/production-migration-ledger.json",
-      "note": "Historical UNKNOWN rows remain. Owner must accept ledger-as-authority (OA-MIGRATION-RECONCILIATION-DECISION) before this becomes PASS. Batch A adds a NEW remote name and does not repair history."
+      "status": "PASS",
+      "path": "docs/launch/rc2-3-10d-batch-a-ledger-safe.json",
+      "note": "BATCH_A_LEDGER_SAFE_TO_PROCEED: new remote name, no history rewrite, independent of UNKNOWN rows (RC2.3.10D)."
     },
     "backup": {
       "verified": false,
@@ -49,11 +49,13 @@
   "computed": {
     "status": "BLOCKED",
     "blockers": [
-      "ledgerReconciled",
       "backupVerified",
       "ownerApproval"
     ],
-    "computedAt": "2026-10-09T00:20:00Z"
+    "computedAt": "2026-10-09T01:35:01Z",
+    "clearedThisWave": [
+      "ledgerReconciled"
+    ]
   },
   "nextOwnerSteps": [
     "Run OA-DATA-EXPORT (schema + data dump, encrypt, store outside repo).",
@@ -71,5 +73,6 @@
     "005_social.sql",
     "edge deploys",
     "stripe-webhook redeploy"
-  ]
+  ],
+  "approvalPack": "docs/release/OA-BATCH-A-EXECUTE.md"
 }
