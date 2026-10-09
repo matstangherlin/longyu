@@ -247,7 +247,7 @@ function TabSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         className="animate-pop flex w-full max-h-[min(28rem,72dvh)] flex-col rounded-t-[28px] border border-line/70 bg-surface shadow-lift"
-        style={{ paddingBottom: "max(0.75rem, var(--app-safe-bottom))" }}
+        style={{ paddingBottom: "max(1rem, var(--app-safe-bottom))" }}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex flex-col items-center px-4 pt-3 pb-2">
