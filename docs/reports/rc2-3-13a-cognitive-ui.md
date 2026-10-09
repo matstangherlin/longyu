@@ -1,6 +1,8 @@
 # RC2.3.13A — Cognitive UI Foundation (before / after)
 
-Parent: PR #330 @ `9326efbe`. Learner UI changed → **RC1 does not certify this UI**. Target artifact: `RC2.3.12-RC2` / `0.2.0-rc.2`.
+Parent: PR #330 @ `0ca1098d`. Learner UI changed → **RC1 does not certify this UI**.
+
+**RC2 artifact (BUILT):** `RC2.3.12-RC2` / `0.2.0-rc.2` / versionCode `596` · sourceSha `529d2cd4…` · APK `b4c2a846…` · AAB `d77b9350…` · run [37908317177](https://github.com/matstangherlin/longyu/actions/runs/37908317177). RC1 provenance frozen in `docs/release/rc1-artifacts.json`.
 
 ## More Options sheet
 

@@ -2,17 +2,34 @@
   "schema": "longyu-rc-identity/1",
   "rcId": "RC2.3.12-RC2",
   "version": "0.2.0-rc.2",
-  "versionCode": "PENDING_ANDROID_BUILD",
-  "versionCodeNote": "Computed Play/CI versionCode = android/version.properties floor + first-parent count. Must be > 570 (RC1). Do not reuse 570.",
+  "versionCode": 596,
+  "versionCodeNote": "Computed Play/CI versionCode from hosted Android build provenance. 596 > 570 (RC1). Do not reuse 570.",
   "sourceWave": "RC2.3.13A",
-  "artifactStatus": "PENDING_HOSTED_ANDROID",
+  "artifactStatus": "BUILT",
+  "artifactSourceSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "workflowMergeSha": "3f5cc1b3174cb1807ec181ec3e3b915c0f961428",
+  "androidRunId": "37908317177",
+  "androidRunUrl": "https://github.com/matstangherlin/longyu/actions/runs/37908317177",
+  "fingerprint": "5a64821d0b7d",
+  "channel": "dev-debug",
   "supersedes": {
     "rcId": "RC2.3.12-RC1",
     "version": "0.2.0-rc.1",
     "versionCode": 570,
-    "note": "RC1 remains historical provenance. Learner UI changed in 13A — RC1 does not certify this UI."
+    "note": "RC1 remains historical provenance (rc1-artifacts.json). Learner UI changed in 13A \u2014 RC1 does not certify this UI."
   },
-  "apk": null,
-  "aab": null,
-  "physicalQaTarget": "RC2.3.12-RC2"
+  "apk": {
+    "name": "longyu-android-debug-0.2.0-rc.2-3f5cc1b.apk",
+    "sha256": "b4c2a846e87af7bd1a8c495bbe2fc8b2b77ff740fc12d5b1c15dc6b61f1b57a0",
+    "bytes": 23636859,
+    "status": "BUILT"
+  },
+  "aab": {
+    "name": "longyu-android-debug-0.2.0-rc.2-3f5cc1b.aab",
+    "sha256": "d77b93503c7b0607b9d31cba714beecc27fd5f8cfd3552ac5dc8fe397ab2bdf4",
+    "bytes": 22084686,
+    "status": "BUILT"
+  },
+  "physicalQaTarget": "RC2.3.12-RC2",
+  "consumedAt": "2026-10-09T09:31:12Z"
 }

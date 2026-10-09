@@ -1,16 +1,16 @@
 {
   "schema": "longyu-rc-candidate/1",
-  "rcId": "RC2.3.12-RC1",
-  "wave": "RC2.3.12C",
-  "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
-  "artifactSourceSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
-  "certificationHeadSha": "2a4082160fb5f0abff6c954f0076c586fbc91f67",
-  "version": "0.2.0-rc.1",
-  "versionCode": 570,
+  "rcId": "RC2.3.12-RC2",
+  "wave": "RC2.3.13A",
+  "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "artifactSourceSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "certificationHeadSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "version": "0.2.0-rc.2",
+  "versionCode": 596,
   "versionCodeFloor": 1,
   "versionCodeFormula": "floor + firstParentCommitCount",
   "fingerprint": "5a64821d0b7d",
-  "createdAt": "2026-10-09T03:16:00Z",
+  "createdAt": "2026-10-09T09:31:12Z",
   "featureFreeze": true,
   "featureFreezePolicy": "docs/release/RC_CHANGE_POLICY.md",
   "commercialMode": "TEST",
@@ -27,35 +27,36 @@
   },
   "apkArtifact": {
     "status": "BUILT",
-    "sha256": "dc99c03bd803a17d1ff55ab82964df2db820ce316f02568c7887a47a414cc492",
-    "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+    "sha256": "b4c2a846e87af7bd1a8c495bbe2fc8b2b77ff740fc12d5b1c15dc6b61f1b57a0",
+    "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
     "channel": "dev-debug",
-    "runId": "37877291018",
-    "name": "longyu-android-debug-0.2.0-rc.1-2c56701.apk",
-    "note": "debug diagnostic APK (deviceQaBuild=true); not Play release"
+    "runId": "37908317177",
+    "name": "longyu-android-debug-0.2.0-rc.2-3f5cc1b.apk",
+    "note": "debug diagnostic APK (deviceQaBuild=true); not Play release \u2014 RC2 after cognitive UI"
   },
   "aabArtifact": {
     "status": "BUILT",
-    "sha256": "c9f8f0981f4d3abdf10efe7b45e5dee30539afce352fe9f62ebc39fbaae29a85",
-    "gitSha": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8",
+    "sha256": "d77b93503c7b0607b9d31cba714beecc27fd5f8cfd3552ac5dc8fe397ab2bdf4",
+    "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
     "channel": "dev-debug",
-    "runId": "37877291018",
-    "name": "longyu-android-debug-0.2.0-rc.1-2c56701.aab",
+    "runId": "37908317177",
+    "name": "longyu-android-debug-0.2.0-rc.2-3f5cc1b.aab",
     "note": "debug AAB; signed release BLOCKED_SIGNING_SECRETS"
   },
   "cloudSha": null,
   "parent": {
-    "pr": 328,
-    "branch": "cursor/rc2-3-12b-beta-entry-closure-af1a",
-    "shaAtBranchCreate": "2d64f0d7b59f38d761e4970a1770cbf703b8c1d8"
+    "pr": 331,
+    "branch": "cursor/rc2-3-13a-cognitive-ui-foundation-af1a",
+    "shaAtBranchCreate": "529d2cd4a9c1b949d61e815dc434162d5fb3a589"
   },
   "notes": [
-    "status advances NOT_BUILT → BUILT → CODE_VALIDATED → PHYSICAL_PENDING → BETA_READY only with evidence",
+    "RC1 does not certify this UI",
+    "status advances NOT_BUILT \u2192 BUILT \u2192 CODE_VALIDATED \u2192 PHYSICAL_PENDING \u2192 BETA_READY only with evidence",
     "BETA_READY requires physical QA; never from compile alone",
-    "RC_SOURCE_SHA frozen to artifact sourceHeadSha 2d64f0d7 until distribution → then immutable"
+    "Physical beta QA must use RC2 not RC1"
   ],
   "versionAuthority": "docs/release/VERSION_AUTHORITY.md",
-  "rcDraftPolicy": "RC1 never distributed — regenerable until sideload; then mint RC2",
+  "rcDraftPolicy": "RC2 minted because learner UI changed in 13A; RC1 remains historical in rc1-artifacts.json",
   "artifactsManifest": "docs/release/rc-artifacts.json",
   "betaOpsHeadSha": "0a82e4f737ef8f5cde1779f470c7de8e6fd76957"
 }
