@@ -737,12 +737,23 @@ export function checkIssue273({ matrix }) {
 // 42–44 · monetization, Jev struggle, auto purchase
 // ---------------------------------------------------------------------------
 
-export function checkMonetizationOff({ certifications, productTruth, checkoutSource, ownerActions }) {
+export function checkMonetizationOff({
+  certifications,
+  productTruth,
+  checkoutSource,
+  ownerActions,
+  stripeLiveGuardSource,
+}) {
   const errors = [];
   if (certifications?.monetization != null) errors.push("MONETIZATION_CERTIFIED_BEFORE_DECISION");
   if (productTruth?.commercial?.stripe?.mode !== "test") errors.push("STRIPE_NOT_TEST_MODE");
   if (productTruth?.commercial?.pricingDecision !== "NOT_RUN") errors.push("PRICING_DECIDED_EARLY");
-  if (!/startsWith\("sk_live_"\)/.test(String(checkoutSource ?? ""))) errors.push("STRIPE_LIVE_NOT_REFUSED_IN_CHECKOUT");
+  const checkout = String(checkoutSource ?? "");
+  const guard = String(stripeLiveGuardSource ?? "");
+  const refusesLive =
+    /startsWith\("sk_live_"\)/.test(checkout) ||
+    (/refuseStripeLive/.test(checkout) && /startsWith\("sk_live_"\)/.test(guard));
+  if (!refusesLive) errors.push("STRIPE_LIVE_NOT_REFUSED_IN_CHECKOUT");
   const oa = (ownerActions?.actions ?? []).find((a) => a.id === "OA-STRIPE-ACCOUNT-CONFIRM");
   if (oa?.status === "PASS") errors.push("STRIPE_ACCOUNT_CONFIRMED_WITHOUT_OWNER");
   return errors;

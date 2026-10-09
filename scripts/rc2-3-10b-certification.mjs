@@ -152,6 +152,7 @@ function loadWorld() {
     triageSource: edgeSources["triage-feedback"],
     webhookSource: edgeSources["stripe-webhook"],
     checkoutSource: edgeSources["create-checkout-session"],
+    stripeLiveGuardSource: read("supabase/functions/_shared/stripeLiveGuard.ts"),
     businessLeadSource: edgeSources["submit-business-lead"],
     errorReportingSource: read("src/lib/observability/errorReporting.ts"),
     errorScrubSource: read("src/lib/observability/errorScrub.ts"),
@@ -224,7 +225,7 @@ function evaluate(w, { checkExitCode }) {
   add("R39_pii", checkSnapshotEmailPii({ matrix: w.matrix, ownerActions: w.ownerActions, repositorySource: w.repositorySource, triageSource: w.triageSource, scrubSource: w.errorScrubSource }));
   add("R40_owner_actions", checkOwnerActions({ ownerActions: w.ownerActions, matrix: w.matrix }));
   add("R41_issue273", checkIssue273({ matrix: w.matrix }));
-  add("R42_monetization", checkMonetizationOff({ certifications: w.certifications, productTruth: w.productTruth, checkoutSource: w.checkoutSource, ownerActions: w.ownerActions }));
+  add("R42_monetization", checkMonetizationOff({ certifications: w.certifications, productTruth: w.productTruth, checkoutSource: w.checkoutSource, ownerActions: w.ownerActions, stripeLiveGuardSource: w.stripeLiveGuardSource }));
   add("R43_jev_struggle", checkJevStruggleOff({ budgetPolicySource: w.budgetPolicySource, productTruth: w.productTruth, srcFiles: w.srcFiles, featureFlags: w.featureFlags }));
   add("R44_auto_purchase", checkNoAutoPurchase({ files: w.allText.filter((f) => /^(scripts|src|supabase\/functions|\.github)\//.test(f.file)), budgetPolicySource: w.budgetPolicySource }));
   add("R45_lon001", checkLon001({ files: w.allText.filter((f) => /rc2-3-10b/.test(f.file) || /^docs\/release\/OWNER_NEXT_ACTIONS\.md$/.test(f.file)) }));
@@ -538,7 +539,7 @@ if (mode === "test") {
   kill(42, "Stripe not in test mode", "STRIPE_NOT_TEST_MODE", edit("productTruth", (p) => {
     p.commercial.stripe.mode = "live";
   }));
-  kill(42, "checkout accepts live key", "STRIPE_LIVE_NOT_REFUSED_IN_CHECKOUT", editEdge("create-checkout-session", (t) => t.replace('stripeSecret.startsWith("sk_live_")', "false")));
+  kill(42, "checkout accepts live key", "STRIPE_LIVE_NOT_REFUSED_IN_CHECKOUT", editEdge("create-checkout-session", (t) => t.replaceAll("refuseStripeLive", "allowStripeLive")));
   kill(43, "Jev struggle runtime flag on", "JEV_STRUGGLE_FLAG_ON", addSrc("src/lib/zz.ts", "export const JEV_STRUGGLE_RUNTIME = true;"));
   kill(43, "Product Truth shows learner runtime on", "JEV_PRODUCT_TRUTH_RUNTIME_ON", edit("productTruth", (p) => {
     p.jev.learnerRuntimeEnabled = true;

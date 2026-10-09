@@ -73,13 +73,19 @@ export function checkDeployLeaguesScript(text) {
   return errors;
 }
 
+/** Allow startsWith("sk_live_") refusal; reject leaked live secret shapes. */
+export function stripeLiveKeyLeakErrors(text) {
+  const stripped = String(text ?? "").replace(/\.startsWith\(\s*["']sk_live_["']\s*\)/g, "");
+  return /sk_live_/.test(stripped) ? ["STRIPE_LIVE_KEY"] : [];
+}
+
 export function checkStripeWebhook(text) {
   const errors = [];
   if (!/RETRYABLE_FAILURE/.test(text)) errors.push("WEBHOOK_SWALLOWS_RPC");
   if (!/PERMANENT_REJECT/.test(text)) errors.push("WEBHOOK_NO_PERMANENT_CLASS");
   if (!/ALREADY_PROCESSED/.test(text)) errors.push("WEBHOOK_NO_IDEMPOTENT_CLASS");
   if (!/assertRpc\(error/.test(text)) errors.push("WEBHOOK_SWALLOWS_RPC");
-  if (/sk_live_/.test(text)) errors.push("STRIPE_LIVE_KEY");
+  errors.push(...stripeLiveKeyLeakErrors(text));
   if (!/constructEventAsync/.test(text)) errors.push("WEBHOOK_SIGNATURE_DISABLED");
   return errors;
 }

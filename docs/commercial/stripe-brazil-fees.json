@@ -1,0 +1,43 @@
+{
+  "schema": "longyu-stripe-brazil-fees/1",
+  "wave": "RC2.3.11",
+  "verifiedAt": "2026-10-09T01:50:00Z",
+  "sources": [
+    "https://stripe.com/br/pricing",
+    "https://stripe.com/br/pricing/local-payment-methods",
+    "https://docs.stripe.com/payments/pix"
+  ],
+  "accountCountryAssumption": "BR business on standard Stripe pricing (confirm on Longyu Stripe Dashboard)",
+  "fees": {
+    "domesticCard": {
+      "percent": 3.99,
+      "fixedMinor": 39,
+      "currency": "BRL",
+      "unit": "per_successful_charge"
+    },
+    "internationalCard": {
+      "percentBase": 3.99,
+      "additionalPercent": 2.0,
+      "note": "Stripe BR page shows +2% for international cards after conversion to local currency"
+    },
+    "pix": {
+      "percent": 1.19,
+      "fixedMinor": 0,
+      "currency": "BRL",
+      "availability": "invite_only_for_BR_businesses"
+    },
+    "boleto": {
+      "status": "CONFIRM_ON_DASHBOARD",
+      "listedFixedMinor": 345,
+      "currency": "BRL",
+      "note": "R$3.45 appears on BR pricing page under bank/other methods \u2014 confirm exact Boleto SKU before relying"
+    },
+    "disputes": "CONFIRM_ON_DASHBOARD",
+    "billing": "standard_billing_uses_underlying_payment_method_fees",
+    "tax": "TAX_REQUIRES_ACCOUNTING_CONFIRMATION"
+  },
+  "notes": [
+    "Do not treat this snapshot as a legal fee schedule for Longyu's specific contract.",
+    "Re-check Dashboard Pricing before LIVE activation."
+  ]
+}

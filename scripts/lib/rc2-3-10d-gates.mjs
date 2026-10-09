@@ -76,9 +76,11 @@ export function checkCurriculumFingerprint(fp) {
   return errors;
 }
 
+/** Allow startsWith("sk_live_") refusal; reject leaked live secret shapes. */
 export function checkMonetizationFrozen(src) {
   const errors = [];
-  if (/sk_live_/.test(src)) errors.push("STRIPE_LIVE_KEY");
+  const stripped = String(src ?? "").replace(/\.startsWith\(\s*["']sk_live_["']\s*\)/g, "");
+  if (/sk_live_/.test(stripped)) errors.push("STRIPE_LIVE_KEY");
   if (/MONETIZATION_ACTIVATED|enableLiveStripe/.test(src)) errors.push("MONETIZATION_ACTIVATED");
   return errors;
 }

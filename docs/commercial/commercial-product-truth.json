@@ -1,0 +1,49 @@
+{
+  "schema": "longyu-commercial-product-truth/1",
+  "wave": "RC2.3.11",
+  "extends": "docs/release/product-truth.json#commercial",
+  "note": "Release product-truth keeps pricingDecision=NOT_RUN until OA-FINAL-PRICING. This overlay records RC2.3.11 commercial readiness without flipping LIVE.",
+  "commercial": {
+    "pricing": {
+      "status": "OWNER_ACTION_REQUIRED",
+      "recommendation": "BALANCED",
+      "ownerApproval": "OA-FINAL-PRICING",
+      "artifact": "docs/commercial/rc2-3-11-pricing-decision.md"
+    },
+    "catalog": {
+      "status": "CODE_READY",
+      "artifact": "docs/commercial/commercial-product-catalog.json",
+      "publicCatalog": "src/commercial/billing.ts#PUBLIC_COMMERCIAL_CATALOG"
+    },
+    "stripe": {
+      "status": "ACCOUNT_VERIFIED",
+      "mode": "test",
+      "liveKeyGuard": "refuseStripeLive on checkout+portal+webhook",
+      "testProducts": "PASS",
+      "testCatalog": "docs/commercial/stripe-test-catalog.json",
+      "edgePriceSecrets": "CONFIG_REQUIRED"
+    },
+    "play": {
+      "status": "OWNER_ACTION_REQUIRED",
+      "androidIap": "DISABLED_FOR_BETA",
+      "policyResearch": "PASS",
+      "userChoiceBilling": "ELIGIBILITY_REQUIRED",
+      "serverVerify": "NOT_RUN"
+    },
+    "entitlement": {
+      "status": "CODE_READY",
+      "invariant": "ENTITLEMENT_SERVER_AUTHORITY",
+      "stateMachine": "docs/commercial/entitlement-state-machine.json"
+    },
+    "paywall": {
+      "status": "CODE_READY",
+      "purchaseCta": "FROZEN_PRICE_PENDING"
+    },
+    "monetizationMode": "TEST",
+    "liveMonetizationReady": "BLOCKED",
+    "invariant": "LIVE_MONETIZATION_REQUIRES_CLOUD_PASS"
+  },
+  "family": "POST_LAUNCH",
+  "business": "POST_LAUNCH",
+  "lifetime": "NOT_NOW"
+}

@@ -1,0 +1,133 @@
+{
+  "schema": "longyu-commercial-product-catalog/1",
+  "schemaVersion": 1,
+  "wave": "RC2.3.11",
+  "monetizationMode": "TEST",
+  "productBrand": "Longyu Pro",
+  "canonicalProducts": [
+    {
+      "productKey": "longyu_pro_monthly",
+      "plan": "pro",
+      "cycle": "monthly",
+      "markets": {
+        "BR": {
+          "currency": "BRL",
+          "amountMinor": 1700,
+          "stripePriceEnv": "STRIPE_PRICE_PRO_MONTHLY_BR",
+          "playProductId": "longyu_pro_monthly",
+          "playBasePlanId": "monthly-br"
+        },
+        "INTERNATIONAL": {
+          "currency": "USD",
+          "amountMinor": 500,
+          "stripePriceEnv": "STRIPE_PRICE_PRO_MONTHLY_INTERNATIONAL",
+          "playProductId": "longyu_pro_monthly",
+          "playBasePlanId": "monthly-intl"
+        }
+      },
+      "launchStatus": "PRICE_PENDING_PROVIDER_IDS"
+    },
+    {
+      "productKey": "longyu_pro_annual",
+      "plan": "pro",
+      "cycle": "annual",
+      "markets": {
+        "BR": {
+          "currency": "BRL",
+          "amountMinor": 17000,
+          "stripePriceEnv": "STRIPE_PRICE_PRO_ANNUAL_BR",
+          "playProductId": "longyu_pro_annual",
+          "playBasePlanId": "annual-br"
+        },
+        "INTERNATIONAL": {
+          "currency": "USD",
+          "amountMinor": 5000,
+          "stripePriceEnv": "STRIPE_PRICE_PRO_ANNUAL_INTERNATIONAL",
+          "playProductId": "longyu_pro_annual",
+          "playBasePlanId": "annual-intl"
+        }
+      },
+      "launchStatus": "PRICE_PENDING_PROVIDER_IDS"
+    },
+    {
+      "productKey": "longyu_family_monthly",
+      "plan": "family",
+      "cycle": "monthly",
+      "markets": {
+        "BR": {
+          "currency": "BRL",
+          "amountMinor": 2700,
+          "stripePriceEnv": "STRIPE_PRICE_FAMILY_MONTHLY_BR",
+          "playProductId": "longyu_family_monthly",
+          "playBasePlanId": "monthly-br"
+        },
+        "INTERNATIONAL": {
+          "currency": "USD",
+          "amountMinor": 800,
+          "stripePriceEnv": "STRIPE_PRICE_FAMILY_MONTHLY_INTERNATIONAL",
+          "playProductId": "longyu_family_monthly",
+          "playBasePlanId": "monthly-intl"
+        }
+      },
+      "launchStatus": "POST_LAUNCH",
+      "decision": "POST_LAUNCH"
+    },
+    {
+      "productKey": "longyu_family_annual",
+      "plan": "family",
+      "cycle": "annual",
+      "markets": {
+        "BR": {
+          "currency": "BRL",
+          "amountMinor": 27000,
+          "stripePriceEnv": "STRIPE_PRICE_FAMILY_ANNUAL_BR",
+          "playProductId": "longyu_family_annual",
+          "playBasePlanId": "annual-br"
+        },
+        "INTERNATIONAL": {
+          "currency": "USD",
+          "amountMinor": 8000,
+          "stripePriceEnv": "STRIPE_PRICE_FAMILY_ANNUAL_INTERNATIONAL",
+          "playProductId": "longyu_family_annual",
+          "playBasePlanId": "annual-intl"
+        }
+      },
+      "launchStatus": "POST_LAUNCH",
+      "decision": "POST_LAUNCH"
+    }
+  ],
+  "notOfferedAtLaunch": [
+    {
+      "productKey": "longyu_lifetime",
+      "decision": "NOT_NOW",
+      "reason": "Cloud+maintenance+future AI make permanent lifetime margin-hostile; founding lifetime only if owner explicitly caps quantity/window later"
+    },
+    {
+      "productKey": "longyu_business_seat",
+      "decision": "POST_LAUNCH",
+      "reason": "Contract/pilot only; no self-serve Stripe Business checkout"
+    }
+  ],
+  "authority": {
+    "productIdentity": "productKey",
+    "providerIdsAreMappingOnly": true,
+    "clientMustNotHardcodeAmountsInMultipleComponents": true,
+    "display": {
+      "web": "PUBLIC_COMMERCIAL_CATALOG / Stripe localized when Checkout shows",
+      "android": "Play BillingClient returned price string when selling enabled"
+    }
+  },
+  "trial": {
+    "recommendedDays": 7,
+    "candidatesCompared": [
+      0,
+      3,
+      7,
+      14
+    ],
+    "serverAuthoritative": true,
+    "cannotResetByReinstall": true,
+    "currentCodeDefaultDays": 30,
+    "action": "Reduce trial_period_days to 7 after OA-FINAL-PRICING before TEST e2e finalization"
+  }
+}

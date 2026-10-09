@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 50,
+    "EVIDENCE_ONLY": 53,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 5
   },
-  "total": 1064,
+  "total": 1067,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1061,6 +1061,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:release-truth"
+    },
+    {
+      "gateId": "gate:rc2-3-11-monetization",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.11",
+      "script": "npm run validate:rc2-3-11-monetization && npm run test:rc2-3-11-monetization",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-11-monetization",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "gate:rc2-3-2-human-everyday",
@@ -6456,6 +6474,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:release-truth"
+    },
+    {
+      "gateId": "test:rc2-3-11-monetization",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.11",
+      "script": "node scripts/rc2-3-11-monetization.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:rc2-3-5-speech",
@@ -15726,6 +15762,24 @@
       "canonicalOwner": "suite:release-truth"
     },
     {
+      "gateId": "validate:rc2-3-11-monetization",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.11",
+      "script": "node scripts/rc2-3-11-monetization.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-11-monetization",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -19270,5 +19324,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "2a49193b55c223ea"
+  "evidenceDigest": "b0c4a0ca456e36b5"
 }
