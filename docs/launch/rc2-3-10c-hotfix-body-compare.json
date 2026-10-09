@@ -1,0 +1,87 @@
+{
+  "schema": "longyu-hotfix-body-compare/1",
+  "readAt": "2026-10-09T00:20:00Z",
+  "projectRef": "drjcfalvlbbeblmmyhwj",
+  "method": "structural fingerprint only: identity args + md5(pg_get_functiondef) + insert/update/raise counts. Full bodies not stored.",
+  "productionWrite": false,
+  "decision": "KEEP_PROD_BODY",
+  "decisionNote": "Do not create-or-replace these three functions from any repo migration. Live bodies are not byte-identical to any single source file (pg_get_functiondef expands defaults and formatting). Structural counts match the hardened client/anti-cheat editions, not the soft 006 bodies. Economy rewrite stays out of Batch A/B.",
+  "functions": [
+    {
+      "name": "claim_mission",
+      "prod": {
+        "args": "p_scope text, p_mission_id text, p_period_key text, p_metric_value integer",
+        "defMd5": "32991a670b4c95763c1f1202108cf6cf",
+        "defLen": 3432,
+        "insertCount": 1,
+        "updateCount": 2,
+        "raiseCount": 4,
+        "setsSearchPath": true,
+        "usesAuthUid": true
+      },
+      "closestRepo": {
+        "file": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql",
+        "sourceLen": 3419,
+        "insertCount": 1,
+        "updateCount": 2,
+        "raiseCount": 4
+      },
+      "vsSoft006": {
+        "file": "supabase/migrations/006_economy_server.sql",
+        "sourceLen": 2892,
+        "note": "Prod is longer and matches anti-cheat raise/insert shape; not the soft 006 body."
+      },
+      "verdict": "KEEP_PROD_BODY"
+    },
+    {
+      "name": "grant_lesson_reward",
+      "prod": {
+        "args": "p_lesson_id text, p_attempt_id text, p_stars integer, p_no_skip boolean",
+        "defMd5": "9e2b34129237625bd3a82319f52e7ab2",
+        "defLen": 3375,
+        "insertCount": 0,
+        "updateCount": 1,
+        "raiseCount": 3,
+        "setsSearchPath": true,
+        "usesAuthUid": true
+      },
+      "closestRepo": {
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+        "sourceLen": 3362,
+        "insertCount": 0,
+        "updateCount": 1,
+        "raiseCount": 3
+      },
+      "verdict": "KEEP_PROD_BODY"
+    },
+    {
+      "name": "grant_story_energy",
+      "prod": {
+        "args": "p_story_id text, p_day_key text",
+        "defMd5": "4dc1c28089f7f057fbbbacdb1fa9174b",
+        "defLen": 3939,
+        "insertCount": 0,
+        "updateCount": 3,
+        "raiseCount": 2,
+        "setsSearchPath": true,
+        "usesAuthUid": true
+      },
+      "closestRepo": {
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+        "sourceLen": 3922,
+        "insertCount": 0,
+        "updateCount": 3,
+        "raiseCount": 2
+      },
+      "verdict": "KEEP_PROD_BODY"
+    }
+  ],
+  "hashesUnchangedSince": "2026-10-08T23:50:00Z",
+  "missingObjectsConfirmedAbsent": [
+    "league_viewer_scope",
+    "save_placement_onboarding_draft",
+    "commit_placement_result"
+  ],
+  "profilesInstructionLocalePresent": false,
+  "leagueMembershipsSelectPeersStillRecursive": true
+}

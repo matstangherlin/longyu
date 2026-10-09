@@ -175,6 +175,10 @@ assert(
   "workflow exige migration id específico e SHA esperado"
 );
 assert(
+  deployWorkflow.includes("apply-production-migration.mjs"),
+  "workflow aplica só via apply-production-migration (allowlist + PRODUCTION_MIGRATION_READY)"
+);
+assert(
   legacyBetaDeploy.includes('import("./apply-migrations-api.mjs")') &&
     !legacyBetaDeploy.includes("010_beta_feedback.sql"),
   "atalho legado nao reaplica migration historica"

@@ -6,12 +6,27 @@
 export function checkApplyBetaFeedback(text) {
   const errors = [];
   if (/npm run db:apply-api/.test(text)) errors.push("APPLY_ALL_PATH");
+  if (!/apply-production-migration\.mjs|apply:production-migration/.test(text)) {
+    errors.push("SINGLE_APPLY_NOT_WIRED");
+  }
   if (!/WILDCARD_REFUSED/.test(text)) errors.push("WILDCARD_NOT_REFUSED");
   if (!/EXPECTED_SHA/.test(text)) errors.push("EXPECTED_SHA_IGNORED");
   if (!/environment:\s*production/.test(text)) errors.push("NO_PRODUCTION_ENVIRONMENT");
   if (!/refs\/heads\/main/.test(text)) errors.push("ARBITRARY_BRANCH");
   if (!/workflow_dispatch/.test(text)) errors.push("NOT_MANUAL");
   if (/(^|\n)\s*push:/.test(text) || /(^|\n)\s*pull_request:/.test(text)) errors.push("AUTO_TRIGGER");
+  return errors;
+}
+
+/** Fail-closed single-file apply script (not the historical db:apply-api). */
+export function checkApplyProductionMigrationScript(text) {
+  const errors = [];
+  if (!/productionMigrationReady/.test(text)) errors.push("READY_GATE_MISSING");
+  if (!/lookupProductionMigration|PRODUCTION_MIGRATION_ALLOWLIST/.test(text)) {
+    errors.push("ALLOWLIST_MISSING");
+  }
+  if (!/PRODUCTION_MIGRATION_NOT_READY/.test(text)) errors.push("READY_REFUSAL_MISSING");
+  if (/supabase\/migrations/.test(text) && /readdirSync/.test(text)) errors.push("APPLY_ALL_PATH");
   return errors;
 }
 

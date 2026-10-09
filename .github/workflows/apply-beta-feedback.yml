@@ -1,9 +1,8 @@
 name: Apply Beta Feedback
 
-# RC2.3.10C — fail-closed. This workflow used to run `db:apply-api`, which
-# replays every file in supabase/migrations against production. That path is
-# refused. Production writes go through PRODUCTION_MIGRATION_READY with an
-# explicit migration id, expected SHA, and the MandarimProject ref.
+# RC2.3.10C — fail-closed single-migration apply.
+# Never replays the full supabase/migrations history against production.
+# Applies only an allowlisted pending file after PRODUCTION_MIGRATION_READY PASSes.
 
 on:
   workflow_dispatch:
@@ -38,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Guard — recusa apply-all
+      - name: Guard — recusa apply-all e SHA / confirm
         env:
           MIGRATION_ID: ${{ inputs.migration_id }}
           CONFIRM: ${{ inputs.confirm }}
@@ -64,7 +63,28 @@ jobs:
           if [ -z "$EXPECTED_SHA" ]; then
             echo "EXPECTED_SHA_REQUIRED"; exit 6
           fi
-          echo "Guard ok. Apply-all permanece desligado."
-          echo "PRODUCTION_MIGRATION_NOT_WIRED: este workflow não reaplica o histórico."
-          echo "Aplique só via gate PRODUCTION_MIGRATION_READY com backup verificado."
-          exit 6
+          echo "Guard ok. Apply-all permanece desligado (histórico inteiro fora deste workflow)."
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.expected_sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply allowlisted migration (PRODUCTION_MIGRATION_READY)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/apply-production-migration.mjs \
+            --migration-id "${{ inputs.migration_id }}" \
+            --confirm "${{ inputs.confirm }}" \
+            --expected-sha "${{ inputs.expected_sha }}" \
+            --project-ref "${{ inputs.project_ref }}"

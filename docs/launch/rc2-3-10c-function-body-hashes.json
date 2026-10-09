@@ -1,17 +1,17 @@
 {
   "schema": "longyu-function-body-hashes/1",
-  "readAt": "2026-10-08T23:50:00Z",
+  "readAt": "2026-10-09T00:20:00Z",
   "projectRef": "drjcfalvlbbeblmmyhwj",
   "method": "md5(pg_get_functiondef(oid)); definitions not stored",
-  "note": "Hashes prove which body is live. They are not equivalence with repo files until a normalized diff is run. No user rows.",
+  "note": "Hashes prove which body is live. Structural compare vs repo is in rc2-3-10c-hotfix-body-compare.json. No user rows. Unchanged vs 2026-10-08 read.",
   "functions": [
     {"name": "add_league_weekly_xp", "defMd5": "2d6f5c3ec8a8486e31c3c00442e36793", "defLen": 3012, "securityDefiner": true, "class": "SPLIT_CHUNK_CANDIDATE"},
     {"name": "apply_subscription_event", "defMd5": "75e4dc4ed652d6760fcd0711c111ca0e", "defLen": 4113, "securityDefiner": true, "class": "PRESENT"},
     {"name": "claim_league_week_reward", "defMd5": "ca25afaa194bfd7efb6a2ce4d9be2219", "defLen": 1591, "securityDefiner": true, "class": "SPLIT_CHUNK_CANDIDATE"},
-    {"name": "claim_mission", "defMd5": "32991a670b4c95763c1f1202108cf6cf", "defLen": 3432, "securityDefiner": true, "class": "HOTFIX_BODY_UNPROVEN_VS_REPO"},
+    {"name": "claim_mission", "defMd5": "32991a670b4c95763c1f1202108cf6cf", "defLen": 3432, "securityDefiner": true, "class": "KEEP_PROD_BODY"},
     {"name": "consume_charge", "defMd5": "c928ebb9abfdf09f2222700d7f7276e6", "defLen": 2218, "securityDefiner": true, "class": "PRESENT"},
-    {"name": "grant_lesson_reward", "defMd5": "9e2b34129237625bd3a82319f52e7ab2", "defLen": 3375, "securityDefiner": true, "class": "HOTFIX_BODY_UNPROVEN_VS_REPO"},
-    {"name": "grant_story_energy", "defMd5": "4dc1c28089f7f057fbbbacdb1fa9174b", "defLen": 3939, "securityDefiner": true, "class": "HOTFIX_BODY_UNPROVEN_VS_REPO"},
+    {"name": "grant_lesson_reward", "defMd5": "9e2b34129237625bd3a82319f52e7ab2", "defLen": 3375, "securityDefiner": true, "class": "KEEP_PROD_BODY"},
+    {"name": "grant_story_energy", "defMd5": "4dc1c28089f7f057fbbbacdb1fa9174b", "defLen": 3939, "securityDefiner": true, "class": "KEEP_PROD_BODY"},
     {"name": "spend_qi", "defMd5": "098cf9c1100d5de26318384d80fde097", "defLen": 1618, "securityDefiner": true, "class": "PRESENT"}
   ],
   "productionWrite": false
