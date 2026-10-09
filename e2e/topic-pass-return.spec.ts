@@ -230,7 +230,13 @@ async function openTopicFromJourney(page: Page, lessonId: string) {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
   }
-  await page.locator(`[data-lesson-id="${lessonId}"]`).first().click();
+  // RC2.3.13B — HomeContinue also carries data-lesson-id; open the path node.
+  const pathNode = page.locator(`button[data-lesson-id="${lessonId}"]`).first();
+  if ((await pathNode.count()) > 0) {
+    await pathNode.click();
+  } else {
+    await page.goto(`/licao/${lessonId}`);
+  }
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
 }
@@ -313,7 +319,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await capture(page, "v461-victory-m4-tema-dominado");
     await returnToJourney(page);
 
-    const firstNode = page.locator(`[data-lesson-id="${FIRST.id}"]`).first();
+    const firstNode = page.locator(`button[data-lesson-id="${FIRST.id}"]`).first();
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
     await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
     await capture(page, "v461-journey-4-of-4-next-unlocked");
