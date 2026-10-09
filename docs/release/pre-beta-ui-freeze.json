@@ -1,7 +1,7 @@
 {
   "id": "PRE_BETA_UI_FREEZE",
-  "wave": "RC2.3.13R.1",
-  "statement": "FINAL learner UI freeze after H.1 sticky + 13R typography/motion. R.1 is release execution only. NO 13I/13J/13K. FEATURE FREEZE ON.",
+  "wave": "RC2.3.13R.2",
+  "statement": "FINAL learner UI freeze. R.2 is artifact reconciliation + physical/ops closure only. FEATURE FREEZE ON. NO 13I.",
   "navigationContract": {
     "mobileTabBar": [
       "/jornada",
@@ -80,8 +80,8 @@
     "mais"
   ],
   "shaSemantics": {
-    "certificationHeadSha": "ada7b23967c3c4d66ffa425842b20dea981ae18e",
-    "artifactSourceSha": "NOT_BUILT",
+    "certificationHeadSha": "PENDING_STAMP",
+    "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
   },
   "allowedAfterFreeze": [

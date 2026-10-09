@@ -1,21 +1,24 @@
 {
-  "wave": "RC2.3.13R.1",
-  "title": "Final Pre-Beta Artifact Mint, Physical Certification & Closed Beta Entry",
-  "parentPr": 340,
-  "parentHead": "b8f1e8dcfbc9c22ccf04b65beef4c0a12ebd9e85",
+  "wave": "RC2.3.13R.2",
+  "title": "Artifact Reconciliation, Physical GO Certification & Closed Beta Wave 1 Readiness",
+  "parentPr": 341,
+  "parentHead": "5c27be365ed276ce7694c15769dd7f9997ec1989",
   "shaSemantics": {
-    "certificationHeadSha": "ada7b23967c3c4d66ffa425842b20dea981ae18e",
-    "artifactSourceSha": "NOT_BUILT",
-    "note": "learnerRuntimeSha = last learner UI commit; certificationHeadSha = cert metadata commit; artifactSourceSha = exact checkout for APK/AAB/web. Do not conflate.",
-    "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90"
+    "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
+    "certificationHeadSha": "PENDING_STAMP",
+    "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
+    "note": "learnerRuntimeSha frozen at reduced-motion fix. artifactSourceSha = embedded sourceHeadSha. workflowMergeSha = PR merge ref. certificationHeadSha moves with metadata."
   },
   "identity": {
-    "proposedRcId": "RC2.3.13-RC1",
     "rcId": "RC2.3.13-RC1",
     "versionName": "0.2.0-rc.5",
-    "versionCode": 650,
-    "priorBuiltRc": "RC2.3.12-RC2",
-    "status": "NOT_BUILT"
+    "versionCode": 651,
+    "packageId": "longyu.noba.com",
+    "status": "BUILT_FOR_OWNER_QA",
+    "priorBuiltRc": "RC2.3.12-RC2"
   },
   "typography": {
     "TYPOGRAPHY_SYSTEM_PASS": "PASS",
@@ -51,31 +54,64 @@
     "MOTION_PERFORMANCE_PASS": "PASS"
   },
   "hosted": {
-    "SECURITY": "NOT_RUN",
-    "CI": "NOT_RUN",
-    "ANDROID": "NOT_RUN",
-    "RELEASE_TRUTH": "NOT_RUN",
-    "BETA_SUITES": "NOT_RUN",
-    "CHROMIUM": "NOT_RUN",
-    "CROSS_ENGINE": "NOT_RUN",
-    "note": "Re-query after R.1 push. #340 Android failed REDUCED_MOTION_IGNORED — fixed in this wave."
+    "SECURITY": "PASS",
+    "ANDROID": "PASS",
+    "RELEASE_TRUTH": "PASS",
+    "BETA_SUITES": "PASS",
+    "QUALITY_BUILD": "PASS",
+    "CI": "IN_PROGRESS",
+    "CHROMIUM": "IN_PROGRESS",
+    "CROSS_ENGINE": "IN_PROGRESS",
+    "note": "Do not treat E2E pending as PASS. Exact runs in hostedRuns[]."
   },
+  "hostedRuns": [
+    {
+      "workflow": "Security",
+      "runId": 37995330357,
+      "sourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "workflow": "Android build",
+      "runId": 37995330174,
+      "sourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "workflow": "CI",
+      "runId": 37995329933,
+      "sourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+      "status": "in_progress",
+      "conclusion": null,
+      "note": "Release truth + beta suites + quality PASS; Chromium/cross-engine still pending at reconciliation time"
+    }
+  ],
   "artifacts": {
-    "apk": "NOT_BUILT",
-    "aab": "NOT_BUILT",
-    "web": "NOT_BUILT",
-    "sha256": "NOT_BUILT"
+    "ownerQaApk": "BUILT",
+    "playClosedBetaAab": "BLOCKED_SIGNING_SECRETS",
+    "web": "BUILT",
+    "apkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "debugAabSha256": "9342258e158b4eab0c6724a342bd6034cf59ec95aa250359be9280a3699ffb50",
+    "webSha256": "b82648cc1cca419f8937b1ca119eece7cd02e98d552e0e83ab4c5433c45158ee",
+    "provenance": "PASS"
   },
   "physical": {
     "PHYSICAL_QA": "NOT_RUN",
+    "CLEAN_INSTALL": "NOT_RUN",
+    "UPGRADE": "NOT_RUN",
     "TYPOGRAPHY_PHYSICAL": "NOT_RUN",
     "MOTION_PHYSICAL": "NOT_RUN",
+    "STICKY_CHROME": "NOT_RUN",
+    "JOURNEY_CULTURE_SWITCH": "NOT_RUN",
     "AUDIO_X20": "NOT_RUN",
     "GUIDED_TRY_X10": "NOT_RUN",
     "SPEECH_X5": "NOT_RUN",
     "CONVERSATION_X5": "NOT_RUN",
     "HANZI": "NOT_RUN",
     "REVIEW": "NOT_RUN",
+    "DYNAMIC_AULA": "NOT_RUN",
     "TALKBACK": "NOT_RUN",
     "FONT_SCALE": "NOT_RUN",
     "REDUCED_MOTION_PHYSICAL": "NOT_RUN",
@@ -111,25 +147,39 @@
     "fingerprint": "fea5455e1461",
     "billing": "FREE_ONLY",
     "liveBilling": false,
-    "jevLearnerRuntime": "OFF"
+    "jevLearnerRuntime": "OFF",
+    "uiFrozen": true,
+    "featureFreeze": true
   },
   "ownerAcceptance": {
-    "OWNER_FINAL_PRE_BETA_ACCEPTANCE": "NOT_RUN"
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE": "NOT_RUN",
+    "boundRcId": "RC2.3.13-RC1",
+    "boundVersionName": "0.2.0-rc.5",
+    "boundVersionCode": 651,
+    "boundArtifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "boundApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
   },
   "entryDecision": {
-    "CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "Artifact NOT_BUILT; physical/ops/owner acceptance NOT_RUN. Android blocker fixed; awaiting hosted mint + owner physical pack."
+    "CLOSED_BETA_ENTRY_NOTE": "Do not use a single CLOSED_BETA_ENTRY GO that conflates sideload QA with Play distribution.",
+    "reason": "Owner QA APK reconciled BUILT; physical/Sentry/rollback/smoke/OAuth/acceptance NOT_RUN. Play AAB BLOCKED_SIGNING_SECRETS. E2E still IN_PROGRESS."
   },
+  "openP0": false,
+  "openCoreP1": false,
+  "realTesterCount": 0,
   "remainingOwnerActions": [
-    "Install exact Final Pre-Beta APK after mint (SHA256 in OWNER_FINAL_PRE_BETA_RC_TEST.md)",
-    "Audio ×20",
-    "Guided Try ×10",
-    "Speech ×5",
-    "Conversation ×5",
-    "Hànzì / Review / TalkBack / font / reduced-motion / Back / IME",
-    "Android OAuth physical",
-    "Sentry + Netlify rollback evidence if not already recorded",
-    "OWNER_FINAL_PRE_BETA_ACCEPTANCE bound to APK SHA256"
+    "Configure Play signing secrets (LONGYU_ANDROID_KEYSTORE_* + Play service account) — see PLAY_SIGNING_HANDOFF.md",
+    "Install OWNER QA APK sha256 fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint fea5455e1461)",
+    "Physical matrix: clean install, upgrade, sticky, Journey↔Culture, typography, motion",
+    "Audio ×20, Guided Try ×10, Speech ×5, Conversation ×5",
+    "Hànzì, Review, Dynamic Aula, TalkBack, font scale, reduced motion, Back, IME",
+    "Background/resume, offline/reconnect, 30min session",
+    "Android OAuth physical (intended providers)",
+    "Sentry synthetic + Netlify rollback drill evidence",
+    "Cloud smoke #1 and #2 (or confirm agent evidence if credentials available)",
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE bound to this APK SHA256"
   ]
 }

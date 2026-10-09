@@ -49,13 +49,19 @@ function test() {
   // 1–20 identity / freeze / closure
   k("RC ID missing", "RC_ID_MISSING", mutate(base, "rc", '"rcId": "RC2.3.13-RC1"', '"rcId": ""'));
   k("versionName missing", "VERSION_NAME_MISSING", mutate(base, "packageJson", "0.2.0-rc.5", "0.0.0"));
-  k("versionCode missing", "VERSION_CODE_MISSING", mutate(base, "rc", '"versionCode": 650', '"versionCode": null'));
+  k("versionCode missing", "VERSION_CODE_MISSING", mutate(base, "rc", '"versionCode": 651', '"versionCode": null'));
   k("artifact source field", "ARTIFACT_SOURCE_SHA_MISSING", mutate(base, "cert", '"artifactSourceSha"', '"artifactX"'));
   k("learner runtime sha", "LEARNER_RUNTIME_SHA_MISSING", mutate(base, "rc", '"learnerRuntimeSha"', '"learnerX"'));
-  k("apk absent", "APK_ABSENT", mutate(base, "rc", '"apk"', '"apkX"'));
-  k("aab absent", "AAB_ABSENT", mutate(base, "rc", '"aab"', '"aabX"'));
+  k("apk absent", "APK_ABSENT", mutate(base, "rc", '"ownerQaApk"', '"apkX"'));
+  k("aab absent", "AAB_ABSENT", mutate(base, "rc", '"playClosedBeta"', '"aabX"'));
   k("web absent", "WEB_ABSENT", mutate(base, "rc", '"web"', '"webX"'));
-  k("invented apk hash", "INVENTED_CHECKSUM", mutate(base, "rc", '"sha256": null', '"sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"'));
+  k("invented apk hash", "INVENTED_CHECKSUM", (() => {
+    const o = JSON.parse(base.rc);
+    o.status = "NOT_BUILT";
+    o.apk = { status: "NOT_BUILT", sha256: "a".repeat(64) };
+    delete o.ownerQaApk;
+    return { ...base, rc: JSON.stringify(o, null, 2) };
+  })());
   k("freeze fp", "FINGERPRINT_DRIFT", mutate(base, "freeze", "fea5455e1461", "bbbbbbbbbbbb"));
   k("cert fp", "FINGERPRINT_DRIFT", mutate(base, "cert", "fea5455e1461", "cccccccccccc"));
   k("rc fp", "FINGERPRINT_DRIFT", mutate(base, "rc", "fea5455e1461", "dddddddddddd"));

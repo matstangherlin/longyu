@@ -1247,7 +1247,10 @@
     "gate:rc2-3-13r-typography-motion": "npm run validate:rc2-3-13r-typography-motion && npm run test:rc2-3-13r-typography-motion",
     "gate:final-pre-beta-rc-entry": "npm run gate:rc2-3-13h1-sticky-progression-chrome && npm run gate:rc2-3-13r-typography-motion && npm run validate:final-pre-beta-rc-entry && npm run test:final-pre-beta-rc-entry && npm run validate:product-truth",
     "validate:final-pre-beta-rc-entry": "node scripts/final-pre-beta-rc-entry.mjs validate",
-    "test:final-pre-beta-rc-entry": "node scripts/final-pre-beta-rc-entry.mjs test"
+    "test:final-pre-beta-rc-entry": "node scripts/final-pre-beta-rc-entry.mjs test",
+    "validate:rc2-3-13r2-artifact-physical-go": "node scripts/rc2-3-13r2-artifact-physical-go.mjs validate",
+    "test:rc2-3-13r2-artifact-physical-go": "node scripts/rc2-3-13r2-artifact-physical-go.mjs test",
+    "gate:rc2-3-13r2-artifact-physical-go": "npm run validate:rc2-3-13r2-artifact-physical-go && npm run test:rc2-3-13r2-artifact-physical-go && npm run validate:final-pre-beta-rc-entry && npm run validate:product-truth"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

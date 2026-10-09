@@ -1,19 +1,28 @@
 {
-  "schema": "longyu-final-pre-beta-device-evidence/1",
-  "wave": "RC2.3.13R.1",
+  "schema": "longyu-final-pre-beta-device-evidence/2",
+  "wave": "RC2.3.13R.2",
   "rcId": "RC2.3.13-RC1",
+  "boundArtifact": {
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 651,
+    "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
+    "apkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "apkFile": "longyu-android-debug-0.2.0-rc.5-3be0ade.apk"
+  },
   "meta": {
-    "evidenceLevel": "CODE_ONLY",
-    "note": "Do not promote CODE_PASS/EMULATED_PASS to PHYSICAL_PASS. Owner fills physical rows."
+    "evidenceLevel": "CODE_AND_HOSTED_PARTIAL",
+    "note": "Do not promote CODE_PASS/EMULATED_PASS/HOSTED_PASS to PHYSICAL_PASS. Physical rows stay NOT_RUN until owner device evidence bound to apkSha256."
   },
   "hosted": {
-    "SECURITY": "NOT_RUN",
-    "CI": "NOT_RUN",
-    "ANDROID": "NOT_RUN",
-    "RELEASE_TRUTH": "NOT_RUN",
-    "BETA_SUITES": "NOT_RUN",
-    "CHROMIUM": "NOT_RUN",
-    "CROSS_ENGINE": "NOT_RUN",
+    "SECURITY": "HOSTED_PASS",
+    "ANDROID": "HOSTED_PASS",
+    "RELEASE_TRUTH": "HOSTED_PASS",
+    "BETA_SUITES": "HOSTED_PASS",
+    "QUALITY_BUILD": "HOSTED_PASS",
+    "CI": "IN_PROGRESS",
+    "CHROMIUM": "IN_PROGRESS",
+    "CROSS_ENGINE": "IN_PROGRESS",
     "VIEWPORT_360": "PENDING_HOSTED",
     "VIEWPORT_375": "PENDING_HOSTED",
     "VIEWPORT_390": "PENDING_HOSTED",
@@ -21,6 +30,8 @@
   },
   "physical": {
     "PHYSICAL_QA": "NOT_RUN",
+    "CLEAN_INSTALL": "NOT_RUN",
+    "UPGRADE": "NOT_RUN",
     "TYPOGRAPHY_PHYSICAL": "NOT_RUN",
     "MOTION_PHYSICAL": "NOT_RUN",
     "STICKY_CHROME": "NOT_RUN",
