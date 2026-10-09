@@ -1,0 +1,75 @@
+{
+  "schema": "longyu-production-migration-ready/1",
+  "batch": "A",
+  "migrationId": "rc2-3-10-league-memberships-policy-recursion",
+  "remoteMigrationName": "rc2_3_10_league_memberships_policy_recursion",
+  "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+  "downFile": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.down.sql",
+  "candidateSha": "2fdcca913c27ae25e771f6db69867af9c1398570",
+  "projectRef": "drjcfalvlbbeblmmyhwj",
+  "request": {
+    "candidateSha": "2fdcca913c27ae25e771f6db69867af9c1398570",
+    "schemaDiff": {
+      "status": "PASS",
+      "readAt": "2026-10-09T00:20:00Z",
+      "path": "docs/launch/rc2-3-10c-batch-a-schema-proof.json",
+      "scope": "batch-a-league-policy-only"
+    },
+    "ledger": {
+      "status": "BLOCKED",
+      "path": "docs/launch/production-migration-ledger.json",
+      "note": "Historical UNKNOWN rows remain. Owner must accept ledger-as-authority (OA-MIGRATION-RECONCILIATION-DECISION) before this becomes PASS. Batch A adds a NEW remote name and does not repair history."
+    },
+    "backup": {
+      "verified": false,
+      "sourceProject": null,
+      "takenAt": null,
+      "note": "OWNER_ACTION_REQUIRED \u2014 follow docs/launch/production-backup-runbook.md. Dry-run preflight passed on 2026-10-09 for candidate 2fdcca91."
+    },
+    "review": {
+      "reviewer": "cursor-agent",
+      "reviewedAt": "2026-10-09T00:20:00Z",
+      "migrations": [
+        "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql"
+      ],
+      "evidence": "docs/reports/rc2-3-10b-league-policy-review.md",
+      "note": "Helper SECURITY DEFINER, empty search_path, anon EXECUTE revoked. Behavior change: authenticated can read same cohort/week rows (subset of get_league_standings)."
+    },
+    "down": {
+      "strategy": "safer-own-row-policy",
+      "path": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.down.sql",
+      "note": "Drop new policy, create own-row SELECT, drop league_viewer_scope. Do not recreate the recursive 004 policy."
+    },
+    "ownerApproval": {
+      "by": null,
+      "at": null,
+      "note": "Set by owner in PR #324 after backup verification (OA-LEAGUE-POLICY-FIX + OA-DATA-EXPORT)."
+    }
+  },
+  "computed": {
+    "status": "BLOCKED",
+    "blockers": [
+      "ledgerReconciled",
+      "backupVerified",
+      "ownerApproval"
+    ],
+    "computedAt": "2026-10-09T00:20:00Z"
+  },
+  "nextOwnerSteps": [
+    "Run OA-DATA-EXPORT (schema + data dump, encrypt, store outside repo).",
+    "Paste into PR #324: UTC time, project ref drjcfalvlbbeblmmyhwj, candidate SHA, per-table counts only.",
+    "Reply OA-MIGRATION-RECONCILIATION-DECISION = ledger-as-authority.",
+    "Reply OA-LEAGUE-POLICY-FIX = approve Batch A.",
+    "Before merge: set request.candidateSha (and this file's candidateSha) to the intended main merge SHA, set ledger.status=PASS, backup.verified=true with sourceProject+takenAt, and ownerApproval.by/at.",
+    "After merge to main: Actions \u2192 Apply Beta Feedback \u2192 migration_id=rc2-3-10-league-memberships-policy-recursion, confirm=APPLY-rc2-3-10-league-memberships-policy-recursion, expected_sha=<that same main merge SHA>, project_ref=drjcfalvlbbeblmmyhwj."
+  ],
+  "explicitlyNotInThisBatch": [
+    "placement migrations (need backup + irreversible handoff)",
+    "telemetry retention (needs OA-TELEMETRY-RETENTION-DECISION)",
+    "least_privilege grants",
+    "economy create-or-replace (KEEP_PROD_BODY)",
+    "005_social.sql",
+    "edge deploys",
+    "stripe-webhook redeploy"
+  ]
+}

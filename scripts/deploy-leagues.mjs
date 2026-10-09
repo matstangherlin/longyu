@@ -11,6 +11,12 @@ const root = projectRoot();
 const env = mergedEnv();
 const ref = env.SUPABASE_PROJECT_REF ?? "drjcfalvlbbeblmmyhwj";
 const token = env.SUPABASE_ACCESS_TOKEN;
+
+console.error("RECUSADO: deploy:leagues reaplicaria supabase/migrations/004_leagues.sql.");
+console.error("Esse arquivo recria a policy de liga com recursão 42P17.");
+console.error("Use a migration versionada supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql via PRODUCTION_MIGRATION_READY.");
+process.exit(6);
+
 const sqlFile = path.join(root, "supabase", "migrations", "004_leagues.sql");
 
 if (!token) {

@@ -11,18 +11,34 @@ on:
         description: "URL extra de redirect (opcional)"
         required: false
         default: "https://longyu.app"
-  push:
-    branches: [main]
-    paths:
-      - "scripts/configure-supabase-auth.mjs"
-      - ".github/workflows/configure-supabase-auth.yml"
-      - "ops/ENABLE_EMAIL_CONFIRMATION"
+      confirm:
+        description: "Digite MERGE-AUTH-REDIRECTS"
+        required: true
+      expected_sha:
+        description: "SHA da main revisada"
+        required: true
 
 jobs:
   configure:
     runs-on: ubuntu-latest
+    environment: production
     steps:
+      - name: Guard
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then echo "SOURCE_NOT_MAIN"; exit 6; fi
+          if [ "$CONFIRM" != "MERGE-AUTH-REDIRECTS" ]; then echo "CONFIRMATION_MISSING"; exit 6; fi
+          if [ -z "$EXPECTED_SHA" ]; then echo "EXPECTED_SHA_REQUIRED"; exit 6; fi
       - uses: actions/checkout@v4
+      - name: SHA esperado
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          head=$(git rev-parse HEAD)
+          if [ "${head#"$EXPECTED_SHA"}" = "$head" ]; then echo "STALE: $head != $EXPECTED_SHA"; exit 6; fi
 
       - uses: actions/setup-node@v4
         with:
@@ -53,6 +69,7 @@ jobs:
             exit 1
           fi
           npm run configure:supabase-auth -- \
+            --confirm-merge \
             --site-url "${{ steps.urls.outputs.site_url }}" \
             --add-prod-url "${{ steps.urls.outputs.add_prod_url }}" \
             --add-prod-url "https://www.longyu.com.br" \

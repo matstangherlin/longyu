@@ -1,0 +1,31 @@
+{
+  "schema": "longyu-batch-a-schema-proof/1",
+  "status": "PASS",
+  "readAt": "2026-10-09T00:20:00Z",
+  "projectRef": "drjcfalvlbbeblmmyhwj",
+  "scope": "Batch A only — league_memberships SELECT policy recursion + league_viewer_scope absence",
+  "productionWrite": false,
+  "proofs": [
+    {
+      "claim": "league_viewer_scope is absent",
+      "result": "CONFIRMED_ABSENT",
+      "method": "pg_proc join pg_namespace public; name not returned among economy/placement probe set on 2026-10-09"
+    },
+    {
+      "claim": "league_memberships_select_peers still self-references league_memberships in USING",
+      "result": "CONFIRMED",
+      "method": "pg_get_expr(polqual) contains FROM league_memberships subselects (42P17 on direct authenticated SELECT)"
+    },
+    {
+      "claim": "Batch A SQL only adds league_viewer_scope helper + replaces that one policy",
+      "result": "CONFIRMED",
+      "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+      "note": "No columns, no data backfill, no drop of learner tables."
+    }
+  ],
+  "outOfScope": [
+    "Full column diff remains BLOCKED (79 findings in docs/launch/rc2-3-10b-schema-column-diff.json) — does not gate Batch A objects.",
+    "Placement / instruction_locale / economy hotfixes are later batches."
+  ],
+  "note": "This scoped proof satisfies PRODUCTION_MIGRATION_READY.schemaDiff for Batch A only. It does not make PRODUCTION_SCHEMA_TRUTH_PASS true for the whole cloud matrix."
+}

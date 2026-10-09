@@ -10,7 +10,7 @@
   "migration_chain_sha256": "e92ecab93a3d77f1ac482972499474640a7f958fe4ad8f9aa58855ba72218ee4",
   "migration_manifest_sha256": "647a927a567a6158cff4ac93cc770036d5ea8d07da7f5eb7921d5f1d306ae85e",
   "rpc_contract_sha256": "7d5415a63bbbf1e2b1be16be47844f3928f9be6365ea217ba7c1bd23953d7650",
-  "edge_contract_sha256": "a16f10e1441346dacf6e9c73c0ff2016651ee258c00a8c35d427c4198e072f44",
+  "edge_contract_sha256": "0494384febdfc3a483e46afaf941a4610ca026c460b775b3e0099c41244dd5a7",
   "grant_surface_sha256": "80aa874369b6201a05ec6f522bc14e338e4e628633e2a9c9899d968810ba7960",
   "canonical_schema_hash": "NOT_RUN",
   "note": "canonical_schema_hash stays NOT_RUN until ephemeral CI. Hosted keys stay NOT_RUN until approved apply."
