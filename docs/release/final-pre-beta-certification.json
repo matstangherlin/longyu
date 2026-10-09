@@ -1,8 +1,8 @@
 {
-  "wave": "RC2.3.13R.2",
-  "title": "Artifact Reconciliation, Physical GO Certification & Closed Beta Wave 1 Readiness",
-  "parentPr": 341,
-  "parentHead": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+  "wave": "RC2.3.13R.2.1",
+  "title": "Android Foundation Root-Cause & Hosted Closure",
+  "parentPr": 342,
+  "parentHead": "6b2a9e1fe10da4f3c2219a32208b46e458598edf",
   "shaSemantics": {
     "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
     "certificationHeadSha": "1bdc72e7fd14debda9622af8fed105aa3489b0df",
@@ -55,14 +55,14 @@
   },
   "hosted": {
     "SECURITY": "PASS",
-    "ANDROID": "PASS",
+    "ANDROID": "NOT_RUN",
     "RELEASE_TRUTH": "PASS",
     "BETA_SUITES": "PASS",
     "QUALITY_BUILD": "PASS",
-    "CI": "IN_PROGRESS",
+    "CI": "NOT_RUN",
     "CHROMIUM": "IN_PROGRESS",
     "CROSS_ENGINE": "IN_PROGRESS",
-    "note": "Do not treat E2E pending as PASS. Exact runs in hostedRuns[]."
+    "note": "Re-query after R.2.1 push. Root cause fixed locally; do not invent PASS."
   },
   "hostedRuns": [
     {
@@ -164,7 +164,7 @@
     "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PUBLIC_BETA_ENTRY": "HOLD",
     "CLOSED_BETA_ENTRY_NOTE": "Do not use a single CLOSED_BETA_ENTRY GO that conflates sideload QA with Play distribution.",
-    "reason": "Owner QA APK reconciled BUILT; physical/Sentry/rollback/smoke/OAuth/acceptance NOT_RUN. Play AAB BLOCKED_SIGNING_SECRETS. E2E still IN_PROGRESS."
+    "reason": "Android foundation root cause fixed (PEM fixture). Hosted re-query pending. Physical/ops NOT_RUN. Play signing blocked. Candidate APK preserved."
   },
   "openP0": false,
   "openCoreP1": false,
@@ -181,5 +181,14 @@
     "Sentry synthetic + Netlify rollback drill evidence",
     "Cloud smoke #1 and #2 (or confirm agent evidence if credentials available)",
     "OWNER_FINAL_PRE_BETA_ACCEPTANCE bound to this APK SHA256"
-  ]
+  ],
+  "rootCause": {
+    "code": "SERVICE_ACCOUNT_COMMITTED",
+    "classification": "LEGACY_GATE_FALSE_POSITIVE",
+    "failedGate": "validate:android-release-safety",
+    "failedWorkflowRunId": 38000277968,
+    "learnerRuntimeChanged": false,
+    "artifactInvalidated": false,
+    "fix": "PEM mutation fixture constructed without contiguous PEM line in tracked source"
+  }
 }

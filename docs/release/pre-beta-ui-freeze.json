@@ -1,7 +1,7 @@
 {
   "id": "PRE_BETA_UI_FREEZE",
-  "wave": "RC2.3.13R.2",
-  "statement": "FINAL learner UI freeze. R.2 is artifact reconciliation + physical/ops closure only. FEATURE FREEZE ON. NO 13I.",
+  "wave": "RC2.3.13R.2.1",
+  "statement": "FINAL learner UI freeze. R.2.1 is hosted Android foundation closure only (PEM fixture). FEATURE FREEZE ON. Candidate APK preserved.",
   "navigationContract": {
     "mobileTabBar": [
       "/jornada",

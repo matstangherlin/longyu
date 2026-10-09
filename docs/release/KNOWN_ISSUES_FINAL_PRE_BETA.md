@@ -69,4 +69,13 @@
 **Severity:** P2  
 **Surface:** 360/375/390 + large font hosted  
 **Beta blocker:** yes for full typography hosted closure  
-**Status:** OPEN  
+**Status:** OPEN
+
+## R21-ANDROID-FOUNDATION-PEM-FIXTURE (REPAIRED)
+
+**ID:** R21-ANDROID-FOUNDATION-PEM-FIXTURE  
+**Severity:** P1 (was)  
+**Surface:** hosted Android foundation / release-safety  
+**Beta blocker:** no (fixed in R.2.1)  
+**Status:** REPAIRED  
+**Notes:** R.2 mutation fixture embedded contiguous PEM header; `validate:android-release-safety` correctly failed with SERVICE_ACCOUNT_COMMITTED. Fixture now built from fragments. Safety gate unchanged.

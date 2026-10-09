@@ -8,9 +8,9 @@
     "DUPLICATE": 24,
     "EVIDENCE_ONLY": 115,
     "OWNER_PHYSICAL": 0,
-    "CLOUD_ONLY": 8
+    "CLOUD_ONLY": 11
   },
-  "total": 1132,
+  "total": 1135,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1490,6 +1490,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r2-1-hosted-android-closure",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:rc2-3-13r2-1-hosted-android-closure && npm run test:rc2-3-13r2-1-hosted-android-closure && npm run validate:android-release-safety && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r2-1-hosted-android-closure",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": 653,
+      "requiresNetwork": true,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -7281,6 +7299,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13r2-1-hosted-android-closure",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r2-1-hosted-android-closure.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -16932,6 +16968,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r2-1-hosted-android-closure",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r2-1-hosted-android-closure.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r2-1-hosted-android-closure",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-13r2-artifact-physical-go",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -20494,5 +20548,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "17aa8b413f3c0b01"
+  "evidenceDigest": "7e0c1b46bf6b610d"
 }
