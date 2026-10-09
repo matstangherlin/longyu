@@ -5,7 +5,7 @@
   "parentHead": "51f8bd514d9e275fe5c83553fdb5d6e85f182262",
   "shaSemantics": {
     "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
-    "certificationHeadSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
+    "certificationHeadSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
     "artifactSourceSha": "NOT_BUILT",
     "note": "learnerRuntimeSha = last learner UI commit; certificationHeadSha = cert metadata commit; artifactSourceSha = exact checkout for APK/AAB/web. Do not conflate."
   },

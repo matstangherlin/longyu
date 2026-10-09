@@ -81,7 +81,7 @@
   ],
   "shaSemantics": {
     "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
-    "certificationHeadSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
+    "certificationHeadSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
     "artifactSourceSha": "NOT_BUILT"
   },
   "allowedAfterFreeze": [
@@ -101,6 +101,6 @@
     "collapsing / auto-hiding global top bar",
     "cosmetic motion experimentation"
   ],
-  "sourceSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
-  "frozenAt": "2026-10-09T21:02:26.403Z"
+  "sourceSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
+  "frozenAt": "2026-10-09T21:02:26.480Z"
 }
