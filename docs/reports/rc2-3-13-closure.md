@@ -35,12 +35,15 @@ Site `200` + `/version.json` readable + Supabase auth health `200`. Live web sti
 | Wave 3 — shadow struggle lab | **VERIFIED_SHADOW_ONLY** / **KEEP_SHADOW** |
 | Learner runtime | **OFF** |
 | Shadow runtime | **OFF** |
-| Migration `20261009060000_jev_beta_triage_v2` | `NOT_YET_DEPLOYED` · owner promotion candidate |
-| Migration `20261009070000_jev_shadow_struggle_lab` | `NOT_YET_DEPLOYED` · `DEFERRED_RESEARCH` · **not** a Closed Beta prerequisite |
-| Hosted backend-contract / rehearsal | Target **PASS** after classification + regen |
-| Security (CodeQL / gitleaks / npm audit) | Target **PASS** (Stripe fixture constructed at runtime) |
+| Migration `20261009060000_jev_beta_triage_v2` | `NOT_YET_DEPLOYED` · `OWNER_APPROVAL_REQUIRED` · cloud ledger `REPO_ONLY` |
+| Migration `20261009070000_jev_shadow_struggle_lab` | `NOT_YET_DEPLOYED` · `DEFERRED_RESEARCH` · cloud ledger `REPO_ONLY` · **not** beta-required |
+| Local `release-truth` | **PASS** (ledger regen + R23/gitleaks allowlist precision + Wave2 PII mutation retarget) |
+| Local `gate:jev-hosted-closure` | **PASS** · 23/23 kills |
+| Hosted CI / Security / Android / E2E | **PENDING** exact tip SHA (do not carry prior greens) |
 | `JEV_TRIAGE_LIVE` | **OWNER_ACTION_REQUIRED** until OA deploy + smoke |
 | Gate | `gate:jev-hosted-closure` |
+
+Causal fixes on this tip: regenerate RC2.3.10 cloud ledger for 060000/070000; construct Stripe kill-8 fixture at runtime; narrow historical gitleaks allowlist via one-char-class regexes (no contiguous `{24,}` literals); retarget `PII_SENT_TO_JEV` to `buildSanitizedFeedbackState`.
 
 Do **not** create JEV Wave 4. Next JEV step is owner `OA-JEV-TRIAGE-V2-DEPLOY` only.
 
