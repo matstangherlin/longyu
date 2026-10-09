@@ -1,7 +1,7 @@
 {
   "name": "longyu",
   "private": true,
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-rc.1",
   "type": "module",
   "description": "Longyu (\u9f99\u8bed) \u2014 aprenda mandarim pela l\u00f3gica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
   "engines": {
@@ -1180,7 +1180,12 @@
     "smoke:cloud": "node scripts/cloud-smoke.mjs",
     "validate:rc2-3-11-monetization": "node scripts/rc2-3-11-monetization.mjs validate",
     "test:rc2-3-11-monetization": "node scripts/rc2-3-11-monetization.mjs test",
-    "gate:rc2-3-11-monetization": "npm run validate:rc2-3-11-monetization && npm run test:rc2-3-11-monetization"
+    "gate:rc2-3-11-monetization": "npm run validate:rc2-3-11-monetization && npm run test:rc2-3-11-monetization",
+    "validate:rc2-3-12-release-candidate": "node scripts/rc2-3-12-release-candidate.mjs validate",
+    "test:rc2-3-12-release-candidate": "node scripts/rc2-3-12-release-candidate.mjs test",
+    "gate:rc2-3-12-release-candidate": "npm run validate:rc2-3-12-release-candidate && npm run test:rc2-3-12-release-candidate",
+    "gate:closed-beta-entry": "node scripts/rc2-3-12-closed-beta-entry.mjs",
+    "smoke:rc": "node scripts/smoke-rc.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

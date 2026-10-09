@@ -83,10 +83,10 @@ assert(
 );
 
 const pkg = JSON.parse(read("package.json"));
-assert(pkg.version === "0.2.0-beta.1", `package.json version deve ser 0.2.0-beta.1 (obtido ${pkg.version})`);
+assert(pkg.version === "0.2.0-rc.1", `package.json version deve ser 0.2.0-rc.1 (obtido ${pkg.version})`);
 
 const feedback = read("src/lib/feedback.ts");
-assert(feedback.includes("0.2.0-beta.1"), "getAppVersion default deve ser 0.2.0-beta.1");
+assert(feedback.includes("0.2.0-rc.1"), "getAppVersion default deve ser 0.2.0-rc.1");
 
 if (errors.length) {
   console.error("ERRO: validate:app-environment falhou.");

@@ -1,0 +1,41 @@
+{
+  "schema": "longyu-rc-candidate/1",
+  "rcId": "RC2.3.12-RC1",
+  "wave": "RC2.3.12",
+  "gitSha": "8c03f8bff4e9d12926b74d6431f7f99a63f21d51",
+  "version": "0.2.0-rc.1",
+  "versionCode": 566,
+  "versionCodeFloor": 1,
+  "versionCodeFormula": "floor + firstParentCommitCount",
+  "fingerprint": "5a64821d0b7d",
+  "createdAt": "2026-10-09T02:19:59Z",
+  "featureFreeze": true,
+  "featureFreezePolicy": "docs/release/RC_CHANGE_POLICY.md",
+  "commercialMode": "TEST",
+  "closedBetaCommercialMode": "FREE_ONLY",
+  "liveMonetization": false,
+  "androidIap": "DISABLED_FOR_BETA",
+  "buildChannel": "dev",
+  "status": "NOT_BUILT",
+  "webArtifact": {
+    "status": "NOT_RUN"
+  },
+  "apkArtifact": {
+    "status": "NOT_RUN",
+    "reason": "ANDROID_SDK_ABSENT_IN_AGENT"
+  },
+  "aabArtifact": {
+    "status": "NOT_RUN",
+    "reason": "ANDROID_SDK_ABSENT_IN_AGENT"
+  },
+  "cloudSha": null,
+  "parent": {
+    "pr": 326,
+    "branch": "cursor/rc2-3-11-monetization-final-pricing",
+    "shaAtBranchCreate": "8c03f8bff4e9d12926b74d6431f7f99a63f21d51"
+  },
+  "notes": [
+    "status advances NOT_BUILT \u2192 BUILT \u2192 CODE_VALIDATED \u2192 PHYSICAL_PENDING \u2192 BETA_READY only with evidence",
+    "BETA_READY requires physical QA; never from compile alone"
+  ]
+}
