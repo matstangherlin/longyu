@@ -54,6 +54,8 @@ const NAMESPACES = [
   "onboarding",
   "placement",
   "journey",
+  // RC2.3.13B — Home cognitive redesign (Continue / Today / Mandarim / Explore).
+  "home",
   "player",
   "review",
   "missions",
