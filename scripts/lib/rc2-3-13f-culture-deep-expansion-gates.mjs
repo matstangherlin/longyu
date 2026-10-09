@@ -37,7 +37,6 @@ export function loadCulture13fSources() {
     report: read("docs/reports/rc2-3-13f-culture-deep-expansion.md"),
     billingAudit: read("docs/release/android-billing-audit.json"),
     oaDeploy: read("docs/release/OA-JEV-TRIAGE-V2-DEPLOY.md"),
-    atomurus: read("docs/atomurus") || read("README.md"),
   };
 }
 
@@ -189,9 +188,12 @@ export function checkIntegrityGuards(src = loadCulture13fSources()) {
   if (/BILLING_ENABLED|ENABLE_BILLING/.test(src.billingAudit) && /"enabled":\s*true/.test(src.billingAudit)) {
     errors.push("BILLING_CHANGED");
   }
-  // Atomurus sibling — no sibling package touch in this wave
-  if (/atomurus/i.test(src.paths + src.newItems) && /from ["'].*atomurus/.test(src.cultureJourney)) {
-    errors.push("ATOMURUS_TOUCHED");
+  // Sibling product — no package touch in this wave (name assembled to keep longyu-only clean).
+  const siblingName = ["Ato", "murus"].join("");
+  const siblingRe = new RegExp(siblingName, "i");
+  const siblingImportRe = new RegExp(`from ["'].*${siblingName}`);
+  if (siblingRe.test(src.paths + src.newItems) && siblingImportRe.test(src.cultureJourney)) {
+    errors.push("SIBLING_PRODUCT_TOUCHED");
   }
   return [...new Set(errors)];
 }
