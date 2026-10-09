@@ -3,8 +3,16 @@
   "wave": "RC2.3.13H.1",
   "statement": "CULTURE IS NOT A BOTTOM NAV ITEM. GLOBAL TOP BAR is sticky/immobile on progression surfaces. Progression switch sticks immediately beneath it. Journey/Culture content scrolls. Journey and Culture share ProgressionPath bubble grammar. Mandatory foundation AULA uses DynamicTeachingSequence. NO 13I.",
   "navigationContract": {
-    "mobileTabBar": ["/jornada", "/treino", "/missoes", "/mais"],
-    "progressionSwitch": ["journey", "culture"],
+    "mobileTabBar": [
+      "/jornada",
+      "/treino",
+      "/missoes",
+      "/mais"
+    ],
+    "progressionSwitch": [
+      "journey",
+      "culture"
+    ],
     "cultureBottomNav": false,
     "culturePrimaryAccess": "ProgressionShell"
   },
@@ -27,7 +35,12 @@
       "ProgressionConnector",
       "ProgressionNodeLabel"
     ],
-    "states": ["COMPLETED", "CURRENT", "AVAILABLE", "LOCKED"]
+    "states": [
+      "COMPLETED",
+      "CURRENT",
+      "AVAILABLE",
+      "LOCKED"
+    ]
   },
   "dynamicAula": {
     "shell": "GuidedLessonShell / GuidedPresentationProvider",
@@ -71,6 +84,6 @@
     "13I presentation redesign",
     "collapsing / auto-hiding global top bar"
   ],
-  "sourceSha": "PENDING_H1_HEAD",
-  "frozenAt": "PENDING_H1_HEAD"
+  "sourceSha": "bc37bf4b37becfb040ba91642b64fecd03d4513f",
+  "frozenAt": "2026-10-09T20:37:46.176Z"
 }
