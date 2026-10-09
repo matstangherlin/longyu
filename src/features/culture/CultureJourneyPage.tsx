@@ -181,27 +181,27 @@ export function CultureJourneyPage() {
         ) : null}
 
         <section
-          className="rounded-2xl border border-line bg-surface p-4"
+          key={currentPath.id}
+          className="culture-path-card-enter rounded-2xl border border-line bg-surface p-4"
           data-testid="culture-progress"
           data-progression-anchor={`path:${currentPath.id}`}
           data-culture-current-path={currentPath.id}
           data-culture-path-status={currentPath.status}
+          data-typography="culture-current-path"
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
-            {t("progression.currentPath")}
-          </p>
-          <h2 className="mt-1 font-serif text-xl font-semibold text-ink">
+          <p className="type-eyebrow">{t("progression.currentPath")}</p>
+          <h2 className="type-card-title mt-1.5">
             {cultureText({ pt: currentPath.titlePt, en: currentPath.titleEn }, instructionLocale)}
           </h2>
-          <p className="mt-1 text-sm text-ink-soft">
+          <p className="type-supporting mt-1.5">
             {cultureText({ pt: currentPath.descriptionPt, en: currentPath.descriptionEn }, instructionLocale)}
           </p>
-          <p className="mt-1 text-sm font-semibold text-ink" data-testid="culture-route-progress">
+          <p className="type-body-strong mt-2" data-testid="culture-route-progress">
             {done === 0 && total > 0
               ? t("progression.emptyStart")
               : t("progression.pathProgress", { done, total })}
             {currentPath.status === "EXPANSION_PENDING" ? (
-              <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-ink-faint">
+              <span className="type-eyebrow-muted ml-2 normal-case tracking-wide">
                 {t("progression.expansionPending")}
               </span>
             ) : null}
@@ -209,16 +209,16 @@ export function CultureJourneyPage() {
 
           {/* Compact secondary CTA — current bubble is primary entry. */}
           {pathNextId ? (
-            <p className="mt-2 text-sm text-ink-soft" data-testid="culture-next-title">
-              <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
-                {t("progression.nextNode")} ·{" "}
-              </span>
-              {nextTitle}
+            <div className="mt-3 space-y-2" data-testid="culture-next-title">
+              <p className="type-supporting">
+                <span className="type-eyebrow-muted">{t("progression.nextNode")} · </span>
+                {nextTitle}
+              </p>
               <ButtonLink
                 to={primaryHref}
-                className="ml-2 inline-flex min-h-11 !px-3 text-sm"
+                className="inline-flex min-h-11"
                 data-testid="culture-next-cta"
-                data-cta-hierarchy="secondary"
+                data-cta-hierarchy="primary"
                 data-coachmark-target="culture-recommended"
                 onClick={() => {
                   writeProgressionOpenOrigin(fromJourney ? "journey" : "culture");
@@ -233,10 +233,10 @@ export function CultureJourneyPage() {
               >
                 {t("progression.continueCulture")}
               </ButtonLink>
-            </p>
+            </div>
           ) : (
             <div className="mt-3 space-y-2">
-              <p className="text-sm text-ink-soft">{t("progression.cultureComplete")}</p>
+              <p className="type-supporting">{t("progression.cultureComplete")}</p>
               {due.length > 0 ? (
                 <ButtonLink to="/cultura/revisao" className="min-h-11" data-testid="culture-review-cta" data-cta-hierarchy="secondary">
                   {t("culture.reviewNow")}
@@ -253,7 +253,7 @@ export function CultureJourneyPage() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3 text-sm font-medium text-ink-soft"
+            className="type-label inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3 text-ink-soft"
             data-testid="culture-path-picker-toggle"
             data-cta-hierarchy="tertiary"
             aria-expanded={showPathPicker}

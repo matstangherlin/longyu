@@ -95,9 +95,9 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
 // lg = CTA de modal / recompensa
 // Todos ≥ 44px de altura (alvo de toque).
 const BUTTON_SIZES: Record<ButtonSize, string> = {
-  sm: "min-h-11 px-3 text-sm rounded-xl",
-  md: "min-h-11 px-4 text-[15px] rounded-xl",
-  lg: "min-h-12 px-5 text-base rounded-2xl",
+  sm: "min-h-11 px-3 type-button text-sm rounded-xl",
+  md: "min-h-11 px-4 type-button rounded-xl",
+  lg: "min-h-12 px-5 type-button text-base rounded-2xl",
   icon: "h-11 w-11 shrink-0 rounded-xl p-0",
 };
 
@@ -279,15 +279,9 @@ export function PageHeader({
   return (
     <header className={cx("flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between", className)}>
       <div className="min-w-0">
-        {eyebrow && (
-          <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-            {eyebrow}
-          </div>
-        )}
-        <h1 className="font-serif text-2xl font-semibold leading-tight text-ink sm:text-[1.7rem]">
-          {title}
-        </h1>
-        {desc && <p className="mt-1 max-w-2xl text-sm leading-5 text-ink-soft">{desc}</p>}
+        {eyebrow && <div className="type-eyebrow mb-1">{eyebrow}</div>}
+        <h1 className="type-page-title">{title}</h1>
+        {desc && <p className="type-supporting mt-1 max-w-2xl">{desc}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </header>
@@ -308,8 +302,8 @@ export function SectionHeader({
   return (
     <div className={cx("flex min-w-0 items-end justify-between gap-3", className)}>
       <div className="min-w-0">
-        <h2 className="text-base font-semibold leading-6 text-ink sm:text-lg">{title}</h2>
-        {desc && <p className="mt-0.5 text-sm leading-5 text-ink-soft">{desc}</p>}
+        <h2 className="type-section-title text-[1.125rem] sm:text-[1.375rem]">{title}</h2>
+        {desc && <p className="type-supporting mt-0.5">{desc}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

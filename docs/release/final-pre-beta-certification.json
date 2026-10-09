@@ -1,0 +1,117 @@
+{
+  "wave": "RC2.3.13R",
+  "title": "Final Pre-Beta RC — Typography & Motion Closure",
+  "parentPr": 339,
+  "parentHead": "51f8bd514d9e275fe5c83553fdb5d6e85f182262",
+  "shaSemantics": {
+    "learnerRuntimeSha": "8adc2fb14046893b8fbce4eda2ae3aedc3bdefaf",
+    "certificationHeadSha": "86793207ffb427559a8e0ee04bacd7d4948622f2",
+    "artifactSourceSha": "NOT_BUILT",
+    "note": "learnerRuntimeSha = last learner UI commit; certificationHeadSha = cert metadata commit; artifactSourceSha = exact checkout for APK/AAB/web. Do not conflate."
+  },
+  "identity": {
+    "proposedRcId": "RC2.3.13-RC1",
+    "versionName": "PENDING_BUILD",
+    "versionCode": "PENDING_BUILD",
+    "priorBuiltRc": "RC2.3.12-RC2",
+    "status": "NOT_BUILT"
+  },
+  "typography": {
+    "TYPOGRAPHY_SYSTEM_PASS": "PASS",
+    "PAGE_TITLE_CONSISTENCY_PASS": "PASS",
+    "SECTION_TITLE_CONSISTENCY_PASS": "PASS",
+    "CARD_TITLE_CONSISTENCY_PASS": "PASS",
+    "BODY_TEXT_CONSISTENCY_PASS": "PASS",
+    "CTA_TYPOGRAPHY_PASS": "PASS",
+    "CULTURE_TYPOGRAPHY_PASS": "PASS",
+    "REVIEW_TYPOGRAPHY_PASS": "PASS",
+    "TASK_TYPOGRAPHY_PASS": "PASS",
+    "MANDARIN_TYPOGRAPHY_PASS": "PASS",
+    "PINYIN_TYPOGRAPHY_PASS": "PASS",
+    "LARGE_FONT_TYPOGRAPHY_PASS": "PENDING_HOSTED",
+    "VIEWPORT_360_PASS": "PENDING_HOSTED",
+    "VIEWPORT_375_PASS": "PENDING_HOSTED",
+    "VIEWPORT_390_PASS": "PENDING_HOSTED"
+  },
+  "motion": {
+    "MOTION_SYSTEM_PASS": "PASS",
+    "JOURNEY_CULTURE_TRANSITION_PASS": "PASS",
+    "SEGMENT_INDICATOR_MOTION_PASS": "PASS",
+    "SCROLL_RESTORE_DURING_TRANSITION_PASS": "PASS",
+    "CULTURE_PATH_TRANSITION_PASS": "PASS",
+    "TASK_STEP_MOTION_PASS": "PASS",
+    "REVIEW_FEEDBACK_MOTION_PASS": "PASS",
+    "BUTTON_INTERACTION_MOTION_PASS": "PASS",
+    "MODAL_MOTION_PASS": "PASS",
+    "COMPLETION_MOTION_PASS": "PASS",
+    "REDUCED_MOTION_PASS": "PASS",
+    "NO_MOTION_INPUT_BLOCK_PASS": "PASS",
+    "NO_LAYOUT_SHIFT_PASS": "PASS",
+    "MOTION_PERFORMANCE_PASS": "PASS"
+  },
+  "hosted": {
+    "SECURITY": "NOT_RUN",
+    "CI": "NOT_RUN",
+    "ANDROID": "NOT_RUN",
+    "RELEASE_TRUTH": "NOT_RUN",
+    "BETA_SUITES": "NOT_RUN",
+    "CHROMIUM": "NOT_RUN",
+    "CROSS_ENGINE": "NOT_RUN"
+  },
+  "artifacts": {
+    "apk": "NOT_BUILT",
+    "aab": "NOT_BUILT",
+    "web": "NOT_BUILT",
+    "sha256": "NOT_BUILT"
+  },
+  "physical": {
+    "PHYSICAL_QA": "NOT_RUN",
+    "TYPOGRAPHY_PHYSICAL": "NOT_RUN",
+    "MOTION_PHYSICAL": "NOT_RUN",
+    "AUDIO_X20": "NOT_RUN",
+    "GUIDED_TRY_X10": "NOT_RUN",
+    "SPEECH_X5": "NOT_RUN",
+    "CONVERSATION_X5": "NOT_RUN",
+    "HANZI": "NOT_RUN",
+    "REVIEW": "NOT_RUN",
+    "TALKBACK": "NOT_RUN",
+    "FONT_SCALE": "NOT_RUN",
+    "REDUCED_MOTION_PHYSICAL": "NOT_RUN"
+  },
+  "observability": {
+    "SENTRY": "NOT_RUN"
+  },
+  "rollback": {
+    "NETLIFY_ROLLBACK_DRILL": "NOT_RUN"
+  },
+  "cloud": {
+    "SMOKE_1": "NOT_RUN",
+    "SMOKE_2": "NOT_RUN"
+  },
+  "oauth": {
+    "ANDROID_OAUTH_PHYSICAL": "NOT_RUN"
+  },
+  "freeze": {
+    "counts": {
+      "lessons": 134,
+      "topics": 113,
+      "cultureItems": 36,
+      "cultureNative": 36,
+      "journeyCultureNodes": 20,
+      "culturePaths": 12,
+      "flagshipDeep": 11
+    },
+    "fingerprint": "fea5455e1461",
+    "billing": "FREE_ONLY",
+    "liveBilling": false,
+    "jevLearnerRuntime": "OFF"
+  },
+  "ownerAcceptance": {
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE": "NOT_RUN"
+  },
+  "entryDecision": {
+    "CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "reason": "Code/typography/motion closure in progress; physical QA, Sentry, rollback, cloud smoke ×2, OAuth, and owner acceptance remain NOT_RUN. Artifacts not built."
+  }
+}
