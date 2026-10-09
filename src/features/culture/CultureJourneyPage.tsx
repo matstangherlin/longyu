@@ -87,7 +87,7 @@ export function CultureJourneyPage() {
       headerTitle={t("progression.cultureHeader")}
       headerDesc={t("progression.cultureDesc")}
     >
-      <div data-testid="culture-hub" data-culture-journey="rc2-3-13e" className="space-y-4">
+      <div data-testid="culture-journey" data-culture-journey="rc2-3-13e" className="space-y-4">
         {fromJourney && (
           <Link
             to="/jornada"

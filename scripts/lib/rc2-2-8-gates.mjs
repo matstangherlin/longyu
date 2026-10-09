@@ -81,6 +81,12 @@ export function readSources(root = process.cwd()) {
   for (const [key, rel] of Object.entries(FILES)) {
     src[key] = fs.readFileSync(path.join(root, rel), "utf8");
   }
+  // RC2.3.13E — Culture hub truth spans Journey (`/cultura`) + Atlas (`/cultura/explorar`).
+  src.cultureHub = [
+    src.cultureHub,
+    fs.readFileSync(path.join(root, "src/features/culture/CultureJourneyPage.tsx"), "utf8"),
+    fs.readFileSync(path.join(root, "src/features/culture/CultureAtlasPage.tsx"), "utf8"),
+  ].join("\n");
   return src;
 }
 
