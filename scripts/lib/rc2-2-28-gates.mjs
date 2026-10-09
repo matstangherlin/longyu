@@ -382,7 +382,7 @@ export async function validatePhysicalTruth(s) {
     }
   }
   // Freeze fingerprint intact
-  if (s.freeze?.fingerprint && s.freeze.fingerprint !== "5a64821d0b7d") {
+  if (s.freeze?.fingerprint && s.freeze.fingerprint !== "fea5455e1461") {
     fail("FINGERPRINT_DRIFT", FILES.curriculumFreeze, "fingerprint mudou [27]");
   }
   if (s.rc2CandidateSha256 !== RC2_CANDIDATE_FROZEN_SHA256) {

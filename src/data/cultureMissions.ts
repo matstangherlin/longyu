@@ -5,6 +5,7 @@
  */
 
 import { CULTURE_ITEMS, getCultureItem, type CultureItem } from "./culture";
+import { CULTURE_13F_SHORT_SPECS } from "./culture13fNewItems";
 import {
   CULTURE_FLAGSHIP_ITEM_IDS,
   CULTURE_MISSION_XP,
@@ -2118,6 +2119,18 @@ const SHORT_SPECS: Array<{
       loc("Você não deve o holerite.", "You do not owe a payslip."),
     ],
   },
+  // RC2.3.13F hub-only expansions (WeChat, HSR, Gaokao, guanxi, delivery, regional).
+  ...CULTURE_13F_SHORT_SPECS.map((spec) => ({
+    id: spec.id,
+    difficulty: spec.difficulty,
+    concept: loc(spec.concept.pt, spec.concept.en),
+    pairs: spec.pairs.map((pair) => ({
+      id: pair.id,
+      left: loc(pair.left.pt, pair.left.en),
+      right: loc(pair.right.pt, pair.right.en),
+    })),
+    takeaways: spec.takeaways.map((row) => loc(row.pt, row.en)),
+  })),
 ];
 
 const SHORT_MISSIONS: CultureMission[] = SHORT_SPECS.map((spec) =>

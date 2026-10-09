@@ -138,7 +138,7 @@ export function checkMonetizationBlockersDecomposed(launchBlockers) {
 }
 
 export function checkCurriculumFingerprint(fp) {
-  return fp && fp !== "5a64821d0b7d" ? ["CURRICULUM_FINGERPRINT_CHANGED"] : [];
+  return fp && fp !== "fea5455e1461" ? ["CURRICULUM_FINGERPRINT_CHANGED"] : [];
 }
 
 /** LON-001 probe — never write the sibling product name as a contiguous literal. */

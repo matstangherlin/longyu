@@ -1,8 +1,11 @@
 /**
  * RC2.3.13E — Culture content model V2 (optional depth sections).
+ * RC2.3.13F — expands FLAGSHIP_DEEP set and path taxonomy wiring.
  * FLAGSHIP_DEEP uses most fields; ordinary items may omit many.
  * Does not replace CultureItem authority — overlays / validates depth.
  */
+
+import { CULTURE_13F_FLAGSHIP_DEEP } from "./culture13fNewItems";
 
 export const CULTURE_V2_PATH_IDS = [
   "vida_cotidiana",
@@ -73,8 +76,8 @@ export type CultureDeepNode = {
   sourceRequired: boolean;
 };
 
-/** Flagship set for 13E template validation (3–5 nodes). */
-export const CULTURE_FLAGSHIP_DEEP: readonly CultureDeepNode[] = [
+/** Flagship set: 13E templates + 13F deep expansions. */
+const CULTURE_FLAGSHIP_DEEP_13E: readonly CultureDeepNode[] = [
   {
     itemId: "shared-dishes",
     pathId: "comida_mesa",
@@ -408,6 +411,11 @@ export const CULTURE_FLAGSHIP_DEEP: readonly CultureDeepNode[] = [
       },
     },
   },
+];
+
+export const CULTURE_FLAGSHIP_DEEP: readonly CultureDeepNode[] = [
+  ...CULTURE_FLAGSHIP_DEEP_13E,
+  ...CULTURE_13F_FLAGSHIP_DEEP,
 ];
 
 export function cultureDeepForItem(itemId: string): CultureDeepNode | undefined {

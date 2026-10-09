@@ -8,7 +8,7 @@
   "androidRunUrl": "https://github.com/matstangherlin/longyu/actions/runs/37877291018",
   "version": "0.2.0-rc.1",
   "versionCode": 570,
-  "fingerprint": "5a64821d0b7d",
+  "fingerprint": "fea5455e1461",
   "channel": "dev-debug",
   "note": "Hosted debug APK/AAB from android-build.yml on PR #328 HEAD. Embedded version.json.sourceHeadSha == sourceSha. deviceQaBuild=true (diagnostic). Signed release BLOCKED_SIGNING_SECRETS. Secret scan of JS chunks: no sk_live_/service_role/private key hits.",
   "apk": {

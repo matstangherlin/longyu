@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 94,
+    "EVIDENCE_ONLY": 97,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 8
   },
-  "total": 1111,
+  "total": 1114,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1377,6 +1377,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13e-progression-shell-culture",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13f-culture-deep-expansion",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13F",
+      "script": "npm run validate:rc2-3-13f-culture-deep-expansion && npm run test:rc2-3-13f-culture-deep-expansion",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13f-culture-deep-expansion",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7039,6 +7057,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13E",
       "script": "node scripts/rc2-3-13e-progression-shell-culture.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13f-culture-deep-expansion",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13F",
+      "script": "node scripts/rc2-3-13f-culture-deep-expansion.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -16572,6 +16608,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13f-culture-deep-expansion",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13F",
+      "script": "node scripts/rc2-3-13f-culture-deep-expansion.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13f-culture-deep-expansion",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-5-speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -20116,5 +20170,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "2aff02c3819e76f2"
+  "evidenceDigest": "8b26fd206e47dd34"
 }

@@ -40,7 +40,7 @@ export function checkProductTruthFresh({ productTruth, headSha, candidateStatus 
       errors.push("STALE_PRODUCT_TRUTH");
     }
   }
-  if (productTruth?.product?.curriculumFingerprint && productTruth.product.curriculumFingerprint !== "5a64821d0b7d") {
+  if (productTruth?.product?.curriculumFingerprint && productTruth.product.curriculumFingerprint !== "fea5455e1461") {
     errors.push("CURRICULUM_FINGERPRINT_CHANGED");
   }
   return errors;
@@ -143,7 +143,7 @@ export function checkCurriculumBaseline({ lessons, teaching, fingerprint }) {
   const errors = [];
   if (lessons !== 134) errors.push("LESSON_BASELINE_CHANGED");
   if (teaching !== 113) errors.push("TOPIC_BASELINE_CHANGED");
-  if (fingerprint !== "5a64821d0b7d") errors.push("CURRICULUM_FINGERPRINT_CHANGED");
+  if (fingerprint !== "fea5455e1461") errors.push("CURRICULUM_FINGERPRINT_CHANGED");
   return errors;
 }
 

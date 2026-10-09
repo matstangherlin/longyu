@@ -7,7 +7,7 @@
 | workflowMergeSha (CI checkout) | `3f5cc1b3174cb1807ec181ec3e3b915c0f961428` |
 | version | `0.2.0-rc.2` |
 | versionCode | `596` |
-| fingerprint | `5a64821d0b7d` |
+| fingerprint | `fea5455e1461` |
 | **APK** | `longyu-android-debug-0.2.0-rc.2-3f5cc1b.apk` |
 | APK SHA256 | `b4c2a846e87af7bd1a8c495bbe2fc8b2b77ff740fc12d5b1c15dc6b61f1b57a0` |
 | AAB SHA256 | `d77b93503c7b0607b9d31cba714beecc27fd5f8cfd3552ac5dc8fe397ab2bdf4` |

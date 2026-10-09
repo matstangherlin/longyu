@@ -652,7 +652,7 @@ export function validateClaimLocaleParity(data = {}) {
 // ————————————————————————————————————————————————————————————————
 
 export const RC15_FREEZE = {
-  fingerprint: "5a64821d0b7d",
+  fingerprint: "fea5455e1461",
   lessons: 134,
   teachingTopics: 113,
 };

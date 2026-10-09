@@ -1228,7 +1228,10 @@
     "gate:rc2-3-13d-mobile-physical-ux": "npm run validate:rc2-3-13d-mobile-physical-ux && npm run test:rc2-3-13d-mobile-physical-ux",
     "validate:rc2-3-13e-progression-shell-culture": "node scripts/rc2-3-13e-progression-shell-culture.mjs validate",
     "test:rc2-3-13e-progression-shell-culture": "node scripts/rc2-3-13e-progression-shell-culture.mjs test",
-    "gate:rc2-3-13e-progression-shell-culture": "npm run validate:rc2-3-13e-progression-shell-culture && npm run test:rc2-3-13e-progression-shell-culture"
+    "gate:rc2-3-13e-progression-shell-culture": "npm run validate:rc2-3-13e-progression-shell-culture && npm run test:rc2-3-13e-progression-shell-culture",
+    "validate:rc2-3-13f-culture-deep-expansion": "node scripts/rc2-3-13f-culture-deep-expansion.mjs validate",
+    "test:rc2-3-13f-culture-deep-expansion": "node scripts/rc2-3-13f-culture-deep-expansion.mjs test",
+    "gate:rc2-3-13f-culture-deep-expansion": "npm run validate:rc2-3-13f-culture-deep-expansion && npm run test:rc2-3-13f-culture-deep-expansion"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
