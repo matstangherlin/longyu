@@ -3,7 +3,7 @@
   "wave": "RC2.3.13D",
   "parentPr": 333,
   "parentSha": "e8f4090ba81d84b8a8a1cb92787135c502f1457b",
-  "proofSha": "local-pre-device-qa",
+  "proofSha": "db777005e574b13396e4b8d5d29389a002a2013c",
   "note": "Mobile accessibility & physical UX. CODE_* / VIEWPORT_* may pass from gates/E2E. *_PHYSICAL_PASS and OWNER_DEVICE_UX_ACCEPTANCE require real Android evidence. RC4 remains NOT_BUILT until artifact pipeline mints it. Not final beta RC.",
   "rc4": "NOT_BUILT",
   "matrix": {
