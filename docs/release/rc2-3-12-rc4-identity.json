@@ -1,0 +1,31 @@
+{
+  "schema": "longyu-rc2-3-12-rc4-identity/1",
+  "rcId": "RC2.3.12-RC4",
+  "version": "0.2.0-rc.4",
+  "wave": "RC2.3.13C",
+  "status": "NOT_BUILT",
+  "intendedSourceSha": "e8f4090ba81d84b8a8a1cb92787135c502f1457b",
+  "parentPr": 333,
+  "parentBranch": "cursor/rc2-3-13c-learning-flow-polish-af1a",
+  "note": "13C certification designates RC4 as the learning-UI identity, but the canonical artifact pipeline has not minted APK/AAB/checksums/provenance for 0.2.0-rc.4. Do not invent artifacts. Preserve RC1/RC2 (and RC3 if stamped). RC4 remains NOT_BUILT until generated.",
+  "canonicalCandidate": {
+    "path": "docs/release/rc-candidate.json",
+    "rcId": "RC2.3.12-RC2",
+    "version": "0.2.0-rc.2",
+    "versionCode": 596,
+    "status": "BUILT"
+  },
+  "apkArtifact": {
+    "status": "NOT_BUILT"
+  },
+  "aabArtifact": {
+    "status": "NOT_BUILT"
+  },
+  "versionCode": null,
+  "versionCodeFloorNote": "Must be > RC3 versionCode when RC3 exists; otherwise > 596 (RC2).",
+  "physicalQa": {
+    "role": "NOT_FINAL_BETA",
+    "note": "When built, RC4 may serve as baseline / regression reference / physical discovery build. Final beta artifact comes after remaining pre-beta UI waves (13D/13E)."
+  },
+  "recordedAt": "2026-10-09T16:02:00Z"
+}

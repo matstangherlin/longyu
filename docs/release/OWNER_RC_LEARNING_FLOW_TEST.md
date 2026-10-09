@@ -1,13 +1,15 @@
 # OWNER_RC_LEARNING_FLOW_TEST — Physical device checklist
 
-**Wave:** RC2.3.13C / preferred stamp **RC2.3.12-RC4**  
-**Do not mark PASS from browser alone.** Targeted learning-flow QA on Android.
+**Waves:** RC2.3.13C learning flow · **RC2.3.13D** device UX  
+**Preferred stamp:** RC2.3.12-RC4 — **currently NOT_BUILT** (use DEVICE-QA APK from 13D)  
+**Do not mark PASS from browser alone.**
 
 ## Setup
 
-- Install RC4 APK (or latest 13C build when RC4 not yet stamped)
+- Uninstall old Longyu → install **DEVICE-QA — NOT FINAL BETA** APK (record SHA / versionCode)
+- Also once: upgrade from previous RC → new QA build (progress preserved)
 - Network on; then repeat key paths offline
-- Device: common phone (360–390 CSS width class)
+- Devices: SMALL 360 · COMPACT 375 · TARGET 390 (see `docs/ux/mobile-device-matrix.md`)
 
 ## Audio (10 plays)
 

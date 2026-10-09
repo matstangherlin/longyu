@@ -1,0 +1,42 @@
+{
+  "schema": "longyu-rc2-3-13d-device-qa/1",
+  "wave": "RC2.3.13D",
+  "artifact": {
+    "label": "DEVICE-QA — NOT FINAL BETA",
+    "status": "NOT_BUILT",
+    "sourceSha": "e8f4090ba81d84b8a8a1cb92787135c502f1457b",
+    "parentPr": 333,
+    "version": null,
+    "versionCode": null,
+    "apkSha256": null,
+    "builtAt": null,
+    "note": "Generate QA APK from exact 13D starting SHA after #333 hosted green. Do not invent RC4. Do not treat as final beta."
+  },
+  "rc4": {
+    "rcId": "RC2.3.12-RC4",
+    "status": "NOT_BUILT",
+    "identity": "docs/release/rc2-3-12-rc4-identity.json"
+  },
+  "devices": [],
+  "viewports": {
+    "360x640": { "code": "PENDING", "emulated": "PENDING", "physical": "NOT_RUN" },
+    "375x667": { "code": "PENDING", "emulated": "PENDING", "physical": "NOT_RUN" },
+    "390x844": { "code": "PENDING", "emulated": "PENDING", "physical": "NOT_RUN" }
+  },
+  "fontScale": { "100": "NOT_RUN", "large": "NOT_RUN", "largest": "NOT_RUN" },
+  "keyboard": { "conversationDock": "NOT_RUN", "textAnswer": "NOT_RUN", "backClosesIme": "NOT_RUN" },
+  "safeArea": { "top": "NOT_RUN", "bottom": "NOT_RUN" },
+  "touch": { "targets": "NOT_RUN", "oneHand": "NOT_RUN" },
+  "back": { "matrix": "CODE_READY", "physical": "NOT_RUN" },
+  "talkback": { "home": "NOT_RUN", "lesson": "NOT_RUN", "speech": "NOT_RUN", "hanzi": "NOT_RUN" },
+  "audio": { "plays20": "NOT_RUN", "guidedTry10": "NOT_RUN" },
+  "speech": { "flows5": "NOT_RUN", "micDeny": "NOT_RUN", "micReallow": "NOT_RUN" },
+  "hanzi": { "stages": "NOT_RUN", "gestureConflict": "NOT_RUN" },
+  "conversation": { "complete5": "NOT_RUN", "backgroundResume": "NOT_RUN" },
+  "review": { "physical": "NOT_RUN" },
+  "longSession": { "minutes30": "NOT_RUN" },
+  "result": "NOT_STARTED",
+  "p0": [],
+  "p1": [],
+  "knownIssues": []
+}
