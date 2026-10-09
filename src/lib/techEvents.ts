@@ -80,6 +80,12 @@ export const TECH_EVENT_NAMES = [
   "permission_prompted",
   "perceived_speed",
   "issue_reported",
+  // RC2.3.13E — Journey ↔ Culture progression shell (safe metadata only).
+  "progression_switch_journey",
+  "progression_switch_culture",
+  "culture_node_open",
+  "culture_node_complete",
+  "culture_bridge_open",
 ] as const;
 export type TechEventName = (typeof TECH_EVENT_NAMES)[number];
 

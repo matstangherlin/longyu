@@ -33,6 +33,7 @@ import {
   type ExamQuestion,
 } from "../features/challenge/examBuilder";
 import { cultureGateForTopic, type CultureProgressionProgress } from "./cultureProgressionGate";
+import { cultureBlocksJourney } from "./cultureJourneyPolicy";
 
 export type PhaseChallengeKind = "next" | "advanced";
 
@@ -145,11 +146,13 @@ export function evaluatePhaseChallengeTarget(
       frontier + offset === phaseIndex ? unit.lessons.slice(0, 1) : unit.lessons
     )
   );
-  for (const lesson of pathLessons) {
-    if (done.has(lesson.id)) continue;
-    const gate = cultureGateForTopic(lesson.id, context);
-    if (gate && !gate.ready) {
-      return { ...base, reason: "culture_gate", cultureGateItemId: gate.nextItemId };
+  if (cultureBlocksJourney()) {
+    for (const lesson of pathLessons) {
+      if (done.has(lesson.id)) continue;
+      const gate = cultureGateForTopic(lesson.id, context);
+      if (gate && !gate.ready) {
+        return { ...base, reason: "culture_gate", cultureGateItemId: gate.nextItemId };
+      }
     }
   }
 

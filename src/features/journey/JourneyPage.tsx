@@ -45,7 +45,9 @@ import type { TranslateVars } from "../../i18n/catalog";
 import type { SupportedLocale } from "../../i18n/config";
 import { ensurePageScrollUnlocked } from "../../lib/bodyScrollLock";
 import { cultureGateForTopic, type CultureProgressionProgress } from "../../lib/cultureProgressionGate";
+import { cultureBlocksJourney } from "../../lib/cultureJourneyPolicy";
 import { JourneyCultureGate } from "./JourneyCultureGate";
+import { ProgressionShell } from "../../components/progression/ProgressionShell";
 import {
   auxiliaryJourneyNodesAfterTopic,
   PINYIN_CAPSULE_NODE,
@@ -559,9 +561,13 @@ export function JourneyPage() {
   const greeting = hasAnyProgress ? t("home.greetingReturn") : t("home.greetingNew");
 
   return (
-    <>
+    <ProgressionShell
+      mode="journey"
+      headerTitle={t("progression.journeyHeader")}
+      headerDesc={t("progression.journeyDesc")}
+    >
       <div
-        className="mx-auto grid w-full max-w-[1180px] gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start"
+        className="grid w-full gap-5 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start"
         data-testid="home-cognitive"
         data-home-cognitive="rc2-3-13b"
       >
@@ -741,7 +747,7 @@ export function JourneyPage() {
       {activeChest && (
         <JourneyChestRewardModal chest={activeChest} onClose={() => setActiveChest(null)} />
       )}
-    </>
+    </ProgressionShell>
   );
 }
 
@@ -1107,10 +1113,11 @@ function ModuleBlock({
             requiredTonePack &&
             !toneTrainerPackCompleted(toneTrainer, requiredTonePack.id)
           );
-          // O marco cultural decora o estado do card. A mesma avaliação roda em
-          // `canStartLesson`, para a URL direta não passar por cima do marco.
+          // RC2.3.13E — Culture gate is advisory (bridge), never hard-locks Mandarin.
           const cultureGate = cultureGateForTopic(lesson.id, cultureProgress);
-          const cultureLocked = Boolean(cultureGate && !cultureGate.ready && baseState !== "done");
+          const cultureLocked = Boolean(
+            cultureBlocksJourney() && cultureGate && !cultureGate.ready && baseState !== "done",
+          );
           const state: LessonState = toneLocked || cultureLocked ? "locked" : baseState;
           const stars = Math.max(0, Math.min(3, lessonStarsById[lesson.id] ?? (state === "done" ? 3 : 0)));
           const masteryLevel = Math.max(0, Math.min(4, lessonMasteryById?.[lesson.id]?.level ?? 0));

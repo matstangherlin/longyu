@@ -7,7 +7,7 @@ Mapped against tip parent `#330` / `9326efbe`. Audit only for Home and learning 
 | Journey `/jornada` | Continue learning path | Continuar / open next capsule | Review teasers, culture gates | Tab · TopBar | Lesson, culture, review | High | Deferred to 13B home redesign |
 | Practice `/treino` | Choose skill drills | Open a practice mode | Sheet of Hànzì/Pinyin/Fala… | Tab sheet | Mode hubs | Medium | Sheet still useful; keep |
 | Seu Domínio `/dominio` | Mastery snapshot | Explore domains | Links from Review | Deep / profile | Domains | Low | Not in bottom tab — OK secondary |
-| Culture `/cultura` | Explore culture | Open item/collection | Review culture | Tab | Item pages | Medium | Primary tab — preserve |
+| Culture `/cultura` | Culture Journey (ProgressionShell) | Continuar cultura | Atlas `/cultura/explorar`, Review | Tab + segmented switch with Journey | Item pages | Medium | RC2.3.13E — second progression beside Journey; never blocks Mandarin |
 | Missions `/missoes` | Daily goals | Claim / open mission | — | Tab | Mission detail | Medium | Gamification — keep secondary weight |
 | Profile `/perfil` | Learner identity | Edit / view progress | Conta, amigos | TopBar avatar · More | Conta, social | Medium | Distinct from Conta |
 | More sheet | Quick secondary destinations | Open a row | See all options | Tab Mais | Routes · `/mais` | High (pre) | Card grid + primary “Ver menu completo” + full-width Sair |

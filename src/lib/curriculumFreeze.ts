@@ -134,6 +134,36 @@ export const RELEASE_CANDIDATE_SHA = "";
  * acessibilidade, performance, compatibilidade Android, segurança, engenharia
  * de release, correções de QA e correção de copy.
  */
+/**
+ * RC2.3.13E — ProgressionShell navigation-state preservation.
+ *
+ * SYSTEM: ProgressionShell navigation-state preservation
+ * SCOPE: UX_NAVIGATION_ONLY
+ * PEDAGOGICAL_AUTHORITY: NONE
+ *
+ * Remembers Journey/Culture mode, anchors, and scroll. Must NOT unlock Mandarin
+ * lessons, change Mastery/SRS/grading/XP/economy, or act as a second curriculum.
+ */
+export const RC2_3_13E_PROGRESSION_SHELL_EXCEPTION = {
+  id: "RC2_3_13E_PROGRESSION_SHELL",
+  system: "ProgressionShell navigation-state preservation",
+  scope: "UX_NAVIGATION_ONLY",
+  pedagogicalAuthority: "NONE",
+  modules: ["src/lib/progressionShellState.ts"] as const,
+  mayRemember: ["route", "anchor", "scroll", "last mode"] as const,
+  forbids: [
+    "Mandarin lesson unlock",
+    "Mastery state",
+    "SRS due status",
+    "grading",
+    "XP",
+    "economy",
+    "second pedagogical progression engine",
+  ],
+  fingerprint: RC_BASE_FINGERPRINT,
+  gate: "gate:rc2-3-13e-progression-shell-culture",
+} as const;
+
 export const BETA_PEDAGOGY_FREEZE = {
   id: "RC2_2_9_BETA_PEDAGOGY_FREEZE",
   since: "RC2.2.9",
@@ -211,6 +241,8 @@ export const BETA_PEDAGOGY_FREEZE = {
     "src/lib/pearlEconomy.ts",
     "src/lib/pearlPro.ts",
     "src/lib/phaseChallenge.ts",
+    // RC2.3.13E — UX navigation position memory only (see RC2_3_13E_PROGRESSION_SHELL_EXCEPTION).
+    "src/lib/progressionShellState.ts",
     "src/lib/srs.ts",
     "src/lib/streak.ts",
     "src/lib/streakRecoveryPrompt.ts",

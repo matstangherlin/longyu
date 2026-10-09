@@ -93,6 +93,12 @@ const sha256 = async (text) => (await import("node:crypto")).createHash("sha256"
 export async function loadState() {
   const src = Object.fromEntries(Object.entries(FILES).map(([key, rel]) => [key, exists(rel) ? read(rel) : ""]));
   src.capacitorConfig = read(exists("capacitor.config.ts") ? "capacitor.config.ts" : "capacitor.config.json");
+  // RC2.3.13E — Culture return bridge lives on Journey + Atlas surfaces.
+  src.cultureHub = [
+    src.cultureHub,
+    exists("src/features/culture/CultureJourneyPage.tsx") ? read("src/features/culture/CultureJourneyPage.tsx") : "",
+    exists("src/features/culture/CultureAtlasPage.tsx") ? read("src/features/culture/CultureAtlasPage.tsx") : "",
+  ].join("\n");
   return {
     src,
     base: optionalJson("docs/release/rc2-2-23-base.json"),
