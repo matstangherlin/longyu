@@ -147,6 +147,12 @@
       "automatic": false
     },
     {
+      "file": "src/components/feedback/MicroFeedbackSheet.tsx",
+      "surface": "sampled one-question micro-feedback sheet (RC2.3.13G)",
+      "class": "ESSENTIAL",
+      "automatic": false
+    },
+    {
       "file": "src/components/hanzi/MandarinGlossaryPopover.tsx",
       "surface": "reading help popover",
       "class": "ESSENTIAL",
