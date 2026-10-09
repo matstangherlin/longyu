@@ -149,9 +149,13 @@ test.describe("navegação progressiva — mobile", () => {
     await tabBar.getByRole("button", { name: /^Mais$/i }).click();
     const moreSheet = page.getByRole("dialog", { name: "Mais opções" });
     await expect(moreSheet).toBeVisible();
+    // RC2.3.13A — VOCÊ · PROGRESSO · AJUDA rows; tertiary see-all (not Ajustes card grid).
+    await expect(moreSheet.getByRole("link", { name: "Perfil" })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Conta" })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Aparência" })).toBeVisible();
     await expect(moreSheet.getByRole("link", { name: "Loja" })).toBeVisible();
-    await expect(moreSheet.getByRole("link", { name: "Ajustes" })).toBeVisible();
-    await expect(moreSheet.getByRole("link", { name: "Ver menu completo" })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: /Ver todas as opções/i })).toBeVisible();
+    await expect(moreSheet.getByRole("link", { name: "Ajustes" })).toHaveCount(0);
     await expect(moreSheet.getByRole("link", { name: "Hànzì" })).toHaveCount(0);
     await expect(moreSheet.getByRole("link", { name: "Amigos" })).toHaveCount(0);
     // Cultura é aba da barra: não se repete no sheet Mais.
@@ -305,7 +309,8 @@ test.describe("navegação progressiva — desktop", () => {
     const menu = page.getByRole("menu", { name: "Mais opções" });
     await expect(menu).toBeVisible();
     await expect(menu.getByRole("menuitem", { name: "Ajustes" })).toBeVisible();
-    await expect(menu.getByRole("menuitem", { name: "Ver menu completo" })).toBeVisible();
+    // RC2.3.13A — footer copy is tertiary “Ver todas as opções” (not a primary red CTA).
+    await expect(menu.getByRole("menuitem", { name: /Ver todas as opções/i })).toBeVisible();
     await expect(menu.getByRole("menuitem", { name: "Hànzì" })).toHaveCount(0);
     await expect(menu.getByRole("menuitem", { name: "Amigos" })).toHaveCount(0);
 

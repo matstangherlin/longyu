@@ -83,31 +83,36 @@ for (const viewport of PHONES) {
   test.describe(`RC2.2.25 · Você/Conta/Sair em ${viewport.width}×${viewport.height}`, () => {
     test.use({ viewport });
 
-    test("Mais: VOCÊ no topo, 'Sair da conta' linha inteira e neutra; ordem ESTUDAR → SISTEMA", async ({ page }) => {
+    test("Mais: VOCÊ no topo, Sair compacto destructive; ordem ESTUDAR → SISTEMA", async ({ page }) => {
       await seed(page, { completedLessons: THROUGH_L2, ...matureDiscoveryState() });
       await open(page, "/mais");
       const signOut = page.getByTestId("more-sign-out");
       await expect(signOut).toBeVisible();
-      await expect(signOut).toHaveAttribute("data-sign-out-layout", "full-width");
-      await expect(signOut).toHaveAttribute("data-sign-out-tone", "neutral");
-      await inFold(page, "[data-testid='more-sign-out']");
-      const youWidth = (await page.getByTestId("more-you").boundingBox())!.width;
-      expect((await signOut.boundingBox())!.width).toBeGreaterThan(youWidth * 0.9);
+      // RC2.3.13A — compact destructive-text row (not full-width primary / not filled danger).
+      await expect(signOut).toHaveAttribute("data-sign-out-layout", "compact");
+      await expect(signOut).toHaveAttribute("data-sign-out-tone", "destructive-text");
+      await expect(signOut).toHaveAttribute("data-cta-hierarchy", "destructive");
+      await inFold(page, "[data-testid='more-you']");
       const headings = await page.getByRole("heading", { level: 2 }).allTextContents();
-      expect(headings[0]).toMatch(/Você/i);
+      expect(headings.some((h) => /Você/i.test(h))).toBe(true);
       expect(headings.indexOf("Estudar")).toBeLessThan(headings.indexOf("Sistema"));
       await expect(page.getByTestId("more-you").getByText(/Excluir/i)).toHaveCount(0);
     });
 
-    test("Conta: primeira dobra com Sair sem rolar; Excluir só na zona de perigo, no fim", async ({ page }) => {
+    test("Conta: Sair no fim das opções; Excluir só na zona de perigo", async ({ page }) => {
       await seed(page, { completedLessons: THROUGH_L2, ...matureDiscoveryState() });
       await open(page, "/conta");
       await expect(page.getByTestId("conta-first-fold")).toBeVisible();
-      await inFold(page, "[data-testid='conta-sign-out']");
       for (const id of ["conta-profile", "conta-appearance", "conta-security"]) await expect(page.getByTestId(id)).toBeVisible();
+      // RC2.3.13A — logout sits after settings rows (may require scroll on short phones).
+      const signOut = page.getByTestId("conta-sign-out");
+      await signOut.scrollIntoViewIfNeeded();
+      await expect(signOut).toBeVisible();
+      await expect(signOut).toHaveAttribute("data-sign-out-layout", "compact");
       const danger = page.getByTestId("conta-danger-zone");
       if (await danger.count()) {
-        const signOutBox = (await page.getByTestId("conta-sign-out").boundingBox())!;
+        await danger.scrollIntoViewIfNeeded();
+        const signOutBox = (await signOut.boundingBox())!;
         const dangerBox = (await danger.boundingBox())!;
         expect(dangerBox.y, "Excluir abaixo do Sair").toBeGreaterThan(signOutBox.y);
       }
@@ -125,15 +130,17 @@ for (const viewport of PHONES) {
 test.describe("RC2.2.25 · logout e aparência", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("logout em ≤ 2 níveis (Mais → Sair) cai na Landing, nunca em 'Aluno local'", async ({ page }) => {
+  test("logout em ≤ 2 níveis (Mais → Sair → confirmar) cai na Landing, nunca em 'Aluno local'", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, ...matureDiscoveryState() });
     await open(page, "/jornada");
-    // Nível 1: aba Mais (sheet) · nível 2: "Sair da conta".
+    // Nível 1: aba Mais (sheet) · nível 2: compact Sair · confirmação.
     await page.locator("[data-app-bottom-nav]").getByText("Mais", { exact: true }).click();
     const sheetSignOut = page.getByTestId("more-sheet-sign-out");
     await expect(sheetSignOut).toBeVisible();
-    await expect(sheetSignOut).toHaveAttribute("data-sign-out-layout", "full-width");
+    await expect(sheetSignOut).toHaveAttribute("data-sign-out-layout", "compact");
     await sheetSignOut.click();
+    await expect(page.getByTestId("more-sheet-sign-out-confirm")).toBeVisible();
+    await page.getByTestId("more-sheet-sign-out-confirm-yes").click();
     await expect(page).toHaveURL(/\/$|\/\?/);
     await expect(page.getByText(/Aluno local|Perfis neste dispositivo|Usar perfil/)).toHaveCount(0);
   });

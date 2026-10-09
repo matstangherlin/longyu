@@ -181,8 +181,8 @@ export function ContaPage() {
         </div>
 
         <SettingsGroup>
-          <SettingsRow to="/perfil" icon={IconUser} label={t("navigation.profile")} subtitle={displayInstruction("Nome, avatar e perfil de estudo")} testId="conta-profile" />
-          <SettingsRow to="/esqueci-senha" icon={IconShield} label={t("common.accountSecurity")} subtitle={displayInstruction("Email, senha e sessão")} testId="conta-security" />
+          <SettingsRow to="/perfil" icon={IconUser} label={t("navigation.profile")} subtitle={t("common.profileRowSubtitle")} testId="conta-profile" />
+          <SettingsRow to="/esqueci-senha" icon={IconShield} label={t("common.accountSecurity")} subtitle={t("common.securityRowSubtitle")} testId="conta-security" />
           <SettingsRow to="/config/notificacoes" icon={IconTarget} label={t("settings.catNotifications")} testId="conta-notifications" />
           <SettingsRow
             to="/config/aparencia"

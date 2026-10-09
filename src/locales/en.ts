@@ -32,6 +32,8 @@ export const en: MessageCatalog = {
     contact: "Contact",
     accountSecurity: "Account & security",
     manageAccount: "Manage your account and preferences",
+    profileRowSubtitle: "Name, avatar, and learning profile",
+    securityRowSubtitle: "Email, password, and session",
     seeAllOptions: "See all options",
     themeClay: "Light",
     themeChina: "China",

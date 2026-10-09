@@ -30,6 +30,8 @@ export const ptBR = {
     contact: "Contato",
     accountSecurity: "Conta e segurança",
     manageAccount: "Gerencie sua conta e preferências",
+    profileRowSubtitle: "Nome, avatar e perfil de estudo",
+    securityRowSubtitle: "Email, senha e sessão",
     seeAllOptions: "Ver todas as opções",
     themeClay: "Claro",
     themeChina: "China",
