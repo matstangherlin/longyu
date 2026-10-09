@@ -731,6 +731,7 @@ export const ptBR = {
     skipBreath: "Pular · custa 1 fôlego",
     tryAgain: "Tentar de novo",
     gotIt: "Entendi",
+    leaveConfirm: "Sair desta lição? Seu progresso neste aparelho já está salvo.",
     stepStalled: "Isto demorou para avançar. Toque para tentar de novo.",
     stepStalledRetry: "Tentar novamente",
     stepStalledReload: "Recarregar etapa",

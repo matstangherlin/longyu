@@ -52,11 +52,11 @@ One moment = one dominant action. Reduce interface decisions; preserve learning 
 
 | | |
 | --- | --- |
-| **Before** | Guided mode hid turn progress; phase not labeled; advance CTA unmarked |
-| **Problem** | Invisible progression / Hick on check vs continue |
-| **Principle** | Progressive disclosure + one primary |
-| **Change** | `ConversationPhaseChrome` (Ouvindo… / Sua vez / Processando… + Fala N de M); `data-conversation-phase`; advance/check/continue hierarchy |
-| **Evidence** | `ConversationSceneStep.tsx`; gate kills 25–26 |
+| **Before** | Guided mode hid turn progress; phase not labeled; advance CTA unmarked; Check under IME |
+| **Problem** | Invisible progression / Hick / keyboard trap |
+| **Principle** | Progressive disclosure + one primary + Fitts dock |
+| **Change** | `ConversationPhaseChrome`; `data-conversation-phase`; advance/check/continue hierarchy; Check/Continue via `GuidedDock` (`data-conversation-answer-dock`); mid-lesson Back/× confirms via `requestExitLesson` |
+| **Evidence** | `ConversationSceneStep.tsx`, `LessonPlayer.tsx`; gate kills 25–26 |
 
 ### Hànzì
 

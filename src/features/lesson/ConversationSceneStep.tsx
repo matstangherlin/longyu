@@ -505,22 +505,26 @@ function CheckpointPanel({
         </>
       )}
 
-      <div className="mt-4 flex gap-2">
-        <Button
-          className="flex-1 shadow-lift"
-          disabled={
-            feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)
-          }
-          onClick={check}
-        >
-          {t("player.check")}
-        </Button>
-        {onSkip && (
-          <Button variant="ghost" onClick={onSkip}>
-            {t("player.skip")}
-          </Button>
-        )}
-      </div>
+      {feedback !== "correct" && !(feedback === "wrong" && !onMistake) && (
+        <GuidedDock>
+          <div className="flex gap-2" data-conversation-answer-dock>
+            <Button
+              className="min-h-12 flex-1 shadow-lift"
+              data-cta-hierarchy="primary"
+              data-testid="conversation-checkpoint-check"
+              disabled={feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)}
+              onClick={check}
+            >
+              {t("player.check")}
+            </Button>
+            {onSkip && (
+              <Button variant="ghost" data-cta-hierarchy="tertiary" onClick={onSkip}>
+                {t("player.skip")}
+              </Button>
+            )}
+          </div>
+        </GuidedDock>
+      )}
 
       {feedback && !(feedback === "wrong" && onMistake) && (
         <div
@@ -539,7 +543,11 @@ function CheckpointPanel({
               feedback === "correct" ? "text-[rgb(var(--good))]" : "text-accent",
             ].join(" ")}
           >
-            {feedback === "correct" ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
+            {feedback === "correct" ? (
+              <IconCheck width={18} height={18} aria-hidden="true" />
+            ) : (
+              <IconX width={18} height={18} aria-hidden="true" />
+            )}
             {feedback === "correct" ? t("player.almostQi") : t("player.almost")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">
@@ -550,15 +558,29 @@ function CheckpointPanel({
                   : t("player.understoodConversation"))
               : `Resposta sugerida: ${answer}`}
           </p>
-          {feedback === "correct" ? (
-            <Button variant="good" className="mt-4 w-full shadow-lift" onClick={() => onDone(!hadMistake)}>
-              {t("player.continue")} <IconChevron width={18} height={18} />
-            </Button>
-          ) : (
-            <Button variant="good" className="mt-4 w-full shadow-lift" onClick={retry}>
-              {t("player.tryAgain")}
-            </Button>
-          )}
+          <GuidedDock>
+            {feedback === "correct" ? (
+              <Button
+                variant="good"
+                className="min-h-12 w-full shadow-lift"
+                data-cta-hierarchy="primary"
+                data-testid="conversation-checkpoint-continue"
+                onClick={() => onDone(!hadMistake)}
+              >
+                {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
+              </Button>
+            ) : (
+              <Button
+                variant="good"
+                className="min-h-12 w-full shadow-lift"
+                data-cta-hierarchy="primary"
+                data-testid="conversation-checkpoint-retry"
+                onClick={retry}
+              >
+                {t("player.tryAgain")}
+              </Button>
+            )}
+          </GuidedDock>
         </div>
       )}
     </div>
@@ -1057,25 +1079,26 @@ function InteractionPanel({
         </>
       )}
 
-      <div className="mt-4 flex gap-2">
-        <Button
-          className="min-h-12 flex-1 shadow-lift"
-          data-cta-hierarchy={feedback === "correct" ? "secondary" : "primary"}
-          data-testid="conversation-check"
-          disabled={
-            feedback === "correct" ||
-            (isOrder ? ordered.length === 0 : isProduce ? produceAttempt().length === 0 : !picked)
-          }
-          onClick={check}
-        >
-          {t("player.check")}
-        </Button>
-        {onSkip && (
-          <Button variant="ghost" data-cta-hierarchy="tertiary" onClick={onSkip}>
-            {t("player.skip")}
-          </Button>
-        )}
-      </div>
+      {feedback !== "correct" && feedback !== "wrong" && (
+        <GuidedDock>
+          <div className="flex gap-2" data-conversation-answer-dock>
+            <Button
+              className="min-h-12 flex-1 shadow-lift"
+              data-cta-hierarchy="primary"
+              data-testid="conversation-check"
+              disabled={isOrder ? ordered.length === 0 : isProduce ? produceAttempt().length === 0 : !picked}
+              onClick={check}
+            >
+              {t("player.check")}
+            </Button>
+            {onSkip && (
+              <Button variant="ghost" data-cta-hierarchy="tertiary" onClick={onSkip}>
+                {t("player.skip")}
+              </Button>
+            )}
+          </div>
+        </GuidedDock>
+      )}
 
       {feedback === "correct" && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
@@ -1083,15 +1106,17 @@ function InteractionPanel({
             <IconCheck width={18} height={18} aria-hidden="true" /> {t("player.almostQi")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? t("player.conversationContinues")}</p>
-          <Button
-            variant="good"
-            className="mt-4 min-h-12 w-full shadow-lift"
-            data-cta-hierarchy="primary"
-            data-testid="conversation-interaction-continue"
-            onClick={() => onCorrect(lastAttemptRef.current, { helpLevel, helpRequests })}
-          >
-            {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
-          </Button>
+          <GuidedDock>
+            <Button
+              variant="good"
+              className="min-h-12 w-full shadow-lift"
+              data-cta-hierarchy="primary"
+              data-testid="conversation-interaction-continue"
+              onClick={() => onCorrect(lastAttemptRef.current, { helpLevel, helpRequests })}
+            >
+              {t("player.continue")} <IconChevron width={18} height={18} aria-hidden="true" />
+            </Button>
+          </GuidedDock>
         </div>
       )}
 
@@ -1103,15 +1128,17 @@ function InteractionPanel({
           <p className="mt-2 text-sm leading-6 text-ink-soft">
             {interaction.explanation ?? `Resposta sugerida: ${answer}`}
           </p>
-          <Button
-            variant="good"
-            className="mt-4 min-h-12 w-full shadow-lift"
-            data-cta-hierarchy="primary"
-            data-testid="conversation-try-again"
-            onClick={retry}
-          >
-            {t("player.tryAgain")}
-          </Button>
+          <GuidedDock>
+            <Button
+              variant="good"
+              className="min-h-12 w-full shadow-lift"
+              data-cta-hierarchy="primary"
+              data-testid="conversation-try-again"
+              onClick={retry}
+            >
+              {t("player.tryAgain")}
+            </Button>
+          </GuidedDock>
         </div>
       )}
     </div>

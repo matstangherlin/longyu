@@ -135,6 +135,10 @@ export function checkConversationAndHanzi(src = loadLearningFlowSources()) {
   }
   if (!/Math\.max\(248/.test(canvasSrc)) errors.push("HANZI_CANVAS_TOO_SMALL");
   if (!/registerBackGuard/.test(src.player)) errors.push("BACK_LOSES_PROGRESS");
+  if (!/requestExitLesson|leaveConfirm/.test(src.player)) errors.push("BACK_LOSES_PROGRESS");
+  if (!/data-conversation-answer-dock|GuidedDock/.test(src.conversation)) {
+    errors.push("KEYBOARD_HIDES_CTA");
+  }
   if (!/visualViewport|app-safe-bottom/.test(src.steps)) errors.push("KEYBOARD_HIDES_CTA");
   return [...new Set(errors)];
 }

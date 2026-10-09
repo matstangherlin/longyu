@@ -1941,6 +1941,7 @@ export function LessonPlayer() {
   // RC2.2.11 — VOLTAR (Android/casca) sai pela saída da própria lição
   // (registra abandono, volta para Cultura/Jornada certa). O progresso da
   // sessão já está salvo no store; nada se perde em silêncio.
+  // RC2.3.13C — confirma só com progresso real na lição (não em toda saída).
   const exitLessonRef = useRef<(() => void) | null>(null);
   exitLessonRef.current = null;
   useEffect(
@@ -3753,7 +3754,6 @@ export function LessonPlayer() {
     handleDone(undefined);
   }
 
-  exitLessonRef.current = exitLesson;
   function exitLesson() {
     if (!finished) {
       const currentStep = lesson.steps[idx];
@@ -3781,6 +3781,19 @@ export function LessonPlayer() {
     // Saída antes da vitória: volta à origem, mas sem carimbar a aula como feita.
     navigate(cultureReturnPath(searchParams, lesson.lessonDomain === "culture", { completed: finished }));
   }
+
+  /** Confirm before leaving mid-lesson (Back / ×). No confirm on first step or victory. */
+  function requestExitLesson() {
+    if (!finished && idx > 0) {
+      const leave =
+        typeof window !== "undefined" && typeof window.confirm === "function"
+          ? window.confirm(t("player.leaveConfirm"))
+          : true;
+      if (!leave) return;
+    }
+    exitLesson();
+  }
+  exitLessonRef.current = requestExitLesson;
 
   function finish(finalCorrect: number, reason: FinishReason = "completed") {
     if (reason === "completed") haptic("lessonComplete");
@@ -4961,7 +4974,7 @@ export function LessonPlayer() {
       )}
       {guidedShell ? (
         <GuidedLessonHeader
-          onExit={exitLesson}
+          onExit={requestExitLesson}
           exitTestId={lesson.lessonDomain === "culture" ? "culture-back" : undefined}
           onReport={reportCurrentStep}
           progressValue={idx + 1}
@@ -4977,7 +4990,7 @@ export function LessonPlayer() {
         />
       ) : (
       <LessonFocusHeader
-        onExit={exitLesson}
+        onExit={requestExitLesson}
         onReport={() =>
           openFeedback({
             screen: `/licao/${lesson.id}/player`,
@@ -5024,7 +5037,7 @@ export function LessonPlayer() {
               type="button"
               className="min-h-10 text-xs font-medium text-ink-soft underline-offset-2 hover:underline"
               data-testid="culture-back"
-              onClick={exitLesson}
+              onClick={requestExitLesson}
             >
               {t("common.back")}
             </button>

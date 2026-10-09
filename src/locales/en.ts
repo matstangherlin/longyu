@@ -734,6 +734,7 @@ export const en: MessageCatalog = {
     skipBreath: "Skip · costs 1 breath",
     tryAgain: "Try again",
     gotIt: "Got it",
+    leaveConfirm: "Leave this lesson? Your progress on this device is already saved.",
     stepStalled: "This step took too long to move on. Tap to try again.",
     stepStalledRetry: "Try again",
     stepStalledReload: "Reload this step",
