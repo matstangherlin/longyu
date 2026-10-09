@@ -8,9 +8,9 @@
     "DUPLICATE": 24,
     "EVIDENCE_ONLY": 79,
     "OWNER_PHYSICAL": 0,
-    "CLOUD_ONLY": 5
+    "CLOUD_ONLY": 8
   },
-  "total": 1093,
+  "total": 1096,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -388,6 +388,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:jev-hosted-closure",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "npm run validate:jev-hosted-closure && npm run test:jev-hosted-closure",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:jev-hosted-closure",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -4491,6 +4509,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:jev-hosted-closure",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/jev-hosted-closure.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -13818,6 +13854,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:jev-hosted-closure",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/jev-hosted-closure.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:jev-hosted-closure",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:jev-production-parity",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -19792,5 +19846,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "69e1d0d6831c07c3"
+  "evidenceDigest": "b709e71387d19095"
 }

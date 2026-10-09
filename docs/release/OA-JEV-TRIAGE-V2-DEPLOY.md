@@ -1,83 +1,129 @@
-# OA-JEV-TRIAGE-V2-DEPLOY — Production Edge deploy (owner mutation)
+# OA-JEV-TRIAGE-V2-DEPLOY — Owner production promotion pack
 
 **Status:** `OWNER_ACTION_REQUIRED`  
-**Do not deploy** from this document alone. Production mutate only with explicit owner confirmation (`DEPLOY-triage-feedback`) after merge to `main`.
+**This document is NOT deploy approval.** Production mutate only after explicit owner reply:
 
-## Current live (MandarimProject `drjcfalvlbbeblmmyhwj`)
+`APPROVE OA-JEV-TRIAGE-V2-DEPLOY`
+
+Then: merge to `main` → run the manual workflow with confirm phrases below.
+
+**Never touch Atomurus** (`ylofdottauzcqcifnnpm`).
+
+---
+
+## Live truth (MandarimProject `drjcfalvlbbeblmmyhwj`)
 
 | Field | Value |
-|---|---|
+| --- | --- |
 | Function | `triage-feedback` |
-| Version | **1** |
-| `ezbr_sha256` | `e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee` |
+| Live version | **1** |
+| Live hash (`ezbr_sha256`) | `e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee` |
 | `verify_jwt` | `true` |
-| Observed | 2026-10-09 (JEV Wave 1 Phase 0) |
+| `JEV_TRIAGE_LIVE` | **OWNER_ACTION_REQUIRED** |
+| Learner runtime | **OFF** |
+| Shadow runtime | **OFF** |
 
-### Live behavior (v1)
+Do **not** claim live v2 until re-fetched after an authorized deploy.
 
-- Admin: JWT + `is_beta_admin` ✓  
-- Secret: env → Vault RPC ✓  
-- Batch 25 / concurrency 5 ✓  
-- Timeout **8s** (repo target **3s**)  
-- **Missing:** `jevAllowed`, circuit breaker, input dedupe, historical reuse, purpose arg, typed answer schema  
+---
 
-## Target (repo)
+## Two separate production mutations
+
+### A — JEV Beta Triage Migration (only)
 
 | Field | Value |
-|---|---|
-| Source of truth | `supabase/functions/triage-feedback` + `_shared/jev*.ts` (Wave 1 guards + Wave 2 triage intelligence) |
-| Bundle hash | see `docs/jev/production-parity.json` → `repoFunctionHash` |
-| Expected next version | **≥ 2** |
-| Learner runtime | **OFF** (`JEV_RUNTIME_ENABLED=false`) |
-| Repo cert | `docs/jev/beta-triage-v2.json` → `JEV_BETA_TRIAGE=VERIFIED` |
+| --- | --- |
+| File | `supabase/migrations/20261009060000_jev_beta_triage_v2.sql` |
+| Drift class | `NOT_YET_DEPLOYED` |
+| `deploymentIntent` | `OWNER_APPROVAL_REQUIRED` |
+| Production | **NOT_APPLIED** |
+| Nature | Additive only (columns + indexes + `jev_ops_daily`) |
 
-### Expected changes after deploy
+**Pre-requirements**
 
-1. 3s AbortController timeout  
-2. `jevAllowed("DEV_AUDIT")` → 503 when kill switch off  
-3. Circuit breaker 3 failures → 60s open  
-4. `jevInputHash` + in-batch `inFlight` dedupe  
-5. Historical reuse only on exact `message`+`category`+`route`  
-6. `askJev(..., "DEV_AUDIT")` purpose  
-7. `validateJevAnswers` (choice / score / noul)  
-8. PII redaction before Jev; severity→P mapper; security overrides; confidence; release-scoped cluster suggestions  
-9. Fail-open `PENDING_AI_TRIAGE` + persistent `jev_ops_daily` budget  
+1. Production backup policy satisfied  
+2. Exact migration file hash recorded in the apply ticket  
+3. Current migration ledger / drift inventory snapshot  
+4. Explicit owner approval  
 
-**DB:** apply additive migration `20261009060000_jev_beta_triage_v2.sql` (owner backup gate) **before** or with Edge deploy. No destructive changes.
+**Content review (already audited in-repo)**
+
+- Additive `ai_*` columns + checks on `beta_feedback`  
+- `jev_ops_daily` aggregate counters (no learner text, service_role only, RLS on)  
+- No destructive ALTER/DROP  
+- No curriculum / Mastery / progression mutation  
+
+### B — Edge deploy `triage-feedback` secure v2
+
+| Field | Value |
+| --- | --- |
+| Source | `supabase/functions/triage-feedback` + `_shared/jev*.ts` |
+| Target live version | **≥ 2** |
+| Repo bundle digest | see `docs/jev/production-parity.json` → `repoFunctionHash` |
+| Purpose | `DEV_AUDIT` only |
+| `JEV_RUNTIME_ENABLED` | **false** |
+| `JEV_SHADOW_STRUGGLE_RUNTIME_ENABLED` | **false** |
+
+**Must ship with**
+
+- admin-only (`is_beta_admin`) + `verify_jwt=true`  
+- server-side TypeSafe key (env → Vault)  
+- 3s timeout, circuit breaker, batch 25, concurrency 5  
+- typed `validateJevAnswers`  
+- PII redaction, severity→P map, security overrides, confidence, daily budget  
+- exact dedupe + historical reuse  
+- semantic cluster **advisory-only**  
+- fail-open `PENDING_AI_TRIAGE`  
+
+### EXCLUDE from this OA
+
+| File | Intent |
+| --- | --- |
+| `20261009070000_jev_shadow_struggle_lab.sql` | `DEFERRED_RESEARCH` — **do not apply** for Closed Beta / triage v2 promotion |
+
+Shadow lab remains `KEEP_SHADOW`. Not a Closed Beta prerequisite.
+
+---
 
 ## Deploy method (canonical)
 
-1. Merge the secure Edge sources to **`main`**.  
-2. GitHub Actions → **Deploy Edge Function (manual, from main)**  
+1. Merge reviewed SHA to **`main`**.  
+2. Apply migration **A** only (owner-operated DB path / approved workflow).  
+3. GitHub Actions → **Deploy Edge Function (manual, from main)**  
    - function: `triage-feedback`  
    - confirm: `DEPLOY-triage-feedback`  
    - `expected_sha` = reviewed main SHA  
-3. Workflow runs `validate:rc2-3-10-cloud` / Jev guardrails before deploy.  
-4. Secret `SUPABASE_ACCESS_TOKEN` must exist in the `production` environment.
+4. Secret `SUPABASE_ACCESS_TOKEN` in `production` environment required.  
 
-Agent MCP `deploy_edge_function` is **not** the preferred path (transcription risk). Prefer the workflow above.
+Agent MCP deploy is **not** preferred.
+
+---
 
 ## Rollback
 
-1. Re-deploy the v1 sources recorded in Phase 0 / `docs/reports/rc2-3-10-jev-production-certification.md` (timeout 8s, no breaker/dedupe).  
-2. Or restore previous Edge version from Supabase dashboard if retained.  
-3. Confirm `functions list` shows version rollback; re-run `get_edge_function` and update `docs/jev/production-parity.json`.
+1. Re-deploy known-good **`triage-feedback` v1** sources / previous Edge version from Supabase dashboard.  
+2. Live hash to restore: `e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee` (v1).  
+3. Migration A is additive — do **not** drop columns in panic; leave rows nullable and stop Edge v2 if needed.  
+4. Re-query `get_edge_function` / `functions list`; update `docs/jev/production-parity.json` + `docs/jev/triage-live-certification.json`.
 
-## Smoke plan (post-deploy, synthetic only)
+---
 
-1. Anonymous POST → `401`/`403` (`edge_triage_requires_auth`).  
-2. Non-admin JWT → `403`.  
-3. Beta admin + synthetic feedback:  
-   > Audio stopped playing after I returned to the lesson.  
-4. Assert columns: `ai_kind`, `ai_area`, `ai_severity`, `ai_needs_human`, `ai_confidence`, `ai_model`, `ai_triaged_at`.  
-5. Insert identical row → classification reused (`reused ≥ 1`), no second TypeSafe charge when policy says so.  
-6. With `JEV_DEV_AUDIT_ENABLED=false` (or breaker open): feedback insert still succeeds; triage returns controlled error / pending rows remain.  
+## Post-deploy smoke (synthetic only)
+
+| Case | Expect |
+| --- | --- |
+| Unauthenticated | 401 |
+| Authenticated non-admin | 403 |
+| Beta admin + “Audio stopped after the first sentence.” | triage suggests bug / `audio_speech`; write `ai_*` + policy `feedback-v2` |
+| “I can see another user's progress.” | **P0 candidate**, `ai_human_review_required`, override not downgradable |
+| Message with fake email / phone / token | Jev payload sanitized; no secrets in ordinary logs |
+| Identical synthetic feedback twice | reused evaluation (no duplicate spend when designed) |
+| Jev unavailable / timeout / budget exhausted | feedback remains; `PENDING_AI_TRIAGE` |
+
+Only after smoke evidence: set `JEV_TRIAGE_LIVE=PASS`. Until then: **OWNER_ACTION_REQUIRED**.
+
+---
 
 ## Owner approval phrase
 
-Reply exactly:
-
-`APPROVE OA-JEV-TRIAGE-V2-DEPLOY`  
-and after merge: run workflow with `DEPLOY-triage-feedback`.
-
-Until then: **`JEV_TRIAGE_LIVE = OWNER_ACTION_REQUIRED`**.
+`APPROVE OA-JEV-TRIAGE-V2-DEPLOY`

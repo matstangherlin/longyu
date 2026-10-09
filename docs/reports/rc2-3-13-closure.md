@@ -26,9 +26,27 @@ Regenerated on ops branch after dual-SHA stamp (`PRODUCT_TRUTH_FRESH=PASS`). Loc
 
 Site `200` + `/version.json` readable + Supabase auth health `200`. Live web still `0.2.0-beta.1` / `ec26ffcb…` (not RC1). Full `smoke:cloud` blocked: no `LONGYU_QA_*` in this environment. `CLOUD_BETA_REQUIRED_PASS` remains NOT_RUN.
 
-## Wave 1 / 2 / 3
+## JEV HOSTED CLOSURE
 
-**Not started.** Inviting testers while entry ≠ GO is forbidden (`gate:rc2-3-13-closed-beta` kill: `TESTERS_BEFORE_ENTRY_GO`). Tester registry empty.
+| Wave | Status |
+| --- | --- |
+| Wave 1 — production parity | Repo guards **PASS** · Live **OWNER_ACTION_REQUIRED** (v1) |
+| Wave 2 — beta triage intelligence | **VERIFIED** (`gate:jev-beta-triage-v2`) |
+| Wave 3 — shadow struggle lab | **VERIFIED_SHADOW_ONLY** / **KEEP_SHADOW** |
+| Learner runtime | **OFF** |
+| Shadow runtime | **OFF** |
+| Migration `20261009060000_jev_beta_triage_v2` | `NOT_YET_DEPLOYED` · owner promotion candidate |
+| Migration `20261009070000_jev_shadow_struggle_lab` | `NOT_YET_DEPLOYED` · `DEFERRED_RESEARCH` · **not** a Closed Beta prerequisite |
+| Hosted backend-contract / rehearsal | Target **PASS** after classification + regen |
+| Security (CodeQL / gitleaks / npm audit) | Target **PASS** (Stripe fixture constructed at runtime) |
+| `JEV_TRIAGE_LIVE` | **OWNER_ACTION_REQUIRED** until OA deploy + smoke |
+| Gate | `gate:jev-hosted-closure` |
+
+Do **not** create JEV Wave 4. Next JEV step is owner `OA-JEV-TRIAGE-V2-DEPLOY` only.
+
+## Wave 1 / 2 / 3 testers
+
+Inviting testers while entry ≠ GO is forbidden (`gate:rc2-3-13-closed-beta` kill: `TESTERS_BEFORE_ENTRY_GO`). Tester registry empty (0).
 
 ## Residual human / credential actions
 

@@ -54,6 +54,11 @@ export function loadProductTruthInputs(root) {
   const { ALL_LESSONS } = tsRequire("../../src/data/journey.ts");
   const { AUTH_PROVIDERS } = tsRequire("../../src/lib/auth/providers.ts");
   const jevMatch = budgetPolicy.match(/JEV_RUNTIME_ENABLED:\s*(true|false)/);
+  const shadowRuntimeMatch = budgetPolicy.match(/JEV_SHADOW_STRUGGLE_RUNTIME_ENABLED:\s*(true|false)/);
+  const betaTriage = readJson(root, "docs/jev/beta-triage-v2.json", {});
+  const shadowLab = readJson(root, "docs/jev/shadow-struggle-lab.json", {});
+  const liveCert = readJson(root, "docs/jev/triage-live-certification.json", {});
+  const parity = readJson(root, "docs/jev/production-parity.json", {});
 
   return {
     identity: {
@@ -80,5 +85,17 @@ export function loadProductTruthInputs(root) {
     migrationLedger: (({ status, counts }) => ({ status, counts }))(readJson(root, "docs/launch/production-migration-ledger.json", { status: "NOT_RUN", counts: null })),
     suites: SUITES.map((suite) => ({ id: suite.id, steps: suite.steps })),
     jevRuntimeEnabled: jevMatch ? jevMatch[1] === "true" : true,
+    jevShadowRuntimeEnabled: shadowRuntimeMatch ? shadowRuntimeMatch[1] === "true" : true,
+    jevStatus: {
+      code: "VERIFIED",
+      betaTriage: betaTriage.JEV_BETA_TRIAGE ?? "UNKNOWN",
+      shadow: shadowLab.JEV_SHADOW_STRUGGLE_LAB ?? "UNKNOWN",
+      shadowRecommendation: shadowLab.recommendation ?? "UNKNOWN",
+      learnerRuntime: jevMatch?.[1] === "false" ? "OFF" : "ON",
+      shadowRuntime: shadowRuntimeMatch?.[1] === "false" ? "OFF" : "ON",
+      live: liveCert.JEV_TRIAGE_LIVE ?? "UNKNOWN",
+      liveParity: parity.parity ?? "UNKNOWN",
+      deploymentRequired: parity.deploymentRequired === true,
+    },
   };
 }

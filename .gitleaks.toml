@@ -18,6 +18,9 @@ regexes = [
   '''eyJhbGciOiJIUzI1NiJ9\.eyJzdWIiOiIxMjM0NTY3ODkwIn0\.c2lnbmF0dXJlc2lnbmF0dXJl''',
   # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE stripe-access-token): alphabet filler, not a live key.
   '''sk_live_abcdefghijklmnop1234''',
+  # Historical Wave2 tip (9fcc6a27) committed a contiguous alphabet-filler Stripe shape in a PII redaction
+  # fixture; tip now builds it via join("_"). Exact string only — not a broad sk_live_ allowlist.
+  '''sk_live_abcdefghijklmnopqrstuvwxyz12''',
   # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE): alphabet filler Sentry auth token shape.
   '''sntrys_abcdefghijklmnopqrstuvwxyz012345''',
 ]

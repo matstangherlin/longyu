@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-09T04:55:59.404Z",
-  "generatedFromSha": "235cc8f0b1924831b93e63c524b0f8db345fd345",
-  "inputsDigest": "10749bc1b7a0a381",
-  "evidenceDigest": "cdb5037203acf3b3",
+  "generatedAt": "2026-10-09T05:44:26.933Z",
+  "generatedFromSha": "681dfffc395337cba96dd4ff0793e27444153b5f",
+  "inputsDigest": "2b50bf1d981b6e9d",
+  "evidenceDigest": "1b3fb4651e2e0044",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -258,7 +258,11 @@
   "jev": {
     "learnerRuntimeEnabled": false,
     "learnerRuntime": "NOT_RUN",
-    "serverSideTriage": "CODE_READY"
+    "shadowRuntimeEnabled": false,
+    "serverSideTriage": "CODE_READY",
+    "livePromotion": "OWNER_ACTION_REQUIRED",
+    "deploymentRequired": true,
+    "detailDoc": "docs/jev/hosted-closure-status.json"
   },
   "ownerAcceptance": {
     "audio": "OWNER_ACTION_REQUIRED",

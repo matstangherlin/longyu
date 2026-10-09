@@ -77,7 +77,8 @@
     "PRODUCT_TRUTH_FRESH=PASS after generate:product-truth + release-truth PASS on RC2.3.13 ops branch",
     "Chromium E2E fail root cause: hardcoded v0.2.0-beta.1 — fixed on #329 2a408216 (package.json-bound)",
     "Partial cloud probe OK; full smoke blocked without LONGYU_QA_*; Sentry MCP auth timed out",
-    "JEV_BETA_TRIAGE=VERIFIED in-repo (gate:jev-beta-triage-v2); live Edge+migration still OWNER_ACTION_REQUIRED; LEARNER_RUNTIME=OFF"
+    "JEV_BETA_TRIAGE=VERIFIED in-repo (gate:jev-beta-triage-v2); live Edge+migration still OWNER_ACTION_REQUIRED; LEARNER_RUNTIME=OFF",
+    "JEV Wave 3 shadow struggle lab VERIFIED_SHADOW_ONLY (gate:jev-shadow-learning); recommendation KEEP_SHADOW; no learner effect"
   ],
   "hostedEvidence": {
     "pr": 329,

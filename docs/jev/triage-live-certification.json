@@ -20,5 +20,11 @@
   "verifiedAt": null,
   "blocker": "Live triage-feedback v1 lacks repo guards; deploy blocked until OA-JEV-TRIAGE-V2-DEPLOY approval + main workflow",
   "parityDoc": "docs/jev/production-parity.json",
-  "deployDoc": "docs/release/OA-JEV-TRIAGE-V2-DEPLOY.md"
+  "deployDoc": "docs/release/OA-JEV-TRIAGE-V2-DEPLOY.md",
+  "liveRequeriedAt": "2026-10-09T05:35:00.000Z",
+  "liveRequery": {
+    "version": 1,
+    "verify_jwt": true,
+    "ezbr_sha256": "e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee"
+  }
 }

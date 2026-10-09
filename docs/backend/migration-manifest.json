@@ -373,6 +373,20 @@
       "name": "jev_feedback_triage",
       "sha256": "ed9fab4221afdfb41cf3d6dbf0af6552fe3b58b06fbed123696d884ed4206858",
       "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20261009060000_jev_beta_triage_v2.sql",
+      "version": "20261009060000",
+      "name": "jev_beta_triage_v2",
+      "sha256": "5891b36b0629897a6b823e2888bb36ecb0c806267036eeab457d555a494923b3",
+      "status": "FROZEN"
+    },
+    {
+      "path": "supabase/migrations/20261009070000_jev_shadow_struggle_lab.sql",
+      "version": "20261009070000",
+      "name": "jev_shadow_struggle_lab",
+      "sha256": "5dfd3425a4f41696d7c18eed6f61577aa81614dc9cb2ecf1f66ec28b5ac5367d",
+      "status": "FROZEN"
     }
   ]
 }

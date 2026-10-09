@@ -132,8 +132,10 @@ export function checkBehavioral(m) {
     errors.push("RAW_TOKEN_SENT_TO_JEV");
   }
 
+  // Construct Stripe-like fixture at runtime — never commit a contiguous sk_live_… literal.
+  const fakeStripeLiveKey = ["sk", "live", "abcdefghijklmnopqrstuvwxyz12"].join("_");
   const cleaned = m.pii.redactFeedbackText(
-    "Contact me at person@mail.com Bearer sk_live_abcdefghijklmnopqrstuvwxyz12",
+    `Contact me at person@mail.com Bearer ${fakeStripeLiveKey}`,
   );
   if (m.pii.containsUnredactedSecrets(cleaned.text).includes("email")) errors.push("EMAIL_UNREDACTED");
   if (/Bearer\s+[A-Za-z0-9]{8,}/i.test(cleaned.text)) errors.push("RAW_TOKEN_SENT_TO_JEV");

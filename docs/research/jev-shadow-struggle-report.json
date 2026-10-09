@@ -1,7 +1,7 @@
 {
   "schema": "longyu-jev-shadow-struggle-report/1",
   "policyVersion": "shadow-struggle-v1",
-  "generatedAt": "2026-10-09T05:15:50.498Z",
+  "generatedAt": "2026-10-09T05:39:30.074Z",
   "note": "Synthetic/calibration-backed shadow metrics. No PII. Learner runtime OFF.",
   "events": 10,
   "uniqueStates": 10,
