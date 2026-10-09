@@ -21,6 +21,8 @@ const RC1_CRAWLER_SPEC = "**/rc1-lesson-crawler.spec.ts";
 const CAPABILITY_CLOSURE_SPEC = "**/rc2-2-9-capability-closure.spec.ts";
 // Captura de evidências (docs/screenshots) — só no projeto `screenshots`.
 const SCREENSHOT_SPEC = "**/screenshots.spec.ts";
+/** RC2.3.13B Home viewport captures — manual/local only (not Chromium CI gate). */
+const HOME_SCREENSHOT_SPEC = "**/rc2-3-13b-home-screenshots.spec.ts";
 
 /** Porta do preview isolado (várias worktrees podem rodar E2E em paralelo). */
 const PREVIEW_PORT = process.env.PLAYWRIGHT_PREVIEW_PORT ?? "4173";

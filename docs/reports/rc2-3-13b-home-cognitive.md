@@ -56,7 +56,11 @@ Approximate: **≤3** first-fold actions; **exactly 1** primary CTA.
 - Audit: `docs/ux/home-cognitive-audit.md`
 - Cert: `docs/release/rc2-3-13b-ux-certification.json`
 - E2E: `e2e/rc2-3-13b-home-cognitive.spec.ts`
-- Screenshots: capture at 360×640 / 375×667 / 390×844 for new / returning / review-due (artifacts when CI/local run)
+- Screenshots (local artifacts):
+  - `/opt/cursor/artifacts/rc2-3-13b-home-new-{360,375,390}x*.png`
+  - `/opt/cursor/artifacts/rc2-3-13b-home-returning-{360,375,390}x*.png`
+  - `/opt/cursor/artifacts/rc2-3-13b-home-review-due-{360,375,390}x*.png`
+  - Capture helper: `e2e/rc2-3-13b-home-screenshots.spec.ts` (ignored by default CI suite via name match `*screenshots*`)
 
 ## RC identity
 

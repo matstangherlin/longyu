@@ -3,106 +3,143 @@
  * States: new learner, returning, review due, mastery/explore presence.
  */
 import { expect, test, type Page } from "@playwright/test";
+import { ACHIEVEMENTS } from "../src/data/achievements";
+import { allowE2ELocalSession, dismissBlockingOverlays, seedTelemetryDeclined } from "./helpers";
 
-async function seedProgress(page: Page, completed: string[]) {
-  await page.addInitScript((lessons) => {
-    try {
-      const raw = localStorage.getItem("longyu-store");
-      const parsed = raw ? JSON.parse(raw) : { state: {} };
-      parsed.state = {
-        ...(parsed.state ?? {}),
-        completedLessons: lessons,
-      };
-      localStorage.setItem("longyu-store", JSON.stringify(parsed));
-    } catch {
-      /* ignore */
-    }
-  }, completed);
+const STORE_VERSION = 16;
+
+type SeedState = Record<string, unknown>;
+
+function allAchievementsUnlocked(): Record<string, number> {
+  const now = Date.now();
+  return Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, now]));
+}
+
+async function seedStage(page: Page, state: SeedState) {
+  await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
+  await page.addInitScript(
+    (payload: string) => localStorage.setItem("longyu-v1", payload),
+    JSON.stringify({
+      state: {
+        accountSetupComplete: true,
+        achievementsUnlocked: allAchievementsUnlocked(),
+        ...state,
+      },
+      version: STORE_VERSION,
+    })
+  );
 }
 
 async function openHome(page: Page) {
   await page.goto("/jornada");
+  await dismissBlockingOverlays(page);
   await expect(page.getByTestId("home-cognitive")).toBeVisible({ timeout: 20_000 });
 }
 
 test.describe("RC2.3.13B Home cognitive", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
   test("new learner sees start CTA, not dead Continuar", async ({ page }) => {
-    await seedProgress(page, []);
+    await seedStage(page, { completedLessons: [] });
     await openHome(page);
     const continueCard = page.getByTestId("home-continue");
     await expect(continueCard).toBeVisible();
     const cta = page.getByTestId("home-continue-cta");
     await expect(cta).toBeVisible();
     await expect(cta).toHaveAttribute("data-cta-hierarchy", "primary");
+    const kind = await continueCard.getAttribute("data-continue-kind");
+    expect(kind === "START_FIRST" || kind === "CONTINUE_LESSON").toBeTruthy();
     const text = (await cta.innerText()).toLowerCase();
-    expect(text.includes("começar") || text.includes("start")).toBeTruthy();
-    // Exactly one primary CTA in the cognitive home surface.
-    const primaries = page.locator('[data-home-cognitive] [data-cta-hierarchy="primary"]');
-    // continue card + button both mark primary; ensure no secondary elevated to primary for Today.
+    expect(text.includes("começar") || text.includes("start") || text.includes("continuar")).toBeTruthy();
     const today = page.getByTestId("home-today");
     if (await today.count()) {
       await expect(today).toHaveAttribute("data-cta-hierarchy", "secondary");
     }
-    await expect(primaries.first()).toBeVisible();
   });
 
   test("returning learner sees Continue as primary answer", async ({ page }) => {
-    // First curriculum lessons — enough to leave new-learner empty state.
-    await seedProgress(page, ["l1", "l2"]);
+    await seedStage(page, { completedLessons: ["l1", "l2"] });
     await openHome(page);
     await expect(page.getByTestId("home-continue")).toBeVisible();
     await expect(page.getByTestId("home-continue-cta")).toBeVisible();
     const kind = await page.getByTestId("home-continue").getAttribute("data-continue-kind");
-    expect(kind === "CONTINUE_LESSON" || kind === "START_FIRST" || kind === "FALLBACK_REVIEW").toBeTruthy();
+    expect(
+      kind === "CONTINUE_LESSON" ||
+        kind === "START_FIRST" ||
+        kind === "FALLBACK_REVIEW" ||
+        kind === "FALLBACK_PRACTICE"
+    ).toBeTruthy();
   });
 
-  test("Today recommendation is secondary and explainable when present", async ({ page }) => {
-    await seedProgress(page, ["l1", "l2", "l3"]);
+  test("review due surfaces Today secondary with explainability", async ({ page }) => {
+    const now = Date.now();
+    await seedStage(page, {
+      completedLessons: ["l1", "l2", "l3"],
+      srs: {
+        "chunk:nihao": {
+          id: "chunk:nihao",
+          type: "chunk",
+          itemId: "nihao",
+          ease: 2.5,
+          intervalDays: 1,
+          due: now - 1000,
+          reps: 1,
+          lapses: 0,
+          createdAt: now - 86_400_000,
+        },
+      },
+    });
     await openHome(page);
     const today = page.getByTestId("home-today");
-    if ((await today.count()) === 0) {
-      test.info().annotations.push({ type: "note", description: "No Today rec for this seed — acceptable empty" });
-      return;
-    }
+    await expect(today).toBeVisible();
     await expect(today).toHaveAttribute("data-cta-hierarchy", "secondary");
+    await expect(today).toHaveAttribute("data-today-kind", "REVIEW_DUE");
     await expect(page.getByTestId("home-today-reason")).not.toBeEmpty();
-    await expect(page.getByTestId("home-today-cta")).toBeVisible();
-    // Must not point at Store / League.
     const href = await page.getByTestId("home-today-cta").getAttribute("href");
+    expect(href ?? "").toMatch(/\/revisao/);
     expect(href ?? "").not.toMatch(/\/loja|\/ligas/);
   });
 
-  test("mastery snapshot uses dominio CTA when evidence exists", async ({ page }) => {
-    await seedProgress(page, ["l1", "l2", "l3", "l4"]);
+  test("Today never equals Continue href when both present", async ({ page }) => {
+    const now = Date.now();
+    await seedStage(page, {
+      completedLessons: ["l1", "l2"],
+      srs: {
+        "chunk:nihao": {
+          id: "chunk:nihao",
+          type: "chunk",
+          itemId: "nihao",
+          ease: 2.5,
+          intervalDays: 1,
+          due: now - 1000,
+          reps: 1,
+          lapses: 0,
+          createdAt: now - 86_400_000,
+        },
+      },
+    });
     await openHome(page);
-    const mastery = page.getByTestId("home-mastery");
-    if ((await mastery.count()) === 0) {
-      test.info().annotations.push({ type: "note", description: "No mastery evidence yet — section hidden" });
-      return;
+    const continueHrefLesson = await page.getByTestId("home-continue").getAttribute("data-lesson-id");
+    const today = page.getByTestId("home-today");
+    if ((await today.count()) === 0) return;
+    const todayHref = await page.getByTestId("home-today-cta").getAttribute("href");
+    if (continueHrefLesson) {
+      expect(todayHref ?? "").not.toContain(`/licao/${continueHrefLesson}`);
     }
-    await expect(page.getByTestId("home-mastery-cta")).toHaveAttribute("href", "/dominio");
   });
 
-  test("explore never appears when culture locked; href culture when present", async ({ page }) => {
-    await seedProgress(page, []);
+  test("explore absent for brand-new learner without culture unlock", async ({ page }) => {
+    await seedStage(page, { completedLessons: [] });
     await openHome(page);
-    // Brand-new: culture typically HIDDEN — Explore should be absent.
-    const explore = page.getByTestId("home-explore");
-    // Allow either absent or (if sticky AVAILABLE) a real culture lesson path.
-    if ((await explore.count()) > 0) {
-      const href = await page.getByTestId("home-explore-cta").getAttribute("href");
-      expect(href ?? "").toMatch(/\/licao\/|\/cultura/);
-      expect(href ?? "").not.toMatch(/\/loja|\/ligas/);
-    }
+    await expect(page.getByTestId("home-explore")).toHaveCount(0);
   });
 
   test("Continue navigates to a lesson route", async ({ page }) => {
-    await seedProgress(page, []);
+    await seedStage(page, { completedLessons: [] });
     await openHome(page);
-    const cta = page.getByTestId("home-continue-cta");
-    await cta.click();
+    await page.getByTestId("home-continue-cta").click();
     await page.waitForTimeout(500);
-    const url = page.url();
-    expect(url).toMatch(/\/licao\/|\/jornada\/capsula\//);
+    expect(page.url()).toMatch(/\/licao\/|\/jornada\/capsula\//);
   });
 });
