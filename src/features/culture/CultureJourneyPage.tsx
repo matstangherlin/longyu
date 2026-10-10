@@ -1,32 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ProgressionShell, rememberProgressionAnchor } from "../../components/progression/ProgressionShell";
-import { ProgressionPath } from "../../components/progression/ProgressionPath";
-import type { ProgressionNodeState, ProgressionPathNode } from "../../components/progression/progressionTypes";
 import { ButtonLink } from "../../components/ui/primitives";
 import { cultureText } from "../../data/cultureQuest";
 import { getCultureItem, localizedCulture } from "../../data/culture";
-import {
-  CULTURE_V2_PATHS,
-  culturePathProgress,
-  nextNodeInPath,
-  resolveRecommendedCulturePath,
-  type CulturePathDef,
-} from "../../data/culturePaths";
+import { cultureLessonPlayerPath } from "../../data/cultureNative";
 import { getCultureMission } from "../../data/cultureMissions";
+import {
+  CULTURE_TOPIC_GROUPS,
+  cultureTopicHref,
+  migrateCulturePathToTopic,
+  resolveCultureContinuation,
+} from "../../data/cultureTopicGroups";
 import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
-import { pickNextCultureMissionId, dueCultureMemoryTargets, conceptIdForItem, visibleKnowledgeState } from "../../lib/cultureMastery";
+import { pickNextCultureMissionId, dueCultureMemoryTargets } from "../../lib/cultureMastery";
 import {
   readCultureFirstGuideSeen,
+  readProgressionAnchor,
   writeCultureFirstGuideSeen,
+  writeCultureTopicId,
   writeProgressionOpenOrigin,
 } from "../../lib/progressionShellState";
 import { recordTechEvent } from "../../lib/techEvents";
 import { GuideDialogue } from "../../components/guide/GuideDialogue";
+import { CultureTopicCard } from "./CultureTopicCard";
 
 /**
- * RC2.3.13H — Culture Journey with shared ProgressionPath bubbles.
+ * RC2.3.13R.3.2 — Culture root = topic hub.
+ * Rectangular topic cards; no horizontal path pills; no root progression bubbles;
+ * no path-switch toggle. Bubbles live inside topic detail.
  */
 export function CultureJourneyPage() {
   const { t, instructionLocale } = useTranslation();
@@ -34,30 +37,17 @@ export function CultureJourneyPage() {
   const fromJourney = searchParams.get("from") === "jornada";
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
-  const masteryById = useStore((s) => s.cultureMasteryById ?? {});
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
-  const knowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const [showGuide, setShowGuide] = useState(false);
-  const [pathOverride, setPathOverride] = useState<string | null>(null);
-  const [showPathPicker, setShowPathPicker] = useState(false);
 
   const nextId = pickNextCultureMissionId(completedIds, startedIds);
   const nextMission = nextId ? getCultureMission(nextId) : undefined;
-  const recommended = useMemo(
-    () => resolveRecommendedCulturePath(completedIds, nextMission?.cultureItemId ?? nextId),
+  const continuation = useMemo(
+    () => resolveCultureContinuation(completedIds, nextMission?.cultureItemId ?? nextId),
     [completedIds, nextId, nextMission?.cultureItemId],
   );
-  const currentPath: CulturePathDef = useMemo(() => {
-    if (pathOverride) {
-      return CULTURE_V2_PATHS.find((p) => p.id === pathOverride) ?? recommended;
-    }
-    return recommended;
-  }, [pathOverride, recommended]);
 
-  const { done, total } = culturePathProgress(currentPath, completedIds);
-  const pathNextId = nextNodeInPath(currentPath, completedIds) ?? nextId;
-  const due = dueCultureMemoryTargets(memoryById);
-  const nextItem = pathNextId ? getCultureItem(pathNextId) : undefined;
+  const nextItem = continuation.itemId ? getCultureItem(continuation.itemId) : undefined;
   const nextTitle = nextItem
     ? localizedCulture(nextItem, instructionLocale).title
     : nextMission
@@ -65,6 +55,12 @@ export function CultureJourneyPage() {
         ? nextMission.titleEn
         : nextMission.titlePt
       : "";
+  const pathTitle = cultureText(
+    { pt: continuation.path.titlePt, en: continuation.path.titleEn },
+    instructionLocale,
+  );
+  const hasProgress = completedIds.length > 0 || startedIds.length > 0;
+  const due = dueCultureMemoryTargets(memoryById);
 
   useEffect(() => {
     if (!readCultureFirstGuideSeen()) {
@@ -73,77 +69,23 @@ export function CultureJourneyPage() {
     }
   }, []);
 
+  // Migrate legacy path:/node: anchors → topic for switch restore.
   useEffect(() => {
-    if (currentPath?.id) rememberProgressionAnchor("culture", `path:${currentPath.id}`);
-  }, [currentPath?.id]);
+    const anchor = readProgressionAnchor("culture");
+    const migrated = migrateCulturePathToTopic(anchor);
+    if (migrated) writeCultureTopicId(migrated.id);
+  }, []);
 
   useEffect(() => {
-    if (pathNextId) rememberProgressionAnchor("culture", `node:${pathNextId}`);
-  }, [pathNextId]);
+    rememberProgressionAnchor("culture", `topic:${continuation.topic.id}`);
+  }, [continuation.topic.id]);
 
-  const primaryHref = pathNextId ? `/cultura/${pathNextId}` : "/cultura/explorar";
-
-  const pathNodes: ProgressionPathNode[] = useMemo(() => {
-    const nextIndex = pathNextId ? currentPath.orderedNodeIds.indexOf(pathNextId) : currentPath.orderedNodeIds.length;
-    return currentPath.orderedNodeIds.flatMap((itemId, index) => {
-      const item = getCultureItem(itemId);
-      if (!item) return [];
-      const title = localizedCulture(item, instructionLocale).title;
-      const doneNode = completedIds.includes(itemId);
-      const isNext = itemId === pathNextId;
-      let state: ProgressionNodeState;
-      if (doneNode) state = "COMPLETED";
-      else if (isNext) state = "CURRENT";
-      else if (nextIndex >= 0 && index > nextIndex + 2) state = "LOCKED";
-      else if (nextIndex >= 0 && index > nextIndex) state = "LOCKED";
-      else state = "AVAILABLE";
-
-      const conceptId = conceptIdForItem(itemId);
-      const knowledge = knowledgeById[conceptId];
-      const visible = visibleKnowledgeState(knowledge, memoryById[conceptId]);
-      const fromJourneyNode = knowledge?.source === "journey" && visible !== "unseen";
-      const stars = masteryById[itemId]?.stars ?? 0;
-
-      return [
-        {
-          id: itemId,
-          title,
-          state,
-          href: state === "LOCKED" ? undefined : `/cultura/${itemId}`,
-          statusLabel: doneNode
-            ? instructionLocale === "en"
-              ? "Done"
-              : "Feito"
-            : isNext
-              ? instructionLocale === "en"
-                ? "Continue"
-                : "Continuar"
-              : undefined,
-          metaLabel: fromJourneyNode
-            ? t("culture.seenOnJourney")
-            : stars > 0
-              ? `★${stars}`
-              : undefined,
-          testId: `culture-node-${itemId}`,
-          anchor: `node:${itemId}`,
-          onSelect: () => {
-            if (state === "LOCKED") return;
-            rememberProgressionAnchor("culture", `node:${itemId}`);
-            recordTechEvent("culture_node_open", { itemId, pathId: currentPath.id });
-          },
-        } satisfies ProgressionPathNode,
-      ];
-    });
-  }, [
-    currentPath,
-    completedIds,
-    pathNextId,
-    instructionLocale,
-    knowledgeById,
-    memoryById,
-    masteryById,
-    t,
-  ]);
+  const primaryHref = continuation.itemId
+    ? cultureLessonPlayerPath(
+        continuation.itemId,
+        `?src=cultura&from=${encodeURIComponent(cultureTopicHref(continuation.topic.id))}`,
+      )
+    : cultureTopicHref(continuation.topic.id);
 
   return (
     <ProgressionShell
@@ -153,9 +95,10 @@ export function CultureJourneyPage() {
     >
       <div
         data-testid="culture-journey"
-        data-culture-journey="rc2-3-13h"
-        data-culture-path-bubbles="true"
-        className="space-y-4"
+        data-culture-journey="rc2-3-13r3-2"
+        data-culture-topic-hub="true"
+        data-culture-path-bubbles="false"
+        className="space-y-5"
       >
         {fromJourney && (
           <Link
@@ -181,39 +124,35 @@ export function CultureJourneyPage() {
         ) : null}
 
         <section
-          key={currentPath.id}
+          key={continuation.topic.id}
           className="culture-path-card-enter rounded-2xl border border-line bg-surface p-4"
           data-testid="culture-progress"
-          data-progression-anchor={`path:${currentPath.id}`}
-          data-culture-current-path={currentPath.id}
-          data-culture-path-status={currentPath.status}
-          data-typography="culture-current-path"
+          data-progression-anchor={`topic:${continuation.topic.id}`}
+          data-culture-current-path={continuation.path.id}
+          data-culture-current-topic={continuation.topic.id}
+          data-culture-path-status={continuation.path.status}
+          data-typography="culture-continue-card"
         >
-          <p className="type-eyebrow">{t("progression.currentPath")}</p>
-          <h2 className="type-card-title mt-1.5">
-            {cultureText({ pt: currentPath.titlePt, en: currentPath.titleEn }, instructionLocale)}
-          </h2>
-          <p className="type-supporting mt-1.5">
-            {cultureText({ pt: currentPath.descriptionPt, en: currentPath.descriptionEn }, instructionLocale)}
+          <p className="type-eyebrow">
+            {hasProgress ? t("progression.continueLearning") : t("progression.startCulture")}
           </p>
+          <h2 className="type-card-title mt-1.5">{pathTitle}</h2>
+          {nextTitle ? (
+            <p className="type-supporting mt-1.5" data-testid="culture-next-title">
+              {nextTitle}
+            </p>
+          ) : null}
           <p className="type-body-strong mt-2" data-testid="culture-route-progress">
-            {done === 0 && total > 0
+            {continuation.done === 0 && continuation.total > 0
               ? t("progression.emptyStart")
-              : t("progression.pathProgress", { done, total })}
-            {currentPath.status === "EXPANSION_PENDING" ? (
-              <span className="type-eyebrow-muted ml-2 normal-case tracking-wide">
-                {t("progression.expansionPending")}
-              </span>
-            ) : null}
+              : t("progression.topicProgress", {
+                  done: continuation.done,
+                  total: continuation.total,
+                })}
           </p>
 
-          {/* Compact secondary CTA — current bubble is primary entry. */}
-          {pathNextId ? (
-            <div className="mt-3 space-y-2" data-testid="culture-next-title">
-              <p className="type-supporting">
-                <span className="type-eyebrow-muted">{t("progression.nextNode")} · </span>
-                {nextTitle}
-              </p>
+          {continuation.itemId ? (
+            <div className="mt-3">
               <ButtonLink
                 to={primaryHref}
                 className="inline-flex min-h-11"
@@ -222,27 +161,43 @@ export function CultureJourneyPage() {
                 data-coachmark-target="culture-recommended"
                 onClick={() => {
                   writeProgressionOpenOrigin(fromJourney ? "journey" : "culture");
-                  rememberProgressionAnchor("culture", `node:${pathNextId}`);
-                  recordTechEvent("culture_node_open", {
-                    itemId: pathNextId,
-                    pathId: currentPath.id,
+                  writeCultureTopicId(continuation.topic.id);
+                  rememberProgressionAnchor("culture", `node:${continuation.itemId}`);
+                  recordTechEvent("culture_topic_continue", {
+                    topicId: continuation.topic.id,
+                    itemId: continuation.itemId,
+                    pathId: continuation.path.id,
                     origin: fromJourney ? "journey" : "culture",
                   });
-                  recordTechEvent("culture_path_open", { pathId: currentPath.id });
+                  recordTechEvent("culture_node_open", {
+                    itemId: continuation.itemId!,
+                    pathId: continuation.path.id,
+                    topicId: continuation.topic.id,
+                  });
                 }}
               >
-                {t("progression.continueCulture")}
+                {hasProgress ? t("culture.continueMission") : t("progression.startCulture")}
               </ButtonLink>
             </div>
           ) : (
             <div className="mt-3 space-y-2">
               <p className="type-supporting">{t("progression.cultureComplete")}</p>
               {due.length > 0 ? (
-                <ButtonLink to="/cultura/revisao" className="min-h-11" data-testid="culture-review-cta" data-cta-hierarchy="secondary">
+                <ButtonLink
+                  to="/cultura/revisao"
+                  className="min-h-11"
+                  data-testid="culture-review-cta"
+                  data-cta-hierarchy="secondary"
+                >
                   {t("culture.reviewNow")}
                 </ButtonLink>
               ) : (
-                <ButtonLink to="/cultura/explorar" className="min-h-11" data-testid="culture-atlas-cta" data-cta-hierarchy="secondary">
+                <ButtonLink
+                  to="/cultura/explorar"
+                  className="min-h-11"
+                  data-testid="culture-atlas-cta"
+                  data-cta-hierarchy="secondary"
+                >
                   {t("progression.exploreAtlas")}
                 </ButtonLink>
               )}
@@ -250,56 +205,7 @@ export function CultureJourneyPage() {
           )}
         </section>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="type-label inline-flex min-h-11 items-center rounded-full border border-line bg-surface px-3 text-ink-soft"
-            data-testid="culture-path-picker-toggle"
-            data-cta-hierarchy="tertiary"
-            aria-expanded={showPathPicker}
-            onClick={() => setShowPathPicker((v) => !v)}
-          >
-            {t("progression.switchPath")}
-          </button>
-        </div>
-
-        {showPathPicker ? (
-          <div
-            className="flex gap-2 overflow-x-auto pb-1"
-            data-testid="culture-path-picker"
-            role="listbox"
-            aria-label={t("progression.switchPath")}
-          >
-            {CULTURE_V2_PATHS.map((path) => {
-              const active = path.id === currentPath.id;
-              const label = cultureText({ pt: path.titlePt, en: path.titleEn }, instructionLocale);
-              return (
-                <button
-                  key={path.id}
-                  type="button"
-                  role="option"
-                  aria-selected={active}
-                  data-testid={`culture-path-chip-${path.id}`}
-                  data-cta-hierarchy="tertiary"
-                  className={[
-                    "min-h-11 shrink-0 rounded-full border px-3 text-sm",
-                    active ? "border-accent bg-accent/10 font-semibold text-ink" : "border-line bg-surface text-ink-soft",
-                  ].join(" ")}
-                  onClick={() => {
-                    setPathOverride(path.id);
-                    setShowPathPicker(false);
-                    rememberProgressionAnchor("culture", `path:${path.id}`);
-                    recordTechEvent("culture_path_open", { pathId: path.id, via: "picker" });
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {due.length > 0 && pathNextId ? (
+        {due.length > 0 && continuation.itemId ? (
           <div className="rounded-2xl border border-line bg-surface p-3" data-testid="culture-review-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -318,8 +224,16 @@ export function CultureJourneyPage() {
           </div>
         ) : null}
 
-        <section aria-label={t("progression.currentPath")} data-testid="culture-progression-path">
-          <ProgressionPath nodes={pathNodes} personality="culture" testId="culture-path-bubbles" />
+        <section aria-label={t("progression.exploreByTopic")} data-testid="culture-topic-catalog">
+          <h2 className="type-section-title mb-3">{t("progression.exploreByTopic")}</h2>
+          <div
+            className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-3.5"
+            data-testid="culture-topic-grid"
+          >
+            {CULTURE_TOPIC_GROUPS.map((topic) => (
+              <CultureTopicCard key={topic.id} topic={topic} completedIds={completedIds} />
+            ))}
+          </div>
         </section>
 
         <Link
@@ -327,7 +241,7 @@ export function CultureJourneyPage() {
           className="inline-flex min-h-11 items-center text-sm font-medium text-ink-soft underline-offset-2 hover:text-accent hover:underline"
           data-testid="culture-explore-atlas"
           data-cta-hierarchy="tertiary"
-          onClick={() => recordTechEvent("culture_atlas_open", { from: "culture_journey" })}
+          onClick={() => recordTechEvent("culture_atlas_open", { from: "culture_topic_hub" })}
         >
           {t("progression.exploreAtlas")} →
         </Link>

@@ -14,6 +14,7 @@ import { recordTechEvent } from "../../lib/techEvents";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import {
   progressionEnterDirection,
+  readCultureTopicId,
   readProgressionAnchor,
   readProgressionLastMode,
   readProgressionScroll,
@@ -22,9 +23,16 @@ import {
   writeProgressionScroll,
   type ProgressionMode,
 } from "../../lib/progressionShellState";
+import { cultureTopicById, cultureTopicHref } from "../../data/cultureTopicGroups";
 
 const JOURNEY_HREF = "/jornada";
 const CULTURE_HREF = "/cultura";
+
+function cultureRestoreHref(): string {
+  const topicId = readCultureTopicId();
+  if (topicId && cultureTopicById(topicId)) return cultureTopicHref(topicId);
+  return CULTURE_HREF;
+}
 
 /**
  * RC2.3.13H.1 — ProgressionStickyChrome (conceptual):
@@ -55,7 +63,8 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
       // Persist current surface before leaving (scroll + last known anchor).
       writeProgressionScroll(mode, window.scrollY);
       writeProgressionLastMode(mode);
-      const href = next === "journey" ? JOURNEY_HREF : CULTURE_HREF;
+      // RC2.3.13R.3.2 — restore last Culture topic when switching back from Journey.
+      const href = next === "journey" ? JOURNEY_HREF : cultureRestoreHref();
       // replace — avoid endless history pollution from rapid toggling.
       navigate(href, { replace: true });
       recordTechEvent(

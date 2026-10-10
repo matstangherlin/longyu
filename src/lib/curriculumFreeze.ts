@@ -94,6 +94,43 @@ export const PRE_BETA_FREEZE_EXCEPTION_R312 = {
 } as const;
 
 /**
+ * RC2.3.13R.3.2 — OWNER_APPROVED_CULTURE_INFORMATION_ARCHITECTURE.
+ * Culture root mixes topic selection and node progression; restructure into
+ * topic hub + topic detail. No new curriculum / Culture lessons / mastery / economy.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R32 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_APPROVED_CULTURE_INFORMATION_ARCHITECTURE",
+  rationale:
+    "CURRENT CULTURE ROOT MIXES TOPIC SELECTION AND NODE PROGRESSION, CREATING CLUTTER AND POOR SCALABILITY.",
+  allows: [
+    "Culture topic grouping layer over existing V2 paths",
+    "Culture root topic hub (rectangular cards)",
+    "Culture topic detail with subtopic ProgressionPath",
+    "navigation / scroll / return-path wiring for topic hierarchy",
+  ],
+  forbids: [
+    "new CultureItems",
+    "new Culture native lessons",
+    "new Journey Culture nodes",
+    "new Culture paths",
+    "mastery math changes",
+    "economy changes",
+  ],
+  gates: [
+    "validate:culture-topic-hierarchy",
+    "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+  ],
+  gate: "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+  affectedSurfaces: [
+    "src/data/cultureTopicGroups.ts",
+    "src/features/culture/CultureJourneyPage.tsx",
+    "src/features/culture/CultureTopicDetailPage.tsx",
+    "src/features/culture/CultureTopicCard.tsx",
+  ],
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:

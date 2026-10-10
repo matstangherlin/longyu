@@ -1567,6 +1567,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R.3.2",
+      "script": "npm run validate:culture-topic-hierarchy && npm run test:rc2-3-13r3-2-culture-topic-hierarchy && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-culture-topic-hierarchy",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
       "status": "CLOUD_ONLY",
       "domain": "none",
