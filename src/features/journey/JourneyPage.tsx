@@ -49,6 +49,7 @@ import { cultureBlocksJourney } from "../../lib/cultureJourneyPolicy";
 import { JourneyCultureGate } from "./JourneyCultureGate";
 import { ProgressionShell } from "../../components/progression/ProgressionShell";
 import { ProgressionNodeBubble, progressionOffsetForIndex } from "../../components/progression/ProgressionNodeBubble";
+import { SymbolicOrnamentRail } from "../../components/progression/symbolicOrnaments";
 import type { ProgressionNodeState } from "../../components/progression/progressionTypes";
 import { haptic } from "../../lib/haptics";
 import {
@@ -1100,10 +1101,16 @@ function ModuleBlock({
       </div>
 
       {expanded && (
-      <div className="relative flex flex-col items-center gap-4 py-4">
+      <div
+        className="progression-path-frame relative flex flex-col items-center gap-4 py-4"
+        data-progression-axis="stable"
+        data-symbolic-ornaments="journey"
+      >
+        <SymbolicOrnamentRail nodeCount={unit.lessons.length} density="journey" />
         <div
           className="pointer-events-none absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-line/50 to-transparent"
           aria-hidden
+          data-progression-axis-line="true"
         />
         {unit.lessons.map((lesson) => {
           const idx = nextIndex();
@@ -1259,7 +1266,11 @@ function JourneyChestNode({
   const chestTitle = displayInstruction(chest.title, locale);
 
   return (
-    <div className={["relative z-[1] flex flex-col items-center", opened ? "opacity-75" : ""].join(" ")} style={{ transform: `translateX(${offset}px)` }}>
+    <div
+      className={["relative z-[1] flex flex-col items-center", opened ? "opacity-75" : ""].join(" ")}
+      data-progression-offset={offset}
+      style={offset ? { transform: `translateX(${offset}px)` } : undefined}
+    >
       {state === "unlocked" && (
         <div className="mb-1 rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lift">
           {t("journey.chestReady")}

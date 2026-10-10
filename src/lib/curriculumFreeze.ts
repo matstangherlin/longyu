@@ -131,6 +131,37 @@ export const PRE_BETA_FREEZE_EXCEPTION_R32 = {
 } as const;
 
 /**
+ * RC2.3.13R.3.2.1 — visual polish only.
+ * Stable progression axis, crafted topic icons, restrained symbolic ornaments.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R321 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "VISUAL_POLISH_ONLY",
+  rationale: "CULTURE AND JOURNEY PROGRESSION PRESENTATION NEEDS ALIGNMENT, ICON CRAFT, AND RESTRAINED SYMBOLIC ORNAMENTS.",
+  allows: [
+    "Culture topic card visual polish",
+    "stable centered progression axis",
+    "decorative symbolic ornaments",
+    "Journey and Culture shared path presentation",
+  ],
+  forbids: [
+    "new CultureItems",
+    "new lessons",
+    "new Culture paths",
+    "pedagogical rule changes",
+    "economy changes",
+    "navigation architecture changes",
+  ],
+  gates: [
+    "validate:progression-visual-alignment",
+    "validate:symbolic-ornament-system",
+    "validate:topic-card-polish",
+    "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression",
+  ],
+  gate: "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression",
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:

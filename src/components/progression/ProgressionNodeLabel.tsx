@@ -17,13 +17,13 @@ export function ProgressionNodeLabel({
     <div
       data-testid="progression-node-label"
       className={[
-        "mt-1.5 max-w-[7.5rem] text-center",
+        "progression-node-copy mt-2 w-[8.75rem] max-w-full text-center",
         muted ? "text-ink-faint" : emphasize ? "text-ink" : "text-ink-soft",
       ].join(" ")}
     >
       <p
         className={[
-          "truncate text-[11px] leading-tight",
+          "line-clamp-2 text-[11px] leading-tight",
           emphasize ? "font-semibold" : "font-medium",
         ].join(" ")}
       >

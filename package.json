@@ -1274,7 +1274,13 @@
     "validate:culture-topic-hierarchy": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs validate",
     "validate:rc2-3-13r3-2-culture-topic-hierarchy": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs validate",
     "test:rc2-3-13r3-2-culture-topic-hierarchy": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs test",
-    "gate:rc2-3-13r3-2-culture-topic-hierarchy": "npm run validate:culture-topic-hierarchy && npm run test:rc2-3-13r3-2-culture-topic-hierarchy && npm run validate:product-truth"
+    "gate:rc2-3-13r3-2-culture-topic-hierarchy": "npm run validate:culture-topic-hierarchy && npm run test:rc2-3-13r3-2-culture-topic-hierarchy && npm run validate:product-truth",
+    "validate:progression-visual-alignment": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs alignment",
+    "validate:symbolic-ornament-system": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs ornament",
+    "validate:topic-card-polish": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs cards",
+    "validate:rc2-3-13r3-2-1-visual-polish": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs validate",
+    "test:rc2-3-13r3-2-1-visual-polish": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs test",
+    "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression": "npm run validate:rc2-3-13r3-2-1-visual-polish && npm run test:rc2-3-13r3-2-1-visual-polish && npm run validate:culture-topic-hierarchy"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

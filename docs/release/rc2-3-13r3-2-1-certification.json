@@ -1,0 +1,61 @@
+{
+  "wave": "RC2.3.13R.3.2.1",
+  "title": "Culture/Journey Visual Polish & Symbolic Progression",
+  "phase": "IMPLEMENTATION",
+  "parentPr": 350,
+  "parentHeadSha": "5808e575568f4547e5ed38347f8e242efa8ecc70",
+  "freezeException": {
+    "id": "PRE_BETA_FREEZE_EXCEPTION",
+    "reason": "VISUAL_POLISH_ONLY",
+    "rationale": "CULTURE AND JOURNEY PROGRESSION PRESENTATION NEEDS ALIGNMENT, ICON CRAFT, AND RESTRAINED SYMBOLIC ORNAMENTS."
+  },
+  "runtime": {
+    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "learnerRuntimeMoved": true,
+    "fingerprint": "29bb02ec0336"
+  },
+  "visualPolish": {
+    "scope": ["culture-root", "culture-topic-detail", "journey-progression", "culture-progression"],
+    "architectureUnchanged": true
+  },
+  "topicCards": {
+    "iconFamily": "longyu-line",
+    "shape": "rectangle"
+  },
+  "progressionAlignment": {
+    "axis": "stable-center",
+    "bubbleOffsetPx": 0,
+    "zigzag": false
+  },
+  "symbolicOrnaments": {
+    "motifs": ["lantern", "fan", "bamboo", "cloud", "moon-gate", "seal", "blossom", "knot"],
+    "alternation": "left-right",
+    "decorativeOnly": true,
+    "reducedMotion": true,
+    "cultureDensityStep": 3,
+    "journeyDensityStep": 4
+  },
+  "accessibility": {
+    "ornamentsAriaHidden": true,
+    "ornamentsFocusable": false
+  },
+  "hosted": {
+    "overall": "PENDING"
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "apkSha256": null,
+    "priorCandidatesStale": true,
+    "staleReason": "R.3.2.1 learner-facing visual polish supersedes prior DEVICE_QA APKs",
+    "stalePriorDeviceQaApkSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af"
+  },
+  "physical": {
+    "status": "NOT_RUN"
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "wave1Invited": 0
+  }
+}

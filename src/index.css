@@ -911,6 +911,23 @@ textarea {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
+/* RC2.3.13R.3.2.1 — slow ornament drift; reduced-motion block below disables it. */
+@keyframes ornament-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: 0.78;
+  }
+}
+
+.symbolic-ornament {
+  animation: ornament-drift 7s var(--ease-standard) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -944,7 +961,8 @@ textarea {
   .guide-mascot-enter,
   .guide-bubble-enter,
   .guide-continue-enter,
-  .guide-text-swap {
+  .guide-text-swap,
+  .symbolic-ornament {
     animation: none !important;
   }
 

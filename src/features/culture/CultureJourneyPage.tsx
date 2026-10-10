@@ -125,7 +125,7 @@ export function CultureJourneyPage() {
 
         <section
           key={continuation.topic.id}
-          className="culture-path-card-enter rounded-2xl border border-line bg-surface p-4"
+          className="culture-continue-card culture-path-card-enter rounded-2xl border border-line bg-surface p-4 shadow-card"
           data-testid="culture-progress"
           data-progression-anchor={`topic:${continuation.topic.id}`}
           data-culture-current-path={continuation.path.id}
