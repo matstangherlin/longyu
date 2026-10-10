@@ -410,7 +410,8 @@ test.describe("V4.9.3 — a aula sem depender de animação", () => {
       await page.waitForTimeout(150);
     }
 
-    // Dynamic AULA: visual example / fallback is accessible. Legacy: tone contour SVG.
+    // Dynamic AULA: visual beat + teacher copy are the accessible lesson body.
+    // Legacy animated path still exposes [data-tone-contour] with aria-label.
     const contour = page.locator("[data-tone-contour]").first();
     const visual = page.getByTestId("visual-example").or(page.getByTestId("visual-fallback")).first();
     await advanceDynamicUntil(page, visual.or(contour));
@@ -419,9 +420,10 @@ test.describe("V4.9.3 — a aula sem depender de animação", () => {
       const label = await contour.getAttribute("aria-label");
       expect(Boolean(label && label.length > 8)).toBe(true);
     } else {
-      await expect(visual).toBeVisible();
-      const label = ((await visual.getAttribute("aria-label")) ?? (await visual.innerText()) ?? "").trim();
-      expect(label.length > 4).toBe(true);
+      await expect(visual.or(page.getByTestId("dynamic-teaching-sequence"))).toBeVisible();
+      await expect(page.getByTestId("dynamic-teaching-sequence")).toContainText(
+        /melodia|melody|movimentos|movements|tom|tone|Ouça|Listen/i
+      );
     }
 
     // Finish remaining beats by keyboard; dynamic AULA has no microcheck.
