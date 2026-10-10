@@ -125,8 +125,14 @@ async function answerInteraction(page: Page): Promise<boolean> {
   }
   // GuidedDock portals Verificar/Continuar into the lesson action region —
   // they are no longer descendants of [data-conversation-interaction].
-  await page.getByTestId("conversation-check").tap();
-  await page.getByTestId("conversation-interaction-continue").tap();
+  const check = page.getByTestId("conversation-check");
+  await expect(check).toBeEnabled({ timeout: 10_000 });
+  await check.tap();
+  const cont = page
+    .getByTestId("conversation-interaction-continue")
+    .or(page.locator("[data-lesson-action-region]").getByRole("button", { name: /^(Continuar|Continue)/i }));
+  await expect(cont.first()).toBeVisible({ timeout: 15_000 });
+  await cont.first().tap();
   return true;
 }
 
