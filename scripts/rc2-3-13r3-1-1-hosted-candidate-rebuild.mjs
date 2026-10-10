@@ -63,9 +63,17 @@ function test() {
   k("report missing", "R311_REPORT_MISSING", { ...base, report: "" });
   k("owner handoff missing", "R311_OWNER_HANDOFF_MISSING", { ...base, ownerPack: "" });
 
-  k("stale apk marked built", "STALE_APK_MARKED_BUILT", withJson(base, "rc", (o) => {
-    o.ownerQaApk.status = "BUILT";
-  }));
+  k("stale apk marked built", "STALE_APK_MARKED_BUILT", withJson(
+    withJson(base, "r311", (o) => {
+      o.phase = "PRE_BUILD";
+      o.newOwnerQaApk = { status: "NOT_BUILT", sha256: null, artifactSourceSha: null };
+    }),
+    "rc",
+    (o) => {
+      o.ownerQaApk.status = "BUILT";
+      o.ownerQaApk.sha256 = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+    },
+  ));
   k("stale hash recertified as new", "STALE_HASH_RECERTIFIED", withJson(base, "r311", (o) => {
     o.phase = "POST_BUILD";
     o.newOwnerQaApk = { status: "BUILT", sha256: STALE_APK_SHA256, artifactSourceSha: "a".repeat(40) };
@@ -253,9 +261,14 @@ function test() {
     );
     return src;
   })());
-  k("stale built second", "STALE_APK_MARKED_BUILT", withJson(base, "rc", (o) => {
-    o.ownerQaApk.status = "BUILT";
-  }));
+  k("stale built second", "STALE_APK_MARKED_BUILT", withJson(
+    withJson(base, "r311", (o) => {
+      o.phase = "PRE_BUILD";
+      o.newOwnerQaApk = { status: "NOT_BUILT", sha256: null, artifactSourceSha: null };
+    }),
+    "rc",
+    (o) => { o.ownerQaApk.status = "BUILT"; },
+  ));
   k("entry go cert", "ENTRY_GO_WHILE_PHYSICAL_NOT_RUN", withJson(base, "cert", (o) => {
     if (!o.entryDecision) o.entryDecision = {};
     o.entryDecision.OWNER_QA_ENTRY = "GO";

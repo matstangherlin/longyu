@@ -22,23 +22,26 @@
   "shaNote": "learnerRuntimeSha = b6fe9153 (R.3.1.2 lessonTasks same-kind visual-repeat; fingerprint 29bb02ec0336). Prior 719ce024 = R.3.1.1 pure personalizedUtterance + EN overlays; c68dc428 = R.3.1 product fixes. artifactSourceSha still names the stale pre-rebuild candidate until a new Owner QA APK is minted from hosted-green HEAD.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
-    "status": "STALE_FOR_CURRENT_RUNTIME",
+    "status": "BUILT",
     "channel": "DEVICE_QA",
     "buildType": "debug",
     "deviceQaBuild": true,
-    "workflowRunId": 37995330174,
+    "workflowRunId": 38023872888,
     "workflowAttempt": 1,
     "artifactId": 11646859473,
     "artifactName": "longyu-android-debug-0.2.0-rc.5-3be0ade",
     "apkFile": "longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
-    "sha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "sha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
     "bytes": 23674372,
     "versionName": "0.2.0-rc.5",
-    "versionCode": 651,
+    "versionCode": 675,
     "packageId": "longyu.noba.com",
     "builtAt": "2026-10-09T21:59:31.202Z",
     "ownerPathHint": "/opt/cursor/artifacts/r2-apk/longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
-    "note": "STALE after #344 + R.3.1 (#345) learner-runtime fixes. Reject fb835ce8… for any new physical QA. New APK = NOT_BUILT until R.3.1.1 hosted green."
+    "note": "STALE after #344 + R.3.1 (#345) learner-runtime fixes. Reject fb835ce8… for any new physical QA. New APK = NOT_BUILT until R.3.1.1 hosted green.",
+    "artifactSourceSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
+    "workflowMergeSha": "a6a467e8b65a205040a83e729ed8a77d5a849ab2",
+    "staleHashRejected": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
   },
   "playClosedBeta": {
     "role": "PLAY_CLOSED_BETA_AAB",
@@ -62,7 +65,7 @@
     "note": "Local web candidate digest for release provenance. Netlify production may still serve an older SHA until deploy."
   },
   "entry": {
-    "OWNER_QA_ENTRY": "HOLD",
+    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
     "reason": "R.3.1.1 PRE_BUILD: learner runtime advanced (c68dc428); old Owner QA APK STALE_FOR_CURRENT_RUNTIME; new APK NOT_BUILT; targeted physical NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0."

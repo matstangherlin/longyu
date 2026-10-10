@@ -1,0 +1,42 @@
+{
+  "schema": "longyu-build-identity/1",
+  "authority": "sha",
+  "sha": "a6a467e8b65a205040a83e729ed8a77d5a849ab2",
+  "shortSha": "a6a467e",
+  "branch": "cursor/rc2-3-13r3-1-2-1-hosted-mint-af1a",
+  "version": "0.2.0-rc.5",
+  "platform": "android",
+  "buildType": "debug",
+  "environment": "production_beta",
+  "workflowRun": "https://github.com/matstangherlin/longyu/actions/runs/38023872888",
+  "builtAt": "2026-10-10T04:38:07.752Z",
+  "versionName": "0.2.0-rc.5",
+  "versionCode": 675,
+  "sourceOfTruth": "main",
+  "files": [
+    {
+      "name": "longyu-android-debug-0.2.0-rc.5-a6a467e.apk",
+      "sha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+      "bytes": 23676332
+    },
+    {
+      "name": "longyu-android-debug-0.2.0-rc.5-a6a467e.aab",
+      "sha256": "72d9088a2a9d24dc342624e158290eeea10cd903d8f5ef923ca315436b35c657",
+      "bytes": 22121015
+    }
+  ],
+  "packageName": "longyu.noba.com",
+  "bundleInspection": {
+    "kind": "aab",
+    "packageName": "longyu.noba.com",
+    "versionCode": 675,
+    "versionName": "0.2.0-rc.5",
+    "providerAuthorities": [
+      "longyu.noba.com.fileprovider",
+      "longyu.noba.com.localnotifications.fileprovider",
+      "longyu.noba.com.androidx-startup"
+    ],
+    "legacyIdFound": false
+  },
+  "dirtyTree": true
+}
