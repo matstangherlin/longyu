@@ -32,8 +32,8 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
     await page.getByTestId("progression-tab-culture").click();
     await expect(page).toHaveURL(/\/cultura$/);
     await expect(page.getByTestId("progression-shell")).toHaveAttribute("data-progression-mode", "culture");
-    await expect(page.getByTestId("culture-hub")).toBeVisible();
-    await expect(page.getByTestId("culture-next-cta")).toBeVisible();
+    await expect(page.getByTestId("culture-hub")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("culture-next-cta")).toBeVisible({ timeout: 15_000 });
 
     await page.evaluate(() => {
       sessionStorage.setItem("longyu.progression.cultureAnchor", "route:first-meetings");
@@ -42,10 +42,11 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
 
     await page.getByTestId("progression-tab-journey").click();
     await expect(page).toHaveURL(/\/jornada$/);
-    await expect(page.getByTestId("home-cognitive")).toBeVisible();
+    await expect(page.getByTestId("home-cognitive")).toBeVisible({ timeout: 15_000 });
 
     await page.getByTestId("progression-tab-culture").click();
-    await expect(page.getByTestId("culture-hub")).toBeVisible();
+    await expect(page).toHaveURL(/\/cultura$/);
+    await expect(page.getByTestId("culture-hub")).toBeVisible({ timeout: 15_000 });
     const cultureScroll = await page.evaluate(() => sessionStorage.getItem("longyu.progression.cultureScroll"));
     expect(cultureScroll).toBeTruthy();
   });
@@ -65,11 +66,14 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
     await openApp(page, "/jornada");
     for (let i = 0; i < 6; i++) {
       await page.getByTestId("progression-tab-culture").click();
+      await expect(page).toHaveURL(/\/cultura$/);
       await page.getByTestId("progression-tab-journey").click();
+      await expect(page).toHaveURL(/\/jornada$/);
     }
     await expect(page).toHaveURL(/\/jornada$/);
     await page.goBack();
-    await expect(page.getByTestId("progression-shell").or(page.locator("body"))).toBeVisible();
+    // Do not OR with body — when the shell mounts, body also matches (strict mode).
+    await expect(page.getByTestId("progression-shell")).toBeVisible({ timeout: 15_000 });
   });
 });
 

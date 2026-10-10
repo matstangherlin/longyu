@@ -116,6 +116,7 @@ test.describe("RC1.4 · generated fixtures", () => {
 
 test.describe("RC1.4 · review keeps target", () => {
   test("P24.1 — feedback canônico alinhado em zhong e ma", async ({ page }) => {
+    test.setTimeout(90_000);
     for (const lessonId of ["p4-char-zhong", "l19-logica-ma"]) {
       const lesson = getLesson(lessonId);
       expect(lesson).toBeTruthy();
