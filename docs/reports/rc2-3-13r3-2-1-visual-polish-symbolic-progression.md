@@ -21,6 +21,8 @@ NO ECONOMY CHANGE.
 | Parent PR | #350 |
 | Parent HEAD | `5808e575568f4547e5ed38347f8e242efa8ecc70` |
 | Branch | `cursor/rc2-3-13r3-2-1-culture-journey-visual-polish-af1a` |
+| `learnerRuntimeSha` | `824a55deb79898b3ee6c0f60d66dc762333828a4` |
+| Fingerprint | `29bb02ec0336` (unchanged) |
 
 ## What changed visually
 
