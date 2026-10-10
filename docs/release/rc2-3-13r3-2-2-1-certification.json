@@ -1,0 +1,129 @@
+{
+  "wave": "RC2.3.13R.3.2.2.1",
+  "title": "Hosted Terminal Closure, Final Device Candidate & Physical Regression Certification",
+  "phase": "HOSTED_PENDING",
+  "parentPr": 352,
+  "parentTitle": "RC2.3.13R.3.2.2 — Hosted Closure, Final Visual Candidate Mint & Physical Acceptance",
+  "parentHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
+  "candidateHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
+  "pr": null,
+  "runtime": {
+    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "learnerRuntimeMoved": false,
+    "rationale": "Docs/gates/artifact reconciliation only. No learner-facing product change. Fingerprint 29bb02ec0336.",
+    "fingerprint": "29bb02ec0336"
+  },
+  "visualFreeze": {
+    "status": "PENDING_OWNER_ACCEPTANCE",
+    "principle": "JOURNEY_CULTURE_VISUAL_DESIGN_FROZEN_AFTER_OWNER_ACCEPTANCE",
+    "noFurtherVisualWaves": true,
+    "apkSha256": null
+  },
+  "rejectedApkSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+  "rejectedApkSha256List": [
+    "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  ],
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": null,
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "securityBuild": "PENDING",
+    "securityAnalysis": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "webkit": "PENDING",
+    "firefox": "PENDING",
+    "parentEvidenceUsed": false,
+    "workflowIds": {
+      "security": 38032295102,
+      "ci": 38032295031,
+      "android": 38032295198
+    }
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "apkSha256": null,
+    "hashSource": null,
+    "artifactSourceSha": null,
+    "prHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
+    "workflowMergeSha": null,
+    "certificationHeadSha": null,
+    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "workflowRunId": null,
+    "artifactId": null,
+    "filename": null,
+    "versionName": null,
+    "versionCode": null,
+    "packageId": "longyu.noba.com",
+    "fingerprint": null,
+    "channel": "DEVICE_QA",
+    "provenancePresent": false,
+    "playReady": false,
+    "labeledPlaySigned": false,
+    "debugAabSha256": null,
+    "debugAabNote": "DEBUG / DEVICE_QA — NOT PLAY SIGNED — NOT PLAY READY"
+  },
+  "targetedPhysical": {
+    "status": "NOT_RUN",
+    "artifactSha256": null,
+    "evidence": null,
+    "audioX20Count": 0,
+    "PREVIOUS_R31_BLOCKERS": "NOT_RUN"
+  },
+  "visualAcceptance": {
+    "FINAL_VISUAL_OWNER_ACCEPTANCE": "NOT_RUN",
+    "CULTURE_ROOT_VISUAL": "NOT_RUN",
+    "TOPIC_DETAIL_VISUAL": "NOT_RUN",
+    "PROGRESSION_ALIGNMENT_PHYSICAL": "NOT_RUN",
+    "ORNAMENTS_PHYSICAL": "NOT_RUN",
+    "JOURNEY_VISUAL_PHYSICAL": "NOT_RUN",
+    "AUDIO_X20": "NOT_RUN",
+    "artifactSha256": null,
+    "emulator": false
+  },
+  "fullPhysical": {
+    "status": "NOT_RUN",
+    "guidedTry10": "NOT_RUN",
+    "speech5": "NOT_RUN",
+    "conversation5": "NOT_RUN",
+    "review": "NOT_RUN",
+    "dynamicAula": "NOT_RUN",
+    "talkback": "NOT_RUN",
+    "fontScale": "NOT_RUN",
+    "androidBack": "NOT_RUN",
+    "ime": "NOT_RUN",
+    "backgroundResume": "NOT_RUN",
+    "offlineReconnect": "NOT_RUN",
+    "session30min": "NOT_RUN"
+  },
+  "operations": {
+    "sentry": "NOT_RUN",
+    "rollback": "NOT_RUN",
+    "cloudSmoke1": "NOT_RUN",
+    "cloudSmoke2": "NOT_RUN",
+    "androidOauth": "NOT_RUN"
+  },
+  "play": {
+    "signedAab": "NOT_BUILT",
+    "closedTesting": "HOLD",
+    "installProof": "NOT_RUN"
+  },
+  "resumeFullR3": false,
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "reason": "HOSTED_PENDING on #352 exact head; Device-QA APK NOT_BUILT; physical NOT_RUN"
+  },
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0,
+    "activated": 0,
+    "realTesterCount": 0
+  }
+}
