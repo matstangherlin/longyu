@@ -79,7 +79,11 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
     const preferred = scene.getByRole("button", { name: /^(Opção|Option) \d+:.*(你好|Olá|nǐ hǎo)/i }).first();
     const pick = (await preferred.isVisible().catch(() => false)) ? preferred : options.first();
     if (await clickIfEnabled(pick)) {
-      await clickIfEnabled(scene.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }).first());
+      // RC2.3+ — Verificar lives in the lesson dock, not inside the scene node.
+      const verify = page
+        .getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ })
+        .first();
+      await clickIfEnabled(verify);
       return true;
     }
   }
