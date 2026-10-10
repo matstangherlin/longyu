@@ -4951,18 +4951,18 @@ function selectedImageConceptIds(selected: readonly PracticeCandidate[]): Set<st
   return ids;
 }
 
-// Passos visuais GERADOS nunca repetem uma imagem já usada na lição (autoral ou
-// gerada). Passos autorais ficam como o autor escreveu.
+// RC2.3.13R.3.1 — passos visuais (gerados OU autorais) não repetem o mesmo
+// conceptId adjacente/já usado na seleção da lição quando há alternativa.
 function violatesImageRepeat(
   selected: readonly PracticeCandidate[],
   candidate: PracticeCandidate
 ): boolean {
-  if (
-    !candidate.generated ||
-    (candidate.step.kind !== "image_choice" && candidate.step.kind !== "compare_with_image")
-  ) return false;
+  if (candidate.step.kind !== "image_choice" && candidate.step.kind !== "compare_with_image") {
+    return false;
+  }
   const conceptId = imageConceptIdOfStep(candidate.step);
   if (!conceptId) return false;
+  // Sempre bloqueia repetição de concept já selecionado (gerado ou autoral).
   return selectedImageConceptIds(selected).has(conceptId);
 }
 

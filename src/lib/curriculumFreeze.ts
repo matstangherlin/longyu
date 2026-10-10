@@ -30,6 +30,35 @@ export const CURRICULUM_FREEZE = "RC2_CONTENT_FREEZE" as const;
 export const FEATURE_FREEZE = "PUBLIC_BETA" as const;
 
 /**
+ * RC2.3.13R.3.1 — PRE_BETA_FREEZE_EXCEPTION.
+ *
+ * Real-device owner QA exposed beta blockers (canonical exercise skips, audio
+ * truncation, personalized utterance cuts, distractor leakage, visual
+ * repetition, mobile activity fit). This exception allows learner-runtime
+ * correctness fixes only — not product redesign or curriculum expansion.
+ *
+ * Reason: REAL_DEVICE_BETA_BLOCKER_FIX
+ * Counts stay frozen: 134 lessons, 113 topics, 36 CultureItems.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION = {
+  id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
+  reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
+  allows: [
+    "canonical activity integrity fixes",
+    "audio continuity / personalized utterance playback",
+    "distractor quality / name-leak repair",
+    "deterministic visual variety",
+    "small-viewport activity layout compaction",
+  ],
+  forbids: ["new lessons", "new topics", "new CultureItems", "new StepKind", "mastery math changes", "feature redesign"],
+  gates: [
+    "validate:canonical-activity-integrity",
+    "validate:distractor-quality",
+    "gate:rc2-3-13r3-1-learning-integrity",
+  ],
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:

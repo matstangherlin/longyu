@@ -55,6 +55,9 @@ export interface AudioEngineDecision {
 export function classifyAudioSource(source: string | null | undefined): AudioContentClass {
   const s = String(source ?? "").toUpperCase();
   if (s === "QA" || s.startsWith("QA_") || s.includes("FORENSIC") || s.includes("PROBE")) return "QA";
+  // RC2.3.13R.3.1 — PERSONAL/NAME/DYNAMIC must win over LESSON_* prefixes
+  // (e.g. LESSON_PERSONAL / PERSONAL_UTTERANCE) so 我叫 + learnerName can TTS.
+  if (s.includes("DYNAMIC") || s.includes("NAME") || s.includes("PERSONAL")) return "DYNAMIC_CONTENT";
   if (
     s === "GUIDED_TRY" ||
     s === "CONVERSATION_AUTOPLAY" ||
@@ -84,7 +87,6 @@ export function classifyAudioSource(source: string | null | undefined): AudioCon
   ) {
     return "FIXED_CONTENT";
   }
-  if (s.includes("DYNAMIC") || s.includes("NAME") || s.includes("PERSONAL")) return "DYNAMIC_CONTENT";
   // Default: conteúdo de aprendizagem é fixo até prova em contrário.
   return "FIXED_CONTENT";
 }

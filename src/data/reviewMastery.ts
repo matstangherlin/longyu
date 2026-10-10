@@ -189,10 +189,12 @@ export function reviewMasteryStepsFor(lessonId: string, level: ReviewMasteryLeve
 
   if (lessonId === "l14-char-rev") {
     if (level === 1) {
+      // RC2.3.13R.3.1 — recognize exige charId (StepRecognize + validateExercise).
+      // Opções autorais sem charId produziam EXERCÍCIO PULADO em runtime.
       return [
-        { kind: "recognize", title: "Recall 我", hanzi: "我", prompt: "Qual e este caractere?", correctAnswer: "我", options: ["我", "你", "不", "是"] },
-        { kind: "recognize", title: "Recall 你", hanzi: "你", prompt: "Qual e este caractere?", correctAnswer: "你", options: ["你", "我", "日", "口"] },
-        { kind: "recognize", title: "Recall 是", hanzi: "是", prompt: "Qual e este caractere?", correctAnswer: "是", options: ["是", "不", "三", "目"] },
+        { kind: "recognize", title: "Recall 我", charId: "wo" },
+        { kind: "recognize", title: "Recall 你", charId: "ni" },
+        { kind: "recognize", title: "Recall 是", charId: "shi" },
       ];
     }
     if (level === 2) {

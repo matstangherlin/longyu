@@ -332,7 +332,7 @@ export function saveDeviceQaRegistry(registry: DeviceQaRegistry): void {
  */
 export interface DeviceQaObservation {
   at: number;
-  kind: "step_stalled" | "audio_failed" | "speech_failed" | "signup_failed" | "reported";
+  kind: "step_stalled" | "audio_failed" | "speech_failed" | "signup_failed" | "reported" | "canonical_exercise_skip";
   /** Só metadados: lição, índice, tipo, código. */
   detail: string;
 }

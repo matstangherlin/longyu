@@ -16,18 +16,28 @@ import { deviceQaEnabled, recordDeviceQaObservation } from "../../lib/deviceQa";
 import { refreshNativeTtsStatus } from "../../lib/tts";
 import { playMandarinAudio } from "../../lib/audioPlayback";
 
-/** RC2.2.32 — conteúdo fixo da lição passa pelo player canônico (sem TTS silencioso). */
-function speak(text: string, options: { rate?: number } = {}) {
-  void playMandarinAudio(String(text ?? ""), { rate: options.rate, source: "LESSON_AUDIO" });
-}
 import { requestMandarinSpeech, scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
+  isPersonalizedUtterance,
+  personalizeChoiceList,
   personalizeConversationPrompt,
   personalizeName as personalizeValue,
+  repairNameOnlyAnswerLeak,
   useStudentFirstName,
 } from "../../lib/personalize";
+
+/**
+ * RC2.2.32 — conteúdo fixo da lição passa pelo player canônico (sem TTS silencioso).
+ * RC2.3.13R.3.1 — utterances personalizadas (我叫 + nome) usam fonte PERSONAL
+ * para o motor DYNAMIC completar o nome via TTS aprovado.
+ */
+function speak(text: string, options: { rate?: number } = {}) {
+  const clean = String(text ?? "");
+  const source = isPersonalizedUtterance(clean) ? "PERSONAL_UTTERANCE" : "LESSON_AUDIO";
+  void playMandarinAudio(clean, { rate: options.rate, source });
+}
 import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { playSoundFx } from "../../lib/soundFx";
 import {
@@ -467,26 +477,31 @@ function shuffle<T>(arr: T[]): T[] {
 
 function personalizeNode(node: ConversationNode, name: string | undefined): ConversationNode {
   const interaction = node.interaction;
+  const personalizedInteraction = interaction
+    ? repairNameOnlyAnswerLeak(
+        {
+          ...interaction,
+          prompt: personalizeConversationPrompt(interaction.prompt, name) ?? interaction.prompt,
+          correctAnswer: personalizeValue(interaction.correctAnswer, name) ?? interaction.correctAnswer,
+          explanation: personalizeConversationPrompt(interaction.explanation, name) ?? interaction.explanation,
+          options: personalizeChoiceList(interaction.options, name),
+          accepts: interaction.accepts?.map((answer) => personalizeValue(answer, name) ?? answer),
+        },
+        name
+      )
+    : interaction;
   return {
     ...node,
     hanzi: personalizeValue(node.hanzi, name) ?? node.hanzi,
     pinyin: personalizeValue(node.pinyin, name) ?? node.pinyin,
     pt: personalizeValue(node.pt, name) ?? node.pt,
     audioText: personalizeValue(node.audioText, name) ?? node.audioText,
-    interaction: interaction
-      ? {
-          ...interaction,
-          prompt: personalizeConversationPrompt(interaction.prompt, name) ?? interaction.prompt,
-          correctAnswer: personalizeValue(interaction.correctAnswer, name) ?? interaction.correctAnswer,
-          explanation: personalizeConversationPrompt(interaction.explanation, name) ?? interaction.explanation,
-          options: interaction.options?.map((option) => personalizeValue(option, name) ?? option),
-        }
-      : interaction,
+    interaction: personalizedInteraction,
   };
 }
 
 function personalizeStep(step: LessonStep, name: string | undefined): LessonStep {
-  return {
+  const personalized: LessonStep = {
     ...step,
     // Personagens da cena: o avatar do aluno (esquerda) recebe o nome do usuário.
     characters: step.characters?.map((character) => ({
@@ -506,12 +521,12 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
     suggestion: personalizeValue(step.suggestion, name),
     placeholder: personalizeValue(step.placeholder, name),
     requiredTerms: step.requiredTerms?.map((term) => personalizeValue(term, name) ?? term),
-    wordBank: step.wordBank?.map((part) => personalizeValue(part, name) ?? part),
+    wordBank: personalizeChoiceList(step.wordBank, name),
     accepts: step.accepts?.map((answer) => personalizeValue(answer, name) ?? answer),
     audioSequence: step.audioSequence?.map((audio) => personalizeValue(audio, name) ?? audio),
-    options: step.options?.map((option) => personalizeValue(option, name) ?? option),
+    options: personalizeChoiceList(step.options, name),
     target: step.target?.map((part) => personalizeValue(part, name) ?? part),
-    bank: step.bank?.map((part) => personalizeValue(part, name) ?? part),
+    bank: personalizeChoiceList(step.bank, name),
     pairs: step.pairs?.map((pair) => ({
       ...pair,
       left: personalizeValue(pair.left, name) ?? pair.left,
@@ -527,7 +542,7 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
     acceptedTargetParts: step.acceptedTargetParts?.map((parts) =>
       parts.map((part) => personalizeValue(part, name) ?? part)
     ),
-    distractors: step.distractors?.map((part) => personalizeValue(part, name) ?? part),
+    distractors: personalizeChoiceList(step.distractors, name),
     sentenceBefore: personalizeValue(step.sentenceBefore, name),
     sentenceAfter: personalizeValue(step.sentenceAfter, name),
     blankAnswer: personalizeValue(step.blankAnswer, name),
@@ -543,17 +558,21 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
       audioText: personalizeValue(line.audioText, name) ?? line.audioText,
     })),
     checkpoint: step.checkpoint
-      ? {
-          ...step.checkpoint,
-          prompt: personalizeConversationPrompt(step.checkpoint.prompt, name) ?? step.checkpoint.prompt,
-          correctAnswer:
-            personalizeValue(step.checkpoint.correctAnswer, name) ?? step.checkpoint.correctAnswer,
-          explanation:
-            personalizeConversationPrompt(step.checkpoint.explanation, name) ?? step.checkpoint.explanation,
-          options: step.checkpoint.options?.map((option) => personalizeValue(option, name) ?? option),
-        }
+      ? repairNameOnlyAnswerLeak(
+          {
+            ...step.checkpoint,
+            prompt: personalizeConversationPrompt(step.checkpoint.prompt, name) ?? step.checkpoint.prompt,
+            correctAnswer:
+              personalizeValue(step.checkpoint.correctAnswer, name) ?? step.checkpoint.correctAnswer,
+            explanation:
+              personalizeConversationPrompt(step.checkpoint.explanation, name) ?? step.checkpoint.explanation,
+            options: personalizeChoiceList(step.checkpoint.options, name),
+          },
+          name
+        )
       : step.checkpoint,
   };
+  return repairNameOnlyAnswerLeak(personalized, name);
 }
 
 // ---------------------------------------------------------------------------
@@ -5323,11 +5342,64 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
   );
 }
 
+/** RC2.3.13R.3.1 — diagnóstico seguro do skip (sem conteúdo do aluno). */
+export type BrokenStepDiagnostics = {
+  lessonId?: string;
+  activityType: string;
+  stepIndex?: number;
+  validationFailureCode: string;
+  schemaVersion?: string;
+  payloadShape?: string;
+  runtimeVersion?: string;
+};
+
+function failureCodeFromErrors(errors: readonly string[]): string {
+  const joined = errors.join(" | ").toLocaleLowerCase("pt-BR");
+  if (/sem resposta|sem blankanswer|sem alvo/.test(joined)) return "MISSING_PROMPT";
+  if (/menos de 2 alternativas|sem bank|alternativa vazia/.test(joined)) return "EMPTY_OPTIONS";
+  if (/não está nas alternativas/.test(joined)) return "NO_CORRECT_OPTION";
+  if (/duplicad/.test(joined)) return "DUPLICATE_OPTION";
+  if (/sem charid|charid desconhecido/.test(joined)) return "MISSING_HANZI_DATA";
+  if (/image|visual|conceito/.test(joined)) return "INVALID_VISUAL_MAPPING";
+  if (/áudio|audio/.test(joined)) return "INVALID_AUDIO_REF";
+  if (/tipo desconhecido|unsupported/.test(joined)) return "UNSUPPORTED_ACTIVITY_TYPE";
+  if (/personaliz|matheus|nome/.test(joined)) return "BROKEN_PERSONALIZATION_TOKEN";
+  if (/interação|interaction|payload/.test(joined)) return "INVALID_INTERACTION_PAYLOAD";
+  return "INVALID_ACTIVITY_PAYLOAD";
+}
+
 // Fallback seguro: exercício quebrado nunca aparece — o aluno segue adiante
 // sem punição e o problema fica registrado no console em dev.
-function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void }) {
+function BrokenStepFallback({
+  onDone,
+  diagnostics,
+}: {
+  onDone: (correct?: boolean) => void;
+  diagnostics?: BrokenStepDiagnostics;
+}) {
+  useEffect(() => {
+    if (!diagnostics) return;
+    recordDeviceQaObservation(
+      "canonical_exercise_skip",
+      [
+        diagnostics.lessonId ?? "unknown",
+        diagnostics.activityType,
+        diagnostics.validationFailureCode,
+        diagnostics.payloadShape ?? "",
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    );
+  }, [diagnostics]);
+
   return (
-    <div className="rounded-2xl border border-line bg-surface-2 p-5 text-center">
+    <div
+      className="rounded-2xl border border-line bg-surface-2 p-5 text-center"
+      data-testid="broken-step-fallback"
+      data-validation-failure-code={diagnostics?.validationFailureCode}
+      data-activity-type={diagnostics?.activityType}
+      data-lesson-id={diagnostics?.lessonId}
+    >
       <Eyebrow>{t("player.skippedExercise")}</Eyebrow>
       <p className="mt-3 text-sm leading-6 text-ink-soft">
         Este passo não passou na validação de conteúdo e foi pulado para não travar sua lição.
@@ -5340,7 +5412,10 @@ function BrokenStepFallback({ onDone }: { onDone: (correct?: boolean) => void })
             screen: "exercício pulado no player",
             route: typeof window !== "undefined" ? window.location.pathname : "",
             activityProblem: true,
-            exerciseKind: "broken_step",
+            exerciseKind: diagnostics
+              ? `broken_step:${diagnostics.validationFailureCode}:${diagnostics.activityType}`
+              : "broken_step",
+            lessonId: diagnostics?.lessonId,
           }}
           variant="ghost"
           size="sm"
@@ -5556,13 +5631,28 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
     );
   }
   if (!validation.valid) {
+    const validationFailureCode = failureCodeFromErrors(validation.errors);
     if (isDev) {
       console.warn(
         `[Longyu] Exercício inválido pulado (${personalizedStep.kind}): ${validation.errors.join("; ")}`,
         personalizedStep
       );
     }
-    return <BrokenStepFallback onDone={onDone} />;
+    return (
+      <BrokenStepFallback
+        onDone={onDone}
+        diagnostics={{
+          lessonId,
+          activityType: personalizedStep.kind,
+          validationFailureCode,
+          payloadShape: Object.keys(personalizedStep)
+            .filter((key) => (personalizedStep as Record<string, unknown>)[key] != null)
+            .sort()
+            .join(","),
+          runtimeVersion: "rc2.3.13r3.1",
+        }}
+      />
+    );
   }
 
   const rendered = (() => {
