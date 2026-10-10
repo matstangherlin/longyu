@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 123,
+    "EVIDENCE_ONLY": 125,
     "OWNER_PHYSICAL": 0,
-    "CLOUD_ONLY": 14
+    "CLOUD_ONLY": 15
   },
-  "total": 1146,
+  "total": 1149,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1539,6 +1539,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13r3-1-1-hosted-candidate-rebuild",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:rc2-3-13r3-1-2-artifact-targeted-retest && npm run test:rc2-3-13r3-1-2-artifact-targeted-retest && npm run gate:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-1-2-artifact-targeted-retest",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7407,6 +7425,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13r3-1-2-artifact-targeted-retest",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-1-2-artifact-targeted-retest.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -17166,6 +17202,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r3-1-2-artifact-targeted-retest",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-1-2-artifact-targeted-retest.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-1-2-artifact-targeted-retest",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-13r3-1-learning-integrity",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -20746,5 +20800,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "1ace733741ac2f68"
+  "evidenceDigest": "b9777f21c2911fe0"
 }

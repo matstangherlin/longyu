@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5a64821d0b7d |
-| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
+| Hash da Jornada | cc66373bb602 |
+| HEAD no instante da geração | 5e2519fe1b762f50887041f43b3aac7c969183ad |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-10-07T07:43:45.867Z |
+| Versão do app | 0.2.0-rc.5 |
+| Gerado em | 2026-10-10T03:42:24.360Z |
 | Lições | 134 |
 
 ## Resumo
@@ -19,8 +19,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 |-----------|------:|
 | Lições analisadas | 134 |
 | Lições com problemas | 0 |
-| Pares de repetição semântica | 1037 |
-| Pares com transformação cognitiva | 840 (81%) |
+| Pares de repetição semântica | 1024 |
+| Pares com transformação cognitiva | 827 (81%) |
 
 _Limites por lição comum: resposta exata ≤2 (underAnswerRepeatCap) · hànzì central ≤3 · frase ≤2 · intenção ≤2 · imagem ≤1 · cena ≤1. Acima do limite, cada repetição precisa de transformação cognitiva (revisões têm folga extra)._
 
@@ -35,7 +35,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p1-o-que-e-mandarim | 6 | 5 | 6 | 6 | 6 | 2 | phrase:你好 × 3 |
 | p1-o-que-e-pinyin | 5 | 4 | 7 | 6 | 6 | 1 | phrase:你好 × 3 |
 | p1-o-que-e-tom | 9 | 8 | 9 | 4 | 4 | 2 | char:妈 × 2 |
-| p1-o-que-e-hanzi | 11 | 10 | 9 | 5 | 5 | 4 | char:木 × 4 |
+| p1-o-que-e-hanzi | 11 | 10 | 11 | 3 | 3 | 4 | char:木 × 3 |
 | p1-primeiros-hanzi | 14 | 13 | 11 | 9 | 5 | 9 | action:assemble-hanzi × 5 |
 | p1-engine-2-lab | 6 | 6 | 13 | 0 | 0 | 4 | — |
 | l1 | 10 | 9 | 21 | 4 | 4 | 4 | phrase:你好 × 2 |
@@ -88,13 +88,13 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p4-num-910 | 15 | 14 | 36 | 4 | 4 | 10 | char:九 × 2 |
 | p4-char-mu | 15 | 14 | 29 | 11 | 9 | 10 | char:木 × 3 |
 | p4-char-ren | 15 | 14 | 34 | 10 | 8 | 11 | char:人 × 3 |
-| p4-char-kou | 15 | 14 | 30 | 11 | 10 | 9 | char:口 × 3 |
+| p4-char-kou | 15 | 14 | 32 | 9 | 8 | 10 | char:口 × 2 |
 | p4-char-ri | 14 | 13 | 32 | 9 | 8 | 10 | char:日 × 2 |
 | p4-char-yue | 14 | 13 | 31 | 9 | 8 | 9 | char:月 × 2 |
 | p4-char-shan | 15 | 14 | 36 | 9 | 8 | 11 | phrase:你叫什么 × 2 |
-| p4-char-shui | 13 | 12 | 29 | 9 | 6 | 9 | char:水 × 4 |
-| p4-char-tian | 18 | 17 | 41 | 15 | 13 | 13 | char:天 × 3 |
-| p4-char-huo | 14 | 13 | 23 | 10 | 6 | 10 | char:火 × 3 |
+| p4-char-shui | 14 | 13 | 31 | 8 | 5 | 10 | char:水 × 4 |
+| p4-char-tian | 18 | 17 | 45 | 11 | 9 | 14 | action:assemble-phrase × 3 |
+| p4-char-huo | 14 | 13 | 24 | 8 | 4 | 10 | char:水 × 3 |
 | p4-char-da | 14 | 13 | 32 | 9 | 8 | 10 | phrase:你叫什么 × 2 |
 | p4-char-xiao | 15 | 14 | 35 | 12 | 8 | 10 | phrase:你叫什么 × 2 |
 | p4-char-zhong | 15 | 14 | 34 | 6 | 5 | 10 | char:人 × 2 |
@@ -154,7 +154,7 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 | p6-compras | 20 | 19 | 51 | 9 | 8 | 12 | intent:identify-concept × 3 |
 | p6-survival-mandarin | 19 | 18 | 54 | 9 | 8 | 12 | intent:identify-concept × 4 |
 | l10-rev | 12 | 12 | 25 | 8 | 7 | 8 | char:水 × 2 |
-| l29 | 19 | 18 | 41 | 10 | 6 | 15 | action:assemble-phrase × 3 |
+| l29 | 19 | 18 | 42 | 8 | 4 | 15 | action:assemble-phrase × 3 |
 | l30 | 15 | 14 | 38 | 5 | 5 | 11 | action:produce-unaided × 2 |
 | l11-rev | 12 | 12 | 23 | 8 | 4 | 8 | action:assemble-phrase × 2 |
 | p7-imersao-mercado | 31 | 30 | 62 | 22 | 17 | 17 | action:produce-unaided × 5 |
@@ -171,4 +171,4 @@ Nenhuma — toda repetição semântica acima dos limites traz transformação c
 
 _Transformações válidas: reconhecimento→produção, imagem→hànzì, hànzì→áudio, palavra→frase, frase→conversa, guiada→sem ajuda, significado→aplicação, item isolado→combinação com conteúdo antigo. Mudar só a ordem das opções, o título ou a moldura da mesma pergunta não conta._
 
-<!-- integridade:f0635589e9551bec -->
+<!-- integridade:b2869938b3878ad0 -->

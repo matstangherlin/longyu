@@ -3,8 +3,8 @@
   "title": "Hosted Closure, Candidate Rebuild & Targeted Physical Retest",
   "phase": "PRE_BUILD",
   "parentPr": 345,
-  "fingerprint": "57a848ef9ef9",
-  "learnerRuntimeSha": "c68dc42871433746a7bfc1bfbded661e0d9bf843",
+  "fingerprint": "cc66373bb602",
+  "learnerRuntimeSha": "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
   "artifactSourceSha": null,
   "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   "oldOwnerQaApk": {

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5a64821d0b7d |
-| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
+| Hash da Jornada | cc66373bb602 |
+| HEAD no instante da geração | 5e2519fe1b762f50887041f43b3aac7c969183ad |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-10-07T07:54:32.679Z |
+| Versão do app | 0.2.0-rc.5 |
+| Gerado em | 2026-10-10T03:47:56.027Z |
 | Lições | 134 |
 
 ## Resumo
@@ -35,7 +35,7 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | 1 | O que é mandarim? | 6 | 5 | 0 | 1 | 6 | 3 |
 | 2 | O que é pinyin? | 5 | 4 | 0 | 1 | 5 | 3 |
 | 3 | O que é tom? | 9 | 8 | 0 | 3 | 8 | 5 |
-| 4 | O que é hànzì? | 11 | 10 | 0 | 1 | 8 | 4 |
+| 4 | O que é hànzì? | 11 | 10 | 0 | 2 | 9 | 4 |
 | 5 | Montando primeiros hànzì | 14 | 13 | 0 | 0 | 6 | 6 |
 | 6 | Laboratório de exercícios | 6 | 6 | 0 | 1 | 5 | 5 |
 | 7 | Mandarim, pinyin e tom | 10 | 9 | 0 | 2 | 9 | 3 |
@@ -87,4 +87,4 @@ inteira sem apoio não pode aparecer antes de existir vocabulário para ela.
 
 Nenhum.
 
-<!-- integridade:768e86f78fd0eb6a -->
+<!-- integridade:4bb6ff5874fc6182 -->

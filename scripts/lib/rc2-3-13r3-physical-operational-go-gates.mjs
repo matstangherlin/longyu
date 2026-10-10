@@ -11,12 +11,12 @@ const ROOT = process.cwd();
 const read = (rel) => (fs.existsSync(path.join(ROOT, rel)) ? fs.readFileSync(path.join(ROOT, rel), "utf8") : "");
 
 export const EXPECTED = Object.freeze({
-  learnerRuntimeSha: "c68dc42871433746a7bfc1bfbded661e0d9bf843",
+  learnerRuntimeSha: "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
   artifactSourceSha: "5c27be365ed276ce7694c15769dd7f9997ec1989",
   apkSha256: "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   versionName: "0.2.0-rc.5",
   versionCode: 651,
-  fingerprint: "57a848ef9ef9",
+  fingerprint: "cc66373bb602",
   rcId: "RC2.3.13-RC1",
   packageId: "longyu.noba.com",
   lessons: 134,
@@ -102,7 +102,7 @@ export function checkAll(src = loadR3Sources()) {
     errors.push("WRONG_APK_HASH");
   }
   if (rc.fingerprint !== EXPECTED.fingerprint) errors.push("FINGERPRINT_CHANGED");
-  if (!/RC_BASE_FINGERPRINT = "57a848ef9ef9"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
+  if (!/RC_BASE_FINGERPRINT = "cc66373bb602"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
   if (!/lessons:\s*134/.test(src.curriculumFreeze)) errors.push("LESSONS_CHANGED");
   if (!/teachingTopics:\s*113/.test(src.curriculumFreeze)) errors.push("TOPICS_CHANGED");
   if (!/cultureItems:\s*36/.test(src.curriculumFreeze)) errors.push("CULTURE_COUNTS_CHANGED");

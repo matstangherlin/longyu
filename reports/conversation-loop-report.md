@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5a64821d0b7d |
-| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
+| Hash da Jornada | cc66373bb602 |
+| HEAD no instante da geração | 5e2519fe1b762f50887041f43b3aac7c969183ad |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-10-07T07:41:36.142Z |
+| Versão do app | 0.2.0-rc.5 |
+| Gerado em | 2026-10-10T03:41:12.159Z |
 | Lições | 134 |
 
 ## Resumo
@@ -26,8 +26,8 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 | Itens do núcleo saturado (≥ 40 exposições no curso) | 30 refs |
 | Reutilização média por item | 1.99 |
 | Itens sem cobertura | 229 |
-| Tarefas da fase Pós-Conversa | 568 |
-| Média Pós-Conversa por conversa | 4.00 |
+| Tarefas da fase Pós-Conversa | 569 |
+| Média Pós-Conversa por conversa | 4.01 |
 | Modalidades usadas nas derivadas | audio_discrimination, comprehend, contextual_choice, conversation_repair, dialogue_choice, dictation, fill_blank, free_production, image_choice, listen_select, odd_one_out, recognize, sentence_build, write |
 | l2 @ M1 tarefas pós-conversa | 2 |
 
@@ -42,29 +42,29 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 ## Núcleo saturado (fora do denominador)
 
-- char:hao — 513 exposições ao longo dos 134 planos
-- chunk:nihao — 366 exposições ao longo dos 134 planos
-- char:bu — 278 exposições ao longo dos 134 planos
-- char:shi — 242 exposições ao longo dos 134 planos
-- char:ma_question — 224 exposições ao longo dos 134 planos
+- char:hao — 515 exposições ao longo dos 134 planos
+- chunk:nihao — 367 exposições ao longo dos 134 planos
+- char:bu — 279 exposições ao longo dos 134 planos
+- char:shi — 245 exposições ao longo dos 134 planos
+- char:ma_question — 225 exposições ao longo dos 134 planos
 - char:yi — 210 exposições ao longo dos 134 planos
 - chunk:nijiaoshenme — 203 exposições ao longo dos 134 planos
-- chunk:wohenhao — 169 exposições ao longo dos 134 planos
+- chunk:wohenhao — 170 exposições ao longo dos 134 planos
 - chunk:qingzaishuoyibian — 137 exposições ao longo dos 134 planos
 - char:zai — 117 exposições ao longo dos 134 planos
 - chunk:xiexie — 116 exposições ao longo dos 134 planos
 - chunk:zaijian — 94 exposições ao longo dos 134 planos
+- chunk:nihaoma — 93 exposições ao longo dos 134 planos
 - chunk:wojiao — 93 exposições ao longo dos 134 planos
-- chunk:nihaoma — 92 exposições ao longo dos 134 planos
-- char:ri — 91 exposições ao longo dos 134 planos
-- char:na_that — 91 exposições ao longo dos 134 planos
-- char:yao — 82 exposições ao longo dos 134 planos
+- char:na_that — 92 exposições ao longo dos 134 planos
+- char:ri — 88 exposições ao longo dos 134 planos
+- char:yao — 83 exposições ao longo dos 134 planos
 - chunk:bukeqi — 76 exposições ao longo dos 134 planos
 - char:shui — 71 exposições ao longo dos 134 planos
 - char:dian_point — 53 exposições ao longo dos 134 planos
-- char:shan — 50 exposições ao longo dos 134 planos
+- char:cha_tea — 51 exposições ao longo dos 134 planos
 - chunk:zheshishenme — 50 exposições ao longo dos 134 planos
-- char:cha_tea — 50 exposições ao longo dos 134 planos
+- char:shan — 49 exposições ao longo dos 134 planos
 - chunk:nashirenm — 49 exposições ao longo dos 134 planos
 - char:san — 49 exposições ao longo dos 134 planos
 - char:li_inside — 49 exposições ao longo dos 134 planos
@@ -116,9 +116,9 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p4-checkpoint-fundamentos:chunk:woyeshi (10 exposições no curso)
 - p5-kou-ma-pergunta:chunk:zheshishui (16 exposições no curso)
 - l19-logica-ma:chunk:zheshishui (16 exposições no curso)
-- l8-rev:char:liu (15 exposições no curso)
+- l8-rev:char:liu (16 exposições no curso)
 - l8-rev:char:shi10 (34 exposições no curso)
-- l8-rev:char:si (18 exposições no curso)
+- l8-rev:char:si (19 exposições no curso)
 - l22:chunk:nishinaiguoren (22 exposições no curso)
 - l23:chunk:nishinaiguoren (22 exposições no curso)
 - l9-rev:chunk:nishinaiguoren (22 exposições no curso)
@@ -221,4 +221,4 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 - p5-ren-ren-cong:char:shan
 - …mais 149.
 
-<!-- integridade:5bb3b36a411dc66e -->
+<!-- integridade:60afcb05add7b75c -->

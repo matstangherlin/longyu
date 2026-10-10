@@ -12,7 +12,7 @@ export const EXPECTED = {
   artifactSourceSha: "5c27be365ed276ce7694c15769dd7f9997ec1989",
   apkSha256: "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   versionCode: 651,
-  fingerprint: "57a848ef9ef9",
+  fingerprint: "cc66373bb602",
 };
 
 export function loadR21Sources() {
@@ -79,7 +79,7 @@ export function checkAll(src = loadR21Sources()) {
   if (rc.playClosedBeta?.status !== "BLOCKED_SIGNING_SECRETS") errors.push("DEBUG_AAB_PROMOTED_SIGNED");
   if (rc.entry?.PLAY_CLOSED_BETA_ENTRY === "GO") errors.push("PLAY_GO_SECRETS_ABSENT");
   if (rc.fingerprint !== EXPECTED.fingerprint) errors.push("FINGERPRINT_CHANGED");
-  if (!/RC_BASE_FINGERPRINT = "57a848ef9ef9"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
+  if (!/RC_BASE_FINGERPRINT = "cc66373bb602"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
   if (!/lessons:\s*134/.test(src.curriculumFreeze)) errors.push("LESSONS_CHANGED");
   if (!/teachingTopics:\s*113/.test(src.curriculumFreeze)) errors.push("TOPICS_CHANGED");
   if (!/cultureItems:\s*36/.test(src.curriculumFreeze)) errors.push("CULTURE_COUNTS_CHANGED");

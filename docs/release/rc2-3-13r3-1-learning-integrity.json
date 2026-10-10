@@ -42,11 +42,12 @@
     "R31-MOBILE-ACTIVITY-FIT"
   ],
   "fingerprint": {
-    "oldFingerprint": "fea5455e1461",
-    "newFingerprint": "57a848ef9ef9",
-    "reason": "lessonTasks.ts CURRICULUM_SOURCE changed (visual variety / plan selection)",
+    "oldFingerprint": "57a848ef9ef9",
+    "newFingerprint": "cc66373bb602",
+    "reason": "lessonTasks.ts same-kind visual repeat (compare_with_image delivery)",
     "affectedContent": [
       "src/features/lesson/lessonTasks.ts"
-    ]
+    ],
+    "priorAdvance": "fea5455e1461→57a848ef9ef9 (R.3.1 visual variety)"
   }
 }

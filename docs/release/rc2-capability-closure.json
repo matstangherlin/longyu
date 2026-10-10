@@ -3,7 +3,7 @@
   "generatedBy": "npm run validate:capability-runtime-evidence",
   "baseMainSha": "700aa83264cee8429313ad0e52881e90b09fa2e8",
   "fingerprintBefore": "327de1df0f33",
-  "fingerprint": "57a848ef9ef9",
+  "fingerprint": "cc66373bb602",
   "contract": {
     "strict": "RC2.2.9 closure: lexical=1, structural=1, productive/listening/conversation/transfer com evidência de runtime",
     "presence": "READY anteriores: nenhuma dimensão ausente em runtime; todo chunk exigido chega ao aluno"
@@ -1876,10 +1876,10 @@
           }
         ],
         "counts": {
-          "productive": 112,
+          "productive": 109,
           "listening": 11,
           "conversation": 53,
-          "transfer": 91
+          "transfer": 88
         }
       }
     },
@@ -3889,7 +3889,7 @@
             "lessonId": "l29",
             "lessonIndex": 122,
             "pass": 2,
-            "step": 7,
+            "step": 6,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-shopping",
             "nodeId": "packet-exchange-shopping-2",
@@ -3898,8 +3898,8 @@
           {
             "lessonId": "l29",
             "lessonIndex": 122,
-            "pass": 3,
-            "step": 6,
+            "pass": 4,
+            "step": 12,
             "kind": "conversation_scene",
             "sceneId": "packet-exchange-shopping",
             "nodeId": "packet-exchange-shopping-2",
@@ -3935,8 +3935,8 @@
         "counts": {
           "productive": 18,
           "listening": 2,
-          "conversation": 7,
-          "transfer": 22
+          "conversation": 6,
+          "transfer": 21
         }
       }
     },
@@ -4227,10 +4227,10 @@
           }
         ],
         "counts": {
-          "productive": 55,
+          "productive": 54,
           "listening": 4,
-          "conversation": 36,
-          "transfer": 54
+          "conversation": 35,
+          "transfer": 53
         }
       }
     },
@@ -4472,10 +4472,10 @@
           }
         ],
         "counts": {
-          "productive": 13,
+          "productive": 12,
           "listening": 2,
-          "conversation": 19,
-          "transfer": 24
+          "conversation": 18,
+          "transfer": 23
         }
       }
     },
@@ -5880,7 +5880,7 @@
             "lessonId": "l29",
             "lessonIndex": 122,
             "pass": 4,
-            "step": 4,
+            "step": 8,
             "kind": "free_production",
             "text": "我去火车站"
           },
@@ -7630,10 +7630,10 @@
           }
         ],
         "counts": {
-          "productive": 74,
+          "productive": 77,
           "listening": 21,
-          "conversation": 14,
-          "transfer": 22
+          "conversation": 18,
+          "transfer": 24
         }
       }
     },
@@ -8898,6 +8898,22 @@
             "step": 11,
             "kind": "audio_to_action",
             "text": "我不喜欢茶"
+          },
+          {
+            "lessonId": "l29",
+            "lessonIndex": 122,
+            "pass": 1,
+            "step": 6,
+            "kind": "listen_select",
+            "text": "我喜欢中文"
+          },
+          {
+            "lessonId": "l29",
+            "lessonIndex": 122,
+            "pass": 2,
+            "step": 4,
+            "kind": "listen_select",
+            "text": "我喜欢中文"
           }
         ],
         "conversation": [
@@ -8951,7 +8967,7 @@
         ],
         "counts": {
           "productive": 13,
-          "listening": 1,
+          "listening": 4,
           "conversation": 2,
           "transfer": 8
         }

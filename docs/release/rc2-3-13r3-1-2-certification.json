@@ -1,0 +1,90 @@
+{
+  "wave": "RC2.3.13R.3.1.2",
+  "title": "Hosted Finalization, New Candidate Mint & Owner Regression Certification",
+  "phase": "HOSTED_PENDING",
+  "parentPr": 346,
+  "parentHeadSha": "5e2519fe1b762f50887041f43b3aac7c969183ad",
+  "learnerRuntimeSha": "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
+  "learnerRuntimeNote": "PLACEHOLDER_UNTIL_RUNTIME_COMMIT — will advance to the R.3.1.2 lessonTasks same-kind visual-repeat commit after it lands. Prior: 719ce024 = R.3.1.1 pure personalizedUtterance + EN overlays; c68dc428 = R.3.1 product fixes; 3c847a1b/5e2519fe = gates/docs only.",
+  "fingerprint": "cc66373bb602",
+  "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+  "rcIdentityPolicy": {
+    "priorRcId": "RC2.3.13-RC1",
+    "priorVersionName": "0.2.0-rc.5",
+    "priorVersionCode": 651,
+    "distributedFlag": false,
+    "decision": "DEFER_UNTIL_ANDROID_BUILD",
+    "note": "rc-candidate.distributed=false permits regenerating RC1 draft; versionCode is computed at Android build (floor+firstParent). Final identity recorded after successful APK mint."
+  },
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": "5e2519fe1b762f50887041f43b3aac7c969183ad",
+    "releaseTruth": "PASS",
+    "security": "PASS",
+    "securityBuild": "PASS",
+    "securityAnalysis": "PASS",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "webkit": "PENDING",
+    "firefox": "PENDING",
+    "ciRunId": 38020180279,
+    "securityRunId": 38020180274,
+    "androidRunId": 38020180280
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "apkSha256": null,
+    "artifactSourceSha": null,
+    "workflowMergeSha": null,
+    "workflowRunId": null,
+    "versionName": null,
+    "versionCode": null,
+    "packageId": "longyu.noba.com",
+    "channel": "DEVICE_QA",
+    "provenancePresent": false,
+    "playReady": false,
+    "labeledPlaySigned": false
+  },
+  "learningIntegrity": {
+    "canonicalActivitiesInvalid": 0,
+    "lessons": 134,
+    "distractorNameLeak": 0,
+    "r31Kills": 88,
+    "r311Kills": 61
+  },
+  "targetedPhysical": {
+    "status": "NOT_RUN",
+    "artifactSha256": null,
+    "evidence": null,
+    "audioX20Count": 0,
+    "audioPassMeans": "HUMAN_HEARS_COMPLETE_UTTERANCE",
+    "wojiaoPrefixHeard": null,
+    "learnerNameHeard": null,
+    "skippedExerciseObserved": null,
+    "hanziLayoutBlocked": null,
+    "distractorObvious": null,
+    "visualRepetitionSystematic": null,
+    "checks": {
+      "canonicalSkip": "NOT_RUN",
+      "personalizedUtterance": "NOT_RUN",
+      "dialogueAudio": "NOT_RUN",
+      "distractorFairness": "NOT_RUN",
+      "visualVariety": "NOT_RUN",
+      "hanziMobileFit": "NOT_RUN",
+      "audio20": "NOT_RUN"
+    }
+  },
+  "resumeFullR3": false,
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD"
+  },
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0
+  }
+}

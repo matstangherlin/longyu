@@ -628,8 +628,8 @@
     },
     {
       "kind": "audio_discrimination",
-      "occurrences": 85,
-      "lessons": 32,
+      "occurrences": 87,
+      "lessons": 33,
       "premiumLessons": 13,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -682,8 +682,8 @@
     },
     {
       "kind": "conversation_repair",
-      "occurrences": 113,
-      "lessons": 49,
+      "occurrences": 114,
+      "lessons": 50,
       "premiumLessons": 20,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -709,7 +709,7 @@
     },
     {
       "kind": "dialogue_choice",
-      "occurrences": 590,
+      "occurrences": 594,
       "lessons": 123,
       "premiumLessons": 29,
       "focus": true,
@@ -727,7 +727,7 @@
     },
     {
       "kind": "dictation",
-      "occurrences": 101,
+      "occurrences": 100,
       "lessons": 42,
       "premiumLessons": 7,
       "focus": false,
@@ -736,7 +736,7 @@
     },
     {
       "kind": "fill_blank",
-      "occurrences": 510,
+      "occurrences": 509,
       "lessons": 107,
       "premiumLessons": 31,
       "focus": false,
@@ -763,7 +763,7 @@
     },
     {
       "kind": "hanzi_build",
-      "occurrences": 318,
+      "occurrences": 319,
       "lessons": 85,
       "premiumLessons": 20,
       "focus": false,
@@ -772,7 +772,7 @@
     },
     {
       "kind": "image_choice",
-      "occurrences": 530,
+      "occurrences": 515,
       "lessons": 100,
       "premiumLessons": 29,
       "focus": false,
@@ -781,7 +781,7 @@
     },
     {
       "kind": "intro",
-      "occurrences": 236,
+      "occurrences": 237,
       "lessons": 94,
       "premiumLessons": 20,
       "focus": false,
@@ -799,9 +799,9 @@
     },
     {
       "kind": "listen_select",
-      "occurrences": 442,
-      "lessons": 105,
-      "premiumLessons": 20,
+      "occurrences": 448,
+      "lessons": 106,
+      "premiumLessons": 21,
       "focus": true,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
       "androidApk": "NOT_RUN"
@@ -844,8 +844,8 @@
     },
     {
       "kind": "odd_one_out",
-      "occurrences": 68,
-      "lessons": 23,
+      "occurrences": 70,
+      "lessons": 24,
       "premiumLessons": 8,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -907,7 +907,7 @@
     },
     {
       "kind": "sentence_build",
-      "occurrences": 575,
+      "occurrences": 574,
       "lessons": 109,
       "premiumLessons": 33,
       "focus": false,
@@ -934,8 +934,8 @@
     },
     {
       "kind": "spot_error",
-      "occurrences": 98,
-      "lessons": 45,
+      "occurrences": 100,
+      "lessons": 46,
       "premiumLessons": 10,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",

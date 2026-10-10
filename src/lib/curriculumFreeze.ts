@@ -16,7 +16,9 @@
  *
  * RC2.3.13R.3.1 advanced fea5455e1461 → 57a848ef9ef9 because
  * `lessonTasks.ts` (visual variety / plan selection) is a CURRICULUM_SOURCE.
- * Lesson/topic/Culture counts unchanged. Do not restore the prior fingerprint.
+ * RC2.3.13R.3.1.2 advanced 57a848ef9ef9 → cc66373bb602 because
+ * `lessonTasks.ts` same-kind visual repeat (compare_with_image vs image_choice)
+ * is a CURRICULUM_SOURCE. Lesson/topic/Culture counts unchanged.
  *
  * CURRICULUM_FREEZE = RC2_CONTENT_FREEZE marks content closed for RC2.
  * CONTENT_FREEZE_SHA ≠ RELEASE_CANDIDATE_SHA — the latter stays empty
@@ -63,6 +65,28 @@ export const PRE_BETA_FREEZE_EXCEPTION = {
   previousFingerprint: "fea5455e1461",
   fingerprint: "57a848ef9ef9",
   gate: "gate:rc2-3-13r3-1-learning-integrity",
+  affectedContent: ["src/features/lesson/lessonTasks.ts"],
+} as const;
+
+/**
+ * RC2.3.13R.3.1.2 — same-kind visual repeat so authored compare_with_image
+ * survives plan selection beside image_choice of the same concept.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R312 = {
+  id: "RC2_3_13R3_1_2_VISUAL_KIND_REPEAT",
+  reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
+  allows: [
+    "same-kind visual concept repeat control",
+    "authored compare_with_image plan delivery",
+  ],
+  forbids: ["new lessons", "new topics", "new CultureItems", "new StepKind", "feature redesign"],
+  gates: [
+    "validate:compare-with-image",
+    "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
+  ],
+  previousFingerprint: "57a848ef9ef9",
+  fingerprint: "cc66373bb602",
+  gate: "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
   affectedContent: ["src/features/lesson/lessonTasks.ts"],
 } as const;
 
@@ -142,8 +166,8 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
  * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
-// RC2.3.13R.3.1: learning-integrity lessonTasks plan selection (counts unchanged).
-export const RC_BASE_FINGERPRINT = "57a848ef9ef9";
+// RC2.3.13R.3.1.2: same-kind visual repeat in lessonTasks (counts unchanged).
+export const RC_BASE_FINGERPRINT = "cc66373bb602";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

@@ -6,11 +6,11 @@ A identidade do currículo auditado é o **Hash da Jornada** (fingerprint dos fo
 
 | Campo | Valor |
 |-------|-------|
-| Hash da Jornada | 5a64821d0b7d |
-| HEAD no instante da geração | 3c3aa812d9ebc4f14bb5714583fceb75b3074389 |
+| Hash da Jornada | cc66373bb602 |
+| HEAD no instante da geração | 5e2519fe1b762f50887041f43b3aac7c969183ad |
 | Árvore de trabalho | com mudanças locais (pré-commit) |
-| Versão do app | 0.2.0-beta.1 |
-| Gerado em | 2026-10-07T07:57:37.896Z |
+| Versão do app | 0.2.0-rc.5 |
+| Gerado em | 2026-10-10T03:49:35.180Z |
 | Lições | 134 |
 
 ## Resumo
@@ -97,6 +97,7 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | p4-num-45 | spot_error | erro_proposital | 我是叫小明 |
 | p4-num-910 | spot_error | erro_proposital | 我是好 |
 | p4-char-ren | spot_error | erro_proposital | 我是水 |
+| p4-char-kou | spot_error | erro_proposital | 我是水 |
 | p4-char-shan | spot_error | erro_proposital | 我是好 |
 | p4-char-huo | spot_error | erro_proposital | 我有一朋友 |
 | p4-char-da | spot_error | erro_proposital | 我有一朋友 |
@@ -126,7 +127,6 @@ Frases que aparecem em opções erradas / banco. Não entram no progresso de aqu
 | l19 | spot_error | erro_proposital | 我会中文说 |
 | l21 | spot_error | erro_proposital | 我有一朋友 |
 | l22 | spot_error | erro_proposital | 我会中文说 |
-| l25 | spot_error | erro_proposital | 他是吗学生 |
 
 ## Auditoria das frases suspeitas
 
@@ -149,4 +149,4 @@ A parede de tons (ma 1–4 e os dois pares) conta como laboratório de percepç�
 
 Nenhuma.
 
-<!-- integridade:9dd6d92e9fa40689 -->
+<!-- integridade:f334d8b9347ef58c -->

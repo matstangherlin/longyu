@@ -72,7 +72,7 @@ export function checkJevLearnerOff(text) {
 
 export function checkCurriculumFingerprint(fp) {
   const errors = [];
-  if (fp && fp !== "57a848ef9ef9") errors.push("CURRICULUM_FINGERPRINT_CHANGED");
+  if (fp && fp !== "cc66373bb602") errors.push("CURRICULUM_FINGERPRINT_CHANGED");
   return errors;
 }
 

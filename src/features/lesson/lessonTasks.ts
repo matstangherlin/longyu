@@ -4951,8 +4951,11 @@ function selectedImageConceptIds(selected: readonly PracticeCandidate[]): Set<st
   return ids;
 }
 
-// RC2.3.13R.3.1 — passos visuais (gerados OU autorais) não repetem o mesmo
-// conceptId adjacente/já usado na seleção da lição quando há alternativa.
+// RC2.3.13R.3.1 / R.3.1.2 — passos visuais (gerados OU autorais) não repetem o
+// mesmo conceptId no *mesmo* kind. image_choice e compare_with_image podem
+// partilhar um concept (reconhecer → comparar), mas dois image_choice iguais
+// ou dois compare iguais continuam bloqueados. Não reintroduzir isenção
+// `if (!candidate.generated) return false`.
 function violatesImageRepeat(
   selected: readonly PracticeCandidate[],
   candidate: PracticeCandidate
@@ -4962,8 +4965,10 @@ function violatesImageRepeat(
   }
   const conceptId = imageConceptIdOfStep(candidate.step);
   if (!conceptId) return false;
-  // Sempre bloqueia repetição de concept já selecionado (gerado ou autoral).
-  return selectedImageConceptIds(selected).has(conceptId);
+  return selected.some(
+    (item) =>
+      item.step.kind === candidate.step.kind && imageConceptIdOfStep(item.step) === conceptId
+  );
 }
 
 function selectBestCandidate(

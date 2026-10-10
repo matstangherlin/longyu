@@ -4,13 +4,13 @@
   "parentPr": 343,
   "parentHead": "8811deca936c30ab9eecad56fabcff9cfc9014eb",
   "shaSemantics": {
-    "learnerRuntimeSha": "c68dc42871433746a7bfc1bfbded661e0d9bf843",
+    "learnerRuntimeSha": "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
     "certificationHeadSha": "8612f18d9692be5d8ae65d9adde873521cf38681",
     "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
-    "note": "learnerRuntimeSha advanced to R.3.1 learning-integrity product fix. artifactSourceSha still names stale candidate until rebuild."
+    "note": "learnerRuntimeSha = R.3.1.1 runtime modules (719ce024). artifactSourceSha still stale until rebuild."
   },
   "identity": {
     "rcId": "RC2.3.13-RC1",
@@ -144,7 +144,7 @@
       "culturePaths": 12,
       "flagshipDeep": 11
     },
-    "fingerprint": "57a848ef9ef9",
+    "fingerprint": "cc66373bb602",
     "billing": "FREE_ONLY",
     "liveBilling": false,
     "jevLearnerRuntime": "OFF",
@@ -172,7 +172,7 @@
   "remainingOwnerActions": [
     "Wait #343 Chromium + cross-engine terminal PASS before physical",
     "Install OWNER QA APK sha256 fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
-    "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint 57a848ef9ef9)",
+    "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint cc66373bb602)",
     "Execute physical matrix per OWNER_R3_PHYSICAL_OPERATIONAL_PACK.md",
     "Android OAuth physical (intended providers)",
     "Configure Sentry / Netlify / cloud credentials or provide evidence for agent automation",

@@ -102,10 +102,10 @@ export function checkFreeze(src = loadFinalSources()) {
   if (cert?.freeze?.counts?.culturePaths != null && cert.freeze.counts.culturePaths !== 12) {
     errors.push("CULTURE_PATH_DRIFT");
   }
-  if (!/RC_BASE_FINGERPRINT = "57a848ef9ef9"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_DRIFT");
-  if (!/57a848ef9ef9/.test(src.rc)) errors.push("FINGERPRINT_DRIFT");
-  if (!/57a848ef9ef9/.test(src.cert)) errors.push("FINGERPRINT_DRIFT");
-  if (!/57a848ef9ef9/.test(src.freeze)) errors.push("FINGERPRINT_DRIFT");
+  if (!/RC_BASE_FINGERPRINT = "cc66373bb602"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_DRIFT");
+  if (!/cc66373bb602/.test(src.rc)) errors.push("FINGERPRINT_DRIFT");
+  if (!/cc66373bb602/.test(src.cert)) errors.push("FINGERPRINT_DRIFT");
+  if (!/cc66373bb602/.test(src.freeze)) errors.push("FINGERPRINT_DRIFT");
   const bar = (src.nav.match(/export function mobileNavForStage[\s\S]*?\n\}/) || [""])[0];
   if (/NAV\.cultura/.test(bar)) errors.push("CULTURE_BOTTOM_NAV_RETURNS");
   if (!/progression-panel-enter/.test(src.progressionShell)) errors.push("MOTION_REGRESSION");
