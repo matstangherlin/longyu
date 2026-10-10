@@ -153,9 +153,9 @@ export function previewNavItems(visibility: FeatureVisibilityMap, limit = 2): Na
  */
 /**
  * RC2.2.23 — abas CONQUISTADAS. Conta nova: Jornada · Mais. Depois da 1ª
- * conclusão real: + Praticar. Cultura e Missões entram na barra quando a
- * descoberta progressiva já as revelou (o anúncio da RC2.2.18 promete a aba);
- * antes disso, no máximo 3 itens.
+ * conclusão real: + Praticar. Missões entra quando a descoberta progressiva
+ * já a revelou. RC2.3.13G — Cultura saiu da TabBar; teto cedo = 4 itens
+ * (Jornada · Praticar · Missões · Mais).
  */
 /** RC2.3.13G — primary bar is 4 slots (Cultura left TabBar); keep Missões visible. */
 export const EARLY_NAV_MAX_ITEMS = 4;
@@ -170,7 +170,7 @@ export function navItemEarnedTab(item: NavItem, completedLessons: number): boole
 /** Barra efetiva: a barra (já filtrada pela descoberta) menos o que o aluno ainda não conquistou. */
 export function earnedTabBar(items: NavItem[], completedLessons: number): NavItem[] {
   const earned = items.filter((item) => navItemEarnedTab(item, completedLessons));
-  // RC2.3.13G — Culture is never a TabBar destination; early accounts stay ≤3.
+  // RC2.3.13G — Culture is never a TabBar destination; early accounts stay ≤4.
   if (earned.length <= EARLY_NAV_MAX_ITEMS) return earned;
   const more = earned.find((item) => item.to === "/mais");
   const rest = earned.filter((item) => item.to !== "/mais").slice(0, EARLY_NAV_MAX_ITEMS - (more ? 1 : 0));
