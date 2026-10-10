@@ -20,7 +20,7 @@ export function ProgressionConnector({
       data-from={fromState}
       data-to={toState}
       className={[
-        "mx-auto h-5 w-px shrink-0",
+        "progression-connector mx-auto h-6 w-px shrink-0",
         filled ? "bg-accent/55" : future ? "bg-line/35" : "bg-line/50",
       ].join(" ")}
     />

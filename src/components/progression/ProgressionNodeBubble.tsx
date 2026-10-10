@@ -7,9 +7,12 @@ import type {
   ProgressionPersonality,
 } from "./progressionTypes";
 
-/** Gentle sinusoidal offset — safe at 360px (±26px). */
-export function progressionOffsetForIndex(index: number): number {
-  return Math.round(Math.sin(index * 1.1) * 26);
+/**
+ * RC2.3.13R.3.2.1 — bubbles stay on one vertical axis.
+ * Side ornaments alternate; the path itself does not zigzag.
+ */
+export function progressionOffsetForIndex(_index: number): number {
+  return 0;
 }
 
 function PassRing({
@@ -169,7 +172,7 @@ export function ProgressionNodeBubble({
     />
   );
 
-  const wrapperClass = "relative z-[1] flex flex-col items-center";
+  const wrapperClass = "progression-node-axis relative z-[1] flex w-full flex-col items-center";
   const commonProps = {
     "data-testid": testId ?? `progression-node-${id}`,
     "data-progression-node": id,
@@ -187,13 +190,23 @@ export function ProgressionNodeBubble({
   };
 
   return (
-    <div className={wrapperClass} style={{ transform: `translateX(${offset}px)` }}>
+    <div
+      className={wrapperClass}
+      data-progression-offset={offset}
+      style={offset ? { transform: `translateX(${offset}px)` } : undefined}
+    >
       {isCurrent && passRing && passRing.total > 1 ? (
-        <div className="mb-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+        <div
+          data-testid="progression-current-cta"
+          className="progression-current-pill mb-1.5 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+        >
           {passRing.progress}/{passRing.total}
         </div>
       ) : isCurrent ? (
-        <div className="mb-1 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+        <div
+          data-testid="progression-current-cta"
+          className="progression-current-pill mb-1.5 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+        >
           Continuar
         </div>
       ) : null}

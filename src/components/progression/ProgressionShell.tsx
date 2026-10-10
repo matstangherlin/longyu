@@ -115,7 +115,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
       ].join(" ")}
       style={{ top: "var(--progression-sticky-offset)" }}
       data-testid="progression-shell-switch"
-      data-progression-shell="rc2-3-13r"
+      data-progression-shell="rc2-3-13r3-2-1"
       data-progression-sticky-chrome="true"
       data-scrolled={scrolled ? "true" : "false"}
     >

@@ -1,15 +1,6 @@
 import { Link } from "react-router-dom";
-import {
-  IconBook,
-  IconChat,
-  IconChevron,
-  IconHome,
-  IconLantern,
-  IconLibrary,
-  IconLock,
-  IconPath,
-  IconTarget,
-} from "../../components/ui/Icon";
+import { IconChevron, IconLock } from "../../components/ui/Icon";
+import { CultureTopicIcon, type CultureTopicIconKey } from "./CultureTopicIcon";
 import { cultureText } from "../../data/cultureQuest";
 import {
   cultureTopicHref,
@@ -19,19 +10,9 @@ import {
 } from "../../data/cultureTopicGroups";
 import { useTranslation } from "../../i18n/useTranslation";
 
-const ICONS = {
-  home: IconHome,
-  chat: IconChat,
-  lantern: IconLantern,
-  book: IconBook,
-  path: IconPath,
-  library: IconLibrary,
-  target: IconTarget,
-} as const;
-
 /**
- * RC2.3.13R.3.2 — compact rectangular topic card for Culture root hub.
- * Topics are rectangles; progression bubbles live only inside topic detail.
+ * RC2.3.13R.3.2 — compact rectangular topic card.
+ * RC2.3.13R.3.2.1 — crafted line icons, tighter hierarchy, integrated progress.
  */
 export function CultureTopicCard({
   topic,
@@ -48,7 +29,6 @@ export function CultureTopicCard({
     { pt: topic.descriptionPt, en: topic.descriptionEn },
     instructionLocale,
   );
-  const Icon = topic.icon ? ICONS[topic.icon] : IconLantern;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const subLabel =
     subtopicCount === 1
@@ -73,7 +53,7 @@ export function CultureTopicCard({
       data-cta-hierarchy="secondary"
       aria-label={a11y}
       className={[
-        "culture-topic-card group flex min-h-[110px] flex-col justify-between rounded-2xl border border-line bg-surface p-3.5",
+        "culture-topic-card group flex min-h-[110px] flex-col justify-between rounded-2xl border border-line bg-surface p-3.5 shadow-card",
         "transition-[transform,background-color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
         "active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100",
         "hover:bg-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
@@ -82,10 +62,15 @@ export function CultureTopicCard({
     >
       <div className="flex items-start gap-2.5">
         <span
-          className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-ink-soft"
+          className="culture-topic-icon mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft/70 text-accent"
           aria-hidden
+          data-topic-icon-family="longyu-line"
         >
-          {state === "LOCKED" ? <IconLock className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+          {state === "LOCKED" ? (
+            <IconLock className="h-4 w-4" />
+          ) : (
+            <CultureTopicIcon name={topic.icon as CultureTopicIconKey | undefined} />
+          )}
         </span>
         <div className="min-w-0 flex-1">
           <h3 className="type-card-title">{title}</h3>
@@ -108,7 +93,7 @@ export function CultureTopicCard({
                 {t("progression.topicProgress", { done, total })}
               </p>
               <div
-                className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-2"
+                className="culture-progress-track mt-1.5 h-1 overflow-hidden rounded-full bg-surface-2"
                 role="progressbar"
                 aria-valuenow={pct}
                 aria-valuemin={0}

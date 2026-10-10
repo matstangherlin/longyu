@@ -188,16 +188,16 @@ export function CultureTopicDetailPage() {
             ← {t("progression.backToCultureRoot")}
           </Link>
 
-          <header>
+          <header className="space-y-2" data-testid="culture-topic-header">
             <h1 className="type-page-title" data-testid="culture-topic-title">
               {title}
             </h1>
-            <p className="type-supporting mt-1.5">{description}</p>
-            <p className="type-body-strong mt-2" data-testid="culture-topic-detail-progress">
+            <p className="type-supporting max-w-prose">{description}</p>
+            <p className="type-label pt-1" data-testid="culture-topic-detail-progress">
               {t("progression.topicProgress", { done, total })}
             </p>
             <div
-              className="mt-2 h-1.5 max-w-md overflow-hidden rounded-full bg-surface-2"
+              className="culture-progress-track h-1 max-w-md overflow-hidden rounded-full bg-surface-2"
               role="progressbar"
               aria-valuenow={pct}
               aria-valuemin={0}
@@ -298,8 +298,8 @@ export function CultureTopicDetailPage() {
                 data-progression-anchor={`path:${path.id}`}
                 className="space-y-3"
               >
-                <div>
-                  <h2 className="type-section-title">{pathTitle}</h2>
+                <div className="pt-1">
+                  <h2 className="type-section-title text-[1.125rem] leading-6">{pathTitle}</h2>
                   <p className="type-label mt-0.5">
                     {t("progression.pathProgress", { done: pathDone, total: pathTotal })}
                     {path.status === "EXPANSION_PENDING" ? (
