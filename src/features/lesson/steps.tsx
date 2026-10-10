@@ -5242,7 +5242,7 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
   }
 
   return (
-    <div>
+    <div data-testid="conversation-repair-beat" data-repair-strategy={step.repairStrategy}>
       <Eyebrow>{t("player.repair")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
         {step.title ?? "A conversa travou"}
