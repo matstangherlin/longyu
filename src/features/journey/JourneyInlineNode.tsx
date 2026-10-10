@@ -124,9 +124,12 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
 
   // Core AULA uses the shared path bubble — never an "Optional" mini-card.
   // Optional boosters stay smaller rectangular cards.
+  // Ready-but-not-complete foundation aulas are AVAILABLE, never CURRENT.
+  // Mapping every ready aula to CURRENT made aria-current=step resolve to many
+  // nodes at once (hosted Chromium topic-mastery / journey regressions).
   const core = node.priority === "CORE";
   if (coreAula) {
-    const state: ProgressionNodeState = complete ? "COMPLETED" : ready ? "CURRENT" : "LOCKED";
+    const state: ProgressionNodeState = complete ? "COMPLETED" : ready ? "AVAILABLE" : "LOCKED";
     return (
       <div
         data-journey-inline-node={node.id}

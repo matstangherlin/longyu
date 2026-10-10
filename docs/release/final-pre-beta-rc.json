@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.2",
+  "wave": "RC2.3.13R.3",
   "status": "BUILT_FOR_OWNER_QA",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
@@ -22,7 +22,7 @@
   "shaNote": "artifactSourceSha = embedded sourceHeadSha (branch tip used as web/Capacitor source). workflowMergeSha = temporary PR merge ref used by Actions checkout. Do not conflate.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
-    "status": "BUILT",
+    "status": "STALE_FOR_CURRENT_RUNTIME",
     "channel": "DEVICE_QA",
     "buildType": "debug",
     "deviceQaBuild": true,
@@ -38,7 +38,7 @@
     "packageId": "longyu.noba.com",
     "builtAt": "2026-10-09T21:59:31.202Z",
     "ownerPathHint": "/opt/cursor/artifacts/r2-apk/longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
-    "note": "Sideload / physical QA only. NOT Play-ready."
+    "note": "Was DEVICE_QA candidate fb835ce8\u2026 for artifactSourceSha 5c27be36. R.3 product fix (JourneyInlineNode AVAILABLE + HomeContinue h2) changes learner runtime \u2014 rebuild required before physical. Do not physical-test this hash against new HEAD."
   },
   "playClosedBeta": {
     "role": "PLAY_CLOSED_BETA_AAB",
@@ -65,7 +65,7 @@
     "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "Owner QA APK BUILT+hashed; physical/ops/owner acceptance NOT_RUN. Play Closed Beta blocked on signing secrets. Public HOLD."
+    "reason": "R.3: Chromium FAIL on #343; product+contract fixes in flight. Prior APK STALE_FOR_CURRENT_RUNTIME. Play still BLOCKED_SIGNING_SECRETS. PUBLIC HOLD."
   },
   "wave1": {
     "targetRealTesters": 10,

@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-device-evidence/2",
-  "wave": "RC2.3.13R.2",
+  "wave": "RC2.3.13R.3",
   "rcId": "RC2.3.13-RC1",
   "boundArtifact": {
     "versionName": "0.2.0-rc.5",
@@ -12,7 +12,7 @@
   },
   "meta": {
     "evidenceLevel": "CODE_AND_HOSTED_PARTIAL",
-    "note": "Do not promote CODE_PASS/EMULATED_PASS/HOSTED_PASS to PHYSICAL_PASS. Physical rows stay NOT_RUN until owner device evidence bound to apkSha256."
+    "note": "R.3: Do not promote CODE/HOSTED/EMULATED to PHYSICAL_PASS. Physical rows stay NOT_RUN until owner device evidence bound to apkSha256. Hosted Chromium/cross-engine still IN_PROGRESS on parent #343."
   },
   "hosted": {
     "SECURITY": "HOSTED_PASS",
