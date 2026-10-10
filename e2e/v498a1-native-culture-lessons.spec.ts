@@ -61,6 +61,9 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-progress")).toHaveAttribute("data-culture-path-status", /.+/);
     await expect(page.getByTestId("culture-route-progress")).toContainText(/\d+\s+de\s+\d+/);
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-all").click();
@@ -69,7 +72,7 @@ test.describe("V4.9.8A.1 Native Culture Lessons", () => {
       "completed"
     );
 
-    await page.reload();
+    await page.goto("/cultura");
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-progress")).toHaveAttribute("data-culture-path-status", /.+/);
     await expect(page.getByTestId("culture-route-progress")).toContainText(/\d+\s+de\s+\d+/);

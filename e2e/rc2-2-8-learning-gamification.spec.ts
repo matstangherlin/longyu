@@ -375,7 +375,8 @@ test.describe("RC2.2.8 — A Cultura com o dragão", () => {
 
   test("Hub: o dragão fala na primeira visita e fica quieto ao trocar filtro", async ({ page }) => {
     await seed(page, { completedLessons: CULTURE_DISCOVERED_LESSONS }, { once: true });
-    await page.goto("/cultura");
+    // RC2.3.13R.3.2 — Atlas guide + category filters live on /cultura/explorar.
+    await page.goto("/cultura/explorar");
     await waitForLazyPage(page);
     const guide = page.getByTestId("culture-hub-guide");
     await expect(guide).toHaveAttribute("data-guide-message", "intro");

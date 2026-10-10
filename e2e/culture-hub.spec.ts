@@ -103,15 +103,22 @@ test.describe("V4.9.8A.1 Culture Hub → LessonPlayer", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: "Cultura", exact: true })).toBeVisible();
-    await expect(page.getByText(/Explore a China além das palavras/)).toBeVisible();
+    // RC2.3.13R.3.2 — root is topic hub (not atlas tagline / "Cultura" page title).
+    await expect(page.getByTestId("culture-hub")).toBeVisible();
+    await expect(page.getByTestId("culture-journey")).toHaveAttribute("data-culture-topic-hub", "true");
+    await expect(page.getByRole("heading", { name: "Entenda a China", exact: true })).toBeVisible();
+    await expect(page.getByTestId("culture-topic-grid")).toBeVisible();
 
     await seedInterfaceLocale(page, "en");
     await seedInstructionLocale(page, "en", { force: true });
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { name: "Culture", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Understand China", exact: true })).toBeVisible();
+    // Lesson cards (incl. spring-festival) live on Atlas / collections, not root hub.
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.locator('[data-testid="culture-card"][data-culture-id="spring-festival"]').locator("a").click();
     await waitForLazyPage(page);
     await expectCultureLessonPlayer(page, "spring-festival");
@@ -301,14 +308,15 @@ test.describe("V4.11A.2 Culture Atlas Hub", () => {
     await page.goto("/cultura");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-
+    // Collections shelf is on Atlas (/cultura/explorar), not the topic-hub root.
+    await expect(page.getByTestId("culture-topic-grid")).toBeVisible();
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-collections")).toBeVisible();
     await expect(page.getByTestId("culture-collection-card-festivals_calendar")).toBeVisible();
     await expect(page.getByTestId("culture-collection-card-china_history")).toBeVisible();
     await expect(page.getByTestId("culture-collection-preparing-china_history")).toHaveCount(0);
-    await page.goto("/cultura/explorar");
-    await waitForLazyPage(page);
-    await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-featured")).toBeVisible();
     await expect(page.locator('[data-testid="culture-featured"] [data-culture-id="china-history-timeline"]')).toBeVisible();
 
@@ -382,7 +390,10 @@ test.describe("V4.11A.3 China History Essentials", () => {
     await dismissBlockingOverlays(page);
 
     await expect(page.getByTestId("culture-progress")).toBeVisible();
-    await expect(page.getByTestId("culture-next-cta").or(page.getByTestId("culture-route-progress"))).toBeVisible();
+    await expect(page.getByTestId("culture-route-progress")).toBeVisible();
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-collection-card-china_history").click();
     await waitForLazyPage(page);
     await expect(page.getByTestId("culture-collection-page")).toBeVisible();

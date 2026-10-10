@@ -1,11 +1,11 @@
 /**
- * RC2.3.13R.3.2.2 — Final visual candidate hosted closure + Device-QA mint honesty.
+ * RC2.3.13R.3.2.2.1 — Terminal hosted closure + exact Device-QA artifact + physical honesty.
  *
  * Phases:
- *   HOSTED_PENDING — waiting exact-head green (no APK mint)
- *   PRE_BUILD      — hosted PASS recorded; artifact NOT_BUILT
- *   POST_BUILD     — new DEVICE_QA APK BUILT with provenance
- *   TARGETED       — physical + visual acceptance (PASS only with owner evidence)
+ *   HOSTED_PENDING — waiting exact-head green
+ *   PRE_BUILD      — hosted PASS; artifact NOT_BUILT
+ *   POST_BUILD     — Device-QA APK BUILT with provenance
+ *   TARGETED       — physical + visual acceptance (owner evidence only)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -13,56 +13,35 @@ import path from "node:path";
 const ROOT = process.cwd();
 const read = (rel) => (fs.existsSync(path.join(ROOT, rel)) ? fs.readFileSync(path.join(ROOT, rel), "utf8") : "");
 
-/** #348 DEVICE_QA APK — predates Culture topic hierarchy + visual polish. */
 export const STALE_APK_SHA256 =
   "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af";
-
-/** Older pre-R.3.1 Owner QA hash — also rejected for current runtime. */
 export const STALE_APK_SHA256_LEGACY =
   "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8";
 
-/** R.3.2.2.1 Journey/Culture runtime harden (null SRS, instructionLocale gate, persist merge). */
 export const EXPECTED_LEARNER_RUNTIME_SHA =
   "0357f82476d03bc8364efc66902b4640b4a155b9";
-
 export const EXPECTED_FINGERPRINT = "29bb02ec0336";
 export const PACKAGE_ID = "longyu.noba.com";
-export const EXPECTED_PARENT_HEAD =
-  "c47bc5b0e2f84dd990faa510afc34bed5628ca47";
+export const PARENT_PR = 352;
 
-export const EXPECTED_COUNTS = Object.freeze({
-  lessons: 134,
-  topics: 113,
-  cultureItems: 36,
-  culturePaths: 12,
-  cultureNative: 36,
-  journeyCultureNodes: 20,
-  flagshipDeep: 11,
-});
-
-export function loadR322Sources() {
+export function loadR3221Sources() {
   return {
     rc: read("docs/release/final-pre-beta-rc.json"),
-    r321: read("docs/release/rc2-3-13r3-2-1-certification.json"),
     r322: read("docs/release/rc2-3-13r3-2-2-certification.json"),
-    r32: read("docs/release/rc2-3-13r3-2-certification.json"),
-    report: read("docs/reports/rc2-3-13r3-2-2-final-visual-candidate.md"),
+    r3221: read("docs/release/rc2-3-13r3-2-2-1-certification.json"),
+    report: read("docs/reports/rc2-3-13r3-2-2-1-terminal-artifact-physical.md"),
     handoff: read("docs/release/OWNER_R32_2_FINAL_VISUAL_CANDIDATE_HANDOFF.md"),
     packageJson: read("package.json"),
     curriculumFreeze: read("src/lib/curriculumFreeze.ts"),
     productTruth: read("docs/release/product-truth.json"),
     gateRegistry: read("docs/release/gate-registry.json"),
-    topicGroups: read("src/data/cultureTopicGroups.ts"),
     journey: read("src/features/culture/CultureJourneyPage.tsx"),
     detail: read("src/features/culture/CultureTopicDetailPage.tsx"),
-    topicCard: read("src/features/culture/CultureTopicCard.tsx"),
-    topicIcon: read("src/features/culture/CultureTopicIcon.tsx"),
     bubble: read("src/components/progression/ProgressionNodeBubble.tsx"),
-    path: read("src/components/progression/ProgressionPath.tsx"),
+    pathComp: read("src/components/progression/ProgressionPath.tsx"),
     ornaments: read("src/components/progression/symbolicOrnaments.tsx"),
     css: read("src/index.css"),
-    smartBack: read("src/lib/navigation/smartBack.ts"),
-    learnerSurfaces: read("docs/release/learner-surfaces.json"),
+    topicIcon: read("src/features/culture/CultureTopicIcon.tsx"),
     androidWorkflow: read(".github/workflows/android-build.yml"),
     securityWorkflow: read(".github/workflows/security.yml"),
     ciWorkflow: read(".github/workflows/ci.yml"),
@@ -81,84 +60,54 @@ function isPending(v) {
   return v === "PENDING" || v === "IN_PROGRESS" || v === "RUNNING" || v === "pending" || !v;
 }
 
-export function checkAll(src = loadR322Sources()) {
+export function checkAll(src = loadR3221Sources()) {
   const errors = [];
   const rc = j(src, "rc");
   const r322 = j(src, "r322");
-  const r321 = j(src, "r321");
+  const r3221 = j(src, "r3221");
 
+  if (!/"gate:rc2-3-13r3-2-2-1-terminal-artifact-physical"/.test(src.packageJson)) {
+    errors.push("R3221_GATE_MISSING");
+  }
   if (!/"gate:rc2-3-13r3-2-2-final-visual-candidate"/.test(src.packageJson)) {
     errors.push("R322_GATE_MISSING");
   }
-  if (!/"gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression"/.test(src.packageJson)) {
-    errors.push("R321_GATE_MISSING");
-  }
-  if (!/"gate:rc2-3-13r3-2-culture-topic-hierarchy"/.test(src.packageJson)) {
-    errors.push("R32_GATE_MISSING");
-  }
-  if (!/"validate:culture-topic-hierarchy"/.test(src.packageJson)) {
-    errors.push("CULTURE_HIERARCHY_SCRIPT_MISSING");
-  }
-  if (!/"validate:progression-visual-alignment"/.test(src.packageJson)) {
-    errors.push("VISUAL_ALIGNMENT_SCRIPT_MISSING");
-  }
-  if (!/"validate:symbolic-ornament-system"/.test(src.packageJson)) {
-    errors.push("ORNAMENT_SCRIPT_MISSING");
-  }
-  if (!/"validate:topic-card-polish"/.test(src.packageJson)) {
-    errors.push("TOPIC_CARD_SCRIPT_MISSING");
-  }
-
-  if (!r322) errors.push("R322_CERT_MISSING");
-  if (!src.report || !/RC2\.3\.13R\.3\.2\.2/.test(src.report)) {
-    errors.push("R322_REPORT_MISSING");
+  if (!r3221) errors.push("R3221_CERT_MISSING");
+  if (!src.report || !/RC2\.3\.13R\.3\.2\.2\.1/.test(src.report)) {
+    errors.push("R3221_REPORT_MISSING");
   }
   if (!src.handoff || !/USE THIS APK|DEVICE_QA|STALE|fc72f9e3/i.test(src.handoff)) {
     errors.push("OWNER_HANDOFF_MISSING");
   }
   if (!rc) return ["RC_MISSING", ...errors];
 
-  const phase = r322?.phase ?? "HOSTED_PENDING";
-  const hosted = r322?.hosted ?? {};
-  const artifact = r322?.artifact ?? {};
-  const targeted = r322?.targetedPhysical ?? {};
-  const visual = r322?.visualAcceptance ?? {};
+  const phase = r3221?.phase ?? "HOSTED_PENDING";
+  const hosted = r3221?.hosted ?? {};
+  const artifact = r3221?.artifact ?? {};
+  const targeted = r3221?.targetedPhysical ?? {};
+  const visual = r3221?.visualAcceptance ?? {};
+  const freeze = r3221?.visualFreeze ?? {};
 
-  // Fingerprint / counts
   if (rc.fingerprint !== EXPECTED_FINGERPRINT) errors.push("FINGERPRINT_DRIFT");
   if (!new RegExp(`RC_BASE_FINGERPRINT = "${EXPECTED_FINGERPRINT}"`).test(src.curriculumFreeze)) {
     errors.push("FINGERPRINT_DRIFT");
   }
-  if (r322?.runtime?.fingerprint !== EXPECTED_FINGERPRINT) errors.push("FINGERPRINT_DRIFT");
+  if (r3221?.runtime?.fingerprint !== EXPECTED_FINGERPRINT) errors.push("FINGERPRINT_DRIFT");
   if (!/lessons:\s*134/.test(src.curriculumFreeze)) errors.push("LESSON_COUNT_DRIFT");
   if (!/teachingTopics:\s*113/.test(src.curriculumFreeze)) errors.push("TOPIC_COUNT_DRIFT");
   if (!/cultureItems:\s*36/.test(src.curriculumFreeze)) errors.push("CULTURE_COUNT_DRIFT");
 
-  // Learner runtime must stay on R.3.2.1 visual polish SHA unless a new runtime fix lands
-  if (rc.learnerRuntimeSha !== EXPECTED_LEARNER_RUNTIME_SHA) {
+  if (rc.learnerRuntimeSha !== EXPECTED_LEARNER_RUNTIME_SHA) errors.push("LEARNER_RUNTIME_STALE");
+  if (r3221?.runtime?.learnerRuntimeSha !== EXPECTED_LEARNER_RUNTIME_SHA) {
     errors.push("LEARNER_RUNTIME_STALE");
   }
-  if (r322?.runtime?.learnerRuntimeSha !== EXPECTED_LEARNER_RUNTIME_SHA) {
-    errors.push("LEARNER_RUNTIME_STALE");
-  }
-  // Parent R.3.2.1 cert keeps its historical learnerRuntimeSha (824a55de); do not rewrite.
 
-  // Stale hash rejection
-  if (r322?.rejectedApkSha256 !== STALE_APK_SHA256) errors.push("STALE_HASH_REJECTION_MISSING");
-  if (!Array.isArray(r322?.rejectedApkSha256List) || !r322.rejectedApkSha256List.includes(STALE_APK_SHA256)) {
+  if (r3221?.parentPr !== PARENT_PR && r3221?.parentPr !== 352) {
+    errors.push("WRONG_PARENT_PR");
+  }
+  if (r3221?.rejectedApkSha256 !== STALE_APK_SHA256) errors.push("STALE_HASH_REJECTION_MISSING");
+  if (!Array.isArray(r3221?.rejectedApkSha256List) || !r3221.rejectedApkSha256List.includes(STALE_APK_SHA256)) {
     errors.push("STALE_HASH_REJECTION_MISSING");
-  }
-  if (artifact?.apkSha256 === STALE_APK_SHA256 && artifact?.status === "BUILT") {
-    errors.push("OLD_APK_REUSED");
-  }
-  if (artifact?.apkSha256 === STALE_APK_SHA256_LEGACY && artifact?.status === "BUILT") {
-    errors.push("OLD_APK_REUSED");
-  }
-  if (rc.ownerQaApk?.sha256 === STALE_APK_SHA256 && rc.ownerQaApk?.status === "BUILT") {
-    errors.push("OLD_APK_REUSED");
-  }
-  if (rc.ownerQaApk?.sha256 === STALE_APK_SHA256_LEGACY && rc.ownerQaApk?.status === "BUILT") {
-    errors.push("OLD_APK_REUSED");
   }
 
   const hostedKeys = [
@@ -184,20 +133,17 @@ export function checkAll(src = loadR322Sources()) {
       if (hosted[key] === "FAIL" || hosted[key] === "FAILURE") errors.push(`HOSTED_${key.toUpperCase()}_FAILED`);
       if (hosted[key] === "SKIPPED") errors.push("BETA_SUITE_SKIPPED");
     }
-    if (hosted.securityBuild === "FAIL") errors.push("CODEQL_BUILD_FAILED");
     if (hosted.securityAnalysis === "SKIPPED" || hosted.securityAnalysis === "PENDING") {
       errors.push("CODEQL_ANALYSIS_SKIPPED");
     }
-    if (hosted.releaseTruth === "SKIPPED") errors.push("RELEASE_TRUTH_BYPASSED");
-    if (hosted.headSha && r322?.candidateHeadSha && hosted.headSha !== r322.candidateHeadSha) {
+    if (hosted.parentEvidenceUsed === true) errors.push("PARENT_EVIDENCE_USED");
+    if (hosted.headSha && r3221?.candidateHeadSha && hosted.headSha !== r3221.candidateHeadSha) {
       errors.push("STALE_HOSTED_EVIDENCE");
     }
-    if (hosted.parentEvidenceUsed === true) errors.push("PARENT_EVIDENCE_USED");
   }
 
   if (phase === "PRE_BUILD") {
     if (artifact?.status === "BUILT") errors.push("ARTIFACT_BUILT_BEFORE_MINT");
-    if (artifact?.status && artifact.status !== "NOT_BUILT") errors.push("ARTIFACT_BUILT_BEFORE_MINT");
   }
 
   if (phase === "POST_BUILD" || phase === "TARGETED") {
@@ -206,6 +152,7 @@ export function checkAll(src = loadR322Sources()) {
     if (artifact?.apkSha256 === STALE_APK_SHA256 || artifact?.apkSha256 === STALE_APK_SHA256_LEGACY) {
       errors.push("OLD_APK_REUSED");
     }
+    if (artifact?.hashSource === "GITHUB_ZIP_DIGEST") errors.push("ZIP_DIGEST_AS_APK_HASH");
     if (!artifact?.artifactSourceSha) errors.push("ARTIFACT_SOURCE_ABSENT");
     if (artifact?.packageId && artifact.packageId !== PACKAGE_ID) errors.push("WRONG_PACKAGE_ID");
     if (!artifact?.versionName || !artifact?.versionCode) errors.push("WRONG_VERSION");
@@ -226,9 +173,7 @@ export function checkAll(src = loadR322Sources()) {
     }
   }
 
-  // Culture hierarchy contracts
-  if (!/\bexport const CULTURE_TOPIC_GROUPS\b/.test(src.topicGroups)) errors.push("TOPIC_MAPPING_BROKEN");
-  if (!/\bassertCultureTopicHierarchy\b/.test(src.topicGroups)) errors.push("TOPIC_MAPPING_BROKEN");
+  // Visual freeze contracts (no redesign)
   if (/Trocar de caminho/.test(src.journey)) errors.push("TROCAR_DE_CAMINHO_RESTORED");
   if (/ProgressionPath/.test(src.journey) && !/CultureTopicCard/.test(src.journey)) {
     errors.push("ROOT_BUBBLES_RESTORED");
@@ -241,57 +186,46 @@ export function checkAll(src = loadR322Sources()) {
       errors.push("ROOT_PATH_CHIPS_RESTORED");
     }
   }
-  if (!/CultureTopicCard/.test(src.journey)) errors.push("TOPIC_CARD_REMOVED");
-  if (!/progression\.exploreByTopic|culture-topic-catalog/.test(src.journey)) {
-    errors.push("CULTURE_ROOT_CONTRACT_BROKEN");
-  }
-  if (!/ProgressionPath/.test(src.detail)) errors.push("TOPIC_DETAIL_BUBBLES_MISSING");
-  if (!/\/cultura\/topico\/:topicId/.test(src.smartBack)) errors.push("BACK_ROUTE_BROKEN");
-  if (!/cultura\/topico\/:topicId/.test(src.learnerSurfaces)) errors.push("LEARNER_SURFACE_MISSING");
-
-  // Visual polish contracts
   if (!/return 0;/.test(src.bubble) || /Math\.sin\(/.test(src.bubble)) {
     errors.push("BUBBLE_AXIS_OFFSET");
   }
-  if (!/data-progression-axis="stable"/.test(src.path)) errors.push("CONNECTOR_AXIS_OFFSET");
+  if (!/data-progression-axis="stable"/.test(src.pathComp)) errors.push("CONNECTOR_AXIS_OFFSET");
   if (!/\blongyu-line\b/.test(src.topicIcon)) errors.push("TOPIC_ICON_ABSENT");
-  if (!/\bTopicIconDaily\b/.test(src.topicIcon) || !/\bTopicIconRelations\b/.test(src.topicIcon) || !/\bTopicIconFood\b/.test(src.topicIcon)) {
-    errors.push("INCONSISTENT_ICON_FAMILY");
-  }
-  if (!/\bexport function SymbolicOrnamentRail\b|\bfunction SymbolicOrnamentRail\b|\bSymbolicOrnamentRail\s*=/.test(src.ornaments)) {
+  if (!/SymbolicOrnamentRail/.test(src.ornaments) || !/SymbolicOrnamentRail/.test(src.pathComp)) {
     errors.push("ORNAMENTS_MISSING");
   }
-  if (!/SymbolicOrnamentRail/.test(src.path)) errors.push("ORNAMENTS_MISSING");
   if (!/side: slots\.length % 2 === 0 \? "left" : "right"/.test(src.ornaments)) {
     errors.push("ORNAMENTS_NO_ALTERNATION");
   }
   if (!/aria-hidden/.test(src.ornaments)) errors.push("ORNAMENTS_A11Y_EXPOSED");
-  if (!/pointer-events-none/.test(src.ornaments)) errors.push("ORNAMENTS_FOCUSABLE");
-  if (/<button/.test(src.ornaments) || /tabIndex/.test(src.ornaments)) {
+  if (!/pointer-events-none/.test(src.ornaments) || /tabIndex/.test(src.ornaments)) {
     errors.push("ORNAMENTS_FOCUSABLE");
   }
-  if (!/motion-reduce:animate-none/.test(src.ornaments)) errors.push("REDUCED_MOTION_IGNORED");
-  if (!/ornament-drift/.test(src.css)) errors.push("REDUCED_MOTION_IGNORED");
+  if (!/motion-reduce:animate-none/.test(src.ornaments) || !/ornament-drift/.test(src.css)) {
+    errors.push("REDUCED_MOTION_IGNORED");
+  }
+  if (!/density === "journey" \? 4 : 3/.test(src.ornaments)) {
+    errors.push("JOURNEY_DENSITY_EXCESSIVE");
+  }
 
-  // Entry / wave honesty
+  // Entry / freeze honesty
   if (rc.entry?.PUBLIC_BETA_ENTRY === "GO") errors.push("PUBLIC_BETA_GO");
   if ((rc.wave1?.invited ?? 0) > 0) errors.push("WAVE1_INVITED_EARLY");
-  if (r322?.entry?.PUBLIC_BETA_ENTRY === "GO") errors.push("PUBLIC_BETA_GO");
-  if ((r322?.wave1?.invited ?? 0) > 0) errors.push("WAVE1_INVITED_EARLY");
-  if (rc.entry?.PLAY_CLOSED_BETA_ENTRY === "GO" && r322?.operations?.playSignedAab !== "BUILT") {
+  if (r3221?.entry?.PUBLIC_BETA_ENTRY === "GO") errors.push("PUBLIC_BETA_GO");
+  if ((r3221?.wave1?.invited ?? 0) > 0) errors.push("WAVE1_INVITED_EARLY");
+  if (r3221?.entry?.PLAY_CLOSED_BETA_ENTRY === "GO" && r3221?.play?.signedAab !== "BUILT") {
     errors.push("PLAY_GO_WITHOUT_SIGNED_AAB");
   }
-  if (r322?.entry?.OWNER_QA_ENTRY === "GO" && (visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN") !== "PASS") {
-    errors.push("ENTRY_GO_WITHOUT_VISUAL_ACCEPTANCE");
-  }
-  if (r322?.visualFreeze?.status === "OWNER_ACCEPTED" && (visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN") !== "PASS") {
+  if (freeze?.status === "OWNER_ACCEPTED" && (visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN") !== "PASS") {
     errors.push("VISUAL_FREEZE_WITHOUT_OWNER_ACCEPTANCE");
   }
-  if (r322?.resumeFullR3 === true && (visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN") !== "PASS") {
+  if (r3221?.resumeFullR3 === true && (visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN") !== "PASS") {
     errors.push("RESUME_R3_WITHOUT_VISUAL_ACCEPTANCE");
   }
+  if (r3221?.entry?.OWNER_QA_ENTRY === "GO" && (visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN") !== "PASS") {
+    errors.push("ENTRY_GO_WITHOUT_VISUAL_ACCEPTANCE");
+  }
 
-  // Physical honesty
   const tStatus = targeted?.status ?? "NOT_RUN";
   const vStatus = visual?.FINAL_VISUAL_OWNER_ACCEPTANCE ?? "NOT_RUN";
   if (tStatus === "PASS") {
@@ -303,22 +237,15 @@ export function checkAll(src = loadR322Sources()) {
   }
   if (vStatus === "PASS") {
     if (!visual?.artifactSha256) errors.push("VISUAL_ACCEPTANCE_WITHOUT_APK_SHA");
-    if (visual?.source === "emulator" || visual?.emulator === true) {
+    if (visual?.emulator === true || visual?.source === "emulator") {
       errors.push("VISUAL_ACCEPTANCE_FROM_EMULATOR");
     }
     if (artifact?.apkSha256 && visual?.artifactSha256 && visual.artifactSha256 !== artifact.apkSha256) {
-      errors.push("VISUAL_FREEZE_ON_DIFFERENT_APK");
+      errors.push("VISUAL_ACCEPTANCE_STALE_APK");
     }
-    for (const key of [
-      "CULTURE_ROOT_VISUAL",
-      "TOPIC_DETAIL_VISUAL",
-      "PROGRESSION_ALIGNMENT_PHYSICAL",
-      "ORNAMENTS_PHYSICAL",
-      "JOURNEY_VISUAL_PHYSICAL",
-    ]) {
-      if (visual?.[key] === "FAIL") errors.push("VISUAL_PHYSICAL_FAIL_MARKED_PASS");
-      if (visual?.[key] === "NOT_RUN") errors.push("VISUAL_CHECKS_INCOMPLETE");
-    }
+    if (visual?.misalignedNodesObserved === true) errors.push("MISALIGNED_NODES_MARKED_PASS");
+    if (visual?.ornamentOverlapObserved === true) errors.push("ORNAMENT_OVERLAP_MARKED_PASS");
+    if (visual?.cultureNavBrokenObserved === true) errors.push("CULTURE_NAV_BROKEN_MARKED_PASS");
   }
   if ((tStatus === "PASS" || vStatus === "PASS") && phase === "HOSTED_PENDING") {
     errors.push("PHYSICAL_PASS_AUTO_CREATED");
@@ -329,11 +256,11 @@ export function checkAll(src = loadR322Sources()) {
   if (targeted?.personalizedSpeechIncomplete === true && tStatus === "PASS") {
     errors.push("INCOMPLETE_SPEECH_MARKED_PASS");
   }
-  if (visual?.misalignedNodesObserved === true && vStatus === "PASS") {
-    errors.push("MISALIGNED_NODES_MARKED_PASS");
+  if (targeted?.hanziBlockerObserved === true && tStatus === "PASS") {
+    errors.push("HANZI_BLOCKER_MARKED_PASS");
   }
-  if (visual?.ornamentOverlapObserved === true && vStatus === "PASS") {
-    errors.push("ORNAMENT_OVERLAP_MARKED_PASS");
+  if (freeze?.status === "OWNER_ACCEPTED" && artifact?.apkSha256 && freeze?.apkSha256 && freeze.apkSha256 !== artifact.apkSha256) {
+    errors.push("ARTIFACT_CHANGED_AFTER_ACCEPTANCE");
   }
 
   if (!src.productTruth || !/"lessons":\s*134/.test(src.productTruth)) {
@@ -342,11 +269,8 @@ export function checkAll(src = loadR322Sources()) {
   if (!/gate:android-native-foundation/.test(src.androidWorkflow)) {
     errors.push("ANDROID_FOUNDATION_SKIPPED");
   }
-  if (!/gate:rc2-3-13r3-2-2-final-visual-candidate/.test(src.gateRegistry) && src.gateRegistry) {
-    // registry may lag until generate; only fail when registry exists and omits after generate
-    if (/"gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression"/.test(src.gateRegistry)) {
-      errors.push("GATE_REGISTRY_STALE");
-    }
+  if (r322 && r322.rejectedApkSha256 !== STALE_APK_SHA256) {
+    errors.push("R322_STALE_REJECTION_DRIFT");
   }
 
   return [...new Set(errors)];

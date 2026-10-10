@@ -1,40 +1,23 @@
 {
-  "wave": "RC2.3.13R.3.2.2",
-  "title": "Hosted Closure, Final Visual Candidate Mint & Physical Acceptance",
+  "wave": "RC2.3.13R.3.2.2.1",
+  "title": "Hosted Terminal Closure, Final Device Candidate & Physical Regression Certification",
   "phase": "HOSTED_PENDING",
-  "parentPr": 351,
-  "parentTitle": "RC2.3.13R.3.2.1 — Culture/Journey Visual Polish & Symbolic Progression",
-  "parentHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
-  "candidateHeadSha": "01f9ff17cf5f2bcca5a416d402d7c48ae97135e1",
-  "pr": 352,
-  "visualFreeze": {
-    "status": "PENDING_OWNER_ACCEPTANCE",
-    "principle": "JOURNEY_CULTURE_VISUAL_DESIGN_FROZEN_AFTER_OWNER_ACCEPTANCE",
-    "noFurtherVisualWaves": true
-  },
+  "parentPr": 352,
+  "parentTitle": "RC2.3.13R.3.2.2 — Hosted Closure, Final Visual Candidate Mint & Physical Acceptance",
+  "parentHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
+  "candidateHeadSha": "9954da06234651e54cf08a9d41e194c81608993b",
+  "pr": 353,
   "runtime": {
     "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "learnerRuntimeMoved": true,
-    "rationale": "Advanced in R.3.2.2.1 for Journey/Culture runtime harden (null SRS filter, instructionLocale culture gate, persist merge). Fingerprint remains 29bb02ec0336.",
+    "rationale": "REAL_RUNTIME harden for Chromium green: null SRS Journey crash, culture gate instructionLocale, persist merge, early nav density. E2E contracts updated for topic-hub Culture IA (STALE_TEST). Fingerprint 29bb02ec0336.",
     "fingerprint": "29bb02ec0336"
   },
-  "cultureHierarchy": {
-    "gate": "gate:rc2-3-13r3-2-culture-topic-hierarchy",
-    "topics": 7,
-    "paths": 12,
-    "rootBubbles": false,
-    "rootPathChips": false,
-    "trocarDeCaminho": false
-  },
-  "visualPolish": {
-    "gate": "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression",
-    "mutationKills": 71,
-    "axis": "stable-center",
-    "bubbleOffsetPx": 0,
-    "iconFamily": "longyu-line",
-    "ornaments": ["lantern", "fan", "bamboo", "cloud", "moon-gate", "seal", "blossom", "knot"],
-    "alternation": "left-right",
-    "reducedMotion": true
+  "visualFreeze": {
+    "status": "PENDING_OWNER_ACCEPTANCE",
+    "principle": "JOURNEY_CULTURE_VISUAL_DESIGN_FROZEN_AFTER_OWNER_ACCEPTANCE",
+    "noFurtherVisualWaves": true,
+    "apkSha256": null
   },
   "rejectedApkSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
   "rejectedApkSha256List": [
@@ -57,16 +40,17 @@
     "firefox": "PENDING",
     "parentEvidenceUsed": false,
     "workflowIds": {
-      "security": null,
-      "ci": null,
-      "android": null
+      "security": 38032295102,
+      "ci": 38032295031,
+      "android": 38032295198
     }
   },
   "artifact": {
     "status": "NOT_BUILT",
     "apkSha256": null,
+    "hashSource": null,
     "artifactSourceSha": null,
-    "prHeadSha": null,
+    "prHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
     "workflowMergeSha": null,
     "certificationHeadSha": null,
     "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
@@ -82,23 +66,14 @@
     "playReady": false,
     "labeledPlaySigned": false,
     "debugAabSha256": null,
-    "debugAabNote": "If present, labeled DEBUG / DEVICE_QA — not Play signed"
+    "debugAabNote": "DEBUG / DEVICE_QA — NOT PLAY SIGNED — NOT PLAY READY"
   },
   "targetedPhysical": {
     "status": "NOT_RUN",
     "artifactSha256": null,
     "evidence": null,
     "audioX20Count": 0,
-    "PREVIOUS_R31_BLOCKERS": "NOT_RUN",
-    "checks": {
-      "canonicalSkip": "NOT_RUN",
-      "personalizedUtterance": "NOT_RUN",
-      "dialogueAudio": "NOT_RUN",
-      "distractorFairness": "NOT_RUN",
-      "visualVariety": "NOT_RUN",
-      "hanziMobileFit": "NOT_RUN",
-      "audio20": "NOT_RUN"
-    }
+    "PREVIOUS_R31_BLOCKERS": "NOT_RUN"
   },
   "visualAcceptance": {
     "FINAL_VISUAL_OWNER_ACCEPTANCE": "NOT_RUN",
@@ -111,20 +86,39 @@
     "artifactSha256": null,
     "emulator": false
   },
+  "fullPhysical": {
+    "status": "NOT_RUN",
+    "guidedTry10": "NOT_RUN",
+    "speech5": "NOT_RUN",
+    "conversation5": "NOT_RUN",
+    "review": "NOT_RUN",
+    "dynamicAula": "NOT_RUN",
+    "talkback": "NOT_RUN",
+    "fontScale": "NOT_RUN",
+    "androidBack": "NOT_RUN",
+    "ime": "NOT_RUN",
+    "backgroundResume": "NOT_RUN",
+    "offlineReconnect": "NOT_RUN",
+    "session30min": "NOT_RUN"
+  },
   "operations": {
     "sentry": "NOT_RUN",
     "rollback": "NOT_RUN",
     "cloudSmoke1": "NOT_RUN",
     "cloudSmoke2": "NOT_RUN",
-    "androidOauth": "NOT_RUN",
-    "playSignedAab": "NOT_BUILT"
+    "androidOauth": "NOT_RUN"
+  },
+  "play": {
+    "signedAab": "NOT_BUILT",
+    "closedTesting": "HOLD",
+    "installProof": "NOT_RUN"
   },
   "resumeFullR3": false,
   "entry": {
     "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "HOSTED_PENDING: exact-head green required before Device-QA APK mint; physical NOT_RUN; visual acceptance NOT_RUN"
+    "reason": "HOSTED_PENDING on #352 exact head; Device-QA APK NOT_BUILT; physical NOT_RUN"
   },
   "wave1": {
     "targetRealTesters": 10,

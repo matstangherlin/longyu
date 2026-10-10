@@ -192,7 +192,9 @@ test.describe("RC2.2.13 — densidade mobile", () => {
     await seed(page);
     await open(page, "/cultura");
     await expect(page.getByTestId("culture-hub")).toHaveAttribute("data-hub-density", "compact");
-    const first = page.getByTestId("culture-featured").locator("> *").first();
+    // RC2.3.13R.3.2 — topic hub continue card is first-fold content (featured is Atlas-only).
+    const first = page.getByTestId("culture-progress");
+    await expect(first).toBeVisible();
     const box = await first.boundingBox();
     expect(box!.y).toBeLessThan(844 - 72);
   });

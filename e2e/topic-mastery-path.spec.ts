@@ -5,6 +5,7 @@ import {
   seedFreshJourneySession,
   seedOnboardedSession,
   waitForLazyPage,
+  currentTopicProgressNode,
 } from "./helpers";
 import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
@@ -133,7 +134,7 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    const current = page.locator('[aria-current="step"]');
+    const current = currentTopicProgressNode(page);
     await expect(current).toHaveAttribute("data-topic-progress", "0/4");
     await expect(page.getByText("0/4").first()).toBeVisible();
     await capture(page, "v46-journey-0-of-4");
@@ -149,7 +150,7 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     await capture(page, "v46-journey-1-of-4-next-locked");
 
     await page.goto(`/licao/${SECOND.id}`);
@@ -159,20 +160,20 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await completeCurrentPass(page, FIRST.id, 2);
     await page.goto("/jornada");
     await waitForLazyPage(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "2/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "2/4");
 
     await completeCurrentPass(page, FIRST.id, 3);
     await page.goto("/jornada");
     await waitForLazyPage(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "3/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "3/4");
 
     await completeCurrentPass(page, FIRST.id, 4);
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const firstNode = page.locator(`[aria-label*="${FIRST.title}"]`).first();
+    const firstNode = page.locator(`[data-journey-bubble-v2][data-lesson-id="${FIRST.id}"]`);
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await capture(page, "v46-journey-4-of-4-next-unlocked");
 
     await page.goto(`/licao/${SECOND.id}`);
@@ -188,7 +189,7 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await noOverlap(page);
 
     await page.goto(`/licao/${FIRST.id}`);
@@ -210,12 +211,12 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await completeCurrentPass(page, FIRST.id, 1);
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     await page.goto(`/licao/${SECOND.id}`);
     await waitForLazyPage(page);
     await expect(page.getByText(/4 lições|4\/4|bloquead|liberar este tema/i).first()).toBeVisible();

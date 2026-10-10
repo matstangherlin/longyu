@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 138,
+    "EVIDENCE_ONLY": 141,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1165,
+  "total": 1168,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1611,6 +1611,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "none",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r3-2-2-1-terminal-artifact-physical",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:rc2-3-13r3-2-2-1-terminal-artifact-physical && npm run test:rc2-3-13r3-2-2-1-terminal-artifact-physical && npm run gate:rc2-3-13r3-2-2-final-visual-candidate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-2-1-terminal-artifact-physical",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7561,6 +7579,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13R",
       "script": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13r3-2-2-1-terminal-artifact-physical",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-2-1-terminal-artifact-physical.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -17454,6 +17490,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r3-2-2-1-terminal-artifact-physical",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-2-1-terminal-artifact-physical.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-2-1-terminal-artifact-physical",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-13r3-2-2-final-visual-candidate",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -21088,5 +21142,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "b651f9a275c79b31"
+  "evidenceDigest": "d235282edbb3a402"
 }

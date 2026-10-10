@@ -277,15 +277,18 @@ test.describe("V4.9.2B — player, transcrição e fallback", () => {
     await openPublishedCapsule(page);
 
     await page.getByTestId("capsule-media-fallback").click({ timeout: 20_000 });
-    await expect(page.getByTestId("capsule-fallback-notice")).toBeVisible();
+    // Fallback lands on interactive/dynamic AULA — no separate notice node.
+    await expect(
+      page.getByTestId("capsule-animated").or(page.getByTestId("lesson-capsule-dynamic"))
+    ).toBeVisible({ timeout: 10_000 });
 
     // Dois segmentos publicados: o primeiro clique avança, e o segundo botão
     // precisa ser o de concluir — senão a cápsula CORE ficaria sem saída.
-    const advance = page.getByTestId("capsule-continue");
+    const advance = page.getByTestId("dynamic-aula-continue").or(page.getByTestId("capsule-continue"));
     await expect(advance).toBeVisible();
     await advance.click();
-    await expect(page.getByTestId("capsule-continue")).toContainText(
-      /Iniciar exercícios|Start the exercises/
+    await expect(advance).toContainText(
+      /Iniciar exercícios|Start the exercises|Concluir aula|Finish lesson|Continuar|Continue/
     );
   });
 

@@ -69,7 +69,7 @@ const MUTATIONS = {
   ],
   "progressive-navigation": [
     ["[14] Praticar visível cedo", "PRACTICE_VISIBLE_EARLY", src("nav", '"/treino": 1', '"/treino": 0')],
-    ["[15] barra densa demais", "TAB_BAR_TOO_DENSE", src("nav", "export const EARLY_NAV_MAX_ITEMS = 3;", "export const EARLY_NAV_MAX_ITEMS = 5;")],
+    ["[15] barra densa demais", "TAB_BAR_TOO_DENSE", src("nav", "export const EARLY_NAV_MAX_ITEMS = 4;", "export const EARLY_NAV_MAX_ITEMS = 5;")],
     ["barra ignora abas conquistadas", "TAB_BAR_TOO_DENSE", src("tabBar", "earnedTabBar(mobileNavForStage(profile.stage, visibility), learner.completedLessons.length)", "mobileNavForStage(profile.stage, visibility)")],
     ["[26] perfil escondido no Mais", "PROFILE_HIDDEN", src("nav", "const you = [NAV.perfil, NAV.conta, NAV.aparencia]", "const you = [NAV.aparencia]")],
     ["[28] aparência escondida", "APPEARANCE_HIDDEN", src("nav", "const you = [NAV.perfil, NAV.conta, NAV.aparencia]", "const you = [NAV.perfil, NAV.conta]")],

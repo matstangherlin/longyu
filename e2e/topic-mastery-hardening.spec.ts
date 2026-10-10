@@ -4,6 +4,7 @@ import {
   dismissBlockingOverlays,
   seedTopicMasterySession,
   waitForLazyPage,
+  currentTopicProgressNode,
 } from "./helpers";
 
 const FIRST = ALL_LESSONS[0];
@@ -31,7 +32,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    const current = page.locator('[aria-current="step"]');
+    const current = currentTopicProgressNode(page);
     await expect(current).toHaveAttribute("data-lesson-id", FIRST.id);
     await expect(current).toHaveAttribute("data-topic-progress", "1/4");
 
@@ -52,7 +53,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     expect(await masteryLevel(page, FIRST.id)).toBe(1);
     await page.goto("/jornada");
     await waitForLazyPage(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("back do navegador volta à Jornada em 1/4", async ({ page }) => {
@@ -65,7 +66,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goBack();
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/jornada/);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("dupla conclusão de M1 não vira 2/4", async ({ page }) => {
@@ -92,7 +93,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.reload();
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     expect(await masteryLevel(page, FIRST.id)).toBe(1);
   });
 
@@ -101,17 +102,17 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     await context.setOffline(true);
     try {
-      await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
-      await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-lesson-id", FIRST.id);
+      await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
+      await expect(currentTopicProgressNode(page)).toHaveAttribute("data-lesson-id", FIRST.id);
     } finally {
       await context.setOffline(false);
     }
     await page.reload();
     await waitForLazyPage(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("3/4 ainda bloqueia o próximo; 4/4 destrava", async ({ page }) => {
@@ -119,7 +120,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "3/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "3/4");
     await page.goto(`/licao/${SECOND.id}`);
     await waitForLazyPage(page);
     await expect(page.getByText(/4 lições|4\/4|bloquead|liberar este tema/i).first()).toBeVisible();
@@ -128,9 +129,9 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const firstNode = page.locator(`[data-lesson-id="${FIRST.id}"]`).first();
+    const firstNode = page.locator(`[data-journey-bubble-v2][data-lesson-id="${FIRST.id}"]`);
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
   });
 
   test("forward do navegador não muda mastery", async ({ page }) => {
@@ -154,13 +155,13 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const current = page.locator('[aria-current="step"]');
+    const current = currentTopicProgressNode(page);
     await current.dblclick();
     await waitForLazyPage(page);
     expect(await masteryLevel(page, FIRST.id)).toBe(1);
     await page.goto("/jornada");
     await waitForLazyPage(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("reload após resposta na pass preserva 1/4", async ({ page }) => {
@@ -188,7 +189,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.reload();
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     expect(await masteryLevel(page, FIRST.id)).toBe(1);
   });
 

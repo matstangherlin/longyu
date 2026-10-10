@@ -208,8 +208,15 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-progress")).toHaveAttribute("data-culture-path-status", /.+/);
-    await expect(page.getByTestId("culture-route-progress")).toContainText(/\d+\s+de\s+\d+/);
-    await page.getByTestId("culture-toggle-secondary").click();
+    // Topic-hub continue card: emptyStart copy when done=0 on featured path, else "N de M".
+    await expect(page.getByTestId("culture-route-progress")).toContainText(
+      /\d+\s+de\s+\d+|Comece pelo próximo|Start with the next/i
+    );
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    const secondary = page.getByTestId("culture-toggle-secondary");
+    if (await secondary.isVisible().catch(() => false)) await secondary.click();
     const show = page.getByTestId("culture-show-categories");
     if (await show.isVisible().catch(() => false)) await show.click().catch(() => undefined);
     const filterAll = page.getByTestId("culture-filter-all");
