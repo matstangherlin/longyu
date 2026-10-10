@@ -22,6 +22,9 @@ const KEYS = {
   openOrigin: "longyu.progression.openOrigin",
   /** Last progression mode before a segmented switch (RC2.3.13R enter direction). */
   lastMode: "longyu.progression.lastMode",
+  /** RC2.3.13R.3.2 — last Culture topic for switch restore / node return. */
+  cultureTopicId: "longyu.progression.cultureTopicId",
+  cultureTopicScrollPrefix: "longyu.progression.cultureTopicScroll.",
 } as const;
 
 export type ProgressionOpenOrigin =
@@ -123,4 +126,25 @@ export function progressionEnterDirection(
   if (from === "journey" && mode === "culture") return "from-right";
   if (from === "culture" && mode === "journey") return "from-left";
   return "none";
+}
+
+/** RC2.3.13R.3.2 — remember last Culture topic for Journey↔Culture restore. */
+export function writeCultureTopicId(topicId: string | null): void {
+  const s = storage();
+  if (!s) return;
+  if (!topicId) s.removeItem(KEYS.cultureTopicId);
+  else s.setItem(KEYS.cultureTopicId, topicId);
+}
+
+export function readCultureTopicId(): string | null {
+  return storage()?.getItem(KEYS.cultureTopicId) ?? null;
+}
+
+export function writeCultureTopicScroll(topicId: string, y: number): void {
+  storage()?.setItem(`${KEYS.cultureTopicScrollPrefix}${topicId}`, String(Math.max(0, Math.round(y))));
+}
+
+export function readCultureTopicScroll(topicId: string): number {
+  const n = Number(storage()?.getItem(`${KEYS.cultureTopicScrollPrefix}${topicId}`) ?? "0");
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
 }

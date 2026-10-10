@@ -1270,7 +1270,11 @@
     "gate:rc2-3-13r3-1-2-artifact-targeted-retest": "npm run validate:rc2-3-13r3-1-2-artifact-targeted-retest && npm run test:rc2-3-13r3-1-2-artifact-targeted-retest && npm run gate:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run validate:product-truth",
     "validate:rc2-3-13r3-1-2-1-hosted-mint": "node scripts/rc2-3-13r3-1-2-1-hosted-mint.mjs validate",
     "test:rc2-3-13r3-1-2-1-hosted-mint": "node scripts/rc2-3-13r3-1-2-1-hosted-mint.mjs test",
-    "gate:rc2-3-13r3-1-2-1-hosted-mint": "npm run validate:rc2-3-13r3-1-2-1-hosted-mint && npm run test:rc2-3-13r3-1-2-1-hosted-mint && npm run gate:rc2-3-13r3-1-2-artifact-targeted-retest && npm run validate:product-truth"
+    "gate:rc2-3-13r3-1-2-1-hosted-mint": "npm run validate:rc2-3-13r3-1-2-1-hosted-mint && npm run test:rc2-3-13r3-1-2-1-hosted-mint && npm run gate:rc2-3-13r3-1-2-artifact-targeted-retest && npm run validate:product-truth",
+    "validate:culture-topic-hierarchy": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs validate",
+    "validate:rc2-3-13r3-2-culture-topic-hierarchy": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs validate",
+    "test:rc2-3-13r3-2-culture-topic-hierarchy": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs test",
+    "gate:rc2-3-13r3-2-culture-topic-hierarchy": "npm run validate:culture-topic-hierarchy && npm run test:rc2-3-13r3-2-culture-topic-hierarchy && npm run validate:product-truth"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

@@ -279,6 +279,11 @@
       "learnerFacing": true
     },
     {
+      "path": "cultura/topico/:topicId",
+      "declaredBy": "RC2.3.13R.3.2",
+      "learnerFacing": true
+    },
+    {
       "path": "cultura/:id",
       "declaredBy": "RC2.3.8-baseline",
       "learnerFacing": true

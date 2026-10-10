@@ -70,6 +70,8 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/cultura/explorar", parent: "/cultura", ownBack: true },
   { pattern: "/cultura/revisao", parent: "/cultura", ownBack: true },
   { pattern: "/cultura/colecao/:collectionId", parent: "/cultura", ownBack: true },
+  // RC2.3.13R.3.2 — topic detail before /cultura/:id so Android Back → Culture root.
+  { pattern: "/cultura/topico/:topicId", parent: "/cultura", ownBack: true },
   { pattern: "/cultura/:id", parent: "/cultura", ownBack: true },
 
   // Perfil, social e conta.

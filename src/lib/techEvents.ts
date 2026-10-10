@@ -106,6 +106,11 @@ export const TECH_EVENT_NAMES = [
   "culture_atlas_open",
   "culture_depth_expand",
   "culture_decision_submit",
+  // RC2.3.13R.3.2 — Culture topic hierarchy (safe metadata only).
+  "culture_topic_opened",
+  "culture_topic_continue",
+  "culture_subtopic_started",
+  "culture_root_returned",
   // RC2.3.13H — dynamic AULA presentation (safe metadata only; no per-char reveals).
   "dynamic_aula_started",
   "dynamic_aula_completed",

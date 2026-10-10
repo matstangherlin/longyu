@@ -1,5 +1,6 @@
 /**
  * RC2.3.13E — `/cultura` entry is Culture Journey (ProgressionShell).
+ * RC2.3.13R.3.2 — root is Culture topic hub; topic detail at `/cultura/topico/:topicId`.
  * Atlas / explore lives at `/cultura/explorar` (`CultureAtlasPage`).
  *
  * Density contract (rc2-2-13): HubPage compact remains the culture-hub surface.
