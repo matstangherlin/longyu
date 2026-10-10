@@ -32,7 +32,7 @@ That hash is **STALE_FOR_CURRENT_RUNTIME** (pre-R.3.1 / #344 candidate).
 | New Owner QA APK | **NOT_BUILT** |
 | New SHA256 | unknown until build |
 | Old APK `fb835ce8…` | **STALE — do not install** |
-| `learnerRuntimeSha` | `719ce024…` (pure audio helper + EN overlays) |
+| `learnerRuntimeSha` | `b6fe9153…` (R.3.1.2 same-kind visual repeat; prior 719ce024 pure audio helper) |
 | `R31_TARGETED_PHYSICAL_RETEST` | **NOT_RUN** |
 | OWNER_QA_ENTRY | HOLD |
 | PLAY_CLOSED_BETA_ENTRY | HOLD (signing secrets still blocked) |

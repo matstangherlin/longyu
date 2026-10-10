@@ -4,7 +4,7 @@
   "phase": "PRE_BUILD",
   "parentPr": 345,
   "fingerprint": "cc66373bb602",
-  "learnerRuntimeSha": "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
+  "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
   "artifactSourceSha": null,
   "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   "oldOwnerQaApk": {

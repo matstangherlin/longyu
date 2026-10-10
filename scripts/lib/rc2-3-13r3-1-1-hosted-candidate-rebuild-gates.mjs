@@ -20,7 +20,7 @@ export const STALE_APK_SHA256 =
 
 /** Last learner-runtime module commit (R.3.1.1 pure audio helper + EN overlays). */
 export const EXPECTED_LEARNER_RUNTIME_SHA =
-  "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd";
+  "b6fe91536daf3a8bdebde66f92ec50a03155fb4b";
 
 export const EXPECTED_FINGERPRINT = "cc66373bb602";
 export const EXPECTED_COUNTS = Object.freeze({

@@ -4,8 +4,8 @@
   "phase": "HOSTED_PENDING",
   "parentPr": 346,
   "parentHeadSha": "5e2519fe1b762f50887041f43b3aac7c969183ad",
-  "learnerRuntimeSha": "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
-  "learnerRuntimeNote": "PLACEHOLDER_UNTIL_RUNTIME_COMMIT — will advance to the R.3.1.2 lessonTasks same-kind visual-repeat commit after it lands. Prior: 719ce024 = R.3.1.1 pure personalizedUtterance + EN overlays; c68dc428 = R.3.1 product fixes; 3c847a1b/5e2519fe = gates/docs only.",
+  "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
+  "learnerRuntimeNote": "b6fe9153 = R.3.1.2 lessonTasks same-kind visual-repeat (fingerprint cc66373bb602). Prior 719ce024 = R.3.1.1 pure personalizedUtterance + EN overlays; c68dc428 = R.3.1 product fixes; 3c847a1b/5e2519fe = gates/docs only.",
   "fingerprint": "cc66373bb602",
   "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   "rcIdentityPolicy": {

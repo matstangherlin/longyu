@@ -4,7 +4,7 @@
   "parentPr": 343,
   "parentHead": "8811deca936c30ab9eecad56fabcff9cfc9014eb",
   "shaSemantics": {
-    "learnerRuntimeSha": "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd",
+    "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
     "certificationHeadSha": "8612f18d9692be5d8ae65d9adde873521cf38681",
     "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
@@ -18,7 +18,8 @@
     "versionCode": 651,
     "packageId": "longyu.noba.com",
     "status": "BUILT_FOR_OWNER_QA",
-    "priorBuiltRc": "RC2.3.12-RC2"
+    "priorBuiltRc": "RC2.3.12-RC2",
+    "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b"
   },
   "typography": {
     "TYPOGRAPHY_SYSTEM_PASS": "PASS",

@@ -40,7 +40,7 @@ Run IDs (HEAD `5e2519fe`):
 | --- | --- |
 | `c68dc428…` | R.3.1 product fixes (skips, distractors, PERSONAL audio, Hanzi, visuals) |
 | `719ce024…` | R.3.1.1 pure `personalizedUtterance` helper + EN overlays |
-| R.3.1.2 runtime commit | **Final learnerRuntimeSha** — `violatesImageRepeat` same-kind only (compare_with_image + image_choice may share concept; fingerprint `cc66373bb602`) |
+| `b6fe9153…` | **Final learnerRuntimeSha** — `violatesImageRepeat` same-kind only (compare_with_image + image_choice may share concept; fingerprint `cc66373bb602`) |
 | `3c847a1b` / `5e2519fe` | Gates/docs only — do not move learnerRuntimeSha |
 
 ## Local unblock (pre-push)

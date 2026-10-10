@@ -16,9 +16,9 @@ const read = (rel) => (fs.existsSync(path.join(ROOT, rel)) ? fs.readFileSync(pat
 export const STALE_APK_SHA256 =
   "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8";
 
-/** Last R.3.1.1 commit that touches learner runtime modules (audio helper + EN overlays). */
+/** Last R.3.1.2 commit that touches learner runtime (lessonTasks same-kind visual-repeat; fingerprint cc66373bb602). */
 export const EXPECTED_LEARNER_RUNTIME_SHA =
-  "719ce024b6f65ae2905d5659cfcddcdcdc13bbcd";
+  "b6fe91536daf3a8bdebde66f92ec50a03155fb4b";
 
 export const EXPECTED_FINGERPRINT = "cc66373bb602";
 export const PACKAGE_ID = "longyu.noba.com";
