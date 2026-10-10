@@ -7,6 +7,9 @@
 // pelas cenas de conversa, pelas histórias interativas e pela revisão.
 
 import { useStore } from "./store";
+import { CJK_RE, LATIN_NAME_RE, isPersonalizedUtterance } from "./audio/personalizedUtterance";
+/** Re-export pure predicate — single authority lives in audio/personalizedUtterance. */
+export { isPersonalizedUtterance };
 
 /** Primeiro nome utilizável do aluno, ou undefined para nomes-placeholder. */
 export function studentFirstName(name?: string): string | undefined {
@@ -102,16 +105,6 @@ export function personalizeChoiceList(
     seen.add(normalizeKey(next));
     return next;
   });
-}
-
-const CJK_RE = /[㐀-鿿]/u;
-const LATIN_NAME_RE = /[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,}/;
-
-/** Utterance with Mandarin + Latin proper name — must use DYNAMIC speech path. */
-export function isPersonalizedUtterance(text: string | undefined | null): boolean {
-  const clean = String(text ?? "").trim();
-  if (!clean) return false;
-  return CJK_RE.test(clean) && LATIN_NAME_RE.test(clean);
 }
 
 /**
