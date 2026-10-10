@@ -116,10 +116,10 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
   }
   if (!found) return false;
 
-  // Wait out NPC “Processing…” so options/dock are interactive.
-  const processing = scene.getByText(/Processando|Processing/i).first();
+  // Wait out NPC “Processing…” / “Listening…” so options/dock are interactive.
+  const processing = scene.getByText(/Processando|Processing|Ouvindo|Listening/i).first();
   if (await processing.isVisible().catch(() => false)) {
-    await processing.waitFor({ state: "hidden", timeout: 4_000 }).catch(() => undefined);
+    await processing.waitFor({ state: "hidden", timeout: 6_000 }).catch(() => undefined);
   }
 
   if (await advanceConversationRepairIfOpen(page, scene)) return true;

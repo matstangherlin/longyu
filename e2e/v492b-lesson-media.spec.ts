@@ -279,10 +279,7 @@ test.describe("V4.9.2B — player, transcrição e fallback", () => {
     await page.getByTestId("capsule-media-fallback").click({ timeout: 20_000 });
     // Fallback lands on interactive/dynamic AULA — no separate notice node.
     await expect(
-      page
-        .getByTestId("capsule-animated")
-        .or(page.getByTestId("lesson-capsule-dynamic"))
-        .or(page.getByTestId("dynamic-teaching-sequence"))
+      page.getByTestId("capsule-animated").or(page.getByTestId("lesson-capsule-dynamic"))
     ).toBeVisible({ timeout: 10_000 });
 
     // Dois segmentos publicados: o primeiro clique avança, e o segundo botão

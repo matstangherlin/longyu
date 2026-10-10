@@ -44,10 +44,8 @@ async function open(page: Page, target: string) {
 
 /** RC2.3.13H+ foundation CORE AULA uses DynamicTeachingSequence (or legacy animated). */
 function capsuleRoot(page: Page) {
-  return page
-    .getByTestId("lesson-capsule-dynamic")
-    .or(page.getByTestId("dynamic-teaching-sequence"))
-    .or(page.getByTestId("capsule-animated"));
+  // lesson-capsule-dynamic wraps dynamic-teaching-sequence — don't OR both (strict mode).
+  return page.getByTestId("lesson-capsule-dynamic").or(page.getByTestId("capsule-animated"));
 }
 
 function capsuleContinue(page: Page) {
@@ -56,7 +54,8 @@ function capsuleContinue(page: Page) {
 
 /** Percorre a aula inteira (dynamic beats ou animated + microcheck legado). */
 async function completeCapsule(page: Page, { answerCorrectly = true } = {}) {
-  for (let step = 0; step < 16; step += 1) {
+  for (let step = 0; step < 24; step += 1) {
+    if (/\/licao\//.test(page.url())) return;
     const options = page.getByTestId("capsule-micro-check-option");
     if (await options.first().isVisible().catch(() => false)) {
       const count = await options.count();
@@ -64,11 +63,26 @@ async function completeCapsule(page: Page, { answerCorrectly = true } = {}) {
       await expect(page.getByTestId("capsule-micro-check-feedback")).toBeVisible();
     }
     const advance = capsuleContinue(page);
-    if (!(await advance.isVisible().catch(() => false))) return;
+    if (!(await advance.isVisible().catch(() => false))) {
+      await page.waitForTimeout(200);
+      continue;
+    }
     const label = (await advance.textContent()) ?? "";
     await advance.click();
-    if (/Iniciar exercícios|Start the exercises|Concluir aula|Finish lesson/.test(label)) return;
-    await page.waitForTimeout(150);
+    // Dynamic AULA may need a second click after the teacher bubble becomes READY.
+    if (!/Iniciar exercícios|Start the exercises|Concluir aula|Finish lesson/.test(label)) {
+      await page.waitForTimeout(80);
+      if (await advance.isVisible().catch(() => false)) {
+        const again = (await advance.textContent()) ?? "";
+        if (/Concluir aula|Finish lesson|Iniciar exercícios|Start the exercises/.test(again)) {
+          await advance.click();
+          return;
+        }
+      }
+    } else {
+      return;
+    }
+    await page.waitForTimeout(120);
   }
 }
 
