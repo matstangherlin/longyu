@@ -19,8 +19,8 @@
     "scripts/test-rc2-3-9-stack-convergence.mjs"
   ],
   "counts": {
-    "total": 42,
-    "LEGIT": 42,
+    "total": 43,
+    "LEGIT": 43,
     "HIDDEN_SKIP": 0
   },
   "entries": [
@@ -31,6 +31,14 @@
       "snippet": "ls -l /dev/kvm || true",
       "classification": "LEGIT",
       "reason": "Diagnostic listing before the emulator step. It is not a gate, and the emulator step itself fails hard."
+    },
+    {
+      "file": "e2e/rc2-3-5-speech-contrast.spec.ts",
+      "line": 233,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName === \"webkit\", \"CI WebKit has no capture engine; Chromium+Firefox prove the speech flow\");",
+      "classification": "LEGIT",
+      "reason": "Engine limitation on CI WebKit (no capture engine). Chromium proves the real MediaRecorder pipeline; Firefox proves the same UI/evidence contract via the synthetic microphone double."
     },
     {
       "file": ".github/workflows/backend-rehearsal.yml",

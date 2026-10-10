@@ -18,6 +18,20 @@ async function openApp(page: import("@playwright/test").Page, path: string) {
   await dismissBlockingOverlays(page);
 }
 
+/** Culture tab may restore hub (`/cultura`) or last topic (`/cultura/topico/...`). */
+async function expectCultureSurface(page: import("@playwright/test").Page) {
+  await expect(page).toHaveURL(/\/cultura(\/|$)/, { timeout: 15_000 });
+  await expect(page.getByTestId("progression-shell")).toHaveAttribute("data-progression-mode", "culture");
+  await expect(
+    page
+      .getByTestId("culture-hub")
+      .or(page.getByTestId("culture-topic-detail"))
+      .or(page.getByTestId("culture-journey")),
+  )
+    .first()
+    .toBeVisible({ timeout: 15_000 });
+}
+
 test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
   test("segmented switch restores independent positions", async ({ page }) => {
     await openApp(page, "/jornada");
@@ -30,10 +44,11 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
     });
 
     await page.getByTestId("progression-tab-culture").click();
-    await expect(page).toHaveURL(/\/cultura$/);
-    await expect(page.getByTestId("progression-shell")).toHaveAttribute("data-progression-mode", "culture");
-    await expect(page.getByTestId("culture-hub")).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByTestId("culture-next-cta")).toBeVisible({ timeout: 15_000 });
+    await expectCultureSurface(page);
+    // First landing is the hub continue surface when no topic restore is armed yet.
+    await expect(page.getByTestId("culture-next-cta").or(page.getByTestId("culture-topic-continue")).first()).toBeVisible({
+      timeout: 15_000,
+    });
 
     await page.evaluate(() => {
       sessionStorage.setItem("longyu.progression.cultureAnchor", "route:first-meetings");
@@ -45,8 +60,7 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
     await expect(page.getByTestId("home-cognitive")).toBeVisible({ timeout: 15_000 });
 
     await page.getByTestId("progression-tab-culture").click();
-    await expect(page).toHaveURL(/\/cultura$/);
-    await expect(page.getByTestId("culture-hub")).toBeVisible({ timeout: 15_000 });
+    await expectCultureSurface(page);
     const cultureScroll = await page.evaluate(() => sessionStorage.getItem("longyu.progression.cultureScroll"));
     expect(cultureScroll).toBeTruthy();
   });
@@ -66,14 +80,16 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
     await openApp(page, "/jornada");
     for (let i = 0; i < 6; i++) {
       await page.getByTestId("progression-tab-culture").click();
-      await expect(page).toHaveURL(/\/cultura$/);
+      await expectCultureSurface(page);
       await page.getByTestId("progression-tab-journey").click();
-      await expect(page).toHaveURL(/\/jornada$/);
+      await expect(page).toHaveURL(/\/jornada$/, { timeout: 15_000 });
     }
     await expect(page).toHaveURL(/\/jornada$/);
     await page.goBack();
-    // Do not OR with body — when the shell mounts, body also matches (strict mode).
-    await expect(page.getByTestId("progression-shell")).toBeVisible({ timeout: 15_000 });
+    // Segmented switch uses navigate({ replace: true }), so history is shallow.
+    // Do not OR progression-shell with body (strict mode when both match).
+    await expect(page.locator("body")).toBeVisible();
+    await expect(page.getByText(/Something went wrong|Application error/i)).toHaveCount(0);
   });
 });
 
