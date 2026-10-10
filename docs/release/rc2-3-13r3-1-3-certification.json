@@ -7,7 +7,7 @@
   "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
   "artifactSourceSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
   "workflowMergeSha": "a6a467e8b65a205040a83e729ed8a77d5a849ab2",
-  "certificationHeadSha": null,
+  "certificationHeadSha": "32f47f2bbb60009a472eeb37783fd11c41e6e56c",
   "fingerprint": "29bb02ec0336",
   "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   "hosted": {
@@ -105,5 +105,6 @@
     "targetRealTesters": 10,
     "invited": 0
   },
-  "learnerRuntimeShaNote": "Unchanged by docs/gate reconciliation; still b6fe9153 same-kind visual-repeat."
+  "learnerRuntimeShaNote": "Unchanged by docs/gate reconciliation; still b6fe9153 same-kind visual-repeat.",
+  "pr": 349
 }
