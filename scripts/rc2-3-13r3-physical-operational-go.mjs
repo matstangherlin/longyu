@@ -53,7 +53,7 @@ function test() {
     delete o.boundArtifact.apkSha256;
     o.results.PHYSICAL_QA = "PHYSICAL_PASS";
   }));
-  k("wrong apk hash", "WRONG_APK_HASH", withJson(base, "rc", (o) => { o.ownerQaApk.sha256 = "a".repeat(64); }));
+  k("wrong apk hash", "WRONG_APK_HASH", withJson(base, "rc", (o) => { o.ownerQaApk.status = "BUILT"; o.ownerQaApk.sha256 = "a".repeat(64); }));
   k("wrong version", "VERSION_CODE_DRIFT", withJson(base, "rc", (o) => { o.versionCode = 999; }));
   k("clean install not run + GO", "CLEAN_INSTALL_NOT_RUN_GO", goOwner(base));
   k("audio under 20", "AUDIO_UNDER_20", withJson(goOwner(base), "physical", (o) => {

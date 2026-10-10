@@ -93,8 +93,14 @@ export function checkAll(src = loadR3Sources()) {
   if (rc.packageId !== EXPECTED.packageId) errors.push("PACKAGE_DRIFT");
   if (rc.learnerRuntimeSha !== EXPECTED.learnerRuntimeSha) errors.push("LEARNER_RUNTIME_MOVED");
   if (rc.artifactSourceSha !== EXPECTED.artifactSourceSha) errors.push("ARTIFACT_SOURCE_CHANGED");
-  if (rc.ownerQaApk?.sha256 !== EXPECTED.apkSha256) errors.push("WRONG_APK_HASH");
-  if (!rc.ownerQaApk || rc.ownerQaApk.status !== "BUILT") errors.push("OWNER_QA_APK_REMOVED");
+  // Prior candidate hash is remembered until rebuild; status may be STALE after runtime fix.
+  if (!rc.ownerQaApk) errors.push("OWNER_QA_APK_REMOVED");
+  if (rc.ownerQaApk && !["BUILT", "STALE_FOR_CURRENT_RUNTIME"].includes(rc.ownerQaApk.status)) {
+    errors.push("OWNER_QA_APK_REMOVED");
+  }
+  if (rc.ownerQaApk?.status === "BUILT" && rc.ownerQaApk?.sha256 !== EXPECTED.apkSha256) {
+    errors.push("WRONG_APK_HASH");
+  }
   if (rc.fingerprint !== EXPECTED.fingerprint) errors.push("FINGERPRINT_CHANGED");
   if (!/RC_BASE_FINGERPRINT = "fea5455e1461"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
   if (!/lessons:\s*134/.test(src.curriculumFreeze)) errors.push("LESSONS_CHANGED");
@@ -259,6 +265,9 @@ export function checkAll(src = loadR3Sources()) {
     errors.push("TESTERS_BEFORE_DISTRIBUTION_GO");
   }
   if (ownerQaGo && results.PHYSICAL_QA === "NOT_RUN") errors.push("OWNER_QA_GO_WITHOUT_PHYSICAL");
+  if (ownerQaGo && rc.ownerQaApk?.status === "STALE_FOR_CURRENT_RUNTIME") {
+    errors.push("OWNER_QA_GO_WITHOUT_PHYSICAL");
+  }
 
   // Feature freeze markers in report/pack
   if (/Mastery 2\.0|Longyu Life|Tone Coach|Adaptive Reader/i.test(src.report)

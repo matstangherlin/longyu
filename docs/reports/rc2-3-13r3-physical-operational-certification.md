@@ -19,7 +19,22 @@
 | WebKit | IN_PROGRESS |
 | Firefox | IN_PROGRESS |
 
-**Physical certification is blocked until Chromium + cross-engine are terminal PASS on exact parent HEAD.**
+**Physical certification is blocked until Chromium + cross-engine are terminal PASS.**
+
+## Chromium failure on #343 (`38003599459`)
+
+```text
+120 failed / 951 passed / 2.2h
+```
+
+| Cluster | Classification | Fix direction |
+|---------|----------------|---------------|
+| Dual `h1` on `/jornada` | TEST_CONTRACT_STALE + a11y | HomeContinue demoted to `h2`; page `h1` = ProgressionShell |
+| Multiple `aria-current=step` | PRODUCT_RUNTIME_REGRESSION | Core AULA ready nodes → `AVAILABLE` (not every ready = `CURRENT`) |
+| Culture `N / 30` | TEST_CONTRACT_STALE | Path-relative `N de M` expectations |
+| Conversation `Verificar` timeout | TEST_CONTRACT_STALE | GuidedDock portals CTA outside panel — use testids |
+
+Runtime touch (JourneyInlineNode + HomeCognitiveBlocks) **invalidates** prior Owner QA APK for a rebuilt candidate after hosted green. Physical remains NOT_RUN until then.
 
 ## Artifact identity (preserved)
 

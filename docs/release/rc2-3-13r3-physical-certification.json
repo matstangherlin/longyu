@@ -12,11 +12,12 @@
     "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
     "apkFile": "longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
     "apkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
-    "channel": "DEVICE_QA"
+    "channel": "DEVICE_QA",
+    "statusNote": "STALE_FOR_CURRENT_RUNTIME_AFTER_R3_PRODUCT_FIX"
   },
   "meta": {
     "evidenceLevel": "NOT_RUN",
-    "note": "Physical certification MUST NOT begin until #343 Chromium + cross-engine are terminal PASS. Do not invent PHYSICAL_PASS."
+    "note": "Physical blocked on hosted E2E. Runtime fixes for aria-current CURRENT multiplicity and dual-h1 hierarchy invalidate prior Owner QA APK bytes \u2014 rebuild+rehash after Chromium green. Do not invent PHYSICAL_PASS."
   },
   "hostedPrecondition": {
     "SECURITY": "HOSTED_PASS",
@@ -26,7 +27,7 @@
     "RELEASE_TRUTH": "HOSTED_PASS",
     "BETA_SUITES": "HOSTED_PASS",
     "QUALITY_BUILD": "HOSTED_PASS",
-    "CHROMIUM": "IN_PROGRESS",
+    "CHROMIUM": "FAIL",
     "WEBKIT": "IN_PROGRESS",
     "FIREFOX": "IN_PROGRESS",
     "CI_RUN_ID": 38003599459,

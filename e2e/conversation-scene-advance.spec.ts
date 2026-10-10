@@ -100,8 +100,10 @@ async function answerInteraction(page: Page): Promise<boolean> {
     }
     if (!picked) throw new Error(`${type}: opção "${expected}" não encontrada`);
   }
-  await panel.getByRole("button", { name: /^(Verificar|Check)$/ }).tap();
-  await panel.getByRole("button", { name: /^(Continuar|Continue)/ }).tap();
+  // GuidedDock portals Verificar/Continuar into the lesson action region —
+  // they are no longer descendants of [data-conversation-interaction].
+  await page.getByTestId("conversation-check").tap();
+  await page.getByTestId("conversation-interaction-continue").tap();
   return true;
 }
 

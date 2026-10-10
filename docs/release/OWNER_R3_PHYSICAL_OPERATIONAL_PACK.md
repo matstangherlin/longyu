@@ -17,6 +17,12 @@
 
 Open `/qa/device` after install. **STOP** if identity mismatches.
 
+
+## APK status (R.3 hosted unblock)
+
+Prior `fb835ce8…` is **STALE_FOR_CURRENT_RUNTIME** after JourneyInlineNode/HomeContinue runtime fix.
+Do **not** physical-test that hash against the new HEAD. Wait for rebuild+rehash after Chromium green.
+
 ## Owner-only actions
 
 1. **Install** the exact APK above (verify SHA256 of the file bytes before install).

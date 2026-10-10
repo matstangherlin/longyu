@@ -93,10 +93,10 @@
 
 **ID:** R3-HOSTED-E2E-IN-PROGRESS  
 **Severity:** P1  
-**Surface:** #343 CI Chromium + WebKit + Firefox  
+**Surface:** #343 CI Chromium (+ WebKit/Firefox)  
 **Beta blocker:** yes for starting physical certification  
 **Status:** OPEN  
-**Notes:** Exact HEAD `8811deca` — Security/Android/suites/quality PASS; E2E still IN_PROGRESS on run `38003599459`. Do not invent PASS. Do not start physical until terminal.
+**Notes:** Exact HEAD `8811deca` run `38003599459`. Chromium **FAIL** — 120 failed / 951 passed. Clusters: (1) dual h1 on `/jornada` TEST_CONTRACT_STALE; (2) culture `N/30` vs path `N de M` TEST_CONTRACT_STALE; (3) multiple `aria-current=step` CURRENT nodes — likely PRODUCT_RUNTIME_REGRESSION; (4) conversation `Verificar` timeouts — PRODUCT_RUNTIME_REGRESSION or contract. Physical NOT started.
 
 ## R3-PHYSICAL-NOT-RUN
 

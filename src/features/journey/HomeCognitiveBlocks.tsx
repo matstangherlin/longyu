@@ -143,9 +143,10 @@ export function HomeContinueCard({
         ) : null}
       </div>
 
-      <h1 id="home-continue-heading" className="relative mt-2 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">
+      {/* Page h1 lives on ProgressionShell ("Seu caminho"). This is the primary section title. */}
+      <h2 id="home-continue-heading" className="relative mt-2 font-serif text-xl font-semibold leading-tight text-ink sm:text-2xl">
         {title}
-      </h1>
+      </h2>
       {(moduleTitle || lessonTitle) && (
         <h2 className="relative mt-1 truncate text-base font-semibold text-ink sm:text-lg">
           {lessonTitle ?? moduleTitle}
