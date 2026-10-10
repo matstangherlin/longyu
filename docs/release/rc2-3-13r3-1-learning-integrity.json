@@ -1,0 +1,50 @@
+{
+  "wave": "RC2.3.13R.3.1",
+  "title": "Physical Learning Integrity, Audio Continuity & Mobile Activity Fit",
+  "freezeException": {
+    "id": "PRE_BETA_FREEZE_EXCEPTION",
+    "reason": "REAL_DEVICE_BETA_BLOCKER_FIX"
+  },
+  "counts": {
+    "lessons": 134,
+    "topics": 113,
+    "cultureItems": 36,
+    "cultureNative": 36,
+    "journeyCultureNodes": 20,
+    "culturePaths": 12
+  },
+  "canonicalActivitiesInvalid": 0,
+  "canonicalActivitiesSkippedByDesign": 0,
+  "knownAudioTruncationP1": 0,
+  "knownDialogueSilentLineP1": 0,
+  "personalizedUtteranceCompleteness": "CODE_PASS_PENDING_PHYSICAL",
+  "mobileRequiredInteractionBlocker": 0,
+  "answerLeakageAudit": "CODE_PASS_PENDING_PHYSICAL",
+  "coreVisualVariety": "CODE_PASS_PENDING_PHYSICAL",
+  "smallViewportActivityFit": "CODE_PASS_PENDING_PHYSICAL",
+  "ownerQaApk": {
+    "status": "STALE_FOR_CURRENT_RUNTIME",
+    "note": "Prior APK invalidated by #344 + R.3.1 runtime fixes. Rebuild only after hosted green on this HEAD."
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD"
+  },
+  "issues": [
+    "R31-CANONICAL-EXERCISE-SKIP",
+    "R31-AUDIO-TRUNCATION",
+    "R31-PERSONALIZED-UTTERANCE-CUT",
+    "R31-VISUAL-REPETITION",
+    "R31-DISTRACTOR-ANSWER-LEAKAGE",
+    "R31-MOBILE-ACTIVITY-FIT"
+  ],
+  "fingerprint": {
+    "oldFingerprint": "fea5455e1461",
+    "newFingerprint": "57a848ef9ef9",
+    "reason": "lessonTasks.ts CURRICULUM_SOURCE changed (visual variety / plan selection)",
+    "affectedContent": [
+      "src/features/lesson/lessonTasks.ts"
+    ]
+  }
+}

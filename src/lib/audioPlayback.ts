@@ -23,6 +23,14 @@ import { CANONICAL_AUDIO_ASSETS, audioEntryById, audioEntryByText, resolveCanoni
 import { decideAudioEngine, classifyAudioSource, fixedContentAllowsTtsEngine } from "./audio/audioEnginePolicy";
 import { playCanonicalAudio, cancelCanonicalAudio } from "./audio/canonicalPlayer";
 import { recordVoicePlayback, type VoicePlaybackEngine } from "./audio/voiceConsistency";
+import { isPersonalizedUtterance } from "./personalize";
+
+/** RC2.3.13R.3.1 — upgrade source when text mixes CJK + learner Latin name. */
+function effectiveAudioSource(text: string, source?: string): string | undefined {
+  if (source && /PERSONAL|NAME|DYNAMIC/i.test(source)) return source;
+  if (isPersonalizedUtterance(text)) return "PERSONAL_UTTERANCE";
+  return source;
+}
 
 export type PlaybackState = "IDLE" | "STARTING" | "PLAYING" | "ENDED" | "FAILED" | "UNAVAILABLE";
 
@@ -199,10 +207,10 @@ function resolveAsset(
 function engineFor(text: string, options: PlayMandarinOptions = {}): PlaybackEngine {
   const asset = resolveAsset(text, options.audioId);
   const decision = decideAudioEngine({
-    source: options.source,
+    source: effectiveAudioSource(text, options.source),
     hasCanonicalAsset: Boolean(asset),
     qaOverride: options.qaOverride,
-    ttsJustification: options.ttsJustification,
+    ttsJustification: options.ttsJustification ?? (isPersonalizedUtterance(text) ? "PERSONAL_UTTERANCE" : undefined),
   });
   if (ttsForcedUnavailable && decision.contentClass === "FIXED_CONTENT") {
     return asset ? "asset" : "none";
@@ -266,7 +274,9 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
   const clean = String(text ?? "").trim();
   const token = ++generation;
   const asset = resolveAsset(clean, options.audioId);
-  const engine = engineFor(clean, options);
+  const source = effectiveAudioSource(clean, options.source);
+  const playOptions: PlayMandarinOptions = { ...options, source };
+  const engine = engineFor(clean, playOptions);
   const requestId = options.requestId ?? newTtsRequestId();
   latestRequestId = requestId;
   const outcome: PlaybackOutcome = {
@@ -286,7 +296,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
   };
 
   // RC2.2.28 — pré-native forensics (Part 23).
-  recordTechEvent("audio_request_created" as TechEventName, { requestId, engine, source: options.source ?? null });
+  recordTechEvent("audio_request_created" as TechEventName, { requestId, engine, source: source ?? null });
   recordTechEvent("audio_record_enter" as TechEventName, { requestId });
   if (options.userGesture !== false) {
     recordTechEvent("audio_gesture_recorded" as TechEventName, { requestId });
@@ -323,7 +333,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     record({ at: Date.now(), engine, event: "request", chars: clean.length, audioId: outcome.audioId });
     noteVoiceDecision({
       text: clean,
-      source: options.source,
+      source,
       audioId: outcome.audioId,
       engine,
       assetUri: asset?.uri ?? null,
@@ -335,7 +345,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
       outcome.unavailable = true;
       outcome.reason = ttsForcedUnavailable ? "TTS_FORCED_UNAVAILABLE" : "WEB_TTS_UNAVAILABLE";
       // Fixed content sem asset: DEGRADED path — não trava UI e não troca de voz.
-      if (classifyAudioSource(options.source) === "FIXED_CONTENT") {
+      if (classifyAudioSource(source) === "FIXED_CONTENT") {
         outcome.failed = true;
         outcome.unavailable = false;
         outcome.reason = asset ? "ASSET_ENGINE_UNAVAILABLE" : "FIXED_CONTENT_NO_ASSET_NO_TTS";
@@ -448,7 +458,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
           if (canonical.failed && !outcome.started) {
             // RC2.2.32 — FIXED_CONTENT: asset falhou → DEGRADED (sem TTS / outra voz).
             // DYNAMIC/QA ainda podem cair em TTS.
-            const contentClass = classifyAudioSource(options.source);
+            const contentClass = classifyAudioSource(source);
             const allowTts =
               contentClass !== "FIXED_CONTENT" ||
               options.qaOverride === true;
@@ -456,7 +466,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
               speak(clean || asset.audioId || " ", {
                 rate: options.rate,
                 requestId,
-                source: options.source,
+                source,
                 onTtsEvent: options.onTtsEvent,
                 onstart: onStart,
                 onerror: onError,
@@ -466,7 +476,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
               outcome.reason = "ASSET_FALLBACK_TTS";
               noteVoiceDecision({
                 text: clean,
-                source: options.source,
+                source,
                 audioId: outcome.audioId,
                 engine: outcome.engine,
                 assetUri: asset.uri,
@@ -488,7 +498,7 @@ export function playMandarinAudio(text: string, options: PlayMandarinOptions = {
     speak(clean, {
       rate: options.rate,
       requestId,
-      source: options.source,
+      source,
       onTtsEvent: options.onTtsEvent,
       onstart: onStart,
       onerror: onError,

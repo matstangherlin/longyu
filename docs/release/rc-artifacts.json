@@ -8,7 +8,7 @@
   "androidRunUrl": "https://github.com/matstangherlin/longyu/actions/runs/37908317177",
   "version": "0.2.0-rc.2",
   "versionCode": 596,
-  "fingerprint": "fea5455e1461",
+  "fingerprint": "57a848ef9ef9",
   "channel": "dev-debug",
   "note": "Hosted debug APK/AAB from android-build.yml on PR #331 HEAD (RC2.3.13A cognitive UI). Embedded version.json.sourceHeadSha == sourceSha. deviceQaBuild=true (diagnostic). Signed release BLOCKED_SIGNING_SECRETS. RC1 provenance preserved in docs/release/rc1-artifacts.json \u2014 RC1 does not certify this UI.",
   "supersedesRcId": "RC2.3.12-RC1",

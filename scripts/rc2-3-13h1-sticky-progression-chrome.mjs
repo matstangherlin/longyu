@@ -86,7 +86,7 @@ function test() {
   k("lesson count", "LESSON_COUNT_CHANGED", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("topic count", "TOPIC_COUNT_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("Culture count", "CULTURE_COUNT_CHANGED", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
-  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "fea5455e1461"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("Mastery", "MASTERY_MATH_CHANGED", { ...base, personalMastery: `${base.personalMastery}\nexport function computeMasteryScore() { return 0; }\n` });
   k("SRS", "SRS_CHANGED", { ...base, srs: `${base.srs}\nexport function nextInterval() { return 99999; }\n` });
   k("billing", "BILLING_CHANGED", { ...base, billingAudit: `${base.billingAudit.replace(/\}$/, "")}, "enabled": true, "BILLING_ENABLED": true }` });

@@ -197,7 +197,7 @@ function test() {
   k("topics", "TOPICS_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("culture items", "CULTURE_COUNTS_CHANGED", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
   k("culture paths", "CULTURE_PATHS_CHANGED", withJson(base, "cert", (o) => { o.freeze.counts.culturePaths = 99; }));
-  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "fea5455e1461"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("billing", "BILLING_ENABLED", withJson(base, "rc", (o) => { o.liveBilling = true; }));
   k("jev", "JEV_ENABLED", withJson(base, "rc", (o) => { o.jevLearnerRuntime = true; }));
   k("sibling", "SIBLING_PROJECT_TOUCHED", { ...base, nav: `${base.nav}\n// ${["Ato", "murus"].join("")}\n` });
@@ -282,7 +282,7 @@ function test() {
     k(
       `fp-pad-${i}`,
       "FINGERPRINT_CHANGED",
-      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "fea5455e1461"', `RC_BASE_FINGERPRINT = "r3p${String(i).padStart(9, "0")}"`),
+      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', `RC_BASE_FINGERPRINT = "r3p${String(i).padStart(9, "0")}"`),
     );
   }
   for (let i = 0; i < 10; i++) {

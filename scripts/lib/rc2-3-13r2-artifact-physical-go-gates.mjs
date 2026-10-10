@@ -69,8 +69,8 @@ export function checkArtifactReconciliation(src = loadR2Sources()) {
     if (apk.packageId && apk.packageId !== "longyu.noba.com") errors.push("WRONG_PACKAGE_ID");
     if (!apk.workflowRunId) errors.push("STALE_RUN_ID");
   }
-  if (rc.fingerprint !== "fea5455e1461") errors.push("WRONG_FINGERPRINT");
-  if (!/fea5455e1461/.test(src.curriculumFreeze)) errors.push("WRONG_FINGERPRINT");
+  if (rc.fingerprint !== "57a848ef9ef9") errors.push("WRONG_FINGERPRINT");
+  if (!/57a848ef9ef9/.test(src.curriculumFreeze)) errors.push("WRONG_FINGERPRINT");
 
   const play = rc.playClosedBeta;
   if (!play) errors.push("PLAY_AAB_CLAIMED_ABSENT");
@@ -246,7 +246,7 @@ export function checkFreezeAndEntry(src = loadR2Sources()) {
   if (cert?.freeze?.counts?.flagshipDeep != null && cert.freeze.counts.flagshipDeep !== 11) {
     errors.push("FLAGSHIP_COUNT_CHANGED");
   }
-  if (!/RC_BASE_FINGERPRINT = "fea5455e1461"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
+  if (!/RC_BASE_FINGERPRINT = "57a848ef9ef9"/.test(src.curriculumFreeze)) errors.push("FINGERPRINT_CHANGED");
   if (/"enabled": true, "BILLING_ENABLED": true/.test(src.billingAudit) || rc?.liveBilling === true) {
     errors.push("BILLING_ENABLED");
   }

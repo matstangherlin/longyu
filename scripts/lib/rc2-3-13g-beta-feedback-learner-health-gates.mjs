@@ -119,7 +119,7 @@ export function checkFeedbackAndTelemetry(src = load13gSources()) {
 
 export function checkFreeze(src = load13gSources()) {
   const errors = [];
-  if (!/RC_BASE_FINGERPRINT = "fea5455e1461"/.test(src.curriculumFreeze)) {
+  if (!/RC_BASE_FINGERPRINT = "57a848ef9ef9"/.test(src.curriculumFreeze)) {
     errors.push("FINGERPRINT_UNEXPECTED_DRIFT");
   }
   if (!/cultureItems:\s*36/.test(src.curriculumFreeze)) errors.push("CULTURE_COUNT_CHANGED");
