@@ -38,5 +38,13 @@
     "R31-VISUAL-REPETITION",
     "R31-DISTRACTOR-ANSWER-LEAKAGE",
     "R31-MOBILE-ACTIVITY-FIT"
-  ]
+  ],
+  "fingerprint": {
+    "oldFingerprint": "fea5455e1461",
+    "newFingerprint": "57a848ef9ef9",
+    "reason": "lessonTasks.ts CURRICULUM_SOURCE changed (visual variety / plan selection)",
+    "affectedContent": [
+      "src/features/lesson/lessonTasks.ts"
+    ]
+  }
 }

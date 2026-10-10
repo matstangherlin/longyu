@@ -13,7 +13,10 @@
  * CultureItems 30 → 36, native lessons 30 → 36 (hub-only). Journey culture
  * nodes stay 20. Mandarin lesson/topic counts unchanged. Fingerprint moves
  * only because `cultureNative.ts` is a CURRICULUM_SOURCE.
- * Do not restore the prior fingerprint.
+ *
+ * RC2.3.13R.3.1 advanced fea5455e1461 → 57a848ef9ef9 because
+ * `lessonTasks.ts` (visual variety / plan selection) is a CURRICULUM_SOURCE.
+ * Lesson/topic/Culture counts unchanged. Do not restore the prior fingerprint.
  *
  * CURRICULUM_FREEZE = RC2_CONTENT_FREEZE marks content closed for RC2.
  * CONTENT_FREEZE_SHA ≠ RELEASE_CANDIDATE_SHA — the latter stays empty
@@ -56,6 +59,11 @@ export const PRE_BETA_FREEZE_EXCEPTION = {
     "validate:distractor-quality",
     "gate:rc2-3-13r3-1-learning-integrity",
   ],
+  /** Typed fingerprint advance: lessonTasks CURRICULUM_SOURCE (visual variety). */
+  previousFingerprint: "fea5455e1461",
+  fingerprint: "57a848ef9ef9",
+  gate: "gate:rc2-3-13r3-1-learning-integrity",
+  affectedContent: ["src/features/lesson/lessonTasks.ts"],
 } as const;
 
 /**
@@ -134,8 +142,8 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
  * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
-// RC2.3.13F: hub-only Culture V2 expansion (36 items / 36 native lessons).
-export const RC_BASE_FINGERPRINT = "fea5455e1461";
+// RC2.3.13R.3.1: learning-integrity lessonTasks plan selection (counts unchanged).
+export const RC_BASE_FINGERPRINT = "57a848ef9ef9";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

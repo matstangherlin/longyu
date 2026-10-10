@@ -9,7 +9,7 @@
   "versionCode": 596,
   "versionCodeFloor": 1,
   "versionCodeFormula": "floor + firstParentCommitCount",
-  "fingerprint": "fea5455e1461",
+  "fingerprint": "57a848ef9ef9",
   "createdAt": "2026-10-09T09:31:12Z",
   "featureFreeze": true,
   "featureFreezePolicy": "docs/release/RC_CHANGE_POLICY.md",

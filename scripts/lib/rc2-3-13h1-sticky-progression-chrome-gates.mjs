@@ -127,7 +127,7 @@ export function checkFreeze(src = load13h1Sources()) {
   if (!/lessons:\s*134/.test(src.curriculumFreeze)) errors.push("LESSON_COUNT_CHANGED");
   if (!/teachingTopics:\s*113/.test(src.curriculumFreeze)) errors.push("TOPIC_COUNT_CHANGED");
   if (!/cultureItems:\s*36/.test(src.curriculumFreeze)) errors.push("CULTURE_COUNT_CHANGED");
-  if (!/RC_BASE_FINGERPRINT = "fea5455e1461"/.test(src.curriculumFreeze)) {
+  if (!/RC_BASE_FINGERPRINT = "57a848ef9ef9"/.test(src.curriculumFreeze)) {
     errors.push("FINGERPRINT_CHANGED");
   }
   if (/\nexport function computeMasteryScore\(\)/.test(src.personalMastery)) {

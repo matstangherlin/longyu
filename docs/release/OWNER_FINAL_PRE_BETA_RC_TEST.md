@@ -13,7 +13,7 @@
 | workflowMergeSha | `3be0ade5565e28297ebedf71645261f037e13c1a` |
 | APK file | `longyu-android-debug-0.2.0-rc.5-3be0ade.apk` |
 | APK SHA256 | `fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8` |
-| Fingerprint | `fea5455e1461` |
+| Fingerprint | `57a848ef9ef9` |
 | Channel | `DEVICE_QA` debug (sideload) |
 | Android run | `37995330174` |
 

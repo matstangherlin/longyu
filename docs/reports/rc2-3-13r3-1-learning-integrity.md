@@ -8,6 +8,10 @@ NO FEATURE WAVE. NO CURRICULUM EXPANSION. REAL-DEVICE P1/P2 PRE-BETA CORRECTIONS
 
 Counts preserved: 134 lessons · 113 topics · 36 CultureItems · 36 native · 20 Journey Culture nodes · 12 paths.
 
+## Fingerprint
+
+`fea5455e1461` → `57a848ef9ef9` because `lessonTasks.ts` is a CURRICULUM_SOURCE (visual variety / plan selection). Counts unchanged.
+
 ## Root causes found
 
 | Finding | Root cause | Fix |

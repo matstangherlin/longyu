@@ -88,7 +88,7 @@ function test() {
     ...base,
     culturePaths: `${base.culturePaths}\nid: "extra_path_13"\nid: "extra_path_14"\n`,
   });
-  k("fingerprint unexpected drift", "FINGERPRINT_UNEXPECTED_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "fea5455e1461"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint unexpected drift", "FINGERPRINT_UNEXPECTED_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("Mandarin lesson count changes", "MANDARIN_LESSON_COUNT_CHANGED", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("Mandarin topic count changes", "MANDARIN_TOPIC_COUNT_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("Mastery math changes", "MASTERY_MATH_CHANGED", { ...base, personalMastery: `${base.personalMastery}\nexport function computeMasteryScore() { return 0; }\n` });

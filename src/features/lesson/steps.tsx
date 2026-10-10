@@ -5645,8 +5645,8 @@ export function StepRenderer({ step, onDone: parentOnDone, onSkip, onMistake, on
           lessonId,
           activityType: personalizedStep.kind,
           validationFailureCode,
-          payloadShape: Object.keys(personalizedStep)
-            .filter((key) => (personalizedStep as Record<string, unknown>)[key] != null)
+          payloadShape: Object.keys(personalizedStep as unknown as Record<string, unknown>)
+            .filter((key) => (personalizedStep as unknown as Record<string, unknown>)[key] != null)
             .sort()
             .join(","),
           runtimeVersion: "rc2.3.13r3.1",
