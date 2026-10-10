@@ -4,8 +4,8 @@
   "phase": "HOSTED_PENDING",
   "parentPr": 347,
   "parentHeadSha": "86c6c77cb7596c36a4aa8b71cfd29d45ded17c9c",
-  "candidateHeadSha": null,
-  "pr": null,
+  "candidateHeadSha": "3433a703281d33ba2a30500bc9a8de69021243ef",
+  "pr": 348,
   "rootCause": {
     "symbol": "selectedImageConceptIds",
     "file": "src/features/lesson/lessonTasks.ts",
