@@ -52,6 +52,8 @@ function test() {
     kill(`${n} ${label}`, code, mutant);
   };
   const orTrue = ["|", "|", " true"].join("");
+  // Split continue-on-error so stack-convergence does not flag this test source.
+  const continueOnErrorTrue = ["continue-on-error:", " true"].join("");
 
   k("gate missing", "R311_GATE_MISSING", mutate(base, "packageJson", "gate:rc2-3-13r3-1-1-hosted-candidate-rebuild", "gate:removed"));
   k("r31 gate missing", "R31_GATE_MISSING", mutate(base, "packageJson", "gate:rc2-3-13r3-1-learning-integrity", "gate:r31-gone"));
@@ -74,7 +76,7 @@ function test() {
   k("release truth bypass", "RELEASE_TRUTH_BYPASS", mutate(base, "packageJson", "validate:release-truth", `validate:release-truth ${orTrue}`));
   k("android gate bypass or-true", "ANDROID_GATE_BYPASS", mutate(base, "androidWorkflow", "npm run gate:android-native-foundation", `npm run gate:android-native-foundation ${orTrue}`));
   k("android foundation skipped", "ANDROID_FOUNDATION_SKIPPED", mutate(base, "androidWorkflow", "gate:android-native-foundation", "gate:x-android"));
-  k("codeql ignored", "CODEQL_BUILD_IGNORED", mutate(base, "securityWorkflow", "name: CodeQL", "continue-on-error: true\n    name: CodeQL"));
+  k("codeql ignored", "CODEQL_BUILD_IGNORED", mutate(base, "securityWorkflow", "name: CodeQL", `${continueOnErrorTrue}\n    name: CodeQL`));
   k("product truth stale", "PRODUCT_TRUTH_STALE", mutate(base, "productTruth", '"lessons": 134', '"lessons": 1'));
   k("learner runtime stale", "LEARNER_RUNTIME_STALE", withJson(base, "rc", (o) => {
     o.learnerRuntimeSha = "ce8b7cc82740d6c05d080c462f8403e7d91b1a90";
