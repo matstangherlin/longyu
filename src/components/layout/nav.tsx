@@ -157,7 +157,8 @@ export function previewNavItems(visibility: FeatureVisibilityMap, limit = 2): Na
  * descoberta progressiva já as revelou (o anúncio da RC2.2.18 promete a aba);
  * antes disso, no máximo 3 itens.
  */
-export const EARLY_NAV_MAX_ITEMS = 3;
+/** RC2.3.13G — primary bar is 4 slots (Cultura left TabBar); keep Missões visible. */
+export const EARLY_NAV_MAX_ITEMS = 4;
 export const NAV_TAB_MIN_COMPLETED_LESSONS: Readonly<Record<string, number>> = {
   "/treino": 1,
 };

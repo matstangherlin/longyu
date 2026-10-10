@@ -20,8 +20,9 @@ export function JourneyCultureGate({
 }: {
   evaluation: CultureProgressionGateEvaluation;
 }) {
-  const { locale } = useTranslation();
-  const en = locale === "en";
+  const { instructionLocale } = useTranslation();
+  // Pedagogical gate copy follows the course (instruction) locale, not app chrome.
+  const en = instructionLocale === "en";
   const { gate, completed, total, completedItemIds, missingItemIds, nextItemId, status } = evaluation;
 
   // Marco já resolvido (selo na mão ou usuário legado) não ocupa a trilha.
