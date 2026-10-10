@@ -65,7 +65,8 @@ async function answerInteraction(page: Page): Promise<boolean> {
   if (type === "order_reply") {
     let remaining = norm(expected);
     for (let guard = 0; guard < 12 && remaining.length > 0; guard += 1) {
-      const pieces = panel.locator("div.mt-3.flex.flex-wrap.gap-2 > button");
+      // Bank only (dashed tray also uses mt-3 flex-wrap — exclude placed chips).
+      const pieces = panel.locator("div.mt-3.flex.flex-wrap.gap-2:not(.min-h-12) > button");
       const count = await pieces.count();
       let placed = false;
       for (let i = 0; i < count; i += 1) {
@@ -75,6 +76,20 @@ async function answerInteraction(page: Page): Promise<boolean> {
           remaining = remaining.slice(text.length);
           placed = true;
           break;
+        }
+      }
+      // Fallback: any remaining bank-looking button whose compact text is a prefix.
+      if (!placed) {
+        const loose = panel.locator("button").filter({ hasNotText: /Verificar|Check|Continuar|Continue|Pular|Skip/i });
+        const looseCount = await loose.count();
+        for (let i = 0; i < looseCount; i += 1) {
+          const text = norm((await loose.nth(i).innerText()).trim());
+          if (text && remaining.startsWith(text) && text.length <= remaining.length) {
+            await loose.nth(i).tap();
+            remaining = remaining.slice(text.length);
+            placed = true;
+            break;
+          }
         }
       }
       if (!placed) throw new Error(`order_reply: nenhuma peça continua "${remaining}" (esperado "${expected}")`);
@@ -96,6 +111,14 @@ async function answerInteraction(page: Page): Promise<boolean> {
         await options.nth(i).tap();
         picked = true;
         break;
+      }
+    }
+    // Some choose_reply chips expose the hanzi as visible text without Opção aria.
+    if (!picked) {
+      const byText = panel.getByRole("button", { name: new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")) }).first();
+      if (await byText.isVisible().catch(() => false)) {
+        await byText.tap();
+        picked = true;
       }
     }
     if (!picked) throw new Error(`${type}: opção "${expected}" não encontrada`);
@@ -204,7 +227,8 @@ test.describe("RC2.2.17 · cenas de conversa avançam no LessonPlayer real", () 
             }
           }
         }
-        await panel.getByRole("button", { name: /^(Verificar|Check)$/ }).tap();
+        // Dock Verify — not a child of the interaction panel after GuidedDock.
+        await page.getByTestId("conversation-check").tap();
         wrongs += 1;
         continue;
       }

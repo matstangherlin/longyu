@@ -83,9 +83,15 @@ test.describe("V4.9.7B shopping survival", () => {
     await dismissBlockingOverlays(page);
     // Nada de cultura EXTRA pode ter sido concluído por jogar p6-compras: o total
     // tem de ser exatamente o que o seed já concedeu pelos marcos anteriores.
-    // Culture Journey card is path-relative ("N de M"), not global "N / 30".
+    // Topic-hub continue card: emptyStart or path-relative "N de M".
     await expect(page.getByTestId("culture-progress")).toHaveAttribute("data-culture-path-status", /.+/);
-    await expect(page.getByTestId("culture-route-progress")).toContainText(/\d+\s+de\s+\d+/);
+    await expect(page.getByTestId("culture-route-progress")).toContainText(
+      /\d+\s+de\s+\d+|Comece pelo próximo|Start with the next/i
+    );
+    // Atlas filters live on /cultura/explorar, not the topic-hub root.
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     await page.getByTestId("culture-show-categories").click();
     await page.getByTestId("culture-filter-all").click();

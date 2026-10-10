@@ -55,6 +55,52 @@ export async function clickIfEnabled(locator: Locator, timeout = 1_500): Promise
   }
 }
 
+const REPAIR_STRATEGY_PREF =
+  /não entendeu|didn't understand|falar de novo|say it again|pedir.*de novo|ask.*again|Repetir a mesma|Repeat the same|mais curta|more briefly|fala pouco|speak little/i;
+
+const REPAIR_PHRASES = ["请再说一遍", "听不懂", "我听不懂", "再说一遍", "可以再说一遍吗"];
+
+/** In-scene RepairBeatPanel after two mistakes — not Opção N chips. */
+async function advanceConversationRepairIfOpen(page: Page, scene: Locator): Promise<boolean> {
+  const panel = scene.getByTestId("conversation-repair-beat").or(page.getByTestId("conversation-repair-beat")).first();
+  if (!(await panel.isVisible().catch(() => false))) return false;
+
+  const recovered = page.getByRole("button", { name: /Voltar à conversa|Back to the conversation/i }).first();
+  if (await clickIfEnabled(recovered, 1_500)) return true;
+
+  const strategyKey = (await panel.getAttribute("data-repair-strategy").catch(() => null)) ?? "";
+  const labelByKey: Record<string, RegExp> = {
+    admit_not_understood: /não entendeu|didn't understand/i,
+    ask_repeat: /falar de novo|say it again|pedir.*de novo|ask.*again/i,
+    repeat: /Repetir a mesma|Repeat the same/i,
+    simplify: /mais curta|more briefly/i,
+    say_speak_little: /fala pouco|speak little/i,
+  };
+  const preferred = strategyKey && labelByKey[strategyKey] ? labelByKey[strategyKey] : REPAIR_STRATEGY_PREF;
+  const preferredBtn = panel.getByRole("button", { name: preferred }).first();
+  if (!(await clickIfEnabled(preferredBtn, 1_200))) {
+    const any = panel.locator("button").filter({ hasText: REPAIR_STRATEGY_PREF });
+    const n = await any.count().catch(() => 0);
+    for (let i = 0; i < n; i += 1) {
+      if (await clickIfEnabled(any.nth(i), 800)) break;
+    }
+  }
+
+  const field = panel.locator("textarea, input[type='text'], input:not([type])").first();
+  if (await field.isVisible().catch(() => false)) {
+    for (const phrase of REPAIR_PHRASES) {
+      await field.fill(phrase).catch(() => undefined);
+      const check = panel.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$/ }).first();
+      if (await clickIfEnabled(check, 1_500)) {
+        await page.waitForTimeout(150);
+        if (await clickIfEnabled(recovered, 1_500)) return true;
+      }
+    }
+  }
+
+  return Boolean(await clickIfEnabled(recovered, 800));
+}
+
 /** Avança uma batida da conversation_scene. Pular só aparece no checkpoint. */
 export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
   const scenes = page.locator("[data-conversation-scene]");
@@ -70,22 +116,81 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
   }
   if (!found) return false;
 
+  // Wait out NPC “Processing…” so options/dock are interactive.
+  const processing = scene.getByText(/Processando|Processing/i).first();
+  if (await processing.isVisible().catch(() => false)) {
+    await processing.waitFor({ state: "hidden", timeout: 4_000 }).catch(() => undefined);
+  }
+
+  if (await advanceConversationRepairIfOpen(page, scene)) return true;
+
   const skipInScene = scene.getByRole("button", { name: /^Pular|^Skip/ });
   if (await clickIfEnabled(skipInScene.first())) return true;
 
-  // Prefer pedagogically correct greetings when present — `.first()` often picks 谢谢 and stalls pass 4+.
+  const panel = scene.locator("[data-conversation-interaction]").first();
+  const expected = ((await panel.getAttribute("data-qa-expected").catch(() => null)) ?? "").trim();
+  const norm = (value: string) => value.replace(/\s+/g, "").replace(/[。！？，.!?,]/g, "");
+
+  // order_reply: assemble pieces against data-qa-expected when fixtures expose it.
+  if ((await panel.getAttribute("data-conversation-interaction").catch(() => null)) === "order_reply" && expected) {
+    let remaining = norm(expected);
+    for (let guard = 0; guard < 12 && remaining.length > 0; guard += 1) {
+      const pieces = panel.locator("div.mt-3.flex.flex-wrap.gap-2 > button");
+      const pieceCount = await pieces.count();
+      let placed = false;
+      for (let i = 0; i < pieceCount; i += 1) {
+        const text = norm((await pieces.nth(i).innerText()).trim());
+        if (text && remaining.startsWith(text)) {
+          if (await clickIfEnabled(pieces.nth(i), 1_200)) {
+            remaining = remaining.slice(text.length);
+            placed = true;
+            break;
+          }
+        }
+      }
+      if (!placed) break;
+    }
+    if (remaining.length === 0) {
+      const verify =
+        page.getByTestId("conversation-check").or(page.getByRole("button", { name: /^Verificar$|^Check$/ })).first();
+      if (await clickIfEnabled(verify)) return true;
+    }
+  }
+
+  // Prefer graph-expected option, then greetings — `.first()` often picks 谢谢 and opens RepairBeat.
   const options = scene.getByRole("button", { name: /^(Opção|Option) \d+:/ });
   if (await options.first().isVisible().catch(() => false)) {
-    const preferred = scene.getByRole("button", { name: /^(Opção|Option) \d+:.*(你好|Olá|nǐ hǎo)/i }).first();
-    const pick = (await preferred.isVisible().catch(() => false)) ? preferred : options.first();
+    let pick = options.first();
+    if (expected) {
+      const want = norm(expected);
+      const nOpts = await options.count();
+      for (let i = 0; i < nOpts; i += 1) {
+        const label = (await options.nth(i).getAttribute("aria-label")) ?? "";
+        const value = label.replace(/^(Opção|Option) [^:]+:\s*/, "");
+        if (norm(value) === want) {
+          pick = options.nth(i);
+          break;
+        }
+      }
+    } else {
+      const preferred = scene.getByRole("button", { name: /^(Opção|Option) \d+:.*(你好|Olá|nǐ hǎo)/i }).first();
+      if (await preferred.isVisible().catch(() => false)) pick = preferred;
+    }
     if (await clickIfEnabled(pick)) {
-      // RC2.3+ — Verificar lives in the lesson dock, not inside the scene node.
       const verify = page
-        .getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ })
+        .getByTestId("conversation-check")
+        .or(page.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }))
         .first();
       await clickIfEnabled(verify);
       return true;
     }
+  }
+
+  // Produce / free answer when the graph exposes the expected string.
+  if (expected && (await panel.locator("textarea, input[type='text']").first().isVisible().catch(() => false))) {
+    await panel.locator("textarea, input[type='text']").first().fill(expected).catch(() => undefined);
+    const verify = page.getByTestId("conversation-check").first();
+    if (await clickIfEnabled(verify)) return true;
   }
 
   // RC2.2.17B — no shell guiado o avanço da fala mora no dock, fora da cena.
