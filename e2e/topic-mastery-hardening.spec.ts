@@ -129,7 +129,7 @@ test.describe("V4.7.4 Topic Mastery hardening", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const firstNode = page.locator(`[data-lesson-id="${FIRST.id}"]`).first();
+    const firstNode = page.locator(`[data-journey-bubble-v2][data-lesson-id="${FIRST.id}"]`);
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
     await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
   });

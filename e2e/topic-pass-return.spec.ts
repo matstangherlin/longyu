@@ -5,6 +5,7 @@ import {
   seedFreshJourneySession,
   waitForLazyPage,
   currentTopicProgressNode,
+  journeyBubbleNode,
 } from "./helpers";
 import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
@@ -231,7 +232,8 @@ async function openTopicFromJourney(page: Page, lessonId: string) {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
   }
-  await page.locator(`[data-lesson-id="${lessonId}"]`).first().click();
+  // Home cognitive also sets data-lesson-id — open the path bubble button only.
+  await page.getByTestId(`journey-node-${lessonId}`).click();
   await waitForLazyPage(page);
   await dismissBlockingOverlays(page);
 }
@@ -314,7 +316,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await capture(page, "v461-victory-m4-tema-dominado");
     await returnToJourney(page);
 
-    const firstNode = page.locator(`[data-lesson-id="${FIRST.id}"]`).first();
+    const firstNode = journeyBubbleNode(page, FIRST.id);
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
     await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await capture(page, "v461-journey-4-of-4-next-unlocked");

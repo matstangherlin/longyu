@@ -73,9 +73,12 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
   const skipInScene = scene.getByRole("button", { name: /^Pular|^Skip/ });
   if (await clickIfEnabled(skipInScene.first())) return true;
 
-  const option = scene.getByRole("button", { name: /^(Opção|Option) \d+:/ }).first();
-  if (await option.isVisible().catch(() => false)) {
-    if (await clickIfEnabled(option)) {
+  // Prefer pedagogically correct greetings when present — `.first()` often picks 谢谢 and stalls pass 4+.
+  const options = scene.getByRole("button", { name: /^(Opção|Option) \d+:/ });
+  if (await options.first().isVisible().catch(() => false)) {
+    const preferred = scene.getByRole("button", { name: /^(Opção|Option) \d+:.*(你好|Olá|nǐ hǎo)/i }).first();
+    const pick = (await preferred.isVisible().catch(() => false)) ? preferred : options.first();
+    if (await clickIfEnabled(pick)) {
       await clickIfEnabled(scene.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }).first());
       return true;
     }

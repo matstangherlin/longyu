@@ -171,7 +171,7 @@ test.describe("V4.6 Topic Mastery Path", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    const firstNode = page.locator(`[aria-label*="${FIRST.title}"]`).first();
+    const firstNode = page.locator(`[data-journey-bubble-v2][data-lesson-id="${FIRST.id}"]`);
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
     await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await capture(page, "v46-journey-4-of-4-next-unlocked");
