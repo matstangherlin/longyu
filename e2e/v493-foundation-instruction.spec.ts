@@ -54,35 +54,55 @@ function capsuleContinue(page: Page) {
 
 /** Percorre a aula inteira (dynamic beats ou animated + microcheck legado). */
 async function completeCapsule(page: Page, { answerCorrectly = true } = {}) {
-  for (let step = 0; step < 24; step += 1) {
+  for (let step = 0; step < 32; step += 1) {
     if (/\/licao\//.test(page.url())) return;
+
     const options = page.getByTestId("capsule-micro-check-option");
     if (await options.first().isVisible().catch(() => false)) {
       const count = await options.count();
       await options.nth(answerCorrectly ? 0 : Math.max(0, count - 1)).click();
       await expect(page.getByTestId("capsule-micro-check-feedback")).toBeVisible();
     }
+
+    const seq = page.getByTestId("dynamic-teaching-sequence");
     const advance = capsuleContinue(page);
     if (!(await advance.isVisible().catch(() => false))) {
       await page.waitForTimeout(200);
       continue;
     }
-    const label = (await advance.textContent()) ?? "";
+
+    const label = ((await advance.textContent()) ?? "").trim();
+    const before = (await seq.getAttribute("data-beat-index").catch(() => null)) ?? "";
     await advance.click();
-    // Dynamic AULA may need a second click after the teacher bubble becomes READY.
-    if (!/Iniciar exercícios|Start the exercises|Concluir aula|Finish lesson/.test(label)) {
-      await page.waitForTimeout(80);
-      if (await advance.isVisible().catch(() => false)) {
-        const again = (await advance.textContent()) ?? "";
-        if (/Concluir aula|Finish lesson|Iniciar exercícios|Start the exercises/.test(again)) {
-          await advance.click();
-          return;
-        }
-      }
-    } else {
-      return;
-    }
     await page.waitForTimeout(120);
+    if (/\/licao\//.test(page.url())) return;
+
+    // Bubble READY gate: first click only unlocks; second advances the beat / finishes.
+    const after = (await seq.getAttribute("data-beat-index").catch(() => null)) ?? "";
+    if (before === after && (await advance.isVisible().catch(() => false))) {
+      await advance.click();
+      await page.waitForTimeout(120);
+    }
+    if (/\/licao\//.test(page.url())) return;
+    if (/Iniciar exercícios|Start the exercises|Concluir aula|Finish lesson/.test(label)) return;
+  }
+}
+
+/** Advance dynamic AULA until a locator is visible (handles bubble READY gate). */
+async function advanceDynamicUntil(page: Page, target: import("@playwright/test").Locator, maxClicks = 12) {
+  const locator = target;
+  for (let i = 0; i < maxClicks; i += 1) {
+    if (await locator.first().isVisible().catch(() => false)) return;
+    const seq = page.getByTestId("dynamic-teaching-sequence");
+    const before = (await seq.getAttribute("data-beat-index").catch(() => null)) ?? "";
+    const advance = capsuleContinue(page);
+    await advance.click();
+    await page.waitForTimeout(100);
+    const after = (await seq.getAttribute("data-beat-index").catch(() => null)) ?? "";
+    if (before === after) {
+      await advance.click();
+      await page.waitForTimeout(100);
+    }
   }
 }
 
@@ -121,20 +141,19 @@ test.describe("V4.9.3 — a aula antes da cobrança", () => {
 
     // RC2.3.13H — dynamic AULA: guide → visual → mandarin example (listen) → reveal → handoff.
     // Sem microcheck na cápsula: a cobrança mora no tópico seguinte.
-    await capsuleContinue(page).click();
-    await capsuleContinue(page).click();
     const example = page.getByTestId("mandarin-example").or(page.getByTestId("capsule-language-card"));
+    await advanceDynamicUntil(page, example);
     await expect(example).toContainText("你好");
     await expect(
       page.getByTestId("dynamic-aula-listen").or(page.getByRole("button", { name: /Ouvir|Listen|Play Mandarin|Ouvir mandarim/i }))
     ).toBeVisible();
     await expect(page.getByTestId("capsule-micro-check")).toHaveCount(0);
 
-    await capsuleContinue(page).click();
+    await advanceDynamicUntil(page, page.getByText(/nǐ hǎo|Olá|Hello/i).first());
     await expect(example).toContainText(/nǐ hǎo|你好/);
     await expect(page.getByText(/Olá|Hello/i).first()).toBeVisible();
 
-    await capsuleContinue(page).click();
+    await advanceDynamicUntil(page, page.getByTestId("dynamic-handoff"));
     await expect(page.getByTestId("dynamic-handoff").or(page.getByText(/vamos testar|let's try|practice/i).first())).toBeVisible();
   });
 
@@ -394,14 +413,15 @@ test.describe("V4.9.3 — a aula sem depender de animação", () => {
     // Dynamic AULA: visual example / fallback is accessible. Legacy: tone contour SVG.
     const contour = page.locator("[data-tone-contour]").first();
     const visual = page.getByTestId("visual-example").or(page.getByTestId("visual-fallback")).first();
+    await advanceDynamicUntil(page, visual.or(contour));
     if (await contour.isVisible().catch(() => false)) {
       await expect(contour).toHaveAttribute("role", "img");
       const label = await contour.getAttribute("aria-label");
-      expect(label && label.length > 8).toBe(true);
+      expect(Boolean(label && label.length > 8)).toBe(true);
     } else {
       await expect(visual).toBeVisible();
-      const label = (await visual.getAttribute("aria-label")) ?? (await visual.innerText());
-      expect(label && label.length > 4).toBe(true);
+      const label = ((await visual.getAttribute("aria-label")) ?? (await visual.innerText()) ?? "").trim();
+      expect(label.length > 4).toBe(true);
     }
 
     // Finish remaining beats by keyboard; dynamic AULA has no microcheck.

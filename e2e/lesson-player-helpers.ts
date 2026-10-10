@@ -88,7 +88,12 @@ async function advanceConversationRepairIfOpen(page: Page, scene: Locator): Prom
 
   const field = panel.locator("textarea, input[type='text'], input:not([type])").first();
   if (await field.isVisible().catch(() => false)) {
-    for (const phrase of REPAIR_PHRASES) {
+    const qa = ((await panel.getAttribute("data-qa-repair-accepts").catch(() => null)) ?? "")
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const phrases = [...qa, ...REPAIR_PHRASES];
+    for (const phrase of phrases) {
       await field.fill(phrase).catch(() => undefined);
       const check = panel.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$/ }).first();
       if (await clickIfEnabled(check, 1_500)) {
@@ -119,12 +124,23 @@ export async function advanceConversationIfOpen(page: Page): Promise<boolean> {
   // Wait out NPC “Processing…” / “Listening…” so options/dock are interactive.
   const processing = scene.getByText(/Processando|Processing|Ouvindo|Listening/i).first();
   if (await processing.isVisible().catch(() => false)) {
-    await processing.waitFor({ state: "hidden", timeout: 6_000 }).catch(() => undefined);
+    await processing.waitFor({ state: "hidden", timeout: 4_000 }).catch(() => undefined);
+    // Audio-gated beats: force the dock advance if still listening.
+    const listenAdvance = page
+      .locator("[data-lesson-action-region]")
+      .getByTestId("conversation-advance")
+      .or(scene.getByTestId("conversation-advance"))
+      .first();
+    if (await processing.isVisible().catch(() => false) && (await clickIfEnabled(listenAdvance, 1_500))) {
+      return true;
+    }
   }
 
   if (await advanceConversationRepairIfOpen(page, scene)) return true;
 
-  const skipInScene = scene.getByRole("button", { name: /^Pular|^Skip/ });
+  const skipInScene = scene
+    .getByRole("button", { name: /^Pular|^Skip/ })
+    .or(page.locator("[data-lesson-action-region]").getByRole("button", { name: /^Pular|^Skip/ }));
   if (await clickIfEnabled(skipInScene.first())) return true;
 
   const panel = scene.locator("[data-conversation-interaction]").first();
@@ -275,6 +291,13 @@ export async function advanceUntilVisible(page: Page, target: Locator, maxSteps 
     if (await dismissJourneyCultureBridgeIfOpen(page, { keepVisible: keepBridge })) {
       await page.waitForTimeout(120);
       continue;
+    }
+    // Standalone conversation_repair step (outside conversation_scene).
+    if (await page.getByTestId("conversation-repair-beat").isVisible().catch(() => false)) {
+      if (await advanceConversationRepairIfOpen(page, page.locator("body"))) {
+        await page.waitForTimeout(180);
+        continue;
+      }
     }
     if (await advanceConversationIfOpen(page)) {
       await page.waitForTimeout(180);
