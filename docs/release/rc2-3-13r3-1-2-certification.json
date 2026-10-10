@@ -1,7 +1,7 @@
 {
   "wave": "RC2.3.13R.3.1.2",
   "title": "Hosted Finalization, New Candidate Mint & Owner Regression Certification",
-  "phase": "HOSTED_PENDING",
+  "phase": "ARTIFACT_BUILT_HOSTED_PENDING",
   "parentPr": 346,
   "parentHeadSha": "5e2519fe1b762f50887041f43b3aac7c969183ad",
   "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
@@ -18,35 +18,37 @@
   },
   "hosted": {
     "overall": "PENDING",
-    "headSha": "5e2519fe1b762f50887041f43b3aac7c969183ad",
+    "headSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
     "releaseTruth": "PASS",
     "security": "PASS",
     "securityBuild": "PASS",
     "securityAnalysis": "PASS",
-    "betaSuites": "PENDING",
-    "qualityBuild": "PENDING",
-    "androidFoundation": "PENDING",
-    "androidRuntime": "PENDING",
+    "betaSuites": "PASS",
+    "qualityBuild": "PASS",
+    "androidFoundation": "PASS",
+    "androidRuntime": "PASS",
     "chromium": "PENDING",
     "webkit": "PENDING",
     "firefox": "PENDING",
-    "ciRunId": 38020180279,
+    "ciRunId": 38023872898,
     "securityRunId": 38020180274,
-    "androidRunId": 38020180280
+    "androidRunId": 38023872888
   },
   "artifact": {
-    "status": "NOT_BUILT",
-    "apkSha256": null,
-    "artifactSourceSha": null,
-    "workflowMergeSha": null,
-    "workflowRunId": null,
-    "versionName": null,
-    "versionCode": null,
+    "status": "BUILT",
+    "apkSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "aabSha256": "72d9088a2a9d24dc342624e158290eeea10cd903d8f5ef923ca315436b35c657",
+    "artifactSourceSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
+    "workflowMergeSha": "a6a467e8b65a205040a83e729ed8a77d5a849ab2",
+    "workflowRunId": 38023872888,
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 675,
     "packageId": "longyu.noba.com",
     "channel": "DEVICE_QA",
-    "provenancePresent": false,
+    "provenancePresent": true,
     "playReady": false,
-    "labeledPlaySigned": false
+    "labeledPlaySigned": false,
+    "fingerprint": "29bb02ec0336"
   },
   "learningIntegrity": {
     "canonicalActivitiesInvalid": 0,
@@ -59,7 +61,7 @@
   },
   "targetedPhysical": {
     "status": "NOT_RUN",
-    "artifactSha256": null,
+    "artifactSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
     "evidence": null,
     "audioX20Count": 0,
     "audioPassMeans": "HUMAN_HEARS_COMPLETE_UTTERANCE",
@@ -81,7 +83,7 @@
   },
   "resumeFullR3": false,
   "entry": {
-    "OWNER_QA_ENTRY": "HOLD",
+    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD"
   },
@@ -89,6 +91,6 @@
     "targetRealTesters": 10,
     "invited": 0
   },
-  "candidateHeadSha": "ad1b8000a654c96e41d95e726ec19abd900ae229",
+  "candidateHeadSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
   "pr": 347
 }

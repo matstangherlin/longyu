@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 125,
+    "EVIDENCE_ONLY": 127,
     "OWNER_PHYSICAL": 0,
-    "CLOUD_ONLY": 18
+    "CLOUD_ONLY": 19
   },
-  "total": 1152,
+  "total": 1155,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1575,6 +1575,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13r3-1-2-artifact-targeted-retest",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r3-1-3-artifact-physical-reconciliation",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:rc2-3-13r3-1-3-artifact-physical-reconciliation && npm run test:rc2-3-13r3-1-3-artifact-physical-reconciliation && npm run gate:rc2-3-13r3-1-2-1-hosted-mint && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-1-3-artifact-physical-reconciliation",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7471,6 +7489,24 @@
       "domain": "none",
       "introducedBy": "RC2.3.13R",
       "script": "node scripts/rc2-3-13r3-1-2-artifact-targeted-retest.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13r3-1-3-artifact-physical-reconciliation",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-1-3-artifact-physical-reconciliation.mjs test",
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "self",
@@ -17274,6 +17310,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r3-1-3-artifact-physical-reconciliation",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-1-3-artifact-physical-reconciliation.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-1-3-artifact-physical-reconciliation",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-13r3-1-learning-integrity",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -20854,5 +20908,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "9e444eb252600dfa"
+  "evidenceDigest": "7a37fee037c002e9"
 }

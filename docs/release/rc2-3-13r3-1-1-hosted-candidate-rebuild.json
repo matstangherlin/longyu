@@ -1,11 +1,11 @@
 {
   "wave": "RC2.3.13R.3.1.1",
   "title": "Hosted Closure, Candidate Rebuild & Targeted Physical Retest",
-  "phase": "PRE_BUILD",
+  "phase": "POST_BUILD",
   "parentPr": 345,
   "fingerprint": "29bb02ec0336",
   "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
-  "artifactSourceSha": null,
+  "artifactSourceSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
   "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   "oldOwnerQaApk": {
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -13,20 +13,24 @@
     "note": "Pre-R.3.1 / #344 candidate. Do not physical-test against R.3.1 runtime."
   },
   "newOwnerQaApk": {
-    "status": "NOT_BUILT",
-    "sha256": null,
-    "artifactSourceSha": null,
-    "note": "Build only after exact-head hosted green (Security/CI/Android/E2E)."
+    "status": "BUILT",
+    "sha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "artifactSourceSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
+    "workflowMergeSha": "a6a467e8b65a205040a83e729ed8a77d5a849ab2",
+    "workflowRunId": 38023872888,
+    "versionCode": 675,
+    "versionName": "0.2.0-rc.5",
+    "note": "DEVICE_QA debug APK from #348 Android run 38023872888. Targeted physical still NOT_RUN."
   },
   "hosted": {
-    "releaseTruth": "PENDING_HEAD",
-    "build": "PENDING_HEAD",
-    "security": "PENDING_HEAD",
-    "androidFoundation": "PENDING_HEAD",
-    "androidRuntime": "PENDING_HEAD",
-    "chromium": "PENDING_HEAD",
-    "webkit": "PENDING_HEAD",
-    "firefox": "PENDING_HEAD"
+    "releaseTruth": "PASS",
+    "build": "PASS",
+    "security": "PASS",
+    "androidFoundation": "PASS",
+    "androidRuntime": "PASS",
+    "chromium": "PENDING",
+    "webkit": "PENDING",
+    "firefox": "PENDING"
   },
   "knownCodeDefects": 0,
   "physicalVerification": "PENDING",
@@ -37,7 +41,7 @@
   "audioX20Count": 0,
   "audioPassMeans": "HUMAN_HEARS_COMPLETE_UTTERANCE",
   "entry": {
-    "OWNER_QA_ENTRY": "HOLD",
+    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD"
   },
