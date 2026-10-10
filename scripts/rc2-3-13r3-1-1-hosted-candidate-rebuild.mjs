@@ -173,7 +173,7 @@ function test() {
     'from "./personalize"',
   ));
   k("pure helper missing", "PURE_PERSONALIZED_UTTERANCE_MISSING", mutate(base, "personalizedUtterance", "isPersonalizedUtterance", "isMixedSpeech"));
-  k("fingerprint drift", "FINGERPRINT_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint drift", "FINGERPRINT_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("lesson count", "LESSON_COUNT_DRIFT", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("topic count", "TOPIC_COUNT_DRIFT", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("culture count", "CULTURE_COUNT_DRIFT", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));

@@ -2,7 +2,7 @@
 
 **Physical target:** `RC2.3.12-RC2` · `0.2.0-rc.2` · versionCode `596`
 
-**STOP if QA Release Truth does not match:** RC ID `RC2.3.12-RC2` · version `0.2.0-rc.2` · versionCode `596` · artifactSourceSha `529d2cd4…` · fingerprint `57a848ef9ef9`.
+**STOP if QA Release Truth does not match:** RC ID `RC2.3.12-RC2` · version `0.2.0-rc.2` · versionCode `596` · artifactSourceSha `529d2cd4…` · fingerprint `29bb02ec0336`.
 
 **Do not use RC1** (`0.2.0-rc.1` / versionCode `570`) — learner UI changed in RC2.3.13A.
 

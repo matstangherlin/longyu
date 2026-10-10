@@ -19,7 +19,7 @@
   "androidGradlePlugin": "8.13.0",
   "gradle": "8.14.3",
   "java": 21,
-  "fingerprint": "57a848ef9ef9",
+  "fingerprint": "29bb02ec0336",
   "pedagogyFrozen": true,
   "cloudDeferred": true,
   "signingContractReady": true,
@@ -61,5 +61,5 @@
     "superseded": "com.longyu.app (SUPERSEDED — RC2.2.10–RC2.2.14B, nunca publicado)",
     "manifest": "docs/release/android-package-identity.json"
   },
-  "curriculumFingerprint": "57a848ef9ef9"
+  "curriculumFingerprint": "29bb02ec0336"
 }

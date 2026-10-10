@@ -29,7 +29,7 @@ runDeliveryMutations("test:delivery-pipeline", validateDeliveryPipeline, [
   ["#20 Public Beta GO automático (manifesto)", (s) => { s.delivery.publicBetaVerdict = "GO"; }, "PUBLIC_BETA_VERDICT"],
   ["#20 Public Beta GO automático (workflow)", (s) => W(s, "android-build.yml", "| Public Beta | NO-GO |", "| Public Beta | GO |"), "PUBLIC_BETA_VERDICT"],
   ["#21 BETA_PEDAGOGY_FREEZE removido", (s) => { s.foundation.curriculumFreezeSource = swap(s.foundation.curriculumFreezeSource, "export const BETA_PEDAGOGY_FREEZE", "const OLD_FREEZE"); }, "BETA_PEDAGOGY_FREEZE_REMOVED"],
-  ["#22 fingerprint muda", (s) => { s.foundation.curriculumFreezeSource = swap(s.foundation.curriculumFreezeSource, 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "d00000000000"'); }, "FINGERPRINT_DRIFT"],
+  ["#22 fingerprint muda", (s) => { s.foundation.curriculumFreezeSource = swap(s.foundation.curriculumFreezeSource, 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "d00000000000"'); }, "FINGERPRINT_DRIFT"],
   ["#23 currículo muda", (s) => { s.foundation.curriculumSources["src/data/journey.ts"] += "\n// nova lição\n"; }, "CURRICULUM_SOURCE_MODIFIED"],
   ["upload interno declarado sem registro", (s) => { s.delivery.androidInternalUpload = true; }, "UNPROVEN_CLAIM"],
   ["release assinado pronto sem credencial", (s) => { s.delivery.androidSignedReleaseReady = true; }, "UNPROVEN_CLAIM"],

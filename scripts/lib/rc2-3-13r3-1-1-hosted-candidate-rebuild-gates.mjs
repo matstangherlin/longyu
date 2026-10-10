@@ -18,11 +18,11 @@ const read = (rel) => (fs.existsSync(path.join(ROOT, rel)) ? fs.readFileSync(pat
 export const STALE_APK_SHA256 =
   "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8";
 
-/** Last commit that changed learner-facing R.3.1 runtime (before hosted-closure docs). */
+/** Last learner-runtime module commit (R.3.1.1 pure audio helper + EN overlays). */
 export const EXPECTED_LEARNER_RUNTIME_SHA =
-  "c68dc42871433746a7bfc1bfbded661e0d9bf843";
+  "b6fe91536daf3a8bdebde66f92ec50a03155fb4b";
 
-export const EXPECTED_FINGERPRINT = "57a848ef9ef9";
+export const EXPECTED_FINGERPRINT = "29bb02ec0336";
 export const EXPECTED_COUNTS = Object.freeze({
   lessons: 134,
   topics: 113,

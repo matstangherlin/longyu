@@ -114,7 +114,7 @@ function test() {
   k("topic count", "TOPIC_COUNT_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("Culture count", "CULTURE_COUNT_CHANGED", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
   k("Culture path count", "CULTURE_PATH_COUNT_CHANGED", blank(base, "culturePaths"));
-  k("fingerprint drift", "FINGERPRINT_UNEXPECTED_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint drift", "FINGERPRINT_UNEXPECTED_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("Mastery math", "MASTERY_MATH_CHANGED", { ...base, personalMastery: `${base.personalMastery}\nexport function computeMasteryScore() { return 0; }\n` });
   k("SRS changes", "SRS_CHANGED", { ...base, srs: `${base.srs}\nexport function nextInterval() { return 99999; }\n` });
   k("JEV runtime ON", "JEV_RUNTIME_ON", { ...base, curriculumFreeze: `${base.curriculumFreeze}\nexport const JEV_LEARNER_RUNTIME = true;\n` });

@@ -72,7 +72,7 @@ function test() {
   k("lesson count", "LESSON_COUNT_CHANGED", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("topic count", "TOPIC_COUNT_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("culture count", "CULTURE_COUNT_CHANGED", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
-  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("cert", "CERT_MISSING", blank(base, "certification"));
   k("report", "REPORT_MISSING", blank(base, "report"));
   k("freeze", "UI_FREEZE_MISSING", blank(base, "uiFreeze"));

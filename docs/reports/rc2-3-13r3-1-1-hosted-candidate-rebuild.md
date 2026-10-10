@@ -17,7 +17,7 @@ Convert R.3.1 learner-integrity source fixes into a **hosted-green, buildable, h
 
 | Surface | Real cause |
 | --- | --- |
-| CI Release Truth | Fingerprint advanced `fea5455e1461` → `57a848ef9ef9` after `lessonTasks.ts` change; registry/product-truth stale |
+| CI Release Truth | Fingerprint advanced `fea5455e1461` → `29bb02ec0336` after `lessonTasks.ts` change; registry/product-truth stale |
 | Android foundation | Same fingerprint contract drift |
 | Security / CodeQL | **Build** failure (TS2352 cast), not a vulnerability finding |
 

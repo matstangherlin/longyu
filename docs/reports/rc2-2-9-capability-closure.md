@@ -175,7 +175,7 @@ release, correções de QA, copy.
 ## Evidência por capacidade
 
 <!-- evidencia:inicio -->
-Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `5a64821d0b7d` · base `700aa83264ce`.
+Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `29bb02ec0336` · base `700aa83264ce`.
 
 Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato estrito.
 
@@ -244,10 +244,10 @@ Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato est
 | Declared status after | READY |
 | Lexical evidence | 2/2 chunks ensinados antes de cobrados · 2/2 palavras (太贵了, 便宜一点) |
 | Structural evidence | 太贵了 → ensino l27·M1, produção l27·M3, uso l27·M4; 便宜一点 → ensino l27·M1, produção l27·M3, uso l27·M4 |
-| Productive task | l27 · M3 · passo 13 · sentence_build — 太贵了便宜一点 (13 no total) |
+| Productive task | l27 · M3 · passo 13 · sentence_build — 太贵了便宜一点 (12 no total) |
 | Listening task | l27 · M2 · passo 11 · audio_to_action — 便宜一点 (2 no total) |
-| Conversation scene | p6-compras · M1 · passo 3 · conversation_scene · cena conversa-na-loja/loja-3 — 太贵了 (19 turnos) |
-| Transfer task | p6-compras · M1 · passo 3 · conversation_scene · cena conversa-na-loja — 太贵了 (24 no total) |
+| Conversation scene | p6-compras · M1 · passo 3 · conversation_scene · cena conversa-na-loja/loja-3 — 太贵了 (18 turnos) |
+| Transfer task | p6-compras · M1 · passo 3 · conversation_scene · cena conversa-na-loja — 太贵了 (23 no total) |
 | Reachable | sim — todos os passos vêm de lessonRoundStepsFor na Jornada normal |
 | First teach position | l27 · M1 · passo 3 · listen — 便宜一点 |
 | First test position | l27 · M2 · passo 11 · audio_to_action — 便宜一点 |
@@ -353,7 +353,7 @@ Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato est
 | Lexical evidence | 1/1 chunks ensinados antes de cobrados · 1/1 palavras (我喜欢中文) |
 | Structural evidence | 我喜欢… → ensino l26·M1, produção l26·M3, uso l26·M1; 我不喜欢… → ensino l28·M1, produção l28·M3, uso l28·M4 |
 | Productive task | l26 · M3 · passo 1 · free_production — 我喜欢中文 (13 no total) |
-| Listening task | l28 · M2 · passo 11 · audio_to_action — 我不喜欢茶 (1 no total) |
+| Listening task | l28 · M2 · passo 11 · audio_to_action — 我不喜欢茶 (4 no total) |
 | Conversation scene | l28 · M4 · passo 13 · conversation_scene · cena gostos-na-casa/gosto-1 — 我喜欢茶 (2 turnos) |
 | Transfer task | l28 · M4 · passo 5 · free_production — 我喜欢茶 (8 no total) |
 | Reachable | sim — todos os passos vêm de lessonRoundStepsFor na Jornada normal |
@@ -388,19 +388,19 @@ Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato est
 | ask_name | READY | READY | 1.00 | 1.00 | 229 | 76 | 143 | 227 | READY |
 | say_origin | READY | READY | 1.00 | 1.00 | 84 | 30 | 49 | 66 | READY |
 | ask_origin | READY | READY | 1.00 | 1.00 | 62 | 16 | 49 | 66 | READY |
-| talk_study | READY | READY | 0.83 | 0.67 | 112 | 11 | 53 | 91 | READY |
+| talk_study | READY | READY | 0.83 | 0.67 | 109 | 11 | 53 | 88 | READY |
 | talk_work | READY | READY | 0.93 | 0.25 | 15 | 1 | 10 | 12 | READY |
 | talk_routine | READY | READY | 0.77 | 0.33 | 11 | 1 | 3 | 5 | READY |
 | tell_time | READY | READY | 1.00 | 0.67 | 5 | 1 | 5 | 2 | READY |
 | ask_time | READY | READY | 1.00 | 0.00 | 7 | 1 | 3 | 2 | READY |
-| ask_price | READY | READY | 0.33 | 1.00 | 18 | 2 | 7 | 22 | READY |
-| buy_item | READY | READY | 0.83 | 1.00 | 55 | 4 | 36 | 54 | READY |
+| ask_price | READY | READY | 0.33 | 1.00 | 18 | 2 | 6 | 21 | READY |
+| buy_item | READY | READY | 0.83 | 1.00 | 54 | 4 | 35 | 53 | READY |
 | ask_location | READY | READY | 0.75 | 1.00 | 67 | 3 | 33 | 45 | READY |
 | ask_directions | READY | READY | 0.92 | 0.25 | 21 | 14 | 1 | 20 | READY |
 | use_taxi | READY | READY | 0.75 | 1.00 | 15 | 1 | 9 | 12 | READY |
 | airport_basic | READY | READY | 0.75 | 0.75 | 39 | 4 | 16 | 33 | READY |
 | hotel_checkin | READY | READY | 0.69 | 1.00 | 43 | 8 | 29 | 24 | READY |
-| say_dont_understand | READY | READY | 1.00 | 1.00 | 74 | 21 | 14 | 22 | READY |
+| say_dont_understand | READY | READY | 1.00 | 1.00 | 77 | 21 | 18 | 24 | READY |
 | health_basic | READY | READY | 1.00 | 1.00 | 78 | 1 | 31 | 58 | READY |
 | weather_smalltalk | READY | READY | 0.91 | 0.67 | 9 | 10 | 6 | 4 | READY |
 

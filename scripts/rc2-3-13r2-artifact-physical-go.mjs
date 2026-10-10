@@ -54,7 +54,7 @@ function test() {
   k("wrong version name", "WRONG_VERSION_NAME", mutate(base, "rc", '"versionName": "0.2.0-rc.5"', '"versionName": "0.2.0-rc.2"'));
   k("wrong version code", "WRONG_VERSION_CODE", mutate(base, "rc", '"versionCode": 651', '"versionCode": 650'));
   k("wrong package", "WRONG_PACKAGE_ID", mutate(base, "rc", '"packageId": "longyu.noba.com"', '"packageId": "com.wrong.app"'));
-  k("wrong fingerprint", "WRONG_FINGERPRINT", mutate(base, "rc", '"fingerprint": "57a848ef9ef9"', '"fingerprint": "deadbeef0001"'));
+  k("wrong fingerprint", "WRONG_FINGERPRINT", mutate(base, "rc", '"fingerprint": "29bb02ec0336"', '"fingerprint": "deadbeef0001"'));
   k("stale run id", "STALE_RUN_ID", mutate(base, "rc", '"workflowRunId": 37995330174', '"workflowRunId": null'));
   k("play go signing blocked", "PLAY_GO_WHILE_SIGNING_BLOCKED", mutate(base, "rc", '"PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED"', '"PLAY_CLOSED_BETA_ENTRY": "GO"'));
   k("play go debug only", "PLAY_GO_WITH_DEBUG_APK_ONLY", withJson(base, "rc", (o) => {
@@ -91,7 +91,7 @@ function test() {
   k("375 false pass", "VIEWPORT_375_PENDING", mutate(base, "cert", '"VIEWPORT_375_PASS": "PENDING_HOSTED"', '"VIEWPORT_375_PASS": "PASS"'));
   k("390 false pass", "VIEWPORT_390_PENDING", mutate(base, "cert", '"VIEWPORT_390_PASS": "PENDING_HOSTED"', '"VIEWPORT_390_PASS": "PASS"'));
   k("large font false", "LARGE_FONT_PENDING", mutate(base, "cert", '"LARGE_FONT_TYPOGRAPHY_PASS": "PENDING_HOSTED"', '"LARGE_FONT_TYPOGRAPHY_PASS": "PASS"'));
-  k("curriculum fp", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("curriculum fp", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("lessons", "LESSON_COUNT_CHANGED", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("topics", "TOPIC_COUNT_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("culture", "CULTURE_COUNT_CHANGED", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
@@ -422,7 +422,7 @@ function test() {
     k(
       `fp-pad-${i}`,
       "FINGERPRINT_CHANGED",
-      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "57a848ef9ef9"', `RC_BASE_FINGERPRINT = "${fp}"`),
+      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', `RC_BASE_FINGERPRINT = "${fp}"`),
     );
   }
 

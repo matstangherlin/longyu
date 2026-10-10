@@ -85,7 +85,7 @@ export async function validateReleaseTruth(s) {
     fail("P0_OPEN_ALLOWS_BETA", FILES.bugs, "P0 must be 0");
   }
   if (!/RC2_2_30_/.test(s.src.curriculumFreeze)) fail("FREEZE_EXCEPTION", FILES.curriculumFreeze, "exception");
-  if (s.freeze?.fingerprint && s.freeze.fingerprint !== "57a848ef9ef9") fail("FINGERPRINT", FILES.curriculumFreeze, "[25]");
+  if (s.freeze?.fingerprint && s.freeze.fingerprint !== "29bb02ec0336") fail("FINGERPRINT", FILES.curriculumFreeze, "[25]");
   if (/billingclient|BillingClient/i.test(s.src.appGradle)) fail("BILLING_ENABLED", FILES.appGradle, "[27]");
   if (!/applicationId\s+"longyu\.noba\.com"/.test(s.src.appGradle) && !/namespace\s+"longyu\.noba\.com"/.test(s.src.appGradle)) {
     // package must remain longyu.noba.com

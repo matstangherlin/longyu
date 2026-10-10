@@ -97,7 +97,7 @@ function test() {
     "shortViewport",
     "compactHeight"
   ));
-  k("visual repeat weakened", "VISUAL_REPEAT_GUARD_WEAKENED", mutate(base, "lessonTasks", "selectedImageConceptIds(selected).has(conceptId)", "false"));
+  k("visual repeat weakened", "VISUAL_REPEAT_GUARD_WEAKENED", mutate(base, "lessonTasks", "item.step.kind === candidate.step.kind && imageConceptIdOfStep(item.step) === conceptId", "false"));
   k("visual author exempt", "VISUAL_REPEAT_AUTHOR_EXEMPT", mutate(base, "lessonTasks", "function violatesImageRepeat", `function violatesImageRepeat(selected, candidate) {\n  if (!candidate.generated) return false;\n  return false;\n}\nfunction violatesImageRepeatLegacy`));
 
   k("freeze exception missing", "FREEZE_EXCEPTION_MISSING", mutate(base, "curriculumFreeze", "PRE_BETA_FREEZE_EXCEPTION", "LEARNING_INTEGRITY_EXCEPTION"));
@@ -154,7 +154,7 @@ function test() {
     "NAME_RESERVES"
   ));
   k("device qa kind typo", "DEVICE_QA_SKIP_KIND_MISSING", mutate(base, "deviceQa", "canonical_exercise_skip", "exercise_skip_event"));
-  k("visual has concept", "VISUAL_REPEAT_GUARD_WEAKENED", mutate(base, "lessonTasks", "selectedImageConceptIds", "imageConceptBag"));
+  k("visual has concept", "VISUAL_REPEAT_GUARD_WEAKENED", mutate(base, "lessonTasks", "item.step.kind === candidate.step.kind", "true"));
   k("hanzi max-h typo", "HANZI_CANVAS_NOT_COMPACT", mutate(base, "hanziBuilder", "42svh", "99svh"));
   k("report title typo", "R31_REPORT_MISSING", mutate(base, "r31Report", "RC2.3.13R.3.1", "RC2.3.13R.3.X"));
   k("freeze id typo", "FREEZE_EXCEPTION_MISSING", mutate(base, "curriculumFreeze", "PRE_BETA_FREEZE_EXCEPTION", "LEARNING_INTEGRITY_EXCEPTION"));

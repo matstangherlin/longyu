@@ -99,12 +99,16 @@ export function checkAll(src = loadR31Sources()) {
     errors.push("HANZI_SHORT_VIEWPORT_DETECT_MISSING");
   }
 
-  // Visual variety
-  if (!/selectedImageConceptIds\(selected\)\.has\(conceptId\)/.test(tasks)) {
+  // Visual variety — same-kind concept repeat blocked for authored + generated
+  const repeatFn = code(src.lessonTasks).match(/function violatesImageRepeat[\s\S]{0,500}/)?.[0] ?? "";
+  if (
+    !/selectedImageConceptIds\(selected\)\.has\(conceptId\)/.test(tasks) &&
+    !/item\.step\.kind\s*===\s*candidate\.step\.kind/.test(repeatFn)
+  ) {
     errors.push("VISUAL_REPEAT_GUARD_WEAKENED");
   }
   // authored must also be covered (no early return on !generated only)
-  if (/!candidate\.generated[\s\S]{0,80}return false/.test(code(src.lessonTasks).match(/function violatesImageRepeat[\s\S]{0,400}/)?.[0] ?? "")) {
+  if (/!candidate\.generated[\s\S]{0,80}return false/.test(repeatFn)) {
     errors.push("VISUAL_REPEAT_AUTHOR_EXEMPT");
   }
 

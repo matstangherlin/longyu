@@ -1264,7 +1264,10 @@
     "gate:rc2-3-13r3-1-learning-integrity": "npm run validate:rc2-3-13r3-1-learning-integrity && npm run test:rc2-3-13r3-1-learning-integrity && npm run validate:canonical-activity-integrity && npm run validate:distractor-quality && npm run validate:product-truth",
     "validate:rc2-3-13r3-1-1-hosted-candidate-rebuild": "node scripts/rc2-3-13r3-1-1-hosted-candidate-rebuild.mjs validate",
     "test:rc2-3-13r3-1-1-hosted-candidate-rebuild": "node scripts/rc2-3-13r3-1-1-hosted-candidate-rebuild.mjs test",
-    "gate:rc2-3-13r3-1-1-hosted-candidate-rebuild": "npm run validate:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run test:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run gate:rc2-3-13r3-1-learning-integrity && npm run validate:product-truth"
+    "gate:rc2-3-13r3-1-1-hosted-candidate-rebuild": "npm run validate:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run test:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run gate:rc2-3-13r3-1-learning-integrity && npm run validate:product-truth",
+    "validate:rc2-3-13r3-1-2-artifact-targeted-retest": "node scripts/rc2-3-13r3-1-2-artifact-targeted-retest.mjs validate",
+    "test:rc2-3-13r3-1-2-artifact-targeted-retest": "node scripts/rc2-3-13r3-1-2-artifact-targeted-retest.mjs test",
+    "gate:rc2-3-13r3-1-2-artifact-targeted-retest": "npm run validate:rc2-3-13r3-1-2-artifact-targeted-retest && npm run test:rc2-3-13r3-1-2-artifact-targeted-retest && npm run gate:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run validate:product-truth"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

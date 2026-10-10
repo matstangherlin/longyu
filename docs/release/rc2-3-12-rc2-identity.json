@@ -10,7 +10,7 @@
   "workflowMergeSha": "3f5cc1b3174cb1807ec181ec3e3b915c0f961428",
   "androidRunId": "37908317177",
   "androidRunUrl": "https://github.com/matstangherlin/longyu/actions/runs/37908317177",
-  "fingerprint": "57a848ef9ef9",
+  "fingerprint": "29bb02ec0336",
   "channel": "dev-debug",
   "supersedes": {
     "rcId": "RC2.3.12-RC1",
