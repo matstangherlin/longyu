@@ -1,0 +1,54 @@
+{
+  "wave": "RC2.3.13R.3.1.1",
+  "title": "Hosted Closure, Candidate Rebuild & Targeted Physical Retest",
+  "phase": "PRE_BUILD",
+  "parentPr": 345,
+  "fingerprint": "57a848ef9ef9",
+  "learnerRuntimeSha": "c68dc42871433746a7bfc1bfbded661e0d9bf843",
+  "artifactSourceSha": null,
+  "rejectedApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+  "oldOwnerQaApk": {
+    "status": "STALE_FOR_CURRENT_RUNTIME",
+    "sha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "note": "Pre-R.3.1 / #344 candidate. Do not physical-test against R.3.1 runtime."
+  },
+  "newOwnerQaApk": {
+    "status": "NOT_BUILT",
+    "sha256": null,
+    "artifactSourceSha": null,
+    "note": "Build only after exact-head hosted green (Security/CI/Android/E2E)."
+  },
+  "hosted": {
+    "releaseTruth": "PENDING_HEAD",
+    "build": "PENDING_HEAD",
+    "security": "PENDING_HEAD",
+    "androidFoundation": "PENDING_HEAD",
+    "androidRuntime": "PENDING_HEAD",
+    "chromium": "PENDING_HEAD",
+    "webkit": "PENDING_HEAD",
+    "firefox": "PENDING_HEAD"
+  },
+  "knownCodeDefects": 0,
+  "physicalVerification": "PENDING",
+  "knownStaticAudioDefects": 0,
+  "audioPhysicalVerification": "NOT_RUN",
+  "R31_TARGETED_PHYSICAL_RETEST": "NOT_RUN",
+  "targetedPhysicalEvidence": null,
+  "audioX20Count": 0,
+  "audioPassMeans": "HUMAN_HEARS_COMPLETE_UTTERANCE",
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD"
+  },
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0
+  },
+  "counts": {
+    "lessons": 134,
+    "topics": 113,
+    "cultureItems": 36,
+    "culturePaths": 12
+  }
+}

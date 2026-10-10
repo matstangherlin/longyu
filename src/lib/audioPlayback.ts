@@ -23,7 +23,7 @@ import { CANONICAL_AUDIO_ASSETS, audioEntryById, audioEntryByText, resolveCanoni
 import { decideAudioEngine, classifyAudioSource, fixedContentAllowsTtsEngine } from "./audio/audioEnginePolicy";
 import { playCanonicalAudio, cancelCanonicalAudio } from "./audio/canonicalPlayer";
 import { recordVoicePlayback, type VoicePlaybackEngine } from "./audio/voiceConsistency";
-import { isPersonalizedUtterance } from "./personalize";
+import { isPersonalizedUtterance } from "./audio/personalizedUtterance";
 
 /** RC2.3.13R.3.1 — upgrade source when text mixes CJK + learner Latin name. */
 function effectiveAudioSource(text: string, source?: string): string | undefined {

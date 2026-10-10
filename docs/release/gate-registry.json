@@ -8,9 +8,9 @@
     "DUPLICATE": 24,
     "EVIDENCE_ONLY": 123,
     "OWNER_PHYSICAL": 0,
-    "CLOUD_ONLY": 11
+    "CLOUD_ONLY": 14
   },
-  "total": 1143,
+  "total": 1146,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1526,6 +1526,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r3-1-1-hosted-candidate-rebuild",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run test:rc2-3-13r3-1-1-hosted-candidate-rebuild && npm run gate:rc2-3-13r3-1-learning-integrity && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-1-1-hosted-candidate-rebuild",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -7371,6 +7389,24 @@
       "supersededBy": null,
       "estimatedRuntimeMs": null,
       "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "test:rc2-3-13r3-1-1-hosted-candidate-rebuild",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-1-1-hosted-candidate-rebuild.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
@@ -17112,6 +17148,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r3-1-1-hosted-candidate-rebuild",
+      "status": "CLOUD_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-1-1-hosted-candidate-rebuild.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-1-1-hosted-candidate-rebuild",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": true,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-13r3-1-learning-integrity",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -20692,5 +20746,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "7b628e19c61a0f30"
+  "evidenceDigest": "1ace733741ac2f68"
 }

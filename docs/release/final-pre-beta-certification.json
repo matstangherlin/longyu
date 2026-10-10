@@ -4,13 +4,13 @@
   "parentPr": 343,
   "parentHead": "8811deca936c30ab9eecad56fabcff9cfc9014eb",
   "shaSemantics": {
-    "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
+    "learnerRuntimeSha": "c68dc42871433746a7bfc1bfbded661e0d9bf843",
     "certificationHeadSha": "8612f18d9692be5d8ae65d9adde873521cf38681",
     "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
     "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
-    "note": "learnerRuntimeSha frozen at reduced-motion fix. artifactSourceSha = embedded sourceHeadSha. workflowMergeSha = PR merge ref. certificationHeadSha moves with metadata."
+    "note": "learnerRuntimeSha advanced to R.3.1 learning-integrity product fix. artifactSourceSha still names stale candidate until rebuild."
   },
   "identity": {
     "rcId": "RC2.3.13-RC1",
@@ -160,11 +160,11 @@
     "boundApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
   },
   "entryDecision": {
-    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
-    "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
     "CLOSED_BETA_ENTRY_NOTE": "Do not use a single CLOSED_BETA_ENTRY GO that conflates sideload QA with Play distribution.",
-    "reason": "R.3 scaffold. Hosted E2E still IN_PROGRESS on #343 \u2014 physical blocked. Ops credentials unset. Play BLOCKED_SIGNING_SECRETS. OWNER_QA / PLAY entries OWNER_ACTION_REQUIRED. PUBLIC HOLD. Candidate APK preserved."
+    "reason": "R.3 scaffold. Hosted E2E still IN_PROGRESS on #343 — physical blocked. Ops credentials unset. Play BLOCKED_SIGNING_SECRETS. OWNER_QA / PLAY entries OWNER_ACTION_REQUIRED. PUBLIC HOLD. Candidate APK preserved."
   },
   "openP0": false,
   "openCoreP1": false,
@@ -176,7 +176,7 @@
     "Execute physical matrix per OWNER_R3_PHYSICAL_OPERATIONAL_PACK.md",
     "Android OAuth physical (intended providers)",
     "Configure Sentry / Netlify / cloud credentials or provide evidence for agent automation",
-    "Configure Play signing secrets \u2014 PLAY_SIGNING_HANDOFF.md",
+    "Configure Play signing secrets — PLAY_SIGNING_HANDOFF.md",
     "OWNER_FINAL_PRE_BETA_ACCEPTANCE bound to this APK SHA256"
   ],
   "rootCause": {
