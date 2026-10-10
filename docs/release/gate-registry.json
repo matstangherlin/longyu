@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 125,
+    "EVIDENCE_ONLY": 129,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1152,
+  "total": 1156,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1567,24 +1567,6 @@
       "canonicalOwner": null
     },
     {
-      "gateId": "gate:rc2-3-13r3-2-culture-topic-hierarchy",
-      "status": "CLOUD_ONLY",
-      "domain": "none",
-      "introducedBy": "RC2.3.13R.3.2",
-      "script": "npm run validate:culture-topic-hierarchy && npm run test:rc2-3-13r3-2-culture-topic-hierarchy && npm run validate:product-truth",
-      "invariants": [],
-      "supportsInvariants": [],
-      "mutationCoverage": "test:rc2-3-13r3-2-culture-topic-hierarchy",
-      "criticality": "NON_BLOCKING",
-      "executionPhase": "not-executed",
-      "supersededBy": null,
-      "estimatedRuntimeMs": null,
-      "requiresNetwork": false,
-      "requiresDevice": false,
-      "requiresOwner": false,
-      "canonicalOwner": null
-    },
-    {
       "gateId": "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
       "status": "CLOUD_ONLY",
       "domain": "none",
@@ -1611,6 +1593,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13r3-1-learning-integrity",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:culture-topic-hierarchy && npm run test:rc2-3-13r3-2-culture-topic-hierarchy && npm run validate:product-truth",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-culture-topic-hierarchy",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7520,6 +7520,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "test:rc2-3-13r3-2-culture-topic-hierarchy",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "test:rc2-3-13r3-physical-operational-go",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -13072,6 +13090,24 @@
       "canonicalOwner": "validate:culture-teach-before-test"
     },
     {
+      "gateId": "validate:culture-topic-hierarchy",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:culture-truth-classification",
       "status": "CANONICAL",
       "domain": "culture",
@@ -17310,6 +17346,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "validate:rc2-3-13r3-2-culture-topic-hierarchy",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-culture-topic-hierarchy.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-culture-topic-hierarchy",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "validate:rc2-3-13r3-physical-operational-go",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -20872,5 +20926,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "9e444eb252600dfa"
+  "evidenceDigest": "a3a1af672a601b4c"
 }
