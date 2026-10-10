@@ -97,11 +97,10 @@ test.describe("RC2.2.19 · orientação com evidência de render", () => {
     });
     await open(page, "/jornada");
     await expect(surfaces(page).first()).toBeVisible({ timeout: 10_000 });
-    // Sai imediatamente (antes dos 1,2 s de evidência).
-    await page.evaluate(() => {
-      window.history.pushState({}, "", "/mais");
-      window.dispatchEvent(new PopStateEvent("popstate"));
-    });
+    // Leave immediately (before ~1.2s render evidence). Real SPA navigation —
+    // pushState+popstate does not unmount GuidanceHost reliably on Firefox.
+    await page.goto("/mais");
+    await waitForLazyPage(page);
     await page.waitForTimeout(1_600);
     const stored = await storedGuidance(page);
     const records = Object.entries(stored?.records ?? {}).filter(([key]) => key !== "welcome_journey_v1");
