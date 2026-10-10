@@ -420,7 +420,7 @@ test.describe("V4.9.3 — a aula sem depender de animação", () => {
       const label = await contour.getAttribute("aria-label");
       expect(Boolean(label && label.length > 8)).toBe(true);
     } else {
-      await expect(visual.or(page.getByTestId("dynamic-teaching-sequence"))).toBeVisible();
+      await expect(page.getByTestId("visual-example").or(page.getByTestId("visual-fallback")).first()).toBeVisible();
       await expect(page.getByTestId("dynamic-teaching-sequence")).toContainText(
         /melodia|melody|movimentos|movements|tom|tone|Ouça|Listen/i
       );
