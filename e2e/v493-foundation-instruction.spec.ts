@@ -446,8 +446,10 @@ test.describe("V4.9.3 — a aula sem depender de animação", () => {
       const feedback = page.getByTestId("capsule-micro-check-feedback");
       await expect(feedback).toHaveAttribute("role", "status");
       await expect(feedback).toHaveAttribute("aria-live", "polite");
+    } else if (await page.getByTestId("dynamic-handoff").isVisible().catch(() => false)) {
+      await expect(page.getByTestId("dynamic-handoff")).toBeVisible();
     } else {
-      await expect(page.getByTestId("dynamic-handoff").or(capsuleContinue(page))).toBeVisible();
+      await expect(capsuleContinue(page)).toBeVisible();
     }
 
     const transcriptToggle = page.getByTestId("capsule-transcript-toggle");
