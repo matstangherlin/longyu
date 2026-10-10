@@ -1060,3 +1060,34 @@ export async function startExperiencedPlacement(page: Page, level: "words" | "st
   await page.getByTestId(`onboarding-choice-${level}`).click();
   await page.getByTestId("level-continue").click();
 }
+
+/** Debug-mode: flush browser session NDJSON + optional probe into /opt/cursor/logs/debug.log */
+export async function flushAgentDebugLogs(
+  page: Page,
+  extra?: { hypothesisId?: string; location?: string; message?: string; data?: Record<string, unknown> }
+) {
+  const fs = await import("node:fs");
+  const path = "/opt/cursor/logs/debug.log";
+  const fromBrowser = await page
+    .evaluate(() => {
+      try {
+        return sessionStorage.getItem("__dbg_ndjson") ?? "";
+      } catch {
+        return "";
+      }
+    })
+    .catch(() => "");
+  if (fromBrowser) fs.appendFileSync(path, fromBrowser);
+  if (extra) {
+    fs.appendFileSync(
+      path,
+      JSON.stringify({
+        hypothesisId: extra.hypothesisId ?? "PROBE",
+        location: extra.location ?? "e2e/helpers.flushAgentDebugLogs",
+        message: extra.message ?? "probe",
+        data: extra.data ?? {},
+        timestamp: Date.now(),
+      }) + "\n"
+    );
+  }
+}

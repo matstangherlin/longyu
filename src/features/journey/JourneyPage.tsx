@@ -297,6 +297,39 @@ export function JourneyPage() {
   const lessonMasteryById = useStore((s) => s.lessonMasteryById) ?? {};
   const lessonTaskProgress = useStore((s) => s.lessonTaskProgress) ?? {};
   const toneTrainer = useStore((s) => s.toneTrainer) ?? {};
+  // #region agent log
+  useEffect(() => {
+    try {
+      const snap = useStore.getState();
+      const payload = {
+        hypothesisId: "C",
+        location: "JourneyPage.tsx:mount",
+        message: "journey persistence shape at mount",
+        data: {
+          learnedChunksType: Array.isArray(snap.learnedChunks) ? "array" : typeof snap.learnedChunks,
+          learnedChunksNull: snap.learnedChunks == null,
+          todayType: snap.today == null ? "null" : typeof snap.today,
+          dailyClaimedType:
+            snap.dailyMissions == null
+              ? "dailyMissions-null"
+              : snap.dailyMissions.claimed == null
+                ? "claimed-null"
+                : typeof snap.dailyMissions.claimed,
+          srsHasNullEntries: Object.values(snap.srs ?? {}).some((v) => v == null),
+          hasOrnamentsFrame: true,
+        },
+        timestamp: Date.now(),
+      };
+      console.info("[dbg:C-mount]", payload.message, payload.data);
+      try {
+        const prev = sessionStorage.getItem("__dbg_ndjson") ?? "";
+        sessionStorage.setItem("__dbg_ndjson", prev + JSON.stringify(payload) + "\n");
+      } catch { /* ignore */ }
+    } catch (err) {
+      console.info("[dbg:C-mount-throw]", err instanceof Error ? err.message : String(err));
+    }
+  }, []);
+  // #endregion
   // RC2.2.6 — progresso cultural canônico para a dica do nó trancado.
   const pageCultureCompletedIds = useStore((s) => s.cultureCompletedIds);
   const pageCultureMasteryById = useStore((s) => s.cultureMasteryById);
@@ -1452,9 +1485,36 @@ function LessonNode({
   const safeStageTotal = Math.max(1, stageTotal);
   const safeStageProgress = Math.max(0, Math.min(safeStageTotal, stageProgress));
   const iconSize = isCurrent ? 26 : 20;
+  const topicProgressAttr = safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined;
+
+  // #region agent log
+  if (isCurrent) {
+    try {
+      const payload = {
+        hypothesisId: "B",
+        location: "JourneyPage.tsx:LessonNode",
+        message: "data-topic-progress placement vs aria-current",
+        data: {
+          lessonId,
+          topicProgressOnWrapper: topicProgressAttr ?? null,
+          ariaCurrentOnBubbleButton: isCurrent ? "step" : null,
+          splitFromButtonSince: "ee43fb95 ProgressionNodeBubble",
+          safeStageTotal,
+          safeStageProgress,
+        },
+        timestamp: Date.now(),
+      };
+      console.info("[dbg:B]", payload.message, payload.data);
+      try {
+        const prev = sessionStorage.getItem("__dbg_ndjson") ?? "";
+        sessionStorage.setItem("__dbg_ndjson", prev + JSON.stringify(payload) + "\n");
+      } catch { /* ignore */ }
+    } catch { /* ignore */ }
+  }
+  // #endregion
 
   return (
-    <div data-journey-bubble-v2 data-lesson-id={lessonId} data-topic-progress={safeStageTotal === 4 ? `${safeStageProgress}/4` : undefined}>
+    <div data-journey-bubble-v2 data-lesson-id={lessonId} data-topic-progress={topicProgressAttr}>
       <ProgressionNodeBubble
         id={lessonId}
         title={title}

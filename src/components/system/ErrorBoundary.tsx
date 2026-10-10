@@ -52,6 +52,32 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, info: ErrorInfo) {
     const area = this.props.area ?? "app";
     console.error(`[ErrorBoundary${area ? `:${area}` : ""}]`, error, info.componentStack);
+    // #region agent log
+    try {
+      const payload = {
+        hypothesisId: "C",
+        location: "ErrorBoundary.tsx:componentDidCatch",
+        message: "page render crash caught",
+        data: {
+          area,
+          errorName: error.name,
+          errorMessage: error.message,
+          stackTop: (info.componentStack ?? "").split("\n").slice(0, 8),
+        },
+        timestamp: Date.now(),
+      };
+      console.info("[dbg:C]", payload.message, payload.data);
+      try {
+        const prev = sessionStorage.getItem("__dbg_ndjson") ?? "";
+        sessionStorage.setItem("__dbg_ndjson", prev + JSON.stringify(payload) + "\n");
+      } catch { /* ignore */ }
+      void fetch("http://127.0.0.1:7252/ingest/c7a1e2b0-debug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "e2e-crash" },
+        body: JSON.stringify(payload),
+      }).catch(() => {});
+    } catch { /* ignore */ }
+    // #endregion
     recordClientDiagnostic({
       kind: "render_error",
       area,

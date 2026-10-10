@@ -20,8 +20,30 @@ export function JourneyCultureGate({
 }: {
   evaluation: CultureProgressionGateEvaluation;
 }) {
-  const { locale } = useTranslation();
+  const { locale, instructionLocale } = useTranslation();
   const en = locale === "en";
+  // #region agent log
+  try {
+    const payload = {
+      hypothesisId: "D",
+      location: "JourneyCultureGate.tsx:locale",
+      message: "culture gate locale source",
+      data: {
+        interfaceLocale: locale,
+        instructionLocale,
+        enFromInterface: en,
+        wouldBeEnFromInstruction: instructionLocale === "en",
+        mismatch: (locale === "en") !== (instructionLocale === "en"),
+      },
+      timestamp: Date.now(),
+    };
+    console.info("[dbg:D]", payload.message, payload.data);
+    try {
+      const prev = sessionStorage.getItem("__dbg_ndjson") ?? "";
+      sessionStorage.setItem("__dbg_ndjson", prev + JSON.stringify(payload) + "\n");
+    } catch { /* ignore */ }
+  } catch { /* ignore */ }
+  // #endregion
   const { gate, completed, total, completedItemIds, missingItemIds, nextItemId, status } = evaluation;
 
   // Marco já resolvido (selo na mão ou usuário legado) não ocupa a trilha.

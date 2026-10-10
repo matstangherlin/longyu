@@ -87,6 +87,33 @@ export function CultureJourneyPage() {
       )
     : cultureTopicHref(continuation.topic.id);
 
+  // #region agent log
+  try {
+    const payload = {
+      hypothesisId: "A",
+      location: "CultureJourneyPage.tsx:render",
+      message: "culture topic hub render contract",
+      data: {
+        topicHub: true,
+        headerKey: "progression.cultureHeader",
+        headerResolved: t("progression.cultureHeader"),
+        descResolved: t("progression.cultureDesc"),
+        topicCount: CULTURE_TOPIC_GROUPS.length,
+        hasCultureCardSpringFestival: false,
+        hasCollectionsOnRoot: false,
+        continuationTopic: continuation.topic.id,
+        nextItemId: continuation.itemId ?? null,
+      },
+      timestamp: Date.now(),
+    };
+    console.info("[dbg:A]", payload.message, payload.data);
+    try {
+      const prev = sessionStorage.getItem("__dbg_ndjson") ?? "";
+      sessionStorage.setItem("__dbg_ndjson", prev + JSON.stringify(payload) + "\n");
+    } catch { /* ignore */ }
+  } catch { /* ignore */ }
+  // #endregion
+
   return (
     <ProgressionShell
       mode="culture"
