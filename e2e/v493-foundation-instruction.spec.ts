@@ -158,11 +158,16 @@ test.describe("V4.9.3 — a aula antes da cobrança", () => {
   });
 
   test("4 · o microcheck não deixa avançar sem resposta, e errar não trava", async ({ page }) => {
-    // Legacy animated microcheck path — skip when dynamic AULA replaced it.
+    // RC2.3.13H+: dynamic AULA has no capsule microcheck (asserted); legacy animated keeps gate.
     await seedFreshJourneySession(page);
     await open(page, route(CAPSULES.mandarin));
     const dynamic = await page.getByTestId("dynamic-teaching-sequence").isVisible().catch(() => false);
-    test.skip(dynamic, "RC2.3.13H dynamic AULA has no capsule microcheck; handoff goes to topic practice.");
+    if (dynamic) {
+      await expect(page.getByTestId("capsule-micro-check")).toHaveCount(0);
+      await advanceDynamicUntil(page, page.getByTestId("dynamic-handoff"));
+      await expect(page.getByTestId("dynamic-handoff")).toBeVisible();
+      return;
+    }
     for (let i = 0; i < 4; i += 1) await capsuleContinue(page).click();
 
     await expect(page.getByTestId("capsule-micro-check")).toHaveAttribute("data-answered", "false");
