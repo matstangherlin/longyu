@@ -82,7 +82,9 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await expect(page).toHaveURL(/\/jornada/);
-    await expect(page.getByRole("heading", { level: 1, name: "Primeiro contato" })).toBeVisible();
+    // RC2.3.13B — page h1 is ProgressionShell; first unit is in the path, not page title.
+    await expect(page.getByTestId("home-continue")).toBeVisible();
+    await expect(page.getByTestId("home-continue-cta")).toBeVisible();
     await expect(page.getByRole("button", { name: /^Sair$/i })).toBeVisible();
     await page.getByRole("button", { name: /^Sair$/i }).click();
     await page.waitForURL(/\/$/);

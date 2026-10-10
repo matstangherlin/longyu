@@ -209,6 +209,9 @@ test.describe("V4.9.8B hotel + airport survival", () => {
     await dismissBlockingOverlays(page);
     await expect(page.getByTestId("culture-progress")).toHaveAttribute("data-culture-path-status", /.+/);
     await expect(page.getByTestId("culture-route-progress")).toContainText(/\d+\s+de\s+\d+/);
+    await page.goto("/cultura/explorar");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
     await page.getByTestId("culture-toggle-secondary").click();
     const show = page.getByTestId("culture-show-categories");
     if (await show.isVisible().catch(() => false)) await show.click().catch(() => undefined);

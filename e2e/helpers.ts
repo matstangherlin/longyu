@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
 import {
@@ -1059,4 +1059,12 @@ export async function startExperiencedPlacement(page: Page, level: "words" | "st
   await page.getByTestId("placement-offer-test").click();
   await page.getByTestId(`onboarding-choice-${level}`).click();
   await page.getByTestId("level-continue").click();
+}
+
+/**
+ * RC2.3.13H+ — topic mastery progress attr lives on the bubble wrapper
+ * (`data-journey-bubble-v2`), while `aria-current="step"` is on the inner button.
+ */
+export function currentTopicProgressNode(page: Page): Locator {
+  return page.locator('[data-journey-bubble-v2]:has([aria-current="step"])');
 }

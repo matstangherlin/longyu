@@ -25,7 +25,7 @@ test.describe("RC2.3.13R typography + motion", () => {
     await openApp(page, "/cultura");
     const card = page.getByTestId("culture-progress");
     await expect(card).toBeVisible();
-    await expect(card).toHaveAttribute("data-typography", "culture-current-path");
+    await expect(card).toHaveAttribute("data-typography", "culture-continue-card");
     const eyebrow = card.locator(".type-eyebrow").first();
     const title = card.locator(".type-card-title").first();
     await expect(eyebrow).toBeVisible();

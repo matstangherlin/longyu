@@ -4,6 +4,7 @@ import {
   dismissBlockingOverlays,
   seedFreshJourneySession,
   waitForLazyPage,
+  currentTopicProgressNode,
 } from "./helpers";
 import { advanceOneStep, advanceSkipThroughOverlays, advanceUntilVisible, clickFirstVisible, clickIfEnabled } from "./lesson-player-helpers";
 import { ALL_LESSONS } from "../src/data/journey";
@@ -255,7 +256,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await capture(page, "v461-journey-0-of-4");
 
     await openTopicFromJourney(page, FIRST.id);
@@ -276,7 +277,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await capture(page, "v461-victory-m1-faltam-3");
 
     await returnToJourney(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     await expect(page).not.toHaveURL(/\/player/);
     await capture(page, "v461-journey-1-of-4-next-locked");
 
@@ -293,7 +294,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await expect(page.getByTestId("topic-victory-lesson")).toContainText(PASS_EXPECT[2].lesson);
     await expect(page.getByTestId("topic-victory-remaining")).toContainText(PASS_EXPECT[2].remaining);
     await returnToJourney(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "2/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "2/4");
 
     await openTopicFromJourney(page, FIRST.id);
     await expect(page.getByTestId("topic-pass-label")).toContainText(PASS_EXPECT[2].nextDetail);
@@ -302,7 +303,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
     await expect(page.getByTestId("topic-victory-lesson")).toContainText(PASS_EXPECT[3].lesson);
     await expect(page.getByTestId("topic-victory-remaining")).toContainText(PASS_EXPECT[3].remaining);
     await returnToJourney(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "3/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "3/4");
 
     await openTopicFromJourney(page, FIRST.id);
     await expect(page.getByTestId("topic-pass-label")).toContainText(PASS_EXPECT[3].nextDetail);
@@ -315,7 +316,7 @@ test.describe("V4.6.1 Journey return after each pass", () => {
 
     const firstNode = page.locator(`[data-lesson-id="${FIRST.id}"]`).first();
     await expect(firstNode).toHaveAttribute("data-topic-progress", "4/4");
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "0/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "0/4");
     await capture(page, "v461-journey-4-of-4-next-unlocked");
 
     await page.goto(`/licao/${SECOND.id}`);
