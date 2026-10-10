@@ -5,12 +5,12 @@
   "parentPr": 352,
   "parentTitle": "RC2.3.13R.3.2.2 — Hosted Closure, Final Visual Candidate Mint & Physical Acceptance",
   "parentHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
-  "candidateHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
-  "pr": null,
+  "candidateHeadSha": "01f9ff17cf5f2bcca5a416d402d7c48ae97135e1",
+  "pr": 353,
   "runtime": {
-    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
-    "learnerRuntimeMoved": false,
-    "rationale": "Docs/gates/artifact reconciliation only. No learner-facing product change. Fingerprint 29bb02ec0336.",
+    "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
+    "learnerRuntimeMoved": true,
+    "rationale": "REAL_RUNTIME harden for Chromium green: null SRS Journey crash, culture gate instructionLocale, persist merge, early nav density. E2E contracts updated for topic-hub Culture IA (STALE_TEST). Fingerprint 29bb02ec0336.",
     "fingerprint": "29bb02ec0336"
   },
   "visualFreeze": {
@@ -53,7 +53,7 @@
     "prHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
     "workflowMergeSha": null,
     "certificationHeadSha": null,
-    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "workflowRunId": null,
     "artifactId": null,
     "filename": null,

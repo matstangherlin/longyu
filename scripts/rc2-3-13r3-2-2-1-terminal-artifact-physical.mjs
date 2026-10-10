@@ -292,7 +292,7 @@ function test() {
     'RC_BASE_FINGERPRINT = "deadbeef0001"',
   ));
   k("learner stale", "LEARNER_RUNTIME_STALE", withJson(base, "rc", (o) => {
-    o.learnerRuntimeSha = "b6fe91536daf3a8bdebde66f92ec50a03155fb4b";
+    o.learnerRuntimeSha = "824a55deb79898b3ee6c0f60d66dc762333828a4";
   }));
   k("lesson drift", "LESSON_COUNT_DRIFT", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("product truth", "PRODUCT_TRUTH_STALE", mutate(base, "productTruth", '"lessons": 134', '"lessons": 1'));

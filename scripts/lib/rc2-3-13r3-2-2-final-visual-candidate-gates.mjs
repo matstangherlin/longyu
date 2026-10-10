@@ -21,9 +21,9 @@ export const STALE_APK_SHA256 =
 export const STALE_APK_SHA256_LEGACY =
   "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8";
 
-/** R.3.2.1 visual-polish learner runtime (ornaments + alignment + longyu-line icons). */
+/** R.3.2.2.1 Journey/Culture runtime harden (null SRS, instructionLocale gate, persist merge). */
 export const EXPECTED_LEARNER_RUNTIME_SHA =
-  "824a55deb79898b3ee6c0f60d66dc762333828a4";
+  "0357f82476d03bc8364efc66902b4640b4a155b9";
 
 export const EXPECTED_FINGERPRINT = "29bb02ec0336";
 export const PACKAGE_ID = "longyu.noba.com";
@@ -141,9 +141,7 @@ export function checkAll(src = loadR322Sources()) {
   if (r322?.runtime?.learnerRuntimeSha !== EXPECTED_LEARNER_RUNTIME_SHA) {
     errors.push("LEARNER_RUNTIME_STALE");
   }
-  if (r321?.runtime?.learnerRuntimeSha && r321.runtime.learnerRuntimeSha !== EXPECTED_LEARNER_RUNTIME_SHA) {
-    errors.push("LEARNER_RUNTIME_STALE");
-  }
+  // Parent R.3.2.1 cert keeps its historical learnerRuntimeSha (824a55de); do not rewrite.
 
   // Stale hash rejection
   if (r322?.rejectedApkSha256 !== STALE_APK_SHA256) errors.push("STALE_HASH_REJECTION_MISSING");

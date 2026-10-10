@@ -1,25 +1,29 @@
 # RC2.3.13R.3.2.2.1 — Terminal Artifact & Physical Regression Certification
 
-## Parent
+## Parent / tip
 
-- PR **#352** — Final Visual Candidate framework
-- Exact HEAD (re-queried): `abbe4a04998a2510a1ce20a23252b259774f1365`
-- `learnerRuntimeSha`: `824a55deb79898b3ee6c0f60d66dc762333828a4`
+- Tip PR **#353** — Terminal artifact + physical certification
+- Parent PR **#352** — Final Visual Candidate framework
+- Exact tip HEAD: `01f9ff17cf5f2bcca5a416d402d7c48ae97135e1`
+- `learnerRuntimeSha`: `0357f82476d03bc8364efc66902b4640b4a155b9` (runtime harden)
 - Fingerprint: `29bb02ec0336`
 
 ## Scope
 
 **NO DESIGN. NO CONTENT.** Prove the final visual runtime via exact-head hosted green → one Device-QA APK → owner physical + visual acceptance.
 
-## Hosted workflow IDs (#352)
+## Chromium failure classification (tip)
 
-| Workflow | Run ID | Status at cert scaffolding |
-| --- | --- | --- |
-| Security | `38032295102` | PASS (gitleaks, npm audit, CodeQL Build + Analysis) |
-| CI | `38032295031` | IN_PROGRESS |
-| Android build | `38032295198` | IN_PROGRESS |
+| Class | Fix |
+| --- | --- |
+| STALE_TEST_CONTRACT | Culture hub / Journey / nav / bubble / Home cognitive E2E updated for topic-hub IA |
+| REAL_RUNTIME_REGRESSION | Null SRS Journey crash; culture gate `instructionLocale`; persist merge; early nav density |
 
-Update certification `hosted` when terminal.
+Local retest of previously failing Chromium specs: **PASS**.
+
+## Hosted workflow IDs
+
+Update certification `hosted` when tip #353 exact-head is terminal green.
 
 ## Gates
 

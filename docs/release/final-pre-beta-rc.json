@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.3.2.2",
+  "wave": "RC2.3.13R.3.2.2.1",
   "status": "HOSTED_PENDING",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
@@ -12,14 +12,14 @@
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
-  "certificationHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
+  "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
+  "certificationHeadSha": "01f9ff17cf5f2bcca5a416d402d7c48ae97135e1",
   "artifactSourceSha": null,
-  "prHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
-  "sourceTipSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
+  "prHeadSha": "01f9ff17cf5f2bcca5a416d402d7c48ae97135e1",
+  "sourceTipSha": "01f9ff17cf5f2bcca5a416d402d7c48ae97135e1",
   "workflowMergeSha": null,
-  "parentPr": 351,
-  "shaNote": "learnerRuntimeSha = 824a55de (R.3.2.1 Culture/Journey visual polish; fingerprint 29bb02ec0336). Prior b6fe9153 = R.3.1.2 same-kind visual-repeat. artifactSourceSha null until R.3.2.2 mints a new DEVICE_QA APK from exact-head hosted green.",
+  "parentPr": 353,
+  "shaNote": "learnerRuntimeSha = 0357f824 (R.3.2.2.1 Journey/Culture runtime harden; fingerprint 29bb02ec0336). Prior 824a55de = R.3.2.1 visual polish. artifactSourceSha null until exact-head hosted green mints DEVICE_QA APK.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -65,7 +65,7 @@
     "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "R.3.2.2 HOSTED_PENDING: visual runtime at 824a55de; old Device-QA APKs STALE; new APK NOT_BUILT until exact-head hosted green; physical + visual acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0."
+    "reason": "R.3.2.2.1 HOSTED_PENDING on tip #353: runtime harden 0357f824; old Device-QA APKs STALE; new APK NOT_BUILT until exact-head hosted green; physical + visual acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0."
   },
   "wave1": {
     "targetRealTesters": 10,

@@ -5,17 +5,17 @@
   "parentPr": 351,
   "parentTitle": "RC2.3.13R.3.2.1 — Culture/Journey Visual Polish & Symbolic Progression",
   "parentHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
-  "candidateHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
-  "pr": null,
+  "candidateHeadSha": "01f9ff17cf5f2bcca5a416d402d7c48ae97135e1",
+  "pr": 352,
   "visualFreeze": {
     "status": "PENDING_OWNER_ACCEPTANCE",
     "principle": "JOURNEY_CULTURE_VISUAL_DESIGN_FROZEN_AFTER_OWNER_ACCEPTANCE",
     "noFurtherVisualWaves": true
   },
   "runtime": {
-    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
-    "learnerRuntimeMoved": false,
-    "rationale": "R.3.2.2 is hosted closure + artifact mint only. Docs/gates/reports do not move learnerRuntimeSha. Fingerprint remains 29bb02ec0336.",
+    "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
+    "learnerRuntimeMoved": true,
+    "rationale": "Advanced in R.3.2.2.1 for Journey/Culture runtime harden (null SRS filter, instructionLocale culture gate, persist merge). Fingerprint remains 29bb02ec0336.",
     "fingerprint": "29bb02ec0336"
   },
   "cultureHierarchy": {
@@ -69,7 +69,7 @@
     "prHeadSha": null,
     "workflowMergeSha": null,
     "certificationHeadSha": null,
-    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "learnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "workflowRunId": null,
     "artifactId": null,
     "filename": null,
