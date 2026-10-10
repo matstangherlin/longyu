@@ -11,7 +11,7 @@ const ROOT = process.cwd();
 const read = (rel) => (fs.existsSync(path.join(ROOT, rel)) ? fs.readFileSync(path.join(ROOT, rel), "utf8") : "");
 
 export const EXPECTED = Object.freeze({
-  learnerRuntimeSha: "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
+  learnerRuntimeSha: "c68dc42871433746a7bfc1bfbded661e0d9bf843",
   artifactSourceSha: "5c27be365ed276ce7694c15769dd7f9997ec1989",
   apkSha256: "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
   versionName: "0.2.0-rc.5",

@@ -1,25 +1,25 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.3",
-  "status": "BUILT_FOR_OWNER_QA",
+  "wave": "RC2.3.13R.3.1.1",
+  "status": "HOSTED_CLOSURE_PRE_BUILD",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
   "versionCode": 651,
-  "versionCodeAuthority": "Android provenance + AAB bundleInspection from workflow run 37995330174 (floor+firstParent at PR merge checkout).",
+  "versionCodeAuthority": "Android provenance + AAB bundleInspection from workflow run 37995330174 (floor+firstParent at PR merge checkout). Identity retained until new Owner QA APK is minted post-hosted-green; then bump if policy requires.",
   "fingerprint": "57a848ef9ef9",
   "commercialMode": "FREE_ONLY",
   "liveBilling": false,
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "ce8b7cc82740d6c05d080c462f8403e7d91b1a90",
-  "certificationHeadSha": "2af4dd658edba88f8f8df32d372bc5f58dfce51c",
+  "learnerRuntimeSha": "c68dc42871433746a7bfc1bfbded661e0d9bf843",
+  "certificationHeadSha": "a40df3d1af599d38854fc7096b391abdf9a62a33",
   "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
-  "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
-  "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+  "prHeadSha": "a40df3d1af599d38854fc7096b391abdf9a62a33",
+  "sourceTipSha": "a40df3d1af599d38854fc7096b391abdf9a62a33",
   "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
-  "parentPr": 341,
-  "shaNote": "artifactSourceSha = embedded sourceHeadSha (branch tip used as web/Capacitor source). workflowMergeSha = temporary PR merge ref used by Actions checkout. Do not conflate.",
+  "parentPr": 345,
+  "shaNote": "learnerRuntimeSha = last R.3.1 learner-runtime product fix (c68dc428). artifactSourceSha still names the stale pre-rebuild candidate source until a new Owner QA APK is built from hosted-green HEAD. workflowMergeSha = historical PR merge ref — do not conflate.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -38,7 +38,7 @@
     "packageId": "longyu.noba.com",
     "builtAt": "2026-10-09T21:59:31.202Z",
     "ownerPathHint": "/opt/cursor/artifacts/r2-apk/longyu-android-debug-0.2.0-rc.5-3be0ade.apk",
-    "note": "Was DEVICE_QA candidate fb835ce8\u2026 for artifactSourceSha 5c27be36. R.3 product fix (JourneyInlineNode AVAILABLE + HomeContinue h2) changes learner runtime \u2014 rebuild required before physical. Do not physical-test this hash against new HEAD."
+    "note": "STALE after #344 + R.3.1 (#345) learner-runtime fixes. Reject fb835ce8\u2026 for any new physical QA. New APK = NOT_BUILT until R.3.1.1 hosted green."
   },
   "playClosedBeta": {
     "role": "PLAY_CLOSED_BETA_AAB",
@@ -62,17 +62,17 @@
     "note": "Local web candidate digest for release provenance. Netlify production may still serve an older SHA until deploy."
   },
   "entry": {
-    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
-    "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "R.3: Chromium FAIL on #343; product+contract fixes in flight. Prior APK STALE_FOR_CURRENT_RUNTIME. Play still BLOCKED_SIGNING_SECRETS. PUBLIC HOLD."
+    "reason": "R.3.1.1 PRE_BUILD: learner runtime advanced (c68dc428); old Owner QA APK STALE_FOR_CURRENT_RUNTIME; new APK NOT_BUILT; targeted physical NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0."
   },
   "wave1": {
     "targetRealTesters": 10,
     "invited": 0,
     "activated": 0,
     "realTesterCount": 0,
-    "note": "Do not invite until PLAY_CLOSED_BETA_ENTRY=GO (or canonical distribution GO)."
+    "note": "Do not invite until full R.3 GO after targeted physical PASS on the new APK."
   },
   "priorBuiltRc": "RC2.3.12-RC2"
 }

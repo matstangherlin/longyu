@@ -123,8 +123,8 @@
 **Reproducibility:** always on `l14-char-rev` Recall recognize without `charId`; also name-collision substitution for learners named Ana  
 **Workaround:** none — shows `EXERCÍCIO PULADO`  
 **Beta blocker:** yes for Owner QA GO  
-**Status:** IN_PROGRESS  
-**Notes:** Fallback preserved; root cause fixed via charId + personalizeChoiceList. Zero-skip gate: `validate:canonical-activity-integrity`.
+**Status:** CODE_FIXED_PENDING_PHYSICAL  
+**Notes:** Fallback preserved; root cause fixed via charId + personalizeChoiceList. Zero-skip gate: `validate:canonical-activity-integrity`. Do not CLOSE until physical verification on new APK.
 
 ## R31-AUDIO-TRUNCATION
 
@@ -132,8 +132,8 @@
 **Severity:** P1  
 **Surface:** dialogue / word / phrase audio  
 **Beta blocker:** yes until physical Audio×20 on new APK  
-**Status:** IN_PROGRESS  
-**Notes:** Personalized mixed CJK+Latin was FIXED_CONTENT without asset → silent/degraded. Now PERSONAL_UTTERANCE → DYNAMIC TTS.
+**Status:** CODE_FIXED_PENDING_PHYSICAL  
+**Notes:** Personalized mixed CJK+Latin was FIXED_CONTENT without asset → silent/degraded. Now PERSONAL_UTTERANCE → DYNAMIC TTS. `knownStaticAudioDefects=0` is code-only; `audioPhysicalVerification=NOT_RUN`.
 
 ## R31-PERSONALIZED-UTTERANCE-CUT
 
@@ -141,7 +141,7 @@
 **Severity:** P1  
 **Surface:** `我叫` + learnerName speech  
 **Beta blocker:** yes  
-**Status:** IN_PROGRESS  
+**Status:** CODE_FIXED_PENDING_PHYSICAL  
 
 ## R31-VISUAL-REPETITION
 
@@ -149,7 +149,7 @@
 **Severity:** P2  
 **Surface:** image_choice / compare_with_image  
 **Beta blocker:** no for entry; must fix before Wave 1 when systematic  
-**Status:** IN_PROGRESS  
+**Status:** CODE_FIXED_PENDING_PHYSICAL  
 **Notes:** `violatesImageRepeat` now covers authored + generated conceptIds.
 
 ## R31-DISTRACTOR-ANSWER-LEAKAGE
@@ -158,7 +158,7 @@
 **Severity:** P2  
 **Surface:** personalized MCQ (`我叫` + name unique among options)  
 **Beta blocker:** no for entry; must fix before Wave 1 when systematic  
-**Status:** IN_PROGRESS  
+**Status:** CODE_FIXED_PENDING_PHYSICAL  
 **Notes:** `repairNameOnlyAnswerLeak` + `nameCarryingDistractors` at personalize time.
 
 ## R31-MOBILE-ACTIVITY-FIT
@@ -167,5 +167,5 @@
 **Severity:** P1  
 **Surface:** HanziBuilder @ 360×640  
 **Beta blocker:** yes when required controls unreachable  
-**Status:** IN_PROGRESS  
+**Status:** CODE_FIXED_PENDING_PHYSICAL  
 **Notes:** Compact canvas `max-h-[min(42svh,220px)]` + auto-compact ≤667px height.
