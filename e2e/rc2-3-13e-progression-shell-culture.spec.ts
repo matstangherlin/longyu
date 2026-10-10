@@ -26,10 +26,9 @@ async function expectCultureSurface(page: import("@playwright/test").Page) {
     page
       .getByTestId("culture-hub")
       .or(page.getByTestId("culture-topic-detail"))
-      .or(page.getByTestId("culture-journey")),
-  )
-    .first()
-    .toBeVisible({ timeout: 15_000 });
+      .or(page.getByTestId("culture-journey"))
+      .first(),
+  ).toBeVisible({ timeout: 15_000 });
 }
 
 test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
