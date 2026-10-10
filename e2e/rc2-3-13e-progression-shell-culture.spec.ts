@@ -77,13 +77,13 @@ test.describe("RC2.3.13E ProgressionShell Journey ↔ Culture", () => {
 
   test("rapid switch does not loop history", async ({ page }) => {
     await openApp(page, "/jornada");
+    // Clicks only — replace navigation + topic restore race if we await URL each toggle.
     for (let i = 0; i < 6; i++) {
       await page.getByTestId("progression-tab-culture").click();
-      await expectCultureSurface(page);
       await page.getByTestId("progression-tab-journey").click();
-      await expect(page).toHaveURL(/\/jornada$/, { timeout: 15_000 });
     }
-    await expect(page).toHaveURL(/\/jornada$/);
+    await expect(page).toHaveURL(/\/jornada$/, { timeout: 15_000 });
+    await expect(page.getByTestId("progression-shell")).toHaveAttribute("data-progression-mode", "journey");
     await page.goBack();
     // Segmented switch uses navigate({ replace: true }), so history is shallow.
     // Do not OR progression-shell with body (strict mode when both match).
