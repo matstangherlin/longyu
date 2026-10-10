@@ -40,7 +40,7 @@ Run IDs (HEAD `5e2519fe`):
 | --- | --- |
 | `c68dc428…` | R.3.1 product fixes (skips, distractors, PERSONAL audio, Hanzi, visuals) |
 | `719ce024…` | R.3.1.1 pure `personalizedUtterance` helper + EN overlays |
-| `b6fe9153…` | **Final learnerRuntimeSha** — `violatesImageRepeat` same-kind only (compare_with_image + image_choice may share concept; fingerprint `cc66373bb602`) |
+| `b6fe9153…` | **Final learnerRuntimeSha** — `violatesImageRepeat` same-kind only (compare_with_image + image_choice may share concept; fingerprint `29bb02ec0336`) |
 | `3c847a1b` / `5e2519fe` | Gates/docs only — do not move learnerRuntimeSha |
 
 ## Local unblock (pre-push)
@@ -54,12 +54,12 @@ R.3.1.2 local proof before mint:
 
 - `validate:compare-with-image` PASS
 - `pedagogy-progression` PASS (858s)
-- `gate:android-native-foundation` PASS · fp `cc66373bb602`
+- `gate:android-native-foundation` PASS · fp `29bb02ec0336`
 - R.3.1 = 88 kills · R.3.1.1 = 61 kills · R.3.1.2 = 72 kills
 
 ## Fingerprint / counts
 
-- fingerprint `cc66373bb602` (typed advance 57a848ef9ef9 → cc66373bb602 via `PRE_BETA_FREEZE_EXCEPTION_R312`)
+- fingerprint `29bb02ec0336` (typed advance 57a848ef9ef9 → 29bb02ec0336 via `PRE_BETA_FREEZE_EXCEPTION_R312`)
 - lessons 134 · topics 113 · CultureItems 36 · Culture paths 12
 
 

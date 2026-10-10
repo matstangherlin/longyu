@@ -43,7 +43,7 @@
   ],
   "fingerprint": {
     "oldFingerprint": "57a848ef9ef9",
-    "newFingerprint": "cc66373bb602",
+    "newFingerprint": "29bb02ec0336",
     "reason": "lessonTasks.ts same-kind visual repeat (compare_with_image delivery)",
     "affectedContent": [
       "src/features/lesson/lessonTasks.ts"

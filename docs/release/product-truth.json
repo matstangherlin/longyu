@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-10T03:39:54.665Z",
-  "generatedFromSha": "5e2519fe1b762f50887041f43b3aac7c969183ad",
-  "inputsDigest": "2b65369370e0eaf3",
-  "evidenceDigest": "b8368d690f9f4aa7",
+  "generatedAt": "2026-10-10T04:11:18.077Z",
+  "generatedFromSha": "5e28b1c1408def1a9a1609ccd93df826592847ef",
+  "inputsDigest": "304852e44f09d7cc",
+  "evidenceDigest": "d43fe2305121def5",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -36,8 +36,8 @@
     "version": "0.2.0-rc.5",
     "applicationId": "longyu.noba.com",
     "androidVersionCode": 1,
-    "curriculumFingerprint": "cc66373bb602",
-    "fingerprintChainHead": "cc66373bb602",
+    "curriculumFingerprint": "29bb02ec0336",
+    "fingerprintChainHead": "29bb02ec0336",
     "lessons": 134,
     "teachingTopics": 113,
     "culture": {
@@ -234,7 +234,7 @@
   },
   "build": {
     "artifactSha": null,
-    "artifactFingerprint": "cc66373bb602",
+    "artifactFingerprint": "29bb02ec0336",
     "artifactChannel": "dev",
     "provenance": {
       "status": "CODE_READY"
@@ -328,7 +328,7 @@
       "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
       "version": "0.2.0-rc.2",
       "versionCode": 596,
-      "fingerprint": "cc66373bb602",
+      "fingerprint": "29bb02ec0336",
       "commercialMode": "FREE_ONLY",
       "phase": "BUILT",
       "apk": "BUILT",

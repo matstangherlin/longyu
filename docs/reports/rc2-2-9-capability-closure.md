@@ -175,7 +175,7 @@ release, correções de QA, copy.
 ## Evidência por capacidade
 
 <!-- evidencia:inicio -->
-Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `cc66373bb602` · base `700aa83264ce`.
+Gerado por `npm run validate:capability-runtime-evidence` · fingerprint `29bb02ec0336` · base `700aa83264ce`.
 
 Runtime READY: **31/31** · capacidades desta remessa: **11/11** no contrato estrito.
 

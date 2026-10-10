@@ -8,7 +8,7 @@
 | Versão do app | 0.2.0-rc.5 |
 | Gerado em | 2026-10-10T03:41:35.608Z |
 | Lições | 134 |
-| Hash da Jornada | cc66373bb602 |
+| Hash da Jornada | 29bb02ec0336 |
 
 ## Resumo
 

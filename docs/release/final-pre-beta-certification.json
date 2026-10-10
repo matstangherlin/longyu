@@ -145,7 +145,7 @@
       "culturePaths": 12,
       "flagshipDeep": 11
     },
-    "fingerprint": "cc66373bb602",
+    "fingerprint": "29bb02ec0336",
     "billing": "FREE_ONLY",
     "liveBilling": false,
     "jevLearnerRuntime": "OFF",
@@ -173,7 +173,7 @@
   "remainingOwnerActions": [
     "Wait #343 Chromium + cross-engine terminal PASS before physical",
     "Install OWNER QA APK sha256 fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
-    "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint cc66373bb602)",
+    "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint 29bb02ec0336)",
     "Execute physical matrix per OWNER_R3_PHYSICAL_OPERATIONAL_PACK.md",
     "Android OAuth physical (intended providers)",
     "Configure Sentry / Netlify / cloud credentials or provide evidence for agent automation",

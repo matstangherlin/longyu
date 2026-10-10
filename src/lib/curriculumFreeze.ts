@@ -16,8 +16,9 @@
  *
  * RC2.3.13R.3.1 advanced fea5455e1461 → 57a848ef9ef9 because
  * `lessonTasks.ts` (visual variety / plan selection) is a CURRICULUM_SOURCE.
- * RC2.3.13R.3.1.2 advanced 57a848ef9ef9 → cc66373bb602 because
+ * RC2.3.13R.3.1.2 advanced 57a848ef9ef9 → 29bb02ec0336 because
  * `lessonTasks.ts` same-kind visual repeat (compare_with_image vs image_choice)
+ * plus removal of unused `selectedImageConceptIds` after that scoping
  * is a CURRICULUM_SOURCE. Lesson/topic/Culture counts unchanged.
  *
  * CURRICULUM_FREEZE = RC2_CONTENT_FREEZE marks content closed for RC2.
@@ -70,7 +71,8 @@ export const PRE_BETA_FREEZE_EXCEPTION = {
 
 /**
  * RC2.3.13R.3.1.2 — same-kind visual repeat so authored compare_with_image
- * survives plan selection beside image_choice of the same concept.
+ * survives plan selection beside image_choice of the same concept; also drops
+ * the unused selectedImageConceptIds helper left by that scoping (typecheck).
  */
 export const PRE_BETA_FREEZE_EXCEPTION_R312 = {
   id: "RC2_3_13R3_1_2_VISUAL_KIND_REPEAT",
@@ -78,6 +80,7 @@ export const PRE_BETA_FREEZE_EXCEPTION_R312 = {
   allows: [
     "same-kind visual concept repeat control",
     "authored compare_with_image plan delivery",
+    "unused visual-repeat helper cleanup after scoping",
   ],
   forbids: ["new lessons", "new topics", "new CultureItems", "new StepKind", "feature redesign"],
   gates: [
@@ -85,7 +88,7 @@ export const PRE_BETA_FREEZE_EXCEPTION_R312 = {
     "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
   ],
   previousFingerprint: "57a848ef9ef9",
-  fingerprint: "cc66373bb602",
+  fingerprint: "29bb02ec0336",
   gate: "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
   affectedContent: ["src/features/lesson/lessonTasks.ts"],
 } as const;
@@ -167,7 +170,7 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
 // RC2.3.13R.3.1.2: same-kind visual repeat in lessonTasks (counts unchanged).
-export const RC_BASE_FINGERPRINT = "cc66373bb602";
+export const RC_BASE_FINGERPRINT = "29bb02ec0336";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";

@@ -106,7 +106,7 @@ function validate() {
   );
   errors.push(...checkQaFlagsProduction({ netlify: w.netlify }).map((e) => `qa:${e}`));
   errors.push(...checkLon001Sibling(w.knownIssues + w.policy).map((e) => `lon001:${e}`));
-  if (w.fingerprint !== "cc66373bb602") errors.push("content:FINGERPRINT_DRIFT");
+  if (w.fingerprint !== "29bb02ec0336") errors.push("content:FINGERPRINT_DRIFT");
   if (!existsRel(root, "docs/release/OWNER_RC1_DEVICE_TEST.md")) errors.push("docs:OWNER_DEVICE_TEST_MISSING");
   if (!existsRel(root, "docs/reports/rc2-3-12c-closure.md")) errors.push("docs:CLOSURE_MISSING");
 

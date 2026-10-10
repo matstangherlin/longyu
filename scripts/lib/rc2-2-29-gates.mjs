@@ -323,7 +323,7 @@ export async function validatePhysicalTruth(s) {
       if (check.result === "PASS" && check.evidence !== "PHYSICAL") fail("FAKE_PHYSICAL_PASS", check.id, "auto PASS");
     }
   }
-  if (s.freeze?.fingerprint && s.freeze.fingerprint !== "cc66373bb602") fail("FINGERPRINT", FILES.curriculumFreeze, "[44]");
+  if (s.freeze?.fingerprint && s.freeze.fingerprint !== "29bb02ec0336") fail("FINGERPRINT", FILES.curriculumFreeze, "[44]");
   if (!/RC2_2_29_/.test(s.src.curriculumFreeze)) fail("FREEZE_EXCEPTION", FILES.curriculumFreeze, "exception");
   if (/billingclient|BillingClient/i.test(s.src.appGradle)) fail("BILLING_ENABLED", FILES.appGradle, "[46]");
   return failures;

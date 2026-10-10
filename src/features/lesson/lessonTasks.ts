@@ -4942,15 +4942,6 @@ function countPinyinTasks(candidates: readonly PracticeCandidate[]): number {
   return candidates.filter((candidate) => isPinyinPracticeStep(candidate.step)).length;
 }
 
-function selectedImageConceptIds(selected: readonly PracticeCandidate[]): Set<string> {
-  const ids = new Set<string>();
-  for (const candidate of selected) {
-    const conceptId = imageConceptIdOfStep(candidate.step);
-    if (conceptId) ids.add(conceptId);
-  }
-  return ids;
-}
-
 // RC2.3.13R.3.1 / R.3.1.2 — passos visuais (gerados OU autorais) não repetem o
 // mesmo conceptId no *mesmo* kind. image_choice e compare_with_image podem
 // partilhar um concept (reconhecer → comparar), mas dois image_choice iguais

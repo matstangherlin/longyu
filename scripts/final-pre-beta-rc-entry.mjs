@@ -62,10 +62,10 @@ function test() {
     delete o.ownerQaApk;
     return { ...base, rc: JSON.stringify(o, null, 2) };
   })());
-  k("freeze fp", "FINGERPRINT_DRIFT", mutate(base, "freeze", "cc66373bb602", "bbbbbbbbbbbb"));
-  k("cert fp", "FINGERPRINT_DRIFT", mutate(base, "cert", "cc66373bb602", "cccccccccccc"));
-  k("rc fp", "FINGERPRINT_DRIFT", mutate(base, "rc", "cc66373bb602", "dddddddddddd"));
-  k("curriculum fp", "FINGERPRINT_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "cc66373bb602"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("freeze fp", "FINGERPRINT_DRIFT", mutate(base, "freeze", "29bb02ec0336", "bbbbbbbbbbbb"));
+  k("cert fp", "FINGERPRINT_DRIFT", mutate(base, "cert", "29bb02ec0336", "cccccccccccc"));
+  k("rc fp", "FINGERPRINT_DRIFT", mutate(base, "rc", "29bb02ec0336", "dddddddddddd"));
+  k("curriculum fp", "FINGERPRINT_DRIFT", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("lessons", "LESSON_COUNT_DRIFT", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("topics", "TOPIC_COUNT_DRIFT", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("culture", "CULTURE_COUNT_DRIFT", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
@@ -597,7 +597,7 @@ function test() {
     k(
       `fp-pad-${i}`,
       "FINGERPRINT_DRIFT",
-      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "cc66373bb602"', `RC_BASE_FINGERPRINT = "${fp}"`),
+      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', `RC_BASE_FINGERPRINT = "${fp}"`),
     );
   }
 

@@ -2,7 +2,7 @@
 
 Install the APK marked **THIS IS THE RC TO TEST** in `docs/release/OWNER_DOWNLOAD.md` (after artifacts land). Confirm RC ID / SHA / version on `/qa/device` (or about) before scoring.
 
-**STOP if QA Release Truth does not match:** RC ID `RC2.3.12-RC1` · version `0.2.0-rc.1` · versionCode `570` · artifactSourceSha `2d64f0d7…` · fingerprint `cc66373bb602`. Certification HEAD `2a408216…` is orchestration-only — not the APK source.
+**STOP if QA Release Truth does not match:** RC ID `RC2.3.12-RC1` · version `0.2.0-rc.1` · versionCode `570` · artifactSourceSha `2d64f0d7…` · fingerprint `29bb02ec0336`. Certification HEAD `2a408216…` is orchestration-only — not the APK source.
 
 Target: **20 checkpoints**. Mark PASS / FAIL. Agent already ran hosted CI, hashes, and gates — do not re-run npm.
 

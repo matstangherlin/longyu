@@ -205,7 +205,7 @@ export function checkFreeze(src = load13hSources()) {
   if (!/cultureItems:\s*36/.test(src.curriculumFreeze)) errors.push("CULTURE_COUNT_CHANGED");
   const v2 = (src.culturePaths.match(/id:\s*"[^"]+"/g) || []).length;
   if (v2 < 12) errors.push("CULTURE_PATH_COUNT_CHANGED");
-  if (!/RC_BASE_FINGERPRINT = "cc66373bb602"/.test(src.curriculumFreeze)) {
+  if (!/RC_BASE_FINGERPRINT = "29bb02ec0336"/.test(src.curriculumFreeze)) {
     errors.push("FINGERPRINT_UNEXPECTED_DRIFT");
   }
   if (/\nexport function computeMasteryScore\(\)/.test(src.personalMastery)) {

@@ -8,7 +8,7 @@ Version:      pending Android mint
 versionCode:  pending (floor + firstParent at build)
 Source:       pending artifactSourceSha
 SHA256:       pending
-Fingerprint:  cc66373bb602
+Fingerprint:  29bb02ec0336
 Channel:      DEVICE_QA
 ```
 

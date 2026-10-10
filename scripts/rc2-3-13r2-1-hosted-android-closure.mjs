@@ -61,7 +61,7 @@ function test() {
   k("debug aab promoted", "DEBUG_AAB_PROMOTED_SIGNED", withJson(base, "rc", (o) => { o.playClosedBeta.status = "SIGNED_BUILT"; }));
   k("play go secrets absent", "PLAY_GO_SECRETS_ABSENT", withJson(base, "rc", (o) => { o.entry.PLAY_CLOSED_BETA_ENTRY = "GO"; }));
   k("learner runtime moved", "LEARNER_RUNTIME_MOVED", withJson(base, "rc", (o) => { o.learnerRuntimeSha = "a".repeat(40); }));
-  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "cc66373bb602"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
+  k("fingerprint", "FINGERPRINT_CHANGED", mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', 'RC_BASE_FINGERPRINT = "deadbeef0001"'));
   k("lessons", "LESSONS_CHANGED", mutate(base, "curriculumFreeze", "lessons: 134", "lessons: 135"));
   k("topics", "TOPICS_CHANGED", mutate(base, "curriculumFreeze", "teachingTopics: 113", "teachingTopics: 114"));
   k("culture", "CULTURE_COUNTS_CHANGED", mutate(base, "curriculumFreeze", "cultureItems: 36", "cultureItems: 40"));
@@ -87,7 +87,7 @@ function test() {
     k(
       `fp-pad-${i}`,
       "FINGERPRINT_CHANGED",
-      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "cc66373bb602"', `RC_BASE_FINGERPRINT = "r21${String(i).padStart(9, "0")}"`),
+      mutate(base, "curriculumFreeze", 'RC_BASE_FINGERPRINT = "29bb02ec0336"', `RC_BASE_FINGERPRINT = "r21${String(i).padStart(9, "0")}"`),
     );
   }
 

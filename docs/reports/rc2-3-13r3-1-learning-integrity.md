@@ -10,7 +10,7 @@ Counts preserved: 134 lessons · 113 topics · 36 CultureItems · 36 native · 2
 
 ## Fingerprint
 
-`fea5455e1461` → `cc66373bb602` because `lessonTasks.ts` is a CURRICULUM_SOURCE (visual variety / plan selection). Counts unchanged.
+`fea5455e1461` → `29bb02ec0336` because `lessonTasks.ts` is a CURRICULUM_SOURCE (visual variety / plan selection). Counts unchanged.
 
 ## Root causes found
 

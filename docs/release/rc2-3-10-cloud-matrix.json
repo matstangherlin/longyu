@@ -278,7 +278,7 @@
    {
     "surface": "APK (CI debug, PR head)",
     "sha": null,
-    "fingerprint": "cc66373bb602",
+    "fingerprint": "29bb02ec0336",
     "channel": "dev",
     "verified": "NOT_RUN",
     "how": "android-build.yml › Provenance do APK"
@@ -294,7 +294,7 @@
    {
     "surface": "Product Truth",
     "sha": null,
-    "fingerprint": "cc66373bb602",
+    "fingerprint": "29bb02ec0336",
     "channel": null,
     "verified": "NOT_RUN",
     "how": "docs/release/product-truth.json generatedFromSha"
