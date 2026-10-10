@@ -53,7 +53,9 @@
     "lessons": 134,
     "distractorNameLeak": 0,
     "r31Kills": 88,
-    "r311Kills": 61
+    "r311Kills": 61,
+    "personalizedChecks": 137960,
+    "r312Kills": 72
   },
   "targetedPhysical": {
     "status": "NOT_RUN",
@@ -86,5 +88,7 @@
   "wave1": {
     "targetRealTesters": 10,
     "invited": 0
-  }
+  },
+  "candidateHeadSha": "f233ba0df442ff969a9920ee3b949fe027f34d86",
+  "pr": 347
 }

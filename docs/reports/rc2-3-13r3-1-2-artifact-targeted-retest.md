@@ -62,6 +62,15 @@ R.3.1.2 local proof before mint:
 - fingerprint `cc66373bb602` (typed advance 57a848ef9ef9 → cc66373bb602 via `PRE_BETA_FREEZE_EXCEPTION_R312`)
 - lessons 134 · topics 113 · CultureItems 36 · Culture paths 12
 
+
+## Learning integrity (exact-head local)
+
+| Gate | Result |
+| --- | --- |
+| `validate:canonical-activity-integrity` | PASS · lessons=134 · personalizedChecks=137960 · invalid=0 |
+| `validate:distractor-quality` | PASS · nameLeak=0 |
+| R.3.1 / R.3.1.1 / R.3.1.2 kills | 88 / 61 / 72 |
+
 ## Artifact
 
 | Field | Value |
