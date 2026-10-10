@@ -23,6 +23,9 @@ This is **not** a Play-ready release. Play Closed Beta = `BLOCKED_SIGNING_SECRET
 
 ## OWNER ACTIONS (exact pending)
 
+Full R.3 pack: `OWNER_R3_PHYSICAL_OPERATIONAL_PACK.md`.
+
+
 - [ ] Configure Play signing secrets (`PLAY_SIGNING_HANDOFF.md`) if Play Closed Testing is the distribution path
 - [ ] Install APK SHA256 `fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8` only
 - [ ] Clean install + cold launch + `/qa/device` identity

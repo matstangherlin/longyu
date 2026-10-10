@@ -79,3 +79,38 @@
 **Beta blocker:** no (fixed in R.2.1)  
 **Status:** REPAIRED  
 **Notes:** R.2 mutation fixture embedded contiguous PEM header; `validate:android-release-safety` correctly failed with SERVICE_ACCOUNT_COMMITTED. Fixture now built from fragments. Safety gate unchanged.
+
+## R21-CONVERGENCE-OR-TRUE-FIXTURE (REPAIRED)
+
+**ID:** R21-CONVERGENCE-OR-TRUE-FIXTURE  
+**Severity:** P1 (was)  
+**Surface:** CI release-truth / stack-convergence  
+**Beta blocker:** no (fixed in R.2.1 follow-on)  
+**Status:** REPAIRED  
+**Notes:** R.2.1 `GATE_OR_TRUE` kill embedded contiguous shell-or-true; `CONVERGENCE_HIDDEN_SKIP`. Markers now joined from fragments. Convergence gate unchanged.
+
+## R3-HOSTED-E2E-IN-PROGRESS
+
+**ID:** R3-HOSTED-E2E-IN-PROGRESS  
+**Severity:** P1  
+**Surface:** #343 CI Chromium + WebKit + Firefox  
+**Beta blocker:** yes for starting physical certification  
+**Status:** OPEN  
+**Notes:** Exact HEAD `8811deca` — Security/Android/suites/quality PASS; E2E still IN_PROGRESS on run `38003599459`. Do not invent PASS. Do not start physical until terminal.
+
+## R3-PHYSICAL-NOT-RUN
+
+**ID:** R3-PHYSICAL-NOT-RUN  
+**Severity:** P1  
+**Surface:** real device  
+**Beta blocker:** yes for `OWNER_QA_ENTRY=GO`  
+**Status:** OPEN  
+
+## R3-OPS-CREDENTIALS-UNSET
+
+**ID:** R3-OPS-CREDENTIALS-UNSET  
+**Severity:** P1  
+**Surface:** Sentry / Netlify / cloud smoke  
+**Beta blocker:** yes for `PLAY_CLOSED_BETA_ENTRY=GO`  
+**Status:** OPEN  
+**Notes:** Agent environment has no SENTRY_*/NETLIFY_*/SUPABASE_* credentials. Keep NOT_RUN until real evidence.

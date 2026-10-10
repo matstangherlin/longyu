@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.2",
+  "wave": "RC2.3.13R.3",
   "status": "BUILT_FOR_OWNER_QA",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
@@ -65,7 +65,7 @@
     "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PLAY_CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "Owner QA APK BUILT+hashed; physical/ops/owner acceptance NOT_RUN. Play Closed Beta blocked on signing secrets. Public HOLD."
+    "reason": "R.3 physical/ops certification wave. APK BUILT+hashed; physical/ops/acceptance NOT_RUN. Play blocked on signing secrets. Public HOLD. Hosted E2E precondition pending on #343."
   },
   "wave1": {
     "targetRealTesters": 10,

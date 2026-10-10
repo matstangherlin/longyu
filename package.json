@@ -1253,7 +1253,10 @@
     "gate:rc2-3-13r2-artifact-physical-go": "npm run validate:rc2-3-13r2-artifact-physical-go && npm run test:rc2-3-13r2-artifact-physical-go && npm run validate:final-pre-beta-rc-entry && npm run validate:product-truth",
     "validate:rc2-3-13r2-1-hosted-android-closure": "node scripts/rc2-3-13r2-1-hosted-android-closure.mjs validate",
     "test:rc2-3-13r2-1-hosted-android-closure": "node scripts/rc2-3-13r2-1-hosted-android-closure.mjs test",
-    "gate:rc2-3-13r2-1-hosted-android-closure": "npm run validate:rc2-3-13r2-1-hosted-android-closure && npm run test:rc2-3-13r2-1-hosted-android-closure && npm run validate:android-release-safety && npm run validate:product-truth"
+    "gate:rc2-3-13r2-1-hosted-android-closure": "npm run validate:rc2-3-13r2-1-hosted-android-closure && npm run test:rc2-3-13r2-1-hosted-android-closure && npm run validate:android-release-safety && npm run validate:product-truth",
+    "validate:rc2-3-13r3-physical-operational-go": "node scripts/rc2-3-13r3-physical-operational-go.mjs validate",
+    "test:rc2-3-13r3-physical-operational-go": "node scripts/rc2-3-13r3-physical-operational-go.mjs test",
+    "gate:rc2-3-13r3-physical-operational-go": "npm run validate:rc2-3-13r3-physical-operational-go && npm run test:rc2-3-13r3-physical-operational-go && npm run validate:android-release-safety && npm run validate:product-truth"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
