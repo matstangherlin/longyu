@@ -24,6 +24,9 @@ Reason: current Culture root mixes topic selection and node progression, creatin
 | Parent PR | #348 |
 | Parent HEAD | `86f9dddfc02f7a2ffae90df9eed60d30dfee9c21` |
 | Branch | `cursor/rc2-3-13r3-2-culture-topic-hierarchy-af1a` |
+| PR | #350 |
+| `learnerRuntimeSha` | `02813d55a6a87a06181bac222c503f3fe4bf6373` |
+| Fingerprint | `29bb02ec0336` (unchanged) |
 
 ## Old Culture architecture
 
@@ -93,6 +96,19 @@ Back: topic detail → Culture root. Node exit/complete → same topic detail wh
 | #348 DEVICE_QA APK `fc72f9e3…` | **STALE** after R.3.2 runtime |
 | New Owner QA APK | NOT_BUILT until hosted green on R.3.2 HEAD |
 
+## Hosted local smoke (Playwright)
+
+| Check | Result |
+|---|---|
+| Culture root topic hub | PASS (7 cards, Continue, Explore por tópico) |
+| No Trocar de caminho | PASS |
+| No root path chips / bubbles | PASS |
+| Topic detail multi-subtopic | PASS (`relacoes_etiqueta` → etiqueta + família, 2 bubble paths) |
+| Back → root | PASS |
+| 360×640 horizontal overflow | PASS (none) |
+
+Artifacts: `/opt/cursor/artifacts/culture-root-*.png`, `culture-topic-*.png`, `culture-topic-hierarchy-demo.webm`.
+
 ## Physical state
 
 `NOT_RUN` — only real device may set PHYSICAL_PASS.
@@ -100,4 +116,6 @@ Back: topic detail → Culture root. Node exit/complete → same topic detail wh
 ## Gates
 
 - `validate:culture-topic-hierarchy`
-- `gate:rc2-3-13r3-2-culture-topic-hierarchy` (≥80 mutation kills)
+- `gate:rc2-3-13r3-2-culture-topic-hierarchy` (81 mutation kills)
+- Fingerprint chain PASS (`29bb02ec0336`)
+- Product Truth regenerated PASS
