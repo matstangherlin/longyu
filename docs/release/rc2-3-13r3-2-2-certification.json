@@ -1,0 +1,135 @@
+{
+  "wave": "RC2.3.13R.3.2.2",
+  "title": "Hosted Closure, Final Visual Candidate Mint & Physical Acceptance",
+  "phase": "HOSTED_PENDING",
+  "parentPr": 351,
+  "parentTitle": "RC2.3.13R.3.2.1 — Culture/Journey Visual Polish & Symbolic Progression",
+  "parentHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
+  "candidateHeadSha": "c47bc5b0e2f84dd990faa510afc34bed5628ca47",
+  "pr": null,
+  "visualFreeze": {
+    "status": "PENDING_OWNER_ACCEPTANCE",
+    "principle": "JOURNEY_CULTURE_VISUAL_DESIGN_FROZEN_AFTER_OWNER_ACCEPTANCE",
+    "noFurtherVisualWaves": true
+  },
+  "runtime": {
+    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "learnerRuntimeMoved": false,
+    "rationale": "R.3.2.2 is hosted closure + artifact mint only. Docs/gates/reports do not move learnerRuntimeSha. Fingerprint remains 29bb02ec0336.",
+    "fingerprint": "29bb02ec0336"
+  },
+  "cultureHierarchy": {
+    "gate": "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+    "topics": 7,
+    "paths": 12,
+    "rootBubbles": false,
+    "rootPathChips": false,
+    "trocarDeCaminho": false
+  },
+  "visualPolish": {
+    "gate": "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression",
+    "mutationKills": 71,
+    "axis": "stable-center",
+    "bubbleOffsetPx": 0,
+    "iconFamily": "longyu-line",
+    "ornaments": ["lantern", "fan", "bamboo", "cloud", "moon-gate", "seal", "blossom", "knot"],
+    "alternation": "left-right",
+    "reducedMotion": true
+  },
+  "rejectedApkSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+  "rejectedApkSha256List": [
+    "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  ],
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": null,
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "securityBuild": "PENDING",
+    "securityAnalysis": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "webkit": "PENDING",
+    "firefox": "PENDING",
+    "parentEvidenceUsed": false,
+    "workflowIds": {
+      "security": null,
+      "ci": null,
+      "android": null
+    }
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "apkSha256": null,
+    "artifactSourceSha": null,
+    "prHeadSha": null,
+    "workflowMergeSha": null,
+    "certificationHeadSha": null,
+    "learnerRuntimeSha": "824a55deb79898b3ee6c0f60d66dc762333828a4",
+    "workflowRunId": null,
+    "artifactId": null,
+    "filename": null,
+    "versionName": null,
+    "versionCode": null,
+    "packageId": "longyu.noba.com",
+    "fingerprint": null,
+    "channel": "DEVICE_QA",
+    "provenancePresent": false,
+    "playReady": false,
+    "labeledPlaySigned": false,
+    "debugAabSha256": null,
+    "debugAabNote": "If present, labeled DEBUG / DEVICE_QA — not Play signed"
+  },
+  "targetedPhysical": {
+    "status": "NOT_RUN",
+    "artifactSha256": null,
+    "evidence": null,
+    "audioX20Count": 0,
+    "PREVIOUS_R31_BLOCKERS": "NOT_RUN",
+    "checks": {
+      "canonicalSkip": "NOT_RUN",
+      "personalizedUtterance": "NOT_RUN",
+      "dialogueAudio": "NOT_RUN",
+      "distractorFairness": "NOT_RUN",
+      "visualVariety": "NOT_RUN",
+      "hanziMobileFit": "NOT_RUN",
+      "audio20": "NOT_RUN"
+    }
+  },
+  "visualAcceptance": {
+    "FINAL_VISUAL_OWNER_ACCEPTANCE": "NOT_RUN",
+    "CULTURE_ROOT_VISUAL": "NOT_RUN",
+    "TOPIC_DETAIL_VISUAL": "NOT_RUN",
+    "PROGRESSION_ALIGNMENT_PHYSICAL": "NOT_RUN",
+    "ORNAMENTS_PHYSICAL": "NOT_RUN",
+    "JOURNEY_VISUAL_PHYSICAL": "NOT_RUN",
+    "AUDIO_X20": "NOT_RUN",
+    "artifactSha256": null,
+    "emulator": false
+  },
+  "operations": {
+    "sentry": "NOT_RUN",
+    "rollback": "NOT_RUN",
+    "cloudSmoke1": "NOT_RUN",
+    "cloudSmoke2": "NOT_RUN",
+    "androidOauth": "NOT_RUN",
+    "playSignedAab": "NOT_BUILT"
+  },
+  "resumeFullR3": false,
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "reason": "HOSTED_PENDING: exact-head green required before Device-QA APK mint; physical NOT_RUN; visual acceptance NOT_RUN"
+  },
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0,
+    "activated": 0,
+    "realTesterCount": 0
+  }
+}

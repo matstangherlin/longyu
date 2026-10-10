@@ -1280,7 +1280,10 @@
     "validate:topic-card-polish": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs cards",
     "validate:rc2-3-13r3-2-1-visual-polish": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs validate",
     "test:rc2-3-13r3-2-1-visual-polish": "node scripts/rc2-3-13r3-2-1-visual-polish.mjs test",
-    "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression": "npm run validate:rc2-3-13r3-2-1-visual-polish && npm run test:rc2-3-13r3-2-1-visual-polish && npm run validate:culture-topic-hierarchy"
+    "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression": "npm run validate:rc2-3-13r3-2-1-visual-polish && npm run test:rc2-3-13r3-2-1-visual-polish && npm run validate:culture-topic-hierarchy",
+    "validate:rc2-3-13r3-2-2-final-visual-candidate": "node scripts/rc2-3-13r3-2-2-final-visual-candidate.mjs validate",
+    "test:rc2-3-13r3-2-2-final-visual-candidate": "node scripts/rc2-3-13r3-2-2-final-visual-candidate.mjs test",
+    "gate:rc2-3-13r3-2-2-final-visual-candidate": "npm run validate:rc2-3-13r3-2-2-final-visual-candidate && npm run test:rc2-3-13r3-2-2-final-visual-candidate && npm run gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression && npm run validate:product-truth"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",
