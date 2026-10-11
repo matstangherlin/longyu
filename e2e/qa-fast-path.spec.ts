@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { QA_SCENARIOS } from "../src/lib/qaFastPath";
-import { dismissBlockingOverlays, waitForLazyPage } from "./helpers";
+import { dismissBlockingOverlays, waitForLazyPage,
+  currentTopicProgressNode,
+} from "./helpers";
 
 test.describe("V4.7.4 QA Fast Path", () => {
   test("hub lista os cenários críticos", async ({ page }) => {
@@ -75,7 +77,7 @@ test.describe("V4.7.4 QA Fast Path", () => {
     await page.waitForURL(/\/jornada/, { timeout: 20_000 });
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("review com fila grande não congela", async ({ page }) => {

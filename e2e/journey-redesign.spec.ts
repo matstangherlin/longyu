@@ -56,7 +56,9 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Começar primeira lição/i })).toBeVisible();
+    // RC2.3.13B — Home continue CTA copy (not legacy journey.startFirstLesson).
+    await expect(page.getByTestId("home-continue-cta")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Começar minha primeira aula|Start my first lesson/i })).toBeVisible();
     // A lição atual é reconhecível semanticamente.
     await expect(page.locator('[aria-current="step"]')).toHaveCount(1);
     await noOverflow(page);
@@ -98,13 +100,11 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await dismissBlockingOverlays(page);
     // Continuar continua como ação principal.
     await expect(page.getByRole("button", { name: /^Continuar$/ })).toBeVisible();
-    // Revisão como link secundário positivo. O rótulo passou a ser do tamanho
-    // de uma SESSÃO ("Revisão de hoje · 10") em vez do total bruto da fila
-    // ("Revisar 260 itens"), que passava sensação de dívida infinita.
-    const review = page.getByRole("link", { name: /Revisão de hoje/i });
+    // RC2.3.13B — Today-for-you secondary CTA (label "Praticar", same review href).
+    const review = page.getByTestId("home-today-cta");
     await expect(review).toBeVisible();
     await expect(review).toHaveAttribute("href", "/revisao?modo=fracos&sessao=corrigir");
-    await expect(page.getByText(/Reforça o que você já aprendeu — leva/i)).toBeVisible();
+    await expect(page.getByTestId("home-today")).toBeVisible();
     await noOverflow(page);
   });
 
@@ -114,9 +114,11 @@ test.describe("Jornada — cabeçalho e continuidade (mobile)", () => {
     await seed(page, { completedLessons, lessonStarsById });
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    await expect(page.getByRole("heading", { level: 1, name: /Jornada concluída/i })).toBeVisible();
-    await expect(page.getByText(/Você concluiu a Jornada disponível/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /Continuar|Começar/i })).toHaveCount(0);
+    // RC2.3.13B — path complete uses NONE or a non-lesson fallback (review/practice/explore).
+    const kind = await page.getByTestId("home-continue").getAttribute("data-continue-kind");
+    expect(["NONE", "FALLBACK_REVIEW", "FALLBACK_PRACTICE", "FALLBACK_EXPLORE"]).toContain(kind);
+    await expect(page.getByTestId("home-continue")).not.toHaveAttribute("data-continue-kind", "CONTINUE_LESSON");
+    await expect(page.getByRole("button", { name: /^Continuar$/ })).toHaveCount(0);
     await noOverflow(page);
   });
 });
@@ -177,13 +179,12 @@ test.describe("Jornada — densidade e unidades compactas", () => {
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     await expect(page.getByRole("button", { name: /Expandir/i }).first()).toBeVisible();
-    const before = await page.locator("main [aria-disabled]").count();
-    // Foco + Enter aciona o botão real sem depender de estabilidade de scroll
-    // (a imagem do mascote pode deslocar o layout durante o carregamento).
+    // Completed nodes are not aria-disabled — count bubble wrappers instead.
+    const before = await page.locator("main [data-journey-bubble-v2]").count();
     const firstCollapsed = page.getByRole("button", { name: /Expandir/i }).first();
     await firstCollapsed.focus();
     await page.keyboard.press("Enter");
-    await expect.poll(async () => page.locator("main [aria-disabled]").count()).toBeGreaterThan(before);
+    await expect.poll(async () => page.locator("main [data-journey-bubble-v2]").count()).toBeGreaterThan(before);
   });
 });
 
@@ -210,11 +211,9 @@ test.describe("Jornada — offline, reduced motion e desktop", () => {
     await seed(page, firstLessons(3));
     await page.goto("/jornada");
     await dismissBlockingOverlays(page);
-    const animationName = await page
-      .locator("main .animate-pulse")
-      .first()
-      .evaluate((el) => getComputedStyle(el).animationName)
-      .catch(() => "none");
+    const pulse = page.getByTestId("progression-current-pulse").first();
+    await expect(pulse).toBeVisible();
+    const animationName = await pulse.evaluate((el) => getComputedStyle(el).animationName);
     expect(animationName).toBe("none");
   });
 

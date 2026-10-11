@@ -306,7 +306,8 @@ export async function validateProgressiveNavigation(s) {
   const { failures, fail } = collector();
   const nav = stripComments(s.src.nav);
   const max = Number(/export const EARLY_NAV_MAX_ITEMS = (\d+);/.exec(nav)?.[1] ?? NaN);
-  if (!(max <= 3)) fail("TAB_BAR_TOO_DENSE", FILES.nav, "no máximo 3 itens cedo");
+  // RC2.3.13G — Cultura left TabBar; canonical early bar is Jornada·Praticar·Missões·Mais (≤4).
+  if (!(max <= 4)) fail("TAB_BAR_TOO_DENSE", FILES.nav, "no máximo 4 itens cedo (Cultura fora da TabBar)");
   const practice = Number(/"\/treino":\s*(\d+)/.exec(nav)?.[1] ?? 0);
   if (!(practice >= 1)) fail("PRACTICE_VISIBLE_EARLY", FILES.nav, "Praticar só depois da 1ª conclusão real");
   if (!/earnedTabBar\(mobileNavForStage\(profile\.stage, visibility\), learner\.completedLessons\.length\)/.test(s.src.tabBar)) fail("TAB_BAR_TOO_DENSE", FILES.tabBar, "barra usa as abas conquistadas");

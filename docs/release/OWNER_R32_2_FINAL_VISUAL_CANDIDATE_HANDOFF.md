@@ -9,7 +9,7 @@ Source:       pending artifactSourceSha
 SHA256:       pending
 Fingerprint:  29bb02ec0336
 Channel:      DEVICE_QA
-learnerRuntimeSha: 824a55deb79898b3ee6c0f60d66dc762333828a4
+learnerRuntimeSha: 0357f82476d03bc8364efc66902b4640b4a155b9
 ```
 
 # DO NOT USE
@@ -19,7 +19,7 @@ fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af
 fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8
 ```
 
-Those hashes are **STALE_FOR_CURRENT_RUNTIME** (predate Culture topic hierarchy + visual polish).
+Those hashes are **STALE_FOR_CURRENT_RUNTIME** (predate Culture topic hierarchy + visual polish + R.3.2.2.1 harden).
 
 ---
 
@@ -27,10 +27,11 @@ Those hashes are **STALE_FOR_CURRENT_RUNTIME** (predate Culture topic hierarchy 
 
 | Item | State |
 | --- | --- |
-| Parent | PR #351 @ `c47bc5b0…` |
-| `learnerRuntimeSha` | `824a55de…` (R.3.2.1 visual polish; unchanged by this wave) |
+| Tip | PR **#353** @ `01f9ff17…` |
+| Parent framework | PR #352 |
+| `learnerRuntimeSha` | `0357f824…` (R.3.2.2.1 Journey/Culture runtime harden) |
 | Fingerprint | `29bb02ec0336` |
-| Hosted green on exact HEAD | **PENDING** |
+| Hosted green on exact HEAD | **PENDING** (E2E contracts + runtime harden landed; waiting tip CI) |
 | New Device-QA APK | **NOT_BUILT** |
 | Targeted physical | **NOT_RUN** |
 | Final visual owner acceptance | **NOT_RUN** |

@@ -194,8 +194,8 @@ test.describe("RC2.2.18 · desbloqueios", () => {
       guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1") },
     });
     await open(page, "/jornada");
-    // RC2.2.23 — no máximo 3 abas antes da Cultura: Missões fica no Mais.
-    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Mais"]);
+    // RC2.3.13G — primary bar is 4 slots; Missões earns a tab once missions unlock.
+    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Missões", "Mais"]);
     const batch = page.locator('[data-guidance-id="new_features_v1"]');
     await expect(batch).toBeVisible({ timeout: 8_000 });
     await expect(surfaces(page)).toHaveCount(1);
@@ -219,7 +219,9 @@ test.describe("RC2.2.18 · desbloqueios", () => {
       guidance: { version: 2, enabled: true, initialized: true, records: seen("welcome_journey_v1", "practice_unlocked_v1", "missions_unlocked_v1", "league_unlocked_v1") },
     });
     await open(page, "/jornada");
-    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
+    // RC2.3.13G — Cultura is ProgressionShell, not a TabBar destination.
+    expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Missões", "Mais"]);
+    await expect(page.getByTestId("progression-tab-culture")).toBeVisible();
     const reveal = page.locator('[data-guidance-id="culture_unlocked_v1"]');
     await expect(reveal).toBeVisible({ timeout: 8_000 });
     await expect(surfaces(page)).toHaveCount(1);
@@ -260,8 +262,9 @@ test.describe("RC2.2.18 · desbloqueios", () => {
     const record = (await storedGuidance(page))?.records?.culture_unlocked_v1;
     expect(record?.status).toBe("SNOOZED");
     expect((record?.snoozedUntil ?? 0) - Date.now()).toBeGreaterThan(23 * 3600 * 1000);
-    // A área continua disponível na navegação (PART DT).
-    expect(await tabLabels(page)).toContain("Cultura");
+    // A área continua disponível via ProgressionShell (PART DT / RC2.3.13G).
+    expect(await tabLabels(page)).not.toContain("Cultura");
+    await expect(page.getByTestId("progression-tab-culture")).toBeVisible();
   });
 
   test("CX: Dicas desligadas — Cultura libera, nenhum popup", async ({ page }) => {
@@ -269,7 +272,8 @@ test.describe("RC2.2.18 · desbloqueios", () => {
       guidance: { version: 2, enabled: false, initialized: true, records: {} },
     });
     await open(page, "/jornada");
-    expect(await tabLabels(page)).toContain("Cultura");
+    expect(await tabLabels(page)).not.toContain("Cultura");
+    await expect(page.getByTestId("progression-tab-culture")).toBeVisible();
     await page.waitForTimeout(1_500);
     await expect(surfaces(page)).toHaveCount(0);
     await open(page, "/cultura");
@@ -346,7 +350,8 @@ test.describe("RC2.2.18 · TabBar estável (DC)", () => {
       await page.setViewportSize(viewport);
       await seed(page, mature, { optIn: false });
       await open(page, "/jornada");
-      expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Cultura", "Missões", "Mais"]);
+      expect(await tabLabels(page)).toEqual(["Jornada", "Praticar", "Missões", "Mais"]);
+      await expect(page.getByTestId("progression-tab-culture")).toBeVisible();
       await noHorizontalOverflow(page);
       await open(page, "/cultura");
       await expect(page.getByTestId("culture-hub")).toBeVisible();

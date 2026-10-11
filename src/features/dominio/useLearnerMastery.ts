@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "../../lib/store";
-import { dueItems } from "../../lib/srs";
+import { dueItems, isSrsItem } from "../../lib/srs";
 import { knowledgeGraph } from "../../lib/mastery/knowledgeGraph";
 import { createPersonalMastery, type PersonalMastery } from "../../lib/mastery/personalMastery";
 import { currentRecord, seedLegacyBaselineOnce, subscribeLearningEvidence } from "../../lib/mastery/recorder";
@@ -25,6 +25,8 @@ export function useLearnerMastery(): PersonalMastery {
   useEffect(() => {
     const items = new Map<string, { text: string; reps: number; lastAt: number }>();
     for (const item of Object.values(srs ?? {})) {
+      // Corrupted persist may leave null SRS slots — never throw on Journey mount.
+      if (!isSrsItem(item)) continue;
       const text = item.type === "char" ? glyphByCharId.get(item.itemId) : item.type === "chunk" ? chunkById[item.itemId]?.hanzi : undefined;
       if (!text) continue;
       const prev = items.get(text);

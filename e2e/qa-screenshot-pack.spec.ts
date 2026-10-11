@@ -82,13 +82,13 @@ test.describe("QA-027 · pacote de regressão dos screenshots", () => {
     const monolithic = page.getByRole("link", { name: /Revisar \d{3,} itens/ });
     await expect(monolithic).toHaveCount(0);
 
-    const sessionCta = page.getByRole("link", { name: /Revisão de hoje/ });
-    await expect(sessionCta.first()).toBeVisible();
-    const label = (await sessionCta.first().innerText()).trim();
-    const shown = Number(label.replace(/\D+/g, "") || "0");
-    expect(shown, `sessão do dia não pode ser enorme: "${label}"`).toBeLessThanOrEqual(20);
-    // O total pendente continua visível, mas como informação secundária.
-    await expect(page.getByText(/\+\d+ pendentes/)).toBeVisible();
+    // RC2.3.13B — Today CTA is compact ("Praticar"), not a monolithic review debt label.
+    const sessionCta = page.getByTestId("home-today-cta");
+    await expect(sessionCta).toBeVisible();
+    await expect(sessionCta).toHaveAttribute("href", /\/revisao/);
+    const label = (await sessionCta.innerText()).trim();
+    expect(label.length, `CTA de sessão não pode ser monólito: "${label}"`).toBeLessThan(40);
+    await expect(page.getByTestId("home-today")).toBeVisible();
 
     await page.screenshot({ path: "test-results/qa027-2-jornada-mobile.png" });
   });

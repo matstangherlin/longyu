@@ -59,7 +59,11 @@ export interface PracticeQueueRef {
 
 /** Practice tasks → review items that already exist in the learner's SRS. */
 export function practiceTasksToReviewRefs(tasks: readonly PracticeTask[], srs: Record<string, SRSItem>): PracticeQueueRef[] {
-  const known = new Set(Object.values(srs).map((i) => `${i.type}:${i.itemId}`));
+  const known = new Set(
+    Object.values(srs)
+      .filter((i): i is SRSItem => Boolean(i) && typeof (i as SRSItem).type === "string")
+      .map((i) => `${i.type}:${i.itemId}`)
+  );
   const out: PracticeQueueRef[] = [];
   for (const task of tasks) {
     const ref = srsRefForTarget(task.targetId);

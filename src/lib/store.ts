@@ -6283,12 +6283,24 @@ export const useStore = create<AppState>()(
       partialize: (state) => ({ ...state, serverIsPro: false }),
       // A migration só roda quando a versão muda. Este merge também neutraliza
       // payload adulterado que já declare a versão atual do armazenamento.
-      merge: (persistedState, currentState) => ({
-        ...mergeWithoutPersistedServerEntitlement(persistedState, currentState),
-        // Toast de sync é efêmero: se persistir, "Resgatando Pérola..." fica
-        // preso no rodapé depois de um RPC que falhou ou travou.
-        economySyncMessage: null,
-      }),
+      merge: (persistedState, currentState) => {
+        const merged = mergeWithoutPersistedServerEntitlement(persistedState, currentState) as AppState;
+        // Harden against corrupted local payloads (null arrays / partial missions).
+        const daily = merged.dailyMissions;
+        return {
+          ...merged,
+          learnedChunks: Array.isArray(merged.learnedChunks) ? merged.learnedChunks : [],
+          learnedChars: Array.isArray(merged.learnedChars) ? merged.learnedChars : [],
+          today: merged.today && typeof merged.today === "object" ? merged.today : currentState.today,
+          dailyMissions:
+            daily && typeof daily === "object"
+              ? { ...freshDailyMissions(), ...daily, claimed: daily.claimed ?? {} }
+              : freshDailyMissions(),
+          // Toast de sync é efêmero: se persistir, "Resgatando Pérola..." fica
+          // preso no rodapé depois de um RPC que falhou ou travou.
+          economySyncMessage: null,
+        };
+      },
     }
   )
 );

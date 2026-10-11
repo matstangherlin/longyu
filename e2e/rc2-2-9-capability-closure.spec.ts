@@ -173,7 +173,14 @@ async function replyInScene(scene: Locator, prompt: string, reply: string) {
     .getByRole("button", { name: new RegExp(`^(Opção|Option) \\d+: ${reply.replace(/[.*+?^${}()|[\]\\！]/g, "\\$&")}$`) })
     .and(scene.locator("button:enabled"));
   await option.first().click();
-  await clickIfEnabled(scene.getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }).first());
+  // GuidedDock hosts Verificar outside the scene node.
+  await clickIfEnabled(
+    scene
+      .page()
+      .getByTestId("conversation-check")
+      .or(scene.page().getByRole("button", { name: /^Verificar$|^Check$|^Confirmar$|^Confirm$|^Conferir$/ }))
+      .first()
+  );
 }
 
 // Um openLesson por teste: o seed só grava o store quando ele ainda não existe.

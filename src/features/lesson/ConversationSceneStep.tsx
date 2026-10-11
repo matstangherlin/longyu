@@ -1187,8 +1187,16 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
     setMissed(true);
   }
 
+  const qaAccepts =
+    import.meta.env.VITE_USE_TEST_FIXTURES === "true" ? beat.accepts.filter(Boolean).join("|") : undefined;
+
   return (
-    <div className="mt-4 animate-pop rounded-2xl border border-accent bg-surface p-3.5 shadow-card">
+    <div
+      className="mt-4 animate-pop rounded-2xl border border-accent bg-surface p-3.5 shadow-card"
+      data-testid="conversation-repair-beat"
+      data-repair-strategy={beat.strategy}
+      data-qa-repair-accepts={qaAccepts}
+    >
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
         {t("player.conversationStuck")}
       </div>
