@@ -19,8 +19,8 @@
     "scripts/test-rc2-3-9-stack-convergence.mjs"
   ],
   "counts": {
-    "total": 44,
-    "LEGIT": 44,
+    "total": 45,
+    "LEGIT": 45,
     "HIDDEN_SKIP": 0
   },
   "entries": [
@@ -47,6 +47,14 @@
       "snippet": "test.skip(browserName === \"webkit\", \"CI WebKit has no capture engine; Chromium+Firefox prove the speech flow\");",
       "classification": "LEGIT",
       "reason": "Engine limitation on CI WebKit (no capture engine). Chromium proves the real MediaRecorder pipeline; Firefox proves the same UI/evidence contract via the synthetic microphone double."
+    },
+    {
+      "file": "e2e/v494-builder-ux.spec.ts",
+      "line": 148,
+      "pattern": "test.skip",
+      "snippet": "test.skip(browserName === \"webkit\", \"CI WebKit crashes on clear→full rebuild+verify; Chromium+Firefox prove the contract\");",
+      "classification": "LEGIT",
+      "reason": "INFRA: CI WebKit crashes the page on clear→full rebuild+Verificar. Chromium and Firefox prove rebuild-after-clear acceptance; mobile-safari covers place/remove by tap."
     },
     {
       "file": ".github/workflows/backend-rehearsal.yml",
