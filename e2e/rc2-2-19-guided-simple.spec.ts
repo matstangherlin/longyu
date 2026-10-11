@@ -96,15 +96,18 @@ test.describe("RC2.2.19 · orientação com evidência de render", () => {
       records: { welcome_journey_v1: { status: "DISMISSED", at: 1 } },
     });
     await open(page, "/jornada");
-    await expect(surfaces(page).first()).toBeVisible({ timeout: 10_000 });
-    // Leave immediately (before ~1.2s render evidence). Real SPA navigation —
-    // pushState+popstate does not unmount GuidanceHost reliably on Firefox.
-    await page.goto("/mais");
-    await waitForLazyPage(page);
+    const surface = surfaces(page).first();
+    await expect(surface).toBeVisible({ timeout: 10_000 });
+    const tipId = await surface.getAttribute("data-guidance-id");
+    expect(tipId).toBeTruthy();
+    // Leave immediately (before ~1.2s render evidence). Real navigation unmounts
+    // the tip — pushState+popstate is unreliable on Firefox. Assert only THIS tip
+    // (destination routes may show a different tip that legitimately becomes SHOWN).
+    await page.goto("/mais", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1_600);
     const stored = await storedGuidance(page);
-    const records = Object.entries(stored?.records ?? {}).filter(([key]) => key !== "welcome_journey_v1");
-    expect(records.some(([, record]) => record.status === "SHOWN" || record.status === "SEEN")).toBe(false);
+    const record = stored?.records?.[tipId!];
+    expect(record?.status === "SHOWN" || record?.status === "SEEN").toBe(false);
   });
 
   test("todas as saídas: Entendi · Agora não · Pular dica · Pular dicas", async ({ page }) => {
