@@ -39,8 +39,11 @@ async function placePieces(page: Page, count: number) {
   for (let i = 0; i < count; i += 1) {
     const piece = page.locator(AVAILABLE).first();
     await expect(piece).toBeVisible();
-    // WebKit: espera estabilidade; clicks em sequência às vezes fecham o contexto.
-    await piece.click({ timeout: 15_000 });
+    await expect(piece).toBeEnabled();
+    // WebKit: piece bank CSS transitions (active:scale / hover borders) keep
+    // the locator from becoming "stable" between sequential placements —
+    // same class of flake as builder-undo in test 7. Force once enabled.
+    await piece.click({ force: true, timeout: 15_000 });
     await expect(page.locator(PLACED)).toHaveCount(i + 1);
   }
 }
