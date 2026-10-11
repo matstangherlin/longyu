@@ -34,17 +34,33 @@ async function openBuilder(page: Page, builderId?: string) {
   await expect(page.locator(AVAILABLE).first()).toBeVisible({ timeout: 15_000 });
 }
 
+/** Settle piece-bank CSS transitions so sequential clicks aren't mid-animation. */
+async function settlePieceAnimations(piece: ReturnType<Page["locator"]>) {
+  await piece.evaluate((el) =>
+    Promise.all(
+      el.getAnimations({ subtree: true }).map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
+}
+
 /** Coloca as `count` primeiras peças disponíveis, uma a uma. */
 async function placePieces(page: Page, count: number) {
   for (let i = 0; i < count; i += 1) {
     const piece = page.locator(AVAILABLE).first();
     await expect(piece).toBeVisible();
     await expect(piece).toBeEnabled();
-    // WebKit: piece bank CSS transitions (active:scale / hover borders) keep
-    // the locator from becoming "stable" between sequential placements —
-    // same class of flake as builder-undo in test 7. Force once enabled.
-    await piece.click({ force: true, timeout: 15_000 });
-    await expect(page.locator(PLACED)).toHaveCount(i + 1);
+    await settlePieceAnimations(piece);
+    // Prefer a real click. WebKit sometimes refuses "stable" mid-transition;
+    // force:true was tried and skipped the React handler (placed stayed 0).
+    // Fall back to keyboard Enter — same contract as test 12.
+    try {
+      await piece.click({ timeout: 8_000 });
+      await expect(page.locator(PLACED)).toHaveCount(i + 1, { timeout: 3_000 });
+    } catch {
+      await piece.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.locator(PLACED)).toHaveCount(i + 1, { timeout: 10_000 });
+    }
   }
 }
 
@@ -145,6 +161,9 @@ test.describe("V4.9.4 — montar e desmontar sem conhecimento oculto", () => {
     await placePieces(page, 3);
     await page.getByTestId("builder-clear").click();
     await expect(page.locator(PLACED)).toHaveCount(0);
+    await dismissBlockingOverlays(page);
+    await expect(page.locator(AVAILABLE).first()).toBeVisible();
+    await settlePieceAnimations(page.locator(AVAILABLE).first());
 
     // 森 sem distratores: colocar todas as peças da bandeja é a resposta certa.
     const total = await page.locator(AVAILABLE).count();
