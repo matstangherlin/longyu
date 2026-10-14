@@ -24,24 +24,45 @@ const UNSAFE_PATTERNS: readonly RegExp[] = [
   /@import/i,
   /@font-face/i,
   /data:/i,
+  // Assets carry no comments or processing instructions (validate:journey-svg-assets);
+  // anything else is refused whole instead of being regex-"cleaned".
+  /<!--/,
+  /<\?/,
+  /<!\[CDATA\[/i,
 ];
 
 export function isSceneMarkupSafe(raw: string): boolean {
   return typeof raw === "string" && raw.trimStart().startsWith("<svg") && !UNSAFE_PATTERNS.some((re) => re.test(raw));
 }
 
+const STYLE_OPEN = "<style>";
+const STYLE_CLOSE = "</style>";
+
 /**
- * Strip the standalone palette (the app CSS owns colors), drop the intrinsic
+ * Removes the one standalone palette block by position. A file with more than
+ * one block, or an unclosed one, is refused (null) rather than partially kept.
+ */
+function withoutStandaloneStyle(raw: string): string | null {
+  const open = raw.indexOf(STYLE_OPEN);
+  if (open < 0) return raw;
+  const close = raw.indexOf(STYLE_CLOSE, open);
+  if (close < 0) return null;
+  const rest = raw.slice(0, open) + raw.slice(close + STYLE_CLOSE.length);
+  return rest.includes("<style") ? null : rest;
+}
+
+/**
+ * Strip the standalone palette (the app CSS owns colors — left inline, its
+ * dark-scheme rules would leak onto every SVG on the page), drop the intrinsic
  * size (the lane owns size), mark the drawing decorative, and suffix every id
  * so repeated scenes never share a gradient or clip path.
  */
 export function prepareSceneMarkup(raw: string, instanceKey: string): string | null {
   if (!isSceneMarkupSafe(raw)) return null;
+  const body = withoutStandaloneStyle(raw);
+  if (body === null) return null;
   const key = instanceKey.replace(/[^a-zA-Z0-9_-]/g, "") || "s";
-  return raw
-    .replace(/<\?xml[\s\S]*?\?>/g, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<style>[\s\S]*?<\/style>/g, "")
+  return body
     .replace(/<svg\b([^>]*)>/, (_match, attrs: string) => {
       const kept = attrs.replace(/\s(?:width|height|aria-hidden|focusable|role)="[^"]*"/g, "");
       return `<svg${kept} class="journey-scene-svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet">`;
