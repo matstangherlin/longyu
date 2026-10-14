@@ -48,14 +48,17 @@ const REQUIRED_PROGRESS_KEYS = [
 ] as const;
 
 export function buildProgressSnapshot(account: LearningAccount): LocalProgressSnapshot {
-  const { id, name, email, authMode, createdAt, updatedAt, ...progress } = account;
+  // RC2.3.10D · OA-PRIVACY-SNAPSHOT-EMAIL: new snapshots omit email. Old rows may
+  // still carry it; readers treat account.email as optional. Do not wipe history.
+  const { id, name, email: _omitEmail, authMode, createdAt, updatedAt, ...progress } = account;
+  void _omitEmail;
   return {
     schemaVersion: PROGRESS_SNAPSHOT_SCHEMA_VERSION,
     exportedAt: Date.now(),
     snapshot: {
       schemaVersion: PROGRESS_SNAPSHOT_SCHEMA_VERSION,
       exportedAt: Date.now(),
-      account: { id, name, email, authMode, createdAt, updatedAt },
+      account: { id, name, authMode, createdAt, updatedAt },
       progress,
     },
   };

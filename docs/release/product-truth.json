@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-07T20:23:04.056Z",
-  "generatedFromSha": "78f33b8663d3f0029aaa86179f07806fba7d70ce",
-  "inputsDigest": "6ad10d71aa2aefe3",
-  "evidenceDigest": "c9cbd3d29c660b28",
+  "generatedAt": "2026-10-14T06:17:21.396Z",
+  "generatedFromSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+  "inputsDigest": "c50ca30d6a5bc1b0",
+  "evidenceDigest": "5ba0956fb8e5a956",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -15,7 +15,10 @@
     "docs/release/owner-acceptance.json",
     "docs/release/owner-actions.json",
     "docs/release/external-dependencies.json",
-    "docs/release/certifications.json"
+    "docs/release/certifications.json",
+    "docs/release/rc2-3-10-cloud-matrix.json",
+    "docs/release/rc-candidate.json",
+    "docs/launch/production-migration-ledger.json"
   ],
   "schemaVersion": 1,
   "statusVocabulary": [
@@ -30,16 +33,16 @@
   ],
   "product": {
     "name": "Longyu",
-    "version": "0.2.0-beta.1",
+    "version": "0.2.0-rc.5",
     "applicationId": "longyu.noba.com",
     "androidVersionCode": 1,
-    "curriculumFingerprint": "5a64821d0b7d",
-    "fingerprintChainHead": "5a64821d0b7d",
+    "curriculumFingerprint": "29bb02ec0336",
+    "fingerprintChainHead": "29bb02ec0336",
     "lessons": 134,
     "teachingTopics": 113,
     "culture": {
-      "items": 30,
-      "nativeLessons": 30,
+      "items": 36,
+      "nativeLessons": 36,
       "journeyNodes": 20,
       "historyItems": 6
     }
@@ -159,8 +162,83 @@
         "tier": "free"
       }
     },
-    "certification": "NOT_RUN",
+    "database": {
+      "migrationHistory": {
+        "status": "BLOCKED",
+        "ledger": {
+          "productionRows": 36,
+          "repoFiles": 58,
+          "MATCH": 19,
+          "LEGACY_EQUIVALENT": 0,
+          "PROD_ONLY": 6,
+          "REPO_ONLY": 29,
+          "UNKNOWN": 11
+        }
+      },
+      "schema": {
+        "status": "BLOCKED"
+      },
+      "backup": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "retention": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "rls": {
+        "status": "BLOCKED"
+      }
+    },
+    "backend": {
+      "edgeFunctions": {
+        "status": "BLOCKED"
+      },
+      "rateLimits": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "jevTriage": {
+        "status": "OWNER_ACTION_REQUIRED"
+      }
+    },
+    "email": {
+      "domain": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "smtp": {
+        "status": "CONFIG_REQUIRED"
+      },
+      "confirmation": {
+        "status": "CONFIG_REQUIRED"
+      },
+      "recovery": {
+        "status": "CONFIG_REQUIRED"
+      }
+    },
+    "observability": {
+      "sentry": {
+        "status": "CONFIG_REQUIRED"
+      }
+    },
+    "web": {
+      "productionSha": {
+        "status": "OWNER_ACTION_REQUIRED"
+      },
+      "headers": {
+        "status": "NOT_RUN"
+      },
+      "rollback": {
+        "status": "NOT_RUN"
+      }
+    },
+    "certification": "BLOCKED",
     "certificationWave": "RC2.3.10"
+  },
+  "build": {
+    "artifactSha": null,
+    "artifactFingerprint": "29bb02ec0336",
+    "artifactChannel": "dev",
+    "provenance": {
+      "status": "CODE_READY"
+    }
   },
   "commercial": {
     "entitlementArchitecture": {
@@ -180,7 +258,11 @@
   "jev": {
     "learnerRuntimeEnabled": false,
     "learnerRuntime": "NOT_RUN",
-    "serverSideTriage": "CODE_READY"
+    "shadowRuntimeEnabled": false,
+    "serverSideTriage": "CODE_READY",
+    "livePromotion": "OWNER_ACTION_REQUIRED",
+    "deploymentRequired": true,
+    "detailDoc": "docs/jev/hosted-closure-status.json"
   },
   "ownerAcceptance": {
     "audio": "OWNER_ACTION_REQUIRED",
@@ -221,7 +303,15 @@
     "OA-PLAY-INTERNAL-RELEASE",
     "OA-PLAY-STORE-ASSETS",
     "OA-273-RUNBOOK-APPROVAL",
-    "STACK_RETARGET_314"
+    "OA-PROD-WEB-SHA",
+    "OA-EDGE-SECRET-NAMES",
+    "OA-AUTH-RATE-LIMITS-READ",
+    "OA-LEAGUE-POLICY-FIX",
+    "OA-JEV-TMP-TABLE",
+    "OA-PRIVACY-SNAPSHOT-EMAIL",
+    "OA-CLOUD-SMOKE-RUN",
+    "OA-PHYSICAL-PROVENANCE",
+    "OA-OWNER-CLOUD-ACCEPTANCE"
   ],
   "release": {
     "CODE": "CODE_READY",
@@ -229,9 +319,21 @@
     "ANDROID_BUILD": "CODE_READY",
     "APK": "NOT_RUN",
     "PHYSICAL": "CONFIG_REQUIRED",
-    "CLOUD": "CONFIG_REQUIRED",
+    "CLOUD": "BLOCKED",
     "MONETIZATION": "NOT_RUN",
     "RC": "BLOCKED",
-    "BETA": "BLOCKED"
+    "BETA": "BLOCKED",
+    "rcCandidate": {
+      "rcId": "RC2.3.12-RC2",
+      "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+      "version": "0.2.0-rc.2",
+      "versionCode": 596,
+      "fingerprint": "29bb02ec0336",
+      "commercialMode": "FREE_ONLY",
+      "phase": "BUILT",
+      "apk": "BUILT",
+      "aab": "BUILT",
+      "web": "NOT_RUN"
+    }
   }
 }

@@ -1,0 +1,65 @@
+{
+  "schema": "longyu-final-pre-beta-device-evidence/2",
+  "wave": "RC2.3.13R.3",
+  "rcId": "RC2.3.13-RC1",
+  "boundArtifact": {
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 651,
+    "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
+    "apkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "apkFile": "longyu-android-debug-0.2.0-rc.5-3be0ade.apk"
+  },
+  "meta": {
+    "evidenceLevel": "CODE_AND_HOSTED_PARTIAL",
+    "note": "R.3: Do not promote CODE/HOSTED/EMULATED to PHYSICAL_PASS. Physical rows stay NOT_RUN until owner device evidence bound to apkSha256. Hosted Chromium/cross-engine still IN_PROGRESS on parent #343."
+  },
+  "hosted": {
+    "SECURITY": "HOSTED_PASS",
+    "ANDROID": "HOSTED_PASS",
+    "RELEASE_TRUTH": "HOSTED_PASS",
+    "BETA_SUITES": "HOSTED_PASS",
+    "QUALITY_BUILD": "HOSTED_PASS",
+    "CI": "IN_PROGRESS",
+    "CHROMIUM": "IN_PROGRESS",
+    "CROSS_ENGINE": "IN_PROGRESS",
+    "VIEWPORT_360": "PENDING_HOSTED",
+    "VIEWPORT_375": "PENDING_HOSTED",
+    "VIEWPORT_390": "PENDING_HOSTED",
+    "LARGE_FONT": "PENDING_HOSTED"
+  },
+  "physical": {
+    "PHYSICAL_QA": "NOT_RUN",
+    "CLEAN_INSTALL": "NOT_RUN",
+    "UPGRADE": "NOT_RUN",
+    "TYPOGRAPHY_PHYSICAL": "NOT_RUN",
+    "MOTION_PHYSICAL": "NOT_RUN",
+    "STICKY_CHROME": "NOT_RUN",
+    "JOURNEY_CULTURE_SWITCH": "NOT_RUN",
+    "AUDIO_X20": "NOT_RUN",
+    "GUIDED_TRY_X10": "NOT_RUN",
+    "SPEECH_X5": "NOT_RUN",
+    "CONVERSATION_X5": "NOT_RUN",
+    "HANZI": "NOT_RUN",
+    "REVIEW": "NOT_RUN",
+    "DYNAMIC_AULA": "NOT_RUN",
+    "TALKBACK": "NOT_RUN",
+    "FONT_SCALE": "NOT_RUN",
+    "REDUCED_MOTION_PHYSICAL": "NOT_RUN",
+    "ANDROID_BACK": "NOT_RUN",
+    "IME": "NOT_RUN",
+    "BACKGROUND_RESUME": "NOT_RUN",
+    "OFFLINE_RECONNECT": "NOT_RUN",
+    "LONG_SESSION_30MIN": "NOT_RUN",
+    "ANDROID_OAUTH_PHYSICAL": "NOT_RUN"
+  },
+  "operations": {
+    "SENTRY": "NOT_RUN",
+    "NETLIFY_ROLLBACK_DRILL": "NOT_RUN",
+    "SMOKE_1": "NOT_RUN",
+    "SMOKE_2": "NOT_RUN"
+  },
+  "ownerAcceptance": {
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE": "NOT_RUN"
+  }
+}

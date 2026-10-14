@@ -53,7 +53,7 @@ async function skipGuideTypingIfStillTyping(dialogue: Locator): Promise<boolean>
 }
 
 test.describe("RC2.2.6 — marcos culturais na Jornada", () => {
-  test("C1 — marco aparece com progresso, dragão e CTA; o tópico fica trancado", async ({ page }) => {
+  test("C1 — marco aparece com progresso, dragão e CTA (advisory; não tranca Mandarin)", async ({ page }) => {
     await openJourneyAtGate(page);
 
     const gate = page.locator(`[data-journey-culture-gate="${SOCIAL.id}"]`);
@@ -129,17 +129,14 @@ test.describe("RC2.2.6 — marcos culturais na Jornada", () => {
     await expect(page.locator(`[data-journey-culture-gate="${SOCIAL.id}"]`)).toHaveCount(0);
   });
 
-  test("A16 — deep link respeita o marco: URL direta não pula a Cultura", async ({ page }) => {
+  test("A16 — RC2.3.13E: URL direta da lição abre mesmo com Cultura incompleta", async ({ page }) => {
     await seedAtCultureGate(page, SOCIAL.beforeTopicId);
     await page.goto(`/licao/${SOCIAL.beforeTopicId}/player`);
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
 
-    // Nenhum passo de exercício deve aparecer: a razão do marco toma a tela.
-    await expect(page.locator("[data-current-step-kind]")).toHaveCount(0);
-    // A tela de bloqueio explica o marco com a copy do registry (PT-BR aqui).
-    const reasonHead = SOCIAL.reasonPt.slice(0, 40);
-    await expect(page.getByText(reasonHead, { exact: false }).first()).toBeVisible();
+    // Culture never blocks Mandarin — player steps must be reachable.
+    await expect(page.locator("[data-current-step-kind]").first()).toBeVisible({ timeout: 20_000 });
   });
 
   test("A16 — com o selo, a mesma URL direta abre normalmente", async ({ page }) => {
@@ -154,16 +151,12 @@ test.describe("RC2.2.6 — marcos culturais na Jornada", () => {
     await expect(page.locator("[data-current-step-kind]").first()).toBeVisible({ timeout: 20_000 });
   });
 
-  test("PT/EN — a razão do marco aparece em inglês no locale EN", async ({ page }) => {
+  test("PT/EN — marco advisory na Jornada respeita locale EN", async ({ page }) => {
     await seedInstructionLocale(page, "en");
-    await seedAtCultureGate(page, SOCIAL.beforeTopicId);
-    await page.goto(`/licao/${SOCIAL.beforeTopicId}/player`);
-    await waitForLazyPage(page);
-    await dismissBlockingOverlays(page);
-
-    await expect(page.getByText(SOCIAL.reasonEn.slice(0, 40), { exact: false }).first()).toBeVisible();
-    // E nada de português sobrando para o aluno EN.
-    await expect(page.getByText(SOCIAL.reasonPt.slice(0, 40), { exact: false })).toHaveCount(0);
+    await openJourneyAtGate(page);
+    const gate = page.locator(`[data-journey-culture-gate="${SOCIAL.id}"]`);
+    await expect(gate).toBeVisible();
+    await expect(gate.getByTestId("culture-gate-lead")).toHaveText("Before you continue, understand this context.");
   });
 
   test("A17 — usuário legado não regride: já além do marco, segue aberto", async ({ page }) => {

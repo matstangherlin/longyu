@@ -52,7 +52,7 @@ const siteUrl =
   extraUrls[0] ??
   "http://localhost:5173";
 
-const redirectEntries = new Set([
+const requiredRedirects = [
   "http://localhost:5173/**",
   "http://127.0.0.1:5173/**",
   "http://localhost:4173/**",
@@ -61,24 +61,47 @@ const redirectEntries = new Set([
   "https://www.longyu.com.br/**",
   "https://longyu.netlify.app/**",
   "https://singular-meringue-7838cd.netlify.app/**",
+  "https://singular-meringue-7838cd.netlify.app/auth/callback",
+  "longyu.noba.com://auth/callback",
   `${siteUrl}/**`,
-]);
-for (const url of extraUrls) {
-  redirectEntries.add(`${url}/**`);
-}
+  ...extraUrls.map((url) => `${url}/**`),
+];
 
 if (!token) {
   console.error("SUPABASE_ACCESS_TOKEN ausente em .env.local");
   process.exit(1);
 }
 
+if (!args.includes("--confirm-merge")) {
+  console.error("REFUSING_REPLACE_ALL: passe --confirm-merge. O script lê a allowlist atual e só adiciona o que falta.");
+  process.exit(6);
+}
+
+const currentResponse = await fetch(`https://api.supabase.com/v1/projects/${ref}/config/auth`, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+const currentText = await currentResponse.text();
+if (!currentResponse.ok) {
+  console.error(`READ_FAILED ${currentResponse.status}:`, currentText.slice(0, 500));
+  process.exit(1);
+}
+const current = JSON.parse(currentText);
+const existing = String(current.uri_allow_list ?? "")
+  .split(",")
+  .map((entry) => entry.trim())
+  .filter(Boolean);
+const redirectEntries = new Set([...existing, ...requiredRedirects]);
+const merged = [...redirectEntries];
+const added = merged.filter((entry) => !existing.includes(entry));
+
 const body = {
-  site_url: siteUrl,
-  uri_allow_list: [...redirectEntries].join(","),
-  // Confirmação de email obrigatória (requerida pelo programa de indicação).
+  site_url: current.site_url || siteUrl,
+  uri_allow_list: merged.join(","),
   mailer_autoconfirm: false,
-  disable_signup: false,
+  disable_signup: current.disable_signup ?? false,
 };
+
+console.log("preserved:", existing.length, "added:", added.join(" | ") || "(none)");
 
 const response = await fetch(`https://api.supabase.com/v1/projects/${ref}/config/auth`, {
   method: "PATCH",

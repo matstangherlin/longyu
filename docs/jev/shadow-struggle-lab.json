@@ -1,0 +1,41 @@
+{
+  "schema": "longyu-jev-shadow-struggle-lab/1",
+  "wave": "JEV-WAVE-3",
+  "JEV_SHADOW_STRUGGLE_LAB": "VERIFIED_SHADOW_ONLY",
+  "JEV_LEARNER_RUNTIME": "OFF",
+  "JEV_SHADOW_STRUGGLE_RUNTIME": "OFF",
+  "policyVersion": "shadow-struggle-v1",
+  "mode": "SHADOW_ONLY",
+  "learnerSeesNothing": true,
+  "deterministicAuthoritative": true,
+  "recommendation": "KEEP_SHADOW",
+  "never": [
+    "grade_learner",
+    "change_mastery",
+    "change_curriculum",
+    "invent_exercises",
+    "block_progress",
+    "affect_learner_runtime",
+    "upload_raw_audio",
+    "upload_hanzi_strokes",
+    "send_email_or_user_id"
+  ],
+  "approvedInterventions": [
+    "CONTINUE",
+    "REPLAY_MODEL",
+    "SHOW_VISUAL_HINT",
+    "PERCEPTION_FIRST",
+    "REDUCE_CHOICE_SET",
+    "MODEL_AND_RETRY",
+    "DEFER_TO_REVIEW",
+    "SWITCH_TO_EASIER_EVIDENCE",
+    "ABSTAIN"
+  ],
+  "killSwitch": "JEV_SHADOW_STRUGGLE_RUNTIME_ENABLED",
+  "gate": "gate:jev-shadow-learning",
+  "report": "docs/research/jev-shadow-struggle-report.json",
+  "calibration": "docs/research/jev-shadow-calibration-dataset.json",
+  "migration": "supabase/migrations/20261009070000_jev_shadow_struggle_lab.sql",
+  "microExperiment": "OWNER_APPROVAL_REQUIRED",
+  "verifiedAt": "2026-10-09T05:20:00.000Z"
+}

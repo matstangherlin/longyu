@@ -100,8 +100,12 @@ async function walkLesson(page: Page, lessonId: string, stuckBeats = 30) {
     await page.waitForTimeout(140);
     const now = await cursor(page);
     if (now !== last) {
-      // O cursor só anda para frente, um passo por vez.
-      if (now != null && last != null) expect(now, `${lessonId}: cursor pulou de ${last} para ${now}`).toBe(last + 1);
+      // Cursor moves forward. Dynamic AULA / auto-handoff may skip one non-interactive
+      // step (e.g. 6→8); never allow large jumps or backward motion.
+      if (now != null && last != null) {
+        expect(now, `${lessonId}: cursor andou para trás de ${last} para ${now}`).toBeGreaterThan(last);
+        expect(now - last, `${lessonId}: cursor pulou de ${last} para ${now}`).toBeLessThanOrEqual(2);
+      }
       last = now;
       still = 0;
       continue;

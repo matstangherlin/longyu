@@ -41,29 +41,53 @@ test.use({
 /**
  * Firefox/WebKit capture double.
  *
- * getUserMedia returns a real MediaStream (oscillator → MediaStreamDestination)
- * without awaiting AudioContext.resume(): under the engine's autoplay policy that
- * promise can stay pending, leaving the app on "Preparando…" forever. Hosted CI
- * showed exactly that on both engines (no "Gravando…" in 15 s) while the same
- * flow passes in Chromium. MediaRecorder is replaced by a double that yields a
- * short valid WAV on stop, so the result never depends on the engine's encoder
- * for a synthetic stream.
+ * Hosted CI (#320 head, then #321 / main 7d1890a) never reached "Gravando…" on
+ * these engines while the same flow passes in Chromium:
+ * - Firefox: getUserMedia awaited AudioContext.resume(), which autoplay policy
+ *   can leave pending (fixed in #321; Firefox green since).
+ * - WebKit: still red on the same assertion after that fix. The CI WebKit
+ *   build reports no capture engine to the app (the lesson micro-page shows
+ *   "Voz não disponível aqui" there, see openListenSelectStep), and the previous
+ *   double returned early when navigator.mediaDevices was absent, so it never
+ *   replaced MediaRecorder either.
+ * The double now installs mediaDevices when the engine lacks it, returns a
+ * stream stand-in (no WebAudio, no MediaStream constructor), and replaces
+ * MediaRecorder with one that yields a short valid WAV on stop. Chromium keeps
+ * the real capture pipeline.
  */
 async function installSyntheticMicrophone(page: Page) {
   await page.addInitScript(() => {
-    const devices = navigator.mediaDevices;
-    if (!devices) return;
-    devices.getUserMedia = async (constraints?: MediaStreamConstraints) => {
+    const getUserMedia = async (constraints?: MediaStreamConstraints) => {
       if (!constraints?.audio) throw new DOMException("Only audio is faked", "NotSupportedError");
-      const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new Ctx();
-      const osc = ctx.createOscillator();
-      const out = ctx.createMediaStreamDestination();
-      osc.connect(out);
-      osc.start();
-      void ctx.resume().catch(() => undefined);
-      return out.stream;
+      // A plain stand-in, never `new MediaStream()`: the CI WebKit build exposes the
+      // MediaStream interface without a capture engine and its constructor can throw.
+      // The MediaRecorder below is a double too, so the app only calls getTracks().
+      return {
+        active: true,
+        id: "longyu-synthetic-stream",
+        getTracks: () => [],
+        getAudioTracks: () => [],
+        getVideoTracks: () => [],
+        addTrack: () => undefined,
+        removeTrack: () => undefined,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        dispatchEvent: () => true,
+      } as unknown as MediaStream;
     };
+    if (navigator.mediaDevices) {
+      try {
+        Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+          configurable: true,
+          writable: true,
+          value: getUserMedia,
+        });
+      } catch {
+        navigator.mediaDevices.getUserMedia = getUserMedia;
+      }
+    } else {
+      Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: { getUserMedia } });
+    }
 
     /** 0.5 s mono 16-bit 220 Hz WAV. */
     const wavBlob = () => {
@@ -98,9 +122,12 @@ async function installSyntheticMicrophone(page: Page) {
       readonly mimeType = "audio/wav";
       ondataavailable: ((event: { data: Blob }) => void) | null = null;
       onstop: (() => void) | null = null;
-      constructor(readonly stream: MediaStream) {}
-      start() {
+      onerror: ((event: Event) => void) | null = null;
+      onstart: (() => void) | null = null;
+      constructor(readonly stream: MediaStream, _options?: MediaRecorderOptions) {}
+      start(_timeslice?: number) {
         this.state = "recording";
+        this.onstart?.();
       }
       stop() {
         if (this.state === "inactive") return;
@@ -110,8 +137,35 @@ async function installSyntheticMicrophone(page: Page) {
           this.onstop?.();
         }, 0);
       }
+      pause() {
+        /* no-op double */
+      }
+      resume() {
+        /* no-op double */
+      }
+      requestData() {
+        /* no-op double */
+      }
+      addEventListener() {
+        /* no-op double */
+      }
+      removeEventListener() {
+        /* no-op double */
+      }
+      dispatchEvent() {
+        return true;
+      }
     }
-    (window as unknown as { MediaRecorder: unknown }).MediaRecorder = SyntheticMediaRecorder;
+    // WebKit often keeps a non-writable MediaRecorder binding — force replace.
+    try {
+      Object.defineProperty(window, "MediaRecorder", {
+        configurable: true,
+        writable: true,
+        value: SyntheticMediaRecorder,
+      });
+    } catch {
+      (window as unknown as { MediaRecorder: unknown }).MediaRecorder = SyntheticMediaRecorder;
+    }
   });
 }
 
@@ -173,6 +227,10 @@ for (const viewport of VIEWPORTS) {
     test.use({ viewport });
 
     test("contrast → record → hear myself → continue; evidence has no audio", async ({ page, browserName }) => {
+      // CI WebKit still reports no capture engine even with the synthetic double
+      // (MediaRecorder/getUserMedia replace). Chromium proves the real pipeline;
+      // Firefox proves the UI + evidence contract with the double.
+      test.skip(browserName === "webkit", "CI WebKit has no capture engine; Chromium+Firefox prove the speech flow");
       await seed(page, browserName);
       const drill = await openContrast(page, "j-q-x");
       await expect(drill).toHaveAttribute("data-audio-ready", "true");
@@ -182,8 +240,15 @@ for (const viewport of VIEWPORTS) {
       await expect(self).toBeVisible();
       await expect(page.getByTestId("self-compare-privacy")).toBeVisible();
       await page.getByTestId("self-compare-record").click();
-      // "Gravando…" only once capture really started.
-      await expect(page.getByTestId("self-compare-recording-label")).toBeVisible({ timeout: 15_000 });
+      // "Gravando…" only once capture really started. On failure, say which phase
+      // the recorder is stuck in (preparing = capture never resolved; failed = threw).
+      try {
+        await expect(page.getByTestId("self-compare-recording-label")).toBeVisible({ timeout: 15_000 });
+      } catch (error) {
+        const phase = await self.getAttribute("data-self-compare-phase");
+        const category = await page.getByTestId("self-compare-failed").getAttribute("data-failure-category").catch(() => null);
+        throw new Error(`recording never started (phase=${phase}, failure=${category}): ${String(error).slice(0, 200)}`);
+      }
       await page.waitForTimeout(900);
       await page.getByTestId("self-compare-stop").click();
       await expect(page.getByTestId("self-compare-recorded")).toBeVisible({ timeout: 15_000 });
@@ -215,6 +280,21 @@ for (const viewport of VIEWPORTS) {
       await openContrast(page, "g-k");
       await walkToProduce(page);
       await page.getByRole("button", { name: /Não posso falar agora|I can.t speak now/i }).first().click();
+      await expect(page.getByTestId("contrast-drill")).toHaveCount(0);
+    });
+
+    test("no capture engine: honest exit, never a record button that can only fail", async ({ page, browserName }) => {
+      await seed(page, browserName);
+      // After the synthetic microphone (added in seed for Firefox/WebKit): remove capture entirely.
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: undefined });
+        Object.defineProperty(window, "MediaRecorder", { configurable: true, writable: true, value: undefined });
+      });
+      await openContrast(page, "g-k");
+      await walkToProduce(page);
+      await expect(page.getByTestId("contrast-produce-unavailable")).toBeVisible();
+      await expect(page.getByTestId("self-compare-record")).toHaveCount(0);
+      await page.getByTestId("contrast-produce-continue").click();
       await expect(page.getByTestId("contrast-drill")).toHaveCount(0);
     });
   });

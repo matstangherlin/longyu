@@ -1,0 +1,50 @@
+{
+  "schema": "longyu-jev-hosted-closure-status/1",
+  "pr": 330,
+  "JEV_CODE": "VERIFIED",
+  "JEV_BETA_TRIAGE": "VERIFIED",
+  "JEV_SHADOW": "VERIFIED_SHADOW_ONLY",
+  "JEV_SHADOW_RECOMMENDATION": "KEEP_SHADOW",
+  "JEV_LEARNER_RUNTIME": "OFF",
+  "JEV_SHADOW_RUNTIME": "OFF",
+  "JEV_LIVE": "OWNER_ACTION_REQUIRED",
+  "liveVersion": 1,
+  "liveHash": "e585439ed123a1665638fd923b67aa50ec300174794546bafd458cda88f29aee",
+  "liveVerifyJwt": true,
+  "migration060000": {
+    "class": "NOT_YET_DEPLOYED",
+    "deploymentIntent": "OWNER_APPROVAL_REQUIRED",
+    "productionState": "NOT_APPLIED",
+    "betaRequired": false
+  },
+  "migration070000": {
+    "class": "NOT_YET_DEPLOYED",
+    "deploymentIntent": "DEFERRED_RESEARCH",
+    "productionState": "NOT_APPLIED",
+    "betaRequired": false
+  },
+  "matrix": {
+    "JEV_REPO_PARITY_GUARDS_PASS": true,
+    "JEV_LIVE_PARITY_OWNER_ACTION": true,
+    "JEV_TYPED_RESPONSE_PASS": true,
+    "JEV_TIMEOUT_PASS": true,
+    "JEV_BREAKER_PASS": true,
+    "JEV_DEDUPE_PASS": true,
+    "JEV_PII_REDACTION_PASS": true,
+    "JEV_SECURITY_OVERRIDE_PASS": true,
+    "JEV_CONFIDENCE_PASS": true,
+    "JEV_DAILY_BUDGET_PASS": true,
+    "JEV_BETA_TRIAGE_VERIFIED": true,
+    "JEV_SHADOW_VERIFIED": true,
+    "JEV_SHADOW_KEEP_SHADOW": true,
+    "JEV_LEARNER_RUNTIME_OFF": true,
+    "JEV_SHADOW_RUNTIME_OFF": true,
+    "JEV_TRIAGE_MIGRATION_CLASSIFIED": true,
+    "JEV_SHADOW_MIGRATION_CLASSIFIED": true,
+    "JEV_SHADOW_MIGRATION_DEFERRED": true,
+    "CLOSED_BETA_ENTRY": "OWNER_ACTION_REQUIRED"
+  },
+  "noWave4": true,
+  "ownerNext": "APPROVE OA-JEV-TRIAGE-V2-DEPLOY",
+  "observedAt": "2026-10-09T05:35:00.000Z"
+}

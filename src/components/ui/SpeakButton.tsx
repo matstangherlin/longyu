@@ -10,6 +10,7 @@ import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { canOfferVoiceInstall, playMandarinAudio } from "../../lib/audioPlayback";
 import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { useStore } from "../../lib/store";
+import { isPersonalizedUtterance } from "../../lib/personalize";
 import { noteAudioManualPlay } from "../../lib/lessonSessionMetrics";
 import { useTranslation } from "../../i18n/useTranslation";
 import { IconSound } from "./Icon";
@@ -83,7 +84,7 @@ export function SpeakButton({
     // que a fala COMEÇOU. O toque sozinho não conta.
     void playMandarinAudio(clean, {
       rate: slowAudio ? Math.min(rate, 0.65) : rate,
-      source: "LESSON",
+      source: isPersonalizedUtterance(clean) ? "PERSONAL_UTTERANCE" : "LESSON",
       onState: (state) => {
         if (state === "PLAYING") recordDailyTask("audioHeard");
       },

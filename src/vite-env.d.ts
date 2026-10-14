@@ -11,6 +11,12 @@ interface ImportMetaEnv {
   readonly VITE_APP_VERSION?: string;
   /** Git commit SHA baked at build time for candidate identity (public). */
   readonly VITE_COMMIT_SHA?: string;
+  /** RC2.3.10 — curriculum fingerprint embedded at build time (scripts/vite-build.mjs). */
+  readonly VITE_CURRICULUM_FINGERPRINT?: string;
+  /** RC2.3.10 — release channel of this artifact: dev | internal | closed | production. */
+  readonly VITE_BUILD_CHANNEL?: string;
+  /** RC2.3.10 — Sentry DSN (public by design). Empty = error reporting off and the SDK never loads. */
+  readonly VITE_SENTRY_DSN?: string;
   readonly VITE_SOURCE_HEAD_SHA?: string;
   readonly VITE_WORKFLOW_SHA?: string;
   /** development | preview | qa_candidate | production_beta */
@@ -32,6 +38,15 @@ interface ImportMetaEnv {
    * e depois produção. true em preview/dev. Não reativa conta local.
    */
   readonly VITE_CLOUD_ONBOARDING_V2_ENABLED?: string;
+  /**
+   * RC2.3.10B — liga/desliga domínios cujo backend de produção ainda não existe
+   * (src/lib/cloud/knownMissingBackend.json). Sem valor: indisponível em
+   * production-like enquanto o domínio constar na lista; disponível em dev/preview.
+   */
+  readonly VITE_BACKEND_SOCIAL_ENABLED?: string;
+  readonly VITE_BACKEND_FAMILY_ENABLED?: string;
+  readonly VITE_BACKEND_BUSINESS_ENABLED?: string;
+  readonly VITE_BACKEND_PEARL_ENABLED?: string;
   /** Site key pública do Cloudflare Turnstile. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   /** URL canônica do site (SEO: canonical, Open Graph, sitemap). */

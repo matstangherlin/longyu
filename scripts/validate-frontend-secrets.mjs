@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { BUNDLE_SECRET_PATTERNS } from "./lib/rc2-3-10-cloud.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
@@ -41,13 +42,19 @@ function walk(dir) {
         errors.push(`${path.relative(root, full)}: possível ${pattern.name}`);
       }
     }
+    // RC2.3.10 — one list of secret shapes for every shipped bundle (web dist and
+    // the APK's assets/public): service-role JWT (decoded), sb_secret_, Postgres
+    // connection strings, Resend/Sentry tokens, the Jev host, secret env names.
+    for (const [code, test] of BUNDLE_SECRET_PATTERNS) {
+      if (test(text)) errors.push(`${path.relative(root, full)}: possível ${code}`);
+    }
   }
 }
 
 walk(dist);
 
 // Anon key JWT é pública por design — ok se aparecer.
-// Bloqueamos só service_role / stripe secrets.
+// Bloqueamos service_role, Stripe e os padrões RC2.3.10 (scripts/lib/rc2-3-10-cloud.mjs).
 
 if (errors.length > 0) {
   console.error("ERRO: validate:frontend-secrets falhou.");

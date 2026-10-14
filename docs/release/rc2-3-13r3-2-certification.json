@@ -1,0 +1,104 @@
+{
+  "wave": "RC2.3.13R.3.2",
+  "title": "Culture Topic Hierarchy & Subtopic Progression",
+  "phase": "IMPLEMENTATION",
+  "parentPr": 348,
+  "parentHeadSha": "86f9dddfc02f7a2ffae90df9eed60d30dfee9c21",
+  "freezeException": {
+    "id": "PRE_BETA_FREEZE_EXCEPTION",
+    "reason": "OWNER_APPROVED_CULTURE_INFORMATION_ARCHITECTURE",
+    "rationale": "CURRENT CULTURE ROOT MIXES TOPIC SELECTION AND NODE PROGRESSION, CREATING CLUTTER AND POOR SCALABILITY."
+  },
+  "runtime": {
+    "learnerRuntimeSha": "02813d55a6a87a06181bac222c503f3fe4bf6373",
+    "learnerRuntimeMoved": true,
+    "rationale": "Culture root/detail navigation is learner-facing runtime; learnerRuntimeSha advances to the R.3.2 Culture IA commit.",
+    "fingerprint": "29bb02ec0336",
+    "fingerprintNote": "Grouping/UI-only change expected to preserve Journey curriculum fingerprint unless generator says otherwise."
+  },
+  "cultureHierarchy": {
+    "model": "TOPIC → SUBTOPIC(path) → NODE",
+    "topLevelTopicCount": 7,
+    "canonicalPathCount": 12,
+    "orphanPaths": 0,
+    "duplicateMemberships": 0,
+    "emptyTopics": 0,
+    "rootHasHorizontalPathSelector": false,
+    "rootHasProgressionBubbles": false,
+    "rootHasTrocarDeCaminho": false,
+    "topicDetailHasBubbles": true,
+    "mapping": {
+      "vida_cotidiana": ["vida_cotidiana"],
+      "relacoes_etiqueta": ["etiqueta_relacoes", "familia"],
+      "comida_celebracoes": ["comida_mesa", "festivais"],
+      "escola_trabalho": ["escola_universidade", "trabalho"],
+      "cidades_digital": ["cidades_transporte", "china_digital"],
+      "historia_china": ["historia_simbolos"],
+      "china_contemporanea": ["china_contemporanea", "diferencas_regionais"]
+    }
+  },
+  "contentConservation": {
+    "cultureItems": 36,
+    "cultureNative": 36,
+    "journeyCultureNodes": 20,
+    "culturePaths": 12,
+    "flagshipDeep": 11,
+    "status": "PRESERVED"
+  },
+  "progressMigration": {
+    "legacyPathOverride": "session-only pathOverride migrated via migrateCulturePathToTopic + cultureAnchor",
+    "selectedPathPersistence": "none historically; anchors path:{id} / node:{id} map to topic",
+    "progressReset": false,
+    "status": "COMPATIBLE"
+  },
+  "hosted": {
+    "overall": "PENDING",
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "webkit": "PENDING",
+    "firefox": "PENDING",
+    "cultureTopicHierarchy": "PENDING"
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "apkSha256": null,
+    "stalePriorDeviceQaApkSha256": "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "stalePriorDeviceQaApkStatus": "STALE",
+    "staleReason": "R.3.2 learner-facing Culture IA runtime supersedes #348 DEVICE_QA APK",
+    "artifactSourceSha": null,
+    "workflowMergeSha": null,
+    "versionName": null,
+    "versionCode": null,
+    "packageId": "longyu.noba.com",
+    "channel": "DEVICE_QA",
+    "playReady": false
+  },
+  "physical": {
+    "status": "NOT_RUN",
+    "note": "Only real device can set PHYSICAL_PASS. Emulator/hosted must not certify physical.",
+    "matrix": {
+      "CULTURE_ROOT": "NOT_RUN",
+      "TOPIC_CARD_NAV": "NOT_RUN",
+      "TOPIC_PROGRESS": "NOT_RUN",
+      "SUBTOPIC_GROUPING": "NOT_RUN",
+      "BUBBLE_PROGRESSION": "NOT_RUN",
+      "TOPIC_BACK": "NOT_RUN",
+      "NODE_RETURN": "NOT_RUN",
+      "JOURNEY_CULTURE_SWITCH": "NOT_RUN",
+      "SCROLL_RESTORE": "NOT_RUN",
+      "NO_HORIZONTAL_OVERFLOW": "NOT_RUN"
+    }
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "wave1Invited": 0,
+    "wave1Target": 10
+  }
+}

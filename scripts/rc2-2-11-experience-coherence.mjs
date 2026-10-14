@@ -123,7 +123,7 @@ const TESTS = {
   },
   "culture-dragon-lesson": () => {
     const { report, dragon } = auditAllCultureDragon();
-    it(cases, "30 aulas de Cultura auditadas", () => assert.equal(report.length, 30));
+    it(cases, "36 aulas de Cultura auditadas", () => assert.equal(report.length, 36));
     it(cases, "cada aula abre com orient → notice → why", () => {
       for (const { lesson } of report) {
         const roles = dragon.cultureDragonLines(lesson).map((line) => line.role);

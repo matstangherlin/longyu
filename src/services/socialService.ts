@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { isBackendDomainAvailable } from "../lib/cloud/backendCapability";
 import { LEAGUE_META, type LeagueTier } from "../lib/leagues";
 import { useStore } from "../lib/store";
 import type {
@@ -18,6 +19,17 @@ function clientOrError() {
   const client = getSupabaseClient();
   if (!client) return { ok: false as const, message: "Cliente Supabase indisponível." };
   return { ok: true as const, client };
+}
+
+/**
+ * Gate das chamadas que dependem de user_follows / social_activity_events e das
+ * RPCs públicas de perfil. Perfil/@apelido ficam em profiles e usam clientOrError().
+ */
+function socialClientOrError() {
+  if (!isBackendDomainAvailable("social")) {
+    return { ok: false as const, message: "Amigos ainda não está disponível nesta versão." };
+  }
+  return clientOrError();
 }
 
 async function currentUserId(): Promise<string | null> {
@@ -117,7 +129,7 @@ export async function ensureSuggestedUsername(name: string): Promise<ServiceResu
 }
 
 export async function searchProfiles(query: string): Promise<ServiceResult<PublicProfile[]>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const q = query.trim();
@@ -130,7 +142,7 @@ export async function searchProfiles(query: string): Promise<ServiceResult<Publi
 }
 
 export async function getProfileByUsername(username: string): Promise<ServiceResult<PublicProfile | null>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const { data, error } = await gate.client.rpc("get_public_profile_by_username", {
@@ -144,7 +156,7 @@ export async function getProfileByUsername(username: string): Promise<ServiceRes
 }
 
 export async function followUser(targetUserId: string): Promise<ServiceResult<true>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -164,7 +176,7 @@ export async function followUser(targetUserId: string): Promise<ServiceResult<tr
 }
 
 export async function unfollowUser(targetUserId: string): Promise<ServiceResult<true>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -181,7 +193,7 @@ export async function unfollowUser(targetUserId: string): Promise<ServiceResult<
 }
 
 async function listFollowProfiles(direction: "following" | "followers"): Promise<ServiceResult<SocialFollowRow[]>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -240,7 +252,7 @@ export function listFollowers() {
 }
 
 export async function fetchFriendsRanking(): Promise<ServiceResult<PublicProfile[]>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -283,7 +295,7 @@ export async function fetchFriendsRanking(): Promise<ServiceResult<PublicProfile
 }
 
 export async function fetchFriendActivity(limit = 20): Promise<ServiceResult<SocialActivityItem[]>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -331,7 +343,7 @@ export async function recordSocialActivity(
   eventType: SocialActivityType,
   payload: Record<string, unknown> = {}
 ): Promise<void> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return;
 
   const userId = await currentUserId();

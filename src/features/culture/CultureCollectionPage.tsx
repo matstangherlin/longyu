@@ -45,7 +45,7 @@ export function CultureCollectionPage() {
   return (
     <HubPage data-testid="culture-collection-page" data-collection-id={collectionId}>
       <p className="text-sm">
-        <Link to="/cultura" className="text-accent underline-offset-2 hover:underline" data-testid="culture-collection-back">
+        <Link to="/cultura/explorar" className="text-accent underline-offset-2 hover:underline" data-testid="culture-collection-back">
           ← {t("culture.backToHub")}
         </Link>
       </p>

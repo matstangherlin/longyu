@@ -463,6 +463,9 @@ test.describe("RC2.2.14 — contrato de avanço por StepKind (laboratório)", ()
 
       // Segunda amostra do MESMO tipo: o latch da anterior não pode vazar.
       await page.locator("[data-qa-step-next]").click();
+      // The lab resets its log in the same render that swaps the sample; wait for
+      // that instead of only a fixed delay (slow engines could act on the old sample).
+      await expect(page.locator("[data-qa-step-done]")).toHaveAttribute("data-qa-step-done", "0");
       await page.waitForTimeout(250);
       const sampleA = first;
       const second = await solve(page, kind, contract);

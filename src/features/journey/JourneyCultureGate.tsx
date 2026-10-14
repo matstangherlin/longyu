@@ -20,8 +20,9 @@ export function JourneyCultureGate({
 }: {
   evaluation: CultureProgressionGateEvaluation;
 }) {
-  const { locale } = useTranslation();
-  const en = locale === "en";
+  const { instructionLocale } = useTranslation();
+  // Pedagogical gate copy follows the course (instruction) locale, not app chrome.
+  const en = instructionLocale === "en";
   const { gate, completed, total, completedItemIds, missingItemIds, nextItemId, status } = evaluation;
 
   // Marco já resolvido (selo na mão ou usuário legado) não ocupa a trilha.
@@ -36,7 +37,7 @@ export function JourneyCultureGate({
 
   const title = en ? gate.titleEn : gate.titlePt;
   const reason = en ? gate.reasonEn : gate.reasonPt;
-  // RC2.2.25 — pedido curto e claro: o costume vem antes do próximo trecho.
+  // RC2.3.13E — advisory bridge (does not lock Mandarin). Keep RC2.2.25 lead copy for gates.
   const lead = en
     ? "Before you continue, understand this context."
     : "Antes de continuar, entenda este contexto.";

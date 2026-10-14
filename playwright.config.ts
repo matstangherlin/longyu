@@ -21,6 +21,8 @@ const RC1_CRAWLER_SPEC = "**/rc1-lesson-crawler.spec.ts";
 const CAPABILITY_CLOSURE_SPEC = "**/rc2-2-9-capability-closure.spec.ts";
 // Captura de evidências (docs/screenshots) — só no projeto `screenshots`.
 const SCREENSHOT_SPEC = "**/screenshots.spec.ts";
+/** RC2.3.13B Home viewport captures — manual/local only (not Chromium CI gate). */
+const HOME_SCREENSHOT_SPEC = "**/rc2-3-13b-home-screenshots.spec.ts";
 
 /** Porta do preview isolado (várias worktrees podem rodar E2E em paralelo). */
 const PREVIEW_PORT = process.env.PLAYWRIGHT_PREVIEW_PORT ?? "4173";
@@ -62,19 +64,19 @@ export default defineConfig({
     // Chromium é o portão padrão (roda em qualquer ambiente, inclusive só-Chromium).
     {
       name: "chromium",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, HOME_SCREENSHOT_SPEC, RUNBOOK_SPEC],
       use: { ...devices["Desktop Chrome"], ...chromiumLaunch },
     },
     // Gecko real (Firefox). Exige `npx playwright install firefox`.
     {
       name: "firefox",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, HOME_SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
       use: { ...devices["Desktop Firefox"] },
     },
     // WebKit ≈ motor do Safari (macOS e iOS). Exige `npx playwright install webkit`.
     {
       name: "webkit",
-      testIgnore: [SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
+      testIgnore: [SCREENSHOT_SPEC, HOME_SCREENSHOT_SPEC, RUNBOOK_SPEC, RC1_CRAWLER_SPEC, CAPABILITY_CLOSURE_SPEC],
       use: { ...devices["Desktop Safari"] },
     },
 

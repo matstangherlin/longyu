@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { Link } from "react-router-dom";
-import { IconShield, IconSun, IconLogout, IconUser } from "../../components/ui/Icon";
-import { useCloudSignOut } from "../../hooks/useCloudSignOut";
+import { IconShield, IconSun, IconUser } from "../../components/ui/Icon";
 import { isAdminEmail } from "../../lib/feedback";
 import { useStore } from "../../lib/store";
 import { dueItems } from "../../lib/srs";
@@ -29,6 +28,9 @@ import { deviceQaEnabled } from "../../lib/deviceQa";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import type { MessageKey } from "../../locales/pt-BR";
+import { SettingsGroup, SettingsRow } from "../../components/ui/SettingsRow";
+import { SignOutControl } from "../../components/account/SignOutControl";
+import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 
 // Descrições curtas por área — uma frase que responde "o que é isto?".
 const FEATURE_DESC_KEYS: Record<string, MessageKey> = {
@@ -187,45 +189,21 @@ export function MorePage() {
 }
 
 /**
- * RC2.2.19 — "Você": Perfil, Conta, Aparência e Sair logo no topo do Mais
- * (P2 PROFILE_ACCOUNT_DISCOVERABILITY / LOGOUT_DISCOVERABILITY). Excluir conta
- * não fica aqui: mora separado, no fim de Conta, atrás de confirmação.
+ * RC2.3.13A — "Você" as grouped rows (not a 3-up card grid). Logout is a
+ * compact destructive row at the bottom with confirmation — never a primary
+ * learning CTA and never conflated with Excluir conta (danger zone on Conta).
  */
 function MoreYouBlock() {
   const { t } = useTranslation();
-  const { signOut, canSignOut } = useCloudSignOut();
-  const tile =
-    "flex min-h-14 items-center gap-2 rounded-2xl border border-line bg-surface px-3 text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+  const { canSignOut } = useCloudSignOut();
   return (
-    <section className="mb-5" data-testid="more-you" data-coachmark-target="more-you">
-      <h2 className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ink-faint">{t("navigation.groupYou")}</h2>
-      <div className="grid grid-cols-3 gap-2">
-        <Link to="/perfil" className={tile} data-testid="more-profile">
-          <IconUser width={18} height={18} className="text-accent" /> {t("navigation.profile")}
-        </Link>
-        <Link to="/conta" className={tile} data-testid="more-account">
-          <IconShield width={18} height={18} className="text-accent" /> {t("navigation.account")}
-        </Link>
-        <Link to="/config/aparencia" className={tile} data-testid="more-appearance">
-          <IconSun width={18} height={18} className="text-accent" /> {t("navigation.appearance")}
-        </Link>
-      </div>
-      {canSignOut && (
-        // RC2.2.25 — LOGOUT_DISCOVERABILITY_OWNER_FAIL: "Sair da conta" é uma
-        // LINHA inteira com ícone, não um quadrado perdido na grade. Neutra:
-        // não pode parecer o "Excluir conta" (vermelho, no fim de Conta).
-        <button
-          type="button"
-          onClick={() => void signOut()}
-          className="mt-2 flex min-h-12 w-full items-center gap-3 rounded-2xl border border-line bg-surface px-4 text-left text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
-          data-testid="more-sign-out"
-          data-sign-out-tone="neutral"
-          data-sign-out-layout="full-width"
-        >
-          <IconLogout width={18} height={18} className="text-ink-soft" />
-          {t("common.signOutAccount")}
-        </button>
-      )}
+    <section className="mb-5 space-y-3" data-testid="more-you" data-coachmark-target="more-you" data-cognitive-more-you="">
+      <SettingsGroup title={t("navigation.groupYou")}>
+        <SettingsRow to="/perfil" icon={IconUser} label={t("navigation.profile")} testId="more-profile" />
+        <SettingsRow to="/conta" icon={IconShield} label={t("navigation.account")} testId="more-account" />
+        <SettingsRow to="/config/aparencia" icon={IconSun} label={t("navigation.appearance")} testId="more-appearance" />
+      </SettingsGroup>
+      {canSignOut ? <SignOutControl testId="more-sign-out" /> : null}
     </section>
   );
 }

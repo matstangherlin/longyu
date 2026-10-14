@@ -1,0 +1,62 @@
+{
+  "schema": "longyu-rc-candidate/1",
+  "rcId": "RC2.3.12-RC2",
+  "wave": "RC2.3.13A",
+  "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "artifactSourceSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "certificationHeadSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+  "version": "0.2.0-rc.2",
+  "versionCode": 596,
+  "versionCodeFloor": 1,
+  "versionCodeFormula": "floor + firstParentCommitCount",
+  "fingerprint": "29bb02ec0336",
+  "createdAt": "2026-10-09T09:31:12Z",
+  "featureFreeze": true,
+  "featureFreezePolicy": "docs/release/RC_CHANGE_POLICY.md",
+  "commercialMode": "TEST",
+  "closedBetaCommercialMode": "FREE_ONLY",
+  "liveMonetization": false,
+  "androidIap": "DISABLED_FOR_BETA",
+  "buildChannel": "dev",
+  "status": "BUILT",
+  "distributed": false,
+  "immutable": false,
+  "webArtifact": {
+    "status": "NOT_RUN",
+    "note": "Netlify production still on older SHA; RC web not promoted"
+  },
+  "apkArtifact": {
+    "status": "BUILT",
+    "sha256": "b4c2a846e87af7bd1a8c495bbe2fc8b2b77ff740fc12d5b1c15dc6b61f1b57a0",
+    "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+    "channel": "dev-debug",
+    "runId": "37908317177",
+    "name": "longyu-android-debug-0.2.0-rc.2-3f5cc1b.apk",
+    "note": "debug diagnostic APK (deviceQaBuild=true); not Play release \u2014 RC2 after cognitive UI"
+  },
+  "aabArtifact": {
+    "status": "BUILT",
+    "sha256": "d77b93503c7b0607b9d31cba714beecc27fd5f8cfd3552ac5dc8fe397ab2bdf4",
+    "gitSha": "529d2cd4a9c1b949d61e815dc434162d5fb3a589",
+    "channel": "dev-debug",
+    "runId": "37908317177",
+    "name": "longyu-android-debug-0.2.0-rc.2-3f5cc1b.aab",
+    "note": "debug AAB; signed release BLOCKED_SIGNING_SECRETS"
+  },
+  "cloudSha": null,
+  "parent": {
+    "pr": 331,
+    "branch": "cursor/rc2-3-13a-cognitive-ui-foundation-af1a",
+    "shaAtBranchCreate": "529d2cd4a9c1b949d61e815dc434162d5fb3a589"
+  },
+  "notes": [
+    "RC1 does not certify this UI",
+    "status advances NOT_BUILT \u2192 BUILT \u2192 CODE_VALIDATED \u2192 PHYSICAL_PENDING \u2192 BETA_READY only with evidence",
+    "BETA_READY requires physical QA; never from compile alone",
+    "Physical beta QA must use RC2 not RC1"
+  ],
+  "versionAuthority": "docs/release/VERSION_AUTHORITY.md",
+  "rcDraftPolicy": "RC2 minted because learner UI changed in 13A; RC1 remains historical in rc1-artifacts.json",
+  "artifactsManifest": "docs/release/rc-artifacts.json",
+  "betaOpsHeadSha": "0a82e4f737ef8f5cde1779f470c7de8e6fd76957"
+}

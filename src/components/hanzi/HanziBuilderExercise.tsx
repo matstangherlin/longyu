@@ -71,7 +71,20 @@ export function HanziBuilderExercise({
    */
   density?: "regular" | "compact";
 }) {
-  const compact = density === "compact";
+  // RC2.3.13R.3.1 — short phones (≤667 CSS px height) auto-compact so pieces
+  // stay reachable without exploratory scroll even when caller omitted density.
+  const [shortViewport, setShortViewport] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-height: 667px)").matches : false
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-height: 667px)");
+    const apply = () => setShortViewport(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
+  const compact = density === "compact" || shortViewport;
   const soundEffects = useStore((s) => s.soundEffects);
   const locale = getInstructionLocale();
   const prompt = resolveInstructionText(builder.promptPt, locale);
@@ -330,18 +343,19 @@ export function HanziBuilderExercise({
       {hint && status === "idle" && (
         <p className="mt-2 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink-soft">💡 {hint}</p>
       )}
-      {/* Orientação de primeira vez: uma frase, some depois que ele monta. */}
-      {status === "idle" && selected.length === 0 && (
+      {/* Orientação de primeira vez: some em telas curtas / density compact
+          para liberar viewport às peças (RC2.3.13R.3.1 · 360×640). */}
+      {status === "idle" && selected.length === 0 && !compact && (
         <p
           data-testid="builder-orientation"
-          className="mt-2 rounded-xl border border-line bg-surface-2/70 px-3 py-2 text-center text-sm leading-5 text-ink-soft"
+          className="mt-2 hidden rounded-xl border border-line bg-surface-2/70 px-3 py-2 text-center text-sm leading-5 text-ink-soft min-[668px]:block"
         >
           {t("player.builderOrientation")}
         </p>
       )}
 
       {/* Carta central de montagem */}
-      <div className={[compact ? "mt-3" : "mt-5", "flex justify-center"].join(" ")} data-builder-canvas-wrap>
+      <div className={[compact ? "mt-2" : "mt-5", "flex justify-center"].join(" ")} data-builder-canvas-wrap>
         <BuildCanvas
           builder={builder}
           guideStrength={guideStrength}
@@ -409,7 +423,7 @@ export function HanziBuilderExercise({
             {trayLabel(builder)}
           </div>
           <KeyboardShortcutHint />
-          <div className="max-h-[34svh] overflow-y-auto rounded-2xl border border-line bg-surface-2/45 p-2">
+          <div className="max-h-[min(34svh,220px)] overflow-y-auto rounded-2xl border border-line bg-surface-2/45 p-2 sm:max-h-[34svh]">
             <div className="flex flex-wrap justify-center gap-2.5">
             {availablePieces.map((piece, index) => (
               <PieceButton
@@ -555,8 +569,10 @@ function BuildCanvas({
   status: BuildStatus;
 }) {
   const done = status === "correct";
+  // RC2.3.13R.3.1 — compact canvas on short viewports (360×640): avoid a
+  // 260×260 empty square pushing pieces/CTA below the fold.
   const cardBase =
-    "relative flex aspect-square w-[min(76vw,260px)] items-center justify-center rounded-3xl border-2 bg-surface-2 sm:w-[min(72vw,240px)]";
+    "relative flex aspect-square max-h-[min(42svh,220px)] w-[min(76vw,260px)] items-center justify-center rounded-3xl border-2 bg-surface-2 sm:max-h-none sm:w-[min(72vw,240px)]";
   const cardBorder = done
     ? "border-[rgb(var(--good))]"
     : status === "wrong"

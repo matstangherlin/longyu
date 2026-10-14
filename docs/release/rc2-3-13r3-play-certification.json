@@ -1,0 +1,26 @@
+{
+  "schema": "longyu-rc2-3-13r3-play-certification/1",
+  "wave": "RC2.3.13R.3",
+  "parentPr": 343,
+  "boundCandidate": {
+    "rcId": "RC2.3.13-RC1",
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 651,
+    "packageId": "longyu.noba.com",
+    "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "ownerQaApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  },
+  "results": {
+    "SIGNING_CONFIG": "BLOCKED_SIGNING_SECRETS",
+    "SIGNED_AAB": "NOT_BUILT",
+    "AAB_SHA256": null,
+    "VERSION": "0.2.0-rc.5",
+    "VERSION_CODE": 651,
+    "PACKAGE": "longyu.noba.com",
+    "TRACK": "CLOSED_TESTING",
+    "PLAY_INSTALL_PROOF": "NOT_RUN",
+    "DEBUG_AAB_IS_NOT_PLAY_RELEASE": true
+  },
+  "handoff": "docs/release/PLAY_SIGNING_HANDOFF.md",
+  "note": "Do not upload debug AAB from android-build.yml as Play Closed Testing release."
+}

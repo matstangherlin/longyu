@@ -1,0 +1,66 @@
+{
+  "schema": "longyu-privacy-data-inventory/1",
+  "wave": "RC2.3.12",
+  "disclaimer": "Technical inventory for policy drafting. Not legal advice. Owner/legal review required.",
+  "categories": [
+    {
+      "id": "account",
+      "examples": ["supabase user id", "email", "auth provider ids"],
+      "purpose": "authentication and account recovery",
+      "retention": "account lifetime + deletion flow",
+      "processors": ["Supabase Auth"]
+    },
+    {
+      "id": "progress",
+      "examples": ["lesson completion", "journey position", "streak"],
+      "purpose": "learning continuity",
+      "retention": "account lifetime",
+      "processors": ["Supabase DB"]
+    },
+    {
+      "id": "mastery",
+      "examples": ["dimension evidence summaries", "recommendations inputs"],
+      "purpose": "Personal Mastery",
+      "retention": "account lifetime",
+      "processors": ["Supabase DB"],
+      "notes": "UNKNOWN ≠ WEAK; no raw audio"
+    },
+    {
+      "id": "speech_evidence",
+      "examples": ["technical success/failure flags", "contrast attempt metadata"],
+      "purpose": "speech practice quality",
+      "retention": "bounded; NO raw recording upload",
+      "processors": ["device-local first", "optional server metadata"]
+    },
+    {
+      "id": "hanzi_evidence",
+      "examples": ["trace completion flags"],
+      "purpose": "handwriting practice",
+      "retention": "bounded; drawings not persisted as bitmaps to cloud by default",
+      "processors": ["device-local / progress metadata"]
+    },
+    {
+      "id": "culture",
+      "examples": ["moment completion", "reactions"],
+      "purpose": "culture pedagogy",
+      "retention": "account lifetime",
+      "processors": ["Supabase DB"]
+    },
+    {
+      "id": "telemetry",
+      "examples": ["route events", "error events"],
+      "purpose": "reliability",
+      "retention": "OWNER_ACTION telemetry retention 30/60/90",
+      "processors": ["Sentry (CONFIG_REQUIRED)", "optional analytics"]
+    },
+    {
+      "id": "billing",
+      "examples": ["stripe customer id", "subscription status", "product key"],
+      "purpose": "entitlement",
+      "retention": "subscription lifecycle",
+      "processors": ["Stripe", "Supabase subscriptions/transactions"],
+      "notes": "No card PAN stored by Longyu; FREE_ONLY beta minimizes billing data"
+    }
+  ],
+  "processors": ["Supabase", "Netlify", "Stripe", "Google Play (future)", "Resend", "Sentry", "TypeSafe/Jev (triage only; learner runtime OFF)"]
+}

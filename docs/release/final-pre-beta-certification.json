@@ -1,0 +1,192 @@
+{
+  "wave": "RC2.3.13R.3",
+  "title": "Physical & Operational Certification, Play Readiness & Closed Beta GO",
+  "parentPr": 343,
+  "parentHead": "8811deca936c30ab9eecad56fabcff9cfc9014eb",
+  "shaSemantics": {
+    "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b",
+    "certificationHeadSha": "8612f18d9692be5d8ae65d9adde873521cf38681",
+    "artifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "prHeadSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "sourceTipSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "workflowMergeSha": "3be0ade5565e28297ebedf71645261f037e13c1a",
+    "note": "learnerRuntimeSha = R.3.1.1 runtime modules (719ce024). artifactSourceSha still stale until rebuild."
+  },
+  "identity": {
+    "rcId": "RC2.3.13-RC1",
+    "versionName": "0.2.0-rc.5",
+    "versionCode": 651,
+    "packageId": "longyu.noba.com",
+    "status": "BUILT_FOR_OWNER_QA",
+    "priorBuiltRc": "RC2.3.12-RC2",
+    "learnerRuntimeSha": "b6fe91536daf3a8bdebde66f92ec50a03155fb4b"
+  },
+  "typography": {
+    "TYPOGRAPHY_SYSTEM_PASS": "PASS",
+    "PAGE_TITLE_CONSISTENCY_PASS": "PASS",
+    "SECTION_TITLE_CONSISTENCY_PASS": "PASS",
+    "CARD_TITLE_CONSISTENCY_PASS": "PASS",
+    "BODY_TEXT_CONSISTENCY_PASS": "PASS",
+    "CTA_TYPOGRAPHY_PASS": "PASS",
+    "CULTURE_TYPOGRAPHY_PASS": "PASS",
+    "REVIEW_TYPOGRAPHY_PASS": "PASS",
+    "TASK_TYPOGRAPHY_PASS": "PASS",
+    "MANDARIN_TYPOGRAPHY_PASS": "PASS",
+    "PINYIN_TYPOGRAPHY_PASS": "PASS",
+    "LARGE_FONT_TYPOGRAPHY_PASS": "PENDING_HOSTED",
+    "VIEWPORT_360_PASS": "PENDING_HOSTED",
+    "VIEWPORT_375_PASS": "PENDING_HOSTED",
+    "VIEWPORT_390_PASS": "PENDING_HOSTED"
+  },
+  "motion": {
+    "MOTION_SYSTEM_PASS": "PASS",
+    "JOURNEY_CULTURE_TRANSITION_PASS": "PASS",
+    "SEGMENT_INDICATOR_MOTION_PASS": "PASS",
+    "SCROLL_RESTORE_DURING_TRANSITION_PASS": "PASS",
+    "CULTURE_PATH_TRANSITION_PASS": "PASS",
+    "TASK_STEP_MOTION_PASS": "PASS",
+    "REVIEW_FEEDBACK_MOTION_PASS": "PASS",
+    "BUTTON_INTERACTION_MOTION_PASS": "PASS",
+    "MODAL_MOTION_PASS": "PASS",
+    "COMPLETION_MOTION_PASS": "PASS",
+    "REDUCED_MOTION_PASS": "PASS",
+    "NO_MOTION_INPUT_BLOCK_PASS": "PASS",
+    "NO_LAYOUT_SHIFT_PASS": "PASS",
+    "MOTION_PERFORMANCE_PASS": "PASS"
+  },
+  "hosted": {
+    "SECURITY": "PASS",
+    "ANDROID": "NOT_RUN",
+    "RELEASE_TRUTH": "PASS",
+    "BETA_SUITES": "PASS",
+    "QUALITY_BUILD": "PASS",
+    "CI": "NOT_RUN",
+    "CHROMIUM": "IN_PROGRESS",
+    "CROSS_ENGINE": "IN_PROGRESS",
+    "note": "R.2.1 follow-on: CONVERGENCE_HIDDEN_SKIP + report PEM scrubbed. Re-query hosted on exact HEAD; do not invent PASS."
+  },
+  "hostedRuns": [
+    {
+      "workflow": "Security",
+      "runId": 37995330357,
+      "sourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "workflow": "Android build",
+      "runId": 37995330174,
+      "sourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "workflow": "CI",
+      "runId": 37995329933,
+      "sourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+      "status": "in_progress",
+      "conclusion": null,
+      "note": "Release truth + beta suites + quality PASS; Chromium/cross-engine still pending at reconciliation time"
+    }
+  ],
+  "artifacts": {
+    "ownerQaApk": "BUILT",
+    "playClosedBetaAab": "BLOCKED_SIGNING_SECRETS",
+    "web": "BUILT",
+    "apkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "debugAabSha256": "9342258e158b4eab0c6724a342bd6034cf59ec95aa250359be9280a3699ffb50",
+    "webSha256": "b82648cc1cca419f8937b1ca119eece7cd02e98d552e0e83ab4c5433c45158ee",
+    "provenance": "PASS"
+  },
+  "physical": {
+    "PHYSICAL_QA": "NOT_RUN",
+    "CLEAN_INSTALL": "NOT_RUN",
+    "UPGRADE": "NOT_RUN",
+    "TYPOGRAPHY_PHYSICAL": "NOT_RUN",
+    "MOTION_PHYSICAL": "NOT_RUN",
+    "STICKY_CHROME": "NOT_RUN",
+    "JOURNEY_CULTURE_SWITCH": "NOT_RUN",
+    "AUDIO_X20": "NOT_RUN",
+    "GUIDED_TRY_X10": "NOT_RUN",
+    "SPEECH_X5": "NOT_RUN",
+    "CONVERSATION_X5": "NOT_RUN",
+    "HANZI": "NOT_RUN",
+    "REVIEW": "NOT_RUN",
+    "DYNAMIC_AULA": "NOT_RUN",
+    "TALKBACK": "NOT_RUN",
+    "FONT_SCALE": "NOT_RUN",
+    "REDUCED_MOTION_PHYSICAL": "NOT_RUN",
+    "ANDROID_BACK": "NOT_RUN",
+    "IME": "NOT_RUN",
+    "BACKGROUND_RESUME": "NOT_RUN",
+    "OFFLINE_RECONNECT": "NOT_RUN",
+    "LONG_SESSION_30MIN": "NOT_RUN"
+  },
+  "observability": {
+    "SENTRY": "NOT_RUN"
+  },
+  "rollback": {
+    "NETLIFY_ROLLBACK_DRILL": "NOT_RUN"
+  },
+  "cloud": {
+    "SMOKE_1": "NOT_RUN",
+    "SMOKE_2": "NOT_RUN"
+  },
+  "oauth": {
+    "ANDROID_OAUTH_PHYSICAL": "NOT_RUN"
+  },
+  "freeze": {
+    "counts": {
+      "lessons": 134,
+      "topics": 113,
+      "cultureItems": 36,
+      "cultureNative": 36,
+      "journeyCultureNodes": 20,
+      "culturePaths": 12,
+      "flagshipDeep": 11
+    },
+    "fingerprint": "29bb02ec0336",
+    "billing": "FREE_ONLY",
+    "liveBilling": false,
+    "jevLearnerRuntime": "OFF",
+    "uiFrozen": true,
+    "featureFreeze": true
+  },
+  "ownerAcceptance": {
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE": "NOT_RUN",
+    "boundRcId": "RC2.3.13-RC1",
+    "boundVersionName": "0.2.0-rc.5",
+    "boundVersionCode": 651,
+    "boundArtifactSourceSha": "5c27be365ed276ce7694c15769dd7f9997ec1989",
+    "boundApkSha256": "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  },
+  "entryDecision": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD",
+    "CLOSED_BETA_ENTRY_NOTE": "Do not use a single CLOSED_BETA_ENTRY GO that conflates sideload QA with Play distribution.",
+    "reason": "R.3 scaffold. Hosted E2E still IN_PROGRESS on #343 — physical blocked. Ops credentials unset. Play BLOCKED_SIGNING_SECRETS. OWNER_QA / PLAY entries OWNER_ACTION_REQUIRED. PUBLIC HOLD. Candidate APK preserved."
+  },
+  "openP0": false,
+  "openCoreP1": false,
+  "realTesterCount": 0,
+  "remainingOwnerActions": [
+    "Wait #343 Chromium + cross-engine terminal PASS before physical",
+    "Install OWNER QA APK sha256 fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8",
+    "Verify /qa/device identity (RC / 0.2.0-rc.5 / 651 / source 5c27be36 / fingerprint 29bb02ec0336)",
+    "Execute physical matrix per OWNER_R3_PHYSICAL_OPERATIONAL_PACK.md",
+    "Android OAuth physical (intended providers)",
+    "Configure Sentry / Netlify / cloud credentials or provide evidence for agent automation",
+    "Configure Play signing secrets — PLAY_SIGNING_HANDOFF.md",
+    "OWNER_FINAL_PRE_BETA_ACCEPTANCE bound to this APK SHA256"
+  ],
+  "rootCause": {
+    "code": "SERVICE_ACCOUNT_COMMITTED",
+    "classification": "LEGACY_GATE_FALSE_POSITIVE",
+    "failedGate": "validate:android-release-safety",
+    "failedWorkflowRunId": 38000277968,
+    "learnerRuntimeChanged": false,
+    "artifactInvalidated": false,
+    "fix": "PEM mutation fixture constructed without contiguous PEM line in tracked source"
+  }
+}

@@ -28,7 +28,8 @@ import { RC2_CANDIDATE_FROZEN_SHA256, CLOUD_CHECKS } from "./rc2-2-12-gates.mjs"
 
 const ROOT = process.cwd();
 
-export const MOBILE_TABBAR = ["jornada", "treino", "cultura", "missoes", "mais"];
+/** RC2.3.13G — Culture removed from TabBar; lives in ProgressionShell. */
+export const MOBILE_TABBAR = ["jornada", "treino", "missoes", "mais"];
 export const PRACTICE_SHEET = ["ideogramas", "pinyin", "fala", "leitura", "imersao", "biblioteca"];
 export const ALLOWED_PERMISSIONS = [
   "android.permission.INTERNET",
@@ -102,6 +103,7 @@ export async function loadState() {
       topBar: srcFiles["src/components/layout/TopBar.tsx"],
       tabBar: srcFiles["src/components/layout/TabBar.tsx"],
       nav: srcFiles["src/components/layout/nav.tsx"],
+      progressionShell: srcFiles["src/components/progression/ProgressionShell.tsx"] ?? "",
       hubLayout: srcFiles["src/components/layout/HubLayout.tsx"],
       page: srcFiles["src/components/ui/page.tsx"],
       settingSwitch: srcFiles["src/components/ui/SettingSwitch.tsx"],
@@ -244,17 +246,32 @@ export async function validateMobileNavigationDensity(s) {
   const bar = navKeys(fnBody(nav, "export function mobileNavForStage("));
   if (bar.length > 5) fail("TABBAR_TOO_MANY", "nav.tsx mobileNavForStage", `${bar.length} itens (máximo 5)`);
   if (bar.includes("perfil")) fail("PROFILE_IN_TABBAR", "nav.tsx mobileNavForStage", "Perfil entra pelo avatar da TopBar");
-  if (!bar.includes("cultura")) fail("CULTURE_HIDDEN_IN_MORE", "nav.tsx mobileNavForStage", "Cultura é navegação primária");
+  // RC2.3.13G — Culture must NOT occupy an independent TabBar destination.
+  if (bar.includes("cultura")) {
+    fail("CULTURE_BOTTOM_TAB_FORBIDDEN", "nav.tsx mobileNavForStage", "Cultura vive no ProgressionShell, não na TabBar");
+  }
   if (JSON.stringify(bar) !== JSON.stringify(MOBILE_TABBAR)) fail("TABBAR_ITEMS_WRONG", "nav.tsx mobileNavForStage", `${bar.join(",")} ≠ ${MOBILE_TABBAR.join(",")}`);
   const mobileConst = /export const NAV_MOBILE: NavItem\[\] = \[([\s\S]*?)\n\];/.exec(nav)?.[1] ?? "";
   if (JSON.stringify(navKeys(mobileConst)) !== JSON.stringify(MOBILE_TABBAR)) fail("TABBAR_ITEMS_WRONG", "nav.tsx NAV_MOBILE", "NAV_MOBILE diverge da barra");
-  if (/"\/cultura"/.test(mobileConst) || /"\/cultura"/.test(fnBody(nav, "export function mobileNavForStage("))) fail("CULTURE_UNDER_MORE_MATCH", "nav.tsx", "Mais não pode acender em /cultura");
+  if (navKeys(mobileConst).includes("cultura")) {
+    fail("CULTURE_BOTTOM_TAB_FORBIDDEN", "nav.tsx NAV_MOBILE", "Cultura não pode ser destino da TabBar");
+  }
+  // Mais must not light up on /cultura (progression parent is Jornada).
+  if (/"\/cultura"/.test(mobileConst)) fail("CULTURE_UNDER_MORE_MATCH", "nav.tsx", "Mais não pode acender em /cultura");
+  // ProgressionShell switch must remain the Journey↔Culture control.
+  const shell = String(s.src.progressionShell ?? s.srcFiles?.["src/components/progression/ProgressionShell.tsx"] ?? "");
+  if (!/data-testid="progression-tab-culture"/.test(shell) || !/data-testid="progression-tab-journey"/.test(shell)) {
+    fail("CULTURE_PROGRESSION_SWITCH_REQUIRED", "ProgressionShell.tsx", "switch Jornada|Cultura obrigatório");
+  }
+  // Journey parent stays active on /cultura*
+  if (!/item\.to === "\/jornada"/.test(nav) || !/pathname === "\/cultura"/.test(nav)) {
+    fail("NAV_PARENT_INACTIVE_ON_CULTURE", "nav.tsx isNavItemActive", "Jornada deve ficar ativa em /cultura");
+  }
   const moreSheet = fnBody(nav, "export function moreMobileSheetGroups(");
-  // RC2.2.23 — Cultura pode morar no Mais enquanto não mereceu aba; nunca
-  // duplicada: só entra pelo filtro que tira o que já está na barra.
+  // Culture may appear in Mais catalog as a content link, never duplicated as a TabBar item.
   const cultureInMore = /\[[^\]]*NAV\.cultura[^\]]*\]\.filter\(keep\)/.test(moreSheet);
   if (navKeys(moreSheet).includes("cultura") && (!cultureInMore || !/const keep = \(item: NavItem\) => !primaryTos\.has\(item\.to\)/.test(moreSheet)))
-    fail("CULTURE_DUPLICATED_IN_MORE", "nav.tsx moreMobileSheetGroups", "Cultura só no Mais quando não está na barra");
+    fail("CULTURE_DUPLICATED_IN_MORE", "nav.tsx moreMobileSheetGroups", "Cultura no Mais só via filtro keep");
   const practice = navKeys(fnBody(nav, "export function practiceMobileSheetItems(")).filter((key) => key !== "revisao");
   if (!practice.includes("fala")) fail("SPEAKING_HIDDEN", "nav.tsx practiceMobileSheetItems", "Fala continua visível (também no Android)");
   if (JSON.stringify(practice) !== JSON.stringify(PRACTICE_SHEET)) fail("PRACTICE_SHEET_ORDER", "nav.tsx practiceMobileSheetItems", `${practice.join(",")} ≠ ${PRACTICE_SHEET.join(",")}`);

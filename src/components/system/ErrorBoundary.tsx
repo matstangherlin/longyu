@@ -5,6 +5,7 @@ import { recordClientDiagnostic, requestFeedbackOpen } from "../../lib/clientDia
 import { t } from "../../i18n/catalog";
 import { subscribeInterfaceLocale } from "../../i18n/locale";
 import { isStaleBundleError, reloadOnceForStaleBundle } from "../../lib/staleBundle";
+import { captureError } from "../../lib/observability/errorReporting";
 
 /**
  * Rede de segurança contra tela branca.
@@ -56,6 +57,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       area,
       message: error.message || error.name || "render_error",
     });
+    // RC2.3.10 — no-op without VITE_SENTRY_DSN; scrubbed before it leaves the device.
+    captureError(error, area);
     // Page-level only: the shell already rendered. Reloading from the root
     // boundary after a successful shell paint would loop.
     if (area === "page" && isStaleBundleError(error)) {

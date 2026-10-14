@@ -8,15 +8,18 @@
   "appId": "longyu.noba.com",
   "appName": "Longyu",
   "webDir": "dist",
-  "versionName": "0.2.0-beta.1",
+  "versionName": "0.2.0-rc.5",
   "versionCode": 1,
+  "versionCodeRole": "floor",
+  "versionCodeAuthority": "docs/release/VERSION_AUTHORITY.md",
+  "versionCodeNote": "This versionCode mirrors android/version.properties FLOOR only. Computed Play/CI versionCode = floor + first-parent count (release-identity.mjs).",
   "minSdk": 24,
   "targetSdk": 36,
   "compileSdk": 36,
   "androidGradlePlugin": "8.13.0",
   "gradle": "8.14.3",
   "java": 21,
-  "fingerprint": "5a64821d0b7d",
+  "fingerprint": "29bb02ec0336",
   "pedagogyFrozen": true,
   "cloudDeferred": true,
   "signingContractReady": true,
@@ -57,5 +60,6 @@
     "since": "RC2.2.16",
     "superseded": "com.longyu.app (SUPERSEDED — RC2.2.10–RC2.2.14B, nunca publicado)",
     "manifest": "docs/release/android-package-identity.json"
-  }
+  },
+  "curriculumFingerprint": "29bb02ec0336"
 }

@@ -5,6 +5,7 @@ import {
   buildServerPriceMatrix,
   resolveAllowedPrice,
 } from "../../../src/commercial/billing.ts";
+import { refuseStripeLive } from "../_shared/stripeLiveGuard.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_BETA_ORIGINS = [
@@ -55,12 +56,8 @@ serve(async (req) => {
         { status: 501, headers: { ...headers, "Content-Type": "application/json" } }
       );
     }
-    if (stripeSecret.startsWith("sk_live_")) {
-      return new Response(JSON.stringify({ error: "Stripe Live is disabled for this release candidate." }), {
-        status: 503,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
-    }
+    const liveRefusal = refuseStripeLive(stripeSecret, headers);
+    if (liveRefusal) return liveRefusal;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY")!;

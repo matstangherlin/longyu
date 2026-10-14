@@ -264,6 +264,11 @@
       "learnerFacing": true
     },
     {
+      "path": "cultura/explorar",
+      "declaredBy": "RC2.3.13E",
+      "learnerFacing": true
+    },
+    {
       "path": "cultura/revisao",
       "declaredBy": "RC2.3.8-baseline",
       "learnerFacing": true
@@ -271,6 +276,11 @@
     {
       "path": "cultura/colecao/:collectionId",
       "declaredBy": "RC2.3.8-baseline",
+      "learnerFacing": true
+    },
+    {
+      "path": "cultura/topico/:topicId",
+      "declaredBy": "RC2.3.13R.3.2",
       "learnerFacing": true
     },
     {

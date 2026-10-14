@@ -14,6 +14,13 @@ const env = mergedEnv();
 const ref = env.SUPABASE_PROJECT_REF ?? "drjcfalvlbbeblmmyhwj";
 const token = env.SUPABASE_ACCESS_TOKEN;
 
+if (isProductionProjectId(ref)) {
+  console.error("RECUSADO: db:apply-api não reaplica o histórico inteiro em produção.");
+  console.error("Produção exige PRODUCTION_MIGRATION_READY: migration id específico, SHA esperado, backup verificado.");
+  console.error("Staging: npm run migrate:staging");
+  process.exit(6);
+}
+
 if (env.LONGYU_STAGING_ONLY === "true" && isProductionProjectId(ref)) {
   console.error("RECUSADO: db:apply-api com LONGYU_STAGING_ONLY não aponta para produção.");
   console.error("Use: npm run migrate:staging");

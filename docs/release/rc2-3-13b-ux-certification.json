@@ -1,0 +1,44 @@
+{
+  "schema": "longyu-rc2-3-13b-ux-certification/1",
+  "rcId": "RC2.3.12-RC3",
+  "version": "0.2.0-rc.3",
+  "wave": "RC2.3.13B",
+  "note": "Home Cognitive Redesign. Does not certify physical QA, Sentry, rollback, cloud smoke, or OAuth. RC2 artifact from #331 does not certify this Home UI.",
+  "matrix": {
+    "HOME_PRIMARY_ACTION_PASS": "PASS",
+    "CONTINUE_TRUTH_PASS": "PASS",
+    "NEW_LEARNER_PASS": "PASS",
+    "RETURNING_LEARNER_PASS": "PASS",
+    "TODAY_RECOMMENDATION_PASS": "PASS",
+    "RECOMMENDATION_EXPLAINABILITY_PASS": "PASS",
+    "MASTERY_SNAPSHOT_PASS": "PASS",
+    "EXPLORE_PRIORITY_PASS": "PASS",
+    "HICK_LOAD_PASS": "PASS",
+    "CTA_HIERARCHY_PASS": "PASS",
+    "PROGRESSIVE_DISCOVERY_PASS": "PASS",
+    "ACCESSIBILITY_PASS": "PASS",
+    "VIEWPORT_360_CODE_PASS": "CODE_READY",
+    "VIEWPORT_375_CODE_PASS": "CODE_READY",
+    "VIEWPORT_390_CODE_PASS": "CODE_READY",
+    "ROUTE_COMPAT_PASS": "PASS",
+    "CURRICULUM_UNCHANGED": "PASS",
+    "JEV_RUNTIME_OFF": "PASS",
+    "BILLING_UNCHANGED": "PASS"
+  },
+  "gates": {
+    "gate:rc2-3-13b-home-cognitive": "REQUIRED"
+  },
+  "betaBlockersUnchanged": [
+    "PHYSICAL_RC",
+    "OBSERVABILITY",
+    "ROLLBACK",
+    "CLOUD_SMOKE",
+    "ANDROID_OAUTH",
+    "CLOSED_BETA_ENTRY"
+  ],
+  "fiveSecondTest": {
+    "whatNext": "home-continue heading + lesson title",
+    "whereTap": "home-continue-cta",
+    "whyPractice": "home-today-reason"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "longyu-batch-a-ledger-safe/1",
+  "status": "BATCH_A_LEDGER_SAFE_TO_PROCEED",
+  "readAt": "2026-10-09T01:30:00Z",
+  "productionWrite": false,
+  "strategy": "LEDGER_AS_AUTHORITY_NO_HISTORY_REWRITE",
+  "proofs": [
+    {
+      "claim": "Batch A remote name is new",
+      "result": "PASS",
+      "remoteName": "rc2_3_10_league_memberships_policy_recursion",
+      "evidence": "No schema_migrations row with that name among 36 production rows (2026-10-09 snapshot)."
+    },
+    {
+      "claim": "Does not reapply an old migration file",
+      "result": "PASS",
+      "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+      "evidence": "File lives outside supabase/migrations/; apply-production-migration allowlist posts a single new Management API migration name."
+    },
+    {
+      "claim": "Does not depend on UNKNOWN historical rows",
+      "result": "PASS",
+      "evidence": "SQL only creates league_viewer_scope + replaces league_memberships_select_peers. No reference to placeholder history names or PROD_ONLY economy hotfixes."
+    },
+    {
+      "claim": "Does not collide with existing league history rows",
+      "result": "PASS",
+      "existing": [
+        "fix_leagues_cohort_finalize",
+        "harden_economy_claim_league_week_reward",
+        "harden_economy_add_league_weekly_xp"
+      ]
+    }
+  ],
+  "historicalUnknown": {
+    "count": 11,
+    "action": "LEAVE_AS_IS",
+    "note": "Checked-in docs/launch/production-migration-ledger.json remains the reconciliation authority. Batch A does not edit supabase_migrations history."
+  },
+  "productionMigrationReadyLedgerField": {
+    "recommendedStatus": "PASS",
+    "reason": "Agent technical decision for Batch A scope: ledger-as-authority + new remote name proven collision-free. Still requires backupVerified + ownerApproval before apply."
+  }
+}

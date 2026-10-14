@@ -14,6 +14,10 @@ export const SUITES = [
     description: "Fast failure first: convergence + product truth, typecheck, secrets/security boundaries, freezes, fingerprint chain, release evidence.",
     steps: [
       "gate:rc2-3-9-stack-convergence",
+      "gate:rc2-3-10-cloud",
+      "gate:rc2-3-10b",
+      "gate:rc2-3-10c",
+      "gate:rc2-3-10d",
       "validate:public-beta-feature-freeze",
       "validate:rc-learning-loop-freeze",
       "validate:operational-evidence",
@@ -433,6 +437,12 @@ export const SUITES = [
       "test:media-completion",
       "validate:glossary-ui",
       "validate:lesson-victory-ui",
+      "validate:journey-svg-assets",
+      "validate:journey-svg-style",
+      "validate:journey-scene-registry",
+      "validate:journey-scene-layout",
+      "validate:rc2-3-13r3-2-3-journey-svg-storytelling",
+      "test:rc2-3-13r3-2-3-journey-svg-storytelling",
     ],
   },
   {
@@ -537,9 +547,19 @@ export const SUITES = [
 /** Steps that run in canonical suites but were NOT in the legacy chain (coverage added by RC2.3.9). */
 export const ADDED_STEPS = Object.freeze({
   "gate:rc2-3-9-stack-convergence": "RC2.3.9 — new convergence/product-truth gate.",
+  "gate:rc2-3-10-cloud": "RC2.3.10 — cloud certification: migration ledger, cloud matrix, provenance, Jev/Turnstile guarantees, bundle secret patterns.",
+  "gate:rc2-3-10b": "RC2.3.10B — production reconciliation: migration promotion proof, call graph vs snapshot, safe-apply plan, edge parity, Stripe/OAuth/SMTP/Sentry/Jev static posture, owner-action and #273 honesty (45 mutation classes).",
+  "gate:rc2-3-10c": "RC2.3.10C — production workflow safety: no apply-all, no blind 004 replay, auth allowlist merge, expected SHA, webhook retry classification.",
+  "gate:rc2-3-10d": "RC2.3.10D — production execution honesty: Batch A readiness, backup/approval fail-closed, placement not reachable, snapshot email omitted, no false cloud PASS.",
   "gate:rc2-2-32": "RC2.2.32 voice/speech/guidance gate existed but no workflow or chain ran it.",
   "gate:rc2-3-0-pedagogy-v6": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
   "gate:rc2-3-1-visual-first": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
   "gate:rc2-3-2-human-everyday": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
   "gate:rc2-3-3-culture-deep": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
+  "validate:journey-svg-assets": "RC2.3.13R.3.2.3 — Journey scene SVGs: parse, safety (no script/foreignObject/raster/external refs), viewBox, size, ids.",
+  "validate:journey-svg-style": "RC2.3.13R.3.2.3 — Longyu vector contract: role palette ⊂ tokens, light + moonlit-dark contrast, no text/emoji/fonts.",
+  "validate:journey-scene-registry": "RC2.3.13R.3.2.3 — registry ↔ files ↔ inventory ↔ deterministic scene plan (density, alternation, regions).",
+  "validate:journey-scene-layout": "RC2.3.13R.3.2.3 — side-lane contract (axis, sizing, reserved box, motion, a11y) + real-browser layout evidence.",
+  "validate:rc2-3-13r3-2-3-journey-svg-storytelling": "RC2.3.13R.3.2.3 — SVG wave release honesty (runtime SHA, stale APKs, WebKit skip, physical, entry).",
+  "test:rc2-3-13r3-2-3-journey-svg-storytelling": "RC2.3.13R.3.2.3 — mutation kills for the Journey SVG gates (≥80).",
 });

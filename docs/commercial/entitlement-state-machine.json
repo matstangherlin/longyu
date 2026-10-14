@@ -1,0 +1,259 @@
+{
+  "schema": "longyu-entitlement-state-machine/1",
+  "wave": "RC2.3.11",
+  "productionWrite": false,
+  "head": "99e69f4cd13c2d21ad05a06bb6fb70560c971b3d",
+  "branch": "cursor/rc2-3-11-monetization-final-pricing",
+  "authorityPrinciple": "server-only",
+  "authorityDetail": {
+    "cloudAccounts": "premiumAccess comes only from get_server_entitlement (authenticated RPC) or, on RPC transport failure, a read of subscriptions via resolveServerSubscriptionRow. Client isPremium/preview is ignored when accountAuthMode=cloud (src/lib/entitlements.ts effectivePremium).",
+    "writers": [
+      "edge:stripe-webhook → rpc:apply_subscription_event (service_role)",
+      "edge:stripe-webhook → table:transactions upsert on stripe_event_id",
+      "service_role / admin paths for entitlement_grants and organization provisioning (no client write of is_pro)"
+    ],
+    "clientForbidden": [
+      "providerPriceId / amount / currency / coupon on checkout body",
+      "INSERT/UPDATE subscriptions or transactions",
+      "EXECUTE apply_subscription_event",
+      "persisting serverIsPro (store partialize forces false)"
+    ]
+  },
+  "providers": [
+    {
+      "id": "stripe",
+      "surfaces": ["web"],
+      "status": "test_mode_intended",
+      "codePaths": [
+        "supabase/functions/create-checkout-session/index.ts",
+        "supabase/functions/create-billing-portal/index.ts",
+        "supabase/functions/stripe-webhook/index.ts"
+      ],
+      "liveKeyGuard": {
+        "create-checkout-session": "refuses sk_live_ with HTTP 503",
+        "create-billing-portal": "absent",
+        "stripe-webhook": "absent"
+      }
+    },
+    {
+      "id": "google_play_billing",
+      "surfaces": ["android_native"],
+      "status": "disabled_for_beta",
+      "codePaths": [
+        "src/services/subscriptionService.ts (ANDROID_IN_APP_PURCHASE, isInAppPurchaseAvailable)",
+        "docs/release/android-billing-audit.json"
+      ],
+      "implementation": null
+    },
+    {
+      "id": "pearl_pro_pass",
+      "surfaces": ["web", "android_native"],
+      "status": "internal_currency_not_real_money",
+      "codePaths": [
+        "src/lib/pearlPro.ts",
+        "get_server_entitlement source=pearl",
+        "src/lib/cloudPearlProActivation.ts"
+      ],
+      "productionBackend": "activate_pearl_pro_pass listed MISSING in src/lib/cloud/knownMissingBackend.json"
+    },
+    {
+      "id": "organization_seat",
+      "surfaces": ["web"],
+      "status": "pilot_contract_provision_repo_ready_prod_missing",
+      "codePaths": [
+        "supabase/migrations/20260825043000_business_foundation.sql",
+        "_user_organization_entitlement",
+        "src/features/business/*"
+      ]
+    },
+    {
+      "id": "family_membership",
+      "surfaces": ["web"],
+      "status": "planned_repo_ready_prod_missing",
+      "codePaths": [
+        "supabase/migrations/20260914120000_family_plan_foundation.sql",
+        "supabase/migrations/20260914210000_family_entitlement.sql",
+        "src/commercial/family.ts",
+        "src/features/familia/*"
+      ]
+    },
+    {
+      "id": "entitlement_grant_internal",
+      "surfaces": ["ops"],
+      "status": "server_table_grants",
+      "codePaths": ["user_has_entitlement_grant", "get_server_entitlement source=internal"]
+    }
+  ],
+  "productAvailability": {
+    "source": "src/commercial/productTruth.ts",
+    "states": ["available", "pilot", "planned"],
+    "current": {
+      "journey": "available",
+      "free_plan": "available",
+      "pro_individual": "planned",
+      "family_plan": "planned",
+      "business_workspace": "pilot",
+      "enterprise_plan": "planned"
+    }
+  },
+  "subscriptionRowStatuses": {
+    "source": "Stripe subscription.status persisted by stripe-webhook; not remapped to active",
+    "valuesObservedInCode": [
+      "trialing",
+      "active",
+      "past_due",
+      "unpaid",
+      "canceled",
+      "incomplete",
+      "incomplete_expired"
+    ],
+    "serverProGrantVia_user_stripe_pro_active": {
+      "grantsWhen": ["active", "trialing"],
+      "requires": "current_period_end is null OR current_period_end > now()",
+      "fileHint": "supabase/longyu_apply_all.sql / pearl+business migrations"
+    },
+    "clientSnapshotStates": {
+      "source": "src/services/entitlementService.ts resolveServerSubscriptionRow + subscriptionService.ts",
+      "states": [
+        "real_trialing",
+        "real_active",
+        "real_canceling",
+        "real_expired"
+      ],
+      "grantsProWhen": ["real_trialing", "real_active", "real_canceling"],
+      "note": "real_canceling includes canceled|cancel_at_period_end with period still valid — stricter than _user_stripe_pro_active"
+    },
+    "uiSubscriptionState": {
+      "source": "src/services/subscriptionService.ts subscriptionStateFor",
+      "states": [
+        "not_subscriber",
+        "local_preview",
+        "real_trialing",
+        "real_active",
+        "real_canceling",
+        "real_expired"
+      ]
+    }
+  },
+  "applySubscriptionEvent": {
+    "rpc": "apply_subscription_event",
+    "grants": ["service_role"],
+    "idempotencyReasons": [
+      "missing_subscription_id",
+      "duplicate_event",
+      "terminal_canceled",
+      "stale",
+      "stale_or_missing",
+      "updated",
+      "upserted"
+    ],
+    "ordering": "p_event_created ascending wins; same-second broken by p_event_id lexicographic; row locked FOR UPDATE",
+    "webhookEvents": [
+      "checkout.session.completed",
+      "customer.subscription.created",
+      "customer.subscription.updated",
+      "customer.subscription.deleted",
+      "invoice.paid",
+      "invoice.payment_failed"
+    ]
+  },
+  "effectiveEntitlement": {
+    "rpc": "get_server_entitlement",
+    "returns": [
+      "ok",
+      "is_pro",
+      "tier",
+      "source",
+      "organization_id",
+      "organization_role",
+      "organization_access_source",
+      "family_id",
+      "family_role",
+      "pearl_pro_expires_at"
+    ],
+    "sourcePriorityServer": [
+      "organization",
+      "individual_subscription",
+      "family_membership",
+      "pearl",
+      "internal",
+      "none"
+    ],
+    "clientSourceAliases": {
+      "organization": "business_seat",
+      "stripe": "individual_subscription",
+      "grant": "internal",
+      "pearl_pass": "pearl"
+    },
+    "clientResolverPriority": [
+      "enterprise_seat",
+      "business_seat",
+      "individual_subscription",
+      "family_membership",
+      "promotion",
+      "pearl",
+      "internal"
+    ],
+    "rule": "Any single live source grants premiumAccess; sources coexist and do not cancel each other (src/commercial/entitlements.ts)."
+  },
+  "clientRuntimeStates": {
+    "serverIsPro": {
+      "type": "ephemeral_boolean",
+      "setBy": "EntitlementBootstrap → fetchRemoteEntitlements → fetchServerIsPro → setServerEntitlement",
+      "persisted": false
+    },
+    "isPremium": {
+      "type": "local_preview_flag",
+      "setBy": "setPremium (Settings UI when isDevPreviewAllowed)",
+      "cloudEffect": "ignored"
+    },
+    "checking": {
+      "type": "transient",
+      "source": "src/lib/entitlementStatus.ts beginCheck/endCheck"
+    }
+  },
+  "checkoutPriceSlotStates": {
+    "source": "src/commercial/billing.ts",
+    "states": ["PRICE_PENDING", "CONFIGURED", "PRICE_MISMATCH"],
+    "clientBundleDefault": "PRICE_PENDING (providerPriceId null)",
+    "serverConfigEnv": [
+      "STRIPE_PRICE_<PLAN>_<CYCLE>_<MARKET>",
+      "LONGYU_PRICE_<PLAN>_<CYCLE>_<MARKET>_MINOR"
+    ],
+    "checkoutPlans": ["pro", "family"],
+    "cycles": ["monthly", "annual"],
+    "markets": ["BR", "INTERNATIONAL"]
+  },
+  "transitions": [
+    {
+      "from": "not_subscriber",
+      "to": "real_trialing",
+      "via": "checkout.session.completed → subscription retrieve status=trialing → apply_subscription_event",
+      "authority": "server"
+    },
+    {
+      "from": "real_trialing",
+      "to": "real_active",
+      "via": "customer.subscription.updated status=active",
+      "authority": "server"
+    },
+    {
+      "from": "real_active",
+      "to": "real_canceling",
+      "via": "cancel_at_period_end true while period valid (client snapshot); server RPC still grants while status remains active|trialing",
+      "authority": "server"
+    },
+    {
+      "from": ["real_active", "real_trialing", "real_canceling"],
+      "to": "real_expired",
+      "via": "status past_due|unpaid|incomplete*|canceled with period ended, or period_end <= now()",
+      "authority": "server"
+    },
+    {
+      "from": "any",
+      "to": "duplicate_event|stale|terminal_canceled",
+      "via": "apply_subscription_event refuses write; webhook classification ALREADY_PROCESSED",
+      "authority": "server"
+    }
+  ]
+}

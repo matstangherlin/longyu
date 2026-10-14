@@ -2,6 +2,8 @@ import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { BACKEND_UNAVAILABLE_MESSAGE } from "../lib/auth/localAuthPolicy";
 import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
+import { isProductionLikeEnv } from "../lib/appEnvironment";
+import knownMissing from "../lib/cloud/knownMissingBackend.json";
 import {
   PLACEMENT_VERSION,
   evaluatePlacementEvidence,
@@ -16,6 +18,17 @@ export interface PlacementCommitResult {
   message: string;
   analysis?: PlacementAnalysis;
   attemptId?: string;
+  /** true when production still lacks commit-placement and we kept a local analysis only */
+  localOnly?: boolean;
+}
+
+/** Production-like builds must not invoke the missing Edge until Batch B lands. */
+export function isCommitPlacementEdgeAvailable(
+  env: { VITE_APP_ENV?: string; MODE?: string; DEV?: boolean } = import.meta.env
+): boolean {
+  if (!isProductionLikeEnv(env)) return true;
+  const missing = knownMissing.notGatedHere?.placement?.missing ?? [];
+  return !missing.some((item) => item.kind === "edge" && item.name === "commit-placement");
 }
 
 export async function commitPlacementToServer(input: {
@@ -38,6 +51,18 @@ export async function commitPlacementToServer(input: {
   if (!isSupabaseBackendEnabled()) {
     return { ok: false, message: BACKEND_UNAVAILABLE_MESSAGE };
   }
+
+  // RC2.3.10D: zero MISSING_AND_REACHABLE while Batch B (placement migrations +
+  // Edge deploy) is blocked on backup. Keep local analysis; do not call 404.
+  if (!isCommitPlacementEdgeAvailable()) {
+    return {
+      ok: true,
+      localOnly: true,
+      message: "Nivelamento aplicado neste dispositivo. A sincronização com a conta chega com o backend de placement.",
+      analysis,
+    };
+  }
+
   const client = getSupabaseClient();
   if (!client) return { ok: false, message: BACKEND_UNAVAILABLE_MESSAGE };
 

@@ -210,7 +210,7 @@ test.describe("RC2.2.7 — transferência tonal na lição", () => {
 });
 
 test.describe("RC2.2.7 — o que veio antes continua de pé", () => {
-  test("T7 — RC2.2.6: o marco cultural continua trancando o tópico guardado", async ({ page }) => {
+  test("T7 — RC2.3.13E: marco cultural permanece visível (advisory), sem trancar Mandarin", async ({ page }) => {
     test.setTimeout(150_000);
     const gate = CULTURE_PROGRESSION_GATES.find((entry) => entry.id === "gate-social-etiquette")!;
     await seedAtCultureGate(page, gate.beforeTopicId);

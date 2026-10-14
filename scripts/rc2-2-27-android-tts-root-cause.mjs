@@ -76,7 +76,7 @@ const MUTATIONS = {
     ["[12] mesmo texto em novo node não toca", "SAME_TEXT_NEW_NODE_SILENT", src("autoSpeak", "[opts.speechKey, opts.audioId, text,", "[text, opts.audioId,")],
   ],
   "conversation-sequence": [
-    ["[17] áudio falha e bloqueia conversa", "AUDIO_BLOCKS_CONVERSATION", src("conversation", 'feedback === "correct" || (isOrder ? ordered.length === 0 : !picked)', 'feedback === "correct" || audioPlaying || (isOrder ? ordered.length === 0 : !picked)')],
+    ["[17] áudio falha e bloqueia conversa", "AUDIO_BLOCKS_CONVERSATION", src("conversation", "disabled={isOrder ? ordered.length === 0 : !picked}", 'disabled={audioPlaying || (isOrder ? ordered.length === 0 : !picked)}')],
     ["onend some quando a fala falha", "AUDIO_BLOCKS_CONVERSATION", src("mandarin", "    void handle.done.then(() => opts.onend?.()).catch(() => opts.onend?.());\n", "")],
   ],
   "guided-try": [

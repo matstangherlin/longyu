@@ -1,0 +1,45 @@
+name: Cloud smoke (manual, production)
+
+# RC2.3.10 — post-deploy cloud smoke against production with the seeded QA
+# account (never a real learner). Only workflow_dispatch. One namespaced
+# "[cloud-smoke]" feedback row is the only write. Report uploaded as artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: "SHA que deveria estar no ar (opcional)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Cloud smoke
+        env:
+          VITE_SUPABASE_URL: https://drjcfalvlbbeblmmyhwj.supabase.co
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          LONGYU_QA_EMAIL: ${{ secrets.LONGYU_QA_EMAIL }}
+          LONGYU_QA_PASSWORD: ${{ secrets.LONGYU_QA_PASSWORD }}
+          LONGYU_EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          mkdir -p reports
+          node scripts/cloud-smoke.mjs --json reports/cloud-smoke.json | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-smoke-report
+          path: reports/cloud-smoke.json
+          if-no-files-found: warn

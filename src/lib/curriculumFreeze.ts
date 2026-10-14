@@ -8,7 +8,18 @@
  *
  * Fingerprint advanced: 943a8f9fb720 → 516692632525 because
  * `cultureNative.ts` + `cultureLessons.ts` are CURRICULUM_SOURCES.
- * Do not restore the prior fingerprint.
+ *
+ * RC2.3.13F (Culture Deep Expansion) advanced 5a64821d0b7d → fea5455e1461:
+ * CultureItems 30 → 36, native lessons 30 → 36 (hub-only). Journey culture
+ * nodes stay 20. Mandarin lesson/topic counts unchanged. Fingerprint moves
+ * only because `cultureNative.ts` is a CURRICULUM_SOURCE.
+ *
+ * RC2.3.13R.3.1 advanced fea5455e1461 → 57a848ef9ef9 because
+ * `lessonTasks.ts` (visual variety / plan selection) is a CURRICULUM_SOURCE.
+ * RC2.3.13R.3.1.2 advanced 57a848ef9ef9 → 29bb02ec0336 because
+ * `lessonTasks.ts` same-kind visual repeat (compare_with_image vs image_choice)
+ * plus removal of unused `selectedImageConceptIds` after that scoping
+ * is a CURRICULUM_SOURCE. Lesson/topic/Culture counts unchanged.
  *
  * CURRICULUM_FREEZE = RC2_CONTENT_FREEZE marks content closed for RC2.
  * CONTENT_FREEZE_SHA ≠ RELEASE_CANDIDATE_SHA — the latter stays empty
@@ -23,6 +34,168 @@ export const CURRICULUM_FREEZE = "RC2_CONTENT_FREEZE" as const;
  * Forbidden: new lessons, CultureItems, exercise modes, AI, gamification, commercial launches.
  */
 export const FEATURE_FREEZE = "PUBLIC_BETA" as const;
+
+/**
+ * RC2.3.13R.3.1 — PRE_BETA_FREEZE_EXCEPTION.
+ *
+ * Real-device owner QA exposed beta blockers (canonical exercise skips, audio
+ * truncation, personalized utterance cuts, distractor leakage, visual
+ * repetition, mobile activity fit). This exception allows learner-runtime
+ * correctness fixes only — not product redesign or curriculum expansion.
+ *
+ * Reason: REAL_DEVICE_BETA_BLOCKER_FIX
+ * Counts stay frozen: 134 lessons, 113 topics, 36 CultureItems.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION = {
+  id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
+  reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
+  allows: [
+    "canonical activity integrity fixes",
+    "audio continuity / personalized utterance playback",
+    "distractor quality / name-leak repair",
+    "deterministic visual variety",
+    "small-viewport activity layout compaction",
+  ],
+  forbids: ["new lessons", "new topics", "new CultureItems", "new StepKind", "mastery math changes", "feature redesign"],
+  gates: [
+    "validate:canonical-activity-integrity",
+    "validate:distractor-quality",
+    "gate:rc2-3-13r3-1-learning-integrity",
+  ],
+  /** Typed fingerprint advance: lessonTasks CURRICULUM_SOURCE (visual variety). */
+  previousFingerprint: "fea5455e1461",
+  fingerprint: "57a848ef9ef9",
+  gate: "gate:rc2-3-13r3-1-learning-integrity",
+  affectedContent: ["src/features/lesson/lessonTasks.ts"],
+} as const;
+
+/**
+ * RC2.3.13R.3.1.2 — same-kind visual repeat so authored compare_with_image
+ * survives plan selection beside image_choice of the same concept; also drops
+ * the unused selectedImageConceptIds helper left by that scoping (typecheck).
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R312 = {
+  id: "RC2_3_13R3_1_2_VISUAL_KIND_REPEAT",
+  reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
+  allows: [
+    "same-kind visual concept repeat control",
+    "authored compare_with_image plan delivery",
+    "unused visual-repeat helper cleanup after scoping",
+  ],
+  forbids: ["new lessons", "new topics", "new CultureItems", "new StepKind", "feature redesign"],
+  gates: [
+    "validate:compare-with-image",
+    "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
+  ],
+  previousFingerprint: "57a848ef9ef9",
+  fingerprint: "29bb02ec0336",
+  gate: "gate:rc2-3-13r3-1-2-artifact-targeted-retest",
+  affectedContent: ["src/features/lesson/lessonTasks.ts"],
+} as const;
+
+/**
+ * RC2.3.13R.3.2 — OWNER_APPROVED_CULTURE_INFORMATION_ARCHITECTURE.
+ * Culture root mixes topic selection and node progression; restructure into
+ * topic hub + topic detail. No new curriculum / Culture lessons / mastery / economy.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R32 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_APPROVED_CULTURE_INFORMATION_ARCHITECTURE",
+  rationale:
+    "CURRENT CULTURE ROOT MIXES TOPIC SELECTION AND NODE PROGRESSION, CREATING CLUTTER AND POOR SCALABILITY.",
+  allows: [
+    "Culture topic grouping layer over existing V2 paths",
+    "Culture root topic hub (rectangular cards)",
+    "Culture topic detail with subtopic ProgressionPath",
+    "navigation / scroll / return-path wiring for topic hierarchy",
+  ],
+  forbids: [
+    "new CultureItems",
+    "new Culture native lessons",
+    "new Journey Culture nodes",
+    "new Culture paths",
+    "mastery math changes",
+    "economy changes",
+  ],
+  gates: [
+    "validate:culture-topic-hierarchy",
+    "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+  ],
+  gate: "gate:rc2-3-13r3-2-culture-topic-hierarchy",
+  affectedSurfaces: [
+    "src/data/cultureTopicGroups.ts",
+    "src/features/culture/CultureJourneyPage.tsx",
+    "src/features/culture/CultureTopicDetailPage.tsx",
+    "src/features/culture/CultureTopicCard.tsx",
+  ],
+} as const;
+
+/**
+ * RC2.3.13R.3.2.1 — visual polish only.
+ * Stable progression axis, crafted topic icons, restrained symbolic ornaments.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R321 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "VISUAL_POLISH_ONLY",
+  rationale: "CULTURE AND JOURNEY PROGRESSION PRESENTATION NEEDS ALIGNMENT, ICON CRAFT, AND RESTRAINED SYMBOLIC ORNAMENTS.",
+  allows: [
+    "Culture topic card visual polish",
+    "stable centered progression axis",
+    "decorative symbolic ornaments",
+    "Journey and Culture shared path presentation",
+  ],
+  forbids: [
+    "new CultureItems",
+    "new lessons",
+    "new Culture paths",
+    "pedagogical rule changes",
+    "economy changes",
+    "navigation architecture changes",
+  ],
+  gates: [
+    "validate:progression-visual-alignment",
+    "validate:symbolic-ornament-system",
+    "validate:topic-card-polish",
+    "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression",
+  ],
+  gate: "gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression",
+} as const;
+
+/**
+ * RC2.3.13R.3.2.3 — owner-approved final visual asset wave.
+ * Custom `.svg` Journey scenes in side lanes (atmosphere layer), lane-anchored
+ * ornaments that keep clear of them, and the embroidered module-review
+ * medallion. Presentation only: Learning > Progression > Atmosphere.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R323 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_APPROVED_JOURNEY_SVG_VISUAL_STORYTELLING",
+  rationale: "JOURNEY NEEDS AUTHORED, CHINESE, MEMORABLE ATMOSPHERE BESIDE THE PATH WITHOUT TOUCHING LEARNING OR PROGRESSION.",
+  allows: [
+    "custom Journey scene SVG assets (12 core + 4 owner-requested landmarks)",
+    "left/right scene lanes beside lesson rows",
+    "scene-aware Journey ornament placement",
+    "embroidered medallion on module-review nodes",
+    "moonlit dark-mode palette for scenes",
+  ],
+  forbids: [
+    "navigation redesign",
+    "new lessons",
+    "new CultureItems",
+    "pedagogical rule changes",
+    "mastery changes",
+    "economy changes",
+    "scenes in Culture",
+  ],
+  gates: [
+    "validate:journey-svg-assets",
+    "validate:journey-svg-style",
+    "validate:journey-scene-registry",
+    "validate:journey-scene-layout",
+    "gate:rc2-3-13r3-2-3-journey-svg-storytelling",
+  ],
+  gate: "gate:rc2-3-13r3-2-3-journey-svg-storytelling",
+} as const;
 
 /**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
@@ -100,15 +273,19 @@ export const CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION = {
  * RC2.3.3 mantém e566a250c5a6 (Culture Deep aprofunda Culture Missions / gates
  * sem mudar o hash da Jornada de mandarim). Ver `RC2_3_3_CULTURE_DEEP_CONTENT_EXCEPTION`.
  */
-// PR #314: planner budget bug fix; content counts and catalog stay frozen.
-export const RC_BASE_FINGERPRINT = "5a64821d0b7d";
+// RC2.3.13R.3.1.2: same-kind visual repeat in lessonTasks (counts unchanged).
+export const RC_BASE_FINGERPRINT = "29bb02ec0336";
 export const RC1_EXPECTED_LESSON_COUNT = 134;
 export const RC1_EXPECTED_TEACHING_TOPIC_COUNT = 113;
 export const RC1_MERGE_SHA = "c4441b68ae2388027d72e3af748417ef7caf2bb6";
 
-/** Culture Atlas counts frozen at V4.11A.3 closure. */
-export const RC2_EXPECTED_CULTURE_ITEMS = 30;
-export const RC2_EXPECTED_CULTURE_NATIVE_LESSONS = 30;
+/**
+ * Culture Atlas counts.
+ * RC2.3.13F intentionally expands hub-only CultureItems (36) + native lessons (36).
+ * Journey culture nodes stay at 20 — Mandarin fingerprint unchanged.
+ */
+export const RC2_EXPECTED_CULTURE_ITEMS = 36;
+export const RC2_EXPECTED_CULTURE_NATIVE_LESSONS = 36;
 export const RC2_EXPECTED_JOURNEY_CULTURE_NODES = 20;
 export const RC2_EXPECTED_HISTORY_ITEMS = 6;
 
@@ -134,6 +311,75 @@ export const RELEASE_CANDIDATE_SHA = "";
  * acessibilidade, performance, compatibilidade Android, segurança, engenharia
  * de release, correções de QA e correção de copy.
  */
+/**
+ * RC2.3.13E — ProgressionShell navigation-state preservation.
+ *
+ * SYSTEM: ProgressionShell navigation-state preservation
+ * SCOPE: UX_NAVIGATION_ONLY
+ * PEDAGOGICAL_AUTHORITY: NONE
+ *
+ * Remembers Journey/Culture mode, anchors, and scroll. Must NOT unlock Mandarin
+ * lessons, change Mastery/SRS/grading/XP/economy, or act as a second curriculum.
+ */
+export const RC2_3_13E_PROGRESSION_SHELL_EXCEPTION = {
+  id: "RC2_3_13E_PROGRESSION_SHELL",
+  system: "ProgressionShell navigation-state preservation",
+  scope: "UX_NAVIGATION_ONLY",
+  pedagogicalAuthority: "NONE",
+  modules: ["src/lib/progressionShellState.ts"] as const,
+  mayRemember: ["route", "anchor", "scroll", "last mode"] as const,
+  forbids: [
+    "Mandarin lesson unlock",
+    "Mastery state",
+    "SRS due status",
+    "grading",
+    "XP",
+    "economy",
+    "second pedagogical progression engine",
+  ],
+  fingerprint: RC_BASE_FINGERPRINT,
+  gate: "gate:rc2-3-13e-progression-shell-culture",
+} as const;
+
+/**
+ * RC2.3.13F — Culture Deep Expansion (hub-only CultureItems + 12-path taxonomy).
+ *
+ * SYSTEM: Culture V2 path model + FLAGSHIP_DEEP content
+ * SCOPE: CULTURE_CONTENT_ONLY
+ * PEDAGOGICAL_AUTHORITY: NONE for Mandarin Journey / Mastery / SRS
+ *
+ * Intentionally raises cultureItems/nativeLessons counts. Must NOT change
+ * Mandarin lesson count, teaching topics, Journey culture nodes, Mastery math,
+ * SRS, billing, or JEV learner runtime.
+ */
+export const RC2_3_13F_CULTURE_DEEP_EXPANSION_EXCEPTION = {
+  id: "RC2_3_13F_CULTURE_DEEP_EXPANSION",
+  system: "Culture V2 path model + FLAGSHIP_DEEP content",
+  scope: "CULTURE_CONTENT_ONLY",
+  pedagogicalAuthority: "NONE",
+  modules: [
+    "src/data/culturePaths.ts",
+    "src/data/culture13fNewItems.ts",
+    "src/data/cultureDeepSchema.ts",
+  ] as const,
+  forbids: [
+    "Mandarin curriculum change",
+    "Mastery math change",
+    "SRS algorithm change",
+    "Journey culture node count change",
+    "billing change",
+    "JEV learner runtime ON",
+  ],
+  /** Typed fingerprint advance: hub-only CultureItems 30→36 move cultureNative CURRICULUM_SOURCE. */
+  previousFingerprint: "5a64821d0b7d",
+  fingerprint: "fea5455e1461",
+  cultureItems: RC2_EXPECTED_CULTURE_ITEMS,
+  cultureNativeLessons: RC2_EXPECTED_CULTURE_NATIVE_LESSONS,
+  journeyCultureNodes: RC2_EXPECTED_JOURNEY_CULTURE_NODES,
+  culturePaths: 12,
+  gate: "gate:rc2-3-13f-culture-deep-expansion",
+} as const;
+
 export const BETA_PEDAGOGY_FREEZE = {
   id: "RC2_2_9_BETA_PEDAGOGY_FREEZE",
   since: "RC2.2.9",
@@ -141,8 +387,8 @@ export const BETA_PEDAGOGY_FREEZE = {
   counts: {
     lessons: 134,
     teachingTopics: 113,
-    cultureItems: 30,
-    cultureNativeLessons: 30,
+    cultureItems: 36,
+    cultureNativeLessons: 36,
     journeyCultureNodes: 20,
     cultureMoments: 5,
     toneTransferPlayable: 12,
@@ -211,6 +457,8 @@ export const BETA_PEDAGOGY_FREEZE = {
     "src/lib/pearlEconomy.ts",
     "src/lib/pearlPro.ts",
     "src/lib/phaseChallenge.ts",
+    // RC2.3.13E — UX navigation position memory only (see RC2_3_13E_PROGRESSION_SHELL_EXCEPTION).
+    "src/lib/progressionShellState.ts",
     "src/lib/srs.ts",
     "src/lib/streak.ts",
     "src/lib/streakRecoveryPrompt.ts",

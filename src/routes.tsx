@@ -37,6 +37,11 @@ const LeituraPage = lazyNamed(() => import("./features/leitura/LeituraPage"), "L
 const RevisaoPage = lazyNamed(() => import("./features/revisao/RevisaoPage"), "RevisaoPage");
 const DominioPage = lazyNamed(() => import("./features/dominio/DominioPage"), "DominioPage");
 const CultureHubPage = lazyNamed(() => import("./features/culture/CultureHubPage"), "CultureHubPage");
+const CultureAtlasPage = lazyNamed(() => import("./features/culture/CultureAtlasPage"), "CultureAtlasPage");
+const CultureTopicDetailPage = lazyNamed(
+  () => import("./features/culture/CultureTopicDetailPage"),
+  "CultureTopicDetailPage",
+);
 const CultureCollectionPage = lazyNamed(
   () => import("./features/culture/CultureCollectionPage"),
   "CultureCollectionPage"
@@ -185,8 +190,17 @@ export const routes: RouteObject[] = [
       { path: "revisao", element: <JourneyNodeGate><RevisaoPage /></JourneyNodeGate> },
       { path: "dominio", element: <DominioPage /> },
       { path: "cultura", element: <FeatureRouteGate><CultureHubPage /></FeatureRouteGate> },
+      { path: "cultura/explorar", element: <FeatureRouteGate><CultureAtlasPage /></FeatureRouteGate> },
       { path: "cultura/revisao", element: <FeatureRouteGate><CultureReviewPage /></FeatureRouteGate> },
       { path: "cultura/colecao/:collectionId", element: <FeatureRouteGate><CultureCollectionPage /></FeatureRouteGate> },
+      {
+        path: "cultura/topico/:topicId",
+        element: (
+          <FeatureRouteGate>
+            <CultureTopicDetailPage />
+          </FeatureRouteGate>
+        ),
+      },
       { path: "cultura/:id", element: <FeatureRouteGate><CultureItemPage /></FeatureRouteGate> },
       { path: "biblioteca", element: <BibliotecaPage /> },
       { path: "imersao", element: <FeatureRouteGate><JourneyNodeGate><ImmersionPage /></JourneyNodeGate></FeatureRouteGate> },

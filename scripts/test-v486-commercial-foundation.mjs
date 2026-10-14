@@ -142,8 +142,10 @@ assert.match(proPage, /data-testid="qa-billing-market-switch"/);
 assert.match(proPage, /isQaFastPathAllowed/);
 
 const checkout = await readFile(path.join(root, "supabase/functions/create-checkout-session/index.ts"), "utf8");
+const stripeLiveGuard = await readFile(path.join(root, "supabase/functions/_shared/stripeLiveGuard.ts"), "utf8");
 assert.match(checkout, /resolveAllowedPrice/);
-assert.match(checkout, /sk_live_/);
+assert.match(checkout, /refuseStripeLive/);
+assert.match(stripeLiveGuard, /sk_live_/);
 assert.match(checkout, /resolvedCurrency/);
 assert.doesNotMatch(checkout, /clientPriceId/);
 

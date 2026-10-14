@@ -93,6 +93,12 @@ const sha256 = async (text) => (await import("node:crypto")).createHash("sha256"
 export async function loadState() {
   const src = Object.fromEntries(Object.entries(FILES).map(([key, rel]) => [key, exists(rel) ? read(rel) : ""]));
   src.capacitorConfig = read(exists("capacitor.config.ts") ? "capacitor.config.ts" : "capacitor.config.json");
+  // RC2.3.13E — Culture return bridge lives on Journey + Atlas surfaces.
+  src.cultureHub = [
+    src.cultureHub,
+    exists("src/features/culture/CultureJourneyPage.tsx") ? read("src/features/culture/CultureJourneyPage.tsx") : "",
+    exists("src/features/culture/CultureAtlasPage.tsx") ? read("src/features/culture/CultureAtlasPage.tsx") : "",
+  ].join("\n");
   return {
     src,
     base: optionalJson("docs/release/rc2-2-23-base.json"),
@@ -300,7 +306,8 @@ export async function validateProgressiveNavigation(s) {
   const { failures, fail } = collector();
   const nav = stripComments(s.src.nav);
   const max = Number(/export const EARLY_NAV_MAX_ITEMS = (\d+);/.exec(nav)?.[1] ?? NaN);
-  if (!(max <= 3)) fail("TAB_BAR_TOO_DENSE", FILES.nav, "no máximo 3 itens cedo");
+  // RC2.3.13G — Cultura left TabBar; canonical early bar is Jornada·Praticar·Missões·Mais (≤4).
+  if (!(max <= 4)) fail("TAB_BAR_TOO_DENSE", FILES.nav, "no máximo 4 itens cedo (Cultura fora da TabBar)");
   const practice = Number(/"\/treino":\s*(\d+)/.exec(nav)?.[1] ?? 0);
   if (!(practice >= 1)) fail("PRACTICE_VISIBLE_EARLY", FILES.nav, "Praticar só depois da 1ª conclusão real");
   if (!/earnedTabBar\(mobileNavForStage\(profile\.stage, visibility\), learner\.completedLessons\.length\)/.test(s.src.tabBar)) fail("TAB_BAR_TOO_DENSE", FILES.tabBar, "barra usa as abas conquistadas");
@@ -462,7 +469,10 @@ export async function validateProfileAccount(s) {
   const foldAt = profile.indexOf('data-testid="profile-first-fold-actions"');
   const fold = foldAt < 0 ? "" : profile.slice(foldAt, profile.indexOf("</Card>", foldAt));
   if (!/to="\/conta"/.test(fold) || !/to="\/amigos"/.test(fold)) fail("PROFILE_HIDDEN", FILES.profile, "[Editar] [Amigos] na primeira dobra");
-  if (!/data-testid="more-sign-out"/.test(s.src.more)) fail("LOGOUT_DEEP_ONLY", FILES.more, "Sair visível no Mais");
+  // RC2.3.13A — SignOutControl testId prop (renders data-testid at runtime).
+  if (!/SignOutControl[\s\S]{0,80}?testId="more-sign-out"/.test(s.src.more) && !/data-testid="more-sign-out"/.test(s.src.more) && !/testId="more-sign-out"/.test(s.src.more)) {
+    fail("LOGOUT_DEEP_ONLY", FILES.more, "Sair visível no Mais");
+  }
   return failures;
 }
 

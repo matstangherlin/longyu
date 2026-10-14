@@ -4942,28 +4942,24 @@ function countPinyinTasks(candidates: readonly PracticeCandidate[]): number {
   return candidates.filter((candidate) => isPinyinPracticeStep(candidate.step)).length;
 }
 
-function selectedImageConceptIds(selected: readonly PracticeCandidate[]): Set<string> {
-  const ids = new Set<string>();
-  for (const candidate of selected) {
-    const conceptId = imageConceptIdOfStep(candidate.step);
-    if (conceptId) ids.add(conceptId);
-  }
-  return ids;
-}
-
-// Passos visuais GERADOS nunca repetem uma imagem já usada na lição (autoral ou
-// gerada). Passos autorais ficam como o autor escreveu.
+// RC2.3.13R.3.1 / R.3.1.2 — passos visuais (gerados OU autorais) não repetem o
+// mesmo conceptId no *mesmo* kind. image_choice e compare_with_image podem
+// partilhar um concept (reconhecer → comparar), mas dois image_choice iguais
+// ou dois compare iguais continuam bloqueados. Não reintroduzir isenção
+// `if (!candidate.generated) return false`.
 function violatesImageRepeat(
   selected: readonly PracticeCandidate[],
   candidate: PracticeCandidate
 ): boolean {
-  if (
-    !candidate.generated ||
-    (candidate.step.kind !== "image_choice" && candidate.step.kind !== "compare_with_image")
-  ) return false;
+  if (candidate.step.kind !== "image_choice" && candidate.step.kind !== "compare_with_image") {
+    return false;
+  }
   const conceptId = imageConceptIdOfStep(candidate.step);
   if (!conceptId) return false;
-  return selectedImageConceptIds(selected).has(conceptId);
+  return selected.some(
+    (item) =>
+      item.step.kind === candidate.step.kind && imageConceptIdOfStep(item.step) === conceptId
+  );
 }
 
 function selectBestCandidate(

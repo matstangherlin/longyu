@@ -54,6 +54,8 @@ const NAMESPACES = [
   "onboarding",
   "placement",
   "journey",
+  // RC2.3.13B — Home cognitive redesign (Continue / Today / Mandarim / Explore).
+  "home",
   "player",
   "review",
   "missions",
@@ -80,6 +82,8 @@ const NAMESPACES = [
   "discovery",
   // RC2.2.23 — zero Cargas: superfície calma com caminhos grátis.
   "energySoftLanding",
+  // RC2.3.13E — ProgressionShell segmented control (UX navigation only).
+  "progression",
 ];
 
 const outDir = await mkdtemp(path.join(os.tmpdir(), "longyu-i18n-"));

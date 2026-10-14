@@ -3,6 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { journeyFingerprint } from "./lib/report-meta.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const viteEntry = path.join(root, "node_modules", "vite", "bin", "vite.js");
@@ -38,6 +39,18 @@ if (!process.env.VITE_SITE_URL?.trim()) {
 if (!process.env.VITE_COMMIT_SHA?.trim()) {
   const git = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" });
   if (git.status === 0) process.env.VITE_COMMIT_SHA = git.stdout.trim();
+}
+
+// RC2.3.10 — provenance: o fingerprint curricular é calculado das MESMAS
+// fontes que os gates hasheiam (scripts/lib/report-meta.mjs) e embutido no
+// bundle e no version.json; o canal diz para onde o artefato foi feito.
+if (!process.env.VITE_CURRICULUM_FINGERPRINT?.trim()) {
+  process.env.VITE_CURRICULUM_FINGERPRINT = journeyFingerprint(root);
+}
+if (!process.env.VITE_BUILD_CHANNEL?.trim()) {
+  // Netlify production context publica para o público; todo o resto é dev
+  // até um workflow de release declarar o canal (android-release.yml).
+  process.env.VITE_BUILD_CHANNEL = process.env.CONTEXT === "production" ? "production" : "dev";
 }
 
 // RC2.2.28 — dual SHA: source HEAD da PR ≠ merge sintético do workflow.
@@ -86,6 +99,10 @@ try {
     shortWorkflowSha: /^[0-9a-f]{7,40}$/.test(workflowSha) ? workflowSha.slice(0, 7) : "",
     branch: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || process.env.BRANCH || (branchName.status === 0 ? branchName.stdout.trim() : ""),
     appVersion: process.env.VITE_APP_VERSION || "",
+    curriculumFingerprint: process.env.VITE_CURRICULUM_FINGERPRINT || "",
+    buildChannel: process.env.VITE_BUILD_CHANNEL || "",
+    deviceQaBuild: process.env.VITE_DEVICE_QA === "true",
+    testFixtures: process.env.VITE_USE_TEST_FIXTURES === "true",
     platform: "web",
     environment: process.env.VITE_APP_ENV || "",
     builtAt: new Date().toISOString(),

@@ -1,0 +1,62 @@
+{
+  "schema": "longyu-commercial-pricing/1",
+  "schemaVersion": 1,
+  "id": "commercial-pricing-v1",
+  "status": "RECOMMENDED_PENDING_OWNER_APPROVAL",
+  "ownerApprovalId": "OA-FINAL-PRICING",
+  "effectiveFrom": null,
+  "monetizationMode": "TEST",
+  "liveRequires": [
+    "cloud.certification=PASS",
+    "OA-FINAL-PRICING",
+    "store_compliance_PASS",
+    "billing_test_matrix_PASS"
+  ],
+  "invariant": "LIVE_MONETIZATION_REQUIRES_CLOUD_PASS",
+  "recommended": {
+    "architecture": "BALANCED",
+    "productBrand": "Longyu Pro",
+    "monthlyBrl": 17.0,
+    "annualBrl": 170.0,
+    "annualEffectiveMonthlyBrl": 14.17,
+    "annualDiscountMonthsFreeEquivalent": 2,
+    "monthlyUsd": 5.0,
+    "annualUsd": 50.0,
+    "trialDays": 7,
+    "family": "POST_LAUNCH",
+    "business": "POST_LAUNCH",
+    "lifetime": "NOT_NOW",
+    "webProvider": "STRIPE_TEST",
+    "androidProvider": "DISABLED_FOR_BETA_THEN_PLAY_BILLING",
+    "userChoiceBilling": "ELIGIBILITY_REQUIRED_DO_NOT_ENABLE"
+  },
+  "options": {
+    "VALUE": {
+      "monthlyBrl": 12.9,
+      "annualBrl": 129.0,
+      "monthlyUsd": 3.99,
+      "annualUsd": 39.9,
+      "note": "More accessible; margin thinner after Play 15% + support"
+    },
+    "BALANCED": {
+      "monthlyBrl": 17.0,
+      "annualBrl": 170.0,
+      "monthlyUsd": 5.0,
+      "annualUsd": 50.0,
+      "note": "Matches existing PUBLIC_COMMERCIAL_CATALOG; recommended"
+    },
+    "PREMIUM": {
+      "monthlyBrl": 24.9,
+      "annualBrl": 249.0,
+      "monthlyUsd": 7.99,
+      "annualUsd": 79.9,
+      "note": "Higher ARPU; farther from BR willingness vs HelloChinese store USD"
+    }
+  },
+  "grossMarginEstimate": {
+    "pro_monthly_br_web_card_grossMarginPct": 88.25,
+    "pro_monthly_br_play_15_grossMarginPct": 79.54,
+    "pro_annual_br_web_card_grossMarginPct": 90.34,
+    "verdict": "BALANCED BRL Pro prices leave healthy web margin; Play 15% still viable; User Choice+Stripe may be WORSE after stacking fees \u2014 eligibility not confirmed."
+  }
+}

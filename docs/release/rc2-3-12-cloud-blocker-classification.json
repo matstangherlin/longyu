@@ -1,0 +1,80 @@
+{
+  "schema": "longyu-rc-cloud-blocker-classification/1",
+  "wave": "RC2.3.12",
+  "rcId": "RC2.3.12-RC1",
+  "generatedAt": "2026-10-09T02:19:59Z",
+  "cloudCertification": "BLOCKED",
+  "policy": "Security/data-loss never optional. Family/Business optional when feature OFF.",
+  "items": [
+    {
+      "id": "OA-BATCH-A-EXECUTE",
+      "class": "BETA_BLOCKER",
+      "reason": "League policy recursion can poison cloud if leagues path remains reachable incorrectly; keep fail-closed until applied or proven unreachable"
+    },
+    {
+      "id": "BACKUP_EXPORT",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Required before irreversible production migration; Closed Beta can run with fail-closed missing backends if no Batch A apply"
+    },
+    {
+      "id": "BATCH_B_PLACEMENT",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Placement irreversible; not required if placement Edge remains gated"
+    },
+    {
+      "id": "JEV_TRIAGE_V2",
+      "class": "BETA_OPTIONAL",
+      "reason": "Feedback can land without Jev; triage improves ops but learner runtime stays OFF"
+    },
+    {
+      "id": "CLOUD_SMOKE",
+      "class": "BETA_BLOCKER",
+      "reason": "Need basic cloud smoke before inviting real testers to cloud accounts"
+    },
+    {
+      "id": "AUTH_REDIRECTS",
+      "class": "BETA_BLOCKER",
+      "reason": "OAuth redirects must be correct for social login in beta"
+    },
+    {
+      "id": "ANDROID_OAUTH",
+      "class": "BETA_BLOCKER",
+      "reason": "Physical Android OAuth for Google/Microsoft \u2014 core identity on device"
+    },
+    {
+      "id": "TELEMETRY_RETENTION",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Owner retention pick; beta can use documented default interim"
+    },
+    {
+      "id": "OA-FINAL-PRICING",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Pricing approval needed for commercial launch; FREE_ONLY beta can proceed"
+    },
+    {
+      "id": "STRIPE_TEST_E2E",
+      "class": "BETA_OPTIONAL",
+      "reason": "With FREE_ONLY beta, Stripe TEST e2e is hardening not entry-critical"
+    },
+    {
+      "id": "PLAY_BILLING_IMPL",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Android IAP disabled for beta"
+    },
+    {
+      "id": "LIVE_MONETIZATION_GATE",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Live remains forbidden"
+    },
+    {
+      "id": "COMMERCIAL_TERMS_REVIEW",
+      "class": "PUBLIC_LAUNCH_BLOCKER",
+      "reason": "Legal before public paywall"
+    },
+    {
+      "id": "SNAPSHOT_EMAIL_LEGACY",
+      "class": "BETA_OPTIONAL",
+      "reason": "CODE_DONE_HISTORY_KEPT"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ interface FeedbackModalProps {
   onClose: () => void;
 }
 
-const CATEGORY_KEYS: Record<FeedbackCategoryId, MessageKey> = {
+const CATEGORY_KEYS: Partial<Record<FeedbackCategoryId, MessageKey>> = {
   erro_conteudo: "feedback.catContent",
   traducao: "feedback.catTranslation",
   pinyin: "feedback.catPinyin",
@@ -129,7 +129,7 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
               >
                 {FEEDBACK_CATEGORIES.map((entry) => (
                   <option key={entry.id} value={entry.id}>
-                    {t(CATEGORY_KEYS[entry.id])}
+                    {CATEGORY_KEYS[entry.id] ? t(CATEGORY_KEYS[entry.id]!) : entry.label}
                   </option>
                 ))}
               </select>

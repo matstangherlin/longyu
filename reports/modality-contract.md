@@ -5,28 +5,28 @@ de passo promete, e o que a tela oferece de fato.
 
 | StepKind | habilidade | passos | com áudio | com imagem | com alternativas | resposta livre | renderer | voz |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| dialogue_choice | escolher | 751 | 0 | 0 | 751 | 0 | StepDialogueChoice | — |
-| sentence_build | montar | 724 | 0 | 0 | 724 | 0 | StepSentenceBuild | — |
-| image_choice | interpretar imagem | 707 | 0 | 707 | 443 | 0 | StepImageChoice | — |
-| fill_blank | escolher | 673 | 4 | 0 | 673 | 0 | StepFillBlank | — |
+| dialogue_choice | escolher | 756 | 0 | 0 | 756 | 0 | StepDialogueChoice | — |
+| sentence_build | montar | 723 | 0 | 0 | 723 | 0 | StepSentenceBuild | — |
+| image_choice | interpretar imagem | 685 | 0 | 685 | 422 | 0 | StepImageChoice | — |
+| fill_blank | escolher | 672 | 4 | 0 | 672 | 0 | StepFillBlank | — |
 | comprehend | escolher | 584 | 0 | 0 | 584 | 0 | StepComprehend | — |
 | conversation_scene | conversar | 583 | 0 | 0 | 497 | 0 | ConversationSceneStep | — |
-| listen_select | ouvir | 524 | 524 | 0 | 524 | 0 | StepListenSelect | — |
+| listen_select | ouvir | 532 | 532 | 0 | 532 | 0 | StepListenSelect | — |
 | free_production | produzir | 516 | 0 | 0 | 0 | 516 | StepFreeProduction | sim |
-| hanzi_build | escolher | 455 | 0 | 0 | 417 | 0 | StepHanziBuild | — |
+| hanzi_build | escolher | 456 | 0 | 0 | 418 | 0 | StepHanziBuild | — |
 | listen | ouvir | 342 | 0 | 0 | 0 | 0 | StepListen | — |
-| intro | escolher | 323 | 0 | 0 | 0 | 0 | StepIntro | — |
+| intro | escolher | 324 | 0 | 0 | 0 | 0 | StepIntro | — |
 | reverse_recall | produzir | 175 | 0 | 0 | 175 | 175 | StepFreeProduction | sim |
-| conversation_repair | produzir | 167 | 0 | 0 | 0 | 0 | StepConversationRepair | sim |
+| conversation_repair | produzir | 169 | 0 | 0 | 0 | 0 | StepConversationRepair | sim |
 | tone | escolher | 164 | 0 | 0 | 0 | 0 | StepTone | — |
-| dictation | ouvir | 150 | 150 | 0 | 74 | 0 | StepDictation | — |
-| spot_error | escolher | 149 | 0 | 0 | 149 | 0 | StepSpotError | — |
+| spot_error | escolher | 152 | 0 | 0 | 152 | 0 | StepSpotError | — |
+| dictation | ouvir | 149 | 149 | 0 | 74 | 0 | StepDictation | — |
 | contextual_choice | escolher | 145 | 0 | 0 | 145 | 0 | StepDialogueChoice | — |
-| recognize | construir/reconhecer forma | 130 | 0 | 0 | 3 | 0 | StepRecognize | — |
-| audio_discrimination | ouvir | 123 | 123 | 0 | 0 | 0 | StepAudioDiscrimination | — |
+| recognize | construir/reconhecer forma | 130 | 0 | 0 | 0 | 0 | StepRecognize | — |
+| audio_discrimination | ouvir | 127 | 127 | 0 | 0 | 0 | StepAudioDiscrimination | — |
 | flashcard | escolher | 111 | 0 | 0 | 0 | 0 | StepFlashcard | — |
+| odd_one_out | escolher | 102 | 0 | 0 | 102 | 0 | StepOddOneOut | — |
 | match_pairs | escolher | 99 | 0 | 0 | 0 | 0 | StepMatchPairs | — |
-| odd_one_out | escolher | 99 | 0 | 0 | 99 | 0 | StepOddOneOut | — |
 | produce | produzir | 56 | 0 | 0 | 56 | 56 | StepProduce | — |
 | dialogue_completion | escolher | 56 | 0 | 0 | 56 | 0 | StepDialogueChoice | — |
 | audio_to_action | ouvir | 50 | 50 | 0 | 50 | 0 | StepListenSelect | — |

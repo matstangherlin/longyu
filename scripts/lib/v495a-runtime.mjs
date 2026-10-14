@@ -74,7 +74,12 @@ export function loadCultureRuntime() {
   const lessonVictorySource = fs.readFileSync("src/features/lesson/LessonVictory.tsx", "utf8");
   const storeSource = fs.readFileSync("src/lib/store.ts", "utf8");
   const cultureItemPageSource = fs.readFileSync("src/features/culture/CultureItemPage.tsx", "utf8");
-  const cultureHubSource = fs.readFileSync("src/features/culture/CultureHubPage.tsx", "utf8");
+  // RC2.3.13E — hub surface = entry wrapper + Journey + Atlas (explore).
+  const cultureHubSource = [
+    fs.readFileSync("src/features/culture/CultureHubPage.tsx", "utf8"),
+    fs.readFileSync("src/features/culture/CultureJourneyPage.tsx", "utf8"),
+    fs.readFileSync("src/features/culture/CultureAtlasPage.tsx", "utf8"),
+  ].join("\n");
   const cultureReviewSource = fs.readFileSync("src/features/culture/CultureReviewPage.tsx", "utf8");
   const cultureMissionPlayerSource = fs.readFileSync("src/features/culture/CultureMissionPlayer.tsx", "utf8");
   const routesSource = fs.readFileSync("src/routes.tsx", "utf8");

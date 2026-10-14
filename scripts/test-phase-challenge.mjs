@@ -68,11 +68,12 @@ it(cases, "K10 — PASS só marca o escopo (fases antes do alvo), nunca o alvo e
   for (const id of target.skippableLessonIds) assert.ok(!targetLessons.has(id));
 });
 
-it(cases, "K10.2 — marco cultural trancado no caminho bloqueia o alvo (não o atravessa)", () => {
+it(cases, "K10.2 — RC2.3.13E Culture never blocks Phase Challenge path", () => {
+  // Legacy RC2.2.6 hard-lock retired: cultureBlocksJourney() === false.
   const blocked = pc.listPhaseChallengeTargets(fresh).find((t) => t.reason === "culture_gate");
-  assert.ok(blocked, "com selos zerados algum alvo precisa esbarrar num marco");
-  assert.equal(blocked.eligible, false);
-  assert.ok(blocked.cultureGateItemId, "CTA aponta o CultureItem que falta");
+  assert.equal(blocked, undefined, "marco cultural não pode trancar o caminho da Jornada");
+  const any = pc.listPhaseChallengeTargets(fresh)[0];
+  assert.ok(any, "ainda há alvos de Phase Challenge");
 });
 
 const ledger = (folego = 5) => ({ folego, phaseChallengeAttempts: [], phaseChallengeCooldowns: {} });

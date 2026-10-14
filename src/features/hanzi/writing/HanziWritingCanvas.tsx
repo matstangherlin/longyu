@@ -197,7 +197,8 @@ export function HanziWritingCanvas({
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width ?? 280;
-      setSize(Math.max(220, Math.min(360, Math.floor(w))));
+      // RC2.3.13C — keep Hànzì canvas dominant on 360×640 (never tiny).
+      setSize(Math.max(248, Math.min(360, Math.floor(w))));
     });
     ro.observe(el);
     return () => ro.disconnect();

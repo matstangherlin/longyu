@@ -12,7 +12,12 @@ import {
 } from "../../../lib/hanziWriting/evidence";
 import { handwritingReferenceFor } from "../../../lib/hanziWriting/handwritingReference";
 import type { GuideLevel, HanziLearningStage } from "../../../lib/hanziWriting/stages";
-import { guideLevelForStage, pinyinVisibleForStage, targetGlyphVisibleForStage } from "../../../lib/hanziWriting/stages";
+import {
+  guideLevelForStage,
+  pinyinVisibleForStage,
+  STAGE_LABEL_PT,
+  targetGlyphVisibleForStage,
+} from "../../../lib/hanziWriting/stages";
 import type { MemoryWritePrompt, StrokeAttemptSample } from "../../../lib/hanziWriting/types";
 import { haptic } from "../../../lib/haptics";
 import { clearHanziCanvas, HanziWritingCanvas, undoHanziCanvas } from "./HanziWritingCanvas";
@@ -247,6 +252,7 @@ export function HanziWritingExercise({
           <button
             type="button"
             className="mt-3 min-h-12 w-full rounded-xl bg-accent px-4 font-semibold text-white"
+            data-cta-hierarchy="primary"
             onClick={onFallbackAssemble}
           >
             Praticar por montagem
@@ -258,18 +264,29 @@ export function HanziWritingExercise({
 
   if (engineError) {
     return (
-      <div className="rounded-2xl border border-line bg-surface p-4" data-testid="hanzi-writing-engine-error">
-        <p className="text-sm text-ink-soft">Não consegui abrir o treino de escrita agora.</p>
+      <div
+        className="rounded-2xl border border-line bg-surface p-4"
+        data-testid="hanzi-writing-engine-error"
+        data-tech-failure="hanzi-engine"
+      >
+        <p className="text-sm font-semibold text-ink">Não conseguimos abrir o treino de escrita.</p>
+        <p className="mt-1 text-sm text-ink-soft">Sua tentativa não foi considerada errada.</p>
         <div className="mt-3 flex flex-col gap-2">
           <button
             type="button"
             className="min-h-12 rounded-xl bg-accent px-4 font-semibold text-white"
+            data-cta-hierarchy="primary"
             onClick={() => setEngineError(false)}
           >
             Tentar novamente
           </button>
           {onFallbackAssemble && (
-            <button type="button" className="min-h-12 rounded-xl border border-line px-4" onClick={onFallbackAssemble}>
+            <button
+              type="button"
+              className="min-h-12 rounded-xl border border-line px-4"
+              data-cta-hierarchy="secondary"
+              onClick={onFallbackAssemble}
+            >
               Praticar por montagem
             </button>
           )}
@@ -279,12 +296,25 @@ export function HanziWritingExercise({
   }
 
   return (
-    <div className={`space-y-3 ${className ?? ""}`} data-testid="hanzi-writing-exercise" data-stage={stage}>
+    <div
+      className={`space-y-3 ${className ?? ""}`}
+      data-testid="hanzi-writing-exercise"
+      data-stage={stage}
+      data-hanzi-hierarchy="rc2-3-13c"
+      data-learning-flow="rc2-3-13c"
+    >
       <PedagogicalInlineTip interaction={isMemory ? "hanzi_memory_write" : "hanzi_trace"} />
 
       <div className="text-center">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint"
+          data-testid="hanzi-stage-label"
+          data-hanzi-stage={stage}
+        >
+          {STAGE_LABEL_PT[stage]}
+        </p>
         {showGlyph && !isMemory && (
-          <div className="hanzi mx-auto text-7xl leading-none text-ink sm:text-8xl" data-testid="hanzi-writing-glyph">
+          <div className="hanzi mx-auto mt-2 text-7xl leading-none text-ink sm:text-8xl" data-testid="hanzi-writing-glyph">
             {character}
           </div>
         )}
@@ -327,7 +357,12 @@ export function HanziWritingExercise({
         </p>
       </div>
 
-      <div ref={canvasHostRef} className="flex justify-center">
+      <div
+        ref={canvasHostRef}
+        className="flex justify-center overscroll-contain"
+        data-hanzi-canvas-region
+        data-testid="hanzi-canvas-region"
+      >
         <HanziWritingCanvas
           reference={reference}
           guideLevel={isMemory ? 0 : replaying ? 3 : guideLevel}
@@ -340,12 +375,13 @@ export function HanziWritingExercise({
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2" data-hanzi-tools data-cta-hierarchy="secondary">
         <button
           type="button"
           className="min-h-12 rounded-xl border border-line bg-surface text-sm font-semibold"
           onClick={handleUndo}
           data-testid="hanzi-writing-undo"
+          data-cta-hierarchy="secondary"
         >
           Desfazer
         </button>
@@ -354,6 +390,7 @@ export function HanziWritingExercise({
           className="min-h-12 rounded-xl border border-line bg-surface text-sm font-semibold"
           onClick={handleClear}
           data-testid="hanzi-writing-clear"
+          data-cta-hierarchy="secondary"
         >
           Limpar
         </button>
@@ -362,13 +399,14 @@ export function HanziWritingExercise({
           className="min-h-12 rounded-xl border border-line bg-surface text-sm font-semibold"
           onClick={playDemo}
           data-testid="hanzi-writing-replay"
+          data-cta-hierarchy="secondary"
         >
           {replaying ? "…" : "Ver como escreve"}
         </button>
       </div>
 
       {feedback && (
-        <p className="text-center text-sm text-ink" data-testid="hanzi-writing-feedback">
+        <p className="text-center text-sm text-ink" data-testid="hanzi-writing-feedback" role="status">
           {feedback}
         </p>
       )}
@@ -376,6 +414,7 @@ export function HanziWritingExercise({
         <p
           className="text-center font-serif text-lg font-semibold text-accent"
           data-testid="hanzi-writing-verdict"
+          role="status"
         >
           {verdict}
         </p>
@@ -384,9 +423,10 @@ export function HanziWritingExercise({
       {onFallbackAssemble && (
         <button
           type="button"
-          className="min-h-11 w-full text-sm text-ink-soft underline"
+          className="min-h-12 w-full text-sm text-ink-soft underline"
           onClick={onFallbackAssemble}
           data-testid="hanzi-writing-a11y-fallback"
+          data-cta-hierarchy="tertiary"
         >
           Preferir montagem / ordem sem desenhar
         </button>

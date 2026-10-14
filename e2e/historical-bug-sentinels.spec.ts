@@ -6,6 +6,7 @@ import {
   seedLessonPlayerReady,
   seedTopicMasterySession,
   waitForLazyPage,
+  currentTopicProgressNode,
 } from "./helpers";
 import { seedRichMissions } from "./missions-helpers";
 import {
@@ -93,10 +94,10 @@ test.describe("V4.7.4 sentinelas de bugs históricos", () => {
     await page.goto("/jornada");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
     await page.reload();
     await waitForLazyPage(page);
-    await expect(page.locator('[aria-current="step"]')).toHaveAttribute("data-topic-progress", "1/4");
+    await expect(currentTopicProgressNode(page)).toHaveAttribute("data-topic-progress", "1/4");
   });
 
   test("Review com fila grande não explode a UI", async ({ page }) => {

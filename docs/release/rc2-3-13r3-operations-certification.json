@@ -1,0 +1,32 @@
+{
+  "schema": "longyu-rc2-3-13r3-operations-certification/1",
+  "wave": "RC2.3.13R.3",
+  "parentPr": 343,
+  "meta": {
+    "note": "Agent environment has no Sentry/Netlify/Supabase credentials. Ops remain NOT_RUN / CONFIG_REQUIRED until real evidence.",
+    "agentCredentials": {
+      "SENTRY": "UNSET",
+      "NETLIFY": "UNSET",
+      "SUPABASE": "UNSET"
+    }
+  },
+  "results": {
+    "SENTRY": "NOT_RUN",
+    "SENTRY_SYNTHETIC_EVENT_ID": null,
+    "SENTRY_RELEASE_IDENTITY": null,
+    "ROLLBACK": "NOT_RUN",
+    "ROLLBACK_TIMESTAMPS": null,
+    "CLOUD_SMOKE_1": "NOT_RUN",
+    "CLOUD_SMOKE_1_EVIDENCE_ID": null,
+    "CLOUD_SMOKE_2": "NOT_RUN",
+    "CLOUD_SMOKE_2_EVIDENCE_ID": null,
+    "WEB_IDENTITY": "NOT_RUN",
+    "MIGRATION_TRUTH": "NOT_RUN",
+    "FEEDBACK_PIPELINE": "NOT_RUN"
+  },
+  "policy": {
+    "liveBilling": false,
+    "jevLearnerRuntime": false,
+    "commercialMode": "FREE_ONLY"
+  }
+}

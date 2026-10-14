@@ -80,6 +80,13 @@ export const CULTURE_LESSON_ENTRIES: readonly CultureLessonEntry[] = [
   { itemId: "tang-dynasty", track: "explore" },
   { itemId: "song-dynasty", track: "explore" },
   { itemId: "ming-qing", track: "explore" },
+  // RC2.3.13F — Culture Deep Expansion (hub-only; Journey node count unchanged).
+  { itemId: "wechat-life", track: "explore" },
+  { itemId: "high-speed-rail", track: "explore" },
+  { itemId: "gaokao-context", track: "explore" },
+  { itemId: "guanxi-relations", track: "explore" },
+  { itemId: "delivery-life", track: "explore" },
+  { itemId: "regional-china", track: "explore" },
 ] as const;
 
 /**

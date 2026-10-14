@@ -3,6 +3,10 @@
 // nunca vai para o browser.
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { createCircuitBreaker, resolveCostPolicy, stableInputHash, type CostPolicy } from "./budgetPolicy.ts";
+import { validateJevAnswers, type JevAnswer, type JevQuestion } from "./jevAnswers.ts";
+
+export type { JevAnswer, JevQuestion } from "./jevAnswers.ts";
+export { validateJevAnswers } from "./jevAnswers.ts";
 
 const JEV_URL = "https://api.typesafe.ai/v1/systemone";
 const JEV_MODEL = Deno.env.get("TYPESAFE_MODEL")?.trim() || "jev-latest";
@@ -29,16 +33,6 @@ export function jevAllowed(purpose: JevPurpose, policy: CostPolicy = jevPolicy()
 export function jevInputHash(state: string, questions: Record<string, JevQuestion>): string {
   return stableInputHash({ model: JEV_MODEL, state, questions });
 }
-
-export type JevQuestion =
-  | { type: "choice"; instructions: string; criteria: Record<string, string> }
-  | { type: "score"; instructions: string; criteria: string[] }
-  | { type: "noul"; instructions: string; criteria?: { true: string; false: string } };
-
-export type JevAnswer =
-  | { type: "choice"; choice: string; probabilities: Record<string, number>; confidence: number }
-  | { type: "score"; score: number; probabilities: Record<string, number>; confidence: number }
-  | { type: "noul"; noul: number };
 
 export interface JevResponse {
   model: string;
@@ -83,9 +77,10 @@ export async function askJev(
       throw new Error(`jev_http_${res.status}: ${detail}`);
     }
     const body = (await res.json()) as JevResponse;
-    if (!body || typeof body.answers !== "object") throw new Error("jev_bad_response");
+    if (!body || typeof body !== "object") throw new Error("jev_bad_response");
+    validateJevAnswers(questions, body.answers);
     breaker.recordSuccess();
-    return body;
+    return { model: typeof body.model === "string" ? body.model : JEV_MODEL, answers: body.answers, usage: body.usage };
   } catch (err) {
     breaker.recordFailure(Date.now());
     throw err;

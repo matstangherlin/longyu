@@ -1,0 +1,2507 @@
+{
+  "schema": "longyu-schema-column-diff/1",
+  "wave": "RC2.3.10B",
+  "project": "drjcfalvlbbeblmmyhwj",
+  "productionRead": {
+    "readAt": "2026-10-08",
+    "extract": "docs/launch/rc2-3-10b-schema-column-extract.json",
+    "extractSha256": "d1b59b15f96aaa9fea5fc096c02ab48de28bdf1c53e6ce90cf6d611f29645c44",
+    "method": "RC2.3.10B agent session via Supabase MCP execute_sql (SELECT on pg_catalog only; no DDL, no DML, no row data, no function bodies, no secret values)"
+  },
+  "safety": {
+    "productionWrites": false,
+    "rowData": false,
+    "secretValues": false,
+    "functionBodies": false,
+    "note": "Catalog metadata only. Nothing was applied, deployed or repaired. Findings are inputs to PRODUCTION_MIGRATION_READY, not a go-ahead."
+  },
+  "method": [
+    "Production side: pg_catalog SELECTs (columns, constraints, indexes, policies, function attribute flags, privilege flags) saved verbatim as docs/launch/rc2-3-10b-schema-column-extract.json.",
+    "Repo side: supabase/migrations then supabase/pending replayed statement by statement (CREATE/ALTER/DROP TABLE, columns, constraints, indexes, policies, functions, literal and DO-array anon grants). The result is the schema the repo describes if every file had been applied.",
+    "Each repo file carries its reconciliation class from rc2-3-10b-migration-reconciliation.json: RECONCILED (MATCH_EXACT, MATCH_SEMANTIC or PARTIAL_EQUIVALENT), HISTORY_ROW_UNPROVEN (a production history row exists but is UNKNOWN) or REPO_ONLY_NOT_APPLIED.",
+    "Client columns: literal .from('t') chains under src/ (select list, filters, insert/upsert/update object literals) are checked against production columns."
+  ],
+  "limits": [
+    "Text-based replay; dynamic SQL (EXECUTE format) is not expanded except literal anon grant arrays. Objects created only that way surface as ONLY_IN_PRODUCTION or are listed under replay.unparsed.",
+    "CHECK constraints are compared by name only; expressions are kept in the extract for human review.",
+    "Defaults are compared by presence, not by expression.",
+    "Function bodies were not read, so behavioural drift (HOTFIX_NOT_BACKPORTED economy functions) is not visible here; see rc2-3-10b-prod-only-classification.json and the pg_get_functiondef digests in rc2-3-10b-live-facts.json.",
+    "Client payloads built in a variable (update(patch)) are listed under clientColumnScan.unresolved and are not checked."
+  ],
+  "replay": {
+    "appliedFiles": 53,
+    "pendingFiles": 3,
+    "expected": {
+      "tables": 55,
+      "views": 2,
+      "functions": 125,
+      "indexes": 59,
+      "policies": 41
+    },
+    "unparsed": []
+  },
+  "production": {
+    "tables": 37,
+    "views": 1,
+    "functionOverloads": 89,
+    "functionNames": 87,
+    "rlsEnabledTables": 37,
+    "securityDefinerFunctions": 71,
+    "definerWithoutSearchPath": [],
+    "publicExecuteFunctions": [],
+    "anonExecuteFunctions": [
+      "submit_beta_feedback/12",
+      "submit_beta_pedagogy_event/10"
+    ],
+    "tablesWithAnonFullPrivileges": 31,
+    "tablesWithoutAnyPolicy": [
+      "_jev_triage_tmp",
+      "beta_anon_ingestion_quota_counters",
+      "beta_anon_ingestion_sessions",
+      "beta_pedagogy_anon_sessions",
+      "economy_eligible_stories",
+      "economy_story_sessions",
+      "league_xp_events",
+      "login_rate_events",
+      "referral_eligible_lessons",
+      "referral_email_blocks",
+      "referral_lesson_sessions",
+      "referral_qualification_reviews",
+      "referral_verified_lesson_completions",
+      "reserved_usernames",
+      "signup_cleanup_runs",
+      "signup_rate_events"
+    ]
+  },
+  "summary": {
+    "findings": 79,
+    "bySeverity": {
+      "CRITICAL": 3,
+      "HIGH": 21,
+      "MEDIUM": 29,
+      "LOW": 25,
+      "INFO": 1
+    },
+    "byKind": {
+      "BROAD_ANON_TABLE_PRIVILEGES_IN_PRODUCTION": 1,
+      "CHECK_NOT_VALIDATED_IN_PRODUCTION": 1,
+      "CLIENT_COLUMN_MISSING_IN_PRODUCTION": 1,
+      "COLUMN_MISSING_IN_PRODUCTION": 13,
+      "FOREIGN_KEY_MISSING_IN_PRODUCTION": 1,
+      "FUNCTION_MISSING_IN_PRODUCTION": 37,
+      "FUNCTION_ONLY_IN_PRODUCTION": 1,
+      "FUNCTION_SEARCH_PATH_DRIFT": 1,
+      "POLICY_SELF_REFERENCE_IN_PRODUCTION": 1,
+      "RLS_NO_POLICY_DENY_ALL_WITH_GRANTS": 1,
+      "TABLE_MISSING_IN_PRODUCTION": 19,
+      "TABLE_ONLY_IN_PRODUCTION": 1,
+      "VIEW_MISSING_IN_PRODUCTION": 1
+    },
+    "sharedTables": 36,
+    "sharedTablesColumnsMatch": 33,
+    "sharedTablesWithDrift": 3,
+    "tablesMissingInProduction": 19,
+    "tablesMissingInProductionClientCalled": 5,
+    "clientColumnsMissingInProduction": 1,
+    "verdict": "BLOCKED",
+    "verdictNote": "BLOCKED while any CRITICAL/HIGH finding is open. This file alone never makes PRODUCTION_SCHEMA_TRUTH_PASS true: that gate also needs the owner-approved diff of function bodies and the PRODUCTION_MIGRATION_READY request."
+  },
+  "sharedTables": [
+    {
+      "table": "beta_admins",
+      "definedBy": "supabase/migrations/010_beta_feedback.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 3,
+      "productionColumns": 3,
+      "matchedColumns": 3,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "beta_anon_ingestion_quota_counters",
+      "definedBy": "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+      "reconciliation": {
+        "status": "MATCH_SEMANTIC",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 5,
+      "productionColumns": 5,
+      "matchedColumns": 5,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "beta_anon_ingestion_sessions",
+      "definedBy": "supabase/migrations/20260808081000_harden_anonymous_ingestion.sql",
+      "reconciliation": {
+        "status": "MATCH_SEMANTIC",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 6,
+      "productionColumns": 6,
+      "matchedColumns": 6,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "beta_feedback",
+      "definedBy": "supabase/migrations/010_beta_feedback.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 25,
+      "productionColumns": 25,
+      "matchedColumns": 25,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "beta_pedagogy_anon_sessions",
+      "definedBy": "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 7,
+      "productionColumns": 7,
+      "matchedColumns": 7,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "beta_pedagogy_daily_metrics",
+      "definedBy": "supabase/migrations/013_pedagogy_rpc_hardening.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 4,
+      "productionColumns": 4,
+      "matchedColumns": 4,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "beta_pedagogy_events",
+      "definedBy": "supabase/migrations/010_beta_feedback.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 14,
+      "productionColumns": 14,
+      "matchedColumns": 14,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "economy_eligible_stories",
+      "definedBy": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 3,
+      "productionColumns": 3,
+      "matchedColumns": 3,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "economy_ledger",
+      "definedBy": "supabase/migrations/006_economy_server.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 9,
+      "productionColumns": 9,
+      "matchedColumns": 9,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "economy_story_sessions",
+      "definedBy": "supabase/migrations/20260808170000_harden_client_reward_claims.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 7,
+      "productionColumns": 7,
+      "matchedColumns": 7,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "entitlement_grants",
+      "definedBy": "supabase/migrations/017_referrals.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 9,
+      "productionColumns": 9,
+      "matchedColumns": 9,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "league_memberships",
+      "definedBy": "supabase/migrations/004_leagues.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 9,
+      "productionColumns": 9,
+      "matchedColumns": 9,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [
+        "SCD-020"
+      ],
+      "verdict": "DRIFT"
+    },
+    {
+      "table": "league_tiers",
+      "definedBy": "supabase/migrations/004_leagues.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 13,
+      "productionColumns": 13,
+      "matchedColumns": 13,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "league_weekly_results",
+      "definedBy": "supabase/migrations/004_leagues.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 11,
+      "productionColumns": 11,
+      "matchedColumns": 11,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "league_xp_events",
+      "definedBy": "supabase/migrations/004_leagues.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 5,
+      "productionColumns": 5,
+      "matchedColumns": 5,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "login_rate_events",
+      "definedBy": "supabase/pending/rc2-2-11-username-identifier.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 3,
+      "productionColumns": 3,
+      "matchedColumns": 3,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "profiles",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 30,
+      "productionColumns": 21,
+      "matchedColumns": 21,
+      "missingInProduction": [
+        "onboarding_version",
+        "learning_goal",
+        "declared_experience",
+        "placement_attempt_id",
+        "placement_completed_at",
+        "local_migrated_at",
+        "interface_locale",
+        "instruction_locale",
+        "country_code"
+      ],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [
+        "SCD-005",
+        "SCD-025",
+        "SCD-026",
+        "SCD-027",
+        "SCD-028",
+        "SCD-029",
+        "SCD-030",
+        "SCD-031",
+        "SCD-032",
+        "SCD-033",
+        "SCD-038",
+        "SCD-054"
+      ],
+      "verdict": "DRIFT"
+    },
+    {
+      "table": "referral_codes",
+      "definedBy": "supabase/migrations/017_referrals.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 5,
+      "productionColumns": 5,
+      "matchedColumns": 5,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referral_eligible_lessons",
+      "definedBy": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 3,
+      "productionColumns": 3,
+      "matchedColumns": 3,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referral_email_blocks",
+      "definedBy": "supabase/migrations/017_referrals.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 3,
+      "productionColumns": 3,
+      "matchedColumns": 3,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referral_lesson_sessions",
+      "definedBy": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 7,
+      "productionColumns": 7,
+      "matchedColumns": 7,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referral_qualification_reviews",
+      "definedBy": "supabase/migrations/20260809160306_require_referral_reward_review.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 8,
+      "productionColumns": 8,
+      "matchedColumns": 8,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referral_rewards",
+      "definedBy": "supabase/migrations/017_referrals.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 9,
+      "productionColumns": 9,
+      "matchedColumns": 9,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referral_verified_lesson_completions",
+      "definedBy": "supabase/migrations/20260808093000_harden_referral_qualification.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 4,
+      "productionColumns": 4,
+      "matchedColumns": 4,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "referrals",
+      "definedBy": "supabase/migrations/017_referrals.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 10,
+      "productionColumns": 10,
+      "matchedColumns": 10,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "reserved_usernames",
+      "definedBy": "supabase/pending/rc2-2-11-username-identifier.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 1,
+      "productionColumns": 1,
+      "matchedColumns": 1,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "signup_cleanup_runs",
+      "definedBy": "supabase/migrations/020_signup_cleanup_job.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 6,
+      "productionColumns": 6,
+      "matchedColumns": 6,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "signup_rate_events",
+      "definedBy": "supabase/migrations/018_signup_rate_limits.sql",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "repoColumns": 3,
+      "productionColumns": 3,
+      "matchedColumns": 3,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "subscriptions",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 13,
+      "productionColumns": 13,
+      "matchedColumns": 13,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "transactions",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 13,
+      "productionColumns": 13,
+      "matchedColumns": 13,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "user_achievements",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 5,
+      "productionColumns": 5,
+      "matchedColumns": 5,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "user_chests",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 4,
+      "productionColumns": 4,
+      "matchedColumns": 4,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "user_economy",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 15,
+      "productionColumns": 11,
+      "matchedColumns": 11,
+      "missingInProduction": [
+        "pearl_ledger",
+        "pearl_pro_expires_at",
+        "pearl_pro_last_activated_at",
+        "pearl_pro_auto_activate"
+      ],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [
+        "SCD-034",
+        "SCD-035",
+        "SCD-036",
+        "SCD-037"
+      ],
+      "verdict": "MINOR_DRIFT"
+    },
+    {
+      "table": "user_missions",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 9,
+      "productionColumns": 9,
+      "matchedColumns": 9,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "user_progress",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 17,
+      "productionColumns": 17,
+      "matchedColumns": 17,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    },
+    {
+      "table": "user_srs",
+      "definedBy": "supabase/migrations/001_initial_schema.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "repoColumns": 13,
+      "productionColumns": 13,
+      "matchedColumns": 13,
+      "missingInProduction": [],
+      "onlyInProduction": [],
+      "typeDrift": [],
+      "findings": [],
+      "verdict": "COLUMNS_MATCH"
+    }
+  ],
+  "missingTables": [
+    {
+      "table": "business_funnel_events",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 4,
+      "clientCalled": true,
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "functions/submit-business-lead"
+      }
+    },
+    {
+      "table": "business_lead_rate_events",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 3,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "business_leads",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 14,
+      "clientCalled": true,
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "functions/submit-business-lead"
+      }
+    },
+    {
+      "table": "family_accounts",
+      "definedBy": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 6,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "family_invites",
+      "definedBy": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 10,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "family_memberships",
+      "definedBy": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 6,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "organization_entitlement_grants",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 11,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "organization_invites",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 9,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "organization_members",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 7,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "organization_subscriptions",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 9,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "organizations",
+      "definedBy": "supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 13,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "pearl_journey_phase_catalog",
+      "definedBy": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 2,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "pearl_milestone_catalog",
+      "definedBy": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 5,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "pearl_milestone_claims",
+      "definedBy": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 4,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "placement_attempts",
+      "definedBy": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 15,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "placement_onboarding_drafts",
+      "definedBy": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 8,
+      "clientCalled": true,
+      "clientImpact": {
+        "severity": "CRITICAL",
+        "via": "functions/finalize-onboarding"
+      }
+    },
+    {
+      "table": "social_activity_events",
+      "definedBy": "supabase/migrations/005_social.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "expectedColumns": 5,
+      "clientCalled": true,
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct"
+      }
+    },
+    {
+      "table": "telemetry_retention_runs",
+      "definedBy": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "expectedColumns": 7,
+      "clientCalled": false,
+      "clientImpact": null
+    },
+    {
+      "table": "user_follows",
+      "definedBy": "supabase/migrations/005_social.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "expectedColumns": 3,
+      "clientCalled": true,
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct"
+      }
+    }
+  ],
+  "economyRpcs": [
+    {
+      "function": "get_server_economy",
+      "inputArgs": 0,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/006_economy_server.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "consume_charge",
+      "inputArgs": 2,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "spend_qi",
+      "inputArgs": 3,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/006_economy_server.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "grant_lesson_reward",
+      "inputArgs": 4,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "HOTFIX_NOT_BACKPORTED (history row 20260808134010): the live body is not any repo definition; attributes match but behaviour is unproven until a pg_get_functiondef diff is reviewed"
+    },
+    {
+      "function": "grant_story_energy",
+      "inputArgs": 2,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "HOTFIX_NOT_BACKPORTED (history row 20260808134006): the live body is not any repo definition; attributes match but behaviour is unproven until a pg_get_functiondef diff is reviewed"
+    },
+    {
+      "function": "start_story_energy_session",
+      "inputArgs": 1,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "claim_mission",
+      "inputArgs": 4,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "HOTFIX_NOT_BACKPORTED (history row 20260808133923): the live body is not any repo definition; attributes match but behaviour is unproven until a pg_get_functiondef diff is reviewed"
+    },
+    {
+      "function": "open_chest",
+      "inputArgs": 2,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/006_economy_server.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "migrate_local_economy",
+      "inputArgs": 2,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "add_league_weekly_xp",
+      "inputArgs": 2,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "claim_league_week_reward",
+      "inputArgs": 1,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": true,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808130000_harden_economy_reward_trust.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "economy_ensure_row",
+      "inputArgs": 1,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": false,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/006_economy_server.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "economy_insert_ledger",
+      "inputArgs": 7,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": false,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/006_economy_server.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "economy_ledger_exists",
+      "inputArgs": 2,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": false,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/006_economy_server.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "economy_user_is_pro",
+      "inputArgs": 1,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": false,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260914210000_family_entitlement.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "economy_verified_mission_metric",
+      "inputArgs": 4,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": false,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808140000_economy_anti_cheat_qi.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "league_xp_server_amount",
+      "inputArgs": 1,
+      "production": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "executeAnon": false,
+        "executeAuthenticated": false,
+        "executePublic": false,
+        "executeServiceRole": true
+      },
+      "repo": {
+        "securityDefiner": true,
+        "searchPath": "public",
+        "file": "supabase/migrations/20260808170000_harden_client_reward_claims.sql"
+      },
+      "verdict": "ATTRIBUTES_MATCH",
+      "bodyCaveat": "body not read in this pass; attributes only"
+    },
+    {
+      "function": "activate_pearl_pro_pass",
+      "production": "ABSENT",
+      "repo": [
+        {
+          "n": 1,
+          "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql"
+        }
+      ],
+      "verdict": "MISSING_IN_PRODUCTION"
+    },
+    {
+      "function": "claim_pearl_milestone",
+      "production": "ABSENT",
+      "repo": [
+        {
+          "n": 1,
+          "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql"
+        }
+      ],
+      "verdict": "MISSING_IN_PRODUCTION"
+    }
+  ],
+  "clientColumnScan": {
+    "checkedTables": 6,
+    "unresolved": [
+      {
+        "table": "profiles",
+        "path": "src/services/telemetryConsent.ts:81",
+        "via": "update(patch)",
+        "why": "payload object built elsewhere; keys not statically resolvable"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:commit_placement_result/13",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "CRITICAL",
+      "clientImpact": {
+        "severity": "CRITICAL",
+        "via": "functions/commit-placement",
+        "paths": [
+          "src/services/placementCommit.ts:45"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path public",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-001"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:save_placement_onboarding_draft/6",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "CRITICAL",
+      "clientImpact": {
+        "severity": "CRITICAL",
+        "via": "functions/create-account",
+        "paths": [
+          "src/services/authService.ts:154"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path public",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-002"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:placement_onboarding_drafts",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "CRITICAL",
+      "clientImpact": {
+        "severity": "CRITICAL",
+        "via": "functions/finalize-onboarding",
+        "paths": [
+          "src/services/finalizeOnboarding.ts:73"
+        ],
+        "note": "client fails soft or is gated by VITE_BACKEND_*_ENABLED (src/lib/cloud/backendCapability.ts); Edge Function paths are not gated"
+      },
+      "detail": "8 expected columns; defined by supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-003"
+    },
+    {
+      "kind": "BROAD_ANON_TABLE_PRIVILEGES_IN_PRODUCTION",
+      "object": "tables:31",
+      "file": null,
+      "severity": "HIGH",
+      "detail": "anon holds DELETE/INSERT/UPDATE/TRUNCATE/... on 31 of 37 tables (RLS is the only guard). Least-privilege migrations are repo-only: 20260828013000_api_role_table_grants.sql, 20260828020000_least_privilege_api_grants.sql.",
+      "tables": [
+        "_jev_triage_tmp",
+        "beta_admins",
+        "beta_anon_ingestion_quota_counters",
+        "beta_anon_ingestion_sessions",
+        "beta_feedback",
+        "beta_pedagogy_anon_sessions",
+        "beta_pedagogy_daily_metrics",
+        "beta_pedagogy_events",
+        "economy_ledger",
+        "entitlement_grants",
+        "league_memberships",
+        "league_tiers",
+        "league_weekly_results",
+        "league_xp_events",
+        "login_rate_events",
+        "profiles",
+        "referral_codes",
+        "referral_email_blocks",
+        "referral_rewards",
+        "referrals",
+        "reserved_usernames",
+        "signup_cleanup_runs",
+        "signup_rate_events",
+        "subscriptions",
+        "transactions",
+        "user_achievements",
+        "user_chests",
+        "user_economy",
+        "user_missions",
+        "user_progress",
+        "user_srs"
+      ],
+      "id": "SCD-004"
+    },
+    {
+      "kind": "CLIENT_COLUMN_MISSING_IN_PRODUCTION",
+      "object": "client:profiles.instruction_locale",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "paths": [
+          "src/lib/auth/sessionAudience.ts:71",
+          "src/services/courseDirectionSync.ts:24",
+          "src/services/courseDirectionSync.ts:38",
+          "src/services/socialService.ts:112",
+          "src/services/socialService.ts:371",
+          "src/services/socialService.ts:64",
+          "src/services/socialService.ts:92",
+          "src/services/telemetryConsent.ts:121",
+          "src/services/telemetryConsent.ts:81"
+        ],
+        "usage": [
+          "filter",
+          "select",
+          "update"
+        ]
+      },
+      "detail": "client reads/writes profiles.instruction_locale; repo defines it in supabase/migrations/20260827023000_placement_onboarding_handoff.sql but production lacks it",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-005"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:accept_family_invite/1",
+      "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/familyService.ts:147"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-006"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:activate_pearl_pro_pass/1",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/lib/economyServerBridge.ts:300"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-007"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:check_and_record_business_funnel_rate/2",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "functions/submit-business-lead",
+        "paths": [
+          "src/services/businessEvents.ts:54",
+          "src/services/businessLeadService.ts:114"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path public",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-008"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:check_and_record_business_lead_rate/2",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "functions/submit-business-lead",
+        "paths": [
+          "src/services/businessEvents.ts:54",
+          "src/services/businessLeadService.ts:114"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path public",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-009"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:claim_pearl_milestone/1",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/lib/economyServerBridge.ts:339"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-010"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:create_family_invite/1",
+      "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/familyService.ts:118"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-011"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:get_business_members/3",
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/businessWorkspaceService.ts:98"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-012"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:get_business_overview/1",
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/businessWorkspaceService.ts:67"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-013"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:get_family_overview/0",
+      "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/familyService.ts:108"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-014"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:get_public_profile_by_username/1",
+      "file": "supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+      "conditional": true,
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/socialService.ts:136"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "reconciliationCaveat": "the file matches its production history row, but this object is created inside a guarded DO block; absence is consistent with the guard evaluating false in production, so the recorded run did not create it",
+      "id": "SCD-015"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:get_public_profiles_by_ids/1",
+      "file": "supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+      "conditional": true,
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/socialService.ts:204"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "reconciliationCaveat": "the file matches its production history row, but this object is created inside a guarded DO block; absence is consistent with the guard evaluating false in production, so the recorded run did not create it",
+      "id": "SCD-016"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:remove_family_member/1",
+      "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/familyService.ts:138"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-017"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:revoke_family_invite/1",
+      "file": "supabase/migrations/20260914200000_family_invite_flow.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/familyService.ts:129"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-018"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:search_public_profiles/1",
+      "file": "supabase/migrations/20260808070849_secure_social_profile_boundary.sql",
+      "conditional": true,
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/socialService.ts:126"
+        ]
+      },
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "reconciliationCaveat": "the file matches its production history row, but this object is created inside a guarded DO block; absence is consistent with the guard evaluating false in production, so the recorded run did not create it",
+      "id": "SCD-019"
+    },
+    {
+      "kind": "POLICY_SELF_REFERENCE_IN_PRODUCTION",
+      "object": "policy:league_memberships.league_memberships_select_peers",
+      "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+      "severity": "HIGH",
+      "detail": "USING clause selects from its own table: direct SELECT by an authenticated user raises 42P17 (infinite recursion). Fix pending in supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql.",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-020"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:business_funnel_events",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "functions/submit-business-lead",
+        "paths": [
+          "src/services/businessEvents.ts:54",
+          "src/services/businessLeadService.ts:114"
+        ],
+        "note": "client fails soft or is gated by VITE_BACKEND_*_ENABLED (src/lib/cloud/backendCapability.ts); Edge Function paths are not gated"
+      },
+      "detail": "4 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-021"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:business_leads",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "functions/submit-business-lead",
+        "paths": [
+          "src/services/businessEvents.ts:54",
+          "src/services/businessLeadService.ts:114"
+        ],
+        "note": "client fails soft or is gated by VITE_BACKEND_*_ENABLED (src/lib/cloud/backendCapability.ts); Edge Function paths are not gated"
+      },
+      "detail": "14 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-022"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:social_activity_events",
+      "file": "supabase/migrations/005_social.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/socialService.ts:297",
+          "src/services/socialService.ts:340"
+        ],
+        "note": "client fails soft or is gated by VITE_BACKEND_*_ENABLED (src/lib/cloud/backendCapability.ts); Edge Function paths are not gated"
+      },
+      "detail": "5 expected columns; defined by supabase/migrations/005_social.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "reconciliationCaveat": "PARTIAL_EQUIVALENT proves only part of this file against production; this object may be the unproven remainder",
+      "id": "SCD-023"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:user_follows",
+      "file": "supabase/migrations/005_social.sql",
+      "severity": "HIGH",
+      "clientImpact": {
+        "severity": "HIGH",
+        "via": "direct",
+        "paths": [
+          "src/services/socialService.ts:154",
+          "src/services/socialService.ts:174",
+          "src/services/socialService.ts:192",
+          "src/services/socialService.ts:193"
+        ],
+        "note": "client fails soft or is gated by VITE_BACKEND_*_ENABLED (src/lib/cloud/backendCapability.ts); Edge Function paths are not gated"
+      },
+      "detail": "3 expected columns; defined by supabase/migrations/005_social.sql",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "reconciliationCaveat": "PARTIAL_EQUIVALENT proves only part of this file against production; this object may be the unproven remainder",
+      "id": "SCD-024"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.country_code",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "MEDIUM",
+      "detail": "expected text from supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-025"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.declared_experience",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "expected text from supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-026"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.instruction_locale",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "MEDIUM",
+      "detail": "expected text NOT NULL from supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-027"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.interface_locale",
+      "file": "supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "severity": "MEDIUM",
+      "detail": "expected text NOT NULL from supabase/migrations/20260827023000_placement_onboarding_handoff.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-028"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.learning_goal",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "expected text from supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-029"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.local_migrated_at",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "expected timestamp with time zone from supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-030"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.onboarding_version",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "expected integer from supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-031"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.placement_attempt_id",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "expected uuid from supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-032"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:profiles.placement_completed_at",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "expected timestamp with time zone from supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-033"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:user_economy.pearl_ledger",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "detail": "expected jsonb NOT NULL from supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-034"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:user_economy.pearl_pro_auto_activate",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "detail": "expected boolean NOT NULL from supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-035"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:user_economy.pearl_pro_expires_at",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "detail": "expected timestamp with time zone from supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-036"
+    },
+    {
+      "kind": "COLUMN_MISSING_IN_PRODUCTION",
+      "object": "column:user_economy.pearl_pro_last_activated_at",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "detail": "expected timestamp with time zone from supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-037"
+    },
+    {
+      "kind": "FOREIGN_KEY_MISSING_IN_PRODUCTION",
+      "object": "fk:profiles(placement_attempt_id)->placement_attempts",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "detail": "ON DELETE SET NULL",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-038"
+    },
+    {
+      "kind": "FUNCTION_SEARCH_PATH_DRIFT",
+      "object": "function:get_server_entitlement/0",
+      "file": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "severity": "MEDIUM",
+      "detail": "repo '' (empty) vs production public",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-039"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:business_lead_rate_events",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "3 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-040"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:family_accounts",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "6 expected columns; defined by supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-041"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:family_invites",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "10 expected columns; defined by supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-042"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:family_memberships",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "6 expected columns; defined by supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-043"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:organization_entitlement_grants",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "11 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-044"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:organization_invites",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "9 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-045"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:organization_members",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "7 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-046"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:organization_subscriptions",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "9 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-047"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:organizations",
+      "file": "supabase/migrations/20260825043000_business_foundation.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "13 expected columns; defined by supabase/migrations/20260825043000_business_foundation.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-048"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:pearl_journey_phase_catalog",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "2 expected columns; defined by supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-049"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:pearl_milestone_catalog",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "5 expected columns; defined by supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-050"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:pearl_milestone_claims",
+      "file": "supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "4 expected columns; defined by supabase/migrations/20260813180000_pearl_pro_economy.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-051"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:placement_attempts",
+      "file": "supabase/migrations/20260826230000_placement_onboarding.sql",
+      "severity": "MEDIUM",
+      "clientImpact": null,
+      "detail": "15 expected columns; defined by supabase/migrations/20260826230000_placement_onboarding.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-052"
+    },
+    {
+      "kind": "TABLE_ONLY_IN_PRODUCTION",
+      "object": "table:_jev_triage_tmp",
+      "file": null,
+      "severity": "MEDIUM",
+      "detail": "2 columns, RLS on; scratch table (OA-JEV-TMP-TABLE)",
+      "id": "SCD-053"
+    },
+    {
+      "kind": "CHECK_NOT_VALIDATED_IN_PRODUCTION",
+      "object": "check:profiles.profiles_username_format_v2",
+      "file": "supabase/pending/rc2-2-11-username-identifier.sql",
+      "severity": "LOW",
+      "detail": "constraint is NOT VALID: new writes are checked, existing rows are not",
+      "reconciliation": {
+        "status": "MATCH_EXACT",
+        "class": "RECONCILED"
+      },
+      "id": "SCD-054"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:_user_family_entitlement/1",
+      "file": "supabase/migrations/20260914210000_family_entitlement.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-055"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:_user_organization_entitlement/1",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-056"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:enforce_family_seat_limit/0",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-057"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:enforce_organization_seat_limit/0",
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-058"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:family_max_members/0",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY INVOKER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-059"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:family_seats_used/1",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-060"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:is_family_member/1",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-061"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:is_family_owner/1",
+      "file": "supabase/migrations/20260914120000_family_plan_foundation.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-062"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:is_organization_admin/1",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-063"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:is_organization_member/1",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-064"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:league_viewer_scope/0",
+      "file": "supabase/pending/rc2-3-10-league-memberships-policy-recursion.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-065"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:longyu_clamp_mastery_level/1",
+      "file": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY INVOKER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-066"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:longyu_mastery_entry_level/1",
+      "file": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY INVOKER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-067"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:longyu_merge_mastery_maps/2",
+      "file": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY INVOKER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-068"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:merge_progress_mastery_monotonic/0",
+      "file": "supabase/migrations/20260828032249_progress_mastery_monotonic_clamp.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-069"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:organization_active_seat_count/1",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-070"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:organization_has_seat_license/1",
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-071"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:organization_reserved_seat_count/1",
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-072"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:organization_seat_entitlement/1",
+      "file": "supabase/migrations/20260825062000_business_operational_hardening.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-073"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:organization_seats_within_entitlement/1",
+      "file": "supabase/migrations/20260914180000_business_seat_integrity.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path '' (empty)",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-074"
+    },
+    {
+      "kind": "FUNCTION_MISSING_IN_PRODUCTION",
+      "object": "function:run_telemetry_retention/2",
+      "file": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "SECURITY DEFINER, search_path public",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-075"
+    },
+    {
+      "kind": "FUNCTION_ONLY_IN_PRODUCTION",
+      "object": "function:rls_auto_enable/0",
+      "file": null,
+      "severity": "LOW",
+      "detail": "DEFINER, EXECUTE service_role",
+      "id": "SCD-076"
+    },
+    {
+      "kind": "TABLE_MISSING_IN_PRODUCTION",
+      "object": "table:telemetry_retention_runs",
+      "file": "supabase/pending/rc2-3-10-telemetry-retention.sql",
+      "severity": "LOW",
+      "clientImpact": null,
+      "detail": "7 expected columns; defined by supabase/pending/rc2-3-10-telemetry-retention.sql",
+      "reconciliation": {
+        "status": "UNKNOWN",
+        "class": "REPO_ONLY_NOT_APPLIED"
+      },
+      "id": "SCD-077"
+    },
+    {
+      "kind": "VIEW_MISSING_IN_PRODUCTION",
+      "object": "view:public_profiles",
+      "file": "supabase/migrations/005_social.sql",
+      "severity": "LOW",
+      "detail": "view columns are not compared (definition not read)",
+      "reconciliation": {
+        "status": "PARTIAL_EQUIVALENT",
+        "class": "RECONCILED"
+      },
+      "reconciliationCaveat": "PARTIAL_EQUIVALENT proves only part of this file against production; this object may be the unproven remainder",
+      "id": "SCD-078"
+    },
+    {
+      "kind": "RLS_NO_POLICY_DENY_ALL_WITH_GRANTS",
+      "object": "tables:10",
+      "file": null,
+      "severity": "INFO",
+      "detail": "RLS on, zero policies: deny-all for anon/authenticated despite the broad privilege flags (intentional for server-only tables)",
+      "tables": [
+        "_jev_triage_tmp",
+        "beta_anon_ingestion_quota_counters",
+        "beta_anon_ingestion_sessions",
+        "beta_pedagogy_anon_sessions",
+        "league_xp_events",
+        "login_rate_events",
+        "referral_email_blocks",
+        "reserved_usernames",
+        "signup_cleanup_runs",
+        "signup_rate_events"
+      ],
+      "id": "SCD-079"
+    }
+  ]
+}

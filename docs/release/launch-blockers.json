@@ -1,0 +1,102 @@
+{
+  "schema": "longyu-launch-blockers/1",
+  "generatedAt": "2026-10-09T02:00:00Z",
+  "cloudCertification": "BLOCKED",
+  "categories": {
+    "CLOUD": [
+      {
+        "id": "OA-BATCH-A-EXECUTE",
+        "blocker": "League policy fix not applied — needs owner backup + approval",
+        "ownerOnly": true
+      },
+      {
+        "id": "BACKUP_EXPORT",
+        "blocker": "Owner-held encrypted export + verify:production-backup",
+        "ownerOnly": true
+      },
+      {
+        "id": "BATCH_B_PLACEMENT",
+        "blocker": "Placement migrations + Edge order (after backup; irreversible handoff)",
+        "ownerOnly": true
+      },
+      {
+        "id": "JEV_TRIAGE_V2",
+        "blocker": "Deploy triage-feedback after merge to main",
+        "ownerOnly": true
+      },
+      {
+        "id": "CLOUD_SMOKE",
+        "blocker": "Manual cloud smoke with QA secrets",
+        "ownerOnly": true
+      },
+      {
+        "id": "AUTH_REDIRECTS",
+        "blocker": "Confirm redirect URL merge in Supabase Auth",
+        "ownerOnly": true
+      }
+    ],
+    "MONETIZATION": [
+      {
+        "id": "OA-FINAL-PRICING",
+        "blocker": "Owner signs BALANCED pricing pack (docs/commercial/oa-final-pricing.md)",
+        "ownerOnly": true
+      },
+      {
+        "id": "STRIPE_TEST_E2E",
+        "blocker": "Stripe TEST catalog Price IDs + checkout/portal/webhook matrix PASS",
+        "ownerOnly": false,
+        "status": "CODE_READY_CONFIG_REQUIRED"
+      },
+      {
+        "id": "PLAY_BILLING_IMPL",
+        "blocker": "Play Billing Library + server verify + product publish (after compliance)",
+        "ownerOnly": true
+      },
+      {
+        "id": "LIVE_MONETIZATION_GATE",
+        "blocker": "LIVE mode requires cloud PASS + OA-FINAL-PRICING + store compliance + billing matrix",
+        "ownerOnly": true,
+        "invariant": "LIVE_MONETIZATION_REQUIRES_CLOUD_PASS"
+      }
+    ],
+    "PHYSICAL_QA": [
+      {
+        "id": "ANDROID_OAUTH",
+        "blocker": "Physical device OAuth for Google/Microsoft PASS",
+        "ownerOnly": true
+      }
+    ],
+    "STORE": [],
+    "LEGAL_PRIVACY": [
+      {
+        "id": "TELEMETRY_RETENTION",
+        "blocker": "Owner picks 30/60/90 raw retention",
+        "ownerOnly": true
+      },
+      {
+        "id": "SNAPSHOT_EMAIL_LEGACY",
+        "blocker": "New snapshots omit email; old rows not wiped",
+        "ownerOnly": false,
+        "status": "CODE_DONE_HISTORY_KEPT"
+      },
+      {
+        "id": "COMMERCIAL_TERMS_REVIEW",
+        "blocker": "Legal review of auto-renew / cancel / refund / trial / account deletion copy",
+        "ownerOnly": true
+      }
+    ]
+  },
+  "counts": {
+    "CLOUD": 6,
+    "MONETIZATION": 4,
+    "PHYSICAL_QA": 1,
+    "STORE": 0,
+    "LEGAL_PRIVACY": 3,
+    "ownerOnlyTotal": 12
+  },
+  "goal": "ownerOnlyTotal < 10",
+  "goalMet": false,
+  "goalNote": "RC2.3.11 added commercial owner actions; compress toward ≤8 commercial-specific owner actions before live (OA-FINAL-PRICING, Stripe live later, Play publish, compliance, physical purchase, Terms).",
+  "carryoverFrom": "RC2.3.10D / PR #325",
+  "monetizationMode": "TEST"
+}

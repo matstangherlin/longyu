@@ -105,12 +105,12 @@ export const NAV: Record<string, NavItem> = {
 };
 
 /**
- * Barra inferior mobile — RC2.2.13: exatamente 5 destinos, Cultura é
- * navegação PRIMÁRIA (não fica escondida em Mais). Perfil sai da barra: o
- * acesso é pelo avatar da TopBar (e pelo catálogo completo em /mais).
- * Nunca 6+ itens.
+ * Barra inferior mobile — RC2.3.13G: Cultura sai da TabBar.
+ * Destinos: Jornada · Praticar · Missões · Mais (4 itens).
+ * Cultura vive no ProgressionShell `[ Jornada | Cultura ]`.
+ * Perfil continua pelo avatar da TopBar. Nunca 6+ itens.
  */
-export const MOBILE_PRIMARY_NAV_ROUTES = ["/jornada", "/treino", "/cultura", "/missoes", "/mais"] as const;
+export const MOBILE_PRIMARY_NAV_ROUTES = ["/jornada", "/treino", "/missoes", "/mais"] as const;
 
 /**
  * RC2.2.18 — rota de navegação → área progressiva. Itens sem entrada aqui
@@ -153,11 +153,12 @@ export function previewNavItems(visibility: FeatureVisibilityMap, limit = 2): Na
  */
 /**
  * RC2.2.23 — abas CONQUISTADAS. Conta nova: Jornada · Mais. Depois da 1ª
- * conclusão real: + Praticar. Cultura e Missões entram na barra quando a
- * descoberta progressiva já as revelou (o anúncio da RC2.2.18 promete a aba);
- * antes disso, no máximo 3 itens.
+ * conclusão real: + Praticar. Missões entra quando a descoberta progressiva
+ * já a revelou. RC2.3.13G — Cultura saiu da TabBar; teto cedo = 4 itens
+ * (Jornada · Praticar · Missões · Mais).
  */
-export const EARLY_NAV_MAX_ITEMS = 3;
+/** RC2.3.13G — primary bar is 4 slots (Cultura left TabBar); keep Missões visible. */
+export const EARLY_NAV_MAX_ITEMS = 4;
 export const NAV_TAB_MIN_COMPLETED_LESSONS: Readonly<Record<string, number>> = {
   "/treino": 1,
 };
@@ -169,8 +170,8 @@ export function navItemEarnedTab(item: NavItem, completedLessons: number): boole
 /** Barra efetiva: a barra (já filtrada pela descoberta) menos o que o aluno ainda não conquistou. */
 export function earnedTabBar(items: NavItem[], completedLessons: number): NavItem[] {
   const earned = items.filter((item) => navItemEarnedTab(item, completedLessons));
-  // Maduro = a Cultura já foi revelada; antes disso, no máximo 3 itens.
-  if (earned.some((item) => item.to === "/cultura")) return earned;
+  // RC2.3.13G — Culture is never a TabBar destination; early accounts stay ≤4.
+  if (earned.length <= EARLY_NAV_MAX_ITEMS) return earned;
   const more = earned.find((item) => item.to === "/mais");
   const rest = earned.filter((item) => item.to !== "/mais").slice(0, EARLY_NAV_MAX_ITEMS - (more ? 1 : 0));
   return more ? [...rest, more] : rest;
@@ -180,7 +181,6 @@ export function mobileNavForStage(_stage: LearnerStage, visibility: FeatureVisib
   return [
     NAV.jornada,
     NAV.treino,
-    NAV.cultura,
     NAV.missoes,
     NAV.mais,
   ].filter((item) => isNavItemDiscovered(item, visibility));
@@ -269,8 +269,9 @@ export function moreFlyoutGroups(
 }
 
 /**
- * Sheet mobile de Mais: atalhos que não cabem na barra (Loja, Ligas, …)
- * + sistema. O catálogo completo continua em `/mais`.
+ * Sheet mobile de Mais — RC2.3.13A (Hick): few simultaneous choices.
+ * VOCÊ · PROGRESSO · AJUDA. Terms/privacy/delete live in Conta/Ajustes.
+ * Full catalog remains at `/mais`.
  */
 export function moreMobileSheetGroups(
   primaryNav: NavItem[],
@@ -281,20 +282,13 @@ export function moreMobileSheetGroups(
   );
   const keep = (item: NavItem) => !primaryTos.has(item.to) && isNavItemDiscovered(item, visibility);
 
-  // RC2.2.23 — o Mais começa por VOCÊ (Perfil · Conta). RC2.2.25 — ordem
-  // fixa VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA, cada grupo só com o
-  // que já foi descoberto. Nada se repete: `keep` tira o que já está na barra.
   const you = [NAV.perfil, NAV.conta, NAV.aparencia].filter((item) => !primaryTos.has(item.to));
-  const learn = [NAV.cultura, NAV.missoes].filter(keep);
-  const social = [NAV.ligas].filter(keep);
-  const progress = [NAV.conquistas, NAV.loja].filter(keep);
-  const system = [NAV.dados, NAV.ajustes, NAV.ajuda, NAV.sobre].filter(keep);
+  const progress = [NAV.conquistas, NAV.ligas, NAV.loja].filter(keep);
+  const help = [NAV.ajuda, NAV.sobre].filter(keep);
   const groups: NavGroup[] = [];
   groups.push({ id: "you", title: "Você", titleKey: "navigation.groupYou", items: you });
-  if (learn.length) groups.push({ id: "learn", title: "Estudar", titleKey: "navigation.groupStudy", items: learn });
-  if (social.length) groups.push({ id: "social", title: "Social", titleKey: "navigation.groupSocial", items: social });
   if (progress.length) groups.push({ id: "progress", title: "Progresso", titleKey: "navigation.groupProgress", items: progress });
-  if (system.length) groups.push({ id: "system", title: "Sistema", titleKey: "navigation.groupSystem", items: system });
+  if (help.length) groups.push({ id: "help", title: "Ajuda", titleKey: "navigation.groupHelp", items: help });
   return groups;
 }
 
@@ -313,7 +307,6 @@ export const DESKTOP_NAV: NavItem[] = [
 export const NAV_MOBILE: NavItem[] = [
   NAV.jornada,
   NAV.treino,
-  NAV.cultura,
   NAV.missoes,
   { ...NAV.mais, matches: [...MORE_MATCHES, "/loja", "/ligas"] },
 ];
@@ -330,8 +323,18 @@ export const LEAGUES_NAV: NavItem = NAV.ligas;
 export const SETTINGS_NAV: NavItem = NAV.ajustes;
 export const LIBRARY_NAV: NavItem = NAV.biblioteca;
 
+/**
+ * RC2.3.13G — Journey is the progression parent: `/cultura*` keeps the
+ * Jornada bottom-nav destination visually active (Culture is a submode).
+ */
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
   if (item.to === "/" && pathname === "/") return true;
+  if (
+    item.to === "/jornada" &&
+    (pathname === "/cultura" || pathname.startsWith("/cultura/"))
+  ) {
+    return true;
+  }
   if (item.to !== "/" && (pathname === item.to || pathname.startsWith(`${item.to}/`))) return true;
   return Boolean(item.matches?.some((match) => pathname === match || pathname.startsWith(`${match}/`)));
 }

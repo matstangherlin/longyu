@@ -1,0 +1,138 @@
+{
+  "schema": "longyu-prod-only-classification/1",
+  "wave": "RC2.3.10B",
+  "generatedAt": "2026-10-08",
+  "source": {
+    "ledger": "docs/launch/production-migration-ledger.json",
+    "reconciliation": "docs/launch/rc2-3-10b-migration-reconciliation.json",
+    "forensics": "docs/reports/rc2-3-10b-migration-forensics.md",
+    "liveFacts": "docs/launch/rc2-3-10b-live-facts.json"
+  },
+  "safety": {
+    "productionWrites": false,
+    "note": "Classification only. No supabase_migrations row was repaired, renamed or re-run. Any action below goes through PRODUCTION_MIGRATION_READY."
+  },
+  "vocabulary": {
+    "HOTFIX_NOT_BACKPORTED": "Production carries a function body that no repo file defines (body digest differs from every repo definition of the same signature). The repo does not describe what production runs.",
+    "LEGIT_LEGACY": "Production applied a small, additive piece of an older design; its effect is present and nothing in the repo contradicts it.",
+    "SPLIT_CHUNK_OF_REPO_FILE": "Production applied one function of a repo file as its own history row; the body digest equals the repo definition.",
+    "UNKNOWN": "Cannot be classified from committed evidence. requiredProof names the schema read that settles it."
+  },
+  "method": "Per row: structural signature of the applied production SQL (scripts/lib/migration-semantic-reconcile.mjs extractStructuralSignature) compared to every repo definition of the same object; function body compared by whitespace-insensitive digest. Live md5 values in rc2-3-10b-live-facts.json are over pg_get_functiondef and are NOT comparable to repo text, so they prove nothing here.",
+  "counts": {
+    "HOTFIX_NOT_BACKPORTED": 3,
+    "SPLIT_CHUNK_OF_REPO_FILE": 2,
+    "LEGIT_LEGACY": 1,
+    "UNKNOWN": 0
+  },
+  "placeholderNeighbours": {
+    "rule": "Placeholder history rows are UNKNOWN until schema proof exists. Their real SQL was applied outside supabase_migrations, so a PROD_ONLY chunk may have been overwritten by a later placeholder-recorded statement.",
+    "rows": [
+      {
+        "version": "20260804082814",
+        "name": "referrals_mvp",
+        "classification": "UNKNOWN",
+        "requiredProof": "Column/function-level read of the referral objects vs supabase/migrations/017_referrals.sql."
+      },
+      {
+        "version": "20260808134423",
+        "name": "economy_anti_cheat_qi",
+        "classification": "UNKNOWN",
+        "requiredProof": "pg_get_functiondef of claim_mission, grant_lesson_reward, grant_story_energy diffed against supabase/migrations/20260808140000_economy_anti_cheat_qi.sql."
+      },
+      {
+        "version": "20260808134424",
+        "name": "harden_economy_reward_trust",
+        "classification": "UNKNOWN",
+        "requiredProof": "Object-level read of the economy_* helper functions and policies vs supabase/migrations/20260808130000_harden_economy_reward_trust.sql."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "version": "20260808133923",
+      "name": "harden_economy_claim_mission",
+      "classification": "HOTFIX_NOT_BACKPORTED",
+      "object": "function:public.claim_mission(p_scope text,p_mission_id text,p_period_key text,p_metric_value integer default 0)",
+      "evidence": [
+        "Reconciler: production SQL matches no repo file structurally (status UNKNOWN, confidence 0, candidateRepoFiles empty).",
+        "Same signature exists in supabase/migrations/006_economy_server.sql, 20260808130000_harden_economy_reward_trust.sql and 20260808140000_economy_anti_cheat_qi.sql; non-body attributes are equal (plpgsql, security definer, returns jsonb, no config) but the body digest differs from all three (production 6a9285aaf38d).",
+        "Semantic drift: the production body clamps and trusts p_metric_value (v_metric := greatest(0, least(p_metric_value, 100000))) and returns mission_incomplete; the repo anti-cheat body ignores p_metric_value and calls economy_verified_mission_metric(...). Production messages are ASCII-folded (scope invalido) while the repo uses accents."
+      ],
+      "risk": "If the live body is this chunk, the repo's server-verified mission metric is not what runs in production. Live body unknown: later history rows 20260808134423 / 20260808134424 are placeholders.",
+      "requiredProof": "Dump pg_get_functiondef(public.claim_mission) from production and diff against supabase/migrations/20260808140000_economy_anti_cheat_qi.sql.",
+      "action": "Do not repair, rename or re-run this row. After the diff, either backport the live body to the repo as a new migration or apply the repo definition through PRODUCTION_MIGRATION_READY."
+    },
+    {
+      "version": "20260808134006",
+      "name": "harden_economy_grant_story_energy",
+      "classification": "HOTFIX_NOT_BACKPORTED",
+      "object": "function:public.grant_story_energy(p_story_id text,p_day_key text)",
+      "evidence": [
+        "Reconciler: production SQL matches no repo file structurally (status UNKNOWN, confidence 0).",
+        "Same signature in 006_economy_server.sql, 20260808130000_harden_economy_reward_trust.sql and 20260808170000_harden_client_reward_claims.sql; body digest differs from all three (production 0be112f0da55).",
+        "Semantic drift: production grants by day_key from the ledger only; the repo bodies add economy_eligible_stories and economy_story_sessions checks (v_session public.economy_story_sessions%rowtype)."
+      ],
+      "risk": "Production may accept a story-energy grant without the story-session verification the repo defines. 20260808170000_harden_client_reward_claims is recorded as applied (MATCH_EXACT, version 20260808183305) after this chunk, so the live body may already be the repo one.",
+      "requiredProof": "pg_get_functiondef(public.grant_story_energy) from production vs supabase/migrations/20260808170000_harden_client_reward_claims.sql.",
+      "action": "Do not repair, rename or re-run this row. Diff first; backport only if the live body differs from the repo."
+    },
+    {
+      "version": "20260808134010",
+      "name": "harden_economy_grant_lesson_reward",
+      "classification": "HOTFIX_NOT_BACKPORTED",
+      "object": "function:public.grant_lesson_reward(p_lesson_id text,p_attempt_id text,p_stars integer default 3,p_no_skip boolean default true)",
+      "evidence": [
+        "Reconciler: production SQL matches no repo file structurally (status UNKNOWN, confidence 0).",
+        "Same signature in 006_economy_server.sql, 20260808130000_harden_economy_reward_trust.sql, 20260808140000_economy_anti_cheat_qi.sql and 20260808170000_harden_client_reward_claims.sql; body digest differs from all four (production f5fc0efeaae1).",
+        "Semantic drift: production trusts p_stars (v_stars := greatest(1, least(3, p_stars))) with a v_daily_cap of 40; the repo bodies ignore p_stars/p_no_skip on purpose (anti-cheat) and verify the attempt."
+      ],
+      "risk": "Same class as claim_mission: the repo hardening may not be what runs in production if no later statement replaced this body.",
+      "requiredProof": "pg_get_functiondef(public.grant_lesson_reward) from production vs supabase/migrations/20260808170000_harden_client_reward_claims.sql.",
+      "action": "Do not repair, rename or re-run this row. Diff first; backport only if the live body differs from the repo."
+    },
+    {
+      "version": "20260808134007",
+      "name": "harden_economy_claim_league_week_reward",
+      "classification": "SPLIT_CHUNK_OF_REPO_FILE",
+      "object": "function:public.claim_league_week_reward(p_week_key text)",
+      "evidence": [
+        "Reconciler: PARTIAL_EQUIVALENT to supabase/migrations/20260808130000_harden_economy_reward_trust.sql (all 1 structural object of the chunk present with identical attributes in a 60-object file).",
+        "Body digest of the production chunk (b0a450bfa7a0) equals the repo definition in 20260808130000_harden_economy_reward_trust.sql (no body drift).",
+        "supabase/migrations/004_leagues.sql defines an older body for the same signature; the chunk correctly supersedes it."
+      ],
+      "risk": "None from this row alone. The other 59 objects of the repo file are not proven in production (the history row for the whole file, 20260808134424, is a placeholder).",
+      "requiredProof": null,
+      "action": "Record the mapping to 20260808130000_harden_economy_reward_trust.sql in the ledger once the placeholder row is settled. Do not re-run the repo file (it would re-apply 59 other objects)."
+    },
+    {
+      "version": "20260808134009",
+      "name": "harden_economy_add_league_weekly_xp",
+      "classification": "SPLIT_CHUNK_OF_REPO_FILE",
+      "object": "function:public.add_league_weekly_xp(p_amount integer,p_source_key text)",
+      "evidence": [
+        "Reconciler: PARTIAL_EQUIVALENT to supabase/migrations/20260808130000_harden_economy_reward_trust.sql (1 of 60 objects, identical attributes).",
+        "Body digest of the production chunk (c1e06b1ff7ab) equals the repo definition in 20260808130000_harden_economy_reward_trust.sql (no body drift).",
+        "supabase/migrations/20260808170000_harden_client_reward_claims.sql redefines the function with a different body; that file is recorded as applied (version 20260808183305, MATCH_EXACT) after this chunk, so the live body is expected to be the later one."
+      ],
+      "risk": "Low. Superseded by an applied, exact-match migration.",
+      "requiredProof": null,
+      "action": "Record the mapping in the ledger. Do not re-run."
+    },
+    {
+      "version": "20260808134325",
+      "name": "profiles_social_columns",
+      "classification": "LEGIT_LEGACY",
+      "object": "columns:public.profiles.{username,avatar_key,league_tier,public_weekly_xp,public_streak,show_in_search}",
+      "evidence": [
+        "Production SQL is six `add column if not exists` statements (username, avatar_key, league_tier text not null default 'jade', public_weekly_xp integer not null default 0, public_streak integer not null default 0, show_in_search boolean not null default true).",
+        "Reconciler: PARTIAL_EQUIVALENT to supabase/migrations/005_social.sql (all 6 structural objects present with identical attributes; 36 further objects only in the repo file).",
+        "Columns are present in production (RC2.3.10B live read); applied migrations 20260808070849_secure_social_profile_boundary (MATCH_EXACT) and rc2_2_11_username_identifier_login (MATCH_EXACT) depend on them.",
+        "The other 36 objects of 005_social.sql (user_follows, social_activity_events, search RPCs) are absent in production by design: the client is gated by VITE_BACKEND_SOCIAL_ENABLED."
+      ],
+      "risk": "None for the columns. 005_social.sql must still not be applied as written (UNSAFE_UNTIL_RECONCILED in the plan).",
+      "requiredProof": null,
+      "action": "Keep as legacy. When the social backend is promoted, apply only the missing objects of 005_social.sql, not the column block."
+    }
+  ]
+}

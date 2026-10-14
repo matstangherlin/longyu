@@ -1503,6 +1503,157 @@ const EXTRAS: Record<string, ExtraSteps> = {
       "independent_application"
     ),
   ],
+  // RC2.3.13F hub-only expansions — need match_pairs + fill_blank engines.
+  "wechat-life": (_item, conceptId) => [
+    pairs(
+      t("Camadas do WeChat", "WeChat layers"),
+      t("Combine a tela com a função.", "Match the screen with the function."),
+      [
+        { left: t("chat / grupo", "chat / group"), right: t("coordenação, não só QR", "coordination, not only QR") },
+        { left: t("朋友圈", "朋友圈"), right: t("público social", "social audience") },
+        { left: t("Mini Program", "Mini Program"), right: t("serviço embutido", "embedded service") },
+      ],
+      t("WeChat é hub multifuncional; pagamento é uma camada.", "WeChat is a multifunctional hub; payment is one layer."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Antes de postar", "Before posting"),
+      t("No Moments, o público importa.", "On Moments, the audience matters."),
+      t("Antes de postar no Moments, ", "Before posting to Moments, "),
+      t("cheque o público", "check the audience"),
+      t(".", "."),
+      [t("cheque o público", "check the audience"), t("pague com QR", "pay with QR"), t("apague o WeChat", "delete WeChat")],
+      t("Moments não é o mesmo canal que um chat privado.", "Moments is not the same channel as a private chat."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "high-speed-rail": (_item, conceptId) => [
+    pairs(
+      t("Estação e embarque", "Station and boarding"),
+      t("Combine o passo com o lugar.", "Match the step with the place."),
+      [
+        { left: t("documento + bilhete", "ID + ticket"), right: t("entrada / check-in", "entry / check-in") },
+        { left: t("segurança", "security"), right: t("fila de raio-x", "X-ray queue") },
+        { left: t("assento G/D", "G/D seat"), right: t("classe e carro", "class and car") },
+      ],
+      t("Alta velocidade é processo de estação, não só 'sentar e ir'.", "High-speed rail is a station process, not only 'sit and go'."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Na plataforma", "On the platform"),
+      t("Você tem bilhete e documento.", "You have a ticket and ID."),
+      t("Na estação, leve ", "At the station, bring "),
+      t("documento e bilhete", "ID and ticket"),
+      t(" até o portão.", " to the gate."),
+      [t("documento e bilhete", "ID and ticket"), t("só o celular sem nada", "only a phone with nothing"), t("a chave do hotel", "the hotel key")],
+      t("O fluxo exige identificação e bilhete válidos.", "The flow needs valid ID and ticket."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "gaokao-context": (_item, conceptId) => [
+    pairs(
+      t("Leitura do Gaokao", "Reading Gaokao"),
+      t("Combine a frase com o contexto.", "Match the phrase with the context."),
+      [
+        { left: t("exame nacional", "national exam"), right: t("pressão e calendário familiares", "family pressure and calendar") },
+        { left: t("variação regional", "regional variation"), right: t("não um único destino", "not a single destiny") },
+        { left: t("sensacionalismo", "sensationalism"), right: t("evitar como moldura", "avoid as the frame") },
+      ],
+      t("Gaokao importa socialmente; não define toda a juventude chinesa.", "Gaokao matters socially; it does not define all Chinese youth."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Tom da conversa", "Tone of the conversation"),
+      t("Um colega fala do Gaokao da irmã.", "A colleague talks about their sister's Gaokao."),
+      t("É mais seguro ouvir com ", "It is safer to listen with "),
+      t("respeito", "respect"),
+      t(" do que fazer piada.", " than joke."),
+      [t("respeito", "respect"), t("ironia", "irony"), t("desdém", "disdain")],
+      t("Pressão escolar é contexto; humor barato pode ferir.", "School pressure is context; cheap humor can hurt."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "guanxi-relations": (_item, conceptId) => [
+    pairs(
+      t("关系 sem caricatura", "关系 without caricature"),
+      t("Combine a ideia com a leitura segura.", "Match the idea with the safer reading."),
+      [
+        { left: t("reciprocidade", "reciprocity"), right: t("favores ao longo do tempo", "favors over time") },
+        { left: t("confiança", "trust"), right: t("rede de relações", "relationship network") },
+        { left: t("corrupção", "corruption"), right: t("não é sinônimo automático", "not an automatic synonym") },
+      ],
+      t("关系 é rede e reciprocidade — não reduza a crime.", "关系 is network and reciprocity — do not reduce it to crime."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Quando alguém ajuda", "When someone helps"),
+      t("Um conhecido resolve um contato profissional.", "An acquaintance opens a professional contact."),
+      t("Em muitos contextos, ", "In many contexts, "),
+      t("agradecer e reciprocar", "thank and reciprocate"),
+      t(" importa mais do que 'pagar na hora'.", " matters more than 'pay immediately'."),
+      [t("agradecer e reciprocar", "thank and reciprocate"), t("acusar de corrupção", "accuse of corruption"), t("ignorar a ajuda", "ignore the help")],
+      t("Reciprocidade social ≠ suborno automático.", "Social reciprocity ≠ automatic bribery."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "delivery-life": (_item, conceptId) => [
+    pairs(
+      t("Entrega no prédio", "Delivery at the building"),
+      t("Combine o sinal com a ação.", "Match the cue with the action."),
+      [
+        { left: t("ligação do entregador", "courier call"), right: t("descer ou liberar entrada", "go down or unlock entry") },
+        { left: t("armário / locker", "locker"), right: t("deixar se o prédio permitir", "leave if the building allows") },
+        { left: t("ignorar o telefone", "ignore the phone"), right: t("atrasa ou cancela", "delays or cancels") },
+      ],
+      t("Delivery molda a rotina urbana; o protocolo do prédio varia.", "Delivery shapes urban routine; building protocol varies."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Quando o app avisa", "When the app alerts"),
+      t("O pedido chegou ao condomínio.", "The order reached the compound."),
+      t("É comum ", "It is common to "),
+      t("descer ou abrir o portão", "go downstairs or open the gate"),
+      t(" quando o entregador liga.", " when the courier calls."),
+      [t("descer ou abrir o portão", "go downstairs or open the gate"), t("gritar da janela", "shout from the window"), t("cancelar sem ler", "cancel without reading")],
+      t("Combinar com a regra do prédio evita atrito.", "Matching building rules avoids friction."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
+  "regional-china": (_item, conceptId) => [
+    pairs(
+      t("Variação regional", "Regional variation"),
+      t("Combine o fato com a leitura.", "Match the fact with the reading."),
+      [
+        { left: t("普通话", "普通话"), right: t("língua franca escolar", "school lingua franca") },
+        { left: t("cantonês", "Cantonese"), right: t("não é 'mandarim errado'", "not 'wrong Mandarin'") },
+        { left: t("norte / sul", "north / south"), right: t("mesa e clima mudam", "table and climate change") },
+      ],
+      t("A China não é culturalmente uniforme.", "China is not culturally uniform."),
+      conceptId,
+      "guided_application"
+    ),
+    fill(
+      t("Na conversa local", "In local conversation"),
+      t("Colegas falam uma língua local entre si.", "Colleagues speak a local language among themselves."),
+      t("Com você, é comum usarem ", "With you, they often use "),
+      t("普通话", "普通话"),
+      t(" sem você 'corrigir' a língua deles.", " without you 'correcting' their language."),
+      [t("普通话", "普通话"), t("só inglês", "English only"), t("silêncio absoluto", "absolute silence")],
+      t("Respeitar a variedade local é parte do contexto.", "Respecting local variety is part of the context."),
+      conceptId,
+      "independent_application"
+    ),
+  ],
 };
 
 function teachSteps(item: CultureItem, conceptId: string): LessonStep[] {

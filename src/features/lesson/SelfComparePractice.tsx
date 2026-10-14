@@ -514,20 +514,39 @@ export function SelfComparePractice({
       {(phase === "idle" || phase === "preparing" || phase === "recording") && (
         <GuidedDock>
           {phase === "idle" ? (
-            <Button className={guided ? "w-full" : "mt-4 w-full"} size="lg" onClick={() => void startRecording()} data-testid="self-compare-record">
+            <Button
+              className={guided ? "min-h-12 w-full" : "mt-4 min-h-12 w-full"}
+              size="lg"
+              onClick={() => void startRecording()}
+              data-testid="self-compare-record"
+              data-cta-hierarchy="primary"
+            >
               {t("player.selfCompareRecord")}
             </Button>
           ) : phase === "preparing" ? (
-            <Button className={guided ? "w-full" : "mt-4 w-full"} size="lg" disabled data-testid="self-compare-preparing">
+            <Button className={guided ? "min-h-12 w-full" : "mt-4 min-h-12 w-full"} size="lg" disabled data-testid="self-compare-preparing">
               {t("player.selfComparePreparing")}
             </Button>
           ) : (
-            <Button className={guided ? "w-full animate-pulse" : "mt-4 w-full animate-pulse"} size="lg" variant="danger" onClick={() => void stopRecording()} data-testid="self-compare-stop">
+            <Button
+              className={guided ? "min-h-12 w-full animate-pulse" : "mt-4 min-h-12 w-full animate-pulse"}
+              size="lg"
+              variant="danger"
+              onClick={() => void stopRecording()}
+              data-testid="self-compare-stop"
+              data-cta-hierarchy="primary"
+            >
               {t("player.selfCompareStop")}
             </Button>
           )}
           {guided && phase === "idle" && (
-            <button type="button" onClick={onCannotSpeak} className="min-h-11 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink">
+            <button
+              type="button"
+              onClick={onCannotSpeak}
+              className="min-h-11 w-full py-1 text-sm font-medium text-ink-faint transition hover:text-ink"
+              data-cta-hierarchy="tertiary"
+              data-testid="speech-cannot-now"
+            >
               {t("player.cannotSpeakNow")}
             </button>
           )}

@@ -499,19 +499,22 @@ export async function validatePedagogy(s) {
 
 export async function validateRelease(s) {
   const { failures, fail } = collector();
-  // 18 — Sair visível e neutro; Excluir separado e destrutivo.
+  // 18 — Sair visível; Excluir separado. RC2.3.13A — SignOutControl compact
+  // (destructive-text OK; filled danger remains Excluir only).
   const more = stripComments(s.src.more);
-  if (!/data-testid="more-sign-out"/.test(more)) fail("LOGOUT_HIDDEN", FILES.more, "Sair no bloco Você do Mais");
-  const moreSignOut = /<button[^\n]*data-testid="more-sign-out"[^\n]*/.exec(more)?.[0] ?? "";
-  if (/text-wrong|danger|bg-wrong/.test(moreSignOut)) fail("LOGOUT_STYLED_AS_DELETE", FILES.more, "Sair não pode parecer Excluir");
+  if (!/SignOutControl[\s\S]{0,80}?testId="more-sign-out"/.test(more) && !/data-testid="more-sign-out"/.test(more) && !/testId="more-sign-out"/.test(more)) {
+    fail("LOGOUT_HIDDEN", FILES.more, "Sair no bloco Você do Mais");
+  }
+  if (/variant=["']danger["'][\s\S]{0,120}more-sign-out|bg-wrong[\s\S]{0,80}more-sign-out/.test(more)) {
+    fail("LOGOUT_STYLED_AS_DELETE", FILES.more, "Sair não pode parecer Excluir");
+  }
   const conta = stripComments(s.src.conta);
-  // RC2.2.25 — Sair virou linha full-width (<button>) na primeira dobra de Conta.
-  const contaSignOut =
-    /<ActionButton onClick=\{\(\) => void onSignOut\(\)\}[^\n]*/.exec(conta)?.[0] ??
-    /<button\s[\s\S]{0,120}?onClick=\{\(\) => void onSignOut\(\)\}[\s\S]{0,400}?data-testid="conta-sign-out"[^\n]*/.exec(conta)?.[0] ??
-    "";
-  if (!contaSignOut) fail("LOGOUT_HIDDEN", FILES.conta, "Sair da conta em Conta");
-  else if (/text-wrong|border-wrong|danger/.test(contaSignOut)) fail("LOGOUT_STYLED_AS_DELETE", FILES.conta, "Sair não pode parecer Excluir");
+  if (!/SignOutControl[\s\S]{0,80}?testId="conta-sign-out"/.test(conta) && !/data-testid="conta-sign-out"/.test(conta) && !/testId="conta-sign-out"/.test(conta)) {
+    fail("LOGOUT_HIDDEN", FILES.conta, "Sair da conta em Conta");
+  }
+  if (/variant=["']danger["'][\s\S]{0,120}conta-sign-out|bg-wrong[\s\S]{0,80}conta-sign-out/.test(conta)) {
+    fail("LOGOUT_STYLED_AS_DELETE", FILES.conta, "Sair não pode parecer Excluir");
+  }
   if (!/<DangerZone \/>/.test(s.src.settings)) fail("DELETE_NOT_SEPARATED", FILES.settings, "Excluir conta na zona de perigo, separado");
   if (/DangerZone|deleteAccount/.test(more)) fail("DELETE_NOT_SEPARATED", FILES.more, "Excluir não mora ao lado de Sair");
   // 19/20 — update N→N+1 não reseta orientação nem duplica recompensa.
@@ -571,7 +574,7 @@ export async function validateRelease(s) {
     if (man.closedBeta?.CLOSED_BETA_READY === true && !ready) fail("CLOSED_BETA_PREMATURE", "manifest.closedBeta", "CLOSED_BETA_READY só com todos os requisitos");
     if (man.recoveryTemplate?.ownerApplied === "PASS" || man.recoveryTemplate?.physicallyVerified === "PASS") fail("OWNER_ACTION_HIDDEN", "manifest.recoveryTemplate", "só o owner aplica e verifica");
     for (const [key, status] of Object.entries(man.releaseResidual ?? {})) if (status === "PASS" || status === "COMPLETE") fail("RESIDUAL_HIDDEN", `manifest.releaseResidual.${key}`, "nenhum resíduo vira PASS por código");
-    if (man.fingerprint !== "5a64821d0b7d" && !man.pedagogyContentException) fail("FINGERPRINT_DRIFT", "manifest.fingerprint", "fingerprint honesto ou exceção registrada");
+    if (man.fingerprint !== "29bb02ec0336" && !man.pedagogyContentException) fail("FINGERPRINT_DRIFT", "manifest.fingerprint", "fingerprint honesto ou exceção registrada");
   } else fail("MANIFEST_MISSING", "docs/release/rc2-2-20-manifest.json", "manifesto");
   const owner = s.ownerActions;
   if (!owner) fail("OWNER_ACTION_HIDDEN", "docs/release/rc2-2-20-owner-actions.json", "ações do owner");

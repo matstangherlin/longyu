@@ -80,6 +80,41 @@ export const TECH_EVENT_NAMES = [
   "permission_prompted",
   "perceived_speed",
   "issue_reported",
+  // RC2.3.13E — Journey ↔ Culture progression shell (safe metadata only).
+  "progression_switch_journey",
+  "progression_switch_culture",
+  // RC2.3.13G — beta learner-health (safe metadata only).
+  "progression_mode_changed",
+  "culture_first_switch",
+  "session_started",
+  "first_lesson_started",
+  "first_lesson_completed",
+  "first_mandarin_action",
+  "practice_first_open",
+  "mastery_first_open",
+  "culture_node_started",
+  "culture_node_completed",
+  "micro_feedback_shown",
+  "micro_feedback_answered",
+  "micro_feedback_dismissed",
+  "problem_report_opened",
+  "problem_report_submitted",
+  "culture_node_open",
+  "culture_node_complete",
+  "culture_bridge_open",
+  "culture_path_open",
+  "culture_atlas_open",
+  "culture_depth_expand",
+  "culture_decision_submit",
+  // RC2.3.13R.3.2 — Culture topic hierarchy (safe metadata only).
+  "culture_topic_opened",
+  "culture_topic_continue",
+  "culture_subtopic_started",
+  "culture_root_returned",
+  // RC2.3.13H — dynamic AULA presentation (safe metadata only; no per-char reveals).
+  "dynamic_aula_started",
+  "dynamic_aula_completed",
+  "visual_example_viewed",
 ] as const;
 export type TechEventName = (typeof TECH_EVENT_NAMES)[number];
 

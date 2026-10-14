@@ -1,0 +1,57 @@
+{
+  "schema": "longyu-rc2-3-10d-live-snapshot/1",
+  "readAt": "2026-10-09T01:27:00Z",
+  "productionWrite": false,
+  "parentHead": "b954ff245e018d456cfb4e255a2462e885591b26",
+  "project": {
+    "ref": "drjcfalvlbbeblmmyhwj",
+    "name": "MandarimProject",
+    "status": "ACTIVE_HEALTHY",
+    "region": "us-west-2",
+    "postgres": "17.6.1.155"
+  },
+  "migrations": {
+    "count": 36,
+    "rc2_3_10_league_memberships_policy_recursion": "ABSENT",
+    "leagueNamedRows": [
+      "fix_leagues_cohort_finalize",
+      "harden_economy_claim_league_week_reward",
+      "harden_economy_add_league_weekly_xp"
+    ]
+  },
+  "league": {
+    "league_viewer_scope": "ABSENT",
+    "league_memberships_select_peers": {
+      "present": true,
+      "usingMd5": "9978cb3d74d2895973e4e71b735dfd1e",
+      "selfRef": true
+    }
+  },
+  "edgeFunctions": [
+    { "slug": "create-checkout-session", "version": 10 },
+    { "slug": "create-billing-portal", "version": 9 },
+    { "slug": "stripe-webhook", "version": 11, "verify_jwt": false },
+    { "slug": "delete-account", "version": 10 },
+    { "slug": "create-account", "version": 9, "verify_jwt": false },
+    { "slug": "issue-anon-ingestion-session", "version": 3 },
+    { "slug": "sign-in-identifier", "version": 1 },
+    { "slug": "triage-feedback", "version": 1, "verify_jwt": true }
+  ],
+  "edgeCount": 8,
+  "missingRequiredEdges": ["commit-placement", "finalize-onboarding"],
+  "jevTmp": { "exists": true, "rowCount": 5, "action": "OBSOLETE_DO_NOT_DROP_WITHOUT_BACKUP" },
+  "advisors": {
+    "rls_enabled_no_policy": 16,
+    "function_search_path_mutable": 14,
+    "anon_security_definer": 2,
+    "authenticated_security_definer": 28,
+    "leaked_password_protection": "DISABLED_PRO_ONLY"
+  },
+  "web": {
+    "url": "https://singular-meringue-7838cd.netlify.app/version.json",
+    "commitSha": "ec26ffcb05a4d20ec48c69be2d2d44842b6d642e",
+    "unchangedSince": "2026-10-08"
+  },
+  "hiddenWriteSince10C": false,
+  "note": "Matches RC2.3.10C expectations. No production write by this wave at snapshot time."
+}

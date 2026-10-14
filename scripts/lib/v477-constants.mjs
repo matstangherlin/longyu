@@ -267,6 +267,26 @@ export const V477_LOCAL_ONLY_CLASS = {
       "Family membership finally grants access: get_server_entitlement gains a family_membership branch and economy_user_is_pro sees the same Pro the screen does. The family grants only while it is active and its owner still pays, so access drops on the next call with no job and no cache.",
     objects: ["_user_family_entitlement", "get_server_entitlement", "economy_user_is_pro"],
   },
+  "20261009060000_jev_beta_triage_v2.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose: "JEV_BETA_TRIAGE_V2 — additive beta_feedback AI columns + jev_ops_daily. Not applied to production.",
+    deploymentIntent: "OWNER_APPROVAL_REQUIRED",
+    productionState: "NOT_APPLIED",
+    betaRequired: false,
+    objects: [
+      "beta_feedback.ai_policy_version",
+      "beta_feedback.ai_p_candidate",
+      "jev_ops_daily",
+    ],
+  },
+  "20261009070000_jev_shadow_struggle_lab.sql": {
+    class: "NOT_YET_DEPLOYED",
+    purpose: "JEV Wave 3 shadow struggle research table only. Shadow runtime OFF; KEEP_SHADOW.",
+    deploymentIntent: "DEFERRED_RESEARCH",
+    productionState: "NOT_APPLIED",
+    betaRequired: false,
+    objects: ["jev_shadow_struggle_events"],
+  },
 };
 
 export const V477_HISTORICAL_EDITS = [

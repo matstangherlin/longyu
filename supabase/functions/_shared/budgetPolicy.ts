@@ -14,6 +14,8 @@ export const COST_POLICY_DEFAULTS = {
   ALLOW_PAID_OVERAGE: false,
   /** Jev inside the learner's lesson flow. Off for launch. */
   JEV_RUNTIME_ENABLED: false,
+  /** Jev Wave 3 shadow struggle — must stay false; instant kill switch to deterministic UX. */
+  JEV_SHADOW_STRUGGLE_RUNTIME_ENABLED: false,
   /** Jev for internal/dev semantic audit (admin feedback triage). Kill switch. */
   JEV_DEV_AUDIT_ENABLED: true,
   MARKETING_EMAIL_ENABLED: false,

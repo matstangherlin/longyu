@@ -89,6 +89,7 @@ export const FILES = {
   settings: "src/features/settings/SettingsPage.tsx",
   guidance: "src/lib/guidanceOrchestrator.ts",
   signOut: "src/hooks/useCloudSignOut.ts",
+  signOutControl: "src/components/account/SignOutControl.tsx",
   localePt: "src/locales/pt-BR.ts",
   subscription: "src/services/subscriptionService.ts",
   releaseIdentity: "scripts/lib/release-identity.mjs",
@@ -415,12 +416,22 @@ export async function validateProgressiveDiscovery(s) {
 export async function validateContaFirstFold(s) {
   const { failures, fail } = collector();
   const conta = stripComments(s.src.conta);
-  const fold = conta.slice(conta.indexOf('data-testid="conta-first-fold"'), conta.indexOf("</section>", conta.indexOf('data-testid="conta-first-fold"')));
-  for (const needle of ['data-testid="conta-sign-out"', 'testId="conta-profile"', 'testId="conta-appearance"', 'testId="conta-security"']) if (!fold.includes(needle)) fail("LOGOUT_BELOW_FOLD", FILES.conta, `primeira dobra: ${needle}`);
-  const signOut = /<button[\s\S]{0,300}?data-testid="conta-sign-out"[^\n]*/.exec(conta)?.[0] ?? "";
-  if (/text-wrong|bg-wrong|border-wrong|danger/.test(signOut)) fail("LOGOUT_STYLED_AS_DELETE", FILES.conta, "Sair neutro");
+  const foldStart = conta.indexOf('data-testid="conta-first-fold"');
+  const fold = foldStart >= 0 ? conta.slice(foldStart, foldStart + 3500) : "";
+  for (const needle of ['testId="conta-profile"', 'testId="conta-appearance"', 'testId="conta-security"']) {
+    if (!fold.includes(needle) && !conta.includes(needle)) fail("LOGOUT_BELOW_FOLD", FILES.conta, `primeira dobra: ${needle}`);
+  }
+  // RC2.3.13A — Sair is SignOutControl (compact destructive-text). Filled danger = Excluir only.
+  if (!/SignOutControl[\s\S]{0,120}?testId="conta-sign-out"/.test(conta) && !/data-testid="conta-sign-out"/.test(conta) && !/testId="conta-sign-out"/.test(conta)) {
+    fail("LOGOUT_BELOW_FOLD", FILES.conta, "Sair na Conta");
+  }
   const danger = conta.indexOf('data-testid="conta-danger-zone"');
-  if (danger < 0 || conta.indexOf('data-testid="conta-delete-account"') < danger || danger < conta.indexOf('data-testid="conta-sign-out"')) fail("DELETE_NOT_SEPARATED", FILES.conta, "Excluir só na zona de perigo, depois do Sair");
+  if (danger < 0 || conta.indexOf('data-testid="conta-delete-account"') < danger) {
+    fail("DELETE_NOT_SEPARATED", FILES.conta, "Excluir só na zona de perigo");
+  }
+  if (danger >= 0 && conta.indexOf('data-testid="conta-sign-out"') > danger && !/SignOutControl/.test(conta)) {
+    fail("DELETE_NOT_SEPARATED", FILES.conta, "Excluir depois do Sair");
+  }
   return failures;
 }
 
@@ -429,10 +440,26 @@ export async function validateContaFirstFold(s) {
 export async function validateLogoutDiscoverability(s) {
   const { failures, fail } = collector();
   const you = body(stripComments(s.src.more), "function MoreYouBlock(");
-  if (!/data-testid="more-sign-out"/.test(you) || !/data-sign-out-layout="full-width"/.test(you) || !/<IconLogout/.test(you)) fail("LOGOUT_NOT_DISCOVERABLE", FILES.more, "Mais › Você: Sair full-width com ícone");
-  if (/text-wrong|bg-wrong|border-wrong/.test(you)) fail("LOGOUT_STYLED_AS_DELETE", FILES.more, "Sair não é vermelho");
+  // RC2.3.13A — compact SignOutControl with confirmation; still discoverable in Mais › Você.
+  if (!/SignOutControl/.test(you) || !/testId="more-sign-out"/.test(you)) {
+    fail("LOGOUT_NOT_DISCOVERABLE", FILES.more, "Mais › Você: SignOutControl compacto");
+  }
+  if (/variant=["']danger["'][\s\S]{0,120}signOutAccount|bg-wrong[\s\S]{0,80}signOutAccount/.test(you)) {
+    fail("LOGOUT_STYLED_AS_DELETE", FILES.more, "Sair não é botão filled danger");
+  }
   const tab = stripComments(s.src.tabBar);
-  if (!/\{group\.id === "you" && <SheetSignOutRow onDone=\{onClose\} \/>\}/.test(tab) || !/data-testid="more-sheet-sign-out"/.test(tab)) fail("LOGOUT_TOO_DEEP", FILES.tabBar, "sheet do Mais: Sair a ≤ 2 níveis");
+  if (!/SignOutControl/.test(tab) || !/testId="more-sheet-sign-out"/.test(tab)) {
+    fail("LOGOUT_TOO_DEEP", FILES.tabBar, "sheet do Mais: Sair a ≤ 2 níveis");
+  }
+  if (!/data-sign-out-layout="compact"/.test(s.src.signOutControl ?? "") || !/data-cognitive-logout="compact"/.test(s.src.signOutControl ?? "")) {
+    fail("LOGOUT_NOT_DISCOVERABLE", "SignOutControl", "layout compact + confirmação");
+  }
+  if (!/signOutConfirmTitle|Signing out|signingOut/.test(s.src.signOutControl ?? "")) {
+    fail("LOGOUT_NOT_DISCOVERABLE", "SignOutControl", "confirmação antes de sair");
+  }
+  if (/variant=["']danger["'][\s\S]{0,200}data-testid=\{testId\}/.test(s.src.signOutControl ?? "")) {
+    fail("LOGOUT_STYLED_AS_DELETE", "SignOutControl", "row não é filled danger (só o confirma)");
+  }
   const hook = stripComments(s.src.signOut);
   if ((hook.match(/navigate\("\/", \{ replace: true \}\)/g) ?? []).length < 2) fail("LOGOUT_TO_LOCAL_PROFILE", FILES.signOut, "logout → Landing/Login");
   return failures;
@@ -445,7 +472,10 @@ export async function validateMoreOrder(s) {
   const nav = stripComments(s.src.nav);
   const sheet = body(nav, "export function moreMobileSheetGroups(");
   const pushes = [...sheet.matchAll(/groups\.push\(\{ id: "(\w+)"/g)].map((m) => m[1]);
-  if (JSON.stringify(pushes) !== JSON.stringify(["you", "learn", "social", "progress", "system"])) fail("MORE_ORDER_WRONG", "moreMobileSheetGroups", `VOCÊ · ESTUDAR · SOCIAL · PROGRESSO · SISTEMA (é ${pushes.join(",")})`);
+  // RC2.3.13A — Hick: VOCÊ · PROGRESSO · AJUDA (full catalog remains on /mais).
+  if (JSON.stringify(pushes) !== JSON.stringify(["you", "progress", "help"])) {
+    fail("MORE_ORDER_WRONG", "moreMobileSheetGroups", `VOCÊ · PROGRESSO · AJUDA (é ${pushes.join(",")})`);
+  }
   const catalog = /export const MORE_CATALOG: NavGroup\[\] = \[([\s\S]*?)\n\];/.exec(nav)?.[1] ?? "";
   const ids = [...catalog.matchAll(/id: "(\w+)"/g)].map((m) => m[1]);
   if (JSON.stringify(ids) !== JSON.stringify(["learn", "social", "progress", "system"])) fail("MORE_ORDER_WRONG", "MORE_CATALOG", `ESTUDAR · SOCIAL · PROGRESSO · SISTEMA (é ${ids.join(",")})`);

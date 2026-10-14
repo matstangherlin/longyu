@@ -8,6 +8,7 @@ import {
   cultureGateForTopic,
   type CultureProgressionProgress,
 } from "./cultureProgressionGate";
+import { cultureBlocksJourney } from "./cultureJourneyPolicy";
 import { useStore } from "./store";
 
 /** Mínimo para a aula contar como concluída (libera próxima aula). */
@@ -382,18 +383,19 @@ export function canStartLesson(lessonId: string, context?: ProAccessContext): Ac
     };
   }
 
-  // RC2.2.6 — marco cultural. Fica DEPOIS do "já concluída" de propósito: quem
-  // já passou por aqui nunca é trancado retroativamente. E fica aqui, e não só
-  // na Journey UI, porque bloquear o card sem bloquear a URL direta não é gate.
-  const cultureGate = cultureGateForTopic(lessonId, cultureProgressFrom(context));
-  if (cultureGate && !cultureGate.ready) {
-    return {
-      allowed: false,
-      pro,
-      reasonCode: "culture_gate_required",
-      reason: cultureGate.gate.reasonPt,
-      cta: "Continuar pela Cultura",
-    };
+  // RC2.3.13E — Culture never blocks Mandarin Journey (advisory bridges only).
+  // Legacy RC2.2.6 hard-lock remains behind cultureBlocksJourney() === true.
+  if (cultureBlocksJourney()) {
+    const cultureGate = cultureGateForTopic(lessonId, cultureProgressFrom(context));
+    if (cultureGate && !cultureGate.ready) {
+      return {
+        allowed: false,
+        pro,
+        reasonCode: "culture_gate_required",
+        reason: cultureGate.gate.reasonPt,
+        cta: "Continuar pela Cultura",
+      };
+    }
   }
 
   const missing = missingLessonBefore(

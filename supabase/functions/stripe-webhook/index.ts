@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { logOpsEdge } from "../_shared/opsCorrelation.ts";
+import { refuseStripeLive } from "../_shared/stripeLiveGuard.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 
@@ -47,6 +48,8 @@ serve(async (req) => {
       headers: { ...headers, "Content-Type": "application/json" },
     });
   }
+  const liveRefusal = refuseStripeLive(stripeSecret, headers);
+  if (liveRefusal) return liveRefusal;
 
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
@@ -123,9 +126,27 @@ serve(async (req) => {
 
   // Escreve o estado da assinatura respeitando a ordem por event.created. Todo
   // caminho (created/updated/deleted/checkout) passa por aqui.
+  const assertRpc = (error: { message?: string } | null, op: string) => {
+    if (!error) return;
+    const message = error.message ?? "rpc_error";
+    const permanent = /invalid input|check constraint|not-null|22P02|23514/i.test(message);
+    const failure = new Error(`${permanent ? "PERMANENT_REJECT" : "RETRYABLE_FAILURE"}:${op}:${message}`);
+    throw failure;
+  };
+
+  // PROCESSED = first successful write. ALREADY_PROCESSED = RPC accepted a
+  // duplicate/stale/terminal event without changing entitlement (ok, no retry).
+  let classification: "PROCESSED" | "ALREADY_PROCESSED" = "PROCESSED";
+  const noteRpc = (data: { applied?: boolean; reason?: string } | null) => {
+    const reason = String(data?.reason ?? "");
+    if (data?.applied === false && /duplicate_event|stale|terminal_canceled/.test(reason)) {
+      classification = "ALREADY_PROCESSED";
+    }
+  };
+
   const applySubscription = async (subscription: Stripe.Subscription, userIdHint: string | null) => {
     const userId = userIdHint ?? (await lookupUserId(subscription.id));
-    await admin.rpc("apply_subscription_event", {
+    const { data, error } = await admin.rpc("apply_subscription_event", {
       p_user_id: userId,
       p_customer_id: typeof subscription.customer === "string" ? subscription.customer : null,
       p_subscription_id: subscription.id,
@@ -137,8 +158,11 @@ serve(async (req) => {
       p_event_created: eventCreated,
       p_event_id: eventId,
     });
+    assertRpc(error, "apply_subscription_event");
+    noteRpc(data as { applied?: boolean; reason?: string } | null);
   };
 
+  try {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.client_reference_id ?? null;
@@ -159,7 +183,7 @@ serve(async (req) => {
         // Fallback resiliente: o checkout é o ÚNICO evento com o vínculo
         // user↔assinatura (client_reference_id). Se o retrieve falhar, gravamos
         // vínculo em estado conservador; updated/created posterior corrige.
-        await admin.rpc("apply_subscription_event", {
+        const { data, error } = await admin.rpc("apply_subscription_event", {
           p_user_id: userId,
           p_customer_id: typeof session.customer === "string" ? session.customer : null,
           p_subscription_id: subscriptionId,
@@ -171,6 +195,8 @@ serve(async (req) => {
           p_event_created: eventCreated,
           p_event_id: eventId,
         });
+        assertRpc(error, "apply_subscription_event_fallback");
+        noteRpc(data as { applied?: boolean; reason?: string } | null);
       }
     }
 
@@ -218,7 +244,19 @@ serve(async (req) => {
     });
   }
 
-  return new Response(JSON.stringify({ received: true }), {
+  return new Response(JSON.stringify({ received: true, classification }), {
     headers: { ...headers, "Content-Type": "application/json" },
   });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "webhook_processing_failed";
+    const permanent = message.startsWith("PERMANENT_REJECT");
+    logOpsEdge(req, permanent ? "reject" : "retry", { stripeEventId: eventId, stripeEventType: event.type });
+    return new Response(JSON.stringify({
+      error: permanent ? "permanent_reject" : "retryable_failure",
+      classification: permanent ? "PERMANENT_REJECT" : "RETRYABLE_FAILURE",
+    }), {
+      status: permanent ? 400 : 500,
+      headers: { ...headers, "Content-Type": "application/json" },
+    });
+  }
 });

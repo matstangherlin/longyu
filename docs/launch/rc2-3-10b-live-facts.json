@@ -1,0 +1,487 @@
+{
+  "schema": "longyu-production-live-facts/1",
+  "readAt": "2026-10-08",
+  "readBy": "RC2.3.10B agent session via Supabase MCP (read-only SELECT on pg_catalog; project drjcfalvlbbeblmmyhwj only)",
+  "privacy": "Schema-level hashes only. No row content, no emails, no secret values. Function/table definitions themselves are not stored.",
+  "hashBasis": {
+    "functions": "md5 over the whitespace-collapsed pg_get_functiondef of every overload in schema public, overloads ordered by identity arguments and joined with ','; when overloads > 1 the value is md5(md5(def1),md5(def2))",
+    "tables": "md5 over ordered column facts (name:type:notnull:default), then '|rls=<bool>|' and the ordered policy facts (name:cmd:qual:with_check)",
+    "views": "md5 over the whitespace-collapsed pg_get_viewdef"
+  },
+  "tables": {
+    "profiles": "34336d3abcf2ceab970c827641bfd016",
+    "user_srs": "ffe65521f595b252d3baacb1be236f49",
+    "referrals": "b06ec4d8710867f019f1eb9f9d5abffe",
+    "beta_admins": "340d0474d2f78b1c2396dce19326fb52",
+    "user_chests": "1569d64d2b0b09085bfa5eaea963d64b",
+    "league_tiers": "3e2f755bb147153d6b597cb9ecaf87f5",
+    "transactions": "24a6a41e9206aa222ecf2830f2ff8f4e",
+    "user_economy": "48942723dfc06621b64c26858897a520",
+    "beta_feedback": "b2fca2844bdfbbb0f56c350546838ed8",
+    "subscriptions": "09043625b57f07f6314f08ef6a8e33a4",
+    "user_missions": "6b517f0ce0ea34533e0dabe0d2d94b5b",
+    "user_progress": "c68b386fad3a2d3ad1a9092e9e1eb151",
+    "economy_ledger": "abac76e8fea5b0b64e26e3f8082219a8",
+    "referral_codes": "c9f377cfc5cf018ab2fb180376ea0aac",
+    "_jev_triage_tmp": "7d74060c12bc833c3f9bdfe594938fe0",
+    "league_xp_events": "9dc09e0a26b0d1c413bb36d13da8970d",
+    "referral_rewards": "ef04caadd0f9bef542cd595e67139616",
+    "login_rate_events": "bc30eec75bf4c235720e83ed1e13c29c",
+    "user_achievements": "290ef73622f591759410c0c48b530643",
+    "entitlement_grants": "740ccb36d3f27382588f10cafcb4df58",
+    "league_memberships": "ea5ecab25a0a9c83352d19fd06a96dd1",
+    "reserved_usernames": "33cd1d5e44cd745a0936479d3f302b2f",
+    "signup_rate_events": "cbed9f2cbcda6a4842b304733c899553",
+    "signup_cleanup_runs": "57eb45bc3875bd4c3960d9d8b8502aad",
+    "beta_pedagogy_events": "71c447c85f29358e82f7dd4f1d6663a8",
+    "league_weekly_results": "f6544e16a6f2c1ae9211897829de0e6c",
+    "referral_email_blocks": "a6560fecc0db87478451d700beb5bac3",
+    "economy_story_sessions": "598b2204d92dd2e8570b36d7765966cf",
+    "economy_eligible_stories": "c263e35f22a2d03a53e01d3e2af7a080",
+    "referral_lesson_sessions": "992681b54a95b2f9d255c53cb357b259",
+    "referral_eligible_lessons": "62994e8fc7c6d818253ac46821303024",
+    "beta_pedagogy_anon_sessions": "e21b57acc9c7216187bd1fb8a57040c0",
+    "beta_pedagogy_daily_metrics": "929f90bd7be044e08030268fc1ecab22",
+    "beta_anon_ingestion_sessions": "b830b4ff55b41fc77e5beae890d6236a",
+    "referral_qualification_reviews": "9744857ffc88eb761c6e695d3b9c9c33",
+    "beta_anon_ingestion_quota_counters": "16b4f8623d1ca708c5bd4bb7de154c26",
+    "referral_verified_lesson_completions": "5788bd225d4f7eb254f320da52c374d6"
+  },
+  "views": {
+    "admin_user_overview": "6e1ac6539f0272c872ad923c3eb4cee8"
+  },
+  "functions": {
+    "spend_qi": {
+      "md5": "8ef7bdf5f1444e179150c8e684bd7823",
+      "overloads": 1
+    },
+    "open_chest": {
+      "md5": "5123e3655caac79c79484bf8388218d6",
+      "overloads": 1
+    },
+    "iso_week_key": {
+      "md5": "a3b1e2f428ed49f05336d9f385b641ee",
+      "overloads": 1
+    },
+    "week_ends_at": {
+      "md5": "7523db320979d642177968cd8af8eb85",
+      "overloads": 1
+    },
+    "claim_mission": {
+      "md5": "6000942087f694030ffc50463e238aeb",
+      "overloads": 1
+    },
+    "is_beta_admin": {
+      "md5": "e7dc0426023c8cb1761e95fa77bfbed1",
+      "overloads": 1
+    },
+    "consume_charge": {
+      "md5": "ed5e8957ba8e51e8d7be72803f18b5fe",
+      "overloads": 1
+    },
+    "economy_rand01": {
+      "md5": "44e83d5f67aa3e9129cf719cbc3f716d",
+      "overloads": 1
+    },
+    "handle_new_user": {
+      "md5": "2c24628496818ee45c79d829132c921b",
+      "overloads": 1
+    },
+    "rls_auto_enable": {
+      "md5": "d29c76091ec2bc92922809ca6c372cd5",
+      "overloads": 1
+    },
+    "_user_email_hash": {
+      "md5": "3baaca3b250f846284d3b94a0b39c550",
+      "overloads": 1
+    },
+    "sync_league_week": {
+      "md5": "705f2671c30289ba8ed1f8de00e3edb5",
+      "overloads": 1
+    },
+    "economy_constants": {
+      "md5": "1e5903cbc0f270e7493a2589ee6ab793",
+      "overloads": 1
+    },
+    "attribute_referral": {
+      "md5": "a8288d36534d2d2b26b0a635e7eb64b9",
+      "overloads": 1
+    },
+    "canonicalize_email": {
+      "md5": "3207462486673f49f57a95bc23e99b56",
+      "overloads": 1
+    },
+    "claim_own_username": {
+      "md5": "a6cfd2db201b182ccb4f23ab739d135b",
+      "overloads": 1
+    },
+    "economy_ensure_row": {
+      "md5": "d57bb57705a096938e2b0756a124f23e",
+      "overloads": 1
+    },
+    "ensure_own_profile": {
+      "md5": "48911d254a6c63cc999ebd5a94523270",
+      "overloads": 1
+    },
+    "get_server_economy": {
+      "md5": "d1eea345e1bb0eb4d4dbeba6eceea31c",
+      "overloads": 1
+    },
+    "grant_story_energy": {
+      "md5": "ba2ac399345c6c0d1d4fbda3c9b5cce3",
+      "overloads": 1
+    },
+    "economy_row_to_json": {
+      "md5": "04fee5bcb37b3ae12dbc5234db836193",
+      "overloads": 1
+    },
+    "economy_user_is_pro": {
+      "md5": "80c4686c232b205e6abfceafd9377534",
+      "overloads": 1
+    },
+    "grant_lesson_reward": {
+      "md5": "879be39e2d2681e41bd182b02aad76bb",
+      "overloads": 1
+    },
+    "add_league_weekly_xp": {
+      "md5": "51ed0e81fb2c5323b09af569a44db62f",
+      "overloads": 1
+    },
+    "economy_mission_goal": {
+      "md5": "c79760b470fc9d337410a9e8320f7f47",
+      "overloads": 1
+    },
+    "ensure_referral_code": {
+      "md5": "97b9f0110600e659f52c02aa0b4c6082",
+      "overloads": 1
+    },
+    "get_league_standings": {
+      "md5": "8a9ac75507bc2052f129092656d93564",
+      "overloads": 1
+    },
+    "submit_beta_feedback": {
+      "md5": "17c23c48dbe9435e176552afb9f4d943",
+      "overloads": 2
+    },
+    "_referral_random_code": {
+      "md5": "75e6bc20c2a64e24ece02c61a51d20a7",
+      "overloads": 1
+    },
+    "_referral_try_qualify": {
+      "md5": "2ae9422c2c8fd901317d7fa5f9f589a4",
+      "overloads": 1
+    },
+    "economy_insert_ledger": {
+      "md5": "3604ac9bad270c3aaae9816f46caa75d",
+      "overloads": 1
+    },
+    "economy_ledger_exists": {
+      "md5": "9f408f21d1ee4691b5d28f760c967c5b",
+      "overloads": 1
+    },
+    "economy_period_bounds": {
+      "md5": "f9964c3ff20b80b02c0687ffb963aaec",
+      "overloads": 1
+    },
+    "migrate_local_economy": {
+      "md5": "214d86d720003084b7721da2d84909e8",
+      "overloads": 1
+    },
+    "_referral_grant_reward": {
+      "md5": "6ff3ab0f091062d0eddfd567c5963c50",
+      "overloads": 1
+    },
+    "_user_active_grant_end": {
+      "md5": "53ae93f9be862e9af3d2d349b5d650bc",
+      "overloads": 1
+    },
+    "economy_mission_is_pro": {
+      "md5": "e4b679540e2ba33238db216eb8e9d527",
+      "overloads": 1
+    },
+    "economy_mission_reward": {
+      "md5": "d6c09a20924f716b0e8683c8b5c626c8",
+      "overloads": 1
+    },
+    "finalize_league_cohort": {
+      "md5": "7c8e6d0a5bc0972a9b58d922106f50b6",
+      "overloads": 1
+    },
+    "get_referral_dashboard": {
+      "md5": "04bd699fed3ba398eb3e3625156dae44",
+      "overloads": 1
+    },
+    "get_server_entitlement": {
+      "md5": "e069728bb7abb57e9ca9d06b38b286c5",
+      "overloads": 1
+    },
+    "resolve_login_identity": {
+      "md5": "d0fc96d31face2d67f58292acadc0fdf",
+      "overloads": 1
+    },
+    "run_signup_cleanup_job": {
+      "md5": "dfbdd0f9b5e058f3e54381a4b737eac8",
+      "overloads": 1
+    },
+    "_user_stripe_pro_active": {
+      "md5": "4d3006611ba27149337b4bb9aca7a76a",
+      "overloads": 1
+    },
+    "league_xp_server_amount": {
+      "md5": "fcf00691d31091f2dfd3742b8e692940",
+      "overloads": 1
+    },
+    "apply_subscription_event": {
+      "md5": "53ce9514414d02cc4aa0fc59ea5c2b80",
+      "overloads": 1
+    },
+    "claim_league_week_reward": {
+      "md5": "b0e8efa45fdbae0288088b919002e14f",
+      "overloads": 1
+    },
+    "ensure_league_membership": {
+      "md5": "85264352741c164cba0edf113be2cc66",
+      "overloads": 1
+    },
+    "recalculate_league_ranks": {
+      "md5": "075a40bfdc1598c20654dbe868a67963",
+      "overloads": 1
+    },
+    "beta_submit_feedback_core": {
+      "md5": "7466ad711f5f30579a1e404ddb8aec31",
+      "overloads": 1
+    },
+    "process_referral_pipeline": {
+      "md5": "72dcbcb24bae11522ff6b2cfc3aa6c14",
+      "overloads": 1
+    },
+    "sync_profile_public_stats": {
+      "md5": "3961718ee5e730cb147b01fd2180cbb8",
+      "overloads": 1
+    },
+    "_edge_get_turnstile_secret": {
+      "md5": "23e28c5f980001fe82022fa816d94b95",
+      "overloads": 1
+    },
+    "_edge_get_typesafe_api_key": {
+      "md5": "58b7ff6e6344845cbf65c1689653605d",
+      "overloads": 1
+    },
+    "beta_feedback_rate_limited": {
+      "md5": "495f88dd512c7b8172fe2bcd7f8d4f1a",
+      "overloads": 1
+    },
+    "sanitize_pedagogy_metadata": {
+      "md5": "f159406b80e77c3f92dce97d0178027f",
+      "overloads": 1
+    },
+    "start_story_energy_session": {
+      "md5": "9cd8e0f6dbbc4175e6bff20fb0b32823",
+      "overloads": 1
+    },
+    "submit_beta_pedagogy_event": {
+      "md5": "2f3196bee156daf1bc012d64a749abc3",
+      "overloads": 1
+    },
+    "update_beta_feedback_admin": {
+      "md5": "6ff3a3f0a0ed2550786213a1ed96ad06",
+      "overloads": 1
+    },
+    "user_has_entitlement_grant": {
+      "md5": "89f9138a7a2facd93a7164e48442bbc2",
+      "overloads": 1
+    },
+    "_referral_verified_progress": {
+      "md5": "a67da38289d4e53d9d73eeefb7008aef",
+      "overloads": 1
+    },
+    "_user_stripe_pro_period_end": {
+      "md5": "df0ee71a000ab39eab68f7f4874b50d9",
+      "overloads": 1
+    },
+    "check_and_record_login_rate": {
+      "md5": "7b75f5ca8cdb90e10e463907307f1d01",
+      "overloads": 1
+    },
+    "beta_pedagogy_context_digest": {
+      "md5": "08a057c00d8718fe4dc6184b93836c70",
+      "overloads": 1
+    },
+    "beta_pedagogy_identity_match": {
+      "md5": "b7127fe3faabc28b3724c2f329efdc8f",
+      "overloads": 1
+    },
+    "check_and_record_signup_rate": {
+      "md5": "014851fe0f95fba7134594d2bf0302aa",
+      "overloads": 1
+    },
+    "cleanup_beta_pedagogy_events": {
+      "md5": "7e0ef39f78cb1d0a814598819e78c564",
+      "overloads": 1
+    },
+    "league_source_key_acceptable": {
+      "md5": "f432e2606c957f368810cade68dd14b4",
+      "overloads": 1
+    },
+    "beta_pedagogy_rate_bucket_key": {
+      "md5": "d06bf5cd6a65ad014286050cb7dbe704",
+      "overloads": 1
+    },
+    "economy_period_key_acceptable": {
+      "md5": "c40005600e0df22753a70501e7ed4877",
+      "overloads": 1
+    },
+    "finalize_league_week_for_user": {
+      "md5": "b7d52cd35ec483537e7fa43018216349",
+      "overloads": 1
+    },
+    "finalize_stale_league_cohorts": {
+      "md5": "b8075a0fa8636ac9b16edc45ded1afb9",
+      "overloads": 1
+    },
+    "review_referral_qualification": {
+      "md5": "6d7db7e9112831b138499f9602e86d56",
+      "overloads": 1
+    },
+    "start_referral_lesson_session": {
+      "md5": "d7f75f68c2608dfc46aa927217b9f259",
+      "overloads": 1
+    },
+    "economy_verified_mission_metric": {
+      "md5": "8ae052a9067c1db958e46d8a3d1a0cc1",
+      "overloads": 1
+    },
+    "_referral_progress_from_snapshot": {
+      "md5": "76496b52993a21818173b5f9639894e6",
+      "overloads": 1
+    },
+    "beta_pedagogy_event_rate_limited": {
+      "md5": "a85f3ecd7ad8fe36c6208d52a1c69530",
+      "overloads": 2
+    },
+    "beta_pedagogy_touch_anon_session": {
+      "md5": "8a142ec0e91159decacf752697b5132f",
+      "overloads": 1
+    },
+    "complete_referral_lesson_session": {
+      "md5": "24934390d960a3f853e4f1d5b4c44f16",
+      "overloads": 1
+    },
+    "economy_activity_consumes_charge": {
+      "md5": "1ce878417d62738cf2f2ae3c173f51cf",
+      "overloads": 1
+    },
+    "issue_beta_pedagogy_anon_session": {
+      "md5": "7c261490f80b53be8afe86d91dda3ed1",
+      "overloads": 1
+    },
+    "admin_cleanup_unconfirmed_signups": {
+      "md5": "edc4e7897adb010566baa2b7a4ae488d",
+      "overloads": 1
+    },
+    "beta_anon_consume_ingestion_quota": {
+      "md5": "3970fa7d97757c6cbb9721d154b230c1",
+      "overloads": 1
+    },
+    "issue_beta_anon_ingestion_session": {
+      "md5": "ef9f53eef9788f322e63bd830c3cfe68",
+      "overloads": 1
+    },
+    "beta_anon_resolve_ingestion_session": {
+      "md5": "77b2b8ff3ee93ddfefe6681aaa50bd51",
+      "overloads": 1
+    },
+    "beta_pedagogy_event_type_rate_limited": {
+      "md5": "52b7253cbf9e29222e7f7b69dc5b478a",
+      "overloads": 1
+    },
+    "erase_account_personal_data_before_auth_delete": {
+      "md5": "1013636d007d3d48d372585737be5be1",
+      "overloads": 1
+    }
+  },
+  "securityFacts": {
+    "note": "Read from pg_proc / has_function_privilege on 2026-10-08.",
+    "functions": [
+      {
+        "name": "submit_beta_feedback",
+        "signature": "(p_category, p_message, p_anon_session_token, p_route, p_lesson_id, p_exercise_kind, p_exercise_index, p_app_version, p_browser, p_viewport, p_local_profile_id, p_client_dedupe_key)",
+        "securityDefiner": true,
+        "searchPath": "\"\"",
+        "anonExecute": true,
+        "authenticatedExecute": true,
+        "resolvesAnonToken": true,
+        "requiresAnonSession": true,
+        "delegatesTo": "beta_submit_feedback_core (rate limit + quota)"
+      },
+      {
+        "name": "submit_beta_feedback",
+        "signature": "(legacy 11-arg without token)",
+        "securityDefiner": true,
+        "searchPath": "\"\"",
+        "anonExecute": false,
+        "authenticatedExecute": true,
+        "resolvesAnonToken": false,
+        "requiresAnonSession": true
+      },
+      {
+        "name": "beta_submit_feedback_core",
+        "securityDefiner": true,
+        "searchPath": "\"\"",
+        "anonExecute": false,
+        "authenticatedExecute": false,
+        "consumesAnonQuota": true,
+        "rateLimitCheck": true,
+        "requiresAnonSession": true
+      },
+      {
+        "name": "submit_beta_pedagogy_event",
+        "securityDefiner": true,
+        "searchPath": "public",
+        "anonExecute": true,
+        "authenticatedExecute": true,
+        "resolvesAnonToken": true,
+        "consumesAnonQuota": true,
+        "consentGate": true,
+        "requiresAnonSession": true,
+        "rateLimitCheck": true
+      },
+      {
+        "name": "update_beta_feedback_admin",
+        "securityDefiner": true,
+        "searchPath": "public",
+        "anonExecute": false,
+        "authenticatedExecute": true,
+        "callsIsBetaAdmin": true
+      },
+      {
+        "name": "is_beta_admin",
+        "securityDefiner": true,
+        "searchPath": "public",
+        "anonExecute": false,
+        "authenticatedExecute": true,
+        "callsIsBetaAdmin": true
+      }
+    ],
+    "mutableSearchPathHelpers": {
+      "securityDefiner": false,
+      "proconfigNull": true,
+      "functions": [
+        "_referral_random_code",
+        "beta_pedagogy_context_digest",
+        "beta_pedagogy_identity_match",
+        "beta_pedagogy_rate_bucket_key",
+        "economy_activity_consumes_charge",
+        "economy_constants",
+        "economy_mission_goal",
+        "economy_mission_is_pro",
+        "economy_mission_reward",
+        "economy_rand01",
+        "economy_row_to_json",
+        "iso_week_key",
+        "sanitize_pedagogy_metadata",
+        "week_ends_at"
+      ]
+    }
+  }
+}

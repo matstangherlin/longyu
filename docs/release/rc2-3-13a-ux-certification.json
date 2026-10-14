@@ -1,0 +1,39 @@
+{
+  "schema": "longyu-rc2-3-13a-ux-certification/1",
+  "rcId": "RC2.3.12-RC2",
+  "version": "0.2.0-rc.2",
+  "wave": "RC2.3.13A",
+  "note": "Cognitive UI foundation. Does not certify physical QA, Sentry, rollback, cloud smoke, or OAuth. RC1 artifact does not certify this UI.",
+  "matrix": {
+    "DESIGN_TOKENS_PASS": "PASS",
+    "CTA_HIERARCHY_PASS": "PASS",
+    "MORE_OPTIONS_PASS": "PASS",
+    "LOGOUT_HIERARCHY_PASS": "PASS",
+    "ACCOUNT_IA_PASS": "PASS",
+    "NAVIGATION_PASS": "PASS",
+    "AFFORDANCE_PASS": "PASS",
+    "TOUCH_TARGET_PASS": "PASS",
+    "SAFE_AREA_PASS": "PASS",
+    "FONT_SCALE_PASS": "CODE_READY",
+    "ACCESSIBILITY_PASS": "PASS",
+    "VIEWPORT_360_PASS": "CODE_READY",
+    "VIEWPORT_375_PASS": "CODE_READY",
+    "VIEWPORT_390_PASS": "CODE_READY",
+    "ROUTE_COMPAT_PASS": "PASS",
+    "AUTH_LOGOUT_PASS": "PASS",
+    "CURRICULUM_UNCHANGED": "PASS",
+    "JEV_RUNTIME_OFF": "PASS",
+    "BILLING_UNCHANGED": "PASS"
+  },
+  "gates": {
+    "gate:rc2-3-13a-cognitive-ui": "REQUIRED"
+  },
+  "betaBlockersUnchanged": [
+    "PHYSICAL_RC",
+    "OBSERVABILITY",
+    "ROLLBACK",
+    "CLOUD_SMOKE",
+    "ANDROID_OAUTH",
+    "CLOSED_BETA_ENTRY"
+  ]
+}

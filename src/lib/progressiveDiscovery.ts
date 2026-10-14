@@ -161,7 +161,8 @@ export const FEATURE_AVAILABILITY: Readonly<Record<DiscoveryFeatureId, FeatureDe
     id: "culture",
     route: "/cultura",
     routes: ["/cultura"],
-    navigationPlacement: "tab",
+    // RC2.3.13G — submode of progression (Jornada tab), not an independent TabBar item.
+    navigationPlacement: "journey",
     lockedBehavior: "HARD",
     unlockGuidanceId: "culture_unlocked_v1",
     firstUseGuidanceId: "culture_first_use_v1",

@@ -1,0 +1,45 @@
+{
+  "schema": "longyu-rc2-3-13e-ux-certification/1",
+  "wave": "RC2.3.13E",
+  "parentPr": 334,
+  "parentSha": "bf79f6b71788004fdf9d57f000c66d6a6280f892",
+  "note": "ProgressionShell Journey↔Culture. Exhaustive physical QA deferred until after 13F/13G UI freeze. Culture never blocks Journey. No final beta RC mint.",
+  "matrix": {
+    "PROGRESSION_SHELL_PASS": "PASS",
+    "JOURNEY_MODE_PASS": "PASS",
+    "CULTURE_MODE_PASS": "PASS",
+    "SEGMENTED_SWITCH_PASS": "PASS",
+    "SWITCH_A11Y_PASS": "PASS",
+    "JOURNEY_POSITION_RESTORE_PASS": "PASS",
+    "CULTURE_POSITION_RESTORE_PASS": "PASS",
+    "ROUTE_COMPAT_PASS": "PASS",
+    "CULTURE_PRIMARY_ACTION_PASS": "PASS",
+    "CULTURE_PROGRESS_PASS": "PASS",
+    "CULTURE_REVIEW_PASS": "PASS",
+    "CULTURE_ATLAS_PASS": "PASS",
+    "JOURNEY_CULTURE_BRIDGE_PASS": "PASS",
+    "CULTURE_JOURNEY_RETURN_PASS": "PASS",
+    "CULTURE_NON_BLOCKING_PASS": "PASS",
+    "CULTURE_DEEP_SCHEMA_PASS": "PASS",
+    "FLAGSHIP_CONTENT_PASS": "PASS",
+    "CULTURE_SOURCE_METADATA_PASS": "PASS",
+    "CULTURE_VARIATION_PASS": "PASS",
+    "VIEWPORT_360_PASS": "EMULATED_PASS",
+    "VIEWPORT_375_PASS": "EMULATED_PASS",
+    "VIEWPORT_390_PASS": "EMULATED_PASS",
+    "CURRICULUM_UNCHANGED": "PASS",
+    "MASTERY_UNCHANGED": "PASS",
+    "JEV_RUNTIME_OFF": "PASS",
+    "BILLING_UNCHANGED": "PASS"
+  },
+  "gates": {
+    "gate:rc2-3-13e-progression-shell-culture": "PASS_31_31"
+  },
+  "urlStrategy": {
+    "cultura": "Culture Journey (primary progression)",
+    "cultura/explorar": "Culture Atlas / explore (former hub secondary)",
+    "cultura/:id": "legacy item deep link — compatible",
+    "cultura/colecao/:id": "compatible",
+    "cultura/revisao": "compatible"
+  }
+}

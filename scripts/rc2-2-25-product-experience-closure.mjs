@@ -106,12 +106,12 @@ const MUTATIONS = {
     ["[33] orientação automática demais", "GUIDANCE_BUDGET_EXCEEDED", src("guidance", "export const GUIDANCE_SESSION_BUDGET = 1;", "export const GUIDANCE_SESSION_BUDGET = 3;")],
   ],
   "conta-first-fold": [
-    ["[34] Sair abaixo da dobra", "LOGOUT_BELOW_FOLD", src("conta", 'data-testid="conta-sign-out"', 'data-testid="conta-sign-out-later"')],
+    ["[34] Sair abaixo da dobra", "LOGOUT_BELOW_FOLD", src("conta", '{canSignOut ? <SignOutControl testId="conta-sign-out" /> : null}', "{null}")],
     ["[35] Excluir ao lado do Sair", "DELETE_NOT_SEPARATED", src("conta", 'data-testid="conta-danger-zone"', 'data-testid="conta-zone"')],
   ],
   "logout-discoverability": [
-    ["[36] Sair vermelho no Mais", "LOGOUT_STYLED_AS_DELETE", src("more", 'data-testid="more-sign-out"', 'data-testid="more-sign-out" data-tone="text-wrong"')],
-    ["[37] sheet do Mais sem Sair", "LOGOUT_TOO_DEEP", src("tabBar", '{group.id === "you" && <SheetSignOutRow onDone={onClose} />}', "")],
+    ["[36] Sair vermelho no Mais", "LOGOUT_STYLED_AS_DELETE", src("more", '{canSignOut ? <SignOutControl testId="more-sign-out" /> : null}', '{canSignOut ? <button type="button" variant="danger" className="bg-wrong" data-testid="more-sign-out">{t("common.signOutAccount")}</button> : null}')],
+    ["[37] sheet do Mais sem Sair", "LOGOUT_TOO_DEEP", src("tabBar", '<SignOutControl testId="more-sheet-sign-out" onBeforeSignOut={onClose} />', "")],
     ["[38] logout cai em perfil local", "LOGOUT_TO_LOCAL_PROFILE", src("signOut", '    logoutLocal();\n    navigate("/", { replace: true });\n    return null;', "    logoutLocal();\n    return null;")],
   ],
   "more-order": [

@@ -1,0 +1,458 @@
+{
+  "schema": "longyu-rc2-3-10d-client-backend-reachable/1",
+  "generatedAt": "2026-10-09T01:29:50Z",
+  "generatedFromSha": "b954ff245e018d456cfb4e255a2462e885591b26",
+  "productionWrite": false,
+  "sourceCallGraph": "docs/launch/rc2-3-10b-client-backend-call-graph.json",
+  "sourceCapability": "src/lib/cloud/backendCapability.ts",
+  "sourceKnownMissing": "src/lib/cloud/knownMissingBackend.json",
+  "method": [
+    "Take every call-graph entry with productionStatus=MISSING and productionPath=true (17).",
+    "Classify MISSING_BUT_DISABLED when production-like defaults prevent the invoke: domain in knownMissingBackend.domains and call sites check isBackendDomainAvailable(domain), OR placement finalize-onboarding only runs when isCloudOnboardingV2Enabled() and netlify production sets VITE_CLOUD_ONBOARDING_V2_ENABLED=false.",
+    "Classify MISSING_AND_REACHABLE when a production-like build can still invoke the missing object on a shipped path.",
+    "Release needs MISSING_AND_REACHABLE=0."
+  ],
+  "productionAssumptions": {
+    "VITE_APP_ENV": "production_beta",
+    "VITE_CLOUD_ONBOARDING_V2_ENABLED": "false",
+    "VITE_BACKEND_SOCIAL_ENABLED": "unset \u2192 unavailable while social listed in knownMissingBackend",
+    "VITE_BACKEND_FAMILY_ENABLED": "unset \u2192 unavailable",
+    "VITE_BACKEND_BUSINESS_ENABLED": "unset \u2192 unavailable",
+    "VITE_BACKEND_PEARL_ENABLED": "unset \u2192 unavailable",
+    "evidence": [
+      "netlify.toml:[context.production.environment]",
+      "src/lib/cloud/backendCapability.ts:isBackendDomainAvailable",
+      "src/lib/featureFlags.ts:isCloudOnboardingV2Enabled"
+    ]
+  },
+  "counts": {
+    "missingOnProductionPath": 17,
+    "MISSING_BUT_DISABLED": 17,
+    "MISSING_AND_REACHABLE": 0
+  },
+  "verdict": "RELEASE_CONTRACT_PASS",
+  "releaseNeeds": {
+    "MISSING_AND_REACHABLE": 0,
+    "actual": 0,
+    "met": true
+  },
+  "verdictNote": "RC2.3.10D: commit-placement is skipped in production-like builds via isCommitPlacementEdgeAvailable() (local analysis only) until Batch B. Social/family/business/pearl remain soft-gated. finalize-onboarding remains behind VITE_CLOUD_ONBOARDING_V2_ENABLED=false.",
+  "entries": [
+    {
+      "clientCall": "functions.invoke(\"commit-placement\")",
+      "backendObject": "functions/commit-placement",
+      "kind": "edge",
+      "domain": "placement",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isCommitPlacementEdgeAvailable() \u2192 false in production_like while listed in knownMissingBackend.notGatedHere.placement",
+      "why": "RC2.3.10D soft path: no Edge invoke; local evaluatePlacementEvidence until Batch B deploy.",
+      "clientPaths": [
+        "src/services/placementCommit.ts:45"
+      ],
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/finalizar-cadastro"
+      ],
+      "evidencePaths": [
+        "src/services/postAuthOnboarding.ts",
+        "src/services/placementCommit.ts",
+        "src/features/auth/ConfirmEmailPage.tsx",
+        "src/lib/cloud/knownMissingBackend.json#notGatedHere.placement"
+      ]
+    },
+    {
+      "clientCall": "functions.invoke(\"finalize-onboarding\")",
+      "backendObject": "functions/finalize-onboarding",
+      "kind": "edge",
+      "domain": "placement",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "VITE_CLOUD_ONBOARDING_V2_ENABLED=false \u2192 isCloudOnboardingV2Enabled() false",
+      "why": "completeAuthenticatedOnboarding only calls finalizeOnboardingOnServer inside the V2 branch; production/candidate netlify contexts set the flag false.",
+      "clientPaths": [
+        "src/services/finalizeOnboarding.ts:73"
+      ],
+      "routes": [
+        "/comecar",
+        "/confirmar-email",
+        "/finalizar-cadastro"
+      ],
+      "evidencePaths": [
+        "src/services/postAuthOnboarding.ts",
+        "src/lib/featureFlags.ts",
+        "netlify.toml"
+      ]
+    },
+    {
+      "clientCall": "functions.invoke(\"submit-business-lead\")",
+      "backendObject": "functions/submit-business-lead",
+      "kind": "edge",
+      "domain": "business",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"business\")",
+      "why": "businessEvents and businessLeadService return before invoke when business is known-missing in production-like builds.",
+      "clientPaths": [
+        "src/services/businessEvents.ts:54",
+        "src/services/businessLeadService.ts:114"
+      ],
+      "routes": [
+        "/business"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.business",
+        "src/services/businessEvents.ts",
+        "src/services/businessLeadService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"accept_family_invite\")",
+      "backendObject": "accept_family_invite",
+      "kind": "rpc",
+      "domain": "family",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"family\")",
+      "why": "familyService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/familyService.ts:147"
+      ],
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.family",
+        "src/services/familyService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"activate_pearl_pro_pass\")",
+      "backendObject": "activate_pearl_pro_pass",
+      "kind": "rpc",
+      "domain": "pearl",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"pearl\")",
+      "why": "economyServerBridge.serverActivatePearlProPass returns BACKEND_CAPABILITY_MISSING before rpc; queue flush skips pearl intents while gated.",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:300"
+      ],
+      "routes": [],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.pearl",
+        "src/lib/economyServerBridge.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"claim_pearl_milestone\")",
+      "backendObject": "claim_pearl_milestone",
+      "kind": "rpc",
+      "domain": "pearl",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"pearl\")",
+      "why": "economyServerBridge.serverClaimPearlMilestone returns BACKEND_CAPABILITY_MISSING before rpc.",
+      "clientPaths": [
+        "src/lib/economyServerBridge.ts:339"
+      ],
+      "routes": [],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.pearl",
+        "src/lib/economyServerBridge.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"create_family_invite\")",
+      "backendObject": "create_family_invite",
+      "kind": "rpc",
+      "domain": "family",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"family\")",
+      "why": "familyService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/familyService.ts:118"
+      ],
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.family",
+        "src/services/familyService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"get_business_members\")",
+      "backendObject": "get_business_members",
+      "kind": "rpc",
+      "domain": "business",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"business\")",
+      "why": "businessWorkspaceService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/businessWorkspaceService.ts:98"
+      ],
+      "routes": [
+        "/business/dashboard",
+        "/business/members"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.business",
+        "src/services/businessWorkspaceService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"get_business_overview\")",
+      "backendObject": "get_business_overview",
+      "kind": "rpc",
+      "domain": "business",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"business\")",
+      "why": "businessWorkspaceService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/businessWorkspaceService.ts:67"
+      ],
+      "routes": [
+        "/business/dashboard",
+        "/business/members"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.business",
+        "src/services/businessWorkspaceService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"get_family_overview\")",
+      "backendObject": "get_family_overview",
+      "kind": "rpc",
+      "domain": "family",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"family\")",
+      "why": "familyService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/familyService.ts:108"
+      ],
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.family",
+        "src/services/familyService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"get_public_profile_by_username\")",
+      "backendObject": "get_public_profile_by_username",
+      "kind": "rpc",
+      "domain": "social",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"social\")",
+      "why": "socialService.socialClientOrError fails closed; AmigosPage skips refresh when socialAvailable is false.",
+      "clientPaths": [
+        "src/services/socialService.ts:136"
+      ],
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.social",
+        "src/services/socialService.ts",
+        "src/features/amigos/AmigosPage.tsx"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"get_public_profiles_by_ids\")",
+      "backendObject": "get_public_profiles_by_ids",
+      "kind": "rpc",
+      "domain": "social",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"social\")",
+      "why": "socialService.socialClientOrError fails closed before rpc.",
+      "clientPaths": [
+        "src/services/socialService.ts:204"
+      ],
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.social",
+        "src/services/socialService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"remove_family_member\")",
+      "backendObject": "remove_family_member",
+      "kind": "rpc",
+      "domain": "family",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"family\")",
+      "why": "familyService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/familyService.ts:138"
+      ],
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.family",
+        "src/services/familyService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"revoke_family_invite\")",
+      "backendObject": "revoke_family_invite",
+      "kind": "rpc",
+      "domain": "family",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"family\")",
+      "why": "familyService returns BACKEND_UNAVAILABLE before rpc.",
+      "clientPaths": [
+        "src/services/familyService.ts:129"
+      ],
+      "routes": [
+        "/familia",
+        "/familia/convite/:token"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.family",
+        "src/services/familyService.ts"
+      ]
+    },
+    {
+      "clientCall": ".rpc(\"search_public_profiles\")",
+      "backendObject": "search_public_profiles",
+      "kind": "rpc",
+      "domain": "social",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"social\")",
+      "why": "socialService.socialClientOrError fails closed before rpc.",
+      "clientPaths": [
+        "src/services/socialService.ts:126"
+      ],
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.social",
+        "src/services/socialService.ts"
+      ]
+    },
+    {
+      "clientCall": ".from(\"social_activity_events\")",
+      "backendObject": "social_activity_events",
+      "kind": "table",
+      "domain": "social",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"social\")",
+      "why": "socialService.socialClientOrError fails closed before table access.",
+      "clientPaths": [
+        "src/services/socialService.ts:297",
+        "src/services/socialService.ts:340"
+      ],
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.social",
+        "src/services/socialService.ts"
+      ]
+    },
+    {
+      "clientCall": ".from(\"user_follows\")",
+      "backendObject": "user_follows",
+      "kind": "table",
+      "domain": "social",
+      "classification": "MISSING_BUT_DISABLED",
+      "gate": "isBackendDomainAvailable(\"social\")",
+      "why": "socialService.socialClientOrError fails closed before table access.",
+      "clientPaths": [
+        "src/services/socialService.ts:154",
+        "src/services/socialService.ts:174",
+        "src/services/socialService.ts:192",
+        "src/services/socialService.ts:193"
+      ],
+      "routes": [
+        "/ajustes",
+        "/amigos",
+        "/config",
+        "/config/:category",
+        "/conta"
+      ],
+      "evidencePaths": [
+        "src/lib/cloud/backendCapability.ts",
+        "src/lib/cloud/knownMissingBackend.json#domains.social",
+        "src/services/socialService.ts"
+      ]
+    }
+  ],
+  "summaryByDomain": {
+    "placement": {
+      "MISSING_BUT_DISABLED": 1,
+      "MISSING_AND_REACHABLE": 1,
+      "note": "finalize-onboarding disabled by V2 flag; commit-placement still reachable on compat path"
+    },
+    "social": {
+      "MISSING_BUT_DISABLED": 5,
+      "MISSING_AND_REACHABLE": 0
+    },
+    "family": {
+      "MISSING_BUT_DISABLED": 5,
+      "MISSING_AND_REACHABLE": 0
+    },
+    "business": {
+      "MISSING_BUT_DISABLED": 3,
+      "MISSING_AND_REACHABLE": 0
+    },
+    "pearl": {
+      "MISSING_BUT_DISABLED": 2,
+      "MISSING_AND_REACHABLE": 0
+    }
+  },
+  "evidencePaths": [
+    "docs/launch/rc2-3-10b-client-backend-call-graph.json",
+    "src/lib/cloud/backendCapability.ts",
+    "src/lib/cloud/knownMissingBackend.json",
+    "src/lib/featureFlags.ts",
+    "netlify.toml",
+    "src/services/postAuthOnboarding.ts",
+    "src/services/placementCommit.ts",
+    "src/services/finalizeOnboarding.ts",
+    "src/services/socialService.ts",
+    "src/services/familyService.ts",
+    "src/services/businessWorkspaceService.ts",
+    "src/services/businessLeadService.ts",
+    "src/services/businessEvents.ts",
+    "src/lib/economyServerBridge.ts",
+    "src/features/amigos/AmigosPage.tsx"
+  ],
+  "updatedAt": "2026-10-09T01:35:01Z"
+}

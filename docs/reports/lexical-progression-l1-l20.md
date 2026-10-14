@@ -1,6 +1,6 @@
 # Lexical progression — L1–L20
 
-_Gerado por `validate:lexical-progression` · 2026-10-07_
+_Gerado por `validate:lexical-progression` · 2026-10-10_
 
 ## Contagem (PED-022 / PED-025)
 
@@ -38,7 +38,7 @@ Saudação seed: 你好 · 谢谢 · 再见 · 不客气 · 早上好 · 晚上�
 | 1 | `p1-o-que-e-mandarim` | — | 你好 | 60% | 60% | 3 | 2 | 2 | 0 | 1 | 你好×3, 你×1, 好×1 | 你好 |
 | 2 | `p1-o-que-e-pinyin` | — | 你好 | 60% | 60% | 0 | 0 | 1 | 1 | 2 | 你好×3, 你×1, 好×1 | 你好 |
 | 3 | `p1-o-que-e-tom` | — | 妈 | 43% | 29% | 1 | 1 | 2 | 1 | 3 | 妈×3, 你好×2, 你×1 | — |
-| 4 | `p1-o-que-e-hanzi` | — | 木 | 57% | 0% | 3 | 2 | 3 | 1 | 3 | 木×4, 日×1, 森×1 | — |
+| 4 | `p1-o-que-e-hanzi` | — | 木 | 43% | 0% | 3 | 3 | 4 | 2 | 1 | 木×3, 日×1, 妈×1 | — |
 | 5 | `p1-primeiros-hanzi` | — | 木 | 33% | 0% | 3 | 3 | 4 | 1 | 6 | 木×3, 口×2, 人×2 | — |
 | 6 | `p1-engine-2-lab` | — | 你 | 22% | 33% | 4 | 3 | 5 | 0 | 1 | 你×2, 好×2, 谢谢×1 | — |
 | 7 | `l1` | — | 你好 | 23% | 23% | 3 | 1 | 3 | 2 | 5 | 你好×3, 你×2, 你叫×2 | — |
@@ -61,8 +61,8 @@ Saudação seed: 你好 · 谢谢 · 再见 · 不客气 · 早上好 · 晚上�
 | Janela | Seed top | Seed % | Dominadas | Top token | Conc. |
 |--------|----------|-------:|----------:|-----------|------:|
 | p1-o-que-e-mandarim…p1-primeiros-hanzi | 你好 | 24% | 2 | 你好 | 24% |
-| p1-o-que-e-pinyin…p1-engine-2-lab | 你好 | 16% | 1 | 木 | 19% |
-| p1-o-que-e-tom…l1 | 你好 | 13% | 0 | 木 | 16% |
+| p1-o-que-e-pinyin…p1-engine-2-lab | 你好 | 16% | 1 | 你好 | 16% |
+| p1-o-que-e-tom…l1 | 你好 | 13% | 0 | 你好 | 13% |
 | p1-o-que-e-hanzi…l2 | 你好 | 13% | 0 | 你 | 16% |
 | p1-primeiros-hanzi…l3 | 你好 | 14% | 0 | 你 | 17% |
 | p1-engine-2-lab…l1-rev | 你好 | 18% | 0 | 你 | 21% |

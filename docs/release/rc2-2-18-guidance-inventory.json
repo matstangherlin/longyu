@@ -85,6 +85,12 @@
       "automatic": false
     },
     {
+      "file": "src/components/account/SignOutControl.tsx",
+      "surface": "sign-out confirmation (RC2.3.13A compact logout)",
+      "class": "CONFIRMATION",
+      "automatic": false
+    },
+    {
       "file": "src/features/account/AccountPage.tsx",
       "surface": "redo placement confirmation",
       "class": "CONFIRMATION",
@@ -137,6 +143,12 @@
     {
       "file": "src/components/feedback/FeedbackModal.tsx",
       "surface": "feedback form",
+      "class": "ESSENTIAL",
+      "automatic": false
+    },
+    {
+      "file": "src/components/feedback/MicroFeedbackSheet.tsx",
+      "surface": "sampled one-question micro-feedback sheet (RC2.3.13G)",
       "class": "ESSENTIAL",
       "automatic": false
     },

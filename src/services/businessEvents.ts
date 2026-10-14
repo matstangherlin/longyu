@@ -1,4 +1,5 @@
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
+import { isBackendDomainAvailable } from "../lib/cloud/backendCapability";
 import {
   BUSINESS_FUNNEL_EVENTS,
   type BusinessFunnelEvent,
@@ -47,7 +48,7 @@ export function trackBusinessEvent(type: BusinessFunnelEvent, ctaId?: string): v
   const event: StoredBusinessEvent = { type, ctaId: cta, at: Date.now() };
   writeLocal([...readLocal(), event]);
 
-  if (!isSupabaseBackendEnabled()) return;
+  if (!isSupabaseBackendEnabled() || !isBackendDomainAvailable("business")) return;
   const client = getSupabaseClient();
   if (!client) return;
   void client.functions

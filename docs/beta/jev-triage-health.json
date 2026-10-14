@@ -1,0 +1,22 @@
+{
+  "schema": "longyu-jev-triage-health/1",
+  "policyVersion": "feedback-v2",
+  "generatedAt": "2026-10-09T05:00:00.000Z",
+  "note": "Aggregate ops counters only. No raw feedback text, emails, or tokens.",
+  "evaluations": 0,
+  "reused": 0,
+  "failures": 0,
+  "newEvaluations": 0,
+  "exactReused": 0,
+  "batchReused": 0,
+  "clusterReused": 0,
+  "lowConfidence": 0,
+  "p0Candidates": 0,
+  "p1Candidates": 0,
+  "unreviewed": 0,
+  "pendingAiTriage": 0,
+  "topAreas": [],
+  "topClusters": [],
+  "budgetLevel": "GREEN",
+  "learnerRuntime": "OFF"
+}

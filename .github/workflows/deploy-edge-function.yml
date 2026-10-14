@@ -1,0 +1,102 @@
+name: Deploy Edge Function (manual, from main)
+
+# RC2.3.10 — deploy an Edge Function from the exact files versioned on `main`.
+# - Only workflow_dispatch: nothing deploys on push or merge.
+# - Only from refs/heads/main; optional expected_sha refuses a moved main.
+# - Allowlist: triage-feedback (the other functions' repo versions depend on
+#   migrations not yet in production — see docs/reports/rc2-3-10-production-schema-diff.md).
+# - The function keeps verify_jwt from supabase/config.toml; secrets are never echoed.
+# Supabase CLI version and flags verified with `supabase functions deploy --help` (CLI 2.109.1).
+
+on:
+  workflow_dispatch:
+    inputs:
+      function:
+        description: "Edge Function"
+        type: choice
+        options: [triage-feedback]
+        default: triage-feedback
+      confirm:
+        description: "Digite DEPLOY-<nome da função> para confirmar"
+        type: string
+        required: true
+      expected_sha:
+        description: "SHA da main que você revisou (opcional; recusa se a main tiver andado)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-edge-${{ inputs.function }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Guard — só main, só manual, confirmação explícita
+        env:
+          FN: ${{ inputs.function }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "SOURCE_NOT_MAIN: deploy de Edge Function só sai de main (veio $GITHUB_REF)"; exit 6
+          fi
+          if [ "$CONFIRM" != "DEPLOY-$FN" ]; then
+            echo "CONFIRMATION_MISSING: digite DEPLOY-$FN"; exit 6
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: SHA esperado
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          head=$(git rev-parse HEAD)
+          if [ -n "$EXPECTED_SHA" ] && [ "${head#"$EXPECTED_SHA"}" = "$head" ]; then
+            echo "STALE_DEPLOY: main está em $head, deploy pedido para $EXPECTED_SHA"; exit 6
+          fi
+          echo "DEPLOY_SHA=$head" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Guardrails do Jev presentes no código que vai subir
+        if: inputs.function == 'triage-feedback'
+        run: node scripts/rc2-3-10-cloud-certification.mjs validate
+
+      - name: Deploy
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          FN: ${{ inputs.function }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "BLOCKED_MISSING_SECRET: SUPABASE_ACCESS_TOKEN"; exit 4
+          fi
+          npx supabase functions deploy "$FN" --project-ref drjcfalvlbbeblmmyhwj --use-api
+
+      - name: Versão publicada (evidência)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          FN: ${{ inputs.function }}
+        run: |
+          {
+            echo "### Edge Function deploy — $FN"
+            echo ""
+            echo "| Item | Valor |"
+            echo "| --- | --- |"
+            echo "| Projeto | drjcfalvlbbeblmmyhwj (MandarimProject) |"
+            echo "| SHA (main) | \`$DEPLOY_SHA\` |"
+            echo ""
+            echo '```'
+            npx supabase functions list --project-ref drjcfalvlbbeblmmyhwj | grep -E "NAME|$FN"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

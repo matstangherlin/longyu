@@ -102,7 +102,8 @@ test.describe("V4.9.8A.2 Culture playability", () => {
 
   test("Hub save lives on the card, not inside the player", async ({ page }) => {
     await seedUnlockedLessonSession(page, "l3");
-    await page.goto("/cultura");
+    // RC2.3.13R.3.2 — Atlas topic list + save affordance on /cultura/explorar.
+    await page.goto("/cultura/explorar");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
     // Topic list (with culture-save) lives under the secondary hub section.

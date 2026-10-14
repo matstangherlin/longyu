@@ -17,6 +17,19 @@
   --app-safe-left: max(var(--safe-area-inset-left, 0px), env(safe-area-inset-left, 0px));
   --app-safe-right: max(var(--safe-area-inset-right, 0px), env(safe-area-inset-right, 0px));
   --app-header-height: calc(3.5rem + var(--app-safe-top));
+  /* RC2.3.13H.1 — sticky progression chrome under Global TopBar. */
+  --progression-switch-height: 3.75rem;
+  --progression-sticky-offset: var(--app-header-height);
+  --progression-sticky-height: calc(var(--app-header-height) + var(--progression-switch-height));
+  /* RC2.3.13R — canonical motion tokens (CSS-only; no framer-motion). */
+  --motion-instant: 80ms;
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-emphasis: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
   --app-bottom-nav-height: calc(4.5rem + var(--app-safe-bottom));
   /* V4.3 · camadas (ver src/components/ui/layers.ts) */
   --z-page: 0;
@@ -61,6 +74,124 @@
    encostam no fim da área rolável, só respeitando a safe-area. */
 [data-lesson-player-frame] {
   --activity-actions-offset: calc(var(--app-safe-bottom) + 0.5rem);
+}
+
+/* RC2.3.13H.1 — scrollIntoView / anchors land below TopBar + progression switch. */
+html:has([data-progression-shell]) {
+  scroll-padding-top: var(--progression-sticky-height);
+}
+
+/* Progression list: cancel main top pad so switch sits flush under TopBar
+   before sticky engages (avoids a ~16px jump when sticky top activates). */
+main[data-app-main]:has([data-progression-shell]) {
+  padding-top: 0;
+}
+
+/* ============================================================
+   RC2.3.13R — semantic typography roles (learner-facing).
+   Prefer these over ad-hoc text-[Npx] for equivalent UI roles.
+   ============================================================ */
+@layer components {
+  .type-display {
+    @apply font-serif text-[1.875rem] font-semibold leading-9 tracking-tight text-ink sm:text-[2.125rem] sm:leading-10;
+  }
+  .type-page-title {
+    @apply font-serif text-[1.75rem] font-semibold leading-[2.125rem] tracking-tight text-ink;
+  }
+  .type-section-title {
+    @apply font-serif text-[1.375rem] font-semibold leading-7 text-ink;
+  }
+  .type-card-title {
+    @apply font-serif text-xl font-semibold leading-[1.625rem] text-ink;
+  }
+  .type-body {
+    @apply text-[0.9375rem] leading-6 text-ink;
+  }
+  .type-body-strong {
+    @apply text-[0.9375rem] font-semibold leading-6 text-ink;
+  }
+  .type-supporting {
+    @apply text-sm leading-5 text-ink-soft;
+  }
+  .type-label {
+    @apply text-[0.8125rem] font-medium leading-[1.125rem] text-ink-soft;
+  }
+  .type-eyebrow {
+    @apply text-[0.6875rem] font-semibold uppercase leading-4 tracking-[0.14em] text-accent;
+  }
+  .type-eyebrow-muted {
+    @apply text-[0.6875rem] font-semibold uppercase leading-4 tracking-[0.12em] text-ink-faint;
+  }
+  .type-button {
+    @apply text-[0.9375rem] font-semibold leading-5;
+  }
+  .type-caption {
+    @apply text-xs leading-[1.125rem] text-ink-faint;
+  }
+  .type-mandarin-example {
+    @apply font-serif text-[1.375rem] leading-8 text-ink;
+  }
+  .type-mandarin-primary {
+    @apply font-serif text-[1.5rem] leading-9 text-ink sm:text-[1.625rem];
+  }
+  .type-pinyin {
+    @apply text-sm leading-5 text-ink-soft;
+  }
+  .type-translation {
+    @apply text-sm leading-5 text-ink-soft;
+  }
+}
+
+/* RC2.3.13R — Journey ↔ Culture panel enter (content only; chrome stays put). */
+@keyframes progression-panel-from-right {
+  from {
+    opacity: 0;
+    transform: translate3d(12px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes progression-panel-from-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-12px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes progression-panel-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.progression-panel-enter[data-enter="from-right"] {
+  animation: progression-panel-from-right var(--motion-normal) var(--ease-enter) both;
+}
+.progression-panel-enter[data-enter="from-left"] {
+  animation: progression-panel-from-left var(--motion-normal) var(--ease-enter) both;
+}
+.progression-panel-enter[data-enter="none"] {
+  animation: none;
+}
+@keyframes culture-card-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.culture-path-card-enter {
+  animation: culture-card-enter var(--motion-normal) var(--ease-enter) both;
 }
 
 
@@ -780,6 +911,203 @@ textarea {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
+/* RC2.3.13R.3.2.1 — slow ornament drift; reduced-motion block below disables it. */
+@keyframes ornament-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: 0.78;
+  }
+}
+
+.symbolic-ornament {
+  animation: ornament-drift 7s var(--ease-standard) infinite;
+}
+
+/*
+ * RC2.3.13R.3.2.3 — Journey scene lanes (atmosphere layer).
+ * LEFT SCENE LANE · CENTER PROGRESSION LANE · RIGHT SCENE LANE.
+ * Equal side tracks keep the center (node, label, CTA) on the stable axis;
+ * scenes are grid cells, so they shrink with the lane and never overlap it.
+ */
+:root {
+  /* Matches the progression label width (w-[8.75rem]); rem so large font grows it. */
+  --journey-node-lane: 8.75rem;
+  --journey-lane-gap: 0.375rem;
+  --journey-scene-max: 6.75rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --journey-scene-max: 8.5rem;
+  }
+}
+
+.journey-lane-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(var(--journey-node-lane), auto) minmax(0, 1fr);
+  column-gap: var(--journey-lane-gap);
+  align-items: center;
+}
+
+.journey-lane-center {
+  display: flex;
+  min-width: 0;
+  justify-content: center;
+}
+
+.journey-lane {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  pointer-events: none;
+  container-type: inline-size;
+}
+
+/* Scenes hug the path, not the screen edge. */
+.journey-lane-left {
+  justify-content: flex-end;
+}
+
+.journey-lane-right {
+  justify-content: flex-start;
+}
+
+.journey-scene {
+  flex: none;
+  width: min(100%, var(--journey-scene-max));
+  aspect-ratio: 4 / 3;
+  pointer-events: none;
+  user-select: none;
+  --journey-scene-tilt: 0.4deg;
+}
+
+.journey-scene[data-scene-side="right"] {
+  --journey-scene-tilt: -0.4deg;
+}
+
+/* A lane squeezed by very large text drops the scene instead of crowding the label. */
+@container (max-width: 47px) {
+  .journey-scene {
+    display: none;
+  }
+}
+
+.journey-scene-reveal,
+.journey-scene-drift {
+  width: 100%;
+  height: 100%;
+}
+
+.journey-scene-reveal {
+  transition:
+    opacity 520ms var(--ease-enter),
+    transform 520ms var(--ease-enter);
+}
+
+.journey-scene[data-reveal="pending"] .journey-scene-reveal {
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+.journey-scene-drift {
+  animation: journey-scene-drift 12s var(--ease-standard) var(--journey-scene-phase, 0s) infinite alternate;
+}
+
+@keyframes journey-scene-drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.94;
+  }
+  to {
+    transform: translate3d(0, -2px, 0) rotate(var(--journey-scene-tilt));
+    opacity: 1;
+  }
+}
+
+.journey-scene-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.journey-lane-ornament {
+  display: inline-flex;
+  flex: none;
+  padding-inline: 0.5rem;
+}
+
+/*
+ * Scene palette roles → real Longyu tokens. Atmosphere stays quieter than
+ * progression: linework at 0.78, washes soft. Light themes read the live
+ * theme tokens; dark is "moonlit" (below).
+ */
+.journey-scene {
+  --scene-ink: var(--text);
+  --scene-paper: var(--surface);
+  --scene-moon: var(--accent-soft);
+  --scene-accent: var(--accent);
+  --scene-good: var(--good);
+  --scene-gold: var(--gold);
+}
+
+/*
+ * Moonlit dark: a dark-on-dark drawing turns to mud, so the dark theme keeps
+ * the light artwork (the clay theme's own token values) on a solid moon — the
+ * moon is the light source — and dims the whole scene so it never outshines
+ * the progression nodes.
+ */
+[data-theme="dark"] .journey-scene {
+  --scene-ink: 47 52 55;
+  --scene-paper: 250 249 246;
+  --scene-moon: 244 230 226;
+  --scene-accent: 185 65 46;
+  --scene-good: 47 133 90;
+  --scene-gold: 138 90 23;
+  opacity: 0.86;
+}
+
+[data-theme="dark"] .journey-scene .lys-stop-wash {
+  stop-opacity: 1;
+}
+
+.journey-scene .lys-f-ink { fill: rgb(var(--scene-ink) / 0.78); }
+.journey-scene .lys-s-ink { stroke: rgb(var(--scene-ink) / 0.78); }
+.journey-scene .lys-f-soft { fill: rgb(var(--scene-ink) / 0.34); }
+.journey-scene .lys-s-soft { stroke: rgb(var(--scene-ink) / 0.34); }
+.journey-scene .lys-f-mark { fill: rgb(var(--scene-ink) / 0.82); }
+.journey-scene .lys-s-mark { stroke: rgb(var(--scene-ink) / 0.82); }
+.journey-scene .lys-f-mark-soft { fill: rgb(var(--scene-ink) / 0.36); }
+.journey-scene .lys-s-mark-soft { stroke: rgb(var(--scene-ink) / 0.36); }
+.journey-scene .lys-f-paper { fill: rgb(var(--scene-paper)); }
+.journey-scene .lys-s-paper { stroke: rgb(var(--scene-paper)); }
+.journey-scene .lys-f-pale { fill: rgb(var(--scene-paper)); }
+.journey-scene .lys-s-pale { stroke: rgb(var(--scene-paper)); }
+.journey-scene .lys-f-wash { fill: rgb(var(--scene-moon)); }
+.journey-scene .lys-s-wash { stroke: rgb(var(--scene-moon)); }
+.journey-scene .lys-f-accent { fill: rgb(var(--scene-accent) / 0.9); }
+.journey-scene .lys-s-accent { stroke: rgb(var(--scene-accent) / 0.9); }
+.journey-scene .lys-f-clay { fill: rgb(var(--scene-accent) / 0.38); }
+.journey-scene .lys-s-clay { stroke: rgb(var(--scene-accent) / 0.38); }
+.journey-scene .lys-f-sage { fill: rgb(var(--scene-good) / 0.58); }
+.journey-scene .lys-s-sage { stroke: rgb(var(--scene-good) / 0.58); }
+.journey-scene .lys-f-sage-soft { fill: rgb(var(--scene-good) / 0.16); }
+.journey-scene .lys-s-sage-soft { stroke: rgb(var(--scene-good) / 0.16); }
+.journey-scene .lys-f-sand { fill: rgb(var(--scene-gold) / 0.18); }
+.journey-scene .lys-s-sand { stroke: rgb(var(--scene-gold) / 0.18); }
+.journey-scene .lys-f-glow { fill: rgb(var(--scene-gold) / 0.22); }
+.journey-scene .lys-s-glow { stroke: rgb(var(--scene-gold) / 0.22); }
+.journey-scene .lys-f-gold { fill: rgb(var(--scene-gold) / 0.78); }
+.journey-scene .lys-s-gold { stroke: rgb(var(--scene-gold) / 0.78); }
+.journey-scene .lys-stop-wash { stop-color: rgb(var(--scene-moon)); }
+/* end Journey scene palette */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -813,14 +1141,30 @@ textarea {
   .guide-mascot-enter,
   .guide-bubble-enter,
   .guide-continue-enter,
-  .guide-text-swap {
+  .guide-text-swap,
+  .symbolic-ornament,
+  .journey-scene-drift {
     animation: none !important;
+  }
+
+  /* RC2.3.13R.3.2.3 — scenes stay visible and still: no drift, no entrance. */
+  .journey-scene-reveal,
+  .journey-scene[data-reveal="pending"] .journey-scene-reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   /* RC2.2.18 · CI — com movimento reduzido, só um fade simples. */
   .longyu-guidance-in,
   .longyu-unlock-reveal,
   .longyu-tab-appear {
+    animation: longyu-fade-in 150ms linear both !important;
+  }
+
+  /* RC2.3.13R — progression enter: spatial slide → same short fade. */
+  .progression-panel-enter[data-enter="from-right"],
+  .progression-panel-enter[data-enter="from-left"],
+  .culture-path-card-enter {
     animation: longyu-fade-in 150ms linear both !important;
   }
 

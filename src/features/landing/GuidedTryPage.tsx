@@ -377,6 +377,7 @@ function GuidedTryFlow() {
               failed={audioFailed}
               label={t("guidedTry.listenAria")}
               data-guided-listen
+              data-cta-hierarchy={gateCtaEnabled || audioFailed ? "secondary" : "primary"}
               className="mt-6"
             />
             <p
@@ -395,19 +396,24 @@ function GuidedTryFlow() {
                     : ""}
             </p>
             {audioFailed && (
-              <div className="mt-2 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-left" data-testid="guided-audio-failed" data-fail-reason={failReason ?? undefined}>
+              <div
+                className="mt-2 w-full rounded-2xl border border-line bg-surface px-4 py-3 text-left"
+                data-testid="guided-audio-failed"
+                data-fail-reason={failReason ?? undefined}
+                data-tech-failure="audio"
+              >
                 {/* RC2.2.31C — Guided Try is asset-first. Never push "Configurar voz chinesa" for asset playback failure. */}
                 <p className="text-sm font-semibold text-ink">{t("guidedTry.audioFailedTitle")}</p>
                 <p className="mt-1 text-xs leading-5 text-ink-soft">{t("guidedTry.audioFailedLead")}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry">
+                  <Button size="sm" variant="outline" onClick={playNihao} data-testid="guided-audio-retry" data-cta-hierarchy="secondary">
                     {t("guidedTry.audioRetry")}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard">
+                  <Button size="sm" variant="outline" onClick={confirmHeardWithoutAck} data-testid="guided-audio-confirm-heard" data-cta-hierarchy="tertiary">
                     {t("guidedTry.audioConfirmedByUser")}
                   </Button>
                   {canOfferVoiceInstall(failReason) ? (
-                    <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install">
+                    <Button size="sm" variant="outline" onClick={() => void installVoice()} data-testid="guided-audio-install" data-cta-hierarchy="tertiary">
                       {t("guidedTry.audioInstallVoice")}
                     </Button>
                   ) : null}
@@ -571,24 +577,74 @@ function GuidedTryFlow() {
         )}
       </main>
 
-      <GuidedBottomAction className="sticky bottom-0 mx-auto w-full max-w-md">
+      <GuidedBottomAction className="sticky bottom-0 mx-auto w-full max-w-md" data-learning-flow="rc2-3-13c">
         {action ? (
-          <Button
-            size="lg"
-            className="longyu-press-feedback w-full"
-            disabled={action.disabled}
-            onClick={action.onClick}
-            data-guided-action
-            data-guided-action-id={action.testId}
-          >
-            {action.label}
-          </Button>
+          <>
+            {action.disabled && step === "listen" ? (
+              <p
+                id="guided-try-continue-reason"
+                className="mb-1.5 text-center text-xs text-ink-faint"
+                data-testid="listen-continue-reason"
+                data-disabled-reason="listen-first"
+              >
+                {t("player.listenFirstToContinue")}
+              </p>
+            ) : null}
+            {action.disabled && (step === "tone" || step === "meaning" || step === "conversation") ? (
+              <p
+                id="guided-try-continue-reason"
+                className="mb-1.5 text-center text-xs text-ink-faint"
+                data-testid="answer-continue-reason"
+                data-disabled-reason="choose-answer"
+              >
+                {t("player.chooseAnswerToContinue")}
+              </p>
+            ) : null}
+            {action.disabled && step === "build" ? (
+              <p
+                id="guided-try-continue-reason"
+                className="mb-1.5 text-center text-xs text-ink-faint"
+                data-testid="build-continue-reason"
+                data-disabled-reason="build"
+              >
+                {t("player.buildToContinue")}
+              </p>
+            ) : null}
+            <Button
+              size="lg"
+              className="longyu-press-feedback min-h-12 w-full"
+              disabled={action.disabled}
+              onClick={action.onClick}
+              data-guided-action
+              data-guided-action-id={action.testId}
+              data-guided-primary={!action.disabled || step !== "listen" ? true : undefined}
+              data-cta-hierarchy={
+                step === "listen" && action.disabled
+                  ? "secondary"
+                  : "primary"
+              }
+              data-testid={action.testId}
+              aria-describedby={action.disabled ? "guided-try-continue-reason" : undefined}
+            >
+              {action.label}
+            </Button>
+          </>
         ) : (
           <div className="grid gap-2">
-            <Button size="lg" className="longyu-press-feedback w-full shadow-lift" onClick={continueToGoal} data-guided-create-account>
+            <Button
+              size="lg"
+              className="longyu-press-feedback min-h-12 w-full shadow-lift"
+              onClick={continueToGoal}
+              data-guided-create-account
+              data-cta-hierarchy="primary"
+            >
               {t("guidedTry.continueToGoal")}
             </Button>
-            <Link to="/" className="inline-flex min-h-12 items-center justify-center text-sm font-semibold text-ink-soft">
+            <Link
+              to="/"
+              className="inline-flex min-h-12 items-center justify-center text-sm font-semibold text-ink-soft"
+              data-cta-hierarchy="tertiary"
+            >
               {t("guidedTry.backHome")}
             </Link>
           </div>

@@ -24,6 +24,7 @@ const ERROR_KEYS: Record<FamilyErrorCode, string> = {
   ALREADY_IN_ANOTHER_FAMILY: "familia.errorAlreadyInFamily",
   OWNER_CANNOT_LEAVE: "familia.errorOwnerCannotLeave",
   BACKEND_OFF: "familia.errorBackendOff",
+  BACKEND_UNAVAILABLE: "familia.errorBackendUnavailable",
   UNKNOWN: "familia.errorUnknown",
 };
 

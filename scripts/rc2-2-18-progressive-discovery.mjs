@@ -81,7 +81,7 @@ const MUTATIONS = {
     ["21. deep link em tela branca", "DEEP_LINK_BLANK", src("routeGate", "if (access.blocked) return <FeatureUnavailablePage feature={access.feature} />;", "if (access.blocked) return null;")],
     ["26. área re-tranca no carregamento do sync", "FEATURE_RELOCKS_DURING_SYNC", src("hook", "return mergeStickyVisibility(derived, [...confirmed, ...remembered]);", "return derived;")],
     ["M43. parede de cadeados", "WALL_OF_LOCKS", src("nav", "limit = 2", "limit = 12")],
-    ["M44. Cultura troca de posição", "TABBAR_ORDER_UNSTABLE", src("nav", "    NAV.cultura,\n    NAV.missoes,\n    NAV.mais,\n  ].filter", "    NAV.missoes,\n    NAV.cultura,\n    NAV.mais,\n  ].filter")],
+    ["M44. Cultura volta à TabBar / ordem muda", "TABBAR_ORDER_UNSTABLE", src("nav", "    NAV.treino,\n    NAV.missoes,\n    NAV.mais,\n  ].filter", "    NAV.treino,\n    NAV.cultura,\n    NAV.missoes,\n    NAV.mais,\n  ].filter")],
     ["M45. Qi/Loja antes da economia", "SHOP_BEFORE_ECONOMY", src("topBar", "{shopAvailable && (", "{true && (")],
     ["M1b. barra ignora o registro", "CULTURE_VISIBLE_FRESH", src("tabBar", "mobileNavForStage(profile.stage, visibility)", "mobileNavForStage(profile.stage)")],
   ],
