@@ -1286,7 +1286,14 @@
     "gate:rc2-3-13r3-2-2-final-visual-candidate": "npm run validate:rc2-3-13r3-2-2-final-visual-candidate && npm run test:rc2-3-13r3-2-2-final-visual-candidate && npm run gate:rc2-3-13r3-2-1-visual-polish-symbolic-progression && npm run validate:product-truth",
     "validate:rc2-3-13r3-2-2-1-terminal-artifact-physical": "node scripts/rc2-3-13r3-2-2-1-terminal-artifact-physical.mjs validate",
     "test:rc2-3-13r3-2-2-1-terminal-artifact-physical": "node scripts/rc2-3-13r3-2-2-1-terminal-artifact-physical.mjs test",
-    "gate:rc2-3-13r3-2-2-1-terminal-artifact-physical": "npm run validate:rc2-3-13r3-2-2-1-terminal-artifact-physical && npm run test:rc2-3-13r3-2-2-1-terminal-artifact-physical && npm run gate:rc2-3-13r3-2-2-final-visual-candidate"
+    "gate:rc2-3-13r3-2-2-1-terminal-artifact-physical": "npm run validate:rc2-3-13r3-2-2-1-terminal-artifact-physical && npm run test:rc2-3-13r3-2-2-1-terminal-artifact-physical && npm run gate:rc2-3-13r3-2-2-final-visual-candidate",
+    "validate:journey-svg-assets": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs assets",
+    "validate:journey-svg-style": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs style",
+    "validate:journey-scene-registry": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs registry",
+    "validate:journey-scene-layout": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs layout",
+    "validate:rc2-3-13r3-2-3-journey-svg-storytelling": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs validate",
+    "test:rc2-3-13r3-2-3-journey-svg-storytelling": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs test",
+    "gate:rc2-3-13r3-2-3-journey-svg-storytelling": "npm run validate:journey-svg-assets && npm run validate:journey-svg-style && npm run validate:journey-scene-registry && npm run validate:journey-scene-layout && npm run validate:rc2-3-13r3-2-3-journey-svg-storytelling && npm run test:rc2-3-13r3-2-3-journey-svg-storytelling && npm run gate:rc2-3-13r3-2-2-1-terminal-artifact-physical"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

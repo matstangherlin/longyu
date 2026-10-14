@@ -437,6 +437,12 @@ export const SUITES = [
       "test:media-completion",
       "validate:glossary-ui",
       "validate:lesson-victory-ui",
+      "validate:journey-svg-assets",
+      "validate:journey-svg-style",
+      "validate:journey-scene-registry",
+      "validate:journey-scene-layout",
+      "validate:rc2-3-13r3-2-3-journey-svg-storytelling",
+      "test:rc2-3-13r3-2-3-journey-svg-storytelling",
     ],
   },
   {
@@ -550,4 +556,10 @@ export const ADDED_STEPS = Object.freeze({
   "gate:rc2-3-1-visual-first": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
   "gate:rc2-3-2-human-everyday": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
   "gate:rc2-3-3-culture-deep": "Previously only in the separate ci.yml rc2-3-stack-gates job; now a canonical suite.",
+  "validate:journey-svg-assets": "RC2.3.13R.3.2.3 — Journey scene SVGs: parse, safety (no script/foreignObject/raster/external refs), viewBox, size, ids.",
+  "validate:journey-svg-style": "RC2.3.13R.3.2.3 — Longyu vector contract: role palette ⊂ tokens, light + moonlit-dark contrast, no text/emoji/fonts.",
+  "validate:journey-scene-registry": "RC2.3.13R.3.2.3 — registry ↔ files ↔ inventory ↔ deterministic scene plan (density, alternation, regions).",
+  "validate:journey-scene-layout": "RC2.3.13R.3.2.3 — side-lane contract (axis, sizing, reserved box, motion, a11y) + real-browser layout evidence.",
+  "validate:rc2-3-13r3-2-3-journey-svg-storytelling": "RC2.3.13R.3.2.3 — SVG wave release honesty (runtime SHA, stale APKs, WebKit skip, physical, entry).",
+  "test:rc2-3-13r3-2-3-journey-svg-storytelling": "RC2.3.13R.3.2.3 — mutation kills for the Journey SVG gates (≥80).",
 });

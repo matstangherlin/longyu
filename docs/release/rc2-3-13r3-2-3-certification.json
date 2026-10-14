@@ -1,0 +1,167 @@
+{
+  "schema": "longyu-rc2-3-13r3-2-3-certification/1",
+  "wave": "RC2.3.13R.3.2.3",
+  "title": "Journey SVG Visual Storytelling & Final Beta Candidate",
+  "header": "OWNER-APPROVED FINAL VISUAL ASSET WAVE. NO NAVIGATION REDESIGN. NO CURRICULUM EXPANSION. NO PEDAGOGICAL RULE CHANGE. NO MASTERY CHANGE. NO ECONOMY CHANGE. CUSTOM JOURNEY SVG ASSETS + FINAL RELEASE CANDIDATE ONLY.",
+  "phase": "HOSTED_PENDING",
+  "parentPr": 353,
+  "parentTitle": "RC2.3.13R.3.2.2.1 — Hosted Terminal Closure, Final Device Candidate & Physical Regression",
+  "parentHeadSha": "05bcf51e5897982dbe15af98e38e8c9d1b37edd1",
+  "parentHosted": {
+    "overall": "PASS",
+    "headSha": "05bcf51e5897982dbe15af98e38e8c9d1b37edd1",
+    "checks": 20,
+    "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
+    "workflowRunIds": {
+      "ci": 38120059486,
+      "android": 38120059476,
+      "security": 38120059428
+    },
+    "requeriedAt": "2026-10-14",
+    "parentDeviceQaApk": "NOT_MINTED — wave began before a #353 physical candidate was certified; no disposable APK"
+  },
+  "candidateHeadSha": null,
+  "pr": null,
+  "freezeException": "OWNER_APPROVED_JOURNEY_SVG_VISUAL_STORYTELLING",
+  "scope": {
+    "navigationRedesign": false,
+    "curriculumExpansion": false,
+    "pedagogyChange": false,
+    "masteryChange": false,
+    "economyChange": false,
+    "cultureScenes": false
+  },
+  "runtime": {
+    "learnerRuntimeSha": "51548cd0fe8d73c805e64b7473e363122ac64523",
+    "previousLearnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
+    "learnerRuntimeMoved": true,
+    "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth).",
+    "fingerprint": "29bb02ec0336",
+    "fingerprintMoved": false
+  },
+  "assets": {
+    "packVersion": 1,
+    "count": 16,
+    "core": 12,
+    "ownerRequested": 4,
+    "ownerRequestedIds": [
+      "buddhist-temple",
+      "sun-wukong",
+      "lucky-cat",
+      "great-wall"
+    ],
+    "inventory": "docs/release/journey-svg-assets.json",
+    "designDoc": "docs/ux/journey-svg-visual-system.md",
+    "integrity": {
+      "parsed": 16,
+      "externalRefs": 0,
+      "scripts": 0,
+      "foreignObject": 0,
+      "embeddedRaster": 0,
+      "missingViewBox": 0,
+      "oversizeAssets": 0,
+      "duplicateIdsWithinAsset": 0
+    }
+  },
+  "layout": {
+    "evidence": "docs/release/evidence/rc2-3-13r3-2-3/journey-scene-layout.json",
+    "screenshots": "docs/screenshots/rc2-3-13r3-2-3/",
+    "video": "docs/screenshots/rc2-3-13r3-2-3/journey-svg-scroll.webm",
+    "sceneNodeOverlap": 0,
+    "sceneLabelOverlap": 0,
+    "sceneCtaOverlap": 0,
+    "horizontalOverflow": 0,
+    "axisDeltaPx": 0
+  },
+  "journeySvgSystem": "CODE_PASS",
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": null,
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "firefox": "PENDING",
+    "webkit": "PENDING",
+    "webkitSkipPolicy": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
+    "webkitSkipNote": "e2e/v494-builder-ux.spec.ts — LEGIT INFRA skip, WebKit only, Hanzi Builder clear→full rebuild+verify; Chromium + Firefox prove the contract. Never reported as plain PASS.",
+    "workflowRunIds": {}
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "channel": "DEVICE_QA",
+    "apkSha256": null,
+    "hashSource": null,
+    "artifactSourceSha": null,
+    "workflowMergeSha": null,
+    "learnerRuntimeSha": null,
+    "fingerprint": null,
+    "rc": "RC2.3.13-RC1",
+    "versionName": null,
+    "versionCode": null,
+    "packageId": "longyu.noba.com",
+    "workflowRunId": null,
+    "artifactId": null,
+    "playReady": false,
+    "note": "ONE Device-QA APK is minted only after exact-head hosted green on the final head of this wave."
+  },
+  "priorDeviceQa": "STALE_FOR_CURRENT_RUNTIME",
+  "rejectedApkSha256List": [
+    "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  ],
+  "physical": {
+    "status": "NOT_RUN",
+    "device": null,
+    "emulator": null,
+    "artifactSha256": null,
+    "svg": {
+      "loads": "NOT_RUN",
+      "crispness": "NOT_RUN",
+      "theme": "NOT_RUN",
+      "sideAlternation": "NOT_RUN",
+      "nodeCollision": "NOT_RUN",
+      "textCollision": "NOT_RUN",
+      "animation": "NOT_RUN",
+      "reducedMotion": "NOT_RUN"
+    },
+    "visualQualityJudgement": "NOT_RUN",
+    "previousR31Blockers": "NOT_RUN",
+    "audioX20Count": 0,
+    "culture": "NOT_RUN",
+    "hanzi": "NOT_RUN"
+  },
+  "visualFreeze": {
+    "JOURNEY_CULTURE_VISUAL_FREEZE": "PENDING_OWNER_ACCEPTANCE",
+    "JOURNEY_SVG_VISUAL_SYSTEM": "PENDING_OWNER_ACCEPTANCE",
+    "boundApkSha256": null,
+    "stopVisualWavesAfterAcceptance": true
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD"
+  },
+  "play": {
+    "signedAab": "NOT_BUILT",
+    "debugAabPlayReady": false,
+    "signingSource": null,
+    "closedTestingInstall": "NOT_RUN"
+  },
+  "ownerReleaseAcceptance": "NOT_RUN",
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0
+  },
+  "next": [
+    "exact-head hosted green",
+    "ONE Device-QA APK + SHA256 + owner handoff",
+    "owner physical: SVG quality/layout + R.3.1 blockers + Audio x20 + Culture + Hanzi",
+    "final visual freeze bound to APK SHA256 — then no more visual waves",
+    "full R.3 physical, Sentry, rollback, Cloud x2, Android OAuth, signed Play AAB, Closed Testing install",
+    "owner release acceptance → at most 10 Wave 1 testers; Public Beta stays HOLD"
+  ]
+}

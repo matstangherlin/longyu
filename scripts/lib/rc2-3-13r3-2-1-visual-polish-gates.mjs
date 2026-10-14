@@ -21,6 +21,8 @@ export function loadR321Sources() {
     journey: read("src/features/culture/CultureJourneyPage.tsx"),
     detail: read("src/features/culture/CultureTopicDetailPage.tsx"),
     journeyPage: read("src/features/journey/JourneyPage.tsx"),
+    // RC2.3.13R.3.2.3 — Journey ornaments moved into lane rows (scene-aware).
+    journeyLaneRow: read("src/features/journey/scenes/JourneyLaneRow.tsx"),
     freeze: read("src/lib/curriculumFreeze.ts"),
     packageJson: read("package.json"),
     gateRegistry: read("docs/release/gate-registry.json"),
@@ -72,7 +74,13 @@ export function checkOrnaments(src = loadR321Sources()) {
   if (!/\.symbolic-ornament/.test(src.css)) errors.push("REDUCED_MOTION_CSS_MISSING");
   if (!/density === "journey" \? 4 : 3/.test(src.ornaments)) errors.push("JOURNEY_DENSITY_MISSING");
   if (!/SymbolicOrnamentRail/.test(src.path)) errors.push("CULTURE_ORNAMENT_MISSING");
-  if (!/SymbolicOrnamentRail/.test(src.journeyPage)) errors.push("JOURNEY_ORNAMENT_MISSING");
+  // Journey keeps its ornaments: either the original rail or (since R.3.2.3)
+  // the lane rows that place them clear of the Journey scenes.
+  const journeyLaneOrnaments =
+    /JourneyLaneRow/.test(src.journeyPage) && /<SymbolicOrnament\b/.test(src.journeyLaneRow ?? "");
+  if (!/SymbolicOrnamentRail/.test(src.journeyPage) && !journeyLaneOrnaments) {
+    errors.push("JOURNEY_ORNAMENT_MISSING");
+  }
   return [...new Set(errors)];
 }
 

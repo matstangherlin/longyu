@@ -1,3 +1,6 @@
+> **SUPERSEDED by RC2.3.13R.3.2.3** — use `docs/release/OWNER_R32_3_JOURNEY_SVG_HANDOFF.md`.
+> No R.3.2.2 / #353 Device-QA APK was minted; the next and only candidate is the R.3.2.3 APK.
+
 # USE THIS APK
 
 ```text
@@ -9,7 +12,7 @@ Source:       pending artifactSourceSha
 SHA256:       pending
 Fingerprint:  29bb02ec0336
 Channel:      DEVICE_QA
-learnerRuntimeSha: 0357f82476d03bc8364efc66902b4640b4a155b9
+learnerRuntimeSha: 51548cd0fe8d73c805e64b7473e363122ac64523 (advanced by R.3.2.3)
 ```
 
 # DO NOT USE

@@ -1,0 +1,288 @@
+{
+  "version": 1,
+  "wave": "RC2.3.13R.3.2.3",
+  "viewBox": "0 0 320 240",
+  "decorative": true,
+  "planDigest": "8437d338",
+  "sceneSlots": 40,
+  "ornamentSlots": 21,
+  "assets": [
+    {
+      "id": "moon-gate",
+      "file": "src/assets/journey/scenes/journey-moon-gate.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 6020,
+      "sha256": "618ea11f031ec052dd8d6a3266b498611aeaa6860ca01b96eacc2bf33becf722",
+      "decorative": true,
+      "semanticTheme": "entering a new world",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 2
+    },
+    {
+      "id": "lantern-street",
+      "file": "src/assets/journey/scenes/journey-lantern-street.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5591,
+      "sha256": "b1a70cb7f6facb469320058443243d209c04b303898468d7fcc354a2eb32344f",
+      "decorative": true,
+      "semanticTheme": "everyday social Mandarin",
+      "regions": [
+        "EVERYDAY",
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 2
+    },
+    {
+      "id": "bamboo-mountains",
+      "file": "src/assets/journey/scenes/journey-bamboo-mountains.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5413,
+      "sha256": "2ec90ab81a1c0a79e2ec4038dd5c7df30dbe636204bf883b2238d4b28682d5ee",
+      "decorative": true,
+      "semanticTheme": "progress, calm, continued learning (Guilin karst, bamboo)",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY",
+        "REAL_LIFE"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 5
+    },
+    {
+      "id": "tea-table",
+      "file": "src/assets/journey/scenes/journey-tea-table.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5090,
+      "sha256": "adecdc9463f5d12cf23457dece7c2dd1e7c0db35c7477bf6adca97f1c18ba53b",
+      "decorative": true,
+      "semanticTheme": "hospitality and everyday communication",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY",
+        "REAL_LIFE"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 2
+    },
+    {
+      "id": "market",
+      "file": "src/assets/journey/scenes/journey-market.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5425,
+      "sha256": "3a1ac5392eff20b3478367e01af2188b11a5abdf8a581a064b87914f285809ed",
+      "decorative": true,
+      "semanticTheme": "shopping, asking, practical language",
+      "regions": [
+        "REAL_LIFE"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 2
+    },
+    {
+      "id": "high-speed-rail",
+      "file": "src/assets/journey/scenes/journey-high-speed-rail.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5004,
+      "sha256": "f08679082281df9d2dffd003625d91347628f7f9d0269cc9640ebf4770df70a2",
+      "decorative": true,
+      "semanticTheme": "travel and modern China",
+      "regions": [
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "sparse",
+      "ownerRequested": false,
+      "placements": 2
+    },
+    {
+      "id": "modern-city",
+      "file": "src/assets/journey/scenes/journey-modern-city.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 4558,
+      "sha256": "e05d7f97037eca742034facc2915cecce3459a5c156e1831c4210a8f453fc6bb",
+      "decorative": true,
+      "semanticTheme": "modern and advanced Mandarin use",
+      "regions": [
+        "MODERN"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 1
+    },
+    {
+      "id": "courtyard",
+      "file": "src/assets/journey/scenes/journey-courtyard.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5772,
+      "sha256": "94cc66953f6d434d6ac03d5dc0d49deeca09d938aeb66d75b3053ddfcf2b06ab",
+      "decorative": true,
+      "semanticTheme": "family, home, relationships",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY",
+        "REAL_LIFE"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 3
+    },
+    {
+      "id": "river-bridge",
+      "file": "src/assets/journey/scenes/journey-river-bridge.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 4390,
+      "sha256": "41151d8090c5d2ecac6fe96e9e590c8c57ed20e6385b70f1e5427a225aba96bf",
+      "decorative": true,
+      "semanticTheme": "journey continuity and movement",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY",
+        "REAL_LIFE"
+      ],
+      "density": "sparse",
+      "ownerRequested": false,
+      "placements": 4
+    },
+    {
+      "id": "brush-seal",
+      "file": "src/assets/journey/scenes/journey-brush-seal.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 4262,
+      "sha256": "d936aa254ee02a94ead4816a1b028a1372342e9ba784c0f0fe3ad8a1b6f0d975",
+      "decorative": true,
+      "semanticTheme": "Hanzi and written Mandarin",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY"
+      ],
+      "density": "sparse",
+      "ownerRequested": false,
+      "placements": 5
+    },
+    {
+      "id": "night-street",
+      "file": "src/assets/journey/scenes/journey-night-street.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5033,
+      "sha256": "5e3f66450db5b4031693a70015de5bf0a1c76915a79980f17af0ad62dd40eb43",
+      "decorative": true,
+      "semanticTheme": "social situations, real-world Mandarin",
+      "regions": [
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 1
+    },
+    {
+      "id": "digital-life",
+      "file": "src/assets/journey/scenes/journey-digital-life.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5067,
+      "sha256": "ddb31ef46c0558b82437c445e823d21e24ac89384a095efdb0b6281d8660b3fa",
+      "decorative": true,
+      "semanticTheme": "digital, real modern use",
+      "regions": [
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "normal",
+      "ownerRequested": false,
+      "placements": 1
+    },
+    {
+      "id": "buddhist-temple",
+      "file": "src/assets/journey/scenes/journey-buddhist-temple.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5484,
+      "sha256": "67bfc9ad0519fbecf66394ff4a57a65d2da2d8b3adc153f8b5d107f52767790c",
+      "decorative": true,
+      "semanticTheme": "Buddhist temple and pagoda: heritage, calm practice",
+      "regions": [
+        "FOUNDATION",
+        "EVERYDAY",
+        "REAL_LIFE"
+      ],
+      "density": "normal",
+      "ownerRequested": true,
+      "placements": 4
+    },
+    {
+      "id": "sun-wukong",
+      "file": "src/assets/journey/scenes/journey-sun-wukong.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5137,
+      "sha256": "cf4b516576bf0fe790bff00bb6685eb1c0e1379810442559749b9aba9412d79b",
+      "decorative": true,
+      "semanticTheme": "Sun Wukong, the Monkey King of Journey to the West",
+      "regions": [
+        "EVERYDAY",
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "normal",
+      "ownerRequested": true,
+      "placements": 2
+    },
+    {
+      "id": "lucky-cat",
+      "file": "src/assets/journey/scenes/journey-lucky-cat.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 5034,
+      "sha256": "0044e0dc78a0a638e768274c7d8a70ab5341e60126b69f6c3286f3fee12accb3",
+      "decorative": true,
+      "semanticTheme": "zhaocai mao lucky cat with a Chinese cash coin: shops, money, numbers",
+      "regions": [
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "normal",
+      "ownerRequested": true,
+      "placements": 2
+    },
+    {
+      "id": "great-wall",
+      "file": "src/assets/journey/scenes/journey-great-wall.svg",
+      "viewBox": "0 0 320 240",
+      "maxBytes": 35840,
+      "bytes": 4755,
+      "sha256": "e382cd5a341aab4fdd100f1fc93636a913f1b9bd07ba3ad5b9bbc94d450562c4",
+      "decorative": true,
+      "semanticTheme": "the Great Wall over mountain ridges: building, history, travel",
+      "regions": [
+        "REAL_LIFE",
+        "MODERN"
+      ],
+      "density": "sparse",
+      "ownerRequested": true,
+      "placements": 2
+    }
+  ]
+}
