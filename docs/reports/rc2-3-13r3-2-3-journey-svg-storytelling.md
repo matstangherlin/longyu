@@ -11,7 +11,7 @@ PRE_BETA_FREEZE_EXCEPTION = OWNER_APPROVED_JOURNEY_SVG_VISUAL_STORYTELLING
 ## Parent
 
 - PR **#353** re-queried: head `05bcf51e5897982dbe15af98e38e8c9d1b37edd1` (unchanged since planning).
-- Hosted on that exact head: **20/20 checks green** — Release Truth, Security (gitleaks, npm audit, CodeQL), all beta suites, quality/build, Android foundation + runtime, Chromium, Firefox, WebKit (**PASS_WITH_ALLOWLISTED_ENGINE_SKIP**: the LEGIT Hanzi Builder clear→rebuild skip in `e2e/v494-builder-ux.spec.ts`, kept explicit, narrow and WebKit-only).
+- Hosted on that exact head: **19 checks green + Supabase Preview skipped (not applicable)** — Release Truth, Security (gitleaks, npm audit, CodeQL), all beta suites, quality/build, Android foundation + runtime, Chromium, Firefox, WebKit (**PASS_WITH_ALLOWLISTED_ENGINE_SKIP**: the LEGIT Hanzi Builder clear→rebuild skip in `e2e/v494-builder-ux.spec.ts`, kept explicit, narrow and WebKit-only).
 - No #353 Device-QA APK was minted: this wave started before a #353 physical candidate was certified, so one final APK is minted after this wave's exact-head hosted green.
 - All #353 runtime hardening is inherited unchanged (this branch is built on `05bcf51e`).
 
@@ -19,7 +19,7 @@ PRE_BETA_FREEZE_EXCEPTION = OWNER_APPROVED_JOURNEY_SVG_VISUAL_STORYTELLING
 
 | Area | Change |
 | --- | --- |
-| Assets | 16 hand-authored `.svg` scenes in `src/assets/journey/scenes/` — the 12 specified + 4 owner-requested landmarks (Buddhist temple, Sun Wukong, lucky cat, Great Wall). True vectors, text-free, transparent, 320×240, 3.6–5.4 KB each. |
+| Assets | 16 hand-authored `.svg` scenes in `src/assets/journey/scenes/` — the 12 specified + 4 owner-requested landmarks (Buddhist temple, Sun Wukong, lucky cat, Great Wall). True vectors, text-free, transparent, 320×240, 4.2–5.9 KB each. |
 | Owner feedback | Scenes enriched with real Chinese references (pagoda through the moon gate, Guilin karst + conical-hat raftsman, paifang arch, couplets + 福 diamonds, pavilion); **moonlit dark mode** after "no modo dark tá horrível / tá tudo escuro"; **embroidered review medallion** after "bordados bonitos na bolinha final de revisão". |
 | Registry | `journeySceneRegistry.ts` — typed ids, files, themes, regions, density; `JOURNEY_SCENE_PACK_VERSION = 1`. |
 | Mapping | `journeyScenePlan.ts` — deterministic: 40 scenes over 171 progression stops (1 per 4.3), alternating sides, storytelling regions by phase, semantic module sequences, never consecutive rows, never the same scene twice in a row. |
@@ -62,7 +62,7 @@ HOSTED                 = PENDING (exact head of this wave)
 JOURNEY_SVG_SYSTEM     = CODE_PASS
 DEVICE_QA_APK          = NOT_BUILT (one APK after hosted green)
 PHYSICAL               = NOT_RUN
-OWNER_QA_ENTRY         = OWNER_ACTION_REQUIRED
+OWNER_QA_ENTRY         = HOLD (until the one Device-QA APK exists)
 PLAY                   = HOLD
 PUBLIC_BETA_ENTRY      = HOLD
 Wave 1 invited         = 0

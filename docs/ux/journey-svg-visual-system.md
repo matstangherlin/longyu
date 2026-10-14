@@ -27,7 +27,7 @@ that keep clear of them, and the embroidered medallion on module-review nodes.
 - True vectors only: `path`, `rect`, `circle`, `ellipse`, `line`, `polygon`, one restrained `linearGradient` (the disc fade) and `clipPath` where a view is framed (moon gate, Great Wall hills).
 - Root: `fill="none" stroke-linecap="round" stroke-linejoin="round" data-lys-scene="<id>"`.
 - Pure ASCII, no fonts, no scripts, no `foreignObject`, no event handlers, no external references, no SMIL.
-- Size: 3.6–5.4 KB per file (budget 35 KB; target 8–25 KB is comfortably undercut without losing detail).
+- Size: 4.2–5.9 KB per file (4262–6020 bytes; budget 35 KB; target 8–25 KB is comfortably undercut without losing detail).
 
 ## 3. Palette — roles, not colors
 
@@ -100,8 +100,8 @@ Nothing below 2 units (`STROKE_TOO_THIN`).
 Scenes 13–16 were requested by the owner (temples, Wukong, the Chinese cat,
 real landmarks) and fill the four optional slots (library max 16). Sun Wukong is
 an original drawing of the 16th-century literary character — it copies no game,
-film or TV design. The lucky cat is the beckoning cat common in Chinese shops
-(its origin is shared with Japan's maneki-neko); here it holds a Chinese
+film or TV design. The lucky cat is the beckoning cat that originated as Japan's maneki-neko
+and is now ubiquitous in Chinese shops as 招财猫; here it holds a Chinese
 square-holed cash coin.
 
 ## 6. Mapping (deterministic)

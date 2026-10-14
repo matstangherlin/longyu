@@ -11,6 +11,8 @@
     "overall": "PASS",
     "headSha": "05bcf51e5897982dbe15af98e38e8c9d1b37edd1",
     "checks": 20,
+    "checksGreen": 19,
+    "checksSkipped": ["Supabase Preview"],
     "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
     "workflowRunIds": {
       "ci": 38120059486,
@@ -141,7 +143,7 @@
     "stopVisualWavesAfterAcceptance": true
   },
   "entry": {
-    "OWNER_QA_ENTRY": "OWNER_ACTION_REQUIRED",
+    "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD"
   },

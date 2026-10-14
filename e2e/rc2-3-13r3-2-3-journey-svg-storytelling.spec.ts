@@ -297,8 +297,9 @@ test.describe("RC2.3.13R.3.2.3 Journey SVG scene lanes", () => {
     const svgRequests: string[] = [];
     page.on("request", (req) => {
       // Dev servers load `?raw` modules as scripts; production inlines them. Only
-      // image/fetch traffic would mean a runtime asset dependency.
-      if (req.resourceType() !== "script" && /\.svg(\?|$)/.test(req.url())) svgRequests.push(req.url());
+      // image/fetch traffic for a scene file would mean a runtime asset
+      // dependency (other app art, e.g. the mascot, is not this wave's concern).
+      if (req.resourceType() !== "script" && /journey-[^/?]*\.svg(\?|$)/.test(req.url())) svgRequests.push(req.url());
     });
     await seedUnlockedLessonSession(page, SEED_LESSON);
     await page.goto("/jornada");
