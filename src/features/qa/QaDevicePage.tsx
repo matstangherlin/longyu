@@ -55,6 +55,7 @@ import { ReleaseTruthPanel, currentExpectedSha } from "./ReleaseTruthPanel";
 import { GuidanceDeliveryPanel } from "./GuidanceDeliveryPanel";
 import { BetaIssueReporter } from "./BetaIssueReporter";
 import { VisualFirstQaPanel } from "./VisualFirstQaPanel";
+import { JourneySvgQaPanel } from "./JourneySvgQaPanel";
 import { EverydayMandarinQaPanel } from "./EverydayMandarinQaPanel";
 import { CultureDeepQaPanel } from "./CultureDeepQaPanel";
 import { HanziWritingQaPanel } from "./HanziWritingQaPanel";
@@ -147,6 +148,7 @@ function QaDeviceSurface() {
       </header>
 
       <VisualFirstQaPanel />
+      <JourneySvgQaPanel />
       <EverydayMandarinQaPanel />
       <CultureDeepQaPanel />
       <HanziWritingQaPanel />

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { IconCheck, IconLock, IconPlay } from "../ui/Icon";
 import { ProgressionNodeLabel } from "./ProgressionNodeLabel";
+import { ProgressionReviewMedallion } from "./ProgressionReviewMedallion";
 import type {
   ProgressionNodeState,
   ProgressionPassRing,
@@ -83,6 +84,7 @@ export function ProgressionNodeBubble({
   testId,
   anchor,
   coreAula = false,
+  frame,
 }: {
   id: string;
   title: string;
@@ -100,13 +102,24 @@ export function ProgressionNodeBubble({
   anchor?: string;
   /** Core instructional AULA — never labeled Optional. */
   coreAula?: boolean;
+  /** RC2.3.13R.3.2.3 — embroidered medallion for the module-review node (decorative). */
+  frame?: "review";
 }) {
   const isCurrent = state === "CURRENT";
   const isDone = state === "COMPLETED";
   const isLocked = state === "LOCKED";
   const isAvailable = state === "AVAILABLE";
   const nodeSize = isCurrent ? "h-[64px] w-[64px]" : isDone ? "h-[48px] w-[48px]" : "h-[54px] w-[54px]";
-  const ringSize = isCurrent ? "h-[76px] w-[76px]" : isDone ? "h-[58px] w-[58px]" : "h-[64px] w-[64px]";
+  // Never stacked on a multi-segment pass ring: one frame per bubble.
+  const reviewFrame = frame === "review" && !(passRing && passRing.total > 1);
+  // The medallion gets its own room so it never reaches the CTA pill or the label.
+  const ringSize = reviewFrame
+    ? "h-[84px] w-[84px]"
+    : isCurrent
+      ? "h-[76px] w-[76px]"
+      : isDone
+        ? "h-[58px] w-[58px]"
+        : "h-[64px] w-[64px]";
   const accent = personality === "culture" ? "rgb(var(--accent))" : "rgb(var(--accent))";
   const ariaState =
     state === "COMPLETED"
@@ -210,7 +223,11 @@ export function ProgressionNodeBubble({
           Continuar
         </div>
       ) : null}
-      <div className={["relative grid place-items-center", ringSize].join(" ")}>
+      <div
+        className={["relative grid place-items-center", ringSize].join(" ")}
+        data-progression-frame={reviewFrame ? "review" : undefined}
+      >
+        {reviewFrame ? <ProgressionReviewMedallion state={state} /> : null}
         {href && !isLocked && !disabled ? (
           <a {...commonProps} href={href} onClick={onSelect}>
             {content}

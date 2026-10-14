@@ -49,7 +49,8 @@ import { cultureBlocksJourney } from "../../lib/cultureJourneyPolicy";
 import { JourneyCultureGate } from "./JourneyCultureGate";
 import { ProgressionShell } from "../../components/progression/ProgressionShell";
 import { ProgressionNodeBubble, progressionOffsetForIndex } from "../../components/progression/ProgressionNodeBubble";
-import { SymbolicOrnamentRail } from "../../components/progression/symbolicOrnaments";
+import { JourneyLaneRow } from "./scenes/JourneyLaneRow";
+import { journeyLaneDecorFor } from "./scenes/journeyScenePlan";
 import type { ProgressionNodeState } from "../../components/progression/progressionTypes";
 import { haptic } from "../../lib/haptics";
 import {
@@ -1105,8 +1106,13 @@ function ModuleBlock({
         className="progression-path-frame relative flex flex-col items-center gap-4 py-4"
         data-progression-axis="stable"
         data-symbolic-ornaments="journey"
+        data-journey-scene-lanes="true"
       >
-        <SymbolicOrnamentRail nodeCount={unit.lessons.length} density="journey" />
+        {/*
+          RC2.3.13R.3.2.3 — atmosphere lives in side lanes of lesson rows
+          (JourneyLaneRow): custom scenes plus the small ornaments that keep
+          clear of them. The center lane and this axis line never move.
+        */}
         <div
           className="pointer-events-none absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-line/50 to-transparent"
           aria-hidden
@@ -1140,7 +1146,7 @@ function ModuleBlock({
           const stageProgress = topicNode ? (state === "done" ? 4 : masteryLevel) : state === "done" ? 1 : 0;
           const stageTotal = topicNode ? 4 : 1;
           const attempted = state !== "done" && (stars > 0 || (taskCount > 0 && savedStageProgress >= taskCount));
-          const node = (
+          const lessonNode = (
             <LessonNode
               key={lesson.id}
               lessonId={lesson.id}
@@ -1161,6 +1167,15 @@ function ModuleBlock({
               offset={offsetForIndex(idx)}
               onClick={() => (state === "locked" || state === "premium" ? onLocked(lesson, state) : onOpen(lesson.id))}
             />
+          );
+          // Deterministic (curriculum order only) — never progress or expansion state.
+          const laneDecor = journeyLaneDecorFor(lesson.id);
+          const node = laneDecor ? (
+            <JourneyLaneRow key={lesson.id} lessonId={lesson.id} decor={laneDecor}>
+              {lessonNode}
+            </JourneyLaneRow>
+          ) : (
+            lessonNode
           );
           // V4.9.2: `afterTopicId` deixa de ser metadado e passa a posicionar o
           // reforço na trilha, logo depois do tópico que o motiva.
@@ -1482,6 +1497,7 @@ function LessonNode({
           )
         }
         testId={`journey-node-${lessonId}`}
+        frame={isReview ? "review" : undefined}
         onSelect={() => {
           if (!locked) haptic("selection");
           onClick();

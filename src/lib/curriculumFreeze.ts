@@ -162,6 +162,42 @@ export const PRE_BETA_FREEZE_EXCEPTION_R321 = {
 } as const;
 
 /**
+ * RC2.3.13R.3.2.3 — owner-approved final visual asset wave.
+ * Custom `.svg` Journey scenes in side lanes (atmosphere layer), lane-anchored
+ * ornaments that keep clear of them, and the embroidered module-review
+ * medallion. Presentation only: Learning > Progression > Atmosphere.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R323 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_APPROVED_JOURNEY_SVG_VISUAL_STORYTELLING",
+  rationale: "JOURNEY NEEDS AUTHORED, CHINESE, MEMORABLE ATMOSPHERE BESIDE THE PATH WITHOUT TOUCHING LEARNING OR PROGRESSION.",
+  allows: [
+    "custom Journey scene SVG assets (12 core + 4 owner-requested landmarks)",
+    "left/right scene lanes beside lesson rows",
+    "scene-aware Journey ornament placement",
+    "embroidered medallion on module-review nodes",
+    "moonlit dark-mode palette for scenes",
+  ],
+  forbids: [
+    "navigation redesign",
+    "new lessons",
+    "new CultureItems",
+    "pedagogical rule changes",
+    "mastery changes",
+    "economy changes",
+    "scenes in Culture",
+  ],
+  gates: [
+    "validate:journey-svg-assets",
+    "validate:journey-svg-style",
+    "validate:journey-scene-registry",
+    "validate:journey-scene-layout",
+    "gate:rc2-3-13r3-2-3-journey-svg-storytelling",
+  ],
+  gate: "gate:rc2-3-13r3-2-3-journey-svg-storytelling",
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:
