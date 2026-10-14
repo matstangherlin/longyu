@@ -85,10 +85,21 @@ async function openJourney(browser: Browser, row: Row) {
   return { context, page };
 }
 
+/**
+ * "Ver tudo" is local page state. The click must flip the toggle to
+ * "Focar atual" (aria-expanded=true); if the page re-rendered collapsed
+ * before that happened (seen once on a loaded WebKit runner), the toggle is
+ * collapsed again and is pressed again. The scene count must still be
+ * exactly 40 — nothing here relaxes what is measured.
+ */
 async function expandAll(page: Page) {
-  const toggle = page.locator('button[aria-expanded="false"]', { hasText: /^(Ver tudo|See all)$/ }).first();
-  await toggle.click();
-  await expect(page.locator('[data-testid="journey-scene"]')).toHaveCount(40, { timeout: 15_000 });
+  const collapsed = page.locator('button[aria-expanded="false"]', { hasText: /^(Ver tudo|See all)$/ }).first();
+  const expanded = page.locator('button[aria-expanded="true"]', { hasText: /^(Focar atual|Focus on current)$/ }).first();
+  await expect(async () => {
+    if (await collapsed.isVisible()) await collapsed.click({ timeout: 5_000 });
+    await expect(expanded).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('[data-testid="journey-scene"]')).toHaveCount(40, { timeout: 10_000 });
+  }).toPass({ timeout: 45_000, intervals: [500, 1_000, 2_000] });
 }
 
 async function measure(page: Page) {
@@ -246,30 +257,39 @@ function assertRow(r: Awaited<ReturnType<typeof measureRow>>) {
 }
 
 test.describe("RC2.3.13R.3.2.3 Journey SVG scene lanes", () => {
-  test("scenes stay in side lanes across the responsive/theme/a11y matrix", async ({ browser }) => {
-    test.setTimeout(300_000);
+  // One test per matrix row: each row gets its own budget, and a failure names
+  // the row. WebKit needs ~50 s per row on a loaded runner, so eight rows in a
+  // single test outran a 300 s limit. The evidence run still measures all
+  // rows in one pass so the file is written from a single engine session.
+  for (const row of process.env.JOURNEY_SCENE_EVIDENCE === "1" ? [] : MATRIX) {
+    test(`scenes stay in side lanes — ${row.name}`, async ({ browser }) => {
+      test.setTimeout(180_000);
+      assertRow(await measureRow(browser, row));
+    });
+  }
+
+  if (process.env.JOURNEY_SCENE_EVIDENCE === "1") test("scenes stay in side lanes across the responsive/theme/a11y matrix", async ({ browser }) => {
+    test.setTimeout(900_000);
     const rows = [];
     for (const row of MATRIX) {
       const result = await measureRow(browser, row);
       rows.push(result);
       assertRow(result);
     }
-    if (process.env.JOURNEY_SCENE_EVIDENCE === "1") {
-      const lib = await import(/* @vite-ignore */ GATE_LIB);
-      expect(rows.map((r) => r.name)).toEqual(expect.arrayContaining(lib.REQUIRED_LAYOUT_ROWS));
-      const out = path.join(process.cwd(), "docs/release/evidence/rc2-3-13r3-2-3/journey-scene-layout.json");
-      fs.mkdirSync(path.dirname(out), { recursive: true });
-      const evidence = {
-        schema: "longyu-journey-scene-layout/1",
-        wave: "RC2.3.13R.3.2.3",
-        runtimeDigest: lib.runtimeDigest(lib.loadJourneySvgSources()),
-        engine: test.info().project.name,
-        seedLesson: SEED_LESSON,
-        expanded: "all modules",
-        rows,
-      };
-      fs.writeFileSync(out, `${JSON.stringify(evidence, null, 2)}\n`);
-    }
+    const lib = await import(/* @vite-ignore */ GATE_LIB);
+    expect(rows.map((r) => r.name)).toEqual(expect.arrayContaining(lib.REQUIRED_LAYOUT_ROWS));
+    const out = path.join(process.cwd(), "docs/release/evidence/rc2-3-13r3-2-3/journey-scene-layout.json");
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    const evidence = {
+      schema: "longyu-journey-scene-layout/1",
+      wave: "RC2.3.13R.3.2.3",
+      runtimeDigest: lib.runtimeDigest(lib.loadJourneySvgSources()),
+      engine: test.info().project.name,
+      seedLesson: SEED_LESSON,
+      expanded: "all modules",
+      rows,
+    };
+    fs.writeFileSync(out, `${JSON.stringify(evidence, null, 2)}\n`);
   });
 
   test("arrangement is deterministic across reloads and progress", async ({ page }) => {
