@@ -9,10 +9,14 @@ import {
   type CultureTopicGroup,
 } from "../../data/cultureTopicGroups";
 import { useTranslation } from "../../i18n/useTranslation";
+import { ProgressFill } from "../../components/motion/ProgressFill";
+import { markTopicTransition } from "../../lib/motion/topicTransition";
 
 /**
  * RC2.3.13R.3.2 — compact rectangular topic card.
  * RC2.3.13R.3.2.1 — crafted line icons, tighter hierarchy, integrated progress.
+ * RC2.3.13R.3.2.4 — `living-card`: press 0.985 on touch; on a fine pointer a
+ * 1px lift, a warmer border and the icon rising 1px. Layout never moves.
  */
 export function CultureTopicCard({
   topic,
@@ -52,10 +56,11 @@ export function CultureTopicCard({
       data-culture-topic-state={state}
       data-cta-hierarchy="secondary"
       aria-label={a11y}
+      onClick={() => markTopicTransition("forward")}
       className={[
-        "culture-topic-card group flex min-h-[110px] flex-col justify-between rounded-2xl border border-line bg-surface p-3.5 shadow-card",
-        "transition-[transform,background-color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
-        "active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100",
+        "culture-topic-card living-card group flex min-h-[110px] flex-col justify-between rounded-2xl border border-line bg-surface p-3.5 shadow-card",
+        "transition-[transform,background-color,border-color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+        "motion-reduce:transition-none motion-reduce:active:scale-100",
         "hover:bg-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
         state === "LOCKED" ? "opacity-80" : "",
       ].join(" ")}
@@ -99,7 +104,7 @@ export function CultureTopicCard({
                 aria-valuemin={0}
                 aria-valuemax={100}
               >
-                <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+                <ProgressFill id={`culture-topic-card:${topic.id}`} value={pct} className="h-full w-full rounded-full bg-accent" />
               </div>
             </>
           )}

@@ -97,6 +97,7 @@ import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { markDevicePerf } from "../../lib/devicePerf";
+import { ChineseCornerMotif } from "../../components/ornaments/chinese/ChineseCornerMotif";
 
 /** Troca o nome-modelo (Matheus/Matheus) pelo nome do aluno nas frases da revisão. */
 function personalizeReviewExercise(
@@ -2080,7 +2081,9 @@ export function RevisaoPage() {
             <IconChevron width={16} height={16} className="rotate-180" aria-hidden="true" />
             {t("review.backToReview")}
           </button>
-          <div className="rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] p-4 shadow-card sm:p-5">
+          <div className="relative isolate rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] p-4 shadow-card sm:p-5">
+            {/* RC2.3.13R.3.2.4 — Review's own restrained mark: one ruyi corner. */}
+            <ChineseCornerMotif motif="ruyi" corner="bottom-right" intensity="medium" surface="review-header" />
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="type-eyebrow">

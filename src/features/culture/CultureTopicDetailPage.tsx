@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { ProgressionShell, rememberProgressionAnchor } from "../../components/progression/ProgressionShell";
 import { ProgressionPath } from "../../components/progression/ProgressionPath";
@@ -27,6 +27,9 @@ import {
 } from "../../lib/progressionShellState";
 import { recordTechEvent } from "../../lib/techEvents";
 import { HubPage } from "../../components/layout/HubLayout";
+import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
+import { ProgressFill } from "../../components/motion/ProgressFill";
+import { consumeTopicTransition, markTopicTransition } from "../../lib/motion/topicTransition";
 
 function buildPathNodes(input: {
   path: CulturePathDef;
@@ -111,6 +114,8 @@ export function CultureTopicDetailPage() {
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
   const knowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const restoreDone = useRef(false);
+  // RC2.3.13R.3.2.4 — opening a topic from the root slides in from the right, once.
+  const [topicEnter] = useState(consumeTopicTransition);
 
   useEffect(() => {
     if (!topic) return;
@@ -174,6 +179,7 @@ export function CultureTopicDetailPage() {
           data-culture-topic={topic.id}
           data-culture-topic-state={state}
           data-progression-anchor={`topic:${topic.id}`}
+          data-topic-enter={topicEnter ?? undefined}
           className="space-y-5"
         >
           <Link
@@ -181,6 +187,7 @@ export function CultureTopicDetailPage() {
             className="inline-flex min-h-11 items-center text-sm font-semibold text-accent"
             data-testid="culture-topic-back"
             onClick={() => {
+              markTopicTransition("back");
               writeCultureTopicId(null);
               recordTechEvent("culture_root_returned", { fromTopicId: topic.id });
             }}
@@ -188,7 +195,16 @@ export function CultureTopicDetailPage() {
             ← {t("progression.backToCultureRoot")}
           </Link>
 
-          <header className="space-y-2" data-testid="culture-topic-header">
+          {/*
+            RC2.3.13R.3.2.4 — the topic hero is one of the few surfaces that
+            carries embroidery: xiangyun cloud corners with a stitched thread,
+            under the content, hidden from assistive tech.
+          */}
+          <header
+            className="relative isolate space-y-2 rounded-2xl border border-accent-soft bg-surface px-4 pb-4 pt-5 shadow-card"
+            data-testid="culture-topic-header"
+          >
+            <ChineseOrnamentalFrame motif="xiangyun" intensity="milestone" tone="accent" surface="culture-topic-hero" />
             <h1 className="type-page-title" data-testid="culture-topic-title">
               {title}
             </h1>
@@ -203,7 +219,7 @@ export function CultureTopicDetailPage() {
               aria-valuemin={0}
               aria-valuemax={100}
             >
-              <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+              <ProgressFill id={`culture-topic:${topic.id}`} value={pct} className="h-full w-full rounded-full bg-accent" />
             </div>
           </header>
 

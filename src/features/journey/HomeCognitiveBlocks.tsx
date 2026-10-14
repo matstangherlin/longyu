@@ -15,6 +15,7 @@ import {
   type MasteryHomeSnapshot,
   type TodayRecommendation,
 } from "../../lib/home/homeRecommendations";
+import { ChineseCornerMotif } from "../../components/ornaments/chinese/ChineseCornerMotif";
 
 function continueLabel(
   rec: HomeContinueRecommendation,
@@ -122,7 +123,7 @@ export function HomeContinueCard({
 
   return (
     <section
-      className="relative overflow-hidden rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
+      className="living-enter-up relative isolate overflow-hidden rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
       data-testid="home-continue"
       data-home-section="continue"
       data-continue-kind={rec.kind}
@@ -130,6 +131,8 @@ export function HomeContinueCard({
       data-lesson-id={rec.lessonId}
       aria-labelledby="home-continue-heading"
     >
+      {/* RC2.3.13R.3.2.4 — the one ornamented Home card: a faint plum branch. */}
+      <ChineseCornerMotif motif="plum" corner="top-right" intensity="medium" surface="home-continue" />
       <div
         className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
         aria-hidden

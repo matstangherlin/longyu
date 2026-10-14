@@ -120,8 +120,9 @@ export function TabBar() {
               appearing.current.has(item.to) ? "longyu-tab-appear" : "",
             ].join(" ");
             const iconWrap = [
-              "relative flex h-9 w-12 items-center justify-center rounded-full transition sm:w-14",
-              active || open ? "bg-accent text-white shadow-card" : "",
+              // RC2.3.13R.3.2.4 — the active pill eases in (fill + 3% scale, no bounce).
+              "relative flex h-9 w-12 items-center justify-center rounded-full transition duration-[var(--motion-fast)] ease-[var(--ease-standard)] sm:w-14",
+              active || open ? "scale-[1.03] bg-accent text-white shadow-card" : "scale-100",
             ].join(" ");
 
             const content = (

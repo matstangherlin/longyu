@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useAmbientMotion } from "../../lib/motion/ambientBudget";
 import { IconCheck, IconLock, IconPlay } from "../ui/Icon";
 import { ProgressionNodeLabel } from "./ProgressionNodeLabel";
 import { ProgressionReviewMedallion } from "./ProgressionReviewMedallion";
@@ -61,6 +62,25 @@ function PassRing({
         );
       })}
     </svg>
+  );
+}
+
+/**
+ * RC2.3.13R.3.2.4 — the current node breathes slowly (halo only, 5 s,
+ * scale ≤ 1.025): the node itself never bounces or scales. The loop joins
+ * the ambient budget (highest priority), so it pauses offscreen, in a hidden
+ * app and under reduced motion — where the halo stays as a static ring.
+ */
+function CurrentNodeHalo() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useAmbientMotion(ref, "currentNode");
+  return (
+    <span
+      ref={ref}
+      className="living-halo absolute inset-0 rounded-full bg-accent/15"
+      aria-hidden
+      data-testid="progression-current-pulse"
+    />
   );
 }
 
@@ -132,13 +152,7 @@ export function ProgressionNodeBubble({
 
   const content = (
     <>
-      {isCurrent ? (
-        <span
-          className="absolute inset-0 rounded-full bg-accent/15 motion-safe:animate-pulse motion-reduce:animate-none"
-          aria-hidden
-          data-testid="progression-current-pulse"
-        />
-      ) : null}
+      {isCurrent ? <CurrentNodeHalo /> : null}
       {passRing && passRing.total > 1 ? (
         <PassRing ring={passRing} accent={accent} locked={isLocked} />
       ) : null}

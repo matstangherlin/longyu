@@ -8,6 +8,7 @@ import { useIsPro } from "../../lib/proAccess";
 import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { useTranslation } from "../../i18n/useTranslation";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
+import { AnimatedCounter } from "../motion/AnimatedCounter";
 
 function StatPill({
   to,
@@ -17,10 +18,13 @@ function StatPill({
   className,
   outerClassName,
   testId,
+  delta,
 }: {
   to?: string;
   icon: typeof IconShield;
   value: ReactNode;
+  /** RC2.3.13R.3.2.4 — the number behind `value`: a real change pops once. */
+  delta?: { id: string; value: number | null };
   label: string;
   className?: string;
   /** Classe no elemento mais externo (ex.: esconder abaixo de 390px). */
@@ -38,7 +42,13 @@ function StatPill({
       data-testid={to ? undefined : testId}
     >
       <Icon width={13} height={13} className="shrink-0 text-accent sm:h-3.5 sm:w-3.5" />
-      <span className="text-accent">{value}</span>
+      {delta ? (
+        <AnimatedCounter id={delta.id} value={delta.value} className="text-accent">
+          {value}
+        </AnimatedCounter>
+      ) : (
+        <span className="text-accent">{value}</span>
+      )}
     </span>
   );
   if (!to) return inner;
@@ -101,6 +111,7 @@ export function TopBar() {
           value={isPremium ? "∞" : `${dailyEnergy.charges}/${dailyEnergy.maxCharges}`}
           label={isPremium ? t("shell.chargesInfinite") : t("shell.chargesCount", { current: dailyEnergy.charges, max: dailyEnergy.maxCharges })}
           testId="topbar-energy"
+          delta={{ id: "topbar-energy", value: isPremium ? null : dailyEnergy.charges }}
         />
         {/* RC2.2.13 — abaixo de 390px a TopBar fica em logo + Fôlego + Ofensiva + Avatar.
             RC2.2.18 · AI — Qi (e o atalho da Loja) só depois que a economia foi apresentada. */}
@@ -111,6 +122,7 @@ export function TopBar() {
             value={points}
             label={t("shell.qi", { points })}
             testId="topbar-qi"
+            delta={{ id: "topbar-qi", value: points }}
             outerClassName="hidden min-[390px]:inline-flex"
           />
         )}
@@ -120,6 +132,7 @@ export function TopBar() {
           value={streak}
           label={t("shell.streak", { streak, days: streak === 1 ? t("shell.day") : t("shell.days") })}
           testId="topbar-streak"
+          delta={{ id: "topbar-streak", value: streak }}
         />
         <Link
           to="/perfil"

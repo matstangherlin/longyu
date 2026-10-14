@@ -307,7 +307,8 @@ export function HanziWritingExercise({
 
       <div className="text-center">
         <p
-          className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint"
+          key={stage}
+          className="living-stage-label text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint"
           data-testid="hanzi-stage-label"
           data-hanzi-stage={stage}
         >

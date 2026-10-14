@@ -378,8 +378,9 @@ textarea {
 /* RC2.2.17 · BO/DL — micro-transição entre micro-passos guiados (180ms).
    Só visual: a lógica já trocou de passo quando a animação começa. */
 @keyframes longyu-step-in {
+  /* RC2.3.13R.3.2.4 — starts partly visible: the next step never flashes blank. */
   from {
-    opacity: 0;
+    opacity: 0.4;
     transform: translateX(10px);
   }
   to {
@@ -834,12 +835,12 @@ textarea {
   }
 }
 
+/* RC2.3.13R.3.2.4 — a short, restrained lateral cue (≤ 3px): the explanation
+   stays the feedback; this is never an embarrassment shake. */
 @keyframes longyu-error-shake {
   0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(4px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(2px); }
+  30% { transform: translateX(-3px); }
+  60% { transform: translateX(2px); }
 }
 
 .longyu-error-shake {
@@ -1016,7 +1017,8 @@ textarea {
 }
 
 .journey-scene-drift {
-  animation: journey-scene-drift 12s var(--ease-standard) var(--journey-scene-phase, 0s) infinite alternate;
+  /* RC2.3.13R.3.2.4 — ambient band (10 s); paused unless the budget grants [data-ambient="run"]. */
+  animation: journey-scene-drift var(--motion-ambient-slow) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite alternate;
 }
 
 @keyframes journey-scene-drift {
@@ -1172,3 +1174,614 @@ textarea {
     animation: none !important;
   }
 }
+
+/* ============================================================
+ * RC2.3.13R.3.2.4 — Living UI: motion system + Chinese ornamental embroidery.
+ * Presentation only. Every duration is a --motion-* token; loops live in
+ * the ambient band (5–10 s) and run only where the ambient budget grants
+ * [data-ambient="run"] (≤ 4 at once, visible, document shown, motion on).
+ * transform/opacity only — never width/height/top/left, never blur.
+ * ============================================================ */
+:root {
+  --motion-ambient: 7s;
+  --motion-ambient-slow: 10s;
+  --motion-ambient-current: 5s;
+  --motion-celebrate: 1100ms;
+  --ease-ambient: cubic-bezier(0.37, 0, 0.63, 1);
+  --ease-spring-soft: cubic-bezier(0.34, 1.12, 0.64, 1);
+}
+
+/* Ambient budget: a loop without a granted slot holds still. */
+[data-ambient]:not([data-ambient="run"]) {
+  animation-play-state: paused !important;
+}
+
+/* ---- Shared motion language. `.theme-transition *` (above) limits every
+ * in-app element to colour fades, so press, slide and lift responses are
+ * declared here, after it, with the tokens. Colour fades are kept. ---- */
+[data-button-variant],
+.living-card,
+[data-motion="segment-indicator"],
+[data-nav-active] {
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
+}
+/* The segment thumb slides (no overshoot) at the normal pace. */
+[data-motion="segment-indicator"] {
+  transition-duration: var(--motion-normal);
+}
+/* Release returns softly; the press itself is immediate. */
+[data-button-variant]:active:not(:disabled) {
+  transition-duration: var(--motion-instant);
+}
+
+/* ---- Counters (XP, Fôlego, Ofensiva, Qi): a real delta pops once (WAAPI) ---- */
+.living-counter {
+  display: inline-block;
+}
+
+/* ---- Press response (canonical buttons, topic cards) ---- */
+.living-press {
+  transition: transform var(--motion-instant) var(--ease-standard);
+}
+.living-press:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.985);
+}
+
+/* ---- Topic cards: press on touch, lift on a fine pointer (layout fixed) ---- */
+.living-card:active {
+  transform: scale(0.985);
+}
+.living-card .culture-topic-icon {
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+@media (hover: hover) and (pointer: fine) {
+  .living-card:hover {
+    transform: translateY(-1px);
+    border-color: rgb(var(--accent) / 0.3);
+  }
+  .living-card:hover .culture-topic-icon {
+    transform: translateY(-1px);
+  }
+  .living-card:active {
+    transform: translateY(-1px) scale(0.985);
+  }
+}
+
+/* ---- Entrance for a primary card (Home continue): once per mount, short ---- */
+.living-enter-up {
+  animation: living-enter-up var(--motion-normal) var(--ease-enter) both;
+}
+@keyframes living-enter-up {
+  from {
+    opacity: 0.55;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Culture root ↔ topic: a short directional entrance (12px), once per tap ---- */
+[data-topic-enter="forward"] {
+  animation: living-topic-forward var(--motion-normal) var(--ease-enter) both;
+}
+[data-topic-enter="back"] {
+  animation: living-topic-back var(--motion-normal) var(--ease-enter) both;
+}
+@keyframes living-topic-forward {
+  from {
+    opacity: 0.4;
+    transform: translate3d(12px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes living-topic-back {
+  from {
+    opacity: 0.4;
+    transform: translate3d(-12px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Learning feedback (presentation only; text + icon + color carry meaning) ---- */
+/* Selecting an answer: a 1-2px press, no verdict before the result is known. */
+[data-option-index][data-selected="true"] {
+  animation: living-select-press var(--motion-fast) var(--ease-standard);
+}
+@keyframes living-select-press {
+  from {
+    transform: scale(0.985);
+  }
+  to {
+    transform: none;
+  }
+}
+/* Correct: the check pops once inside the existing success bloom. */
+.longyu-success-bloom [data-lesson-feedback] > div:first-child > svg:first-child {
+  animation: living-check-pop var(--motion-emphasis) var(--ease-spring-soft) var(--motion-instant) both;
+}
+@keyframes living-check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Audio playing: a soft breathing ring while the button's own `playing`
+ * state is on. Read-only: playback, request ids and completion never wait on
+ * it (status loop tied to real playback, not ambient decoration). ---- */
+[data-audio-playing="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid rgb(var(--accent) / 0.35);
+  pointer-events: none;
+  animation: living-audio-breathe calc(var(--motion-emphasis) * 4) var(--ease-ambient) infinite;
+}
+@keyframes living-audio-breathe {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.06);
+  }
+}
+
+/* ---- Hànzì: a stage that completes announces the next one once (label only;
+ * the canvas never animates); a placed builder piece snaps in. ---- */
+.living-stage-label {
+  animation: living-stage-in var(--motion-emphasis) var(--ease-enter) both;
+}
+[data-builder-piece="placed"] {
+  animation: living-snap var(--motion-fast) var(--ease-spring-soft);
+}
+@keyframes living-stage-in {
+  from {
+    opacity: 0.35;
+    transform: translate3d(0, 3px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes living-snap {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ---- Speech recording: a calm live state while recording (status loop,
+ * shown only during recording; the label carries the meaning). ---- */
+.living-rec-dot {
+  animation: living-rec-breathe calc(var(--motion-emphasis) * 5) var(--ease-ambient) infinite;
+}
+.living-rec-bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 12px;
+}
+.living-rec-bars > span {
+  width: 3px;
+  height: 12px;
+  border-radius: 9999px;
+  background: rgb(var(--wrong) / 0.75);
+  transform: scaleY(0.4);
+  transform-origin: center;
+  animation: living-rec-bar calc(var(--motion-emphasis) * 3) var(--ease-ambient) infinite;
+}
+.living-rec-bars > span:nth-child(2) {
+  animation-delay: calc(var(--motion-emphasis) * -1);
+}
+.living-rec-bars > span:nth-child(3) {
+  animation-delay: calc(var(--motion-emphasis) * -2);
+}
+@keyframes living-rec-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+@keyframes living-rec-bar {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* ---- Modal / sheet: one motion language for every ModalOverlay ----
+ * Zero-specificity selectors: a panel that already has its own entrance
+ * (e.g. animate-pop) keeps it. Input is never blocked while it plays. */
+:where(.living-overlay) {
+  animation: living-fade-in var(--motion-normal) var(--ease-enter) both;
+}
+:where(.living-overlay) > :where(*) {
+  animation: living-sheet-in var(--motion-normal) var(--ease-enter) both;
+}
+@media (min-width: 640px) {
+  :where(.living-overlay) > :where(*) {
+    animation-name: living-modal-in;
+  }
+}
+@keyframes living-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes living-sheet-in {
+  from {
+    opacity: 0.6;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes living-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Current-node halo (only the CURRENT node; the node never scales) ---- */
+.living-halo {
+  opacity: 0.45;
+  box-shadow: 0 0 0 4px rgb(var(--accent) / 0.12);
+  pointer-events: none;
+}
+.living-halo[data-ambient="run"] {
+  animation: living-halo-breathe var(--motion-ambient-current) var(--ease-ambient) infinite;
+}
+@keyframes living-halo-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.025);
+  }
+}
+
+/* ---- Chinese ornamental embroidery (role classes → real tokens) ---- */
+.lyo {
+  --lyo-thread: var(--accent);
+  --lyo-stitch: var(--gold);
+  --lyo-knot: var(--gold);
+  --lyo-wash: var(--accent-soft);
+  --lyo-sage: var(--good);
+  --lyo-corner-size: 22px;
+  --lyo-edge-offset: 0.09;
+  --lyo-stitch-a: 0.8;
+  pointer-events: none;
+  user-select: none;
+}
+.lyo[data-tone="gold"] {
+  --lyo-thread: var(--gold);
+  --lyo-stitch: var(--accent);
+  --lyo-knot: var(--accent);
+}
+.lyo[data-tone="muted"] {
+  --lyo-thread: var(--text-faint);
+  --lyo-stitch: var(--text-faint);
+  --lyo-knot: var(--text-faint);
+  --lyo-wash: var(--surface-2);
+  --lyo-sage: var(--text-faint);
+}
+[data-theme="dark"] .lyo {
+  /* No blinding gold or cream on near-black: stitches and knots step down. */
+  --lyo-stitch-a: 0.62;
+}
+.lyo[data-intensity="subtle"] {
+  opacity: 0.16;
+  --lyo-corner-size: 18px;
+}
+.lyo[data-intensity="medium"] {
+  opacity: 0.28;
+  --lyo-corner-size: 22px;
+}
+.lyo[data-intensity="milestone"] {
+  opacity: 0.55;
+  --lyo-corner-size: 26px;
+}
+/* Surface size: decoration stays inside the host's padding (never under text). */
+.lyo[data-ornament-surface="journey-milestone"] { --lyo-corner-size: 20px; }
+.lyo[data-ornament-surface="culture-topic-hero"] { --lyo-corner-size: 30px; }
+/* Rounded hosts: the frame sits just inside the curve, never across it. */
+.lyo-frame[data-ornament-surface="journey-milestone"],
+.lyo-frame[data-ornament-surface="culture-topic-hero"] { inset: 4px; }
+.lyo[data-ornament-surface="home-continue"] { --lyo-corner-size: 48px; }
+.lyo .lyo-s-thread { stroke: rgb(var(--lyo-thread) / 0.86); }
+.lyo .lyo-s-thread-soft { stroke: rgb(var(--lyo-thread) / 0.42); }
+.lyo .lyo-s-stitch { stroke: rgb(var(--lyo-stitch) / var(--lyo-stitch-a)); }
+.lyo .lyo-f-knot { fill: rgb(var(--lyo-knot) / var(--lyo-stitch-a)); }
+.lyo .lyo-f-wash { fill: rgb(var(--lyo-wash) / 0.7); }
+.lyo .lyo-f-petal { fill: rgb(var(--lyo-wash)); }
+.lyo .lyo-s-petal { stroke: rgb(var(--lyo-thread) / 0.78); }
+.lyo .lyo-f-sage { fill: rgb(var(--lyo-sage) / 0.3); }
+.lyo .lyo-s-sage { stroke: rgb(var(--lyo-sage) / 0.72); }
+
+.lyo-glyph {
+  display: block;
+}
+.lyo-glyph > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Frame overlay: under the host's content (host is `relative isolate`). */
+.lyo-frame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+}
+.lyo-corner {
+  position: absolute;
+  width: var(--lyo-corner-size);
+  height: var(--lyo-corner-size);
+}
+.lyo-at-top-left { top: 0; left: 0; }
+.lyo-at-top-right { top: 0; right: 0; transform: scaleX(-1); }
+.lyo-at-bottom-left { bottom: 0; left: 0; transform: scaleY(-1); }
+.lyo-at-bottom-right { bottom: 0; right: 0; transform: scale(-1, -1); }
+.lyo-frame[data-ornament-frame="seal"] .lyo-corner {
+  transform: none;
+  --lyo-corner-size: 16px;
+}
+.lyo-edge {
+  position: absolute;
+  /* Threads stay quieter than the corner motifs that carry the pattern. */
+  opacity: 0.62;
+  border-color: rgb(var(--lyo-thread) / 0.7);
+  border-style: solid;
+  border-width: 0;
+}
+.lyo-edge-top,
+.lyo-edge-bottom {
+  left: var(--lyo-corner-size);
+  right: var(--lyo-corner-size);
+  height: 0;
+}
+.lyo-edge-left,
+.lyo-edge-right {
+  top: var(--lyo-corner-size);
+  bottom: var(--lyo-corner-size);
+  width: 0;
+}
+.lyo-edge-top { top: calc(var(--lyo-corner-size) * var(--lyo-edge-offset)); border-top-width: 1px; }
+.lyo-edge-bottom { bottom: calc(var(--lyo-corner-size) * var(--lyo-edge-offset)); border-bottom-width: 1px; }
+.lyo-edge-left { left: calc(var(--lyo-corner-size) * var(--lyo-edge-offset)); border-left-width: 1px; }
+.lyo-edge-right { right: calc(var(--lyo-corner-size) * var(--lyo-edge-offset)); border-right-width: 1px; }
+/* Stitched secondary line beside each thread. */
+.lyo-edge::after {
+  content: "";
+  position: absolute;
+  border: 0 dotted rgb(var(--lyo-stitch) / var(--lyo-stitch-a));
+}
+.lyo-edge-top::after { left: 6px; right: 6px; top: 3px; border-top-width: 1.5px; }
+.lyo-edge-bottom::after { left: 6px; right: 6px; bottom: 3px; border-bottom-width: 1.5px; }
+.lyo-edge-left::after { top: 6px; bottom: 6px; left: 3px; border-left-width: 1.5px; }
+.lyo-edge-right::after { top: 6px; bottom: 6px; right: 3px; border-right-width: 1.5px; }
+.lyo-frame[data-ornament-frame="huiwen"],
+.lyo-frame[data-ornament-frame="lattice"] { --lyo-edge-offset: 0.0625; }
+.lyo-frame[data-ornament-frame="plum"] .lyo-edge,
+.lyo-frame[data-ornament-frame="seal"] .lyo-edge { border-width: 0; }
+.lyo-frame[data-ornament-frame="seal"] .lyo-edge-top,
+.lyo-frame[data-ornament-frame="seal"] .lyo-edge-bottom { --lyo-edge-offset: 0.5; }
+
+/* One-shot stitch draw on a milestone entrance (never a loop). */
+.lyo-frame[data-animate="once"] .lyo-s-thread {
+  animation: lyo-stitch-draw var(--motion-emphasis) var(--ease-enter) backwards;
+}
+.lyo-frame[data-animate="once"] .lyo-edge {
+  animation: lyo-edge-draw var(--motion-emphasis) var(--ease-enter) backwards;
+}
+.lyo-frame[data-animate="once"] .lyo-edge-top,
+.lyo-frame[data-animate="once"] .lyo-edge-bottom { transform-origin: center; }
+@keyframes lyo-stitch-draw {
+  from {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes lyo-edge-draw {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lyo-corner-motif {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.lyo-corner-motif[data-ornament-corner="bamboo"] .lyo-corner {
+  width: calc(var(--lyo-corner-size) * 0.75);
+  height: calc(var(--lyo-corner-size) * 1.5);
+}
+
+/* Divider: height reserved before paint; drawing keeps its aspect ratio. */
+.lyo-divider {
+  display: flex;
+  justify-content: center;
+  height: 12px;
+  width: 100%;
+}
+.lyo-divider[data-intensity="milestone"] {
+  height: 16px;
+}
+.lyo-divider-start {
+  justify-content: flex-start;
+}
+.lyo-divider-start .lyo-divider-glyph {
+  max-width: min(100%, 9rem);
+}
+.lyo-divider-glyph {
+  height: 100%;
+  max-width: min(100%, 15rem);
+  width: 100%;
+}
+/* ---- Victory: one-shot completion burst (ends within --motion-celebrate) ---- */
+.lyo-burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: -1;
+}
+.lyo-burst .lyo-burst-seal {
+  position: absolute;
+  width: 76px;
+  height: 76px;
+  left: -38px;
+  top: -38px;
+}
+.lyo-burst-ring {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  left: -46px;
+  top: -46px;
+  border-radius: 9999px;
+  border: 1.5px dotted rgb(var(--lyo-stitch) / 0.9);
+  opacity: 0;
+}
+.lyo-burst .lyo-burst-petal {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: -7px;
+  top: -7px;
+  opacity: 0;
+}
+.lyo-burst[data-play="true"] .lyo-burst-seal {
+  animation: lyo-seal-in var(--motion-emphasis) var(--ease-spring-soft) var(--motion-fast) backwards;
+}
+.lyo-burst[data-play="true"] .lyo-burst-ring {
+  animation: lyo-ring-out calc(var(--motion-emphasis) * 2) var(--ease-enter) var(--motion-normal) both;
+}
+.lyo-burst[data-play="true"] .lyo-burst-petal {
+  animation: lyo-petal-fly calc(var(--motion-emphasis) * 2.5) var(--ease-enter) var(--petal-delay, 0ms) both;
+}
+@keyframes lyo-seal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes lyo-ring-out {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+@keyframes lyo-petal-fly {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--petal-x), var(--petal-y)) rotate(var(--petal-rot)) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Living UI: loops, stitch draws and spatial entrances off; state stays. */
+  .living-halo,
+  .lyo-frame[data-animate="once"] .lyo-s-thread,
+  .lyo-frame[data-animate="once"] .lyo-edge,
+  .lyo-burst-seal,
+  .lyo-burst-ring,
+  .lyo-burst-petal {
+    animation: none !important;
+  }
+  .living-enter-up,
+  [data-topic-enter="forward"],
+  [data-topic-enter="back"],
+  .living-stage-label,
+  [data-builder-piece="placed"],
+  .living-rec-dot,
+  .living-rec-bars > span,
+  [data-audio-playing="true"]::after,
+  [data-option-index][data-selected="true"],
+  .longyu-success-bloom [data-lesson-feedback] > div:first-child > svg:first-child {
+    animation: none !important;
+  }
+  /* Modal / sheet: no spatial entrance; the short fade carries the change. */
+  :where(.living-overlay) > :where(*) {
+    animation-name: living-fade-in;
+  }
+  .living-press:active:not(:disabled):not([aria-disabled="true"]),
+  .living-card:active,
+  .living-card:hover,
+  .living-card:hover .culture-topic-icon {
+    transform: none;
+  }
+}
+/* end Living UI */

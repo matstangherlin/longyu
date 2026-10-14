@@ -7,6 +7,8 @@ import { t } from "../../i18n/catalog";
 import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
 import { LESSON_UI_CLASS } from "../../ui/lessonTokens";
+import { CompletionBurst } from "../../components/motion/CompletionBurst";
+import { ChineseOrnamentalDivider } from "../../components/ornaments/chinese/ChineseOrnamentalDivider";
 import {
   buildLessonCompletionSummary,
   type LessonCompletionSkill,
@@ -254,6 +256,7 @@ export function LessonVictory({
             : "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
         }
       >
+
         <div
           data-lesson-activity-scroll
           data-lesson-scroll-region
@@ -265,10 +268,12 @@ export function LessonVictory({
           </div>
 
           <div
-            className={`relative mx-auto mt-2 h-16 w-20 shrink-0 ${motionReady || reducedMotion ? "lesson-victory-in" : ""}`}
+            className={`relative isolate mx-auto mt-2 h-16 w-20 shrink-0 ${motionReady || reducedMotion ? "lesson-victory-in" : ""}`}
             data-testid={context === "culture" ? "culture-stars" : undefined}
             data-victory-mascot
           >
+            {/* RC2.3.13R.3.2.4 — seal + plum blossoms, once, behind the mascot. */}
+            <CompletionBurst play={firstShow && !reducedMotion} />
             <div className="absolute inset-x-0 top-0 flex justify-center">
               <Mascot size={56} variant="celebrate" animated={!reducedMotion} />
             </div>
@@ -277,6 +282,7 @@ export function LessonVictory({
           <h1 className="mt-2 text-balance font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             {heading}
           </h1>
+          <ChineseOrnamentalDivider motif="xiangyun" intensity="medium" surface="victory" className="mt-2" />
           {summary.perfect ? (
             <p className="mt-1 text-sm font-semibold text-accent" data-testid="culture-perfect" data-victory-perfect>
               {t("player.perfectCelebration")}

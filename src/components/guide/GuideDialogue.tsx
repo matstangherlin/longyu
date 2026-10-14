@@ -3,6 +3,7 @@ import { Mascot } from "../brand/Mascot";
 import { Button } from "../ui/primitives";
 import { IconChevron } from "../ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useAmbientMotion } from "../../lib/motion/ambientBudget";
 import {
   GUIDE_ADVANCE_GUARD_MS,
   GUIDE_TYPEWRITER_MS,
@@ -284,7 +285,7 @@ export function GuideDialogue({
           >
             {shown}
             {isTyping ? (
-              <span className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-accent align-middle motion-reduce:animate-none" />
+              <TypingCaret />
             ) : null}
           </span>
           <span className="sr-only" aria-live="polite">
@@ -299,4 +300,14 @@ export function GuideDialogue({
       </div>
     </div>
   );
+}
+
+/**
+ * RC2.3.13R.3.2.4 — the typing caret blinks only while its guide is on screen:
+ * a guide waiting below the fold must not loop (ambient budget).
+ */
+function TypingCaret() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useAmbientMotion(ref, "mascot");
+  return <span ref={ref} className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-accent align-middle motion-reduce:animate-none" />;
 }

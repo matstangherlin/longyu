@@ -150,6 +150,8 @@ export function SpeakButton({
       onClick={play}
       disabled={unavailable && !usesNativeVoice()}
       data-audio-failed={failed ? "true" : undefined}
+      // RC2.3.13R.3.2.4 — presentation only: CSS breathes a ring while `playing`.
+      data-audio-playing={playing ? "true" : undefined}
       /*
        * RC1.1 P31 — o payload REAL que iria para o TTS, observável.
        *
@@ -160,7 +162,7 @@ export function SpeakButton({
        */
       data-audio-text={mandarinSpeechText(String(text ?? "").trim())}
       className={[
-        "inline-flex items-center justify-center rounded-full shadow-sm transition active:scale-95",
+        "relative inline-flex items-center justify-center rounded-full shadow-sm transition active:scale-95",
         unavailable
           ? "cursor-not-allowed bg-surface-2 text-ink-faint"
           : "bg-accent text-white hover:bg-accent-strong",

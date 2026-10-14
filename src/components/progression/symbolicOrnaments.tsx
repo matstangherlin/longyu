@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { useAmbientMotion } from "../../lib/motion/ambientBudget";
 /**
  * RC2.3.13R.3.2.1 — decorative Chinese-inspired ornaments beside the
  * progression axis. Not interactive, not announced, not lesson content.
@@ -121,8 +123,12 @@ function motifPath(motif: OrnamentMotif) {
 }
 
 export function SymbolicOrnament({ motif }: { motif: OrnamentMotif }) {
+  // RC2.3.13R.3.2.4 — the drift loop joins the ambient budget (lowest priority).
+  const ref = useRef<SVGSVGElement>(null);
+  useAmbientMotion(ref, "ornament");
   return (
     <svg
+      ref={ref}
       width="28"
       height="28"
       viewBox="0 0 32 32"

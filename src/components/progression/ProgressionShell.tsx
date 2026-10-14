@@ -24,6 +24,7 @@ import {
   type ProgressionMode,
 } from "../../lib/progressionShellState";
 import { cultureTopicById, cultureTopicHref } from "../../data/cultureTopicGroups";
+import { ChineseOrnamentalDivider } from "../ornaments/chinese/ChineseOrnamentalDivider";
 
 const JOURNEY_HREF = "/jornada";
 const CULTURE_HREF = "/cultura";
@@ -41,8 +42,35 @@ function cultureRestoreHref(): string {
  *
  * RC2.3.13R — selector thumb uses motion tokens; content panel enters directionally.
  */
+/**
+ * RC2.3.13R.3.2.4 — each route mounts its own shell, so the thumb used to
+ * appear already in place. An in-app switch records where the thumb was;
+ * the next switch mounts there and slides once to the new tab (no overshoot,
+ * --motion-normal). Reloads and deep links simply start in place.
+ */
+let thumbSlideFrom: ProgressionMode | null = null;
+
+function useThumbMode(mode: ProgressionMode): ProgressionMode {
+  const [thumbMode, setThumbMode] = useState<ProgressionMode>(() => {
+    const from = thumbSlideFrom;
+    thumbSlideFrom = null;
+    return from ?? mode;
+  });
+  useLayoutEffect(() => {
+    if (thumbMode === mode) return;
+    if (typeof requestAnimationFrame !== "function") {
+      setThumbMode(mode);
+      return;
+    }
+    const frame = requestAnimationFrame(() => setThumbMode(mode));
+    return () => cancelAnimationFrame(frame);
+  }, [mode, thumbMode]);
+  return thumbMode;
+}
+
 export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) {
   const { t } = useTranslation();
+  const thumbMode = useThumbMode(mode);
   const navigate = useNavigate();
   const tablistId = useId();
   const journeyTabId = `${tablistId}-journey`;
@@ -63,6 +91,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
       // Persist current surface before leaving (scroll + last known anchor).
       writeProgressionScroll(mode, window.scrollY);
       writeProgressionLastMode(mode);
+      thumbSlideFrom = mode;
       // RC2.3.13R.3.2 — restore last Culture topic when switching back from Journey.
       const href = next === "journey" ? JOURNEY_HREF : cultureRestoreHref();
       // replace — avoid endless history pollution from rapid toggling.
@@ -130,7 +159,7 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
           className={[
             "pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-xl bg-surface shadow-sm motion-reduce:transition-none",
             "transition-transform duration-[var(--motion-normal)] ease-[var(--ease-standard)]",
-            mode === "culture" ? "translate-x-[calc(100%+0.25rem)] left-1" : "translate-x-0 left-1",
+            thumbMode === "culture" ? "translate-x-[calc(100%+0.25rem)] left-1" : "translate-x-0 left-1",
           ].join(" ")}
           data-testid="progression-switch-thumb"
           data-motion="segment-indicator"
@@ -248,6 +277,10 @@ export function ProgressionShell({
           <header className="mb-3" data-testid={`progression-header-${mode}`}>
             {headerTitle ? <h1 className="type-page-title">{headerTitle}</h1> : null}
             {headerDesc ? <p className="type-supporting mt-1">{headerDesc}</p> : null}
+            {/* RC2.3.13R.3.2.4 — Culture root only: one faint lattice line under the title. */}
+            {mode === "culture" ? (
+              <ChineseOrnamentalDivider motif="lattice" intensity="medium" surface="culture-root-header" className="lyo-divider-start mt-2" />
+            ) : null}
           </header>
         )}
         {children}
