@@ -8,9 +8,9 @@
   "candidateHeadSha": "9954da06234651e54cf08a9d41e194c81608993b",
   "pr": 353,
   "runtime": {
-    "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
     "learnerRuntimeMoved": true,
-    "rationale": "REAL_RUNTIME harden for Chromium green: null SRS Journey crash, culture gate instructionLocale, persist merge, early nav density. E2E contracts updated for topic-hub Culture IA (STALE_TEST). Fingerprint 29bb02ec0336. Advanced again by RC2.3.13R.3.2.3 (Journey SVG scenes, d1663614); this R.3.2.2.1 certification never minted an APK, so the next candidate carries the R.3.2.3 runtime.",
+    "rationale": "REAL_RUNTIME harden for Chromium green: null SRS Journey crash, culture gate instructionLocale, persist merge, early nav density. E2E contracts updated for topic-hub Culture IA (STALE_TEST). Fingerprint 29bb02ec0336. Advanced again by RC2.3.13R.3.2.3 (Journey SVG scenes, d1663614) and RC2.3.13R.3.2.4 (Living UI, 053983ab); this R.3.2.2.1 certification never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
     "fingerprint": "29bb02ec0336"
   },
   "visualFreeze": {
@@ -53,7 +53,7 @@
     "prHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
     "workflowMergeSha": null,
     "certificationHeadSha": null,
-    "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
     "workflowRunId": null,
     "artifactId": null,
     "filename": null,

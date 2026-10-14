@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.3.2.3",
+  "wave": "RC2.3.13R.3.2.4",
   "status": "HOSTED_PENDING",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
@@ -12,14 +12,14 @@
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
-  "certificationHeadSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+  "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+  "certificationHeadSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
   "artifactSourceSha": null,
-  "prHeadSha": "d166361490ce100f595f30af47d7fdeaad650a79",
-  "sourceTipSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+  "prHeadSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+  "sourceTipSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
   "workflowMergeSha": null,
-  "parentPr": 353,
-  "shaNote": "learnerRuntimeSha = d1663614 (R.3.2.3 Journey SVG scenes, lanes, review medallion, moonlit dark, CodeQL-safe markup preparer; fingerprint 29bb02ec0336 unchanged). Prior 0357f824 = R.3.2.2.1 Journey/Culture runtime harden. artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
+  "parentPr": 354,
+  "shaNote": "learnerRuntimeSha = 053983ab (R.3.2.4 Living UI motion system, ambient budget, Chinese ornamental embroidery, feedback motion; fingerprint 29bb02ec0336 unchanged). Prior d1663614 = R.3.2.3 Journey SVG scenes (#354 hosted green at 64a06df8, no APK minted). artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -38,7 +38,7 @@
     "packageId": "longyu.noba.com",
     "builtAt": null,
     "ownerPathHint": null,
-    "note": "STALE_FOR_CURRENT_RUNTIME after Culture topic hierarchy (#350), visual polish (#351), R.3.2.2.1 harden and R.3.2.3 Journey SVG scenes. Reject fc72f9e3… and legacy fb835ce8…. No #353 APK was minted; the new APK is NOT_BUILT until R.3.2.3 exact-head hosted green."
+    "note": "STALE_FOR_CURRENT_RUNTIME after Culture topic hierarchy (#350), visual polish (#351), R.3.2.2.1 harden, R.3.2.3 Journey SVG scenes and R.3.2.4 Living UI. Reject fc72f9e3… and legacy fb835ce8…. No #353 or R.3.2.3 APK was minted; the new APK is NOT_BUILT until R.3.2.4 exact-head hosted green."
   },
   "playClosedBeta": {
     "role": "PLAY_CLOSED_BETA_AAB",
@@ -65,14 +65,14 @@
     "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "R.3.2.3 HOSTED_PENDING: Journey SVG runtime d1663614; old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + visual acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
+    "reason": "R.3.2.4 HOSTED_PENDING: Living UI runtime 053983ab (on top of R.3.2.3 Journey SVG, hosted green at 64a06df8); old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + UI acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
   },
   "wave1": {
     "targetRealTesters": 10,
     "invited": 0,
     "activated": 0,
     "realTesterCount": 0,
-    "note": "Do not invite until full R.3 GO after final visual owner acceptance on the new APK."
+    "note": "Do not invite until full R.3 GO after final UI owner acceptance on the new APK."
   },
   "priorBuiltRc": "RC2.3.12-RC2"
 }

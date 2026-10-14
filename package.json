@@ -1293,7 +1293,17 @@
     "validate:journey-scene-layout": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs layout",
     "validate:rc2-3-13r3-2-3-journey-svg-storytelling": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs validate",
     "test:rc2-3-13r3-2-3-journey-svg-storytelling": "node scripts/rc2-3-13r3-2-3-journey-svg-storytelling.mjs test",
-    "gate:rc2-3-13r3-2-3-journey-svg-storytelling": "npm run validate:journey-svg-assets && npm run validate:journey-svg-style && npm run validate:journey-scene-registry && npm run validate:journey-scene-layout && npm run validate:rc2-3-13r3-2-3-journey-svg-storytelling && npm run test:rc2-3-13r3-2-3-journey-svg-storytelling && npm run gate:rc2-3-13r3-2-2-1-terminal-artifact-physical"
+    "gate:rc2-3-13r3-2-3-journey-svg-storytelling": "npm run validate:journey-svg-assets && npm run validate:journey-svg-style && npm run validate:journey-scene-registry && npm run validate:journey-scene-layout && npm run validate:rc2-3-13r3-2-3-journey-svg-storytelling && npm run test:rc2-3-13r3-2-3-journey-svg-storytelling && npm run gate:rc2-3-13r3-2-2-1-terminal-artifact-physical",
+    "validate:chinese-ornamental-assets": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs assets",
+    "validate:chinese-ornamental-system": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs system",
+    "validate:living-ui-motion": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs motion",
+    "validate:ambient-motion-budget": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs budget",
+    "validate:motion-performance-contract": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs performance",
+    "validate:ui-effect-accessibility": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs a11y",
+    "validate:theme-ornament-contrast": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs theme",
+    "validate:rc2-3-13r3-2-4-living-ui-ornamental-polish": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs validate",
+    "test:rc2-3-13r3-2-4-living-ui-ornamental-polish": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs test",
+    "gate:rc2-3-13r3-2-4-living-ui-ornamental-polish": "npm run validate:chinese-ornamental-assets && npm run validate:chinese-ornamental-system && npm run validate:living-ui-motion && npm run validate:ambient-motion-budget && npm run validate:motion-performance-contract && npm run validate:ui-effect-accessibility && npm run validate:theme-ornament-contrast && npm run validate:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run test:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run gate:rc2-3-13r3-2-3-journey-svg-storytelling"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

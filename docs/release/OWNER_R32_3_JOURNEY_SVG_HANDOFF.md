@@ -2,6 +2,10 @@
 
 **Onda visual final aprovada pelo dono.** Depois do seu aceite físico, não há mais ondas visuais.
 
+> **Substituído pela RC2.3.13R.3.2.4** — veja `docs/release/OWNER_R32_4_LIVING_UI_HANDOFF.md`.
+> A #354 ficou verde no HEAD `64a06df8`, mas nenhum APK foi gerado para ele: o único
+> APK de Device QA sai depois do verde da R.3.2.4 e leva as cenas SVG **e** a Living UI.
+
 ## USE THIS APK
 
 ```text

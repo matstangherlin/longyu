@@ -24,7 +24,7 @@ export const STALE_APK_SHA256_LEGACY =
 /** R.3.2.2.1 Journey/Culture runtime harden (null SRS, instructionLocale gate, persist merge). */
 // RC2.3.13R.3.2.3 advanced the learner runtime (Journey SVG scenes); no earlier APK was minted.
 export const EXPECTED_LEARNER_RUNTIME_SHA =
-  "d166361490ce100f595f30af47d7fdeaad650a79";
+  "053983abf3b12463d0f3471368c99d8ccb2dbb2e";
 
 export const EXPECTED_FINGERPRINT = "29bb02ec0336";
 export const PACKAGE_ID = "longyu.noba.com";

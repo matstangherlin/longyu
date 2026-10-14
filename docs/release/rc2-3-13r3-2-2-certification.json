@@ -13,9 +13,9 @@
     "noFurtherVisualWaves": true
   },
   "runtime": {
-    "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
     "learnerRuntimeMoved": true,
-    "rationale": "Advanced in R.3.2.2.1 for Journey/Culture runtime harden (null SRS filter, instructionLocale culture gate, persist merge). Fingerprint remains 29bb02ec0336. Advanced again by RC2.3.13R.3.2.3 (Journey SVG scenes, d1663614); this R.3.2.2 certification never minted an APK, so the next candidate carries the R.3.2.3 runtime.",
+    "rationale": "Advanced in R.3.2.2.1 for Journey/Culture runtime harden (null SRS filter, instructionLocale culture gate, persist merge). Fingerprint remains 29bb02ec0336. Advanced again by RC2.3.13R.3.2.3 (Journey SVG scenes, d1663614) and RC2.3.13R.3.2.4 (Living UI, 053983ab); this R.3.2.2 certification never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
     "fingerprint": "29bb02ec0336"
   },
   "cultureHierarchy": {
@@ -69,7 +69,7 @@
     "prHeadSha": null,
     "workflowMergeSha": null,
     "certificationHeadSha": null,
-    "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
     "workflowRunId": null,
     "artifactId": null,
     "filename": null,

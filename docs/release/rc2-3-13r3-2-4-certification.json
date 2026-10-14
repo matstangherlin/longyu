@@ -1,0 +1,239 @@
+{
+  "schema": "longyu-rc2-3-13r3-2-4-certification/1",
+  "wave": "RC2.3.13R.3.2.4",
+  "title": "Living UI, Chinese Ornamental Embroidery & Motion Delight",
+  "header": "OWNER-APPROVED PRESENTATION POLISH. NO NAVIGATION REDESIGN. NO CURRICULUM EXPANSION. NO PEDAGOGY, MASTERY, SRS, XP, FÔLEGO, UNLOCK, ECONOMY, SCHEMA, BILLING OR JEV CHANGE. MOTION SYSTEM + ORNAMENT FAMILY + FEEDBACK MOTION ONLY.",
+  "phase": "HOSTED_PENDING",
+  "parentPr": 354,
+  "parentTitle": "RC2.3.13R.3.2.3 — Journey SVG Visual Storytelling & Final Beta Candidate",
+  "parentHeadSha": "64a06df8c1d7579e53a585ab25b1c9452dfe4d29",
+  "parentHosted": {
+    "overall": "PASS",
+    "headSha": "64a06df8c1d7579e53a585ab25b1c9452dfe4d29",
+    "checks": 20,
+    "checksGreen": 19,
+    "checksSkipped": [
+      "Supabase Preview"
+    ],
+    "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
+    "workflowRunIds": {
+      "ci": 38593098764,
+      "android": 38593098878,
+      "security": 38593099830
+    },
+    "requeriedAt": "2026-10-14",
+    "parentDeviceQaApk": "NOT_MINTED — R.3.2.4 is built on the green #354 head, so the one Device-QA APK carries R.3.2.3 + R.3.2.4 together",
+    "mergedToMain": "16a9184c451d4a961bb53aa2c6efb92523128807",
+    "mergeMethod": "merge (commit SHAs kept reachable for the release-truth gates)"
+  },
+  "branch": "claude/journey-svg-storytelling-7amwba",
+  "pr": null,
+  "prNote": "#354 (R.3.2.3 and the stacked waves) was merged to main as merge commit 16a9184c at the hosted-green head 64a06df8; R.3.2.4 restarts the branch from that main and lands in its own PR.",
+  "candidateHeadSha": null,
+  "freezeException": "OWNER_APPROVED_LIVING_UI_ORNAMENTAL_POLISH",
+  "scope": {
+    "navigationRedesign": false,
+    "curriculumExpansion": false,
+    "pedagogyChange": false,
+    "masteryChange": false,
+    "economyChange": false,
+    "srsChange": false,
+    "unlockRuleChange": false,
+    "schemaChange": false,
+    "jevRuntimeChange": false,
+    "billingChange": false,
+    "uiSounds": false,
+    "newHaptics": false
+  },
+  "runtime": {
+    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+    "previousLearnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+    "learnerRuntimeMoved": true,
+    "rationale": "Learner-facing presentation changed: motion tokens + reduced-motion signal, ambient budget (≤ 4 loops), 13 embroidered ornament SVGs on milestone surfaces, press/transition/feedback motion, delta-only counters and progress, one-shot Victory burst, QA panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth).",
+    "fingerprint": "29bb02ec0336",
+    "fingerprintMoved": false
+  },
+  "crossEngine": {
+    "failures": [
+      {
+        "engine": "firefox",
+        "head": "aa801dabbdacac2216b3b2ea9d7de2ad33b20536",
+        "test": "e2e/rc2-3-13r3-2-3-journey-svg-storytelling.spec.ts — no runtime fetch of scene SVGs",
+        "classification": "TEST_CONTRACT_STALE",
+        "cause": "the network filter matched the mascot SVG Firefox requests; scoped to journey scene files",
+        "fixedIn": "a1c5605"
+      },
+      {
+        "engine": "webkit",
+        "head": "a1c5605b26b8ddc8ffad99fb21976bebac0c3175",
+        "test": "e2e/rc2-3-13r3-2-3-journey-svg-storytelling.spec.ts — scenes stay in side lanes (8-row matrix)",
+        "classification": "TEST_CONTRACT_STALE",
+        "cause": "one test walked all 8 matrix rows and hit the WebKit timeout; split into one test per row with a robust expand-all",
+        "fixedIn": "64a06df"
+      }
+    ],
+    "realRuntimeRegressions": 0,
+    "chromium": "PASS",
+    "firefox": "PASS",
+    "webkit": "PASS_WITH_NARROW_EXISTING_ALLOWLISTED_ENGINE_SKIP",
+    "webkitSkip": "e2e/v494-builder-ux.spec.ts — LEGIT INFRA skip, WebKit only, Hanzi Builder clear→full rebuild+verify (unchanged)",
+    "newSkips": 0,
+    "continueOnError": 0
+  },
+  "ornamentalSystem": {
+    "state": "CODE_PASS",
+    "packVersion": 1,
+    "assets": 13,
+    "inventory": "docs/release/chinese-ornamental-assets.json",
+    "designDoc": "docs/ux/chinese-ornamental-system.md",
+    "surfaces": [
+      "journey-milestone",
+      "culture-topic-hero",
+      "culture-root-header",
+      "victory",
+      "review-header",
+      "home-continue",
+      "qa-gallery"
+    ],
+    "opacityBands": {
+      "subtle": 0.16,
+      "medium": 0.28,
+      "milestone": 0.55
+    },
+    "decorative": true,
+    "integrity": {
+      "parsed": 13,
+      "externalRefs": 0,
+      "scripts": 0,
+      "foreignObject": 0,
+      "embeddedRaster": 0,
+      "ids": 0,
+      "hexColors": 0
+    }
+  },
+  "motionSystem": {
+    "state": "CODE_PASS",
+    "designDoc": "docs/ux/living-ui-motion-system.md",
+    "tokensMs": {
+      "instant": 80,
+      "fast": 140,
+      "normal": 220,
+      "emphasis": 280,
+      "celebrate": 1100
+    },
+    "ambientMs": {
+      "current": 5000,
+      "default": 7000,
+      "slow": 10000
+    },
+    "maxVisibleAmbientAnimations": 4,
+    "reducedMotion": "PASS",
+    "celebration": "ONE_SHOT_UNDER_1100MS",
+    "deltaOnly": "PASS",
+    "motionLibrary": "NONE"
+  },
+  "performance": {
+    "contract": "PASS",
+    "properties": "transform/opacity only",
+    "scrollHandlers": 0,
+    "observers": 1,
+    "sessionEvidence": "docs/release/evidence/rc2-3-13r3-2-4/living-ui-30min-session.json",
+    "sessionKind": "EMULATED_DESKTOP_CHROMIUM",
+    "physical": "NOT_RUN"
+  },
+  "accessibility": {
+    "decorativeHidden": "PASS",
+    "stateNotMotionOnly": "PASS",
+    "focusOrder": "PASS",
+    "reducedMotion": "PASS",
+    "largeFont": "PASS",
+    "talkBack": "NOT_RUN"
+  },
+  "evidence": {
+    "e2e": "e2e/rc2-3-13r3-2-4-living-ui.spec.ts",
+    "living": "docs/release/evidence/rc2-3-13r3-2-4/living-ui-evidence.json",
+    "screenshots": "docs/screenshots/rc2-3-13r3-2-4/"
+  },
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": null,
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "firefox": "PENDING",
+    "webkit": "PENDING",
+    "webkitSkipPolicy": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
+    "workflowRunIds": {}
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "channel": "DEVICE_QA",
+    "apkSha256": null,
+    "hashSource": null,
+    "artifactSourceSha": null,
+    "workflowMergeSha": null,
+    "learnerRuntimeSha": null,
+    "fingerprint": null,
+    "rc": "RC2.3.13-RC1",
+    "versionName": null,
+    "versionCode": null,
+    "packageId": "longyu.noba.com",
+    "workflowRunId": null,
+    "artifactId": null,
+    "playReady": false,
+    "note": "ONE Device-QA APK is minted only after exact-head hosted green on the final head of this wave."
+  },
+  "priorDeviceQa": "STALE_FOR_CURRENT_RUNTIME",
+  "rejectedApkSha256List": [
+    "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  ],
+  "physical": {
+    "status": "NOT_RUN",
+    "device": null,
+    "emulator": null,
+    "artifactSha256": null,
+    "MOTION_PHYSICAL": "NOT_RUN",
+    "ORNAMENT_PHYSICAL": "NOT_RUN",
+    "JOURNEY_VISUAL": "NOT_RUN",
+    "CULTURE_VISUAL": "NOT_RUN",
+    "LEARNING_FEEDBACK": "NOT_RUN",
+    "THIRTY_MIN_SESSION": "NOT_RUN",
+    "PREVIOUS_P1": "NOT_RUN"
+  },
+  "uiFreeze": {
+    "LONGYU_UI_UX_FREEZE": "PENDING_OWNER_ACCEPTANCE",
+    "FINAL_UI_OWNER_ACCEPTANCE": "NOT_RUN",
+    "boundApkSha256": null,
+    "stopVisualWavesAfterAcceptance": true
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD"
+  },
+  "play": {
+    "signedAab": "NOT_BUILT",
+    "debugAabPlayReady": false,
+    "signingSource": null,
+    "closedTestingInstall": "NOT_RUN"
+  },
+  "ownerReleaseAcceptance": "NOT_RUN",
+  "wave1": {
+    "targetRealTesters": 10,
+    "invited": 0
+  },
+  "next": [
+    "exact-head hosted green (Chromium, Firefox, WebKit with the one narrow LEGIT skip)",
+    "ONE Device-QA APK + SHA256 + owner handoff",
+    "owner physical: motion, ornaments, Journey, Culture, learning feedback, 30-min session, previous P1 — reduced motion, large font, TalkBack",
+    "LONGYU_UI_UX_FREEZE bound to the APK SHA256 — then no more visual waves",
+    "full R.3 physical, Sentry, rollback, Cloud x2, Android OAuth, signed Play AAB, Closed Testing install",
+    "owner release acceptance → at most 10 Wave 1 testers; Public Beta stays HOLD"
+  ],
+  "base": "main"
+}
