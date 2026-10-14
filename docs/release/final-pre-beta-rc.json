@@ -12,14 +12,14 @@
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "51548cd0fe8d73c805e64b7473e363122ac64523",
-  "certificationHeadSha": "51548cd0fe8d73c805e64b7473e363122ac64523",
+  "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+  "certificationHeadSha": "d166361490ce100f595f30af47d7fdeaad650a79",
   "artifactSourceSha": null,
-  "prHeadSha": "51548cd0fe8d73c805e64b7473e363122ac64523",
-  "sourceTipSha": "51548cd0fe8d73c805e64b7473e363122ac64523",
+  "prHeadSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+  "sourceTipSha": "d166361490ce100f595f30af47d7fdeaad650a79",
   "workflowMergeSha": null,
   "parentPr": 353,
-  "shaNote": "learnerRuntimeSha = 51548cd0 (R.3.2.3 Journey SVG scenes, lanes, review medallion, moonlit dark; fingerprint 29bb02ec0336 unchanged). Prior 0357f824 = R.3.2.2.1 Journey/Culture runtime harden. artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
+  "shaNote": "learnerRuntimeSha = d1663614 (R.3.2.3 Journey SVG scenes, lanes, review medallion, moonlit dark, CodeQL-safe markup preparer; fingerprint 29bb02ec0336 unchanged). Prior 0357f824 = R.3.2.2.1 Journey/Culture runtime harden. artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -65,7 +65,7 @@
     "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "R.3.2.3 HOSTED_PENDING: Journey SVG runtime 51548cd0; old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + visual acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
+    "reason": "R.3.2.3 HOSTED_PENDING: Journey SVG runtime d1663614; old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + visual acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
   },
   "wave1": {
     "targetRealTesters": 10,

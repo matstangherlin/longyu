@@ -32,7 +32,7 @@
     "cultureScenes": false
   },
   "runtime": {
-    "learnerRuntimeSha": "51548cd0fe8d73c805e64b7473e363122ac64523",
+    "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
     "previousLearnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth).",

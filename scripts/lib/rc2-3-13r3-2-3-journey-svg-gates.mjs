@@ -266,6 +266,8 @@ export function checkSvgAssets(src) {
       errors.push("SVG_EXTERNAL_REF");
     }
     if (/<(?:animate|animateTransform|animateMotion|set)\b/i.test(text)) errors.push("SVG_SMIL_MOTION");
+    // The runtime guard refuses these whole; catch them at build time instead.
+    if (/<!--|<\?|<!\[CDATA\[/.test(text)) errors.push("SVG_COMMENT_OR_PROLOG");
     if (/@font-face|<font\b|font-family/i.test(text)) errors.push("SVG_EMBEDDED_FONT");
     const parsed = parseSvg(text);
     if (!parsed.ok) {
@@ -769,6 +771,11 @@ export const HOSTILE_SVGS = [
   '<svg viewBox="0 0 1 1"><use href="https://cdn.example/x.svg#a"/></svg>',
   '<svg viewBox="0 0 1 1"><text>Ola</text></svg>',
   '<svg viewBox="0 0 1 1"><style>@import url(x.css);</style></svg>',
+  '<svg viewBox="0 0 1 1"><!-- <script>alert(1)</script> --><path d="M0 0"/></svg>',
+  '<svg viewBox="0 0 1 1"><!-- note --><path d="M0 0"/></svg>',
+  '<svg viewBox="0 0 1 1"><?xml-stylesheet href="#x"?><path d="M0 0"/></svg>',
+  '<svg viewBox="0 0 1 1"><style>a{}</style><style>b{}</style><path d="M0 0"/></svg>',
+  '<svg viewBox="0 0 1 1"><style>a{}<path d="M0 0"/></svg>',
 ];
 
 export function checkMarkupBehaviour(src) {
