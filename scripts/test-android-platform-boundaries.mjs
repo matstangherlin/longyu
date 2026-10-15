@@ -1,7 +1,42 @@
 #!/usr/bin/env node
 /** test:android-platform-boundaries — um só Longyu, SW só no web, BACK seguro, links seguros. */
-import { loadAndroidFoundationState, validateAndroidPlatformBoundaries } from "./lib/android-foundation-gates.mjs";
+import assert from "node:assert/strict";
+import {
+  CAPACITOR_CANDIDATE,
+  findCapacitorAccess,
+  loadAndroidFoundationState,
+  validateAndroidPlatformBoundaries,
+} from "./lib/android-foundation-gates.mjs";
 import { runMutations, swap } from "./lib/android-mutation-runner.mjs";
+
+/**
+ * RC2.3.13R.3.2.5 — the Capacitor boundary is judged on the syntax tree.
+ * Real access outside src/lib/platform fails; prose that merely names
+ * Capacitor (comments, strings, JSX text) passes.
+ */
+const BOUNDARY_VIOLATIONS = [
+  ["window.Capacitor num componente", "src/components/ui/Banner.tsx", "export const native = Boolean(window.Capacitor);"],
+  ["globalThis.Capacitor numa lib", "src/lib/audio/tts.ts", "const cap = (globalThis as any).Capacitor;"],
+  ["Capacitor.getPlatform() fora da plataforma", "src/features/journey/JourneyPage.tsx", 'import { Capacitor } from "@capacitor/core";\nexport const p = Capacitor.getPlatform();'],
+  ["Capacitor.isNativePlatform() sem import", "src/features/lesson/steps.tsx", "export const n = Capacitor.isNativePlatform();"],
+  ["import estático de @capacitor/*", "src/features/qa/QaDevicePage.tsx", 'import { App } from "@capacitor/app";\nexport { App };'],
+  ["import dinâmico de @capacitor/*", "src/lib/share.ts", 'export const load = () => import("@capacitor/share");'],
+  ["require de @capacitor/*", "src/lib/legacy.ts", 'const core = require("@capacitor/core");\nexport default core;'],
+  ["import de tipo de @capacitor/*", "src/lib/types.ts", 'export type Info = import("@capacitor/device").DeviceInfo;'],
+  ['window["Capacitor"]', "src/lib/detect.ts", 'export const c = (window as any)["Capacitor"];'],
+  ["acesso real dentro da pasta de ornamentos", "src/components/ornaments/chinese/ChineseOrnament.tsx", "export const native = window.Capacitor?.isNativePlatform();"],
+];
+
+/** Mentions that are not code: never a violation. */
+const BOUNDARY_PROSE = [
+  ["comentário de bloco", "src/components/ornaments/chinese/ChineseOrnament.tsx", "/** Bundled at build time: no network, works offline and inside Capacitor. */\nexport const x = 1;"],
+  ["comentário de linha com chamada", "src/lib/a.ts", "// Capacitor.getPlatform() lives in src/lib/platform\nexport const a = 1;"],
+  ["comentário citando window.Capacitor", "src/lib/b.ts", "/* window.Capacitor is read only by nativePlatform.ts */\nexport const b = 2;"],
+  ["string literal", "src/lib/c.ts", 'export const label = "Rodando no Capacitor.";'],
+  ["template literal", "src/lib/d.ts", "export const help = `Capacitor.getPlatform() is platform-only`;"],
+  ["texto JSX", "src/features/qa/Hint.tsx", "export const Hint = () => <p>Capacitor shell (Android)</p>;"],
+  ["string com @capacitor/ em descrição", "src/lib/e.ts", 'export const note = "plugins @capacitor/app e @capacitor/share";'],
+];
 
 const base = loadAndroidFoundationState();
 const P = (name) => `src/lib/platform/${name}.ts`;
@@ -22,6 +57,7 @@ runMutations("test:android-platform-boundaries", base, validateAndroidPlatformBo
   ["BACK chama exitApp()", (s) => edit(s, "nativeShell", "else void App.minimizeApp();", "else void App.exitApp();"), "BACK_EXITS_APP"],
   ["BACK ignora overlay aberto", (s) => edit(s, "backNavigation", 'if (input.overlayOpen) return "dismiss-overlay";', ""), "BACK_EXITS_APP"],
   ["Capacitor espalhado num componente", (s) => { s.capacitorUsers.push({ path: "src/features/journey/JourneyPage.tsx", text: "if (window.Capacitor) {}" }); }, "CAPACITOR_OUTSIDE_PLATFORM"],
+  ...BOUNDARY_VIOLATIONS.map(([label, path, text]) => [label, (s) => { s.capacitorUsers.push({ path, text }); }, "CAPACITOR_OUTSIDE_PLATFORM"]),
   ["plugin sem consumidor", (s) => { s.packageJson.dependencies["@capacitor/camera"] = "8.0.0"; }, "PLUGIN_WITHOUT_CONSUMER"],
   ["deep link abre admin", (s) => edit(s, "deepLinks", '  "/sobre",\n];', '  "/sobre",\n  "/admin",\n];'), "DEEP_LINK_UNSAFE"],
   ["deep link aceita qualquer host https", (s) => edit(s, "deepLinks", '} else if (url.protocol === "https:" && LONGYU_WEB_HOSTS.includes(url.hostname) && !url.port) {', '} else if (url.protocol === "https:") {'), "DEEP_LINK_UNSAFE"],
@@ -31,3 +67,44 @@ runMutations("test:android-platform-boundaries", base, validateAndroidPlatformBo
   ["shell nativo roda no web", (s) => edit(s, "nativeShell", "if (installed || !isNativeApp()) return;", "if (installed) return;"), "WEB_REGRESSION"],
   ["shell nativo não ligado no main", (s) => { s.mainTsx = s.mainTsx.replace(/initNativeShell\(/g, "noop("); }, "NATIVE_SHELL_NOT_WIRED"],
 ]);
+
+// Prose passes (the false positive that blocked #355 on ChineseOrnament.tsx).
+const capCodes = (state, opts) => validateAndroidPlatformBoundaries(state, opts).filter((f) => f.code === "CAPACITOR_OUTSIDE_PLATFORM");
+for (const [label, path, text] of BOUNDARY_PROSE) {
+  assert.ok(CAPACITOR_CANDIDATE.test(text), `fixture "${label}" must reach the validator (prefilter)`);
+  const state = structuredClone(base);
+  state.capacitorUsers.push({ path, text });
+  assert.deepEqual(capCodes(state), [], `prose "${label}" must not be a boundary violation`);
+  console.log(`PASS prose: ${label}`);
+}
+// The prefilter is never narrower than the rule.
+for (const [label, , text] of BOUNDARY_VIOLATIONS) assert.ok(CAPACITOR_CANDIDATE.test(text), `prefilter misses "${label}"`);
+
+// Broken detectors: each one must be caught by the fixtures above.
+const battery = (detectCapacitor) => {
+  for (const [, path, text] of BOUNDARY_VIOLATIONS) {
+    const state = structuredClone(base);
+    state.capacitorUsers.push({ path, text });
+    if (!capCodes(state, { detectCapacitor }).length) return "violation passed";
+  }
+  for (const [, path, text] of BOUNDARY_PROSE) {
+    const state = structuredClone(base);
+    state.capacitorUsers.push({ path, text });
+    if (capCodes(state, { detectCapacitor }).length) return "prose failed";
+  }
+  return null;
+};
+assert.equal(battery(findCapacitorAccess), null, "the real detector passes its own battery");
+const DETECTOR_MUTANTS = [
+  ["lexical regex (comments/strings count)", (text) => (/@capacitor\/|window\.Capacitor|\bCapacitor\./.test(text) ? [{ kind: "identifier", line: 1 }] : [])],
+  ["detector disabled", () => []],
+  ["imports ignored", (text, path) => findCapacitorAccess(text, path).filter((a) => a.kind !== "import")],
+  ["member access ignored", (text, path) => findCapacitorAccess(text, path).filter((a) => a.kind !== "identifier")],
+  ["ornament path allowlisted", (text, path) => (path.startsWith("src/components/") ? [] : findCapacitorAccess(text, path))],
+];
+for (const [label, mutant] of DETECTOR_MUTANTS) {
+  const verdict = battery(mutant);
+  assert.ok(verdict, `detector mutant "${label}" survived the boundary battery`);
+  console.log(`KILLED detector mutant ${label}: ${verdict}`);
+}
+console.log(`PASS boundary syntax battery (${BOUNDARY_VIOLATIONS.length} violations, ${BOUNDARY_PROSE.length} prose, ${DETECTOR_MUTANTS.length} detector mutants)`);
