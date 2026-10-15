@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.3.2.4",
+  "wave": "RC2.3.13R.3.2.5",
   "status": "HOSTED_PENDING",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
@@ -12,14 +12,14 @@
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
-  "certificationHeadSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+  "learnerRuntimeSha": "5a9a8ab1cdde2ba3512fc2844366329b64265f44",
+  "certificationHeadSha": "5a9a8ab1cdde2ba3512fc2844366329b64265f44",
   "artifactSourceSha": null,
-  "prHeadSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
-  "sourceTipSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+  "prHeadSha": "5a9a8ab1cdde2ba3512fc2844366329b64265f44",
+  "sourceTipSha": "5a9a8ab1cdde2ba3512fc2844366329b64265f44",
   "workflowMergeSha": null,
-  "parentPr": 354,
-  "shaNote": "learnerRuntimeSha = 2618683e (R.3.2.4 Living UI motion system, ambient budget, Chinese ornamental embroidery, feedback motion; fingerprint 29bb02ec0336 unchanged). Prior d1663614 = R.3.2.3 Journey SVG scenes (#354 hosted green at 64a06df8, no APK minted). artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
+  "parentPr": 355,
+  "shaNote": "learnerRuntimeSha = 5a9a8ab1 (R.3.2.5 premium surface system, resilient states, one chest-opening ritual, guide/auth/mobile UX closure; fingerprint 29bb02ec0336 unchanged). Prior 2618683e = R.3.2.4 Living UI (#355 hosted green at 4ee6d1a, merged to main as 8846bef0; no APK minted). artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -38,7 +38,7 @@
     "packageId": "longyu.noba.com",
     "builtAt": null,
     "ownerPathHint": null,
-    "note": "STALE_FOR_CURRENT_RUNTIME after Culture topic hierarchy (#350), visual polish (#351), R.3.2.2.1 harden, R.3.2.3 Journey SVG scenes and R.3.2.4 Living UI. Reject fc72f9e3… and legacy fb835ce8…. No #353 or R.3.2.3 APK was minted; the new APK is NOT_BUILT until R.3.2.4 exact-head hosted green."
+    "note": "STALE_FOR_CURRENT_RUNTIME after Culture topic hierarchy (#350), visual polish (#351), R.3.2.2.1 harden, R.3.2.3 Journey SVG scenes, R.3.2.4 Living UI and R.3.2.5 premium UX closure. Reject fc72f9e3… and legacy fb835ce8…. No R.3.2.3/R.3.2.4 APK was minted; the new APK is NOT_BUILT until R.3.2.5 exact-head hosted green."
   },
   "playClosedBeta": {
     "role": "PLAY_CLOSED_BETA_AAB",

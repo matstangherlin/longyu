@@ -3,7 +3,7 @@
   "wave": "RC2.3.13R.3.2.4",
   "title": "Living UI, Chinese Ornamental Embroidery & Motion Delight",
   "header": "OWNER-APPROVED PRESENTATION POLISH. NO NAVIGATION REDESIGN. NO CURRICULUM EXPANSION. NO PEDAGOGY, MASTERY, SRS, XP, FÔLEGO, UNLOCK, ECONOMY, SCHEMA, BILLING OR JEV CHANGE. MOTION SYSTEM + ORNAMENT FAMILY + FEEDBACK MOTION ONLY.",
-  "phase": "HOSTED_PENDING",
+  "phase": "MERGED_TO_MAIN",
   "parentPr": 354,
   "parentTitle": "RC2.3.13R.3.2.3 — Journey SVG Visual Storytelling & Final Beta Candidate",
   "parentHeadSha": "64a06df8c1d7579e53a585ab25b1c9452dfe4d29",
@@ -27,9 +27,9 @@
     "mergeMethod": "merge (commit SHAs kept reachable for the release-truth gates)"
   },
   "branch": "claude/journey-svg-storytelling-7amwba",
-  "pr": null,
+  "pr": 355,
   "prNote": "#354 (R.3.2.3 and the stacked waves) was merged to main as merge commit 16a9184c at the hosted-green head 64a06df8; R.3.2.4 restarts the branch from that main and lands in its own PR.",
-  "candidateHeadSha": null,
+  "candidateHeadSha": "4ee6d1ad96c9ff338bf86ed7e2d382ae100dc843",
   "freezeException": "OWNER_APPROVED_LIVING_UI_ORNAMENTAL_POLISH",
   "scope": {
     "navigationRedesign": false,
@@ -46,12 +46,17 @@
     "newHaptics": false
   },
   "runtime": {
-    "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+    "learnerRuntimeSha": "5a9a8ab1cdde2ba3512fc2844366329b64265f44",
     "previousLearnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-facing presentation changed: motion tokens + reduced-motion signal, ambient budget (≤ 4 loops), 13 embroidered ornament SVGs on milestone surfaces, press/transition/feedback motion, delta-only counters and progress, one-shot Victory burst, QA panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Runtime moved again to 2618683e: the ambient scheduler always arms a timer backup next to the frame, so a suspended or throttled frame can never hold the budget stale (WebKit CI).",
     "fingerprint": "29bb02ec0336",
-    "fingerprintMoved": false
+    "fingerprintMoved": false,
+    "supersededBy": {
+      "wave": "RC2.3.13R.3.2.5",
+      "learnerRuntimeSha": "5a9a8ab1cdde2ba3512fc2844366329b64265f44",
+      "note": "R.3.2.5 (premium UX closure) lands on the same branch/PR and moves the learner runtime again; every runtime pin in the chain follows it."
+    }
   },
   "crossEngine": {
     "failures": [
@@ -172,19 +177,23 @@
     "screenshots": "docs/screenshots/rc2-3-13r3-2-4/"
   },
   "hosted": {
-    "overall": "PENDING",
-    "headSha": null,
-    "releaseTruth": "PENDING",
-    "security": "PENDING",
-    "betaSuites": "PENDING",
-    "qualityBuild": "PENDING",
-    "androidFoundation": "PENDING",
-    "androidRuntime": "PENDING",
-    "chromium": "PENDING",
-    "firefox": "PENDING",
-    "webkit": "PENDING",
+    "overall": "PASS",
+    "headSha": "4ee6d1ad96c9ff338bf86ed7e2d382ae100dc843",
+    "releaseTruth": "PASS",
+    "security": "PASS",
+    "betaSuites": "PASS",
+    "qualityBuild": "PASS",
+    "androidFoundation": "PASS",
+    "androidRuntime": "PASS",
+    "chromium": "PASS",
+    "firefox": "PASS",
+    "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
     "webkitSkipPolicy": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
-    "workflowRunIds": {}
+    "workflowRunIds": {
+      "ci": 38744029135,
+      "android": 38744029512,
+      "security": 38744029355
+    }
   },
   "artifact": {
     "status": "NOT_BUILT",
@@ -202,7 +211,7 @@
     "workflowRunId": null,
     "artifactId": null,
     "playReady": false,
-    "note": "ONE Device-QA APK is minted only after exact-head hosted green on the final head of this wave."
+    "note": "No R.3.2.4 APK was minted: R.3.2.5 supersedes the runtime; ONE Device-QA APK follows R.3.2.5 exact-head hosted green."
   },
   "priorDeviceQa": "STALE_FOR_CURRENT_RUNTIME",
   "rejectedApkSha256List": [
@@ -252,5 +261,6 @@
     "full R.3 physical, Sentry, rollback, Cloud x2, Android OAuth, signed Play AAB, Closed Testing install",
     "owner release acceptance → at most 10 Wave 1 testers; Public Beta stays HOLD"
   ],
-  "base": "main"
+  "base": "main",
+  "mergedToMain": "8846bef0337d00596674fe00d30c6c6a9768e8d6"
 }

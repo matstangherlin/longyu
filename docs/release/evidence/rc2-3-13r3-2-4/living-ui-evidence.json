@@ -1,7 +1,7 @@
 {
   "schema": "longyu-living-ui-evidence/1",
   "wave": "RC2.3.13R.3.2.4",
-  "runtimeDigest": "bce96d6f5763c2a0",
+  "runtimeDigest": "e932204a55b96823",
   "engine": "chromium",
   "seedLesson": "l9-tudo-bem",
   "maxAmbient": 4,
@@ -207,11 +207,11 @@
   "rapidSwitch": {
     "finalPath": "/jornada",
     "errors": 0,
-    "maxThumbAnimations": 0,
+    "maxThumbAnimations": 1,
     "thumbAtJourney": true
   },
   "modal": {
-    "clickDuringEnterMs": 2,
+    "clickDuringEnterMs": 0,
     "enterAnimating": true,
     "takesTap": true
   },
