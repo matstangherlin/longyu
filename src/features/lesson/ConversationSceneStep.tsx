@@ -40,6 +40,7 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { Button } from "../../components/ui/primitives";
 import { SpeakButton } from "../../components/ui/SpeakButton";
 import { IconCheck, IconChevron, IconX } from "../../components/ui/Icon";
+import { TileVerdictMark } from "./TileVerdictMark";
 import type { ConversationRepairBeat } from "../../data/journey";
 import { REPAIR_STRATEGY_LABELS, type RepairStrategy } from "../../data/productionTasks";
 import { isConversationV2Enabled } from "../../lib/featureFlags";
@@ -281,7 +282,7 @@ function SpeechBubble({
             text={audio}
             label={highlightListen ? t("player.tapToListen") : t("player.listen")}
             size="sm"
-            className={["shrink-0", highlightListen ? "ring-2 ring-accent ring-offset-2 animate-pulse" : ""].join(" ")}
+            className={["shrink-0", highlightListen ? "ring-2 ring-accent ring-offset-2" : ""].join(" ")}
           />
         </div>
       </div>
@@ -485,9 +486,10 @@ function CheckpointPanel({
                   className={[
                     "relative flex min-h-12 items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
                     containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
-                    correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
-                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
-                    active && !correct && !wrong && "border-accent bg-accent-soft text-accent ring-2 ring-accent/15",
+                    // RC2.3.13R.3.2.5 — label stays ink; the state lives in tint, ring and mark.
+                    correct && "border-transparent bg-good-soft text-ink ring-1 ring-[rgb(var(--good)/0.45)]",
+                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-ink ring-1 ring-wrong/40",
+                    active && !correct && !wrong && "border-accent bg-accent-soft text-ink ring-2 ring-accent/35",
                     !active && !correct && !wrong && "border-line bg-surface text-ink hover:border-accent-soft",
                   ]
                     .filter(Boolean)
@@ -498,6 +500,7 @@ function CheckpointPanel({
                   <span className="min-w-0 flex-1">
                     <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
                   </span>
+                  <TileVerdictMark verdict={correct ? "right" : wrong ? "wrong" : null} />
                 </button>
               );
             })}
@@ -1060,9 +1063,10 @@ function InteractionPanel({
                   className={[
                     "relative flex min-h-12 items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left font-semibold shadow-card transition",
                     containsCjk(option) ? "hanzi text-[22px] sm:text-[26px]" : "text-[15px]",
-                    correct && "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
-                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
-                    active && !correct && !wrong && "border-accent bg-accent-soft text-accent ring-2 ring-accent/15",
+                    // RC2.3.13R.3.2.5 — label stays ink; the state lives in tint, ring and mark.
+                    correct && "border-transparent bg-good-soft text-ink ring-1 ring-[rgb(var(--good)/0.45)]",
+                    wrong && "longyu-error-shake border-transparent bg-wrong-soft text-ink ring-1 ring-wrong/40",
+                    active && !correct && !wrong && "border-accent bg-accent-soft text-ink ring-2 ring-accent/35",
                     !active && !correct && !wrong && "border-line bg-surface text-ink hover:border-accent-soft",
                   ]
                     .filter(Boolean)
@@ -1073,6 +1077,7 @@ function InteractionPanel({
                   <span className="min-w-0 flex-1">
                     <ExerciseText value={option} type={containsCjk(option) ? "hanzi" : "pt"} speakOnClick />
                   </span>
+                  <TileVerdictMark verdict={correct ? "right" : wrong ? "wrong" : null} />
                 </button>
               );
             })}

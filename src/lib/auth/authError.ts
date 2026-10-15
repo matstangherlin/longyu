@@ -4,6 +4,7 @@
  * token, authorization code, e-mail or provider message.
  */
 import type { AuthProviderId } from "./providers";
+import { t } from "../../i18n/catalog";
 
 export type AuthErrorCategory = "CANCELLED" | "PROVIDER" | "NETWORK" | "CONFIG" | "SESSION" | "CONFLICT" | "TIMEOUT" | "UNKNOWN";
 /** Internal stages (learner never sees these names). */
@@ -21,6 +22,30 @@ export function makeAuthError(category: AuthErrorCategory, provider: AuthProvide
 }
 
 const PROVIDER_NAME: Record<AuthProviderId, string> = { email: "e-mail", google: "Google", apple: "Apple", microsoft: "Microsoft" };
+
+/**
+ * RC2.3.13R.3.2.5 — the same learner copy, in the interface language (EN
+ * learners used to read Portuguese right after coming back from Google/Apple).
+ */
+export function authErrorCopy(error: AuthError | null): { title: string; body: string; actions: ("retry" | "other_method")[] } {
+  if (!error) return { title: t("auth.oauth.failedTitle"), body: t("auth.oauth.failedBody"), actions: ["retry", "other_method"] };
+  switch (error.category) {
+    case "CANCELLED":
+      return { title: t("auth.oauth.cancelledTitle"), body: t("auth.oauth.cancelledBody"), actions: ["retry", "other_method"] };
+    case "CONFLICT":
+      return { title: t("auth.oauth.conflictTitle"), body: t("auth.oauth.conflictBody"), actions: ["other_method"] };
+    case "NETWORK":
+      return { title: t("auth.oauth.networkTitle"), body: t("auth.oauth.networkBody"), actions: ["retry", "other_method"] };
+    case "TIMEOUT":
+      return { title: t("auth.oauth.timeoutTitle"), body: t("auth.oauth.failedBody"), actions: ["retry", "other_method"] };
+    default:
+      return {
+        title: error.provider === "email" ? t("auth.oauth.failedTitle") : t("auth.oauth.providerFailedTitle", { provider: PROVIDER_NAME[error.provider] }),
+        body: t("auth.oauth.failedBody"),
+        actions: ["retry", "other_method"],
+      };
+  }
+}
 
 /** Learner copy: no OAuthException, PKCE, HTTP codes or vendor names of infrastructure. */
 export function authErrorCopyPt(error: AuthError): { title: string; body: string; actions: ("retry" | "other_method")[] } {

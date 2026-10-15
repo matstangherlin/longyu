@@ -10,8 +10,9 @@ import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
 import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { IconChevron, IconShield, IconStar, IconLibrary, IconGear, IconSun, IconUser, IconTarget, IconBook } from "../../components/ui/Icon";
-import { requestAccountDeletion } from "../../services/privacyService";
-import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
+import { DeleteAccountConfirm } from "../../components/account/DangerZone";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useOnline } from "../../hooks/useOnline";
 import { isSubscribeIntent, resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { useTranslation } from "../../i18n/useTranslation";
@@ -46,6 +47,25 @@ function cloudSyncCopy(sync: CloudSyncState, translate: (key: string) => string)
             ? translate("player.saveCloud")
             : "");
   return displayInstruction(raw);
+}
+
+/**
+ * RC2.3.13R.3.2.5 — a cloud account is not proof that THIS device's progress is
+ * in the cloud. The badge and the "where" line follow the sync state and the
+ * network; the green "saved in the cloud" is reserved for a confirmed sync.
+ */
+function withSyncTruth(
+  base: ReturnType<typeof statusFor>,
+  authMode: AuthMode,
+  sync: CloudSyncState["status"],
+  online: boolean,
+  translate: (key: string) => string
+): ReturnType<typeof statusFor> {
+  if (authMode !== "cloud") return base;
+  if (!online) return { ...base, tone: "muted", where: translate("player.offlineCloud") };
+  if (sync === "pending" || sync === "loading") return { ...base, tone: "accent", where: translate("player.saveSyncing") };
+  if (sync === "error") return { ...base, tone: "accent", where: translate("player.saveLocalSafeRetry") };
+  return base;
 }
 
 function statusFor(
@@ -86,14 +106,16 @@ export function ContaPage() {
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts[currentAccountId];
   const authMode = (account?.authMode ?? "local") as AuthMode;
-  const status = statusFor(authMode, t);
   const backendReady = isSupabaseBackendEnabled();
   const cloudSyncState = useStore((s) => s.cloudSyncState);
+  const online = useOnline();
+  // RC2.3.13R.3.2.5 — "saved in the cloud" only when the sync says so.
+  const status = withSyncTruth(statusFor(authMode, t), authMode, cloudSyncState.status, online, t);
+  const [deleting, setDeleting] = useState(false);
   const syncCopy = cloudSyncCopy(cloudSyncState, t);
 
   const { signIn } = useCloudSignIn();
   const { canSignOut } = useCloudSignOut();
-  const endCloudSession = useStore((s) => s.endCloudSession);
   const theme = useStore((s) => s.theme);
   const followSystemTheme = useStore((s) => s.followSystemTheme);
 
@@ -110,28 +132,16 @@ export function ContaPage() {
     const result = await signIn(email, password);
     setLoading(false);
     if (!result.ok) {
-      setError(result.message);
+      setError(localizeUserMessage(result.message));
       return;
     }
-    setNotice(result.message);
+    setNotice(localizeUserMessage(result.message));
     setPassword("");
     if (subscribeIntent || searchParams.get("next")) {
       navigate(postAuthPath);
     }
   }
 
-  async function onDeleteAccount() {
-    const typed = window.prompt(
-      `Esta ação é permanente. Digite ${ACCOUNT_DELETION_CONFIRMATION_TEXT} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.`
-    );
-    if (typed === null) return;
-    const result = await requestAccountDeletion(typed);
-    setNotice(result.message);
-    if (result.ok) {
-      endCloudSession();
-      navigate("/", { replace: true });
-    }
-  }
 
   const showLoginForm = backendReady && authMode !== "cloud";
 
@@ -268,14 +278,21 @@ export function ContaPage() {
         <section className="rounded-2xl border border-wrong/30 bg-wrong-soft/40 p-4" data-testid="conta-danger-zone">
           <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-wrong">{displayInstruction("Zona de perigo")}</div>
           <p className="mt-1 text-[13px] leading-5 text-ink-soft">{displayInstruction("Excluir a conta apaga seus dados na nuvem. Não dá para desfazer.")}</p>
-          <button type="button" onClick={() => void onDeleteAccount()} className="mt-3 inline-flex min-h-11 items-center rounded-xl border border-wrong/40 px-4 text-sm font-semibold text-wrong hover:bg-wrong-soft" data-testid="conta-delete-account">
-            {displayInstruction("Excluir minha conta")}
-          </button>
+          {/* RC2.3.13R.3.2.5 — the in-app confirmation (was a native window.prompt). */}
+          {!deleting ? (
+            <button type="button" onClick={() => setDeleting(true)} className="mt-3 inline-flex min-h-11 items-center rounded-xl border border-wrong/40 px-4 text-sm font-semibold text-wrong hover:bg-wrong-soft" data-testid="conta-delete-account">
+              {displayInstruction("Excluir minha conta")}
+            </button>
+          ) : (
+            <div className="mt-3 rounded-xl border border-line bg-surface p-3.5">
+              <DeleteAccountConfirm testIdPrefix="conta" onCancel={() => setDeleting(false)} />
+            </div>
+          )}
         </section>
       )}
 
       <p className="flex items-center gap-1.5 px-1 text-[11px] leading-5 text-ink-faint">
-        <IconShield width={13} height={13} /> {displayInstruction("Sua senha nunca é salva neste dispositivo. A anon key do backend é pública por design; o RLS protege os dados.")}
+        <IconShield width={13} height={13} /> {displayInstruction("Sua senha nunca é salva neste dispositivo.")}
       </p>
     </PageShell>
   );

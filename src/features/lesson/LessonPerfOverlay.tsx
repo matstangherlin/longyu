@@ -92,7 +92,7 @@ export function LessonPerfOverlay() {
           className="flex w-full items-center gap-2 px-3 py-1.5 font-semibold"
         >
           <span>perf</span>
-          <span className={state.longestTask > 100 ? "text-danger" : "text-ink-soft"}>
+          <span className={state.longestTask > 100 ? "text-wrong" : "text-ink-soft"}>
             long task {state.longestTask}ms
           </span>
           {worst && (
@@ -119,7 +119,7 @@ export function LessonPerfOverlay() {
             {phases.slice(-8).map((phase, index) => (
               <div key={`${phase.phase}:${index}`} className="flex justify-between gap-4">
                 <span>{phase.phase}</span>
-                <span className={phase.ms > 100 ? "text-danger tabular-nums" : "tabular-nums"}>
+                <span className={phase.ms > 100 ? "text-wrong tabular-nums" : "tabular-nums"}>
                   {phase.ms}
                 </span>
               </div>

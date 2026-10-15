@@ -6,7 +6,9 @@ export function PageFallback() {
   const { t } = useTranslation();
   return (
     <div className="flex min-h-[60vh] w-full items-center justify-center" role="status" aria-label={t("common.loadingPage")}>
-      <div className="flex flex-col items-center gap-3">
+      {/* RC2.3.13R.3.2.5 — a load that resolves fast never flashes a spinner:
+          it fades in after a short delay (instant with reduced motion). */}
+      <div className="loading-delayed-reveal flex flex-col items-center gap-3" data-testid="page-fallback">
         <span
           aria-hidden="true"
           className="h-8 w-8 animate-spin rounded-full border-[3px] border-accent/25 border-r-accent motion-reduce:animate-none"

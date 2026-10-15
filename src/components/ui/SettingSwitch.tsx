@@ -22,18 +22,19 @@ export function SettingSwitch({
         aria-checked={checked}
         aria-label={label}
         onClick={onChange}
-        className="flex h-12 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+        className="flex h-12 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         <span
           aria-hidden="true"
           className={[
+            // RC2.3.13R.3.2.5 — OFF is a visible track (≥ 3:1 for the control), not a pale line.
             "relative block h-7 w-12 rounded-full transition",
-            checked ? "bg-accent" : "bg-line",
+            checked ? "bg-accent" : "bg-ink-faint/55 ring-1 ring-inset ring-ink-faint/40",
           ].join(" ")}
         >
           <span
             className={[
-              "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform",
+              "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-card transition-transform",
               checked ? "translate-x-5" : "translate-x-0",
             ].join(" ")}
           />

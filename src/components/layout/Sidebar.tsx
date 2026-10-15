@@ -22,7 +22,7 @@ const FLYOUT_LEFT = "14.35rem";
 
 function linkClass(active: boolean) {
   return [
-    "flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+    "flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
     active
       ? "border-2 border-accent/70 bg-accent-soft text-accent"
       : "border-2 border-transparent text-ink-soft hover:bg-surface-2 hover:text-ink",
@@ -339,7 +339,7 @@ function FlyoutNavItem({
                       role="menuitem"
                       to={shortcut.to}
                       className={[
-                        "flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                        "flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                         shortcutActive
                           ? "bg-accent-soft text-accent"
                           : "text-ink-soft hover:bg-surface-2 hover:text-ink",
@@ -359,7 +359,7 @@ function FlyoutNavItem({
             <Link
               role="menuitem"
               to={footer.to}
-              className="flex min-h-10 items-center justify-center rounded-xl bg-surface-2 px-3 py-2 text-sm font-bold text-accent transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              className="flex min-h-10 items-center justify-center rounded-xl bg-surface-2 px-3 py-2 text-sm font-bold text-accent transition hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               onClick={closeNow}
             >
               {footer.label}

@@ -151,13 +151,13 @@ export function ProgressionSegmentedSwitch({ mode }: { mode: ProgressionMode }) 
       <div
         role="tablist"
         aria-label={t("progression.switchLabel")}
-        className="relative mx-auto grid max-w-md grid-cols-2 gap-1 rounded-2xl border border-line bg-surface-2 p-1"
+        className="relative mx-auto grid max-w-md grid-cols-2 gap-1 rounded-2xl border border-line bg-bg p-1"
         onKeyDown={onKeyDown}
       >
         <span
           aria-hidden
           className={[
-            "pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-xl bg-surface shadow-sm motion-reduce:transition-none",
+            "pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-xl bg-surface shadow-card ring-1 ring-line motion-reduce:transition-none",
             "transition-transform duration-[var(--motion-normal)] ease-[var(--ease-standard)]",
             thumbMode === "culture" ? "translate-x-[calc(100%+0.25rem)] left-1" : "translate-x-0 left-1",
           ].join(" ")}

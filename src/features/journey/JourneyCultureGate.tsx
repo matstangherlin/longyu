@@ -65,7 +65,7 @@ export function JourneyCultureGate({
 
       <p className="text-sm font-semibold text-ink" data-testid="culture-gate-lead">{lead}</p>
       {/* O dragão explica o porquê, no mesmo GuideDialogue canônico da RC2.2.5. */}
-      <JourneyGuideExplanation id={`culture-gate-${gate.id}`} message={reason} className="max-w-none" />
+      <JourneyGuideExplanation id={`culture-gate-${gate.id}`} message={reason} className="max-w-none" whenSeen="static" />
 
       <ul className="flex flex-col gap-1" data-testid="culture-gate-items">
         {orderedIds.map((itemId) => {
@@ -95,7 +95,7 @@ export function JourneyCultureGate({
             nextItemId,
             `?src=jornada&from=${encodeURIComponent("/jornada")}&gate=${gate.id}&mode=journey`
           )}
-          className="inline-flex h-10 items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-lift transition hover:bg-accent-strong"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-lift transition hover:bg-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2"
           data-testid="culture-gate-cta"
           data-culture-gate-next={nextItemId}
         >

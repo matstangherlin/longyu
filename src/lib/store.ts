@@ -146,6 +146,7 @@ import {
   serverOpenChest,
   serverSpendQi,
 } from "./economyServerBridge";
+import { economyFailureMessage } from "./economyPending";
 import { confirmCloudPearlProActivation } from "./cloudPearlProActivation";
 import { mergeWithoutPersistedServerEntitlement } from "./persistenceSecurity";
 import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
@@ -3027,7 +3028,7 @@ export const useStore = create<AppState>()(
                 const next = { ...s, points: previousPoints };
                 return { points: next.points, accounts: saveCurrentAccount(next) };
               });
-              get().setEconomySyncMessage("Qi não confirmado pelo servidor.");
+              get().setEconomySyncMessage(economyFailureMessage(result, "Qi não confirmado pelo servidor."));
             }
           });
         }
@@ -3283,7 +3284,10 @@ export const useStore = create<AppState>()(
                   };
                 });
                 get().setEconomySyncMessage(
-                  "Missão ainda sem evidência no servidor. Continue praticando e tente de novo."
+                  economyFailureMessage(
+                    result,
+                    "Missão ainda sem evidência no servidor. Continue praticando e tente de novo."
+                  )
                 );
               }
             }
@@ -4532,9 +4536,12 @@ export const useStore = create<AppState>()(
                 return { points: previousPoints, rewardHistory, accounts: saveCurrentAccount(next) };
               });
               get().setEconomySyncMessage(
-                result.error === "attestation_required"
-                  ? "Conclua a lição de verdade para liberar o Qi."
-                  : "Recompensa não confirmada pelo servidor."
+                economyFailureMessage(
+                  result,
+                  result.error === "attestation_required"
+                    ? "Esta recompensa é liberada quando o servidor confirmar a lição."
+                    : "Recompensa não confirmada pelo servidor."
+                )
               );
             }
           })();
@@ -5486,7 +5493,7 @@ export const useStore = create<AppState>()(
                 const next = { ...s, dailyEnergy: previousEnergy };
                 return { dailyEnergy: previousEnergy, accounts: saveCurrentAccount(next) };
               });
-              get().setEconomySyncMessage("Carga não confirmada pelo servidor.");
+              get().setEconomySyncMessage(economyFailureMessage(result, "Carga não confirmada pelo servidor."));
             }
           });
         }
@@ -5580,7 +5587,9 @@ export const useStore = create<AppState>()(
                 const next = { ...s, dailyEnergy };
                 return { dailyEnergy, accounts: saveCurrentAccount(next) };
               });
-              get().setEconomySyncMessage("Energia da história não confirmada pelo servidor.");
+              get().setEconomySyncMessage(
+                economyFailureMessage(serverResult, "Energia da história não confirmada pelo servidor.")
+              );
             } else {
               clearStoryEnergyAttestation(clean);
             }

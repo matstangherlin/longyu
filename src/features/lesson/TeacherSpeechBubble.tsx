@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { TypingCaret } from "../../components/guide/GuideDialogue";
 import { Mascot } from "../../components/brand/Mascot";
 import { GUIDED_DRAGON_SIZE } from "../../lib/guidedPresentation";
+import { segmentGraphemes } from "../../lib/guideDialogueMachine";
+// RC2.3.13R.3.2.5 — the one reduced-motion signal (no third copy here).
+import { prefersReducedMotion } from "../../lib/motion/livingUiMotion";
 
 export type BubbleAnimState = "ENTER" | "TYPING" | "READY" | "EXIT";
-
-function prefersReducedMotion(): boolean {
-  if (typeof window === "undefined" || !window.matchMedia) return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
 
 /**
  * Dragon/teacher bubble with fast type-on.
@@ -30,6 +29,14 @@ export function TeacherSpeechBubble({
   const [shown, setShown] = useState(reduced ? text : "");
   const indexRef = useRef(0);
   const textRef = useRef(text);
+  // RC2.3.13R.3.2.5 — callbacks live in refs. Callers pass inline arrows
+  // (`onReady={() => setBubbleReady(true)}`); with them in the deps every
+  // parent render restarted the text, so each line typed twice and a tap to
+  // skip started it over. Only the text (or the motion mode) restarts it now.
+  const onReadyRef = useRef(onReady);
+  const onTypingCompleteRef = useRef(onTypingComplete);
+  onReadyRef.current = onReady;
+  onTypingCompleteRef.current = onTypingComplete;
 
   useEffect(() => {
     textRef.current = text;
@@ -37,41 +44,44 @@ export function TeacherSpeechBubble({
     if (reduced) {
       setShown(text);
       setState("READY");
-      onReady?.();
-      onTypingComplete?.();
+      onReadyRef.current?.();
+      onTypingCompleteRef.current?.();
       return;
     }
     setShown("");
     setState("ENTER");
     const enter = window.setTimeout(() => setState("TYPING"), 120);
     return () => window.clearTimeout(enter);
-  }, [text, reduced, onReady, onTypingComplete]);
+  }, [text, reduced]);
 
   useEffect(() => {
     if (state !== "TYPING") return;
     const full = textRef.current;
+    // Graphemes, not UTF-16 units: an emoji or a combining tone mark is never
+    // split in half on screen.
+    const graphemes = segmentGraphemes(full);
     // Fast type-on (~28ms/char) — never a slow forced wait.
     const id = window.setInterval(() => {
       indexRef.current += 1;
-      if (indexRef.current >= full.length) {
+      if (indexRef.current >= graphemes.length) {
         setShown(full);
         setState("READY");
-        onTypingComplete?.();
-        onReady?.();
+        onTypingCompleteRef.current?.();
+        onReadyRef.current?.();
         window.clearInterval(id);
         return;
       }
-      setShown(full.slice(0, indexRef.current));
+      setShown(graphemes.slice(0, indexRef.current).join(""));
     }, 28);
     return () => window.clearInterval(id);
-  }, [state, onReady, onTypingComplete]);
+  }, [state]);
 
   const finishTyping = () => {
     if (state === "TYPING") {
       setShown(textRef.current);
       setState("READY");
-      onTypingComplete?.();
-      onReady?.();
+      onTypingCompleteRef.current?.();
+      onReadyRef.current?.();
     }
   };
 
@@ -90,13 +100,14 @@ export function TeacherSpeechBubble({
         <Mascot
           size={GUIDED_DRAGON_SIZE.default}
           className="shrink-0"
+          decorative
         />
       </div>
       <button
         type="button"
         data-testid="teacher-bubble-tap"
         data-cta-hierarchy="tertiary"
-        aria-live="polite"
+        aria-label={text}
         className="relative min-w-0 flex-1 rounded-2xl border border-line bg-surface px-4 py-3 text-left text-base font-medium leading-6 text-ink shadow-card"
         onClick={finishTyping}
       >
@@ -104,10 +115,13 @@ export function TeacherSpeechBubble({
           className="absolute -left-1.5 bottom-4 h-3 w-3 rotate-45 border-b border-l border-line bg-surface"
           aria-hidden
         />
-        <span data-testid="teacher-bubble-text">{shown}</span>
+        {/* Screen readers hear the whole line once, not every 28 ms fragment. */}
+        <span data-testid="teacher-bubble-text" aria-hidden="true">{shown}</span>
         {state === "TYPING" ? (
-          <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-accent align-middle motion-reduce:hidden" aria-hidden />
+          // RC2.3.13R.3.2.5 — the same budgeted caret as the guide (it looped offscreen).
+          <TypingCaret />
         ) : null}
+        <span className="sr-only" aria-live="polite">{state === "READY" ? text : ""}</span>
       </button>
     </div>
   );

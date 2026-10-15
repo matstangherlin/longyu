@@ -37,7 +37,12 @@ export function PasswordField({
         </div>
       )}
       <div className={cx("relative", label || labelTrailing ? "mt-1.5" : undefined)}>
+        {/* RC2.3.13R.3.2.5 — once the eye makes it a text field, the keyboard
+            must not capitalise or "correct" the password ("senha123" → "Senha123"). */}
         <input
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           {...inputProps}
           id={inputId}
           name={name}
@@ -52,7 +57,7 @@ export function PasswordField({
           onClick={() => setVisible((current) => !current)}
           aria-label={visible ? hideText : showText}
           aria-pressed={visible}
-          className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           {visible ? <IconEyeOff width={19} height={19} /> : <IconEye width={19} height={19} />}
         </button>

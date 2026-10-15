@@ -84,6 +84,7 @@ import {
 } from "./PieceAssembly";
 import { buildAssemblyFeedback } from "./buildAssemblyFeedback";
 import { IconCheck, IconX, IconChevron, IconSound, IconFlame } from "../../components/ui/Icon";
+import { TileVerdictMark } from "./TileVerdictMark";
 import { PronunciationPractice } from "./PronunciationPractice";
 import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { t } from "../../i18n/catalog";
@@ -1055,6 +1056,7 @@ function StepTone({ step, onDone, onSkip, onMistake }: StepProps) {
               <span className="text-2xl font-semibold tabular-nums text-ink">{tone}</span>
               <span className="text-xs font-medium text-ink-soft">{displayPt(`${tone}º tom`)}</span>
               {showDetail && <ToneContour tone={tone} mode="LATE" locale={instructionLocale} />}
+              <TileVerdictMark verdict={state === "right" ? "right" : state === "wrong" ? "wrong" : null} />
             </button>
           );
         })}
@@ -1242,7 +1244,7 @@ function StepProduce({ step, onDone, onSkip, onMistake }: StepProps) {
     <div>
       <Eyebrow>{t("player.produce")}</Eyebrow>
       <p className="mt-2 text-sm text-ink-soft">{t("player.assembleInOrder", { pt: step.pt ?? "" })}</p>
-      <div className="my-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4">
+      <div className="my-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-3xl border border-dashed border-accent-soft bg-surface-2/80 p-4">
         {picked.length === 0 && <span className="text-sm font-medium text-ink-faint">{t("player.tapPiecesShort")}</span>}
         {picked.map((p, i) => (
           <button key={i} onClick={() => {
@@ -1516,7 +1518,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
       )}
 
       {composing && (
-        <div className="mt-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
+        <div className="mt-4 flex min-h-[64px] flex-wrap items-center justify-center gap-2 rounded-3xl border border-dashed border-accent-soft bg-surface-2/80 p-4 shadow-inner">
           {pickedPieces.length === 0 && (
             <span className="text-sm font-medium text-ink-faint">{t("review.tapPieces")}</span>
           )}
@@ -2182,7 +2184,7 @@ function EngineActions({
         )}
         <Button
           size="lg"
-          variant={canCheck ? "good" : "outline"}
+          variant={canCheck ? "primary" : "outline"}
           data-guided-primary
           className="w-full shadow-lift"
           disabled={!canCheck}
@@ -2812,7 +2814,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
             </Button>
           )}
           <Button
-            variant={picked ? "good" : "outline"}
+            variant={picked ? "primary" : "outline"}
             data-guided-primary
             className="shadow-lift"
             disabled={!picked}
@@ -3348,6 +3350,7 @@ function StepMapDirection({ step, onDone, onSkip, onMistake }: StepProps) {
                 {arrowFor(option)}
               </span>
               <span className={scaffold >= 2 ? "hanzi text-xl" : "text-base"}>{labelFor(option)}</span>
+              <TileVerdictMark verdict={correct ? "right" : wrong ? "wrong" : null} />
             </button>
           );
         })}
@@ -3649,6 +3652,7 @@ function StepDialogueChoice({ step, onDone, onSkip, onMistake }: StepProps) {
                   helpMode="disabled"
                 />
               </span>
+              <TileVerdictMark verdict={correct ? "right" : wrong ? "wrong" : null} />
             </button>
           );
         })}
@@ -4059,6 +4063,7 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="px-3">{option.label}</span>
+              <TileVerdictMark verdict={correct ? "right" : wrong ? "wrong" : null} />
             </button>
           );
         })}
@@ -4650,7 +4655,7 @@ function StructureHowItWorks({
       {!forceOpen ? (
         <button
           type="button"
-          className="text-left text-xs font-semibold text-ink-mute underline decoration-line underline-offset-2 transition hover:text-ink"
+          className="text-left text-xs font-semibold text-ink-faint underline decoration-line underline-offset-2 transition hover:text-ink"
           aria-expanded={open}
           onClick={() => setOpen((value) => !value)}
         >
@@ -4692,7 +4697,7 @@ function StructureHowItWorks({
                     {piece.text}
                   </div>
                   {label ? (
-                    <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.06em] text-ink-mute">
+                    <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.06em] text-ink-faint">
                       {label}
                     </p>
                   ) : null}
@@ -4860,7 +4865,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
         </button>
       ) : null}
       {hadMistake && canRequestMore ? (
-        <span className="text-xs text-ink-mute">{t("player.moreHelpAfterError")}</span>
+        <span className="text-xs text-ink-faint">{t("player.moreHelpAfterError")}</span>
       ) : null}
       {helpLevel > initialHelp ? (
         <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">
@@ -5069,7 +5074,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
                   <span className="hanzi text-base font-semibold text-ink">{item.hanzi}</span>
                   {item.pinyin ? <span className="ml-1.5 text-xs text-ink-soft">{item.pinyin}</span> : null}
                   {item.meaningPt ? (
-                    <span className="mt-0.5 block text-[11px] text-ink-mute">{item.meaningPt}</span>
+                    <span className="mt-0.5 block text-[11px] text-ink-faint">{item.meaningPt}</span>
                   ) : null}
                 </li>
               ))}
@@ -5162,7 +5167,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
               <li key={item.hanzi} className="rounded-xl border border-line bg-surface-2 px-2.5 py-1.5">
                 <span className="hanzi text-base font-semibold text-ink">{item.hanzi}</span>
                 {item.meaningPt ? (
-                  <span className="mt-0.5 block text-[11px] text-ink-mute">{item.meaningPt}</span>
+                  <span className="mt-0.5 block text-[11px] text-ink-faint">{item.meaningPt}</span>
                 ) : null}
               </li>
             ))}

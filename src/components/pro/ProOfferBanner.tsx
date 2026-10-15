@@ -43,7 +43,7 @@ export function ProOfferBanner({
         .join(" ")}
     >
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/12 text-gold">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold-soft text-gold">
           <IconStar width={17} height={17} />
         </span>
 
@@ -68,7 +68,7 @@ export function ProOfferBanner({
           type="button"
           onClick={onDismiss}
           aria-label={t("shell.dismissOfferAria")}
-          className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           <IconX width={15} height={15} />
         </button>

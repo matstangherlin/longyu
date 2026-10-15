@@ -200,7 +200,7 @@ export function BusinessPage() {
           <div className="mt-4 space-y-2">
             {BUSINESS_FAQ.map((item) => (
               <details key={item.q} className="rounded-2xl border border-line/55 bg-surface px-4 py-1">
-                <summary className="min-h-11 cursor-pointer list-none py-2.5 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+                <summary className="min-h-11 cursor-pointer list-none py-2.5 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring">
                   {item.q}
                 </summary>
                 <p className="pb-3 text-sm leading-6 text-ink-soft">{item.a}</p>

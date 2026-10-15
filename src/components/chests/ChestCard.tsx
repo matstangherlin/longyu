@@ -39,7 +39,7 @@ export function ChestCard({
       <p className="mt-2 text-xs leading-5 text-ink-faint">{t("player.chestMayContain", { items: visual.contains })}</p>
 
       <div className="mt-auto pt-4">
-        <Button size="sm" className="w-full" disabled={!has} onClick={onOpen}>
+        <Button size="sm" className="w-full" disabled={!has} onClick={onOpen} data-testid={`chest-open-${type}`}>
           {has ? t("player.chestOpenCta") : t("player.chestNone")}
         </Button>
       </div>

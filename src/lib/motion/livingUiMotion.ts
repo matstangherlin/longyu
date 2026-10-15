@@ -36,6 +36,12 @@ export const AMBIENT_PRIORITY = {
 
 export type AmbientKind = keyof typeof AMBIENT_PRIORITY;
 
+/**
+ * RC2.3.13R.3.2.5 — the chest opening ritual (press → lid → light → reward)
+ * before the already-claimed rewards are shown. Reduced motion: 0.
+ */
+export const CHEST_REVEAL_MS = 680;
+
 /** One-shot celebration particles on Victory (plum blossoms), then stop. */
 export const COMPLETION_PARTICLES = 6;
 

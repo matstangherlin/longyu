@@ -42,7 +42,7 @@ export function QaConversationScenePage() {
 
   return (
     <main className="min-h-[100dvh] bg-bg px-4 py-6" data-qa-scene-fixture>
-      <Card className="mx-auto max-w-xl overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5">
+      <Card className="mx-auto max-w-xl overflow-visible rounded-3xl p-4 shadow-lift sm:p-5">
         <div data-qa-scene-status={status} data-qa-scene-mistakes={String(mistakes)}>
           {!step ? (
             <p className="text-sm text-ink-soft">Cena {sceneId} não está em nenhuma lição.</p>

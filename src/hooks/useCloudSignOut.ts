@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { allowSeededLocalSession } from "../lib/auth/localAuthPolicy";
+import { forgetCloudReady } from "../lib/auth/sessionAudience";
 import { useStore } from "../lib/store";
 import { logout as authLogout } from "../services/authService";
 import { cancelScheduledCloudPush, pushProgressToCloud } from "../services/cloudSyncCoordinator";
@@ -19,6 +20,7 @@ export function useCloudSignOut() {
       await pushProgressToCloud();
       cancelScheduledCloudPush();
       const result = await authLogout();
+      forgetCloudReady();
       endCloudSession();
       navigate("/", { replace: true });
       return result.status === "ok" ? "Sessão encerrada. Seu progresso permanece salvo na nuvem." : result.message;

@@ -596,13 +596,13 @@ export function SettingsPage() {
                   aria-checked={soundEffects}
                   aria-label={t("settings.progressSounds")}
                   onClick={() => setSoundEffects(!soundEffects)}
-                  className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                  className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   <span
                     aria-hidden="true"
                     className={[
                       "relative block h-7 w-12 rounded-full transition",
-                      soundEffects ? "bg-accent" : "bg-line",
+                      soundEffects ? "bg-accent" : "bg-ink-faint/55 ring-1 ring-inset ring-ink-faint/40",
                     ].join(" ")}
                   >
                     <span className={[
@@ -631,7 +631,7 @@ export function SettingsPage() {
                           window.setTimeout(() => playSoundFx("tap", soundEffects), 0);
                         }}
                         className={[
-                          "min-h-11 rounded-2xl border px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                          "min-h-11 rounded-2xl border px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                           active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink hover:bg-surface",
                         ].join(" ")}
                       >
@@ -747,7 +747,9 @@ export function SettingsPage() {
       <>
           <HubSection id="tema" className="scroll-mt-6" title={t("settings.theme")}>
             {/* RC2.2.17 · CV — Sistema / Claro / Escuro, compacto e direto. */}
-            <div className="mb-3 grid grid-cols-3 gap-1 rounded-2xl bg-surface-2 p-1" role="radiogroup" aria-label={t("settings.appearanceMode")} data-testid="appearance-mode">
+            {/* RC2.3.13R.3.2.5 — the selected mode is lighter than its track in every
+                theme and carries the same accent dot as the Journey ↔ Culture switch. */}
+            <div className="mb-3 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-bg p-1" role="radiogroup" aria-label={t("settings.appearanceMode")} data-testid="appearance-mode">
               {(["system", "light", "dark"] as AppearanceMode[]).map((mode) => {
                 const active = appearanceModeOf(theme, followSystemTheme) === mode;
                 return (
@@ -764,10 +766,11 @@ export function SettingsPage() {
                     }}
                     className={[
                       "min-h-11 rounded-xl text-sm font-semibold transition",
-                      active ? "bg-surface text-ink shadow-card" : "text-ink-soft hover:text-ink",
+                      active ? "bg-surface text-ink shadow-card ring-1 ring-line" : "text-ink-soft hover:text-ink",
                     ].join(" ")}
                   >
                     {mode === "system" ? t("settings.appearanceSystem") : mode === "light" ? t("settings.appearanceLight") : t("settings.appearanceDark")}
+                    {active ? <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden /> : null}
                   </button>
                 );
               })}
@@ -779,7 +782,7 @@ export function SettingsPage() {
                   type="button"
                   onClick={() => setTheme(themeOption.id)}
                   aria-pressed={theme === themeOption.id}
-                  className="group min-h-11 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                  className="group min-h-11 rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 >
                   <Card
                     variant="interactive"
@@ -886,13 +889,13 @@ export function SettingsPage() {
 
               <Link
                 to="/privacidade#politica"
-                className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 {t("settings.privacyPolicy")}
               </Link>
               <Link
                 to="/termos"
-                className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 {t("marketing.terms")}
               </Link>
@@ -939,13 +942,13 @@ export function SettingsPage() {
                 aria-checked={isPremium}
                 aria-label={t("settings.localPreviewAria")}
                 onClick={() => setPremium(!isPremium)}
-                className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+                className="flex h-11 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
                 <span
                   aria-hidden="true"
                   className={[
                     "relative block h-7 w-12 rounded-full transition",
-                    isPremium ? "bg-accent" : "bg-line",
+                    isPremium ? "bg-accent" : "bg-ink-faint/55 ring-1 ring-inset ring-ink-faint/40",
                   ].join(" ")}
                 >
                   <span className={[
@@ -1031,7 +1034,7 @@ function SettingsIndex() {
             <Link
               to={`/config/${item.id}`}
               data-settings-category={item.id}
-              className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45"
+              className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring"
             >
               <span className="min-w-0">
                 <span className="block font-medium text-ink">{t(item.titleKey)}</span>

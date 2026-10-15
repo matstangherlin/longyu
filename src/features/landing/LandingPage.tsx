@@ -79,7 +79,7 @@ export function LandingPage() {
             onClick={() => setTheme(isDark ? "clay" : "dark")}
             aria-pressed={isDark}
             aria-label={isDark ? t("marketing.enableLight") : t("marketing.enableDark")}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-semibold text-ink-soft shadow-card transition hover:border-accent-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-semibold text-ink-soft shadow-card transition hover:border-accent-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <IconSun width={17} height={17} aria-hidden="true" />
             <span className="hidden sm:inline">{isDark ? t("marketing.lightMode") : t("marketing.darkMode")}</span>
@@ -98,7 +98,7 @@ export function LandingPage() {
           <section
             aria-hidden="true"
             data-testid="landing-demo"
-            className="relative hidden overflow-hidden rounded-[28px] border border-accent/20 bg-[radial-gradient(circle_at_50%_4%,rgb(var(--accent-soft)),rgb(var(--surface))_56%,rgb(var(--bg))_100%)] p-7 text-center shadow-lift lg:block"
+            className="relative hidden overflow-hidden rounded-3xl border border-accent/20 bg-[radial-gradient(circle_at_50%_4%,rgb(var(--accent-soft)),rgb(var(--surface))_56%,rgb(var(--bg))_100%)] p-7 text-center shadow-lift lg:block"
           >
             <span className="hanzi pointer-events-none absolute -right-8 -top-10 select-none text-[11rem] leading-none text-accent/[0.07]">
               龙

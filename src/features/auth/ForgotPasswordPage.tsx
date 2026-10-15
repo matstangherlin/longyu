@@ -156,7 +156,7 @@ export function ForgotPasswordPage() {
       </div>
 
       {stage === "email" && (
-        <form onSubmit={sendCode} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
+        <form onSubmit={sendCode} className="rounded-3xl border border-line bg-surface p-5 shadow-lift sm:p-6">
           <label className="block">
             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.email")}</span>
             <input
@@ -177,7 +177,7 @@ export function ForgotPasswordPage() {
       )}
 
       {stage === "code" && (
-        <form onSubmit={confirmCode} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
+        <form onSubmit={confirmCode} className="rounded-3xl border border-line bg-surface p-5 shadow-lift sm:p-6">
           <label className="block">
             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("auth.recoveryCodeLabel")}</span>
             <input
@@ -222,7 +222,7 @@ export function ForgotPasswordPage() {
       )}
 
       {stage === "password" && (
-        <form onSubmit={savePassword} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
+        <form onSubmit={savePassword} className="rounded-3xl border border-line bg-surface p-5 shadow-lift sm:p-6">
           <PasswordField
             label={t("auth.recoveryNewPasswordLabel")}
             autoComplete="new-password"
@@ -230,17 +230,19 @@ export function ForgotPasswordPage() {
             onChange={(event) => setPassword(event.target.value)}
             data-testid="recovery-new-password"
           />
-          <PasswordField
-            className="mt-4"
-            label={t("auth.recoveryConfirmPasswordLabel")}
-            autoComplete="new-password"
-            value={passwordConfirm}
-            onChange={(event) => setPasswordConfirm(event.target.value)}
-            data-testid="recovery-confirm-password"
-          />
+          {/* The margin lives on a wrapper: on the input it shifted the eye toggle. */}
+          <div className="mt-4">
+            <PasswordField
+              label={t("auth.recoveryConfirmPasswordLabel")}
+              autoComplete="new-password"
+              value={passwordConfirm}
+              onChange={(event) => setPasswordConfirm(event.target.value)}
+              data-testid="recovery-confirm-password"
+            />
+          </div>
           <PasswordRequirements password={password} confirmation={passwordConfirm} progressive className="mt-3" />
           <Feedback notice={null} error={error} />
-          <Button type="submit" size="lg" disabled={loading} className="mt-5 w-full" data-testid="recovery-save">
+          <Button type="submit" size="lg" loading={loading} className="mt-5 w-full" data-testid="recovery-save">
             {loading ? t("auth.recoverySaving") : t("auth.recoverySave")}
           </Button>
         </form>

@@ -444,7 +444,7 @@ export function PronunciationPractice({
   if (phase === "listening") {
     return (
       <div className="mt-6 flex flex-col items-center gap-3 py-2">
-        <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-accent text-2xl text-white ring-4 ring-accent-soft">
+        <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-accent text-2xl text-white ring-4 ring-accent-soft motion-reduce:animate-none">
           ···
         </div>
         {/* RC2.2.13 — estado explícito de escuta (mesmo texto na Web e no Android). */}

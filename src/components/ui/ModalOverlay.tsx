@@ -104,7 +104,7 @@ export function ModalOverlay({
         // RC2.3.13R.3.2.4 — `living-overlay`: backdrop fades; the panel slides up
         // as a sheet on phones and fades + scales on wider screens. Never
         // longer than --motion-normal and never blocks taps.
-        "living-overlay fixed inset-0 flex items-end justify-center overflow-y-auto overscroll-contain bg-ink/65 p-0 backdrop-blur-md sm:items-center sm:p-4",
+        "living-overlay fixed inset-0 flex items-end justify-center overflow-y-auto overscroll-contain bg-scrim/60 p-0 backdrop-blur-md sm:items-center sm:p-4",
         zLayerClass.modal,
         className,
       ].filter(Boolean).join(" ")}

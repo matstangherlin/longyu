@@ -106,13 +106,13 @@ export function ProPaywall({
         aria-modal="true"
         aria-labelledby="pro-paywall-title"
         data-testid={`pro-paywall-${kind}`}
-        className="w-full max-w-md rounded-t-2xl border border-[#B7791F]/30 bg-surface p-5 shadow-lift sm:rounded-2xl sm:p-6"
+        className="w-full max-w-md rounded-t-2xl border border-gold/30 bg-surface p-5 shadow-lift sm:rounded-2xl sm:p-6"
       >
         <div className="flex items-start justify-between gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#B7791F]/15 text-gold">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold/15 text-gold">
             <Icon width={24} height={24} />
           </span>
-          <span className="rounded-full border border-[#B7791F]/25 bg-[#B7791F]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">
+          <span className="rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gold">
             {t("pro.badge")}
           </span>
         </div>

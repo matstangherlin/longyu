@@ -8,6 +8,7 @@ import { playSoundFx } from "../../lib/soundFx";
 import { useStore } from "../../lib/store";
 import { LESSON_UI_CLASS } from "../../ui/lessonTokens";
 import { CompletionBurst } from "../../components/motion/CompletionBurst";
+import { prefersReducedMotion } from "../../lib/motion/livingUiMotion";
 import { ChineseOrnamentalDivider } from "../../components/ornaments/chinese/ChineseOrnamentalDivider";
 import {
   buildLessonCompletionSummary,
@@ -109,8 +110,9 @@ export function LessonVictory({
   const [motionReady, setMotionReady] = useState(false);
   const [shownXp, setShownXp] = useState(0);
   const playedRef = useRef(false);
-  const reducedMotion =
-    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // RC2.3.13R.3.2.5 — the one reduced-motion signal (livingUiMotion), read once
+  // per Victory so already-scheduled stages keep a single mode.
+  const [reducedMotion] = useState(() => prefersReducedMotion());
 
   const summary = useMemo(
     () =>
@@ -253,7 +255,7 @@ export function LessonVictory({
         className={
           guided
             ? "flex min-h-0 flex-1 flex-col overflow-hidden text-center roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
-            : "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
+            : "flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--gold)/0.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
         }
       >
 
@@ -268,13 +270,18 @@ export function LessonVictory({
           </div>
 
           <div
-            className={`relative isolate mx-auto mt-2 h-16 w-20 shrink-0 ${motionReady || reducedMotion ? "lesson-victory-in" : ""}`}
+            className="relative isolate mx-auto mt-2 h-16 w-20 shrink-0"
             data-testid={context === "culture" ? "culture-stars" : undefined}
             data-victory-mascot
           >
-            {/* RC2.3.13R.3.2.4 — seal + plum blossoms, once, behind the mascot. */}
+            {/* RC2.3.13R.3.2.4 — seal + plum blossoms, once, behind the mascot.
+                RC2.3.13R.3.2.5 — the burst keeps its own one-shot lifetime: it is
+                never inside the mascot's entrance fade (which starts at 300 ms). */}
             <CompletionBurst play={firstShow && !reducedMotion} />
-            <div className="absolute inset-x-0 top-0 flex justify-center">
+            <div
+              className={`absolute inset-x-0 top-0 flex justify-center ${motionReady || reducedMotion ? "lesson-victory-in" : ""}`}
+              data-victory-mascot-entrance
+            >
               <Mascot size={56} variant="celebrate" animated={!reducedMotion} />
             </div>
           </div>
@@ -384,7 +391,7 @@ export function LessonVictory({
             {reached("PROGRESS") && progress && (
               <span data-victory-progress className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-3 py-1.5 text-sm font-semibold text-ink shadow-card">
                 <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden className="-rotate-90">
-                  <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgb(var(--line))" strokeWidth="2" />
+                  <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgb(var(--border))" strokeWidth="2" />
                   <circle
                     cx="8"
                     cy="8"
@@ -410,9 +417,15 @@ export function LessonVictory({
           </div>
           {currentStage && isInterstitialStage(currentStage) && (
             // Medalha/função nova: um instante só dela, depois sai (nunca junto do resumo).
-            <div className="mx-auto mt-3 rounded-2xl border border-accent-soft bg-accent-soft/40 px-4 py-2 text-sm font-semibold text-accent" data-victory-interstitial={currentStage} onClick={advance}>
+            // RC2.3.13R.3.2.5 — a real button: keyboard/TalkBack can skip the staged reveal too.
+            <button
+              type="button"
+              className="mx-auto mt-3 block rounded-2xl border border-accent-soft bg-accent-soft px-4 py-2 text-sm font-semibold text-accent-on-soft transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              data-victory-interstitial={currentStage}
+              onClick={advance}
+            >
               {currentStage === "MEDAL" ? `🏅 ${medalLabel}` : unlockLabel}
-            </div>
+            </button>
           )}
 
           {/*

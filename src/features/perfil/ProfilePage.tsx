@@ -358,7 +358,7 @@ export function ProfilePage() {
             <Link
               to="/revisao"
               onClick={() => clearStreakRecovery()}
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <IconRefresh width={15} height={15} /> {t("shell.recoverStreak")}
             </Link>

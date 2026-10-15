@@ -56,17 +56,15 @@ import {
   BREATH_RECOVERY_QI,
   DAILY_GOAL_QI,
   LESSON_BASE_XP,
-  LESSON_NO_SKIP_QI,
   LESSON_PASS_PRACTICE_XP,
   LESSON_PASS_XP,
-  LESSON_THREE_STAR_QI,
   LESSON_THREE_STAR_XP_BONUS,
   LESSON_TOPIC_MASTERED_XP_BONUS,
   MODULE_REVIEW_PASS_ACCURACY,
   PEARL_STREAK_MILESTONES,
-  PRO_LESSON_QI_BONUS,
   RETRY_QUESTION_QI,
 } from "../../data/economy";
+import { lessonCompletionQi } from "../../lib/lessonQi";
 import { playMandarinAudio } from "../../lib/audioPlayback";
 
 function speak(text: string, options: { rate?: number } = {}) {
@@ -457,7 +455,7 @@ function correctionForStep(step: LessonStep): LessonMistake {
 
 function LessonSummaryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-[18px] border border-line bg-surface-2 px-3 py-3 shadow-card">
+    <div className="min-w-0 rounded-2xl border border-line bg-surface-2 px-3 py-3 shadow-card">
       <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-faint">{label}</div>
       <div className="mt-1.5 truncate font-serif text-lg font-semibold text-ink sm:text-xl">{value}</div>
     </div>
@@ -1060,7 +1058,7 @@ function ImmediateErrorReviewOffer({
       data-review-offer
       data-review-can-recover={canRecover ? "true" : "false"}
     >
-      <section className="flex flex-1 flex-col rounded-[30px] border border-line bg-surface px-5 py-6 shadow-lift sm:p-7">
+      <section className="flex flex-1 flex-col rounded-3xl border border-line bg-surface px-5 py-6 shadow-lift sm:p-7">
         <div className="inline-flex w-fit rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
           {REVIEW_OFFER.eyebrow}
         </div>
@@ -1119,7 +1117,7 @@ function ImmediateErrorReviewSummary({
       data-review-summary
       data-review-summary-complete={stillMissing ? "false" : "true"}
     >
-      <section className="flex flex-1 flex-col rounded-[30px] border border-line bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
+      <section className="flex flex-1 flex-col rounded-3xl border border-line bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
         <div className="inline-flex mx-auto rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
           Revisão
         </div>
@@ -1172,7 +1170,7 @@ function ImmediateErrorReviewSummary({
 function FolegoUpsellModal({ onClose, onSeePro }: { onClose: () => void; onSeePro: () => void }) {
   return (
     <ModalOverlay label={t("player.breathGoneAria")} onBackdropClick={onClose}>
-      <div className="mx-auto w-full max-w-sm rounded-[26px] border border-line bg-surface p-6 text-center shadow-lift">
+      <div className="mx-auto w-full max-w-sm rounded-3xl border border-line bg-surface p-6 text-center shadow-lift">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent">
           <IconLock width={26} height={26} />
         </div>
@@ -2143,6 +2141,10 @@ export function LessonPlayer() {
   const activityErrorsRef = useRef<ActivityError[]>([]);
   const attemptIdRef = useRef<string | null>(null);
   const attemptStartedAtRef = useRef<number>(Date.now());
+  // RC2.3.13R.3.2.5 — rewards claimed from THIS attempt's Victory. Claiming
+  // moves the ids into rewardHistory; without this the "+N Qi" chip vanished
+  // the moment the learner tapped "Receber recompensas".
+  const claimedHereRef = useRef<{ attempt: string; ids: Set<string> }>({ attempt: "", ids: new Set() });
   /** RC2.2.27 — rodada do tema no início da tentativa (CompletionSequence só EXIBE 3/4 → 4/4). */
   const masteryAtStartRef = useRef<number | null>(null);
   const recordedMistakeStepRef = useRef<number | null>(null);
@@ -3205,7 +3207,7 @@ export function LessonPlayer() {
         source: "Conclusão de lição",
       });
       setLessonXp(xpClaimed ? recoveredXp : 0);
-      setLessonReward(LESSON_THREE_STAR_QI + (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0));
+      setLessonReward(lessonCompletionQi({ stars: 3, noSkip: skippedStepsRef.current === 0, pro: isPremium }));
     }
     if (firstCompletion || (lessonStarsById[lesson.id] ?? 0) < 3) recordDailyTask("threeStarLessons");
     setRecovered(true);
@@ -3988,10 +3990,9 @@ export function LessonPlayer() {
       completionXp = LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0);
     }
     // Pro ganha um bônus fixo de Qi por conclusão (fricção menor, não XP).
+    // RC2.3.13R.3.2.5 — show exactly what grantLessonReward pays (0 below 3★).
     const completionQi = passed && firstCompletion
-      ? (stars === 3 ? LESSON_THREE_STAR_QI : 0) +
-        (skippedStepsRef.current === 0 ? LESSON_NO_SKIP_QI : 0) +
-        (isPremium ? PRO_LESSON_QI_BONUS : 0)
+      ? lessonCompletionQi({ stars, noSkip: skippedStepsRef.current === 0, pro: isPremium })
       : 0;
 
     const tonesHit = toneHitsRef.current;
@@ -4382,7 +4383,7 @@ export function LessonPlayer() {
       return (
         <div className="mx-auto max-w-2xl pb-[calc(var(--app-safe-bottom)+1rem)]">
           {recoveryDebugPanel}
-          <section className="rounded-[30px] border border-line bg-surface px-4 pb-5 pt-7 text-center shadow-lift sm:px-7">
+          <section className="rounded-3xl border border-line bg-surface px-4 pb-5 pt-7 text-center shadow-lift sm:px-7">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
               <IconFlame width={30} height={30} fill="currentColor" />
             </div>
@@ -4469,7 +4470,7 @@ export function LessonPlayer() {
       return (
         <div className="mx-auto max-w-2xl pb-[calc(var(--app-safe-bottom)+1rem)]">
           {recoveryDebugPanel}
-          <section className="rounded-[30px] border border-line bg-surface px-4 pb-5 pt-7 text-center shadow-lift sm:px-7">
+          <section className="rounded-3xl border border-line bg-surface px-4 pb-5 pt-7 text-center shadow-lift sm:px-7">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent">
               <IconRefresh width={30} height={30} />
             </div>
@@ -4564,6 +4565,13 @@ export function LessonPlayer() {
         : []),
     ].filter((reward) => reward.amount > 0);
     const newRewards = allRewards.filter((reward) => !rewardHistory.some((entry) => entry.id === reward.id));
+    const offerAttempt = attemptIdRef.current ?? `${lesson.id}:${attemptStartedAtRef.current}`;
+    if (claimedHereRef.current.attempt !== offerAttempt) claimedHereRef.current = { attempt: offerAttempt, ids: new Set() };
+    // Display only: what is still to claim plus what was claimed right here.
+    // The claim below still reads `newRewards` (the truth).
+    const offeredRewards = allRewards.filter(
+      (reward) => newRewards.includes(reward) || claimedHereRef.current.ids.has(reward.id)
+    );
     const shouldShowStreak = dailyGoalReached;
     // Recompensas extras além de XP/Qi (pérola, medalha) viram chips no card.
     const hasUnclaimedRewards = newRewards.length > 0 && !claimedRewardCards;
@@ -4584,6 +4592,7 @@ export function LessonPlayer() {
       // Pérolas V2: marcos únicos (fase 3★ etc.), nunca farmável por lição.
       maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("qiGain", soundEffects);
+      for (const reward of newRewards) claimedHereRef.current.ids.add(reward.id);
       setClaimedRewardCards(true);
     }
 
@@ -4653,8 +4662,8 @@ export function LessonPlayer() {
       const daysLeft = Math.max(0, nextMilestone - streak);
       return (
         <div className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col px-1 pb-[calc(var(--app-safe-bottom)+1rem)] text-center">
-          <div className="flex flex-1 flex-col rounded-[34px] border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgba(183,121,31,.24),rgb(var(--surface))_50%,rgb(var(--bg))_100%)] p-5 shadow-lift sm:p-6">
-            <div className="mx-auto mt-5 flex h-28 w-28 items-center justify-center rounded-[34px] bg-accent text-white shadow-lift longyu-success-bloom">
+          <div className="flex flex-1 flex-col rounded-4xl border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--gold)/0.24),rgb(var(--surface))_50%,rgb(var(--bg))_100%)] p-5 shadow-lift sm:p-6">
+            <div className="mx-auto mt-5 flex h-28 w-28 items-center justify-center rounded-4xl bg-accent text-white shadow-lift longyu-success-bloom">
               <IconFlame width={54} height={54} fill="currentColor" />
             </div>
             <h1 className="mt-5 font-serif text-3xl font-semibold text-ink">
@@ -4664,7 +4673,7 @@ export function LessonPlayer() {
               {t("player.comeBackTomorrowFire")}
             </p>
 
-            <div className="mt-6 rounded-[24px] border border-line bg-surface/85 px-4 py-4 text-left shadow-card">
+            <div className="mt-6 rounded-3xl border border-line bg-surface/85 px-4 py-4 text-left shadow-card">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-semibold text-ink">{t("player.nextMilestone")}</span>
                 <span className="text-ink-soft">{nextMilestone} {t("player.days")}</span>
@@ -4837,8 +4846,8 @@ export function LessonPlayer() {
               masteryAfter: masteryNow,
             });
             return {
-              qi: newRewards.find((reward) => reward.type === "qi")?.amount ?? 0,
-              medalLabel: newRewards.some((reward) => reward.type === "badge") ? ACCURACY_SERENE_BADGE : null,
+              qi: offeredRewards.find((reward) => reward.type === "qi")?.amount ?? 0,
+              medalLabel: offeredRewards.some((reward) => reward.type === "badge") ? ACCURACY_SERENE_BADGE : null,
               streakAdvanced: false as const,
               progress:
                 isTopicMasteryLesson(lesson) && masteryAtStartRef.current !== null
@@ -5098,11 +5107,20 @@ export function LessonPlayer() {
         </div>
       )}
 
+      {/* RC2.3.13R.3.2.5 — one compact line, not a 3-line block on every step
+          right where the exercise needs the space. The full sentence stays for
+          screen readers and on long-press (title). */}
       {!online && (
-        <div className="mb-3 rounded-2xl border border-line bg-surface-2 px-3 py-2.5 text-sm text-ink-soft sm:px-4">
-          <span className="font-semibold text-ink">{t("player.offline")}</span>
-          <span className="mx-1.5 text-ink-faint">·</span>
-          {authMode === "cloud" ? t("player.offlineCloud") : t("player.offlineLocal")}
+        <div className="mb-2 flex justify-center" data-lesson-offline="">
+          <span
+            role="status"
+            title={authMode === "cloud" ? t("player.offlineCloud") : t("player.offlineLocal")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-[11px] font-semibold text-ink-soft"
+          >
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
+            {t("player.offline")}
+            <span className="sr-only">{authMode === "cloud" ? t("player.offlineCloud") : t("player.offlineLocal")}</span>
+          </span>
         </div>
       )}
 
@@ -5181,7 +5199,7 @@ export function LessonPlayer() {
           stepInteractedRef.current = true;
         }}
         data-testid={lesson.lessonDomain === "culture" && step.kind === "intro" ? "culture-teach" : undefined}
-        className="mx-auto overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
+        className="mx-auto overflow-visible rounded-3xl p-4 shadow-lift sm:p-5"
       >
         {stepRenderer}
       </Card>
@@ -5194,7 +5212,7 @@ export function LessonPlayer() {
         <div
           ref={setLessonActionRegion}
           data-lesson-action-region
-          className="empty:hidden shrink-0 border-t border-line/70 bg-[rgb(var(--bg)/0.98)] shadow-[0_-10px_28px_rgb(0_0_0/0.16)] backdrop-blur"
+          className="empty:hidden shrink-0 border-t border-line/70 bg-[rgb(var(--bg)/0.98)] shadow-dock backdrop-blur"
         />
       )}
 
@@ -5206,7 +5224,7 @@ export function LessonPlayer() {
         // link discreto; nada de saldo, custo em grade ou três ofertas.
         <ModalOverlay label={t("player.guidedAlmost")}>
           <div
-            className="animate-pop w-full max-w-md rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-left shadow-lift sm:rounded-[28px]"
+            className="animate-pop w-full max-w-md rounded-t-3xl border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-left shadow-lift sm:rounded-3xl"
             data-guided-retry-sheet="compact"
           >
             <div className="flex items-center gap-2 text-wrong">
@@ -5237,7 +5255,7 @@ export function LessonPlayer() {
         </ModalOverlay>
       ) : pendingMistake && (
         <ModalOverlay label={t("player.retryTitle")}>
-          <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-center shadow-lift sm:rounded-[28px] sm:p-6">
+          <div className="animate-pop max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-3xl border border-line bg-surface p-5 pb-[calc(var(--app-safe-bottom)+1.25rem)] text-center shadow-lift sm:rounded-3xl sm:p-6">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-wrong-soft text-wrong">
               <IconX width={24} height={24} />
             </div>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
+import { useTransientMessage } from "../../hooks/useTransientMessage";
 import { monthKey } from "../../lib/storage";
 import {
   buildMissionViews,
@@ -128,8 +129,8 @@ export function MissoesPage() {
   const soundEffects = useStore((s) => s.soundEffects);
   const isPro = useIsPro();
 
-  const [burst, setBurst] = useState<string | null>(null);
-  const [justClaimed, setJustClaimed] = useState<string | null>(null);
+  const [burst, showBurstMessage] = useTransientMessage(1100);
+  const [justClaimed, flashClaimed] = useTransientMessage(900);
   const [chestOpen, setChestOpen] = useState(false);
   const [proPaywallOpen, setProPaywallOpen] = useState(false);
   const [missionCelebration, setMissionCelebration] = useState<MissionCelebration | null>(null);
@@ -168,10 +169,8 @@ export function MissoesPage() {
 
   function showBurst(text: string, id: string, sound: Parameters<typeof playSoundFx>[0] = "missionComplete") {
     playSoundFx(sound, soundEffects);
-    setBurst(text);
-    setJustClaimed(id);
-    window.setTimeout(() => setBurst(null), 1100);
-    window.setTimeout(() => setJustClaimed(null), 900);
+    showBurstMessage(text);
+    flashClaimed(id);
   }
 
   function claim(scope: MissionScope, mission: MissionView) {
@@ -208,18 +207,23 @@ export function MissoesPage() {
 
   return (
     <HubPage className={missionUi.surface} data-mission-surface="">
-      {burst && (
-        <div
-          className={cx(
-            "pointer-events-none fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)] flex justify-center px-4",
-            zLayerClass.toast
-          )}
-        >
+      {/* RC2.3.13R.3.2.5 — a live region that exists before the claim, so
+          "+N Qi" is announced; one timer at a time (useTransientMessage). */}
+      <div
+        role="status"
+        aria-live="polite"
+        className={cx(
+          "pointer-events-none fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)] flex justify-center px-4",
+          zLayerClass.toast
+        )}
+        data-testid="missions-toast"
+      >
+        {burst && (
           <div className="longyu-claim-float rounded-full bg-[rgb(var(--good)/0.16)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--good))] shadow-lift">
             {burst}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <HubHeader
         eyebrow={t("missions.eyebrow")}
@@ -554,7 +558,8 @@ function MissionCompleteModal({
         {celebration.showMonthlyChest && (
           <div className="mt-4 grid w-full min-w-0 grid-cols-1 gap-3 rounded-2xl border border-accent-soft bg-surface/90 p-3 text-left shadow-card sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
             <div className="flex justify-center sm:justify-start">
-              <LongyuChest type="monthly" state={canOpenMonthlyChest ? "unlocked" : "locked"} size="sm" animated={canOpenMonthlyChest} />
+              {/* RC2.3.13R.3.2.5 — after the claim the chest reads "opened", never a padlock. */}
+              <LongyuChest type="monthly" state={canOpenMonthlyChest ? "unlocked" : "opened"} size="sm" animated={canOpenMonthlyChest} />
             </div>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-ink">{displayInstruction("Baú mensal")}</div>

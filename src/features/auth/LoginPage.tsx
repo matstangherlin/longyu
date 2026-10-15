@@ -143,7 +143,7 @@ export function LoginPage() {
           <span>{t("auth.firstTime")}</span>
           <Link
             to={createAccountHref}
-            className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            className="inline-flex min-h-11 items-center rounded-lg px-2 font-semibold text-accent hover:bg-accent-soft hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             {t("auth.signUp")}
           </Link>

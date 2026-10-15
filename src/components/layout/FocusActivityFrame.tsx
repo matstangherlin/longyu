@@ -55,7 +55,7 @@ export function FocusActivityFrame({
           onClick={onExit}
           aria-label={t("common.close")}
           data-testid={`${testId}-exit`}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           <IconX width={20} height={20} />
         </button>

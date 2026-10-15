@@ -531,13 +531,15 @@ export function HanziBuilderExercise({
             </Button>
           )}
           <Button
-            variant={canCheck ? "good" : "outline"}
+            variant={canCheck ? "primary" : "outline"}
             data-guided-primary
             disabled={!canCheck}
             onClick={check}
             className={[
               "min-w-32 flex-1 shadow-lift sm:flex-none",
-              canCheck && availablePieces.length === 0 ? "animate-pulse ring-2 ring-[rgb(var(--good)/0.4)]" : "",
+              // RC2.3.13R.3.2.5 — one emphasis when the build is complete, not an
+              // endless fade that made the main action look disabled.
+              canCheck && availablePieces.length === 0 ? "longyu-correct-pop ring-2 ring-[rgb(var(--good)/0.4)]" : "",
             ].join(" ")}
           >
             {t("player.check")}

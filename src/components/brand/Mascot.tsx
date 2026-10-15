@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useAmbientMotion } from "../../lib/motion/ambientBudget";
+import { t } from "../../i18n/catalog";
 
 type MascotVariant = "wave" | "celebrate" | "still";
 
@@ -8,11 +9,17 @@ export function Mascot({
   animated = true,
   variant = "wave",
   className = "",
+  decorative = false,
 }: {
   size?: number;
   animated?: boolean;
   variant?: MascotVariant;
   className?: string;
+  /**
+   * RC2.3.13R.3.2.5 — beside a speech bubble the dragon is decoration: screen
+   * readers heard "Mascote Longyu" (in PT, in every locale) before every line.
+   */
+  decorative?: boolean;
 }) {
   const showBlink = animated && variant !== "still";
   // RC2.3.13R.3.2.4 — the blink loop joins the ambient budget (paused offscreen / hidden).
@@ -33,7 +40,9 @@ export function Mascot({
       >
         <img
           src="/longyu-mascot.png"
-          alt="Mascote Longyu"
+          alt={decorative ? "" : t("common.mascotAlt")}
+          aria-hidden={decorative || undefined}
+          decoding="async"
           draggable={false}
           data-testid="mascot-body"
           className="relative z-[1] h-full w-full select-none object-contain"

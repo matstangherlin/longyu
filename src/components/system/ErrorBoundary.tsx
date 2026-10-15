@@ -1,11 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Button, Card } from "../ui/primitives";
+import { AnchorButton, Button, Card } from "../ui/primitives";
 import { IconHome, IconRefresh } from "../ui/Icon";
 import { recordClientDiagnostic, requestFeedbackOpen } from "../../lib/clientDiagnostics";
 import { t } from "../../i18n/catalog";
 import { subscribeInterfaceLocale } from "../../i18n/locale";
 import { isStaleBundleError, reloadOnceForStaleBundle } from "../../lib/staleBundle";
 import { captureError } from "../../lib/observability/errorReporting";
+import { readOnline } from "../../lib/platform/networkStatus";
 
 /**
  * Rede de segurança contra tela branca.
@@ -73,7 +74,20 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
   }
 
+  // RC2.3.13R.3.2.5 — a rejected React.lazy keeps its rejected promise:
+  // clearing the error re-threw at once and "Tentar novamente" did nothing.
+  // A failed chunk needs a reload — and offline, a reload cannot help either,
+  // so the card says so instead of pretending.
   private handleRetry = () => {
+    const error = this.state.error;
+    if (error && isStaleBundleError(error)) {
+      if (!readOnline()) {
+        this.forceUpdate();
+        return;
+      }
+      if (typeof window !== "undefined") window.location.reload();
+      return;
+    }
     this.setState({ error: null });
   };
 
@@ -101,6 +115,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (!this.state.error) return this.props.children;
 
     const isDev = Boolean(import.meta.env?.DEV);
+    const chunkOffline = isStaleBundleError(this.state.error) && !readOnline();
     return (
       <div
         className={[
@@ -115,8 +130,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <h1 className="mt-5 font-serif text-2xl font-semibold text-ink sm:text-3xl">
             {t("errors.genericTitle")}
           </h1>
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
-            {t("errors.genericBody")}
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft" role={chunkOffline ? "status" : undefined}>
+            {chunkOffline ? t("errors.offlineRetry") : t("errors.genericBody")}
           </p>
 
           {isDev && (
@@ -132,15 +147,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <Button variant="soft" className="w-full" onClick={this.handleReport}>
               {t("common.reportProblem")}
             </Button>
-            <a href="/jornada" className="block">
-              <Button variant="outline" className="w-full">
-                <IconHome width={17} height={17} /> {t("journey.backToJourney")}
-              </Button>
-            </a>
+            {/* RC2.3.13R.3.2.5 — one link, one tab stop (no <button> inside <a>);
+                a full reload of /jornada is intended after a crash. */}
+            <AnchorButton href="/jornada" variant="outline" className="w-full">
+              <IconHome width={17} height={17} /> {t("journey.backToJourney")}
+            </AnchorButton>
             <button
               type="button"
               onClick={this.handleReload}
-              className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              className="mt-1 inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-medium text-ink-faint transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               {t("common.reloadApp")}
             </button>

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { ProgressionShell, rememberProgressionAnchor } from "../../components/progression/ProgressionShell";
 import { ProgressionPath } from "../../components/progression/ProgressionPath";
 import type { ProgressionNodeState, ProgressionPathNode } from "../../components/progression/progressionTypes";
@@ -115,7 +115,8 @@ export function CultureTopicDetailPage() {
   const knowledgeById = useStore((s) => s.cultureKnowledgeById ?? {});
   const restoreDone = useRef(false);
   // RC2.3.13R.3.2.4 — opening a topic from the root slides in from the right, once.
-  const [topicEnter] = useState(consumeTopicTransition);
+  const { pathname, key: locationKey } = useLocation();
+  const [topicEnter] = useState(() => consumeTopicTransition(pathname, locationKey));
 
   useEffect(() => {
     if (!topic) return;
@@ -186,8 +187,8 @@ export function CultureTopicDetailPage() {
             to="/cultura"
             className="inline-flex min-h-11 items-center text-sm font-semibold text-accent"
             data-testid="culture-topic-back"
-            onClick={() => {
-              markTopicTransition("back");
+            onClick={(event) => {
+              markTopicTransition("back", "/cultura", event);
               writeCultureTopicId(null);
               recordTechEvent("culture_root_returned", { fromTopicId: topic.id });
             }}

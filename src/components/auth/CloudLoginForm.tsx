@@ -62,7 +62,7 @@ export function CloudLoginForm({
         label={t("auth.password")}
         labelTrailing={
           forgotPasswordHref ? (
-            <Link to={forgotPasswordHref} className="text-xs font-semibold text-accent hover:underline">
+            <Link to={forgotPasswordHref} className="-my-3 inline-flex min-h-11 items-center px-2 text-xs font-semibold text-accent hover:underline">
               {t("auth.forgotPassword")}
             </Link>
           ) : null
@@ -73,11 +73,13 @@ export function CloudLoginForm({
         placeholder={t("auth.passwordPlaceholder")}
       />
       {error && (
-        <p className="rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong">
+        <p role="alert" className="rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong" data-testid="login-error">
           {error}
         </p>
       )}
-      <Button type="submit" size="lg" disabled={loading || (!canSubmit && !email && !password)} className="w-full">
+      {/* RC2.3.13R.3.2.5 — "Entrando…" keeps the primary look with a spinner
+          (aria-busy) instead of turning into the grey "not allowed" pill. */}
+      <Button type="submit" size="lg" loading={loading} disabled={!canSubmit && !email && !password} className="w-full">
         {loading ? t("auth.signingIn") : resolvedSubmit}
       </Button>
     </form>

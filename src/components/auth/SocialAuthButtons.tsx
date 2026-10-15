@@ -3,9 +3,11 @@
  * text (never icon-only). Only providers the owner switched on are shown; the
  * e-mail path below always stays.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { subscribeAppLifecycle } from "../../lib/platform/appLifecycle";
 import { currentProviderAvailability } from "../../lib/auth/providerConfig";
-import { authErrorCopyPt, type AuthError } from "../../lib/auth/authError";
+import { authErrorCopy, type AuthError } from "../../lib/auth/authError";
+import { useTranslation } from "../../i18n/useTranslation";
 import type { SocialProviderId } from "../../lib/auth/providers";
 import { startProviderAuth } from "../../services/oauthService";
 
@@ -40,8 +42,29 @@ function ProviderIcon({ id }: { id: string }) {
 
 export function SocialAuthButtons({ returnTo, onOtherMethod }: { returnTo?: string; onOtherMethod?: () => void }) {
   const offered = currentProviderAvailability().filter((a) => a.offered && a.provider.id !== "email");
+  const { t } = useTranslation();
   const [busy, setBusy] = useState<SocialProviderId | null>(null);
   const [error, setError] = useState<AuthError | null>(null);
+  // RC2.3.13R.3.2.5 — on Android the provider opens in a Custom Tab and
+  // startProviderAuth resolves "ok" at once. A learner who closes that tab
+  // without finishing came back to buttons stuck on "Abrindo…". When the app
+  // is active again and we are still here, the buttons come back.
+  useEffect(() => {
+    if (busy === null) return undefined;
+    let timer: number | null = null;
+    const unsubscribe = subscribeAppLifecycle((state) => {
+      if (state !== "active") return;
+      if (timer !== null) window.clearTimeout(timer);
+      timer = window.setTimeout(() => setBusy(null), 1000);
+    });
+    const onPageShow = () => setBusy(null);
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("pageshow", onPageShow);
+      if (timer !== null) window.clearTimeout(timer);
+    };
+  }, [busy]);
   if (offered.length === 0) return null;
 
   const start = async (id: SocialProviderId) => {
@@ -55,7 +78,7 @@ export function SocialAuthButtons({ returnTo, onOtherMethod }: { returnTo?: stri
     }
   };
 
-  const copy = error ? authErrorCopyPt(error) : null;
+  const copy = error ? authErrorCopy(error) : null;
   return (
     <div className="space-y-2.5" data-testid="social-auth">
       {offered.map(({ provider }) => (
@@ -70,7 +93,7 @@ export function SocialAuthButtons({ returnTo, onOtherMethod }: { returnTo?: stri
         >
           <ProviderIcon id={provider.icon} />
           <span className="flex flex-col items-start leading-tight">
-            <span>{busy === provider.id ? "Abrindo…" : provider.label}</span>
+            <span>{busy === provider.id ? t("auth.oauth.opening") : provider.label}</span>
             {provider.sublabel ? <span className="text-xs font-normal text-ink-soft">{provider.sublabel}</span> : null}
           </span>
         </button>
@@ -80,12 +103,12 @@ export function SocialAuthButtons({ returnTo, onOtherMethod }: { returnTo?: stri
           <p className="font-semibold text-ink">{copy.title}</p>
           <p className="text-ink-soft">{copy.body}</p>
           <div className="mt-2 flex flex-wrap gap-3">
-            <button type="button" className="font-semibold text-accent" onClick={() => error && void start(error.provider as SocialProviderId)}>
-              Tentar novamente
+            <button type="button" className="inline-flex min-h-11 items-center px-1 font-semibold text-accent" onClick={() => error && void start(error.provider as SocialProviderId)}>
+              {t("auth.oauth.retry")}
             </button>
             {onOtherMethod ? (
-              <button type="button" className="font-semibold text-accent" onClick={onOtherMethod}>
-                Usar outro método
+              <button type="button" className="inline-flex min-h-11 items-center px-1 font-semibold text-accent" onClick={onOtherMethod}>
+                {t("auth.oauth.otherMethod")}
               </button>
             ) : null}
           </div>

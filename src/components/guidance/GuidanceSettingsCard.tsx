@@ -36,11 +36,11 @@ export function GuidanceSettingsCard() {
               setResetDone(false);
               updateGuidance((state) => ({ ...state, enabled: !enabled }));
             }}
-            className="flex h-12 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            className="flex h-12 w-14 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <span
               aria-hidden="true"
-              className={["relative block h-7 w-12 rounded-full transition", enabled ? "bg-accent" : "bg-line"].join(" ")}
+              className={["relative block h-7 w-12 rounded-full transition", enabled ? "bg-accent" : "bg-ink-faint/55 ring-1 ring-inset ring-ink-faint/40"].join(" ")}
             >
               <span
                 className={[

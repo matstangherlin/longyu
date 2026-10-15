@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { ProgressionShell, rememberProgressionAnchor } from "../../components/progression/ProgressionShell";
 import { ButtonLink } from "../../components/ui/primitives";
 import { cultureText } from "../../data/cultureQuest";
@@ -39,9 +39,12 @@ export function CultureJourneyPage() {
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
-  const [showGuide, setShowGuide] = useState(false);
+  // RC2.3.13R.3.2.5 — decided before the first paint: the guide used to be
+  // inserted after it, pushing the continue card ~220px down in a visible jump.
+  const [showGuide, setShowGuide] = useState(() => !readCultureFirstGuideSeen());
   // RC2.3.13R.3.2.4 — back from a topic: the root returns from the left, once.
-  const [topicEnter] = useState(consumeTopicTransition);
+  const { pathname, key: locationKey } = useLocation();
+  const [topicEnter] = useState(() => consumeTopicTransition(pathname, locationKey));
 
   const nextId = pickNextCultureMissionId(completedIds, startedIds);
   const nextMission = nextId ? getCultureMission(nextId) : undefined;
@@ -66,10 +69,9 @@ export function CultureJourneyPage() {
   const due = dueCultureMemoryTargets(memoryById);
 
   useEffect(() => {
-    if (!readCultureFirstGuideSeen()) {
-      setShowGuide(true);
-      writeCultureFirstGuideSeen();
-    }
+    if (showGuide) writeCultureFirstGuideSeen();
+    // Once per mount: the flag is written the first time the guide shows.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Migrate legacy path:/node: anchors → topic for switch restore.
@@ -119,6 +121,7 @@ export function CultureJourneyPage() {
           <div data-testid="culture-first-guide" className="rounded-2xl border border-line bg-surface p-3">
             <GuideDialogue
               size="compact"
+              layout="guided"
               messages={[t("progression.cultureFirstGuide")]}
               continueLabel={t("culture.continueMission")}
               onComplete={() => setShowGuide(false)}
@@ -129,7 +132,7 @@ export function CultureJourneyPage() {
 
         <section
           key={continuation.topic.id}
-          className="culture-continue-card culture-path-card-enter rounded-2xl border border-line bg-surface p-4 shadow-card"
+          className="culture-continue-card culture-path-card-enter surface-emphasis rounded-2xl border p-4"
           data-testid="culture-progress"
           data-progression-anchor={`topic:${continuation.topic.id}`}
           data-culture-current-path={continuation.path.id}

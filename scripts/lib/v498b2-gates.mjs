@@ -175,7 +175,8 @@ export function validateCompletionExperience(data = {}) {
   if ((victory.match(/data-testid=\{primaryTestId\}/g) ?? []).length + (victory.match(/data-victory-primary/g) ?? []).length < 1) {
     fail("CTA_COUNT", "LessonVictory", "primary CTA must stay addressable");
   }
-  if (!victory.includes("prefers-reduced-motion") || !victory.includes("soundEffects")) {
+  // RC2.3.13R.3.2.5 — the one reduced-motion signal (livingUiMotion) counts too.
+  if (!(victory.includes("prefers-reduced-motion") || /prefersReducedMotion\(\)/.test(victory)) || !victory.includes("soundEffects")) {
     fail("A11Y", "LessonVictory", "animation must respect reduced motion and sound preference");
   }
   if (!victory.includes("playedRef") && !victory.includes("playedRef.current")) {

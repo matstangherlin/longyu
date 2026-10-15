@@ -126,10 +126,10 @@ const SPARK_PATH = "M0 -3.2 L0.9 -0.9 L3.2 0 L0.9 0.9 L0 3.2 L-0.9 0.9 L-3.2 0 L
 
 const SPARKS: { x: number; y: number; scale: number; delay: number }[] = [
   { x: 40, y: 22, scale: 0.8, delay: 0 },
-  { x: 52, y: 12, scale: 1, delay: 130 },
-  { x: 64, y: 20, scale: 0.7, delay: 260 },
-  { x: 46, y: 30, scale: 0.6, delay: 390 },
-  { x: 58, y: 27, scale: 0.75, delay: 520 },
+  { x: 52, y: 12, scale: 1, delay: 60 },
+  { x: 64, y: 20, scale: 0.7, delay: 120 },
+  { x: 46, y: 30, scale: 0.6, delay: 180 },
+  { x: 58, y: 27, scale: 0.75, delay: 240 },
 ];
 
 export function LongyuChest({
@@ -192,6 +192,9 @@ export function LongyuChest({
             <rect x="12" y="40" width="72" height="34" rx="6" />
           </clipPath>
         </defs>
+
+        {/* RC2.3.13R.3.2.5 — the chest sits on the page: a soft contact shadow. */}
+        <ellipse cx="48" cy="82" rx="34" ry="3.6" fill="rgb(0 0 0 / 0.14)" data-chest-ground="true" />
 
         {/* Pés */}
         <rect x="16" y="72" width="10" height="8" rx="2" fill={p.bodyDark} />

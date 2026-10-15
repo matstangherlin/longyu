@@ -123,7 +123,7 @@ export function HomeContinueCard({
 
   return (
     <section
-      className="living-enter-up relative isolate overflow-hidden rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_58%,rgb(var(--surface))_100%)] p-4 shadow-lift sm:p-5"
+      className="living-enter-up surface-emphasis relative isolate overflow-hidden rounded-2xl border p-4 sm:p-5"
       data-testid="home-continue"
       data-home-section="continue"
       data-continue-kind={rec.kind}

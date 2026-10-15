@@ -102,7 +102,7 @@ export function TabBar() {
         ref={navRef}
         data-app-bottom-nav
         className={cx(
-          "fixed inset-x-0 bottom-0 border-t border-line/60 bg-surface/95 shadow-[0_-4px_20px_rgb(0_0_0/0.05)] backdrop-blur-xl lg:hidden",
+          "fixed inset-x-0 bottom-0 border-t border-line/60 bg-surface/95 shadow-dock backdrop-blur-xl lg:hidden",
           zLayerClass.bottomNav
         )}
         style={{ paddingBottom: "var(--app-safe-bottom)" }}
@@ -115,7 +115,7 @@ export function TabBar() {
             const kind = sheetForItem(item);
             const open = kind !== null && sheet === kind;
             const className = [
-              "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1 text-[10px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45 active:scale-[0.98]",
+              "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1 text-[10px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring active:scale-[0.98]",
               active || open ? "text-accent" : "text-ink-faint",
               appearing.current.has(item.to) ? "longyu-tab-appear" : "",
             ].join(" ");
@@ -226,14 +226,14 @@ function TabSheet({
   }, []);
 
   const footerPrimary =
-    "flex min-h-12 items-center justify-center rounded-2xl bg-accent px-4 text-sm font-bold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+    "flex min-h-12 items-center justify-center rounded-2xl bg-accent px-4 text-sm font-bold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring";
   const footerTertiary =
-    "flex min-h-11 items-center justify-center gap-1 px-3 text-sm font-semibold text-ink-soft transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+    "flex min-h-11 items-center justify-center gap-1 px-3 text-sm font-semibold text-ink-soft transition hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring";
 
   return (
     <div
       className={cx(
-        "fixed inset-0 flex items-end justify-center bg-ink/55 backdrop-blur-sm lg:hidden",
+        "fixed inset-0 flex items-end justify-center bg-scrim/55 backdrop-blur-sm lg:hidden",
         zLayerClass.sheet
       )}
       role="presentation"
@@ -247,7 +247,7 @@ function TabSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="animate-pop flex w-full max-h-[min(28rem,72dvh)] flex-col rounded-t-[28px] border border-line/70 bg-surface shadow-lift"
+        className="animate-pop flex w-full max-h-[min(28rem,72dvh)] flex-col rounded-t-3xl border border-line/70 bg-surface shadow-lift"
         style={{ paddingBottom: "max(1rem, var(--app-safe-bottom))" }}
         onMouseDown={(event) => event.stopPropagation()}
       >
@@ -285,7 +285,7 @@ function TabSheet({
                         data-settings-row=""
                         data-cta-hierarchy="secondary"
                         className={[
-                          "flex min-h-12 items-center gap-3 border-b border-line/50 px-3 text-sm font-semibold transition last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/45",
+                          "flex min-h-12 items-center gap-3 border-b border-line/50 px-3 text-sm font-semibold transition last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus-ring",
                           active ? "bg-accent-soft text-accent" : "text-ink hover:bg-surface-2",
                         ].join(" ")}
                       >
@@ -312,7 +312,7 @@ function TabSheet({
                         aria-current={active ? "page" : undefined}
                         data-cta-hierarchy="secondary"
                         className={[
-                          "flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                          "flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                           active
                             ? "border-accent/35 bg-accent-soft text-accent"
                             : "border-line/70 bg-surface-2/70 text-ink hover:bg-surface-2",

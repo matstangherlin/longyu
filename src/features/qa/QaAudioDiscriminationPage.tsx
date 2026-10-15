@@ -45,7 +45,7 @@ export function QaAudioDiscriminationPage() {
         <Card
           data-lesson-task-body
           data-current-step-kind="audio_discrimination"
-          className="mx-auto max-w-xl overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5"
+          className="mx-auto max-w-xl overflow-visible rounded-3xl p-4 shadow-lift sm:p-5"
         >
           {completed ? (
             <p className="py-10 text-center font-semibold text-good" data-qa-audio-complete>

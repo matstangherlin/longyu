@@ -93,7 +93,7 @@ export function ReleaseTruthPanel({ truth = productTruth }: { truth?: Truth }) {
   }
 
   return (
-    <section data-testid="qa-release-truth" className="rounded-2xl border border-[var(--line)] p-4 space-y-3">
+    <section data-testid="qa-release-truth" className="rounded-2xl border border-line p-4 space-y-3">
       <h2 className="text-sm font-semibold">Release truth</h2>
 
       <div className="space-y-1" data-testid="qa-provenance" data-provenance={verdict.verdict}>
@@ -106,7 +106,7 @@ export function ReleaseTruthPanel({ truth = productTruth }: { truth?: Truth }) {
             placeholder="sha do relatório"
             spellCheck={false}
             autoCapitalize="off"
-            className="w-40 rounded border border-[var(--line)] bg-transparent px-1 py-0.5 text-right font-mono"
+            className="w-40 rounded border border-line bg-transparent px-1 py-0.5 text-right font-mono"
             data-testid="qa-provenance-expected"
           />
         </label>

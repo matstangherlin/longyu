@@ -7,6 +7,7 @@ import { buildProgressSnapshot, isMeaningfulProgress } from "../progressSnapshot
 import { getSupabaseClient } from "../supabaseClient";
 import { isSupabaseBackendEnabled } from "../backendConfig";
 import { isCloudOnboardingV2Enabled } from "../featureFlags";
+import { readOnline } from "../platform/networkStatus";
 
 export type SessionAudience =
   | "anonymous"
@@ -16,6 +17,42 @@ export type SessionAudience =
   | "cloud_ready";
 
 export const E2E_SESSION_AUDIENCE_KEY = "longyu:e2e-session-audience";
+
+/**
+ * RC2.3.13R.3.2.5 — last account the SERVER confirmed as cloud_ready on this
+ * device. Offline, Supabase cannot refresh an expired token, getSession()
+ * returns null and a cloud learner was sent to /login, away from the progress
+ * stored on the phone. Offline and only offline, that confirmation stands in
+ * for the session; online, the server always decides again. Sign-out and any
+ * online "no session" answer forget it.
+ */
+export const LAST_CLOUD_READY_KEY = "longyu:last-cloud-ready";
+
+function rememberCloudReady(accountId: string): void {
+  try {
+    localStorage.setItem(LAST_CLOUD_READY_KEY, accountId);
+  } catch {
+    /* storage unavailable: the offline fallback simply stays off */
+  }
+}
+
+export function forgetCloudReady(): void {
+  try {
+    localStorage.removeItem(LAST_CLOUD_READY_KEY);
+  } catch {
+    /* nothing to forget */
+  }
+}
+
+export function lastKnownCloudReady(state = useStore.getState()): boolean {
+  const account = state.accounts[state.currentAccountId];
+  if (!account || account.authMode !== "cloud" || !state.accountSetupComplete) return false;
+  try {
+    return localStorage.getItem(LAST_CLOUD_READY_KEY) === state.currentAccountId;
+  } catch {
+    return false;
+  }
+}
 
 const AUDIENCES = new Set<SessionAudience>([
   "anonymous",
@@ -94,10 +131,16 @@ export async function resolveSessionAudience(): Promise<SessionAudience> {
 
   const userId = await getCloudUserId();
   if (userId) {
-    if (!isCloudOnboardingV2Enabled()) return "cloud_ready";
-    const completed = await readServerOnboardingCompleted(userId);
-    if (completed === true) return "cloud_ready";
+    if (!isCloudOnboardingV2Enabled() || (await readServerOnboardingCompleted(userId)) === true) {
+      rememberCloudReady(useStore.getState().currentAccountId);
+      return "cloud_ready";
+    }
     return "cloud_pending_onboarding";
+  }
+  if (!readOnline()) {
+    if (lastKnownCloudReady(useStore.getState())) return "cloud_ready";
+  } else {
+    forgetCloudReady();
   }
 
   if (hasLegacyLocalProgress(state)) return "legacy";

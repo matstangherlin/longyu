@@ -121,7 +121,7 @@ export function QaStepLabPage() {
           {step && sample ? (
             <>
               <script type="application/json" id="qa-step-json" dangerouslySetInnerHTML={{ __html: JSON.stringify(step) }} />
-              <Card className="mx-auto max-w-xl overflow-visible rounded-[24px] p-4 shadow-lift">
+              <Card className="mx-auto max-w-xl overflow-visible rounded-3xl p-4 shadow-lift">
                 <StepRenderer
                   key={`${sampleKey(sample)}:${offset}:${attempt}`}
                   step={step}

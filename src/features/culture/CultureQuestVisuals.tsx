@@ -40,10 +40,10 @@ export function CultureVisual({ kind }: { kind?: CultureStoryBeat["visual"] }) {
   if (kind === "chopsticks-table") {
     return (
       <svg viewBox="0 0 220 120" className="mx-auto h-28 w-full max-w-sm" data-testid="culture-visual-chopsticks" role="img" aria-label="table">
-        <rect x="8" y="18" width="204" height="90" rx="16" className="fill-[rgb(var(--surface-2))] stroke-[rgb(var(--line))]" strokeWidth="2" />
-        <ellipse cx="70" cy="64" rx="28" ry="18" className="fill-[rgb(var(--surface))] stroke-[rgb(var(--line))]" strokeWidth="2" />
+        <rect x="8" y="18" width="204" height="90" rx="16" className="fill-[rgb(var(--surface-2))] stroke-line" strokeWidth="2" />
+        <ellipse cx="70" cy="64" rx="28" ry="18" className="fill-[rgb(var(--surface))] stroke-line" strokeWidth="2" />
         <text x="70" y="68" textAnchor="middle" className="fill-ink" fontSize="12">饭</text>
-        <rect x="118" y="48" width="44" height="28" rx="6" className="fill-[rgb(var(--surface))] stroke-[rgb(var(--line))]" strokeWidth="2" />
+        <rect x="118" y="48" width="44" height="28" rx="6" className="fill-[rgb(var(--surface))] stroke-line" strokeWidth="2" />
         <rect x="172" y="58" width="22" height="8" rx="3" className="fill-accent/40 stroke-accent" strokeWidth="1.5" />
         <line x1="176" y1="50" x2="210" y2="44" className="stroke-ink" strokeWidth="3" strokeLinecap="round" />
         <line x1="176" y1="56" x2="210" y2="52" className="stroke-ink" strokeWidth="3" strokeLinecap="round" />
@@ -53,7 +53,7 @@ export function CultureVisual({ kind }: { kind?: CultureStoryBeat["visual"] }) {
   if (kind === "shared-table") {
     return (
       <svg viewBox="0 0 220 110" className="mx-auto h-24 w-full max-w-sm" data-testid="culture-visual-shared" role="img">
-        <ellipse cx="110" cy="58" rx="90" ry="36" className="fill-[rgb(var(--surface-2))] stroke-[rgb(var(--line))]" strokeWidth="2" />
+        <ellipse cx="110" cy="58" rx="90" ry="36" className="fill-[rgb(var(--surface-2))] stroke-line" strokeWidth="2" />
         <circle cx="110" cy="58" r="16" className="fill-accent/25 stroke-accent" strokeWidth="1.5" />
         <circle cx="70" cy="52" r="12" className="fill-[rgb(var(--good)/0.2)] stroke-[rgb(var(--good))]" strokeWidth="1.5" />
         <circle cx="150" cy="52" r="12" className="fill-gold/30 stroke-gold" strokeWidth="1.5" />

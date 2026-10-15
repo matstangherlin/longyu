@@ -59,7 +59,7 @@
   --surface-2: 250 249 246; /* leve off-white p/ blocos internos */
   --text: 47 52 55; /* #2F3437 */
   --text-soft: 90 96 100;
-  --text-faint: 140 145 148;
+  --text-faint: 108 113 116; /* RC2.3.13R.3.2.5 — 4.57:1 on bg (was 2.95:1): state labels are small text */
   --border: 233 229 223; /* #E9E5DF */
   --accent: 185 65 46; /* #B9412E */
   --accent-strong: 143 49 34; /* #8F3122 */
@@ -68,6 +68,23 @@
   --wrong: 198 78 54; /* coral de erro, distinto do vermelho da marca */
   --wrong-soft: 248 232 226;
   --gold: 138 90 23; /* dourado Pro/medalhas — escuro p/ ler no claro */
+  /* RC2.3.13R.3.2.5 — semantic surface layer (docs/ux/premium-surface-system.md).
+     Soft tints, text-on-fill, focus, scrim and elevation are tokens, not
+     per-component alpha guesses. China inherits these; dark overrides them. */
+  --good-soft: 230 240 235;
+  --gold-soft: 245 238 226;
+  --on-good: 255 255 255;
+  --on-wrong: 255 255 255;
+  --on-gold: 255 255 255;
+  --accent-on-soft: var(--accent-strong);
+  --focus-ring: var(--accent);
+  --scrim: 24 26 28;
+  --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.03), 0 2px 8px rgb(0 0 0 / 0.04);
+  --shadow-raised: 0 4px 16px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.04);
+  --shadow-overlay: 0 24px 64px rgb(0 0 0 / 0.18), 0 2px 8px rgb(0 0 0 / 0.06);
+  --shadow-reward: 0 12px 32px rgb(var(--gold) / 0.18);
+  --shadow-dock: 0 -4px 20px rgb(0 0 0 / 0.05);
+  --shadow-current: 0 0 0 3px rgb(var(--accent) / 0.28);
 }
 
 /* O player de lição é uma tela cheia sem TabBar: as barras de ação fixas
@@ -201,7 +218,7 @@ main[data-app-main]:has([data-progression-shell]) {
   --surface-2: 253 246 244;
   --text: 43 43 43; /* #2B2B2B */
   --text-soft: 92 88 88;
-  --text-faint: 150 142 142;
+  --text-faint: 118 110 110; /* RC2.3.13R.3.2.5 — 4.77:1 on bg */
   --border: 239 228 225; /* #EFE4E1 */
   --accent: 180 35 24; /* #B42318 */
   --accent-strong: 122 31 26; /* #7A1F1A */
@@ -228,6 +245,21 @@ main[data-app-main]:has([data-progression-shell]) {
   --wrong: 228 118 88; /* erro coral, separado da marca */
   --wrong-soft: 87 42 34;
   --gold: 223 172 83; /* dourado claro p/ ler no fundo escuro */
+  /* RC2.3.13R.3.2.5 — dark: light fills carry dark labels; elevation reads as
+     a faint top highlight plus a deep shadow (never a muddy grey glow). */
+  --good-soft: 29 47 39;
+  --gold-soft: 50 43 30;
+  --on-good: 10 11 13;
+  --on-wrong: 10 11 13;
+  --on-gold: 10 11 13;
+  --accent-on-soft: 236 128 108;
+  --focus-ring: 236 128 108;
+  --scrim: 0 0 0;
+  --shadow-rest: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 8px 24px rgb(0 0 0 / 0.18);
+  --shadow-raised: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 18px 46px rgb(0 0 0 / 0.3);
+  --shadow-overlay: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 64px rgb(0 0 0 / 0.55);
+  --shadow-reward: 0 12px 32px rgb(var(--gold) / 0.14);
+  --shadow-dock: 0 -1px 0 rgb(255 255 255 / 0.04), 0 -8px 24px rgb(0 0 0 / 0.4);
 }
 
 * {
@@ -303,13 +335,9 @@ html {
   background: rgb(var(--accent) / 0.34);
 }
 
-[data-theme="dark"] .shadow-card {
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
-}
-
-[data-theme="dark"] .shadow-lift {
-  box-shadow: 0 18px 46px rgb(0 0 0 / 0.3);
-}
+/* RC2.3.13R.3.2.5 — dark elevation lives in --shadow-rest / --shadow-raised.
+   The old `[data-theme="dark"] .shadow-card { box-shadow: … }` overrides
+   replaced the whole composed shadow and erased every ring-* verdict outline. */
 
 button,
 a {
@@ -324,7 +352,8 @@ textarea {
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid rgb(var(--accent) / 0.68);
+  /* RC2.3.13R.3.2.5 — full-strength focus token (≥ 3:1 on every theme). */
+  outline: 2px solid rgb(var(--focus-ring));
   outline-offset: 2px;
 }
 
@@ -349,7 +378,10 @@ textarea {
 }
 
 @supports (padding: max(0px)) {
-  [aria-modal="true"] {
+  /* RC2.3.13R.3.2.5 — not the ModalOverlay root: a bottom sheet meets the
+     screen edge and pads its own content (no scrim strip under it). Zero
+     specificity, so a panel's own p-5 / pb-[max(…)] always wins. */
+  :where([aria-modal="true"]:not(.living-overlay)) {
     padding-bottom: var(--app-safe-bottom);
   }
 }
@@ -407,8 +439,9 @@ textarea {
 }
 [data-guided-action-dock] button[data-guided-primary]:disabled {
   border-color: transparent;
-  background: rgb(var(--surface-2));
-  color: rgb(var(--text-faint));
+  /* RC2.3.13R.3.2.5 — same disabled grammar as Button: visible, legible, inert. */
+  background: rgb(var(--border));
+  color: rgb(var(--text-soft));
 }
 /* RC2.2.17 · BN — o Continuar responde no toque ("será que clicou?"). */
 .longyu-press-feedback:active {
@@ -479,6 +512,12 @@ textarea {
   opacity: 0;
   animation: mascot-eye-blink 5.4s steps(1, end) infinite;
   will-change: opacity;
+}
+/* RC2.3.13R.3.2.5 — a blink without an ambient slot is removed, not paused:
+ * a paused loop holds its frame, and mid-blink that frame is eyes-closed.
+ * With no animation the overlay falls back to opacity 0 — eyes open. */
+.mascot-eye-blink[data-ambient]:not([data-ambient="run"]) {
+  animation: none;
 }
 
 @keyframes longyu-streak-burst {
@@ -672,6 +711,20 @@ textarea {
   animation: longyu-chest-shake 620ms ease-in-out both;
 }
 
+/* RC2.3.13R.3.2.5 — o ritual de abertura: um aperto curto (o toque "pega"),
+   a tampa sobe, a aura acende e as faíscas sobem uma vez. ~760 ms no total,
+   uma vez por resgate; nada aqui é loop. */
+@keyframes longyu-chest-press {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.95) translateY(1px); }
+  75% { transform: scale(1.03) translateY(-1px); }
+  100% { transform: scale(1); }
+}
+
+.longyu-chest-press {
+  animation: longyu-chest-press 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
 /* Baús: abertura — leve crescer com brilho quente de jade/ouro. */
 @keyframes longyu-chest-open {
   0% { transform: scale(0.9); box-shadow: 0 0 0 rgb(var(--accent) / 0); }
@@ -704,27 +757,35 @@ textarea {
   width: min(58vw, 15rem);
   aspect-ratio: 1;
   border-radius: 9999px;
+  /* Pose de repouso = último quadro: sem animação (movimento reduzido) a aura
+     fica centrada e calma em vez de pular para o canto. */
+  transform: translate(-50%, -50%);
+  opacity: 0.35;
+  z-index: -1;
   background:
-    radial-gradient(circle, rgb(var(--accent-soft)) 0%, rgb(var(--accent) / 0.24) 38%, transparent 70%),
-    conic-gradient(from 20deg, transparent, rgb(var(--accent) / 0.28), transparent, rgb(var(--good) / 0.18), transparent);
-  filter: blur(1px);
+    radial-gradient(circle, rgb(var(--gold-soft)) 0%, rgb(var(--gold) / 0.22) 38%, transparent 70%),
+    conic-gradient(from 20deg, transparent, rgb(var(--gold) / 0.24), transparent, rgb(var(--accent) / 0.14), transparent);
   pointer-events: none;
-  animation: longyu-chest-aura 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: longyu-chest-aura 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 200ms both;
 }
 
-/* LongyuChest: pulso de brilho do baú liberado (discreto, sem cassino). */
+/* LongyuChest: o baú liberado "respira" (discreto, sem cassino).
+   RC2.3.13R.3.2.5 — só transform: a sombra é estática, então o loop não
+   repinta um filtro a cada quadro; ele entra no orçamento ambiente. */
 @keyframes longyu-chest-glow {
   0%,
   100% {
-    filter: drop-shadow(0 3px 7px var(--chest-glow));
+    transform: translateY(0) scale(1);
   }
   50% {
-    filter: drop-shadow(0 6px 16px var(--chest-glow)) brightness(1.05);
+    transform: translateY(-1.5px) scale(1.015);
   }
 }
 
 .longyu-chest-glow {
-  animation: longyu-chest-glow 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 10px var(--chest-glow));
+  transform-origin: 50% 90%;
+  animation: longyu-chest-glow var(--motion-ambient) var(--ease-ambient) infinite;
 }
 
 /* LongyuChest: tampa abrindo — termina na mesma pose do estado estático. */
@@ -741,7 +802,7 @@ textarea {
 }
 
 .longyu-chest-lid {
-  animation: longyu-chest-lid 620ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: longyu-chest-lid 360ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms both;
   transform-box: fill-box;
   transform-origin: 10% 95%;
 }
@@ -762,7 +823,9 @@ textarea {
 }
 
 .longyu-chest-spark {
-  animation: longyu-chest-spark 940ms ease-out both;
+  /* Repouso invisível: sem animação, nenhuma faísca fica congelada no ar. */
+  opacity: 0;
+  animation: longyu-chest-spark 520ms ease-out both;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -1132,6 +1195,7 @@ textarea {
   .longyu-success-bloom,
   .longyu-error-shake,
   .longyu-chest-shake,
+  .longyu-chest-press,
   .longyu-chest-open,
   .longyu-chest-aura,
   .longyu-chest-glow,
@@ -1174,6 +1238,73 @@ textarea {
     animation: none !important;
   }
 }
+
+/* ============================================================
+ * RC2.3.13R.3.2.5 — Premium surface roles (docs/ux/premium-surface-system.md).
+ * surface-0 page (bg) · surface-1 card (surface + line + shadow-card) ·
+ * surface-2 inset (surface-2) · raised (shadow-lift) · overlay (shadow-overlay)
+ * are utilities. Two roles need more than one property, so they are classes:
+ * one emphasis surface per screen (the "do this now" card) and the reward
+ * surface (major rewards only). Tonal contrast + a restrained shadow — no
+ * blur, no glass, no glow.
+ * ============================================================ */
+.surface-emphasis {
+  background-color: rgb(var(--surface));
+  background-image: radial-gradient(circle at 0% 0%, rgb(var(--accent-soft)) 0%, transparent 58%);
+  border-color: rgb(var(--accent) / 0.2);
+  box-shadow: var(--shadow-raised);
+}
+.surface-reward {
+  background-color: rgb(var(--surface));
+  background-image: radial-gradient(120% 70% at 50% 0%, rgb(var(--gold) / 0.16), transparent 62%);
+  border-color: rgb(var(--gold) / 0.3);
+  box-shadow: var(--shadow-reward);
+}
+/* end premium surface roles */
+
+/* ============================================================
+ * RC2.3.13R.3.2.5 — Resilient states (docs/ux/resilient-state-system.md).
+ * A load that resolves fast never flashes a spinner: the loading state fades
+ * in after a short delay. Reduced motion shows it at once. One-shot, no loop.
+ * ============================================================ */
+@keyframes loading-delayed-reveal {
+  from {
+    opacity: 0;
+  }
+}
+.loading-delayed-reveal {
+  animation: loading-delayed-reveal 200ms ease-out 320ms backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-delayed-reveal,
+  .animate-pulse,
+  .animate-ping {
+    animation: none;
+  }
+}
+/* end resilient states */
+
+/* ============================================================
+ * RC2.3.13R.3.2.5 — Mobile ergonomics.
+ * - While the Android keyboard is open (nativeShell sets the attribute), the
+ *   fixed TabBar no longer rides on top of it, and main stops reserving it.
+ * - Touch keyboards: a field under 16px makes iOS Safari zoom on focus and
+ *   stay zoomed. Zoom stays allowed (no maximum-scale).
+ * ============================================================ */
+html[data-native-keyboard="open"] {
+  --app-bottom-nav-height: var(--app-safe-bottom);
+}
+html[data-native-keyboard="open"] [data-app-bottom-nav] {
+  display: none;
+}
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+/* end mobile ergonomics */
 
 /* ============================================================
  * RC2.3.13R.3.2.4 — Living UI: motion system + Chinese ornamental embroidery.
@@ -1632,12 +1763,11 @@ textarea {
     stroke-dashoffset: 0;
   }
 }
+/* RC2.3.13R.3.2.5 — no `to`: the draw lands on the edge's own resting
+ * opacity (.lyo-edge, 0.62) instead of overshooting to 1 and snapping back. */
 @keyframes lyo-edge-draw {
   from {
     opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 

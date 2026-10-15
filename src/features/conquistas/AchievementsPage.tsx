@@ -7,7 +7,7 @@ import {
 } from "../../data/achievements";
 import { useAchievementSnapshot } from "../../components/achievements/AchievementsWatcher";
 import { useStore } from "../../lib/store";
-import { Card, EmptyState, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
+import { Button, Card, EmptyState, Pill, ProgressBar, SectionTitle } from "../../components/ui/primitives";
 import { formatDate } from "../../i18n/format";
 import { useTranslation } from "../../i18n/useTranslation";
 import {
@@ -91,7 +91,7 @@ export function AchievementsPage() {
                 onClick={() => setFilter(option.id)}
                 aria-pressed={filter === option.id}
                 className={[
-                  "inline-flex min-h-11 items-center rounded-full border px-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                  "inline-flex min-h-11 items-center rounded-full border px-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                   filter === option.id
                     ? "border-accent bg-accent text-white shadow-card"
                     : "border-line bg-surface text-ink-soft hover:bg-surface-2 hover:text-ink",
@@ -142,6 +142,14 @@ export function AchievementsPage() {
             <EmptyState
               title={t("hub.emptyFilterTitle")}
               desc={t("hub.emptyFilterDesc")}
+              // RC2.3.13R.3.2.5 — an empty filter offers the way back.
+              action={
+                filter !== "todas" ? (
+                  <Button variant="soft" onClick={() => setFilter("todas")} data-testid="achievements-clear-filter">
+                    {t("common.seeAll")}
+                  </Button>
+                ) : undefined
+              }
             />
           )}
         </div>

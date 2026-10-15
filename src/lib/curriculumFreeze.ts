@@ -239,6 +239,45 @@ export const PRE_BETA_FREEZE_EXCEPTION_R324 = {
 } as const;
 
 /**
+ * RC2.3.13R.3.2.5 — owner-approved premium UX closure. A semantic surface
+ * system, one interactive state matrix, resilient loading/empty/error/offline
+ * states that tell the truth about sync, one chest-opening ritual over an
+ * idempotent claim, and guide/auth/mobile ergonomics. Presentation only.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R325 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_APPROVED_PREMIUM_UX_CLOSURE",
+  rationale: "PREMIUM MEANS HIERARCHY, HONEST STATES AND A REWARD THAT FEELS LIKE A MOMENT — NOT MORE SHADOWS, GLOW OR ANIMATION.",
+  allows: [
+    "semantic surface, elevation, border, radius and focus tokens",
+    "one interactive state matrix (rest, pressed, focus, selected, disabled, loading, verdict)",
+    "loading, empty, error and offline states; sync-truth copy",
+    "one chest-opening ritual over the existing idempotent claim",
+    "guide, auth and mobile ergonomics (targets, keyboard, safe area, a11y)",
+  ],
+  forbids: [
+    "navigation redesign",
+    "new lessons",
+    "new CultureItems",
+    "pedagogical rule changes",
+    "mastery, SRS, XP, Fôlego or unlock changes",
+    "economy, grant-timing or reward-amount changes",
+    "schema, billing or JEV changes",
+  ],
+  gates: [
+    "validate:premium-surface-system",
+    "validate:interactive-state-consistency",
+    "validate:resilient-ui-states",
+    "validate:reward-ux-contract",
+    "validate:guide-ux-contract",
+    "validate:mobile-ergonomics",
+    "validate:ux-closure-accessibility",
+    "gate:rc2-3-13r3-2-5-premium-ux-closure",
+  ],
+  gate: "gate:rc2-3-13r3-2-5-premium-ux-closure",
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:

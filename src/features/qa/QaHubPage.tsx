@@ -40,7 +40,7 @@ export function QaHubPage() {
                   <Link
                     to={`/qa/${item.id}`}
                     data-qa-scenario={item.id}
-                    className="block min-h-11 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+                    className="block min-h-11 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                   >
                     <div className="font-semibold text-ink">{item.title}</div>
                     <p className="mt-1 text-sm text-ink-soft">{item.summary}</p>

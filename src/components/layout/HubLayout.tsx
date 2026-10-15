@@ -140,14 +140,14 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
   if (item.disabled) return <div aria-disabled="true" {...anchor}>{inner}</div>;
   if (item.onClick) {
     return (
-      <button type="button" onClick={item.onClick} className="group h-full w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45" {...anchor}>
+      <button type="button" onClick={item.onClick} className="group h-full w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring" {...anchor}>
         {inner}
       </button>
     );
   }
   if (!item.to) return <div {...anchor}>{inner}</div>;
   return (
-    <Link to={item.to} className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45" {...anchor}>
+    <Link to={item.to} className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring" {...anchor}>
       {inner}
     </Link>
   );
@@ -188,7 +188,7 @@ export function HubHeroCard({
             {footer}
           </div>
         </div>
-        <Link to={ctaTo} className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:bg-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 sm:w-auto">
+        <Link to={ctaTo} className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-card transition hover:bg-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring sm:w-auto">
             {cta} <IconChevron width={15} height={15} />
         </Link>
       </div>
@@ -207,7 +207,7 @@ export function HubProStrip({ isPremium }: { isPremium: boolean }) {
         <div className="min-w-0 flex-1 text-[13px] font-semibold text-ink">
           {isPremium ? t("hub.proActive") : t("hub.proStripBlurb")}
         </div>
-        <Link to="/pro" className={cx("inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45", isPremium ? "border-transparent bg-accent-soft text-accent" : "border-line/65 bg-transparent text-ink hover:bg-surface-2")}>
+        <Link to="/pro" className={cx("inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring", isPremium ? "border-transparent bg-accent-soft text-accent" : "border-line/65 bg-transparent text-ink hover:bg-surface-2")}>
             {isPremium ? t("common.plan") : t("settings.seePro")}
         </Link>
       </div>

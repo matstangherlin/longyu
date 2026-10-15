@@ -46,7 +46,7 @@ export function PieceAssemblyTray({
     <div
       data-assembly-tray
       className={cx(
-        "flex min-h-[5.75rem] flex-wrap items-center justify-center gap-2 rounded-[22px] border border-dashed border-accent-soft bg-surface-2/90 px-3 py-3.5 shadow-inner sm:min-h-[6.25rem] sm:px-4 sm:py-4",
+        "flex min-h-[5.75rem] flex-wrap items-center justify-center gap-2 rounded-3xl border border-dashed border-accent-soft bg-surface-2/90 px-3 py-3.5 shadow-inner sm:min-h-[6.25rem] sm:px-4 sm:py-4",
         className
       )}
     >
@@ -226,7 +226,7 @@ export function AssemblyCheckActions({
       </Button>
       <Button
         size="lg"
-        variant={canCheck ? "good" : "outline"}
+        variant={canCheck ? "primary" : "outline"}
         data-guided-primary
         className="w-full shadow-lift"
         disabled={!canCheck}

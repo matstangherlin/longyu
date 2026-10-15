@@ -1,5 +1,5 @@
 import type { ChestType, ChestRewardKind } from "../../lib/store";
-import { IconFlame, IconShield, IconStar, IconTarget } from "../ui/Icon";
+import { IconFlame, IconRefresh, IconShield, IconStar, IconTarget, IconTrophy } from "../ui/Icon";
 import { t } from "../../i18n/catalog";
 
 // Identidade Longyu para cada baú: um hànzì central (tesouro / dragão / jade),
@@ -21,7 +21,7 @@ export const CHEST_VISUALS: Record<ChestType, ChestVisual> = {
     glyph: "宝",
     seal: "印",
     tagline: "Uma pequena surpresa do dragão.",
-    contains: "Qi, XP, uma carga ou uma tentativa extra.",
+    contains: "Qi, XP, uma carga, um escudo ou Recuperar Vidas.",
     accent: "rgb(var(--accent))",
   },
   dragon: {
@@ -30,7 +30,7 @@ export const CHEST_VISUALS: Record<ChestType, ChestVisual> = {
     glyph: "龙",
     seal: "印",
     tagline: "A generosidade do dragão, em jade.",
-    contains: "Bastante Qi, XP, escudo, cargas ou uma Pérola de Jade. No Pro: chance de pass de revisão profunda.",
+    contains: "Bastante Qi, XP, escudo, cargas, Recuperar Vidas ou uma Pérola de Jade. No Pro: chance de pass de revisão profunda.",
     accent: "#B7791F",
   },
   monthly: {
@@ -45,10 +45,11 @@ export const CHEST_VISUALS: Record<ChestType, ChestVisual> = {
   legendary: {
     name: "Baú Lendário",
     rarity: "Lendário",
-    glyph: "玉",
-    seal: "珍",
+    // RC2.3.13R.3.2.5 — 珍 (tesouro raro): o Lendário deixa de repetir o 玉 do Mensal.
+    glyph: "珍",
+    seal: "宝",
     tagline: "Um feito raro merece um tesouro raro.",
-    contains: "Qi alto, Pérola de Jade, Escudo, XP bônus e recompensa rara.",
+    contains: "Qi alto, Pérola de Jade, Escudo e chance de uma segunda Pérola.",
     accent: "#E8C75D",
   },
 };
@@ -105,11 +106,35 @@ export function chestRewardCaption(kind: ChestRewardKind): string {
   return captions[kind];
 }
 
+// RC2.3.13R.3.2.5 — the label the learner reads comes from the catalog, not
+// from the store's PT-only `label` (an EN learner saw "Escudo de Sequência").
+export function chestRewardName(kind: ChestRewardKind, amount = 1): string {
+  const names: Record<ChestRewardKind, string> = {
+    qi: t("player.chestRewardNameQi"),
+    xp: t("player.chestRewardNameXp"),
+    charge: amount > 1 ? t("player.chestRewardNameCharges") : t("player.chestRewardNameCharge"),
+    shield: t("player.chestRewardNameShield"),
+    pearl: t("player.chestRewardNamePearl"),
+    breath: t("player.chestRewardNameBreath"),
+    focus_pass: t("player.chestRewardNameFocusPass"),
+  };
+  return names[kind];
+}
+
+// One icon per reward, matching the chrome: Qi is the TopBar star, a charge is
+// the TopBar energy shield, a streak shield wears the streak flame. No two
+// rewards share a glyph (charge/shield and xp/focus_pass used to).
+export const CHEST_REWARD_ICON: Record<Exclude<ChestRewardKind, "pearl">, typeof IconStar> = {
+  qi: IconStar,
+  xp: IconTrophy,
+  charge: IconShield,
+  shield: IconFlame,
+  breath: IconRefresh,
+  focus_pass: IconTarget,
+};
+
 export function ChestRewardIcon({ kind }: { kind: ChestRewardKind }) {
   if (kind === "pearl") return <span aria-hidden className="text-lg leading-none text-good">珠</span>;
-  if (kind === "focus_pass") return <IconTarget width={20} height={20} />;
-  if (kind === "breath") return <IconFlame width={20} height={20} />;
-  if (kind === "charge" || kind === "shield") return <IconShield width={20} height={20} />;
-  if (kind === "xp") return <IconTarget width={20} height={20} />;
-  return <IconStar width={20} height={20} />;
+  const Icon = CHEST_REWARD_ICON[kind];
+  return <Icon width={20} height={20} aria-hidden />;
 }
