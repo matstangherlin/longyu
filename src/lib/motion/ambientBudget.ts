@@ -49,12 +49,26 @@ let nextId = 1;
 let observer: IntersectionObserver | null = null;
 let installed = false;
 let scheduled = false;
+let frame: number | null = null;
+let fallback: ReturnType<typeof setTimeout> | null = null;
 
 /** "Well outside the viewport" means beyond this margin. */
 const NEAR_VIEWPORT = "48px 0px 48px 0px";
 
+/**
+ * RC2.3.13R.3.2.5 — the frame is only the fast path. Browsers suspend
+ * requestAnimationFrame in a hidden document and may throttle it (WebKit,
+ * background webviews); a pending frame must never hold the budget stale, so
+ * a timer always backs it up and whichever fires first applies.
+ */
+const APPLY_FALLBACK_MS = 120;
+
 function apply(): void {
   scheduled = false;
+  if (frame !== null && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame);
+  if (fallback !== null) clearTimeout(fallback);
+  frame = null;
+  fallback = null;
   const paused = documentHidden() || prefersReducedMotion();
   const granted = allocateAmbientSlots([...entries.values()], MAX_VISIBLE_AMBIENT_ANIMATIONS, paused);
   for (const entry of entries.values()) {
@@ -66,8 +80,9 @@ function apply(): void {
 function schedule(): void {
   if (scheduled) return;
   scheduled = true;
-  if (typeof requestAnimationFrame === "function" && !documentHidden()) requestAnimationFrame(apply);
-  else setTimeout(apply, 0);
+  const hidden = documentHidden();
+  if (typeof requestAnimationFrame === "function" && !hidden) frame = requestAnimationFrame(apply);
+  fallback = setTimeout(apply, hidden ? 0 : APPLY_FALLBACK_MS);
 }
 
 function install(): void {
