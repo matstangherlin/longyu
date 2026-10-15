@@ -169,6 +169,10 @@ test.describe("RC2.3.13R.3.2.5 — reward ritual", () => {
     await expect.poll(() => storedSmallChests(page)).toBe(1);
     await expect(page.getByTestId("chest-ritual-status")).toContainText(/Você recebeu: \+\d+/);
     await expect(page.getByTestId("chest-ritual-continue")).toHaveText("Continuar");
+    // The full-screen sheet covers the screen from the very top (it used to
+    // inherit the Loja stack's margin and show the TopBar above it).
+    const top = await page.locator("[data-chest-ritual]").evaluate((el) => el.getBoundingClientRect().top);
+    expect(top).toBe(0);
     // Nothing loops after the ritual: every chest/ritual animation is finite.
     const infinite = await page.evaluate(() =>
       document

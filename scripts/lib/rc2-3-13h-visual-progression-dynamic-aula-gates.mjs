@@ -61,7 +61,7 @@ export function checkSharedProgression(src = load13hSources()) {
   if (!/min-h-11/.test(src.progressionBubble) || !/min-w-11/.test(src.progressionBubble)) {
     errors.push("CULTURE_TARGET_TOO_SMALL");
   }
-  if (!/motion-reduce/.test(src.progressionBubble) || !/prefers-reduced-motion/.test(src.teacherBubble)) {
+  if (!/motion-reduce/.test(src.progressionBubble) || !/prefers-reduced-motion|prefersReducedMotion\(\)/.test(src.teacherBubble)) {
     errors.push("CURRENT_IGNORES_REDUCED_MOTION");
   }
   if (!/rememberProgressionAnchor/.test(src.cultureJourney) || !/writeProgressionScroll/.test(src.progressionState)) {
@@ -108,7 +108,8 @@ export function checkDynamicAula(src = load13hSources()) {
   if (/setTimeout\(\(\)\s*=>\s*onComplete\(\)/.test(src.dynamicSeq) || /auto-advance/.test(src.dynamicSeq)) {
     errors.push("ANIMATION_AUTO_ADVANCES");
   }
-  if (!/prefers-reduced-motion/.test(src.teacherBubble)) {
+  // RC2.3.13R.3.2.5 — the bubble reads the one shared signal.
+  if (!/prefers-reduced-motion|prefersReducedMotion\(\)/.test(src.teacherBubble)) {
     errors.push("REDUCED_MOTION_STILL_TYPEWRITES");
   }
   if (!/altPt/.test(src.visualAssets) || !/\salt=\{alt\}/.test(src.dynamicSeq)) {

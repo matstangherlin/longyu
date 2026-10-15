@@ -138,6 +138,7 @@ export const FILES = {
   forgotPassword: "src/features/auth/ForgotPasswordPage.tsx",
   topicTransition: "src/lib/motion/topicTransition.ts",
   cultureCard: "src/features/culture/CultureTopicCard.tsx",
+  modalOverlay: "src/components/ui/ModalOverlay.tsx",
   qaPanel: "src/features/qa/PremiumUxQaPanel.tsx",
   qaPage: "src/features/qa/QaDevicePage.tsx",
   ptBR: "src/locales/pt-BR.ts",
@@ -924,6 +925,8 @@ export function checkMobileErgonomics(src) {
   const dz = src.dangerZone ?? "";
   if (/role="dialog" aria-modal="false"/.test(dz) || !/event\.key !== "Escape" \|\| busy/.test(dz)) errors.push("BACK_SWALLOWED_BY_CONFIRM");
   if (!/<DeleteAccountConfirm testIdPrefix="conta"/.test(src.conta ?? "")) errors.push("NATIVE_PROMPT");
+  // A full-screen sheet inside a space-y page must not inherit the stack margin.
+  if (!/"living-overlay fixed inset-0 !m-0 /.test(src.modalOverlay ?? "")) errors.push("MODAL_INHERITS_STACK_MARGIN");
   return uniq(errors);
 }
 

@@ -305,6 +305,7 @@ function cases(base) {
     ["unsynced progress not mentioned", "SIGN_OUT_HIDES_UNSYNCED", M, () => m(base, "signOutControl", "data-testid={`${testId}-unsynced`}", "")],
     ["eye toggle shifted by the margin", "EYE_TOGGLE_MISALIGNED", M, () => m(base, "forgotPassword", '<div className="mt-4">\n            <PasswordField', '<div>\n            <PasswordField')],
     ["delete confirm swallows Back", "BACK_SWALLOWED_BY_CONFIRM", M, () => m(base, "dangerZone", "    <section\n      aria-labelledby={titleId}", '    <section\n      role="dialog" aria-modal="false"\n      aria-labelledby={titleId}')],
+    ["sheet inherits the page's stack margin", "MODAL_INHERITS_STACK_MARGIN", M, () => m(base, "modalOverlay", "fixed inset-0 !m-0 flex", "fixed inset-0 flex")],
     ["Conta keeps a second delete flow", "NATIVE_PROMPT", M, () => m(base, "conta", '<DeleteAccountConfirm testIdPrefix="conta"', '<LegacyDelete testIdPrefix="conta"')],
 
     // ── 7 Accessibility + follow-ups + platform ───────────────────────

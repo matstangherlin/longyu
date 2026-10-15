@@ -448,7 +448,8 @@ export function validateVictoryMinimalism(data = {}) {
     fail("CTA_COUNT", "LessonVictory", "P14.2: CTA secundário removido da vitória");
   }
   // P16/P16.2 — celebração curta, respeitando mute e reduced-motion.
-  if (!/prefers-reduced-motion/.test(victory)) {
+  // RC2.3.13R.3.2.5 — the shared signal (livingUiMotion.prefersReducedMotion()) counts.
+  if (!/prefers-reduced-motion|prefersReducedMotion\(\)/.test(victory)) {
     fail("REDUCED_MOTION", "LessonVictory", "P16.2: animação precisa respeitar reduced-motion");
   }
   if (!/soundEffects/.test(victory) || !/playSoundFx/.test(victory)) {
