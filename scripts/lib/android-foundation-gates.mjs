@@ -136,7 +136,10 @@ export function loadAndroidFoundationState(root = process.cwd()) {
   const capacitorUsers = listFiles(root, "src", (name) => /\.(ts|tsx)$/.test(name))
     .filter((rel) => !rel.startsWith(`${platformDir}/`))
     .map((rel) => ({ path: rel, text: read(root, rel) }))
-    .filter((file) => /@capacitor\/|window\.Capacitor|\bCapacitor\./.test(file.text));
+    // Lexical prefilter only (cheap, deliberately wider than the rule): the
+    // validator decides on the syntax tree, so a comment or a string that
+    // says "Capacitor" is never a boundary violation.
+    .filter((file) => CAPACITOR_CANDIDATE.test(file.text));
 
   let trackedFiles = [];
   try {
@@ -395,6 +398,43 @@ export function validateAndroidSigningContract(s) {
 
 // ---------------------------------------------------------------- 3. boundaries
 
+/** Files that might touch Capacitor (prefilter for {@link findCapacitorAccess}). */
+export const CAPACITOR_CANDIDATE = /@capacitor\/|Capacitor/;
+
+/**
+ * Real Capacitor access in a TS/TSX source, read from its syntax tree:
+ * a `Capacitor` identifier (`Capacitor.getPlatform()`, `window.Capacitor`,
+ * `globalThis.Capacitor`), a `["Capacitor"]` element access, or a static,
+ * dynamic, `require` or type import of `@capacitor/*`. Comments, string
+ * literals, template text and JSX text are not code and never count.
+ * @returns {{ kind: "import" | "identifier" | "element-access"; line: number }[]}
+ */
+export function findCapacitorAccess(text, file = "source.tsx") {
+  const source = String(text ?? "");
+  const sf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, /\.tsx$/.test(file) ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  const hits = [];
+  const hit = (kind, node) => hits.push({ kind, line: sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1 });
+  const capacitorModule = (node) => Boolean(node) && ts.isStringLiteralLike(node) && node.text.startsWith("@capacitor/");
+  const visit = (node) => {
+    if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && capacitorModule(node.moduleSpecifier)) hit("import", node);
+    else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference) && capacitorModule(node.moduleReference.expression)) hit("import", node);
+    else if (
+      ts.isCallExpression(node) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(node.expression) && node.expression.text === "require")) &&
+      capacitorModule(node.arguments[0])
+    ) {
+      hit("import", node);
+    } else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument) && capacitorModule(node.argument.literal)) hit("import", node);
+    else if (ts.isIdentifier(node) && node.text === "Capacitor") hit("identifier", node);
+    else if (ts.isElementAccessExpression(node) && ts.isStringLiteralLike(node.argumentExpression) && node.argumentExpression.text === "Capacitor") {
+      hit("element-access", node);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+  return hits;
+}
+
 function stripComments(text) {
   return String(text ?? "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
@@ -415,7 +455,7 @@ export function evaluatePlatformModules(platformSources, platform = "android") {
   return { deepLinks, externalLinks, back, sw };
 }
 
-export function validateAndroidPlatformBoundaries(s) {
+export function validateAndroidPlatformBoundaries(s, { detectCapacitor = findCapacitorAccess } = {}) {
   const failures = [];
   const fail = (code, where, why) => failures.push({ code, where, why });
   const sources = s.platformSources ?? {};
@@ -431,7 +471,11 @@ export function validateAndroidPlatformBoundaries(s) {
     if (!new RegExp(`export function ${fn}\\(`).test(nativePlatform)) fail("PLATFORM_DETECTION", "nativePlatform.ts", `${fn}() ausente`);
   }
   for (const file of s.capacitorUsers ?? []) {
-    fail("CAPACITOR_OUTSIDE_PLATFORM", file.path, "Capacitor/window.Capacitor só dentro de src/lib/platform/");
+    const access = detectCapacitor(file.text, file.path);
+    if (access.length) {
+      const where = access.map((a) => `${a.kind}@${a.line}`).join(", ");
+      fail("CAPACITOR_OUTSIDE_PLATFORM", file.path, `Capacitor/window.Capacitor só dentro de src/lib/platform/ (${where})`);
+    }
   }
 
   // Um só Longyu: nada de segundo store/SRS/conta no nativo.

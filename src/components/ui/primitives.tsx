@@ -8,6 +8,7 @@ import type {
 } from "react";
 import { Link, type LinkProps } from "react-router-dom";
 import { useTranslation } from "../../i18n/useTranslation";
+import { ProgressFill } from "../motion/ProgressFill";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -70,7 +71,7 @@ export type ButtonSize = "sm" | "md" | "lg" | "icon";
 // Base compartilhada por Button e ButtonLink para que um CTA fique idêntico
 // quer seja <button> quer seja um link de navegação.
 const BUTTON_BASE =
-  "inline-flex select-none items-center justify-center gap-2 touch-manipulation font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-soft disabled:opacity-70 disabled:shadow-none";
+  "inline-flex select-none items-center justify-center gap-2 touch-manipulation font-semibold transition duration-[var(--motion-fast)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-soft disabled:opacity-70 disabled:shadow-none";
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   primary:
@@ -202,11 +203,14 @@ export function ProgressBar({
   max = 100,
   className,
   label,
+  progressId,
 }: {
   value: number;
   max?: number;
   className?: string;
   label?: string;
+  /** RC2.3.13R.3.2.4 — stable id so a real delta animates once (never from zero). */
+  progressId?: string;
 }) {
   const { t } = useTranslation();
   const safeMax = Number.isFinite(max) && max > 0 ? max : 1;
@@ -223,9 +227,10 @@ export function ProgressBar({
       aria-valuetext={`${pct}%`}
       data-progress-pct={pct}
     >
-      <div
-        className="h-full rounded-full bg-accent shadow-inner transition-[width] duration-300 motion-reduce:transition-none"
-        style={{ width: `${pct}%` }}
+      <ProgressFill
+        id={progressId}
+        value={pct}
+        className="h-full w-full rounded-full bg-accent shadow-inner"
       />
     </div>
   );

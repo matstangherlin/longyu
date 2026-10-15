@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 972,
+    "CANONICAL": 981,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 142,
+    "EVIDENCE_ONLY": 143,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1175,
+  "total": 1185,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1665,6 +1665,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13r3-2-3-journey-svg-storytelling",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
+      "gateId": "gate:rc2-3-13r3-2-4-living-ui-ornamental-polish",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "RC2.3.13R",
+      "script": "npm run validate:chinese-ornamental-assets && npm run validate:chinese-ornamental-system && npm run validate:living-ui-motion && npm run validate:ambient-motion-budget && npm run validate:motion-performance-contract && npm run validate:ui-effect-accessibility && npm run validate:theme-ornament-contrast && npm run validate:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run test:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run gate:rc2-3-13r3-2-3-journey-svg-storytelling",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-4-living-ui-ornamental-polish",
       "criticality": "NON_BLOCKING",
       "executionPhase": "not-executed",
       "supersededBy": null,
@@ -7664,6 +7682,24 @@
       "canonicalOwner": "suite:experience"
     },
     {
+      "gateId": "test:rc2-3-13r3-2-4-living-ui-ornamental-polish",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs test",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "test:rc2-3-13r3-2-culture-topic-hierarchy",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -11228,6 +11264,24 @@
       "canonicalOwner": "suite:android-foundation"
     },
     {
+      "gateId": "validate:ambient-motion-budget",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs budget",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "validate:android-native-foundation",
       "status": "CANONICAL",
       "domain": "android-foundation",
@@ -12146,6 +12200,42 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
+    },
+    {
+      "gateId": "validate:chinese-ornamental-assets",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs assets",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
+      "gateId": "validate:chinese-ornamental-system",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs system",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
     },
     {
       "gateId": "validate:client-diagnostics",
@@ -15330,6 +15420,24 @@
       "canonicalOwner": "suite:identity-commercial"
     },
     {
+      "gateId": "validate:living-ui-motion",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs motion",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "validate:mastery-network-growth",
       "status": "CANONICAL",
       "domain": "pedagogy-mastery",
@@ -15634,6 +15742,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-mastery"
+    },
+    {
+      "gateId": "validate:motion-performance-contract",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs performance",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
     },
     {
       "gateId": "validate:native-haptics",
@@ -17642,6 +17768,24 @@
       "invariants": [],
       "supportsInvariants": [],
       "mutationCoverage": "test:rc2-3-13r3-2-3-journey-svg-storytelling",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
+      "gateId": "validate:rc2-3-13r3-2-4-living-ui-ornamental-polish",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs validate",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:rc2-3-13r3-2-4-living-ui-ornamental-polish",
       "criticality": "BLOCK_RELEASE",
       "executionPhase": "suite:experience",
       "supersededBy": null,
@@ -20364,6 +20508,24 @@
       "canonicalOwner": "validate:teach-before-test:journey"
     },
     {
+      "gateId": "validate:theme-ornament-contrast",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs theme",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "validate:tone-contrast-no-new-vocab",
       "status": "CANONICAL",
       "domain": "pedagogy-structure",
@@ -20978,6 +21140,24 @@
       "canonicalOwner": "suite:android-runtime"
     },
     {
+      "gateId": "validate:ui-effect-accessibility",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "RC2.3.13R",
+      "script": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs a11y",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "validate:username-contract",
       "status": "CANONICAL",
       "domain": "pedagogy-progression",
@@ -21268,5 +21448,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "682d293ed0330282"
+  "evidenceDigest": "69f1e4c82ce78388"
 }

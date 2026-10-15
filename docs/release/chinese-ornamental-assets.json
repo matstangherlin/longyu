@@ -1,0 +1,308 @@
+{
+  "schema": "longyu-chinese-ornamental-assets/1",
+  "wave": "RC2.3.13R.3.2.4",
+  "version": 1,
+  "dir": "src/assets/ornaments/chinese",
+  "maxBytes": 8192,
+  "decorative": true,
+  "opacityBands": {
+    "subtle": 0.16,
+    "medium": 0.28,
+    "milestone": 0.55
+  },
+  "surfaces": [
+    "journey-milestone",
+    "review-milestone",
+    "victory",
+    "culture-topic-hero",
+    "culture-root-header",
+    "home-continue",
+    "review-summary",
+    "review-header",
+    "qa-gallery"
+  ],
+  "forbiddenSurfaces": [
+    "answer-option",
+    "settings",
+    "form-field",
+    "account",
+    "list-row",
+    "button",
+    "modal"
+  ],
+  "densityPerSurface": {
+    "journey-milestone": 1,
+    "review-milestone": 1,
+    "victory": 2,
+    "culture-topic-hero": 2,
+    "culture-root-header": 1,
+    "home-continue": 1,
+    "review-summary": 1,
+    "review-header": 1,
+    "qa-gallery": 13
+  },
+  "assets": [
+    {
+      "id": "xiangyun-corner",
+      "motif": "xiangyun",
+      "kind": "corner",
+      "file": "src/assets/ornaments/chinese/ornament-xiangyun-corner.svg",
+      "viewBox": "0 0 64 64",
+      "aspect": 1,
+      "bytes": 1747,
+      "sha256": "c963abb1d435ce8e1f9b83c727ca0a79eca2c890b705b79b8881b6d61725e387",
+      "surfaces": [
+        "culture-topic-hero",
+        "victory",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "xiangyun-divider",
+      "motif": "xiangyun",
+      "kind": "divider",
+      "file": "src/assets/ornaments/chinese/ornament-xiangyun-divider.svg",
+      "viewBox": "0 0 240 24",
+      "aspect": 10,
+      "bytes": 1843,
+      "sha256": "14e838159062a303202f1d8d106ff01ea401bd33e8cb81a5e7af7a8850135ed9",
+      "surfaces": [
+        "culture-topic-hero",
+        "victory",
+        "review-summary",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "huiwen-frame",
+      "motif": "huiwen",
+      "kind": "corner",
+      "file": "src/assets/ornaments/chinese/ornament-huiwen-frame.svg",
+      "viewBox": "0 0 64 64",
+      "aspect": 1,
+      "bytes": 1373,
+      "sha256": "5d1da2d8bdf7f30953a1d282250ec87ff8a28865f997927d81cc5fddf66828df",
+      "surfaces": [
+        "journey-milestone",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "huiwen-strip",
+      "motif": "huiwen",
+      "kind": "strip",
+      "file": "src/assets/ornaments/chinese/ornament-huiwen-strip.svg",
+      "viewBox": "0 0 192 20",
+      "aspect": 9.6,
+      "bytes": 1548,
+      "sha256": "08435bf997ad43d8272bd1b6f27cd0a08b30f3d6853cb4051110dceb296e60f1",
+      "surfaces": [
+        "journey-milestone",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "ruyi-corner",
+      "motif": "ruyi",
+      "kind": "corner",
+      "file": "src/assets/ornaments/chinese/ornament-ruyi-corner.svg",
+      "viewBox": "0 0 64 64",
+      "aspect": 1,
+      "bytes": 1881,
+      "sha256": "9372c6e9952b20a3ddd6b3af7de336914ddb43775fc67a672797dc9477709188",
+      "surfaces": [
+        "review-header",
+        "victory",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "lattice-frame",
+      "motif": "lattice",
+      "kind": "corner",
+      "file": "src/assets/ornaments/chinese/ornament-lattice-frame.svg",
+      "viewBox": "0 0 64 64",
+      "aspect": 1,
+      "bytes": 1526,
+      "sha256": "a5c4f6e6fcd13a5f18c0e675c3444fd5af005c67310049dbd8fa42fc050ba0fc",
+      "surfaces": [
+        "journey-milestone",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "lattice-divider",
+      "motif": "lattice",
+      "kind": "divider",
+      "file": "src/assets/ornaments/chinese/ornament-lattice-divider.svg",
+      "viewBox": "0 0 240 20",
+      "aspect": 12,
+      "bytes": 1516,
+      "sha256": "18142291a7bb8364d8eca58f5ea5a2395612e472cd9998a1b6a7aa60e9f64f05",
+      "surfaces": [
+        "culture-root-header",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "plum-corner",
+      "motif": "plum",
+      "kind": "corner",
+      "file": "src/assets/ornaments/chinese/ornament-plum-corner.svg",
+      "viewBox": "0 0 64 64",
+      "aspect": 1,
+      "bytes": 2928,
+      "sha256": "b5defaffaf4e707b11ccb388f6cbade5f64798c4784f6e99c54107c6cc794edc",
+      "surfaces": [
+        "home-continue",
+        "culture-topic-hero",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "plum-blossom",
+      "motif": "plum",
+      "kind": "particle",
+      "file": "src/assets/ornaments/chinese/ornament-plum-blossom.svg",
+      "viewBox": "0 0 24 24",
+      "aspect": 1,
+      "bytes": 1969,
+      "sha256": "ad055335f02d1c6ee8fb5c8f7bee9073f6008044fcf6881184b07ce1dcfa693a",
+      "surfaces": [
+        "victory",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "knot-divider",
+      "motif": "knot",
+      "kind": "divider",
+      "file": "src/assets/ornaments/chinese/ornament-knot-divider.svg",
+      "viewBox": "0 0 240 32",
+      "aspect": 7.5,
+      "bytes": 1866,
+      "sha256": "1fb9c5988f9a5a8cc3ff045d6d5b0ba37dae1a8392b2b7fce9b7c998d40bb38b",
+      "surfaces": [
+        "review-summary",
+        "review-milestone",
+        "victory",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "seal-medallion",
+      "motif": "seal",
+      "kind": "medallion",
+      "file": "src/assets/ornaments/chinese/ornament-seal-medallion.svg",
+      "viewBox": "0 0 64 64",
+      "aspect": 1,
+      "bytes": 2678,
+      "sha256": "2ea724b63b26f72f4f2b77ef9ddd18bb82bd082d93d56ee74c8444a6e1dc782c",
+      "surfaces": [
+        "victory",
+        "review-milestone",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium",
+        "milestone"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "roof-eave",
+      "motif": "eave",
+      "kind": "accent",
+      "file": "src/assets/ornaments/chinese/ornament-roof-eave.svg",
+      "viewBox": "0 0 96 24",
+      "aspect": 4,
+      "bytes": 1514,
+      "sha256": "7938c11df79e2cf03a3ed698688a2fc0dba70906eb0d449fc617befabcf403a4",
+      "surfaces": [
+        "culture-topic-hero",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium"
+      ],
+      "decorative": true
+    },
+    {
+      "id": "bamboo-corner",
+      "motif": "bamboo",
+      "kind": "corner",
+      "file": "src/assets/ornaments/chinese/ornament-bamboo-corner.svg",
+      "viewBox": "0 0 32 64",
+      "aspect": 0.5,
+      "bytes": 1767,
+      "sha256": "b176709c026fca367c628cb225a8d7df622719df8c65687c66d0f277c35bd8ae",
+      "surfaces": [
+        "culture-topic-hero",
+        "qa-gallery"
+      ],
+      "intensities": [
+        "subtle",
+        "medium"
+      ],
+      "decorative": true
+    }
+  ]
+}

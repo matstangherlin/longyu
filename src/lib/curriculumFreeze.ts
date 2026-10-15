@@ -198,6 +198,47 @@ export const PRE_BETA_FREEZE_EXCEPTION_R323 = {
 } as const;
 
 /**
+ * RC2.3.13R.3.2.4 — owner-approved Living UI & Chinese ornamental polish.
+ * One shared motion system (tokens, reduced motion, an ambient budget of four
+ * loops), a family of embroidered ornament SVGs on a few milestone surfaces,
+ * and calm feedback motion. Presentation only: nothing here touches lessons,
+ * mastery, SRS, rewards, unlocks, navigation, schema, billing or JEV.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R324 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_APPROVED_LIVING_UI_ORNAMENTAL_POLISH",
+  rationale: "THE APP SHOULD FEEL ALIVE, CHINESE AND CRAFTED — WITH MOTION THAT CONFIRMS STATE AND NEVER CARRIES IT, BLOCKS INPUT OR COSTS BATTERY.",
+  allows: [
+    "motion tokens, easing and one reduced-motion signal",
+    "ambient loop budget (≤ 4 visible, paused offscreen, hidden and reduced)",
+    "13 embroidered Chinese ornament SVGs on milestone surfaces",
+    "press, transition, feedback and one-shot completion motion",
+    "delta-only progress and counter motion",
+  ],
+  forbids: [
+    "navigation redesign",
+    "new lessons",
+    "new CultureItems",
+    "pedagogical rule changes",
+    "mastery, SRS, XP, Fôlego or unlock changes",
+    "economy changes",
+    "schema, billing or JEV changes",
+    "new UI sounds or haptics",
+  ],
+  gates: [
+    "validate:chinese-ornamental-assets",
+    "validate:chinese-ornamental-system",
+    "validate:living-ui-motion",
+    "validate:ambient-motion-budget",
+    "validate:motion-performance-contract",
+    "validate:ui-effect-accessibility",
+    "validate:theme-ornament-contrast",
+    "gate:rc2-3-13r3-2-4-living-ui-ornamental-polish",
+  ],
+  gate: "gate:rc2-3-13r3-2-4-living-ui-ornamental-polish",
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:

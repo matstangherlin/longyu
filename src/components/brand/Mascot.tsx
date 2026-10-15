@@ -1,3 +1,6 @@
+import { useRef } from "react";
+import { useAmbientMotion } from "../../lib/motion/ambientBudget";
+
 type MascotVariant = "wave" | "celebrate" | "still";
 
 export function Mascot({
@@ -12,6 +15,9 @@ export function Mascot({
   className?: string;
 }) {
   const showBlink = animated && variant !== "still";
+  // RC2.3.13R.3.2.4 — the blink loop joins the ambient budget (paused offscreen / hidden).
+  const blinkRef = useRef<HTMLImageElement>(null);
+  useAmbientMotion(blinkRef, "mascot", showBlink);
 
   return (
     <span
@@ -34,6 +40,7 @@ export function Mascot({
         />
         {showBlink && (
           <img
+            ref={blinkRef}
             src="/longyu-eyes-closed.svg"
             alt=""
             aria-hidden="true"

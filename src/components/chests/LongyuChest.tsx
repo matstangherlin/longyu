@@ -1,5 +1,6 @@
-import { useId, type CSSProperties } from "react";
+import { useId, useRef, type CSSProperties } from "react";
 import type { ChestType } from "../../lib/store";
+import { useAmbientMotion } from "../../lib/motion/ambientBudget";
 import { localizedChestVisual } from "./chestMeta";
 import { t } from "../../i18n/catalog";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
@@ -159,6 +160,9 @@ export function LongyuChest({
 
   const svgClass =
     animated && state === "unlocked" ? "longyu-chest-glow" : undefined;
+  // RC2.3.13R.3.2.4 — the glow loop joins the ambient budget (≤ 4 loops on screen).
+  const glowRef = useRef<SVGSVGElement>(null);
+  useAmbientMotion(glowRef, "chest", Boolean(svgClass));
   const svgStyle: CSSProperties | undefined =
     !animated && state === "unlocked"
       ? { filter: `drop-shadow(0 3px 8px ${p.glow})` }
@@ -171,6 +175,7 @@ export function LongyuChest({
       style={{ "--chest-glow": p.glow } as CSSProperties}
     >
       <svg
+        ref={glowRef}
         viewBox="0 0 96 88"
         width={width}
         height={height}

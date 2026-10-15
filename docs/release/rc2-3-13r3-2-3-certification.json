@@ -3,7 +3,7 @@
   "wave": "RC2.3.13R.3.2.3",
   "title": "Journey SVG Visual Storytelling & Final Beta Candidate",
   "header": "OWNER-APPROVED FINAL VISUAL ASSET WAVE. NO NAVIGATION REDESIGN. NO CURRICULUM EXPANSION. NO PEDAGOGICAL RULE CHANGE. NO MASTERY CHANGE. NO ECONOMY CHANGE. CUSTOM JOURNEY SVG ASSETS + FINAL RELEASE CANDIDATE ONLY.",
-  "phase": "HOSTED_PENDING",
+  "phase": "MERGED_TO_MAIN",
   "parentPr": 353,
   "parentTitle": "RC2.3.13R.3.2.2.1 — Hosted Terminal Closure, Final Device Candidate & Physical Regression",
   "parentHeadSha": "05bcf51e5897982dbe15af98e38e8c9d1b37edd1",
@@ -12,7 +12,9 @@
     "headSha": "05bcf51e5897982dbe15af98e38e8c9d1b37edd1",
     "checks": 20,
     "checksGreen": 19,
-    "checksSkipped": ["Supabase Preview"],
+    "checksSkipped": [
+      "Supabase Preview"
+    ],
     "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
     "workflowRunIds": {
       "ci": 38120059486,
@@ -22,8 +24,8 @@
     "requeriedAt": "2026-10-14",
     "parentDeviceQaApk": "NOT_MINTED — wave began before a #353 physical candidate was certified; no disposable APK"
   },
-  "candidateHeadSha": null,
-  "pr": null,
+  "candidateHeadSha": "64a06df8c1d7579e53a585ab25b1c9452dfe4d29",
+  "pr": 354,
   "freezeException": "OWNER_APPROVED_JOURNEY_SVG_VISUAL_STORYTELLING",
   "scope": {
     "navigationRedesign": false,
@@ -34,10 +36,10 @@
     "cultureScenes": false
   },
   "runtime": {
-    "learnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
+    "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
     "previousLearnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "learnerRuntimeMoved": true,
-    "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth).",
+    "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Advanced again by RC2.3.13R.3.2.4 (Living UI + ornamental embroidery, 2618683e); R.3.2.3 never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
     "fingerprint": "29bb02ec0336",
     "fingerprintMoved": false
   },
@@ -77,20 +79,29 @@
   },
   "journeySvgSystem": "CODE_PASS",
   "hosted": {
-    "overall": "PENDING",
-    "headSha": null,
-    "releaseTruth": "PENDING",
-    "security": "PENDING",
-    "betaSuites": "PENDING",
-    "qualityBuild": "PENDING",
-    "androidFoundation": "PENDING",
-    "androidRuntime": "PENDING",
-    "chromium": "PENDING",
-    "firefox": "PENDING",
-    "webkit": "PENDING",
+    "overall": "PASS",
+    "headSha": "64a06df8c1d7579e53a585ab25b1c9452dfe4d29",
+    "releaseTruth": "PASS",
+    "security": "PASS",
+    "betaSuites": "PASS",
+    "qualityBuild": "PASS",
+    "androidFoundation": "PASS",
+    "androidRuntime": "PASS",
+    "chromium": "PASS",
+    "firefox": "PASS",
+    "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
     "webkitSkipPolicy": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
     "webkitSkipNote": "e2e/v494-builder-ux.spec.ts — LEGIT INFRA skip, WebKit only, Hanzi Builder clear→full rebuild+verify; Chromium + Firefox prove the contract. Never reported as plain PASS.",
-    "workflowRunIds": {}
+    "workflowRunIds": {
+      "ci": 38593098764,
+      "android": 38593098878,
+      "security": 38593099830
+    },
+    "checks": 20,
+    "checksGreen": 19,
+    "checksSkipped": [
+      "Supabase Preview"
+    ]
   },
   "artifact": {
     "status": "NOT_BUILT",
@@ -108,7 +119,7 @@
     "workflowRunId": null,
     "artifactId": null,
     "playReady": false,
-    "note": "ONE Device-QA APK is minted only after exact-head hosted green on the final head of this wave."
+    "note": "NOT_MINTED for 64a06df8: RC2.3.13R.3.2.4 continued on this green head, so the ONE Device-QA APK is minted after R.3.2.4 exact-head hosted green and carries both waves."
   },
   "priorDeviceQa": "STALE_FOR_CURRENT_RUNTIME",
   "rejectedApkSha256List": [
@@ -165,5 +176,6 @@
     "final visual freeze bound to APK SHA256 — then no more visual waves",
     "full R.3 physical, Sentry, rollback, Cloud x2, Android OAuth, signed Play AAB, Closed Testing install",
     "owner release acceptance → at most 10 Wave 1 testers; Public Beta stays HOLD"
-  ]
+  ],
+  "mergedToMain": "16a9184c451d4a961bb53aa2c6efb92523128807"
 }

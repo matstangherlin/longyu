@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useAmbientMotion } from "../../../lib/motion/ambientBudget";
 import { prepareSceneMarkup } from "./journeySceneMarkup";
 import { JOURNEY_SCENE_BY_ID, type JourneySceneId, type JourneySceneSide } from "./journeySceneRegistry";
 
@@ -57,6 +58,9 @@ export function JourneyScene({
   }, [sceneId, instance]);
   const ref = useRef<HTMLDivElement>(null);
   const [reveal, setReveal] = useState<"pending" | "done">(() => initialReveal(ordinal));
+  // RC2.3.13R.3.2.4 — the drift loop runs only where the ambient budget grants it.
+  const driftRef = useRef<HTMLDivElement>(null);
+  useAmbientMotion(driftRef, "scene", markup !== null);
 
   useEffect(() => {
     if (reveal === "done") {
@@ -99,7 +103,7 @@ export function JourneyScene({
       style={style}
     >
       <div className="journey-scene-reveal">
-        <div className="journey-scene-drift" dangerouslySetInnerHTML={{ __html: markup }} />
+        <div ref={driftRef} className="journey-scene-drift" dangerouslySetInnerHTML={{ __html: markup }} />
       </div>
     </div>
   );

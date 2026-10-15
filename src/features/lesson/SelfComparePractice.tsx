@@ -502,7 +502,13 @@ export function SelfComparePractice({
       )}
       {phase === "recording" && (
         <p className="mt-3 flex items-center justify-center gap-2 text-sm font-semibold text-wrong" role="status" data-testid="self-compare-recording-label">
-          <span aria-hidden className="h-2.5 w-2.5 animate-pulse rounded-full bg-wrong" />
+          {/* RC2.3.13R.3.2.4 — calm live state: a breathing dot and three slow bars (decorative; the label says it). */}
+          <span aria-hidden className="living-rec-dot h-2.5 w-2.5 rounded-full bg-wrong" />
+          <span aria-hidden className="living-rec-bars" data-living-rec-bars>
+            <span />
+            <span />
+            <span />
+          </span>
           {t("player.selfCompareRecording")}
         </p>
       )}
@@ -529,7 +535,7 @@ export function SelfComparePractice({
             </Button>
           ) : (
             <Button
-              className={guided ? "min-h-12 w-full animate-pulse" : "mt-4 min-h-12 w-full animate-pulse"}
+              className={guided ? "min-h-12 w-full" : "mt-4 min-h-12 w-full"}
               size="lg"
               variant="danger"
               onClick={() => void stopRecording()}

@@ -51,6 +51,8 @@ import { ProgressionShell } from "../../components/progression/ProgressionShell"
 import { ProgressionNodeBubble, progressionOffsetForIndex } from "../../components/progression/ProgressionNodeBubble";
 import { JourneyLaneRow } from "./scenes/JourneyLaneRow";
 import { journeyLaneDecorFor } from "./scenes/journeyScenePlan";
+import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
+import { claimSessionOnce } from "../../lib/motion/sessionOnce";
 import type { ProgressionNodeState } from "../../components/progression/progressionTypes";
 import { haptic } from "../../lib/haptics";
 import {
@@ -973,12 +975,13 @@ function ModuleBlock({
   const canChallenge = showSkipTest && skipAccess.allowed && skipTestReady;
   const chestOpen = chest ? journeyChestsOpened.includes(chest.id) : false;
   const chestUnlocked = Boolean(chest && moduleComplete && !chestOpen);
+  const [milestoneDraw] = useState(() => containsCurrent && claimSessionOnce(`journey-milestone:${unit.id}`));
 
   return (
     <div className="mb-6">
       <div
         className={[
-          "mx-auto max-w-sm rounded-xl border bg-surface px-3 py-2 shadow-card transition lg:max-w-md",
+          "relative isolate mx-auto max-w-sm rounded-xl border bg-surface px-3 py-2 shadow-card transition lg:max-w-md",
           containsCurrent
             ? "border-accent/35 shadow-glow"
             : moduleComplete
@@ -986,7 +989,17 @@ function ModuleBlock({
             : "border-line/50",
           isFutureModule ? "opacity-70" : "",
         ].join(" ")}
+        data-journey-milestone={containsCurrent ? "current" : moduleComplete ? "completed" : undefined}
       >
+        {/*
+          RC2.3.13R.3.2.4 — milestone embroidery on the one module boundary
+          that matters now: the module you are in gets a huiwen frame (its
+          stitch drawn once per session). Finished and future modules stay
+          plain. Decorative overlay, under the content.
+        */}
+        {containsCurrent ? (
+          <ChineseOrnamentalFrame motif="huiwen" intensity="milestone" tone="accent" animated={milestoneDraw} surface="journey-milestone" />
+        ) : null}
         {(() => {
           const headerInner = (
             <>

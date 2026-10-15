@@ -1,0 +1,24 @@
+{
+  "schema": "longyu-living-ui-session/1",
+  "wave": "RC2.3.13R.3.2.4",
+  "runtimeDigest": "b14d6a88f7c1b4c6",
+  "engine": "chromium",
+  "kind": "EMULATED_DESKTOP_ENGINE",
+  "physical": false,
+  "viewport": "390x844",
+  "route": [
+    "/jornada",
+    "/cultura",
+    "/cultura/topico/vida_cotidiana",
+    "/revisao"
+  ],
+  "durationMinutes": 30.1,
+  "cycles": 73,
+  "maxRunningAmbient": 4,
+  "maxOffscreenLoops": 0,
+  "heapStartMb": 13,
+  "heapEndMb": 12.8,
+  "heapGrowthMb": -0.2,
+  "pageErrors": 0,
+  "note": "Engine-emulated session (no battery, heat or audio-device signal). Physical 30-minute judgement stays with the owner on the Device-QA APK."
+}

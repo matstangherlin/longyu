@@ -277,7 +277,10 @@ export async function validateMobileNavigationDensity(s) {
   if (JSON.stringify(practice) !== JSON.stringify(PRACTICE_SHEET)) fail("PRACTICE_SHEET_ORDER", "nav.tsx practiceMobileSheetItems", `${practice.join(",")} ≠ ${PRACTICE_SHEET.join(",")}`);
   if (!/grid grid-cols-2 gap-2/.test(s.src.tabBar)) fail("PRACTICE_SHEET_NOT_COMPACT", "TabBar.tsx", "sheet em 2 colunas");
   const top = stripComments(s.src.topBar);
-  if (!/testId="topbar-qi"\s*outerClassName="hidden min-\[390px\]:inline-flex"/.test(top)) fail("TOPBAR_NOT_COMPACT", "TopBar.tsx", "Qi some abaixo de 390px");
+  // The Qi pill's own props, in any order (RC2.3.13R.3.2.5: a prop added
+  // between testId and outerClassName is not a regression).
+  const qiPill = top.split("<StatPill").find((chunk) => /testId="topbar-qi"/.test(chunk.split("/>")[0])) ?? "";
+  if (!/outerClassName="hidden min-\[390px\]:inline-flex"/.test(qiPill.split("/>")[0])) fail("TOPBAR_NOT_COMPACT", "TopBar.tsx", "Qi some abaixo de 390px");
   if (!/to="\/perfil"\s*data-testid="topbar-avatar"/.test(top)) fail("PROFILE_ENTRY_MISSING", "TopBar.tsx", "avatar leva ao Perfil");
   return failures;
 }

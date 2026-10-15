@@ -25,6 +25,7 @@ import {
 import { recordTechEvent } from "../../lib/techEvents";
 import { GuideDialogue } from "../../components/guide/GuideDialogue";
 import { CultureTopicCard } from "./CultureTopicCard";
+import { consumeTopicTransition } from "../../lib/motion/topicTransition";
 
 /**
  * RC2.3.13R.3.2 — Culture root = topic hub.
@@ -39,6 +40,8 @@ export function CultureJourneyPage() {
   const startedIds = useStore((s) => s.cultureStartedIds);
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
   const [showGuide, setShowGuide] = useState(false);
+  // RC2.3.13R.3.2.4 — back from a topic: the root returns from the left, once.
+  const [topicEnter] = useState(consumeTopicTransition);
 
   const nextId = pickNextCultureMissionId(completedIds, startedIds);
   const nextMission = nextId ? getCultureMission(nextId) : undefined;
@@ -98,6 +101,7 @@ export function CultureJourneyPage() {
         data-culture-journey="rc2-3-13r3-2"
         data-culture-topic-hub="true"
         data-culture-path-bubbles="false"
+        data-topic-enter={topicEnter ?? undefined}
         className="space-y-5"
       >
         {fromJourney && (
