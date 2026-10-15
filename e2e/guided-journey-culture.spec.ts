@@ -185,10 +185,22 @@ test.describe("RC2.2.5 Journey Dragon Teacher handoffs", () => {
     // Continuar while typing completes text only; if already complete (fast
     // machines / WebKit), do not click yet — one click must never complete+dismiss.
     const urlBefore = page.url();
-    const phase = (await dialogue.getAttribute("data-guide-phase")) ?? "";
-    if (phase === "typing") {
-      await handoff.getByTestId("guide-continue").click();
-    }
+    // RC2.3.13R.3.2.5 — the decision and the click happen in ONE page task. A
+    // separate read + Playwright click let the typing finish in between (the
+    // click then advanced a completed dialogue and dismissed it: flaky on #354
+    // @ 64a06df, red twice on #355 @ 0df0fdc in WebKit). We only click while at
+    // least 4 graphemes (≥ 4 × 28 ms of ticks) are still to come, so a render
+    // that lags the DOM by a task cannot finish the text under the click.
+    const action = await handoff.getByTestId("guide-continue").evaluate((button) => {
+      const box = button.closest("[data-guide-phase]");
+      if (box?.getAttribute("data-guide-phase") !== "typing") return "not-typing";
+      const full = box.querySelector('[data-testid="guide-speech-box"]')?.getAttribute("aria-label") ?? "";
+      const shown = box.querySelector('[data-testid="guide-visible-text"]')?.textContent ?? "";
+      if (Array.from(full).length - Array.from(shown).length < 4) return "nearly-complete";
+      (button as HTMLButtonElement).click();
+      return "clicked-while-typing";
+    });
+    expect(["not-typing", "nearly-complete", "clicked-while-typing"]).toContain(action);
     await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
     await expect(handoff.getByTestId("guide-visible-text")).toContainText("1º e o 3º tom");
     expect(page.url()).toBe(urlBefore);
