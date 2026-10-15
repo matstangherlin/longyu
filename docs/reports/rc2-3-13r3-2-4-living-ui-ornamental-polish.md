@@ -24,6 +24,8 @@ PRE_BETA_FREEZE_EXCEPTION = OWNER_APPROVED_LIVING_UI_ORNAMENTAL_POLISH
 
 #355's own WebKit run (head `6c0330c9`) then failed "ambient budget and ornament contract" on every row: 3–4 loops kept running far offscreen. Classification **REAL_RUNTIME_REGRESSION**: the ambient budget applied its grants only on `requestAnimationFrame`, and a pending frame blocked every later `schedule()`, including the hidden-document pause. WebKit throttles frames, so the grants went stale. Fixed in `2618683e`: a timer always backs the frame. The new gate check `AMBIENT_STALE_WITHOUT_FRAMES` drives the real scheduler with suspended frames, and the spec now settles frames before measuring and names any offscreen loop.
 
+On `0df0fdc` WebKit then failed one test on both attempts: `guided-journey-culture.spec.ts` › Tone Trainer handoff. Classification **TEST_RACE_PREEXISTING**. The same error had already shown up as a flake on #354 @ `64a06df`. The test read `data-guide-phase` and then clicked Continuar. When the typing finished in between, the click advanced a completed dialogue and dismissed it. Fixed in `a3579c2`: the check and the click run in one page task, and the test only clicks while at least 4 graphemes remain. The runtime is unchanged.
+
 `REAL_RUNTIME_REGRESSION` = 1, fixed. New skips = 0. No `continue-on-error`, no `|| true`. The three pre-existing WebKit-only LEGIT skips (speech capture, Hanzi Builder rebuild, WebKit-only guided contract) are pinned and unchanged.
 
 ## What changed (presentation only)

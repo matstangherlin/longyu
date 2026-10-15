@@ -47,6 +47,8 @@ export const CROSS_ENGINE_CLASSIFICATION = [
   { engine: "webkit", head: "a1c5605b26b8ddc8ffad99fb21976bebac0c3175", classification: "TEST_CONTRACT_STALE", fixedIn: "64a06df" },
   // #355 itself: the budget's scheduler waited on throttled WebKit frames.
   { engine: "webkit", head: "6c0330c9ba0038ba9d5f76844de1315bac87d2ac", classification: "REAL_RUNTIME_REGRESSION", fixedIn: "2618683e" },
+  // #355 @ 0df0fdc: a pre-existing read-then-click race in the Tone handoff test (flaky on #354 @ 64a06df).
+  { engine: "webkit", head: "0df0fdc463ad78778aa8a1c9b8b4a965e7cfc82f", classification: "TEST_RACE_PREEXISTING", fixedIn: "a3579c2" },
 ];
 
 /** WebKit-only LEGIT skips already allowlisted on the parent head (#354 @ 64a06df). No new ones. */
