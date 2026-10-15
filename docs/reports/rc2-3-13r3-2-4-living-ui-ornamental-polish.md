@@ -22,7 +22,9 @@ PRE_BETA_FREEZE_EXCEPTION = OWNER_APPROVED_LIVING_UI_ORNAMENTAL_POLISH
 | Firefox | `aa801dab` | Journey scenes: no runtime fetch — the network filter also matched the mascot SVG Firefox requests | TEST_CONTRACT_STALE | `a1c5605` (filter scoped to `journey-*.svg`) |
 | WebKit | `a1c5605b` | Journey scenes: one test walked all 8 matrix rows and hit the timeout | TEST_CONTRACT_STALE | `64a06df` (one test per row, robust expand-all) |
 
-`REAL_RUNTIME_REGRESSION` = 0. New skips = 0. No `continue-on-error`, no `|| true`. The three pre-existing WebKit-only LEGIT skips (speech capture, Hanzi Builder rebuild, WebKit-only guided contract) are pinned and unchanged.
+#355's own WebKit run (head `6c0330c9`) then failed "ambient budget and ornament contract" on every row: 3–4 loops kept running far offscreen. Classification **REAL_RUNTIME_REGRESSION**: the ambient budget applied its grants only on `requestAnimationFrame`, and a pending frame blocked every later `schedule()`, including the hidden-document pause. WebKit throttles frames, so the grants went stale. Fixed in `2618683e`: a timer always backs the frame. The new gate check `AMBIENT_STALE_WITHOUT_FRAMES` drives the real scheduler with suspended frames, and the spec now settles frames before measuring and names any offscreen loop.
+
+`REAL_RUNTIME_REGRESSION` = 1, fixed. New skips = 0. No `continue-on-error`, no `|| true`. The three pre-existing WebKit-only LEGIT skips (speech capture, Hanzi Builder rebuild, WebKit-only guided contract) are pinned and unchanged.
 
 ## What changed (presentation only)
 
@@ -37,7 +39,7 @@ PRE_BETA_FREEZE_EXCEPTION = OWNER_APPROVED_LIVING_UI_ORNAMENTAL_POLISH
 | Delight | Victory `CompletionBurst`: ring + seal + 6 plum petals, ≤ 1100 ms, once; no sound, no loop. Delta-only `AnimatedCounter` (TopBar) and `ProgressFill` (Culture, primitives). |
 | QA | `/qa/device` → "Living UI & ornaments": every asset × tone, frame/divider sample, burst replay, live ambient readout. |
 
-`learnerRuntimeSha` advances to `053983abf3b12463d0f3471368c99d8ccb2dbb2e`. The canonical fingerprint stays **29bb02ec0336** (generator truth — no curriculum source changed).
+`learnerRuntimeSha` advances to `2618683e105bdb9be9185acd8b4ded9d30c61eee`. The canonical fingerprint stays **29bb02ec0336** (generator truth — no curriculum source changed).
 
 ## Gates
 

@@ -12,14 +12,14 @@
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
-  "certificationHeadSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+  "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+  "certificationHeadSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
   "artifactSourceSha": null,
-  "prHeadSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
-  "sourceTipSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+  "prHeadSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+  "sourceTipSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
   "workflowMergeSha": null,
   "parentPr": 354,
-  "shaNote": "learnerRuntimeSha = 053983ab (R.3.2.4 Living UI motion system, ambient budget, Chinese ornamental embroidery, feedback motion; fingerprint 29bb02ec0336 unchanged). Prior d1663614 = R.3.2.3 Journey SVG scenes (#354 hosted green at 64a06df8, no APK minted). artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
+  "shaNote": "learnerRuntimeSha = 2618683e (R.3.2.4 Living UI motion system, ambient budget, Chinese ornamental embroidery, feedback motion; fingerprint 29bb02ec0336 unchanged). Prior d1663614 = R.3.2.3 Journey SVG scenes (#354 hosted green at 64a06df8, no APK minted). artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -65,7 +65,7 @@
     "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "R.3.2.4 HOSTED_PENDING: Living UI runtime 053983ab (on top of R.3.2.3 Journey SVG, hosted green at 64a06df8); old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + UI acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
+    "reason": "R.3.2.4 HOSTED_PENDING: Living UI runtime 2618683e (on top of R.3.2.3 Journey SVG, hosted green at 64a06df8); old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + UI acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
   },
   "wave1": {
     "targetRealTesters": 10,

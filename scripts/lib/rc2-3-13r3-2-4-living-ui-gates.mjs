@@ -45,6 +45,8 @@ export const STALE_APK_SHA256 = [
 export const CROSS_ENGINE_CLASSIFICATION = [
   { engine: "firefox", head: "aa801dabbdacac2216b3b2ea9d7de2ad33b20536", classification: "TEST_CONTRACT_STALE", fixedIn: "a1c5605" },
   { engine: "webkit", head: "a1c5605b26b8ddc8ffad99fb21976bebac0c3175", classification: "TEST_CONTRACT_STALE", fixedIn: "64a06df" },
+  // #355 itself: the budget's scheduler waited on throttled WebKit frames.
+  { engine: "webkit", head: "6c0330c9ba0038ba9d5f76844de1315bac87d2ac", classification: "REAL_RUNTIME_REGRESSION", fixedIn: "2618683e" },
 ];
 
 /** WebKit-only LEGIT skips already allowlisted on the parent head (#354 @ 64a06df). No new ones. */
@@ -877,6 +879,85 @@ export function checkDeltaBehaviour(src) {
 /* 4. Ambient budget (validate:ambient-motion-budget)                 */
 /* ------------------------------------------------------------------ */
 
+/**
+ * RC2.3.13R.3.2.5 — the real scheduler in a browser whose animation frames are
+ * suspended (a hidden document) or throttled (WebKit, background webviews):
+ * requestAnimationFrame never fires, timers do. A visible loop must still get
+ * its slot, and hiding the document must still pause it — a pending frame may
+ * never hold the budget stale (the WebKit "loops far offscreen" failure).
+ */
+export function checkSchedulerWithoutFrames(src, motion) {
+  const errors = [];
+  const timers = [];
+  let visibility = "visible";
+  const listeners = {};
+  let observe = null;
+  class FrozenFrameObserver {
+    constructor(cb) {
+      observe = cb;
+    }
+    observe() {}
+    unobserve() {}
+  }
+  const el = {
+    attrs: {},
+    setAttribute(k, v) {
+      this.attrs[k] = String(v);
+    },
+    getAttribute(k) {
+      return this.attrs[k] ?? null;
+    },
+  };
+  const doc = {
+    get visibilityState() {
+      return visibility;
+    },
+    addEventListener(type, fn) {
+      listeners[type] = fn;
+    },
+  };
+  let budget;
+  try {
+    budget = evalSource(src.ambientBudget, {
+      requires: {
+        react: { useEffect() {} },
+        "./livingUiMotion": {
+          ...motion,
+          documentHidden: () => visibility === "hidden",
+          prefersReducedMotion: () => false,
+          subscribeReducedMotion: () => () => {},
+        },
+      },
+      globals: {
+        document: doc,
+        IntersectionObserver: FrozenFrameObserver,
+        requestAnimationFrame: () => 1,
+        cancelAnimationFrame: () => {},
+        setTimeout: (fn) => timers.push(fn),
+        clearTimeout: () => {},
+      },
+    });
+  } catch {
+    return ["AMBIENT_BUDGET_UNLOADABLE"];
+  }
+  const flush = () => {
+    for (let guard = 0; timers.length && guard < 50; guard += 1) timers.shift()();
+  };
+  try {
+    budget.registerAmbient(el, "scene");
+    observe?.([{ target: el, isIntersecting: true }]);
+    flush();
+    if (el.getAttribute("data-ambient") !== "run") errors.push("AMBIENT_STALE_WITHOUT_FRAMES");
+    visibility = "hidden";
+    listeners.visibilitychange?.();
+    flush();
+    if (el.getAttribute("data-ambient") !== "rest") errors.push("AMBIENT_RUNS_WHILE_HIDDEN");
+  } catch {
+    errors.push("AMBIENT_BUDGET_UNLOADABLE");
+  }
+  return errors;
+}
+
 export function checkAmbientBudget(src) {
   const errors = [];
   let motion;
@@ -910,6 +991,8 @@ export function checkAmbientBudget(src) {
     false,
   );
   if (scenesOnly.size > max) errors.push("AMBIENT_BUDGET_EXCEEDED");
+
+  errors.push(...checkSchedulerWithoutFrames(src, motion));
 
   const code = stripComments(src.ambientBudget);
   if (!/document\.addEventListener\("visibilitychange", schedule\)/.test(code)) errors.push("AMBIENT_RUNS_WHILE_HIDDEN");

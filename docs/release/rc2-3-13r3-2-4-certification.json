@@ -46,10 +46,10 @@
     "newHaptics": false
   },
   "runtime": {
-    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+    "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
     "previousLearnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
     "learnerRuntimeMoved": true,
-    "rationale": "Learner-facing presentation changed: motion tokens + reduced-motion signal, ambient budget (≤ 4 loops), 13 embroidered ornament SVGs on milestone surfaces, press/transition/feedback motion, delta-only counters and progress, one-shot Victory burst, QA panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth).",
+    "rationale": "Learner-facing presentation changed: motion tokens + reduced-motion signal, ambient budget (≤ 4 loops), 13 embroidered ornament SVGs on milestone surfaces, press/transition/feedback motion, delta-only counters and progress, one-shot Victory burst, QA panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Runtime moved again to 2618683e: the ambient scheduler always arms a timer backup next to the frame, so a suspended or throttled frame can never hold the budget stale (WebKit CI).",
     "fingerprint": "29bb02ec0336",
     "fingerprintMoved": false
   },
@@ -70,15 +70,24 @@
         "classification": "TEST_CONTRACT_STALE",
         "cause": "one test walked all 8 matrix rows and hit the WebKit timeout; split into one test per row with a robust expand-all",
         "fixedIn": "64a06df"
+      },
+      {
+        "engine": "webkit",
+        "head": "6c0330c9ba0038ba9d5f76844de1315bac87d2ac",
+        "test": "e2e/rc2-3-13r3-2-4-living-ui.spec.ts — ambient budget and ornament contract (6 rows: 3-4 loops far offscreen; once 3 while hidden)",
+        "classification": "REAL_RUNTIME_REGRESSION",
+        "cause": "the ambient budget applied grants only on requestAnimationFrame and a pending frame blocked every later schedule(), including the hidden pause; WebKit throttles frames, so grants went stale",
+        "fixedIn": "2618683e"
       }
     ],
-    "realRuntimeRegressions": 0,
+    "realRuntimeRegressions": 1,
     "chromium": "PASS",
     "firefox": "PASS",
     "webkit": "PASS_WITH_NARROW_EXISTING_ALLOWLISTED_ENGINE_SKIP",
     "webkitSkip": "e2e/v494-builder-ux.spec.ts — LEGIT INFRA skip, WebKit only, Hanzi Builder clear→full rebuild+verify (unchanged)",
     "newSkips": 0,
-    "continueOnError": 0
+    "continueOnError": 0,
+    "realRuntimeRegressionsFixed": 1
   },
   "ornamentalSystem": {
     "state": "CODE_PASS",

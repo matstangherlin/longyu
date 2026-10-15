@@ -96,40 +96,68 @@ async function expandAll(page: Page) {
   }).toPass({ timeout: 45_000, intervals: [500, 1_000, 2_000] });
 }
 
-/** Running looping animations (on screen and far offscreen). */
+/** Running looping animations (on screen and far offscreen), with names for diagnostics. */
 async function loops(page: Page) {
   return page.evaluate(() => {
     const h = window.innerHeight;
     let running = 0;
     let offscreen = 0;
+    const offscreenNames: string[] = [];
     for (const a of document.getAnimations()) {
       const timing = a.effect?.getComputedTiming?.();
       if (a.playState !== "running" || timing?.iterations !== Infinity) continue;
       const target = (a.effect as KeyframeEffect | null)?.target as Element | null;
       const r = target?.getBoundingClientRect();
       if (!r || r.width === 0 || r.height === 0) continue;
-      if (r.bottom < -100 || r.top > h + 100) offscreen += 1;
-      else running += 1;
+      if (r.bottom < -100 || r.top > h + 100) {
+        offscreen += 1;
+        offscreenNames.push(`${(a as CSSAnimation).animationName ?? "?"}@${target?.getAttribute("data-ambient-kind") ?? target?.tagName}:${target?.getAttribute("data-ambient")}`);
+      } else running += 1;
     }
-    return { running, offscreen };
+    return { running, offscreen, offscreenNames };
   });
+}
+
+/**
+ * Let the page render a few frames: the budget follows IntersectionObserver
+ * records and applies on the next frame (or its timer backup). A real display
+ * renders continuously; a headless engine may only when asked.
+ */
+async function settleFrames(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        let n = 0;
+        const tick = () => (++n >= 3 ? setTimeout(resolve, 160) : requestAnimationFrame(tick));
+        requestAnimationFrame(tick);
+        setTimeout(resolve, 1_000); // never hang if frames are suspended
+      }),
+  );
 }
 
 async function sampleAmbient(page: Page) {
   let maxRunning = 0;
   let offscreen = 0;
+  const names = new Set<string>();
   const height = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
   for (const f of [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1]) {
     // The app scrolls smoothly; sample at rest, not mid-flight.
     await page.evaluate((y) => window.scrollTo({ top: y, behavior: "instant" }), Math.round(height * f));
-    await page.waitForTimeout(450);
-    const now = await loops(page);
+    await page.waitForTimeout(300);
+    await settleFrames(page);
+    // The budget converges within a few frames; give it a bounded moment, then judge.
+    let now = await loops(page);
+    for (let i = 0; i < 8 && now.offscreen > 0; i += 1) {
+      await page.waitForTimeout(250);
+      now = await loops(page);
+    }
     maxRunning = Math.max(maxRunning, now.running);
     offscreen = Math.max(offscreen, now.offscreen);
+    for (const name of now.offscreenNames) names.add(name);
   }
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.waitForTimeout(300);
-  return { maxRunning, offscreen };
+  return { maxRunning, offscreen, offscreenNames: [...names] };
 }
 
 /** The app goes to the background: every loop pauses. */
@@ -139,7 +167,11 @@ async function hiddenLoops(page: Page) {
     document.dispatchEvent(new Event("visibilitychange"));
   });
   await page.waitForTimeout(250);
-  const hidden = await loops(page);
+  let hidden = await loops(page);
+  for (let i = 0; i < 6 && hidden.running + hidden.offscreen > 0; i += 1) {
+    await page.waitForTimeout(250);
+    hidden = await loops(page);
+  }
   await page.evaluate(() => {
     Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "visible" });
     document.dispatchEvent(new Event("visibilitychange"));
@@ -289,6 +321,7 @@ async function measureRow(browser: Browser, row: Row) {
       ...row,
       maxRunningAmbient: ambient.maxRunning,
       offscreenRunning: ambient.offscreen,
+      offscreenNames: ambient.offscreenNames,
       hiddenRunning: hidden,
       haloVisible: haloState.visible,
       haloAnimation: haloState.animation,
@@ -311,7 +344,7 @@ async function measureRow(browser: Browser, row: Row) {
 
 function assertRow(r: Awaited<ReturnType<typeof measureRow>>) {
   expect.soft(r.maxRunningAmbient, `${r.name} ambient loops on screen`).toBeLessThanOrEqual(r.reducedMotion ? 0 : MAX_AMBIENT);
-  expect.soft(r.offscreenRunning, `${r.name} loops far offscreen`).toBe(0);
+  expect.soft(r.offscreenRunning, `${r.name} loops far offscreen: ${r.offscreenNames.join(", ")}`).toBe(0);
   expect.soft(r.hiddenRunning, `${r.name} loops while hidden`).toBe(0);
   expect.soft(r.haloVisible, `${r.name} current-node halo visible`).toBe(true);
   if (r.reducedMotion) expect.soft(r.haloAnimation, `${r.name} halo still under reduced motion`).toBe("none");

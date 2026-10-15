@@ -36,10 +36,10 @@
     "cultureScenes": false
   },
   "runtime": {
-    "learnerRuntimeSha": "053983abf3b12463d0f3471368c99d8ccb2dbb2e",
+    "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
     "previousLearnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "learnerRuntimeMoved": true,
-    "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Advanced again by RC2.3.13R.3.2.4 (Living UI + ornamental embroidery, 053983ab); R.3.2.3 never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
+    "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Advanced again by RC2.3.13R.3.2.4 (Living UI + ornamental embroidery, 2618683e); R.3.2.3 never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
     "fingerprint": "29bb02ec0336",
     "fingerprintMoved": false
   },
