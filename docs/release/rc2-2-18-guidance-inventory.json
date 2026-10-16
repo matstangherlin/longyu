@@ -62,7 +62,13 @@
     },
     {
       "file": "src/components/chests/ChestRewardModal.tsx",
-      "surface": "chest opening",
+      "surface": "chest opening (Loja/Missões wrapper over ChestOpeningRitual)",
+      "class": "REWARD",
+      "automatic": false
+    },
+    {
+      "file": "src/components/chests/ChestOpeningRitual.tsx",
+      "surface": "chest opening ritual (Loja, Missões, Jornada) — RC2.3.13R.3.2.5",
       "class": "REWARD",
       "automatic": false
     },

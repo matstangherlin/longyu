@@ -305,9 +305,11 @@ export function matchUserMessageKey(message: string | null | undefined): Message
  * RC2.3.13R.3.2.5 — text that is a machine's, not a sentence for a learner:
  * error class names, PostgREST / JWT / SQL wording, HTTP status lines and
  * snake_case reason codes. Such text never reaches the screen verbatim.
+ * (The class-name branch is `[a-z]{2,}error` under /i — the same language as
+ * `(?:[A-Z][a-z]+)+Error`, without the nested quantifier that backtracks.)
  */
 const TECHNICAL_TEXT =
-  /\b(?:[A-Z][a-z]+)+Error\b|\bPGRST\d+|\bjwt\b|permission denied|violates|duplicate key|relation "|database error|\bstatus(?: code)? \d{3}\b|\bHTTP \d{3}\b|unexpected_failure|\brpc\b|^[a-z]+(?:_[a-z]+)+$|\bat [\w.]+ \(|stack|undefined|null|NaN/i;
+  /\b[a-z]{2,}error\b|\bPGRST\d+|\bjwt\b|permission denied|violates|duplicate key|relation "|database error|\bstatus(?: code)? \d{3}\b|\bHTTP \d{3}\b|unexpected_failure|\brpc\b|^[a-z]+(?:_[a-z]+)+$|\bat [\w.]+ \(|stack|undefined|null|NaN/i;
 
 export function isTechnicalMessage(message: string): boolean {
   return TECHNICAL_TEXT.test(message);

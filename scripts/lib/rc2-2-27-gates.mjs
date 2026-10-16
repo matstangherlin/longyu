@@ -496,7 +496,12 @@ export async function validateCompletionSequence(s) {
   const actions = section(victory, "data-lesson-victory-actions", "</div>");
   if (/disabled=\{[^}]*stage/i.test(actions)) fail("CONTINUE_HIJACKED", FILES.victory, "Continuar nunca espera a animação");
   // JSX prop (qi={...}) or spread object field (qi: ...) — same delta source.
-  if (!/qi[=:]\s*\{?newRewards\.find\(\(reward\) => reward\.type === "qi"\)\?\.amount \?\? 0\}?/.test(s.src.player)) {
+  // RC2.3.13R.3.2.5 — the chip may read `offeredRewards`: the same delta
+  // (`allRewards`) narrowed to what is still to claim plus what was claimed on
+  // this card, so the "+N Qi" stays after the tap instead of vanishing.
+  const offeredFromDelta = /const offeredRewards = allRewards\.filter\(\s*\(reward\) => newRewards\.includes\(reward\) \|\| claimedHereRef\.current\.ids\.has\(reward\.id\)\s*\)/.test(s.src.player);
+  const shownQi = /qi[=:]\s*\{?(newRewards|offeredRewards)\.find\(\(reward\) => reward\.type === "qi"\)\?\.amount \?\? 0\}?/.exec(s.src.player);
+  if (!shownQi || (shownQi[1] === "offeredRewards" && !offeredFromDelta)) {
     fail("COMPLETION_GRANTS_QI", FILES.player, "Qi exibido = delta já calculado pelo fluxo existente");
   }
   return failures;

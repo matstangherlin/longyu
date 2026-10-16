@@ -535,7 +535,9 @@ export async function validateGuidanceSurfaces(s) {
   }
   // DE — VOLTAR (Android) = Escape: fecha a orientação primeiro.
   const surfaces = (host.match(/data-native-back-dismiss/g) ?? []).length;
-  if (surfaces < 2 || !/if \(event\.key !== "Escape"\) return;[\s\S]{0,120}onAction\(secondary\)/.test(host))
+  // RC2.3.13R.3.2.5 — an open sheet takes the Escape first (BACK_PRIORITY:
+  // modal before guidance); that one early return is the only extra allowed.
+  if (surfaces < 2 || !/if \(event\.key !== "Escape"\) return;\s*(?:if \(isModalOpen\(\)\) return;\s*)?[\s\S]{0,120}onAction\(secondary\)/.test(host))
     fail("BACK_EXITS_APP", "GuidanceHost.tsx", "VOLTAR/Escape fecha o coachmark antes de navegar");
   // DD — acessibilidade.
   if ((host.match(/role="dialog"/g) ?? []).length < 2 || (host.match(/aria-describedby=\{bodyId\}/g) ?? []).length < 2 || (host.match(/focusPrimary\(cardRef\.current\)/g) ?? []).length < 2)

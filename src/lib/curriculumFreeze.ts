@@ -527,6 +527,9 @@ export const BETA_PEDAGOGY_FREEZE = {
     "src/lib/cultureProgressionGate.ts",
     "src/lib/domainMastery.ts",
     "src/lib/economyIntentQueue.ts",
+    // RC2.3.13R.3.2.5 — failure copy for existing economy intents only (see
+    // PRE_BETA_FREEZE_EXCEPTION_R325): no currency, rule, amount or grant timing.
+    "src/lib/economyPending.ts",
     "src/lib/economyServerBridge.ts",
     "src/lib/economyTypes.ts",
     "src/lib/leagueLiveFixture.ts",

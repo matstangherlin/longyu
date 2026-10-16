@@ -1128,7 +1128,7 @@ export function checkRelease(src) {
   if (rc.entry?.PUBLIC_BETA_ENTRY !== "HOLD" || cert.entry?.PUBLIC_BETA_ENTRY !== "HOLD") errors.push("PUBLIC_BETA_GO");
   if (cert.entry?.PLAY_CLOSED_BETA_ENTRY !== "HOLD" && cert.play?.signedAab !== "BUILT") errors.push("PLAY_GO_WITHOUT_SIGNED_AAB");
   if (cert.entry?.OWNER_QA_ENTRY === "GO" && artifact.status !== "BUILT") errors.push("OWNER_QA_WITHOUT_APK");
-  if (!new RegExp(WAVE.replace(/\./g, "\\.")).test(src.report ?? "")) errors.push("REPORT_MISSING");
+  if (!(src.report ?? "").includes(WAVE)) errors.push("REPORT_MISSING");
   if (!/DO NOT USE/.test(src.handoff ?? "")) errors.push("OWNER_HANDOFF_MISSING");
   for (const h of STALE_APK_SHA256) if (!(src.handoff ?? "").includes(h)) errors.push("HANDOFF_STALE_LIST_INCOMPLETE");
   return uniq(errors);
