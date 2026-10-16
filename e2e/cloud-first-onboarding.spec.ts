@@ -87,6 +87,11 @@ test.describe("AUTH-003 — logout não vira conta local", () => {
     await expect(page.getByTestId("home-continue-cta")).toBeVisible();
     await expect(page.getByRole("button", { name: /^Sair$/i })).toBeVisible();
     await page.getByRole("button", { name: /^Sair$/i }).click();
+    // RC2.3.13R.3.2.5 — the TopBar pill opens the same confirmation as every
+    // other sign-out; nothing is signed out until the learner confirms.
+    await expect(page).toHaveURL(/\/jornada/);
+    await expect(page.getByTestId("topbar-sign-out-confirm")).toBeVisible();
+    await page.getByTestId("topbar-sign-out-confirm-yes").click();
     await page.waitForURL(/\/$/);
     await expect(page.getByRole("link", { name: /Começar agora/i })).toBeVisible();
 
