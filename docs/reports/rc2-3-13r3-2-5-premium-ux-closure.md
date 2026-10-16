@@ -80,7 +80,7 @@ contrast.
 
 ## Truth
 
-- learnerRuntimeSha `5a9a8ab1` (prior `2618683e`).
+- learnerRuntimeSha `3b1bb08c` (prior `2618683e`).
 - Fingerprint **29bb02ec0336**, from the generator, unchanged.
 - Hosted: PENDING. APK: NOT_BUILT (one APK after exact-head green).
 - Physical: NOT_RUN. Public Beta / Play: HOLD.

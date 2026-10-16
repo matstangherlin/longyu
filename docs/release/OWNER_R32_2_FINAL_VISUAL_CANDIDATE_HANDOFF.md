@@ -12,7 +12,7 @@ Source:       pending artifactSourceSha
 SHA256:       pending
 Fingerprint:  29bb02ec0336
 Channel:      DEVICE_QA
-learnerRuntimeSha: 5a9a8ab1cdde2ba3512fc2844366329b64265f44 (advanced by R.3.2.3, R.3.2.4, then R.3.2.5)
+learnerRuntimeSha: 3b1bb08c36c6ad51129bc7022a8064f6a5c720a7 (advanced by R.3.2.3, R.3.2.4, then R.3.2.5)
 ```
 
 # DO NOT USE

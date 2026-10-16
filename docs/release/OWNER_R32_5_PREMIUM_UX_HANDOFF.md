@@ -1,7 +1,7 @@
 # Owner handoff — RC2.3.13R.3.2.5 Premium UX Closure
 
 Wave: RC2.3.13R.3.2.5 · branch `claude/journey-svg-storytelling-7amwba`
-learnerRuntimeSha: 5a9a8ab1cdde2ba3512fc2844366329b64265f44 · fingerprint 29bb02ec0336
+learnerRuntimeSha: 3b1bb08c36c6ad51129bc7022a8064f6a5c720a7 · fingerprint 29bb02ec0336
 
 ## USE THIS APK
 
