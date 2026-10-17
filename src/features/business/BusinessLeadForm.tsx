@@ -15,7 +15,7 @@ import { CountrySelect } from "../../components/auth/CountrySelect";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 
 const FIELD_CLASS =
-  "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+  "min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-focus-ring";
 
 const LABEL_CLASS = "mb-1 block text-xs font-semibold text-ink";
 
@@ -325,7 +325,7 @@ export function BusinessLeadForm({ sourceCta = "form" }: { sourceCta?: string })
           value={draft.message}
           onChange={(event) => patch("message", event.target.value)}
           aria-describedby={errors.message ? errorIds.message : `${formId}-message-hint`}
-          className="min-h-[6.5rem] w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          className="min-h-[6.5rem] w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         />
         <p id={`${formId}-message-hint`} className="mt-1 text-[11px] text-ink-faint">
           Opcional. Não envie dados pessoais de colaboradores.

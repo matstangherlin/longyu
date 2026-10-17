@@ -50,7 +50,7 @@ export function FeedbackButton({
         if (!event.defaultPrevented) openFeedback(context);
       }}
       className={[
-        "inline-flex select-none items-center justify-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+        "inline-flex select-none items-center justify-center gap-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
         VARIANTS[variant],
         SIZES[size],
         className,

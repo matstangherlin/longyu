@@ -265,7 +265,7 @@ export function HanziAtlasPage() {
           type="button"
           onClick={() => setShowLogic((current) => !current)}
           aria-expanded={showLogic}
-          className="flex w-full items-center justify-between gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          className="flex w-full items-center justify-between gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         >
           <span>
             <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">
@@ -658,7 +658,7 @@ function HanziCard({
   reviewNotice: string | null;
 }) {
   return (
-    <article className="group rounded-[24px] border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
+    <article className="group rounded-3xl border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
       <div className="flex items-start justify-between gap-3">
         <button type="button" onClick={onDetail} className="min-w-0 flex-1 text-left">
           <div className="flex items-end gap-3">
@@ -755,7 +755,7 @@ function HanziDetailModal({
 
   return (
     <ModalOverlay className="px-3 py-3 sm:p-6" label="Detalhe do hanzi">
-      <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[28px] bg-bg shadow-lift">
+      <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-bg shadow-lift">
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg/95 px-4 py-3 backdrop-blur">
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Detalhe do hànzì</div>

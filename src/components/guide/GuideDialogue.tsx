@@ -48,6 +48,12 @@ export type GuideDialogueProps = {
    * GuidedLessonShell). Sem isso, o botão fica logo abaixo do balão.
    */
   renderAction?: (action: ReactNode) => ReactNode;
+  /**
+   * RC2.3.13R.3.2.5 — where the guide sits next to the screen's real action
+   * (Journey handoff / culture gate), its Continue is secondary ("outline").
+   * Lessons keep the default primary.
+   */
+  actionVariant?: "primary" | "outline";
   /** test hook */
   "data-testid"?: string;
 };
@@ -67,6 +73,7 @@ export function GuideDialogue({
   gloss = false,
   layout = "default",
   renderAction,
+  actionVariant = "primary",
   "data-testid": testId = "guide-dialogue",
 }: GuideDialogueProps) {
   const { t } = useTranslation();
@@ -192,7 +199,8 @@ export function GuideDialogue({
   const continueButton = (
     <div className={[renderAction ? "" : "mt-3", playEntrance ? "guide-continue-enter" : ""].join(" ")}>
       <Button
-        className="w-full shadow-lift"
+        variant={actionVariant}
+        className={actionVariant === "primary" ? "w-full shadow-lift" : "w-full"}
         data-testid="guide-continue"
         data-guide-continue={isTyping ? "complete-text" : "advance"}
         onClick={continueDialogue}
@@ -230,6 +238,7 @@ export function GuideDialogue({
           variant={blink ? "wave" : "still"}
           animated={blink}
           className="shrink-0"
+          decorative
         />
         {name ? (
           <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">{name}</span>
@@ -306,7 +315,7 @@ export function GuideDialogue({
  * RC2.3.13R.3.2.4 — the typing caret blinks only while its guide is on screen:
  * a guide waiting below the fold must not loop (ambient budget).
  */
-function TypingCaret() {
+export function TypingCaret() {
   const ref = useRef<HTMLSpanElement>(null);
   useAmbientMotion(ref, "mascot");
   return <span ref={ref} className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-accent align-middle motion-reduce:animate-none" />;

@@ -32,7 +32,7 @@ export function QaHanziBuilderPage() {
 
   return (
     <main className="min-h-[100dvh] bg-bg px-4 py-6" data-qa-builder-fixture>
-      <Card className="mx-auto max-w-xl overflow-visible rounded-[24px] p-4 shadow-lift sm:p-5">
+      <Card className="mx-auto max-w-xl overflow-visible rounded-3xl p-4 shadow-lift sm:p-5">
         <div data-qa-builder-wrong={String(wrongCount)} data-qa-builder-status={finished ?? "open"}>
           <HanziBuilderExercise
             key={builder.id}

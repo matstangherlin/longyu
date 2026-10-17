@@ -252,7 +252,7 @@ export function BibliotecaPage() {
                 onClick={() => setActiveTab(tab.id)}
                 aria-pressed={active}
                 className={[
-                  "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+                  "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                   active ? "border-accent bg-accent text-white shadow-card" : "border-line bg-surface text-ink-soft hover:text-ink",
                 ].join(" ")}
               >
@@ -465,7 +465,7 @@ function CharacterCard({
         </div>
       </div>
 
-      <div className="mt-5 rounded-[22px] border border-line bg-surface-2 px-4 py-3">
+      <div className="mt-5 rounded-3xl border border-line bg-surface-2 px-4 py-3">
         <div className="flex items-center justify-between text-sm">
           <span className="font-medium text-ink">Domínio</span>
           <span className="font-semibold text-accent">{entry.mastery}%</span>
@@ -535,7 +535,7 @@ function ChunkCard({
         ))}
       </div>
 
-      <div className="mt-4 rounded-[22px] border border-line bg-surface-2 px-4 py-3">
+      <div className="mt-4 rounded-3xl border border-line bg-surface-2 px-4 py-3">
         <div className="flex items-center justify-between text-sm">
           <span className="font-medium text-ink">Domínio</span>
           <span className="font-semibold text-accent">{entry.mastery}%</span>
@@ -629,7 +629,7 @@ function DetailModal({
 
   return (
     <ModalOverlay className="px-3 py-3 sm:justify-center sm:p-6" label="Detalhes">
-      <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[28px] border border-line bg-surface shadow-lift">
+      <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-line bg-surface shadow-lift">
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-surface/95 px-5 py-4 backdrop-blur">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Detalhes</div>
@@ -1054,7 +1054,7 @@ function FilterToggle({ active, onClick, children }: { active: boolean; onClick:
       onClick={onClick}
       aria-pressed={active}
       className={[
-        "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+        "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
         active ? "border-accent bg-accent-soft text-accent" : "border-line bg-surface-2 text-ink-soft hover:text-ink",
       ].join(" ")}
     >

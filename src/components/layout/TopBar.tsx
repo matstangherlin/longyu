@@ -9,6 +9,7 @@ import { useMeasuredHeightCssVar } from "../../hooks/useMeasuredCssVar";
 import { useTranslation } from "../../i18n/useTranslation";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 import { AnimatedCounter } from "../motion/AnimatedCounter";
+import { SignOutControl } from "../account/SignOutControl";
 
 function StatPill({
   to,
@@ -56,7 +57,7 @@ function StatPill({
     <Link
       to={to}
       data-testid={testId}
-      className={["rounded-full transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45", outerClassName].filter(Boolean).join(" ")}
+      className={["rounded-full transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring", outerClassName].filter(Boolean).join(" ")}
     >
       {inner}
     </Link>
@@ -74,7 +75,7 @@ export function TopBar() {
   const accounts = useStore((s) => s.accounts);
   const currentAccountId = useStore((s) => s.currentAccountId);
   const account = accounts?.[currentAccountId];
-  const { signOut, canSignOut } = useCloudSignOut();
+  const { canSignOut } = useCloudSignOut();
   // RC2.2.13 — Perfil saiu da TabBar: o avatar é a porta de entrada e mostra onde o aluno está.
   const onProfile = /^\/(perfil|conta|amigos)(\/|$)/.test(useLocation().pathname);
   const [scrolled, setScrolled] = useState(false);
@@ -99,7 +100,7 @@ export function TopBar() {
       ].join(" ")}
     >
       <div className="min-w-0 shrink lg:hidden">
-        <Link to="/jornada" aria-label="Longyu" className="flex min-h-12 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45">
+        <Link to="/jornada" aria-label="Longyu" className="flex min-h-12 items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring">
           <BrandWordmark className="text-[1.2rem] sm:text-[1.3rem]" />
         </Link>
       </div>
@@ -139,20 +140,14 @@ export function TopBar() {
           data-testid="topbar-avatar"
           data-coachmark-target="topbar-profile"
           aria-current={onProfile ? "page" : undefined}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition aria-[current=page]:border-accent aria-[current=page]:bg-accent-soft hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition aria-[current=page]:border-accent aria-[current=page]:bg-accent-soft hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           aria-label={account?.name ? t("auth.accountNamed", { name: account.name }) : t("auth.accountAria")}
         >
           <IconUser width={15} height={15} className="sm:h-4 sm:w-4" />
         </Link>
-        {canSignOut && (
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="hidden min-h-11 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-3 text-xs font-semibold text-wrong transition hover:bg-wrong/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/35 sm:flex"
-          >
-            {t("common.signOut")}
-          </button>
-        )}
+        {/* RC2.3.13R.3.2.5 — same confirmation as everywhere else (one mis-tap
+            next to the avatar used to sign the learner out at once). */}
+        {canSignOut && <SignOutControl testId="topbar-sign-out" variant="pill" />}
       </div>
     </header>
   );

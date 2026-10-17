@@ -63,7 +63,7 @@ const mutations = [
   ],
   [
     "animação ignora prefers-reduced-motion",
-    { victorySource: base.victorySource.replaceAll("prefers-reduced-motion", "prefers-anything") },
+    { victorySource: base.victorySource.replaceAll("prefers-reduced-motion", "prefers-anything").replaceAll("prefersReducedMotion()", "false") },
     "REDUCED_MOTION",
   ],
   [

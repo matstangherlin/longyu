@@ -1,125 +1,14 @@
-import { useState } from "react";
-import { haptic } from "../../lib/haptics";
-import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
-import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
-import { Button } from "../ui/primitives";
-import { IconX } from "../ui/Icon";
-import { ModalOverlay } from "../ui/ModalOverlay";
+import { useStore, type ChestType } from "../../lib/store";
 import { localizedChestVisual } from "./chestMeta";
-import { LongyuChest } from "./LongyuChest";
-import { RewardReveal } from "./RewardReveal";
-import { useTranslation } from "../../i18n/useTranslation";
+import { ChestOpeningRitual } from "./ChestOpeningRitual";
 
-type Phase = "closed" | "opening" | "revealed";
-
-// Modal de abertura de baú: fechado -> abertura com brilho -> revelação.
-// As recompensas são aplicadas no store ao abrir; o modal só revela o resultado.
+// Modal de abertura de baú da Loja e das Missões: fechado -> ritual -> revelação.
+// As recompensas são aplicadas no store ao abrir; o ritual só revela o resultado.
+// RC2.3.13R.3.2.5 — o ritual (resgate único, revelação imediata com movimento
+// reduzido, estado "indisponível" honesto) mora em ChestOpeningRitual, o mesmo
+// da Jornada.
 export function ChestRewardModal({ type, onClose }: { type: ChestType; onClose: () => void }) {
-  const { t } = useTranslation();
   const openChest = useStore((s) => s.openChest);
-  const soundEffects = useStore((s) => s.soundEffects);
-  const [phase, setPhase] = useState<Phase>("closed");
-  const [rewards, setRewards] = useState<ChestRewardItem[]>([]);
-
   const visual = localizedChestVisual(type);
-
-  function handleOpen() {
-    if (phase !== "closed") return;
-    const result = openChest(type);
-    if (!result) {
-      onClose();
-      return;
-    }
-    setPhase("opening");
-    playSoundFx(chestOpenSound(type), soundEffects);
-    haptic("chestOpen");
-    window.setTimeout(() => {
-      setRewards(result);
-      setPhase("revealed");
-      playSoundFx("qiGain", soundEffects);
-    }, 680);
-  }
-
-  const closable = phase !== "opening";
-  const openingLabel = phase === "opening" ? t("player.chestOpening") : t("player.chestTapToOpen");
-
-  return (
-    <ModalOverlay className="items-stretch sm:items-center" onBackdropClick={() => closable && onClose()}>
-      <div
-        className="relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-y-auto border border-line bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_48%,rgb(var(--bg))_100%)] px-5 pb-[calc(var(--app-safe-bottom)+1rem)] pt-6 text-center shadow-lift sm:min-h-0 sm:rounded-2xl sm:p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        {closable && (
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onClose}
-            className="absolute right-4 top-4 z-10"
-            aria-label={t("common.close")}
-          >
-            <IconX width={18} height={18} />
-          </Button>
-        )}
-
-        <div className="mx-auto mt-6 flex justify-center sm:mt-2">
-          <button
-            type="button"
-            disabled={phase !== "closed"}
-            onClick={handleOpen}
-            className={[
-              "relative rounded-2xl px-8 py-5 transition active:scale-[0.98] disabled:cursor-default",
-              phase === "opening" ? "longyu-chest-shake" : "",
-            ].join(" ")}
-            aria-label={phase === "closed" ? t("player.chestTapToOpen") : visual.name}
-          >
-            <span className={phase === "opening" || phase === "revealed" ? "longyu-chest-aura" : ""} aria-hidden />
-            <LongyuChest
-              type={type}
-              state={phase === "revealed" || phase === "opening" ? "opened" : "unlocked"}
-              size="lg"
-              animated
-            />
-          </button>
-        </div>
-
-        {phase !== "revealed" ? (
-          <div className="flex flex-1 flex-col">
-            <div className="mx-auto mt-4 inline-flex rounded-full bg-surface/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
-              {visual.rarity}
-            </div>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">{visual.name}</h2>
-            <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">{visual.tagline}</p>
-            <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-ink-faint">
-              {t("player.chestMayContain", { items: visual.contains })}
-            </p>
-            <p className="mt-5 text-sm font-semibold text-accent">{openingLabel}</p>
-            <Button
-              size="lg"
-              className="mt-auto w-full shadow-lift sm:mt-6"
-              disabled={phase === "opening"}
-              onClick={handleOpen}
-            >
-              {openingLabel}
-            </Button>
-          </div>
-        ) : (
-          <div className="flex flex-1 flex-col">
-            <div className="mx-auto mt-3 inline-flex rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-              {t("player.chestRewards")}
-            </div>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-ink">{t("player.chestYouReceived")}</h2>
-            <p className="mx-auto mt-1 max-w-xs text-sm text-ink-soft">
-              {t("player.chestRewardsApplied")}
-            </p>
-            <div className="mt-5">
-              <RewardReveal rewards={rewards} large />
-            </div>
-            <Button size="lg" className="mt-auto w-full shadow-lift sm:mt-6" onClick={onClose}>
-              {t("player.claimRewards")}
-            </Button>
-          </div>
-        )}
-      </div>
-    </ModalOverlay>
-  );
+  return <ChestOpeningRitual type={type} title={visual.name} claim={() => openChest(type)} onClose={onClose} />;
 }

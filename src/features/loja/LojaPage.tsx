@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useStore, type ChestType, type ShopPurchaseFeedback } from "../../lib/store";
 import { playSoundFx } from "../../lib/soundFx";
+import { useTransientMessage } from "../../hooks/useTransientMessage";
 import {
   CATEGORY_ORDER,
   shopItemLifetime,
@@ -87,7 +88,7 @@ export function LojaPage() {
   const lessonPendingStars = useStore((s) => s.lessonPendingStars);
   const monthlyMission = useStore((s) => s.monthlyMission);
 
-  const [burst, setBurst] = useState<string | null>(null);
+  const [burst, showBurstMessage] = useTransientMessage(1200);
   const [openChestType, setOpenChestType] = useState<ChestType | null>(null);
   const [showAutoExplain, setShowAutoExplain] = useState(false);
   const location = useLocation();
@@ -152,8 +153,7 @@ export function LojaPage() {
 
   function flash(message: string, sound: Parameters<typeof playSoundFx>[0] = "qiGain") {
     playSoundFx(sound, soundEffects);
-    setBurst(message);
-    window.setTimeout(() => setBurst(null), 1200);
+    showBurstMessage(message);
   }
 
   async function buy(item: ShopItem) {
@@ -183,13 +183,20 @@ export function LojaPage() {
 
   return (
     <HubPage className="relative space-y-4">
-      {burst && (
-        <div className="pointer-events-none fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)] z-50 flex justify-center px-4">
+      {/* RC2.3.13R.3.2.5 — the live region exists before the message, so a
+          screen reader hears "Comprado"; the toast itself is unchanged. */}
+      <div
+        role="status"
+        aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 top-[calc(var(--app-header-height)+0.5rem)] z-50 flex justify-center px-4"
+        data-testid="shop-toast"
+      >
+        {burst && (
           <div className="longyu-claim-float rounded-full bg-[rgb(var(--good)/0.16)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--good))] shadow-lift">
             {burst}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <HubHeader
         eyebrow={t("navigation.shop")}
@@ -352,7 +359,7 @@ export function LojaPage() {
       )}
 
       {showAutoExplain && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/40 p-4 sm:items-center">
           <div
             role="dialog"
             aria-labelledby="pearl-auto-title"
@@ -393,7 +400,7 @@ function PurchaseFeedbackModal({
   const isProPass = item?.kind === "pearl_pro_pass";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/40 p-4 sm:items-center">
       <div
         role="dialog"
         aria-labelledby="purchase-feedback-title"

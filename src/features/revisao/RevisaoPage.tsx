@@ -1014,13 +1014,13 @@ function ExerciseFeedback({
       aria-live="polite"
       className={[
         "animate-pop mt-5 rounded-2xl p-4 text-center",
-        correct === false ? "bg-[rgb(var(--danger)/0.08)]" : correct ? "bg-[rgb(var(--good)/0.12)]" : "bg-surface-2",
+        correct === false ? "border border-wrong/25 bg-wrong-soft" : correct ? "bg-good-soft" : "bg-surface-2",
       ].join(" ")}
     >
       <div
         className={[
           "text-sm font-semibold",
-          correct === false ? "text-danger" : correct ? "text-[rgb(var(--good))]" : "text-ink",
+          correct === false ? "text-wrong" : correct ? "text-[rgb(var(--good))]" : "text-ink",
         ].join(" ")}
       >
         {title}
@@ -1886,9 +1886,11 @@ export function RevisaoPage() {
                 {correctionDrill ? (
                   <Button onClick={exitCorrectionDrill}>{t("review.backToReview")}</Button>
                 ) : (
+                  // RC2.3.13R.3.2.5 — the Journey feeds this queue: it is the real next
+                  // step from an empty Review; the side tools stay secondary.
                   <>
                     <ButtonLink to="/hanzi" variant="outline">{t("review.goHanzi")}</ButtonLink>
-                    <ButtonLink to="/fala">{t("review.goSpeaking")}</ButtonLink>
+                    <ButtonLink to="/jornada" data-testid="review-empty-journey">{t("shell.continueJourney")}</ButtonLink>
                   </>
                 )}
               </div>
@@ -2076,7 +2078,7 @@ export function RevisaoPage() {
           <button
             type="button"
             onClick={exitCorrectionDrill}
-            className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-xl px-1 text-sm font-semibold text-ink-soft transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-xl px-1 text-sm font-semibold text-ink-soft transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <IconChevron width={16} height={16} className="rotate-180" aria-hidden="true" />
             {t("review.backToReview")}
@@ -2114,7 +2116,7 @@ export function RevisaoPage() {
             onClick={() => setRoundStarted(false)}
             aria-label={t("review.backToReview")}
             data-testid="review-exit"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
           >
             <IconX width={20} height={20} />
           </button>
@@ -2224,7 +2226,7 @@ export function RevisaoPage() {
             <button
               type="button"
               onClick={() => openPaywall("errors")}
-              className="font-medium text-gold underline decoration-gold/35 underline-offset-2 transition hover:decoration-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
+              className="font-medium text-gold underline decoration-gold/35 underline-offset-2 transition hover:decoration-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               {t("review.historyPro")}
             </button>

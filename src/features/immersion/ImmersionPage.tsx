@@ -1002,7 +1002,7 @@ function InteractiveStoryPlayer({
         : "border-line bg-surface text-ink hover:border-accent/50 hover:bg-surface-2";
     }
     if (storyAnswerMatches(step, option)) return "border-[rgb(var(--good)/0.45)] bg-[rgb(var(--good)/0.10)] text-[rgb(var(--good))]";
-    if (selectedAnswer === option && !lastCorrect) return "border-[#B42318]/45 bg-[#B42318]/10 text-[#B42318]";
+    if (selectedAnswer === option && !lastCorrect) return "border-wrong/40 bg-wrong-soft text-wrong";
     return "border-line bg-surface-2 text-ink-soft";
   }
 
@@ -1100,7 +1100,7 @@ function InteractiveStoryPlayer({
           stopSpeaking();
           onClose();
         }}
-        className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+        className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ink-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         <IconChevron className="rotate-180" width={18} height={18} /> Histórias de Imersão
       </button>
@@ -1191,7 +1191,7 @@ function InteractiveStoryPlayer({
                   onClick={() => submitAnswer(option)}
                   aria-label={`Opção ${shortcutKeyForIndex(index)}: ${option}`}
                   className={[
-                    "relative flex min-h-11 items-center gap-2.5 rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+                    "relative flex min-h-11 items-center gap-2.5 rounded-xl border px-4 py-2.5 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                     optionClass(option),
                   ].join(" ")}
                 >
@@ -1232,7 +1232,7 @@ function InteractiveStoryPlayer({
                 "rounded-xl border px-4 py-3 text-sm leading-6",
                 lastCorrect
                   ? "border-[rgb(var(--good)/0.35)] bg-[rgb(var(--good)/0.08)] text-ink"
-                  : "border-[#B42318]/35 bg-[#B42318]/10 text-ink",
+                  : "border-wrong/35 bg-wrong-soft text-ink",
               ].join(" ")}
               role="status"
             >
@@ -1843,7 +1843,7 @@ function PreferenceToggle({ label, enabled, onChange }: { label: string; enabled
         className={["flex h-11 items-center justify-between rounded-xl px-3 text-sm font-medium transition", enabled ? "bg-accent-soft text-accent" : "bg-surface-2 text-ink-soft"].join(" ")}
       >
         <span>{enabled ? "Mostrar" : "Ocultar"}</span>
-        <span className={["relative h-6 w-10 rounded-full transition", enabled ? "bg-accent" : "bg-line"].join(" ")}>
+        <span className={["relative h-6 w-10 rounded-full transition", enabled ? "bg-accent" : "bg-ink-faint/55 ring-1 ring-inset ring-ink-faint/40"].join(" ")}>
           <span className={["absolute top-1 h-4 w-4 rounded-full bg-white transition", enabled ? "left-5" : "left-1"].join(" ")} />
         </span>
       </button>

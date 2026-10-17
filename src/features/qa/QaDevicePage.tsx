@@ -57,6 +57,7 @@ import { BetaIssueReporter } from "./BetaIssueReporter";
 import { VisualFirstQaPanel } from "./VisualFirstQaPanel";
 import { JourneySvgQaPanel } from "./JourneySvgQaPanel";
 import { LivingUiQaPanel } from "./LivingUiQaPanel";
+import { PremiumUxQaPanel } from "./PremiumUxQaPanel";
 import { EverydayMandarinQaPanel } from "./EverydayMandarinQaPanel";
 import { CultureDeepQaPanel } from "./CultureDeepQaPanel";
 import { HanziWritingQaPanel } from "./HanziWritingQaPanel";
@@ -151,6 +152,7 @@ function QaDeviceSurface() {
       <VisualFirstQaPanel />
       <JourneySvgQaPanel />
       <LivingUiQaPanel />
+      <PremiumUxQaPanel />
       <EverydayMandarinQaPanel />
       <CultureDeepQaPanel />
       <HanziWritingQaPanel />

@@ -56,7 +56,7 @@ export function CultureTopicCard({
       data-culture-topic-state={state}
       data-cta-hierarchy="secondary"
       aria-label={a11y}
-      onClick={() => markTopicTransition("forward")}
+      onClick={(event) => markTopicTransition("forward", cultureTopicHref(topic.id), event)}
       className={[
         "culture-topic-card living-card group flex min-h-[110px] flex-col justify-between rounded-2xl border border-line bg-surface p-3.5 shadow-card",
         "transition-[transform,background-color,border-color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",

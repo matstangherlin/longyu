@@ -106,7 +106,7 @@ export function FamilyPage() {
   if (loading) return <LoadingState label={t("common.loading")} />;
 
   if (loadError) {
-    return <ErrorState title={t("familia.title")} desc={t(ERROR_KEYS[loadError])} />;
+    return <ErrorState title={t("familia.title")} desc={t(ERROR_KEYS[loadError])} onRetry={() => void load()} />;
   }
 
   if (!overview) {
@@ -237,7 +237,7 @@ export function FamilyPage() {
                   onChange={(event) => setInviteEmail(event.target.value)}
                   className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
                 />
-                {inviteError && <p className="text-xs text-bad">{t(ERROR_KEYS[inviteError])}</p>}
+                {inviteError && <p className="text-xs text-wrong">{t(ERROR_KEYS[inviteError])}</p>}
                 <Button className="w-full" disabled={busy || inviteEmail.trim().length === 0} onClick={() => void handleInvite()}>
                   {t("familia.inviteSend")}
                 </Button>

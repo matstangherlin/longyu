@@ -227,7 +227,7 @@ export function runAuthGate(rt) {
 
   // AI12 — no infinite loading
   if (!/withTimeout\(oauth\.auth\.exchangeCodeForSession/.test(rt.src.oauthService)) fail("NO_INFINITE_LOADING", FILES.oauthService, "code exchange without timeout");
-  if (!/setTimeout\(\(\) => setPhase\(\(p\) => \(p === "working" \? "error" : p\)\), OAUTH_CALLBACK_TIMEOUT_MS/.test(rt.src.callbackPage) || !/Usar outro método/.test(rt.src.callbackPage)) fail("NO_INFINITE_LOADING", FILES.callbackPage, "no watchdog / no way out");
+  if (!/setTimeout\(\(\) => setPhase\(\(p\) => \(p === "working" \? "error" : p\)\), OAUTH_CALLBACK_TIMEOUT_MS/.test(rt.src.callbackPage) || !/Usar outro método|t\("auth\.oauth\.otherMethod"\)/.test(rt.src.callbackPage)) fail("NO_INFINITE_LOADING", FILES.callbackPage, "no watchdog / no way out");
 
   // AI13 — e-mail always offered
   for (const enabled of [new Set(), new Set(["google", "apple", "microsoft"])]) {

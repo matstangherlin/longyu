@@ -35,10 +35,10 @@ export function segmentGraphemes(text: string): string[] {
   return Array.from(value);
 }
 
-export function prefersReducedMotion(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
+// RC2.3.13R.3.2.5 — one reduced-motion signal for the whole app (Living UI);
+// the guide re-exports it so existing imports keep working.
+import { prefersReducedMotion } from "./motion/livingUiMotion";
+export { prefersReducedMotion };
 
 /** Pause (ms) after punctuation when typing. */
 export function pauseAfterGrapheme(grapheme: string): number {

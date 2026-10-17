@@ -7,9 +7,29 @@ import { shouldRegisterServiceWorker, unregisterNativeServiceWorkers } from "../
  * Avisa quando há bundle novo do service worker.
  * Evita o aluno ficar preso em cache antigo achando que a beta "quebrou".
  */
+/**
+ * RC2.3.13R.3.2.5 — AppShell marks <html data-lesson-player> while the focus
+ * player is open. The update banner waits for the lesson to end: it used to
+ * float over the exercise and the action dock, and "Atualizar" reloaded
+ * mid-lesson.
+ */
+function useLessonPlayerOpen(): boolean {
+  const read = () => typeof document !== "undefined" && Boolean(document.documentElement.dataset.lessonPlayer);
+  const [open, setOpen] = useState(read);
+  useEffect(() => {
+    if (typeof MutationObserver !== "function") return undefined;
+    const observer = new MutationObserver(() => setOpen(read()));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-lesson-player"] });
+    setOpen(read());
+    return () => observer.disconnect();
+  }, []);
+  return open;
+}
+
 export function PwaUpdateBanner() {
   const { t } = useTranslation();
   const [needRefresh, setNeedRefresh] = useState(false);
+  const lessonOpen = useLessonPlayerOpen();
   const updateSWRef = useRef<((reloadPage?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
@@ -49,7 +69,7 @@ export function PwaUpdateBanner() {
     };
   }, []);
 
-  if (!needRefresh) return null;
+  if (!needRefresh || lessonOpen) return null;
 
   return (
     <div
@@ -72,7 +92,7 @@ export function PwaUpdateBanner() {
       </Button>
       <button
         type="button"
-        className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-ink-faint hover:bg-surface-2 hover:text-ink"
+        className="inline-flex min-h-11 shrink-0 items-center rounded-lg px-2 text-xs font-medium text-ink-soft hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         onClick={() => setNeedRefresh(false)}
         aria-label={t("errors.pwaDismiss")}
       >

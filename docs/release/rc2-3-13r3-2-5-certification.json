@@ -1,0 +1,280 @@
+{
+  "schema": "longyu-rc2-3-13r3-2-5-certification/1",
+  "wave": "RC2.3.13R.3.2.5",
+  "title": "Premium Surface Hierarchy, Reward Rituals, Resilient States & UX Closure",
+  "header": "OWNER-APPROVED PRESENTATION CLOSURE. NO NAVIGATION REDESIGN. NO CURRICULUM EXPANSION. NO PEDAGOGY, MASTERY, SRS, XP, FÔLEGO, UNLOCK, ECONOMY, GRANT-TIMING, SCHEMA, BILLING OR JEV CHANGE.",
+  "phase": "HOSTED_PENDING",
+  "branch": "claude/journey-svg-storytelling-7amwba",
+  "base": "main",
+  "freezeException": "OWNER_APPROVED_PREMIUM_UX_CLOSURE",
+  "scope": {
+    "navigationRedesign": false,
+    "curriculumExpansion": false,
+    "pedagogyChange": false,
+    "masteryChange": false,
+    "economyChange": false,
+    "srsChange": false,
+    "unlockRuleChange": false,
+    "schemaChange": false,
+    "jevRuntimeChange": false,
+    "billingChange": false
+  },
+  "parent": {
+    "pr": 355,
+    "wave": "RC2.3.13R.3.2.4",
+    "headSha": "4ee6d1ad96c9ff338bf86ed7e2d382ae100dc843",
+    "hosted": "PASS",
+    "note": "#355 (R.3.2.4) hosted green at 4ee6d1a (WebKit's one narrow pre-existing LEGIT skip) and merged to main as merge commit 8846bef0 (not squash). The 0df0fdc WebKit failure was a pre-existing test race, fixed in a3579c2.",
+    "hostedRun": {
+      "overall": "PASS",
+      "headSha": "4ee6d1ad96c9ff338bf86ed7e2d382ae100dc843",
+      "releaseTruth": "PASS",
+      "security": "PASS",
+      "betaSuites": "PASS",
+      "qualityBuild": "PASS",
+      "androidFoundation": "PASS",
+      "androidRuntime": "PASS",
+      "chromium": "PASS",
+      "firefox": "PASS",
+      "webkit": "PASS_WITH_ALLOWLISTED_ENGINE_SKIP",
+      "workflowRunIds": {
+        "ci": 38744029135,
+        "android": 38744029512,
+        "security": 38744029355
+      }
+    },
+    "mergedToMain": "8846bef0337d00596674fe00d30c6c6a9768e8d6"
+  },
+  "runtime": {
+    "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+    "previousLearnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+    "learnerRuntimeMoved": true,
+    "rationale": "Learner-facing presentation changed: semantic surface tokens and state matrix, resilient loading/empty/error/offline states and sync-truth copy, one chest-opening ritual, guide/auth/mobile ergonomics. Includes the overlay stack-margin fix (5a9a8ab1). Runtime moved again to 3b1bb08c: economyPending.ts registered in BETA_PEDAGOGY_FREEZE.systemModules (failure copy only) and the technical-text regex bounded (CodeQL js/redos); no behaviour change."
+  },
+  "fingerprint": {
+    "value": "29bb02ec0336",
+    "source": "generator",
+    "changed": false,
+    "note": "journeyFingerprint(): no curriculum source changed."
+  },
+  "androidValidatorRepair": {
+    "failure": "CAPACITOR_OUTSIDE_PLATFORM on #355 (android-foundation suite, heads a3074c5 and 3f66d8f): a comment 'inside Capacitor.' matched the lexical rule \\bCapacitor\\.",
+    "rootCause": "LEXICAL_MATCH_ON_PROSE",
+    "fix": "AST_DETECTOR",
+    "detector": "findCapacitorAccess (TypeScript AST: imports, import-equals, dynamic import, require, import types, Capacitor identifiers, [\"Capacitor\"] element access)",
+    "commentEdited": false,
+    "mutations": 7,
+    "evidence": [
+      "scripts/test-android-platform-boundaries.mjs (10 violations, 7 prose, 5 detector mutants)",
+      "R.3.2.5 gate platform mutants 1–7 (lexical, disabled, imports ignored, members ignored, element access ignored, comments counted, templates counted)"
+    ],
+    "commit": "3f66d8f"
+  },
+  "knownFollowups": {
+    "source": "R.3.2.4 review (4 low findings)",
+    "items": [
+      {
+        "id": "CULTURE_TOPIC_DIRECTION_STALE",
+        "status": "CLOSED",
+        "rootCause": "the direction mark survived modified clicks and was consumed by StrictMode's second initializer",
+        "fix": "marks only for plain primary clicks, destination-bound, ≤ 3 s, idempotent per location.key",
+        "regression": "e2e/rc2-3-13r3-2-5-premium-ux.spec.ts › Culture direction mark only follows a real in-app navigation + gate checkTopicTransition (executed)"
+      },
+      {
+        "id": "MASCOT_BLINK_REST_POSE",
+        "status": "CLOSED",
+        "rootCause": "a paused blink froze mid-blink (eyes shut) when the ambient budget withheld its slot",
+        "fix": ".mascot-eye-blink[data-ambient]:not([data-ambient=run]) { animation: none }",
+        "regression": "e2e › mascot blink without an ambient slot rests eyes-open; reduced motion eyes-open"
+      },
+      {
+        "id": "VICTORY_BURST_UNDER_FADE",
+        "status": "CLOSED",
+        "rootCause": "the completion burst sat inside the mascot's entrance fade and started invisible",
+        "fix": "burst outside lesson-victory-in; the entrance lives on the mascot wrapper",
+        "regression": "gate VICTORY_BURST_UNDER_FADE (component order)"
+      },
+      {
+        "id": "EDGE_DRAW_RESTING_POSE",
+        "status": "CLOSED",
+        "rootCause": "lyo-edge-draw ended at opacity 1 and snapped back to the edge's 0.62 rest",
+        "fix": "@keyframes lyo-edge-draw { from { opacity: 0 } } (lands on the resting opacity)",
+        "regression": "e2e › stitch draw lands on the resting opacity (clay, dark) + gate EDGE_DRAW_REST_POSE"
+      }
+    ]
+  },
+  "surfaces": {
+    "state": "CODE_PASS",
+    "designDoc": "docs/ux/premium-surface-system.md",
+    "tokens": [
+      "scrim",
+      "good-soft",
+      "gold-soft",
+      "on-good",
+      "on-wrong",
+      "on-gold",
+      "accent-on-soft",
+      "focus-ring",
+      "shadow-rest",
+      "shadow-raised",
+      "shadow-overlay",
+      "shadow-reward",
+      "shadow-dock",
+      "shadow-current"
+    ],
+    "contrast": "EXECUTED_IN_GATE_AND_E2E",
+    "radiusBaseline": 2,
+    "shadowBaseline": 0,
+    "cardMerge": "EXECUTED"
+  },
+  "resilientStates": {
+    "state": "CODE_PASS",
+    "designDoc": "docs/ux/resilient-state-system.md",
+    "authGate": "STALE_WHILE_REVALIDATE + PageFallback",
+    "offlineColdStart": "LAST_SERVER_CONFIRMED_CLOUD_READY_OFFLINE_ONLY",
+    "economyPendingCopy": "EXECUTED",
+    "errorLocalizer": "FAIL_CLOSED_EXECUTED",
+    "syncTruth": "Conta + SyncStatusChip + sign-out warning",
+    "onlineFlush": "ONCE_PER_RECONNECT"
+  },
+  "rewards": {
+    "state": "CODE_PASS",
+    "designDoc": "docs/ux/reward-experience.md",
+    "ritual": "ChestOpeningRitual (Loja, Missões, Jornada)",
+    "ritualMs": 760,
+    "revealMs": 680,
+    "singleClaim": "EXECUTED",
+    "reducedMotion": "INSTANT_EXECUTED",
+    "victoryQi": "STORE_FORMULA_EXECUTED",
+    "economyChange": false,
+    "escalated": [
+      "Back on Victory forfeits first-completion Qi (grant timing)",
+      "cloud chest summary shows the local roll while the server rolls its own table",
+      "Journey chests in cloud accounts are local-only and can be taken back by the next snapshot"
+    ]
+  },
+  "guide": {
+    "state": "CODE_PASS",
+    "teacherTypesOnce": "EXECUTED",
+    "rememberedJourneyGuides": true,
+    "secondaryGuideAction": true,
+    "blipsYieldToMandarin": true,
+    "singleReducedMotionSignal": true
+  },
+  "accessibility": {
+    "state": "CODE_PASS",
+    "rewardAnnounced": true,
+    "revealFocus": true,
+    "authErrorsAlert": true,
+    "noTypingChatter": true,
+    "chestStateNamed": true,
+    "interfaceLanguageAuthCopy": true,
+    "talkBack": "NOT_RUN",
+    "largeFont": "NOT_RUN_PHYSICAL"
+  },
+  "mobile": {
+    "keyboardHidesTabBar": true,
+    "noInputZoom": true,
+    "safeAreaZeroSpecificity": true,
+    "touchTargets44": true,
+    "passwordKeyboard": true
+  },
+  "crossEngine": {
+    "failures": [
+      {
+        "engine": "webkit",
+        "head": "0df0fdc463ad78778aa8a1c9b8b4a965e7cfc82f",
+        "test": "e2e/guided-journey-culture.spec.ts — Tone Trainer handoff (both attempts)",
+        "classification": "TEST_RACE_PREEXISTING",
+        "cause": "read-then-click race (flaky on #354 @ 64a06df)",
+        "fixedIn": "a3579c2"
+      }
+    ],
+    "newSkips": 0,
+    "localEngines": "CHROMIUM_ONLY (WebKit/Firefox run in CI)",
+    "chromium": "PASS_LOCAL",
+    "firefox": "PENDING_HOSTED",
+    "webkit": "PENDING_HOSTED"
+  },
+  "android": {
+    "foundation": "PENDING_HOSTED",
+    "runtime": "PENDING_HOSTED",
+    "platformBoundaries": "PASS_LOCAL"
+  },
+  "evidence": {
+    "e2e": "e2e/rc2-3-13r3-2-5-premium-ux.spec.ts",
+    "qa": "/qa/device › Premium UX closure (local previews only)"
+  },
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": null,
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "firefox": "PENDING",
+    "webkit": "PENDING",
+    "workflowRunIds": {}
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "channel": "DEVICE_QA",
+    "apkSha256": null,
+    "hashSource": null,
+    "artifactSourceSha": null,
+    "learnerRuntimeSha": null,
+    "fingerprint": null,
+    "workflowRunId": null,
+    "artifactId": null,
+    "packageId": "longyu.noba.com",
+    "note": "ONE Device-QA APK after exact-head hosted green, with SHA256 and provenance."
+  },
+  "priorDeviceQa": "STALE_FOR_CURRENT_RUNTIME",
+  "rejectedApkSha256List": [
+    "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  ],
+  "physical": {
+    "status": "NOT_RUN",
+    "device": null,
+    "emulator": null,
+    "artifactSha256": null,
+    "SURFACES_PHYSICAL": "NOT_RUN",
+    "REWARD_RITUAL_PHYSICAL": "NOT_RUN",
+    "OFFLINE_PHYSICAL": "NOT_RUN",
+    "KEYBOARD_PHYSICAL": "NOT_RUN",
+    "TALKBACK": "NOT_RUN"
+  },
+  "uiFreeze": {
+    "LONGYU_UI_UX_FREEZE": "PENDING_OWNER_ACCEPTANCE",
+    "FINAL_UI_OWNER_ACCEPTANCE": "NOT_RUN",
+    "boundApkSha256": null,
+    "acceptedValue": "OWNER_ACCEPTED_R325",
+    "rule": "set only after the owner accepts the ONE R.3.2.5 APK on a physical device"
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD"
+  },
+  "play": {
+    "signedAab": "NOT_BUILT",
+    "debugAabPlayReady": false,
+    "signingSource": null
+  },
+  "followups": [
+    "type/icon hierarchy audit agent did not run (usage limit); reward icons and typography tokens self-audited only",
+    "guide: coachmark vs in-page culture guide competition kept (e2e contract); typewriter still starts offscreen",
+    "auth: Android blob export honesty; guests still see the Danger Zone (seeded e2e contract)"
+  ],
+  "next": [
+    "exact-head hosted green (Chromium, Firefox, WebKit)",
+    "ONE Device-QA APK + SHA256 + owner handoff",
+    "owner physical: surfaces, reward ritual, offline, keyboard, TalkBack",
+    "LONGYU_UI_UX_FREEZE = OWNER_ACCEPTED_R325 only after acceptance"
+  ],
+  "prNote": "New PR from the same branch against main (which now carries #355)."
+}

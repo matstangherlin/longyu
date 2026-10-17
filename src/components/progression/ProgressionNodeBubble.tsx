@@ -33,7 +33,7 @@ function PassRing({
   const step = circumference / total;
   const gap = 8;
   const dash = Math.max(1, step - gap);
-  const inactive = locked ? "rgb(var(--text-faint))" : "rgb(var(--line))";
+  const inactive = locked ? "rgb(var(--text-faint))" : "rgb(var(--border))";
 
   return (
     <svg
@@ -161,7 +161,7 @@ export function ProgressionNodeBubble({
           "relative flex items-center justify-center rounded-full border-2 transition active:scale-95",
           nodeSize,
           "min-h-11 min-w-11",
-          isCurrent && "border-accent shadow-[0_0_0_3px_rgb(var(--accent)/0.28)]",
+          isCurrent && "border-accent bg-accent-soft text-accent shadow-current",
           isDone && "border-[rgb(var(--good)/0.55)] bg-[rgb(var(--good)/0.18)] text-[rgb(var(--good))]",
           isAvailable && "border-accent/50 bg-accent-soft/40 text-accent",
           isLocked && "border-line bg-surface-2 text-ink-faint",
@@ -211,7 +211,7 @@ export function ProgressionNodeBubble({
     "aria-disabled": isLocked || disabled ? true : undefined,
     "aria-label": `${title}, ${ariaState}${passRing && passRing.total > 1 ? `, ${passRing.progress} of ${passRing.total}` : ""}`,
     className: [
-      "flex flex-col items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+      "flex flex-col items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
       isLocked || disabled ? "cursor-help" : "cursor-pointer",
     ].join(" "),
   };
@@ -247,7 +247,10 @@ export function ProgressionNodeBubble({
             {content}
           </a>
         ) : (
-          <button type="button" {...commonProps} onClick={isLocked || disabled ? undefined : onSelect}>
+          // RC2.3.13R.3.2.5 — a LOCKED tap reaches the caller (Journey shows why it is
+          // locked or the Pro offer; callers never navigate a locked node). Only a
+          // disabled-but-unlocked node stays inert. aria-disabled stays either way.
+          <button type="button" {...commonProps} onClick={disabled && !isLocked ? undefined : onSelect}>
             {content}
           </button>
         )}

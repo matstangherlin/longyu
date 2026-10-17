@@ -12,20 +12,17 @@ import {
   peekJourneyPassReturn,
 } from "../../data/topicMastery";
 import { buildMissionViews, type MissionView } from "../../data/missions";
-import { useStore, type ChestRewardItem, type ChestType } from "../../lib/store";
+import { useStore, type ChestType } from "../../lib/store";
 import { Card, Button, Pill, ProgressBar } from "../../components/ui/primitives";
-import { ModalOverlay } from "../../components/ui/ModalOverlay";
 import {
-  IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconX, IconTarget, IconFlame,
+  IconCheck, IconLock, IconChevron, IconSound, IconChat, IconHanzi, IconBook, IconStar, IconRefresh, IconShield, IconTarget, IconFlame,
 } from "../../components/ui/Icon";
 import { Mascot } from "../../components/brand/Mascot";
 import { dueItems } from "../../lib/srs";
 import { useOnline } from "../../hooks/useOnline";
 import { ProPaywall } from "../../components/pro/ProPaywall";
-import { localizedChestVisual } from "../../components/chests/chestMeta";
 import { LongyuChest } from "../../components/chests/LongyuChest";
-import { RewardReveal } from "../../components/chests/RewardReveal";
-import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
+import { ChestOpeningRitual } from "../../components/chests/ChestOpeningRitual";
 import { auditJourneyModuleCoverageInDev, lessonTasksFor } from "../lesson/lessonTasks";
 import {
   requiredToneTrainerPackForLesson,
@@ -1049,7 +1046,7 @@ function ModuleBlock({
               onClick={onToggle}
               aria-expanded={expanded}
               aria-label={`${unitTitle}: ${t("player.ofTotal", { index: done, total })}. ${expanded ? t("journey.collapse") : t("journey.expand")}.`}
-              className="flex w-full items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+              className="flex w-full items-center gap-2.5 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               {headerInner}
             </button>
@@ -1069,23 +1066,22 @@ function ModuleBlock({
                     <div className="text-[11px] font-semibold text-ink-soft">{displayInstruction(skipAccess.labels.title, locale)}</div>
                     <div className="truncate text-[10px] text-ink-faint">{displayInstruction(skipAccess.labels.cost, locale)}</div>
                   </div>
-                  <button
-                    onClick={() => onChallenge(unit.id)}
-                    className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
-                  >
+                  <Button size="sm" className="shrink-0" onClick={() => onChallenge(unit.id)}>
                     {displayInstruction(skipAccess.labels.cta, locale)}
-                  </button>
+                  </Button>
                 </>
               ) : insufficientSkipTest ? (
                 <>
                   <div className="min-w-0 text-[11px] text-ink-faint">{t("journey.skipTestUnavailable")}</div>
-                  <button
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0"
                     disabled
                     title={displayInstruction("Este módulo ainda não tem perguntas suficientes para teste.", locale)}
-                    className="inline-flex h-7 shrink-0 cursor-not-allowed items-center justify-center rounded-full bg-surface px-2.5 text-[11px] font-semibold text-ink-faint"
                   >
                     {t("journey.skipTest")}
-                  </button>
+                  </Button>
                 </>
               ) : proChallenge ? (
                 <>
@@ -1093,12 +1089,9 @@ function ModuleBlock({
                     <IconLock width={12} height={12} className="shrink-0" />
                     <span className="truncate">{displayInstruction(skipAccess.labels.pro ?? skipAccess.labels.title, locale)}</span>
                   </div>
-                  <button
-                    onClick={onProChallenge}
-                    className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-accent px-2.5 text-[11px] font-semibold text-white transition hover:bg-accent-strong"
-                  >
+                  <Button size="sm" className="shrink-0" onClick={onProChallenge}>
                     {displayInstruction(skipAccess.labels.cta, locale)}
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <div className="flex items-center gap-1.5 text-[11px] text-ink-faint">
@@ -1300,7 +1293,8 @@ function JourneyChestNode({
       style={offset ? { transform: `translateX(${offset}px)` } : undefined}
     >
       {state === "unlocked" && (
-        <div className="mb-1 rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lift">
+        // RC2.3.13R.3.2.5 — a reward tone, not a second red CTA beside the current lesson.
+        <div className="mb-1 rounded-full border border-gold/30 bg-gold-soft px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-gold">
           {t("journey.chestReady")}
         </div>
       )}
@@ -1310,13 +1304,19 @@ function JourneyChestNode({
           if (locked) onLocked();
           if (!locked && !opened) onOpen();
         }}
-        aria-label={chestTitle}
+        // RC2.3.13R.3.2.5 — the state is part of the name (the SVG's own label is
+        // overridden by this one), and an opened chest says it does nothing.
+        aria-label={`${chestTitle} — ${opened ? t("journey.chestOpened") : locked ? t("journey.chestLocked") : t("journey.chestReady")}`}
+        aria-disabled={opened || undefined}
+        data-chest-state={state}
         className={[
-          "rounded-[24px] transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+          "rounded-3xl transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
           locked ? "cursor-help opacity-90" : "hover:brightness-105",
         ].join(" ")}
       >
-        <LongyuChest type={chest.type} state={state} size={opened ? "sm" : "md"} animated />
+        {/* Only the ready chest moves; an opened chest is the static open pose
+            (no lid replay and no sparks every time the Journey mounts). */}
+        <LongyuChest type={chest.type} state={state} size={opened ? "sm" : "md"} animated={state === "unlocked"} />
       </button>
       <span className={["mt-1.5 max-w-[128px] text-center text-xs font-medium", locked ? "text-ink-faint" : "text-ink-soft"].join(" ")}>
         {chestTitle}
@@ -1328,8 +1328,8 @@ function JourneyChestNode({
   );
 }
 
-type ChestModalPhase = "closed" | "opening" | "revealed";
-
+// RC2.3.13R.3.2.5 — the Journey chest uses the same ritual as the Loja chest:
+// one claim per modal, honest "unavailable" state, reduced motion reveals at once.
 function JourneyChestRewardModal({
   chest,
   onClose,
@@ -1337,106 +1337,15 @@ function JourneyChestRewardModal({
   chest: JourneyChestConfig;
   onClose: () => void;
 }) {
-  const { t, instructionLocale: locale } = useTranslation();
+  const { instructionLocale: locale } = useTranslation();
   const openJourneyChest = useStore((s) => s.openJourneyChest);
-  const soundEffects = useStore((s) => s.soundEffects);
-  const [phase, setPhase] = useState<ChestModalPhase>("closed");
-  const [rewards, setRewards] = useState<ChestRewardItem[]>([]);
-  const visual = localizedChestVisual(chest.type);
-  const closable = phase !== "opening";
-  const chestTitle = displayInstruction(chest.title, locale);
-  const openingLabel = phase === "opening" ? t("player.chestOpening") : t("player.chestTapToOpen");
-
-  function handleOpen() {
-    if (phase !== "closed") return;
-    const result = openJourneyChest(chest.id, chest.type);
-    if (!result) {
-      onClose();
-      return;
-    }
-    setPhase("opening");
-    playSoundFx(chestOpenSound(chest.type), soundEffects);
-    window.setTimeout(() => {
-      setRewards(result);
-      setPhase("revealed");
-      playSoundFx("qiGain", soundEffects);
-    }, 640);
-  }
-
   return (
-    <ModalOverlay className="items-stretch sm:items-center" onBackdropClick={() => closable && onClose()}>
-      <div
-        className="relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-hidden border border-line bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_48%,rgb(var(--bg))_100%)] px-5 pb-[calc(var(--app-safe-bottom)+1rem)] pt-6 text-center shadow-lift sm:min-h-0 sm:rounded-[34px] sm:p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        {closable && (
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
-            aria-label={t("common.close")}
-          >
-            <IconX width={18} height={18} />
-          </button>
-        )}
-
-        <div className="mx-auto mt-6 flex justify-center sm:mt-2">
-          <button
-            type="button"
-            disabled={phase !== "closed"}
-            onClick={handleOpen}
-            className={[
-              "relative rounded-[32px] px-8 py-5 transition active:scale-[0.98] disabled:cursor-default",
-              phase === "opening" ? "longyu-chest-shake" : "",
-            ].join(" ")}
-            aria-label={phase === "closed" ? t("player.chestTapToOpen") : chestTitle}
-          >
-            <span className={phase === "opening" || phase === "revealed" ? "longyu-chest-aura" : ""} aria-hidden />
-            <LongyuChest
-              type={chest.type}
-              state={phase === "revealed" || phase === "opening" ? "opened" : "unlocked"}
-              size="lg"
-              animated
-            />
-          </button>
-        </div>
-
-        {phase !== "revealed" ? (
-          <div className="flex flex-1 flex-col">
-            <Pill tone="accent" className="mx-auto mt-4">{visual.rarity}</Pill>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-ink">{chestTitle}</h2>
-            <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-ink-soft">{visual.tagline}</p>
-            <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-ink-faint">
-              {t("player.chestMayContain", { items: visual.contains })}
-            </p>
-            <p className="mt-5 text-sm font-semibold text-accent">
-              {openingLabel}
-            </p>
-            <Button
-              size="lg"
-              className="mt-auto w-full shadow-lift sm:mt-6"
-              disabled={phase === "opening"}
-              onClick={handleOpen}
-            >
-              {openingLabel}
-            </Button>
-          </div>
-        ) : (
-          <div className="flex flex-1 flex-col">
-            <Pill tone="accent" className="mx-auto mt-3">{t("player.chestRewards")}</Pill>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-ink">{t("player.chestYouReceived")}</h2>
-            <p className="mx-auto mt-1 max-w-xs text-sm text-ink-soft">
-              {t("player.chestRewardsApplied")}
-            </p>
-            <div className="mt-5">
-              <RewardReveal rewards={rewards} large />
-            </div>
-            <Button size="lg" className="mt-auto w-full shadow-lift sm:mt-6" onClick={onClose}>
-              {t("player.claimRewards")}
-            </Button>
-          </div>
-        )}
-      </div>
-    </ModalOverlay>
+    <ChestOpeningRitual
+      type={chest.type}
+      title={displayInstruction(chest.title, locale)}
+      claim={() => openJourneyChest(chest.id, chest.type)}
+      onClose={onClose}
+    />
   );
 }
 

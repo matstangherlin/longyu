@@ -803,7 +803,7 @@ function QuizCard({
           <PlacementAudio key={question.id} text={question.audioText} onTechnicalSkip={onTechnicalSkip} />
         )}
         {question.stimulus && (
-          <div className="mt-4 rounded-[24px] border border-line bg-surface-2 px-4 py-5">
+          <div className="mt-4 rounded-3xl border border-line bg-surface-2 px-4 py-5">
             <span className="hanzi text-5xl font-semibold text-ink">{question.stimulus}</span>
           </div>
         )}
@@ -910,7 +910,7 @@ function ResultPreview({
   return (
     <div data-testid="placement-result">
       <MascotPrompt prompt={t("placement.resultPrompt")} />
-      <div className="mx-auto max-w-2xl rounded-[28px] border border-line bg-surface p-6 shadow-lift">
+      <div className="mx-auto max-w-2xl rounded-3xl border border-line bg-surface p-6 shadow-lift">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">{t("placement.recommended")}</div>
         <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{localizedPlacementHeading(analysis, locale)}</h1>
         <p className="mt-3 text-sm leading-6 text-ink-soft">{localizedPlacementMessage(analysis, locale)}</p>

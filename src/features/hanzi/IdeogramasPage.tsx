@@ -119,7 +119,7 @@ export function HanziModeGrid({ allowed }: { allowed: boolean }) {
           </>
         );
         const className =
-          "flex min-h-[7.5rem] flex-col rounded-2xl border border-line/70 bg-surface p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45";
+          "flex min-h-[7.5rem] flex-col rounded-2xl border border-line/70 bg-surface p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring";
         return allowed ? (
           <Link key={mode.id} to={`/hanzi?mode=${mode.id}`} data-hanzi-mode={mode.id} className={`${className} hover:bg-surface-2 active:scale-[0.99]`}>
             {body}

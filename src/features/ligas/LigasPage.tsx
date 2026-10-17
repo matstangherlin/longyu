@@ -15,11 +15,22 @@ import {
 import { getLeagueProBonusLabel, getPlanFeature } from "../../data/planFeatures";
 import { EconomyExplainer } from "../../components/economy/EconomyExplainer";
 import { claimLeagueWeekReward } from "../../services/leagueService";
+import { localizeUserMessage } from "../../i18n/errors";
+
+/** The weekly claim's outcome as a sentence (server reason codes stay off screen). */
+function leagueClaimCopy(result: { ok: boolean; message: string }): string {
+  if (result.ok) return result.message;
+  const raw = String(result.message ?? "");
+  if (/already_claimed|já resgat/i.test(raw)) return "Esta recompensa já foi resgatada.";
+  if (/not_eligible|no_reward|ineleg/i.test(raw)) return "Esta semana não tem recompensa para resgatar.";
+  return localizeUserMessage(raw) || "Não foi possível resgatar. Tente de novo.";
+}
 
 export function LigasPage() {
   const league = useLeagueData();
   const contextualOffer = useProOffer();
-  const [claimMsg, setClaimMsg] = useState<string | null>(null);
+  const [claimMsg, setClaimMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [claiming, setClaiming] = useState(false);
 
   const {
     now,
@@ -73,11 +84,18 @@ export function LigasPage() {
     contextualOffer.consider({ xpToPromotion }, "card");
   }, [isPro, joined, xpToPromotion]);
 
+  // RC2.3.13R.3.2.5 — one claim in flight at a time (a double tap fired two
+  // RPCs), and the outcome is a sentence, never a server reason code.
   async function handleClaimReward() {
-    if (!lastWeek?.week_key || lastWeek.reward_claimed) return;
-    const result = await claimLeagueWeekReward(lastWeek.week_key);
-    setClaimMsg(result.message);
-    if (result.ok) void refreshLive();
+    if (claiming || !lastWeek?.week_key || lastWeek.reward_claimed) return;
+    setClaiming(true);
+    try {
+      const result = await claimLeagueWeekReward(lastWeek.week_key);
+      setClaimMsg({ ok: result.ok, text: leagueClaimCopy(result) });
+      if (result.ok) void refreshLive();
+    } finally {
+      setClaiming(false);
+    }
   }
 
   return (
@@ -114,21 +132,34 @@ export function LigasPage() {
         </div>
       )}
 
-      {(bannerKind === "error" || bannerKind === "syncing") && (
-        <div className="rounded-xl border border-wrong/25 bg-wrong-soft/40 px-3 py-2 text-center text-[11px] leading-4 text-ink" data-testid="league-error-banner">
-          <span className="font-semibold">{bannerKind === "syncing" ? "Sincronizando" : "Não foi possível carregar a liga."}</span>
+      {/* RC2.3.13R.3.2.5 — loading is neutral (it used to wear the error tone on
+          every first visit); an error never prints backend text. */}
+      {bannerKind === "syncing" && (
+        <div
+          role="status"
+          className="flex items-center justify-center gap-2 rounded-xl border border-line/50 bg-surface-2/80 px-3 py-2 text-center text-xs text-ink-soft"
+          data-testid="league-syncing-banner"
+        >
+          <span aria-hidden className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-accent/25 border-r-accent motion-reduce:animate-none" />
+          Carregando a liga…
+        </div>
+      )}
+
+      {bannerKind === "error" && (
+        <div role="alert" className="rounded-xl border border-wrong/25 bg-wrong-soft/40 px-3 py-2 text-center text-xs leading-5 text-ink" data-testid="league-error-banner">
+          <span className="font-semibold">Não foi possível carregar a liga.</span>
           {" · "}
-          {demoMessage ?? "Tente novamente."}
-          {bannerKind === "error" && (
-            <button
-              type="button"
-              className="mt-1 block w-full font-semibold text-accent hover:underline"
-              data-testid="league-retry"
-              onClick={() => void refreshLive()}
-            >
-              Tentar novamente
-            </button>
-          )}
+          Verifique a conexão e tente de novo.
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-2 w-full"
+            data-testid="league-retry"
+            loading={loading}
+            onClick={() => void refreshLive()}
+          >
+            Tentar novamente
+          </Button>
         </div>
       )}
 
@@ -143,7 +174,7 @@ export function LigasPage() {
       )}
 
       {isLive && (
-        <div className="rounded-xl border border-good/25 bg-good/8 px-3 py-2 text-center text-[11px] text-good" data-testid="league-live-banner">
+        <div className="rounded-xl border border-good/25 bg-good-soft px-3 py-2 text-center text-[11px] text-good" data-testid="league-live-banner">
           Liga real · {standings.length} aluno{standings.length === 1 ? "" : "s"} nesta divisão
           {lastUpdatedLabel ? ` · Atualizado ${lastUpdatedLabel}` : ""}
         </div>
@@ -184,7 +215,7 @@ export function LigasPage() {
         className="relative overflow-hidden rounded-2xl p-4 text-white shadow-card lg:p-5"
         style={{ background: `linear-gradient(145deg, ${meta.color}, ${shade(meta.color, -22)})` }}
       >
-        <div className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-white/12 blur-2xl" aria-hidden />
+        <div className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-white/10 blur-2xl" aria-hidden />
         <div className="relative flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/75">
@@ -282,12 +313,27 @@ export function LigasPage() {
                 {" · "}
                 {lastWeek.weekly_xp} XP · {leagueOutcomeLabel(lastWeek.movement, lastWeek.tier_id as LeagueTier)}
               </p>
-              {isLive && !lastWeek.reward_claimed && (
-                <Button size="sm" variant="soft" className="mt-2 w-full" onClick={() => void handleClaimReward()}>
+              {isLive && !lastWeek.reward_claimed && !claimMsg?.ok && (
+                <Button
+                  size="sm"
+                  variant="soft"
+                  className="mt-2 w-full"
+                  loading={claiming}
+                  data-testid="league-claim"
+                  onClick={() => void handleClaimReward()}
+                >
                   Resgatar recompensa
                 </Button>
               )}
-              {claimMsg && <p className="mt-1 text-[10px] text-ink-faint">{claimMsg}</p>}
+              {claimMsg && (
+                <p
+                  role="status"
+                  className={claimMsg.ok ? "mt-2 text-xs font-semibold text-good" : "mt-2 text-xs text-ink-soft"}
+                  data-testid="league-claim-result"
+                >
+                  {claimMsg.text}
+                </p>
+              )}
             </>
           ) : (
             <p className="mt-1 text-xs text-ink-soft">Sua primeira semana na liga!</p>

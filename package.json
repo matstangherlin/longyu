@@ -1303,7 +1303,17 @@
     "validate:theme-ornament-contrast": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs theme",
     "validate:rc2-3-13r3-2-4-living-ui-ornamental-polish": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs validate",
     "test:rc2-3-13r3-2-4-living-ui-ornamental-polish": "node scripts/rc2-3-13r3-2-4-living-ui-ornamental-polish.mjs test",
-    "gate:rc2-3-13r3-2-4-living-ui-ornamental-polish": "npm run validate:chinese-ornamental-assets && npm run validate:chinese-ornamental-system && npm run validate:living-ui-motion && npm run validate:ambient-motion-budget && npm run validate:motion-performance-contract && npm run validate:ui-effect-accessibility && npm run validate:theme-ornament-contrast && npm run validate:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run test:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run gate:rc2-3-13r3-2-3-journey-svg-storytelling"
+    "gate:rc2-3-13r3-2-4-living-ui-ornamental-polish": "npm run validate:chinese-ornamental-assets && npm run validate:chinese-ornamental-system && npm run validate:living-ui-motion && npm run validate:ambient-motion-budget && npm run validate:motion-performance-contract && npm run validate:ui-effect-accessibility && npm run validate:theme-ornament-contrast && npm run validate:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run test:rc2-3-13r3-2-4-living-ui-ornamental-polish && npm run gate:rc2-3-13r3-2-3-journey-svg-storytelling",
+    "validate:premium-surface-system": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs surface",
+    "validate:interactive-state-consistency": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs interactive",
+    "validate:resilient-ui-states": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs resilient",
+    "validate:reward-ux-contract": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs reward",
+    "validate:guide-ux-contract": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs guide",
+    "validate:mobile-ergonomics": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs mobile",
+    "validate:ux-closure-accessibility": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs a11y",
+    "validate:rc2-3-13r3-2-5-premium-ux-closure": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs validate",
+    "test:rc2-3-13r3-2-5-premium-ux-closure": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs test",
+    "gate:rc2-3-13r3-2-5-premium-ux-closure": "npm run validate:premium-surface-system && npm run validate:interactive-state-consistency && npm run validate:resilient-ui-states && npm run validate:reward-ux-contract && npm run validate:guide-ux-contract && npm run validate:mobile-ergonomics && npm run validate:ux-closure-accessibility && npm run validate:rc2-3-13r3-2-5-premium-ux-closure && npm run test:rc2-3-13r3-2-5-premium-ux-closure && npm run gate:rc2-3-13r3-2-4-living-ui-ornamental-polish"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

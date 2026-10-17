@@ -62,7 +62,7 @@ export function FamilyInvitePage() {
         ) : (
           <div className="space-y-3">
             <p className="text-xs leading-5 text-ink-soft">{t("familia.privacy")}</p>
-            {error && <p className="text-xs text-bad">{t(ERROR_KEYS[error])}</p>}
+            {error && <p className="text-xs text-wrong">{t(ERROR_KEYS[error])}</p>}
             <Button className="w-full" disabled={state === "working" || token.length === 0} onClick={() => void handleAccept()}>
               {t("familia.acceptCta")}
             </Button>

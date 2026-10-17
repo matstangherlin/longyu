@@ -29,7 +29,7 @@ export function SettingsRow({
   onClick?: () => void;
 }) {
   const className = cx(
-    "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 active:bg-surface-2",
+    "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring active:bg-surface-2",
     tone === "destructive" ? "text-wrong hover:bg-wrong-soft/40" : "text-ink hover:bg-surface-2",
   );
 

@@ -668,7 +668,7 @@ function PinyinAccentTrainer({
             <button
               type="button"
               onClick={playRound}
-              className="mx-auto flex h-20 w-20 items-center justify-center rounded-[26px] bg-accent-soft text-accent shadow-card transition active:scale-[.98]"
+              className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-soft text-accent shadow-card transition active:scale-[.98]"
               aria-label={`Ouvir ${round.hanzi}`}
             >
               <IconHeadphones width={38} height={38} />
@@ -906,7 +906,7 @@ function PinyinBuilder() {
             <button
               type="button"
               onClick={playRound}
-              className="mx-auto flex h-20 w-20 items-center justify-center rounded-[26px] bg-accent-soft text-accent shadow-card transition active:scale-[.98]"
+              className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-soft text-accent shadow-card transition active:scale-[.98]"
               aria-label="Ouvir sílaba"
             >
               <IconHeadphones width={38} height={38} />

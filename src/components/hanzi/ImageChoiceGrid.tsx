@@ -6,6 +6,7 @@ import { MandarinText } from "./MandarinText";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { VISUAL_IMAGE_SRC_BY_ID } from "../../assets/visuals";
 import type { VisualConceptId } from "../../data/visualVocabulary";
+import { t } from "../../i18n/catalog";
 
 export type ImageChoiceTileState = "idle" | "selected" | "right" | "wrong";
 
@@ -88,9 +89,12 @@ export function ImageChoiceGrid({
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-2" data-image-choice-ready={imagesReady ? "1" : "0"}>
+      {/* RC2.3.13R.3.2.5 — announced, not painted: the visible line (PT in every
+          locale) pushed the options down and then vanished under the finger.
+          Each tile already shows its own skeleton. */}
       {!imagesReady && imageMode && (
-        <p className="col-span-2 text-center text-xs font-medium text-ink-faint" role="status">
-          Carregando imagens…
+        <p className="sr-only" role="status">
+          {t("common.loading")}
         </p>
       )}
       {options.map((option, index) => {

@@ -69,7 +69,7 @@ function test() {
     ...base,
     dynamicSeq: `${base.dynamicSeq}\nsetTimeout(() => onComplete(), 10);\n`,
   });
-  k("reduced motion still typewrites", "REDUCED_MOTION_STILL_TYPEWRITES", mutate(base, "teacherBubble", "prefers-reduced-motion", "prefers-extra-motion"));
+  k("reduced motion still typewrites", "REDUCED_MOTION_STILL_TYPEWRITES", mutate(base, "teacherBubble", "reducedMotionProp ?? prefersReducedMotion()", "reducedMotionProp ?? false"));
   k("image lacks alt", "IMAGE_LACKS_ALT", mutate(base, "dynamicSeq", "alt=", "data-alt="));
   k("visual failure blocks", "VISUAL_FAILURE_BLOCKS_LESSON", mutate(base, "dynamicSeq", "visual-fallback", "visual-x"));
   k("two primary CTAs", "AULA_TWO_PRIMARY_CTAS", {

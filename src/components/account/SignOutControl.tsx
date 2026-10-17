@@ -4,6 +4,7 @@ import { Button, cx } from "../ui/primitives";
 import { ModalOverlay } from "../ui/ModalOverlay";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useTranslation } from "../../i18n/useTranslation";
+import { useStore } from "../../lib/store";
 
 /**
  * RC2.3.13A — logout as a compact destructive *row* (Hick / Fitts / hierarchy).
@@ -14,13 +15,23 @@ export function SignOutControl({
   testId,
   onBeforeSignOut,
   className,
+  variant = "row",
 }: {
   testId: string;
+  /** Runs once the sign-out has finished (the sheet hosting this control may close then). */
   onBeforeSignOut?: () => void;
   className?: string;
+  /** RC2.3.13R.3.2.5 — "pill" is the TopBar form; it opens the same confirmation. */
+  variant?: "row" | "pill";
 }) {
   const { t } = useTranslation();
   const { signOut, canSignOut } = useCloudSignOut();
+  // RC2.3.13R.3.2.5 — signing out while this device still has unsynced progress
+  // is allowed, but the learner is told before confirming.
+  const unsynced = useStore((s) => {
+    const status = s.cloudSyncState?.status;
+    return status === "pending" || status === "loading" || status === "error";
+  });
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
@@ -33,13 +44,15 @@ export function SignOutControl({
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
-    onBeforeSignOut?.();
     try {
       await signOut();
     } finally {
       busyRef.current = false;
       setBusy(false);
       setOpen(false);
+      // After, not before: closing the host sheet first unmounted this
+      // confirmation mid-request, so "Saindo…" was never seen.
+      onBeforeSignOut?.();
     }
   }
 
@@ -49,7 +62,9 @@ export function SignOutControl({
         type="button"
         onClick={() => setOpen(true)}
         className={cx(
-          "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-wrong transition hover:bg-wrong-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/40",
+          variant === "pill"
+            ? "hidden min-h-11 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-3 text-xs font-semibold text-wrong transition hover:bg-wrong/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/35 sm:flex"
+            : "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-wrong transition hover:bg-wrong-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/40",
           className,
         )}
         data-testid={testId}
@@ -58,8 +73,14 @@ export function SignOutControl({
         data-cta-hierarchy="destructive"
         data-cognitive-logout="compact"
       >
-        <IconLogout width={18} height={18} aria-hidden="true" className="text-wrong" />
-        <span className="flex-1">{t("common.signOutAccount")}</span>
+        {variant === "pill" ? (
+          t("common.signOut")
+        ) : (
+          <>
+            <IconLogout width={18} height={18} aria-hidden="true" className="text-wrong" />
+            <span className="flex-1">{t("common.signOutAccount")}</span>
+          </>
+        )}
       </button>
 
       {open && (
@@ -82,6 +103,11 @@ export function SignOutControl({
             <p id={descId} className="mt-2 text-sm leading-5 text-ink-soft">
               {t("common.signOutConfirmBody")}
             </p>
+            {unsynced && (
+              <p role="alert" className="mt-2 rounded-xl border border-gold/30 bg-gold-soft px-3 py-2 text-sm leading-5 text-ink" data-testid={`${testId}-unsynced`}>
+                {t("common.signOutUnsynced")}
+              </p>
+            )}
             <div className="mt-5 flex flex-col gap-2 sm:flex-row-reverse">
               <Button
                 type="button"

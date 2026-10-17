@@ -124,7 +124,7 @@ export function ResetPasswordPage() {
         <p className="mt-2 text-sm leading-6 text-ink-soft">{t("auth.newPasswordLead")}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
+      <form onSubmit={handleSubmit} className="rounded-3xl border border-line bg-surface p-5 shadow-lift sm:p-6">
         <PasswordField
           label={t("auth.newPassword")}
           name="new-password"

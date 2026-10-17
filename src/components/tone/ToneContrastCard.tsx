@@ -117,7 +117,7 @@ export function ToneContrastCard({
 
   return (
     <section
-      className={flat ? "" : "rounded-[22px] border border-accent-soft bg-surface-2 p-4"}
+      className={flat ? "" : "rounded-3xl border border-accent-soft bg-surface-2 p-4"}
       data-tone-contrast-set={set.id}
       data-tone-contrast-base={set.baseSyllable}
       data-tone-contrast-flat={flat ? "true" : undefined}

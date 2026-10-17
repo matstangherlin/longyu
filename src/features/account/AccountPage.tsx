@@ -2745,7 +2745,7 @@ export function AccountPage() {
         </div>
 
         <div className="space-y-4">
-          <section className="rounded-[24px] border border-line bg-surface p-5 shadow-card">
+          <section className="rounded-3xl border border-line bg-surface p-5 shadow-card">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="font-serif text-xl font-semibold text-ink">{t("hub.recentHistory")}</h2>
               <IconRefresh width={19} height={19} className="text-ink-faint" />
@@ -3235,7 +3235,7 @@ function ProSubscriptionCard({
           <h2 className="mt-2 font-serif text-2xl font-semibold text-ink">{displayInstruction("Plano")}</h2>
           <p className="mt-1 text-sm leading-6 text-ink-soft">{displayInstruction(metaBlurb)}</p>
         </div>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#B7791F]/12 text-gold">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold-soft text-gold">
           <IconStar width={24} height={24} fill="currentColor" />
         </span>
       </div>
@@ -3717,7 +3717,7 @@ function OnboardingShell({
           type="button"
           onClick={onBack}
           disabled={!canGoBack}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg text-ink-faint transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 disabled:opacity-30"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg text-ink-faint transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring disabled:opacity-30"
           aria-label="Voltar"
         >
           ←
@@ -3976,7 +3976,7 @@ function QuizStep({
             </div>
           )}
           {question.stimulus && (
-            <div className="mt-4 rounded-[24px] border border-line bg-surface-2 px-4 py-5 shadow-card">
+            <div className="mt-4 rounded-3xl border border-line bg-surface-2 px-4 py-5 shadow-card">
               <QuizText value={question.stimulus} onUseHint={onUseHint} allowHints={allowHints} className="text-5xl font-semibold text-ink" />
             </div>
           )}
@@ -4321,7 +4321,7 @@ function OptionalAccountStep({
             : `Tudo pronto, ${firstName(name)}. Agora você escolhe se quer preparar uma conta.`
         }
       />
-      <form onSubmit={onSubmit} className="mx-auto max-w-xl rounded-[28px] border border-line bg-surface p-5 shadow-lift sm:p-6">
+      <form onSubmit={onSubmit} className="mx-auto max-w-xl rounded-3xl border border-line bg-surface p-5 shadow-lift sm:p-6">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
           {cloudBackend ? "Conta na nuvem" : "Conta opcional"}
         </div>
@@ -4473,9 +4473,9 @@ function MobileProfileCard({
   onSignOut?: () => void;
 }) {
   return (
-    <section className="rounded-[24px] border border-accent-soft bg-[linear-gradient(135deg,rgb(var(--surface)),rgb(var(--surface-2)))] p-4 shadow-lift">
+    <section className="rounded-3xl border border-accent-soft bg-[linear-gradient(135deg,rgb(var(--surface)),rgb(var(--surface-2)))] p-4 shadow-lift">
       <div className="flex items-center gap-4">
-        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-[22px] border border-line bg-surface shadow-card">
+        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-line bg-surface shadow-card">
           <Mascot size={70} variant={streak > 0 ? "celebrate" : "wave"} />
           <span className="absolute -bottom-1 -right-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-white">
             {initials(name)}
@@ -4602,7 +4602,7 @@ function MobileStats({ stats }: { stats: { label: string; value: string | number
 
 function ProfilePulse({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-[22px] border border-line bg-surface-2 px-3 py-4 text-center shadow-card">
+    <div className="rounded-3xl border border-line bg-surface-2 px-3 py-4 text-center shadow-card">
       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-surface text-accent shadow-card">
         {icon}
       </div>
@@ -4614,7 +4614,7 @@ function ProfilePulse({ icon, label, value }: { icon: ReactNode; label: string; 
 
 function StatTile({ icon, label, value, detail }: StatTileData) {
   return (
-    <div className="rounded-[24px] border border-line bg-surface p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
+    <div className="rounded-3xl border border-line bg-surface p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">
         <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-accent-soft text-accent">{icon}</span>
         {label}

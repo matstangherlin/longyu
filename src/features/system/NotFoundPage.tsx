@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
 import { useTranslation } from "../../i18n/provider";
 import { BrandLockup } from "../../components/layout/Brand";
-import { Button, Card } from "../../components/ui/primitives";
+import { ButtonLink, Card } from "../../components/ui/primitives";
 
 export function NotFoundPage() {
   const { t } = useTranslation();
@@ -13,8 +12,8 @@ export function NotFoundPage() {
         <h1 className="mt-2 font-serif text-3xl font-semibold text-ink">{t("errors.notFoundTitle")}</h1>
         <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-soft">{t("errors.notFoundBody")}</p>
         <div className="mt-7 grid gap-2 sm:grid-cols-2">
-          <Link to="/"><Button className="w-full">{t("marketing.backHome")}</Button></Link>
-          <Link to="/comecar"><Button variant="outline" className="w-full">{t("marketing.getStarted")}</Button></Link>
+          <ButtonLink to="/" className="w-full">{t("marketing.backHome")}</ButtonLink>
+          <ButtonLink to="/comecar" variant="outline" className="w-full">{t("marketing.getStarted")}</ButtonLink>
         </div>
       </Card>
     </main>

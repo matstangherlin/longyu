@@ -9,7 +9,8 @@ import { Mascot } from "../../components/brand/Mascot";
 import { Button, Card } from "../../components/ui/primitives";
 import { completeOAuthCallback, OAUTH_CALLBACK_TIMEOUT_MS, takeNativeCallbackUrl, type CallbackOutcome } from "../../services/oauthService";
 import { inspectProgressClaim, syncAuthSessionProgress } from "../../services/cloudSyncCoordinator";
-import { authErrorCopyPt } from "../../lib/auth/authError";
+import { authErrorCopy } from "../../lib/auth/authError";
+import { useTranslation } from "../../i18n/useTranslation";
 import { canEnterJourney, resolveSessionAudience } from "../../lib/auth/sessionAudience";
 import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { useStore } from "../../lib/store";
@@ -18,6 +19,7 @@ import { recordTechEvent } from "../../lib/techEvents";
 type Phase = "working" | "ask_claim" | "error";
 
 export function OAuthCallbackPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setAccountSetupComplete = useStore((s) => s.setAccountSetupComplete);
   const [phase, setPhase] = useState<Phase>("working");
@@ -73,17 +75,17 @@ export function OAuthCallbackPage() {
     return (
       <div className="mx-auto flex min-h-[60dvh] w-full max-w-md flex-col justify-center gap-4 py-6" data-testid="progress-claim">
         <Card className="p-5">
-          <h1 className="font-serif text-xl font-semibold text-ink">Salvar este progresso na sua conta?</h1>
-          <p className="mt-2 text-sm text-ink-soft">Encontramos progresso neste dispositivo.</p>
+          <h1 className="font-serif text-xl font-semibold text-ink">{t("auth.oauth.claimTitle")}</h1>
+          <p className="mt-2 text-sm text-ink-soft">{t("auth.oauth.claimBody")}</p>
           <div className="mt-4 grid gap-2">
             <Button className="w-full" onClick={() => void finish(returnTo)} data-testid="progress-claim-save">
-              Salvar na conta
+              {t("auth.oauth.claimSave")}
             </Button>
             <Button variant="outline" className="w-full" onClick={() => void finish(returnTo, { keepLocalParked: true })} data-testid="progress-claim-later">
-              Agora não
+              {t("auth.oauth.claimLater")}
             </Button>
           </div>
-          <p className="mt-3 text-xs text-ink-faint">Nada é apagado: se escolher "Agora não", o progresso deste aparelho fica guardado.</p>
+          <p className="mt-3 text-xs text-ink-soft">{t("auth.oauth.claimNote")}</p>
         </Card>
       </div>
     );
@@ -91,7 +93,7 @@ export function OAuthCallbackPage() {
 
   if (phase === "error") {
     const error = outcome?.status === "error" ? outcome.error : null;
-    const copy = error ? authErrorCopyPt(error) : { title: "Não foi possível concluir o acesso.", body: "Tente novamente ou use outro método.", actions: ["retry", "other_method"] };
+    const copy = authErrorCopy(error);
     return (
       <div className="mx-auto flex min-h-[60dvh] w-full max-w-md flex-col justify-center gap-4 py-6" data-testid="oauth-error">
         <Card className="p-5">
@@ -99,10 +101,11 @@ export function OAuthCallbackPage() {
           <p className="mt-2 text-sm text-ink-soft">{copy.body}</p>
           <div className="mt-4 grid gap-2">
             <Button className="w-full" onClick={() => navigate("/login", { replace: true })}>
-              Tentar novamente
+              {t("auth.oauth.retry")}
             </Button>
+            {/* Always a way out of a failed return. */}
             <Button variant="outline" className="w-full" onClick={() => navigate("/login?metodo=email", { replace: true })}>
-              Usar outro método
+              {t("auth.oauth.otherMethod")}
             </Button>
           </div>
         </Card>
@@ -113,7 +116,7 @@ export function OAuthCallbackPage() {
   return (
     <div className="mx-auto flex min-h-[60dvh] flex-col items-center justify-center gap-3 text-center" role="status" aria-live="polite" data-testid="oauth-working">
       <Mascot size={72} variant="wave" />
-      <p className="text-sm text-ink-soft">Entrando…</p>
+      <p className="text-sm text-ink-soft">{t("auth.oauth.working")}</p>
     </div>
   );
 }

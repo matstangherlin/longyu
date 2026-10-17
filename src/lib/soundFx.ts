@@ -1077,6 +1077,9 @@ export function guideTextBlip(graphemeIndex: number): void {
 
   const state = useStore.getState();
   if (!state.soundEffects) return;
+  // RC2.3.13R.3.2.5 — typing stays silent while Mandarin audio, TTS, a
+  // recording or recognition owns the channel: no blips over the model voice.
+  if (audioOwnerState() !== "IDLE") return;
 
   const context = getSharedContext(AudioContextCtor);
   if (!context) return;

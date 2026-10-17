@@ -14,7 +14,27 @@ function includesAny(message: string, needles: string[]): boolean {
   return needles.some((needle) => lower.includes(needle.toLowerCase()));
 }
 
+// RC2.3.13R.3.2.5 — economy and sync notices are written in PT by the store
+// and the sync services; the global banner shows them through the catalog,
+// so an EN learner no longer reads Portuguese. Exact phrases, matched first.
+const ECONOMY_SYNC_PHRASES: Array<[string, MessageKey]> = [
+  ["salvo neste aparelho — confirmamos quando a conexão voltar", "errors.economyPendingOffline"],
+  ["qi não confirmado pelo servidor", "errors.economyQiNotConfirmed"],
+  ["recompensa não confirmada pelo servidor", "errors.economyRewardNotConfirmed"],
+  ["esta recompensa é liberada quando o servidor confirmar a lição", "errors.economyRewardNeedsLesson"],
+  ["missão ainda sem evidência no servidor", "errors.economyMissionNotConfirmed"],
+  ["carga não confirmada pelo servidor", "errors.economyChargeNotConfirmed"],
+  ["falha ao sincronizar carga", "errors.economyChargeSyncFailed"],
+  ["energia da história não confirmada pelo servidor", "errors.economyStoryNotConfirmed"],
+  ["ativação pendente — conecte-se para confirmar no servidor", "errors.economyActivationPending"],
+  ["ativação pendente — aguardando o servidor", "errors.economyActivationWaiting"],
+  ["falha ao ativar pro", "errors.economyProActivationFailed"],
+  ["a sincronização demorou demais", "errors.syncTimeout"],
+  ["seu progresso está salvo neste dispositivo. tentaremos sincronizar novamente", "errors.syncPersistent"],
+];
+
 const PATTERNS: MessagePattern[] = [
+  ...ECONOMY_SYNC_PHRASES.map(([phrase, key]): MessagePattern => ({ test: (m) => includesAny(m, [phrase]), key })),
   {
     test: (m) =>
       m === BACKEND_UNAVAILABLE_MESSAGE ||
@@ -22,6 +42,12 @@ const PATTERNS: MessagePattern[] = [
         "não foi possível conectar ao longyu",
         "could not reach longyu",
         "failed to fetch",
+        // RC2.3.13R.3.2.5 — the other engines' words for the same failure.
+        "load failed",
+        "networkerror",
+        "network request failed",
+        "fetch failed",
+        "network error",
         "ainda não estão ativas",
         "real accounts are not active",
       ]),
@@ -77,7 +103,12 @@ const PATTERNS: MessagePattern[] = [
     key: "auth.errors.passwordMismatch",
   },
   {
-    test: (m) => includesAny(m, ["nova senha precisa ter pelo menos", "new password must have at least"]),
+    test: (m) =>
+      includesAny(m, [
+        "nova senha precisa ter pelo menos",
+        "new password must have at least",
+        "password should be at least",
+      ]),
     key: "auth.errors.passwordTooShort",
   },
   {
@@ -270,11 +301,30 @@ export function matchUserMessageKey(message: string | null | undefined): Message
   return matchUserMessage(message)?.key ?? null;
 }
 
-/** Map a known PT or EN/Supabase message onto the active catalog. Unknown text is returned as-is. */
+/**
+ * RC2.3.13R.3.2.5 — text that is a machine's, not a sentence for a learner:
+ * error class names, PostgREST / JWT / SQL wording, HTTP status lines and
+ * snake_case reason codes. Such text never reaches the screen verbatim.
+ * (The class-name branch is `[a-z]{2,}error` under /i — the same language as
+ * `(?:[A-Z][a-z]+)+Error`, without the nested quantifier that backtracks.)
+ */
+const TECHNICAL_TEXT =
+  /\b[a-z]{2,}error\b|\bPGRST\d+|\bjwt\b|permission denied|violates|duplicate key|relation "|database error|\bstatus(?: code)? \d{3}\b|\bHTTP \d{3}\b|unexpected_failure|\brpc\b|^[a-z]+(?:_[a-z]+)+$|\bat [\w.]+ \(|stack|undefined|null|NaN/i;
+
+export function isTechnicalMessage(message: string): boolean {
+  return TECHNICAL_TEXT.test(message);
+}
+
+/**
+ * Map a known PT or EN/Supabase message onto the active catalog. Known copy is
+ * translated; app copy we wrote passes through; technical text fails closed to
+ * `errors.unknown` (the raw text belongs in diagnostics, not on screen).
+ */
 export function localizeUserMessage(message: string | null | undefined): string {
   const raw = String(message ?? "").trim();
   if (!raw) return "";
   const match = matchUserMessage(raw);
   if (match) return t(match.key, match.vars);
+  if (isTechnicalMessage(raw)) return t("errors.unknown");
   return raw;
 }

@@ -71,9 +71,11 @@ export function CultureSealReveal({ sealId }: { sealId: string }) {
   ];
 
   return (
-    <ModalOverlay className="items-end p-3 sm:items-center sm:p-4" label={t("culture.newSeal")}>
+    // RC2.3.13R.3.2.5 — Android back / Escape close it (they did nothing): the
+    // flag is presentation-only, exactly what the final Continue sets.
+    <ModalOverlay className="items-end p-3 sm:items-center sm:p-4" label={t("culture.newSeal")} onBackdropClick={() => markRevealed(seal.id)}>
       <div
-        className="w-full max-w-md rounded-[28px] border border-gold/40 bg-surface p-5 shadow-lift"
+        className="w-full max-w-md rounded-3xl border border-gold/40 bg-surface p-5 shadow-lift"
         data-testid="culture-seal-reveal"
         data-seal-id={seal.id}
         onClick={(event) => event.stopPropagation()}

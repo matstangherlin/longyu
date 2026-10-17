@@ -95,7 +95,7 @@ export function FalaPage() {
         desc="Blocos de sobrevivência, não palavras soltas. Ouça, imite e reconheça o sentido."
       />
 
-      <section className="border-y border-[#B7791F]/25 bg-surface px-4 py-5 sm:px-5">
+      <section className="border-y border-gold/25 bg-surface px-4 py-5 sm:px-5">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
           Treino de frases
         </div>

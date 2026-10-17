@@ -1,14 +1,119 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Card } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import { localizeUserMessage } from "../../i18n/errors";
+import { useStore } from "../../lib/store";
+import { forgetCloudReady } from "../../lib/auth/sessionAudience";
 import { requestAccountDeletion } from "../../services/privacyService";
 import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/_shared/accountDeletion";
 
 /**
+ * RC2.3.13R.3.2.5 — the one delete-account confirmation (Ajustes › Conta and
+ * /conta; /conta used a native window.prompt with PT-only copy). It explains
+ * what is lost, asks for the exact phrase, shows the request in flight, gives
+ * success and failure different tones, and on success ends the session.
+ * Not a dialog: it is page content, so Android back is not swallowed by it;
+ * Escape (keyboard) cancels. The backend call is unchanged.
+ */
+export function DeleteAccountConfirm({
+  onCancel,
+  testIdPrefix = "settings",
+}: {
+  onCancel: () => void;
+  testIdPrefix?: "settings" | "conta";
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const endCloudSession = useStore((s) => s.endCloudSession);
+  const [phrase, setPhrase] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const ready = phrase.trim() === ACCOUNT_DELETION_CONFIRMATION_TEXT;
+  const titleId = `${testIdPrefix}-delete-confirm-title`;
+
+  async function submit() {
+    if (!ready || busy) return;
+    setBusy(true);
+    try {
+      const result = await requestAccountDeletion(phrase.trim());
+      setNotice({ ok: result.ok, text: localizeUserMessage(result.message) });
+      if (result.ok) {
+        forgetCloudReady();
+        endCloudSession();
+        navigate("/", { replace: true });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function cancel() {
+    setPhrase("");
+    setNotice(null);
+    onCancel();
+  }
+
+  return (
+    <section
+      aria-labelledby={titleId}
+      data-testid={`${testIdPrefix}-delete-confirm`}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || busy) return;
+        event.stopPropagation();
+        cancel();
+      }}
+    >
+      <h3 id={titleId} className="font-semibold text-ink">{t("settings.deleteConfirmTitle")}</h3>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+        <li>{t("settings.deleteConfirmProgress")}</li>
+        <li>{t("settings.deleteConfirmAccount")}</li>
+        <li>{t("settings.deleteConfirmData")}</li>
+      </ul>
+      <label className="mt-3 block text-sm font-medium text-ink">
+        {t("settings.deleteConfirmType", { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT })}
+        <input
+          value={phrase}
+          onChange={(event) => setPhrase(event.target.value)}
+          autoCapitalize="characters"
+          autoComplete="off"
+          spellCheck={false}
+          enterKeyHint="done"
+          data-testid={`${testIdPrefix}-delete-phrase`}
+          className="mt-1 h-11 w-full rounded-xl border border-line bg-surface px-3 text-base text-ink outline-none focus:ring-2 focus:ring-wrong/30"
+        />
+      </label>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button variant="outline" disabled={busy} onClick={cancel}>
+          {t("common.cancel")}
+        </Button>
+        <Button
+          variant="danger"
+          disabled={!ready || busy}
+          loading={busy}
+          onClick={() => void submit()}
+          data-testid={`${testIdPrefix}-delete-final`}
+        >
+          {t("settings.deleteFinal")}
+        </Button>
+      </div>
+      {notice && (
+        <p
+          className={notice.ok ? "mt-3 text-sm font-medium text-good" : "mt-3 text-sm text-wrong"}
+          role={notice.ok ? "status" : "alert"}
+          data-testid={`${testIdPrefix}-delete-notice`}
+        >
+          {notice.text}
+        </p>
+      )}
+    </section>
+  );
+}
+
+/**
  * RC2.2.17 · CR–CT — "Zona de perigo" no FIM de Configurações › Conta.
  *
- * Mais visível ≠ mais fácil de apagar por acidente: o botão abre uma tela de
+ * Mais visível ≠ mais fácil de apagar por acidente: o botão abre uma
  * confirmação que explica o que se perde (progresso, conta, dados) e exige a
  * frase exata antes do botão final. O backend é o de sempre
  * (`requestAccountDeletion`); nada novo do lado do servidor.
@@ -16,18 +121,6 @@ import { ACCOUNT_DELETION_CONFIRMATION_TEXT } from "../../../supabase/functions/
 export function DangerZone() {
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
-  const [phrase, setPhrase] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
-  const ready = phrase.trim() === ACCOUNT_DELETION_CONFIRMATION_TEXT;
-
-  async function submit() {
-    if (!ready || busy) return;
-    setBusy(true);
-    const result = await requestAccountDeletion(phrase.trim());
-    setBusy(false);
-    setNotice(localizeUserMessage(result.message));
-  }
 
   return (
     <section id="zona-de-perigo" className="scroll-mt-6" data-testid="settings-danger-zone" aria-labelledby="danger-zone-title">
@@ -43,36 +136,8 @@ export function DangerZone() {
             </Button>
           </>
         ) : (
-          <div role="dialog" aria-modal="false" aria-labelledby="delete-confirm-title" data-testid="settings-delete-confirm">
-            <h3 id="delete-confirm-title" className="font-semibold text-ink">{t("settings.deleteConfirmTitle")}</h3>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
-              <li>{t("settings.deleteConfirmProgress")}</li>
-              <li>{t("settings.deleteConfirmAccount")}</li>
-              <li>{t("settings.deleteConfirmData")}</li>
-            </ul>
-            <label className="mt-3 block text-sm font-medium text-ink">
-              {t("settings.deleteConfirmType", { phrase: ACCOUNT_DELETION_CONFIRMATION_TEXT })}
-              <input
-                value={phrase}
-                onChange={(event) => setPhrase(event.target.value)}
-                autoCapitalize="characters"
-                autoComplete="off"
-                spellCheck={false}
-                data-testid="settings-delete-phrase"
-                className="mt-1 h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-wrong/30"
-              />
-            </label>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={() => { setConfirming(false); setPhrase(""); }}>
-                {t("common.cancel")}
-              </Button>
-              <Button variant="danger" disabled={!ready || busy} onClick={() => void submit()} data-testid="settings-delete-final">
-                {t("settings.deleteFinal")}
-              </Button>
-            </div>
-          </div>
+          <DeleteAccountConfirm onCancel={() => setConfirming(false)} />
         )}
-        {notice && <p className="mt-3 text-sm text-ink-soft" role="status">{notice}</p>}
       </Card>
     </section>
   );

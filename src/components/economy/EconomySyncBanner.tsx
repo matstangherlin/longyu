@@ -3,6 +3,8 @@ import { useStore } from "../../lib/store";
 import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
 import { isTestFixturesAllowed } from "../../lib/appEnvironment";
+import { localizeUserMessage } from "../../i18n/errors";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const SYNC_BANNER_MS = 6000;
 
@@ -20,6 +22,8 @@ export function EconomySyncBanner() {
   const message = useStore((s) => s.economySyncMessage);
   const setEconomySyncMessage = useStore((s) => s.setEconomySyncMessage);
   const testFixtures = isTestFixturesAllowed();
+  // Re-render on locale change; the message itself stays the store's PT text.
+  useTranslation();
 
   useEffect(() => {
     if (!message) return;
@@ -51,7 +55,7 @@ export function EconomySyncBanner() {
       )}
     >
       <div className="rounded-2xl border border-line/80 bg-surface/95 px-3 py-2 text-center text-xs font-medium text-ink-soft shadow-card backdrop-blur">
-        {message}
+        {localizeUserMessage(message)}
       </div>
     </div>
   );

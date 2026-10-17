@@ -36,7 +36,7 @@
     "cultureScenes": false
   },
   "runtime": {
-    "learnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
+    "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
     "previousLearnerRuntimeSha": "0357f82476d03bc8364efc66902b4640b4a155b9",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-facing presentation changed: JourneyScene lanes, 16 custom SVG scenes, deterministic visual mapping, lane-anchored Journey ornaments, module-review medallion, moonlit dark scene palette, QA scene panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Advanced again by RC2.3.13R.3.2.4 (Living UI + ornamental embroidery, 2618683e); R.3.2.3 never minted an APK, so the next candidate carries the R.3.2.4 runtime.",

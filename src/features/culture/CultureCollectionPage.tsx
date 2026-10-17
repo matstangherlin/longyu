@@ -10,6 +10,7 @@ import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
 import { CultureCard } from "./CultureCard";
+import { ButtonLink } from "../../components/ui/primitives";
 import { CultureTimeline } from "./CultureTimeline";
 
 function isCollectionId(value: string | undefined): value is CultureCollectionId {
@@ -62,6 +63,10 @@ export function CultureCollectionPage() {
         >
           <p className="font-serif text-lg font-semibold text-ink">{t("culture.collectionPreparing")}</p>
           <p className="mt-2 text-sm text-ink-soft">{t("culture.collectionPreparingBody")}</p>
+          {/* RC2.3.13R.3.2.5 — not a dead end: the way back is the main action. */}
+          <ButtonLink to="/cultura" variant="soft" className="mt-4" data-testid="culture-collection-back">
+            {t("culture.backToHub")}
+          </ButtonLink>
         </div>
       ) : (
         <>

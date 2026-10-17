@@ -44,7 +44,11 @@ export function isModalOpen(doc: Document = document): boolean {
 
 /** Coachmark/orientação na tela (GuidanceHost marca data-native-back-dismiss). */
 export function isGuidanceOpen(doc: Document = document): boolean {
-  return Boolean(doc.querySelector("[data-native-back-dismiss], [data-guidance-surface]"));
+  // RC2.3.13R.3.2.5 — an INLINE tip is page content, not an overlay: Back with
+  // one on screen dispatched an Escape nobody handled, so Back did nothing.
+  return Boolean(
+    doc.querySelector('[data-native-back-dismiss], [data-guidance-surface]:not([data-guidance-surface="inline"])')
+  );
 }
 
 /** Teclado aberto (o shell nativo marca data-native-keyboard). */

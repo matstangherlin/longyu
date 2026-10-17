@@ -98,7 +98,7 @@ export function AnimatedCapsuleRenderer({
             <button
               type="button"
               onClick={() => speak(segment.audioText!, { rate: 0.82 })}
-              className="mx-auto mb-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-accent-soft px-4 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+              className="mx-auto mb-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-accent-soft px-4 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               <IconSound width={20} height={20} aria-hidden="true" />
               {en ? "Play Mandarin" : "Ouvir mandarim"}

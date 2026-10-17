@@ -62,7 +62,7 @@ export function SmartBackButton({ className }: { className?: string }) {
       aria-label={label}
       onClick={goBack}
       className={[
-        "inline-flex min-h-11 items-center gap-1 rounded-full px-2 pr-3 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+        "inline-flex min-h-11 items-center gap-1 rounded-full px-2 pr-3 text-sm font-semibold text-ink-soft transition hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
         className,
       ]
         .filter(Boolean)

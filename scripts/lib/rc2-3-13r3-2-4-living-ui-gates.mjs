@@ -1271,7 +1271,8 @@ export function checkRelease(src) {
   const rc = j(src.rc);
   if (!cert) return ["CERT_MISSING"];
   if (!rc) return ["RC_MISSING"];
-  if (cert.wave !== "RC2.3.13R.3.2.4" || rc.wave !== "RC2.3.13R.3.2.4") errors.push("WAVE_IDENTITY_DRIFT");
+  // R.3.2.5 lands on the same branch and supersedes this wave in the RC file.
+  if (cert.wave !== "RC2.3.13R.3.2.4" || !["RC2.3.13R.3.2.4", "RC2.3.13R.3.2.5"].includes(rc.wave)) errors.push("WAVE_IDENTITY_DRIFT");
   for (const section of ["runtime", "crossEngine", "ornamentalSystem", "motionSystem", "performance", "accessibility", "hosted", "artifact", "physical", "entry"]) {
     if (!cert[section] || typeof cert[section] !== "object") errors.push("CERT_SECTION_MISSING");
   }

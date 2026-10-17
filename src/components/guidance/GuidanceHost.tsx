@@ -26,6 +26,7 @@ import { featureForPath } from "../../lib/progressiveDiscovery";
 import { computeCoachmarkPosition, type CoachmarkPosition } from "../../lib/coachmarkPosition";
 import { holdCelebration, isCelebrationActive } from "../../lib/celebrationLock";
 import { isNativeApp } from "../../lib/platform/nativePlatform";
+import { isModalOpen } from "../../lib/platform/backNavigation";
 import { notificationPermission, requestNotificationPermission } from "../../lib/platform/nativeNotifications";
 import { hapticOnce } from "../../lib/haptics";
 import { playSoundFx } from "../../lib/soundFx";
@@ -371,6 +372,10 @@ function useEscapeDismiss(onAction: (action: GuidanceAction) => void, secondary:
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      // RC2.3.13R.3.2.5 — a sheet opened over the (non-modal) coachmark gets
+      // the Escape first (BACK_PRIORITY: modal before guidance). Dismissing
+      // the tip underneath recorded a "not now" the learner never chose.
+      if (isModalOpen()) return;
       event.preventDefault();
       event.stopPropagation();
       onAction(secondary);
@@ -507,7 +512,7 @@ function GuidanceRevealCard({ presentation, onAction, onOpenFeature }: SurfacePr
       <div className="flex items-start gap-3">
         {definition.dragon ? (
           <span className={unlock ? "longyu-unlock-reveal shrink-0" : "shrink-0"}>
-            <Mascot size={48} variant="celebrate" />
+            <Mascot size={48} variant="celebrate" decorative />
           </span>
         ) : null}
         <div className="min-w-0 flex-1">
@@ -610,8 +615,14 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
     place();
     window.addEventListener("resize", place);
     window.addEventListener("scroll", place, true);
+    // RC2.3.13R.3.2.5 — layout shifts move the anchor without a resize or a
+    // scroll (an inline guide above it collapsing): follow the anchor too.
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(() => place()) : null;
+    observer?.observe(target);
+    observer?.observe(document.body);
     return () => {
       cancelAnimationFrame(frame);
+      observer?.disconnect();
       window.removeEventListener("resize", place);
       window.removeEventListener("scroll", place, true);
     };
@@ -659,7 +670,7 @@ function GuidanceCoachmark({ presentation, onAction }: SurfaceProps) {
         style={{ left: (position?.arrowLeft ?? 18) - 6 }}
       />
       <div className="flex items-start gap-2.5">
-        {definition.dragon && <Mascot size={40} variant="wave" className="shrink-0" />}
+        {definition.dragon && <Mascot size={40} variant="wave" className="shrink-0" decorative />}
         <div className="min-w-0 flex-1">
           {definition.titleKey && (
             <h2 id={titleId} className="text-sm font-semibold text-ink">

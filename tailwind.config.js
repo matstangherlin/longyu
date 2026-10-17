@@ -21,6 +21,15 @@ export default {
         gold: "rgb(var(--gold) / <alpha-value>)",
         wrong: "rgb(var(--wrong) / <alpha-value>)",
         "wrong-soft": "rgb(var(--wrong-soft) / <alpha-value>)",
+        // RC2.3.13R.3.2.5 — semantic surface layer (docs/ux/premium-surface-system.md).
+        "good-soft": "rgb(var(--good-soft) / <alpha-value>)",
+        "gold-soft": "rgb(var(--gold-soft) / <alpha-value>)",
+        "on-good": "rgb(var(--on-good) / <alpha-value>)",
+        "on-wrong": "rgb(var(--on-wrong) / <alpha-value>)",
+        "on-gold": "rgb(var(--on-gold) / <alpha-value>)",
+        "accent-on-soft": "rgb(var(--accent-on-soft) / <alpha-value>)",
+        "focus-ring": "rgb(var(--focus-ring) / <alpha-value>)",
+        scrim: "rgb(var(--scrim) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
@@ -31,10 +40,18 @@ export default {
         lg: "12px",
         xl: "14px",
         "2xl": "16px",
+        // RC2.3.13R.3.2.5 — reward takeovers only (3xl 24 = panels/sheets).
+        "4xl": "28px",
       },
+      // RC2.3.13R.3.2.5 — elevation roles are per-theme tokens (index.css), so a
+      // dark card composes with ring-* instead of overriding it.
       boxShadow: {
-        card: "0 1px 2px rgb(0 0 0 / 0.03), 0 2px 8px rgb(0 0 0 / 0.04)",
-        lift: "0 4px 16px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.04)",
+        card: "var(--shadow-rest)",
+        lift: "var(--shadow-raised)",
+        overlay: "var(--shadow-overlay)",
+        reward: "var(--shadow-reward)",
+        dock: "var(--shadow-dock)",
+        current: "var(--shadow-current)",
         glow: "0 0 0 3px rgb(var(--accent) / 0.18)",
       },
       maxWidth: {

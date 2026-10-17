@@ -82,7 +82,7 @@ export function CultureCard({
     >
       <Link
         to={to}
-        className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
       >
         <Card variant="interactive" className="flex h-full min-h-[7.5rem] flex-col p-3 pb-12">
           <div className="flex items-start justify-between gap-2">

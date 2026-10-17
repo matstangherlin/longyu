@@ -72,7 +72,7 @@ export function CourseDirectionCards({
               onSelect(direction.id);
             }}
             className={[
-              "flex min-h-[4.75rem] w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45",
+              "flex min-h-[4.75rem] w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
               selected ? "border-accent bg-accent-soft ring-1 ring-accent" : "border-line bg-surface hover:bg-surface-2",
             ].join(" ")}
           >

@@ -43,8 +43,10 @@ export function PedagogicalInlineTip({
     <div className={["relative", className].filter(Boolean).join(" ")} data-pedagogical-inline={interaction}>
       <button
         type="button"
-        className="absolute right-0 top-0 z-10 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold text-ink-soft hover:bg-surface-2 hover:text-ink"
+        // RC2.3.13R.3.2.5 — same visual spot, a 44px hit area.
+        className="absolute -right-2 -top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold text-ink-soft hover:bg-surface-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         aria-label={locale === "en" ? "Help" : "Ajuda"}
+        aria-expanded={open}
         data-pedagogical-inline-help={interaction}
         onClick={() => setOpen((value) => !value)}
       >
@@ -59,7 +61,7 @@ export function PedagogicalInlineTip({
           <p>{body}</p>
           <button
             type="button"
-            className="mt-1 text-xs font-semibold text-accent"
+            className="mt-1 inline-flex min-h-11 items-center px-1 text-xs font-semibold text-accent"
             data-pedagogical-inline-dismiss={definition.id}
             onClick={() => {
               markPedagogicalInlineSeen(definition.id);

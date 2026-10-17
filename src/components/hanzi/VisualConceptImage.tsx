@@ -128,7 +128,7 @@ export function VisualConceptImage({
 
   return (
     <div className={frameClass} data-visual-status={loaded ? "ready" : "loading"}>
-      {!loaded && <div aria-hidden="true" className="absolute inset-0 animate-pulse bg-surface-2" />}
+      {!loaded && <div aria-hidden="true" className="absolute inset-0 animate-pulse bg-surface-2 motion-reduce:animate-none" />}
       <img
         ref={imgRef}
         src={imageSrc}

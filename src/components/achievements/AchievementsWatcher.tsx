@@ -171,8 +171,8 @@ function AchievementUnlockModal({
         data-achievement-kind={kind}
         className={
           fullScreen
-            ? "flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-[calc(var(--app-safe-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-[30px] sm:border sm:border-accent-soft sm:p-7"
-            : "flex w-full max-w-sm flex-col rounded-[26px] border border-line bg-surface px-5 py-5 text-center shadow-lift"
+            ? "flex min-h-[100dvh] w-full flex-col bg-[radial-gradient(circle_at_50%_0%,rgb(var(--accent-soft)),rgb(var(--surface))_55%,rgb(var(--bg))_100%)] px-6 pb-[calc(var(--app-safe-bottom)+1.25rem)] pt-[calc(var(--app-safe-top)+2rem)] text-center shadow-lift sm:min-h-0 sm:max-w-md sm:rounded-3xl sm:border sm:border-accent-soft sm:p-7"
+            : "flex w-full max-w-sm flex-col rounded-3xl border border-line bg-surface px-5 py-5 text-center shadow-lift"
         }
         onClick={(event) => event.stopPropagation()}
       >
@@ -183,7 +183,7 @@ function AchievementUnlockModal({
           <div
             className={
               fullScreen
-                ? "longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-[30px] bg-gold text-white shadow-lift ring-4 ring-gold/25 sm:mt-4 sm:h-20 sm:w-20 sm:rounded-[26px]"
+                ? "longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-3xl bg-gold text-white shadow-lift ring-4 ring-gold/25 sm:mt-4 sm:h-20 sm:w-20 sm:rounded-3xl"
                 : "mx-auto mt-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent"
             }
           >

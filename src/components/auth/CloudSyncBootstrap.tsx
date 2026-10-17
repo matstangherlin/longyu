@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { isQaTestStateActive } from "../../lib/qaFastPathAccess";
 import { subscribeAppLifecycle } from "../../lib/platform/appLifecycle";
+import { readOnline, subscribeNetworkStatus } from "../../lib/platform/networkStatus";
 import { useStore } from "../../lib/store";
 import { flushCloudProgressPush, scheduleCloudProgressPush } from "../../services/cloudSyncCoordinator";
 
@@ -32,12 +33,22 @@ export function CloudSyncBootstrap() {
     const unsubLifecycle = subscribeAppLifecycle((state) => {
       if (state === "background") void flushCloudProgressPush();
     });
-    const interval = window.setInterval(() => void flushCloudProgressPush(), AUTO_SYNC_INTERVAL_MS);
+    // RC2.3.13R.3.2.5 — offline the interval only spun; coming back online
+    // pushes at once instead of waiting for the next tick (or the next mount).
+    const interval = window.setInterval(() => {
+      if (readOnline()) void flushCloudProgressPush();
+    }, AUTO_SYNC_INTERVAL_MS);
+    let wasOnline = readOnline();
+    const unsubNetwork = subscribeNetworkStatus((online) => {
+      if (online && !wasOnline) void flushCloudProgressPush();
+      wasOnline = online;
+    });
     void flushCloudProgressPush();
 
     return () => {
       unsub();
       unsubLifecycle();
+      unsubNetwork();
       window.clearInterval(interval);
     };
   }, [authMode, accountId]);
