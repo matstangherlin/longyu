@@ -225,15 +225,16 @@ test.describe("RC2.2.17 · camada guiada e Ajustes", () => {
     await expect(page.locator("[data-lesson-step-frame]")).toHaveAttribute("data-guidance-level", "HIGH");
   });
 
-  test("Conta mostra a Zona de perigo (com confirmação) e a Home de Ajustes mostra Aparência", async ({ page }) => {
+  test("Conta sem conta na nuvem não oferece Excluir conta; a Home de Ajustes mostra Aparência", async ({ page }) => {
     await seedOnboardedSession(page);
     await page.goto("/config/conta");
     await waitForLazyPage(page);
     await dismissBlockingOverlays(page);
-    await expect(page.getByTestId("settings-danger-zone")).toBeVisible();
-    await page.getByTestId("settings-delete-account").click();
-    await expect(page.getByTestId("settings-delete-confirm")).toBeVisible();
-    await expect(page.getByTestId("settings-delete-final")).toBeDisabled();
+    // RC2.3.13R.3.2.6 — the seeded learner is device-only (authMode local): no
+    // cloud account exists to delete, so the Danger Zone is not offered.
+    await expect(page.locator("main").first()).toBeVisible();
+    await expect(page.getByTestId("settings-danger-zone")).toHaveCount(0);
+    await expect(page.getByTestId("settings-delete-account")).toHaveCount(0);
     await page.goto("/config");
     await waitForLazyPage(page);
     await expect(page.locator('[data-settings-category="aparencia"]')).toBeVisible();

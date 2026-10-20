@@ -75,6 +75,7 @@ import { Card, Button, ButtonLink, ProgressBar } from "../../components/ui/primi
 import { cultureItemIdFromLessonId } from "../../data/cultureNative";
 import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
 import { LessonVictory } from "./LessonVictory";
+import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
 import { resolveVictoryContinuePath, cultureReturnPath } from "./nextJourneyContinue";
 import { journeyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { computeCompletionDeltas } from "../../lib/completionDeltas";
@@ -1117,7 +1118,12 @@ function ImmediateErrorReviewSummary({
       data-review-summary
       data-review-summary-complete={stillMissing ? "false" : "true"}
     >
-      <section className="flex flex-1 flex-col rounded-3xl border border-line bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
+      <section className="relative isolate flex flex-1 flex-col rounded-3xl border border-frame-line/30 bg-surface px-5 py-6 text-center shadow-lift sm:p-7">
+        {/* RC2.3.13R.3.2.6 — the review closes on a Heritage frame (gilt
+            key-fret rule, 8 px inside the curve): decorative, under the
+            content. Its 16 px hooks (8-24 px from each edge) stay inside the
+            24 px block padding, clear of the pill above and the CTA below. */}
+        <ChineseOrnamentalFrame motif="huiwen" intensity="milestone" tone="accent" surface="review-summary" level="heritage" />
         <div className="inline-flex mx-auto rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
           Revisão
         </div>

@@ -184,7 +184,8 @@ test.describe("RC2.2.17 · matriz visual", () => {
       await page.goto("/config/conta");
       await waitForLazyPage(page);
       await dismissBlockingOverlays(page);
-      await page.getByTestId("settings-danger-zone").scrollIntoViewIfNeeded();
+      // RC2.3.13R.3.2.6 — device-only seed: no Danger Zone; shoot the end of the page.
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
       await shot(page, "13-settings-account", vp);
       await page.goto("/config/aparencia");
       await waitForLazyPage(page);

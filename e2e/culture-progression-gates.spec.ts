@@ -41,8 +41,11 @@ async function openJourneyAtGate(
 async function skipGuideTypingIfStillTyping(dialogue: Locator): Promise<boolean> {
   return dialogue.evaluate(async (el) => {
     const deadline = Date.now() + 5_000;
-    // "idle" existe por um render antes do efeito de START; esperar aqui dentro
-    // evita gastar um round-trip que reabriria a janela de corrida.
+    // RC2.3.13R.3.2.6 — "idle" = esperando ser visto: o typewriter só começa com
+    // o guia na tela (IntersectionObserver). Centralizar aqui dentro e esperar o
+    // START no mesmo evaluate evita gastar um round-trip que reabriria a janela
+    // de corrida.
+    el.scrollIntoView({ block: "center" });
     while (el.getAttribute("data-guide-phase") === "idle" && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 16));
     }

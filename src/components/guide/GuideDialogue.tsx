@@ -4,6 +4,7 @@ import { Button } from "../ui/primitives";
 import { IconChevron } from "../ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
 import { useAmbientMotion } from "../../lib/motion/ambientBudget";
+import { useGuideFloor, useOnScreenOnce } from "../../lib/motion/guideStart";
 import {
   GUIDE_ADVANCE_GUARD_MS,
   GUIDE_TYPEWRITER_MS,
@@ -62,6 +63,9 @@ export type GuideDialogueProps = {
  * Reusable Longyu guide presence: mascot + speech box + typewriter.
  * Presentation only — messages must come from existing content.
  * Entrance motion is CSS-only and never blocks Continue.
+ * RC2.3.13R.3.2.6 — a line types only once the guide is on screen in a
+ * visible document ("idle" until then: no tick, no voice); Continue while
+ * idle shows the whole line; reduced motion shows it at once.
  */
 export function GuideDialogue({
   messages,
@@ -77,7 +81,12 @@ export function GuideDialogue({
   "data-testid": testId = "guide-dialogue",
 }: GuideDialogueProps) {
   const { t } = useTranslation();
-  const cleaned = messages.map((message) => String(message ?? "").trim()).filter(Boolean);
+  const cleanedNow = messages.map((message) => String(message ?? "").trim()).filter(Boolean);
+  const cleanedKey = cleanedNow.join("\u0001");
+  // RC2.3.13R.3.2.6 — stable per dialogue text: a parent re-render (or a guide
+  // floor change) must not cancel and re-arm the pending tick.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const cleaned = useMemo(() => cleanedNow, [cleanedKey]);
   const [state, setState] = useState<GuideDialogueState>(() => createGuideDialogueState());
   const [motion, setMotion] = useState<GuideMotionPhase>(() => initialGuideMotion());
   const [settle, setSettle] = useState(false);
@@ -93,6 +102,11 @@ export function GuideDialogue({
   const mascotSize = size === "compact" || guidedLayout ? 56 : 72;
   const reduced = prefersReducedMotion();
   const messageIdentity = cleaned.join("\u0001");
+  // RC2.3.13R.3.2.6 — a line types only once the guide is on screen (latched
+  // per dialogue, never restarted by scrolling) and while it holds the floor.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const seen = useOnScreenOnce(rootRef, !reduced && state.phase === "idle", messageIdentity);
+  const mayType = useGuideFloor(state.phase === "typing");
   const currentMessage = cleaned[Math.min(state.messageIndex, Math.max(0, cleaned.length - 1))] ?? "";
   // Quais graphemes ganham voz. Calculado uma vez por mensagem: o tick só consulta.
   const blipPlan = useMemo(
@@ -106,11 +120,14 @@ export function GuideDialogue({
     prevMessageIndex.current = 0;
     setSettle(false);
     setMotion(initialGuideMotion(instant));
+    // Reduced motion: the whole line now. Otherwise "idle" until seen (below).
     setState(
-      reduceGuideDialogue(createGuideDialogueState(), { type: "START", instant }, cleaned, {
-        instant,
-        now: Date.now(),
-      })
+      instant
+        ? reduceGuideDialogue(createGuideDialogueState(), { type: "START", instant }, cleaned, {
+            instant,
+            now: Date.now(),
+          })
+        : createGuideDialogueState()
     );
     if (entranceTimer.current != null) window.clearTimeout(entranceTimer.current);
     if (!instant) {
@@ -128,6 +145,16 @@ export function GuideDialogue({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageIdentity]);
 
+  // RC2.3.13R.3.2.6 — START once seen. Continue while idle completes instead
+  // (machine), so a late "seen" never restarts a line the learner revealed.
+  useEffect(() => {
+    if (!seen || state.phase !== "idle") return;
+    setState((prev) =>
+      prev.phase === "idle" ? reduceGuideDialogue(prev, { type: "START" }, cleaned, { now: Date.now() }) : prev
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seen, state.phase, messageIdentity]);
+
   useEffect(() => {
     if (state.phase === "done") {
       if (!doneFiredRef.current) {
@@ -137,7 +164,7 @@ export function GuideDialogue({
       stopGuideTextVoice();
       return;
     }
-    if (state.phase !== "typing") return;
+    if (state.phase !== "typing" || !mayType) return;
     const current = cleaned[state.messageIndex] ?? "";
     const graphemes = segmentGraphemes(current);
     const last = graphemes[Math.max(0, state.visibleCount - 1)] ?? "";
@@ -152,7 +179,7 @@ export function GuideDialogue({
     return () => {
       if (tickTimer.current != null) window.clearTimeout(tickTimer.current);
     };
-  }, [state.phase, state.messageIndex, state.visibleCount, cleaned, blipPlan]);
+  }, [state.phase, state.messageIndex, state.visibleCount, cleaned, blipPlan, mayType]);
 
   useEffect(() => {
     if (state.messageIndex === prevMessageIndex.current) return;
@@ -192,6 +219,8 @@ export function GuideDialogue({
   const fullCurrent = cleaned[Math.min(state.messageIndex, cleaned.length - 1)] ?? "";
   const label = continueLabel ?? t("player.continue");
   const isTyping = state.phase === "typing";
+  // "idle" = waiting to be seen: Continue shows the whole line (never swallowed).
+  const waiting = state.phase === "idle";
   const playEntrance = motion === "entering" && !reduced;
   // Blink uses existing eyes overlay only (static body) — not a fake wave.
   const blink = motion === "ready" && !reduced;
@@ -202,7 +231,7 @@ export function GuideDialogue({
         variant={actionVariant}
         className={actionVariant === "primary" ? "w-full shadow-lift" : "w-full"}
         data-testid="guide-continue"
-        data-guide-continue={isTyping ? "complete-text" : "advance"}
+        data-guide-continue={isTyping || waiting ? "complete-text" : "advance"}
         onClick={continueDialogue}
       >
         {label}
@@ -215,6 +244,7 @@ export function GuideDialogue({
 
   return (
     <div
+      ref={rootRef}
       className={[
         guidedLayout ? "guide-dialogue flex flex-row items-end gap-3" : "guide-dialogue flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4",
         className,
@@ -286,16 +316,19 @@ export function GuideDialogue({
             className="absolute -left-1.5 top-5 hidden h-3 w-3 rotate-45 border-b border-l border-line bg-surface sm:block"
             aria-hidden
           />
-          <span
-            key={textSwapKey}
-            aria-hidden="true"
-            data-testid="guide-visible-text"
-            className={textSwapKey > 0 && !reduced ? "guide-text-swap" : undefined}
-          >
-            {shown}
-            {isTyping ? (
-              <TypingCaret />
-            ) : null}
+          {/* RC2.3.13R.3.2.6 — the bubble reserves the whole line (no shift while it types). */}
+          <span className="typewriter-reserve" data-full-line={fullCurrent} aria-hidden="true">
+            <span
+              key={textSwapKey}
+              aria-hidden="true"
+              data-testid="guide-visible-text"
+              className={["typewriter-line", textSwapKey > 0 && !reduced ? "guide-text-swap" : ""].filter(Boolean).join(" ")}
+            >
+              {shown}
+              {isTyping ? (
+                <TypingCaret />
+              ) : null}
+            </span>
           </span>
           <span className="sr-only" aria-live="polite">
             {state.phase === "complete" || state.phase === "done" ? fullCurrent : ""}

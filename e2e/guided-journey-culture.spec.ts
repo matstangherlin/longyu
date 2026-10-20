@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import {
   dismissBlockingOverlays,
   seedCompletedJourneyNodes,
@@ -245,6 +245,79 @@ test.describe("RC2.2.5 Journey Dragon Teacher handoffs", () => {
     await expect(handoff.getByTestId("guide-visible-text")).toContainText(
       "1st and 3rd tones"
     );
+  });
+
+  // RC2.3.13R.3.2.6 — visibility-aware typewriter. At 390×844 the Tone handoff
+  // sits ~1200px below the fold: it waits "idle" (no tick, no voice, no text)
+  // until ≥60% of it is on screen, types once, and scrolling away and back
+  // never restarts it. Continue while it waits shows the whole line; reduced
+  // motion shows the whole line even offscreen.
+  async function openToneHandoffBelowFold(page: Page, reducedMotion: "reduce" | "no-preference") {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await seedUnlockedLessonSession(page, "p1-o-que-e-hanzi", {
+      isPremium: true,
+      serverIsPro: true,
+      folego: 20,
+      learnedChunks: ["nihao"],
+      learnedChars: ["ni", "hao"],
+    });
+    await seedCompletedJourneyNodes(page, [TONE_NODE]);
+    await page.emulateMedia({ reducedMotion });
+    await page.goto("/jornada");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expandJourneyMap(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const handoff = page.locator(`[data-journey-handoff="${TONE_HANDOFF}"]`);
+    const dialogue = handoff.getByTestId("journey-guide-dialogue");
+    await expect(dialogue).toHaveCount(1, { timeout: 20_000 });
+    const belowFold = await dialogue.evaluate((el) => el.getBoundingClientRect().top >= window.innerHeight);
+    expect(belowFold, "precondition: the handoff guide starts below the fold").toBe(true);
+    return { handoff, dialogue, text: handoff.getByTestId("guide-visible-text") };
+  }
+
+  test("R.3.2.6: a guide below the fold types only once seen, and never restarts", async ({ page }) => {
+    test.setTimeout(90_000);
+    const { handoff, dialogue, text } = await openToneHandoffBelowFold(page, "no-preference");
+    // Offscreen: zero ticks. Sampled over ~1 s (≈35 graphemes if it typed).
+    for (let sample = 0; sample < 5; sample += 1) {
+      await page.waitForTimeout(200);
+      await expect(dialogue).toHaveAttribute("data-guide-phase", "idle");
+      expect(((await text.textContent()) ?? "").trim()).toBe("");
+    }
+    await expect(handoff.getByTestId("guide-continue")).toHaveAttribute("data-guide-continue", "complete-text");
+
+    // On screen: it starts, and finishes on its own.
+    await dialogue.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(dialogue).toHaveAttribute("data-guide-phase", /typing|complete/);
+    await expect(dialogue).toHaveAttribute("data-guide-phase", "complete", { timeout: 15_000 });
+    await expect(text).toContainText("1º e o 3º tom");
+
+    // Away and back: the latch holds (no second run from an empty bubble).
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
+    await dialogue.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(300);
+    await expect(dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect(text).toContainText("1º e o 3º tom");
+  });
+
+  test("R.3.2.6: Continue while a guide waits shows the whole line; reduced motion never waits", async ({ page }) => {
+    test.setTimeout(90_000);
+    const waiting = await openToneHandoffBelowFold(page, "no-preference");
+    await expect(waiting.dialogue).toHaveAttribute("data-guide-phase", "idle");
+    const urlBefore = page.url();
+    // A programmatic tap keeps it offscreen (a Playwright click would scroll it in).
+    await waiting.handoff.getByTestId("guide-continue").evaluate((button) => (button as HTMLButtonElement).click());
+    await expect(waiting.dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect(waiting.text).toContainText("1º e o 3º tom");
+    // One tap never both reveals and dismisses.
+    await expect(waiting.dialogue).toHaveCount(1);
+    expect(page.url()).toBe(urlBefore);
+
+    const reduced = await openToneHandoffBelowFold(page, "reduce");
+    await expect(reduced.dialogue).toHaveAttribute("data-guide-phase", "complete");
+    await expect(reduced.text).toContainText("1º e o 3º tom");
   });
 
   test("Pinyin / Hanzi / Conversation handoffs use GuideDialogue", async ({ page }) => {

@@ -152,4 +152,106 @@ function start(instant = false, now = 0) {
   console.log("PASS TICK completes message");
 }
 
+// RC2.3.13R.3.2.6 — "idle" now lasts until the guide is on screen: Continue
+// while idle shows the whole line (a tap is never swallowed) and the advance
+// guard still holds, so one tap never both completes and advances.
+{
+  const idle = createGuideDialogueState();
+  const next = reduceGuideDialogue(idle, { type: "CONTINUE", now: 10 }, MESSAGES);
+  assert.equal(next.phase, "complete");
+  assert.equal(next.messageIndex, 0);
+  assert.equal(visibleGuideText(MESSAGES, next), MESSAGES[0]);
+  assert.equal(reduceGuideDialogue(next, { type: "CONTINUE", now: 10 + GUIDE_ADVANCE_GUARD_MS - 1 }, MESSAGES).messageIndex, 0);
+  assert.equal(reduceGuideDialogue(next, { type: "CONTINUE", now: 10 + GUIDE_ADVANCE_GUARD_MS + 1 }, MESSAGES).messageIndex, 1);
+  console.log("PASS CONTINUE while waiting to be seen completes; guard holds");
+}
+
+// RC2.3.13R.3.2.6 — the start rule (src/lib/motion/guideStart.ts), executed
+// with a fake IntersectionObserver and document: offscreen = no start; a tall
+// guide that fills the screen starts; a hidden document holds it; one start.
+{
+  const observers = [];
+  let visibility = "visible";
+  const listeners = new Set();
+  class FakeIO {
+    constructor(cb, opts) {
+      this.cb = cb;
+      this.opts = opts;
+      this.disconnected = false;
+      observers.push(this);
+    }
+    observe() {}
+    disconnect() {
+      this.disconnected = true;
+    }
+    fire(entry) {
+      if (!this.disconnected) this.cb([entry]);
+    }
+  }
+  const saved = { IntersectionObserver: globalThis.IntersectionObserver, document: globalThis.document };
+  globalThis.IntersectionObserver = FakeIO;
+  globalThis.document = {
+    get visibilityState() {
+      return visibility;
+    },
+    addEventListener: (type, fn) => type === "visibilitychange" && listeners.add(fn),
+    removeEventListener: (type, fn) => type === "visibilitychange" && listeners.delete(fn),
+  };
+  try {
+    const {
+      GUIDE_ON_SCREEN_RATIO,
+      GUIDE_OBSERVER_THRESHOLDS,
+      guideRecordOnScreen,
+      observeOnScreenOnce,
+    } = require("../src/lib/motion/guideStart.ts");
+    const viewport = { height: 844 };
+    const entry = (ratio, visibleHeight) => ({
+      isIntersecting: ratio > 0,
+      intersectionRatio: ratio,
+      intersectionRect: { height: visibleHeight },
+      rootBounds: viewport,
+    });
+
+    assert.equal(GUIDE_ON_SCREEN_RATIO, 0.6);
+    assert.ok(GUIDE_OBSERVER_THRESHOLDS.includes(GUIDE_ON_SCREEN_RATIO));
+    // A peek at the bottom edge is not "seen".
+    assert.equal(guideRecordOnScreen(entry(0.2, 40)), false);
+    assert.equal(guideRecordOnScreen(entry(0, 0)), false);
+    assert.equal(guideRecordOnScreen(entry(0.6, 120)), true);
+    // A guide taller than the screen can never show 60% of itself: filling
+    // 60% of the viewport counts (it would otherwise wait forever).
+    assert.equal(guideRecordOnScreen(entry(0.42, 844)), true);
+    assert.equal(guideRecordOnScreen(entry(0.2, 400)), false);
+    // Without rootBounds (cross-origin frame) only the ratio counts.
+    assert.equal(
+      guideRecordOnScreen({ isIntersecting: true, intersectionRatio: 0.42, intersectionRect: { height: 844 }, rootBounds: null }),
+      false
+    );
+
+    let seen = 0;
+    observeOnScreenOnce({}, () => (seen += 1));
+    const io = observers.at(-1);
+    assert.deepEqual([...io.opts.threshold].sort((a, b) => a - b), io.opts.threshold);
+    io.fire(entry(0, 0));
+    io.fire(entry(0.3, 60));
+    assert.equal(seen, 0, "offscreen / peeking guide must not start");
+    visibility = "hidden";
+    io.fire(entry(1, 200));
+    assert.equal(seen, 0, "hidden document must hold the line");
+    visibility = "visible";
+    for (const fn of [...listeners]) fn();
+    assert.equal(seen, 1, "the line starts when the document is visible again");
+    assert.equal(io.disconnected, true, "observer disconnects on the first start");
+    assert.equal(listeners.size, 0, "visibility listener removed on the first start");
+    io.fire(entry(0, 0));
+    io.fire(entry(1, 200));
+    assert.equal(seen, 1, "scrolling away and back never restarts the line");
+    console.log("PASS guideStart: seen once at ≥60% in a visible document; tall guide; no restart");
+  } finally {
+    globalThis.IntersectionObserver = saved.IntersectionObserver;
+    if (saved.document === undefined) delete globalThis.document;
+    else globalThis.document = saved.document;
+  }
+}
+
 console.log("PASS test:guide-dialogue");

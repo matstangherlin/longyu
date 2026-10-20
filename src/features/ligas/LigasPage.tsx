@@ -228,7 +228,7 @@ export function LigasPage() {
           </div>
           <div className="shrink-0 rounded-xl bg-white/15 px-3 py-2 text-center ring-1 ring-white/20">
             <div className="font-serif text-2xl font-semibold leading-none tabular-nums">{userWeeklyXp}</div>
-            <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/75">XP</div>
+            <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/75">XP</div>
           </div>
         </div>
 
@@ -245,7 +245,7 @@ export function LigasPage() {
                     active ? "h-2 w-full bg-white" : passed ? "h-1.5 w-full bg-white/70" : "h-1 w-full bg-white/25",
                   ].join(" ")}
                 />
-                <div className={["mt-1 text-[8px] font-semibold uppercase sm:text-[9px]", active ? "text-white" : "text-white/50"].join(" ")}>
+                <div className={["mt-1 text-[10px] font-semibold uppercase", active ? "text-white" : "text-white/50"].join(" ")}>
                   {tierMeta.shortName}
                 </div>
               </div>
@@ -490,7 +490,7 @@ function ZoneDivider({ tone, label }: { tone: "good" | "wrong" | "muted"; label:
     tone === "good" ? "text-[rgb(var(--good))]" : tone === "wrong" ? "text-wrong" : "text-ink-faint";
   return (
     <div className="flex items-center gap-2 bg-surface-2/50 px-3 py-1">
-      <span className={["text-[9px] font-bold uppercase tracking-[0.12em]", color].join(" ")}>{label}</span>
+      <span className={["text-[10px] font-bold uppercase tracking-[0.12em]", color].join(" ")}>{label}</span>
     </div>
   );
 }
@@ -535,7 +535,7 @@ function RankRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1">
           <span className="truncate text-xs font-semibold text-ink">{row.isUser ? "Você" : row.name}</span>
-          {row.isPro && <Pill tone="gold" className="!px-1.5 !py-0 text-[8px]">Pro</Pill>}
+          {row.isPro && <Pill tone="gold" className="!px-1.5 !py-0 text-[10px]">Pro</Pill>}
           {row.isUser && joined && promotion && <IconFlame width={11} height={11} className="shrink-0 text-good" />}
         </div>
         {row.streak != null && row.streak > 0 && (

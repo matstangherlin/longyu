@@ -49,6 +49,14 @@ const MATRIX: Row[] = [
 const SEED_LESSON = "l9-tudo-bem";
 const TOPIC = "/cultura/topico/vida_cotidiana";
 const MAX_AMBIENT = 4;
+/**
+ * RC2.3.13R.3.2.6 — a living scene animates a few of its own subjects
+ * (lanterns, clouds, steam) inside ONE ambient slot. The budget's unit is the
+ * owner (the element the budget granted); its parts are counted separately
+ * against this ceiling (owners × parts, src/lib/motion/livingUiMotion.ts),
+ * and no loop may run outside a granted owner.
+ */
+const MAX_AMBIENT_LOOPS = 16;
 
 async function open(browser: Browser, row: Row, url = "/jornada") {
   const context = await browser.newContext({
@@ -96,25 +104,44 @@ async function expandAll(page: Page) {
   }).toPass({ timeout: 45_000, intervals: [500, 1_000, 2_000] });
 }
 
-/** Running looping animations (on screen and far offscreen), with names for diagnostics. */
+/**
+ * Running looping animations, with names for diagnostics.
+ * running = distinct ambient owners with a loop on screen (the budget's unit);
+ * rawLoops = every running loop on screen (a scene's parts each count);
+ * unbudgeted = loops with no granted owner (self or ancestor [data-ambient="run"]),
+ * status loops tied to real state (audio, recording) excepted.
+ */
 async function loops(page: Page) {
   return page.evaluate(() => {
     const h = window.innerHeight;
-    let running = 0;
+    const owners = new Set<Element>();
+    let rawLoops = 0;
     let offscreen = 0;
     const offscreenNames: string[] = [];
+    const unbudgetedNames: string[] = [];
+    const STATUS = ['[data-audio-playing="true"]', ".living-rec-dot", ".living-rec-bars > span"];
     for (const a of document.getAnimations()) {
       const timing = a.effect?.getComputedTiming?.();
       if (a.playState !== "running" || timing?.iterations !== Infinity) continue;
       const target = (a.effect as KeyframeEffect | null)?.target as Element | null;
       const r = target?.getBoundingClientRect();
-      if (!r || r.width === 0 || r.height === 0) continue;
-      if (r.bottom < -100 || r.top > h + 100) {
+      if (!target || !r || r.width === 0 || r.height === 0) continue;
+      const owner = target.closest('[data-ambient="run"]');
+      const label = `${(a as CSSAnimation).animationName ?? "?"}@${owner?.getAttribute("data-ambient-kind") ?? target.getAttribute("data-ambient-kind") ?? target.tagName}:${(owner ?? target).getAttribute("data-ambient")}`;
+      // RC2.3.13R.3.2.6 — "far offscreen" is judged on the budget's unit, the
+      // granted owner: a scene's part (a cloud at the top of a 4:3 drawing)
+      // can sit further out than its owner, which the budget keeps ≤ 48 px out.
+      const box = (owner ?? target).getBoundingClientRect();
+      if (box.bottom < -100 || box.top > h + 100) {
         offscreen += 1;
-        offscreenNames.push(`${(a as CSSAnimation).animationName ?? "?"}@${target?.getAttribute("data-ambient-kind") ?? target?.tagName}:${target?.getAttribute("data-ambient")}`);
-      } else running += 1;
+        offscreenNames.push(label);
+        continue;
+      }
+      rawLoops += 1;
+      if (owner) owners.add(owner);
+      else if (!STATUS.some((sel) => target.matches(sel))) unbudgetedNames.push(label);
     }
-    return { running, offscreen, offscreenNames };
+    return { running: owners.size, rawLoops, unbudgeted: unbudgetedNames.length, unbudgetedNames, offscreen, offscreenNames };
   });
 }
 
@@ -138,6 +165,8 @@ async function settleFrames(page: Page) {
 async function sampleAmbient(page: Page) {
   let maxRunning = 0;
   let offscreen = 0;
+  let maxLoops = 0;
+  let unbudgeted = 0;
   const names = new Set<string>();
   const height = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
   for (const f of [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1]) {
@@ -152,12 +181,15 @@ async function sampleAmbient(page: Page) {
       now = await loops(page);
     }
     maxRunning = Math.max(maxRunning, now.running);
+    maxLoops = Math.max(maxLoops, now.rawLoops);
+    unbudgeted = Math.max(unbudgeted, now.unbudgeted);
     offscreen = Math.max(offscreen, now.offscreen);
     for (const name of now.offscreenNames) names.add(name);
+    for (const name of now.unbudgetedNames) names.add(`unbudgeted:${name}`);
   }
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   await page.waitForTimeout(300);
-  return { maxRunning, offscreen, offscreenNames: [...names] };
+  return { maxRunning, maxLoops, unbudgeted, offscreen, offscreenNames: [...names] };
 }
 
 /** The app goes to the background: every loop pauses. */
@@ -168,7 +200,7 @@ async function hiddenLoops(page: Page) {
   });
   await page.waitForTimeout(250);
   let hidden = await loops(page);
-  for (let i = 0; i < 6 && hidden.running + hidden.offscreen > 0; i += 1) {
+  for (let i = 0; i < 6 && hidden.rawLoops + hidden.offscreen > 0; i += 1) {
     await page.waitForTimeout(250);
     hidden = await loops(page);
   }
@@ -177,7 +209,7 @@ async function hiddenLoops(page: Page) {
     document.dispatchEvent(new Event("visibilitychange"));
   });
   await page.waitForTimeout(250);
-  return hidden.running + hidden.offscreen;
+  return hidden.rawLoops + hidden.offscreen;
 }
 
 /** Decoration contract on the current page. */
@@ -258,6 +290,17 @@ async function decorations(page: Page) {
       }
       // Effective contrast of milestone motif threads over the host.
       const bg = bgOf(host);
+      // RC2.3.13R.3.2.6 — a Heritage/Ceremony frame draws a gilt inner rule (and
+      // masked hooks in the same colour) instead of stitched corner threads.
+      for (const edge of host.querySelectorAll<HTMLElement>(':scope > .lyo-frame[data-frame-level][data-intensity="milestone"] .lyo-edge-top')) {
+        const line = rgba(getComputedStyle(edge).borderTopColor);
+        if (!line) continue;
+        let alpha = line.a;
+        for (let n: Element | null = edge; n && n !== host; n = n.parentElement) alpha *= Number(getComputedStyle(n).opacity);
+        const color = line.rgb.map((c, i) => c * alpha + bg[i] * (1 - alpha));
+        const [l1, l2] = [lum(color), lum(bg)].sort((x, y) => y - x);
+        minContrast = Math.min(minContrast, (l1 + 0.05) / (l2 + 0.05));
+      }
       for (const path of host.querySelectorAll<SVGElement>(':scope > .lyo[data-intensity="milestone"] .lyo-corner .lyo-s-thread')) {
         const stroke = rgba(getComputedStyle(path).stroke);
         if (!stroke) continue;
@@ -320,6 +363,8 @@ async function measureRow(browser: Browser, row: Row) {
     return {
       ...row,
       maxRunningAmbient: ambient.maxRunning,
+      maxRunningLoops: ambient.maxLoops,
+      unbudgetedRunning: ambient.unbudgeted,
       offscreenRunning: ambient.offscreen,
       offscreenNames: ambient.offscreenNames,
       hiddenRunning: hidden,
@@ -344,6 +389,8 @@ async function measureRow(browser: Browser, row: Row) {
 
 function assertRow(r: Awaited<ReturnType<typeof measureRow>>) {
   expect.soft(r.maxRunningAmbient, `${r.name} ambient loops on screen`).toBeLessThanOrEqual(r.reducedMotion ? 0 : MAX_AMBIENT);
+  expect.soft(r.maxRunningLoops, `${r.name} running loops (owners × parts)`).toBeLessThanOrEqual(r.reducedMotion ? 0 : MAX_AMBIENT_LOOPS);
+  expect.soft(r.unbudgetedRunning, `${r.name} loops outside a granted owner: ${r.offscreenNames.join(", ")}`).toBe(0);
   expect.soft(r.offscreenRunning, `${r.name} loops far offscreen: ${r.offscreenNames.join(", ")}`).toBe(0);
   expect.soft(r.hiddenRunning, `${r.name} loops while hidden`).toBe(0);
   expect.soft(r.haloVisible, `${r.name} current-node halo visible`).toBe(true);
@@ -524,6 +571,7 @@ test.describe("RC2.3.13R.3.2.4 Living UI and ornaments", () => {
       engine: test.info().project.name,
       seedLesson: SEED_LESSON,
       maxAmbient: MAX_AMBIENT,
+      maxAmbientLoops: MAX_AMBIENT_LOOPS,
       rows,
       burst,
       rapidSwitch,
@@ -556,6 +604,8 @@ test.describe("RC2.3.13R.3.2.4 Living UI and ornaments", () => {
     };
     const stops = ["/jornada", "/cultura", TOPIC, "/revisao"];
     let maxRunning = 0;
+    let maxLoops = 0;
+    let maxUnbudgeted = 0;
     let maxOffscreen = 0;
     let cycles = 0;
     let heapStart: number | null = null;
@@ -567,6 +617,8 @@ test.describe("RC2.3.13R.3.2.4 Living UI and ornaments", () => {
         await page.waitForTimeout(1_500);
         const sample = await sampleAmbient(page);
         maxRunning = Math.max(maxRunning, sample.maxRunning);
+        maxLoops = Math.max(maxLoops, sample.maxLoops);
+        maxUnbudgeted = Math.max(maxUnbudgeted, sample.unbudgeted);
         maxOffscreen = Math.max(maxOffscreen, sample.offscreen);
       }
       cycles += 1;
@@ -575,6 +627,8 @@ test.describe("RC2.3.13R.3.2.4 Living UI and ornaments", () => {
     const heapEnd = await heapMb();
     const durationMinutes = Math.round(((Date.now() - started) / 60_000) * 10) / 10;
     expect(maxRunning).toBeLessThanOrEqual(MAX_AMBIENT);
+    expect(maxLoops).toBeLessThanOrEqual(MAX_AMBIENT_LOOPS);
+    expect(maxUnbudgeted).toBe(0);
     expect(maxOffscreen).toBe(0);
     expect(errors).toEqual([]);
     const lib = await import(/* @vite-ignore */ GATE_LIB);
@@ -592,6 +646,8 @@ test.describe("RC2.3.13R.3.2.4 Living UI and ornaments", () => {
       durationMinutes,
       cycles,
       maxRunningAmbient: maxRunning,
+      maxRunningLoops: maxLoops,
+      unbudgetedRunning: maxUnbudgeted,
       maxOffscreenLoops: maxOffscreen,
       heapStartMb: heapStart,
       heapEndMb: heapEnd,

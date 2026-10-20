@@ -121,6 +121,12 @@ export function DeleteAccountConfirm({
 export function DangerZone() {
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
+  // RC2.3.13R.3.2.6 — deleting an account only applies to a cloud account. A
+  // guest / device-only profile has no account to delete (the backend call
+  // would fail), so the destructive cloud action is not offered at all;
+  // erasing this device's data lives in Dados locais.
+  const ownsCloudAccount = useStore((s) => s.accounts[s.currentAccountId]?.authMode === "cloud");
+  if (!ownsCloudAccount) return null;
 
   return (
     <section id="zona-de-perigo" className="scroll-mt-6" data-testid="settings-danger-zone" aria-labelledby="danger-zone-title">

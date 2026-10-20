@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 
 import { useAmbientMotion } from "../../../lib/motion/ambientBudget";
 import { prepareSceneMarkup } from "./journeySceneMarkup";
 import { JOURNEY_SCENE_BY_ID, type JourneySceneId, type JourneySceneSide } from "./journeySceneRegistry";
+import { sceneMotionFor } from "./sceneMotionProfiles";
 
 /**
  * Bundled at build time (no network, works offline and inside Capacitor).
@@ -13,7 +14,8 @@ const SCENE_SOURCES = import.meta.glob<string>("../../../assets/journey/scenes/*
   eager: true,
 });
 
-function rawSceneFor(id: JourneySceneId): string | undefined {
+/** RC2.3.13R.3.2.6 — also read by the one Culture topic hero scene (CultureHeroScene). */
+export function rawSceneFor(id: JourneySceneId): string | undefined {
   const entry = JOURNEY_SCENE_BY_ID.get(id);
   if (!entry) return undefined;
   return SCENE_SOURCES[`../../../assets/journey/scenes/${entry.file}`];
@@ -58,6 +60,10 @@ export function JourneyScene({
   }, [sceneId, instance]);
   const ref = useRef<HTMLDivElement>(null);
   const [reveal, setReveal] = useState<"pending" | "done">(() => initialReveal(ordinal));
+  // RC2.3.13R.3.2.6 — true only for the mount that actually revealed the scene,
+  // so one-shot parts (the brush stroke) play once and never on a remount.
+  const [enteredNow, setEnteredNow] = useState(false);
+  const motion = sceneMotionFor(sceneId);
   // RC2.3.13R.3.2.4 — the drift loop runs only where the ambient budget grants it.
   const driftRef = useRef<HTMLDivElement>(null);
   useAmbientMotion(driftRef, "scene", markup !== null);
@@ -76,6 +82,7 @@ export function JourneyScene({
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
           io.disconnect();
+          setEnteredNow(true);
           setReveal("done");
         }
       },
@@ -100,10 +107,17 @@ export function JourneyScene({
       data-scene-side={side}
       data-scene-ordinal={ordinal}
       data-reveal={reveal}
+      data-scene-entered={enteredNow ? "now" : undefined}
       style={style}
     >
       <div className="journey-scene-reveal">
-        <div ref={driftRef} className="journey-scene-drift" dangerouslySetInnerHTML={{ __html: markup }} />
+        <div
+          ref={driftRef}
+          className="journey-scene-drift"
+          data-scene-profile={motion.profile}
+          data-scene-intensity={motion.intensity}
+          dangerouslySetInnerHTML={{ __html: markup }}
+        />
       </div>
     </div>
   );

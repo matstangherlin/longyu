@@ -10,12 +10,14 @@ import { LESSON_UI_CLASS } from "../../ui/lessonTokens";
 import { CompletionBurst } from "../../components/motion/CompletionBurst";
 import { prefersReducedMotion } from "../../lib/motion/livingUiMotion";
 import { ChineseOrnamentalDivider } from "../../components/ornaments/chinese/ChineseOrnamentalDivider";
+import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
 import {
   buildLessonCompletionSummary,
   type LessonCompletionSkill,
 } from "./buildLessonCompletionSummary";
 import { haptic } from "../../lib/haptics";
 import { holdCelebration } from "../../lib/celebrationLock";
+import { armCompletionMoments } from "../../lib/motion/completionMoment";
 import { cancelAllMandarinSpeech } from "../../lib/mandarinSpeech";
 import {
   buildCompletionStages,
@@ -168,6 +170,9 @@ export function LessonVictory({
     return () => timers.forEach((id) => id && window.clearTimeout(id));
   }, [firstShow, reducedMotion, stages]);
 
+  // RC2.3.13R.3.2.6 — the next path view may play its one completion moment.
+  useEffect(() => armCompletionMoments(), []);
+
   // Uma cerimônia por vez: coachmark/baú/medalha/energia esperam a revelação.
   const revealing = stageIndex < stages.length - 1;
   useEffect(() => {
@@ -258,12 +263,29 @@ export function LessonVictory({
             : "flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-accent-soft bg-[radial-gradient(circle_at_50%_0%,rgb(var(--gold)/0.2),rgb(var(--surface))_38%,rgb(var(--bg))_100%)] text-center shadow-lift roomy:max-h-[calc(100dvh-4rem)] roomy:flex-none"
         }
       >
-
+        {/*
+          RC2.3.13R.3.2.6 — Ceremony frame (gilt rule + ruyi-cloud corners) on
+          the victory card: it holds the celebration, never the action dock,
+          whose opaque band would hide its lower rule. It sits on this
+          non-scrolling layer (flex-1 min-h-0, so the region below still
+          shrinks and scrolls) and stays under the content. 10 px inside the
+          curve (6 px above the square dock). The layer's pt-7/pb-6 put the
+          scroll viewport inside the hook band (the 24 px hooks end 34/30 px
+          in; their clouds 28/24 px), so on a short phone the scrolling
+          content is clipped inside the frame — it never runs across the rule
+          or under a cloud. px-5 keeps text 10 px clear of the side rule.
+          Both shells carry it (the guided recap, the production default, has
+          no card chrome, so the frame is its one boundary). Its rule settles
+          once, on the first show only (the burst's rule), and never under
+          reduced motion.
+        */}
+        <div className="relative isolate flex min-h-0 flex-1 flex-col pb-6 pt-7" data-victory-frame-host>
+        <ChineseOrnamentalFrame motif="ruyi" intensity="milestone" tone="gold" animated={firstShow && !reducedMotion} surface="victory" level="ceremony" />
         <div
           data-lesson-activity-scroll
           data-lesson-scroll-region
           data-lesson-victory-scroll
-          className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5 pt-4 [-webkit-overflow-scrolling:touch] sm:px-6"
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-5 pb-2 pt-1 [-webkit-overflow-scrolling:touch] sm:px-6"
         >
           <div className="mx-auto inline-flex rounded-full bg-surface/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent shadow-card">
             {title}
@@ -470,6 +492,7 @@ export function LessonVictory({
             qualquer segundo CTA. A conclusão é recompensa emocional; Pro tem
             superfícies próprias e o sync acontece em background (P0.5).
           */}
+        </div>
         </div>
 
         {/* P24.3 — sticky no mobile; com folga vertical o CTA só segue o conteúdo. */}

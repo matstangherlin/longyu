@@ -11,6 +11,14 @@ export function claimSessionOnce(key: string): boolean {
   return true;
 }
 
+/**
+ * RC2.3.13R.3.2.6 — read without claiming: render-time decisions peek (StrictMode
+ * runs initializers twice), and the claim is committed once in an effect.
+ */
+export function sessionOnceClaimed(key: string): boolean {
+  return claimed.has(key);
+}
+
 /** Tests only. */
 export function resetSessionOnceForTests(): void {
   claimed.clear();

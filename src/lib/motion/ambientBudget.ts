@@ -1,5 +1,6 @@
 import { useEffect, type RefObject } from "react";
 import {
+  AMBIENT_KIND_CAP,
   AMBIENT_PRIORITY,
   MAX_VISIBLE_AMBIENT_ANIMATIONS,
   documentHidden,
@@ -24,19 +25,36 @@ export type AmbientCandidate = {
   id: number;
   priority: number;
   visible: boolean;
+  /** RC2.3.13R.3.2.6 — kinds with a cap in AMBIENT_KIND_CAP share it; others are uncapped. */
+  kind?: AmbientKind;
 };
+
+/** Keeps candidates while their kind still has room (call once per allocation). */
+function withinKindCap(kindCap: Readonly<Partial<Record<AmbientKind, number>>>) {
+  const used = new Map<AmbientKind, number>();
+  return (candidate: AmbientCandidate): boolean => {
+    const cap = candidate.kind === undefined ? undefined : kindCap[candidate.kind];
+    if (candidate.kind === undefined || cap === undefined) return true;
+    const count = used.get(candidate.kind) ?? 0;
+    if (count >= cap) return false;
+    used.set(candidate.kind, count + 1);
+    return true;
+  };
+}
 
 /** Pure allocation: visible candidates, best priority first, then registration order. */
 export function allocateAmbientSlots(
   candidates: readonly AmbientCandidate[],
   max: number = MAX_VISIBLE_AMBIENT_ANIMATIONS,
   paused = false,
+  kindCap: Readonly<Partial<Record<AmbientKind, number>>> = AMBIENT_KIND_CAP,
 ): Set<number> {
   if (paused || max <= 0) return new Set();
   return new Set(
     candidates
       .filter((candidate) => candidate.visible)
       .sort((a, b) => a.priority - b.priority || a.id - b.id)
+      .filter(withinKindCap(kindCap))
       .slice(0, max)
       .map((candidate) => candidate.id),
   );
@@ -109,7 +127,7 @@ export function registerAmbient(el: Element, kind: AmbientKind): () => void {
   if (typeof document === "undefined") return () => {};
   install();
   // Without IntersectionObserver every element counts as visible; the cap still holds.
-  const entry: Entry = { id: nextId++, priority: AMBIENT_PRIORITY[kind], visible: observer === null, el };
+  const entry: Entry = { id: nextId++, priority: AMBIENT_PRIORITY[kind], visible: observer === null, kind, el };
   entries.set(el, entry);
   el.setAttribute("data-ambient", "rest");
   el.setAttribute("data-ambient-kind", kind);
@@ -133,8 +151,13 @@ export function useAmbientMotion(ref: RefObject<Element | null>, kind: AmbientKi
 }
 
 /** QA / tests: current allocation snapshot. */
-export function ambientSnapshot(): { registered: number; running: number } {
+export function ambientSnapshot(): { registered: number; running: number; byKind: Partial<Record<AmbientKind, number>> } {
   let running = 0;
-  for (const entry of entries.values()) if (entry.el.getAttribute("data-ambient") === "run") running += 1;
-  return { registered: entries.size, running };
+  const byKind: Partial<Record<AmbientKind, number>> = {};
+  for (const entry of entries.values()) {
+    if (entry.el.getAttribute("data-ambient") !== "run") continue;
+    running += 1;
+    if (entry.kind) byKind[entry.kind] = (byKind[entry.kind] ?? 0) + 1;
+  }
+  return { registered: entries.size, running, byKind };
 }

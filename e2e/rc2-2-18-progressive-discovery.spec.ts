@@ -162,7 +162,10 @@ test.describe("RC2.2.18 · conta nova", () => {
       await expect(page.locator("[data-feature-unavailable]")).toHaveCount(0);
     }
     await open(page, "/config/conta");
-    await expect(page.getByTestId("settings-danger-zone")).toBeVisible();
+    // RC2.3.13R.3.2.6 — this seeded learner is device-only (authMode local): there is
+    // no cloud account to delete, so the destructive cloud action is not offered.
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+    await expect(page.getByTestId("settings-danger-zone")).toHaveCount(0);
   });
 
   test("K: nenhuma orientação dentro da lição", async ({ page }) => {
@@ -282,7 +285,7 @@ test.describe("RC2.2.18 · desbloqueios", () => {
     await expect(surfaces(page)).toHaveCount(0);
   });
 
-  test("CZ: primeiro acesso à Cultura — no máximo um coachmark, apontando a recomendação", async ({ page }) => {
+  test("CZ: primeiro acesso à Cultura — um guia por visita; o coachmark vem na visita seguinte", async ({ page }) => {
     await seed(page, { completedLessons: THROUGH_L2, achievementsUnlocked: allAchievementsUnlocked() }, {
       guidance: {
         enabled: true,
@@ -292,15 +295,39 @@ test.describe("RC2.2.18 · desbloqueios", () => {
       },
     });
     await open(page, "/cultura");
-    const coachmark = page.locator('[data-guidance-id="culture_first_use_v1"]');
+    // RC2.3.13R.3.2.6 — a primeira visita é do guia da própria página: o
+    // coachmark opcional não empilha em cima dele (antes: dois dragões e três
+    // botões primários juntos). Mais que SETTLE_MS + ANCHOR_WAIT_MS sem nada.
+    const pageGuide = page.getByTestId("culture-first-guide");
+    await expect(pageGuide).toBeVisible();
+    await expect(page.getByTestId("culture-journey")).toHaveAttribute("data-first-visit-guide", "culture-root");
+    await page.waitForTimeout(2_500);
+    await expect(surfaces(page)).toHaveCount(0);
+    // Terminar o guia não encadeia o coachmark na mesma visita (nunca A → B).
+    for (let attempt = 0; attempt < 3 && (await pageGuide.count()) > 0; attempt += 1) {
+      await pageGuide.getByTestId("guide-continue").click();
+      await page.waitForTimeout(150);
+    }
+    await expect(pageGuide).toHaveCount(0);
+    await page.waitForTimeout(1_500);
+    await expect(surfaces(page)).toHaveCount(0);
+
+    // Visita seguinte numa aba nova (sessionStorage vazio, como um cold start):
+    // o guia foi visto NESTA conta, não só nesta aba — não repete, e a fila
+    // esvazia com UM coachmark apontando a recomendação.
+    const next = await page.context().newPage();
+    await open(next, "/cultura");
+    await expect(next.getByTestId("culture-journey")).toBeVisible();
+    await expect(next.getByTestId("culture-first-guide")).toHaveCount(0);
+    const coachmark = next.locator('[data-guidance-id="culture_first_use_v1"]');
     await expect(coachmark).toBeVisible({ timeout: 8_000 });
-    await expect(surfaces(page)).toHaveCount(1);
+    await expect(surfaces(next)).toHaveCount(1);
     await expect(coachmark.getByText("Comece por esta recomendação.")).toBeVisible();
     await coachmark.getByRole("button", { name: "Entendi" }).click();
-    await page.reload();
-    await waitForLazyPage(page);
-    await page.waitForTimeout(1_200);
-    await expect(surfaces(page)).toHaveCount(0);
+    await next.reload();
+    await waitForLazyPage(next);
+    await next.waitForTimeout(1_200);
+    await expect(surfaces(next)).toHaveCount(0);
   });
 
   test("Revisão só aparece com itens; Ajustes › Dicas guiadas liga, desliga e revê sem mexer no progresso", async ({ page }) => {

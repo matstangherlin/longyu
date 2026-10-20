@@ -1436,6 +1436,7 @@ function cloudSyncBanner(sync: CloudSyncState): { className: string; label: stri
 }
 
 import { getAccountFreeBenefitLines, getAccountProBenefitLines } from "../../data/planFeatures";
+import { exportJsonFile } from "../../lib/platform/fileExport";
 
 const ACCOUNT_PRO_BENEFITS = getAccountProBenefitLines();
 
@@ -2007,35 +2008,31 @@ export function AccountPage() {
     }
 
     const payload = { kind, ...snapshot };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
     const date = new Date(snapshot.exportedAt).toISOString().slice(0, 10);
-    link.href = url;
-    link.download = `longyu-${kind === "backup" ? "backup" : "progresso"}-${date}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    setDataNotice(
-      kind === "backup"
-        ? "Backup local gerado como arquivo JSON neste dispositivo."
-        : "Exportação de progresso gerada como arquivo JSON neste dispositivo."
+    // RC2.3.13R.3.2.6 — the notice says what really happened (Android WebView cannot save a file).
+    void exportJsonFile(`longyu-${kind === "backup" ? "backup" : "progresso"}-${date}.json`, payload).then((outcome) =>
+      setDataNotice(
+        outcome === "downloaded"
+          ? kind === "backup"
+            ? "Backup local gerado como arquivo JSON neste dispositivo."
+            : "Exportação de progresso gerada como arquivo JSON neste dispositivo."
+          : outcome === "copied"
+            ? "Copiamos seus dados (JSON) para a área de transferência. Cole num e-mail ou nota para guardar."
+            : "Salvar arquivo não está disponível no app. Use a versão web do Longyu para baixar o arquivo."
+      )
     );
   }
 
   async function downloadPrivacyBundle() {
     const bundle = await buildPrivacyExportBundle();
-    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `longyu-lgpd-${bundle.exportedAt.slice(0, 10)}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    setDataNotice("Pacote LGPD exportado como JSON neste dispositivo.");
+    const outcome = await exportJsonFile(`longyu-lgpd-${bundle.exportedAt.slice(0, 10)}.json`, bundle);
+    setDataNotice(
+      outcome === "downloaded"
+        ? "Pacote LGPD exportado como JSON neste dispositivo."
+        : outcome === "copied"
+          ? "Copiamos o pacote LGPD (JSON) para a área de transferência. Cole num e-mail ou nota para guardar."
+          : "Salvar arquivo não está disponível no app. Use a versão web do Longyu para baixar o pacote."
+    );
   }
 
   async function handleRequestAccountDeletion() {

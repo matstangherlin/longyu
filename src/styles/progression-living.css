@@ -1,0 +1,130 @@
+/*
+ * RC2.3.13R.3.2.6 — progression polish (presentation only).
+ *
+ * - Connectors and the Journey axis are calm, solid states (never a flowing
+ *   loop): complete = accent, the lead-in to the current node = subtle accent,
+ *   locked = muted.
+ * - The completion moment is ONE shot (claimSessionOnce per node, only for a
+ *   completion this session saw happen): the ring settles, the check appears,
+ *   a tiny sparkle fades, the line fills — ≤ 1100 ms, then still.
+ * - Transform and opacity only, --motion-* tokens; the node centre, the axis,
+ *   the label and the CTA never move. Reduced motion: the final state at once.
+ * - The current node's halo (ambient budget) stays the only continuous emphasis.
+ */
+
+/* ---- Journey axis: the completed part of the line ---- */
+
+.journey-axis-done {
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--accent) / 0.45);
+  transform-origin: 50% 0;
+  pointer-events: none;
+}
+
+.journey-axis-done[data-axis-grows="true"] {
+  transition: transform calc(var(--motion-emphasis) * 2) var(--ease-enter);
+}
+
+/* ---- Node completion moment ---- */
+
+/* Waiting for the screen to be calm: the moment's starting pose, static. */
+[data-completion-moment="pending"] .progression-node-core {
+  transform: scale(0.9);
+}
+
+[data-completion-moment="pending"] [data-testid="progression-complete-icon"] {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.progression-step:has(> [data-completion-moment="pending"]) + .progression-step > .progression-connector {
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+}
+
+[data-completion-moment="play"] .progression-node-core {
+  animation: progression-node-settle calc(var(--motion-emphasis) * 2) var(--ease-enter) both;
+}
+
+[data-completion-moment="play"] [data-testid="progression-complete-icon"] {
+  animation: progression-check-in var(--motion-emphasis) var(--ease-enter) calc(var(--motion-emphasis) * 0.8) both;
+}
+
+[data-completion-moment="play"] .progression-complete-spark {
+  animation: progression-spark calc(var(--motion-emphasis) * 2.5) var(--ease-standard) calc(var(--motion-emphasis) * 0.6) both;
+}
+
+/* The Culture connector below a node that just completed fills once. */
+.progression-step:has(> [data-completion-moment="play"]) + .progression-step > .progression-connector {
+  transform-origin: 50% 0;
+  animation: progression-connector-fill calc(var(--motion-emphasis) * 2) var(--ease-enter) calc(var(--motion-emphasis) * 0.8) both;
+}
+
+@keyframes progression-node-settle {
+  from {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes progression-check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes progression-spark {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1) rotate(20deg);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8) rotate(45deg);
+  }
+}
+
+@keyframes progression-connector-fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-completion-moment] .progression-node-core,
+  [data-completion-moment] [data-testid="progression-complete-icon"],
+  .progression-step > .progression-connector {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .journey-axis-done,
+  [data-completion-moment] .progression-node-core,
+  [data-completion-moment] [data-testid="progression-complete-icon"],
+  .progression-step > .progression-connector {
+    animation: none !important;
+    transition: none !important;
+  }
+  .progression-complete-spark {
+    display: none;
+  }
+}
+
+/* end progression living */

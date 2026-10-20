@@ -132,7 +132,7 @@ function CharacterAvatar({
       >
         {letter}
         {emotionMark && active && (
-          <span className="absolute -right-1 -top-1 rounded-full bg-surface px-1 text-[9px] text-ink-faint shadow-sm">
+          <span className="absolute -right-1 -top-1 rounded-full bg-surface px-1 text-[10px] text-ink-faint shadow-sm">
             {emotionMark}
           </span>
         )}

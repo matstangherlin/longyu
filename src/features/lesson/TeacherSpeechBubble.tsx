@@ -5,12 +5,16 @@ import { GUIDED_DRAGON_SIZE } from "../../lib/guidedPresentation";
 import { segmentGraphemes } from "../../lib/guideDialogueMachine";
 // RC2.3.13R.3.2.5 — the one reduced-motion signal (no third copy here).
 import { prefersReducedMotion } from "../../lib/motion/livingUiMotion";
+// RC2.3.13R.3.2.6 — the shared start rule (on screen, visible document, one speaker).
+import { useGuideFloor, useOnScreenOnce } from "../../lib/motion/guideStart";
 
 export type BubbleAnimState = "ENTER" | "TYPING" | "READY" | "EXIT";
 
 /**
  * Dragon/teacher bubble with fast type-on.
- * Tap 1 while typing → finish text. Tap does not navigate.
+ * Tap 1 while typing (or still waiting to be seen) → finish text. Tap does not navigate.
+ * RC2.3.13R.3.2.6 — a line starts only once the bubble is on screen in a
+ * visible document (offscreen = no timer, no interval); reduced motion shows it whole.
  * Dock advances; Back navigates (caller responsibility).
  */
 export function TeacherSpeechBubble({
@@ -37,6 +41,11 @@ export function TeacherSpeechBubble({
   const onTypingCompleteRef = useRef(onTypingComplete);
   onReadyRef.current = onReady;
   onTypingCompleteRef.current = onTypingComplete;
+  // RC2.3.13R.3.2.6 — seen once per line (never restarted by scrolling) and
+  // only while this bubble holds the guide floor.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const onScreen = useOnScreenOnce(rootRef, !reduced && state === "ENTER", text);
+  const mayType = useGuideFloor(state === "TYPING");
 
   useEffect(() => {
     textRef.current = text;
@@ -50,12 +59,17 @@ export function TeacherSpeechBubble({
     }
     setShown("");
     setState("ENTER");
-    const enter = window.setTimeout(() => setState("TYPING"), 120);
-    return () => window.clearTimeout(enter);
   }, [text, reduced]);
 
+  // Separate from the reset above: being seen starts a line, never restarts it.
   useEffect(() => {
-    if (state !== "TYPING") return;
+    if (reduced || !onScreen || state !== "ENTER") return;
+    const enter = window.setTimeout(() => setState("TYPING"), 120);
+    return () => window.clearTimeout(enter);
+  }, [state, onScreen, reduced]);
+
+  useEffect(() => {
+    if (state !== "TYPING" || !mayType) return;
     const full = textRef.current;
     // Graphemes, not UTF-16 units: an emoji or a combining tone mark is never
     // split in half on screen.
@@ -74,10 +88,12 @@ export function TeacherSpeechBubble({
       setShown(graphemes.slice(0, indexRef.current).join(""));
     }, 28);
     return () => window.clearInterval(id);
-  }, [state]);
+  }, [state, mayType]);
 
   const finishTyping = () => {
-    if (state === "TYPING") {
+    // RC2.3.13R.3.2.6 — a tap before the line started ("ENTER", waiting to be
+    // seen) shows it whole too: a tap is never swallowed.
+    if (state === "TYPING" || (state === "ENTER" && !reduced)) {
       setShown(textRef.current);
       setState("READY");
       onTypingCompleteRef.current?.();
@@ -87,6 +103,7 @@ export function TeacherSpeechBubble({
 
   return (
     <div
+      ref={rootRef}
       className={[
         "flex items-end gap-3",
         state === "ENTER" && !reduced ? "translate-y-1 opacity-0" : "translate-y-0 opacity-100",
@@ -116,11 +133,16 @@ export function TeacherSpeechBubble({
           aria-hidden
         />
         {/* Screen readers hear the whole line once, not every 28 ms fragment. */}
-        <span data-testid="teacher-bubble-text" aria-hidden="true">{shown}</span>
-        {state === "TYPING" ? (
-          // RC2.3.13R.3.2.5 — the same budgeted caret as the guide (it looped offscreen).
-          <TypingCaret />
-        ) : null}
+        {/* RC2.3.13R.3.2.6 — the bubble reserves the whole line (no shift while it types). */}
+        <span className="typewriter-reserve" data-full-line={text} aria-hidden="true">
+          <span className="typewriter-line">
+            <span data-testid="teacher-bubble-text" aria-hidden="true">{shown}</span>
+            {state === "TYPING" ? (
+              // RC2.3.13R.3.2.5 — the same budgeted caret as the guide (it looped offscreen).
+              <TypingCaret />
+            ) : null}
+          </span>
+        </span>
         <span className="sr-only" aria-live="polite">{state === "READY" ? text : ""}</span>
       </button>
     </div>

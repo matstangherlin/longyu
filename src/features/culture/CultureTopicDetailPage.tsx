@@ -28,6 +28,8 @@ import {
 import { recordTechEvent } from "../../lib/techEvents";
 import { HubPage } from "../../components/layout/HubLayout";
 import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
+import { CultureHeroScene } from "./CultureHeroScene";
+import { cultureTopicVisual } from "./cultureVisualTheme";
 import { ProgressFill } from "../../components/motion/ProgressFill";
 import { consumeTopicTransition, markTopicTransition } from "../../lib/motion/topicTransition";
 
@@ -198,18 +200,25 @@ export function CultureTopicDetailPage() {
 
           {/*
             RC2.3.13R.3.2.4 — the topic hero is one of the few surfaces that
-            carries embroidery: xiangyun cloud corners with a stitched thread,
-            under the content, hidden from assistive tech.
+            carries embroidery, under the content, hidden from assistive tech.
+            RC2.3.13R.3.2.6 — Heritage frame (lacquer border + gilt key-fret
+            rule), a faint procedural paper grain, and the topic's one living
+            scene beside the title.
           */}
           <header
-            className="relative isolate space-y-2 rounded-2xl border border-accent-soft bg-surface px-4 pb-4 pt-5 shadow-card"
+            className="relative isolate space-y-2 rounded-2xl border border-frame-line/30 bg-surface px-4 pb-4 pt-5 shadow-card culture-hero-paper"
             data-testid="culture-topic-header"
           >
-            <ChineseOrnamentalFrame motif="xiangyun" intensity="milestone" tone="accent" surface="culture-topic-hero" />
-            <h1 className="type-page-title" data-testid="culture-topic-title">
-              {title}
-            </h1>
-            <p className="type-supporting max-w-prose">{description}</p>
+            <ChineseOrnamentalFrame motif="xiangyun" intensity="milestone" tone="accent" surface="culture-topic-hero" level="heritage" />
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <h1 className="type-page-title" data-testid="culture-topic-title">
+                  {title}
+                </h1>
+                <p className="type-supporting max-w-prose">{description}</p>
+              </div>
+              <CultureHeroScene topicId={topic.id} />
+            </div>
             <p className="type-label pt-1" data-testid="culture-topic-detail-progress">
               {t("progression.topicProgress", { done, total })}
             </p>
@@ -330,6 +339,7 @@ export function CultureTopicDetailPage() {
                   nodes={nodes}
                   personality="culture"
                   testId={`culture-path-bubbles-${path.id}`}
+                  ornamentOffset={(cultureTopicVisual(topic.id)?.ornamentOffset ?? 0) + paths.indexOf(path) * 2}
                 />
               </section>
             );

@@ -1,0 +1,53 @@
+{
+  "schema": "longyu.chinese-frame-contract.v1",
+  "wave": "RC2.3.13R.3.2.6",
+  "component": "src/components/ornaments/chinese/ChineseOrnamentalFrame.tsx",
+  "stylesheet": "src/styles/chinese-frames.css",
+  "levels": {
+    "whisper": {
+      "drawnBy": "ChineseCornerMotif",
+      "frame": false,
+      "surfaces": [
+        "home-continue"
+      ]
+    },
+    "heritage": {
+      "drawnBy": "ChineseOrnamentalFrame level=heritage",
+      "corner": "huiwen key-fret hook",
+      "hookPx": 16,
+      "surfaces": [
+        "journey-milestone",
+        "culture-topic-hero",
+        "review-header",
+        "review-summary"
+      ],
+      "surfaceHookPx": {
+        "journey-milestone": 12
+      }
+    },
+    "ceremony": {
+      "drawnBy": "ChineseOrnamentalFrame level=ceremony",
+      "corner": "ruyi cloud hook",
+      "hookPx": 24,
+      "surfaces": [
+        "victory",
+        "reward-hero"
+      ]
+    }
+  },
+  "tokens": [
+    "--gilt",
+    "--frame-line",
+    "--line-strong"
+  ],
+  "rules": {
+    "pointerEvents": "none",
+    "focusable": false,
+    "extraText": false,
+    "boxShadow": false,
+    "entrance": "once (data-animate=once)",
+    "loops": 0,
+    "reducedMotion": "static",
+    "ordinaryCards": "never"
+  }
+}

@@ -97,7 +97,7 @@ import { ALL_LESSONS } from "../../data/journey";
 import { buildReviewSessionInsight, findUnitById, srsItemMatchesModule } from "../../lib/moduleReview";
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { markDevicePerf } from "../../lib/devicePerf";
-import { ChineseCornerMotif } from "../../components/ornaments/chinese/ChineseCornerMotif";
+import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
 
 /** Troca o nome-modelo (Matheus/Matheus) pelo nome do aluno nas frases da revisão. */
 function personalizeReviewExercise(
@@ -2083,9 +2083,15 @@ export function RevisaoPage() {
             <IconChevron width={16} height={16} className="rotate-180" aria-hidden="true" />
             {t("review.backToReview")}
           </button>
-          <div className="relative isolate rounded-2xl border border-accent/20 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] p-4 shadow-card sm:p-5">
-            {/* RC2.3.13R.3.2.4 — Review's own restrained mark: one ruyi corner. */}
-            <ChineseCornerMotif motif="ruyi" corner="bottom-right" intensity="medium" surface="review-header" />
+          <div
+            className="relative isolate rounded-2xl border border-frame-line/30 bg-[radial-gradient(circle_at_0%_0%,rgb(var(--accent-soft))_0%,rgb(var(--surface))_62%)] px-6 py-4 shadow-card sm:py-5"
+            data-review-header=""
+          >
+            {/* RC2.3.13R.3.2.4 — Review's own restrained mark (was one ruyi corner).
+                RC2.3.13R.3.2.6 — Heritage frame: lacquer outer border + gilt
+                key-fret inner rule. px-6 keeps every 16 px hook (at the 6 px
+                frame inset) clear of the eyebrow, the pill and the counters. */}
+            <ChineseOrnamentalFrame motif="huiwen" intensity="milestone" tone="accent" surface="review-header" level="heritage" />
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="type-eyebrow">

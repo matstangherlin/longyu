@@ -1,0 +1,535 @@
+/*
+ * RC2.3.13R.3.2.6 — Chinese Living Canvas
+ *
+ * Presentation only. CONTENT > STRUCTURE > AMBIENCE, always.
+ *
+ * A scene never bobs as a whole: its subject is what lives (lanterns sway,
+ * steam rises, the train passes, clouds drift). Every loop here:
+ *   - runs only under an owner the ambient budget granted ([data-ambient="run"]);
+ *     offscreen, hidden-tab and reduced-motion owners keep the authored drawing;
+ *   - animates transform and opacity only, with --motion-* tokens;
+ *   - starts and ends at the part's neutral pose (sceneMotionProfiles.ts), so a
+ *     slot lost mid-loop leaves a valid still frame, never a tilted lantern.
+ * validate:scenic-motion-profiles scans this whole file.
+ */
+
+:root {
+  /* Neighbouring parts of one scene never move in unison. */
+  --scene-phase-step: calc(var(--motion-ambient) / 4);
+}
+
+/* ---------- Journey scenes ---------------------------------------------- */
+
+/* The whole-scene drift is retired for every profiled scene: subjects move, the drawing stays put. */
+.journey-scene-drift[data-scene-profile] {
+  animation: none;
+}
+
+/* Parts turn and slide around their own box, not the 320×240 canvas corner. */
+.journey-scene g[class*="scene-"] {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+/* Entrance: once per session, from the lane's own side, then still. */
+.journey-scene-reveal {
+  transition-duration: calc(var(--motion-emphasis) * 1.3);
+}
+
+.journey-scene[data-scene-side="left"][data-reveal="pending"] .journey-scene-reveal {
+  transform: translate3d(-6px, 4px, 0);
+}
+
+.journey-scene[data-scene-side="right"][data-reveal="pending"] .journey-scene-reveal {
+  transform: translate3d(6px, 4px, 0);
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-cloud {
+  animation: scene-cloud-drift calc(var(--motion-ambient-slow) * 1.2) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-lantern {
+  transform-origin: 50% 0;
+  animation: scene-lantern-sway var(--motion-ambient) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-leaf {
+  transform-origin: 50% 100%;
+  animation: scene-leaf-sway calc(var(--motion-ambient) * 1.15) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-steam {
+  transform-origin: 50% 100%;
+  animation: scene-steam-rise var(--motion-ambient-current) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-water {
+  animation: scene-water-glide var(--motion-ambient) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-light {
+  animation: scene-light-breathe var(--motion-ambient-current) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-star {
+  animation: scene-star-twinkle var(--motion-ambient-current) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-accent {
+  animation: scene-accent-bob var(--motion-ambient-current) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-flag {
+  transform-origin: 0 50%;
+  animation: scene-flag-wave var(--motion-ambient-current) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-bird {
+  animation: scene-bird-glide var(--motion-ambient-slow) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-train {
+  animation: scene-train-pass var(--motion-ambient-slow) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-boat {
+  transform-origin: 50% 100%;
+  animation: scene-boat-rock var(--motion-ambient) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-paw {
+  transform-origin: 85% 95%;
+  animation: scene-paw-beckon var(--motion-ambient) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-cloth {
+  transform-origin: 0 0;
+  animation: scene-cloth-sway var(--motion-ambient) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-float {
+  animation: scene-float-breathe var(--motion-ambient) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-blossom {
+  animation: scene-blossom-breathe calc(var(--motion-ambient) * 1.15) var(--ease-ambient) var(--journey-scene-phase, 0s) infinite;
+}
+
+/* Several lanterns in one street sway out of step. */
+.journey-scene-drift[data-ambient="run"] .scene-phase-2 {
+  animation-delay: calc(var(--journey-scene-phase, 0s) - var(--scene-phase-step));
+}
+
+.journey-scene-drift[data-ambient="run"] .scene-phase-3 {
+  animation-delay: calc(var(--journey-scene-phase, 0s) - var(--scene-phase-step) * 2);
+}
+
+/* One-shot: the brush stroke draws itself when the scene first enters, then stays. */
+.journey-scene[data-scene-entered="now"] .scene-ink {
+  transform-origin: 0 50%;
+  animation: scene-ink-reveal calc(var(--motion-emphasis) * 1.5) var(--ease-enter) var(--motion-emphasis) both;
+}
+
+/* Units are the SVG's own (320×240); a 14-unit drift is ~5–6 screen px in a lane. */
+@keyframes scene-cloud-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(14px, 0, 0);
+    opacity: 0.75;
+  }
+}
+
+@keyframes scene-lantern-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-1.5deg);
+  }
+  75% {
+    transform: rotate(1.5deg);
+  }
+}
+
+@keyframes scene-leaf-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(1deg);
+  }
+  70% {
+    transform: rotate(-0.8deg);
+  }
+}
+
+@keyframes scene-steam-rise {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  55% {
+    transform: translate3d(1.5px, -7px, 0);
+    opacity: 0.2;
+  }
+  56% {
+    transform: translate3d(0, 3px, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes scene-water-glide {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(6px, 0, 0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes scene-light-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes scene-star-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes scene-accent-bob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+@keyframes scene-flag-wave {
+  0%,
+  100% {
+    transform: scaleX(1) skewY(0deg);
+  }
+  50% {
+    transform: scaleX(0.88) skewY(4deg);
+  }
+}
+
+@keyframes scene-bird-glide {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(10px, -4px, 0);
+  }
+}
+
+/* The train does not race across the lane: one short, soft glide, then rest. */
+@keyframes scene-train-pass {
+  0%,
+  64%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  78% {
+    transform: translate3d(10px, 0, 0);
+  }
+  92% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scene-boat-rock {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -2px, 0) rotate(1.5deg);
+  }
+}
+
+/* Maneki-neko beckons twice, then rests — never a perpetual wave. */
+@keyframes scene-paw-beckon {
+  0%,
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  30% {
+    transform: rotate(-7deg);
+  }
+  20% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes scene-cloth-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+/* Character scenes breathe (about 1 screen px); they never bounce. */
+@keyframes scene-float-breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+
+@keyframes scene-blossom-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.8;
+  }
+}
+
+@keyframes scene-ink-reveal {
+  from {
+    transform: scaleX(0.15);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Culture & lane ornaments ------------------------------------ */
+
+/* The generic whole-icon float is retired for profiled motifs. */
+.symbolic-ornament[data-ornament-profile] {
+  animation: none;
+  opacity: 1;
+}
+
+.symbolic-ornament .orn-part {
+  transform-box: view-box;
+  transform-origin: 16px 16px;
+}
+
+/*
+ * Entrance: once per mount, from the rail's own side; finite, never counted
+ * as a loop. It plays on the slot wrapper, not on the ambient host, so the
+ * budget's pause (which holds a resting host's frame) can never freeze it
+ * half-faded.
+ */
+[data-ornament-side="left"]:has(> .symbolic-ornament) {
+  animation: ornament-enter-left calc(var(--motion-emphasis) * 1.5) var(--ease-enter) both;
+}
+
+[data-ornament-side="right"]:has(> .symbolic-ornament) {
+  animation: ornament-enter-right calc(var(--motion-emphasis) * 1.5) var(--ease-enter) both;
+}
+
+.symbolic-ornament[data-ambient="run"][data-ornament-profile="lantern-sway"] .orn-part {
+  transform-origin: 16px 4px;
+  animation: ornament-lantern-sway var(--motion-ambient) var(--ease-ambient) infinite;
+}
+
+.symbolic-ornament[data-ambient="run"][data-ornament-profile="sway"] .orn-part {
+  transform-origin: 16px 22px;
+  animation: ornament-sway calc(var(--motion-ambient) * 1.15) var(--ease-ambient) infinite;
+}
+
+.symbolic-ornament[data-ambient="run"][data-ornament-profile="cloud-drift"] .orn-part {
+  animation: ornament-cloud-drift var(--motion-ambient-slow) var(--ease-ambient) infinite;
+}
+
+.symbolic-ornament[data-ambient="run"][data-ornament-profile="blossom-breathe"] .orn-part {
+  animation: ornament-blossom-breathe var(--motion-ambient) var(--ease-ambient) infinite;
+}
+
+@keyframes ornament-enter-left {
+  from {
+    transform: translate3d(-4px, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes ornament-enter-right {
+  from {
+    transform: translate3d(4px, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes ornament-lantern-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-4deg);
+  }
+  75% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes ornament-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  35% {
+    transform: rotate(2.5deg);
+  }
+  70% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes ornament-cloud-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(2px, 0, 0);
+    opacity: 0.8;
+  }
+}
+
+@keyframes ornament-blossom-breathe {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.05);
+  }
+}
+
+/* ---------- Reduced motion: the art stays, nothing moves ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-scene g[class*="scene-"],
+  .symbolic-ornament,
+  .symbolic-ornament .orn-part,
+  [data-ornament-side]:has(> .symbolic-ornament) {
+    animation: none !important;
+  }
+
+  .journey-scene[data-reveal="pending"] .journey-scene-reveal {
+    transform: none !important;
+  }
+}
+
+
+/* ---------- Culture topic hero: one living scene + paper grain ---------- */
+
+.culture-hero-scene {
+  flex: none;
+  width: 5.5rem;
+  margin-block-start: -0.25rem;
+}
+
+@media (min-width: 640px) {
+  .culture-hero-scene {
+    width: 7rem;
+  }
+}
+
+/* 宣纸 grain: procedural (feTurbulence), static, barely there; never on learning tasks. */
+.culture-hero-paper {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .42 0 0 0 0 .26 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='.09'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+[data-theme="dark"] .culture-hero-paper {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .92 0 0 0 0 .8 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='.05'/%3E%3C/svg%3E");
+}
+
+/* ---------- Culture topic cards: border hierarchy, a seal for the icon ---------- */
+
+/* Rectangular navigation stays; no frame. A stronger rest line, a lacquer
+   line under the pointer, and a gilt hairline that makes the icon tile a seal. */
+.culture-topic-card {
+  border-color: rgb(var(--line-strong));
+}
+
+.culture-topic-card:hover,
+.culture-topic-card:focus-visible {
+  border-color: rgb(var(--frame-line) / 0.4);
+}
+
+.culture-topic-card .culture-topic-icon {
+  box-shadow: inset 0 0 0 1px rgb(var(--gilt) / 0.35);
+}
+
+.culture-topic-card[data-culture-topic-state="COMPLETED"] .culture-topic-icon {
+  box-shadow: inset 0 0 0 1px rgb(var(--gilt) / 0.6);
+}
+
+/* ---------- Typing guides reserve their whole line ---------- */
+
+/* A guide types once it is seen; the bubble keeps the full line's size from
+   the first frame, so nothing below it moves while the learner watches it
+   type. The reserve is a hidden pseudo-element: no duplicate text in the DOM
+   or the accessibility tree. */
+.typewriter-reserve {
+  display: grid;
+}
+
+.typewriter-reserve::after {
+  content: attr(data-full-line);
+  visibility: hidden;
+  white-space: pre-wrap;
+  grid-area: 1 / 1;
+}
+
+.typewriter-reserve > .typewriter-line {
+  grid-area: 1 / 1;
+}
+
+/* end Chinese Living Canvas */

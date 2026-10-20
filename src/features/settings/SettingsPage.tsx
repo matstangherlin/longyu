@@ -41,6 +41,7 @@ import {
 } from "../../services/telemetryConsent";
 import { buildPrivacyExportBundle } from "../../services/privacyService";
 import { DangerZone } from "../../components/account/DangerZone";
+import { exportJsonFile, type FileExportOutcome } from "../../lib/platform/fileExport";
 import { GuidanceSettingsCard } from "../../components/guidance/GuidanceSettingsCard";
 import { appearanceModeOf, type AppearanceMode } from "../../lib/useResolvedTheme";
 import { ModalOverlay } from "../../components/ui/ModalOverlay";
@@ -107,6 +108,12 @@ const PRO_ENGINE_KEYS: Record<DomainTrack, { titleKey: "settings.proSomTitle" | 
   fala: { titleKey: "settings.proFalaTitle", featuresKey: "settings.proFalaFeatures" },
   hanzi: { titleKey: "settings.proHanziTitle", featuresKey: "settings.proHanziFeatures" },
   leitura: { titleKey: "settings.proLeituraTitle", featuresKey: "settings.proLeituraFeatures" },
+};
+
+const EXPORT_NOTICE_KEY: Record<FileExportOutcome, "settings.exportDownloaded" | "settings.exportCopied" | "settings.exportWebOnly"> = {
+  downloaded: "settings.exportDownloaded",
+  copied: "settings.exportCopied",
+  unavailable: "settings.exportWebOnly",
 };
 
 export function SettingsPage() {
@@ -861,16 +868,9 @@ export function SettingsPage() {
                       setPrivacyBusy(true);
                       try {
                         const bundle = await buildPrivacyExportBundle();
-                        const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.download = `longyu-dados-${bundle.exportedAt.slice(0, 10)}.json`;
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-                        URL.revokeObjectURL(url);
-                        setPrivacyNotice(t("settings.exportDownloaded"));
+                        // RC2.3.13R.3.2.6 — the notice says what really happened (Android WebView cannot save a file).
+                        const outcome = await exportJsonFile(`longyu-dados-${bundle.exportedAt.slice(0, 10)}.json`, bundle);
+                        setPrivacyNotice(t(EXPORT_NOTICE_KEY[outcome]));
                       } finally {
                         setPrivacyBusy(false);
                       }

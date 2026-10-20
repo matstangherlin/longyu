@@ -5023,9 +5023,9 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
                 className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft"
                 data-production-transform-hint
               >
-                <span className="hanzi text-base text-ink">{step.transferTransformHint.from}</span>
+                <span className="hanzi text-lg text-ink">{step.transferTransformHint.from}</span>
                 <span aria-hidden>→</span>
-                <span className="hanzi text-base text-ink">{step.transferTransformHint.to}</span>
+                <span className="hanzi text-lg text-ink">{step.transferTransformHint.to}</span>
               </div>
             ) : null}
           </section>
@@ -5071,7 +5071,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
                   key={item.hanzi}
                   className="rounded-xl border border-line bg-surface-2 px-2.5 py-1.5"
                 >
-                  <span className="hanzi text-base font-semibold text-ink">{item.hanzi}</span>
+                  <span className="hanzi text-lg font-semibold text-ink">{item.hanzi}</span>
                   {item.pinyin ? <span className="ml-1.5 text-xs text-ink-soft">{item.pinyin}</span> : null}
                   {item.meaningPt ? (
                     <span className="mt-0.5 block text-[11px] text-ink-faint">{item.meaningPt}</span>
@@ -5165,7 +5165,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
           <ul className="mt-1.5 flex flex-wrap gap-2">
             {vocabHints.map((item) => (
               <li key={item.hanzi} className="rounded-xl border border-line bg-surface-2 px-2.5 py-1.5">
-                <span className="hanzi text-base font-semibold text-ink">{item.hanzi}</span>
+                <span className="hanzi text-lg font-semibold text-ink">{item.hanzi}</span>
                 {item.meaningPt ? (
                   <span className="mt-0.5 block text-[11px] text-ink-faint">{item.meaningPt}</span>
                 ) : null}

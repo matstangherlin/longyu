@@ -6,6 +6,7 @@ import { cultureProgressionGateForItem } from "../../data/cultureProgressionGate
 import { cultureCardStatus, type CultureCardStatus } from "../../lib/cultureProgress";
 import { cultureLessonIdForItem } from "../../data/cultureNative";
 import { Card, Pill } from "../../components/ui/primitives";
+import { IconSeal } from "../../components/ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
 import { loc } from "../../data/cultureQuest";
@@ -87,7 +88,7 @@ export function CultureCard({
         <Card variant="interactive" className="flex h-full min-h-[7.5rem] flex-col p-3 pb-12">
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap items-center gap-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+              <p className="type-eyebrow">
                 {cultureCategoryLabel(item.category, t)}
               </p>
               <CultureKindBadge kind={item.kind} locale={locale} />
@@ -97,10 +98,11 @@ export function CultureCard({
           <h3 className="mt-2 text-balance font-serif text-base font-semibold leading-snug text-ink">{title}</h3>
           {gateLabel && (
             <p
-              className="mt-1.5 text-[10px] font-medium leading-4 text-ink-soft"
+              className="mt-1.5 flex items-center gap-1 text-[11px] font-medium leading-4 text-ink-soft"
               data-culture-gate-item-label={gate?.id}
             >
-              🐉 {gateLabel}
+              <IconSeal className="h-3.5 w-3.5 text-accent" aria-hidden />
+              {gateLabel}
             </p>
           )}
           {(item.variabilityPt || item.variabilityEn) && (

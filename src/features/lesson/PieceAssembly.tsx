@@ -133,7 +133,7 @@ export function PieceAssemblyBank({
             }
           >
             {showShortcuts && shortcutLabel && index < 10 ? (
-              <span className="pointer-events-none absolute -right-1 -top-1 rounded-md bg-surface-2 px-1 text-[9px] font-bold text-ink-faint ring-1 ring-line">
+              <span className="pointer-events-none absolute -right-1 -top-1 rounded-md bg-surface-2 px-1 text-[10px] font-bold text-ink-faint ring-1 ring-line">
                 {shortcutLabel(index)}
               </span>
             ) : null}

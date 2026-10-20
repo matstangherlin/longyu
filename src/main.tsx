@@ -2,6 +2,10 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import "./index.css";
+// RC2.3.13R.3.2.6 — Chinese Living Canvas (scene parts, ornament motion).
+import "./styles/living-canvas.css";
+import "./styles/chinese-frames.css";
+import "./styles/progression-living.css";
 import { routes } from "./routes";
 import { ErrorBoundary } from "./components/system/ErrorBoundary";
 import { PwaUpdateBanner } from "./components/system/PwaUpdateBanner";

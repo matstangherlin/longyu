@@ -1,0 +1,163 @@
+/*
+ * RC2.3.13R.3.2.6 — Chinese frame system (docs/ux/chinese-frame-system.md)
+ *
+ * An authored frame language, not a corner icon pasted on a card. Three
+ * levels, all drawn by the one ornamental frame overlay (ChineseOrnamentalFrame
+ * / ChineseCornerMotif, R.3.2.4), so accessibility, isolation and density
+ * stay the contracts they already are:
+ *
+ *   Whisper  (1) — a single corner motif (ChineseCornerMotif); no frame.
+ *   Heritage (2) — the host's lacquer outer border + a solid gilt inner rule
+ *                  (双线框) whose 回纹 key-fret hooks grow out of the rule at
+ *                  every corner: the corner is structure, not a sticker.
+ *   Ceremony (3) — the same double rule with ruyi-cloud corners. Victory and
+ *                  reward heroes only.
+ *
+ * Rules (validate:chinese-frame-system):
+ *   - drawn inside the overlay (z-index -1 in an isolated host): never a
+ *     box-shadow on the host, never extra text, never focusable or tappable;
+ *   - colours are theme tokens (--gilt); hooks are vector masks, so they
+ *     follow the theme; no raster; nothing repeats around all four edges;
+ *   - one entrance per mount (the stitch-draw contract), never a loop.
+ */
+
+.lyo-frame[data-frame-level] {
+  --cframe-hook: 16px;
+  /* 回纹 key-fret: the L runs along the inner rule, then turns inward. 16 units = 16 px. */
+  --cframe-hook-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 .5H.5V16M4 13V4h9v5H8V7' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+  --cframe-hook-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 .5h15.5V16M12 13V4H3v5h5V7' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+  --cframe-hook-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 15.5H.5V0M4 3v9h9V7H8v2' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+  --cframe-hook-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 15.5h15.5V0M12 3v9H3V7h5v2' fill='none' stroke='%23000'/%3E%3C/svg%3E");
+}
+
+/* The inner rule: one solid gilt line per edge, meeting the hooks exactly. */
+.lyo-frame[data-frame-level] .lyo-edge {
+  opacity: 1;
+  border-color: rgb(var(--gilt));
+}
+
+.lyo-frame[data-frame-level] .lyo-edge::after {
+  display: none;
+}
+
+.lyo-frame[data-frame-level] .lyo-edge-top,
+.lyo-frame[data-frame-level] .lyo-edge-bottom {
+  left: var(--cframe-hook);
+  right: var(--cframe-hook);
+}
+
+.lyo-frame[data-frame-level] .lyo-edge-left,
+.lyo-frame[data-frame-level] .lyo-edge-right {
+  top: var(--cframe-hook);
+  bottom: var(--cframe-hook);
+}
+
+.lyo-frame[data-frame-level] .lyo-edge-top {
+  top: 0;
+}
+
+.lyo-frame[data-frame-level] .lyo-edge-bottom {
+  bottom: 0;
+}
+
+.lyo-frame[data-frame-level] .lyo-edge-left {
+  left: 0;
+}
+
+.lyo-frame[data-frame-level] .lyo-edge-right {
+  right: 0;
+}
+
+/* The four corner hooks, one masked layer, painted in the theme's gilt. */
+.lyo-frame[data-frame-level]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgb(var(--gilt));
+  -webkit-mask:
+    var(--cframe-hook-tl) top left / var(--cframe-hook) var(--cframe-hook) no-repeat,
+    var(--cframe-hook-tr) top right / var(--cframe-hook) var(--cframe-hook) no-repeat,
+    var(--cframe-hook-bl) bottom left / var(--cframe-hook) var(--cframe-hook) no-repeat,
+    var(--cframe-hook-br) bottom right / var(--cframe-hook) var(--cframe-hook) no-repeat;
+  mask:
+    var(--cframe-hook-tl) top left / var(--cframe-hook) var(--cframe-hook) no-repeat,
+    var(--cframe-hook-tr) top right / var(--cframe-hook) var(--cframe-hook) no-repeat,
+    var(--cframe-hook-bl) bottom left / var(--cframe-hook) var(--cframe-hook) no-repeat,
+    var(--cframe-hook-br) bottom right / var(--cframe-hook) var(--cframe-hook) no-repeat;
+}
+
+/* ---- Level 3 — Ceremony: ruyi-cloud corners on the same double rule ---- */
+
+.lyo-frame[data-frame-level="ceremony"] {
+  --cframe-hook: 24px;
+  --cframe-hook-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M24 .5H.5V24M5.5 16.5c0-6 4.9-11 11-11M5.5 16.5a2.8 2.8 0 1 1 2.8-2.8M16.5 5.5a2.8 2.8 0 1 0-2.8 2.8' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  --cframe-hook-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M0 .5h23.5V24M18.5 16.5c0-6-4.9-11-11-11M18.5 16.5a2.8 2.8 0 1 0-2.8-2.8M7.5 5.5a2.8 2.8 0 1 1 2.8 2.8' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  --cframe-hook-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M24 23.5H.5V0M5.5 7.5c0 6 4.9 11 11 11M5.5 7.5a2.8 2.8 0 1 0 2.8 2.8M16.5 18.5a2.8 2.8 0 1 1-2.8-2.8' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  --cframe-hook-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M0 23.5h23.5V0M18.5 7.5c0 6-4.9 11-11 11M18.5 7.5a2.8 2.8 0 1 1-2.8 2.8M7.5 18.5a2.8 2.8 0 1 0 2.8-2.8' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* ---- One entrance: the hooks settle with the stitch draw, then stay ---- */
+
+.lyo-frame[data-frame-level][data-animate="once"]::after {
+  animation: cframe-settle calc(var(--motion-emphasis) * 1.5) var(--ease-enter) backwards;
+}
+
+@keyframes cframe-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lyo-frame[data-frame-level]::after {
+    animation: none !important;
+  }
+}
+
+/* ---- Surface insets: the rule sits inside each host's curve ----
+ * (radius - inset) x sqrt(2) < radius keeps each hook's corner inside the
+ * rounded border, so overflow clipping never cuts it; each host's padding
+ * keeps the hooks (16 px Heritage, 24 px Ceremony) clear of text and controls.
+ */
+
+/* Review header (rounded-2xl, 16 px; px-6): hooks end 22 px in. */
+.lyo-frame[data-frame-level][data-ornament-surface="review-header"] {
+  inset: 6px;
+}
+
+/* Review summary (rounded-3xl, 24 px; 24 px block padding): hooks end 24 px in. */
+.lyo-frame[data-frame-level][data-ornament-surface="review-summary"] {
+  inset: 8px;
+}
+
+/* Victory card (rounded-3xl above; the action dock below it is square). */
+.lyo-frame[data-frame-level][data-ornament-surface="victory"] {
+  inset: 10px 10px 6px;
+}
+
+/* Chest reward hero: a full-screen sheet on phones (inside the safe areas),
+ * a rounded-4xl (28 px) card from sm. */
+.lyo-frame[data-frame-level][data-ornament-surface="reward-hero"] {
+  inset: calc(var(--app-safe-top) + 8px) 8px calc(var(--app-safe-bottom) + 8px);
+}
+
+@media (min-width: 640px) {
+  .lyo-frame[data-frame-level][data-ornament-surface="reward-hero"] {
+    inset: 10px;
+  }
+}
+
+/* Journey current module header (p-3 = 12 px + 1 px border): 12 px hooks
+ * keep the key-fret clear of the done/total counter and the module title. */
+.lyo-frame[data-frame-level][data-ornament-surface="journey-milestone"] {
+  --cframe-hook: 12px;
+}
+
+/* QA frame lab samples (rounded-2xl / rounded-3xl cards): the rule sits inside the curve. */
+.lyo-frame[data-frame-level][data-ornament-surface="qa-gallery"] {
+  inset: 8px;
+}
+
+/* end Chinese frame system */

@@ -1827,6 +1827,8 @@ export const en: MessageCatalog = {
     queueCleared: "Pending event queue cleared on this device.",
     requestExport: "Request a copy of my data",
     exportDownloaded: "Your data export was downloaded on this device.",
+    exportCopied: "Your data (JSON) was copied to the clipboard. Paste it into an email or note to keep it.",
+    exportWebOnly: "Saving a file is not available in the app. Use Longyu on the web to download the file.",
     requestDeletion: "Request account deletion",
     deletionPrompt:
       "This cannot be undone. Type {phrase} to delete your cloud account. Local data on this device is not erased automatically.",

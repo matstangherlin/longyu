@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ComponentType, type SVGProps } from "react";
 import { JourneyHandoffBanner } from "../../components/journey/JourneyHandoffBanner";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import { CULTURE_ROUTES, CULTURE_SEALS, cultureText } from "../../data/cultureQu
 import { getCultureMission } from "../../data/cultureMissions";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { ButtonLink, Card } from "../../components/ui/primitives";
+import { IconBrush, IconMoon, IconPagoda, IconSeal, IconTrain } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import type { MessageKey } from "../../locales/pt-BR";
@@ -47,13 +48,23 @@ const CATEGORY_FILTERS: Array<{ id: "all" | CultureCategory; key: MessageKey }> 
   { id: "communication_relations", key: "culture.categoryCommunication" },
 ];
 
-const COLLECTION_ICON: Record<CultureCollectionId, string> = {
-  festivals_calendar: "🌕",
-  china_history: "🏛",
-  legends_literature: "📖",
-  symbols_traditions: "☯",
-  life_in_china: "🏙",
+/** RC2.3.13R.3.2.6 — one Longyu icon family on the collection cards (no emoji). */
+const COLLECTION_ICON: Record<CultureCollectionId, ComponentType<SVGProps<SVGSVGElement>>> = {
+  festivals_calendar: IconMoon,
+  china_history: IconPagoda,
+  legends_literature: IconBrush,
+  symbols_traditions: IconSeal,
+  life_in_china: IconTrain,
 };
+
+function CollectionIcon({ id }: { id: CultureCollectionId }) {
+  const Icon = COLLECTION_ICON[id];
+  return (
+    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-frame-line/25 bg-surface-2 text-accent" aria-hidden>
+      <Icon className="h-5 w-5" />
+    </span>
+  );
+}
 
 export function CultureAtlasPage() {
   const { t, instructionLocale } = useTranslation();
@@ -130,7 +141,7 @@ export function CultureAtlasPage() {
       <Card className="p-3" data-testid="culture-progress" data-passport="true">
         {/* RC2.2.13 — passaporte compacto: o conteúdo de Cultura sobe para a primeira dobra no celular. */}
         <p className="font-serif text-base font-semibold text-ink sm:text-lg">
-          <span className="mr-1.5 align-middle font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
+          <span className="type-eyebrow mr-1.5 align-middle font-sans">
             {t("culture.passportEyebrow")}
           </span>
           {t("culture.passportTitle")}
@@ -147,7 +158,7 @@ export function CultureAtlasPage() {
         {nextMission ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <p className="min-w-0 flex-1 text-sm text-ink" data-testid="culture-next-title">
-              <span className="text-[10px] uppercase tracking-[0.12em] text-ink-faint">{t("culture.nextMissionLabel")} · </span>
+              <span className="type-eyebrow-muted">{t("culture.nextMissionLabel")} · </span>
               {nextTitle}
             </p>
             <ButtonLink to={`/cultura/${nextMission.cultureItemId}`} className="min-h-11 shrink-0" data-testid="culture-next-cta" data-coachmark-target="culture-recommended">
@@ -206,9 +217,7 @@ export function CultureAtlasPage() {
                 data-collection-empty={preparing ? "true" : "false"}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-xl" aria-hidden>
-                    {COLLECTION_ICON[row.id]}
-                  </span>
+                  <CollectionIcon id={row.id} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-serif text-base font-semibold text-ink">{t(meta.titleKey as MessageKey)}</p>

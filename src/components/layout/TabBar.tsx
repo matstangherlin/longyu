@@ -130,7 +130,7 @@ export function TabBar() {
                 <span className={iconWrap} data-nav-active={active || open ? "true" : "false"}>
                   <item.icon width={20} height={20} aria-hidden="true" />
                   {badge > 0 && !active && !open && (
-                    <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-accent px-0.5 text-[8px] font-bold leading-none text-white">
+                    <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-accent px-0.5 text-[10px] font-bold leading-none text-white">
                       {badge > 9 ? "9+" : badge}
                     </span>
                   )}

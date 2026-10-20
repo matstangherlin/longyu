@@ -101,6 +101,11 @@ test.describe("RC2.2.18 · matriz visual", () => {
     });
     await page.goto("/cultura");
     await waitForLazyPage(page);
+    // RC2.3.13R.3.2.6 — one guide per visit: the first visit belongs to the
+    // page's own first-visit guide; the coachmark comes on the next visit.
+    await expect(page.getByTestId("culture-first-guide")).toBeVisible();
+    await page.reload();
+    await waitForLazyPage(page);
     await expect(page.locator('[data-guidance-id="culture_first_use_v1"]')).toBeVisible({ timeout: 8_000 });
     await shot(page, "07-culture-first-use", { width: 390, height: 844 });
   });

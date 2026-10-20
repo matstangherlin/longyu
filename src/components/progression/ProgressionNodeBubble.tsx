@@ -1,5 +1,6 @@
 import { useRef, type ReactNode } from "react";
 import { useAmbientMotion } from "../../lib/motion/ambientBudget";
+import { useCompletionMoment } from "../../lib/motion/completionMoment";
 import { IconCheck, IconLock, IconPlay } from "../ui/Icon";
 import { ProgressionNodeLabel } from "./ProgressionNodeLabel";
 import { ProgressionReviewMedallion } from "./ProgressionReviewMedallion";
@@ -85,6 +86,27 @@ function CurrentNodeHalo() {
 }
 
 /**
+ * RC2.3.13R.3.2.6 — the completion moment's tiny ornamental sparkle (a
+ * four-point star and two seed dots). Rendered only for the one mount that
+ * plays the moment; its animation ends at opacity 0. Decorative.
+ */
+function CompletionSparkle() {
+  return (
+    <svg
+      className="progression-complete-spark pointer-events-none absolute -right-1 -top-1 h-4 w-4 text-gold"
+      viewBox="0 0 16 16"
+      aria-hidden
+      focusable="false"
+      data-testid="progression-complete-spark"
+    >
+      <path d="M8 1.5 9.2 6.8 14.5 8 9.2 9.2 8 14.5 6.8 9.2 1.5 8 6.8 6.8Z" fill="currentColor" />
+      <circle cx="13.5" cy="2.5" r="0.9" fill="currentColor" />
+      <circle cx="2.5" cy="13.5" r="0.7" fill="currentColor" />
+    </svg>
+  );
+}
+
+/**
  * Canonical path bubble — Journey and Culture share this component.
  * State clarity uses shape/icon + size + border, never color alone.
  */
@@ -129,6 +151,8 @@ export function ProgressionNodeBubble({
   const isDone = state === "COMPLETED";
   const isLocked = state === "LOCKED";
   const isAvailable = state === "AVAILABLE";
+  // RC2.3.13R.3.2.6 — one-shot, once per session, only for a completion this session saw happen.
+  const completionMoment = useCompletionMoment(id, state);
   const nodeSize = isCurrent ? "h-[64px] w-[64px]" : isDone ? "h-[48px] w-[48px]" : "h-[54px] w-[54px]";
   // Never stacked on a multi-segment pass ring: one frame per bubble.
   const reviewFrame = frame === "review" && !(passRing && passRing.total > 1);
@@ -156,9 +180,11 @@ export function ProgressionNodeBubble({
       {passRing && passRing.total > 1 ? (
         <PassRing ring={passRing} accent={accent} locked={isLocked} />
       ) : null}
+      {completionMoment === "play" ? <CompletionSparkle /> : null}
       <span
         className={[
           "relative flex items-center justify-center rounded-full border-2 transition active:scale-95",
+          "progression-node-core",
           nodeSize,
           "min-h-11 min-w-11",
           isCurrent && "border-accent bg-accent-soft text-accent shadow-current",
@@ -220,6 +246,7 @@ export function ProgressionNodeBubble({
     <div
       className={wrapperClass}
       data-progression-offset={offset}
+      data-completion-moment={completionMoment ?? undefined}
       style={offset ? { transform: `translateX(${offset}px)` } : undefined}
     >
       {isCurrent && passRing && passRing.total > 1 ? (

@@ -206,18 +206,24 @@
     "qa": "/qa/device › Premium UX closure (local previews only)"
   },
   "hosted": {
-    "overall": "PENDING",
-    "headSha": null,
-    "releaseTruth": "PENDING",
-    "security": "PENDING",
-    "betaSuites": "PENDING",
-    "qualityBuild": "PENDING",
-    "androidFoundation": "PENDING",
-    "androidRuntime": "PENDING",
-    "chromium": "PENDING",
-    "firefox": "PENDING",
-    "webkit": "PENDING",
-    "workflowRunIds": {}
+    "overall": "PASS",
+    "headSha": "0fc13534762b6554a02db3b0c75d7c8661da7ab7",
+    "releaseTruth": "PASS",
+    "security": "PASS",
+    "betaSuites": "PASS",
+    "qualityBuild": "PASS",
+    "androidFoundation": "PASS",
+    "androidRuntime": "PASS",
+    "chromium": "PASS",
+    "firefox": "PASS",
+    "webkit": "PASS",
+    "workflowRunIds": {
+      "ci": 38896588428,
+      "security": 38896588430,
+      "android": 38896588453
+    },
+    "mergedAs": "98967c393de3bcf6b13611bac5ca01015fbfbee3",
+    "note": "Exact-head hosted green on #356 (0fc1353): CI, security and Android workflows all success; merged with a merge commit. No disposable #356 APK was built (R.3.2.6 builds the one Device-QA APK)."
   },
   "artifact": {
     "status": "NOT_BUILT",

@@ -209,7 +209,8 @@ function cases(base) {
     ["corner focusable", "ORNAMENT_FOCUSABLE", S, () => m(base, "corner", '      aria-hidden="true"\n', '      aria-hidden="true"\n      tabIndex={0}\n')],
     ["divider exposed as image", "ORNAMENT_FOCUSABLE", S, () => m(base, "divider", '      aria-hidden="true"\n', '      aria-hidden="true"\n      role="img"\n')],
     ["raw markup rendered", "ORNAMENT_UNPREPARED_MARKUP", S, () => m(base, "ornament", "dangerouslySetInnerHTML={{ __html: markup }}", "dangerouslySetInnerHTML={{ __html: raw }}")],
-    ["frame wraps content", "ORNAMENT_WRAPS_CONTENT", S, () => m(base, "frame", "  surface,\n}: {", "  surface,\n  children,\n}: {\n  children?: React.ReactNode;")],
+    // RC2.3.13R.3.2.6 — anchor moved: the frame's last prop is now `level` (frame levels).
+    ["frame wraps content", "ORNAMENT_WRAPS_CONTENT", S, () => m(base, "frame", '  level = "embroidered",\n}: {', '  level = "embroidered",\n  children,\n}: {\n  children?: React.ReactNode;')],
     ["ornaments fetched at runtime", "ORNAMENT_NOT_BUNDLED", S, () => m(base, "ornament", "  eager: true,", "  eager: false,")],
     ["network ornament", "ORNAMENT_EXTERNAL_REF", S, () => m(base, "ornament", "  const markup = ornamentMarkupFor(id);", '  void fetch("https://cdn.x/o.svg");\n  const markup = ornamentMarkupFor(id);')],
     ["frame changes layout size", "ORNAMENT_FRAME_CHANGES_LAYOUT", S, () => m(base, "css", ".lyo-frame {\n  position: absolute;", ".lyo-frame {\n  position: relative;")],
@@ -302,7 +303,7 @@ function cases(base) {
     ["reduced-motion changes ignored", "REDUCED_MOTION_IGNORED", B, () => m(base, "ambientBudget", "  subscribeReducedMotion(schedule);\n", "")],
     ["halo not registered", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "bubble", '  useAmbientMotion(ref, "currentNode");\n', "")],
     ["scene drift not registered", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "journeyScene", '  useAmbientMotion(driftRef, "scene", markup !== null);\n', "")],
-    ["lane ornament drift not registered", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "symbolicOrnaments", '  useAmbientMotion(ref, "ornament");\n', "")],
+    ["lane ornament drift not registered", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "symbolicOrnaments", '  useAmbientMotion(ref, "ornament", profile !== "still");\n', "")],
     ["mascot blink outside the budget", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "mascot", '  useAmbientMotion(blinkRef, "mascot", showBlink);\n', "")],
     ["chest glow outside the budget", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "chest", "        ref={glowRef}\n", "")],
     ["typing caret blinks offscreen", "AMBIENT_LOOP_UNREGISTERED", B, () => m(base, "guide", "              <TypingCaret />", '              <span className="ml-0.5 inline-block h-4 w-[2px] animate-pulse bg-accent align-middle" />')],

@@ -2,6 +2,7 @@
  * GuideDialogue state machine — presentation only (not curriculum).
  *
  * TYPING + Continue → COMPLETE (same message)
+ * IDLE (waiting to be seen, RC2.3.13R.3.2.6) + Continue → COMPLETE (same message)
  * COMPLETE + Continue → next message or DONE
  * One physical click never both completes and advances.
  */
@@ -110,7 +111,8 @@ export function reduceGuideDialogue(
   }
 
   if (event.type === "CONTINUE") {
-    if (state.phase === "typing") {
+    // RC2.3.13R.3.2.6 — "idle" = waiting to be seen: Continue shows the line now.
+    if (state.phase === "typing" || state.phase === "idle") {
       return {
         ...state,
         phase: "complete",
