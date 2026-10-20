@@ -19,8 +19,8 @@
     "scripts/test-rc2-3-9-stack-convergence.mjs"
   ],
   "counts": {
-    "total": 45,
-    "LEGIT": 45,
+    "total": 46,
+    "LEGIT": 46,
     "HIDDEN_SKIP": 0
   },
   "entries": [
@@ -383,6 +383,14 @@
       "snippet": "[\"goldens viram aceite automático\", \"GOLDENS_AUTO_ACCEPT\", src(\"goldens\", \"test.skip(!process.env.RC2225_GOLDENS\", \"test.skip(false\")],",
       "classification": "LEGIT",
       "reason": "Mutation-test data: rewrites the goldens skip to test.skip(false and expects GOLDENS_AUTO_ACCEPT to fire."
+    },
+    {
+      "file": "scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs",
+      "line": 388,
+      "pattern": "test.skip",
+      "snippet": "[\"e2e hides an engine\", \"E2E_HIDES_ENGINE\", REL, () => m(base, \"e2e\", \"test(\", \"test.fixme(\")],",
+      "classification": "LEGIT",
+      "reason": "Mutation-test data: rewrites a test( in an in-memory copy of the R.3.2.6 e2e spec to test.fixme( and expects E2E_HIDES_ENGINE to fire. The spec on disk is never changed."
     }
   ],
   "nonPatternFindings": [

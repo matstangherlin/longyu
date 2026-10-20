@@ -1,0 +1,312 @@
+{
+  "schema": "longyu-rc2-3-13r3-2-6-certification/1",
+  "wave": "RC2.3.13R.3.2.6",
+  "title": "Chinese Living Canvas, Animated Scenic SVGs & Ornamental Frame System",
+  "header": "OWNER-REQUESTED PRESENTATION WAVE. NO NAVIGATION REDESIGN. NO CURRICULUM EXPANSION. NO PEDAGOGY, MASTERY, SRS, XP, FÔLEGO, UNLOCK, ECONOMY, GRANT-TIMING, SCHEMA, BILLING OR JEV CHANGE.",
+  "phase": "HOSTED_PENDING",
+  "branch": "claude/journey-svg-storytelling-7amwba",
+  "base": "main",
+  "freezeException": "OWNER_REQUESTED_CHINESE_LIVING_CANVAS",
+  "scope": {
+    "navigationRedesign": false,
+    "curriculumExpansion": false,
+    "pedagogyChange": false,
+    "masteryChange": false,
+    "economyChange": false,
+    "srsChange": false,
+    "unlockRuleChange": false,
+    "schemaChange": false,
+    "jevRuntimeChange": false,
+    "billingChange": false
+  },
+  "parent": {
+    "pr": 356,
+    "wave": "RC2.3.13R.3.2.5",
+    "headSha": "0fc13534762b6554a02db3b0c75d7c8661da7ab7",
+    "mergeSha": "98967c393de3bcf6b13611bac5ca01015fbfbee3",
+    "hosted": "PASS",
+    "workflowRunIds": {
+      "ci": 38896588428,
+      "security": 38896588430,
+      "android": 38896588453
+    },
+    "note": "#356 re-queried before branching: exact head 0fc1353 green on CI, security and Android; merged to main with a merge commit (98967c39). No disposable #356 APK."
+  },
+  "runtime": {
+    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
+    "previousLearnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+    "learnerRuntimeMoved": true,
+    "rationale": "Learner-visible presentation changed: scene part motion, Culture hero scenes and ornament motion, frame levels on Journey/Culture/Review/Victory/chest, guidance arbitration and visible-start typewriter, typography/icon normalization, honest Android export copy, Danger Zone for cloud accounts only."
+  },
+  "fingerprint": {
+    "value": "29bb02ec0336",
+    "source": "generator",
+    "changed": false,
+    "note": "journeyFingerprint(): no curriculum source changed."
+  },
+  "uxDebt": {
+    "typographyIconAudit": "CLOSED",
+    "guidanceCollision": "CLOSED",
+    "offscreenTypewriter": "CLOSED",
+    "androidExportHonesty": "CLOSED",
+    "guestDangerZone": "CLOSED"
+  },
+  "guidanceClosure": {
+    "state": "CODE_PASS",
+    "primarySurfaces": 1,
+    "coachmarkAndCultureGuideTogether": false,
+    "offscreenTypewriter": false,
+    "typewriterStartsOnce": true
+  },
+  "typographyAudit": {
+    "state": "CODE_PASS",
+    "minArbitraryTextPx": 10,
+    "hanziLearningMinPx": 14,
+    "pinyinBelowHanzi": true,
+    "fonts": [
+      "Inter",
+      "Noto Serif SC",
+      "system fallbacks"
+    ],
+    "fixed": [
+      "8–9 px labels raised to 10 px (TabBar badge, Ligas, Pinyin Lab, Journey Pro pill, conversation/piece badges)",
+      "lesson help-chip Hanzi 16 → 18 px",
+      "immersion cast Hanzi 12 → 14 px",
+      "Culture card/atlas eyebrows onto type-eyebrow roles"
+    ]
+  },
+  "iconAudit": {
+    "state": "CODE_PASS",
+    "family": "Longyu line (24 box, 1.8 stroke)",
+    "chineseIcons": [
+      "IconMoon",
+      "IconPagoda",
+      "IconBrush",
+      "IconSeal",
+      "IconTrain"
+    ],
+    "emojiInCanonicalNav": 0,
+    "replaced": [
+      "More hub upcoming lock",
+      "Culture card gate dragon",
+      "Culture collection icons"
+    ],
+    "kept": "collectible seals/medals, pedagogical illustrations (tone hand, quest scenes)"
+  },
+  "scenicMotion": {
+    "state": "CODE_PASS",
+    "scenes": 16,
+    "profiles": 11,
+    "parts": 17,
+    "maxOwners": 4,
+    "kindCap": {
+      "scene": 2,
+      "ornament": 2
+    },
+    "partsPerOwner": 4,
+    "maxLoops": 16,
+    "unbudgetedLoops": 0,
+    "offscreenLoops": 0,
+    "hiddenTabLoops": 0,
+    "reducedMotionLoops": 0,
+    "wholeSceneFloat": false,
+    "entranceMs": "≈312 (280–420 band)",
+    "measured": {
+      "maxOwners": 4,
+      "maxScenes": 2,
+      "maxLoops": 9,
+      "offscreen": 0,
+      "unbudgeted": [],
+      "parts": [
+        "scene-light-breathe",
+        "scene-float-breathe",
+        "scene-cloud-drift",
+        "scene-leaf-sway",
+        "scene-lantern-sway"
+      ]
+    }
+  },
+  "frames": {
+    "state": "CODE_PASS",
+    "levels": [
+      "whisper",
+      "heritage",
+      "ceremony"
+    ],
+    "heritage": [
+      "journey-milestone",
+      "culture-topic-hero",
+      "review-header",
+      "review-summary"
+    ],
+    "ceremony": [
+      "victory",
+      "reward-hero"
+    ],
+    "loops": 0,
+    "pointerEvents": "none"
+  },
+  "progression": {
+    "state": "CODE_PASS",
+    "connectorStates": [
+      "complete",
+      "lead",
+      "open",
+      "locked"
+    ],
+    "axisFill": "to the current node (transform only)",
+    "completionMoment": {
+      "maxMs": 1100,
+      "oneShot": "claimSessionOnce per node, only for a completion this session saw",
+      "waitsForCeremonies": true,
+      "settleMs": 600,
+      "reducedMotion": "final state"
+    },
+    "currentNodeOnlyContinuous": true,
+    "measured": {
+      "count": 3,
+      "infinite": 0,
+      "maxEndMs": 868.0000000000001,
+      "modalOpen": false
+    }
+  },
+  "visualDensity": {
+    "state": "CODE_PASS",
+    "structuralFramesPerScreen": 1,
+    "heroScenesPerTopic": 1,
+    "ceremonySceneMascot": false
+  },
+  "performance": {
+    "thirtyMinute": {
+      "minutes": 30.2,
+      "cycles": 69,
+      "heapGrowthMb": -0.2,
+      "pageErrors": 0,
+      "maxOffscreenLoops": 0,
+      "kind": "EMULATED",
+      "maxOwners": 4,
+      "maxLoops": 9,
+      "unbudgetedRunning": 0,
+      "source": "docs/release/evidence/rc2-3-13r3-2-4/living-ui-30min-session.json"
+    },
+    "newDependencies": 0,
+    "motionLibrary": "none (CSS + existing hooks)",
+    "bundleVsMain": {
+      "jsRawDelta": 23281,
+      "jsGzipDelta": 7176,
+      "cssRawDelta": 15760,
+      "cssGzipDelta": 2686,
+      "base": "98967c39"
+    }
+  },
+  "reducedMotion": {
+    "state": "CODE_PASS",
+    "loops": 0,
+    "artStays": true,
+    "measured": {
+      "maxOwners": 0,
+      "maxScenes": 0,
+      "maxLoops": 0,
+      "offscreen": 0,
+      "unbudgeted": [],
+      "parts": []
+    }
+  },
+  "accessibility": {
+    "state": "CODE_PASS",
+    "decorationAriaHidden": true,
+    "framesFocusable": false,
+    "talkBack": "NOT_RUN"
+  },
+  "themes": {
+    "state": "CODE_PASS",
+    "clay": "gilt/frame-line/line-strong",
+    "china": "gilt/frame-line/line-strong",
+    "dark": "gilt/frame-line/line-strong"
+  },
+  "crossEngine": {
+    "failures": [],
+    "newSkips": 0,
+    "localEngines": "CHROMIUM_ONLY (WebKit/Firefox run in CI)",
+    "chromium": "PASS_LOCAL",
+    "firefox": "PENDING_HOSTED",
+    "webkit": "PENDING_HOSTED"
+  },
+  "evidence": {
+    "e2e": "e2e/rc2-3-13r3-2-6-living-canvas.spec.ts",
+    "livingCanvas": "docs/release/evidence/rc2-3-13r3-2-6/living-canvas-evidence.json",
+    "screenshots": "docs/screenshots/rc2-3-13r3-2-6/",
+    "qa": "/qa/device › Living Canvas Lab, Border Lab"
+  },
+  "hosted": {
+    "overall": "PENDING",
+    "headSha": null,
+    "releaseTruth": "PENDING",
+    "security": "PENDING",
+    "betaSuites": "PENDING",
+    "qualityBuild": "PENDING",
+    "androidFoundation": "PENDING",
+    "androidRuntime": "PENDING",
+    "chromium": "PENDING",
+    "firefox": "PENDING",
+    "webkit": "PENDING",
+    "workflowRunIds": {}
+  },
+  "android": {
+    "foundation": "PENDING_HOSTED",
+    "runtime": "PENDING_HOSTED"
+  },
+  "artifact": {
+    "status": "NOT_BUILT",
+    "channel": "DEVICE_QA",
+    "apkSha256": null,
+    "hashSource": null,
+    "artifactSourceSha": null,
+    "learnerRuntimeSha": null,
+    "fingerprint": null,
+    "workflowRunId": null,
+    "artifactId": null,
+    "packageId": "longyu.noba.com",
+    "note": "ONE Device-QA APK after exact-head hosted green, with SHA256 and provenance."
+  },
+  "priorDeviceQa": "STALE_FOR_CURRENT_RUNTIME",
+  "rejectedApkSha256List": [
+    "fc72f9e3d33311401dfdf74bd7169185768cbdef3b92ddad0713cbd89e4251af",
+    "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8"
+  ],
+  "physical": {
+    "status": "NOT_RUN",
+    "device": null,
+    "emulator": null,
+    "artifactSha256": null,
+    "LIVING_SCENES_PHYSICAL": "NOT_RUN",
+    "FRAMES_PHYSICAL": "NOT_RUN",
+    "GUIDANCE_PHYSICAL": "NOT_RUN",
+    "THIRTY_MINUTE_PHYSICAL": "NOT_RUN",
+    "TALKBACK": "NOT_RUN"
+  },
+  "uiFreeze": {
+    "LONGYU_UI_UX_FREEZE": "PENDING_OWNER_ACCEPTANCE",
+    "FINAL_UI_OWNER_ACCEPTANCE": "NOT_RUN",
+    "boundApkSha256": null,
+    "acceptedValue": "OWNER_ACCEPTED_R326",
+    "rule": "set only after the owner accepts the ONE R.3.2.6 APK on a physical device"
+  },
+  "entry": {
+    "OWNER_QA_ENTRY": "HOLD",
+    "PLAY_CLOSED_BETA_ENTRY": "HOLD",
+    "PUBLIC_BETA_ENTRY": "HOLD"
+  },
+  "play": {
+    "signedAab": "NOT_BUILT",
+    "debugAabPlayReady": false,
+    "signingSource": null
+  },
+  "next": [
+    "exact-head hosted green (Chromium, Firefox, WebKit, Android)",
+    "ONE Device-QA APK + SHA256 + owner handoff",
+    "owner physical: living scenes, frames, guidance, 30-minute session, TalkBack",
+    "LONGYU_UI_UX_FREEZE = OWNER_ACCEPTED_R326 only after acceptance"
+  ],
+  "prNote": "New PR from the same branch against main (which now carries #356)."
+}

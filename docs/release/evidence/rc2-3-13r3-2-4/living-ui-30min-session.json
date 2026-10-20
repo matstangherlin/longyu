@@ -1,7 +1,7 @@
 {
   "schema": "longyu-living-ui-session/1",
   "wave": "RC2.3.13R.3.2.4",
-  "runtimeDigest": "d79c897b83f25c0e",
+  "runtimeDigest": "1007c0d1aace0693",
   "engine": "",
   "kind": "EMULATED_DESKTOP_ENGINE",
   "physical": false,
@@ -12,10 +12,10 @@
     "/cultura/topico/vida_cotidiana",
     "/revisao"
   ],
-  "durationMinutes": 30,
-  "cycles": 66,
-  "maxRunningAmbient": 3,
-  "maxRunningLoops": 8,
+  "durationMinutes": 30.2,
+  "cycles": 69,
+  "maxRunningAmbient": 4,
+  "maxRunningLoops": 9,
   "unbudgetedRunning": 0,
   "maxOffscreenLoops": 0,
   "heapStartMb": 23.9,

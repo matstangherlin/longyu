@@ -13,7 +13,7 @@
     "noFurtherVisualWaves": true
   },
   "runtime": {
-    "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
     "learnerRuntimeMoved": true,
     "rationale": "Advanced in R.3.2.2.1 for Journey/Culture runtime harden (null SRS filter, instructionLocale culture gate, persist merge). Fingerprint remains 29bb02ec0336. Advanced again by RC2.3.13R.3.2.3 (Journey SVG scenes, d1663614) and RC2.3.13R.3.2.4 (Living UI, 2618683e); this R.3.2.2 certification never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
     "fingerprint": "29bb02ec0336"
@@ -69,7 +69,7 @@
     "prHeadSha": null,
     "workflowMergeSha": null,
     "certificationHeadSha": null,
-    "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
     "workflowRunId": null,
     "artifactId": null,
     "filename": null,
