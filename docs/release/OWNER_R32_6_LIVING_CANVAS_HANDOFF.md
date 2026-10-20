@@ -20,7 +20,7 @@ These APKs predate the current runtime (stale for R.3.2.3 through R.3.2.6):
 
 ## What to judge on the phone
 
-Open `/qa/device` › **Living Canvas Lab** and **Border Lab** for side-by-side
+Open `/qa/device` › **Chinese Living Canvas Lab** and **Chinese Frame Lab** for side-by-side
 previews (local only, change nothing).
 
 1. Journey: the side scenes are alive but calm. Lanterns sway a little, steam

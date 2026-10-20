@@ -101,6 +101,26 @@
       "maxEndMs": 868.0000000000001,
       "modalOpen": false
     },
+    "axisGrow": {
+      "grew": 1,
+      "grewUnderModal": 0,
+      "log": [
+        {
+          "t": 24844,
+          "modal": "open"
+        },
+        {
+          "t": 26681,
+          "modal": "closed"
+        },
+        {
+          "t": 27377,
+          "from": "transform: scaleY(0.797771);",
+          "to": "transform: scaleY(0.867369);",
+          "modal": null
+        }
+      ]
+    },
     "axisFill": {
       "fill": "partial",
       "doneBottom": 1882,

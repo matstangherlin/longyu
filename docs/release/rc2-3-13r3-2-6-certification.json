@@ -33,7 +33,7 @@
     "note": "#356 re-queried before branching: exact head 0fc1353 green on CI, security and Android; merged to main with a merge commit (98967c39). No disposable #356 APK."
   },
   "runtime": {
-    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
+    "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
     "previousLearnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-visible presentation changed: scene part motion, Culture hero scenes and ornament motion, frame levels on Journey/Culture/Review/Victory/chest, guidance arbitration and visible-start typewriter, typography/icon normalization, honest Android export copy, Danger Zone for cloud accounts only."
@@ -236,7 +236,7 @@
     "e2e": "e2e/rc2-3-13r3-2-6-living-canvas.spec.ts",
     "livingCanvas": "docs/release/evidence/rc2-3-13r3-2-6/living-canvas-evidence.json",
     "screenshots": "docs/screenshots/rc2-3-13r3-2-6/",
-    "qa": "/qa/device › Living Canvas Lab, Border Lab"
+    "qa": "/qa/device › Chinese Living Canvas Lab, Chinese Frame Lab"
   },
   "hosted": {
     "overall": "PENDING",

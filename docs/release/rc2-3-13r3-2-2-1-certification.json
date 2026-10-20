@@ -8,7 +8,7 @@
   "candidateHeadSha": "9954da06234651e54cf08a9d41e194c81608993b",
   "pr": 353,
   "runtime": {
-    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
+    "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
     "learnerRuntimeMoved": true,
     "rationale": "REAL_RUNTIME harden for Chromium green: null SRS Journey crash, culture gate instructionLocale, persist merge, early nav density. E2E contracts updated for topic-hub Culture IA (STALE_TEST). Fingerprint 29bb02ec0336. Advanced again by RC2.3.13R.3.2.3 (Journey SVG scenes, d1663614) and RC2.3.13R.3.2.4 (Living UI, 2618683e); this R.3.2.2.1 certification never minted an APK, so the next candidate carries the R.3.2.4 runtime.",
     "fingerprint": "29bb02ec0336"
@@ -53,7 +53,7 @@
     "prHeadSha": "abbe4a04998a2510a1ce20a23252b259774f1365",
     "workflowMergeSha": null,
     "certificationHeadSha": null,
-    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
+    "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
     "workflowRunId": null,
     "artifactId": null,
     "filename": null,

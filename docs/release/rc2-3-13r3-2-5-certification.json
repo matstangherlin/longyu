@@ -46,7 +46,7 @@
     "mergedToMain": "8846bef0337d00596674fe00d30c6c6a9768e8d6"
   },
   "runtime": {
-    "learnerRuntimeSha": "543264aa68c2dd7d62ad9e90e2e21181b6f6f09a",
+    "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
     "previousLearnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-facing presentation changed: semantic surface tokens and state matrix, resilient loading/empty/error/offline states and sync-truth copy, one chest-opening ritual, guide/auth/mobile ergonomics. Includes the overlay stack-margin fix (5a9a8ab1). Runtime moved again to 3b1bb08c: economyPending.ts registered in BETA_PEDAGOGY_FREEZE.systemModules (failure copy only) and the technical-text regex bounded (CodeQL js/redos); no behaviour change."
