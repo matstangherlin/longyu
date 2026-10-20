@@ -85,6 +85,11 @@
   --shadow-reward: 0 12px 32px rgb(var(--gold) / 0.18);
   --shadow-dock: 0 -4px 20px rgb(0 0 0 / 0.05);
   --shadow-current: 0 0 0 3px rgb(var(--accent) / 0.28);
+  /* RC2.3.13R.3.2.6 — Chinese frame tokens (docs/ux/chinese-frame-system.md):
+     gilt hairline (描金), lacquer outer rule, and a card hairline that reads. */
+  --gilt: 168 122 54;
+  --frame-line: 185 65 46;
+  --line-strong: 224 214 200;
 }
 
 /* O player de lição é uma tela cheia sem TabBar: as barras de ação fixas
@@ -227,6 +232,9 @@ main[data-app-main]:has([data-progression-shell]) {
   --wrong: 198 78 54;
   --wrong-soft: 250 233 228;
   --gold: 138 90 23;
+  --gilt: 172 124 44;
+  --frame-line: 180 35 24;
+  --line-strong: 232 214 208;
 }
 
 [data-theme="dark"] {
@@ -260,6 +268,9 @@ main[data-app-main]:has([data-progression-shell]) {
   --shadow-overlay: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 64px rgb(0 0 0 / 0.55);
   --shadow-reward: 0 12px 32px rgb(var(--gold) / 0.14);
   --shadow-dock: 0 -1px 0 rgb(255 255 255 / 0.04), 0 -8px 24px rgb(0 0 0 / 0.4);
+  --gilt: 205 160 84;
+  --frame-line: 202 72 54;
+  --line-strong: 70 66 61;
 }
 
 * {

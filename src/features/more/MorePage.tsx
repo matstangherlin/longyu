@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { Link } from "react-router-dom";
-import { IconShield, IconSun, IconUser } from "../../components/ui/Icon";
+import { IconLock, IconShield, IconSun, IconUser } from "../../components/ui/Icon";
 import { isAdminEmail } from "../../lib/feedback";
 import { useStore } from "../../lib/store";
 import { dueItems } from "../../lib/srs";
@@ -135,7 +135,8 @@ export function MorePage() {
     desc: t("discovery.previewHint"),
     icon: nav.icon,
     to: nav.to,
-    status: "🔒",
+    // RC2.3.13R.3.2.6 — the Longyu lock icon, not an emoji, in the canonical hub.
+    status: <IconLock className="h-3.5 w-3.5" role="img" aria-label={t("hub.blocked")} data-testid="more-upcoming-lock" />,
     statusTone: "muted",
   }));
   if (upcoming.length > 0) {

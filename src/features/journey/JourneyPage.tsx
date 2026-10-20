@@ -46,6 +46,7 @@ import { cultureBlocksJourney } from "../../lib/cultureJourneyPolicy";
 import { JourneyCultureGate } from "./JourneyCultureGate";
 import { ProgressionShell } from "../../components/progression/ProgressionShell";
 import { ProgressionNodeBubble, progressionOffsetForIndex } from "../../components/progression/ProgressionNodeBubble";
+import { JourneyAxisDone } from "./JourneyAxisDone";
 import { JourneyLaneRow } from "./scenes/JourneyLaneRow";
 import { journeyLaneDecorFor } from "./scenes/journeyScenePlan";
 import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
@@ -980,7 +981,7 @@ function ModuleBlock({
         className={[
           "relative isolate mx-auto max-w-sm rounded-xl border bg-surface px-3 py-2 shadow-card transition lg:max-w-md",
           containsCurrent
-            ? "border-accent/35 shadow-glow"
+            ? "border-frame-line/40"
             : moduleComplete
             ? "border-line/40 bg-surface-2/25"
             : "border-line/50",
@@ -995,7 +996,7 @@ function ModuleBlock({
           plain. Decorative overlay, under the content.
         */}
         {containsCurrent ? (
-          <ChineseOrnamentalFrame motif="huiwen" intensity="milestone" tone="accent" animated={milestoneDraw} surface="journey-milestone" />
+          <ChineseOrnamentalFrame motif="huiwen" intensity="milestone" tone="accent" animated={milestoneDraw} surface="journey-milestone" level="heritage" />
         ) : null}
         {(() => {
           const headerInner = (
@@ -1017,7 +1018,7 @@ function ModuleBlock({
                   <div className="min-w-0 truncate text-[13px] font-semibold leading-tight text-ink">{unitTitle}</div>
                   <div className="flex shrink-0 items-center gap-1.5">
                     {hasPremium && (
-                      <span className="rounded-full bg-gold/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold">
+                      <span className="rounded-full bg-gold/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-gold">
                         Pro
                       </span>
                     )}
@@ -1123,7 +1124,10 @@ function ModuleBlock({
           className="pointer-events-none absolute inset-y-2 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-line/50 to-transparent"
           aria-hidden
           data-progression-axis-line="true"
-        />
+        >
+          {/* RC2.3.13R.3.2.6 — the completed part of the line (to the current node). */}
+          <JourneyAxisDone unitId={unit.id} fill={moduleComplete ? "full" : containsCurrent ? "partial" : "none"} currentLessonId={containsCurrent ? currentId : undefined} />
+        </div>
         {unit.lessons.map((lesson) => {
           const idx = nextIndex();
           const baseState = lessonState(lesson.id, completed, isPremium, lessonMasteryById);

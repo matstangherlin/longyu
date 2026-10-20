@@ -19,10 +19,13 @@ export function ProgressionPath({
   nodes,
   personality,
   testId,
+  ornamentOffset = 0,
 }: {
   nodes: ProgressionPathNode[];
   personality: ProgressionPersonality;
   testId?: string;
+  /** RC2.3.13R.3.2.6 — Culture topic theme: where the side-motif cycle starts. */
+  ornamentOffset?: number;
 }) {
   const navigate = useNavigate();
   const visible = nodes.filter(Boolean);
@@ -37,6 +40,7 @@ export function ProgressionPath({
       <SymbolicOrnamentRail
         nodeCount={visible.length}
         density={personality === "culture" ? "culture" : "journey"}
+        motifOffset={ornamentOffset}
       />
       <div
         className="pointer-events-none absolute inset-y-3 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-line/50 to-transparent"
@@ -47,7 +51,7 @@ export function ProgressionPath({
         {visible.map((node, index) => {
           const coreAula = Boolean(node.statusLabel?.toLowerCase().includes("aula") || node.iconId === "aula");
           return (
-            <div key={node.id} className="relative flex w-full flex-col items-center">
+            <div key={node.id} className="progression-step relative flex w-full flex-col items-center">
               {index > 0 ? (
                 <ProgressionConnector fromState={visible[index - 1].state} toState={node.state} />
               ) : null}

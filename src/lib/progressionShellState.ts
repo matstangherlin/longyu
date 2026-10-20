@@ -18,7 +18,6 @@ const KEYS = {
   cultureAnchor: "longyu.progression.cultureAnchor",
   journeyScroll: "longyu.progression.journeyScroll",
   cultureScroll: "longyu.progression.cultureScroll",
-  cultureFirstGuide: "longyu.progression.cultureFirstGuideSeen",
   openOrigin: "longyu.progression.openOrigin",
   /** Last progression mode before a segmented switch (RC2.3.13R enter direction). */
   lastMode: "longyu.progression.lastMode",
@@ -74,14 +73,9 @@ export function writeProgressionScroll(mode: ProgressionMode, y: number): void {
   s.setItem(key, String(Math.max(0, Math.round(y))));
 }
 
-export function readCultureFirstGuideSeen(): boolean {
-  const s = storage();
-  return s?.getItem(KEYS.cultureFirstGuide) === "1";
-}
-
-export function writeCultureFirstGuideSeen(): void {
-  storage()?.setItem(KEYS.cultureFirstGuide, "1");
-}
+// RC2.3.13R.3.2.6 — the Culture root's first-visit guide no longer lives here:
+// a per-tab flag replayed it on every cold start. It is account-scoped now
+// (cultureGuide.ts CULTURE_ROOT_GUIDE_KEY, read by CultureJourneyPage).
 
 export function writeProgressionOpenOrigin(origin: ProgressionOpenOrigin): void {
   storage()?.setItem(KEYS.openOrigin, origin);

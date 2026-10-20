@@ -1,8 +1,8 @@
 {
   "schema": "longyu-journey-scene-layout/1",
   "wave": "RC2.3.13R.3.2.3",
-  "runtimeDigest": "8cb7432efa01f85a",
-  "engine": "chromium",
+  "runtimeDigest": "c198466b52004960",
+  "engine": "",
   "seedLesson": "l9-tudo-bem",
   "expanded": "all modules",
   "rows": [
@@ -30,7 +30,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 10,
       "sceneLayoutShift": 0
     },
     {
@@ -57,7 +57,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 10,
       "sceneLayoutShift": 0
     },
     {
@@ -84,7 +84,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 10,
       "sceneLayoutShift": 0
     },
     {
@@ -111,7 +111,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 9,
       "sceneLayoutShift": 0
     },
     {
@@ -138,7 +138,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 8,
       "sceneLayoutShift": 0
     },
     {
@@ -165,7 +165,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 9,
       "sceneLayoutShift": 0
     },
     {
@@ -192,7 +192,7 @@
       "focusableScenes": 0,
       "exposedScenes": 0,
       "brokenScenes": 0,
-      "animatingScenes": 40,
+      "animatingScenes": 8,
       "sceneLayoutShift": 0
     },
     {

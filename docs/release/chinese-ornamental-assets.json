@@ -19,6 +19,7 @@
     "home-continue",
     "review-summary",
     "review-header",
+    "reward-hero",
     "qa-gallery"
   ],
   "forbiddenSurfaces": [
@@ -33,12 +34,13 @@
   "densityPerSurface": {
     "journey-milestone": 1,
     "review-milestone": 1,
-    "victory": 2,
+    "victory": 3,
     "culture-topic-hero": 2,
     "culture-root-header": 1,
     "home-continue": 1,
     "review-summary": 1,
     "review-header": 1,
+    "reward-hero": 1,
     "qa-gallery": 13
   },
   "assets": [
@@ -96,6 +98,8 @@
       "sha256": "5d1da2d8bdf7f30953a1d282250ec87ff8a28865f997927d81cc5fddf66828df",
       "surfaces": [
         "journey-milestone",
+        "review-header",
+        "review-summary",
         "qa-gallery"
       ],
       "intensities": [
@@ -134,8 +138,8 @@
       "bytes": 1881,
       "sha256": "9372c6e9952b20a3ddd6b3af7de336914ddb43775fc67a672797dc9477709188",
       "surfaces": [
-        "review-header",
         "victory",
+        "reward-hero",
         "qa-gallery"
       ],
       "intensities": [

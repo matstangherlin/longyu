@@ -5,9 +5,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../../lib/store";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 import {
+  GUIDANCE_CEREMONY_ID,
   GUIDANCE_RENDER_EVIDENCE_MS,
   GUIDANCE_RENDER_TIMEOUT_MS,
   GUIDANCE_BY_ID,
+  PAGE_FIRST_VISIT_GUIDE_ATTR,
   explainGuidance,
   applyGuidanceAction,
   guidanceRecordProvesRender,
@@ -55,7 +57,6 @@ import {
 const SETTLE_MS = 700;
 /** RC2.2.23 — tentativa segura de achar a âncora antes do card não ancorado. */
 const ANCHOR_WAIT_MS = 1500;
-const GUIDANCE_CEREMONY_ID = "guidance";
 
 function isTypingTarget(element: Element | null): boolean {
   if (!element) return false;
@@ -72,6 +73,16 @@ function otherOverlayOpen(): boolean {
   if (document.documentElement.dataset.lessonPlayer) return true;
   const modal = document.querySelector('[aria-modal="true"]');
   return Boolean(modal && !modal.closest("[data-guidance-surface]"));
+}
+
+/**
+ * RC2.3.13R.3.2.6 — a página mostra o próprio guia de primeira visita (dono
+ * da visita inteira): só o degrau crítico pode abrir; o opcional espera a
+ * próxima visita (selectGuidance → yieldsToPageFirstVisitGuide).
+ */
+function pageFirstVisitGuideOwnsVisit(): boolean {
+  if (typeof document === "undefined") return false;
+  return document.querySelector(`[${PAGE_FIRST_VISIT_GUIDE_ATTR}]`) !== null;
 }
 
 function collectAnchors(): Set<string> {
@@ -140,6 +151,7 @@ function GuidanceHostInner() {
   const { current, visibleSince } = useGuidanceRuntime();
   const [inputFocused, setInputFocused] = useState(() => isTypingTarget(typeof document === "undefined" ? null : document.activeElement));
   const [anchors, setAnchors] = useState<Set<string>>(() => new Set());
+  const [pageGuide, setPageGuide] = useState(false);
   const [notificationPromptable, setNotificationPromptable] = useState(false);
   const [tick, setTick] = useState(0);
   const native = isNativeApp();
@@ -175,6 +187,7 @@ function GuidanceHostInner() {
       frame = requestAnimationFrame(() => {
         const next = collectAnchors();
         setAnchors((prev) => (prev.size === next.size && [...next].every((id) => prev.has(id)) ? prev : next));
+        setPageGuide(pageFirstVisitGuideOwnsVisit());
       });
     };
     refresh();
@@ -262,6 +275,7 @@ function GuidanceHostInner() {
       activeLearning: false,
       inputFocused,
       otherCeremonyActive: false,
+      pageFirstVisitGuide: pageGuide,
       anchorsPresent: anchors,
       isNative: native,
       notificationPermissionPromptable: notificationPromptable,
@@ -269,7 +283,7 @@ function GuidanceHostInner() {
     };
     // `tick` reavalia depois do assentamento.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, guidance, pathname, visibility, learner, inputFocused, anchors, native, notificationPromptable, recentToneConfusions, tick]);
+  }, [ready, guidance, pathname, visibility, learner, inputFocused, anchors, pageGuide, native, notificationPromptable, recentToneConfusions, tick]);
 
   // Escolha: no máximo UMA, e só depois de a tela assentar.
   useEffect(() => {
@@ -301,6 +315,7 @@ function GuidanceHostInner() {
         activeLearning: Boolean(document.documentElement.dataset.lessonPlayer) || ["RECORDING", "RECOGNITION"].includes(currentAudioOwner()),
         inputFocused: isTypingTarget(document.activeElement),
         otherCeremonyActive: otherOverlayOpen(),
+        pageFirstVisitGuide: pageFirstVisitGuideOwnsVisit(),
         anchorsPresent: collectAnchors(),
       });
       if (!fresh || getCurrentGuidance()) {

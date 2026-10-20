@@ -1,6 +1,6 @@
 {
   "schema": "longyu-final-pre-beta-rc/2",
-  "wave": "RC2.3.13R.3.2.5",
+  "wave": "RC2.3.13R.3.2.6",
   "status": "HOSTED_PENDING",
   "rcId": "RC2.3.13-RC1",
   "versionName": "0.2.0-rc.5",
@@ -12,14 +12,14 @@
   "playPurchases": false,
   "jevLearnerRuntime": false,
   "packageId": "longyu.noba.com",
-  "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
-  "certificationHeadSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+  "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
+  "certificationHeadSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
   "artifactSourceSha": null,
-  "prHeadSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
-  "sourceTipSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+  "prHeadSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
+  "sourceTipSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
   "workflowMergeSha": null,
-  "parentPr": 355,
-  "shaNote": "learnerRuntimeSha = 3b1bb08c (R.3.2.5 premium surface system, resilient states, one chest-opening ritual, guide/auth/mobile UX closure; fingerprint 29bb02ec0336 unchanged). Prior 2618683e = R.3.2.4 Living UI (#355 hosted green at 4ee6d1a, merged to main as 8846bef0; no APK minted). artifactSourceSha null until exact-head hosted green mints ONE DEVICE_QA APK.",
+  "parentPr": 356,
+  "shaNote": "learnerRuntimeSha = 32e7215b (R.3.2.6 Chinese Living Canvas: scene part motion inside the ambient budget, Culture hero scenes and ornament motion, Whisper/Heritage/Ceremony frames, guidance arbitration and a visible-start typewriter, typography/icon audit, honest Android export, Danger Zone for cloud accounts only; fingerprint 29bb02ec0336 unchanged). Prior 3b1bb08c = R.3.2.5 premium UX closure (#356 hosted green at 0fc1353, merged to main as 98967c39; no APK minted). artifactSourceSha stays null until ONE Device-QA APK is minted from the exact R.3.2.6 hosted-green head.",
   "ownerQaApk": {
     "role": "OWNER_QA_APK",
     "status": "STALE_FOR_CURRENT_RUNTIME",
@@ -65,7 +65,7 @@
     "OWNER_QA_ENTRY": "HOLD",
     "PLAY_CLOSED_BETA_ENTRY": "HOLD",
     "PUBLIC_BETA_ENTRY": "HOLD",
-    "reason": "R.3.2.4 HOSTED_PENDING: Living UI runtime 2618683e (on top of R.3.2.3 Journey SVG, hosted green at 64a06df8); old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical + UI acceptance NOT_RUN. Play still BLOCKED_SIGNING_SECRETS. Wave1 invited=0. Public Beta HOLD."
+    "reason": "R.3.2.6 HOSTED_PENDING: Chinese Living Canvas runtime 32e7215b (on top of R.3.2.5, #356 hosted green at 0fc1353); old Device-QA APKs STALE; ONE new APK NOT_BUILT until exact-head hosted green; physical NOT_RUN; Public Beta and Play HOLD."
   },
   "wave1": {
     "targetRealTesters": 10,

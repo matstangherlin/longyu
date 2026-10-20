@@ -203,7 +203,7 @@ test.describe("navegação progressiva — mobile", () => {
     const upcoming = page.getByRole("heading", { level: 2, name: "Depois" });
     await expect(upcoming).toBeVisible();
     await expect(page.getByText("Continue sua Jornada para descobrir.")).toHaveCount(1);
-    await expect(page.getByText("🔒")).toHaveCount(1);
+    await expect(page.getByTestId("more-upcoming-lock")).toHaveCount(1);
   });
 });
 

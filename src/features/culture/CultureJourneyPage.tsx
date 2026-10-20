@@ -16,16 +16,33 @@ import { useStore } from "../../lib/store";
 import { useTranslation } from "../../i18n/useTranslation";
 import { pickNextCultureMissionId, dueCultureMemoryTargets } from "../../lib/cultureMastery";
 import {
-  readCultureFirstGuideSeen,
   readProgressionAnchor,
-  writeCultureFirstGuideSeen,
   writeCultureTopicId,
   writeProgressionOpenOrigin,
 } from "../../lib/progressionShellState";
 import { recordTechEvent } from "../../lib/techEvents";
 import { GuideDialogue } from "../../components/guide/GuideDialogue";
+import { CULTURE_ROOT_GUIDE_KEY, readCultureGuideSeen, writeCultureGuideSeen } from "../../lib/cultureGuide";
+import { isCelebrationActive, useOtherCelebrationActive } from "../../lib/celebrationLock";
+import { GUIDANCE_CEREMONY_ID, guidanceSurfaceOnScreen } from "../../lib/guidanceOrchestrator";
+import { getCurrentGuidance, useGuidanceRuntime } from "../../components/guidance/guidanceRuntime";
 import { CultureTopicCard } from "./CultureTopicCard";
 import { consumeTopicTransition } from "../../lib/motion/topicTransition";
+
+/**
+ * RC2.3.13R.3.2.6 — the root's first-visit guide, once per account on this
+ * device (the account-scoped Culture guide set, distinct from the Atlas
+ * "intro" key) — not once per tab session: a cold start no longer replays it.
+ */
+function readCultureRootGuideSeen(accountId: string): boolean {
+  return readCultureGuideSeen(accountId).has(CULTURE_ROOT_GUIDE_KEY);
+}
+
+function markCultureRootGuideSeen(accountId: string): void {
+  const seen = readCultureGuideSeen(accountId);
+  seen.add(CULTURE_ROOT_GUIDE_KEY);
+  writeCultureGuideSeen(accountId, seen);
+}
 
 /**
  * RC2.3.13R.3.2 — Culture root = topic hub.
@@ -39,12 +56,32 @@ export function CultureJourneyPage() {
   const completedIds = useStore((s) => s.cultureCompletedIds);
   const startedIds = useStore((s) => s.cultureStartedIds);
   const memoryById = useStore((s) => s.cultureMemoryById ?? {});
-  // RC2.3.13R.3.2.5 — decided before the first paint: the guide used to be
-  // inserted after it, pushing the continue card ~220px down in a visible jump.
-  const [showGuide, setShowGuide] = useState(() => !readCultureFirstGuideSeen());
+  const accountId = useStore((s) => s.currentAccountId);
   // RC2.3.13R.3.2.4 — back from a topic: the root returns from the left, once.
   const { pathname, key: locationKey } = useLocation();
   const [topicEnter] = useState(() => consumeTopicTransition(pathname, locationKey));
+  // RC2.3.13R.3.2.5 — decided before the first paint: the guide used to be
+  // inserted after it, pushing the continue card ~220px down in a visible jump.
+  // RC2.3.13R.3.2.6 — one guide per visit (ladder in guidanceOrchestrator): an
+  // unseen first-visit guide owns this whole visit (the marker below), so the
+  // optional coachmark waits for the next visit instead of stacking on it.
+  const [ownsVisit] = useState(() => !readCultureRootGuideSeen(accountId));
+  // It never preempts a guidance surface or a ceremony already on screen (it
+  // then waits for the next visit, seen not written) and never waits on anything.
+  const routePath = pathname.replace(/\/+$/, "") || "/";
+  const [showGuide, setShowGuide] = useState(
+    () =>
+      ownsVisit &&
+      !guidanceSurfaceOnScreen(getCurrentGuidance(), routePath) &&
+      !isCelebrationActive(GUIDANCE_CEREMONY_ID),
+  );
+  // Critical onboarding outranks the page guide (the host lets only that tier
+  // through while this page owns the visit): the guide steps aside while it is up.
+  // So does a ceremony that opens over the page (seal reveal, medal): one guide
+  // surface at a time, and its dragon never talks under a modal.
+  const { current: hostGuidance } = useGuidanceRuntime();
+  const ceremonyUp = useOtherCelebrationActive(GUIDANCE_CEREMONY_ID);
+  const guideVisible = showGuide && !guidanceSurfaceOnScreen(hostGuidance, routePath) && !ceremonyUp;
 
   const nextId = pickNextCultureMissionId(completedIds, startedIds);
   const nextMission = nextId ? getCultureMission(nextId) : undefined;
@@ -69,8 +106,9 @@ export function CultureJourneyPage() {
   const due = dueCultureMemoryTargets(memoryById);
 
   useEffect(() => {
-    if (showGuide) writeCultureFirstGuideSeen();
-    // Once per mount: the flag is written the first time the guide shows.
+    if (showGuide) markCultureRootGuideSeen(accountId);
+    // Once per mount: the flag is written the first time the guide shows —
+    // that bounds the guide's ownership to one visit, so the queue drains.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -104,6 +142,9 @@ export function CultureJourneyPage() {
         data-culture-topic-hub="true"
         data-culture-path-bubbles="false"
         data-topic-enter={topicEnter ?? undefined}
+        // RC2.3.13R.3.2.6 — PAGE_FIRST_VISIT_GUIDE_ATTR, bound to ownsVisit (not
+        // showGuide): finishing the guide must not chain the coachmark in this visit.
+        data-first-visit-guide={ownsVisit ? "culture-root" : undefined}
         className="space-y-5"
       >
         {fromJourney && (
@@ -117,11 +158,14 @@ export function CultureJourneyPage() {
           </Link>
         )}
 
-        {showGuide ? (
+        {guideVisible ? (
           <div data-testid="culture-first-guide" className="rounded-2xl border border-line bg-surface p-3">
+            {/* RC2.3.13R.3.2.6 — the guide's Continue only dismisses it: secondary,
+                never a second full-width primary above culture-next-cta. */}
             <GuideDialogue
               size="compact"
               layout="guided"
+              actionVariant="outline"
               messages={[t("progression.cultureFirstGuide")]}
               continueLabel={t("culture.continueMission")}
               onComplete={() => setShowGuide(false)}

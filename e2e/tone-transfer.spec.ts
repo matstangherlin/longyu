@@ -260,6 +260,9 @@ test.describe("RC2.2.7 — o que veio antes continua de pé", () => {
     // acontecer no mesmo tick, senão o clique deixa de antecipar e avança.
     await dialogue.evaluate(async (el) => {
       const deadline = Date.now() + 5_000;
+      // RC2.3.13R.3.2.6 — "idle" = esperando ser visto: o typewriter (e a voz)
+      // só começa com o guia na tela, então centralizar antes de esperar o START.
+      el.scrollIntoView({ block: "center" });
       while (el.getAttribute("data-guide-phase") === "idle" && Date.now() < deadline) {
         await new Promise((resolve) => setTimeout(resolve, 16));
       }

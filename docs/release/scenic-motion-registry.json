@@ -1,0 +1,243 @@
+{
+  "schema": "longyu.scenic-motion-registry.v1",
+  "wave": "RC2.3.13R.3.2.6",
+  "source": "src/features/journey/scenes/sceneMotionProfiles.ts",
+  "profiles": [
+    "float",
+    "sway",
+    "cloud-drift",
+    "lantern-sway",
+    "steam",
+    "water",
+    "train-pass",
+    "city-glow",
+    "blossom-breathe",
+    "ink-reveal",
+    "still"
+  ],
+  "parts": {
+    "cloud": "authored position, full opacity",
+    "leaf": "authored stem, upright",
+    "lantern": "hangs vertical from its cord",
+    "steam": "authored wisps, soft opacity",
+    "water": "authored ripples",
+    "light": "authored glow",
+    "accent": "authored position",
+    "flag": "authored flag, unfurled",
+    "bird": "authored position",
+    "train": "authored position on the rails",
+    "boat": "authored position on the water",
+    "paw": "authored raised paw",
+    "ink": "stroke fully drawn",
+    "cloth": "authored tassel, hanging",
+    "float": "authored figure on the cloud",
+    "star": "authored star",
+    "blossom": "authored blossoms"
+  },
+  "budget": {
+    "maxOwners": 4,
+    "kindCap": {
+      "scene": 2,
+      "ornament": 2
+    },
+    "partsPerOwner": 4,
+    "maxLoops": 16,
+    "offscreen": 0,
+    "hiddenTab": 0,
+    "reducedMotion": 0
+  },
+  "scenes": [
+    {
+      "id": "moon-gate",
+      "profile": "sway",
+      "intensity": "subtle",
+      "loops": [
+        "leaf",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "lantern-street",
+      "profile": "lantern-sway",
+      "intensity": "subtle",
+      "loops": [
+        "lantern",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "bamboo-mountains",
+      "profile": "sway",
+      "intensity": "subtle",
+      "loops": [
+        "leaf",
+        "water",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "tea-table",
+      "profile": "steam",
+      "intensity": "subtle",
+      "loops": [
+        "steam",
+        "blossom",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "market",
+      "profile": "lantern-sway",
+      "intensity": "subtle",
+      "loops": [
+        "lantern",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "high-speed-rail",
+      "profile": "train-pass",
+      "intensity": "subtle",
+      "loops": [
+        "train",
+        "light",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "modern-city",
+      "profile": "city-glow",
+      "intensity": "subtle",
+      "loops": [
+        "light",
+        "train",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "courtyard",
+      "profile": "lantern-sway",
+      "intensity": "subtle",
+      "loops": [
+        "lantern",
+        "leaf",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "river-bridge",
+      "profile": "water",
+      "intensity": "subtle",
+      "loops": [
+        "water",
+        "light",
+        "boat",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "brush-seal",
+      "profile": "ink-reveal",
+      "intensity": "subtle",
+      "loops": [
+        "cloth",
+        "cloud"
+      ],
+      "oneShot": [
+        "ink"
+      ]
+    },
+    {
+      "id": "night-street",
+      "profile": "city-glow",
+      "intensity": "subtle",
+      "loops": [
+        "star",
+        "lantern"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "digital-life",
+      "profile": "city-glow",
+      "intensity": "subtle",
+      "loops": [
+        "light",
+        "accent"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "buddhist-temple",
+      "profile": "steam",
+      "intensity": "subtle",
+      "loops": [
+        "steam",
+        "light",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "sun-wukong",
+      "profile": "float",
+      "intensity": "subtle",
+      "loops": [
+        "float",
+        "light",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "lucky-cat",
+      "profile": "sway",
+      "intensity": "subtle",
+      "loops": [
+        "paw",
+        "lantern",
+        "cloud"
+      ],
+      "oneShot": []
+    },
+    {
+      "id": "great-wall",
+      "profile": "cloud-drift",
+      "intensity": "subtle",
+      "loops": [
+        "cloud",
+        "flag",
+        "bird"
+      ],
+      "oneShot": []
+    }
+  ],
+  "ornaments": {
+    "lantern": "lantern-sway",
+    "fan": "sway",
+    "bamboo": "sway",
+    "cloud": "cloud-drift",
+    "moon-gate": "still",
+    "seal": "still",
+    "blossom": "blossom-breathe",
+    "knot": "still"
+  },
+  "cultureHeroes": {
+    "vida_cotidiana": "lantern-street",
+    "relacoes_etiqueta": "courtyard",
+    "comida_celebracoes": "tea-table",
+    "escola_trabalho": "digital-life",
+    "cidades_digital": "modern-city",
+    "historia_china": "brush-seal",
+    "china_contemporanea": "high-speed-rail"
+  }
+}

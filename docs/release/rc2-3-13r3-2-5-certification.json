@@ -46,7 +46,7 @@
     "mergedToMain": "8846bef0337d00596674fe00d30c6c6a9768e8d6"
   },
   "runtime": {
-    "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+    "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
     "previousLearnerRuntimeSha": "2618683e105bdb9be9185acd8b4ded9d30c61eee",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-facing presentation changed: semantic surface tokens and state matrix, resilient loading/empty/error/offline states and sync-truth copy, one chest-opening ritual, guide/auth/mobile ergonomics. Includes the overlay stack-margin fix (5a9a8ab1). Runtime moved again to 3b1bb08c: economyPending.ts registered in BETA_PEDAGOGY_FREEZE.systemModules (failure copy only) and the technical-text regex bounded (CodeQL js/redos); no behaviour change."
@@ -206,18 +206,24 @@
     "qa": "/qa/device › Premium UX closure (local previews only)"
   },
   "hosted": {
-    "overall": "PENDING",
-    "headSha": null,
-    "releaseTruth": "PENDING",
-    "security": "PENDING",
-    "betaSuites": "PENDING",
-    "qualityBuild": "PENDING",
-    "androidFoundation": "PENDING",
-    "androidRuntime": "PENDING",
-    "chromium": "PENDING",
-    "firefox": "PENDING",
-    "webkit": "PENDING",
-    "workflowRunIds": {}
+    "overall": "PASS",
+    "headSha": "0fc13534762b6554a02db3b0c75d7c8661da7ab7",
+    "releaseTruth": "PASS",
+    "security": "PASS",
+    "betaSuites": "PASS",
+    "qualityBuild": "PASS",
+    "androidFoundation": "PASS",
+    "androidRuntime": "PASS",
+    "chromium": "PASS",
+    "firefox": "PASS",
+    "webkit": "PASS",
+    "workflowRunIds": {
+      "ci": 38896588428,
+      "security": 38896588430,
+      "android": 38896588453
+    },
+    "mergedAs": "98967c393de3bcf6b13611bac5ca01015fbfbee3",
+    "note": "Exact-head hosted green on #356 (0fc1353): CI, security and Android workflows all success; merged with a merge commit. No disposable #356 APK was built (R.3.2.6 builds the one Device-QA APK)."
   },
   "artifact": {
     "status": "NOT_BUILT",

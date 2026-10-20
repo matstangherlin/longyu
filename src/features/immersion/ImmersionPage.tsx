@@ -1321,7 +1321,7 @@ function StorySpeakerLabel({ cast, learnerName }: { cast: StoryCastMember; learn
       <div className="min-w-0 leading-tight">
         <div className="truncate text-sm font-semibold text-ink" data-testid="story-speaker-name">
           {castLabel(cast, learnerName)}
-          {cast.nameHanzi ? <span className="hanzi ml-1.5 text-xs font-normal text-ink-faint">{cast.nameHanzi}</span> : null}
+          {cast.nameHanzi ? <span className="hanzi ml-1.5 text-sm font-normal text-ink-soft">{cast.nameHanzi}</span> : null}
         </div>
         {!cast.learner ? <div className="truncate text-[11px] text-ink-faint">{cast.rolePt}</div> : null}
       </div>

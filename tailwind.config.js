@@ -30,6 +30,10 @@ export default {
         "accent-on-soft": "rgb(var(--accent-on-soft) / <alpha-value>)",
         "focus-ring": "rgb(var(--focus-ring) / <alpha-value>)",
         scrim: "rgb(var(--scrim) / <alpha-value>)",
+        // RC2.3.13R.3.2.6 — Chinese frame system (docs/ux/chinese-frame-system.md).
+        gilt: "rgb(var(--gilt) / <alpha-value>)",
+        "frame-line": "rgb(var(--frame-line) / <alpha-value>)",
+        "line-strong": "rgb(var(--line-strong) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

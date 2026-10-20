@@ -95,34 +95,51 @@ test.describe("RC2.3.13R.3.2.5 — R.3.2.4 follow-ups", () => {
     await context.close();
   });
 
+  /** Replays a frame's one-time edge draw and samples it: the peak opacity and where it lands. */
+  async function sampleEdgeDraw(frame: import("@playwright/test").Locator) {
+    return frame.evaluate((el) => {
+      // Replay the one-time draw on demand (it already ran once on mount).
+      el.removeAttribute("data-animate");
+      const edges = [...el.querySelectorAll<HTMLElement>(".lyo-edge")];
+      for (const edge of edges) void getComputedStyle(edge).opacity;
+      el.setAttribute("data-animate", "once");
+      const out: Array<{ peak: number; rest: number }> = [];
+      for (const edge of edges) {
+        const draw = edge.getAnimations().find((a) => (a as CSSAnimation).animationName === "lyo-edge-draw");
+        if (!draw) continue;
+        draw.pause();
+        const end = Number(draw.effect?.getComputedTiming().endTime ?? 0);
+        let peak = 0;
+        for (const f of [0.25, 0.5, 0.75, 0.9, 0.99]) {
+          draw.currentTime = end * f;
+          peak = Math.max(peak, Number(getComputedStyle(edge).opacity));
+        }
+        draw.finish();
+        out.push({ peak, rest: Number(getComputedStyle(edge).opacity) });
+      }
+      return out;
+    });
+  }
+
   for (const theme of ["clay", "dark"] as const) {
     test(`frame stitch draw lands on the edge's resting opacity — ${theme}`, async ({ browser }) => {
       test.setTimeout(120_000);
       const { context, page } = await openJourney(browser, theme);
-      const frame = page.locator('[data-journey-milestone="current"] .lyo-frame').first();
-      await frame.waitFor({ state: "attached", timeout: 30_000 });
-      const samples = await frame.evaluate((el) => {
-        // Replay the one-time draw on demand (it already ran once on mount).
-        el.removeAttribute("data-animate");
-        const edges = [...el.querySelectorAll<HTMLElement>(".lyo-edge")];
-        for (const edge of edges) void getComputedStyle(edge).opacity;
-        el.setAttribute("data-animate", "once");
-        const out: Array<{ peak: number; rest: number }> = [];
-        for (const edge of edges) {
-          const draw = edge.getAnimations().find((a) => (a as CSSAnimation).animationName === "lyo-edge-draw");
-          if (!draw) continue;
-          draw.pause();
-          const end = Number(draw.effect?.getComputedTiming().endTime ?? 0);
-          let peak = 0;
-          for (const f of [0.25, 0.5, 0.75, 0.9, 0.99]) {
-            draw.currentTime = end * f;
-            peak = Math.max(peak, Number(getComputedStyle(edge).opacity));
-          }
-          draw.finish();
-          out.push({ peak, rest: Number(getComputedStyle(edge).opacity) });
-        }
-        return out;
-      });
+      // RC2.3.13R.3.2.6 — the current module now carries a Heritage frame: its
+      // inner rule is a solid gilt line that rests at full opacity, and the draw lands there.
+      const heritage = page.locator('[data-journey-milestone="current"] .lyo-frame').first();
+      await heritage.waitFor({ state: "attached", timeout: 30_000 });
+      expect(await heritage.getAttribute("data-frame-level")).toBe("heritage");
+      const ruled = await sampleEdgeDraw(heritage);
+      expect(ruled.length).toBeGreaterThan(0);
+      for (const s of ruled) expect(s.rest).toBeCloseTo(1, 2);
+      // The embroidered (stitched) frame keeps the original contract: the draw
+      // never overshoots its 0.62 resting stitch (the QA gallery frame).
+      await page.goto("/qa/device");
+      const stitched = page.locator('[data-testid="qa-living-ui-frame"] .lyo-frame').first();
+      await stitched.waitFor({ state: "attached", timeout: 30_000 });
+      expect(await stitched.getAttribute("data-frame-level")).toBeNull();
+      const samples = await sampleEdgeDraw(stitched);
       expect(samples.length).toBeGreaterThan(0);
       for (const s of samples) {
         expect(s.rest).toBeCloseTo(0.62, 2);

@@ -279,7 +279,7 @@ function cases(base) {
     ["seal reveal ignores Back", "SEAL_BACK_DEAD", G, () => m(base, "sealReveal", " onBackdropClick={() => markRevealed(seal.id)}", "")],
     ["Escape dismisses the tip under a sheet", "COACHMARK_UNDER_MODAL_DISMISSED", G, () => m(base, "guidanceHost", "      if (isModalOpen()) return;\n", "")],
     ["coachmark drifts on layout shifts", "COACHMARK_DRIFT", G, () => m(base, "guidanceHost", "new ResizeObserver(() => place())", "new MutationObserver(() => place())")],
-    ["culture guide inserted after paint", "GUIDE_LAYOUT_JUMP", G, () => m(base, "cultureJourney", "useState(() => !readCultureFirstGuideSeen())", "useState(false)")],
+    ["culture guide inserted after paint", "GUIDE_LAYOUT_JUMP", G, () => m(base, "cultureJourney", "useState(() => !readCultureRootGuideSeen(accountId))", "useState(false)")],
     ["mascot alt hard-coded in PT", "MASCOT_ALT_NOISE", G, () => m(base, "mascot", 'alt={decorative ? "" : t("common.mascotAlt")}', 'alt="Mascote Longyu"')],
     ["guide mascot announced before every line", "MASCOT_ALT_NOISE", G, () => m(base, "guideDialogue", /\n\s+decorative\n/, "\n")],
     ["guide forks the reduced-motion signal", "REDUCED_MOTION_FORKED", G, () => m(base, "guideMachine", 'export { prefersReducedMotion };', 'export function prefersReducedMotion() { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }')],

@@ -58,6 +58,8 @@ import { VisualFirstQaPanel } from "./VisualFirstQaPanel";
 import { JourneySvgQaPanel } from "./JourneySvgQaPanel";
 import { LivingUiQaPanel } from "./LivingUiQaPanel";
 import { PremiumUxQaPanel } from "./PremiumUxQaPanel";
+import { LivingCanvasLabPanel } from "./LivingCanvasLabPanel";
+import { ChineseFrameLabPanel } from "./ChineseFrameLabPanel";
 import { EverydayMandarinQaPanel } from "./EverydayMandarinQaPanel";
 import { CultureDeepQaPanel } from "./CultureDeepQaPanel";
 import { HanziWritingQaPanel } from "./HanziWritingQaPanel";
@@ -153,6 +155,8 @@ function QaDeviceSurface() {
       <JourneySvgQaPanel />
       <LivingUiQaPanel />
       <PremiumUxQaPanel />
+      <LivingCanvasLabPanel />
+      <ChineseFrameLabPanel />
       <EverydayMandarinQaPanel />
       <CultureDeepQaPanel />
       <HanziWritingQaPanel />

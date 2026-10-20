@@ -20,6 +20,17 @@ export type CultureGuideMessage =
 
 export const CULTURE_GUIDE_INTRO_KEY = "intro";
 
+/**
+ * RC2.3.13R.3.2.6 — the Culture root's own first-visit guide (CultureJourneyPage),
+ * kept in this account-scoped set so it is once per account on this device,
+ * not once per tab session (a cold start never replays it).
+ */
+export const CULTURE_ROOT_GUIDE_KEY = "root-intro";
+
+/** First-visit keys never age out of the capped set (or the guide would replay). */
+const CULTURE_GUIDE_PINNED_KEYS: ReadonlySet<string> = new Set([CULTURE_GUIDE_INTRO_KEY, CULTURE_ROOT_GUIDE_KEY]);
+const SEEN_STORAGE_CAP = 60;
+
 export function pickCultureGuideMessage(input: {
   progress: CultureProgressionProgress;
   seenKeys: ReadonlySet<string>;
@@ -69,7 +80,10 @@ export function readCultureGuideSeen(accountId: string): Set<string> {
 
 export function writeCultureGuideSeen(accountId: string, keys: ReadonlySet<string>): void {
   try {
-    window.localStorage.setItem(`${SEEN_STORAGE_PREFIX}${accountId}`, JSON.stringify([...keys].slice(-60)));
+    const all = [...keys];
+    const pinned = all.filter((key) => CULTURE_GUIDE_PINNED_KEYS.has(key));
+    const rest = all.filter((key) => !CULTURE_GUIDE_PINNED_KEYS.has(key)).slice(-(SEEN_STORAGE_CAP - pinned.length));
+    window.localStorage.setItem(`${SEEN_STORAGE_PREFIX}${accountId}`, JSON.stringify([...pinned, ...rest]));
   } catch {
     /* storage bloqueado: o pior caso é o dragão repetir uma fala */
   }

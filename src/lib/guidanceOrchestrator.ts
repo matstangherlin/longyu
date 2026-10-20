@@ -20,6 +20,10 @@
  * - Nada aqui dá XP, medalha, Qi ou mexe em domínio (PART CG).
  * - CRITICAL_UX vence OPTIONAL_DISCOVERY quando o orçamento é 1 (primeira
  *   utilização essencial não é engolida por dica opcional).
+ * - Exceção única (RC2.3.13R.3.2.6): o guia de primeira visita da própria
+ *   página (marcado `data-first-visit-guide`) é dono da visita. Escada:
+ *   onboarding crítico > guia de primeira visita da página > orientação
+ *   opcional/contextual — UMA superfície-guia por vez (ver GUIDE_SURFACE_TIER_RANK).
  */
 import type { MessageKey } from "../locales/pt-BR";
 import {
@@ -45,6 +49,54 @@ export const GUIDANCE_PRIORITY_RANK: Readonly<Record<GuidancePriority, number>> 
   FEATURE_UNLOCK: 2,
   OPTIONAL_DISCOVERY: 3,
 };
+
+/**
+ * RC2.3.13R.3.2.6 — escada das superfícies-guia (uma por vez na tela):
+ *  0. CRITICAL_ONBOARDING — CRITICAL_UX ou essencial (orquestrador);
+ *  1. PAGE_FIRST_VISIT — o guia de primeira visita da própria página,
+ *     marcado com `data-first-visit-guide` e dono da visita inteira;
+ *  2. OPTIONAL_CONTEXTUAL — todo o resto (descoberta, desbloqueio, dica).
+ * Decidida no instante de abrir. O guia da página nunca tira da tela o que
+ * já está lá (cede a visita) e nunca espera nada; o degrau crítico continua
+ * podendo abrir e o guia da página se recolhe enquanto ele está na tela; o
+ * opcional espera a PRÓXIMA visita — nunca A → B na mesma visita (PART O).
+ * A fila esvazia: o guia grava "visto" (por conta) ao aparecer, então só uma
+ * visita por conta é dele.
+ */
+export type GuideSurfaceTier = "CRITICAL_ONBOARDING" | "PAGE_FIRST_VISIT" | "OPTIONAL_CONTEXTUAL";
+
+export const GUIDE_SURFACE_TIER_RANK: Readonly<Record<GuideSurfaceTier, number>> = {
+  CRITICAL_ONBOARDING: 0,
+  PAGE_FIRST_VISIT: 1,
+  OPTIONAL_CONTEXTUAL: 2,
+};
+
+/** Marca DOM do guia de primeira visita (no contêiner da página, a visita inteira). */
+export const PAGE_FIRST_VISIT_GUIDE_ATTR = "data-first-visit-guide";
+
+/** O id com que o host segura a trava de cerimônia enquanto mostra orientação. */
+export const GUIDANCE_CEREMONY_ID = "guidance";
+
+export function guidanceSurfaceTier(definition: Pick<GuidanceDefinition, "priority" | "essential">): GuideSurfaceTier {
+  return definition.priority === "CRITICAL_UX" || definition.essential ? "CRITICAL_ONBOARDING" : "OPTIONAL_CONTEXTUAL";
+}
+
+/** Esta orientação espera a próxima visita quando a página tem um guia de primeira visita dono desta. */
+export function yieldsToPageFirstVisitGuide(definition: Pick<GuidanceDefinition, "priority" | "essential">): boolean {
+  return GUIDE_SURFACE_TIER_RANK[guidanceSurfaceTier(definition)] > GUIDE_SURFACE_TIER_RANK.PAGE_FIRST_VISIT;
+}
+
+/**
+ * Uma orientação do host ocupa a tela desta rota (o guia da página cede a
+ * ela). INLINE_TIP mora dentro da página e não é superfície primária.
+ */
+export function guidanceSurfaceOnScreen(
+  presentation: Pick<GuidancePresentation, "definition"> | null | undefined,
+  pathname: string
+): boolean {
+  if (!presentation || presentation.definition.kind === "INLINE_TIP") return false;
+  return presentation.definition.surfaces.includes(pathname);
+}
 
 export interface GuidanceDefinition {
   /** Idempotente e versionado (PART AX/AY): `culture_intro_v2` não reseta o resto. */
@@ -598,6 +650,11 @@ export interface GuidanceContext {
   inputFocused: boolean;
   /** Outra cerimônia (medalha, selo, ofensiva) está na tela. */
   otherCeremonyActive: boolean;
+  /**
+   * RC2.3.13R.3.2.6 — a página tem um guia de primeira visita dono desta
+   * visita (`data-first-visit-guide`): só o degrau crítico pode abrir.
+   */
+  pageFirstVisitGuide?: boolean;
   /** As âncoras de coachmark presentes na tela agora. */
   anchorsPresent: ReadonlySet<string>;
   isNative: boolean;
@@ -649,6 +706,8 @@ function anchorReady(definition: GuidanceDefinition, ctx: GuidanceContext): bool
 
 function candidateEligible(definition: GuidanceDefinition, ctx: GuidanceContext): boolean {
   if (!definition.surfaces.includes(ctx.pathname)) return false;
+  // RC2.3.13R.3.2.6 — o guia de primeira visita da página é dono desta visita.
+  if (ctx.pageFirstVisitGuide && yieldsToPageFirstVisitGuide(definition)) return false;
   if (definition.nativeOnly && !ctx.isNative) return false;
   if (isBlockedByRecord(definition.id, ctx)) return false;
   if (!anchorReady(definition, ctx)) return false;
@@ -765,6 +824,8 @@ export const GUIDANCE_REASON_CODES = [
   "RENDER_TIMEOUT",
   "SUPPRESSED_TEST_BUILD",
   "NOT_INITIALIZED",
+  // RC2.3.13R.3.2.6 — a página mostra o próprio guia de primeira visita.
+  "PAGE_GUIDE_OWNS_VISIT",
 ] as const;
 export type GuidanceReasonCode = (typeof GUIDANCE_REASON_CODES)[number];
 
@@ -809,6 +870,7 @@ export function explainGuidance(
     else if (ctx.session.snoozedIds.includes(definition.id) || (record?.status === "SNOOZED" && (record.snoozedUntil ?? 0) > ctx.now)) reasonCode = "SNOOZED";
     else if (!featureOk || (definition.nativeOnly && !ctx.isNative)) reasonCode = "FEATURE_NOT_AVAILABLE";
     else if (!onSurface) reasonCode = "WRONG_SURFACE";
+    else if (ctx.pageFirstVisitGuide && yieldsToPageFirstVisitGuide(definition)) reasonCode = "PAGE_GUIDE_OWNS_VISIT";
     else if (!anchorReady(definition, ctx)) reasonCode = "ANCHOR_MISSING";
     else if (ctx.activeLearning) reasonCode = "ACTIVE_LEARNING";
     else if (ctx.inputFocused) reasonCode = "INPUT_FOCUSED";

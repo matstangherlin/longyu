@@ -16,6 +16,11 @@ const CORNER: Record<ChineseCornerMotifName, ChineseOrnamentId> = {
 /**
  * RC2.3.13R.3.2.4 — one corner accent where a full frame would be too much.
  * Absolutely placed inside a `relative isolate` host, under its content.
+ *
+ * RC2.3.13R.3.2.6 — this is the frame system's level 1, "Whisper": a single
+ * corner, no rule (the Home continue card). Surfaces that earned a frame use
+ * ChineseOrnamentalFrame level="heritage" (Review header and summary) or
+ * level="ceremony" (Victory, the chest reward hero) instead — never both.
  */
 export function ChineseCornerMotif({
   motif,

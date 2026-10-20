@@ -117,6 +117,8 @@ export const FILES = {
   family: "src/features/familia/FamilyPage.tsx",
   revisao: "src/features/revisao/RevisaoPage.tsx",
   teacherBubble: "src/features/lesson/TeacherSpeechBubble.tsx",
+  // RC2.3.13R.3.2.6 — the bubble's start rule (on screen, visible document, one speaker).
+  guideStart: "src/lib/motion/guideStart.ts",
   guideDialogue: "src/components/guide/GuideDialogue.tsx",
   guideMachine: "src/lib/guideDialogueMachine.ts",
   backNav: "src/lib/platform/backNavigation.ts",
@@ -583,6 +585,9 @@ export function runChestRitual(source, { reduced = false, claimResult = [{ kind:
     "../ui/primitives": { Button: stub("Button"), Pill: stub("Pill") },
     "../ui/Icon": { IconX: stub("IconX") },
     "../ui/ModalOverlay": { ModalOverlay: stub("ModalOverlay") },
+    // RC2.3.13R.3.2.6 — the panel carries a decorative Ceremony frame (reward hero);
+    // it is inert markup, so a stub keeps this run about the ritual's own contract.
+    "../ornaments/chinese/ChineseOrnamentalFrame": { ChineseOrnamentalFrame: stub("ChineseOrnamentalFrame") },
     "./chestMeta": {
       chestRewardName: (kind) => kind.toUpperCase(),
       localizedChestVisual: () => ({ name: "Chest", rarity: "Rare", tagline: "t", contains: "c" }),
@@ -810,8 +815,13 @@ export function checkRewardUxContract(src) {
 /* 5 · Guide UX contract                                              */
 /* ------------------------------------------------------------------ */
 
-/** Run TeacherSpeechBubble: a parent re-render with fresh inline callbacks must not restart the line. */
-export function runTeacherBubble(source) {
+/**
+ * Run TeacherSpeechBubble: a parent re-render with fresh inline callbacks must not restart the line.
+ * RC2.3.13R.3.2.6 — the bubble now imports its start rule (`guideStart`). The real module runs
+ * here with no IntersectionObserver and no document, where a guide counts as on screen and
+ * the sole speaker; the visibility rule itself is executed by the R.3.2.6 gate.
+ */
+export function runTeacherBubble(source, startSource) {
   const rt = makeHookRuntime();
   const timers = new Map();
   let next = 1;
@@ -832,6 +842,10 @@ export function runTeacherBubble(source) {
   const stub = (name) => Object.assign((props) => ({ type: name, props }), { displayName: name });
   let mod;
   try {
+    const guideStart =
+      typeof startSource === "string"
+        ? evalSource(startSource, { requires: { react: rt.React, "./livingUiMotion": { documentHidden: () => false } } })
+        : { useOnScreenOnce: () => true, useGuideFloor: (wants) => wants };
     mod = evalSource(source, {
       jsx: true,
       requires: {
@@ -841,6 +855,7 @@ export function runTeacherBubble(source) {
         "../../lib/guidedPresentation": { GUIDED_DRAGON_SIZE: { default: 56 } },
         "../../lib/guideDialogueMachine": { segmentGraphemes: (s) => Array.from(s) },
         "../../lib/motion/livingUiMotion": { prefersReducedMotion: () => false },
+        "../../lib/motion/guideStart": guideStart,
       },
       globals: { window: fakeWindow, React: rt.React },
     });
@@ -870,7 +885,7 @@ export function runTeacherBubble(source) {
 
 export function checkGuideUxContract(src) {
   const errors = [];
-  const bubble = runTeacherBubble(src.teacherBubble ?? "");
+  const bubble = runTeacherBubble(src.teacherBubble ?? "", src.guideStart ?? "");
   if (bubble.error || bubble.typing !== "TYPING" || bubble.afterRerender !== "TYPING" || bubble.finalState !== "READY" || bubble.ready !== 1 || bubble.readyAfter !== 1) {
     errors.push("GUIDE_DOUBLE_TYPING");
   }
@@ -885,7 +900,8 @@ export function checkGuideUxContract(src) {
   if (!/onBackdropClick=\{\(\) => markRevealed\(seal\.id\)\}/.test(src.sealReveal ?? "")) errors.push("SEAL_BACK_DEAD");
   if (!/if \(isModalOpen\(\)\) return;\s*event\.preventDefault\(\);/.test(src.guidanceHost ?? "")) errors.push("COACHMARK_UNDER_MODAL_DISMISSED");
   if (!/new ResizeObserver\(\(\) => place\(\)\)/.test(src.guidanceHost ?? "")) errors.push("COACHMARK_DRIFT");
-  if (!/useState\(\(\) => !readCultureFirstGuideSeen\(\)\)/.test(src.cultureJourney ?? "")) errors.push("GUIDE_LAYOUT_JUMP");
+  // RC2.3.13R.3.2.6 — same rule (decided before the first paint); the flag moved to the account-scoped set.
+  if (!/useState\(\(\) => !readCultureRootGuideSeen\(accountId\)\)/.test(src.cultureJourney ?? "")) errors.push("GUIDE_LAYOUT_JUMP");
   if (!/alt=\{decorative \? "" : t\("common\.mascotAlt"\)\}/.test(src.mascot ?? "") || /alt="Mascote Longyu"/.test(src.mascot ?? "")) errors.push("MASCOT_ALT_NOISE");
   for (const key of ["guideDialogue", "teacherBubble"]) if (!/\bdecorative\b/.test(src[key] ?? "")) errors.push("MASCOT_ALT_NOISE");
   for (const key of ["guideMachine", "teacherBubble", "victory"]) {
@@ -1045,7 +1061,8 @@ export function checkRelease(src) {
   const rc = j(src.rc);
   if (!cert) return ["CERT_MISSING"];
   if (!rc) return ["RC_MISSING"];
-  if (cert.wave !== WAVE || rc.wave !== WAVE) errors.push("WAVE_IDENTITY_DRIFT");
+  // RC2.3.13R.3.2.6 builds on this wave (same runtime chain): the RC may name it.
+  if (cert.wave !== WAVE || ![WAVE, "RC2.3.13R.3.2.6"].includes(rc.wave)) errors.push("WAVE_IDENTITY_DRIFT");
   for (const section of CERT_SECTIONS) if (!cert[section] || typeof cert[section] !== "object") errors.push("CERT_SECTION_MISSING");
   const pkg = src.packageJson ?? "";
   for (const script of GATE_SCRIPTS) {

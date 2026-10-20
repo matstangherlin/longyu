@@ -46,7 +46,7 @@
     "newHaptics": false
   },
   "runtime": {
-    "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+    "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
     "previousLearnerRuntimeSha": "d166361490ce100f595f30af47d7fdeaad650a79",
     "learnerRuntimeMoved": true,
     "rationale": "Learner-facing presentation changed: motion tokens + reduced-motion signal, ambient budget (≤ 4 loops), 13 embroidered ornament SVGs on milestone surfaces, press/transition/feedback motion, delta-only counters and progress, one-shot Victory burst, QA panel. No curriculum source changed, so the canonical fingerprint stays 29bb02ec0336 (generator truth). Runtime moved again to 2618683e: the ambient scheduler always arms a timer backup next to the frame, so a suspended or throttled frame can never hold the budget stale (WebKit CI).",
@@ -54,7 +54,7 @@
     "fingerprintMoved": false,
     "supersededBy": {
       "wave": "RC2.3.13R.3.2.5",
-      "learnerRuntimeSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
+      "learnerRuntimeSha": "32e7215ba23121f35b86f65f3872fa2343714ed8",
       "note": "R.3.2.5 (premium UX closure) lands on the same branch/PR and moves the learner runtime again; every runtime pin in the chain follows it."
     }
   },

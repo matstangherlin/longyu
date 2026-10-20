@@ -278,6 +278,48 @@ export const PRE_BETA_FREEZE_EXCEPTION_R325 = {
 } as const;
 
 /**
+ * RC2.3.13R.3.2.6 — owner-requested Chinese Living Canvas. The scenes that
+ * already illustrate Journey and Culture move by their subject (lanterns sway,
+ * steam rises, the train passes) inside the existing ambient budget; one
+ * frame language in three levels (Whisper, Heritage, Ceremony); one hero
+ * scene per Culture topic; guidance arbitration and a typography/icon audit.
+ * Presentation only.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_R326 = {
+  id: "PRE_BETA_FREEZE_EXCEPTION",
+  reason: "OWNER_REQUESTED_CHINESE_LIVING_CANVAS",
+  rationale: "A LIVING CHINESE WORLD AROUND THE LEARNER — CALM, PURPOSEFUL MOTION AND AUTHORED FRAMES, NEVER DECORATION FOR ITS OWN SAKE.",
+  allows: [
+    "semantic part motion inside the existing Journey scenes (≤ 4 ambient owners, ≤ 2 scenes, ≤ 4 parts each)",
+    "one hero scene per Culture topic, reusing the bundled scene library",
+    "Whisper, Heritage and Ceremony frame levels on named milestone surfaces",
+    "guidance arbitration and a visibility-aware guide typewriter",
+    "typography and icon normalization (Longyu line icons, no emoji in canonical UI)",
+  ],
+  forbids: [
+    "navigation redesign",
+    "new lessons",
+    "new CultureItems",
+    "pedagogical rule changes",
+    "mastery, SRS, XP, Fôlego or unlock changes",
+    "economy, grant-timing or reward-amount changes",
+    "schema, billing or JEV changes",
+    "new UI sounds or haptics",
+  ],
+  gates: [
+    "validate:scenic-motion-profiles",
+    "validate:animated-svg-role-contract",
+    "validate:ambient-scene-ownership",
+    "validate:chinese-frame-system",
+    "validate:chinese-visual-density",
+    "validate:guidance-arbitration",
+    "validate:typography-icon-audit",
+    "gate:rc2-3-13r3-2-6-chinese-living-canvas",
+  ],
+  gate: "gate:rc2-3-13r3-2-6-chinese-living-canvas",
+} as const;
+
+/**
  * RC2.2.7 — CONTROLLED_PEDAGOGY_CONTENT_EXCEPTION.
  *
  * A única exceção aberta sob `FEATURE_FREEZE`, e ela é estreita de propósito:

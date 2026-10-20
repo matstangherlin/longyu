@@ -9,6 +9,10 @@
  *
  * Ornaments are reserved for meaningful surfaces (milestones, Victory,
  * Culture hero, one Home card) — never every card, button or list row.
+ *
+ * RC2.3.13R.3.2.6 — frame levels (docs/ux/chinese-frame-system.md): the Review
+ * header and the Review summary carry a Heritage frame (huiwen key-fret);
+ * Victory and the chest reward hero carry a Ceremony frame (ruyi cloud).
  */
 
 export const CHINESE_ORNAMENT_PACK_VERSION = 1;
@@ -57,8 +61,12 @@ export const ORNAMENT_SURFACES = [
   "culture-topic-hero",
   "culture-root-header",
   "home-continue",
+  // RC2.3.13R.3.2.6 — hosted by LessonPlayer's data-review-summary block only (Heritage frame).
   "review-summary",
+  // RevisaoPage's correction-round header (Heritage frame since RC2.3.13R.3.2.6).
   "review-header",
+  // RC2.3.13R.3.2.6 — the chest-opening ritual panel (Ceremony frame).
+  "reward-hero",
   "qa-gallery",
 ] as const;
 
@@ -79,12 +87,14 @@ export const ORNAMENT_FORBIDDEN_SURFACES = [
 export const ORNAMENT_DENSITY: Record<OrnamentSurface, number> = {
   "journey-milestone": 1,
   "review-milestone": 1,
-  victory: 2,
+  // RC2.3.13R.3.2.6 — burst + xiangyun divider + the Ceremony frame.
+  victory: 3,
   "culture-topic-hero": 2,
   "culture-root-header": 1,
   "home-continue": 1,
   "review-summary": 1,
   "review-header": 1,
+  "reward-hero": 1,
   "qa-gallery": 13,
 };
 
@@ -122,9 +132,10 @@ const ALL: readonly ChineseOrnamentIntensity[] = ["subtle", "medium", "milestone
 export const CHINESE_ORNAMENTS: readonly ChineseOrnamentEntry[] = [
   ornament("xiangyun-corner", "xiangyun", "corner", 1, ["culture-topic-hero", "victory", "qa-gallery"], ALL),
   ornament("xiangyun-divider", "xiangyun", "divider", 10, ["culture-topic-hero", "victory", "review-summary", "qa-gallery"], ALL),
-  ornament("huiwen-frame", "huiwen", "corner", 1, ["journey-milestone", "qa-gallery"], ALL),
+  ornament("huiwen-frame", "huiwen", "corner", 1, ["journey-milestone", "review-header", "review-summary", "qa-gallery"], ALL),
   ornament("huiwen-strip", "huiwen", "strip", 9.6, ["journey-milestone", "qa-gallery"], ["subtle", "medium"]),
-  ornament("ruyi-corner", "ruyi", "corner", 1, ["review-header", "victory", "qa-gallery"], ALL),
+  // RC2.3.13R.3.2.6 — no longer the Review header's mark (it carries the Heritage huiwen frame now).
+  ornament("ruyi-corner", "ruyi", "corner", 1, ["victory", "reward-hero", "qa-gallery"], ALL),
   ornament("lattice-frame", "lattice", "corner", 1, ["journey-milestone", "qa-gallery"], ALL),
   ornament("lattice-divider", "lattice", "divider", 12, ["culture-root-header", "qa-gallery"], ["subtle", "medium"]),
   ornament("plum-corner", "plum", "corner", 1, ["home-continue", "culture-topic-hero", "qa-gallery"], ["subtle", "medium"]),

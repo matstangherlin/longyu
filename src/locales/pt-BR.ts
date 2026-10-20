@@ -1826,6 +1826,8 @@ export const ptBR = {
     queueCleared: "Fila de eventos pendentes apagada neste dispositivo.",
     requestExport: "Solicitar exportação dos meus dados",
     exportDownloaded: "Exportação dos seus dados baixada neste dispositivo.",
+    exportCopied: "Copiamos seus dados (JSON) para a área de transferência. Cole num e-mail ou nota para guardar.",
+    exportWebOnly: "Salvar arquivo não está disponível no app. Use a versão web do Longyu para baixar o arquivo.",
     requestDeletion: "Solicitar exclusão da conta",
     deletionPrompt:
       "Esta ação é permanente. Digite {phrase} para excluir sua conta na nuvem. Os dados locais deste aparelho não serão apagados automaticamente.",

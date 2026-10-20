@@ -7,6 +7,7 @@
  */
 import { useEffect, useState } from "react";
 import { CompletionBurst } from "../../components/motion/CompletionBurst";
+import { ChineseCornerMotif } from "../../components/ornaments/chinese/ChineseCornerMotif";
 import { ChineseOrnament } from "../../components/ornaments/chinese/ChineseOrnament";
 import { ChineseOrnamentalDivider } from "../../components/ornaments/chinese/ChineseOrnamentalDivider";
 import { ChineseOrnamentalFrame } from "../../components/ornaments/chinese/ChineseOrnamentalFrame";
@@ -109,5 +110,35 @@ export function LivingUiQaPanel() {
         ))}
       </ol>
     </section>
+  );
+}
+
+/**
+ * RC2.3.13R.3.2.6 — the three frame levels on sample cards, for the Chinese
+ * Frame Lab (ChineseFrameLabPanel). Rendered from this registered QA host
+ * (surface qa-gallery) so the ornament host map stays the single source.
+ */
+export function QaFrameLevelSamples() {
+  return (
+    <div className="grid gap-3" data-testid="qa-frame-level-samples">
+      <div className="relative isolate rounded-2xl border border-line bg-surface px-4 pb-4 pt-5" data-qa-frame-level="whisper">
+        <ChineseCornerMotif motif="plum" corner="top-right" intensity="medium" surface="qa-gallery" />
+        <p className="type-eyebrow">Nível 1 · Whisper</p>
+        <p className="type-card-title mt-1">Um canto, sem moldura</p>
+        <p className="type-supporting mt-1">Cartão de continuar da Home.</p>
+      </div>
+      <div className="relative isolate rounded-2xl border border-frame-line/40 bg-surface px-5 pb-5 pt-6" data-qa-frame-level="heritage">
+        <ChineseOrnamentalFrame motif="huiwen" intensity="milestone" tone="accent" surface="qa-gallery" level="heritage" />
+        <p className="type-eyebrow">Nível 2 · Heritage</p>
+        <p className="type-card-title mt-1">Linha dupla, cantos 回纹</p>
+        <p className="type-supporting mt-1">Módulo atual, herói do tópico, início e resumo da Revisão.</p>
+      </div>
+      <div className="relative isolate rounded-3xl border border-frame-line/40 bg-surface px-7 pb-7 pt-8" data-qa-frame-level="ceremony">
+        <ChineseOrnamentalFrame motif="ruyi" intensity="milestone" tone="gold" surface="qa-gallery" level="ceremony" />
+        <p className="type-eyebrow">Nível 3 · Ceremony</p>
+        <p className="type-card-title mt-1">Cantos de nuvem ruyi</p>
+        <p className="type-supporting mt-1">Vitória e recompensa do baú.</p>
+      </div>
+    </div>
   );
 }

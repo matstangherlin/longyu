@@ -579,6 +579,38 @@ export async function seedOnboardedSession(
 }
 
 /**
+ * RC2.3.13R.3.2.6 — the same onboarded learner, signed in to a cloud account.
+ * Cloud-only surfaces (the Danger Zone) need one; the e2e backend is off, so
+ * nothing syncs and the audience stays "seeded".
+ */
+export async function seedOnboardedCloudAccount(page: Page, completedLessons: string[] = ["l1"]) {
+  await seedTelemetryDeclined(page);
+  await allowE2ELocalSession(page);
+  const accountId = "cloud:e2e-learner";
+  const now = Date.now();
+  await page.addInitScript((payload: string) => {
+    localStorage.setItem("longyu-v1", payload);
+  }, buildStorePayload({
+    accountSetupComplete: true,
+    completedLessons,
+    holdAchievementModals: true,
+    lessonMasteryById: topicPathMasteryById(completedLessons),
+    currentAccountId: accountId,
+    accounts: {
+      [accountId]: {
+        id: accountId,
+        name: "Aluno na nuvem",
+        email: "aluno@example.com",
+        authMode: "cloud",
+        createdAt: now - 86_400_000,
+        updatedAt: now - 3_600_000,
+        completedLessons,
+      },
+    },
+  }));
+}
+
+/**
  * RC2.2.18 — aluno que já chegou ao primeiro nó CORE de Cultura da Jornada
  * (o de 你好, depois de l2). É o pré-requisito honesto para abrir o Hub de
  * Cultura e /cultura/:id por URL; antes disso a rota mostra "Ainda não".

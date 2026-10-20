@@ -67,6 +67,11 @@ export const ORNAMENT_HOSTS = {
   "src/features/revisao/RevisaoPage.tsx": ["review-header"],
   "src/features/journey/HomeCognitiveBlocks.tsx": ["home-continue"],
   "src/features/qa/LivingUiQaPanel.tsx": ["qa-gallery"],
+  // RC2.3.13R.3.2.6 — frame levels on owner-named surfaces: the Review summary
+  // (Heritage, inside LessonPlayer's data-review-summary block only) and the
+  // chest-opening ritual panel (Ceremony). No other LessonPlayer surface.
+  "src/features/lesson/LessonPlayer.tsx": ["review-summary"],
+  "src/components/chests/ChestOpeningRitual.tsx": ["reward-hero"],
 };
 
 /** Looping status indicators tied to real state (not ambient decoration). */
@@ -1005,7 +1010,8 @@ export function checkAmbientBudget(src) {
   // Registration sites.
   if (!/useAmbientMotion\(ref, "currentNode"\)/.test(src.bubble)) errors.push("AMBIENT_LOOP_UNREGISTERED");
   if (!/useAmbientMotion\(driftRef, "scene"/.test(src.journeyScene)) errors.push("AMBIENT_LOOP_UNREGISTERED");
-  if (!/useAmbientMotion\(ref, "ornament"\)/.test(src.symbolicOrnaments)) errors.push("AMBIENT_LOOP_UNREGISTERED");
+  // RC2.3.13R.3.2.6 — "still" motifs (no loop) may skip registration; every living one registers.
+  if (!/useAmbientMotion\(ref, "ornament"(?:, profile !== "still")?\)/.test(src.symbolicOrnaments)) errors.push("AMBIENT_LOOP_UNREGISTERED");
   if (!/useAmbientMotion\(blinkRef, "mascot", showBlink\)/.test(src.mascot) || !/ref=\{blinkRef\}/.test(src.mascot)) errors.push("AMBIENT_LOOP_UNREGISTERED");
   if (!/useAmbientMotion\(glowRef, "chest", Boolean\(svgClass\)\)/.test(src.chest) || !/ref=\{glowRef\}/.test(src.chest)) errors.push("AMBIENT_LOOP_UNREGISTERED");
   if (!/function TypingCaret\(\)[\s\S]{0,200}useAmbientMotion\(ref, "mascot"\)/.test(src.guide) || /animate-pulse(?![^\n]*ref=\{ref\})/.test(stripComments(src.guide).replace(/<span ref=\{ref\} className="[^"]*animate-pulse[^"]*" \/>/, ""))) {
@@ -1272,7 +1278,7 @@ export function checkRelease(src) {
   if (!cert) return ["CERT_MISSING"];
   if (!rc) return ["RC_MISSING"];
   // R.3.2.5 lands on the same branch and supersedes this wave in the RC file.
-  if (cert.wave !== "RC2.3.13R.3.2.4" || !["RC2.3.13R.3.2.4", "RC2.3.13R.3.2.5"].includes(rc.wave)) errors.push("WAVE_IDENTITY_DRIFT");
+  if (cert.wave !== "RC2.3.13R.3.2.4" || !["RC2.3.13R.3.2.4", "RC2.3.13R.3.2.5", "RC2.3.13R.3.2.6"].includes(rc.wave)) errors.push("WAVE_IDENTITY_DRIFT");
   for (const section of ["runtime", "crossEngine", "ornamentalSystem", "motionSystem", "performance", "accessibility", "hosted", "artifact", "physical", "entry"]) {
     if (!cert[section] || typeof cert[section] !== "object") errors.push("CERT_SECTION_MISSING");
   }

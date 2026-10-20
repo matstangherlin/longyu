@@ -1,0 +1,130 @@
+{
+  "wave": "RC2.3.13R.3.2.6",
+  "kind": "EMULATED",
+  "physical": "NOT_RUN",
+  "evidence": {
+    "journey": {
+      "maxOwners": 4,
+      "maxScenes": 2,
+      "maxLoops": 9,
+      "offscreen": 0,
+      "unbudgeted": [],
+      "parts": [
+        "scene-light-breathe",
+        "scene-float-breathe",
+        "scene-cloud-drift",
+        "scene-leaf-sway",
+        "scene-lantern-sway"
+      ]
+    },
+    "hiddenTabLoops": 0,
+    "reducedMotion": {
+      "maxOwners": 0,
+      "maxScenes": 0,
+      "maxLoops": 0,
+      "offscreen": 0,
+      "unbudgeted": [],
+      "parts": []
+    },
+    "neutralAfterSlotLoss": [
+      {
+        "cls": "scene-light",
+        "transform": "none",
+        "opacity": "1",
+        "animations": 0
+      },
+      {
+        "cls": "scene-float",
+        "transform": "none",
+        "opacity": "1",
+        "animations": 0
+      },
+      {
+        "cls": "scene-cloud",
+        "transform": "none",
+        "opacity": "1",
+        "animations": 0
+      }
+    ],
+    "entrance": [
+      {
+        "side": "right",
+        "tx": 6
+      },
+      {
+        "side": "left",
+        "tx": -6
+      }
+    ],
+    "cultureTopic": {
+      "owners": 3,
+      "scenes": 1,
+      "rawLoops": 6,
+      "offscreen": 0,
+      "unbudgeted": [],
+      "partNames": [
+        "scene-lantern-sway",
+        "scene-cloud-drift"
+      ]
+    },
+    "frame-clay": {
+      "ariaHidden": true,
+      "pointerEvents": "none",
+      "afterPointerEvents": "none",
+      "afterMask": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 .5H.5V16M4 13V4h9v5H8V7' fill='none' stroke='%23000'/%3E%3C/svg%3E\"), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 .5h15.5V16M12 13V4H3v5h5V7' fill='none' stroke='%23000'/%3E%3C/svg%3E\"), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 15.5H.5V0M4 3v9h9V7H8v2' fill='none' stroke='%23000'/%3E%3C/svg%3E\"), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 15.5h15.5V0M12 3v9H3V7h5v2' fill='none' stroke='%23000'/%3E%3C/svg%3E\")",
+      "ruleColor": "rgb(168, 122, 54)",
+      "probesHitContent": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "focusable": 0
+    },
+    "frame-dark": {
+      "ariaHidden": true,
+      "pointerEvents": "none",
+      "afterPointerEvents": "none",
+      "afterMask": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 .5H.5V16M4 13V4h9v5H8V7' fill='none' stroke='%23000'/%3E%3C/svg%3E\"), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 .5h15.5V16M12 13V4H3v5h5V7' fill='none' stroke='%23000'/%3E%3C/svg%3E\"), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 15.5H.5V0M4 3v9h9V7H8v2' fill='none' stroke='%23000'/%3E%3C/svg%3E\"), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 15.5h15.5V0M12 3v9H3V7h5v2' fill='none' stroke='%23000'/%3E%3C/svg%3E\")",
+      "ruleColor": "rgb(205, 160, 84)",
+      "probesHitContent": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "focusable": 0
+    },
+    "completionMoment": {
+      "count": 3,
+      "infinite": 0,
+      "maxEndMs": 868.0000000000001,
+      "modalOpen": false
+    },
+    "axisGrow": {
+      "grew": 1,
+      "grewUnderModal": 0,
+      "log": [
+        {
+          "t": 24844,
+          "modal": "open"
+        },
+        {
+          "t": 26681,
+          "modal": "closed"
+        },
+        {
+          "t": 27377,
+          "from": "transform: scaleY(0.797771);",
+          "to": "transform: scaleY(0.867369);",
+          "modal": null
+        }
+      ]
+    },
+    "axisFill": {
+      "fill": "partial",
+      "doneBottom": 1882,
+      "nodeCenter": 1882
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useAmbientMotion } from "../../lib/motion/ambientBudget";
+import type { ScenicMotionProfile } from "../../lib/motion/visualMotionProfiles";
 /**
  * RC2.3.13R.3.2.1 — decorative Chinese-inspired ornaments beside the
  * progression axis. Not interactive, not announced, not lesson content.
@@ -17,6 +18,22 @@ export const ORNAMENT_MOTIFS = [
 ] as const;
 
 export type OrnamentMotif = (typeof ORNAMENT_MOTIFS)[number];
+
+/**
+ * RC2.3.13R.3.2.6 — what lives in each motif. Loops run only while the
+ * ornament owns an ambient slot; "still" motifs (lattice-like geometry, the
+ * knot, the seal) only have the one-shot entrance.
+ */
+export const ORNAMENT_MOTION_PROFILE: Readonly<Record<OrnamentMotif, ScenicMotionProfile>> = {
+  lantern: "lantern-sway",
+  fan: "sway",
+  bamboo: "sway",
+  cloud: "cloud-drift",
+  "moon-gate": "still",
+  seal: "still",
+  blossom: "blossom-breathe",
+  knot: "still",
+};
 export type OrnamentSide = "left" | "right";
 export type OrnamentDensity = "culture" | "journey";
 
@@ -27,7 +44,13 @@ export type OrnamentSlot = {
 };
 
 /** One ornament every few nodes, alternating sides. Journey is sparser. */
-export function ornamentPlan(nodeCount: number, density: OrnamentDensity = "culture"): OrnamentSlot[] {
+export function ornamentPlan(
+  nodeCount: number,
+  density: OrnamentDensity = "culture",
+  /** RC2.3.13R.3.2.6 — where the motif cycle starts (per Culture topic), so topics do not all open on the lantern. */
+  motifOffset = 0,
+): OrnamentSlot[] {
+  const start = ((Math.trunc(motifOffset) % ORNAMENT_MOTIFS.length) + ORNAMENT_MOTIFS.length) % ORNAMENT_MOTIFS.length;
   const step = density === "journey" ? 4 : 3;
   const n = Math.max(0, nodeCount);
   if (n === 0) return [];
@@ -38,7 +61,7 @@ export function ornamentPlan(nodeCount: number, density: OrnamentDensity = "cult
     slots.push({
       afterIndex,
       side: slots.length % 2 === 0 ? "left" : "right",
-      motif: ORNAMENT_MOTIFS[slots.length % ORNAMENT_MOTIFS.length],
+      motif: ORNAMENT_MOTIFS[(slots.length + start) % ORNAMENT_MOTIFS.length],
     });
     if (i >= n - 1) break;
   }
@@ -46,7 +69,7 @@ export function ornamentPlan(nodeCount: number, density: OrnamentDensity = "cult
     slots.push({
       afterIndex: n - 1,
       side: "right",
-      motif: ORNAMENT_MOTIFS[1],
+      motif: ORNAMENT_MOTIFS[(1 + start) % ORNAMENT_MOTIFS.length],
     });
   }
   return slots;
@@ -57,10 +80,10 @@ function motifPath(motif: OrnamentMotif) {
     case "lantern":
       return (
         <>
-          <path d="M16 4v2" />
-          <path d="M11 6h10l-1.2 12.2a4 4 0 0 1-4 3.6h-.6a4 4 0 0 1-4-3.6L11 6Z" />
+          <path d="M16 3v3" />
+          <path d="M11 6h10l-1.2 12.2a4 4 0 0 1-4 3.6h-.6a4 4 0 0 1-4-3.6L11 6Z" fill="currentColor" fillOpacity={0.14} />
           <path d="M13 11h6M13.4 15h5.2" />
-          <path d="M16 21.8V24" />
+          <path d="M16 21.8V25M14.4 25h3.2M15 25l-.4 3.2M17 25l.4 3.2" />
         </>
       );
     case "fan":
@@ -81,9 +104,12 @@ function motifPath(motif: OrnamentMotif) {
         </>
       );
     case "cloud":
+      // Xiangyun 祥云: a scroll that curls back on itself, not a weather cloud.
       return (
         <>
-          <path d="M8 18h13a4 4 0 0 0 .4-8 5.5 5.5 0 0 0-10.5-1.5A4 4 0 0 0 8 18Z" />
+          <path d="M5 21h21" />
+          <path d="M8.5 21c-2.3 0-3.4-2.7-1.6-4.1 1.4-1.1 3.5-.2 3.5 1.6 0 .9-.7 1.5-1.4 1.5" />
+          <path d="M12 21c-.6-4.2 1.9-8 6-8 3.1 0 5.6 2.4 5.6 5.4 0 1.5-1.2 2.6-2.6 2.6-1.3 0-2.2-.9-2.2-2.1 0-1 .8-1.8 1.8-1.8" />
         </>
       );
     case "moon-gate":
@@ -101,20 +127,25 @@ function motifPath(motif: OrnamentMotif) {
         </>
       );
     case "blossom":
+      // Plum 梅: five round petals around a gold-dot heart.
       return (
         <>
-          <circle cx="16" cy="16" r="1.6" />
-          <path d="M16 8c1.6 2.2 1.6 3.8 0 5-1.6-1.2-1.6-2.8 0-5Z" />
-          <path d="M16 24c-1.6-2.2-1.6-3.8 0-5 1.6 1.2 1.6 2.8 0 5Z" />
-          <path d="M8 16c2.2-1.6 3.8-1.6 5 0-1.2 1.6-2.8 1.6-5 0Z" />
-          <path d="M24 16c-2.2 1.6-3.8 1.6-5 0 1.2-1.6 2.8-1.6 5 0Z" />
+          <circle cx="16" cy="10.6" r="3.2" />
+          <circle cx="21.1" cy="14.3" r="3.2" />
+          <circle cx="19.2" cy="20.4" r="3.2" />
+          <circle cx="12.8" cy="20.4" r="3.2" />
+          <circle cx="10.9" cy="14.3" r="3.2" />
+          <circle cx="16" cy="16" r="1.4" fill="currentColor" />
         </>
       );
     case "knot":
+      // Chinese knot 中国结: a lattice diamond on its cord, with a tassel.
       return (
         <>
-          <path d="M12 8c6 0 8 4 4 8s-2 8 4 8" />
-          <path d="M20 8c-6 0-8 4-4 8s2 8-4 8" />
+          <path d="M16 2.5v3" />
+          <path d="M16 5.5l5.5 5.5-5.5 5.5-5.5-5.5Z" />
+          <path d="M16 8.6l2.4 2.4-2.4 2.4-2.4-2.4Z" />
+          <path d="M16 16.5v3M14 19.5h4M14.6 19.5l-.6 9M17.4 19.5l.6 9M16 19.5v9" />
         </>
       );
     default:
@@ -124,8 +155,11 @@ function motifPath(motif: OrnamentMotif) {
 
 export function SymbolicOrnament({ motif }: { motif: OrnamentMotif }) {
   // RC2.3.13R.3.2.4 — the drift loop joins the ambient budget (lowest priority).
+  // RC2.3.13R.3.2.6 — the slot now moves the motif's own subject (orn-part).
   const ref = useRef<SVGSVGElement>(null);
-  useAmbientMotion(ref, "ornament");
+  const profile = ORNAMENT_MOTION_PROFILE[motif];
+  // A "still" motif (seal, knot, moon gate) never loops, so it never takes one of the two ornament slots.
+  useAmbientMotion(ref, "ornament", profile !== "still");
   return (
     <svg
       ref={ref}
@@ -140,8 +174,9 @@ export function SymbolicOrnament({ motif }: { motif: OrnamentMotif }) {
       className="symbolic-ornament text-accent/55 motion-safe:animate-[ornament-drift_7s_var(--ease-standard)_infinite] motion-reduce:animate-none"
       aria-hidden
       data-symbolic-ornament={motif}
+      data-ornament-profile={profile}
     >
-      {motifPath(motif)}
+      <g className="orn-part">{motifPath(motif)}</g>
     </svg>
   );
 }
@@ -149,11 +184,13 @@ export function SymbolicOrnament({ motif }: { motif: OrnamentMotif }) {
 export function SymbolicOrnamentRail({
   nodeCount,
   density = "culture",
+  motifOffset = 0,
 }: {
   nodeCount: number;
   density?: OrnamentDensity;
+  motifOffset?: number;
 }) {
-  const slots = ornamentPlan(nodeCount, density);
+  const slots = ornamentPlan(nodeCount, density, motifOffset);
   if (slots.length === 0) return null;
   return (
     <div

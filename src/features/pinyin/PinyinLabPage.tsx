@@ -357,7 +357,7 @@ export function PinyinLabPage() {
                       <Pinyin text={pinyin} />
                     </span>
                     <ToneContour tone={tone} mode="MID" />
-                    <span className="text-[9px] font-medium text-ink-faint">{tone === 5 ? "neutro" : `${tone}º`}</span>
+                    <span className="text-[10px] font-medium text-ink-faint">{tone === 5 ? "neutro" : `${tone}º`}</span>
                   </button>
                 ))}
               </div>

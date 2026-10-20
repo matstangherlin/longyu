@@ -110,3 +110,24 @@ export const IconEye = (p: P) => (
 export const IconEyeOff = (p: P) => (
   <svg {...base(p)}><path d="m3 3 18 18" /><path d="M10.6 5.2A10.8 10.8 0 0 1 12 5c6 0 9.2 7 9.2 7a16 16 0 0 1-2.8 3.6M6.2 6.3C3.8 8 2.8 12 2.8 12s3.2 7 9.2 7a9.8 9.8 0 0 0 3.1-.5" /><path d="M9.9 9.9a2.2 2.2 0 0 0 3.1 3.1" /></svg>
 );
+
+/*
+ * RC2.3.13R.3.2.6 — Longyu Chinese icons: the same stroke family as the
+ * product icons above (24-unit box, 1.8 stroke, round caps), for China-specific
+ * sections. Never emoji in their place.
+ */
+export const IconMoon = (p: P) => (
+  <svg {...base(p)}><circle cx="12" cy="10.5" r="6.5" /><path d="M3 19.5h7.5M13.5 19.5H21" /><path d="M9 8.5a3.5 3.5 0 0 1 3-1.8" /></svg>
+);
+export const IconPagoda = (p: P) => (
+  <svg {...base(p)}><path d="M12 2.5v2" /><path d="M4.5 8.5c3.2-.8 5-2.4 7.5-4 2.5 1.6 4.3 3.2 7.5 4" /><path d="M7.5 8.5v3M16.5 8.5v3" /><path d="M5 13.5c3-.8 4.6-2 7-2s4 1.2 7 2" /><path d="M8 13.5V20h8v-6.5" /><path d="M11 20v-3h2v3" /><path d="M4 20.5h16" /></svg>
+);
+export const IconBrush = (p: P) => (
+  <svg {...base(p)}><path d="M19.5 3.5 12 11" /><path d="m10.2 9.2 2.6 2.6" /><path d="M10.8 11.2c-2.6-.4-4.6 1.4-4.6 4 0 1.8-1 3.4-2.7 4.3 4.2.6 8.3-1.1 8.4-5" /></svg>
+);
+export const IconSeal = (p: P) => (
+  <svg {...base(p)}><rect x="4.5" y="4.5" width="15" height="15" rx="2" /><path d="M8.5 8.5h3v3h-3zM12.5 12.5h3v3h-3zM12.5 8.5h3M8.5 15.5h3" /></svg>
+);
+export const IconTrain = (p: P) => (
+  <svg {...base(p)}><path d="M3.5 16.5h12a4.5 4.5 0 0 0 4.5-4.5c0-2.5-4-4.5-9-4.5H3.5" /><path d="M3.5 11.5h9.5" /><path d="M6.5 16.5 5.5 20M15 16.5l1 3.5" /><path d="M3 20h18" /></svg>
+);

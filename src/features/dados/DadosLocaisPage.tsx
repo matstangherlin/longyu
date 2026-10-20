@@ -6,18 +6,7 @@ import { PageShell, PageHeader, CompactCard, ActionButton } from "../../componen
 import { IconBook, IconRefresh, IconShield } from "../../components/ui/Icon";
 import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
-
-function downloadJson(filename: string, data: unknown) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
+import { exportJsonFile } from "../../lib/platform/fileExport";
 
 export function DadosLocaisPage() {
   const { t, instructionLocale: locale } = useTranslation();
@@ -25,21 +14,24 @@ export function DadosLocaisPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
 
-  function download(kind: "export" | "backup") {
+  async function download(kind: "export" | "backup") {
     const snapshot = activeLearningRepository().exportSnapshot();
     if (!validateProgressSnapshot(snapshot).ok) {
       setNotice(t("hub.noLocalProfile"));
       return;
     }
     const date = new Date(snapshot.exportedAt).toISOString().slice(0, 10);
-    downloadJson(`longyu-${kind === "backup" ? "backup" : "progresso"}-${date}.json`, { kind, ...snapshot });
-    setNotice(kind === "backup" ? t("hub.backupReady") : t("hub.exportReady"));
+    // RC2.3.13R.3.2.6 — say what really happened: Android WebView cannot save the file.
+    const outcome = await exportJsonFile(`longyu-${kind === "backup" ? "backup" : "progresso"}-${date}.json`, { kind, ...snapshot });
+    if (outcome === "downloaded") setNotice(kind === "backup" ? t("hub.backupReady") : t("hub.exportReady"));
+    else setNotice(t(outcome === "copied" ? "settings.exportCopied" : "settings.exportWebOnly"));
   }
 
   async function exportPrivacyBundle() {
     const bundle = await buildPrivacyExportBundle();
-    downloadJson(`longyu-lgpd-${bundle.exportedAt.slice(0, 10)}.json`, bundle);
-    setNotice(t("hub.privacyExportReady"));
+    const outcome = await exportJsonFile(`longyu-lgpd-${bundle.exportedAt.slice(0, 10)}.json`, bundle);
+    if (outcome === "downloaded") setNotice(t("hub.privacyExportReady"));
+    else setNotice(t(outcome === "copied" ? "settings.exportCopied" : "settings.exportWebOnly"));
   }
 
   function eraseLocalData() {

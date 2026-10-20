@@ -37,6 +37,23 @@ export const AMBIENT_PRIORITY = {
 export type AmbientKind = keyof typeof AMBIENT_PRIORITY;
 
 /**
+ * RC2.3.13R.3.2.6 — owners per kind inside the same budget of 4. A living
+ * scene animates a few of its own subjects (lanterns, clouds, steam), but it
+ * stays ONE owner. At most two scenes and two lane ornaments run at once, so
+ * the current node always keeps its halo and a screen never moves everywhere.
+ */
+export const AMBIENT_KIND_CAP: Readonly<Partial<Record<AmbientKind, number>>> = {
+  scene: 2,
+  ornament: 2,
+};
+
+/** Looping parts one owner may animate (a scene's lanterns + cloud, …). */
+export const MAX_AMBIENT_PARTS_PER_OWNER = 4;
+
+/** Every running ambient loop on screen: owners × their parts, never more. */
+export const MAX_AMBIENT_LOOPS = MAX_VISIBLE_AMBIENT_ANIMATIONS * MAX_AMBIENT_PARTS_PER_OWNER;
+
+/**
  * RC2.3.13R.3.2.5 — the chest opening ritual (press → lid → light → reward)
  * before the already-claimed rewards are shown. Reduced motion: 0.
  */

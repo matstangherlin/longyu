@@ -1313,7 +1313,18 @@
     "validate:ux-closure-accessibility": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs a11y",
     "validate:rc2-3-13r3-2-5-premium-ux-closure": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs validate",
     "test:rc2-3-13r3-2-5-premium-ux-closure": "node scripts/rc2-3-13r3-2-5-premium-ux-closure.mjs test",
-    "gate:rc2-3-13r3-2-5-premium-ux-closure": "npm run validate:premium-surface-system && npm run validate:interactive-state-consistency && npm run validate:resilient-ui-states && npm run validate:reward-ux-contract && npm run validate:guide-ux-contract && npm run validate:mobile-ergonomics && npm run validate:ux-closure-accessibility && npm run validate:rc2-3-13r3-2-5-premium-ux-closure && npm run test:rc2-3-13r3-2-5-premium-ux-closure && npm run gate:rc2-3-13r3-2-4-living-ui-ornamental-polish"
+    "gate:rc2-3-13r3-2-5-premium-ux-closure": "npm run validate:premium-surface-system && npm run validate:interactive-state-consistency && npm run validate:resilient-ui-states && npm run validate:reward-ux-contract && npm run validate:guide-ux-contract && npm run validate:mobile-ergonomics && npm run validate:ux-closure-accessibility && npm run validate:rc2-3-13r3-2-5-premium-ux-closure && npm run test:rc2-3-13r3-2-5-premium-ux-closure && npm run gate:rc2-3-13r3-2-4-living-ui-ornamental-polish",
+    "validate:scenic-motion-profiles": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs profiles",
+    "validate:animated-svg-role-contract": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs svg",
+    "validate:ambient-scene-ownership": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs ownership",
+    "validate:chinese-frame-system": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs frames",
+    "validate:chinese-visual-density": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs density",
+    "validate:guidance-arbitration": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs guidance",
+    "validate:typography-icon-audit": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs type",
+    "validate:progression-living": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs progression",
+    "validate:rc2-3-13r3-2-6-chinese-living-canvas": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs validate",
+    "test:rc2-3-13r3-2-6-chinese-living-canvas": "node scripts/rc2-3-13r3-2-6-chinese-living-canvas.mjs test",
+    "gate:rc2-3-13r3-2-6-chinese-living-canvas": "npm run validate:scenic-motion-profiles && npm run validate:animated-svg-role-contract && npm run validate:ambient-scene-ownership && npm run validate:chinese-frame-system && npm run validate:chinese-visual-density && npm run validate:guidance-arbitration && npm run validate:typography-icon-audit && npm run validate:progression-living && npm run validate:rc2-3-13r3-2-6-chinese-living-canvas && npm run test:rc2-3-13r3-2-6-chinese-living-canvas && npm run gate:rc2-3-13r3-2-5-premium-ux-closure"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

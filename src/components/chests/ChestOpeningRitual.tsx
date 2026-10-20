@@ -5,6 +5,7 @@ import { chestOpenSound, playSoundFx } from "../../lib/soundFx";
 import { Button, Pill } from "../ui/primitives";
 import { IconX } from "../ui/Icon";
 import { ModalOverlay } from "../ui/ModalOverlay";
+import { ChineseOrnamentalFrame } from "../ornaments/chinese/ChineseOrnamentalFrame";
 import { chestRewardName, localizedChestVisual } from "./chestMeta";
 import { LongyuChest } from "./LongyuChest";
 import { RewardReveal } from "./RewardReveal";
@@ -26,6 +27,11 @@ export type ChestRitualPhase = "closed" | "opening" | "revealed" | "unavailable"
  *   honest "unavailable" state instead of silently closing.
  * - Sequence (~760 ms): press 0–240 ms · lid 120–480 · aura 200–620 ·
  *   sparks 0–760 · reveal at CHEST_REVEAL_MS. One time per claim, no loop.
+ *
+ * RC2.3.13R.3.2.6 — the panel is the reward hero: a Ceremony frame (gilt rule
+ * + ruyi-cloud corners) sits under its content, decorative and inert, drawn
+ * once per mount (never under reduced motion). It frames every phase the same
+ * way, so it never signals the claim's result — the copy and the status do.
  */
 export function ChestOpeningRitual({
   type,
@@ -97,22 +103,33 @@ export function ChestOpeningRitual({
       onBackdropClick={() => closable && onClose()}
     >
       <div
-        className="surface-reward relative flex min-h-[100dvh] w-full max-w-md flex-col overflow-y-auto border px-5 pb-[calc(var(--app-safe-bottom)+1rem)] pt-[calc(var(--app-safe-top)+1.5rem)] text-center sm:min-h-0 sm:rounded-4xl sm:p-6"
+        className="surface-reward relative isolate flex min-h-[100dvh] w-full max-w-md flex-col overflow-hidden border px-5 pb-[calc(var(--app-safe-bottom)+2rem)] pt-[calc(var(--app-safe-top)+1.5rem)] text-center sm:min-h-0 sm:rounded-4xl sm:p-6 sm:pb-9"
         data-chest-ritual={phase}
         onClick={(event) => event.stopPropagation()}
       >
+        {/* Ceremony frame (RC2.3.13R.3.2.6): 8 px in from the safe areas on the
+            full-screen sheet, 10 px inside the card's curve from sm. pb +2rem
+            (sm:pb-9 on the card) lifts the CTA clear of the lower 24 px hooks;
+            the close button sits 36 px in (right-9, top +2.25rem), past the
+            top-right hook (which ends 32/34 px in), so its hit area and focus
+            ring never land on the cloud. */}
+        <ChineseOrnamentalFrame motif="ruyi" intensity="milestone" tone="gold" animated surface="reward-hero" level="ceremony" />
         {closable && (
           <Button
             size="icon"
             variant="ghost"
             onClick={onClose}
-            className="absolute right-4 top-[calc(var(--app-safe-top)+1rem)] z-10 sm:top-4"
+            className="absolute right-9 top-[calc(var(--app-safe-top)+2.25rem)] z-10 sm:top-9"
             aria-label={t("common.close")}
           >
             <IconX width={18} height={18} />
           </Button>
         )}
 
+        {/* RC2.3.13R.3.2.6 — the panel itself never scrolls (the Ceremony frame
+            stays on it); long reward lists scroll here, clipped inside the
+            frame's band, with the CTA still pushed to the bottom (mt-auto). */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain" data-chest-ritual-scroll>
         <div className="mx-auto mt-6 flex justify-center sm:mt-2">
           <button
             type="button"
@@ -199,6 +216,7 @@ export function ChestOpeningRitual({
             </Button>
           </div>
         )}
+        </div>
       </div>
     </ModalOverlay>
   );
