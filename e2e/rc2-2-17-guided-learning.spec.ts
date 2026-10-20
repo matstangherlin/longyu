@@ -6,6 +6,7 @@ import {
   seedCourseDirection,
   seedInterfaceLocale,
   seedLessonPlayerReady,
+  seedOnboardedCloudAccount,
   seedOnboardedSession,
   seedTelemetryDeclined,
   waitForLazyPage,
@@ -243,5 +244,28 @@ test.describe("RC2.2.17 · camada guiada e Ajustes", () => {
     await expect(modes.locator("[data-appearance-mode]")).toHaveCount(3);
     await modes.locator('[data-appearance-mode="dark"]').click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+
+  test("Conta na nuvem mostra a Zona de perigo: confirmação com a frase exata, e Cancelar não apaga nada", async ({ page }) => {
+    // RC2.3.13R.3.2.6 — only a cloud account is offered account deletion; its
+    // guard against an accidental delete stays covered here.
+    await seedOnboardedCloudAccount(page);
+    await page.goto("/config/conta");
+    await waitForLazyPage(page);
+    await dismissBlockingOverlays(page);
+    await expect(page.getByTestId("settings-danger-zone")).toBeVisible();
+    await page.getByTestId("settings-delete-account").click();
+    const confirm = page.getByTestId("settings-delete-confirm");
+    await expect(confirm).toBeVisible();
+    const finalButton = page.getByTestId("settings-delete-final");
+    await expect(finalButton).toBeDisabled();
+    const phrase = page.getByTestId("settings-delete-phrase");
+    await phrase.fill("excluir conta");
+    await expect(finalButton).toBeDisabled();
+    await phrase.fill("EXCLUIR CONTA");
+    await expect(finalButton).toBeEnabled();
+    await confirm.getByRole("button", { name: "Cancelar" }).click();
+    await expect(confirm).toHaveCount(0);
+    await expect(page.getByTestId("settings-delete-account")).toBeVisible();
   });
 });

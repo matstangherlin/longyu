@@ -345,8 +345,38 @@ test.describe("RC2.3.13R.3.2.6 Chinese Living Canvas", () => {
       // Record the moment's own animations the instant it starts playing, and
       // whether any modal was open at that instant (it must wait for them).
       await page.evaluate(() => {
-        const w = window as unknown as { __moment?: { count: number; infinite: number; maxEndMs: number; modalOpen: boolean } | null };
+        const w = window as unknown as {
+          __moment?: { count: number; infinite: number; maxEndMs: number; modalOpen: boolean } | null;
+          __axis?: { grew: number; grewUnderModal: number };
+        };
         w.__moment = null;
+        // The Journey axis is the moment's line: its grow waits for the same calm screen.
+        w.__axis = { grew: 0, grewUnderModal: 0 };
+        // A grow is the fill rising with its transition on (the old fill painted first is not one).
+        const scaleOf = (style: string | null) => Number(/scaleY\(([\d.]+)\)/.exec(style ?? "")?.[1] ?? NaN);
+        new MutationObserver((records) => {
+          for (const r of records) {
+            const el = r.target as Element;
+            if (!el.classList?.contains("journey-axis-done") || el.getAttribute("data-axis-grows") !== "true") continue;
+            if (!(scaleOf(el.getAttribute("style")) > scaleOf(r.oldValue) + 0.001)) continue;
+            w.__axis!.grew += 1;
+            const modal = document.querySelector('[aria-modal="true"]');
+            if (modal !== null) w.__axis!.grewUnderModal += 1;
+            ((w.__axis as unknown as { log?: unknown[] }).log ??= []).push({
+              t: Math.round(performance.now()),
+              from: r.oldValue,
+              to: el.getAttribute("style"),
+              modal: modal ? modal.getAttribute("data-testid") ?? modal.getAttribute("aria-labelledby") ?? modal.tagName : null,
+            });
+          }
+        }).observe(document.body, { subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ["style"] });
+        let modalWas = false;
+        new MutationObserver(() => {
+          const modalNow = document.querySelector('[aria-modal="true"]') !== null;
+          if (modalNow === modalWas) return;
+          modalWas = modalNow;
+          ((w.__axis as unknown as { log?: unknown[] }).log ??= []).push({ t: Math.round(performance.now()), modal: modalNow ? "open" : "closed" });
+        }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-modal"] });
         const read = (el: Element) => {
           const modalOpen = document.querySelector('[aria-modal="true"]') !== null;
           requestAnimationFrame(() => {
@@ -391,6 +421,13 @@ test.describe("RC2.3.13R.3.2.6 Chinese Living Canvas", () => {
       expect(timing.infinite, "the moment never loops").toBe(0);
       expect(timing.maxEndMs, "the moment ends within 1.1 s").toBeLessThanOrEqual(1100);
       expect(timing.modalOpen, "the moment never plays under a modal").toBe(false);
+      await expect
+        .poll(() => page.evaluate(() => (window as unknown as { __axis: { grew: number } }).__axis.grew), { timeout: 10_000 })
+        .toBeGreaterThan(0);
+      const axisGrow = await page.evaluate(() => (window as unknown as { __axis: { grew: number; grewUnderModal: number } }).__axis);
+      evidence.axisGrow = axisGrow;
+      if (axisGrow.grewUnderModal) console.log("axis grow log", JSON.stringify(axisGrow));
+      expect(axisGrow.grewUnderModal, "the axis never grows under a milestone or streak screen").toBe(0);
       // Then still: the moment's styles leave.
       await expect(moment).toHaveAttribute("data-completion-moment", "done", { timeout: 3_000 });
       await expect(page.locator('[data-testid="progression-complete-spark"]')).toHaveCount(0);

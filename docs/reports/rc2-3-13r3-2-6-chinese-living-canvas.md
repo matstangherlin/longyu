@@ -25,16 +25,16 @@ records that hosted PASS and the merge.
   - Topic cards get a stronger rest border, a lacquer line on hover and a gilt seal around the icon.
 - **Frames.** One frame language in three levels:
   - **Whisper:** the Home continue card.
-  - **Heritage** (a solid gilt inner rule whose 回纹 key-fret hooks grow out of it): the current Journey module, the Culture topic hero, Review start and Review summary.
+  - **Heritage** (a solid gilt inner rule whose 回纹 key-fret hooks grow out of it): the current Journey module, the Culture topic hero, the Review correction-round header and the in-lesson error-review summary.
   - **Ceremony** (ruyi-cloud corners): Victory and the chest reward hero.
-  - Frames use theme tokens and vector masks. They make one entrance, never loop, never take taps and never cover text. Per-surface insets keep the hooks clear of CTAs and the close button.
+  - Frames use theme tokens and vector masks. They make at most one entrance (the current module, Victory and the chest reward; the others are drawn still), never loop, never take taps and never cover text. Per-surface insets keep the hooks clear of CTAs and the close button.
 - **Progression.**
   - Connectors are calm states (complete, lead-in, open, locked); the Journey axis draws its completed part to the current node.
-  - A node completed in this session plays one moment (≤ 1.1 s): the ring settles, the check appears, a tiny sparkle, the line fills.
-  - It never plays on a cold start, a remount, under reduced motion or under another ceremony.
+  - A node completed in this session plays one moment (≤ 1.1 s): the ring settles, the check appears, a tiny sparkle, the line fills (the connector on Culture paths, the axis on the Journey).
+  - It never plays on a cold start, a remount or under reduced motion, and the whole moment, line included, waits until milestone and streak screens have closed.
 - **Guidance.**
-  - One primary guide surface at a time (critical > page first-visit > optional). The first Culture visit belongs to its own guide, remembered per account.
-  - Guides type only once seen (≥ 60 % on screen, visible document), start once and never restart.
+  - Guide surfaces follow one ladder (critical > page first-visit > optional), and only one guide types at a time. The first Culture visit belongs to its own guide, remembered per account.
+  - Guides type only once seen (≥ 60 % on screen, visible document), start once and never restart on scroll.
 - **Typography and icons.**
   - Five Chinese line icons (moon, pagoda, brush, seal, train) in the Longyu stroke family replace placeholder emoji: the More-hub lock, the Culture card dragon and the collection icons.
   - 8–9 px labels are raised to 10 px.

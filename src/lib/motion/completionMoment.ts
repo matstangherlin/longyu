@@ -82,12 +82,54 @@ export function ceremonyOrModalOnScreen(): boolean {
 }
 
 /**
+ * Calls `onCalm` once no ceremony or modal is on screen — after
+ * CEREMONY_SETTLE_MS of calm when one was seen — or `onGiveUp` after
+ * COMPLETION_PENDING_MAX_MS. The first look is a macrotask later, so a
+ * ceremony mounting in the same commit (its lock is a passive effect) is
+ * seen. Shared by the node moment and the Journey axis fill, so the whole
+ * moment waits on the same rule. Returns a cancel function.
+ */
+export function whenScreenCalm(onCalm: () => void, onGiveUp: () => void): () => void {
+  const startedWaiting = Date.now();
+  let calmSince: number | null = null;
+  let sawCeremony = false;
+  let settled = false;
+  let timer = 0;
+  const attempt = () => {
+    if (settled) return;
+    const now = Date.now();
+    if (now - startedWaiting > COMPLETION_PENDING_MAX_MS) {
+      settled = true;
+      onGiveUp();
+      return;
+    }
+    if (ceremonyOrModalOnScreen()) {
+      sawCeremony = true;
+      calmSince = null;
+      timer = window.setTimeout(attempt, 300);
+      return;
+    }
+    if (calmSince === null) calmSince = now;
+    if (sawCeremony && now - calmSince < CEREMONY_SETTLE_MS) {
+      timer = window.setTimeout(attempt, 150);
+      return;
+    }
+    settled = true;
+    onCalm();
+  };
+  timer = window.setTimeout(attempt, 60);
+  return () => {
+    settled = true;
+    window.clearTimeout(timer);
+  };
+}
+
+/**
  * Bubble binding. Render-time code only peeks (StrictMode runs initializers
  * twice; a claim there would be eaten by the discarded call). An eligible node
  * renders "pending" — the moment's starting pose, static — and a passive
- * effect starts it: after this commit's other effects (a ceremony mounting
- * with the bubble registers its lock in a passive effect), once no ceremony
- * or modal is up. The claim is committed once (the ref survives StrictMode).
+ * effect starts it once the screen is calm (whenScreenCalm). The claim is
+ * committed once (the ref survives StrictMode).
  */
 export function useCompletionMoment(id: string, state: CompletionNodeState): CompletionMomentPhase {
   const [phase, setPhase] = useState<CompletionMomentPhase>(() => (peekCompletionMoment(id, state) ? "pending" : null));
@@ -101,37 +143,19 @@ export function useCompletionMoment(id: string, state: CompletionNodeState): Com
   }, [id, state]);
   useEffect(() => {
     if (phase !== "pending" || owned.current) return;
-    const startedWaiting = Date.now();
-    let calmSince: number | null = null;
-    let sawCeremony = false;
-    let timer = 0;
-    const attempt = () => {
-      if (owned.current) return;
-      const now = Date.now();
-      if (now - startedWaiting > COMPLETION_PENDING_MAX_MS) {
+    return whenScreenCalm(
+      () => {
+        if (owned.current) return;
+        owned.current = true;
+        setPhase(claimSessionOnce(momentKey(id)) ? "play" : null);
+      },
+      () => {
         // Never left in the starting pose: drop the moment, show the final state.
         claimSessionOnce(momentKey(id));
         owned.current = true;
         setPhase(null);
-        return;
-      }
-      if (ceremonyOrModalOnScreen()) {
-        sawCeremony = true;
-        calmSince = null;
-        timer = window.setTimeout(attempt, 300);
-        return;
-      }
-      if (calmSince === null) calmSince = now;
-      if (sawCeremony && now - calmSince < CEREMONY_SETTLE_MS) {
-        timer = window.setTimeout(attempt, 150);
-        return;
-      }
-      owned.current = true;
-      setPhase(claimSessionOnce(momentKey(id)) ? "play" : null);
-    };
-    // A macrotask later: this commit's passive effects (ceremony locks) have run.
-    timer = window.setTimeout(attempt, 60);
-    return () => window.clearTimeout(timer);
+      },
+    );
   }, [phase, id]);
   // Then still: the moment's styles (and the sparkle) leave once it is over.
   useEffect(() => {

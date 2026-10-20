@@ -1,4 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { whenScreenCalm } from "../../lib/motion/completionMoment";
+import { prefersReducedMotion } from "../../lib/motion/livingUiMotion";
 
 /**
  * RC2.3.13R.3.2.6 — the completed part of a Journey module's axis line: a calm
@@ -8,8 +10,11 @@ import { useLayoutEffect, useRef, useState } from "react";
  *
  * The last fill per module is kept for the session: coming back from a lesson
  * that completed a node, the line grows once from where it was to the new
- * current node. A first visit, a remount at the same place or reduced motion
- * simply draws it (progression-living.css).
+ * current node. It is the Journey's part of the completion moment, so it waits
+ * on the same rule as the node (whenScreenCalm): it holds the old fill while a
+ * milestone or streak screen is up, and grows once the screen is calm. A first
+ * visit, a remount at the same place or reduced motion simply draws it
+ * (progression-living.css).
  */
 const lastFill = new Map<string, number>();
 
@@ -48,25 +53,45 @@ export function JourneyAxisDone({
       const center = node.top + node.height / 2 - lineBox.top;
       return Math.max(0, Math.min(1, center / lineBox.height));
     };
+    // lastFill is what the learner last saw drawn: a grow still waiting on a
+    // ceremony is not recorded until it plays, so a re-run (the current lesson
+    // settling after a Victory) holds the old fill instead of jumping to it.
     const previous = lastFill.get(unitId);
     const next = measure();
-    lastFill.set(unitId, next);
-    let frameId = 0;
-    if (previous !== undefined && next > previous + 0.001) {
-      // Paint the old fill first, then grow to the new one (one transition).
+    let target: number | null = null;
+    let cancelGrow = () => {};
+    // Reduced motion: the final fill at once, like the node (no grow to wait for).
+    if (previous !== undefined && next > previous + 0.001 && !prefersReducedMotion()) {
+      // Paint the old fill first, then grow to the new one (one transition)
+      // once no ceremony or modal covers the path.
+      target = next;
       setScale(previous);
       setGrows(true);
-      frameId = requestAnimationFrame(() => {
-        frameId = requestAnimationFrame(() => setScale(next));
+      const settle = () => {
+        const value = target ?? next;
+        target = null;
+        lastFill.set(unitId, value);
+        setScale(value);
+      };
+      cancelGrow = whenScreenCalm(settle, () => {
+        setGrows(false);
+        settle();
       });
     } else {
+      lastFill.set(unitId, next);
+      setGrows(false);
       setScale(next);
     }
-    if (typeof ResizeObserver === "undefined") return () => cancelAnimationFrame(frameId);
+    if (typeof ResizeObserver === "undefined") return () => cancelGrow();
     // Expanding rows or late scenes move the current node: follow it, without motion.
     // (Its first callback, right after observe(), reports the same fill and is ignored.)
+    // A grow still waiting just aims at the node's new place.
     const ro = new ResizeObserver(() => {
       const value = measure();
+      if (target !== null) {
+        target = value;
+        return;
+      }
       if (Math.abs(value - (lastFill.get(unitId) ?? 0)) < 0.002) return;
       lastFill.set(unitId, value);
       setGrows(false);
@@ -74,7 +99,7 @@ export function JourneyAxisDone({
     });
     ro.observe(frame);
     return () => {
-      cancelAnimationFrame(frameId);
+      cancelGrow();
       ro.disconnect();
     };
   }, [unitId, fill, currentLessonId]);

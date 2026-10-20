@@ -12,7 +12,7 @@ An authored frame language, not a corner icon pasted on a card.
 | Level | Drawing | Where |
 | --- | --- | --- |
 | 1 · Whisper | one corner motif (`ChineseCornerMotif`), no rule | Home continue card |
-| 2 · Heritage | lacquer outer border + a solid gilt inner rule (双线框) whose 回纹 key-fret hooks grow out of the rule at each corner | current Journey module, Culture topic hero, Review start, Review summary |
+| 2 · Heritage | lacquer outer border + a solid gilt inner rule (双线框) whose 回纹 key-fret hooks grow out of the rule at each corner | current Journey module, Culture topic hero, Review correction-round header, in-lesson error-review summary |
 | 3 · Ceremony | the same double rule with ruyi-cloud corners (24 px) | Victory, chest reward hero |
 
 The corner is structure: the hook's first stroke lies on the inner rule
@@ -30,8 +30,9 @@ line and corner meet without a gap or an overlap.
 - Per-surface insets keep each hook inside its host's radius and clear of
   text and controls (Review header 6 px, summary 8 px, Victory 10/10/6 px,
   reward hero inside the safe areas on phones).
-- One entrance per mount (`data-animate="once"`, `cframe-settle`), never a
-  loop; static under reduced motion.
+- At most one entrance per mount (`data-animate="once"`, `cframe-settle`), only
+  where the host passes `animated` (current module, Victory, chest reward);
+  never a loop; static under reduced motion.
 - Never on ordinary cards, lesson tasks, topic cards, buttons or list rows.
   One structural frame per screen (Journey, Culture topic, Victory).
 

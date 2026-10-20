@@ -1019,6 +1019,50 @@ function runCompletionMoment(src, { reduced = false } = {}) {
   return { mod, sessionOnce };
 }
 
+/** whenScreenCalm on a fake clock: `modal` is what [aria-modal="true"] finds; `advance(ms)` runs due timers. */
+function runScreenCalm(src) {
+  let now = 5_000_000;
+  let modal = false;
+  let seq = 0;
+  const timers = new Map();
+  const window = {
+    setTimeout: (fn, ms) => {
+      seq += 1;
+      timers.set(seq, { fn, due: now + ms });
+      return seq;
+    },
+    clearTimeout: (id) => timers.delete(id),
+  };
+  const document = { querySelector: () => (modal ? {} : null) };
+  const { mod } = (() => {
+    const sessionOnce = evalSource(src.sessionOnce ?? "");
+    return {
+      mod: evalSource(src.completionMoment ?? "", {
+        requires: {
+          react: { useEffect() {}, useLayoutEffect() {}, useRef: (v) => ({ current: v }), useState: (v) => [typeof v === "function" ? v() : v, () => {}] },
+          "../celebrationLock": { isCelebrationActive: () => false, useOtherCelebrationActive: () => false },
+          "./livingUiMotion": { prefersReducedMotion: () => false },
+          "./sessionOnce": sessionOnce,
+        },
+        globals: { window, document, Date: { now: () => now } },
+      }),
+    };
+  })();
+  const advance = (ms) => {
+    // Bounded: a wait with no end (MAX = Infinity) must fail the check, not hang the gate.
+    const end = now + Math.min(ms, 120_000);
+    for (let steps = 0; steps < 10_000; steps += 1) {
+      const next = [...timers.entries()].filter(([, t]) => t.due <= end).sort((a, b) => a[1].due - b[1].due)[0];
+      if (!next) break;
+      timers.delete(next[0]);
+      now = next[1].due;
+      next[1].fn();
+    }
+    now = end;
+  };
+  return { mod, advance, setModal: (v) => (modal = v), elapsed: () => now - 5_000_000 };
+}
+
 export function checkProgressionPolish(src) {
   const errors = [];
   // Connector states, executed.
@@ -1087,6 +1131,7 @@ export function checkProgressionPolish(src) {
     if (!(mod.COMPLETION_MOMENT_MS > 0 && mod.COMPLETION_MOMENT_MS <= COMPLETION_MOMENT_BUDGET_MS)) errors.push("MOMENT_TOO_LONG");
     if (!(mod.COMPLETION_PENDING_MAX_MS >= 1000 && mod.COMPLETION_PENDING_MAX_MS <= 30000)) errors.push("MOMENT_STUCK_PENDING");
     if (!(mod.COMPLETION_WINDOW_MS > 0 && mod.COMPLETION_WINDOW_MS <= 10000)) errors.push("MOMENT_OUT_OF_CONTEXT");
+    if (!(mod.CEREMONY_SETTLE_MS >= 300 && mod.CEREMONY_SETTLE_MS <= 2000)) errors.push("MOMENT_NO_SETTLE");
     mod.armCompletionMoments(t0);
     if (mod.peekCompletionMoment("n1", "COMPLETED", t0)) errors.push("MOMENT_ON_COLD_START");
     mod.noteNodeState("n1", "CURRENT");
@@ -1120,7 +1165,45 @@ export function checkProgressionPolish(src) {
   } catch {
     errors.push("MOMENT_UNLOADABLE");
   }
+  // The calm-screen rule, executed: nothing starts under a modal, a closed modal settles first,
+  // a calm screen starts at once, a cancelled wait never fires, a stuck one gives up.
+  try {
+    const run = runScreenCalm(src);
+    let calmAt = null;
+    let gaveUp = false;
+    run.setModal(true);
+    run.mod.whenScreenCalm(() => (calmAt = run.elapsed()), () => (gaveUp = true));
+    run.advance(2_000);
+    if (calmAt !== null) errors.push("MOMENT_UNDER_MODAL");
+    run.setModal(false);
+    const closedAt = run.elapsed();
+    run.advance(3_000);
+    if (calmAt === null || gaveUp) errors.push("MOMENT_STUCK_PENDING");
+    else if (calmAt - closedAt < run.mod.CEREMONY_SETTLE_MS) errors.push("MOMENT_NO_SETTLE");
+    const quiet = runScreenCalm(src);
+    let quietAt = null;
+    quiet.mod.whenScreenCalm(() => (quietAt = quiet.elapsed()), () => {});
+    quiet.advance(1_000);
+    if (quietAt === null || quietAt > 500) errors.push("MOMENT_NEVER_PLAYS");
+    const cancelled = runScreenCalm(src);
+    let fired = false;
+    const cancel = cancelled.mod.whenScreenCalm(() => (fired = true), () => (fired = true));
+    cancel();
+    cancelled.advance(30_000);
+    if (fired) errors.push("MOMENT_AFTER_UNMOUNT");
+    const stuck = runScreenCalm(src);
+    let stuckCalm = false;
+    let stuckGaveUp = false;
+    stuck.setModal(true);
+    stuck.mod.whenScreenCalm(() => (stuckCalm = true), () => (stuckGaveUp = true));
+    stuck.advance(stuck.mod.COMPLETION_PENDING_MAX_MS + 1_000);
+    if (stuckCalm || !stuckGaveUp) errors.push("MOMENT_STUCK_PENDING");
+  } catch {
+    errors.push("MOMENT_UNLOADABLE");
+  }
   const moment = stripComments(src.completionMoment ?? "");
+  // The node moment and the Journey axis fill wait on the same rule.
+  if (!/return whenScreenCalm\(/.test(moment)) errors.push("MOMENT_UNDER_MODAL");
   const init = /useState<CompletionMomentPhase>\(\(\) => ([^\n]*)\);/.exec(moment)?.[1] ?? "";
   if (!/^\(peekCompletionMoment\(id, state\) \? "pending" : null\)$/.test(init) || /claim/.test(init)) errors.push("MOMENT_EATEN_BY_STRICTMODE");
   if (!/if \(ceremonyOrModalOnScreen\(\)\) \{/.test(moment) || !/isCelebrationActive\(COMPLETION_MOMENT_CEREMONY_ID\)/.test(moment) || !/document\.querySelector\('\[aria-modal="true"\]'\) !== null/.test(moment)) errors.push("MOMENT_UNDER_MODAL");
@@ -1149,6 +1232,11 @@ export function checkProgressionPolish(src) {
   const axis = stripComments(src.journeyAxisDone ?? "");
   if (!/style=\{\{ transform: `scaleY\(\$\{scale\}\)` \}\}/.test(axis) || /height:/.test(axis)) errors.push("AXIS_FILL_REFLOWS");
   if (!/next > previous \+ 0\.001/.test(axis)) errors.push("AXIS_FILL_REPLAYS");
+  if (!/next > previous \+ 0\.001 && !prefersReducedMotion\(\)\)/.test(axis)) errors.push("REDUCED_MOTION_IGNORED");
+  if (!/import \{ whenScreenCalm \} from "\.\.\/\.\.\/lib\/motion\/completionMoment";/.test(axis) || !/cancelGrow = whenScreenCalm\(settle, /.test(axis) || !/return \(\) => \{\s*cancelGrow\(\);/.test(axis)) errors.push("AXIS_GROWS_UNDER_CEREMONY");
+  // lastFill is what was drawn: a grow still waiting is recorded only when it plays (else a re-run
+  // under the ceremony jumps to the unseen fill), and a late layout re-aims it instead of jumping.
+  if (/const next = measure\(\);\s*lastFill\.set\(/.test(axis) || !/lastFill\.set\(unitId, value\);\s*setScale\(value\);\s*\};/.test(axis) || !/if \(target !== null\) \{\s*target = value;\s*return;/.test(axis)) errors.push("AXIS_JUMPS_UNDER_CEREMONY");
   return uniq(errors);
 }
 

@@ -77,8 +77,8 @@ battery when nobody is looking.
 
 ## QA
 
-`/qa/device` → Living Canvas Lab (scenes, profiles, budget snapshot) and
-Border Lab (Whisper/Heritage/Ceremony in every theme).
+`/qa/device` → Chinese Living Canvas Lab (scenes, profiles, budget snapshot) and
+Chinese Frame Lab (Whisper/Heritage/Ceremony in every theme).
 
 ## Gate
 
