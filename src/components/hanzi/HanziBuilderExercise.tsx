@@ -441,7 +441,7 @@ export function HanziBuilderExercise({
 
       {/* Sem peças na bandeja: montagem completa, é hora de verificar (não é bug). */}
       {status !== "correct" && availablePieces.length === 0 && selected.length > 0 && (
-        <p className="animate-pop mt-5 rounded-2xl border border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-center text-sm font-semibold text-[rgb(var(--good))]">
+        <p className="animate-pop mt-5 rounded-2xl border border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-center text-sm font-semibold text-good">
           {t("player.builderReadyToCheck")}
         </p>
       )}
@@ -472,14 +472,14 @@ export function HanziBuilderExercise({
 
       {status === "correct" && (
         <div role="status" aria-live="polite" className="animate-pop longyu-success-bloom mt-5 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-good">
             <IconCheck width={18} height={18} />
             {hadMistake ? t("player.builderMountedOk") : t("player.builderMountedPerfect")}
           </div>
           {(!hadMistake || builtWithoutGuide) && (
             <div className="mt-2 flex flex-wrap gap-2">
               {!hadMistake && (
-                <span className="rounded-full bg-[rgb(var(--good)/0.16)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
+                <span className="rounded-full bg-good-soft px-2.5 py-1 text-xs font-semibold text-good">
                   {t("player.builderVisualMastery")}
                 </span>
               )}
@@ -522,7 +522,7 @@ export function HanziBuilderExercise({
               "z-20 flex items-center justify-center gap-2 p-2",
               actionRegion
                 ? "relative px-3 pb-[max(0.65rem,var(--app-safe-bottom))] pt-2.5 sm:px-4"
-                : "sticky bottom-0 -mx-1 mt-5 rounded-2xl border border-line bg-bg/90 shadow-lift backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none",
+                : "sticky bottom-0 -mx-1 mt-5 rounded-2xl border border-line bg-bg shadow-lift sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none",
             ].join(" ")}
           >
           {selected.length > 0 && (

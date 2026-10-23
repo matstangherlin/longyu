@@ -630,7 +630,7 @@ function DetailModal({
   return (
     <ModalOverlay className="px-3 py-3 sm:justify-center sm:p-6" label="Detalhes">
       <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-line bg-surface shadow-lift">
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-surface/95 px-5 py-4 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-surface px-5 py-4">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Detalhes</div>
             <h2 className="font-serif text-xl font-semibold text-ink">
@@ -1369,8 +1369,8 @@ function domainState(item: SRSItem | undefined): { label: string; dotClass: stri
   if (item.reps >= 2 || item.intervalDays >= 3) {
     return {
       label: "forte",
-      dotClass: "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
-      badgeClass: "bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
+      dotClass: "border-transparent bg-[rgb(var(--good)/0.12)] text-good",
+      badgeClass: "bg-[rgb(var(--good)/0.12)] text-good",
     };
   }
   return {

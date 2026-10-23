@@ -331,7 +331,7 @@ export function LessonVictory({
           ) : null}
 
           {masteryLines && masteryLines.length > 0 ? (
-            <ul className="mx-auto mt-2 w-full max-w-sm space-y-1 text-left text-sm font-medium text-[rgb(var(--good))]" data-victory-mastery>
+            <ul className="mx-auto mt-2 w-full max-w-sm space-y-1 text-left text-sm font-medium text-good" data-victory-mastery>
               {masteryLines.map((line) => (
                 <li key={line}>{line}</li>
               ))}
@@ -352,7 +352,7 @@ export function LessonVictory({
           </div>
 
           {recovered && recoveredBanner ? (
-            <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]" data-review-recovered>
+            <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-good" data-review-recovered>
               {recoveredBanner}
             </div>
           ) : null}
@@ -446,7 +446,7 @@ export function LessonVictory({
               data-victory-strength={summary.hasRealStrength ? "real" : "neutral"}
             >
               {summary.hasRealStrength ? (
-                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgb(var(--good))]">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-good">
                   {t("player.strongPoint")}
                 </div>
               ) : null}

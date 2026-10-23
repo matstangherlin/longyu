@@ -54,7 +54,7 @@ export function EconomySyncBanner() {
         zLayerClass.toast
       )}
     >
-      <div className="rounded-2xl border border-line/80 bg-surface/95 px-3 py-2 text-center text-xs font-medium text-ink-soft shadow-card backdrop-blur">
+      <div className="rounded-2xl border border-line/80 bg-surface px-3 py-2 text-center text-xs font-medium text-ink-soft shadow-card">
         {localizeUserMessage(message)}
       </div>
     </div>

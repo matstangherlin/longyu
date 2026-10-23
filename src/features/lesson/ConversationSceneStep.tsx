@@ -544,7 +544,7 @@ function CheckpointPanel({
           <div
             className={[
               "flex items-center gap-2 text-sm font-semibold",
-              feedback === "correct" ? "text-[rgb(var(--good))]" : "text-accent",
+              feedback === "correct" ? "text-good" : "text-accent",
             ].join(" ")}
           >
             {feedback === "correct" ? (
@@ -1108,7 +1108,7 @@ function InteractionPanel({
 
       {feedback === "correct" && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
-          <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-good">
             <IconCheck width={18} height={18} aria-hidden="true" /> {t("player.almostQi")}
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{interaction.explanation ?? t("player.conversationContinues")}</p>
@@ -1227,7 +1227,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
               className={[
                 "rounded-2xl border p-3 text-left text-sm font-medium transition",
                 strategyLocked && isRight
-                  ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+                  ? "border-transparent bg-[rgb(var(--good)/0.12)] text-good"
                   : chosen && !isRight
                     ? "border-accent-soft bg-accent-soft/45 text-accent"
                     : "border-line bg-surface-2 text-ink hover:border-accent-soft",
@@ -1262,7 +1262,7 @@ function RepairBeatPanel({ beat, onRecovered }: { beat: ConversationRepairBeat; 
 
       {done && (
         <div role="status" aria-live="polite" className="animate-pop mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-3.5 longyu-success-bloom">
-          <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-good">
             <IconCheck width={18} height={18} /> Recuperado
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-soft">{beat.whyPt}</p>

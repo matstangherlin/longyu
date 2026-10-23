@@ -128,7 +128,7 @@ function StepNode({ task, status, index }: { task: LessonTask; status: TaskStatu
   const Icon = MOTOR_ICON[task.motor];
   const chip =
     status === "concluida"
-      ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+      ? "bg-[rgb(var(--good)/0.14)] text-good"
       : status === "disponivel"
       ? "bg-accent text-white ring-2 ring-accent/20"
       : "bg-surface-2 text-ink-faint";
@@ -384,7 +384,7 @@ export function LessonDetailPage() {
               fechado. Com Reforço + pendente, 4/4 ainda não é domínio.
             */}
             {pathComplete && !plusPending && (
-              <p className="mt-2 text-[13px] font-semibold text-[rgb(var(--good))]">{t("journey.ctaMastered")} ✓</p>
+              <p className="mt-2 text-[13px] font-semibold text-good">{t("journey.ctaMastered")} ✓</p>
             )}
           </div>
         ) : (
@@ -393,7 +393,7 @@ export function LessonDetailPage() {
 
         <div className="mt-3.5">
           <div className="mb-1 flex min-w-0 items-center justify-between gap-2 text-[11px] font-semibold text-ink-faint">
-            <span className={pathComplete ? "text-[rgb(var(--good))]" : "text-ink-soft"}>{stepLabel}</span>
+            <span className={pathComplete ? "text-good" : "text-ink-soft"}>{stepLabel}</span>
             <span className="shrink-0 tabular-nums">{progressLabel}</span>
           </div>
           <ProgressBar value={Math.min(progress, activityTotal)} max={activityTotal} className="h-2" />

@@ -22,7 +22,7 @@ export function DesktopFeedbackFab() {
       className={cx(
         // Prefer max-lg:hidden + lg:inline-flex (no bare `hidden`) so WebKit
         // at the lg boundary cannot keep display:none over the responsive show.
-        "fixed bottom-6 right-6 max-lg:hidden lg:inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface/95 text-ink-soft shadow-card backdrop-blur transition hover:border-accent-soft hover:bg-surface hover:text-ink",
+        "fixed bottom-6 right-6 max-lg:hidden lg:inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface text-ink-soft shadow-card transition hover:border-accent-soft hover:bg-surface hover:text-ink",
         zLayerClass.feedbackFab
       )}
     >

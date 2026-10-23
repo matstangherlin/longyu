@@ -476,7 +476,7 @@ export function PronunciationPractice({
           <div
             className={[
               "flex items-center justify-center gap-1.5 text-sm font-semibold",
-              correct ? "text-[rgb(var(--good))]" : "text-accent",
+              correct ? "text-good" : "text-accent",
             ].join(" ")}
           >
             {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
@@ -501,7 +501,7 @@ export function PronunciationPractice({
                           key={i}
                           className={[
                             "hanzi rounded px-1 text-lg",
-                            ok ? "text-[rgb(var(--good))]" : cjk ? "text-accent" : "text-ink-faint",
+                            ok ? "text-good" : cjk ? "text-accent" : "text-ink-faint",
                           ].join(" ")}
                         >
                           {ch}

@@ -756,7 +756,7 @@ function HanziDetailModal({
   return (
     <ModalOverlay className="px-3 py-3 sm:p-6" label="Detalhe do hanzi">
       <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-bg shadow-lift">
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg/95 px-4 py-3 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-bg px-4 py-3">
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Detalhe do hànzì</div>
             <div className="truncate font-serif text-xl font-semibold text-ink">{item.hanzi} · {item.meaningPt}</div>

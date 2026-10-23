@@ -550,7 +550,7 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
 
         {answered && (
           <div className="mt-5 w-full text-center" role="status" data-testid="tone-round-feedback" data-correct={pickedCorrect ? "yes" : "no"}>
-            <p className={["text-base font-semibold", pickedCorrect ? "text-[rgb(var(--good))]" : "text-wrong"].join(" ")}>
+            <p className={["text-base font-semibold", pickedCorrect ? "text-good" : "text-wrong"].join(" ")}>
               {pickedCorrect ? "✓ " : ""}
               {consonantPack ? currentRound.answerInitial : TONE_SHORT_LABEL[currentRound.answerTone]}
               {!consonantPack && contour ? ` — ${toneKnowledge(contour).learnerDescriptionPt}` : ""}
@@ -627,7 +627,7 @@ function TonePackButton({
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
               Pack {pack.order}
             </span>
-            {stats?.completed && <IconCheck width={15} height={15} className="text-[rgb(var(--good))]" />}
+            {stats?.completed && <IconCheck width={15} height={15} className="text-good" />}
           </div>
           <div className="mt-1 font-semibold leading-tight text-ink">{pack.shortTitle}</div>
           <div className="mt-1 line-clamp-2 text-xs leading-5 text-ink-soft">{pack.focus}</div>

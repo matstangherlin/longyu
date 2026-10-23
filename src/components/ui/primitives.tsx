@@ -297,10 +297,10 @@ export function Pill({
   const tones = {
     muted: "border-line bg-surface-2 text-ink-soft",
     accent: "border-transparent bg-accent-soft text-accent",
-    good: "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
+    good: "border-transparent bg-[rgb(var(--good)/0.12)] text-good",
     gold: "border-gold/25 bg-gold/10 text-gold",
     warning: "border-transparent bg-gold/10 text-gold",
-    wrong: "border-transparent bg-[rgb(var(--wrong)/0.12)] text-[rgb(var(--wrong))]",
+    wrong: "border-transparent bg-[rgb(var(--wrong)/0.12)] text-wrong",
   };
   return (
     <span

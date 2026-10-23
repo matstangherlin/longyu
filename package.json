@@ -418,6 +418,8 @@
     "validate:en-core-surfaces": "node scripts/validate-en-core-surfaces.mjs",
     "validate:journey-readiness": "node scripts/validate-journey-readiness-authority.mjs",
     "validate:exercise-theme-tokens": "node scripts/validate-exercise-theme-tokens.mjs",
+    "validate:text-contrast": "node scripts/validate-text-contrast.mjs",
+    "test:text-contrast": "node scripts/test-text-contrast.mjs",
     "validate:lesson-media": "node scripts/validate-lesson-media.mjs",
     "test:media-progress": "node scripts/test-media-progress.mjs",
     "test:mandarin-speech-text": "node scripts/test-mandarin-speech-text.mjs",

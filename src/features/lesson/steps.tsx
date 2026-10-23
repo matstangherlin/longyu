@@ -347,7 +347,7 @@ function AnswerFeedback({
         <div
           className={[
             "flex items-center justify-center gap-1.5 text-sm font-semibold",
-            correct ? "text-[rgb(var(--good))]" : "text-accent",
+            correct ? "text-good" : "text-accent",
           ].join(" ")}
         >
           {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
@@ -408,7 +408,7 @@ function ToneAnswerFeedback({
       <div
         className={[
           "flex items-center gap-2 text-sm font-semibold",
-          correct ? "text-[rgb(var(--good))]" : "text-accent",
+          correct ? "text-good" : "text-accent",
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
@@ -1180,7 +1180,7 @@ function StepComprehend({ step, onDone, onSkip, onMistake }: StepProps) {
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="min-w-0 flex-1">{o}</span>
-              {state === "right" && <IconCheck className="text-[rgb(var(--good))]" />}
+              {state === "right" && <IconCheck className="text-good" />}
               {state === "wrong" && <IconX className="text-wrong" />}
             </button>
           );
@@ -1506,7 +1506,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
                   "inline-flex min-h-8 items-center rounded-full border px-3 text-sm font-medium",
                   containsCjk(term) ? "hanzi text-base" : "",
                   used
-                    ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+                    ? "border-transparent bg-[rgb(var(--good)/0.12)] text-good"
                     : "border-line bg-surface-2 text-ink-faint",
                 ].join(" ")}
               >
@@ -1673,7 +1673,7 @@ function StepWrite({ step, onDone, onSkip, onMistake }: StepProps) {
           <div
             className={[
               "flex items-center gap-2 text-sm font-semibold",
-              status === "correct" ? "text-[rgb(var(--good))]" : "text-accent",
+              status === "correct" ? "text-good" : "text-accent",
             ].join(" ")}
           >
             {status === "correct" ? <IconCheck width={18} height={18} /> : <IconX width={18} height={18} />}
@@ -2112,7 +2112,7 @@ function EngineFeedbackPanel({
       <div
         className={[
           "flex items-center gap-2 text-sm font-semibold",
-          correct ? "text-[rgb(var(--good))]" : unrecognized ? "text-ink-soft" : "text-accent",
+          correct ? "text-good" : unrecognized ? "text-ink-soft" : "text-accent",
         ].join(" ")}
       >
         {correct ? <IconCheck width={18} height={18} /> : unrecognized ? null : <IconX width={18} height={18} />}
@@ -2421,7 +2421,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 <span className="min-w-0 overflow-hidden px-1.5 sm:px-3">
                   {renderPairSide(pair.left, pair.leftType, Boolean(matched))}
                 </span>
-                {matched && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
+                {matched && <IconCheck className="absolute right-2 top-2 text-good" width={16} height={16} />}
               </button>
             );
           })}
@@ -2469,7 +2469,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
                 <span className="min-w-0 overflow-hidden px-1.5 sm:px-3">
                   {renderPairSide(item.value, item.type, Boolean(matched))}
                 </span>
-                {matched && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
+                {matched && <IconCheck className="absolute right-2 top-2 text-good" width={16} height={16} />}
               </button>
             );
           })}
@@ -2496,7 +2496,7 @@ function PairExercise({ step, onDone, onSkip, onMistake, toneMode = false }: Ste
           className={[
             "animate-pop mt-4 rounded-2xl p-3.5 text-center text-sm font-semibold",
             errors === 0
-              ? "longyu-success-bloom bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+              ? "longyu-success-bloom bg-[rgb(var(--good)/0.12)] text-good"
               : "bg-accent-soft text-accent",
           ].join(" ")}
         >
@@ -2753,7 +2753,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="px-3">{renderTypedValue(option, isCjkText(option) ? "hanzi" : "pt")}</span>
-              {correct && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
+              {correct && <IconCheck className="absolute right-2 top-2 text-good" width={16} height={16} />}
               {wrong && <IconX className="absolute right-2 top-2 text-wrong" width={16} height={16} />}
             </button>
           );
@@ -2761,7 +2761,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       </div>
 
       {feedback === "correct" && (
-        <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl bg-[rgb(var(--good)/0.12)] p-4 text-center text-sm font-semibold text-[rgb(var(--good))]">
+        <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl bg-[rgb(var(--good)/0.12)] p-4 text-center text-sm font-semibold text-good">
           <div className="flex items-center justify-center gap-2">
             <IconCheck width={18} height={18} />
             {audioFallback ? t("player.listenReturnsReview") : t("player.thatSound")}
@@ -3137,7 +3137,7 @@ function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, a
       {feedback === "correct" && (
         <div className="animate-pop longyu-success-bloom mt-4 rounded-2xl border border-transparent bg-[rgb(var(--good)/0.12)] p-4">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--good))]">
+            <div className="flex items-center gap-2 text-sm font-semibold text-good">
             <IconCheck width={18} height={18} />
             {successMessage}
             </div>
@@ -3753,7 +3753,7 @@ function StepRecognize({ step, onDone, onSkip, onMistake }: StepProps) {
             >
               <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
               <span className="min-w-0 flex-1">{o}</span>
-              {state === "right" && <IconCheck className="text-[rgb(var(--good))]" />}
+              {state === "right" && <IconCheck className="text-good" />}
               {state === "wrong" && <IconX className="text-wrong" />}
             </button>
           );
@@ -4454,7 +4454,7 @@ function MeaningChoiceExercise({
               {metaEnabled && meta?.meaningPt && (step.oddOneOutLevel ?? 1) === 1 && (
                 <span className="px-2 text-[11px] font-normal text-ink-soft">{meta.meaningPt}</span>
               )}
-              {correct && <IconCheck className="absolute right-2 top-2 text-[rgb(var(--good))]" width={16} height={16} />}
+              {correct && <IconCheck className="absolute right-2 top-2 text-good" width={16} height={16} />}
               {wrong && <IconX className="absolute right-2 top-2 text-wrong" width={16} height={16} />}
             </button>
           );
@@ -5279,7 +5279,7 @@ function StepConversationRepair({ step, onDone, onSkip, onMistake }: StepProps) 
               className={[
                 "rounded-2xl border p-3 text-left text-sm font-medium transition",
                 tone === "good"
-                  ? "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+                  ? "border-transparent bg-[rgb(var(--good)/0.12)] text-good"
                   : tone === "wrong"
                     ? "border-accent-soft bg-accent-soft/45 text-accent"
                     : tone === "active"

@@ -1124,7 +1124,7 @@ function ImmediateErrorReviewSummary({
         <div
           className={[
             "mx-auto mt-4 flex h-14 w-14 items-center justify-center rounded-2xl",
-            stillMissing ? "bg-accent-soft text-accent" : "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
+            stillMissing ? "bg-accent-soft text-accent" : "bg-[rgb(var(--good)/0.14)] text-good",
           ].join(" ")}
         >
           {stillMissing ? <IconRefresh width={26} height={26} /> : <IconCheck width={26} height={26} />}
@@ -1489,7 +1489,7 @@ function ErrorReviewQuestion({
             className={[
               "rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]",
               isLastItem && canRecover
-                ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                ? "bg-[rgb(var(--good)/0.14)] text-good"
                 : "bg-surface-2 text-ink-faint",
             ].join(" ")}
             data-review-mode-label
@@ -1644,7 +1644,7 @@ function ErrorReviewQuestion({
                 eliminatedOptionIds.has(option.id)
                   ? "border-line bg-surface-2 text-ink-faint line-through opacity-60"
                   : selected === option.id && feedback === "correct"
-                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-good"
                   : selected === option.id && feedback === "wrong"
                   ? "border-transparent bg-wrong-soft text-wrong"
                   : "border-line bg-surface text-ink hover:bg-surface-2",
@@ -1707,7 +1707,7 @@ function ErrorReviewQuestion({
           <div
             className={[
               "text-sm font-semibold",
-              feedback === "correct" ? "text-[rgb(var(--good))]" : "text-ink",
+              feedback === "correct" ? "text-good" : "text-ink",
             ].join(" ")}
           >
             {feedback === "correct" ? REVIEW_QUESTION.feedbackOk : REVIEW_QUESTION.feedbackRetry}
@@ -4969,7 +4969,7 @@ export function LessonPlayer() {
       <LessonPerfOverlay />
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
-          <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
+          <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-good shadow-card">
             {correctBurst}
           </div>
         </div>
@@ -5212,7 +5212,7 @@ export function LessonPlayer() {
         <div
           ref={setLessonActionRegion}
           data-lesson-action-region
-          className="empty:hidden shrink-0 border-t border-line/70 bg-[rgb(var(--bg)/0.98)] shadow-dock backdrop-blur"
+          className="empty:hidden shrink-0 border-t border-line/70 bg-bg shadow-dock"
         />
       )}
 

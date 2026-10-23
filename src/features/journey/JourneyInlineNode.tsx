@@ -82,7 +82,7 @@ export function JourneyInlineNode({ node }: { node: JourneyNode }) {
         className={[
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
           complete
-            ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+            ? "bg-[rgb(var(--good)/0.14)] text-good"
             : ready
               ? "bg-accent-soft text-accent"
               : "bg-surface-2 text-ink-faint",

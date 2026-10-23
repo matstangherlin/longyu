@@ -644,7 +644,7 @@ function RecommendedStoryCard({
               +{rewardQi} Qi
             </span>
             {givesEnergy && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-good">
                 <IconHeadphones width={13} height={13} /> +1 carga extra
               </span>
             )}
@@ -1001,7 +1001,7 @@ function InteractiveStoryPlayer({
         ? "border-accent bg-accent-soft text-accent"
         : "border-line bg-surface text-ink hover:border-accent/50 hover:bg-surface-2";
     }
-    if (storyAnswerMatches(step, option)) return "border-[rgb(var(--good)/0.45)] bg-[rgb(var(--good)/0.10)] text-[rgb(var(--good))]";
+    if (storyAnswerMatches(step, option)) return "border-[rgb(var(--good)/0.45)] bg-[rgb(var(--good)/0.10)] text-good";
     if (selectedAnswer === option && !lastCorrect) return "border-wrong/40 bg-wrong-soft text-wrong";
     return "border-line bg-surface-2 text-ink-soft";
   }
@@ -1045,7 +1045,7 @@ function InteractiveStoryPlayer({
         </div>
 
         {energyGranted ? (
-          <div className="mx-auto mt-4 flex max-w-sm items-center justify-center gap-2 rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-sm font-semibold text-[rgb(var(--good))]">
+          <div className="mx-auto mt-4 flex max-w-sm items-center justify-center gap-2 rounded-2xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.08)] px-4 py-3 text-sm font-semibold text-good">
             <IconHeadphones width={16} height={16} /> +1 carga extra hoje
           </div>
         ) : victory.awarded && victory.energy?.reason === "limit" ? (

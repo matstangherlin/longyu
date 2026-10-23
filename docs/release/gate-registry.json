@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 990,
+    "CANONICAL": 992,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1195,
+  "total": 1197,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -10490,6 +10490,24 @@
       "canonicalOwner": "suite:experience"
     },
     {
+      "gateId": "test:text-contrast",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-text-contrast.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "test:tone-contrast-progression",
       "status": "CANONICAL",
       "domain": "pedagogy-structure",
@@ -20670,6 +20688,24 @@
       "canonicalOwner": "validate:teach-before-test:journey"
     },
     {
+      "gateId": "validate:text-contrast",
+      "status": "CANONICAL",
+      "domain": "experience",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/validate-text-contrast.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "test:text-contrast",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:experience",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:experience"
+    },
+    {
       "gateId": "validate:theme-ornament-contrast",
       "status": "CANONICAL",
       "domain": "experience",
@@ -21628,5 +21664,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "b4046fc223e38e5d"
+  "evidenceDigest": "9bd364fd01cdda26"
 }

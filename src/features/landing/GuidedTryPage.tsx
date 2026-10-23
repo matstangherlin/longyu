@@ -503,7 +503,7 @@ function GuidedTryFlow() {
                 </span>
               ))}
               <span className="px-1 text-2xl text-ink-faint">=</span>
-              <span className={["hanzi grid h-20 w-20 place-items-center rounded-2xl text-4xl", buildDone ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]" : "text-ink-faint"].join(" ")}>
+              <span className={["hanzi grid h-20 w-20 place-items-center rounded-2xl text-4xl", buildDone ? "bg-[rgb(var(--good)/0.14)] text-good" : "text-ink-faint"].join(" ")}>
                 {buildDone ? HAO.hanzi : "?"}
               </span>
             </div>
@@ -565,7 +565,7 @@ function GuidedTryFlow() {
             <ul className="mt-5 grid gap-2">
               {[tc("guidedTry.learnedNihao"), tc("guidedTry.learnedParts"), tc("guidedTry.learnedTones"), tc("guidedTry.learnedBuild")].map((item) => (
                 <li key={item} className="flex items-start gap-2.5 rounded-2xl border border-line/70 bg-surface px-3.5 py-3 text-sm text-ink">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[rgb(var(--good)/0.14)] text-good">
                     <IconCheck width={12} height={12} />
                   </span>
                   {item}

@@ -56,7 +56,7 @@ export function BetaIssueReporter({ compact = false }: { compact?: boolean }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="min-h-11 rounded-full border border-line bg-surface/90 px-3 text-xs font-medium text-ink-soft shadow-sm backdrop-blur"
+        className="min-h-11 rounded-full border border-line bg-surface px-3 text-xs font-medium text-ink-soft shadow-sm"
         data-testid="beta-issue-open"
       >
         Encontrou um problema?

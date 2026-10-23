@@ -281,7 +281,7 @@ export function AdminFeedbackPage() {
         }
       />
 
-      {error && <p className="mb-4 text-sm text-[rgb(var(--wrong))]">{error}</p>}
+      {error && <p className="mb-4 text-sm text-wrong">{error}</p>}
 
       <HubSection title="Resumo">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

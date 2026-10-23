@@ -236,7 +236,7 @@ export function MandarinBlitzPage() {
                   onClick={() => answer(option)}
                   className={[
                     "flex min-h-14 items-center justify-between rounded-2xl border px-4 py-3 text-left font-semibold transition",
-                    isCorrect ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]" :
+                    isCorrect ? "border-transparent bg-[rgb(var(--good)/0.14)] text-good" :
                     isWrong ? "border-transparent bg-wrong-soft text-wrong" : "border-line bg-surface text-ink hover:border-accent-soft",
                   ].join(" ")}
                 >

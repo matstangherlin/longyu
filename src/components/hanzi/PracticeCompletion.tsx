@@ -66,7 +66,7 @@ export function PracticeCompletion({
       data-practice-missions={missions.length}
       className="mx-auto flex w-full max-w-md flex-col items-center pt-4 text-center"
     >
-      <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]">
+      <div className="grid h-14 w-14 place-items-center rounded-2xl bg-[rgb(var(--good)/0.14)] text-good">
         <IconCheck width={26} height={26} />
       </div>
       <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">{t("hanziHub.roundDone")}</h2>

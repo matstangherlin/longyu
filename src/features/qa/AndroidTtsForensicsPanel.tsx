@@ -173,7 +173,7 @@ export function AndroidTtsForensicsPanel() {
           />
         </dd>
         <dt>Identidade</dt>
-        <dd data-testid="qa-tts-build-verdict" className={verdict === "MATCH" ? "text-[rgb(var(--good))]" : "text-wrong"}>
+        <dd data-testid="qa-tts-build-verdict" className={verdict === "MATCH" ? "text-good" : "text-wrong"}>
           {verdict === "MATCH" ? "MATCH" : verdict === "TEST_INVALID" ? "TEST INVALID — o APK não é o HEAD do PR" : "DESCONHECIDA — informe o HEAD"}
         </dd>
         <dt>plugin</dt>

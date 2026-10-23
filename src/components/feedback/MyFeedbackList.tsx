@@ -61,7 +61,7 @@ export function MyFeedbackList() {
   }
 
   if (error) {
-    return <p className="text-sm text-[rgb(var(--wrong))]">{error}</p>;
+    return <p className="text-sm text-wrong">{error}</p>;
   }
 
   if (rows.length === 0) {

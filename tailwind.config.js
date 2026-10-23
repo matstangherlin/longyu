@@ -31,6 +31,13 @@ export default {
         "focus-ring": "rgb(var(--focus-ring) / <alpha-value>)",
         scrim: "rgb(var(--scrim) / <alpha-value>)",
       },
+      // Text roles: `text-accent`, `text-good` and `text-wrong` read per-theme
+      // text tokens (4.5:1 on every ground); bg/border/ring keep the fill.
+      textColor: {
+        accent: "rgb(var(--accent-text) / <alpha-value>)",
+        good: "rgb(var(--good-text) / <alpha-value>)",
+        wrong: "rgb(var(--wrong-text) / <alpha-value>)",
+      },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         serif: ["'Noto Serif SC'", "Georgia", "serif"],
