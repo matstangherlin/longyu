@@ -38,6 +38,22 @@ New in this wave (per theme; china inherits clay unless noted):
 | `--focus-ring` | `var(--accent)` | `236 128 108` | Focus rings were `accent/45` (≈2:1). Now ≥ 3:1 everywhere. |
 | `--text-faint` | `108 113 116` (china `118 110 110`) | unchanged | 2.95:1 → 4.57:1: it carries small state labels. |
 
+### Text roles
+
+`text-accent`, `text-good` and `text-wrong` read their own text token
+(`tailwind.config.js` → `theme.extend.textColor`); `bg-*`, `border-*` and
+`ring-*` keep the fill. Each text token holds 4.5:1 on `bg`, `surface`,
+`surface-2` and its own soft tint in every theme (`validate:text-contrast`).
+
+| Token | Clay | China | Dark | Why |
+| --- | --- | --- | --- | --- |
+| `--accent-text` | `181 64 45` | `var(--accent)` | `236 128 108` | Dark accent as text was 3.8:1 on surface and 3.1:1 on accent-soft; a white label and small text can't share one red. Clay accent on accent-soft was 4.47:1. |
+| `--good-text` | `42 120 81` | inherits clay | `var(--good)` | Green text was 3.9:1 on `good-soft` and 4.2:1 on the page. |
+| `--wrong-text` | `178 70 49` | inherits clay | `var(--wrong)` | Coral text was 3.9:1 on `wrong-soft`. Dark `--wrong-soft` is `71 34 28` (was `87 42 34`, 4.0:1 under wrong text). |
+
+Use `text-good` / `text-wrong`, never `text-[rgb(var(--good))]`: the arbitrary
+value reads the fill and skips the text role.
+
 ## Elevation
 
 `shadow-card` and `shadow-lift` are now CSS variables (`--shadow-rest`,
@@ -106,6 +122,8 @@ Rules:
 | Use `.surface-emphasis` once per screen | Give several cards `shadow-lift` + gradients |
 | Use the elevation tokens | Write `shadow-[0_-10px_28px_…]` |
 | Use `bg-scrim/60` behind dialogs | Use `bg-ink/…` as a scrim |
-| Use `text-on-good` on green fills | Hard-code `text-white` on theme fills |
+| Use `text-on-good` / `text-on-wrong` / `text-on-gold` on those fills | Hard-code `text-white` on theme fills (white is for `bg-accent`) |
+| Use solid `bg-bg` / `bg-surface` bars | Use translucent bars with `backdrop-blur`, or `blur-*` glow blobs |
+| Use `bg-good-soft` behind green text | Mix denser `bg-[rgb(var(--good)/0.18)]` tints under it |
 | Express tone through `Card` variants | Fight the variant with colour classes |
 | Use theme tokens | Hard-code `#B7791F` / `#B42318` |

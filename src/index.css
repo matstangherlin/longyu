@@ -78,6 +78,13 @@
   --on-gold: 255 255 255;
   --accent-on-soft: var(--accent-strong);
   --focus-ring: var(--accent);
+  /* Text roles: `text-accent` / `text-good` / `text-wrong` read these, fills
+     keep the base token. Each holds 4.5:1 on bg, surface, surface-2 and its
+     own soft tint (clay accent on accent-soft was 4.47:1, good 3.9:1, wrong
+     3.9:1). Brand fills are unchanged. */
+  --accent-text: 181 64 45;
+  --good-text: 42 120 81;
+  --wrong-text: 178 70 49;
   --scrim: 24 26 28;
   --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.03), 0 2px 8px rgb(0 0 0 / 0.04);
   --shadow-raised: 0 4px 16px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.04);
@@ -223,6 +230,7 @@ main[data-app-main]:has([data-progression-shell]) {
   --accent: 180 35 24; /* #B42318 */
   --accent-strong: 122 31 26; /* #7A1F1A */
   --accent-soft: 250 230 227;
+  --accent-text: var(--accent);
   --good: 47 133 90;
   --wrong: 198 78 54;
   --wrong-soft: 250 233 228;
@@ -243,7 +251,7 @@ main[data-app-main]:has([data-progression-shell]) {
   --accent-soft: 66 31 27;
   --good: 68 170 120;
   --wrong: 228 118 88; /* erro coral, separado da marca */
-  --wrong-soft: 87 42 34;
+  --wrong-soft: 71 34 28; /* wrong text on it 4.65:1 (was 4.0:1 on 87 42 34) */
   --gold: 223 172 83; /* dourado claro p/ ler no fundo escuro */
   /* RC2.3.13R.3.2.5 — dark: light fills carry dark labels; elevation reads as
      a faint top highlight plus a deep shadow (never a muddy grey glow). */
@@ -254,6 +262,11 @@ main[data-app-main]:has([data-progression-shell]) {
   --on-gold: 10 11 13;
   --accent-on-soft: 236 128 108;
   --focus-ring: 236 128 108;
+  /* Dark accent can't carry a white label AND read as small text: as text it
+     was 3.8:1 on surface. Text takes the accent-on-soft coral (5.4:1+). */
+  --accent-text: 236 128 108;
+  --good-text: var(--good);
+  --wrong-text: var(--wrong);
   --scrim: 0 0 0;
   --shadow-rest: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 8px 24px rgb(0 0 0 / 0.18);
   --shadow-raised: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 18px 46px rgb(0 0 0 / 0.3);

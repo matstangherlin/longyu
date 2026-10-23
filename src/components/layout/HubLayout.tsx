@@ -115,7 +115,7 @@ export function HubNavCard({ item }: { item: HubNavItem }) {
         <span
           className={cx(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-            item.featured && !item.disabled ? "bg-accent text-white" : "bg-surface-2 text-accent/80"
+            item.featured && !item.disabled ? "bg-accent text-white" : "bg-surface-2 text-accent"
           )}
         >
           <Icon width={15} height={15} />
@@ -248,7 +248,7 @@ export function HubContentCard({
     <Card className={cx("p-3", className)}>
       <div className="flex items-start justify-between gap-2.5">
         {Icon && (
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-accent/80">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-accent">
             <Icon width={16} height={16} />
           </span>
         )}

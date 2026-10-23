@@ -192,7 +192,7 @@ export function LojaPage() {
         data-testid="shop-toast"
       >
         {burst && (
-          <div className="longyu-claim-float rounded-full bg-[rgb(var(--good)/0.16)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--good))] shadow-lift">
+          <div className="longyu-claim-float rounded-full bg-good-soft px-5 py-2.5 text-sm font-semibold text-good shadow-lift">
             {burst}
           </div>
         )}

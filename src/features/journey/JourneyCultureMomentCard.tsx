@@ -53,7 +53,7 @@ export function JourneyCultureMomentCard({ moment }: { moment: JourneyCultureMom
         <span
           className={[
             "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-            explored ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]" : "bg-accent-soft text-accent",
+            explored ? "bg-[rgb(var(--good)/0.14)] text-good" : "bg-accent-soft text-accent",
           ].join(" ")}
           aria-hidden
         >
@@ -81,7 +81,7 @@ export function JourneyCultureMomentCard({ moment }: { moment: JourneyCultureMom
               {explored ? (en ? "Review" : "Rever") : en ? "Explore" : "Explorar"}
             </Link>
             {explored ? (
-              <span className="text-[11px] font-medium text-[rgb(var(--good))]" data-testid="journey-culture-moment-done">
+              <span className="text-[11px] font-medium text-good" data-testid="journey-culture-moment-done">
                 {en ? "✓ Explored" : "✓ Explorado"}
               </span>
             ) : (

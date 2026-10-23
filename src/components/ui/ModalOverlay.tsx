@@ -107,7 +107,7 @@ export function ModalOverlay({
         // RC2.3.13R.3.2.5 — `!m-0`: rendered inside a `space-y-*` page (Loja,
         // Missões), the overlay inherited the stack's margin-top and every
         // full-screen sheet started 20px down, with the TopBar showing above it.
-        "living-overlay fixed inset-0 !m-0 flex items-end justify-center overflow-y-auto overscroll-contain bg-scrim/60 p-0 backdrop-blur-md sm:items-center sm:p-4",
+        "living-overlay fixed inset-0 !m-0 flex items-end justify-center overflow-y-auto overscroll-contain bg-scrim/60 p-0 sm:items-center sm:p-4",
         zLayerClass.modal,
         className,
       ].filter(Boolean).join(" ")}

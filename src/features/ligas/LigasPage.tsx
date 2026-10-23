@@ -215,7 +215,6 @@ export function LigasPage() {
         className="relative overflow-hidden rounded-2xl p-4 text-white shadow-card lg:p-5"
         style={{ background: `linear-gradient(145deg, ${meta.color}, ${shade(meta.color, -22)})` }}
       >
-        <div className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-white/10 blur-2xl" aria-hidden />
         <div className="relative flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/75">
@@ -487,7 +486,7 @@ function PodiumSpot({
 
 function ZoneDivider({ tone, label }: { tone: "good" | "wrong" | "muted"; label: string }) {
   const color =
-    tone === "good" ? "text-[rgb(var(--good))]" : tone === "wrong" ? "text-wrong" : "text-ink-faint";
+    tone === "good" ? "text-good" : tone === "wrong" ? "text-wrong" : "text-ink-faint";
   return (
     <div className="flex items-center gap-2 bg-surface-2/50 px-3 py-1">
       <span className={["text-[9px] font-bold uppercase tracking-[0.12em]", color].join(" ")}>{label}</span>

@@ -102,7 +102,7 @@ export function TabBar() {
         ref={navRef}
         data-app-bottom-nav
         className={cx(
-          "fixed inset-x-0 bottom-0 border-t border-line/60 bg-surface/95 shadow-dock backdrop-blur-xl lg:hidden",
+          "fixed inset-x-0 bottom-0 border-t border-line/60 bg-surface shadow-dock lg:hidden",
           zLayerClass.bottomNav
         )}
         style={{ paddingBottom: "var(--app-safe-bottom)" }}
@@ -233,7 +233,7 @@ function TabSheet({
   return (
     <div
       className={cx(
-        "fixed inset-0 flex items-end justify-center bg-scrim/55 backdrop-blur-sm lg:hidden",
+        "fixed inset-0 flex items-end justify-center bg-scrim/60 lg:hidden",
         zLayerClass.sheet
       )}
       role="presentation"

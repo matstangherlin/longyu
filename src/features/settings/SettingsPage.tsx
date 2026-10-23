@@ -717,7 +717,7 @@ export function SettingsPage() {
                 className={[
                   "rounded-xl px-3 py-2 text-sm",
                   voiceOk
-                    ? "bg-[rgb(var(--good)/0.1)] text-[rgb(var(--good))]"
+                    ? "bg-[rgb(var(--good)/0.1)] text-good"
                     : "bg-accent-soft text-accent",
                 ].join(" ")}
               >

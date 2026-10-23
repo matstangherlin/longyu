@@ -169,7 +169,7 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
               <span>{t("feedback.includeTechnical")}</span>
             </label>
 
-            {error && <p className="text-sm text-[rgb(var(--wrong))]">{error}</p>}
+            {error && <p className="text-sm text-wrong">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={sending}>
               {sending ? t("auth.sending") : t("common.send")}

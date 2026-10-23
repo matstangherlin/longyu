@@ -608,7 +608,7 @@ function ChoiceButton({
   const tone = optionTone(option, selected, revealed, answer);
   const className =
     tone === "good"
-      ? "border-good bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]"
+      ? "border-good bg-[rgb(var(--good)/0.12)] text-good"
       : tone === "bad"
         ? "border-wrong bg-wrong-soft text-ink"
         : tone === "accent"
@@ -944,7 +944,7 @@ function MatchPairsExercise({
                 </span>
                 {matched && (
                   <span className="flex items-center gap-1 text-xs font-medium text-ink-soft">
-                    {good && <IconCheck width={13} height={13} className="text-[rgb(var(--good))]" />}
+                    {good && <IconCheck width={13} height={13} className="text-good" />}
                     {matched}
                   </span>
                 )}
@@ -1020,7 +1020,7 @@ function ExerciseFeedback({
       <div
         className={[
           "text-sm font-semibold",
-          correct === false ? "text-wrong" : correct ? "text-[rgb(var(--good))]" : "text-ink",
+          correct === false ? "text-wrong" : correct ? "text-good" : "text-ink",
         ].join(" ")}
       >
         {title}
@@ -1041,7 +1041,7 @@ function ExerciseFeedback({
           <p className="mx-auto mt-3 max-w-sm text-sm text-ink-soft">{exercise.explanation}</p>
         )}
       {correct && exercise.remediation && (
-        <p className="mx-auto mt-2 max-w-sm text-xs font-semibold text-[rgb(var(--good))]">
+        <p className="mx-auto mt-2 max-w-sm text-xs font-semibold text-good">
           {catalogT("review.backToSpaced")}
         </p>
       )}

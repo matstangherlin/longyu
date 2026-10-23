@@ -12,13 +12,13 @@ import { IconSound, IconX } from "../ui/Icon";
  */
 export const GUIDED_CLASS = {
   header:
-    "sticky top-0 z-30 flex shrink-0 items-center gap-3 bg-bg/95 px-3 pb-2 pt-[max(0.5rem,var(--app-safe-top))] backdrop-blur",
+    "sticky top-0 z-30 flex shrink-0 items-center gap-3 bg-bg px-3 pb-2 pt-[max(0.5rem,var(--app-safe-top))]",
   exit: "grid h-12 w-12 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink",
   progress: "h-2.5 min-w-0 flex-1",
   progressLabel: "shrink-0 text-xs font-semibold tabular-nums text-ink-faint",
   /** Largura limitada no desktop/tablet (PART BJ/BK): não é celular esticado. */
   column: "mx-auto w-full max-w-[680px]",
-  dock: "shrink-0 bg-bg/95 px-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2 backdrop-blur",
+  dock: "shrink-0 bg-bg px-4 pb-[calc(var(--app-safe-bottom)+1rem)] pt-2",
   option:
     "min-h-12 w-full rounded-2xl border px-4 py-3 text-left text-base font-semibold transition",
   audio: "grid h-24 w-24 place-items-center rounded-full text-white shadow-lift transition active:scale-95",
@@ -111,7 +111,7 @@ export function GuidedChoiceList({
             onClick={() => onChoose(choice)}
             className={[
               GUIDED_CLASS.option,
-              state === "right" && "longyu-correct-pop border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]",
+              state === "right" && "longyu-correct-pop border-transparent bg-[rgb(var(--good)/0.14)] text-good",
               state === "wrong" && "longyu-error-shake border-transparent bg-wrong-soft text-wrong",
               state === "idle" && "border-line bg-surface text-ink hover:bg-surface-2",
             ]

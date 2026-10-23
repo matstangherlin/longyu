@@ -506,7 +506,7 @@ export function ModuleChallengePage() {
     return (
       <div className="mx-auto max-w-xl space-y-6 pt-6 pb-[calc(var(--app-safe-bottom)+1rem)]">
         <Card className="p-6 text-center sm:p-8">
-          <div className={passed ? "text-[rgb(var(--good))]" : "text-accent"}>
+          <div className={passed ? "text-good" : "text-accent"}>
             {passed ? <IconCheck width={42} height={42} className="mx-auto" /> : <IconX width={42} height={42} className="mx-auto" />}
           </div>
           <h1 className="mt-4 font-serif text-3xl font-semibold text-ink">
@@ -688,7 +688,7 @@ export function ModuleChallengePage() {
     <div className="mx-auto max-w-xl space-y-5 pb-[calc(var(--app-safe-bottom)+1rem)]">
       {correctBurst && (
         <div className="pointer-events-none fixed inset-x-0 top-20 z-50 flex justify-center px-4">
-          <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-[rgb(var(--good))] shadow-card">
+          <div className="longyu-correct-pop rounded-full bg-[rgb(var(--good)/0.14)] px-4 py-2 text-sm font-semibold text-good shadow-card">
             {correctBurst}
           </div>
         </div>
@@ -837,7 +837,7 @@ function QuestionFeedback({ question, answered }: { question: ExamQuestion; answ
           : "border-transparent bg-wrong-soft",
       ].join(" ")}
     >
-      <div className={["flex items-center gap-2 text-sm font-semibold", answered.correct ? "text-[rgb(var(--good))]" : "text-wrong"].join(" ")}>
+      <div className={["flex items-center gap-2 text-sm font-semibold", answered.correct ? "text-good" : "text-wrong"].join(" ")}>
         {answered.correct ? <IconCheck width={17} height={17} /> : <IconX width={17} height={17} />}
         {answered.correct ? "Certo!" : "Ainda não."}
       </div>
@@ -935,7 +935,7 @@ export function ChoiceQuestionView({ question, answered, onAnswer, revealAnswer 
           >
             <ShortcutBadge className="shrink-0">{shortcutKeyForIndex(index)}</ShortcutBadge>
             <span className={/[㐀-鿿]/.test(option) ? "hanzi text-xl" : ""}>{formatPinyinForDisplay(option)}</span>
-            {state === "right" && <IconCheck className="text-[rgb(var(--good))]" />}
+            {state === "right" && <IconCheck className="text-good" />}
             {state === "wrong" && <IconX className="text-wrong" />}
           </button>
         );
@@ -967,7 +967,7 @@ export function ClozeQuestionView({ question, answered, onAnswer, revealAnswer =
               "mx-1 inline-block min-w-14 rounded-lg border-b-2 px-2 text-center align-baseline",
               chosen
                 ? answered?.correct
-                  ? "border-[rgb(var(--good))] text-[rgb(var(--good))]"
+                  ? "border-[rgb(var(--good))] text-good"
                   : "border-wrong text-wrong"
                 : "border-ink-faint text-ink-faint",
             ].join(" ")}
@@ -1148,7 +1148,7 @@ export function MatchQuestionView({ question, answered, onAnswer }: QuestionView
                 "relative min-h-12 rounded-xl border px-3 py-2.5 text-center transition",
                 /[㐀-鿿]/.test(left) ? "hanzi text-xl" : "text-sm font-medium",
                 done
-                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-good"
                   : active
                   ? "border-accent bg-accent-soft text-accent"
                   : "border-line bg-surface hover:bg-surface-2",
@@ -1172,7 +1172,7 @@ export function MatchQuestionView({ question, answered, onAnswer }: QuestionView
                 "relative min-h-12 rounded-xl border px-3 py-2.5 text-center transition",
                 /[㐀-鿿]/.test(right) ? "hanzi text-xl" : "text-sm font-medium",
                 done
-                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]"
+                  ? "border-transparent bg-[rgb(var(--good)/0.14)] text-good"
                   : flash === right
                   ? "border-transparent bg-wrong-soft text-wrong"
                   : "border-line bg-surface hover:bg-surface-2",

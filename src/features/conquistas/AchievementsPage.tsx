@@ -237,7 +237,7 @@ function AchievementCard({ view, kind }: { view: AchievementView; kind: Achievem
             medal ? "h-14 w-14 rounded-2xl text-3xl" : milestone ? "h-8 w-8 rounded-lg text-lg" : "h-11 w-11 rounded-xl text-2xl",
             unlocked
               ? medal
-                ? "bg-gold text-white shadow-lift ring-2 ring-gold/30"
+                ? "bg-gold text-on-gold shadow-lift ring-2 ring-gold/30"
                 : milestone
                   ? "bg-accent-soft text-accent"
                   : "bg-accent text-white shadow-card"
@@ -262,7 +262,7 @@ function AchievementCard({ view, kind }: { view: AchievementView; kind: Achievem
       <p className="mt-1 text-xs leading-5 text-ink-soft">{localizedAchievementDesc(def.id, def.desc)}</p>
       <div className="mt-auto space-y-1.5 pt-3">
         <div className="flex items-center justify-between gap-2 text-[11px] font-medium">
-          <span className={unlocked ? "font-semibold text-[rgb(var(--good))]" : "text-ink-faint"}>
+          <span className={unlocked ? "font-semibold text-good" : "text-ink-faint"}>
             {unlocked ? t("achievements.unlocked") : t("achievements.locked")}
           </span>
           <span className="truncate text-ink-faint">{localizedAchievementReward(def.reward)}</span>

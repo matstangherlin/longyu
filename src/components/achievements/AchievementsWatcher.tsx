@@ -183,7 +183,7 @@ function AchievementUnlockModal({
           <div
             className={
               fullScreen
-                ? "longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-3xl bg-gold text-white shadow-lift ring-4 ring-gold/25 sm:mt-4 sm:h-20 sm:w-20 sm:rounded-3xl"
+                ? "longyu-chest-open mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-3xl bg-gold text-on-gold shadow-lift ring-4 ring-gold/25 sm:mt-4 sm:h-20 sm:w-20 sm:rounded-3xl"
                 : "mx-auto mt-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent"
             }
           >

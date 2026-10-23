@@ -142,7 +142,7 @@ export function StatTile({
   const toneText = {
     default: "text-ink",
     accent: "text-accent",
-    good: "text-[rgb(var(--good))]",
+    good: "text-good",
     gold: "text-gold",
   }[tone];
   return (

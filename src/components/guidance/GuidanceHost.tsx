@@ -517,7 +517,7 @@ function GuidanceRevealCard({ presentation, onAction, onOpenFeature }: SurfacePr
         ) : null}
         <div className="min-w-0 flex-1">
           {unlock && (
-            <span className="inline-flex rounded-full bg-[rgb(var(--good)/0.14)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[rgb(var(--good))]">
+            <span className="inline-flex rounded-full bg-[rgb(var(--good)/0.14)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-good">
               {t("guidance.common.newBadge")}
             </span>
           )}

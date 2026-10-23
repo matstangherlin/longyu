@@ -152,7 +152,7 @@ export function PinyinLabPage() {
             title="Som, acento e tons"
             desc="Pinyin é a ponte entre o ouvido, a boca e os caracteres."
           />
-          <div className="sticky top-14 z-20 -mx-1 overflow-x-auto rounded-xl bg-bg/95 px-1 py-2 backdrop-blur md:static md:mx-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+          <div className="sticky top-14 z-20 -mx-1 overflow-x-auto rounded-xl bg-bg px-1 py-2 md:static md:mx-0 md:bg-transparent md:p-0">
             <div className="flex min-w-max gap-1.5">
               {PINYIN_LAB_VIEWS.map((view) => (
                 <button
@@ -698,7 +698,7 @@ function PinyinAccentTrainer({
                   className={[
                     "relative min-h-16 rounded-2xl border px-4 py-3 text-center font-serif text-2xl font-semibold transition active:scale-[.98]",
                     state === "idle" && "border-line bg-surface hover:border-accent-soft hover:bg-surface-2",
-                    state === "right" && "border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
+                    state === "right" && "border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.12)] text-good",
                     state === "wrong" && "border-wrong/30 bg-wrong-soft text-wrong",
                   ]
                     .filter(Boolean)
@@ -714,7 +714,7 @@ function PinyinAccentTrainer({
           {checked && (
             <div className={["rounded-2xl border px-4 py-4", selectedCorrect ? "border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.1)]" : "border-wrong/25 bg-wrong-soft/70"].join(" ")}>
               <div className="flex items-start gap-3">
-                <span className={["mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", selectedCorrect ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]" : "bg-wrong text-white"].join(" ")}>
+                <span className={["mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", selectedCorrect ? "bg-[rgb(var(--good)/0.14)] text-good" : "bg-wrong text-on-wrong"].join(" ")}>
                   {selectedCorrect ? <IconCheck width={20} height={20} /> : <IconX width={20} height={20} />}
                 </span>
                 <div className="min-w-0">
@@ -931,7 +931,7 @@ function PinyinBuilder() {
           {checked && (
             <div className={["rounded-lg border px-4 py-4", correct ? "border-[rgb(var(--good)/0.28)] bg-[rgb(var(--good)/0.1)]" : "border-wrong/25 bg-wrong-soft/70"].join(" ")}>
               <div className="flex items-start gap-3">
-                <span className={["mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", correct ? "bg-[rgb(var(--good)/0.14)] text-[rgb(var(--good))]" : "bg-wrong text-white"].join(" ")}>
+                <span className={["mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", correct ? "bg-[rgb(var(--good)/0.14)] text-good" : "bg-wrong text-on-wrong"].join(" ")}>
                   {correct ? <IconCheck width={20} height={20} /> : <IconX width={20} height={20} />}
                 </span>
                 <div className="min-w-0">

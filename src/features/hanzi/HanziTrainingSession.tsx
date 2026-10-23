@@ -327,7 +327,7 @@ function FocusFrame({
   const { t } = useTranslation();
   return (
     <div className="flex h-full min-h-0 flex-col" data-testid="hanzi-training" data-hanzi-focus>
-      <header className="shrink-0 bg-bg/95 px-3 pb-2 pt-[max(0.25rem,var(--app-safe-top))] backdrop-blur" data-testid="hanzi-training-header">
+      <header className="shrink-0 bg-bg px-3 pb-2 pt-[max(0.25rem,var(--app-safe-top))]" data-testid="hanzi-training-header">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -404,7 +404,7 @@ function QuizItem({ question, onAnswer }: { question: HanziQuizQuestion; onAnswe
                 .join(" ")}
             >
               <span>{option}</span>
-              {state === "right" && <IconCheck width={18} height={18} className="text-[rgb(var(--good))]" />}
+              {state === "right" && <IconCheck width={18} height={18} className="text-good" />}
               {state === "wrong" && <IconX width={18} height={18} className="text-accent" />}
             </button>
           );

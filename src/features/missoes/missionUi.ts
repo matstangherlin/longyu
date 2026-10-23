@@ -85,7 +85,7 @@ export function missionCta(status: MissionUiStatus): {
 export function missionIconTileClass(status: MissionUiStatus): string {
   return cx(
     missionUi.iconTile,
-    status === "claimed" && "bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
+    status === "claimed" && "bg-[rgb(var(--good)/0.12)] text-good",
     status === "complete" && "bg-accent text-white",
     status === "premium" && "bg-gold/15 text-gold",
     (status === "incomplete" || status === "progress") && "bg-accent-soft text-accent"

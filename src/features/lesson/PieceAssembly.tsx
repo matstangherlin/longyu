@@ -190,7 +190,7 @@ export function AssemblyHintBanner({
   const tones = {
     soft: "border-line bg-surface-2 text-ink-soft",
     accent: "border-accent-soft bg-accent-soft/45 text-accent",
-    good: "border-transparent bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))]",
+    good: "border-transparent bg-[rgb(var(--good)/0.12)] text-good",
   };
   return (
     <p

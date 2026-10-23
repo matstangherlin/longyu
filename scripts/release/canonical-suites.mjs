@@ -461,6 +461,8 @@ export const SUITES = [
       "validate:ux-closure-accessibility",
       "validate:rc2-3-13r3-2-5-premium-ux-closure",
       "test:rc2-3-13r3-2-5-premium-ux-closure",
+      "validate:text-contrast",
+      "test:text-contrast",
     ],
   },
   {
@@ -598,4 +600,6 @@ export const ADDED_STEPS = Object.freeze({
   "validate:ux-closure-accessibility": "RC2.3.13R.3.2.5 — reveal focus + announcement, alerts, no typing chatter, chest state names, interface-language auth copy, R.3.2.4 follow-ups (executed), Android detector probes, QA-only switches.",
   "validate:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — premium UX release honesty (runtime SHA, fingerprint, validator repair, follow-ups, scope, hosted, APK, physical, freeze, entry).",
   "test:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — mutation kills for the premium UX gates (≥160, including platform detector mutants 1–7).",
+  "validate:text-contrast": "Text roles (accent/good/wrong text tokens ≥ 4.5:1 per theme), same-element text/background pairs at AA (executed), white only on the accent fill, no glass or glow.",
+  "test:text-contrast": "Mutation kills for the text contrast gate (18).",
 });

@@ -131,7 +131,7 @@ export function LandingPage() {
                   <div className="hanzi text-2xl leading-tight text-ink" data-hanzi="谢谢">谢谢</div>
                   <div className="mt-0.5 pinyin text-sm text-ink-soft">xièxie · {t("marketing.glossThanks")}</div>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--good))]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--good)/0.12)] px-2.5 py-1 text-xs font-semibold text-good">
                   <IconCheck width={13} height={13} /> +15 XP
                 </span>
               </div>
@@ -168,7 +168,7 @@ export function LandingPage() {
                   key={item}
                   className="flex min-h-11 items-center gap-2 rounded-xl border border-line/70 bg-surface/90 px-2.5 py-2 text-[12px] font-medium leading-4 text-ink-soft shadow-card sm:gap-2.5 sm:px-3 sm:text-sm"
                 >
-                  <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-[rgb(var(--good)/0.12)] text-[rgb(var(--good))] sm:h-5 sm:w-5">
+                  <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-[rgb(var(--good)/0.12)] text-good sm:h-5 sm:w-5">
                     <IconCheck width={11} height={11} />
                   </span>
                   {item}

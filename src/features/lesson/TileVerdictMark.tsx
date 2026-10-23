@@ -13,7 +13,7 @@ export function TileVerdictMark({ verdict }: { verdict: TileVerdict }) {
     return (
       <IconCheck
         aria-hidden="true"
-        className="pointer-events-none absolute right-2 top-2 text-[rgb(var(--good))]"
+        className="pointer-events-none absolute right-2 top-2 text-good"
         width={16}
         height={16}
         data-tile-verdict="right"

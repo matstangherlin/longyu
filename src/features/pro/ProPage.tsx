@@ -240,7 +240,7 @@ export function ProPage() {
                       type="button"
                       onClick={() => setQaMarketOverride(market)}
                       aria-pressed={qaMarketOverride === market}
-                      className={`rounded-md px-3 py-1.5 text-xs font-semibold ${billingMarket === market ? "bg-gold text-white" : "text-ink-soft"}`}
+                      className={`rounded-md px-3 py-1.5 text-xs font-semibold ${billingMarket === market ? "bg-gold text-on-gold" : "text-ink-soft"}`}
                     >
                       {market === "BR" ? t("pro.brazil") : t("pro.international")}
                     </button>
@@ -272,7 +272,7 @@ export function ProPage() {
                 onClick={() => setSelectedCycle(cycle)}
                 aria-pressed={selectedCycle === cycle}
                 className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold ${
-                  selectedCycle === cycle ? "bg-gold text-white" : "text-ink-soft"
+                  selectedCycle === cycle ? "bg-gold text-on-gold" : "text-ink-soft"
                 }`}
               >
                 {cycle === "monthly" ? t("pro.monthlyLabel") : t("pro.annualLabel")}

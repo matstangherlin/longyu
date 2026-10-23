@@ -85,7 +85,7 @@ export function LessonPerfOverlay() {
     // que este overlay costuma ser usado para investigar — cobri-la durante o
     // QA de aparelho seria criar o mesmo bug que estamos medindo.
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[200] flex justify-center p-2">
-      <div className="pointer-events-auto max-w-full overflow-hidden rounded-xl border border-line bg-surface/95 text-[11px] leading-4 text-ink shadow-lift backdrop-blur">
+      <div className="pointer-events-auto max-w-full overflow-hidden rounded-xl border border-line bg-surface text-[11px] leading-4 text-ink shadow-lift">
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}

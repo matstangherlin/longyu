@@ -2728,7 +2728,7 @@ export function AccountPage() {
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-ink">{localizedAchievementTitle(def.id, def.title)}</div>
                   {unlockedAt ? (
-                    <div className="truncate text-xs text-[rgb(var(--good))]">{t("achievements.unlocked")}</div>
+                    <div className="truncate text-xs text-good">{t("achievements.unlocked")}</div>
                   ) : (
                     <ProgressBar value={current} max={target} className="mt-1.5" />
                   )}
@@ -4259,7 +4259,7 @@ function NameStep({
             autoFocus
           />
         </label>
-        <p className={["mt-2 text-xs font-medium", valid ? "text-[rgb(var(--good))]" : "text-ink-faint"].join(" ")}>
+        <p className={["mt-2 text-xs font-medium", valid ? "text-good" : "text-ink-faint"].join(" ")}>
           {valid ? "Perfeito. Vamos usar esse nome no seu Longyu." : "Digite pelo menos 2 caracteres para continuar."}
         </p>
       </div>

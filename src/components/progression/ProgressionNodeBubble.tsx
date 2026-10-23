@@ -162,7 +162,7 @@ export function ProgressionNodeBubble({
           nodeSize,
           "min-h-11 min-w-11",
           isCurrent && "border-accent bg-accent-soft text-accent shadow-current",
-          isDone && "border-[rgb(var(--good)/0.55)] bg-[rgb(var(--good)/0.18)] text-[rgb(var(--good))]",
+          isDone && "border-[rgb(var(--good)/0.55)] bg-good-soft text-good",
           isAvailable && "border-accent/50 bg-accent-soft/40 text-accent",
           isLocked && "border-line bg-surface-2 text-ink-faint",
           coreAula && !isLocked && "ring-1 ring-accent/30",

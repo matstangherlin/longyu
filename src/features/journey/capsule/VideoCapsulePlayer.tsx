@@ -469,7 +469,7 @@ export function VideoCapsulePlayer({
           {en ? "Watched" : "Assistido"}: {Math.round(coverage * 100)}%
         </span>
         {completed && (
-          <span className="inline-flex items-center gap-1 font-semibold text-[rgb(var(--good))]">
+          <span className="inline-flex items-center gap-1 font-semibold text-good">
             <IconCheck width={14} height={14} />
             {en ? "Lesson watched" : "Aula assistida"}
           </span>

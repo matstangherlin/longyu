@@ -22,7 +22,7 @@ const LABEL_CLASS = "mb-1 block text-xs font-semibold text-ink";
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} className="mt-1 text-xs text-[rgb(var(--wrong))]">
+    <p id={id} className="mt-1 text-xs text-wrong">
       {message}
     </p>
   );
@@ -374,7 +374,7 @@ export function BusinessLeadForm({ sourceCta = "form" }: { sourceCta?: string })
           data-business-lead-status={status}
           className={
             status === "success"
-              ? "text-sm font-medium text-[rgb(var(--good))]"
+              ? "text-sm font-medium text-good"
               : "text-sm text-ink-soft"
           }
         >

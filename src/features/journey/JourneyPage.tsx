@@ -653,7 +653,7 @@ export function JourneyPage() {
 
             {phases.map((phase) => (
               <section key={phase.id} className="space-y-4">
-                <div className="lg:sticky lg:top-14 lg:z-10 lg:-mx-1 lg:rounded-xl lg:bg-bg/90 lg:px-2 lg:py-1.5 lg:backdrop-blur-sm">
+                <div className="lg:sticky lg:top-14 lg:z-10 lg:-mx-1 lg:rounded-xl lg:bg-bg lg:px-2 lg:py-1.5">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
                     {t("journey.phaseN", { n: phase.order })}
                   </div>
@@ -860,7 +860,7 @@ function JourneySidePanel({
 
       <Card className="p-3">
         <Link to="/perfil" className="group flex w-full items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-accent/80">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-accent">
             <IconFlame width={14} height={14} />
           </span>
           <span className="flex-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
