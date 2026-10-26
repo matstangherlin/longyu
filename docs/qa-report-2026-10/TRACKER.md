@@ -17,8 +17,8 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-007 | Logout inconsistente e `/login` com sessão | P1 | Onda 1 | 07 | em PR | [#365](https://github.com/matstangherlin/longyu/pull/365) | Push de logout estoura em 4 s e a sessão local cai mesmo assim. /login e /comecar com sessão vão para /jornada. No celular, Sair fica em Mais e em /conta. |
 | LGY-008 | "Salvando…" infinito; nome não persiste | P1 | Onda 1 | 08 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366) | Saída cedo do push não deixa mais o chip em "Salvando…". Schema vira erro na hora. Nome grava só `profiles.name` e o store muda depois. E2E `@qa-r06` no Chromium. |
 | LGY-009 | Recompensa de missão não aplicada | P1 | Onda 2 | 19 | aberto | — | Registrado. |
-| LGY-010 | Interpolação / digitação nas primeiras lições | P1 | Onda 1 | 09 | aberto | — | Registrado. |
-| LGY-011 | Etapa 你好 sem a peça 好 | P1 | Onda 1 | 09 | aberto | — | Registrado. |
+| LGY-010 | Interpolação / digitação nas primeiras lições | P1 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | `joinSentence` tira `..`, `.?` e `?.` do enunciado. Reticências ficam. Fingerprint do currículo não mudou. |
+| LGY-011 | Etapa 你好 sem a peça 好 | P1 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | Passe 3 do laboratório responde 你好 e o banco inclui 好. `你` sozinho não passa. `你 好` e `你好。` passam. |
 | LGY-012 | Comparação de áudio sem "Não posso ouvir agora" | P1 | Onda 1 | 11 | aberto | — | Registrado. |
 | LGY-013 | Reset: a UI promete código e o e-mail traz link | P1 | Fase 1 | 13 | aberto | — | Registrado. Templates e SMTP são humanos. |
 | LGY-014 | @apelido, convite e feed | P1 | Onda 2 | 08, 24 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366) | Parte cliente: sucesso ou erro no @apelido; social desligado explica e não mostra Salvar. Convite e feed continuam no prompt 24. |
@@ -28,9 +28,9 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-018 | Qi cai de 17 para 7 | P2 | Onda 2 | 19 | aberto | — | Registrado. |
 | LGY-019 | Ligas: rank, "Aluno local" e XP | P2 | Onda 2 | 06, 08, 19 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364), [#366](https://github.com/matstangherlin/longyu/pull/366) | Parte local: "Você" lê a conta ativa, que não herda mais XP/nome de outra. Nome visível de placeholder é "Aluno", nunca "Aluno local". Rank e matemática do servidor continuam no prompt 19. |
 | LGY-020 | "XP hoje" 0, modal de sequência, conquistas | P2 | Onda 2 | 19 | aberto | — | Registrado. |
-| LGY-021 | Enunciados sem pergunta; tom de 谢 | P2 | Onda 1 | 09 | aberto | — | Registrado. |
-| LGY-022 | Nome "Matheus" fixo | P2 | Onda 1 | 09 | aberto | — | Registrado. |
-| LGY-023 | Etapas puladas pela validação | P2 | Onda 1 | 09 | aberto | — | Registrado. |
+| LGY-021 | Enunciados sem pergunta; tom de 谢 | P2 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | Objetivo de autoria não vira enunciado. Tom de 谢 dentro de 谢谢 pergunta a 1ª sílaba. |
+| LGY-022 | Nome "Matheus" fixo | P2 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | Sem nome, Lucas. Com nome, o primeiro nome. Nunca "você". A cena de apresentação pergunta o nome. E2E em l9. |
+| LGY-023 | Etapas puladas pela validação | P2 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | Fases 1–2 no plano atual: 0 etapas inválidas. Pulo restante avisa o Sentry sem PII. O DSN de produção ainda não está no bundle. |
 | LGY-024 | Contagens e idiomas misturados | P2 | Onda 2 | 23 | aberto | — | Registrado. |
 | LGY-025 | Revisão Free corta a fila antes de ordenar | P2 | Onda 2 | 23 | aberto | — | Registrado. |
 | LGY-026 | Concluir com ~0% e ganhar 2 estrelas | P2 | Onda 2 | 22 | aberto | — | Registrado. |
@@ -45,7 +45,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-035 | Busca desligada sem indicação | P3 | Fase 1 | 16 | aberto | — | Registrado. |
 | LGY-036 | Erros no console | P3 | Onda 1 | 04, 23 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | 42703/404 de schema não vão para `console.error`. Um aviso Sentry por objeto, por sessão. |
 | LGY-037 | Gitleaks vermelho | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Scan do histórico: 8 achados. Fixture Stripe allowlist exata. Os 6 JWTs restantes são `role: anon` do projeto `drjcfalvlbbeblmmyhwj`; nenhum `service_role`. O scan agendado continua vermelho até decisão humana sobre allowlist da anon key pública. |
-| LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Guia em `BRANCH_PROTECTION.md`. A proteção em si não foi ligada. API de protection do `main` respondeu 403 para o token deste agente. |
+| LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Guia em `BRANCH_PROTECTION.md`. Relatório humano de 26/10: a ruleset "Protect main branch" já está ativa desde 08/08/2026 (PR + 5 checks). A API deste agente tinha respondido 403. Falta o Matty conferir se o próprio usuário está em bypass. |
 | LGY-039 | Sem staging | P2 | Fase 1 | 03, 12 | em PR | [#361](https://github.com/matstangherlin/longyu/pull/361) | Checklist manda staging antes do social. Criar o projeto continua no prompt 12. |
 | LGY-040 | Privacidade, termos, LGPD e CDC | P2 | Fase 1 | 15 | aberto | — | Registrado. Dados do controlador ficam em branco até o Matty preencher. |
 | LGY-041 | Menores de 18 | P2 | Fase 1 | 15 | aberto | — | Padrão recomendado: só 18+ na beta fechada. Sem decisão confirmada. |
@@ -77,7 +77,7 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 | R-13 | Revisão Free | Sessão com os 20 itens mais prioritários | prompt 30, `@qa-r13` | `e2e/qa-regression-r13.spec.ts` (ainda não existe) | local | não executado |
 | R-14 | Preflight `x-longyu-*` | Preflight responde 2xx | prompt 30, `@qa-staging` | `e2e/qa-regression-r14.spec.ts` (ainda não existe) | staging | não executado |
 | R-15 | Excluir conta | Conta some e a sessão encerra | prompt 30, `@qa-staging` | `e2e/qa-regression-r15.spec.ts` (ainda não existe) | staging | não executado |
-| R-16 | Lint de conteúdo | 0 violações | prompt 30, passo de script | `npm run lint:content` (nome a confirmar no prompt 10) | local | não executado |
+| R-16 | Lint de conteúdo | 0 violações | teste pontual no prompt 09; lint geral no prompt 10 | `npm run test:early-lesson-copy` | local | em PR — pontuação, 你好, nome e enunciados das fases 1–2. O lint geral continua no prompt 10. |
 | R-17 | Escuta sem áudio | Etapa concluível sem áudio e sem custo | prompt 30, `@qa-r17` | `e2e/qa-regression-r17.spec.ts` (ainda não existe) | local | não executado |
 | R-18 | SRS | Item só apresentado não gradua; erro gera alvo | prompt 30, unitário | `npm run test:srs-evidence` (nome a confirmar no prompt 21) | local | não executado |
 | R-19 | Paywall | CTAs levam a páginas que existem | prompt 30, `@qa-r19` | `e2e/qa-regression-r19.spec.ts` (ainda não existe) | local | não executado |

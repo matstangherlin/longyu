@@ -1821,6 +1821,8 @@ export const en: MessageCatalog = {
     usernameSavedAs: "@{username} saved",
     friendsComing: "Friends arrive in a later update.",
     askName: "What should we call you?",
+    askNameLead: "This name is used in introductions, instead of a sample name.",
+    useModelName: "Continue with Lucas",
     displayName: "Display name",
     profileVisible: "Your profile appears in friend search.",
     profileHidden: "Your profile is hidden from search.",

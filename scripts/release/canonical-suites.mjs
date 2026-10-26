@@ -138,6 +138,7 @@ export const SUITES = [
       "validate:en-core-surfaces",
       "validate:pinyin-display",
       "validate:lessons",
+      "test:early-lesson-copy",
       "validate:pedagogy-wave-one",
       "test:mastery-loop",
       "test:topic-mastery-path",
@@ -606,4 +607,5 @@ export const ADDED_STEPS = Object.freeze({
   "validate:edge-cors": "QA 2026-10 prompt 05 — preflight das Edge Functions anuncia x-longyu-*.",
   "test:account-isolation": "QA 2026-10 prompt 06 — troca de conta não herda progresso nem envia fila com outro userId.",
   "test:profile-save": "QA 2026-10 prompt 08 — nome de exibição e o chip de sync que sempre termina.",
+  "test:early-lesson-copy": "QA 2026-10 prompt 09 — pontuação, nome, 你好 e enunciados das fases 1–2.",
 });

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 994,
+    "CANONICAL": 995,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1200,
+  "total": 1201,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -3964,6 +3964,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
+    },
+    {
+      "gateId": "test:early-lesson-copy",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-early-lesson-copy.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
     },
     {
       "gateId": "test:early-transfer",
@@ -21718,5 +21736,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "08fcd1eb6e4be325"
+  "evidenceDigest": "af07769584fccf17"
 }

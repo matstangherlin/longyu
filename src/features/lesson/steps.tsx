@@ -21,12 +21,15 @@ import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
   isPersonalizedUtterance,
+  learnerSpokenName,
   personalizeChoiceList,
   personalizeConversationPrompt,
   personalizeName as personalizeValue,
   repairNameOnlyAnswerLeak,
   useStudentFirstName,
 } from "../../lib/personalize";
+import { joinSentence, polishLearnerText } from "../../lib/text/learnerCopy";
+import { captureSkippedExercise } from "../../lib/observability/errorReporting";
 
 /**
  * RC2.2.32 — conteúdo fixo da lição passa pelo player canônico (sem TTS silencioso).
@@ -488,7 +491,7 @@ function personalizeNode(node: ConversationNode, name: string | undefined): Conv
           options: personalizeChoiceList(interaction.options, name),
           accepts: interaction.accepts?.map((answer) => personalizeValue(answer, name) ?? answer),
         },
-        name
+        learnerSpokenName(name)
       )
     : interaction;
   return {
@@ -573,7 +576,21 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
         )
       : step.checkpoint,
   };
-  return repairNameOnlyAnswerLeak(personalized, name);
+  const spoken = learnerSpokenName(name);
+  const repaired = repairNameOnlyAnswerLeak(personalized, spoken);
+  const source = repaired.sourceText;
+  const polish = (value: string | undefined) => polishLearnerText(value, source);
+  return {
+    ...repaired,
+    title: polish(repaired.title),
+    body: polish(repaired.body),
+    prompt: polish(repaired.prompt),
+    dialoguePrompt: polish(repaired.dialoguePrompt),
+    explanation: polish(repaired.explanation),
+    placeholder: polish(repaired.placeholder),
+    pt: polish(repaired.pt),
+    situationPt: polish(repaired.situationPt),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -4845,7 +4862,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     : isOpen
       ? "Escreva o que você diria…"
       : step.patternPt
-        ? `Complete: ${step.patternPt}`
+        ? joinSentence("Complete:", step.patternPt)
         : "hànzì ou pinyin";
 
   const helpMeta = (
@@ -5395,6 +5412,11 @@ function BrokenStepFallback({
         .filter(Boolean)
         .join(" · ")
     );
+    captureSkippedExercise({
+      lessonId: diagnostics.lessonId,
+      stepId: diagnostics.activityType,
+      validationFailureCode: diagnostics.validationFailureCode,
+    });
   }, [diagnostics]);
 
   return (
