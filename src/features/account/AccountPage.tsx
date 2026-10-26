@@ -1,4 +1,5 @@
 import { isDevLocalAuthAllowed } from "../../lib/auth/localAuthPolicy";
+import { displayNameForAccount } from "../../lib/displayName";
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { DOMAIN_META, type DomainTrack } from "../../data/domains";
@@ -3141,7 +3142,7 @@ function AccountProfileStateCard({
       </div>
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
-        <ProfileDetailStat label="Nome" value={account?.name ?? "Aluno Longyu"} />
+        <ProfileDetailStat label="Nome" value={displayNameForAccount(account)} />
         <ProfileDetailStat label="Email" value={account?.email || "Sem email nesta sessão."} />
         <ProfileDetailStat label="Status da conta" value={status.label} />
         <ProfileDetailStat label="Nível atual" value={levelLabel} />
@@ -4738,7 +4739,7 @@ function AccountRow({
         ].join(" ")}
       >
         <div>
-          <div className="font-medium text-ink">{account.name}</div>
+          <div className="font-medium text-ink">{displayNameForAccount(account)}</div>
           <div className="text-xs text-ink-faint">
             {account.completedLessons.length} lições · {account.points} Qi · {Object.keys(account.srs).length} revisões
           </div>

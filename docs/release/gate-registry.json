@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 993,
+    "CANONICAL": 994,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1199,
+  "total": 1200,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -6996,6 +6996,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-progression"
+    },
+    {
+      "gateId": "test:profile-save",
+      "status": "CANONICAL",
+      "domain": "identity-commercial",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-profile-save.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:identity-commercial",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:identity-commercial"
     },
     {
       "gateId": "test:progress-loading",
@@ -21700,5 +21718,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "b242698f9553e973"
+  "evidenceDigest": "08fcd1eb6e4be325"
 }

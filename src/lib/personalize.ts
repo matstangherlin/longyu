@@ -6,6 +6,7 @@
 // e o avatar do aluno usem o nome real. Usado pelas lições (personalizeStep),
 // pelas cenas de conversa, pelas histórias interativas e pela revisão.
 
+import { isPlaceholderDisplayName } from "./displayName";
 import { useStore } from "./store";
 import { CJK_RE, LATIN_NAME_RE, isPersonalizedUtterance } from "./audio/personalizedUtterance";
 /** Re-export pure predicate — single authority lives in audio/personalizedUtterance. */
@@ -14,7 +15,7 @@ export { isPersonalizedUtterance };
 /** Primeiro nome utilizável do aluno, ou undefined para nomes-placeholder. */
 export function studentFirstName(name?: string): string | undefined {
   const first = name?.trim().split(/\s+/)[0];
-  if (!first || ["Aluno", "Novo"].includes(first)) return undefined;
+  if (!first || ["Aluno", "Novo"].includes(first) || isPlaceholderDisplayName(name)) return undefined;
   return first;
 }
 

@@ -47,14 +47,33 @@ function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promis
   return withTimeoutMs(promise, ms);
 }
 
+function isSchemaSyncFailure(message: string): boolean {
+  return /42703|PGRST204|PGRST205|schema cache|instruction_locale/i.test(message);
+}
+
+/** Schedule set "pending" and then the push returned before recording a result. */
+function settleAbandonedSync(message: string): void {
+  const state = useStore.getState().cloudSyncState;
+  if (state.status === "pending" && state.message === "Sincronização pendente.") {
+    useStore.getState().setCloudSyncState("error", message);
+  }
+}
+
 function markCloudSync(rawStatus: "loading" | "synced" | "pending" | "error", rawMessage: string): void {
   // RC2.2.11 — toda decisão de aviso passa pela syncNoticePolicy (syncUx.ts):
   // rotina é silenciosa; falha transitória continua "pending" e é re-tentada
   // sozinha; só falha persistente vira "error" com UM aviso calmo e deduplicado.
   const now = Date.now();
+  const schema = rawStatus === "error" && isSchemaSyncFailure(rawMessage);
   const decision =
     rawStatus === "error"
-      ? applySyncNoticePolicy({ kind: "failure", resource: "cloud-progress", errorKind: "progress-push", now })
+      ? applySyncNoticePolicy({
+          kind: "failure",
+          resource: "cloud-progress",
+          errorKind: schema ? "schema" : "progress-push",
+          now,
+          threatensLoss: schema,
+        })
       : rawStatus === "synced"
         ? applySyncNoticePolicy({ kind: "success", resource: "cloud-progress", now })
         : applySyncNoticePolicy({ kind: "routine", resource: "cloud-progress", status: rawStatus, now });
@@ -108,19 +127,33 @@ function snapshotBodyWithProgress(
 
 export async function pushProgressToCloud(): Promise<{ ok: boolean; message: string }> {
   if (isQaTestStateActive()) {
+    settleAbandonedSync("QA test state: sync desligado.");
     return { ok: false, message: "QA test state: sync desligado." };
   }
   if (!isSupabaseBackendEnabled()) {
+    settleAbandonedSync("Backend em nuvem desativado.");
     return { ok: false, message: "Backend em nuvem desativado." };
   }
   const client = getSupabaseClient();
-  if (!client) return { ok: false, message: "Cliente Supabase indisponível." };
+  if (!client) {
+    settleAbandonedSync("Cliente Supabase indisponível.");
+    return { ok: false, message: "Cliente Supabase indisponível." };
+  }
 
-  const {
-    data: { user },
-  } = await client.auth.getUser();
-  if (!user) return { ok: false, message: "Faça login para sincronizar o progresso." };
+  let user: { id: string } | null = null;
+  try {
+    const loaded = await withTimeout(client.auth.getUser(), CLOUD_SYNC_TIMEOUT_MS);
+    user = loaded.data.user;
+  } catch {
+    settleAbandonedSync(SYNC_TIMEOUT_MESSAGE);
+    return { ok: false, message: SYNC_TIMEOUT_MESSAGE };
+  }
+  if (!user) {
+    settleAbandonedSync("Faça login para sincronizar o progresso.");
+    return { ok: false, message: "Faça login para sincronizar o progresso." };
+  }
   if (useStore.getState().currentAccountId !== cloudAccountId(user.id)) {
+    settleAbandonedSync("A conta ativa não é a desta sessão.");
     return { ok: false, message: "A conta ativa não é a desta sessão." };
   }
 
@@ -128,9 +161,14 @@ export async function pushProgressToCloud(): Promise<{ ok: boolean; message: str
   try {
     const snapshot = activeLearningRepository().exportSnapshot();
     const result = await withTimeout(activeLearningRepository().importSnapshot(snapshot));
+    const schema = !result.ok && isSchemaSyncFailure(result.message);
     markCloudSync(
       result.ok ? "synced" : "error",
-      result.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
+      result.ok
+        ? "Progresso sincronizado."
+        : schema
+          ? `42703 ${result.message}`
+          : "Erro ao sincronizar — seu progresso local está seguro."
     );
     if (result.ok) {
       await syncSocialProfileFromStore();
@@ -441,7 +479,8 @@ export async function flushCloudProgressPush(): Promise<void> {
   }
   syncInFlight = true;
   try {
-    await pushProgressToCloud();
+    const result = await pushProgressToCloud();
+    if (!result.ok) settleAbandonedSync(result.message);
   } finally {
     syncInFlight = false;
     if (pendingPush) {

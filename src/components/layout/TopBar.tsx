@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { displayNameForAccount } from "../../lib/displayName";
 import { useStore } from "../../lib/store";
 import { IconFlame, IconShield, IconStar, IconUser } from "../ui/Icon";
 import { BrandWordmark } from "./Brand";
@@ -141,7 +142,7 @@ export function TopBar() {
           data-coachmark-target="topbar-profile"
           aria-current={onProfile ? "page" : undefined}
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line/50 bg-surface text-accent transition aria-[current=page]:border-accent aria-[current=page]:bg-accent-soft hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
-          aria-label={account?.name ? t("auth.accountNamed", { name: account.name }) : t("auth.accountAria")}
+          aria-label={account ? t("auth.accountNamed", { name: displayNameForAccount(account) }) : t("auth.accountAria")}
         >
           <IconUser width={15} height={15} className="sm:h-4 sm:w-4" />
         </Link>
