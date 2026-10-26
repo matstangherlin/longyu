@@ -7,8 +7,11 @@
 // pelas cenas de conversa, pelas histórias interativas e pela revisão.
 
 import { isPlaceholderDisplayName } from "./displayName";
+import { learnerSpokenName, personalizeName } from "./learnerName";
 import { useStore } from "./store";
 import { CJK_RE, LATIN_NAME_RE, isPersonalizedUtterance } from "./audio/personalizedUtterance";
+
+export { FALLBACK_MODEL_NAME, learnerSpokenName, personalizeName } from "./learnerName";
 /** Re-export pure predicate — single authority lives in audio/personalizedUtterance. */
 export { isPersonalizedUtterance };
 
@@ -23,18 +26,6 @@ export function studentFirstName(name?: string): string | undefined {
 export function useStudentFirstName(): string | undefined {
   const account = useStore((s) => s.accounts?.[s.currentAccountId]);
   return studentFirstName(account?.name);
-}
-
-/**
- * RC2.3.13R.3.1 — `我叫` + nome com espaço canônico (legível para TTS e display).
- * Mantém `我叫 Nome` mesmo quando o autoral vinha colado (`我叫Matheus`).
- */
-export function personalizeName(value: string | undefined, name: string | undefined): string | undefined {
-  if (!value || !name) return value;
-  return value
-    .replaceAll("我叫Matheus", `我叫 ${name}`)
-    .replaceAll("我叫 Matheus", `我叫 ${name}`)
-    .replaceAll("Matheus", name);
 }
 
 /**
@@ -95,13 +86,13 @@ export function personalizeChoiceList(
   name: string | undefined
 ): string[] | undefined {
   if (!options) return options;
-  if (!name) return options.map((option) => option);
+  const spoken = learnerSpokenName(name);
   const seen = new Set<string>();
   return options.map((option) => {
-    let next = personalizeName(option, name) ?? option;
+    let next = personalizeName(option, spoken) ?? option;
     const key = normalizeKey(next);
     if (seen.has(key) && option.includes(MODEL_STUDENT_NAME)) {
-      next = option.replaceAll(MODEL_STUDENT_NAME, collisionAlternate(name));
+      next = option.replaceAll(MODEL_STUDENT_NAME, collisionAlternate(spoken));
     }
     seen.add(normalizeKey(next));
     return next;

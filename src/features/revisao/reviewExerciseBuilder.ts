@@ -13,6 +13,7 @@ import { expandPairsWithLearned, type AdaptivePair } from "../../data/adaptivePa
 import { TONE_LABELS } from "../../data/tones";
 import type { ItemType } from "../../data/types";
 import { stripPinyinTone } from "../../lib/pinyin";
+import { toneQuestion } from "../../lib/text/learnerCopy";
 import { isCoherentPinyin, resolveLexicalIdentity } from "../lesson/errorLexicalIdentity";
 import { newItem, type ReviewDomain, type SRSItem } from "../../lib/srs";
 import type { ActivityErrorRecord, ActivityReviewTarget } from "../../lib/store";
@@ -837,7 +838,7 @@ function buildToneChoice(input: ReviewExerciseBuildInput, entity: ReviewExercise
     item: input.item,
     entity,
     prompt: hasRecentError(input) ? "Ouça de novo e ajuste o tom." : "Ouça e escolha o tom.",
-    question: `Qual é o tom de ${entity.hanzi}?`,
+    question: toneQuestion(entity.hanzi, entity.hanzi),
     displayText: entity.hanzi,
     displayType: "hanzi",
     audioText: entity.hanzi,

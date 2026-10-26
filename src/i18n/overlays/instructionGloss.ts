@@ -127,6 +127,8 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   }
   const whichTone = pt.match(/^Qual é o tom de (.+)\?$/);
   if (whichTone) return `What is the tone of ${whichTone[1]}?`;
+  const syllableTone = pt.match(/^Qual é o tom da (\d+)ª sílaba de (.+)\?$/);
+  if (syllableTone) return `What is the tone of syllable ${syllableTone[1]} in ${syllableTone[2]}?`;
   const nthTone = pt.match(/^(\d)º tom$/);
   if (nthTone) return `tone ${nthTone[1]}`;
   const vemDe = pt.match(/^vem de (.+)$/);
@@ -194,6 +196,9 @@ function applyPatterns(pt: string, locale: SupportedLocale): string | undefined 
   if (hanziCentral) return `${hanziCentral[1]} is the central hànzì of this topic.`;
   const focusForm = pt.match(/^Foque na forma de ([\u3400-\u9fff]+)\.$/);
   if (focusForm) return `Focus on the form of ${focusForm[1]}.`;
+  if (pt === "Qual opção comunica o núcleo deste tema?") {
+    return "Which option communicates the core of this topic?";
+  }
   const nucleus = pt.match(/^Qual opção é o núcleo \((.+)\) deste tema\?$/);
   if (nucleus) return `Which option is the core (${nucleus[1]}) of this topic?`;
   const recognize = pt.match(/^Reconheça ([\u3400-\u9fff]+)\.$/);

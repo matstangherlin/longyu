@@ -1820,6 +1820,8 @@ export const ptBR = {
     usernameSavedAs: "@{username} salvo",
     friendsComing: "Amigos chegam numa próxima atualização.",
     askName: "Como podemos te chamar?",
+    askNameLead: "Esse nome entra nas apresentações, no lugar de um nome de exemplo.",
+    useModelName: "Continuar com Lucas",
     displayName: "Nome de exibição",
     profileVisible: "Seu perfil aparece na busca de amigos.",
     profileHidden: "Seu perfil ficou oculto na busca.",
