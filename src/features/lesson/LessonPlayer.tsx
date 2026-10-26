@@ -36,6 +36,7 @@ import {
 } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
+import { contrastFeedbackPt } from "./contrastFeedback";
 import type { ReviewDomain } from "../../lib/srs";
 import {
   registerConversationVocabularyInSrs,
@@ -1861,6 +1862,9 @@ export function LessonPlayer() {
   // ficam com a 3ª estrela pendente até serem dominados na revisão.
   const folegoSkipCountRef = useRef(0);
   const folegoSkipRefsRef = useRef<Set<string>>(new Set());
+  // LGY-012 — etapas de escuta concluídas sem áudio não podem virar acerto de "som" no fim da lição.
+  const listeningDeferredIdxRef = useRef<Set<number>>(new Set());
+  const listeningVisualIdxRef = useRef<Set<number>>(new Set());
   /** Erros confirmados seguidos — ao atingir o limiar, perde 1 Carga. */
   const errorStreakRef = useRef(0);
   const retryUsesRef = useRef(0);
@@ -2753,6 +2757,14 @@ export function LessonPlayer() {
     };
   }
 
+  function contrastReason(step: LessonStep): string | undefined {
+    if (step.kind !== "audio_discrimination" && step.pedagogyVariant !== "audio_same_different") return undefined;
+    const reveal = step.pairReveal;
+    if (!reveal || reveal.length < 2) return undefined;
+    const kind = step.contrastLabel?.toLocaleLowerCase("pt-BR").includes("tom") ? "tone" as const : undefined;
+    return contrastFeedbackPt({ hanzi: reveal[0].hanzi, pinyin: reveal[0].pinyin }, { hanzi: reveal[1].hanzi, pinyin: reveal[1].pinyin }, kind);
+  }
+
   function createActivityError(step: LessonStep, stepIndex: number, selectedAnswer?: string): ActivityError {
     const correction = correctionForStep(step);
     const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
@@ -2791,6 +2803,7 @@ export function LessonPlayer() {
         correction.detail ??
         (correction.correction ? `Sugestão: ${correction.correction}` : undefined),
       mistakeReason:
+        contrastReason(step) ??
         compareWithImageMistakeReason(step, selectedAnswer) ??
         (diagnosis.cause === "unclassified" ? mistakeReasonForStep(step) : diagnosis.feedbackPt),
       diagnosis: diagnosis.cause,
@@ -3163,7 +3176,14 @@ export function LessonPlayer() {
     handleDone(false);
   }
 
-  type StepDoneMetaInput = { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number };
+  type StepDoneMetaInput = {
+    attempts?: number;
+    helpLevel?: number;
+    helpRequests?: number;
+    initialHelpLevel?: number;
+    listeningDeferred?: boolean;
+    listeningVisual?: boolean;
+  };
 
   /**
    * RC2.2.17 · O–Q — efeitos colaterais (telemetria, histórico de cena, SRS da
@@ -3357,19 +3377,61 @@ export function LessonPlayer() {
         });
       }
     });
+    const deferred = meta?.listeningDeferred === true;
+    const outcome = deferred ? undefined : wasCorrect;
     // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
     // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
-    const hadRecordedMistake = currentStepHadMistakeRef.current;
+    if (deferred) {
+      listeningDeferredIdxRef.current.add(idx);
+      const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
+      for (const target of targets) {
+        gradeReviewDomain({
+          ensureSrs,
+          gradeSrs,
+          type: target.type,
+          itemId: target.itemId,
+          track: target.track,
+          domain: "pinyin",
+          grade: "hard",
+        });
+      }
+      void trackPedagogyEvent({
+        eventType: "exercise_skipped",
+        lessonId: lesson.id,
+        exerciseKind: currentStep.kind,
+        exerciseIndex: idx,
+        metadata: { via: "listening_fallback" },
+      });
+    } else if (meta?.listeningVisual && outcome === true) {
+      listeningVisualIdxRef.current.add(idx);
+      if (currentStep.kind === "audio_discrimination") {
+        const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
+        for (const target of targets) {
+          gradeReviewDomain({
+            ensureSrs,
+            gradeSrs,
+            type: target.type,
+            itemId: target.itemId,
+            track: target.track,
+            domain: "pinyin",
+            grade: "good",
+          });
+        }
+      }
+    }
+    const hadRecordedMistake = deferred ? false : currentStepHadMistakeRef.current;
     const penaltyApplied = currentStepPenaltyApplied;
-    const countsAsCorrect = wasCorrect === true && !hadRecordedMistake;
+    const countsAsCorrect = outcome === true && !hadRecordedMistake;
     const nextCorrect = correct + (countsAsCorrect ? 1 : 0);
     let nextLives = lives;
 
     if (countsAsCorrect) {
-      if (currentStep.kind === "tone") toneHitsRef.current += 1;
-      else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
-      else if (currentStep.kind === "audio_discrimination" && currentStep.contrastLabel?.includes("tom")) {
-        toneHitsRef.current += 1;
+      if (!meta?.listeningVisual) {
+        if (currentStep.kind === "tone") toneHitsRef.current += 1;
+        else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
+        else if (currentStep.kind === "audio_discrimination" && currentStep.contrastLabel?.includes("tom")) {
+          toneHitsRef.current += 1;
+        }
       }
       errorStreakRef.current = 0;
       nextStreak = answerStreak + 1;
@@ -3384,11 +3446,11 @@ export function LessonPlayer() {
       } else {
         playSoundFx("success", soundEffects);
       }
-    } else if (wasCorrect === true) {
+    } else if (outcome === true) {
       nextStreak = 0;
       setAnswerStreak(0);
       playSoundFx("step", soundEffects);
-    } else if (wasCorrect === false) {
+    } else if (outcome === false) {
       nextStreak = 0;
       setAnswerStreak(0);
       // Erro que chegou aqui sem passar pelo painel (ex.: pular a questão):
@@ -3424,7 +3486,7 @@ export function LessonPlayer() {
     setRetryProtected(false);
     setPendingMistake(null);
     setStepAttempt(0);
-    if (wasCorrect === false && currentStepIsGraded && !hasUnlimitedLives && nextLives <= 0) {
+    if (outcome === false && currentStepIsGraded && !hasUnlimitedLives && nextLives <= 0) {
       finish(nextCorrect, "out_of_lives");
       return;
     }
@@ -3626,8 +3688,16 @@ export function LessonPlayer() {
         }
       }
       if (s.kind === "listen_select") {
-        gradeText(s.audioText ?? s.correctAnswer, "som", "som");
-        gradeText(s.correctAnswer, "significado");
+        const stepIndex = lesson.steps.indexOf(s);
+        // Sem áudio o passo já entrou na revisão como pinyin/hard. Não vira acerto de escuta.
+        if (!listeningDeferredIdxRef.current.has(stepIndex)) {
+          if (listeningVisualIdxRef.current.has(stepIndex)) {
+            gradeText(s.audioText ?? s.correctAnswer, "pinyin", "leitura");
+          } else {
+            gradeText(s.audioText ?? s.correctAnswer, "som", "som");
+          }
+          gradeText(s.correctAnswer, "significado");
+        }
       }
       if (s.kind === "sentence_build" || s.kind === "translation_build" || s.kind === "dialogue_choice" || s.kind === "conversation_scene") {
         // Conversas já alimentam o SRS no loop de vocabulário (com prioridade e
@@ -4079,6 +4149,8 @@ export function LessonPlayer() {
       skippedStepsRef.current = 0;
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
+      listeningDeferredIdxRef.current = new Set();
+      listeningVisualIdxRef.current = new Set();
       errorStreakRef.current = 0;
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;

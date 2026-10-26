@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 997,
+    "CANONICAL": 998,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1203,
+  "total": 1204,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -2972,6 +2972,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:experience"
+    },
+    {
+      "gateId": "test:contrast-feedback",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-contrast-feedback.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
     },
     {
       "gateId": "test:convergence-physical-truth",
@@ -21772,5 +21790,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "77624e23211dd831"
+  "evidenceDigest": "bec89830cac47b41"
 }

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-26T21:49:06.668Z",
-  "generatedFromSha": "2783b42985b6603f505a32557724a001f7558462",
-  "inputsDigest": "34a38bec200bc768",
-  "evidenceDigest": "9cfdc2226dde0977",
+  "generatedAt": "2026-10-26T22:28:54.410Z",
+  "generatedFromSha": "3cfd29c1d4c379c9369ba407c6af3b1c2a0c821c",
+  "inputsDigest": "4ba57e285d182ca3",
+  "evidenceDigest": "af80b4166cbdac4e",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
