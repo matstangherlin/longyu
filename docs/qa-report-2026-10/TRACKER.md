@@ -10,8 +10,8 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 |---|---|---|---|---|---|---|---|
 | LGY-001 | Drift `profiles.instruction_locale` | P0 | Onda 1 | 03, 04 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | SQL no #361, não aplicado. Cliente: uma leitura por sessão e no-op depois do 42703. |
 | LGY-002 | Backend social 404 (`search_public_profiles`, `user_follows`, `social_activity_events`) | P0 | Onda 1 | 03, 04, 24 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | SQL no #361. Cliente: fila social descarta quando o domínio está off; sync de perfil social passa pelo gate. |
-| LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | em PR | este PR, empilhado no #362 | CORS no repo. Deploy humano. Placement e business continuam fora da allowlist. |
-| LGY-004 | CORS dos headers `x-longyu-*` | P0 | Onda 1 | 05 | em PR | este PR, empilhado no #362 | `browserAllowedHeaders()` nas funções do navegador. Produção só muda depois do workflow manual. |
+| LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | em PR | [#363](https://github.com/matstangherlin/longyu/pull/363) | CORS no repo. Deploy humano. Placement e business continuam fora da allowlist. |
+| LGY-004 | CORS dos headers `x-longyu-*` | P0 | Onda 1 | 05 | em PR | [#363](https://github.com/matstangherlin/longyu/pull/363) | `browserAllowedHeaders()` nas funções do navegador. Produção só muda depois do workflow manual. |
 | LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | aberto | — | Registrado. Contas `qa.free` / `qa.pro` no checklist humano. |
 | LGY-006 | Login sem erro e sem timeout | P1 | Onda 1 | 07 | aberto | — | Registrado. |
 | LGY-007 | Logout inconsistente e `/login` com sessão | P1 | Onda 1 | 07 | aberto | — | Registrado. |
