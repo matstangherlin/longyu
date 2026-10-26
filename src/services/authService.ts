@@ -1,4 +1,7 @@
+import { withTimeout } from "../lib/async/withTimeout";
 import { isExpiredSessionFailure } from "../lib/auth/loginSession";
+import { isPlaceholderDisplayName } from "../lib/displayName";
+import { cloudAccountId, useStore } from "../lib/store";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
@@ -120,7 +123,64 @@ export async function ensureProfileForCurrentSession(suggestedName?: string | nu
     data: { session },
   } = await client.auth.getSession();
   if (!session?.user?.id) return "Sem sessão ativa.";
-  return ensureProfile(session.user.id, profileFromName(suggestedName ?? undefined));
+  const saved = await readSavedDisplayName(session.user.id);
+  if (saved && !isPlaceholderDisplayName(saved)) {
+    useStore.getState().renameAccount(cloudAccountId(session.user.id), saved);
+  }
+  return ensureProfile(session.user.id, profileFromName(suggestedName ?? saved ?? undefined));
+}
+
+const PROFILE_SAVE_TIMEOUT_MS = 12_000;
+const PROFILE_SAVE_ERROR = "Não foi possível salvar — tente de novo.";
+
+async function readSavedDisplayName(userId: string): Promise<string | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data, error } = await client.from("profiles").select("name").eq("id", userId).maybeSingle();
+  if (error || !data?.name) return null;
+  return String(data.name);
+}
+
+/**
+ * LGY-008 — rename writes only `profiles.name`. instruction_locale stays out,
+ * so a missing column cannot fail a name change. The store updates after the server.
+ */
+export async function updateDisplayName(rawName: string): Promise<AuthServiceResult> {
+  const name = rawName.trim();
+  if (name.length < 2) return { status: "error", message: "Use pelo menos 2 letras no nome." };
+  const store = useStore.getState();
+  const accountId = store.currentAccountId;
+  if (!isSupabaseBackendEnabled() || store.accounts[accountId]?.authMode !== "cloud") {
+    store.renameAccount(accountId, name);
+    store.setCloudSyncState("synced", "Nome salvo.");
+    return { status: "ok", message: "Nome salvo." };
+  }
+  const client = getSupabaseClient();
+  if (!client) return { status: "error", message: PROFILE_SAVE_ERROR };
+  store.setCloudSyncState("loading", "Salvando…");
+  try {
+    const { data, error: userError } = await withTimeout(client.auth.getUser(), PROFILE_SAVE_TIMEOUT_MS);
+    if (userError || !data.user?.id) {
+      store.setCloudSyncState("error", PROFILE_SAVE_ERROR);
+      return { status: "error", message: PROFILE_SAVE_ERROR };
+    }
+    const { error } = await withTimeout(
+      client.from("profiles").update({ name, updated_at: new Date().toISOString() }).eq("id", data.user.id),
+      PROFILE_SAVE_TIMEOUT_MS
+    );
+    if (error) {
+      if (isMissingColumnError(error)) markMissing("profiles.name");
+      store.setCloudSyncState("error", PROFILE_SAVE_ERROR);
+      return { status: "error", message: PROFILE_SAVE_ERROR };
+    }
+    store.renameAccount(cloudAccountId(data.user.id), name);
+    if (store.currentAccountId !== cloudAccountId(data.user.id)) store.renameAccount(store.currentAccountId, name);
+    store.setCloudSyncState("synced", "Nome salvo.");
+    return { status: "ok", message: "Nome salvo." };
+  } catch {
+    store.setCloudSyncState("error", PROFILE_SAVE_ERROR);
+    return { status: "error", message: PROFILE_SAVE_ERROR };
+  }
 }
 
 function isUnconfirmedEmailError(message: string): boolean {

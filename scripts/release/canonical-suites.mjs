@@ -474,6 +474,7 @@ export const SUITES = [
       "test:live-league",
       "test:cloud-first-auth",
       "test:account-isolation",
+      "test:profile-save",
       "test:onboarding-handoff",
       "test:create-account-locale-contract",
       "test:brazil-beta-readiness",
@@ -604,4 +605,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:schema-drift": "QA 2026-10 prompt 04 — 42703 e relação ausente não repetem request na sessão.",
   "validate:edge-cors": "QA 2026-10 prompt 05 — preflight das Edge Functions anuncia x-longyu-*.",
   "test:account-isolation": "QA 2026-10 prompt 06 — troca de conta não herda progresso nem envia fila com outro userId.",
+  "test:profile-save": "QA 2026-10 prompt 08 — nome de exibição e o chip de sync que sempre termina.",
 });

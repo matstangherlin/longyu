@@ -15,18 +15,18 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364) | `buildCloudAccount` não copia mais a conta anterior. Logout guarda o slot e zera a casca. Claim só do anônimo `local`. E2E `@qa-r05` no Chromium. Contas QA já misturadas: reset humano. |
 | LGY-006 | Login sem erro e sem timeout | P1 | Onda 1 | 07 | em PR | [#365](https://github.com/matstangherlin/longyu/pull/365) | Senha errada: alerta em pt-BR e botão "Entrar" de volta em < 3 s. Token lento: timeout + "Tentar de novo". Navegação sai de /login em < 2 s depois do 200. |
 | LGY-007 | Logout inconsistente e `/login` com sessão | P1 | Onda 1 | 07 | em PR | [#365](https://github.com/matstangherlin/longyu/pull/365) | Push de logout estoura em 4 s e a sessão local cai mesmo assim. /login e /comecar com sessão vão para /jornada. No celular, Sair fica em Mais e em /conta. |
-| LGY-008 | "Salvando…" infinito; nome não persiste | P1 | Onda 1 | 08 | aberto | — | Registrado. |
+| LGY-008 | "Salvando…" infinito; nome não persiste | P1 | Onda 1 | 08 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366) | Saída cedo do push não deixa mais o chip em "Salvando…". Schema vira erro na hora. Nome grava só `profiles.name` e o store muda depois. E2E `@qa-r06` no Chromium. |
 | LGY-009 | Recompensa de missão não aplicada | P1 | Onda 2 | 19 | aberto | — | Registrado. |
 | LGY-010 | Interpolação / digitação nas primeiras lições | P1 | Onda 1 | 09 | aberto | — | Registrado. |
 | LGY-011 | Etapa 你好 sem a peça 好 | P1 | Onda 1 | 09 | aberto | — | Registrado. |
 | LGY-012 | Comparação de áudio sem "Não posso ouvir agora" | P1 | Onda 1 | 11 | aberto | — | Registrado. |
 | LGY-013 | Reset: a UI promete código e o e-mail traz link | P1 | Fase 1 | 13 | aberto | — | Registrado. Templates e SMTP são humanos. |
-| LGY-014 | @apelido, convite e feed | P1 | Onda 2 | 08, 24 | aberto | — | Registrado. Depende da decisão de esconder ou concluir o social. |
+| LGY-014 | @apelido, convite e feed | P1 | Onda 2 | 08, 24 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366) | Parte cliente: sucesso ou erro no @apelido; social desligado explica e não mostra Salvar. Convite e feed continuam no prompt 24. |
 | LGY-015 | SRS gradua exposição | P1 | Onda 2 | 21 | aberto | — | Registrado. |
 | LGY-016 | `economy.ts` diverge de `energyPolicy.ts` | P2 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-017 | Imersão pausada mas a sessão inicia | P2 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-018 | Qi cai de 17 para 7 | P2 | Onda 2 | 19 | aberto | — | Registrado. |
-| LGY-019 | Ligas: rank, "Aluno local" e XP | P2 | Onda 2 | 06, 08, 19 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364) | Parte local: "Você" lê a conta ativa, que não herda mais XP/nome de outra. Rank e matemática do servidor continuam no prompt 19. Nome "Aluno local" no prompt 08. |
+| LGY-019 | Ligas: rank, "Aluno local" e XP | P2 | Onda 2 | 06, 08, 19 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364), [#366](https://github.com/matstangherlin/longyu/pull/366) | Parte local: "Você" lê a conta ativa, que não herda mais XP/nome de outra. Nome visível de placeholder é "Aluno", nunca "Aluno local". Rank e matemática do servidor continuam no prompt 19. |
 | LGY-020 | "XP hoje" 0, modal de sequência, conquistas | P2 | Onda 2 | 19 | aberto | — | Registrado. |
 | LGY-021 | Enunciados sem pergunta; tom de 谢 | P2 | Onda 1 | 09 | aberto | — | Registrado. |
 | LGY-022 | Nome "Matheus" fixo | P2 | Onda 1 | 09 | aberto | — | Registrado. |
@@ -67,13 +67,13 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 | R-03 | Login inválido | Mensagem pt-BR em menos de 3 s; botão volta | `e2e/qa-auth-session.spec.ts` `@qa-r03` | `npx playwright test e2e/qa-auth-session.spec.ts --project=chromium` | preview local, token simulado | em PR — Chromium: senha errada < 3 s; timeout devolve o botão. |
 | R-04 | Login e logout | Sai no primeiro clique; `/login` logado redireciona | `e2e/qa-auth-session.spec.ts` `@qa-r04` | mesmo spec | preview local | em PR — logout com a nuvem travada < 12 s no topo e em Mais (390 px). /login e /comecar logados vão para /jornada. WebKit não instalado nesta máquina. |
 | R-05 | Isolamento entre contas | Progresso de uma conta não aparece na outra | `e2e/qa-account-isolation.spec.ts` `@qa-r05` | `npx playwright test e2e/qa-account-isolation.spec.ts --project=chromium` | preview local | em PR — Chromium 2/2 depois da correção. Antes: Bruno herdava @anafree, 474 XP, 7 lições e sequência 2; logout apagava o slot de Ana. mobile-safari não executa este arquivo (o projeto só inclui `mobile-device.spec.ts`). |
-| R-06 | Perfil | Nome persiste; indicador de salvamento termina | prompt 30, `@qa-r06` | `e2e/qa-regression-r06.spec.ts` (ainda não existe) | local | não executado |
+| R-06 | Perfil | Nome persiste; indicador de salvamento termina | `e2e/qa-profile-save.spec.ts` `@qa-r06` | `CI=1 npx playwright test e2e/qa-profile-save.spec.ts --project=chromium --grep @qa-r06` | preview local | em PR — Chromium 3/3. Nome sobrevive ao reload. 42703 mantém o nome anterior e o chip mostra "Tentar de novo". mobile-chrome não executa este arquivo. |
 | R-07 | Cargas Free | Cobra 1/0/0/1; 0/5 persiste | prompt 30, `@qa-r07` | `e2e/qa-regression-r07.spec.ts` (ainda não existe) | local | não executado |
 | R-08 | Missões | Cargas e Qi creditados; card "Resgatada" | prompt 30, `@qa-r08` | `e2e/qa-regression-r08.spec.ts` (ainda não existe) | local | não executado |
 | R-09 | Qi | Nunca diminui sem gasto | prompt 30, `@qa-r09` | `e2e/qa-regression-r09.spec.ts` (ainda não existe) | local | não executado |
 | R-10 | Seguir | Seguir e deixar de seguir persistem | prompt 30, `@qa-staging` | `e2e/qa-regression-r10.spec.ts` (ainda não existe) | staging | não executado |
 | R-11 | Casos-limite sociais | Limites do relatório (bloqueio, duplicata, próprio usuário) | prompt 30, `@qa-staging` | `e2e/qa-regression-r11.spec.ts` (ainda não existe) | staging | não executado |
-| R-12 | @apelido e convite | Apelido resolvível; convite abre o destino certo | prompt 30, `@qa-staging` | `e2e/qa-regression-r12.spec.ts` (ainda não existe) | staging | não executado |
+| R-12 | @apelido e convite | Apelido resolvível; convite abre o destino certo | feedback no `@qa-r06`; convite no prompt 30, `@qa-staging` | `e2e/qa-profile-save.spec.ts` (só o feedback). Convite: `e2e/qa-regression-r12.spec.ts` (ainda não existe) | preview local do feedback; convite em staging | em PR — 23505 mostra "Este @apelido já está em uso." Convite não executado (prompt 24). |
 | R-13 | Revisão Free | Sessão com os 20 itens mais prioritários | prompt 30, `@qa-r13` | `e2e/qa-regression-r13.spec.ts` (ainda não existe) | local | não executado |
 | R-14 | Preflight `x-longyu-*` | Preflight responde 2xx | prompt 30, `@qa-staging` | `e2e/qa-regression-r14.spec.ts` (ainda não existe) | staging | não executado |
 | R-15 | Excluir conta | Conta some e a sessão encerra | prompt 30, `@qa-staging` | `e2e/qa-regression-r15.spec.ts` (ainda não existe) | staging | não executado |

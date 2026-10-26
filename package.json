@@ -252,6 +252,7 @@
     "test:placement-v2": "node scripts/test-placement-v2.mjs",
     "test:cloud-first-auth": "node scripts/test-cloud-first-auth.mjs",
     "test:account-isolation": "node scripts/test-account-isolation.mjs",
+    "test:profile-save": "node scripts/test-profile-save.mjs",
     "test:onboarding-handoff": "node scripts/test-onboarding-handoff.mjs",
     "test:brazil-beta-readiness": "node scripts/test-brazil-beta-readiness.mjs",
     "test:staging-activation": "node scripts/test-staging-activation.mjs",

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "../lib/store";
+import { displayNameForAccount } from "../lib/displayName";
 import { weekKey } from "../lib/storage";
 import {
   LEAGUE_DEMOTION_CUTOFF,
@@ -73,7 +74,10 @@ export function useLeagueData() {
   const weeklyXp = useStore((s) => s.getWeeklyXp());
   const joinedAt = useStore((s) => s.leagueJoinedAt);
   const leagueBots = useStore((s) => s.leagueBots);
-  const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name ?? "Você");
+  const accountName = useStore((s) => {
+    const account = s.accounts[s.currentAccountId];
+    return account ? displayNameForAccount(account) : "Você";
+  });
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
   const accountKey = useStore((s) => s.currentAccountId);
 
