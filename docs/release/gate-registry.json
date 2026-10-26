@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 145,
+    "EVIDENCE_ONLY": 146,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1204,
+  "total": 1205,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -7194,6 +7194,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:identity-commercial"
+    },
+    {
+      "gateId": "test:qa-staging-guard",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-qa-staging-guard.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:rc-hardening",
@@ -21790,5 +21808,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "bec89830cac47b41"
+  "evidenceDigest": "733d2fb3dedb62b5"
 }

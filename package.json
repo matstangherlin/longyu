@@ -261,6 +261,8 @@
     "test:onboarding-handoff": "node scripts/test-onboarding-handoff.mjs",
     "test:brazil-beta-readiness": "node scripts/test-brazil-beta-readiness.mjs",
     "test:staging-activation": "node scripts/test-staging-activation.mjs",
+    "test:qa-staging-guard": "node scripts/test-qa-staging-guard.mjs",
+    "qa:staging": "node scripts/qa-staging.mjs",
     "test:v476-live-validation": "node scripts/test-v476-live-validation.mjs",
     "test:backend-contract": "node scripts/test-backend-contract.mjs",
     "test:mastery-monotonic-contract": "node scripts/test-mastery-monotonic-contract.mjs",

@@ -1,5 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
-import { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { ALL_LESSONS } from "../src/data/journey";
 import {
   CULTURE_PROGRESSION_GATES,
@@ -13,6 +13,27 @@ export const PRO_PRICING_HEADLINE =
   /Planos para aprender no seu ritmo|Plans for learning at your pace/i;
 export const PRO_CHECKOUT_PENDING =
   /Indisponível enquanto o preço está pendente|Unavailable while pricing is pending/i;
+
+function remoteFixtureBase(): string {
+  const raw = process.env.PLAYWRIGHT_BASE_URL?.trim() ?? "";
+  if (!raw) return "";
+  try {
+    const host = new URL(raw).hostname;
+    if (host === "localhost" || host === "127.0.0.1" || host === "::1") return "";
+  } catch {
+    return raw;
+  }
+  return raw;
+}
+
+const remoteFixtureUrl = remoteFixtureBase();
+if (remoteFixtureUrl) {
+  test.beforeEach(({ }, testInfo) => {
+    const file = testInfo.file.replaceAll("\\", "/");
+    if (file.endsWith("/qa-staging-smoke.spec.ts")) return;
+    testInfo.skip(true, `fixtures locais não rodam contra ${remoteFixtureUrl}`);
+  });
+}
 
 // Seeds stay on persist v21 so v22 Culture Quest, v23 teaching-loop, and v24
 // native Culture Lesson id migrations run in E2E.
