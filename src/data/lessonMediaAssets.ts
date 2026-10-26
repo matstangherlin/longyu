@@ -1,4 +1,5 @@
 import type { InstructionLocale } from "../i18n/config";
+import { readScoped, scopedKey, writeScoped } from "../lib/accountStorage";
 
 /**
  * V4.9.2B — Parte E: o asset de mídia de uma aula.
@@ -175,7 +176,7 @@ type ProgressMap = Record<string, MediaPlaybackProgress>;
 function readAll(): ProgressMap {
   if (typeof localStorage === "undefined") return {};
   try {
-    const parsed = JSON.parse(localStorage.getItem(MEDIA_PROGRESS_STORAGE_KEY) ?? "{}");
+    const parsed = JSON.parse(readScoped(MEDIA_PROGRESS_STORAGE_KEY) ?? "{}");
     return parsed && typeof parsed === "object" ? (parsed as ProgressMap) : {};
   } catch {
     return {};
@@ -213,7 +214,7 @@ export function writeMediaProgress(progress: MediaPlaybackProgress): void {
     updatedAt: Date.now(),
   };
   try {
-    localStorage.setItem(MEDIA_PROGRESS_STORAGE_KEY, JSON.stringify({ ...readAll(), [key]: next }));
+    writeScoped(MEDIA_PROGRESS_STORAGE_KEY, JSON.stringify({ ...readAll(), [key]: next }));
   } catch {
     // Armazenamento negado (janela privada) não pode derrubar a aula: o aluno
     // perde o "continuar de", nunca o acesso ao conteúdo.
@@ -223,6 +224,7 @@ export function writeMediaProgress(progress: MediaPlaybackProgress): void {
 export function clearMediaProgressForTests(): void {
   if (typeof localStorage === "undefined") return;
   localStorage.removeItem(MEDIA_PROGRESS_STORAGE_KEY);
+  localStorage.removeItem(scopedKey(MEDIA_PROGRESS_STORAGE_KEY));
 }
 
 // ── Decisões do player, como funções puras ────────────────────────────────

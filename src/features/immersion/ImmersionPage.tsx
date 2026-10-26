@@ -41,6 +41,8 @@ import { castForStorySpeaker, learnerDisplayName, type StoryCastMember } from ".
 import { personalizeName, useStudentFirstName } from "../../lib/personalize";
 import { useStore, STORY_ENERGY_DAILY_CAP, type ActivityErrorRecord, type ActivityErrorSkill, type StoryEnergyResult } from "../../lib/store";
 import { beginStoryEnergyAttestation } from "../../services/storyEnergyAttestation";
+import { currentStorageNamespace, readScoped, writeScoped } from "../../lib/accountStorage";
+import { scopedEnergyStorageKey } from "../../lib/auth/accountIsolation";
 import { todayKey } from "../../lib/storage";
 import { useTranslation } from "../../i18n/useTranslation";
 import { stopSpeaking } from "../../lib/tts";
@@ -159,7 +161,7 @@ type StoryStatus = "novo" | "em progresso" | "concluido";
 function readStoryProgress(): StoryProgressMap {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(STORY_PROGRESS_KEY);
+    const raw = readScoped(STORY_PROGRESS_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
@@ -185,7 +187,7 @@ function readStoryProgress(): StoryProgressMap {
 function writeStoryProgress(progress: StoryProgressMap) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORY_PROGRESS_KEY, JSON.stringify(progress));
+    writeScoped(STORY_PROGRESS_KEY, JSON.stringify(progress));
   } catch {
     // Local progress is helpful, but the story should remain playable without it.
   }
@@ -383,7 +385,10 @@ export function ImmersionPage() {
       setSelectedSessionId(session.id);
       return;
     }
-    const sessionKey = `longyu-energy:immersion:${session.id}:${todayKey()}`;
+    const sessionKey = scopedEnergyStorageKey(
+      `longyu-energy:immersion:${session.id}:${todayKey()}`,
+      currentStorageNamespace()
+    );
     if (window.sessionStorage.getItem(sessionKey) === "1") {
       setSelectedSessionId(session.id);
       return;
@@ -544,7 +549,9 @@ export function ImmersionPage() {
               {visibleSessions.map((session) => {
                 const completed = activeDaily.completedSessionIds.includes(session.id);
                 const startedToday =
-                  window.sessionStorage.getItem(`longyu-energy:immersion:${session.id}:${todayKey()}`) === "1";
+                  window.sessionStorage.getItem(
+                    scopedEnergyStorageKey(`longyu-energy:immersion:${session.id}:${todayKey()}`, currentStorageNamespace())
+                  ) === "1";
                 const blocked = !completed && !startedToday && !canStartActivity("immersion_session");
                 return (
                   <ImmersionSessionCard

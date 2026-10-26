@@ -88,16 +88,17 @@ function localCloudAccount(): { ok: true; accountId: string } | { ok: false } {
 
 async function resolveCloudAccount(): Promise<{ ok: true; accountId: string } | { ok: false }> {
   const local = localCloudAccount();
-  if (local.ok) return local;
-  if (!isSupabaseBackendEnabled()) return { ok: false };
+  if (!isSupabaseBackendEnabled()) return local;
   const client = getSupabaseClient();
   if (!client) return { ok: false };
   const {
     data: { user },
   } = await client.auth.getUser();
   if (!user?.id) return { ok: false };
-  const { currentAccountId } = useStore.getState();
-  return { ok: true, accountId: currentAccountId };
+  const expected = `cloud:${user.id}`;
+  const { currentAccountId, accounts } = useStore.getState();
+  if (currentAccountId !== expected || accounts[expected]?.authMode !== "cloud") return { ok: false };
+  return { ok: true, accountId: expected };
 }
 
 async function pushLeagueXp(

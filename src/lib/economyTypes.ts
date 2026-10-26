@@ -55,4 +55,6 @@ export interface EconomyIntent {
   attempts: number;
   /** Perfil que originou a intenção; evita replay sob outra conta cloud. */
   accountId?: string;
+  /** Supabase user id da sessão que enfileirou. Não pode ser enviado com outra sessão. */
+  userId?: string;
 }

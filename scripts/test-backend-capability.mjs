@@ -176,7 +176,7 @@ for (const fn of ["serverActivatePearlProPass", "serverClaimPearlMilestone"]) {
   const body = functionBody(bridge, fn);
   assert(body.includes('isBackendDomainAvailable("pearl")'), `economyServerBridge.${fn} is gated`);
   assert(
-    body.indexOf('isBackendDomainAvailable("pearl")') < body.indexOf("enqueueEconomyIntent"),
+    body.indexOf('isBackendDomainAvailable("pearl")') < body.indexOf("queueIntent"),
     `${fn} checks the gate before it can enqueue a retry`
   );
 }

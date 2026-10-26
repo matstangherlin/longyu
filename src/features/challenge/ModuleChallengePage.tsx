@@ -9,6 +9,8 @@ import type { ItemType } from "../../data/types";
 import { useStore, type Track } from "../../lib/store";
 import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { decideFeedbackAudio } from "../lesson/feedbackAudioPolicy";
+import { currentStorageNamespace } from "../../lib/accountStorage";
+import { scopedEnergyStorageKey } from "../../lib/auth/accountIsolation";
 import { todayKey } from "../../lib/storage";
 import { playSoundFx } from "../../lib/soundFx";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
@@ -209,7 +211,10 @@ export function ModuleChallengePage() {
     if (skipAccess.requiresPro && !isPremium) return;
     if (skipAccess.requiresAttemptPayment && !attemptPaid) return;
 
-    const sessionKey = `longyu-energy:challenge:${found.unit.id}:${todayKey()}`;
+    const sessionKey = scopedEnergyStorageKey(
+      `longyu-energy:challenge:${found.unit.id}:${todayKey()}`,
+      currentStorageNamespace()
+    );
     if (window.sessionStorage.getItem(sessionKey) === "1") {
       setActivityReady(true);
       return;

@@ -11,6 +11,8 @@
  *                        no  → local progress is PARKED on the device (never deleted)
  */
 
+import { progressBelongsToSession } from "./accountIsolation";
+
 export type ClaimCase = "NO_LOCAL_NO_CLOUD" | "LOCAL_ONLY" | "CLOUD_ONLY" | "SAME" | "LOCAL_AHEAD" | "DIVERGENT";
 export type ClaimAction = "NONE" | "CLAIM_SILENT" | "RESTORE_CLOUD" | "ASK";
 
@@ -22,9 +24,23 @@ export interface ClaimInput {
   remoteFingerprint: string;
   localScore: number;
   remoteScore: number;
+  /**
+   * LGY-005 — when both are set, progress that belongs to another account is
+   * not anonymous and is never claimed. Omitted: legacy callers keep the old policy.
+   */
+  localAccountId?: string;
+  sessionUserId?: string;
 }
 
 export function classifyClaim(i: ClaimInput): { case: ClaimCase; action: ClaimAction } {
+  if (
+    i.localAccountId !== undefined &&
+    i.sessionUserId !== undefined &&
+    !progressBelongsToSession(i.localAccountId, i.sessionUserId)
+  ) {
+    if (i.remoteMeaningful) return { case: "CLOUD_ONLY", action: "RESTORE_CLOUD" };
+    return { case: "NO_LOCAL_NO_CLOUD", action: "NONE" };
+  }
   if (!i.localMeaningful && !i.remoteMeaningful) return { case: "NO_LOCAL_NO_CLOUD", action: "NONE" };
   if (i.localMeaningful && !i.remoteMeaningful) return { case: "LOCAL_ONLY", action: "CLAIM_SILENT" };
   if (!i.localMeaningful && i.remoteMeaningful) return { case: "CLOUD_ONLY", action: "RESTORE_CLOUD" };

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 992,
+    "CANONICAL": 993,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1198,
+  "total": 1199,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1962,6 +1962,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
+    },
+    {
+      "gateId": "test:account-isolation",
+      "status": "CANONICAL",
+      "domain": "identity-commercial",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-account-isolation.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:identity-commercial",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:identity-commercial"
     },
     {
       "gateId": "test:achievement-rarity",
@@ -21682,5 +21700,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "2396c09aafb1d3d2"
+  "evidenceDigest": "b242698f9553e973"
 }

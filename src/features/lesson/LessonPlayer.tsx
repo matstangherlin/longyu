@@ -164,6 +164,8 @@ import {
 } from "../../data/topicMastery";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
+import { currentStorageNamespace } from "../../lib/accountStorage";
+import { scopedEnergyStorageKey } from "../../lib/auth/accountIsolation";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
@@ -2516,7 +2518,10 @@ export function LessonPlayer() {
     const pass = nextMasteryPass(lessonMasteryById?.[foundLesson.id]?.level ?? 0, {
       recoveryPending: lessonMasteryById?.[foundLesson.id]?.recoveryPending,
     });
-    const sessionKey = energySessionFlagForPass(foundLesson.id, pass, todayKey());
+    const sessionKey = scopedEnergyStorageKey(
+      energySessionFlagForPass(foundLesson.id, pass, todayKey()),
+      currentStorageNamespace()
+    );
     const alreadyInSession = window.sessionStorage.getItem(sessionKey) === "1";
     const cursor = lessonSessionStepById?.[foundLesson.id];
     const alreadyStarted = Boolean(cursor && cursor.pass === pass && cursor.stepIndex > 0);
