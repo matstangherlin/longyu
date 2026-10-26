@@ -1,0 +1,501 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "ruleId": "CL003-choice-prompt-not-question",
+      "lessonId": "l26c",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l26c|1|1|listen_select",
+      "excerpt": "Compare a pronúncia completa, incluindo os tons."
+    },
+    {
+      "ruleId": "CL003-choice-prompt-not-question",
+      "lessonId": "l26c",
+      "phase": "p6",
+      "pass": 2,
+      "step": "l26c|2|1|listen_select",
+      "excerpt": "Compare a pronúncia completa, incluindo os tons."
+    },
+    {
+      "ruleId": "CL003-choice-prompt-not-question",
+      "lessonId": "l26c",
+      "phase": "p6",
+      "pass": 3,
+      "step": "l26c|3|1|listen_select",
+      "excerpt": "Compare a pronúncia completa, incluindo os tons."
+    },
+    {
+      "ruleId": "CL003-choice-prompt-not-question",
+      "lessonId": "l26c",
+      "phase": "p6",
+      "pass": 4,
+      "step": "l26c|4|1|listen_select",
+      "excerpt": "Compare a pronúncia completa, incluindo os tons."
+    },
+    {
+      "ruleId": "CL003-choice-prompt-not-question",
+      "lessonId": "p3-wobuhui-shuo-zhongwen",
+      "phase": "p3",
+      "pass": 1,
+      "step": "p3-wobuhui-shuo-zhongwen|1|8|contextual_choice",
+      "excerpt": "Alguem fala rapido demais em chines e voce nao entende nada."
+    },
+    {
+      "ruleId": "CL003-choice-prompt-not-question",
+      "lessonId": "p6-compras",
+      "phase": "p6",
+      "pass": 4,
+      "step": "p6-compras|4|5|listen_select",
+      "excerpt": "Compare a pronúncia completa, incluindo os tons."
+    },
+    {
+      "ruleId": "CL004-unassemblable-target",
+      "lessonId": "l13-dialogo-ola",
+      "phase": "p3",
+      "pass": 4,
+      "step": "l13-dialogo-ola|4|12|reverse_recall",
+      "excerpt": "你好，你好吗？我很好，谢谢 sem 好"
+    },
+    {
+      "ruleId": "CL004-unassemblable-target",
+      "lessonId": "l23",
+      "phase": "p5",
+      "pass": 3,
+      "step": "l23|3|1|reverse_recall",
+      "excerpt": "我叫Matheus，我是巴西人，我有三个朋友 sem 我"
+    },
+    {
+      "ruleId": "CL004-unassemblable-target",
+      "lessonId": "l23",
+      "phase": "p5",
+      "pass": 4,
+      "step": "l23|4|14|reverse_recall",
+      "excerpt": "我叫Matheus，我是巴西人，我有三个朋友 sem 我"
+    },
+    {
+      "ruleId": "CL004-unassemblable-target",
+      "lessonId": "l30",
+      "phase": "p7",
+      "pass": 4,
+      "step": "l30|4|1|reverse_recall",
+      "excerpt": "我有三个朋友，我喜欢中文，我想喝茶，我们走吧 sem 我"
+    },
+    {
+      "ruleId": "CL005-hanzi-before-intro",
+      "lessonId": "l27",
+      "phase": "p6",
+      "pass": 3,
+      "step": "l27|3|9|price_task",
+      "excerpt": "元"
+    },
+    {
+      "ruleId": "CL005-hanzi-before-intro",
+      "lessonId": "l27",
+      "phase": "p6",
+      "pass": 4,
+      "step": "l27|4|8|price_task",
+      "excerpt": "元"
+    },
+    {
+      "ruleId": "CL005-hanzi-before-intro",
+      "lessonId": "p6-compras",
+      "phase": "p6",
+      "pass": 3,
+      "step": "p6-compras|3|10|price_task",
+      "excerpt": "元"
+    },
+    {
+      "ruleId": "CL005-hanzi-before-intro",
+      "lessonId": "p6-compras",
+      "phase": "p6",
+      "pass": 4,
+      "step": "p6-compras|4|12|price_task",
+      "excerpt": "元"
+    },
+    {
+      "ruleId": "CL006-runtime-validator-reject",
+      "lessonId": "l14-char-rev",
+      "phase": "p4",
+      "pass": 3,
+      "step": "l14-char-rev|3|0|produce",
+      "excerpt": "produce sem alvo (target); produce sem enunciado em português"
+    },
+    {
+      "ruleId": "CL006-runtime-validator-reject",
+      "lessonId": "p4-checkpoint-fundamentos",
+      "phase": "p4",
+      "pass": 3,
+      "step": "p4-checkpoint-fundamentos|3|1|produce",
+      "excerpt": "produce sem alvo (target); produce sem enunciado em português"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l10",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l10|1|0|audio_to_action",
+      "excerpt": "我是巴西人"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l11",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l11|1|0|audio_to_action",
+      "excerpt": "我听不懂"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l11",
+      "phase": "p3",
+      "pass": 2,
+      "step": "l11|2|10|audio_to_action",
+      "excerpt": "Preciso de ajuda"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l13-dialogo-ola",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l13-dialogo-ola|1|0|audio_to_action",
+      "excerpt": "我很好"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l13",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l13|1|7|audio_to_action",
+      "excerpt": "谢谢。"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l14-char-rev",
+      "phase": "p4",
+      "pass": 3,
+      "step": "l14-char-rev|3|0|produce",
+      "excerpt": "一二三"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l19",
+      "phase": "p5",
+      "pass": 1,
+      "step": "l19|1|0|audio_to_action",
+      "excerpt": "四"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l20",
+      "phase": "p5",
+      "pass": 1,
+      "step": "l20|1|0|audio_to_action",
+      "excerpt": "九"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l21",
+      "phase": "p5",
+      "pass": 1,
+      "step": "l21|1|0|audio_to_action",
+      "excerpt": "你们"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l22",
+      "phase": "p5",
+      "pass": 1,
+      "step": "l22|1|0|audio_to_action",
+      "excerpt": "朋友"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l23",
+      "phase": "p5",
+      "pass": 1,
+      "step": "l23|1|0|audio_to_action",
+      "excerpt": "我有三个朋友。"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l24",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l24|1|9|audio_to_action",
+      "excerpt": "Não tenho irmã mais velha"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l25",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l25|1|0|audio_to_action",
+      "excerpt": "这是什么？"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l26",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l26|1|0|audio_to_action",
+      "excerpt": "我饿了"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l26b",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l26b|1|2|audio_to_action",
+      "excerpt": "Quantas pessoas"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l26b",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l26b|1|3|audio_to_action",
+      "excerpt": "茶"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l26b",
+      "phase": "p6",
+      "pass": 2,
+      "step": "l26b|2|10|audio_to_action",
+      "excerpt": "Sem pimenta"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l27",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l27|1|0|audio_to_action",
+      "excerpt": "多少钱"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l27",
+      "phase": "p6",
+      "pass": 2,
+      "step": "l27|2|10|audio_to_action",
+      "excerpt": "Mais barato, por favor"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l27",
+      "phase": "p6",
+      "pass": 4,
+      "step": "l27|4|8|price_task",
+      "excerpt": "18元"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l28",
+      "phase": "p6",
+      "pass": 1,
+      "step": "l28|1|0|audio_to_action",
+      "excerpt": "我们走吧"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l28",
+      "phase": "p6",
+      "pass": 2,
+      "step": "l28|2|10|audio_to_action",
+      "excerpt": "Não gosto de chá"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l29",
+      "phase": "p7",
+      "pass": 1,
+      "step": "l29|1|7|audio_to_action",
+      "excerpt": "书"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l30",
+      "phase": "p7",
+      "pass": 1,
+      "step": "l30|1|8|audio_to_action",
+      "excerpt": "我有三个朋友"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l9-qual-nome",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l9-qual-nome|1|0|audio_to_action",
+      "excerpt": "你叫什么？"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l9-tudo-bem",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l9-tudo-bem|1|0|audio_to_action",
+      "excerpt": "你好吗？"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "l9",
+      "phase": "p3",
+      "pass": 1,
+      "step": "l9|1|0|audio_to_action",
+      "excerpt": "我叫Matheus"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p3-qing-zai-shuo-yibian",
+      "phase": "p3",
+      "pass": 1,
+      "step": "p3-qing-zai-shuo-yibian|1|7|audio_to_action",
+      "excerpt": "请再说一遍"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p3-wobuhui-shuo-zhongwen",
+      "phase": "p3",
+      "pass": 1,
+      "step": "p3-wobuhui-shuo-zhongwen|1|7|audio_to_action",
+      "excerpt": "我不会说中文"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p4-checkpoint-fundamentos",
+      "phase": "p4",
+      "pass": 3,
+      "step": "p4-checkpoint-fundamentos|3|1|produce",
+      "excerpt": "一二三"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-china-ruas",
+      "phase": "p6",
+      "pass": 2,
+      "step": "p6-china-ruas|2|8|audio_to_action",
+      "excerpt": "Quero ir ao hotel"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-cidade-lugares",
+      "phase": "p6",
+      "pass": 1,
+      "step": "p6-cidade-lugares|1|10|place_label",
+      "excerpt": "公园"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-cidade-lugares",
+      "phase": "p6",
+      "pass": 1,
+      "step": "p6-cidade-lugares|1|9|place_label",
+      "excerpt": "银行"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-cidade-lugares",
+      "phase": "p6",
+      "pass": 2,
+      "step": "p6-cidade-lugares|2|9|compare_with_image",
+      "excerpt": "银行"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-clima",
+      "phase": "p6",
+      "pass": 1,
+      "step": "p6-clima|1|7|audio_to_action",
+      "excerpt": "下雪了"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-compras",
+      "phase": "p6",
+      "pass": 1,
+      "step": "p6-compras|1|0|audio_to_action",
+      "excerpt": "衣服"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-compras",
+      "phase": "p6",
+      "pass": 3,
+      "step": "p6-compras|3|10|price_task",
+      "excerpt": "50元"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-natureza",
+      "phase": "p6",
+      "pass": 1,
+      "step": "p6-natureza|1|0|audio_to_action",
+      "excerpt": "山"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-rotina-trabalho",
+      "phase": "p6",
+      "pass": 2,
+      "step": "p6-rotina-trabalho|2|6|audio_to_action",
+      "excerpt": "Eu acordo às sete"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-saude",
+      "phase": "p6",
+      "pass": 2,
+      "step": "p6-saude|2|8|audio_to_action",
+      "excerpt": "Estou com dor de cabeça"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-survival-mandarin",
+      "phase": "p6",
+      "pass": 3,
+      "step": "p6-survival-mandarin|3|0|conversation_repair",
+      "excerpt": "果汁。"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p6-survival-mandarin",
+      "phase": "p6",
+      "pass": 4,
+      "step": "p6-survival-mandarin|4|0|conversation_repair",
+      "excerpt": "果汁。"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p7-imersao-casa-amigo",
+      "phase": "p7",
+      "pass": 1,
+      "step": "p7-imersao-casa-amigo|1|0|audio_to_action",
+      "excerpt": "我想喝茶"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p7-imersao-estacao",
+      "phase": "p7",
+      "pass": 2,
+      "step": "p7-imersao-estacao|2|12|audio_to_action",
+      "excerpt": "A estação de trem"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p7-imersao-mercado",
+      "phase": "p7",
+      "pass": 1,
+      "step": "p7-imersao-mercado|1|0|audio_to_action",
+      "excerpt": "多少钱？"
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "lessonId": "p7-imersao-mercado",
+      "phase": "p7",
+      "pass": 4,
+      "step": "p7-imersao-mercado|4|12|price_task",
+      "excerpt": "38元"
+    }
+  ]
+}

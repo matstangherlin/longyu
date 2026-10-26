@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 995,
+    "CANONICAL": 997,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1201,
+  "total": 1203,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -5288,6 +5288,24 @@
       "canonicalOwner": "suite:experience"
     },
     {
+      "gateId": "test:lint-content",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-lint-content.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
+    },
+    {
       "gateId": "test:live-league",
       "status": "CANONICAL",
       "domain": "identity-commercial",
@@ -9966,6 +9984,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:android-foundation"
+    },
+    {
+      "gateId": "test:review-targets-equivalence",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-review-targets-equivalence.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
     },
     {
       "gateId": "test:review-task-parity",
@@ -21736,5 +21772,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "af07769584fccf17"
+  "evidenceDigest": "77624e23211dd831"
 }

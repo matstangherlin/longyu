@@ -1,0 +1,35 @@
+{
+  "glyphs": [
+    {
+      "glyph": "吗",
+      "reason": "A escuta de tom em p1-o-que-e-tom usa 吗 sozinho antes de o caractere ser item de foco. A partícula já aparece dentro de 你好吗."
+    }
+  ],
+  "steps": [
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "step": "l2|1|0|audio_to_action",
+      "reason": "audio_to_action ainda não tem ramo em reviewTargetsForMistake. A correção do alvo de revisão é o prompt 21."
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "step": "l4|1|0|audio_to_action",
+      "reason": "audio_to_action ainda não tem ramo em reviewTargetsForMistake. A correção do alvo de revisão é o prompt 21."
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "step": "p1-ate-logo|1|0|audio_to_action",
+      "reason": "audio_to_action ainda não tem ramo em reviewTargetsForMistake. A correção do alvo de revisão é o prompt 21."
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "step": "p1-qingwen-cortesia|1|0|audio_to_action",
+      "reason": "audio_to_action ainda não tem ramo em reviewTargetsForMistake. A correção do alvo de revisão é o prompt 21."
+    },
+    {
+      "ruleId": "CL007-evaluated-step-without-review-target",
+      "step": "p3-wohenhao|1|0|audio_to_action",
+      "reason": "audio_to_action ainda não tem ramo em reviewTargetsForMistake. A correção do alvo de revisão é o prompt 21."
+    }
+  ]
+}
