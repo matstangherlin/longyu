@@ -3,8 +3,9 @@ name: Deploy Edge Function (manual, from main)
 # RC2.3.10 — deploy an Edge Function from the exact files versioned on `main`.
 # - Only workflow_dispatch: nothing deploys on push or merge.
 # - Only from refs/heads/main; optional expected_sha refuses a moved main.
-# - Allowlist: triage-feedback (the other functions' repo versions depend on
-#   migrations not yet in production — see docs/reports/rc2-3-10-production-schema-diff.md).
+# - Allowlist: funções já publicadas cujo corpo neste repo não depende de
+#   migration pendente. Placement e submit-business-lead ficam de fora
+#   (LGY-003 / decisão business). Ver docs/qa-report-2026-10/EDGE_DEPLOY_CHECKLIST.md.
 # - The function keeps verify_jwt from supabase/config.toml; secrets are never echoed.
 # Supabase CLI version and flags verified with `supabase functions deploy --help` (CLI 2.109.1).
 
@@ -14,7 +15,12 @@ on:
       function:
         description: "Edge Function"
         type: choice
-        options: [triage-feedback]
+        options:
+          - triage-feedback
+          - delete-account
+          - create-checkout-session
+          - create-billing-portal
+          - issue-anon-ingestion-session
         default: triage-feedback
       confirm:
         description: "Digite DEPLOY-<nome da função> para confirmar"

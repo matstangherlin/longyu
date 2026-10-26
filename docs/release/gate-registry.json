@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 991,
+    "CANONICAL": 992,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1197,
+  "total": 1198,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -13614,6 +13614,24 @@
       "canonicalOwner": "suite:identity-commercial"
     },
     {
+      "gateId": "validate:edge-cors",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/validate-edge-cors.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "validate:effective-entitlement",
       "status": "CANONICAL",
       "domain": "identity-commercial",
@@ -21664,5 +21682,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "b011b7cdff35f55a"
+  "evidenceDigest": "2396c09aafb1d3d2"
 }
