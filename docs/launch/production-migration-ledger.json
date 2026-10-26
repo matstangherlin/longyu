@@ -5,11 +5,11 @@
  "method": "md5 of the applied SQL after removing `--` comments and every whitespace/semicolon run (Postgres: regexp_replace(regexp_replace(array_to_string(statements, E'\\n'), '--[^\\n]*', '', 'g'), '[\\s;]+', '', 'g')); repo side uses the same normalization",
  "counts": {
   "productionRows": 36,
-  "repoFiles": 58,
+  "repoFiles": 60,
   "MATCH": 19,
   "LEGACY_EQUIVALENT": 0,
   "PROD_ONLY": 6,
-  "REPO_ONLY": 29,
+  "REPO_ONLY": 31,
   "UNKNOWN": 11
  },
  "status": "BLOCKED",
@@ -579,6 +579,24 @@
    "repoFile": "supabase/migrations/20261009070000_jev_shadow_struggle_lab.sql",
    "state": "REPO_ONLY",
    "normalizedMd5": "747ecb3ae52e26d4d0e2ff77cda3dbdd",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "qa-03-profiles-instruction-locale",
+   "repoFile": "supabase/pending/qa-03-profiles-instruction-locale.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "3ea69f2bdd38677056866aae8df4c42f",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "qa-03-social-minimum",
+   "repoFile": "supabase/pending/qa-03-social-minimum.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "8c7685a3debeaa9834625d6cd49ebeaa",
    "evidence": "no production history row with this name or content",
    "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
   },
