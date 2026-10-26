@@ -44,6 +44,7 @@ export const SUITES = [
       "test:schema-drift",
       "test:stale-bundle",
       "validate:security-boundaries",
+      "validate:edge-cors",
       "validate:social-profile-security",
       "validate:seo",
       "validate:production-no-fixtures",
@@ -600,4 +601,5 @@ export const ADDED_STEPS = Object.freeze({
   "validate:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — premium UX release honesty (runtime SHA, fingerprint, validator repair, follow-ups, scope, hosted, APK, physical, freeze, entry).",
   "test:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — mutation kills for the premium UX gates (≥160, including platform detector mutants 1–7).",
   "test:schema-drift": "QA 2026-10 prompt 04 — 42703 e relação ausente não repetem request na sessão.",
+  "validate:edge-cors": "QA 2026-10 prompt 05 — preflight das Edge Functions anuncia x-longyu-*.",
 });

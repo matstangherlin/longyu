@@ -6,6 +6,7 @@ import {
   resolveAllowedPrice,
 } from "../../../src/commercial/billing.ts";
 import { refuseStripeLive } from "../_shared/stripeLiveGuard.ts";
+import { browserAllowedHeaders } from "../_shared/cors.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_BETA_ORIGINS = [
@@ -35,7 +36,8 @@ function requestOrigin(req: Request): string {
 function corsHeaders(req: Request): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": requestOrigin(req),
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": browserAllowedHeaders(),
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
   };
 }
