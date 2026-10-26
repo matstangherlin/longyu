@@ -286,7 +286,7 @@ export function checkFreezeAndEntry(src = loadR2Sources()) {
   if (new RegExp(["Ato", "murus"].join("")).test(src.nav + src.progressionShell)) {
     errors.push("SIBLING_PROJECT_TOUCHED");
   }
-  if (!/0\.2\.0-rc\.5/.test(src.packageJson)) errors.push("WRONG_VERSION_NAME");
+  if (!/0\.3\.0-beta\.1/.test(src.packageJson)) errors.push("WRONG_VERSION_NAME");
   return [...new Set(errors)];
 }
 

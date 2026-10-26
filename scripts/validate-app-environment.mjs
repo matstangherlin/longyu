@@ -83,10 +83,11 @@ assert(
 );
 
 const pkg = JSON.parse(read("package.json"));
-assert(pkg.version === "0.2.0-rc.5", `package.json version deve ser 0.2.0-rc.5 (obtido ${pkg.version})`);
+assert(pkg.version === "0.3.0-beta.1", `package.json version deve ser 0.3.0-beta.1 (obtido ${pkg.version})`);
 
 const feedback = read("src/lib/feedback.ts");
-assert(feedback.includes("0.2.0-rc.5"), "getAppVersion default deve ser 0.2.0-rc.5");
+assert(feedback.includes('?? "unknown"'), "getAppVersion sem versão de build usa unknown");
+assert(!feedback.includes("0.2.0-rc.5"), "feedback.ts não carrega mais o fallback literal da RC");
 
 const netlifyToml = read("netlify.toml");
 for (const match of netlifyToml.matchAll(/VITE_APP_VERSION\s*=\s*"([^"]+)"/g)) {

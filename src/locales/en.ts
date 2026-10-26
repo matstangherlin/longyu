@@ -2386,6 +2386,10 @@ export const en: MessageCatalog = {
     placeholder: "What happened? What did you expect?",
     activityProblem: "This activity has a problem",
     includeTechnical: "Include technical context (route, version, environment, browser, viewport)",
+    technicalLead: "This goes along: version, SHA, route, platform and screen size. No email and no name.",
+    mailto: "Send by email",
+    copyVersion: "Copy version",
+    copiedVersion: "Version copied",
     thanks: "Thanks. Your feedback was sent.",
     thanksQueued:
       "Feedback saved on this device and will be sent when a connection is available.",

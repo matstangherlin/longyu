@@ -1,7 +1,7 @@
 {
   "name": "longyu",
   "private": true,
-  "version": "0.2.0-rc.5",
+  "version": "0.3.0-beta.1",
   "type": "module",
   "description": "Longyu (龙语) — aprenda mandarim pela lógica. Som primeiro, fala em blocos, caracteres em camadas, leitura guiada.",
   "engines": {
@@ -750,6 +750,7 @@
     "validate:auth-recovery": "node scripts/rc2-2-19-guided-simple-verified.mjs validate auth-recovery",
     "test:auth-recovery": "node scripts/rc2-2-19-guided-simple-verified.mjs test auth-recovery",
     "test:auth-email-templates": "node scripts/test-auth-email-templates.mjs",
+    "test:feedback-context": "node scripts/test-feedback-context.mjs",
     "validate:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs validate review-composer",
     "test:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs test review-composer",
     "validate:product-release": "node scripts/rc2-2-19-guided-simple-verified.mjs validate product-release",

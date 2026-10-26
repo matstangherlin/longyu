@@ -144,7 +144,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <Button size="lg" className="w-full" onClick={this.handleRetry}>
               <IconRefresh width={17} height={17} /> {t("common.retry")}
             </Button>
-            <Button variant="soft" className="w-full" onClick={this.handleReport}>
+            <Button variant="soft" className="w-full" onClick={this.handleReport} data-testid="report-problem">
               {t("common.reportProblem")}
             </Button>
             {/* RC2.3.13R.3.2.5 — one link, one tab stop (no <button> inside <a>);

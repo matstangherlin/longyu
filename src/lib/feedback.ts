@@ -53,7 +53,11 @@ export interface FeedbackContext {
 
 export interface FeedbackTechnicalContext {
   appVersion: string;
+  commitSha: string;
   appEnv: string;
+  platform: string;
+  locale: string;
+  webView: string;
   browser: string;
   viewport: string;
   route: string;
@@ -61,7 +65,33 @@ export interface FeedbackTechnicalContext {
 }
 
 export function getAppVersion(): string {
-  return String(import.meta.env.VITE_APP_VERSION ?? "0.2.0-rc.5");
+  const value = String(import.meta.env.VITE_APP_VERSION ?? "unknown").trim();
+  return value || "unknown";
+}
+
+export function shortCommitSha(sha = getCommitSha()): string {
+  const clean = sha.trim();
+  return /^[0-9a-f]{7,40}$/i.test(clean) ? clean.slice(0, 7) : "";
+}
+
+/** Rota pública do relato: sem query, sem hash, sem e-mail. */
+export function safeFeedbackRoute(raw: string): string {
+  const path = String(raw ?? "").split("?")[0].split("#")[0];
+  return path.replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "").slice(0, 180);
+}
+
+function deviceHint(ua: string): string {
+  const inside = ua.match(/\(([^)]{0,80})\)/)?.[1] ?? "";
+  if (!inside || /@|token|password|senha|bearer/i.test(inside)) return "";
+  return inside;
+}
+
+function webViewLabel(ua: string): string {
+  const chrome = ua.match(/Chrome\/([\d.]+)/);
+  const android = /Android/i.test(ua);
+  if (android && /; wv\)|\bwv\b/i.test(ua)) return chrome ? `Android WebView ${chrome[1]}` : "Android WebView";
+  if (android && chrome) return `Chrome ${chrome[1]}`;
+  return "";
 }
 
 /** Public deploy identity — commit SHA only, never secrets. */
@@ -75,7 +105,7 @@ export function getAppEnvironmentLabel(): string {
 
 export function currentRoute(): string {
   if (typeof window === "undefined") return "";
-  return `${window.location.pathname}${window.location.search}`;
+  return safeFeedbackRoute(window.location.pathname);
 }
 
 function sanitizeUserAgent(ua: string): string {
@@ -101,27 +131,29 @@ function currentDisplayMode(): string {
 }
 
 export function buildTechnicalContext(context?: FeedbackContext): FeedbackTechnicalContext {
-  const route = context?.route ?? context?.screen ?? currentRoute();
+  const route = safeFeedbackRoute(context?.route ?? context?.screen ?? currentRoute());
+  const ua = typeof navigator !== "undefined" && typeof navigator.userAgent === "string" ? navigator.userAgent : "";
+  const locale = typeof navigator !== "undefined" ? navigator.language : "";
   const viewport =
-    typeof window !== "undefined" ? `${window.innerWidth}×${window.innerHeight}` : "";
-  const browser =
-    typeof navigator !== "undefined"
-      ? [
-          navigator.language,
-          navigator.platform,
-          typeof navigator.userAgent === "string" ? sanitizeUserAgent(navigator.userAgent) : "",
-        ]
-          .filter(Boolean)
-          .join(" · ")
-          .slice(0, 320)
-      : "";
+    typeof window !== "undefined" ? `${window.innerWidth}x${window.innerHeight}` : "";
+  const displayMode = currentDisplayMode();
+  const platform = displayMode && displayMode !== "browser" ? "pwa" : /Android/i.test(ua) ? "android" : /iPhone|iPad|iPod/i.test(ua) ? "ios" : "web";
+  const webView = webViewLabel(ua);
+  const browser = [platform, locale, deviceHint(ua), webView, sanitizeUserAgent(ua)]
+    .filter(Boolean)
+    .join(" · ")
+    .slice(0, 320);
   return {
     appVersion: getAppVersion(),
+    commitSha: shortCommitSha(),
     appEnv: String(import.meta.env.VITE_APP_ENV ?? (import.meta.env.DEV ? "development" : "production_beta")),
+    platform,
+    locale,
+    webView,
     browser,
     viewport,
-    route: route.slice(0, 300),
-    displayMode: currentDisplayMode(),
+    route,
+    displayMode,
   };
 }
 
@@ -156,6 +188,10 @@ export function buildFeedbackMailto(context?: FeedbackContext): string {
     `Modo: ${tech.displayMode}`,
     `Ambiente: ${tech.appEnv}`,
     `Versão: ${tech.appVersion}`,
+    tech.commitSha ? `SHA: ${tech.commitSha}` : "",
+    `Plataforma: ${tech.platform}`,
+    tech.locale ? `Idioma: ${tech.locale}` : "",
+    tech.webView ? `WebView: ${tech.webView}` : "",
     "",
   ]
     .filter((line) => line !== undefined)

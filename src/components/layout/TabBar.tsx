@@ -20,6 +20,8 @@ import { zLayerClass } from "../ui/layers";
 import { cx } from "../ui/primitives";
 import { useTranslation } from "../../i18n/useTranslation";
 import { SignOutControl } from "../account/SignOutControl";
+import { useFeedbackUi } from "../feedback/FeedbackContext";
+import { isBetaFeedbackEnabled } from "../../lib/featureFlags";
 import { IconChevron } from "../ui/Icon";
 import { useFeatureVisibility } from "../../hooks/useProgressiveDiscovery";
 
@@ -201,6 +203,7 @@ function TabSheet({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
+  const { openFeedback } = useFeedbackUi();
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -329,6 +332,20 @@ function TabSheet({
               )}
             </div>
           ))}
+
+          {showSignOut && isBetaFeedbackEnabled() && (
+            <button
+              type="button"
+              data-testid="report-problem"
+              className="mt-3 flex min-h-12 w-full items-center justify-center rounded-2xl border border-line bg-surface px-3 text-sm font-semibold text-ink"
+              onClick={() => {
+                openFeedback({ screen: pathname, route: pathname });
+                onClose();
+              }}
+            >
+              {t("common.reportProblem")}
+            </button>
+          )}
 
           {showSignOut && (
             <div className="mt-3 border-t border-line/60 pt-2" data-more-group="sign-out">

@@ -116,7 +116,7 @@ function test() {
   k("fifty before wave1", "FIFTY_TESTERS_BEFORE_WAVE1", withJson(base, "cert", (o) => { o.realTesterCount = 50; }));
   k("physical auto", "PHYSICAL_AUTO_PROMOTED", mutate(base, "evidence", '"PHYSICAL_QA": "NOT_RUN"', '"PHYSICAL_QA": "PHYSICAL_PASS"'));
   k("wrong apk physical", "WRONG_APK_PHYSICALLY_TESTED", mutate(base, "evidence", "fb835ce82e7989e2c46087c4aaf0b02771b7b0f194e6893bd63701e271c745c8", "2".repeat(64)));
-  k("pkg version", "WRONG_VERSION_NAME", mutate(base, "packageJson", "0.2.0-rc.5", "0.0.0"));
+  k("pkg version", "WRONG_VERSION_NAME", mutate(base, "packageJson", "0.3.0-beta.1", "0.0.0"));
 
   // OWNER_QA GO without physical
   {

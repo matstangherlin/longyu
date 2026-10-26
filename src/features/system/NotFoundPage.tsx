@@ -1,5 +1,6 @@
 import { useTranslation } from "../../i18n/provider";
 import { BrandLockup } from "../../components/layout/Brand";
+import { FeedbackButton } from "../../components/feedback/FeedbackButton";
 import { ButtonLink, Card } from "../../components/ui/primitives";
 
 export function NotFoundPage() {
@@ -15,6 +16,13 @@ export function NotFoundPage() {
           <ButtonLink to="/" className="w-full">{t("marketing.backHome")}</ButtonLink>
           <ButtonLink to="/comecar" variant="outline" className="w-full">{t("marketing.getStarted")}</ButtonLink>
         </div>
+        <FeedbackButton
+          context={{ screen: "/404", route: "/404" }}
+          variant="outline"
+          className="mt-3 w-full"
+          label={t("common.reportProblem")}
+          data-testid="report-problem"
+        />
       </Card>
     </main>
   );
