@@ -8,8 +8,8 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 
 | ID | Título | Sev. | Onda / fase | Prompt | Status | Branch / PR | Evidência |
 |---|---|---|---|---|---|---|---|
-| LGY-001 | Drift `profiles.instruction_locale` | P0 | Onda 1 | 03, 04 | em PR | [#361](https://github.com/matstangherlin/longyu/pull/361) + este PR | SQL no #361, não aplicado. Cliente: uma leitura por sessão e no-op depois do 42703. |
-| LGY-002 | Backend social 404 (`search_public_profiles`, `user_follows`, `social_activity_events`) | P0 | Onda 1 | 03, 04, 24 | em PR | [#361](https://github.com/matstangherlin/longyu/pull/361) + este PR | SQL no #361. Cliente: fila social descarta quando o domínio está off; sync de perfil social passa pelo gate. |
+| LGY-001 | Drift `profiles.instruction_locale` | P0 | Onda 1 | 03, 04 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | SQL no #361, não aplicado. Cliente: uma leitura por sessão e no-op depois do 42703. |
+| LGY-002 | Backend social 404 (`search_public_profiles`, `user_follows`, `social_activity_events`) | P0 | Onda 1 | 03, 04, 24 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | SQL no #361. Cliente: fila social descarta quando o domínio está off; sync de perfil social passa pelo gate. |
 | LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | em PR | [#361](https://github.com/matstangherlin/longyu/pull/361) | Placement e `submit-business-lead` ausentes. Checkout, portal, delete-account e anon ingestion respondem. Deploy no prompt 05. |
 | LGY-004 | CORS dos headers `x-longyu-*` | P0 | Onda 1 | 05 | aberto | — | Registrado. Ligado à decisão D1 (não cobrar). |
 | LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | aberto | — | Registrado. Contas `qa.free` / `qa.pro` no checklist humano. |
@@ -43,7 +43,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-033 | Vitória avança sozinha | P3 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-034 | Sem horário de renovação das Cargas | P3 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-035 | Busca desligada sem indicação | P3 | Fase 1 | 16 | aberto | — | Registrado. |
-| LGY-036 | Erros no console | P3 | Onda 1 | 04, 23 | em PR | este PR | 42703/404 de schema não vão para `console.error`. Um aviso Sentry por objeto, por sessão. |
+| LGY-036 | Erros no console | P3 | Onda 1 | 04, 23 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | 42703/404 de schema não vão para `console.error`. Um aviso Sentry por objeto, por sessão. |
 | LGY-037 | Gitleaks vermelho | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Scan do histórico: 8 achados. Fixture Stripe allowlist exata. Os 6 JWTs restantes são `role: anon` do projeto `drjcfalvlbbeblmmyhwj`; nenhum `service_role`. O scan agendado continua vermelho até decisão humana sobre allowlist da anon key pública. |
 | LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Guia em `BRANCH_PROTECTION.md`. A proteção em si não foi ligada. API de protection do `main` respondeu 403 para o token deste agente. |
 | LGY-039 | Sem staging | P2 | Fase 1 | 03, 12 | em PR | [#361](https://github.com/matstangherlin/longyu/pull/361) | Checklist manda staging antes do social. Criar o projeto continua no prompt 12. |
