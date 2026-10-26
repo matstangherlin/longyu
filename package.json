@@ -749,6 +749,7 @@
     "test:device-traces": "node scripts/rc2-2-19-guided-simple-verified.mjs test device-traces",
     "validate:auth-recovery": "node scripts/rc2-2-19-guided-simple-verified.mjs validate auth-recovery",
     "test:auth-recovery": "node scripts/rc2-2-19-guided-simple-verified.mjs test auth-recovery",
+    "test:auth-email-templates": "node scripts/test-auth-email-templates.mjs",
     "validate:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs validate review-composer",
     "test:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs test review-composer",
     "validate:product-release": "node scripts/rc2-2-19-guided-simple-verified.mjs validate product-release",

@@ -401,7 +401,14 @@ export async function validateAuthRecovery(s) {
   if (!/navigate\("\/login", \{ replace: true \}\)/.test(forgot) || !/autoComplete="one-time-code"/.test(forgot)) fail("RECOVERY_NOT_CANONICAL", FILES.forgot, "código no app e volta ao Login");
   // Modelo de e-mail só versionado; produção não é tocada.
   if (!/\{\{ \.Token \}\}/.test(s.src.template)) fail("RECOVERY_TEMPLATE_MISSING", FILES.template, "modelo com {{ .Token }}");
-  if (/\[auth\.email\.template\.recovery\]/.test(s.src.supabaseConfig)) fail("TEMPLATE_SILENTLY_APPLIED", "supabase/config.toml", "o agente não aplica modelo de e-mail");
+  if (/\{\{\s*\.ConfirmationURL\s*\}\}/.test(s.src.template)) fail("RECOVERY_TEMPLATE_MISSING", FILES.template, "recuperação é só o código, sem link");
+  // Caminho local versionado é o `supabase start`. URL ou caminho de fora aplica o modelo em silêncio.
+  for (const contentPath of s.src.supabaseConfig.match(/content_path\s*=\s*"([^"]+)"/g) ?? []) {
+    const value = contentPath.match(/"([^"]+)"/)?.[1] ?? "";
+    if (!value.startsWith("./supabase/templates/") || value.includes("..")) {
+      fail("TEMPLATE_SILENTLY_APPLIED", "supabase/config.toml", "content_path só pode apontar para ./supabase/templates/");
+    }
+  }
   // Estágios do cadastro.
   for (const stage of SIGNUP_STAGES) if (!(st.SIGNUP_STAGES ?? []).includes(stage)) fail("SIGNUP_STAGE_MISSING", FILES.signupTrace, stage);
   const wired = [s.src.comecar, s.src.finalize, s.src.confirm, s.src.postAuth].map(stripComments).join("\n");

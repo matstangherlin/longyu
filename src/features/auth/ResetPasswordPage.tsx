@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { readAuthLinkEmail, readAuthLinkError } from "../../lib/auth/authLinkError";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
 import { canRegisterWithCredentials } from "../../lib/authForm";
@@ -13,6 +14,12 @@ import { PasswordField, PasswordRequirements } from "../../components/auth/Passw
 export function ResetPasswordPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const linkError = useMemo(
+    () => readAuthLinkError(searchParams.toString(), typeof window !== "undefined" ? window.location.hash : ""),
+    [searchParams]
+  );
+  const linkEmail = useMemo(() => readAuthLinkEmail(searchParams.toString()), [searchParams]);
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +30,11 @@ export function ResetPasswordPage() {
   const cloudEnabled = isSupabaseBackendEnabled();
 
   useEffect(() => {
+    if (linkError) {
+      setChecking(false);
+      setSessionReady(false);
+      return;
+    }
     if (!cloudEnabled) {
       setChecking(false);
       return;
@@ -55,7 +67,7 @@ export function ResetPasswordPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [cloudEnabled]);
+  }, [cloudEnabled, linkError]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,6 +85,26 @@ export function ResetPasswordPage() {
     }
     setNotice(localizeUserMessage(result.message));
     setTimeout(() => navigate("/login", { replace: true }), 1800);
+  }
+
+  if (linkError) {
+    const retry = linkEmail ? `/esqueci-senha?email=${encodeURIComponent(linkEmail)}` : "/esqueci-senha";
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center" data-testid="auth-link-expired">
+        <Mascot size={88} variant="wave" />
+        <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.invalidLinkTitle")}</h1>
+        <p className="text-sm leading-6 text-ink-soft" role="alert">
+          {t("auth.invalidLinkLead")}
+        </p>
+        <Link
+          to={retry}
+          data-testid="auth-link-expired-action"
+          className="inline-flex h-12 min-h-11 items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-white shadow-card hover:bg-accent-strong"
+        >
+          {t("auth.requestNewLink")}
+        </Link>
+      </div>
+    );
   }
 
   if (!cloudEnabled) {
@@ -100,15 +132,16 @@ export function ResetPasswordPage() {
 
   if (!sessionReady) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center">
+      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center gap-4 text-center" data-testid="auth-link-expired">
         <Mascot size={88} variant="wave" />
         <h1 className="font-serif text-2xl font-semibold text-ink">{t("auth.invalidLinkTitle")}</h1>
-        <p className="text-sm leading-6 text-ink-soft">
+        <p className="text-sm leading-6 text-ink-soft" role="alert">
           {t("auth.invalidLinkLead")}
         </p>
         <Link
           to="/esqueci-senha"
-          className="inline-flex h-12 items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-white shadow-card hover:bg-accent-strong"
+          data-testid="auth-link-expired-action"
+          className="inline-flex h-12 min-h-11 items-center justify-center rounded-xl bg-accent px-6 text-sm font-semibold text-white shadow-card hover:bg-accent-strong"
         >
           {t("auth.requestNewLink")}
         </Link>
