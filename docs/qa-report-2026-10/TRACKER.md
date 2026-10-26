@@ -12,7 +12,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-002 | Backend social 404 (`search_public_profiles`, `user_follows`, `social_activity_events`) | P0 | Onda 1 | 03, 04, 24 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | SQL no #361. Cliente: fila social descarta quando o domínio está off; sync de perfil social passa pelo gate. |
 | LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | em PR | [#363](https://github.com/matstangherlin/longyu/pull/363) | CORS no repo. Deploy humano. Placement e business continuam fora da allowlist. |
 | LGY-004 | CORS dos headers `x-longyu-*` | P0 | Onda 1 | 05 | em PR | [#363](https://github.com/matstangherlin/longyu/pull/363) | `browserAllowedHeaders()` nas funções do navegador. Produção só muda depois do workflow manual. |
-| LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | aberto | — | Registrado. Contas `qa.free` / `qa.pro` no checklist humano. |
+| LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364) | `buildCloudAccount` não copia mais a conta anterior. Logout guarda o slot e zera a casca. Claim só do anônimo `local`. E2E `@qa-r05` no Chromium. Contas QA já misturadas: reset humano. |
 | LGY-006 | Login sem erro e sem timeout | P1 | Onda 1 | 07 | aberto | — | Registrado. |
 | LGY-007 | Logout inconsistente e `/login` com sessão | P1 | Onda 1 | 07 | aberto | — | Registrado. |
 | LGY-008 | "Salvando…" infinito; nome não persiste | P1 | Onda 1 | 08 | aberto | — | Registrado. |
@@ -26,7 +26,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-016 | `economy.ts` diverge de `energyPolicy.ts` | P2 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-017 | Imersão pausada mas a sessão inicia | P2 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-018 | Qi cai de 17 para 7 | P2 | Onda 2 | 19 | aberto | — | Registrado. |
-| LGY-019 | Ligas: rank, "Aluno local" e XP | P2 | Onda 2 | 06, 08, 19 | aberto | — | Registrado. |
+| LGY-019 | Ligas: rank, "Aluno local" e XP | P2 | Onda 2 | 06, 08, 19 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364) | Parte local: "Você" lê a conta ativa, que não herda mais XP/nome de outra. Rank e matemática do servidor continuam no prompt 19. Nome "Aluno local" no prompt 08. |
 | LGY-020 | "XP hoje" 0, modal de sequência, conquistas | P2 | Onda 2 | 19 | aberto | — | Registrado. |
 | LGY-021 | Enunciados sem pergunta; tom de 谢 | P2 | Onda 1 | 09 | aberto | — | Registrado. |
 | LGY-022 | Nome "Matheus" fixo | P2 | Onda 1 | 09 | aberto | — | Registrado. |
@@ -66,7 +66,7 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 | R-02 | Cadastro e reset | Mensagens corretas; link expirado tratado | prompt 30, `@qa-staging` | `e2e/qa-regression-r02.spec.ts` (ainda não existe) | staging | não executado |
 | R-03 | Login inválido | Mensagem pt-BR em menos de 3 s; botão volta | prompt 30, `@qa-r03` | `e2e/qa-regression-r03.spec.ts` (ainda não existe) | local | não executado |
 | R-04 | Login e logout | Sai no primeiro clique; `/login` logado redireciona | prompt 30, `@qa-r04` | `e2e/qa-regression-r04.spec.ts` (ainda não existe) | local | não executado |
-| R-05 | Isolamento entre contas | Progresso de uma conta não aparece na outra | prompt 30, `@qa-r05` | `e2e/qa-regression-r05.spec.ts` (ainda não existe) | local | não executado |
+| R-05 | Isolamento entre contas | Progresso de uma conta não aparece na outra | `e2e/qa-account-isolation.spec.ts` `@qa-r05` | `npx playwright test e2e/qa-account-isolation.spec.ts --project=chromium` | preview local | em PR — Chromium 2/2 depois da correção. Antes: Bruno herdava @anafree, 474 XP, 7 lições e sequência 2; logout apagava o slot de Ana. mobile-safari não executa este arquivo (o projeto só inclui `mobile-device.spec.ts`). |
 | R-06 | Perfil | Nome persiste; indicador de salvamento termina | prompt 30, `@qa-r06` | `e2e/qa-regression-r06.spec.ts` (ainda não existe) | local | não executado |
 | R-07 | Cargas Free | Cobra 1/0/0/1; 0/5 persiste | prompt 30, `@qa-r07` | `e2e/qa-regression-r07.spec.ts` (ainda não existe) | local | não executado |
 | R-08 | Missões | Cargas e Qi creditados; card "Resgatada" | prompt 30, `@qa-r08` | `e2e/qa-regression-r08.spec.ts` (ainda não existe) | local | não executado |
