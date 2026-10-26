@@ -1,3 +1,5 @@
+import { readScoped, scopedKey, writeScoped } from "./accountStorage";
+
 const STORAGE_KEY = "longyu:journey-node-completions:v1";
 
 /**
@@ -10,7 +12,7 @@ export const AUX_NODE_PROGRESS_LOCAL_ONLY = true as const;
 function read(): string[] {
   if (typeof localStorage === "undefined") return [];
   try {
-    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+    const value = JSON.parse(readScoped(STORAGE_KEY) ?? "[]");
     return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
   } catch {
     return [];
@@ -29,7 +31,7 @@ export function completeJourneyNode(id: string): void {
   if (typeof localStorage === "undefined") return;
   const next = [...new Set([...read(), id])];
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    writeScoped(STORAGE_KEY, JSON.stringify(next));
   } catch {
     // The node remains safely non-blocking if private mode denies storage.
   }
@@ -38,4 +40,5 @@ export function completeJourneyNode(id: string): void {
 export function clearJourneyNodeProgressForTests(): void {
   if (typeof localStorage === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(scopedKey(STORAGE_KEY));
 }

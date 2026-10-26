@@ -473,6 +473,7 @@ export const SUITES = [
       "validate:live-league",
       "test:live-league",
       "test:cloud-first-auth",
+      "test:account-isolation",
       "test:onboarding-handoff",
       "test:create-account-locale-contract",
       "test:brazil-beta-readiness",
@@ -602,4 +603,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — mutation kills for the premium UX gates (≥160, including platform detector mutants 1–7).",
   "test:schema-drift": "QA 2026-10 prompt 04 — 42703 e relação ausente não repetem request na sessão.",
   "validate:edge-cors": "QA 2026-10 prompt 05 — preflight das Edge Functions anuncia x-longyu-*.",
+  "test:account-isolation": "QA 2026-10 prompt 06 — troca de conta não herda progresso nem envia fila com outro userId.",
 });

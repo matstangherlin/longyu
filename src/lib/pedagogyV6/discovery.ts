@@ -9,6 +9,7 @@
  */
 import type { LessonStep } from "../../data/journey";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
+import { readScoped, writeScoped } from "../accountStorage";
 
 export const PEDAGOGY_V6_VERSION = "RC2.3.0" as const;
 
@@ -126,7 +127,7 @@ export const TAUGHT_CONCEPTS_STORAGE_KEY = "longyu:taught-concepts-v6";
 export function loadTaughtConcepts(): TaughtConceptMap {
   if (typeof window === "undefined") return {};
   try {
-    const raw = window.localStorage.getItem(TAUGHT_CONCEPTS_STORAGE_KEY);
+    const raw = readScoped(TAUGHT_CONCEPTS_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== "object") return {};
@@ -143,7 +144,7 @@ export function loadTaughtConcepts(): TaughtConceptMap {
 export function persistTaughtConcepts(map: TaughtConceptMap): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(TAUGHT_CONCEPTS_STORAGE_KEY, JSON.stringify(map));
+    writeScoped(TAUGHT_CONCEPTS_STORAGE_KEY, JSON.stringify(map));
   } catch {
     /* quota */
   }

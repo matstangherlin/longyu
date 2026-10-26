@@ -1,8 +1,9 @@
+import { syncItemMatchesSession } from "./auth/accountIsolation";
 import { isSupabaseBackendEnabled } from "./backendConfig";
 import { BACKEND_CAPABILITY_MISSING, isBackendDomainAvailable } from "./cloud/backendCapability";
 import { getSupabaseClient } from "./supabaseClient";
 import { useStore } from "./store";
-import type { EconomyRpcResult, ServerEconomySnapshot } from "./economyTypes";
+import type { EconomyIntent, EconomyRpcResult, ServerEconomySnapshot } from "./economyTypes";
 import type { PearlLedgerEntry } from "./pearlEconomy";
 import {
   bumpEconomyIntentAttempt,
@@ -10,6 +11,12 @@ import {
   listEconomyIntents,
   removeEconomyIntent,
 } from "./economyIntentQueue";
+
+function queueIntent(intent: Omit<EconomyIntent, "createdAt" | "attempts">): void {
+  const accountId = intent.accountId ?? useStore.getState().currentAccountId;
+  const userId = intent.userId ?? (accountId.startsWith("cloud:") ? accountId.slice("cloud:".length) : undefined);
+  enqueueEconomyIntent(Object.assign({}, intent, { accountId, userId }));
+}
 
 export function shouldUseServerEconomy(): boolean {
   if (!isSupabaseBackendEnabled()) return false;
@@ -165,7 +172,7 @@ export async function serverConsumeCharge(
     p_idempotency_key: idempotencyKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "consume_charge",
       idempotencyKey,
@@ -191,7 +198,7 @@ export async function serverSpendQi(
     p_idempotency_key: idempotencyKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "spend_qi",
       idempotencyKey,
@@ -219,7 +226,7 @@ export async function serverGrantLessonReward(input: {
   });
   if (error || !data) {
     const key = `lesson-reward:${input.lessonId}:${input.attemptId}`;
-    enqueueEconomyIntent({
+    queueIntent({
       id: key,
       operation: "grant_lesson_reward",
       idempotencyKey: key,
@@ -240,7 +247,7 @@ export async function serverGrantStoryEnergy(storyId: string, dayKey: string): P
     p_day_key: dayKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({ id: key, operation: "grant_story_energy", idempotencyKey: key, payload: { storyId, dayKey } });
+    queueIntent({ id: key, operation: "grant_story_energy", idempotencyKey: key, payload: { storyId, dayKey } });
     return { ok: false, error: error ?? "rpc_failed" };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
@@ -263,7 +270,7 @@ export async function serverClaimMission(input: {
     p_metric_value: input.metricValue,
   });
   if (error || !data) {
-    enqueueEconomyIntent({ id: key, operation: "claim_mission", idempotencyKey: key, payload: input });
+    queueIntent({ id: key, operation: "claim_mission", idempotencyKey: key, payload: input });
     return { ok: false, error: error ?? "rpc_failed" };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
@@ -279,7 +286,7 @@ export async function serverOpenChest(chestType: string, openingId: string): Pro
     p_opening_id: openingId,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: key,
       operation: "open_chest",
       idempotencyKey: key,
@@ -305,7 +312,7 @@ export async function serverActivatePearlProPass(
     p_idempotency_key: idempotencyKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "activate_pearl_pro_pass",
       idempotencyKey,
@@ -347,7 +354,7 @@ export async function serverClaimPearlMilestone(
     p_milestone_id: milestoneId,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "claim_pearl_milestone",
       idempotencyKey,
@@ -416,6 +423,8 @@ export async function flushEconomyIntentQueue(): Promise<void> {
       if (!intent.accountId) removeEconomyIntent(intent.idempotencyKey, undefined);
       continue;
     }
+    const sessionUserId = flushAccountId.startsWith("cloud:") ? flushAccountId.slice("cloud:".length) : null;
+    if (!syncItemMatchesSession(intent, { accountId: flushAccountId, userId: sessionUserId })) continue;
     bumpEconomyIntentAttempt(intent.idempotencyKey, intent.accountId);
     let result: EconomyRpcResult = { ok: false };
     switch (intent.operation) {

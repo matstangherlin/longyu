@@ -1623,21 +1623,24 @@ function buildCloudAccount(
 ): LearningAccount {
   const id = cloudAccountId(identity.userId);
   const now = Date.now();
-  const baseSnapshot = progress ?? existing ?? fallback ?? blankSnapshot();
+  // LGY-005 — fallback é a conta que estava na tela. Só entra se for a MESMA
+  // conta. XP, lições, sequência, Qi, Cargas, nome e usuário de outra pessoa ficam de fora.
+  const same = existing ?? (fallback?.id === id ? fallback : undefined);
+  const baseSnapshot = progress ?? same ?? blankSnapshot();
   return {
-    ...makeAccount(id, identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu"),
-    ...(existing ?? {}),
+    ...makeAccount(id, identity.name?.trim() || same?.name || "Aluno Longyu"),
+    ...(same ?? {}),
     ...(baseSnapshot as AccountSnapshot),
     id,
-    name: identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu",
-    email: identity.email ?? existing?.email ?? fallback?.email,
-    username: existing?.username ?? fallback?.username,
-    usernamePendingClaim: existing?.usernamePendingClaim ?? fallback?.usernamePendingClaim,
+    name: identity.name?.trim() || same?.name || "Aluno Longyu",
+    email: identity.email ?? same?.email,
+    username: same?.username,
+    usernamePendingClaim: same?.usernamePendingClaim,
     // RC2.2.14B · W — o curso é DESTA conta: nunca herdado de outra conta
     // (fallback) do aparelho. Sem valor, vem do perfil cloud.
     courseDirection: isAvailableCourseDirection(existing?.courseDirection) ? existing.courseDirection : null,
     authMode: "cloud",
-    createdAt: existing?.createdAt ?? now,
+    createdAt: same?.createdAt ?? now,
     updatedAt: now,
   };
 }
@@ -2015,8 +2018,9 @@ function queueSocialFromApp(type: import("../lib/social/types").SocialActivityTy
     const state = useStore.getState();
     const account = state.accounts[state.currentAccountId];
     if (account?.authMode !== "cloud") return;
+    const userId = account.id.startsWith("cloud:") ? account.id.slice("cloud:".length) : null;
     const { queueSocialEvent } = await import("../services/socialActivityQueue");
-    queueSocialEvent(type, payload);
+    queueSocialEvent(type, payload, userId);
   });
 }
 
@@ -2111,8 +2115,14 @@ function cloudUserIdFromAccount(account: LearningAccount | undefined): string | 
   return null;
 }
 
+/** Slots salvos no último logout, para a casca de visitante não apagar as outras contas. */
+let preservedAccountsForGuestShell: Record<string, LearningAccount> | null = null;
+
 function cacheLiveProgressForCloudUser(s: AppState): void {
-  const account = s.accounts[s.currentAccountId];
+  // LGY-005 — grava o progresso ao vivo no slot atual e guarda o mapa. O
+  // wipe seguinte zera só a casca; cloud:A e perfis nomeados continuam no aparelho.
+  preservedAccountsForGuestShell = saveCurrentAccount(s);
+  const account = preservedAccountsForGuestShell[s.currentAccountId];
   const userId = cloudUserIdFromAccount(account);
   if (!userId || !account) return;
   writeUserCache(userId, buildProgressSnapshot(account));
@@ -2121,11 +2131,20 @@ function cacheLiveProgressForCloudUser(s: AppState): void {
 /** Logout / endCloudSession: limpa progresso ao vivo. Preferências de UI ficam. */
 function wipeToGuestShell(): Partial<AppState> {
   const guest = makeAccount(DEFAULT_ACCOUNT_ID, "Aluno", blankSnapshot(), undefined, "local");
+  const kept = preservedAccountsForGuestShell;
+  preservedAccountsForGuestShell = null;
+  const accounts: Record<string, LearningAccount> = { [DEFAULT_ACCOUNT_ID]: guest };
+  if (kept) {
+    for (const [id, account] of Object.entries(kept)) {
+      if (id === DEFAULT_ACCOUNT_ID || !account) continue;
+      accounts[id] = account;
+    }
+  }
   return {
     ...accountFields(guest),
     accountSetupComplete: false,
     currentAccountId: DEFAULT_ACCOUNT_ID,
-    accounts: { [DEFAULT_ACCOUNT_ID]: guest },
+    accounts,
     serverIsPro: false,
     cloudSyncState: freshCloudSyncState(),
     economySyncMessage: null,

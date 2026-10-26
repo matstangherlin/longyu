@@ -13,6 +13,8 @@ import { topicMasterySpecFor, passObjective } from "../../data/topicMasterySpecs
 import { LESSON_BASE_XP, LESSON_PASS_XP, LESSON_TOPIC_MASTERED_XP_BONUS, LESSON_THREE_STAR_XP_BONUS } from "../../data/economy";
 import { canStartLesson, useIsPro } from "../../lib/proAccess";
 import { useStore } from "../../lib/store";
+import { currentStorageNamespace } from "../../lib/accountStorage";
+import { scopedEnergyStorageKey } from "../../lib/auth/accountIsolation";
 import { todayKey } from "../../lib/storage";
 import { Card, ProgressBar } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, RightRail, ActionButton } from "../../components/ui/page";
@@ -291,7 +293,10 @@ export function LessonDetailPage() {
       navigate(toneLocked ? "/som" : "/");
       return;
     }
-    const energyFlag = energySessionFlagForPass(lesson.id, topicPass, todayKey());
+    const energyFlag = scopedEnergyStorageKey(
+      energySessionFlagForPass(lesson.id, topicPass, todayKey()),
+      currentStorageNamespace()
+    );
     const alreadyInSession = window.sessionStorage.getItem(energyFlag) === "1";
     const continuingSamePass = activityIndex > 0 && sessionCursor?.pass === topicPass;
     // TM-018: a Detail não cobra. O player cobra uma vez por pass com chave
