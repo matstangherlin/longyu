@@ -277,6 +277,7 @@
     "assert:staging-schema": "node scripts/assert-staging-schema.mjs",
     "check:schema-health": "node scripts/check-schema-health.mjs",
     "test:schema-health": "node scripts/test-schema-health.mjs",
+    "test:schema-drift": "node scripts/test-schema-drift.mjs",
     "identify:staging": "node scripts/identify-staging.mjs",
     "migrate:staging": "node scripts/apply-staging-migrations.mjs",
     "deploy:staging-functions": "node scripts/deploy-staging-functions.mjs",

@@ -54,7 +54,7 @@ function mapPublicProfile(row: Record<string, unknown>): PublicProfile {
 }
 
 export async function fetchMySocialSettings(): Promise<ServiceResult<SocialProfileSettings>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -102,7 +102,7 @@ export async function updateUsername(raw: string): Promise<ServiceResult<SocialP
 }
 
 export async function updateShowInSearch(show: boolean): Promise<ServiceResult<SocialProfileSettings>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -357,7 +357,7 @@ export async function recordSocialActivity(
 }
 
 export async function syncSocialProfileFromStore(): Promise<void> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return;
 
   const userId = await currentUserId();
