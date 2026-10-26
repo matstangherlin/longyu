@@ -50,6 +50,17 @@ export async function initErrorReporting(): Promise<void> {
   }
 }
 
+/** Um aviso por objeto. Sem PII: a tag é só o nome do objeto (`profiles.instruction_locale`). */
+export function captureSchemaDrift(objectName: string): void {
+  if (!sentry) return;
+  if (!/^[a-z0-9_.]+$/i.test(objectName)) return;
+  sentry.withScope((scope) => {
+    scope.setLevel("warning");
+    scope.setTag("schema_drift", objectName);
+    sentry?.captureMessage("schema_drift", "warning");
+  });
+}
+
 export function captureError(error: unknown, area: string): void {
   if (!sentry) return;
   sentry.withScope((scope) => {

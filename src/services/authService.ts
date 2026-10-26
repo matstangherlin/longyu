@@ -6,6 +6,8 @@ import { canonicalCountryCode, launchLocaleFields } from "../lib/i18n/identity";
 import { readPendingPlacement, toServerPlacementEvidence } from "../lib/placement";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
+import { isMissingColumnError, markMissing, withoutMissingLocaleColumns } from "../lib/cloud/schemaDrift";
+import { captureSchemaDrift } from "../lib/observability/errorReporting";
 import { requestAccountDeletion } from "./privacyService";
 import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 import {
@@ -76,18 +78,23 @@ async function ensureProfile(userId: string, profile: ProfileDetails): Promise<s
 
   // Fallback para ambientes sem a migration 021 ainda aplicada.
   if (/ensure_own_profile|could not find|pgrst|404|42883/i.test(rpcError.message)) {
-    const { error } = await client.from("profiles").upsert(
-      {
-        id: userId,
-        ...payload,
-      },
-      { onConflict: "id" }
-    );
-    if (!error) return null;
-    if (/row-level security|rls/i.test(error.message)) {
+    const upsert = (row: Record<string, unknown>) =>
+      client.from("profiles").upsert(row, { onConflict: "id" });
+    const first = await upsert({ id: userId, ...payload });
+    if (!first.error) return null;
+    if (isMissingColumnError(first.error)) {
+      if (markMissing("profiles.instruction_locale")) captureSchemaDrift("profiles.instruction_locale");
+      const second = await upsert({ id: userId, ...withoutMissingLocaleColumns(payload) });
+      if (!second.error) return null;
+      if (second.error && /row-level security|rls/i.test(second.error.message)) {
+        return "Não foi possível salvar o perfil. Confirme o email e entre de novo.";
+      }
+      return second.error?.message ?? first.error.message;
+    }
+    if (/row-level security|rls/i.test(first.error.message)) {
       return "Não foi possível salvar o perfil. Confirme o email e entre de novo.";
     }
-    return error.message;
+    return first.error.message;
   }
 
   if (/not_authenticated|42501|row-level security|rls/i.test(rpcError.message)) {
