@@ -39,6 +39,16 @@ Status do projeto Longyu. Atualize este arquivo ao concluir cada etapa operacion
 | PWA iPhone/Android reais | ⬜ | Ver `docs/REAL_DEVICE_QA.md` |
 | Proteção da branch `main` | ✅ | Ruleset **Protect main branch** ativo (2026-08-08): PR + checks + sem force-push/delete |
 
+## Schema antes do front
+
+Antes de publicar um front que fala com Supabase, rode o health check somente leitura contra o alvo (staging, e produção só com a anon key):
+
+```bash
+SUPABASE_URL=… SUPABASE_ANON_KEY=… npm run check:schema-health
+```
+
+Exit diferente de zero significa coluna, RPC ou Edge Function que o cliente usa e que **não** está em `knownMissingBackend.json`. O passo a passo de migration está em `docs/qa-report-2026-10/CHECKLIST_DEPLOY_MIGRATIONS.md`. Não publique o front por cima de um alvo vermelho.
+
 ## Portões
 
 ```bash

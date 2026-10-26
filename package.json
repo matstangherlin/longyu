@@ -275,6 +275,8 @@
     "v489:preflight": "node scripts/v489-production-preflight.mjs",
     "audit:staging-secrets": "node scripts/audit-staging-secrets.mjs",
     "assert:staging-schema": "node scripts/assert-staging-schema.mjs",
+    "check:schema-health": "node scripts/check-schema-health.mjs",
+    "test:schema-health": "node scripts/test-schema-health.mjs",
     "identify:staging": "node scripts/identify-staging.mjs",
     "migrate:staging": "node scripts/apply-staging-migrations.mjs",
     "deploy:staging-functions": "node scripts/deploy-staging-functions.mjs",
