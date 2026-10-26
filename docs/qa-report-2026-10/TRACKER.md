@@ -77,7 +77,7 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 | R-13 | Revisão Free | Sessão com os 20 itens mais prioritários | prompt 30, `@qa-r13` | `e2e/qa-regression-r13.spec.ts` (ainda não existe) | local | não executado |
 | R-14 | Preflight `x-longyu-*` | Preflight responde 2xx | prompt 30, `@qa-staging` | `e2e/qa-regression-r14.spec.ts` (ainda não existe) | staging | não executado |
 | R-15 | Excluir conta | Conta some e a sessão encerra | prompt 30, `@qa-staging` | `e2e/qa-regression-r15.spec.ts` (ainda não existe) | staging | não executado |
-| R-16 | Lint de conteúdo | 0 violações | teste pontual no prompt 09; lint geral no prompt 10 | `npm run test:early-lesson-copy` | local | em PR — pontuação, 你好, nome e enunciados das fases 1–2. O lint geral continua no prompt 10. |
+| R-16 | Lint de conteúdo | 0 violações | `npm run lint:content` | [#368](https://github.com/matstangherlin/longyu/pull/368) · `docs/qa-report-2026-10/LINT_CONTEUDO.md` | local | em PR — fases 1–2 em zero. Linha de base: 62 nas fases 3+ (CL003 6, CL004 4, CL005 4, CL006 2, CL007 46). Meta no fim da Onda 2: linha de base vazia. |
 | R-17 | Escuta sem áudio | Etapa concluível sem áudio e sem custo | prompt 30, `@qa-r17` | `e2e/qa-regression-r17.spec.ts` (ainda não existe) | local | não executado |
 | R-18 | SRS | Item só apresentado não gradua; erro gera alvo | prompt 30, unitário | `npm run test:srs-evidence` (nome a confirmar no prompt 21) | local | não executado |
 | R-19 | Paywall | CTAs levam a páginas que existem | prompt 30, `@qa-r19` | `e2e/qa-regression-r19.spec.ts` (ainda não existe) | local | não executado |

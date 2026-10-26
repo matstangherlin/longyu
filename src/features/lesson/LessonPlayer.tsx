@@ -27,7 +27,6 @@ import {
   useStore,
   type ActivityErrorRecord,
   type ActivityErrorSkill,
-  type ActivityReviewTarget,
   type LessonAttemptRecord,
   type LessonMistakeRecord,
   type LessonStar,
@@ -46,10 +45,18 @@ import { conversationSceneById, type ConversationVariantLevel } from "../../data
 import { conversationAssistanceFromHelp } from "../../data/productionHelp";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 import {
-  curriculumRefsThroughLesson,
   manifestFromConversationStep,
   primaryExerciseFamilyFor,
 } from "./lessonTasks";
+import {
+  isPinyinOrToneChoiceStep,
+  reviewTargetsForMistake,
+  SKILL_TRACK,
+  taughtRefsForLesson,
+  textReviewTargets,
+  uniqueLessonReviewTargets,
+  type LessonReviewTarget,
+} from "./reviewTargets";
 import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import {
   BREATH_LIVES,
@@ -258,14 +265,6 @@ function learnedItemsForLesson(
   return out;
 }
 
-const SKILL_TRACK: Record<Skill, Track> = {
-  som: "som",
-  fala: "fala",
-  hanzi: "hanzi",
-  leitura: "leitura",
-  sistema: "hanzi",
-};
-
 function isGradedStep(step: LessonStep): boolean {
   return isEvaluableQuestionStep(step);
 }
@@ -277,8 +276,6 @@ interface LessonMistake {
   correction: string;
   detail?: string;
 }
-
-type LessonReviewTarget = ActivityReviewTarget;
 
 interface ActivityError extends ActivityErrorRecord {
   type: StepKind | "pair-match";
@@ -484,253 +481,6 @@ function dayCountLabel(days: number): string {
   return `${days} ${days === 1 ? t("player.day") : t("player.days")}`;
 }
 
-function uniqueLessonReviewTargets(targets: LessonReviewTarget[]): LessonReviewTarget[] {
-  const seen = new Set<string>();
-  return targets.filter((target) => {
-    const key = `${target.type}:${target.itemId}:${target.domain}:${target.track}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-/**
- * Alvos de revisão de um texto — apenas o que o currículo JÁ ENSINOU.
- *
- * Antes todo caractere do texto virava item de revisão. Errar 不客气 na terceira
- * lição criava entradas para 客 e 气 como caracteres soltos, que a jornada nunca
- * apresenta individualmente; a revisão então cobrava palavra que o aluno não
- * tinha visto em tarefa nenhuma. Auditoria: 19% dos alvos gerados por erro
- * (61 itens distintos) eram deste tipo.
- *
- * O chunk continua entrando — ele é a unidade efetivamente ensinada. Os
- * caracteres entram quando o currículo os introduz. Sem alvo elegível, o erro
- * segue registrado para a remediação imediata, mas não vira dívida de revisão.
- */
-function textReviewTargets(
-  text: string | undefined,
-  domain: ReviewDomain,
-  track: Track,
-  introduced?: ReadonlySet<string>
-): LessonReviewTarget[] {
-  const targets: LessonReviewTarget[] = [];
-  const chunk = findChunkByText(text);
-  if (chunk && (!introduced || introduced.has(`chunk:${chunk.id}`))) {
-    targets.push({ type: "chunk", itemId: chunk.id, domain, track });
-  }
-  for (const char of charsInText(text)) {
-    if (introduced && !introduced.has(`char:${char.id}`)) continue;
-    targets.push({ type: "char", itemId: char.id, domain, track });
-  }
-  return targets;
-}
-
-/** Prefer chunk como unidade pedagógica; só cai em chars soltos se não houver chunk. */
-function pedagogicalTextTargets(
-  text: string | undefined,
-  domain: ReviewDomain,
-  track: Track,
-  introduced?: ReadonlySet<string>
-): LessonReviewTarget[] {
-  const chunk = findChunkByText(text);
-  if (chunk && (!introduced || introduced.has(`chunk:${chunk.id}`))) {
-    return [{ type: "chunk", itemId: chunk.id, domain, track }];
-  }
-  return charsInText(text)
-    .filter((char) => !introduced || introduced.has(`char:${char.id}`))
-    .map((char) => ({ type: "char" as const, itemId: char.id, domain, track }));
-}
-
-/**
- * O que já foi ensinado ATÉ e INCLUINDO a lição atual.
- *
- * `curriculumRefsThroughLesson` cobre o que o currículo declara, mas algumas
- * lições ensinam caracteres só pelo texto dos passos — as de tom (妈/麻/马/骂),
- * por exemplo, não os declaram. Sem somar os passos da própria lição, elas
- * ficariam sem nenhum alvo de revisão. Um caractere que o aluno acabou de ver
- * na tela foi abordado, então conta.
- */
-const lessonTaughtRefsCache = new Map<string, ReadonlySet<string>>();
-
-function taughtRefsForLesson(lesson: { id: string; steps?: LessonStep[] }): ReadonlySet<string> {
-  const cached = lessonTaughtRefsCache.get(lesson.id);
-  if (cached) return cached;
-  const refs = new Set<string>(curriculumRefsThroughLesson(lesson.id));
-  for (const step of lesson.steps ?? []) {
-    for (const text of [step.hanzi, step.correctAnswer, step.answer, step.blankAnswer, step.text]) {
-      if (!text) continue;
-      const chunk = findChunkByText(text);
-      if (chunk) refs.add(`chunk:${chunk.id}`);
-      for (const char of charsInText(text)) refs.add(`char:${char.id}`);
-    }
-  }
-  lessonTaughtRefsCache.set(lesson.id, refs);
-  return refs;
-}
-
-function reviewTargetsForMistake(
-  step: LessonStep,
-  track: Track,
-  introduced?: ReadonlySet<string>
-): LessonReviewTarget[] {
-  const targets: LessonReviewTarget[] = [];
-  const addText = (text: string | undefined, domain: ReviewDomain, sourceTrack: Track = track) => {
-    targets.push(...textReviewTargets(text, domain, sourceTrack, introduced));
-  };
-
-  if (step.pedagogyVariant === "audio_same_different") {
-    for (const audio of step.audioSequence ?? []) {
-      addText(audio, "som", "som");
-      addText(audio, "pinyin", "som");
-    }
-    return uniqueLessonReviewTargets(targets);
-  }
-  if (step.pedagogyVariant === "dragon_dictation") {
-    addText(step.audioText, "som", "som");
-    if (step.dictationMode === "pinyin") addText(step.audioText, "pinyin", "som");
-    else {
-      addText(step.audioText ?? step.answer, "uso");
-      addText(step.audioText ?? step.answer, "forma", "hanzi");
-    }
-    return uniqueLessonReviewTargets(targets);
-  }
-  if (step.pedagogyVariant?.startsWith("meaning_")) {
-    addText(step.correctAnswer ?? step.answer, "significado");
-    addText(step.correctAnswer ?? step.answer, "uso");
-    return uniqueLessonReviewTargets(targets);
-  }
-
-  if (step.kind === "tone") {
-    addText(step.hanzi, "som", "som");
-    addText(step.hanzi, "pinyin", "som");
-  }
-  if (step.kind === "comprehend") addText(step.hanzi ?? step.answer, "significado");
-  if (step.kind === "produce") {
-    const text = step.target?.join("");
-    addText(text, "uso");
-    addText(text, "fala");
-  }
-  if (step.kind === "recognize" && step.charId) {
-    targets.push({ type: "char", itemId: step.charId, domain: "significado", track });
-  }
-  if (step.kind === "write") {
-    if (step.chunkId) {
-      targets.push({ type: "chunk", itemId: step.chunkId, domain: "uso", track });
-      targets.push({ type: "chunk", itemId: step.chunkId, domain: "significado", track });
-    }
-    addText(step.answer, "uso");
-  }
-  if (step.kind === "match_pairs" || step.kind === "tone_pair") {
-    const domain: ReviewDomain = step.kind === "tone_pair" ? "som" : "significado";
-    const sourceTrack: Track = step.kind === "tone_pair" ? "som" : track;
-    for (const pair of step.pairs ?? []) {
-      if (pair.reviewType && pair.reviewItemId) {
-        targets.push({ type: pair.reviewType, itemId: pair.reviewItemId, domain, track: sourceTrack });
-      }
-      addText(pair.left, domain, sourceTrack);
-      addText(pair.right, domain, sourceTrack);
-    }
-  }
-  if (step.kind === "listen_select") {
-    addText(step.audioText ?? step.correctAnswer, "som", "som");
-    addText(step.audioText ?? step.correctAnswer, "pinyin", "som");
-    addText(step.correctAnswer, "significado");
-  }
-  if (step.kind === "image_choice") {
-    const hanzi = step.targetHanzi ?? step.hanzi;
-    const mode = step.imageChoiceMode;
-    if (mode === "listen_and_choose_image" || mode === "choose_pinyin") {
-      addText(hanzi, "som", "som");
-      addText(hanzi, "pinyin", "som");
-    }
-    if (mode === "choose_hanzi" || mode === "choose_image" || mode === "listen_and_choose_image") {
-      addText(hanzi, "forma", "hanzi");
-    }
-    addText(hanzi, "significado");
-  }
-  if (step.kind === "compare_with_image") {
-    const hanzi = step.targetHanzi ?? step.hanzi;
-    addText(hanzi, "significado");
-    addText(hanzi, "forma", "hanzi");
-  }
-  if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) {
-    const source = step.sourceText ?? step.hanzi ?? step.audioText;
-    addText(source, "pinyin", "som");
-    addText(source, "som", "som");
-  }
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion" || step.kind === "sign_reading" || step.kind === "menu_reading" || step.kind === "price_task" || step.kind === "schedule_reading") {
-    const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
-    if (step.kind === "conversation_scene") {
-      // Não lotar com cada linha da cena — resposta principal / chunk basta;
-      // o loop → SRS cobre o restante com dedupe.
-      targets.push(...pedagogicalTextTargets(text, "uso", track, introduced));
-      targets.push(...pedagogicalTextTargets(text, "fala", track, introduced));
-    } else {
-      addText(text, "uso");
-      addText(text, "fala");
-    }
-  }
-  if (step.kind === "address_build" || step.kind === "sentence_transform" || step.kind === "route_sequence") {
-    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "uso");
-    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "fala");
-  }
-  if (step.kind === "map_direction") {
-    addText(step.prompt ?? step.audioText ?? step.mapCorrectAction, "uso");
-    if (step.audioText) addText(step.audioText, "som", "som");
-  }
-  if (step.kind === "reverse_recall") {
-    addText(step.answer ?? step.correctAnswer, "uso");
-    addText(step.answer ?? step.correctAnswer, "fala");
-  }
-  if (step.pedagogyVariant === "sentence_lab_audio") {
-    addText(step.audioText ?? step.correctAnswer, "som", "som");
-  }
-  if (step.kind === "fill_blank") {
-    addText(step.correctAnswer ?? step.answer ?? `${step.sentenceBefore ?? ""}${step.blankAnswer ?? ""}${step.sentenceAfter ?? ""}`, "uso");
-  }
-  if (step.kind === "hanzi_build") {
-    addText(step.correctAnswer ?? step.answer, "forma", "hanzi");
-    addText(step.targetParts?.join(""), "forma", "hanzi");
-  }
-  if (step.kind === "audio_discrimination") {
-    // Par mínimo alimenta só o domínio de SOM dos dois lados: o aluno não
-    // viu significado nem forma aqui.
-    for (const side of step.pairReveal ?? []) {
-      addText(side.hanzi, "som", "som");
-      addText(side.hanzi, "pinyin", "som");
-    }
-  }
-  if (step.kind === "dictation") {
-    const written = step.hanzi ?? step.correctAnswer ?? step.targetParts?.join("");
-    addText(written, "som", "som");
-    if (step.dictationMode === "pinyin") addText(written, "pinyin", "som");
-    if (step.dictationMode === "hanzi" || step.dictationMode === "blocks") addText(written, "forma", "hanzi");
-  }
-  if (step.kind === "odd_one_out") {
-    // Todas as opções foram julgadas por sentido, não só a resposta.
-    for (const option of step.options ?? []) addText(option, "significado");
-  }
-  if (step.kind === "spot_error") {
-    addText(step.correctAnswer ?? step.answer, "uso");
-    addText(step.correctAnswer ?? step.answer, "fala");
-  }
-  // Produzir a frase inteira sem apoio cobra USO, FALA e — porque o aluno
-  // escreveu de cabeça, sem peças na tela — também a FORMA.
-  if (step.kind === "free_production" || step.kind === "transfer_task") {
-    const produced = step.correctAnswer ?? step.answer;
-    addText(produced, "uso");
-    addText(produced, "fala");
-    addText(produced, "forma", "hanzi");
-  }
-  if (step.kind === "conversation_repair") {
-    const recovery = step.correctAnswer ?? step.answer;
-    addText(recovery, "uso");
-    addText(recovery, "fala");
-  }
-
-  return uniqueLessonReviewTargets(targets);
-}
-
 function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.pedagogyVariant === "dragon_dictation") {
     return step.dictationMode === "pinyin" ? "pinyin" : step.dictationMode === "blocks" ? "uso" : "forma";
@@ -775,21 +525,6 @@ function sourceSkillForActivitySkill(skill: ActivityErrorSkill, lessonSkill: Ski
 
 function displayTextHasHanzi(value: string | undefined): boolean {
   return Boolean(value && charsInText(value).length > 0);
-}
-
-function hasPinyinToneMark(value: string | undefined): boolean {
-  return /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/iu.test(value ?? "");
-}
-
-function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
-  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""}`.toLocaleLowerCase("pt-BR");
-  const options = [step.correctAnswer, step.answer, step.pinyin, step.sourcePinyin, ...(step.options ?? [])];
-  return (
-    label.includes("pinyin") ||
-    label.includes("acento") ||
-    (label.includes("tom") && options.some(hasPinyinToneMark)) ||
-    options.filter(hasPinyinToneMark).length >= 2
-  );
 }
 
 function errorHanziForStep(step: LessonStep): string | undefined {
