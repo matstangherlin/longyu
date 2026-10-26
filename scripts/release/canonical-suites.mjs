@@ -41,6 +41,7 @@ export const SUITES = [
       "validate:app-environment",
       "validate:privacy-consent",
       "validate:client-diagnostics",
+      "test:schema-drift",
       "test:stale-bundle",
       "validate:security-boundaries",
       "validate:social-profile-security",
@@ -598,4 +599,5 @@ export const ADDED_STEPS = Object.freeze({
   "validate:ux-closure-accessibility": "RC2.3.13R.3.2.5 — reveal focus + announcement, alerts, no typing chatter, chest state names, interface-language auth copy, R.3.2.4 follow-ups (executed), Android detector probes, QA-only switches.",
   "validate:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — premium UX release honesty (runtime SHA, fingerprint, validator repair, follow-ups, scope, hosted, APK, physical, freeze, entry).",
   "test:rc2-3-13r3-2-5-premium-ux-closure": "RC2.3.13R.3.2.5 — mutation kills for the premium UX gates (≥160, including platform detector mutants 1–7).",
+  "test:schema-drift": "QA 2026-10 prompt 04 — 42703 e relação ausente não repetem request na sessão.",
 });
