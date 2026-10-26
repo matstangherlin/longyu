@@ -77,7 +77,7 @@ const MUTATIONS = {
     ["29. verifyOtp com tipo errado", "RECOVERY_NOT_CANONICAL", src("authService", 'token, type: "recovery" })', 'token, type: "email" })')],
     ["30. OTP no console", "OTP_LOGGED", src("forgot", "    const result = await verifyRecoveryCode(email, code);", '    console.info("otp", code);\n    const result = await verifyRecoveryCode(email, code);')],
     ["31. OTP no storage", "OTP_LOGGED", src("forgot", "onChange={(event) => setCode(normalizeRecoveryCode(event.target.value))}", 'onChange={(event) => { localStorage.setItem("code", event.target.value); setCode(normalizeRecoveryCode(event.target.value)); }}')],
-    ["32. modelo de e-mail aplicado em silêncio", "TEMPLATE_SILENTLY_APPLIED", json((s) => { s.src.supabaseConfig += '\n[auth.email.template.recovery]\ncontent_path = "./supabase/templates/recovery.html"\n'; })],
+    ["32. modelo de e-mail aplicado em silêncio", "TEMPLATE_SILENTLY_APPLIED", json((s) => { s.src.supabaseConfig += '\n[auth.email.template.recovery]\ncontent_path = "https://cdn.example/recovery.html"\n'; })],
     ["33. modelo sem o código", "RECOVERY_TEMPLATE_MISSING", json((s) => { s.src.template = s.src.template.split("{{ .Token }}").join("{{ .ConfirmationURL }}"); })],
     ["34. estágio do cadastro sem marco", "SIGNUP_STAGE_MISSING", src("comecar", '    markSignupStage("confirmation_required");\n', "")],
     ["35. e-mail no log de falha", "SIGNUP_PII_LOGGED", src("signupTrace", '  if (!text || /@/.test(text)) return "UNKNOWN";', '  if (!text) return "UNKNOWN";')],

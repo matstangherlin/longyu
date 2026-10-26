@@ -453,7 +453,7 @@ export async function requestPasswordReset(email: string): Promise<AuthServiceRe
   const cleanEmail = email.trim();
   let outcome: ReturnType<typeof classifyRecoveryRequestError>;
   try {
-    // O mesmo e-mail leva o código de 6 dígitos ({{ .Token }}) e o link.
+    // O modelo versionado manda só o código. redirectTo fica para um link antigo cair em /redefinir-senha.
     const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
       redirectTo: passwordRecoveryRedirectUrl(),
     });

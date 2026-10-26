@@ -14,8 +14,9 @@ project setting. Nothing here runs against Supabase.
 ## Owner steps
 
 1. Supabase Dashboard → the **production beta** project → Authentication → Emails → **Reset Password**.
-2. Paste the body of `supabase/templates/recovery.html` (it keeps `{{ .ConfirmationURL }}`, so
-   the old link keeps working).
+2. Paste the body of `supabase/templates/recovery.html`. Desde o prompt 13 o modelo
+   leva só `{{ .Token }}`. O link saiu do e-mail. O guia atual é
+   `docs/qa-report-2026-10/EMAIL_AUTH_SETUP.md`.
 3. Save. Do this only in the project the owner chooses. It does not touch #273 / the QA candidate.
 4. On a physical Android phone with the Play build:
    Login → "Esqueci minha senha" → email → receive the code → type it → new password → Login.

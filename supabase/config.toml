@@ -32,6 +32,33 @@ additional_redirect_urls = [
 ]
 enable_signup = true
 
+# LGY-013 — o `supabase start` local lê estes arquivos. Isto não publica nada
+# no MandarimProject. `supabase config push` enviaria os caminhos ao projeto
+# linkado: não rode esse comando contra produção. O painel continua humano.
+[auth.email.template.confirmation]
+subject = "Confirme seu email no Longyu"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Seu código para redefinir a senha do Longyu"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Confirme o novo email do Longyu"
+content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.magic_link]
+subject = "Entrar no Longyu"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.invite]
+subject = "Convite para o Longyu"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.reauthentication]
+subject = "Confirme que é você no Longyu"
+content_path = "./supabase/templates/reauthentication.html"
+
 # Stripe envia webhooks sem JWT do Supabase.
 [functions.stripe-webhook]
 verify_jwt = false
