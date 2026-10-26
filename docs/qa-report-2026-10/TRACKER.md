@@ -8,9 +8,9 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 
 | ID | Título | Sev. | Onda / fase | Prompt | Status | Branch / PR | Evidência |
 |---|---|---|---|---|---|---|---|
-| LGY-001 | Drift `profiles.instruction_locale` | P0 | Onda 1 | 03, 04 | aberto | — | Registrado na linha de base. Produção pode estar no SHA antigo; não retestado ao vivo neste prompt. |
-| LGY-002 | Backend social 404 (`search_public_profiles`, `user_follows`, `social_activity_events`) | P0 | Onda 1 | 03, 04, 24 | aberto | — | No `main`, os três nomes estão em `knownMissingBackend.json` (domínio social). Esses commits são posteriores à produção. |
-| LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | aberto | — | Registrado. Deploy continua humano. |
+| LGY-001 | Drift `profiles.instruction_locale` | P0 | Onda 1 | 03, 04 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) base; este PR empilha | Pacote `qa-03-profiles-instruction-locale.sql` + health check. SQL não aplicado. |
+| LGY-002 | Backend social 404 (`search_public_profiles`, `user_follows`, `social_activity_events`) | P0 | Onda 1 | 03, 04, 24 | em PR | este PR, empilhado no #360 | Pacote `qa-03-social-minimum.sql`. Não é replay de `005_social.sql`. Não aplicado. |
+| LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | em PR | este PR, empilhado no #360 | Inventário no `DRIFT_PRODUCAO.md` e no health check. Deploy continua no prompt 05. |
 | LGY-004 | CORS dos headers `x-longyu-*` | P0 | Onda 1 | 05 | aberto | — | Registrado. Ligado à decisão D1 (não cobrar). |
 | LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | aberto | — | Registrado. Contas `qa.free` / `qa.pro` no checklist humano. |
 | LGY-006 | Login sem erro e sem timeout | P1 | Onda 1 | 07 | aberto | — | Registrado. |
@@ -46,7 +46,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-036 | Erros no console | P3 | Onda 1 | 04, 23 | aberto | — | Registrado. |
 | LGY-037 | Gitleaks vermelho | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Scan do histórico: 8 achados. Fixture Stripe allowlist exata. Os 6 JWTs restantes são `role: anon` do projeto `drjcfalvlbbeblmmyhwj`; nenhum `service_role`. O scan agendado continua vermelho até decisão humana sobre allowlist da anon key pública. |
 | LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Guia em `BRANCH_PROTECTION.md`. A proteção em si não foi ligada. API de protection do `main` respondeu 403 para o token deste agente. |
-| LGY-039 | Sem staging | P2 | Fase 1 | 03, 12 | aberto | — | Registrado. Criar o projeto é humano. |
+| LGY-039 | Sem staging | P2 | Fase 1 | 03, 12 | em PR | este PR, empilhado no #360 | Checklist manda staging antes do social. Criar o projeto continua no prompt 12. |
 | LGY-040 | Privacidade, termos, LGPD e CDC | P2 | Fase 1 | 15 | aberto | — | Registrado. Dados do controlador ficam em branco até o Matty preencher. |
 | LGY-041 | Menores de 18 | P2 | Fase 1 | 15 | aberto | — | Padrão recomendado: só 18+ na beta fechada. Sem decisão confirmada. |
 | LGY-042 | Sem "Reportar problema" | P2 | Fase 1 | 14 | aberto | — | Registrado. |
@@ -62,7 +62,7 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 
 | ID | Caso | Resultado esperado | Automatizado? | Arquivo / comando | Ambiente | Status |
 |---|---|---|---|---|---|---|
-| R-01 | Schema em dia | 0 respostas 4xx do PostgREST em `/jornada`, `/perfil`, `/conta`, `/amigos` | prompt 30, tag `@qa-staging` | `e2e/qa-regression-r01.spec.ts` (ainda não existe) | staging | não executado |
+| R-01 | Schema em dia | 0 respostas 4xx do PostgREST em `/jornada`, `/perfil`, `/conta`, `/amigos` | `npm run check:schema-health` (leitura) + prompt 30 | `scripts/check-schema-health.mjs` | staging / produção só leitura | não executado em produção por este agente |
 | R-02 | Cadastro e reset | Mensagens corretas; link expirado tratado | prompt 30, `@qa-staging` | `e2e/qa-regression-r02.spec.ts` (ainda não existe) | staging | não executado |
 | R-03 | Login inválido | Mensagem pt-BR em menos de 3 s; botão volta | prompt 30, `@qa-r03` | `e2e/qa-regression-r03.spec.ts` (ainda não existe) | local | não executado |
 | R-04 | Login e logout | Sai no primeiro clique; `/login` logado redireciona | prompt 30, `@qa-r04` | `e2e/qa-regression-r04.spec.ts` (ainda não existe) | local | não executado |
