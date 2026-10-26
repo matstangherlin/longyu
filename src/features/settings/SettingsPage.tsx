@@ -25,6 +25,7 @@ import {
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { ReleaseIdentityCard } from "../../components/system/AppVersionLabel";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { DOMAIN_META, DOMAIN_ORDER, type DomainTrack } from "../../data/domains";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -1029,6 +1030,7 @@ export function SettingsPage() {
 
       {!activeCategory && (
         <>
+          <ReleaseIdentityCard />
           <FeedbackPrompt context={{ screen: "/config" }} compact />
           <p className="text-center text-xs text-ink-faint">
             {t("settings.footer")}

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
 import { MyFeedbackList } from "../../components/feedback/MyFeedbackList";
-import { AppVersionLabel } from "../../components/system/AppVersionLabel";
+import { AppVersionLabel, ReleaseIdentityCard } from "../../components/system/AppVersionLabel";
 import { BuildIdentityLabel } from "../../components/system/BuildIdentityLabel";
 import { BetaNotice } from "../../components/system/BetaNotice";
 import { Card, SectionTitle } from "../../components/ui/primitives";
@@ -85,6 +85,7 @@ export function AboutPage() {
       </section>
 
       <section id="feedback" className="scroll-mt-6 space-y-3">
+        <ReleaseIdentityCard />
         <FeedbackPrompt context={{ screen: "/sobre" }} compact />
         <Card className="rounded-xl p-4 shadow-none">
           <h3 className="font-serif text-lg font-semibold text-ink">{t("marketing.yourFeedbacks")}</h3>

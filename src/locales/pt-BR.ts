@@ -2391,6 +2391,10 @@ export const ptBR = {
     placeholder: "O que aconteceu? O que você esperava?",
     activityProblem: "Esta atividade está com problema",
     includeTechnical: "Incluir contexto técnico (rota, versão, ambiente, navegador, viewport)",
+    technicalLead: "Vão junto a versão, o SHA, a rota, a plataforma e o tamanho da tela. Sem email e sem nome.",
+    mailto: "Enviar por e-mail",
+    copyVersion: "Copiar versão",
+    copiedVersion: "Versão copiada",
     thanks: "Obrigado. Seu feedback foi enviado.",
     thanksQueued:
       "Feedback salvo neste dispositivo e será enviado quando a conexão estiver disponível.",

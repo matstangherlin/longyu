@@ -48,7 +48,7 @@ function test() {
 
   // 1–20 identity / freeze / closure
   k("RC ID missing", "RC_ID_MISSING", mutate(base, "rc", '"rcId": "RC2.3.13-RC1"', '"rcId": ""'));
-  k("versionName missing", "VERSION_NAME_MISSING", mutate(base, "packageJson", "0.2.0-rc.5", "0.0.0"));
+  k("versionName missing", "VERSION_NAME_MISSING", mutate(base, "packageJson", "0.3.0-beta.1", "0.0.0"));
   k("versionCode missing", "VERSION_CODE_MISSING", mutate(base, "rc", '"versionCode": 651', '"versionCode": null'));
   k("artifact source field", "ARTIFACT_SOURCE_SHA_MISSING", mutate(base, "cert", '"artifactSourceSha"', '"artifactX"'));
   k("learner runtime sha", "LEARNER_RUNTIME_SHA_MISSING", mutate(base, "rc", '"learnerRuntimeSha"', '"learnerX"'));

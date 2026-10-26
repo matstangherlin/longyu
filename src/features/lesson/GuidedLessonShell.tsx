@@ -157,9 +157,10 @@ export function GuidedLessonHeader({
               <button
                 type="button"
                 onClick={onReport}
-                className="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink sm:grid"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink-faint transition hover:bg-surface-2 hover:text-ink"
                 aria-label={t("player.reportQuestion")}
                 title={t("common.reportProblem")}
+                data-testid="lesson-report-problem"
               >
                 <IconChat width={15} height={15} />
               </button>

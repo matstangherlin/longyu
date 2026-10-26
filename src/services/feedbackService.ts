@@ -208,7 +208,7 @@ export async function submitFeedback(input: FeedbackSubmitInput): Promise<Feedba
     lessonId,
     exerciseKind,
     exerciseIndex,
-    appVersion: input.includeTechnicalContext ? tech.appVersion : "",
+    appVersion: input.includeTechnicalContext ? [tech.appVersion, tech.commitSha].filter(Boolean).join("+") : "",
     browser: input.includeTechnicalContext
       ? [tech.browser, tech.displayMode, tech.appEnv].filter(Boolean).join(" · ").slice(0, 320)
       : "",
@@ -220,7 +220,7 @@ export async function submitFeedback(input: FeedbackSubmitInput): Promise<Feedba
 
   // Sempre anexa lesson/exercise no payload estruturado; contexto técnico é opcional.
   if (!input.includeTechnicalContext) {
-    payload.appVersion = tech.appVersion;
+    payload.appVersion = [tech.appVersion, tech.commitSha].filter(Boolean).join("+");
   }
 
   lastSubmitAt = now;

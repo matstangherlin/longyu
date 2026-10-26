@@ -6,11 +6,11 @@
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 147,
+    "EVIDENCE_ONLY": 148,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1206,
+  "total": 1207,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -4254,6 +4254,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:learner-systems"
+    },
+    {
+      "gateId": "test:feedback-context",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-feedback-context.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:feedback-csv-safety",
@@ -21826,5 +21844,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "ec88c4a0f86da527"
+  "evidenceDigest": "eee54dd3a426cf0e"
 }

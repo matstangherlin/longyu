@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
+import { isBetaFeedbackEnabled } from "../../lib/featureFlags";
 import { Link } from "react-router-dom";
 import { IconShield, IconSun, IconUser } from "../../components/ui/Icon";
 import { isAdminEmail } from "../../lib/feedback";
@@ -196,12 +198,20 @@ export function MorePage() {
 function MoreYouBlock() {
   const { t } = useTranslation();
   const { canSignOut } = useCloudSignOut();
+  const { openFeedback } = useFeedbackUi();
   return (
     <section className="mb-5 space-y-3" data-testid="more-you" data-coachmark-target="more-you" data-cognitive-more-you="">
       <SettingsGroup title={t("navigation.groupYou")}>
         <SettingsRow to="/perfil" icon={IconUser} label={t("navigation.profile")} testId="more-profile" />
         <SettingsRow to="/conta" icon={IconShield} label={t("navigation.account")} testId="more-account" />
         <SettingsRow to="/config/aparencia" icon={IconSun} label={t("navigation.appearance")} testId="more-appearance" />
+        {isBetaFeedbackEnabled() ? (
+          <SettingsRow
+            label={t("common.reportProblem")}
+            testId="report-problem"
+            onClick={() => openFeedback({ screen: "/mais", route: "/mais" })}
+          />
+        ) : null}
       </SettingsGroup>
       {canSignOut ? <SignOutControl testId="more-sign-out" /> : null}
     </section>

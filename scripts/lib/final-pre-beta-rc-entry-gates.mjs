@@ -56,7 +56,7 @@ export function checkIdentity(src = loadFinalSources()) {
     errors.push("ARTIFACT_SOURCE_SHA_MISSING");
   }
   if (!rc || !("artifactSourceSha" in rc)) errors.push("ARTIFACT_SOURCE_SHA_MISSING");
-  if (!/0\.2\.0-rc\.5/.test(src.packageJson)) errors.push("VERSION_NAME_MISSING");
+  if (!/0\.3\.0-beta\.1/.test(src.packageJson)) errors.push("VERSION_NAME_MISSING");
   if (rc?.versionName && rc.versionName !== "0.2.0-rc.5") errors.push("VERSION_NAME_MISSING");
   return [...new Set(errors)];
 }
