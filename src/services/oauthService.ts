@@ -15,6 +15,7 @@
  * person" on the client.
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { withTimeout } from "../lib/async/withTimeout";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { isNativeApp } from "../lib/platform/nativePlatform";
@@ -46,22 +47,6 @@ function getOAuthClient(): SupabaseClient | null {
 
 function platform(): "web" | "android" {
   return isNativeApp() ? "android" : "web";
-}
-
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("timeout")), ms);
-    promise.then(
-      (v) => {
-        clearTimeout(timer);
-        resolve(v);
-      },
-      (e) => {
-        clearTimeout(timer);
-        reject(e);
-      }
-    );
-  });
 }
 
 export type StartResult = { ok: true; stage: AuthStage } | { ok: false; error: AuthError };

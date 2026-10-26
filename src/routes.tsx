@@ -2,6 +2,7 @@ import { lazy, type ComponentType } from "react";
 import type { RouteObject } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { PublicAuthLayout } from "./components/auth/PublicAuthLayout";
+import { RedirectIfSignedIn } from "./components/auth/RedirectIfSignedIn";
 import { RequireCloudSession } from "./components/auth/RequireCloudSession";
 import { importWithStaleBundleRetry } from "./lib/staleBundle";
 import { JourneyNodeGate } from "./components/journey/JourneyNodeGate";
@@ -130,8 +131,8 @@ export const routes: RouteObject[] = [
   {
     element: <PublicAuthLayout />,
     children: [
-      { path: "comecar", element: <ComecarRoute /> },
-      { path: "login", element: <LoginPage /> },
+      { path: "comecar", element: <RedirectIfSignedIn><ComecarRoute /></RedirectIfSignedIn> },
+      { path: "login", element: <RedirectIfSignedIn><LoginPage /></RedirectIfSignedIn> },
       { path: "auth/callback", element: <OAuthCallbackPage /> },
       { path: "esqueci-senha", element: <ForgotPasswordPage /> },
       { path: "redefinir-senha", element: <ResetPasswordPage /> },

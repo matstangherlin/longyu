@@ -54,6 +54,14 @@ const PATTERNS: MessagePattern[] = [
     key: "errors.backendUnavailable",
   },
   {
+    test: (m) => includesAny(m, ["sua sessão expirou", "your session expired"]),
+    key: "auth.errors.sessionExpired",
+  },
+  {
+    test: (m) => includesAny(m, ["o servidor demorou para responder", "the server took too long to respond"]),
+    key: "auth.errors.signInTimeout",
+  },
+  {
     test: (m) =>
       includesAny(m, [
         "invalid login credentials",

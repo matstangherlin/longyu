@@ -1,10 +1,12 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { withTimeout } from "../lib/async/withTimeout";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { allowSeededLocalSession } from "../lib/auth/localAuthPolicy";
+import { SIGN_OUT_AUTH_TIMEOUT_MS, SIGN_OUT_PUSH_TIMEOUT_MS } from "../lib/auth/loginSession";
 import { forgetCloudReady } from "../lib/auth/sessionAudience";
 import { useStore } from "../lib/store";
-import { logout as authLogout } from "../services/authService";
+import { clearLocalAuthSession, logout as authLogout } from "../services/authService";
 import { cancelScheduledCloudPush, pushProgressToCloud } from "../services/cloudSyncCoordinator";
 
 export function useCloudSignOut() {
@@ -17,13 +19,24 @@ export function useCloudSignOut() {
 
   const signOut = useCallback(async (): Promise<string | null> => {
     if (cloudSession) {
-      await pushProgressToCloud();
+      // LGY-007 — a nuvem lenta ou fora do ar não pode prender o primeiro "Sair".
+      // Destino continua `/`: a landing é a casa de quem saiu, e o gate de
+      // logout exige as duas navegações para essa rota.
+      try {
+        await withTimeout(pushProgressToCloud(), SIGN_OUT_PUSH_TIMEOUT_MS);
+      } catch {
+        /* progresso fica no aparelho; o modal já avisou se estava pendente */
+      }
       cancelScheduledCloudPush();
-      const result = await authLogout();
+      try {
+        await withTimeout(authLogout(), SIGN_OUT_AUTH_TIMEOUT_MS);
+      } catch {
+        await clearLocalAuthSession();
+      }
       forgetCloudReady();
       endCloudSession();
       navigate("/", { replace: true });
-      return result.status === "ok" ? "Sessão encerrada. Seu progresso permanece salvo na nuvem." : result.message;
+      return "Sessão encerrada neste aparelho.";
     }
     logoutLocal();
     navigate("/", { replace: true });
