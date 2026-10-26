@@ -19,7 +19,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-009 | Recompensa de missão não aplicada | P1 | Onda 2 | 19 | aberto | — | Registrado. |
 | LGY-010 | Interpolação / digitação nas primeiras lições | P1 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | `joinSentence` tira `..`, `.?` e `?.` do enunciado. Reticências ficam. Fingerprint do currículo não mudou. |
 | LGY-011 | Etapa 你好 sem a peça 好 | P1 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | Passe 3 do laboratório responde 你好 e o banco inclui 好. `你` sozinho não passa. `你 好` e `你好。` passam. |
-| LGY-012 | Comparação de áudio sem "Não posso ouvir agora" | P1 | Onda 1 | 11 | aberto | — | Registrado. |
+| LGY-012 | Comparação de áudio sem "Não posso ouvir agora" | P1 | Onda 1 | 11 | em PR | [#369](https://github.com/matstangherlin/longyu/pull/369) | "Não posso ouvir agora" abre o modo visual na sessão. "Seguir sem avaliar" não gasta Fôlego nem vida. Erro mostra o tom. E2E `@qa-r17` no Chromium. |
 | LGY-013 | Reset: a UI promete código e o e-mail traz link | P1 | Fase 1 | 13 | aberto | — | Registrado. Templates e SMTP são humanos. |
 | LGY-014 | @apelido, convite e feed | P1 | Onda 2 | 08, 24 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366) | Parte cliente: sucesso ou erro no @apelido; social desligado explica e não mostra Salvar. Convite e feed continuam no prompt 24. |
 | LGY-015 | SRS gradua exposição | P1 | Onda 2 | 21 | aberto | — | Registrado. |
@@ -34,7 +34,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-024 | Contagens e idiomas misturados | P2 | Onda 2 | 23 | aberto | — | Registrado. |
 | LGY-025 | Revisão Free corta a fila antes de ordenar | P2 | Onda 2 | 23 | aberto | — | Registrado. |
 | LGY-026 | Concluir com ~0% e ganhar 2 estrelas | P2 | Onda 2 | 22 | aberto | — | Registrado. |
-| LGY-027 | 10,1% sem alvo de revisão | P2 | Onda 2 | 21 | aberto | — | Registrado. |
+| LGY-027 | 10,1% sem alvo de revisão | P2 | Onda 2 | 21 | aberto | — | Registrado. O prompt 11 agenda `pinyin`/`hard` só quando a etapa já tem alvo. Etapa sem alvo continua aqui. |
 | LGY-028 | 吧 com fonético de 马 | P2 | Onda 2 | 25 | aberto | — | Registrado. |
 | LGY-029 | Soft 404 e perfis públicos | P2 | Fase 1 | 16 | aberto | — | Registrado. |
 | LGY-030 | Bundle ~3 MB e cache | P2 | Fase 1 | 17 | aberto | — | Produção serve `index-BAuS39Wg.js` com 2 824 359 bytes (797 KB gzip). Medição do `main` fica no prompt 17. |
@@ -78,7 +78,7 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 | R-14 | Preflight `x-longyu-*` | Preflight responde 2xx | prompt 30, `@qa-staging` | `e2e/qa-regression-r14.spec.ts` (ainda não existe) | staging | não executado |
 | R-15 | Excluir conta | Conta some e a sessão encerra | prompt 30, `@qa-staging` | `e2e/qa-regression-r15.spec.ts` (ainda não existe) | staging | não executado |
 | R-16 | Lint de conteúdo | 0 violações | `npm run lint:content` | [#368](https://github.com/matstangherlin/longyu/pull/368) · `docs/qa-report-2026-10/LINT_CONTEUDO.md` | local | em PR — fases 1–2 em zero. Linha de base: 62 nas fases 3+ (CL003 6, CL004 4, CL005 4, CL006 2, CL007 46). Meta no fim da Onda 2: linha de base vazia. |
-| R-17 | Escuta sem áudio | Etapa concluível sem áudio e sem custo | prompt 30, `@qa-r17` | `e2e/qa-regression-r17.spec.ts` (ainda não existe) | local | não executado |
+| R-17 | Escuta sem áudio | Etapa concluível sem áudio e sem custo | `e2e/qa-listening-fallback.spec.ts` `@qa-r17` | [#369](https://github.com/matstangherlin/longyu/pull/369) · `CI=1 npx playwright test e2e/qa-listening-fallback.spec.ts --project=chromium` | preview local | em PR — Chromium 1/1. Contraste mā (1º) × má (2º). A rota de QA não mostra o medidor de Fôlego; o caminho não chama `spendFolego`. mobile-safari não executa este arquivo. |
 | R-18 | SRS | Item só apresentado não gradua; erro gera alvo | prompt 30, unitário | `npm run test:srs-evidence` (nome a confirmar no prompt 21) | local | não executado |
 | R-19 | Paywall | CTAs levam a páginas que existem | prompt 30, `@qa-r19` | `e2e/qa-regression-r19.spec.ts` (ainda não existe) | local | não executado |
 | R-20 | Desempenho | JS inicial < 300 KB gzip; cache imutável | prompt 30, passo de script | `npm run check:bundle-budget` depois de `npm run build` (prompt 17) | local | não executado |

@@ -142,6 +142,7 @@ export const SUITES = [
       "lint:content",
       "test:lint-content",
       "test:review-targets-equivalence",
+      "test:contrast-feedback",
       "validate:pedagogy-wave-one",
       "test:mastery-loop",
       "test:topic-mastery-path",
@@ -614,4 +615,5 @@ export const ADDED_STEPS = Object.freeze({
   "lint:content": "QA 2026-10 prompt 10 — lint de conteúdo; fases 1–2 sem violação; linha de base só encolhe.",
   "test:lint-content": "QA 2026-10 prompt 10 — fixtures das regras CL001–CL004 e a linha de base sem p1/p2.",
   "test:review-targets-equivalence": "QA 2026-10 prompt 10 — reviewTargetsForMistake extraído, digest de todas as etapas.",
+  "test:contrast-feedback": "QA 2026-10 prompt 11 — feedback do contraste auditivo, sem custo de escuta.",
 });
