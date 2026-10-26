@@ -1,3 +1,4 @@
+import { withTimeout as withTimeoutMs } from "../lib/async/withTimeout";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { getProgressScore, isMeaningfulProgress, type ProgressSnapshotBody } from "../lib/progressSnapshot";
 import { readUserCache, writeUserCache } from "../lib/auth/userCache";
@@ -43,21 +44,7 @@ let syncInFlight = false;
 let pendingPush = false;
 
 function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error("timeout"));
-    }, ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (error) => {
-        clearTimeout(timer);
-        reject(error);
-      }
-    );
-  });
+  return withTimeoutMs(promise, ms);
 }
 
 function markCloudSync(rawStatus: "loading" | "synced" | "pending" | "error", rawMessage: string): void {

@@ -37,6 +37,7 @@ export function LoginPage() {
   const [email, setEmail] = useState(activeAccount?.email ?? "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [timedOut, setTimedOut] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const cloudEnabled = isSupabaseBackendEnabled();
@@ -59,6 +60,10 @@ export function LoginPage() {
     });
   }, [cloudEnabled, navigate, postAuthPath, setAccountSetupComplete]);
 
+  function focusField(name: "identifier" | "password") {
+    document.querySelector<HTMLInputElement>(`input[name="${name}"]`)?.focus();
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -68,28 +73,43 @@ export function LoginPage() {
     setPassword(formPassword);
     if (!cloudEnabled) {
       setError(localizeUserMessage(BACKEND_UNAVAILABLE_MESSAGE));
+      setTimedOut(false);
       return;
     }
     setLoading(true);
     setError(null);
-    const result = await signIn(formEmail, formPassword);
-    if (!result.ok) {
-      setLoading(false);
-      if (result.pendingConfirmation && result.email) {
-        navigate(confirmEmailPath(result.email), { replace: true });
+    setTimedOut(false);
+    try {
+      const result = await signIn(formEmail, formPassword);
+      if (!result.ok) {
+        if (result.pendingConfirmation && result.email) {
+          navigate(confirmEmailPath(result.email), { replace: true });
+          return;
+        }
+        if (result.timedOut) {
+          setTimedOut(true);
+          setError(t("auth.errors.signInTimeout"));
+          focusField("password");
+          return;
+        }
+        const message = localizeUserMessage(result.message);
+        setError(message);
+        focusField(/email ou nome de usuário|email or username/i.test(result.message) ? "identifier" : "password");
         return;
       }
-      setError(localizeUserMessage(result.message));
-      return;
-    }
-    const audience = await resolveSessionAudience();
-    setLoading(false);
-    if (canEnterJourney(audience)) {
+      // LGY-006 — the token is in. Audience and sync run on the destination
+      // (RequireCloudSession) and in the background. They must not hold "Entrando…".
       setAccountSetupComplete(true);
       navigate(postAuthPath, { replace: true });
-      return;
+      void resolveSessionAudience().then((audience) => {
+        if (!canEnterJourney(audience)) navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
+      });
+    } catch {
+      setError(t("auth.errors.signInGeneric"));
+      focusField("password");
+    } finally {
+      setLoading(false);
     }
-    navigate(finalizeOnboardingPath(postAuthPath), { replace: true });
   }
 
   if (!cloudEnabled) {
@@ -129,13 +149,29 @@ export function LoginPage() {
           onEmail={(value) => {
             setEmail(value);
             setError(null);
+            setTimedOut(false);
           }}
           onPassword={(value) => {
             setPassword(value);
             setError(null);
+            setTimedOut(false);
           }}
           onSubmit={(event) => void handleSubmit(event)}
         />
+        {timedOut && (
+          <button
+            type="button"
+            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-ink"
+            data-testid="login-try-again"
+            onClick={() => {
+              setTimedOut(false);
+              setError(null);
+              focusField("password");
+            }}
+          >
+            {t("auth.tryAgain")}
+          </button>
+        )}
       </Card>
 
       <div className="mt-5 flex flex-col items-center gap-2 text-center text-sm text-ink-soft">

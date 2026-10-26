@@ -1,3 +1,4 @@
+import { isExpiredSessionFailure } from "../lib/auth/loginSession";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
@@ -290,15 +291,20 @@ export async function login(
   if (parsed.kind === "email") {
     const { data, error } = await client.auth.signInWithPassword({ email: cleanEmail, password });
     if (error) {
-      if (isUnconfirmedEmailError(error.message)) {
+      const code = (error as { code?: string }).code;
+      if (isExpiredSessionFailure({ status: error.status, message: error.message, code })) {
+        await client.auth.signOut({ scope: "local" }).catch(() => undefined);
+        return { status: "error", message: "Sua sessão expirou. Entre de novo." };
+      }
+      if (isUnconfirmedEmailError(error.message) || code === "email_not_confirmed") {
         return {
           status: "pending_confirmation",
           message: "Confirme seu email antes de entrar. Reenvie o link se precisar.",
           data: { id: "", email: cleanEmail, name: profile?.name },
         };
       }
-      if (/429|rate.?limit|too many/i.test(error.message)) return { status: "error", message: LOGIN_RATE_LIMITED };
-      if (isInvalidCredentialsError(error.message)) return { status: "error", message: GENERIC_LOGIN_ERROR };
+      if (error.status === 429 || /429|rate.?limit|too many/i.test(error.message)) return { status: "error", message: LOGIN_RATE_LIMITED };
+      if (code === "invalid_credentials" || isInvalidCredentialsError(error.message)) return { status: "error", message: GENERIC_LOGIN_ERROR };
       return { status: "error", message: error.message };
     }
     user = data.user;
@@ -342,8 +348,8 @@ export async function login(
   if (!user) return { status: "error", message: "Sessão não iniciada." };
 
   const fallbackName = (user.user_metadata?.name as string | undefined) ?? profile?.name;
-  const profileError = await ensureProfile(user.id, profile ?? profileFromName(fallbackName));
-  if (profileError) return { status: "error", message: profileError };
+  // LGY-006 — the token is enough to enter. Profile upsert must not hold the button.
+  void ensureProfile(user.id, profile ?? profileFromName(fallbackName));
 
   return {
     status: "ok",
@@ -467,6 +473,13 @@ export async function completePasswordRecovery(password: string): Promise<AuthSe
   return result;
 }
 
+/** Drops the Supabase session on this device even if the server revoke never returns. */
+export async function clearLocalAuthSession(): Promise<void> {
+  const client = getSupabaseClient();
+  if (!client) return;
+  await client.auth.signOut({ scope: "local" }).catch(() => undefined);
+}
+
 export async function logout(): Promise<AuthServiceResult> {
   if (!isSupabaseBackendEnabled()) return notImplemented();
   const client = getSupabaseClient();
@@ -487,7 +500,13 @@ export async function getCurrentUser(): Promise<AuthServiceResult<FutureAuthUser
   if (!client) return { ...notImplemented(), data: null };
 
   const { data, error } = await client.auth.getUser();
-  if (error) return { status: "error", message: error.message, data: null };
+  if (error) {
+    if (isExpiredSessionFailure({ status: error.status, message: error.message, code: (error as { code?: string }).code })) {
+      await clearLocalAuthSession();
+      return { status: "error", message: "Sua sessão expirou. Entre de novo.", data: null };
+    }
+    return { status: "error", message: error.message, data: null };
+  }
   const user = data.user;
   if (!user) return { status: "ok", message: "Sem sessão ativa.", data: null };
 
