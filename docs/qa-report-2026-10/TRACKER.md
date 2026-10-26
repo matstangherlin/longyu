@@ -13,8 +13,8 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-003 | Edge Functions não publicadas | P0 | Onda 1 | 03, 05 | em PR | [#363](https://github.com/matstangherlin/longyu/pull/363) | CORS no repo. Deploy humano. Placement e business continuam fora da allowlist. |
 | LGY-004 | CORS dos headers `x-longyu-*` | P0 | Onda 1 | 05 | em PR | [#363](https://github.com/matstangherlin/longyu/pull/363) | `browserAllowedHeaders()` nas funções do navegador. Produção só muda depois do workflow manual. |
 | LGY-005 | Progresso vaza entre contas | P0 | Onda 1 | 06 | em PR | [#364](https://github.com/matstangherlin/longyu/pull/364) | `buildCloudAccount` não copia mais a conta anterior. Logout guarda o slot e zera a casca. Claim só do anônimo `local`. E2E `@qa-r05` no Chromium. Contas QA já misturadas: reset humano. |
-| LGY-006 | Login sem erro e sem timeout | P1 | Onda 1 | 07 | aberto | — | Registrado. |
-| LGY-007 | Logout inconsistente e `/login` com sessão | P1 | Onda 1 | 07 | aberto | — | Registrado. |
+| LGY-006 | Login sem erro e sem timeout | P1 | Onda 1 | 07 | em PR | [#365](https://github.com/matstangherlin/longyu/pull/365) | Senha errada: alerta em pt-BR e botão "Entrar" de volta em < 3 s. Token lento: timeout + "Tentar de novo". Navegação sai de /login em < 2 s depois do 200. |
+| LGY-007 | Logout inconsistente e `/login` com sessão | P1 | Onda 1 | 07 | em PR | [#365](https://github.com/matstangherlin/longyu/pull/365) | Push de logout estoura em 4 s e a sessão local cai mesmo assim. /login e /comecar com sessão vão para /jornada. No celular, Sair fica em Mais e em /conta. |
 | LGY-008 | "Salvando…" infinito; nome não persiste | P1 | Onda 1 | 08 | aberto | — | Registrado. |
 | LGY-009 | Recompensa de missão não aplicada | P1 | Onda 2 | 19 | aberto | — | Registrado. |
 | LGY-010 | Interpolação / digitação nas primeiras lições | P1 | Onda 1 | 09 | aberto | — | Registrado. |
@@ -64,8 +64,8 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 |---|---|---|---|---|---|---|
 | R-01 | Schema em dia | 0 respostas 4xx do PostgREST em `/jornada`, `/perfil`, `/conta`, `/amigos` | `npm run check:schema-health` + `e2e/schema-drift-r01.spec.ts` `@qa-r01` | `scripts/check-schema-health.mjs` | preview local + produção só leitura | Health check de produção ainda exit 1. E2E local: páginas carregam, no máximo 1 request interceptado. |
 | R-02 | Cadastro e reset | Mensagens corretas; link expirado tratado | prompt 30, `@qa-staging` | `e2e/qa-regression-r02.spec.ts` (ainda não existe) | staging | não executado |
-| R-03 | Login inválido | Mensagem pt-BR em menos de 3 s; botão volta | prompt 30, `@qa-r03` | `e2e/qa-regression-r03.spec.ts` (ainda não existe) | local | não executado |
-| R-04 | Login e logout | Sai no primeiro clique; `/login` logado redireciona | prompt 30, `@qa-r04` | `e2e/qa-regression-r04.spec.ts` (ainda não existe) | local | não executado |
+| R-03 | Login inválido | Mensagem pt-BR em menos de 3 s; botão volta | `e2e/qa-auth-session.spec.ts` `@qa-r03` | `npx playwright test e2e/qa-auth-session.spec.ts --project=chromium` | preview local, token simulado | em PR — Chromium: senha errada < 3 s; timeout devolve o botão. |
+| R-04 | Login e logout | Sai no primeiro clique; `/login` logado redireciona | `e2e/qa-auth-session.spec.ts` `@qa-r04` | mesmo spec | preview local | em PR — logout com a nuvem travada < 12 s no topo e em Mais (390 px). /login e /comecar logados vão para /jornada. WebKit não instalado nesta máquina. |
 | R-05 | Isolamento entre contas | Progresso de uma conta não aparece na outra | `e2e/qa-account-isolation.spec.ts` `@qa-r05` | `npx playwright test e2e/qa-account-isolation.spec.ts --project=chromium` | preview local | em PR — Chromium 2/2 depois da correção. Antes: Bruno herdava @anafree, 474 XP, 7 lições e sequência 2; logout apagava o slot de Ana. mobile-safari não executa este arquivo (o projeto só inclui `mobile-device.spec.ts`). |
 | R-06 | Perfil | Nome persiste; indicador de salvamento termina | prompt 30, `@qa-r06` | `e2e/qa-regression-r06.spec.ts` (ainda não existe) | local | não executado |
 | R-07 | Cargas Free | Cobra 1/0/0/1; 0/5 persiste | prompt 30, `@qa-r07` | `e2e/qa-regression-r07.spec.ts` (ainda não existe) | local | não executado |
