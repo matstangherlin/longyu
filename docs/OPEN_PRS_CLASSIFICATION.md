@@ -1,3 +1,21 @@
+# Classificação de PRs abertos
+
+## Leitura de 26/10/2026 (LGY-045)
+
+`gh pr list --state open` nesta data: **94 abertas** (33 prontas para review, 61 draft). Nenhuma foi fechada nem comentada.
+
+Decisão do plano de QA, ainda não executada:
+
+| PR | Decisão |
+|---|---|
+| #357 Chinese Living Canvas | **Fora da primeira beta.** Canvas animado e motion novo estão no congelamento. Não mergear nesta onda. |
+| #358 Design system / contraste de texto | **Pode entrar só com uma RC nova** e com todos os gates verdes no SHA exato desse PR. É a exceção de acessibilidade citada no congelamento, não um merge solto. |
+| #359 Linha de base do QA | Prompt 01. Base do prompt 02. Não é produto. |
+
+O resto das PRs prontas é, em maioria, onda RC antiga (#271–#303) ou bump de dependência (Dependabot, inclusive `gitleaks/gitleaks-action` 2 → 3 e Vite 6 → 8). Não entram nesta higiene. Bump major fica para uma revisão própria. Os drafts #315–#353 parecem ondas já cobertas por merges até #356; confirmar o diff residual antes de fechar. Este arquivo não autoriza fechar nada.
+
+A classificação de julho/2026, abaixo, foi feita no `7d12997`. Os números #4–#43 não estão mais na lista aberta.
+
 # Classificação de PRs abertos (auditoria 2026-07-21)
 
 **Base:** `main` @ `7d12997` (+ correções da auditoria).  

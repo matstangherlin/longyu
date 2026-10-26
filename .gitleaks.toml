@@ -28,4 +28,9 @@ regexes = [
   '''sk_live_abcdefghijklmnopqrs[t]uvwxyz99''',
   # RC2.3.10 SECRET_IN_BUNDLE mutation (FALSE_POSITIVE): alphabet filler Sentry auth token shape.
   '''sntrys_abcdefghijklmnopqrstuvwxyz012345''',
+  # Historical kill in scripts/test-rc2-candidate-infra.mjs (4d48e2cf, still present at e7baf0f3):
+  # exact alphabet filler sk_live_ + "abcdefghijklmnopqrst" inside a SECRET_IN_FRONTEND mutation.
+  # The [t] class keeps this file from containing a contiguous sk_live_ literal. Anchored so it
+  # cannot match a longer key that merely starts with the same letters. LGY-037.
+  '''^sk_live_abcdefghijklmnopqrs[t]$''',
 ]
