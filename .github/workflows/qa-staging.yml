@@ -1,0 +1,43 @@
+name: QA staging (manual)
+
+# LGY-039. Não roda em push nem em pull_request.
+# Secrets no GitHub, sem valores neste arquivo:
+# LONGYU_STAGING_PROJECT_ID, SUPABASE_ACCESS_TOKEN,
+# STAGING_SUPABASE_URL, STAGING_SUPABASE_ANON_KEY,
+# STAGING_SUPABASE_SERVICE_ROLE_KEY, STAGING_WEB_URL.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-staging:
+    name: Schema, RLS e fumaça no staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Chromium do Playwright
+        run: npx playwright install chromium --with-deps
+
+      - name: qa:staging
+        env:
+          LONGYU_STAGING_PROJECT_ID: ${{ secrets.LONGYU_STAGING_PROJECT_ID }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STAGING_WEB_URL: ${{ secrets.STAGING_WEB_URL }}
+          PLAYWRIGHT_BASE_URL: ${{ secrets.STAGING_WEB_URL }}
+          ALLOW_STAGING_SECURITY_TESTS: "true"
+        run: npm run qa:staging
