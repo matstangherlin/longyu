@@ -11,7 +11,7 @@
   ignore = "node scripts/netlify-ignore-build.mjs"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   # Garante binários nativos do Rollup no Linux (evita "Cannot write module @rollup/rollup-linux-x64-gnu").
   NPM_FLAGS = "--include=optional"
   VITE_APP_VERSION = "0.2.0-rc.5"

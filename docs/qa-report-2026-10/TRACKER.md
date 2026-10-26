@@ -44,15 +44,15 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-034 | Sem horário de renovação das Cargas | P3 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-035 | Busca desligada sem indicação | P3 | Fase 1 | 16 | aberto | — | Registrado. |
 | LGY-036 | Erros no console | P3 | Onda 1 | 04, 23 | aberto | — | Registrado. |
-| LGY-037 | Gitleaks vermelho | P2 | Fase 0 | 02 | aberto | — | Registrado. Não investigado neste prompt. |
-| LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | aberto | — | API de protection do `main` respondeu 403 para o token deste agente. Não prova ausência nem presença. |
+| LGY-037 | Gitleaks vermelho | P2 | Fase 0 | 02 | em PR | `cursor/qa-02-higiene-seguranca-b56e` | Scan do histórico: 8 achados. Fixture Stripe allowlist exata. Os 6 JWTs restantes são `role: anon` do projeto `drjcfalvlbbeblmmyhwj`; nenhum `service_role`. O scan agendado continua vermelho até decisão humana sobre allowlist da anon key pública. |
+| LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | em PR | `cursor/qa-02-higiene-seguranca-b56e` | Guia em `BRANCH_PROTECTION.md`. A proteção em si não foi ligada. API de protection do `main` respondeu 403 para o token deste agente. |
 | LGY-039 | Sem staging | P2 | Fase 1 | 03, 12 | aberto | — | Registrado. Criar o projeto é humano. |
 | LGY-040 | Privacidade, termos, LGPD e CDC | P2 | Fase 1 | 15 | aberto | — | Registrado. Dados do controlador ficam em branco até o Matty preencher. |
 | LGY-041 | Menores de 18 | P2 | Fase 1 | 15 | aberto | — | Padrão recomendado: só 18+ na beta fechada. Sem decisão confirmada. |
 | LGY-042 | Sem "Reportar problema" | P2 | Fase 1 | 14 | aberto | — | Registrado. |
-| LGY-043 | Versão, tag e release | P3 | Fase 0 / Fase 1 | 02, 14 | aberto | — | Produção anuncia `0.2.0-beta.1`; `package.json` e `netlify.toml` no `main` dizem `0.2.0-rc.5`. Tag/release continuam humanas. |
+| LGY-043 | Versão, tag e release | P3 | Fase 0 / Fase 1 | 02, 14 | em PR | `cursor/qa-02-higiene-seguranca-b56e` | Só a parte Node/README: `NODE_VERSION` 20 → 22. Tag e GitHub Release continuam no prompt 14. |
 | LGY-044 | Google Play: chaves e teste fechado | P3 | Fase 1 / Fase 3 | 18 | aberto | — | Registrado. |
-| LGY-045 | Higiene do repositório | P3 | Fase 0 | 02 | aberto | — | Registrado. Repo público na linha de base (ver D2). |
+| LGY-045 | Higiene do repositório | P3 | Fase 0 | 02 | em PR | `cursor/qa-02-higiene-seguranca-b56e` | README reescrito no topo; `.env.production` auditado (só valores públicos); classificação de PRs atualizada. Repo continua público (D2 não executada). |
 | LGY-046 | Escopo grande para uma pessoa | P3 | Fase 1 | 16 | aberto | — | Risco de capacidade. O prompt 16 trata a parte "esconder o que não é o loop principal". |
 | LGY-047 | WebKit instável nos E2E | P3 | Fase 1 | 18, 30 | aberto | — | Este prompt rodou só Chromium. WebKit ficou de fora de propósito. |
 

@@ -36,7 +36,7 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 
 | ID | Prompt | Pergunta | Opções | Padrão recomendado | Decisão do Matty |
 |---|---|---|---|---|---|
-| Node | 02 | Versão do Node no README, Netlify e CI | (a) 22 em tudo · (b) `engines` em 20 | (a) 22, se os workflows já usam 22 | ____ (data) |
+| Node | 02 | Versão do Node no README, Netlify e CI | (a) 22 em tudo · (b) `engines` em 20 | (a) 22, se os workflows já usam 22 | padrão (a) aplicado pelo agente em 26/10/2026; confirmação do Matty: ____ (data) |
 | Business | 05 | Publicar `submit-business-lead` na beta? | (a) manter `/business` escondido · (b) publicar | (a) | ____ (data) |
 | Nome de conta | 08 | Fallback quando não há nome | (a) "Aluno" · (b) parte do e-mail · (c) pedir no 1º acesso | (c), com (a) só no último recurso; nunca "Aluno local" em conta cloud | ____ (data) |
 | Nome no diálogo | 09 | Nome quando o aluno não tem nome utilizável | (a) "[seu nome]" + nome-modelo falado · (b) nome-modelo fixo · (c) pedir antes da lição | (c) + (b) como fallback; nunca "você" no lugar do nome; nunca "Matheus" se o aluno tem nome | ____ (data) |

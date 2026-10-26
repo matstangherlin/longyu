@@ -11,7 +11,7 @@ Prompt 01. Nenhum bug foi corrigido. Produção foi lida só com GET.
 | Mensagem | Merge #356: RC2.3.13R.3.2.5 — Premium surfaces, reward ritual, resilient states & UX closure |
 | Data do commit | 16/10/2026 21:01:29 -0300 |
 | Conferência com o pacote | o commit citado no pacote (`98967c39`) é o HEAD do `main` |
-| Node | v22.23.4 (`package.json` pede `>=22`; `netlify.toml` ainda diz `NODE_VERSION = "20"`) |
+| Node | v22.23.4 (`package.json` pede `>=22`). Nesta medição o `netlify.toml` ainda dizia `NODE_VERSION = "20"`; o prompt 02 alinha esse valor para 22 |
 | npm | 10.9.7 |
 | Working tree no início | `package-lock.json` modificado só no campo `version` (`0.2.0-rc.2` → `0.2.0-rc.5`). Restaurado. Fora deste PR. `npm ci` passou mesmo com essa diferença no lock commitado |
 
