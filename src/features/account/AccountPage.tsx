@@ -55,6 +55,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { localizedAchievementTitle } from "../../i18n/achievements";
 import { FriendsProfileCard } from "../../components/social/FriendsProfileCard";
+import { isSocialSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
@@ -2497,7 +2498,7 @@ export function AccountPage() {
         </div>
       </HubContentCard>
 
-      <FriendsProfileCard />
+      {isSocialSurfaceEnabled() ? <FriendsProfileCard /> : null}
 
       <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <section ref={accountProfileRef} className="scroll-mt-4">

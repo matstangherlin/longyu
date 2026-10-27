@@ -1,7 +1,7 @@
 import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
 import { DisplayNameField } from "../conta/DisplayNameField";
 import { displayNameForAccount } from "../../lib/displayName";
-import { isBackendDomainAvailable } from "../../lib/cloud/backendCapability";
+import { isSocialSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useStore, type MandarinDisplayMode, type SoundTheme, type ThemeName, type TranslationMode } from "../../lib/store";
@@ -357,7 +357,7 @@ export function SettingsPage() {
                 <p className="text-sm text-ink-soft">
                   {t("settings.needCloudForFriends")}
                 </p>
-              ) : !isBackendDomainAvailable("social") ? (
+              ) : !isSocialSurfaceEnabled() ? (
                 <p className="text-sm text-ink-soft" data-testid="username-unavailable">
                   {t("settings.friendsComing")}
                 </p>

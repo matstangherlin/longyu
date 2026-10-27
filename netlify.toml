@@ -80,6 +80,40 @@
   VITE_ENABLE_TELEMETRY = "false"
   VITE_ENABLE_BETA_FEEDBACK = "false"
 
+# LGY-029 — perfis públicos e @ não existem na beta. Estas regras vêm
+# antes do catch-all: no Netlify a primeira que casa vence.
+# /perfil (exato) continua sendo a rota do app.
+[[redirects]]
+  from = "/u/*"
+  to = "/index.html"
+  status = 404
+
+[[redirects]]
+  from = "/u"
+  to = "/index.html"
+  status = 404
+
+[[redirects]]
+  from = "/@*"
+  to = "/index.html"
+  status = 404
+
+[[redirects]]
+  from = "/perfil/*"
+  to = "/index.html"
+  status = 404
+
+# O app usa /ajustes e /config. /configuracoes era 404 no teste de 26/10.
+[[redirects]]
+  from = "/configuracoes"
+  to = "/ajustes"
+  status = 301
+
+[[redirects]]
+  from = "/configuracoes/*"
+  to = "/ajustes"
+  status = 301
+
 # SPA: qualquer rota (/som, /licao/:id, etc.) cai no index.html.
 # Sem isso, atualizar a página numa rota interna daria 404.
 [[redirects]]

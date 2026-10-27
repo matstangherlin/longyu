@@ -34,6 +34,33 @@ export function isBetaFeedbackEnabled(
   return flagEnabled(env.VITE_ENABLE_BETA_FEEDBACK, true);
 }
 
+type ProductSurfaceEnv = AppEnvironmentInput & {
+  VITE_ENABLE_SOCIAL?: string;
+  VITE_ENABLE_BUSINESS?: string;
+};
+
+/**
+ * LGY-032 — decisão de produto, separada do backend.
+ * production_beta e qa_candidate ficam desligados até VITE_ENABLE_SOCIAL=true.
+ * Dev/preview seguem ligados para a suíte que já abre /amigos.
+ */
+export function isSocialProductEnabled(
+  env: ProductSurfaceEnv = import.meta.env as ProductSurfaceEnv
+): boolean {
+  const raw = env.VITE_ENABLE_SOCIAL;
+  if (raw !== undefined && String(raw).trim() !== "") return flagEnabled(String(raw), false);
+  return !isProductionLikeEnv(env);
+}
+
+/** LGY-046 — /business na beta fechada fica escondido até VITE_ENABLE_BUSINESS=true. */
+export function isBusinessProductEnabled(
+  env: ProductSurfaceEnv = import.meta.env as ProductSurfaceEnv
+): boolean {
+  const raw = env.VITE_ENABLE_BUSINESS;
+  if (raw !== undefined && String(raw).trim() !== "") return flagEnabled(String(raw), false);
+  return !isProductionLikeEnv(env);
+}
+
 export type CloudOnboardingV2Env = AppEnvironmentInput & {
   VITE_CLOUD_ONBOARDING_V2_ENABLED?: string;
 };

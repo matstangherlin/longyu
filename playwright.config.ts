@@ -89,7 +89,7 @@ export default defineConfig({
     // Chrome Android (touch, 393×851, DPR alto).
     {
       name: "mobile-chrome",
-      testMatch: [DEVICE_SPEC, "**/qa-feedback-entry.spec.ts", "**/qa-legal-pages.spec.ts", "**/privacy-consent.spec.ts"],
+      testMatch: [DEVICE_SPEC, "**/qa-feedback-entry.spec.ts", "**/qa-legal-pages.spec.ts", "**/privacy-consent.spec.ts", "**/qa-social-visibility.spec.ts"],
       use: { ...devices["Pixel 5"], ...chromiumLaunch },
     },
     // Safari iOS (WebKit, touch). Exige webkit instalado.

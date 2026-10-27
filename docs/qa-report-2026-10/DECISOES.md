@@ -46,7 +46,10 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 | Reportar | 14 | Onde fica a entrada no celular | (a) menu do perfil/Mais + tela de erro · (b) botão flutuante | (a) | ____ (data) |
 | Canal humano | 14 | Para onde o relato vai | WhatsApp ou Telegram | link só em doc privado / convite; não versionar se o repo for público | ____ (data) |
 | Menores | 15 | Menores de 18 na beta fechada | (a) só 18+ · (b) 13–17 com responsável · (c) livre | (a), revisar antes da beta pública | ____ (data) |
-| Social | 16 | Esconder ou concluir Amigos | (a) esconder até o backend existir · (b) concluir (prompt 24) | (a); `/amigos` vai para `/perfil` | ____ (data) |
+| Social | 16 | Esconder ou concluir Amigos | (a) esconder até o backend existir · (b) concluir (prompt 24) | (a); `/amigos` vai para `/perfil` | padrão (a) aplicado em 26/10/2026; confirmação do Matty: ____ (data) |
+| Business na beta | 16 | Mostrar `/business` | (a) esconder · (b) manter | (a) | padrão (a) aplicado em 26/10/2026; confirmação do Matty: ____ (data) |
+| Indicação | 16 | Recompensa por convite | agora ou depois | adiar (LGY-035) | adiado em 26/10/2026; confirmação do Matty: ____ (data) |
+| Perfil público | 16 | `/u/:username` na beta | sim ou não | não | 404 em `/u/*` e `/@*`; confirmação do Matty: ____ (data) |
 | Economia | 20 | Fonte canônica de Cargas | (a) `energyPolicy.ts` · (b) `economy.ts` | (a); `economy.ts` só constantes | ____ (data) |
 | Pinyin/Hànzì | 20 | Cobrar Pinyin Lab, Hànzì, Som, Fala, Leitura? | (a) não · (b) sim | (a) não cobrar; copy "Grátis" | ____ (data) |
 | Imersão | 20 | Imersão sem Cargas | (a) bloqueia áudio e libera histórias · (b) bloqueia tudo · (c) libera tudo | a regra que o código já cobra em `immersion_session`; banner igual ao código | ____ (data) |

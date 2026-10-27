@@ -48,6 +48,8 @@ export const SUITES = [
       "validate:edge-cors",
       "validate:social-profile-security",
       "validate:seo",
+      "test:social-surface",
+      "test:netlify-404-rules",
       "validate:production-no-fixtures",
       "validate:rc2-content-freeze",
       "test:rc2-content-freeze",
@@ -618,4 +620,6 @@ export const ADDED_STEPS = Object.freeze({
   "test:review-targets-equivalence": "QA 2026-10 prompt 10 — reviewTargetsForMistake extraído, digest de todas as etapas.",
   "test:contrast-feedback": "QA 2026-10 prompt 11 — feedback do contraste auditivo, sem custo de escuta.",
   "test:legal-draft": "QA 2026-10 prompt 15 — [PREENCHER] só na beta fechada; VITE_PUBLIC_RELEASE=true recusa o rascunho.",
+  "test:social-surface": "QA 2026-10 prompt 16 — Amigos e Business desligados na beta; o e2e não religa produção.",
+  "test:netlify-404-rules": "QA 2026-10 prompt 16 — 404 de /u, /@ e /perfil/* antes do catch-all, sem pegar rota real.",
 });
