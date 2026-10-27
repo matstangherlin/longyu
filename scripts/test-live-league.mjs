@@ -64,6 +64,7 @@ assert.equal(publicDisplayName(""), "Aluno");
 assert.equal(publicDisplayName("Aluno demo 12"), "Aluno");
 assert.equal(publicDisplayName("Ana"), "Ana");
 assert.equal(publicDisplayName("x", true), "Você");
+assert.equal(publicDisplayName("Aluno local"), "Aluno");
 console.log("KILLED 22 empty name is Aluno not Aluno Demo");
 
 const pending = resolveLeagueSurface({

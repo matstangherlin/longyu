@@ -45,6 +45,7 @@ export const SUITES = [
       "test:schema-drift",
       "test:stale-bundle",
       "test:bundle-budget",
+      "test:economy-reconcile",
       "validate:security-boundaries",
       "validate:edge-cors",
       "validate:social-profile-security",
@@ -624,4 +625,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:social-surface": "QA 2026-10 prompt 16 — Amigos e Business desligados na beta; o e2e não religa produção.",
   "test:netlify-404-rules": "QA 2026-10 prompt 16 — 404 de /u, /@ e /perfil/* antes do catch-all, sem pegar rota real.",
   "test:bundle-budget": "QA 2026-10 prompt 17 — teto do entry e meta de 300 KB gzip, com a meta ainda desligada.",
+  "test:economy-reconcile": "QA 2026-10 prompt 19 — snapshot não apaga Qi pendente; replay não rende Qi.",
 });

@@ -1,3 +1,4 @@
+import { isPlaceholderDisplayName } from "./displayName";
 import type { LeagueStandingRow } from "./leagues";
 import type { LeagueDataMode, LeagueDataPayload } from "../services/leagueService";
 
@@ -70,7 +71,7 @@ export function resolveLeagueSurface(input: {
 export function publicDisplayName(name: string | undefined | null, isMe = false): string {
   if (isMe) return "Você";
   const clean = String(name ?? "").trim();
-  if (!clean || /^aluno\s*demo/i.test(clean)) return "Aluno";
+  if (!clean || isPlaceholderDisplayName(clean) || /^aluno\s*demo/i.test(clean)) return "Aluno";
   return clean;
 }
 

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 1002,
+    "CANONICAL": 1003,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1211,
+  "total": 1212,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -4072,6 +4072,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-progression"
+    },
+    {
+      "gateId": "test:economy-reconcile",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-economy-reconcile.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:economy-server",
@@ -21916,5 +21934,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "f68eda08a9037eb8"
+  "evidenceDigest": "14c45542ef2a5e6d"
 }

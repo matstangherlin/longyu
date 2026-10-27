@@ -1,4 +1,5 @@
 import { syncItemMatchesSession } from "./auth/accountIsolation";
+import { reconcileEconomyBalance } from "./economyReconcile";
 import { isSupabaseBackendEnabled } from "./backendConfig";
 import { BACKEND_CAPABILITY_MISSING, isBackendDomainAvailable } from "./cloud/backendCapability";
 import { getSupabaseClient } from "./supabaseClient";
@@ -66,11 +67,28 @@ function normalizeClaimed(raw: unknown): Record<string, number> {
 }
 
 export function applyServerEconomyToStore(snapshot: ServerEconomySnapshot): void {
-  useStore.getState().setEconomySyncMessage(null);
+  // LGY-018: fila pendente segura Qi/Cargas locais acima do snapshot.
+  // Fila vazia: o servidor vence, mesmo com saldo menor.
+  const before = useStore.getState();
+  const accountId = before.currentAccountId;
+  const userId = accountId.startsWith("cloud:") ? accountId.slice("cloud:".length) : null;
+  const pendingCount = listEconomyIntents().filter((intent) =>
+    syncItemMatchesSession(intent, { accountId, userId })
+  ).length;
+  const reconciled = reconcileEconomyBalance(
+    { qi: before.points, charges: before.dailyEnergy.charges },
+    { qi: snapshot.qi, charges: snapshot.current_charges },
+    pendingCount
+  );
+  useStore.getState().setEconomySyncMessage(
+    reconciled.heldLocalGrant
+      ? "Seu Qi neste aparelho espera a sincronização. Não foi descartado."
+      : null
+  );
   useStore.setState((s) => {
     const dailyEnergy = {
       ...s.dailyEnergy,
-      charges: snapshot.current_charges,
+      charges: reconciled.charges,
       maxCharges: snapshot.max_charges,
       date: snapshot.energy_day,
     };
@@ -108,7 +126,7 @@ export function applyServerEconomyToStore(snapshot: ServerEconomySnapshot): void
           ...s.accounts,
           [s.currentAccountId]: {
             ...account,
-            points: snapshot.qi,
+            points: reconciled.qi,
             dragonPearls: snapshot.dragon_pearls,
             streakShields: snapshot.streak_shields,
             dailyEnergy,
@@ -121,7 +139,7 @@ export function applyServerEconomyToStore(snapshot: ServerEconomySnapshot): void
       : s.accounts;
 
     return {
-      points: snapshot.qi,
+      points: reconciled.qi,
       dragonPearls: snapshot.dragon_pearls,
       streakShields: snapshot.streak_shields,
       dailyEnergy,

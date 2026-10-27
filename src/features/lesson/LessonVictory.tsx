@@ -61,6 +61,7 @@ export function LessonVictory({
   completionKind,
   completion,
   progress,
+  footnote,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -104,6 +105,7 @@ export function LessonVictory({
   completion?: { lessonId: string; completionId: string };
   /** Rodada do tema antes → depois desta conclusão (só aparece se avançou). */
   progress?: { before: number; after: number; total: number } | null;
+  footnote?: string;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const hapticsOn = useStore((s) => s.hapticsEnabled !== false);
@@ -296,6 +298,9 @@ export function LessonVictory({
             </p>
           ) : summary.greeting ? (
             <p className="mt-1 text-sm text-ink-soft">{summary.greeting}</p>
+          ) : null}
+          {footnote ? (
+            <p className="mt-2 text-sm text-ink-soft" data-testid="replay-no-qi">{footnote}</p>
           ) : null}
 
           {topicLines ? (

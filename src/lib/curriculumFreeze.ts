@@ -36,16 +36,21 @@ export const CURRICULUM_FREEZE = "RC2_CONTENT_FREEZE" as const;
 export const FEATURE_FREEZE = "PUBLIC_BETA" as const;
 
 /**
- * RC2.3.13R.3.1 — PRE_BETA_FREEZE_EXCEPTION.
- *
- * Real-device owner QA exposed beta blockers (canonical exercise skips, audio
- * truncation, personalized utterance cuts, distractor leakage, visual
- * repetition, mobile activity fit). This exception allows learner-runtime
- * correctness fixes only — not product redesign or curriculum expansion.
- *
- * Reason: REAL_DEVICE_BETA_BLOCKER_FIX
- * Counts stay frozen: 134 lessons, 113 topics, 36 CultureItems.
+ * QA 2026-10 — LGY-009, LGY-018, LGY-019, LGY-020.
+ * O snapshot do servidor não apaga Qi/Cargas enquanto a fila local tem crédito.
+ * Não muda valor de recompensa, preço nem moeda.
  */
+export const PRE_BETA_FREEZE_EXCEPTION_QA19 = {
+  id: "QA_2026_10_ECONOMY_RECONCILE",
+  reason: "LGY-009 LGY-018 LGY-019 LGY-020",
+  allows: [
+    "keep local Qi and charges while an economy intent is pending",
+    "league rows never show Aluno local",
+    "streak modal once per mark on the account",
+  ],
+  forbids: ["new currency", "reward amount changes", "new lessons", "new topics"],
+} as const;
+
 export const PRE_BETA_FREEZE_EXCEPTION = {
   id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
   reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
@@ -531,6 +536,8 @@ export const BETA_PEDAGOGY_FREEZE = {
     // PRE_BETA_FREEZE_EXCEPTION_R325): no currency, rule, amount or grant timing.
     "src/lib/economyPending.ts",
     "src/lib/economyServerBridge.ts",
+    // QA 2026-10 LGY-009/018 — reconciliação do snapshot, sem moeda nova.
+    "src/lib/economyReconcile.ts",
     "src/lib/economyTypes.ts",
     "src/lib/leagueLiveFixture.ts",
     "src/lib/leagueLiveView.ts",
