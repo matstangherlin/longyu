@@ -351,6 +351,9 @@ export const ptBR = {
     creatingAccount: "Criando conta...",
     createAccountCta: "Criar minha conta e salvar o resultado",
     birthDate: "Data de nascimento",
+    adultConfirm: "Tenho 18 anos ou mais.",
+    adultRequired: "A beta fechada é só para quem tem 18 anos ou mais.",
+    legalConsent: "Ao criar a conta você concorda com os Termos e a Política de privacidade.",
     country: "País",
     howDidYouHear: "Como conheceu o Longyu?",
     selectOptional: "Selecione (opcional)",
@@ -2422,7 +2425,26 @@ export const ptBR = {
   },
   privacyNotice: {
     account:
-      "Dados da conta: para criar conta pedimos email e nome; data de nascimento, país, como conheceu o Longyu e se aceita emails são opcionais. Servem para login, perfil, idioma e a comunicação que você autorizou.",
+      "Dados da conta: para criar conta pedimos email e nome, e a confirmação de que você tem 18 anos ou mais. País, como conheceu o Longyu e se aceita emails são opcionais. A data de nascimento não é pedida. Servem para login, perfil, idioma e a comunicação que você autorizou.",
+    controller:
+      "Controlador: [PREENCHER: nome ou razão social, documento, endereço e e-mail do encarregado]. Este texto é rascunho da beta fechada e não substitui revisão de advogado.",
+    purposes:
+      "Finalidades e bases sugeridas, sujeitas à revisão jurídica: executar o contrato de uso da conta (login, progresso, sincronização); consentimento para telemetria pedagógica, marketing e microfone; obrigação legal para registros que a lei exigir guardar, se a cobrança for ativada.",
+    sharing:
+      "Compartilhamento: Supabase (conta e banco, em geral EUA), Netlify (site), Cloudflare Turnstile (cadastro), Stripe (pagamento, só quando a cobrança existir), Sentry (erros, só se houver DSN). A fala pode ser processada pelo serviço de voz do próprio aparelho ou do navegador. Não vendemos lista de alunos.",
+    retention:
+      "Retenção: progresso e conta ficam enquanto a conta existir. Telemetria segue o consentimento. Diagnóstico técnico fica na sessão do aparelho. Depois da exclusão, o que a lei mandar guardar (por exemplo pagamento, se houver) permanece só pelo prazo legal.",
+    rights:
+      "Direitos do titular: confirmação, acesso, correção, anonimização, portabilidade, eliminação, informação sobre compartilhamento e revogação do consentimento.",
+    exercise:
+      "Como exercer: escreva para {email} com o assunto “Exercer meus direitos LGPD”, a partir do email da conta. O prazo informado neste rascunho é de 15 dias, sujeito à revisão do advogado. Exportar: Ajustes → Privacidade e dados. Excluir: Conta → Excluir conta na nuvem.",
+    exerciseCta: "Exercer meus direitos",
+    minors:
+      "Menores: na beta fechada o cadastro é só para quem tem 18 anos ou mais. Não pedimos data de nascimento. Não há conta de criança nem consentimento de responsável neste momento. Antes da beta pública isso será revisto, inclusive pelas regras do Google Play.",
+    storage:
+      "Cookies e armazenamento local: o app guarda o progresso no navegador (localStorage, chave longyu-v1) e pode usar um service worker para abrir offline. Não usamos cookie de anúncio.",
+    changes:
+      "Alterações: a política pode mudar. A data e o texto novos ficam nesta página.",
     identity:
       "Nome de usuário: o @nome que você escolhe é a sua identidade social (amigos e ligas encontram você por ele). Ele pode aparecer para outros alunos; o email nunca aparece e nunca é usado para encontrar você.",
     microphone:
@@ -2473,6 +2495,13 @@ export const ptBR = {
       "Mudanças no serviço: podemos ajustar funcionalidades, limites e estes termos da beta. Alterações relevantes serão refletidas nesta página.",
     termination:
       "Encerramento e exclusão: você pode solicitar exclusão da conta na nuvem ou limpar dados locais. Podemos suspender contas que violem o uso aceitável.",
+    minors: "Idade: na beta fechada a conta é só para quem tem 18 anos ou mais.",
+    liability:
+      "Limitação: o serviço é oferecido como está, em beta. Não prometemos resultado de aprendizagem. Nada aqui afasta direito que a lei não deixe afastar.",
+    subscription:
+      "Assinatura: esta seção vigora quando a cobrança for ativada. Na beta fechada a cobrança não está ligada. Quando existir, o rascunho prevê teste de 30 dias, renovação automática até o cancelamento, e o direito de arrependimento de 7 dias na contratação fora do estabelecimento (CDC art. 49), a confirmar com advogado, com reembolso pelo mesmo meio quando a lei exigir.",
+    venue:
+      "Foro: [PREENCHER: cidade e foro]. Até a revisão do advogado, não há eleição de foro fechada neste rascunho.",
     contact: "Contato: {email}",
   },
   achievements: {

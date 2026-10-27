@@ -47,7 +47,7 @@ import { captureReferralFromSearch } from "../../lib/referralCapture";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
-import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { AdultAgeGate, ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { formatDateTime } from "../../i18n/format";
@@ -1589,6 +1589,7 @@ export function AccountPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [adultConfirmed, setAdultConfirmed] = useState(false);
   const [country, setCountry] = useState(LAUNCH_COUNTRY_CODE);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [signupSourceForm, setSignupSourceForm] = useState("");
@@ -1854,7 +1855,7 @@ export function AccountPage() {
   function buildSignupProfile(accountName: string): ProfileDetails {
     return {
       name: firstName(accountName),
-      birthDate: birthDate.trim() || null,
+      birthDate: null,
       country: country.trim() || null,
       signupSource: (source ?? signupSourceForm.trim()) || null,
       marketingOptIn,
@@ -1871,6 +1872,10 @@ export function AccountPage() {
           ? "Preencha email, senha e confirmação para criar sua conta."
           : "Preencha email, senha e confirmação para preparar uma conta agora."
       );
+      return;
+    }
+    if (!adultConfirmed) {
+      setAccountError(t("onboarding.adultRequired"));
       return;
     }
     setIsFinishingOnboarding(true);
@@ -1927,6 +1932,10 @@ export function AccountPage() {
           ? "Use um email válido e uma senha de pelo menos 6 caracteres."
           : "Use um email válido e uma senha de pelo menos 6 caracteres para preparar a conta (a senha não é salva)."
       );
+      return;
+    }
+    if (!adultConfirmed) {
+      setAccountError(t("onboarding.adultRequired"));
       return;
     }
     const accountName = activeAccount?.name ?? "Aluno Longyu";
@@ -2218,6 +2227,8 @@ export function AccountPage() {
             onCountry={setCountry}
             onMarketingOptIn={setMarketingOptIn}
             onSignupSource={setSignupSourceForm}
+            adultConfirmed={adultConfirmed}
+            onAdultConfirmed={setAdultConfirmed}
             onSubmit={handleCreateAccount}
             onSkip={handleSkipAccount}
             disabled={isFinishingOnboarding}
@@ -2871,6 +2882,7 @@ export function AccountPage() {
                   />
                 </label>
               </div>
+              <AdultAgeGate checked={adultConfirmed} onChange={setAdultConfirmed} />
               <ProfileDetailsFields
                 birthDate={birthDate}
                 country={country}
@@ -4278,6 +4290,8 @@ function OptionalAccountStep({
   marketingOptIn,
   signupSource,
   hideSignupSource,
+  adultConfirmed,
+  onAdultConfirmed,
   error,
   onEmail,
   onPassword,
@@ -4298,6 +4312,8 @@ function OptionalAccountStep({
   marketingOptIn: boolean;
   signupSource: string;
   hideSignupSource?: boolean;
+  adultConfirmed: boolean;
+  onAdultConfirmed: (value: boolean) => void;
   error: string | null;
   onEmail: (value: string) => void;
   onPassword: (value: string) => void;
@@ -4366,6 +4382,9 @@ function OptionalAccountStep({
           />
         </div>
         <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-3" />
+        <div className="mt-3">
+          <AdultAgeGate checked={adultConfirmed} onChange={onAdultConfirmed} />
+        </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className="block">

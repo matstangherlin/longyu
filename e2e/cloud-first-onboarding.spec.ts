@@ -50,6 +50,7 @@ test.describe("TEST-033 — funil fresco /comecar", () => {
     await page.getByTestId("signup-identity-continue").click();
     await page.locator('input[type="password"]').first().fill("senha123");
     await page.locator('input[type="password"]').nth(1).fill("senha123");
+    await page.getByTestId("signup-adult").check();
     await page.getByTestId("signup-submit").click();
     await expect(
       page.getByText(

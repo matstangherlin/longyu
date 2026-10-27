@@ -353,6 +353,9 @@ export const en: MessageCatalog = {
     creatingAccount: "Creating account...",
     createAccountCta: "Create my account and save the result",
     birthDate: "Date of birth",
+    adultConfirm: "I am 18 or older.",
+    adultRequired: "The closed beta is only for people 18 or older.",
+    legalConsent: "By creating an account you agree to the Terms and the Privacy policy.",
     country: "Country",
     howDidYouHear: "How did you find Longyu?",
     selectOptional: "Select (optional)",
@@ -2417,7 +2420,26 @@ export const en: MessageCatalog = {
   },
   privacyNotice: {
     account:
-      "Account data: to create an account we ask for email and name; birth date, country, how you found Longyu, and whether you accept emails are optional. They are used for login, profile, language, and the communication you authorized.",
+      "Account data: to create an account we ask for email, name, and confirmation that you are 18 or older. Country, how you found Longyu, and whether you accept emails are optional. We do not ask for a birth date. They are used for login, profile, language, and the communication you authorized.",
+    controller:
+      "Controller: [PREENCHER: legal name, document, address, and privacy contact email]. This is a closed-beta draft and is not a lawyer's advice.",
+    purposes:
+      "Purposes and suggested legal bases, pending legal review: perform the account contract (login, progress, sync); consent for pedagogical telemetry, marketing, and the microphone; legal obligation for records the law requires us to keep, if billing is turned on.",
+    sharing:
+      "Sharing: Supabase (account and database, typically the US), Netlify (site), Cloudflare Turnstile (sign-up), Stripe (payment, only if billing exists), Sentry (errors, only if a DSN exists). Speech may be processed by the device or browser speech service. We do not sell learner lists.",
+    retention:
+      "Retention: progress and the account stay while the account exists. Telemetry follows consent. Technical diagnostics stay in the device session. After deletion, whatever the law requires (for example payments, if any) is kept only for the legal period.",
+    rights:
+      "Your rights: confirmation, access, correction, anonymization, portability, deletion, information about sharing, and withdrawal of consent.",
+    exercise:
+      "How to exercise them: email {email} with the subject “Exercer meus direitos LGPD” from the account address. This draft states a 15-day reply window, subject to legal review. Export: Settings → Privacy and data. Delete: Account → Delete cloud account.",
+    exerciseCta: "Exercise my rights",
+    minors:
+      "Minors: closed beta sign-up is only for people 18 or older. We do not ask for a birth date. There is no child account and no parent-consent flow yet. This will be reviewed before a public beta, including Google Play rules.",
+    storage:
+      "Cookies and local storage: the app stores progress in the browser (localStorage key longyu-v1) and may use a service worker to open offline. We do not use advertising cookies.",
+    changes:
+      "Changes: this policy may change. The new date and text stay on this page.",
     identity:
       "Username: the @name you choose is your social identity (friends and leagues find you by it). It may be visible to other learners; your email is never shown and is never used to find you.",
     microphone:
@@ -2468,6 +2490,13 @@ export const en: MessageCatalog = {
       "Service changes: we may adjust features, limits, and these beta terms. Material updates will be reflected on this page.",
     termination:
       "Termination and deletion: you may request cloud account deletion or clear local data. We may suspend accounts that violate acceptable use.",
+    minors: "Age: during the closed beta an account is only for people 18 or older.",
+    liability:
+      "Limitation: the service is provided as-is, in beta. We do not promise a learning outcome. Nothing here waives a right the law does not allow to be waived.",
+    subscription:
+      "Subscription: this section applies when billing is turned on. Billing is off during the closed beta. When it exists, this draft contemplates a 30-day trial, automatic renewal until cancellation, and a 7-day withdrawal right for contracts made outside a store (Brazilian CDC art. 49), to be confirmed by a lawyer, with refund by the same method when the law requires it.",
+    venue:
+      "Venue: [PREENCHER: city and court]. Until a lawyer reviews this draft, no venue is fixed.",
     contact: "Contact: {email}",
   },
   achievements: {

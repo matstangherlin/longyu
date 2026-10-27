@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { SIGNUP_SOURCE_OPTIONS } from "../../data/profileSignup";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { CountrySelect } from "./CountrySelect";
@@ -20,12 +21,40 @@ export const DEFAULT_PROFILE_DETAILS: ProfileDetailsFormState = {
 const FIELD_CLASS =
   "mt-1 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink outline-none focus:ring-2 focus:ring-accent/25";
 
+export function AdultAgeGate({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="grid gap-2">
+      <label className="flex items-start gap-3 rounded-xl border border-line bg-surface-2 px-4 py-3">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(event) => onChange(event.target.checked)}
+          data-testid="signup-adult"
+          className="mt-1 h-4 w-4 rounded border-line text-accent"
+        />
+        <span className="text-sm leading-5 text-ink">{t("onboarding.adultConfirm")}</span>
+      </label>
+      <p className="text-xs leading-5 text-ink-soft">
+        {t("onboarding.legalConsent")}{" "}
+        <Link to="/termos" className="font-semibold text-accent hover:underline">{t("marketing.terms")}</Link>
+        {" · "}
+        <Link to="/privacidade" className="font-semibold text-accent hover:underline">{t("marketing.privacy")}</Link>
+      </p>
+    </div>
+  );
+}
+
 export function ProfileDetailsFields({
-  birthDate,
   country,
   marketingOptIn,
   signupSource,
-  onBirthDate,
   onCountry,
   onMarketingOptIn,
   onSignupSource,
@@ -54,15 +83,6 @@ export function ProfileDetailsFields({
   return (
     <div className="grid gap-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.birthDate")}</span>
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(event) => onBirthDate(event.target.value)}
-            className={FIELD_CLASS}
-          />
-        </label>
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-faint">{t("onboarding.country")}</span>
           <CountrySelect value={country} onChange={onCountry} className={FIELD_CLASS} />

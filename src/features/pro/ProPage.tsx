@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useSmartBack } from "../../components/navigation/SmartBackButton";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
@@ -341,6 +342,11 @@ export function ProPage() {
             )}
             <p className="mt-3 text-xs text-ink-soft">
               {checkoutEnabled ? t("pro.serverAuthority") : t("pro.checkoutNotLive")}
+            </p>
+            <p className="mt-2 text-xs text-ink-soft">
+              <Link to="/termos" className="font-semibold text-accent hover:underline">{t("marketing.terms")}</Link>
+              {" · "}
+              <Link to="/privacidade" className="font-semibold text-accent hover:underline">{t("marketing.privacy")}</Link>
             </p>
             <Button className="mt-3 w-full" disabled={!checkoutEnabled} onClick={() => void handleCheckout()}>
               {checkoutEnabled ? (

@@ -213,8 +213,8 @@ export function ContaPage() {
         </SettingsGroup>
 
         <SettingsGroup>
-          <SettingsRow to="/privacidade" icon={IconShield} label={t("landing.privacy")} testId="conta-privacy" />
-          <SettingsRow to="/termos" icon={IconBook} label={t("landing.terms")} testId="conta-terms" />
+          <SettingsRow to="/privacidade" icon={IconShield} label={t("marketing.privacy")} testId="conta-privacy" />
+          <SettingsRow to="/termos" icon={IconBook} label={t("marketing.terms")} testId="conta-terms" />
         </SettingsGroup>
 
         {canSignOut ? <SignOutControl testId="conta-sign-out" /> : null}

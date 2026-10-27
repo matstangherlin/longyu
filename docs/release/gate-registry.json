@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 998,
+    "CANONICAL": 999,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1207,
+  "total": 1208,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -5268,6 +5268,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:learner-systems"
+    },
+    {
+      "gateId": "test:legal-draft",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-legal-draft.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:lesson-advance-integrity",
@@ -21844,5 +21862,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "eee54dd3a426cf0e"
+  "evidenceDigest": "9c0d2d5ce6ba0170"
 }

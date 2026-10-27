@@ -7,7 +7,9 @@ import { useTranslation } from "../../i18n/useTranslation";
 
 export function PrivacyPage() {
   const { t } = useTranslation();
+  const rightsMail = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent("Exercer meus direitos LGPD")}`;
   return (
+    <main>
     <HubPage className="space-y-5">
       <HubHeader
         eyebrow={t("hub.privacyEyebrow")}
@@ -40,7 +42,21 @@ export function PrivacyPage() {
           data-privacy-notice="public-beta"
         >
           <p>{t("privacyNotice.local")}</p>
+          <p data-testid="privacy-controller">{t("privacyNotice.controller")}</p>
           <p>{t("privacyNotice.account")}</p>
+          <p>{t("privacyNotice.purposes")}</p>
+          <p>{t("privacyNotice.sharing")}</p>
+          <p>{t("privacyNotice.retention")}</p>
+          <p>{t("privacyNotice.rights")}</p>
+          <p>{t("privacyNotice.exercise", { email: FEEDBACK_EMAIL })}</p>
+          <p>
+            <a className="inline-flex min-h-11 items-center font-semibold text-accent hover:underline" href={rightsMail} data-testid="privacy-rights-mail">
+              {t("privacyNotice.exerciseCta")}
+            </a>
+          </p>
+          <p>{t("privacyNotice.minors")}</p>
+          <p>{t("privacyNotice.storage")}</p>
+          <p>{t("privacyNotice.changes")}</p>
           <p>{t("privacyNotice.identity")}</p>
           <p>{t("privacyNotice.cloud")}</p>
           <p>{t("privacyNotice.progress")}</p>
@@ -67,5 +83,6 @@ export function PrivacyPage() {
         </Card>
       </HubSection>
     </HubPage>
+    </main>
   );
 }
