@@ -37,7 +37,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-027 | 10,1% sem alvo de revisão | P2 | Onda 2 | 21 | aberto | — | Registrado. O prompt 11 agenda `pinyin`/`hard` só quando a etapa já tem alvo. Etapa sem alvo continua aqui. |
 | LGY-028 | 吧 com fonético de 马 | P2 | Onda 2 | 25 | aberto | — | Registrado. |
 | LGY-029 | Soft 404 e perfis públicos | P2 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | `/u`, `/@*` e `/perfil/*` são 404 antes do catch-all. A página tem noindex, título e a rota digitada no relato. `curl -I` no preview do Netlify continua humano. |
-| LGY-030 | Bundle ~3 MB e cache | P2 | Fase 1 | 17 | aberto | — | Produção serve `index-BAuS39Wg.js` com 2 824 359 bytes (797 KB gzip). Medição do `main` fica no prompt 17. |
+| LGY-030 | Bundle ~3 MB e cache | P2 | Fase 1 | 17 | em PR | [#375](https://github.com/matstangherlin/longyu/pull/375) | Cache de um ano em `/assets/*`. Entry 2.706.227 bytes (774 KB gzip). Grafo estático 908 KB gzip. Meta de 300 KB ainda aberta: o catálogo continua no store. |
 | LGY-031 | 75–80% das etapas sem feedback de erro | P2 | Onda 2 | 22 | aberto | — | Registrado. |
 | LGY-032 | `/perfil` diz "Amigos em breve" | P3 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | Na beta o botão some e fica o card. Os dois não aparecem juntos. `/amigos` volta ao perfil. |
 | LGY-033 | Vitória avança sozinha | P3 | Onda 2 | 20 | aberto | — | Registrado. |
@@ -81,4 +81,4 @@ Nenhum caso foi executado no prompt 01. "Automatizado?" descreve o plano do prom
 | R-17 | Escuta sem áudio | Etapa concluível sem áudio e sem custo | `e2e/qa-listening-fallback.spec.ts` `@qa-r17` | [#369](https://github.com/matstangherlin/longyu/pull/369) · `CI=1 npx playwright test e2e/qa-listening-fallback.spec.ts --project=chromium` | preview local | em PR — Chromium 1/1. Contraste mā (1º) × má (2º). A rota de QA não mostra o medidor de Fôlego; o caminho não chama `spendFolego`. mobile-safari não executa este arquivo. |
 | R-18 | SRS | Item só apresentado não gradua; erro gera alvo | prompt 30, unitário | `npm run test:srs-evidence` (nome a confirmar no prompt 21) | local | não executado |
 | R-19 | Paywall | CTAs levam a páginas que existem | prompt 30, `@qa-r19` | `e2e/qa-regression-r19.spec.ts` (ainda não existe) | local | não executado |
-| R-20 | Desempenho | JS inicial < 300 KB gzip; cache imutável | prompt 30, passo de script | `npm run check:bundle-budget` depois de `npm run build` (prompt 17) | local | não executado |
+| R-20 | Desempenho | JS inicial < 300 KB gzip; cache imutável | [#375](https://github.com/matstangherlin/longyu/pull/375) · `npm run check:bundle-budget` | `docs/qa-report-2026-10/BUNDLE_17.md` | local | em PR — cache imutável no toml. Gzip inicial 908.306, acima de 307.200. O CI barra o entry acima de 2.706.227 bytes. A meta de 300 KB continua aberta. |
