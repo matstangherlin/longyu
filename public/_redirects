@@ -1,1 +1,7 @@
-/* /index.html 200
+/u/*             /index.html   404
+/u               /index.html   404
+/@*              /index.html   404
+/perfil/*        /index.html   404
+/configuracoes   /ajustes      301
+/configuracoes/* /ajustes      301
+/*               /index.html   200

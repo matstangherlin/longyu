@@ -207,6 +207,21 @@ export function isIndexablePath(pathname: string): boolean {
   return false;
 }
 
+export const NOT_FOUND_DOCUMENT_TITLE = "Página não encontrada — Longyu";
+
+const EXTRA_APP_PREFIXES = ["/business", "/familia", "/curso", "/teste-guiado", "/salvar-progresso", "/arcade", "/auth"] as const;
+
+/** Rota que o router manda para a página 404. /perfil existe; /perfil/alguém não. */
+export function isUnlistedPath(pathname: string): boolean {
+  const path = normalizePath(pathname);
+  if (findPublicSeoPage(path)) return false;
+  if (path === "/perfil") return false;
+  if (path.startsWith("/perfil/") || path === "/u" || path.startsWith("/u/") || path.startsWith("/@")) return true;
+  const known = [...NOINDEX_PREFIXES, ...EXTRA_APP_PREFIXES];
+  if (known.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) return false;
+  return true;
+}
+
 export function robotsForPath(pathname: string): SeoRobots {
   if (isIndexablePath(pathname)) return "index,follow";
   const path = normalizePath(pathname);
@@ -229,7 +244,7 @@ export function resolveSeo(pathname: string): {
   const page = findPublicSeoPage(path);
   const robots = page?.robots ?? robotsForPath(path);
   return {
-    title: page?.title ?? DEFAULT_TITLE,
+    title: page?.title ?? (isUnlistedPath(path) ? NOT_FOUND_DOCUMENT_TITLE : DEFAULT_TITLE),
     description: page?.description ?? DEFAULT_DESCRIPTION,
     canonical: absoluteUrl(page?.path ?? (robots === "index,follow" ? path : "/")),
     robots,

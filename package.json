@@ -752,6 +752,8 @@
     "test:auth-email-templates": "node scripts/test-auth-email-templates.mjs",
     "test:feedback-context": "node scripts/test-feedback-context.mjs",
     "test:legal-draft": "node scripts/test-legal-draft.mjs",
+    "test:social-surface": "node scripts/test-social-surface.mjs",
+    "test:netlify-404-rules": "node scripts/test-netlify-404-rules.mjs",
     "validate:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs validate review-composer",
     "test:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs test review-composer",
     "validate:product-release": "node scripts/rc2-2-19-guided-simple-verified.mjs validate product-release",

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 999,
+    "CANONICAL": 1001,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1208,
+  "total": 1210,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -6044,6 +6044,24 @@
       "canonicalOwner": "suite:culture"
     },
     {
+      "gateId": "test:netlify-404-rules",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-netlify-404-rules.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "test:odd-one-out-categories",
       "status": "EVIDENCE_ONLY",
       "domain": "none",
@@ -10380,6 +10398,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-progression"
+    },
+    {
+      "gateId": "test:social-surface",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-social-surface.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:speech",
@@ -21862,5 +21898,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "9c0d2d5ce6ba0170"
+  "evidenceDigest": "f4f33581710df2ce"
 }

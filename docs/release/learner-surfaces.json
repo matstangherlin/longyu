@@ -404,6 +404,16 @@
       "learnerFacing": true
     },
     {
+      "path": "/configuracoes",
+      "declaredBy": "QA-2026-10-prompt-16",
+      "learnerFacing": true
+    },
+    {
+      "path": "/configuracoes/*",
+      "declaredBy": "QA-2026-10-prompt-16",
+      "learnerFacing": true
+    },
+    {
       "path": "*",
       "declaredBy": "RC2.3.8-baseline",
       "learnerFacing": true

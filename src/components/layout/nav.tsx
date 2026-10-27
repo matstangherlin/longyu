@@ -20,6 +20,7 @@ import {
   IconSun,
 } from "../ui/Icon";
 import { DOMAIN_META, DOMAIN_ORDER } from "../../data/domains";
+import { isBusinessSurfaceEnabled, isSocialSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import type { FeatureId, LearnerStage } from "../../lib/learnerStage";
 import {
   DISCOVERY_FEATURE_ORDER,
@@ -216,9 +217,15 @@ export function practiceMobileSheetItems(
   return (onBar.has("/revisao") ? items : [NAV.revisao, ...items]).filter((item) => isNavItemDiscovered(item, visibility));
 }
 
-/** Hover de Perfil: social e conta. */
+/** Hover de Perfil: social e conta. Amigos/Convide somem quando a superfície social está desligada. */
 export function profileFlyoutItems(): NavItem[] {
-  return [NAV.amigos, NAV.convide, NAV.conta, NAV.plano];
+  return [NAV.amigos, NAV.convide, NAV.conta, NAV.plano].filter(isNavSurfaceEnabled);
+}
+
+export function isNavSurfaceEnabled(item: NavItem): boolean {
+  if ((item.to === "/amigos" || item.to === "/convide") && !isSocialSurfaceEnabled()) return false;
+  if (item.to === "/business" && !isBusinessSurfaceEnabled()) return false;
+  return true;
 }
 
 /**

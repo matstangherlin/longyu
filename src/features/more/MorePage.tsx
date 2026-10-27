@@ -19,6 +19,7 @@ import { useIsPro } from "../../lib/proAccess";
 import {
   MORE_CATALOG,
   isNavItemDiscovered,
+  isNavSurfaceEnabled,
   navLabel,
   previewNavItems,
   type NavItem,
@@ -120,6 +121,7 @@ export function MorePage() {
   // RC2.2.18 · AN/AO — sem parede de cadeados: some o que ainda não foi
   // descoberto ou está trancado por progressão; no máximo 2 "próximos" discretos.
   const isShown = (nav: NavItem) => {
+    if (!isNavSurfaceEnabled(nav)) return false;
     if (!isNavItemDiscovered(nav, visibility)) return false;
     const feature = nav.feature as FeatureId | undefined;
     return !feature || feature === "plano" || !featureAvailability(feature, completedLessons).locked;

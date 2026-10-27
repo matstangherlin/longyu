@@ -5,6 +5,7 @@ import { Mascot } from "../../components/brand/Mascot";
 import { Button, ButtonLink, Card, Pill } from "../../components/ui/primitives";
 import { IconCheck, IconLock } from "../../components/ui/Icon";
 import { useStore } from "../../lib/store";
+import { isBusinessSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { useEntitlementStatus } from "../../lib/entitlementStatus";
 import { isQaFastPathAllowed } from "../../lib/appEnvironment";
 import {
@@ -174,7 +175,7 @@ export function ProPage() {
           <Button variant={active ? "primary" : "outline"} className="mt-4 w-full" onClick={() => setSelectedPlan(plan)}>
             {t("pro.selectPlan", { plan: planCopy[plan].title })}
           </Button>
-        ) : plan === "business" ? (
+        ) : plan === "business" && isBusinessSurfaceEnabled() ? (
           <div className="mt-4 flex flex-col gap-2">
             <ButtonLink to="/business" className="w-full" data-business-cta="pro-page">
               {t("pro.meetBusiness")}
@@ -183,7 +184,7 @@ export function ProPage() {
               {t("pro.contactSales")}
             </ButtonLink>
           </div>
-        ) : plan === "enterprise" ? (
+        ) : plan === "enterprise" && isBusinessSurfaceEnabled() ? (
           <ButtonLink
             to="/business#contato"
             variant="outline"

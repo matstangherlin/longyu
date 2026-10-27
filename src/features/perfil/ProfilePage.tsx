@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useStore, type DailyStudyRecord } from "../../lib/store";
 import { displayNameForAccount } from "../../lib/displayName";
+import { isSocialSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { formatUsernameHandle } from "../../lib/username";
 import { formatDate } from "../../i18n/format";
 import { t } from "../../i18n/catalog";
@@ -311,9 +312,11 @@ export function ProfilePage() {
           <ActionButton to="#personalizar" variant="secondary" size="sm" icon={<IconUser width={15} height={15} />} data-testid="profile-edit-link">
             {t("hub.editShort")}
           </ActionButton>
-          <ActionButton to="/amigos" variant="secondary" size="sm" data-testid="profile-friends-link">
-            {t("hub.friends")}
-          </ActionButton>
+          {isSocialSurfaceEnabled() ? (
+            <ActionButton to="/amigos" variant="secondary" size="sm" data-testid="profile-friends-link">
+              {t("hub.friends")}
+            </ActionButton>
+          ) : null}
           <ActionButton to="/conta" variant="secondary" size="sm" data-testid="profile-account-link">
             {t("navigation.account")}
           </ActionButton>
@@ -499,7 +502,8 @@ export function ProfilePage() {
       </ResponsiveCollapsible>
       </div>
 
-      {/* 6 · Social — sem amigos falsos: só um card honesto de "em breve". */}
+      {/* 6 · Social — o botão e o card "em breve" não aparecem juntos. */}
+      {isSocialSurfaceEnabled() ? null : (
       <CompactCard className="border-dashed">
         <div className="flex items-center gap-3" data-testid="profile-friends-card">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-2 text-ink-faint">
@@ -511,6 +515,7 @@ export function ProfilePage() {
           </div>
         </div>
       </CompactCard>
+      )}
     </PageShell>
   );
 }

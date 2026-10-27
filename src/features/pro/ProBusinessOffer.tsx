@@ -2,6 +2,7 @@ import { ButtonLink, Card, Pill } from "../../components/ui/primitives";
 import { IconCheck } from "../../components/ui/Icon";
 import { PRO_PAGE_BUSINESS_ITEMS, PRO_PAGE_ENTERPRISE_ITEMS } from "../../data/businessOffer";
 import { trackBusinessEvent } from "../../services/businessEvents";
+import { isBusinessSurfaceEnabled } from "../../lib/cloud/backendCapability";
 
 function BenefitList({ items }: { items: readonly string[] }) {
   return (
@@ -19,6 +20,7 @@ function BenefitList({ items }: { items: readonly string[] }) {
 }
 
 export function ProBusinessOffer() {
+  if (!isBusinessSurfaceEnabled()) return null;
   return (
     <section data-pro-business className="space-y-3">
       <div className="text-center">
