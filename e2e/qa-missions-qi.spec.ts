@@ -38,6 +38,8 @@ test("resgatar missão credita e sobrevive ao reload @qa-r08", async ({ page }) 
   await expect(card).toHaveAttribute("data-mission-status", "complete");
   await card.getByRole("button", { name: "Resgatar" }).click();
   await expect(card).toHaveAttribute("data-mission-status", "claimed");
+  await card.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `test-results/qa-r08-resgatada-${test.info().project.name}.png` });
   await page.reload();
   await waitForLazyPage(page);
   await expect(page.locator('[data-mission-id="daily-reviews"]')).toHaveAttribute("data-mission-status", "claimed");
