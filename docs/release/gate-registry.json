@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 1001,
+    "CANONICAL": 1002,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1210,
+  "total": 1211,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -2484,6 +2484,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:identity-commercial"
+    },
+    {
+      "gateId": "test:bundle-budget",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-bundle-budget.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:business-foundation",
@@ -21898,5 +21916,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "f4f33581710df2ce"
+  "evidenceDigest": "f68eda08a9037eb8"
 }
