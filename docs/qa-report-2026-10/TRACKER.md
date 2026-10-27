@@ -21,7 +21,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-011 | Etapa 你好 sem a peça 好 | P1 | Onda 1 | 09 | em PR | [#367](https://github.com/matstangherlin/longyu/pull/367) | Passe 3 do laboratório responde 你好 e o banco inclui 好. `你` sozinho não passa. `你 好` e `你好。` passam. |
 | LGY-012 | Comparação de áudio sem "Não posso ouvir agora" | P1 | Onda 1 | 11 | em PR | [#369](https://github.com/matstangherlin/longyu/pull/369) | "Não posso ouvir agora" abre o modo visual na sessão. "Seguir sem avaliar" não gasta Fôlego nem vida. Erro mostra o tom. E2E `@qa-r17` no Chromium. |
 | LGY-013 | Reset: a UI promete código e o e-mail traz link | P1 | Fase 1 | 13 | em PR | [#371](https://github.com/matstangherlin/longyu/pull/371) | Modelo de recuperação só com código. Link `otp_expired` mostra o erro e não abre a senha nova. Painel e SMTP continuam humanos. |
-| LGY-014 | @apelido, convite e feed | P1 | Onda 2 | 08, 24 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366) | Parte cliente: sucesso ou erro no @apelido; social desligado explica e não mostra Salvar. Convite e feed continuam no prompt 24. |
+| LGY-014 | @apelido, convite e feed | P1 | Onda 2 | 08, 16, 24 | em PR | [#366](https://github.com/matstangherlin/longyu/pull/366), [#374](https://github.com/matstangherlin/longyu/pull/374) | #366: salvar o @apelido quando o social existe. #374: na beta a superfície fica escondida e Ajustes mostra o aviso, sem Salvar. Convite e feed continuam no prompt 24. |
 | LGY-015 | SRS gradua exposição | P1 | Onda 2 | 21 | aberto | — | Registrado. |
 | LGY-016 | `economy.ts` diverge de `energyPolicy.ts` | P2 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-017 | Imersão pausada mas a sessão inicia | P2 | Onda 2 | 20 | aberto | — | Registrado. |
@@ -36,13 +36,13 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-026 | Concluir com ~0% e ganhar 2 estrelas | P2 | Onda 2 | 22 | aberto | — | Registrado. |
 | LGY-027 | 10,1% sem alvo de revisão | P2 | Onda 2 | 21 | aberto | — | Registrado. O prompt 11 agenda `pinyin`/`hard` só quando a etapa já tem alvo. Etapa sem alvo continua aqui. |
 | LGY-028 | 吧 com fonético de 马 | P2 | Onda 2 | 25 | aberto | — | Registrado. |
-| LGY-029 | Soft 404 e perfis públicos | P2 | Fase 1 | 16 | aberto | — | Registrado. |
+| LGY-029 | Soft 404 e perfis públicos | P2 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | `/u`, `/@*` e `/perfil/*` são 404 antes do catch-all. A página tem noindex, título e a rota digitada no relato. `curl -I` no preview do Netlify continua humano. |
 | LGY-030 | Bundle ~3 MB e cache | P2 | Fase 1 | 17 | aberto | — | Produção serve `index-BAuS39Wg.js` com 2 824 359 bytes (797 KB gzip). Medição do `main` fica no prompt 17. |
 | LGY-031 | 75–80% das etapas sem feedback de erro | P2 | Onda 2 | 22 | aberto | — | Registrado. |
-| LGY-032 | `/perfil` diz "Amigos em breve" | P3 | Fase 1 | 16 | aberto | — | Registrado. |
+| LGY-032 | `/perfil` diz "Amigos em breve" | P3 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | Na beta o botão some e fica o card. Os dois não aparecem juntos. `/amigos` volta ao perfil. |
 | LGY-033 | Vitória avança sozinha | P3 | Onda 2 | 20 | aberto | — | Registrado. |
 | LGY-034 | Sem horário de renovação das Cargas | P3 | Onda 2 | 20 | aberto | — | Registrado. |
-| LGY-035 | Busca desligada sem indicação | P3 | Fase 1 | 16 | aberto | — | Registrado. |
+| LGY-035 | Busca desligada sem indicação | P3 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | Indicação com recompensa adiada. A busca não foi ligada. O SQL social continua em `pending/`. |
 | LGY-036 | Erros no console | P3 | Onda 1 | 04, 23 | em PR | [#362](https://github.com/matstangherlin/longyu/pull/362) | 42703/404 de schema não vão para `console.error`. Um aviso Sentry por objeto, por sessão. |
 | LGY-037 | Gitleaks vermelho | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Scan do histórico: 8 achados. Fixture Stripe allowlist exata. Os 6 JWTs restantes são `role: anon` do projeto `drjcfalvlbbeblmmyhwj`; nenhum `service_role`. O scan agendado continua vermelho até decisão humana sobre allowlist da anon key pública. |
 | LGY-038 | Sem branch protection | P2 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | Guia em `BRANCH_PROTECTION.md`. Relatório humano de 26/10: a ruleset "Protect main branch" já está ativa desde 08/08/2026 (PR + 5 checks). A API deste agente tinha respondido 403. Falta o Matty conferir se o próprio usuário está em bypass. |
@@ -53,7 +53,7 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-043 | Versão, tag e release | P3 | Fase 0 / Fase 1 | 02, 14 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360), [#372](https://github.com/matstangherlin/longyu/pull/372) | Versão da beta: `0.3.0-beta.1` no package, no Netlify e no versionName. Tag e GitHub Release continuam humanas, depois do merge. |
 | LGY-044 | Google Play: chaves e teste fechado | P3 | Fase 1 / Fase 3 | 18 | aberto | — | Registrado. |
 | LGY-045 | Higiene do repositório | P3 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | README reescrito no topo; `.env.production` auditado (só valores públicos); classificação de PRs atualizada. Repo continua público (D2 não executada). |
-| LGY-046 | Escopo grande para uma pessoa | P3 | Fase 1 | 16 | aberto | — | Risco de capacidade. O prompt 16 trata a parte "esconder o que não é o loop principal". |
+| LGY-046 | Escopo grande para uma pessoa | P3 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | Business escondido na beta, junto com Amigos e Convide. O risco de capacidade no resto do app continua. |
 | LGY-047 | WebKit instável nos E2E | P3 | Fase 1 | 18, 30 | aberto | — | Este prompt rodou só Chromium. WebKit ficou de fora de propósito. |
 
 ## Regressão R-01…R-20
