@@ -751,6 +751,7 @@
     "test:auth-recovery": "node scripts/rc2-2-19-guided-simple-verified.mjs test auth-recovery",
     "test:auth-email-templates": "node scripts/test-auth-email-templates.mjs",
     "test:feedback-context": "node scripts/test-feedback-context.mjs",
+    "test:legal-draft": "node scripts/test-legal-draft.mjs",
     "validate:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs validate review-composer",
     "test:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs test review-composer",
     "validate:product-release": "node scripts/rc2-2-19-guided-simple-verified.mjs validate product-release",

@@ -70,10 +70,16 @@ test.describe("privacy consent", () => {
       .toBeNull();
   });
 
-  test("feedback manual abre sem depender da telemetria", async ({ page }) => {
+  test("feedback manual abre sem depender da telemetria", async ({ page }, testInfo) => {
     await seedOnboardedSession(page, []);
     await page.goto("/jornada");
-    await page.getByLabel(/Enviar feedback/i).click();
+    // No celular o FAB some (max-lg:hidden). O caminho é Mais → Reportar problema.
+    if (testInfo.project.name === "mobile-chrome") {
+      await page.getByRole("button", { name: "Mais" }).click();
+      await page.getByTestId("report-problem").click();
+    } else {
+      await page.getByLabel(/Enviar feedback/i).click();
+    }
     await expect(page.getByRole("heading", { name: /Feedback beta/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /^Enviar$/i })).toBeVisible();
   });

@@ -5,7 +5,7 @@ import { Mascot } from "../../components/brand/Mascot";
 import { BrandWordmark } from "../../components/layout/Brand";
 import { playMandarinAudio } from "../../lib/audioPlayback";
 import { IconCheck, IconChevron, IconSound } from "../../components/ui/Icon";
-import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { AdultAgeGate, ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 import { formatPinyinForDisplay } from "../../lib/pinyin";
 import { ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
@@ -174,6 +174,7 @@ export function ComecarPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [adultConfirmed, setAdultConfirmed] = useState(false);
   const [country, setCountry] = useState(LAUNCH_COUNTRY_CODE);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [signupSource, setSignupSource] = useState("");
@@ -286,6 +287,10 @@ export function ComecarPage() {
       setError(t("onboarding.invalidEmailPassword"));
       return;
     }
+    if (!adultConfirmed) {
+      setError(t("onboarding.adultRequired"));
+      return;
+    }
     setBusy(true);
     setError(null);
     trackFunnelEvent("signup_submitted");
@@ -300,7 +305,7 @@ export function ComecarPage() {
     const outcome = await withSignupTimeout(
       createAuthAccount(email, password, {
         name: firstName(name, t("onboarding.learnerFallback")),
-        birthDate: birthDate.trim() || null,
+        birthDate: null,
         country: country.trim() || null,
         signupSource: signupSource.trim() || null,
         marketingOptIn,
@@ -538,6 +543,8 @@ export function ComecarPage() {
             onCountry={setCountry}
             onMarketingOptIn={setMarketingOptIn}
             onSignupSource={setSignupSource}
+            adultConfirmed={adultConfirmed}
+            onAdultConfirmed={setAdultConfirmed}
             onSubmit={handleSignup}
           />
         )}
@@ -969,6 +976,7 @@ function MandatoryAccount({
   country,
   marketingOptIn,
   signupSource,
+  adultConfirmed,
   error,
   busy,
   onName,
@@ -980,6 +988,7 @@ function MandatoryAccount({
   onCountry,
   onMarketingOptIn,
   onSignupSource,
+  onAdultConfirmed,
   onSubmit,
 }: {
   name: string;
@@ -991,6 +1000,7 @@ function MandatoryAccount({
   country: string;
   marketingOptIn: boolean;
   signupSource: string;
+  adultConfirmed: boolean;
   error: string | null;
   busy: boolean;
   onName: (value: string) => void;
@@ -1002,6 +1012,7 @@ function MandatoryAccount({
   onCountry: (value: string) => void;
   onMarketingOptIn: (value: boolean) => void;
   onSignupSource: (value: string) => void;
+  onAdultConfirmed: (value: boolean) => void;
   onSubmit: (event: FormEvent) => void;
 }) {
   const cloud = isSupabaseBackendEnabled();
@@ -1085,6 +1096,9 @@ function MandatoryAccount({
             />
           </div>
           <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-2" progressive focused={passwordFocused} />
+          <div className="mt-3">
+            <AdultAgeGate checked={adultConfirmed} onChange={onAdultConfirmed} />
+          </div>
           <details className="mt-3 rounded-xl border border-line/70 px-3 py-2" data-testid="signup-more-details">
             <summary className="cursor-pointer text-sm font-semibold text-ink-soft">{t("onboarding.accountMoreDetails")}</summary>
             <div className="mt-2">

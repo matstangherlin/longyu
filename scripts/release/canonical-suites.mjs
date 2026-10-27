@@ -40,6 +40,7 @@ export const SUITES = [
       "validate:v410a1-freeze",
       "validate:app-environment",
       "validate:privacy-consent",
+      "test:legal-draft",
       "validate:client-diagnostics",
       "test:schema-drift",
       "test:stale-bundle",
@@ -616,4 +617,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:lint-content": "QA 2026-10 prompt 10 — fixtures das regras CL001–CL004 e a linha de base sem p1/p2.",
   "test:review-targets-equivalence": "QA 2026-10 prompt 10 — reviewTargetsForMistake extraído, digest de todas as etapas.",
   "test:contrast-feedback": "QA 2026-10 prompt 11 — feedback do contraste auditivo, sem custo de escuta.",
+  "test:legal-draft": "QA 2026-10 prompt 15 — [PREENCHER] só na beta fechada; VITE_PUBLIC_RELEASE=true recusa o rascunho.",
 });

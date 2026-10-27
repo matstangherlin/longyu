@@ -8,6 +8,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 export function TermsPage() {
   const { t } = useTranslation();
   return (
+    <main>
     <HubPage className="space-y-5">
       <HubHeader
         eyebrow={t("terms.eyebrow")}
@@ -33,6 +34,10 @@ export function TermsPage() {
           <p>{t("terms.feedback")}</p>
           <p>{t("terms.changes")}</p>
           <p>{t("terms.termination")}</p>
+          <p data-testid="terms-minors">{t("terms.minors")}</p>
+          <p>{t("terms.liability")}</p>
+          <p data-testid="terms-subscription">{t("terms.subscription")}</p>
+          <p data-testid="terms-venue">{t("terms.venue")}</p>
           <p className="text-xs text-ink-faint">
             {t("terms.contact", { email: FEEDBACK_EMAIL })}
           </p>
@@ -48,5 +53,6 @@ export function TermsPage() {
         </Card>
       </HubSection>
     </HubPage>
+    </main>
   );
 }
