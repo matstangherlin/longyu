@@ -133,6 +133,26 @@
     # style-src keeps 'unsafe-inline' for React inline styles (style={{...}}).
     Content-Security-Policy = "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'sha256-vywfNn7vNkB5YuzZDNSdCsVZoLK8nb8AQLe+06V8ku4=' https://js.stripe.com https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://*.netlify.app https://challenges.cloudflare.com; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://challenges.cloudflare.com; form-action 'self' https://checkout.stripe.com https://billing.stripe.com"
 
+# Cache. O bloco /* continua valendo para CSP e os outros headers de
+# segurança: no Netlify o caminho mais específico ganha só o header que
+# ele mesmo define. Cache-Control de /assets/* não apaga a CSP de /*.
+# Arquivos em /assets/ têm hash no nome, então immutable por um ano é
+# seguro. HTML e SW não têm hash e ficam no-cache.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
 # Service worker e manifest sempre frescos.
 [[headers]]
   for = "/sw.js"

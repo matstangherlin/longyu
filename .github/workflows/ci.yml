@@ -136,6 +136,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Bundle budget
+        run: npm run check:bundle-budget
+
       - name: Frontend secrets (post-build)
         run: npm run validate:frontend-secrets
 
