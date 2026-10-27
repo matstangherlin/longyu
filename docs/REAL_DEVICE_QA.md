@@ -1,6 +1,56 @@
-# Longyu 0.2.0-beta.1 — QA mobile real
+# Longyu — QA mobile real
 
-> **Rodada atual (humana):** use [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md) — fluxo 1→15 (force refresh → B001 Android → B002 → L1–L20 → … → RC / gate / security).  
+> A rodada de julho de 2026, mais abaixo, continua como histórico (`0.2.0-beta.1`).
+> O roteiro da beta fechada de outubro de 2026 está nesta seção. Os campos de
+> aparelho ficam em branco até o Matty testar um único candidato, sem recompilar
+> no meio. Registro para preencher: `docs/qa-report-2026-10/QA_FISICO_REGISTRO.md`.
+
+## Roteiro beta fechada (QA 10/2026)
+
+Candidato: um só APK/AAB ou uma só URL, gerado **depois** do merge da pilha de QA.
+A versão web desta pilha é `0.3.0-beta.1`. O APK registrado no repositório ainda é
+`0.2.0-rc.5` (versionCode 651). Não use esse APK antigo como se fosse o candidato
+desta beta, e não gere outro build no meio do roteiro.
+
+Pré-condição comum: aparelho limpo ou dados do Longyu apagados; idioma do sistema
+anotado (a interface segue o idioma do aparelho); conta de QA só pelo e-mail, sem
+colar senha neste doc.
+
+O que os docs de julho não cobrem e o relatório de outubro pede: isolamento entre
+contas, logout no primeiro toque, reset por código, “Não posso ouvir agora”,
+Cargas, Reportar problema, versão copiável e a confirmação de 18 anos.
+
+| ID | Pré-condição | Passos | Esperado | iPhone Safari | iPhone PWA | Android Chrome | Android app | Evidência | Observações |
+|---|---|---|---|---|---|---|---|---|---|
+| D-01 | Aparelho sem o app | Instalar pela URL ou pela Play de teste | Abre na landing, sem crash | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-02 | Versão anterior com uma lição concluída | Atualizar PWA e o app Android | Progresso e nome continuam | ____ | ____ | ____ | ____ | ____ | Não recompilar depois |
+| R-02 | Sem conta | Cadastro com 18+ marcado; pedir reset e usar o código | Conta cria; código de 6 dígitos; link expirado explica | ____ | ____ | ____ | ____ | ____ | Produção ainda pode mandar o e-mail antigo até o painel mudar |
+| R-03 | Conta existente | Senha errada | Mensagem genérica em português e o botão volta em menos de 3 s | ____ | ____ | ____ | ____ | ____ | ____ |
+| R-04 | Logado | Sair pelo Mais e, no largo, pelo topo | Confirma, encerra, aviso se a nuvem não sincronizou | ____ | ____ | ____ | ____ | ____ | No celular o Sair fica em Mais ou Conta |
+| R-05 | Duas contas no mesmo aparelho | A → sair → B → sair → A | B não vê progresso de A; A volta igual | ____ | ____ | ____ | ____ | ____ | ____ |
+| R-06 | Logado | Trocar o nome e recarregar | Nome permanece; o chip de sync termina | ____ | ____ | ____ | ____ | ____ | Chip “Sync problem” ainda é esperado enquanto a coluna `instruction_locale` não existir em produção |
+| R-07 | Conta Free | Abrir lição, teste de módulo, sair sem responder | Anotar se cobrou e se devolveu | ____ | ____ | ____ | ____ | ____ | Não mudar a regra neste roteiro; só registrar |
+| R-08 | Com missão disponível | Resgatar e recarregar na hora | O resgate não volta para “resgatar”; Qi estável | ____ | ____ | ____ | ____ | ____ | Achado de 26/10 a confirmar |
+| R-09 | Com Qi visível | Concluir uma lição | Qi não diminui sem gasto | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-03 | Na jornada | Abrir a primeira lição, acertar, voltar | A jornada mostra a lição feita | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-04 | Com revisão disponível | Abrir Revisão e responder um item | A fila anda; a dica, se houver, tem texto | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-05 | Cultura liberada | Abrir um item de Cultura | A página abre e o áudio, se houver, toca | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-06 | Microfone ainda não decidido | Falar: negar; depois conceder | Negar não trava o app; conceder pede de novo ou usa o microfone | ____ | ____ | ____ | ____ | ____ | No Android o reconhecimento pode falhar no WebView |
+| R-17 | Etapa só de escuta | “Não posso ouvir agora” e seguir sem avaliar | A etapa termina sem gastar Vida nem Fôlego | ____ | ____ | ____ | ____ | ____ | Nem toda etapa de escuta tem o botão |
+| D-07 | No meio da lição | Modo avião, responder, religar a rede | O passo não se perde; o sync avisa se falhar | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-08 | No meio da lição | Matar o processo e reabrir | Volta no progresso salvo, sem recompensa duplicada | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-09 | Android | Voltar na lição, num modal e no paywall | Fecha o modal; não mata o app na jornada | ____ | n/a | ____ | ____ | ____ | ____ |
+| D-10 | Qualquer tela longa | Girar o aparelho | Sem corte e sem perder o passo | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-11 | Fonte do sistema grande | Abrir jornada e uma lição | Texto cabe; botões continuam tocáveis | ____ | ____ | ____ | ____ | ____ | ____ |
+| R-15 | Conta descartável | Exportar; depois excluir | O pacote baixa; a conta some e a sessão encerra | ____ | ____ | ____ | ____ | ____ | Só numa conta criada para isso |
+| D-12 | Em jornada, lição, 404 e erro | Reportar problema | Abre em até dois toques; a rota é a tela real | ____ | ____ | ____ | ____ | ____ | Não enviar senha |
+| D-13 | Ajustes ou Sobre | Copiar a versão | Mostra `v0.3.0-beta.1` e sete caracteres do SHA, no candidato certo | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-14 | Etapa de escuta | Seguir sem avaliar | Não conta como acerto de ouvido | ____ | ____ | ____ | ____ | ____ | ____ |
+| D-15 | Cadastro | Enviar sem marcar 18+ | A conta não é criada; a frase pede 18 anos | ____ | ____ | ____ | ____ | ____ | ____ |
+
+# Histórico — Longyu 0.2.0-beta.1 — QA mobile real (2026-07-19)
+
+> **Rodada de julho (humana):** [`BETA_HUMAN_QA_RUNBOOK.md`](./BETA_HUMAN_QA_RUNBOOK.md) — fluxo 1→15. A rodada de outubro está no topo deste arquivo.  
 > **Status pós-#148 (tip `main` `3622885`):** B001 **corrigido em código**, aguardando Android físico; B002 **corrigido em código**, aguardando humano; produção/transferência, PieceAssembly e guarda QA entregues.  
 > **Automação não substitui QA humano.** Nenhum checkbox humano foi marcado automaticamente.  
 > Este arquivo documenta a rodada de **2026-07-19** (emulação + gaps honestos).  
