@@ -147,6 +147,7 @@ import {
   serverSpendQi,
 } from "./economyServerBridge";
 import { economyFailureMessage } from "./economyPending";
+import { isMissingEconomyRpc } from "./economyReconcile";
 import { confirmCloudPearlProActivation } from "./cloudPearlProActivation";
 import { mergeWithoutPersistedServerEntitlement } from "./persistenceSecurity";
 import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
@@ -1395,6 +1396,8 @@ interface AccountSnapshot extends XpBuckets {
   activityByDay: Record<string, DailyStudyRecord>;
   /** Dias de ofensiva a celebrar no modal (null = nada pendente). */
   pendingStreakCelebration: number | null;
+  /** Marcos de ofensiva já mostrados nesta conta. Não reabre o mesmo número. */
+  seenStreakMarks?: number[];
   /** Janela de recuperação aberta após a ofensiva quebrar (null = sem recuperação). */
   streakRecovery: StreakRecovery | null;
   /** Ofensiva a avisar no modal de recuperação ao abrir o app (null = nada pendente). */
@@ -1694,6 +1697,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     lastStudyDate: s.lastStudyDate ?? null,
     activityByDay: s.activityByDay ?? {},
     pendingStreakCelebration: s.pendingStreakCelebration ?? null,
+    seenStreakMarks: s.seenStreakMarks ?? [],
     streakRecovery: s.streakRecovery ?? null,
     pendingStreakRecovery: s.pendingStreakRecovery ?? null,
     streakRecoveredOn: s.streakRecoveredOn ?? null,
@@ -1852,6 +1856,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     lastStudyDate: account.lastStudyDate ?? null,
     activityByDay: account.activityByDay ?? {},
     pendingStreakCelebration: account.pendingStreakCelebration ?? null,
+    seenStreakMarks: account.seenStreakMarks ?? [],
     streakRecovery: account.streakRecovery ?? null,
     pendingStreakRecovery: account.pendingStreakRecovery ?? null,
     streakRecoveredOn: account.streakRecoveredOn ?? null,
@@ -2271,6 +2276,7 @@ interface AppState {
   lastStudyDate: string | null;
   activityByDay: Record<string, DailyStudyRecord>;
   pendingStreakCelebration: number | null;
+  seenStreakMarks?: number[];
   streakRecovery: StreakRecovery | null;
   pendingStreakRecovery: number | null;
   streakRecoveredOn: string | null;
@@ -3269,7 +3275,11 @@ export const useStore = create<AppState>()(
             scope === "daily" ? todayKey() : activeWeeklyMissions(get().weeklyMissions).weekKey;
           void serverClaimMission({ scope, missionId, periodKey, metricValue: metric }).then(
             (result) => {
-              if (!result.ok && !result.already_applied) {
+              if (isMissingEconomyRpc(result.error)) {
+                get().setEconomySyncMessage(
+                  "Recompensa salva neste aparelho. A sincronização fica pendente."
+                );
+              } else if (!result.ok && !result.already_applied) {
                 set((s) => {
                   const date = todayKey();
                   const day = activeDailyMissions(s.dailyMissions, date);
@@ -5854,8 +5864,10 @@ export const useStore = create<AppState>()(
           const { streak, streakShields, streakRecovery, pendingStreakRecovery } =
             computeStudyStreak(current, t);
           const longestStreak = Math.max(current.longestStreak, streak);
+          const seenStreakMarks = current.seenStreakMarks ?? [];
+          const wantsStreakModal = streak > prevStreak || (prevStudy !== t && streak >= 1);
           const pendingStreakCelebration =
-            streak > prevStreak || (prevStudy !== t && streak >= 1)
+            wantsStreakModal && !seenStreakMarks.includes(streak)
               ? streak
               : current.pendingStreakCelebration;
           const today = current.today?.date === t ? current.today : freshDay(t);
@@ -5905,8 +5917,9 @@ export const useStore = create<AppState>()(
       clearStreakCelebration: () =>
         set((s) => {
           if (s.pendingStreakCelebration == null) return {};
-          const next = { ...s, pendingStreakCelebration: null };
-          return { pendingStreakCelebration: null, accounts: saveCurrentAccount(next) };
+          const seenStreakMarks = [...new Set([...(s.seenStreakMarks ?? []), s.pendingStreakCelebration])];
+          const next = { ...s, pendingStreakCelebration: null, seenStreakMarks };
+          return { pendingStreakCelebration: null, seenStreakMarks, accounts: saveCurrentAccount(next) };
         }),
 
       // Reconcilia a ofensiva com o tempo real (chamado ao abrir o app).
@@ -6285,6 +6298,7 @@ export const useStore = create<AppState>()(
           lastStudyDate: root.lastStudyDate ?? null,
           activityByDay: root.activityByDay ?? {},
           pendingStreakCelebration: root.pendingStreakCelebration ?? null,
+          seenStreakMarks: root.seenStreakMarks ?? [],
           pearlMilestonesClaimed: root.pearlMilestonesClaimed ?? {},
           pearlLedger: root.pearlLedger ?? [],
           pearlProExpiresAt: root.pearlProExpiresAt ?? null,

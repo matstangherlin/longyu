@@ -1020,6 +1020,7 @@ export const ptBR = {
       "Você usou as cargas de novas lições por hoje. Elas voltam amanhã — e ainda há caminhos grátis para continuar aprendendo agora.",
     reviewFree: "Revisar de graça",
     doMissionForQi: "Fazer missão para ganhar Qi",
+    replayNoQi: "Replay não rende Qi.",
     meetLongyuPro: "Conhecer o Longyu Pro",
     orBuyCharge: "Ou compre uma Carga na Loja",
     rewardQi: "Qi do Dragão x{n}",

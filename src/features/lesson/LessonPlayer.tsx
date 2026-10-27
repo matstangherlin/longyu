@@ -73,6 +73,7 @@ import {
   RETRY_QUESTION_QI,
 } from "../../data/economy";
 import { lessonCompletionQi } from "../../lib/lessonQi";
+import { replayGrantsQi } from "../../lib/economyReconcile";
 import { playMandarinAudio } from "../../lib/audioPlayback";
 
 function speak(text: string, options: { rate?: number } = {}) {
@@ -1839,6 +1840,7 @@ export function LessonPlayer() {
   // Fôlego esgotado ao tentar pular: abre o convite ao Pro (skips ilimitados).
   const [showFolegoUpsell, setShowFolegoUpsell] = useState(false);
   const [lessonReward, setLessonReward] = useState(0);
+  const [replayNoQi, setReplayNoQi] = useState(false);
   const [lessonXp, setLessonXp] = useState(0);
   const [postLessonView, setPostLessonView] = useState<"victory" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
@@ -3826,6 +3828,7 @@ export function LessonPlayer() {
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
     setLessonXp(xpClaimed ? completionXp : 0);
     setLessonReward(completionQi);
+    setReplayNoQi(Boolean(passed && !replayGrantsQi(firstCompletion)));
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
@@ -4587,6 +4590,7 @@ export function LessonPlayer() {
           context={victoryContext}
           title={displayLessonTitle(lesson.title, locale)}
           headline={victoryHeadline}
+          footnote={replayNoQi ? t("player.replayNoQi") : undefined}
           stars={stars}
           xp={lessonXp}
           accuracy={precision}

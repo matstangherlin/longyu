@@ -1022,6 +1022,7 @@ export const en: MessageCatalog = {
       "You used today's new-lesson charges. They return tomorrow — and there are still free ways to keep learning now.",
     reviewFree: "Review for free",
     doMissionForQi: "Do a mission to earn Qi",
+    replayNoQi: "Replay does not earn Qi.",
     meetLongyuPro: "Meet Longyu Pro",
     orBuyCharge: "Or buy a Charge in the Shop",
     rewardQi: "Dragon Qi x{n}",
