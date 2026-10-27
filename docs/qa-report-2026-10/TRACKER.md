@@ -51,10 +51,10 @@ Branch deste registro: `cursor/qa-01-linha-de-base-b56e`. Produção lida em 26/
 | LGY-041 | Menores de 18 | P2 | Fase 1 | 15 | em PR | [#373](https://github.com/matstangherlin/longyu/pull/373) | Padrão do pacote, ainda sem confirmação do Matty: só 18+ na beta fechada. Checkbox no cadastro. Data de nascimento não é pedida. Chromium e mobile-chrome. |
 | LGY-042 | Sem "Reportar problema" | P2 | Fase 1 | 14 | em PR | [#372](https://github.com/matstangherlin/longyu/pull/372) | Entrada no Mais, no desktop, na lição, na 404 e no erro. Contexto sem query. Falha de envio oferece e-mail. Chromium e mobile-chrome. |
 | LGY-043 | Versão, tag e release | P3 | Fase 0 / Fase 1 | 02, 14 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360), [#372](https://github.com/matstangherlin/longyu/pull/372) | Versão da beta: `0.3.0-beta.1` no package, no Netlify e no versionName. Tag e GitHub Release continuam humanas, depois do merge. |
-| LGY-044 | Google Play: chaves e teste fechado | P3 | Fase 1 / Fase 3 | 18 | aberto | — | Registrado. |
+| LGY-044 | Google Play: chaves e teste fechado | P3 | Fase 1 / Fase 3 | 18 | em PR | [#376](https://github.com/matstangherlin/longyu/pull/376) | Checklist aponta backup, URL de exclusão e Data Safety. Números de testadores não foram inventados. Nenhum AAB gerado. |
 | LGY-045 | Higiene do repositório | P3 | Fase 0 | 02 | em PR | [#360](https://github.com/matstangherlin/longyu/pull/360) `cursor/qa-02-higiene-seguranca-b56e` | README reescrito no topo; `.env.production` auditado (só valores públicos); classificação de PRs atualizada. Repo continua público (D2 não executada). |
 | LGY-046 | Escopo grande para uma pessoa | P3 | Fase 1 | 16 | em PR | [#374](https://github.com/matstangherlin/longyu/pull/374) | Business escondido na beta, junto com Amigos e Convide. O risco de capacidade no resto do app continua. |
-| LGY-047 | WebKit instável nos E2E | P3 | Fase 1 | 18, 30 | aberto | — | Este prompt rodou só Chromium. WebKit ficou de fora de propósito. |
+| LGY-047 | WebKit instável nos E2E | P3 | Fase 1 | 18, 30 | em PR | [#376](https://github.com/matstangherlin/longyu/pull/376) | WebKit headless cai ao tocar a lição (12/12 na repetição). A suíte grande foi interrompida em 174/101. Não houve skip. Safari real ainda falta. |
 
 ## Regressão R-01…R-20
 
