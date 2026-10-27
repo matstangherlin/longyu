@@ -95,6 +95,11 @@ como `LONGYU_ANDROID_KEY_ALIAS`.
   uma senha literal aparecer em Gradle/config/workflow.
 - Nunca mande o `.jks` ou as senhas por chat, e-mail ou issue.
 
+QA 10/2026: o backup fica no cofre do gerenciador de senhas e numa mídia offline.
+A chave não entra no git, no PR nem no chat. Se a upload key se perder, o pedido
+de reset é no Play Console; a chave de assinatura do app continua com o Google
+(seções 1 e 9). Nenhuma senha foi escrita neste arquivo.
+
 ## 5. Preencher os valores localmente
 
 **Opção A — variáveis de ambiente (preferida).** PowerShell, só na sessão atual:
