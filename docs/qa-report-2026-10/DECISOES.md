@@ -57,7 +57,7 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 | Módulo grátis | 20 | "Sem custo se aprovado" | agora ou depois | adiar | adiado em 27/10/2026 (mudança de economia congelada); o teste de módulo continua custando 1 Carga; confirmação do Matty: ____ (data) |
 | Revisão Free | 23 | Limite por sessão | manter 20 ou mudar | manter 20; só corrigir a ordem | ____ (data) |
 | Prioridade SRS | 23 | Critério da fila Free | — | mais atrasado, depois lapsos/leech, depois mais antigo | ____ (data) |
-| SRS máximo | 21 | Intervalo máximo | 180 ou 365 dias, ou FSRS 0,90 | 365 dias, sem trocar o algoritmo | ____ (data) |
+| SRS máximo | 21 | Intervalo máximo | 180 ou 365 dias, ou FSRS 0,90 | 365 dias, sem trocar o algoritmo | padrão aplicado em 28/10/2026: 365 dias, teto de ease 2,8, leech em 8 lapsos, FSRS não; confirmação do Matty: ____ (data) |
 | Estrelas | 22 | Faixas para concluir | — | < 60% não conclui; 60–79% = 1★; 80–94% = 2★; ≥ 95% = 3★; 100% sem erro = 3★ perfeito | ____ (data) |
 | Qi | 22 | Qi na 1ª conclusão | — | 1★ = 3, 2★ = 4, 3★ = 5; bônus sem pular e Pro só em 3★ | ____ (data) |
 | Sem vidas | 22 | `outOfLives` | conclui ou não | não conclui; oferece Reforço | ____ (data) |
@@ -87,5 +87,11 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 - Efeito: conta na nuvem em Brasília recebe Cargas às 21:00. A tela agora diz 21:00 para conta na nuvem e 00:00 para conta local.
 - Risco aberto: entre 21:00 e 00:00 o aparelho ainda acha que é o dia anterior. À meia-noite local o store pode recarregar sozinho e o servidor recusar a Carga ("Carga não confirmada pelo servidor").
 - Opções: (a) o servidor usar o fuso do aluno · (b) o cliente seguir o `energy_day` do servidor · (c) manter e só explicar. Este PR fez só (c). Mudar (a) ou (b) é economia congelada.
+- Decisão do Matty: ____ (data)
+
+### FSRS com retenção 0,90 (prompt 21 · R3)
+
+- Estado: **não implementado**. O agendador segue SM-2 com passos, agora com tetos (365 d, ease 2,8), lapso em 50% do intervalo e leech em 8 lapsos.
+- Proposta: experimento depois da beta fechada, comparando retenção medida (`srs_summary` + revisões) entre coortes.
 - Decisão do Matty: ____ (data)
 
