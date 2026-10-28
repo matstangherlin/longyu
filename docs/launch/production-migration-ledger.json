@@ -5,11 +5,11 @@
  "method": "md5 of the applied SQL after removing `--` comments and every whitespace/semicolon run (Postgres: regexp_replace(regexp_replace(array_to_string(statements, E'\\n'), '--[^\\n]*', '', 'g'), '[\\s;]+', '', 'g')); repo side uses the same normalization",
  "counts": {
   "productionRows": 36,
-  "repoFiles": 60,
+  "repoFiles": 61,
   "MATCH": 19,
   "LEGACY_EQUIVALENT": 0,
   "PROD_ONLY": 6,
-  "REPO_ONLY": 31,
+  "REPO_ONLY": 32,
   "UNKNOWN": 11
  },
  "status": "BLOCKED",
@@ -597,6 +597,15 @@
    "repoFile": "supabase/pending/qa-03-social-minimum.sql",
    "state": "REPO_ONLY",
    "normalizedMd5": "8c7685a3debeaa9834625d6cd49ebeaa",
+   "evidence": "no production history row with this name or content",
+   "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
+  },
+  {
+   "version": null,
+   "name": "qa-21-srs-telemetry",
+   "repoFile": "supabase/pending/qa-21-srs-telemetry.sql",
+   "state": "REPO_ONLY",
+   "normalizedMd5": "404021353c06226b0032a6a4ae48b832",
    "evidence": "no production history row with this name or content",
    "action": "pending for production: apply only through PRODUCTION_MIGRATION_READY"
   },

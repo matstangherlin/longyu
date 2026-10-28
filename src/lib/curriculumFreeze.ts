@@ -68,6 +68,27 @@ export const PRE_BETA_FREEZE_EXCEPTION_QA20 = {
   forbids: ["new currency", "charge amount changes", "new charged activity", "new lessons", "new topics"],
 } as const;
 
+/**
+ * QA 2026-10 — LGY-015, LGY-027 · R1, R3, R4 (prompt 21).
+ * `src/lib/srs.ts` (congelado): tetos de intervalo (365 d) e ease (2,8),
+ * lapso volta em fração do intervalo, leech em 8 lapsos. LessonPlayer
+ * `finish()`: só evidência promove, 1 promoção por item por dia.
+ * reviewTargets: toda etapa avaliada com mandarim do catálogo gera alvo.
+ * Mesmo algoritmo (SM-2 com passos), sem FSRS, sem item novo de currículo.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_QA21 = {
+  id: "QA_2026_10_SRS_EVIDENCE",
+  reason: "LGY-015 LGY-027 R1 R3 R4",
+  allows: [
+    "srs interval and ease ceilings",
+    "lapse relearn interval and leech flag",
+    "lesson grades only tested items, one promotion per item per day",
+    "review target for every evaluated step with a catalog item",
+    "hard words section in /revisao",
+  ],
+  forbids: ["FSRS", "new SRS engine", "dimension rule N3 changes", "new lessons", "new topics", "new catalog items"],
+} as const;
+
 export const PRE_BETA_FREEZE_EXCEPTION = {
   id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
   reason: "REAL_DEVICE_BETA_BLOCKER_FIX",

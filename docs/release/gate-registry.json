@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 1004,
+    "CANONICAL": 1005,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1213,
+  "total": 1214,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -10524,6 +10524,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:android-foundation"
+    },
+    {
+      "gateId": "test:srs-evidence",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-srs-evidence.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:srs-steps",
@@ -21952,5 +21970,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "c90f7ef04d2dca02"
+  "evidenceDigest": "cfda9219cb52d670"
 }

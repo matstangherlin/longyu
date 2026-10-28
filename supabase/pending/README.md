@@ -10,6 +10,7 @@ script (`db:apply-api`, `apply-staging-migrations`, rehearsal efêmero) os aplic
 | `rc2-3-10-telemetry-retention.sql` | RC2.3.10 | `PENDING`: dry-run cron; precisa `OA-TELEMETRY-RETENTION-DECISION` antes de qualquer pacote |
 | `qa-03-profiles-instruction-locale.sql` (+ `.down.sql`) | QA 2026-10 LGY-001 | `PACKAGED_NOT_APPLIED`: só a coluna `instruction_locale`. Não substitui o handoff de placement |
 | `qa-03-social-minimum.sql` (+ `.down.sql`) | QA 2026-10 LGY-002 | `PACKAGED_NOT_APPLIED`: tabelas e RPCs sociais. Não é replay de `005_social.sql` |
+| `qa-21-srs-telemetry.sql` (+ `.down.sql`) | QA 2026-10 LGY-015/027 (prompt 21) | `PACKAGED_NOT_APPLIED`: allowlist `srs_summary` (só contagens). Parte de `20260814010000`, que também não está em produção (28/10) |
 
 Estado em 2026-09-24 (RC2.2.13, autorizado pelo owner):
 

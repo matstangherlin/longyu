@@ -1267,6 +1267,12 @@ export const en: MessageCatalog = {
     chestUnavailableBody: "This chest isn't available right now. Nothing was spent.",
   },
   review: {
+    // QA 2026-10 · R3 — leech words out of the normal queue.
+    leechTitle: "Hard words",
+    leechDesc: "You missed these {count} words many times. They left the normal queue: see the hint and test again.",
+    leechStart: "Practice with a hint",
+    leechHintEyebrow: "Hard word · look and remember",
+    leechTestNow: "Test now",
     atlasStudySet: "Atlas training · {n} Hànzì",
     assistedNote: "You looked up the Hànzì: this counts as assisted learning (max grade: Hard).",
     title: "Review",

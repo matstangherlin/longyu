@@ -121,7 +121,7 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { GlossLookupProvider } from "../../components/hanzi/helpMode";
 import { capAssistedGrade } from "../../lib/reviewLookup";
-import type { Grade } from "../../lib/srs";
+import { lessonEvidenceGrade, makeKey, promotedToday, type Grade, type LessonStepEvidence } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionPortal, LessonActionRegionProvider } from "./LessonActionRegion";
 import {
@@ -1878,6 +1878,8 @@ export function LessonPlayer() {
   // não respondidos (out_of_lives) nem sofrer com a poda do histórico de erros.
   const toneHitsRef = useRef(0);
   const mistakeReviewTargetsRef = useRef<LessonReviewTarget[]>([]);
+  /** LGY-015 / R1 — resultado de cada etapa (índice → evidência) para o finish(). */
+  const stepEvidenceRef = useRef<Map<number, LessonStepEvidence>>(new Map());
   /** Tentativas / erros da conversa atual (antes de handleDone). */
   const conversationAttemptsRef = useRef(1);
   const conversationErrorTargetsRef = useRef<LessonReviewTarget[]>([]);
@@ -3431,6 +3433,13 @@ export function LessonPlayer() {
     const hadRecordedMistake = deferred ? false : currentStepHadMistakeRef.current;
     const penaltyApplied = currentStepPenaltyApplied;
     const countsAsCorrect = outcome === true && !hadRecordedMistake;
+    // LGY-015 / R1 — o finish() só promove o que foi testado e acertado.
+    stepEvidenceRef.current.set(idx, {
+      graded: currentStepIsGraded && !deferred,
+      correct: countsAsCorrect,
+      // A escuta visual testa o pinyin (outro domínio), não é ajuda.
+      assisted: (meta?.helpRequests ?? 0) > 0 || retryProtected,
+    });
     const nextCorrect = correct + (countsAsCorrect ? 1 : 0);
     let nextLives = lives;
 
@@ -3612,8 +3621,14 @@ export function LessonPlayer() {
     if (reason === "completed") haptic("lessonComplete");
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
-    const gradedDomains = new Set<string>();
     const isCultureDomain = lesson.lessonDomain === "culture";
+    // LGY-015 / R1 — antes, todo item exibido levava "good". Agora cada item
+    // fica com a melhor evidência da lição: exibido sem resposta (ou errado)
+    // só entra em aprendizado; acerto com ajuda = hard; acerto sem ajuda =
+    // good, no máximo uma promoção por dia. O erro continua como "again".
+    const GRADE_RANK: Record<Grade, number> = { again: 0, hard: 1, good: 2, easy: 3 };
+    const lessonGrades = new Map<string, { type: ItemType; itemId: string; domain: ReviewDomain; track: Track; grade: Grade | null }>();
+    let stepGrade: Grade | null = null;
     const gradeOnce = (
       type: ItemType,
       itemId: string,
@@ -3622,17 +3637,12 @@ export function LessonPlayer() {
     ) => {
       if (isCultureDomain) return;
       const key = `${type}:${itemId}:${domain}`;
-      if (gradedDomains.has(key)) return;
-      gradedDomains.add(key);
-      gradeReviewDomain({
-        ensureSrs,
-        gradeSrs,
-        type,
-        itemId,
-        track: sourceTrack,
-        domain,
-        grade: "good",
-      });
+      const seen = lessonGrades.get(key);
+      if (!seen) {
+        lessonGrades.set(key, { type, itemId, domain, track: sourceTrack, grade: stepGrade });
+        return;
+      }
+      if (stepGrade && (!seen.grade || GRADE_RANK[stepGrade] > GRADE_RANK[seen.grade])) seen.grade = stepGrade;
     };
     const gradeText = (text: string | undefined, domain: ReviewDomain, sourceTrack: Track = track) => {
       const chunk = findChunkByText(text);
@@ -3643,6 +3653,7 @@ export function LessonPlayer() {
     };
 
     for (const s of lesson.steps) {
+      stepGrade = lessonEvidenceGrade(stepEvidenceRef.current.get(lesson.steps.indexOf(s)));
       if ((s.kind === "decompose" || s.kind === "recognize") && s.charId) {
         gradeOnce("char", s.charId, s.kind === "decompose" ? "forma" : "significado");
       }
@@ -3742,6 +3753,21 @@ export function LessonPlayer() {
         }
       }
     }
+    const mistakeKeys = new Set(mistakeReviewTargetsRef.current.map((target) => `${target.type}:${target.itemId}:${target.domain}`));
+    const liveSrs = useStore.getState().srs;
+    const srsCounts = { promoted: 0, assisted: 0, exposed: 0 };
+    for (const [key, entry] of lessonGrades) {
+      const promote =
+        entry.grade && !mistakeKeys.has(key) && !(entry.grade === "good" && promotedToday(liveSrs[makeKey(entry.type, entry.itemId, entry.domain)]));
+      if (!promote || !entry.grade) {
+        if (!mistakeKeys.has(key)) srsCounts.exposed += 1;
+        ensureSrs(entry.type, entry.itemId, entry.track, entry.domain);
+        continue;
+      }
+      if (entry.grade === "good") srsCounts.promoted += 1;
+      else srsCounts.assisted += 1;
+      gradeReviewDomain({ ensureSrs, gradeSrs, type: entry.type, itemId: entry.itemId, track: entry.track, domain: entry.domain, grade: entry.grade });
+    }
     const weakDomains = new Set<string>();
     if (!isCultureDomain) {
       for (const target of mistakeReviewTargetsRef.current) {
@@ -3758,6 +3784,20 @@ export function LessonPlayer() {
           grade: "again",
         });
       }
+      // R3 — métricas agregadas (só contagens, respeitando o opt-in).
+      const srsAfter = useStore.getState().srs;
+      void trackPedagogyEvent({
+        eventType: "srs_summary",
+        lessonId: lesson.id,
+        metadata: {
+          source: "lesson",
+          promoted: srsCounts.promoted,
+          assisted: srsCounts.assisted,
+          exposed: srsCounts.exposed,
+          lapses: weakDomains.size,
+          leeches: mistakeReviewTargetsRef.current.filter((target) => srsAfter[makeKey(target.type, target.itemId, target.domain)]?.leech === true).length,
+        },
+      });
     }
     const minutesEarned = lesson.estimatedMinutes ?? 5;
     const goalMin = dailyGoalMinutesFor(useStore.getState());
@@ -4166,6 +4206,7 @@ export function LessonPlayer() {
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
       mistakeReviewTargetsRef.current = [];
+      stepEvidenceRef.current = new Map();
       setPostLessonView("victory");
       setDailyGoalReached(false);
       setClaimedRewardCards(false);

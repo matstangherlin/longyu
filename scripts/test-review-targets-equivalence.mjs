@@ -51,7 +51,10 @@ for (const lesson of ALL_LESSONS) {
   }
 }
 const digest = hash.digest("hex").slice(0, 16);
-const expected = "05d656ecf10d3a1e";
+// QA 2026-10 · prompt 21 (R4, LGY-027): regra nova de alvos (audio_to_action,
+// substitution_drill, produce sem target, item testado fora do "ensinado",
+// refs da cena e mandarim da etapa como último recurso). Antes: 05d656ecf10d3a1e.
+const expected = "6bcc8b073e522373";
 assert.equal(digest, expected, `${steps} etapas`);
 assert.equal(steps, 6018);
 console.log(`test:review-targets-equivalence PASS ${steps} etapas ${digest}`);
