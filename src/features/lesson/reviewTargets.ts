@@ -95,7 +95,67 @@ export function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
   );
 }
 
+const CJK = /[\u3400-\u9fff\uf900-\ufaff]/u;
+
+function hasCjk(text: string | undefined): text is string {
+  return Boolean(text && CJK.test(text));
+}
+
+/** "chunk:id" / "char:id" de uma cena viram alvo direto. */
+function refTargets(refs: readonly string[] | undefined, domain: ReviewDomain, track: Track): LessonReviewTarget[] {
+  return (refs ?? []).flatMap((ref) => {
+    const [type, itemId] = ref.split(":");
+    return (type === "chunk" || type === "char") && itemId ? [{ type, itemId, domain, track } as LessonReviewTarget] : [];
+  });
+}
+
+/**
+ * QA 2026-10 · R4 (LGY-027) — toda etapa avaliada errada gera ao menos um
+ * alvo. Se o filtro do que a lição ensinou zera os alvos, vale o item que a
+ * própria etapa testou (o aluno acabou de vê-lo). Se ainda não há alvo, o
+ * mandarim da etapa (resposta, hànzì, áudio, partes) vira alvo de uso. Etapa
+ * sem mandarim conhecido no catálogo (conceito em português, pinyin solto,
+ * palavra fora do catálogo) continua sem alvo: não há item para revisar.
+ */
 export function reviewTargetsForMistake(
+  step: LessonStep,
+  track: Track,
+  introduced?: ReadonlySet<string>
+): LessonReviewTarget[] {
+  const direct = reviewTargetsForMistakeOnly(step, track, introduced);
+  if (direct.length > 0 || !introduced) return direct.length > 0 ? direct : fallbackReviewTargets(step, track);
+  const tested = reviewTargetsForMistakeOnly(step, track, undefined);
+  return tested.length > 0 ? tested : fallbackReviewTargets(step, track);
+}
+
+function fallbackReviewTargets(step: LessonStep, track: Track): LessonReviewTarget[] {
+  const fromRefs = refTargets([...(step.newRefs ?? []), ...(step.learnedRefs ?? [])], "uso", track);
+  if (fromRefs.length > 0) return uniqueLessonReviewTargets(fromRefs);
+  const blankSentence = step.blankAnswer ? `${step.sentenceBefore ?? ""}${step.blankAnswer}${step.sentenceAfter ?? ""}` : undefined;
+  const candidates = [
+    step.correctAnswer,
+    step.answer,
+    step.blankAnswer,
+    blankSentence,
+    step.targetHanzi,
+    step.hanzi,
+    step.audioText,
+    step.sourceText,
+    step.targetParts?.join(""),
+    step.target?.join(""),
+    step.signHanzi,
+    step.priceHanzi,
+    step.repairNpcHanzi,
+  ];
+  for (const text of candidates) {
+    if (!hasCjk(text)) continue;
+    const found = textReviewTargets(text, "uso", track);
+    if (found.length > 0) return uniqueLessonReviewTargets(found);
+  }
+  return [];
+}
+
+function reviewTargetsForMistakeOnly(
   step: LessonStep,
   track: Track,
   introduced?: ReadonlySet<string>
@@ -133,9 +193,18 @@ export function reviewTargetsForMistake(
   }
   if (step.kind === "comprehend") addText(step.hanzi ?? step.answer, "significado");
   if (step.kind === "produce") {
-    const text = step.target?.join("");
+    const text = step.target?.join("") || step.correctAnswer;
     addText(text, "uso");
     addText(text, "fala");
+  }
+  if (step.kind === "audio_to_action") {
+    addText(step.audioText ?? step.correctAnswer, "som", "som");
+    addText(step.audioText ?? step.correctAnswer, "pinyin", "som");
+    addText(step.correctAnswer, "significado");
+  }
+  if (step.kind === "substitution_drill") {
+    addText(step.blankAnswer, "uso");
+    if (step.blankAnswer) addText(`${step.sentenceBefore ?? ""}${step.blankAnswer}${step.sentenceAfter ?? ""}`, "uso");
   }
   if (step.kind === "recognize" && step.charId) {
     targets.push({ type: "char", itemId: step.charId, domain: "significado", track });

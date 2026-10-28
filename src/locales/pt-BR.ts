@@ -1265,6 +1265,12 @@ export const ptBR = {
     chestUnavailableBody: "Este baú não está disponível agora. Nada foi gasto.",
   },
   review: {
+    // QA 2026-10 · R3 — palavras sanguessuga (leech) fora da fila normal.
+    leechTitle: "Palavras difíceis",
+    leechDesc: "Você errou estas {count} palavras muitas vezes. Elas saíram da fila normal: veja a dica e teste de novo.",
+    leechStart: "Treinar com dica",
+    leechHintEyebrow: "Palavra difícil · veja e lembre",
+    leechTestNow: "Testar agora",
     atlasStudySet: "Treino do Atlas · {n} Hànzì",
     assistedNote: "Você consultou o Hànzì: vale como aprendizagem assistida (nota máxima: Difícil).",
     title: "Revisão",

@@ -11,7 +11,7 @@ import { leagueXpKeyActivity } from "../../lib/leagueXpKeys";
 import { todayKey } from "../../lib/storage";
 import { useStore, type Track } from "../../lib/store";
 import type { ActivityErrorRecord } from "../../lib/store";
-import { dueItems, describeNextDue, makeKey, newItem, type SRSItem, type Grade, type ReviewDomain } from "../../lib/srs";
+import { dueItems, describeNextDue, leechItems, makeKey, newItem, type SRSItem, type Grade, type ReviewDomain } from "../../lib/srs";
 import { primaryReviewDomain } from "../../lib/reviewPlan";
 import { REVIEW_DOMAIN_META, REVIEW_DOMAIN_ORDER } from "../../data/reviewDomains";
 import { reviewExampleFor, type ReviewExample } from "../../data/reviewExamples";
@@ -78,6 +78,7 @@ import {
 } from "../../lib/reviewSessionComposer";
 import { GuidanceInlineSlot } from "../../components/guidance/GuidanceHost";
 import { trackFunnelEvent } from "../../services/funnelEvents";
+import { trackPedagogyEvent } from "../../services/pedagogyEvents";
 import { playSoundFx, type SoundKind } from "../../lib/soundFx";
 import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { decideFeedbackAudio } from "../lesson/feedbackAudioPolicy";
@@ -1302,6 +1303,8 @@ export function RevisaoPage() {
   // RC2.3.6 — "Praticar o que preciso": a fila vem do Personal Mastery (prioridade),
   // os itens são do MESMO srs e só entram itens que o aluno já tem (ensinados).
   const masterySession = searchParams.get("sessao") === "dominio";
+  // QA 2026-10 · R3 — "Palavras difíceis": só os itens sanguessuga, com dica antes.
+  const leechSession = searchParams.get("sessao") === "dificeis";
   const personalMastery = useLearnerMastery();
   const learnedCharsForStudySet = useStore((s) => s.learnedChars);
   const moduleUnit = moduleUnitId ? findUnitById(moduleUnitId) : undefined;
@@ -1321,6 +1324,17 @@ export function RevisaoPage() {
   const [sessionNonce, setSessionNonce] = useState(0);
   const reviewEvidenceSessionRef = useRef(Date.now().toString(36));
   const fullQueue = useMemo(() => {
+    if (leechSession) {
+      if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
+      const now = Date.now();
+      const entries: ReviewQueueEntry[] = leechItems(srs).map((leechItem) => ({
+        kind: "srs",
+        id: `${LEECH_ENTRY_PREFIX}${leechItem.id}`,
+        item: { ...leechItem, due: Math.min(leechItem.due, now) },
+      }));
+      sessionQueueRef.current = entries;
+      return entries;
+    }
     if (masterySession) {
       if (sessionQueueRef.current !== null && sessionQueueRef.current.length > 0) return sessionQueueRef.current;
       const now = Date.now();
@@ -1359,7 +1373,7 @@ export function RevisaoPage() {
     }
     return sessionQueueRef.current;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `sessionNonce` recongela a fila de propósito
-  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, masterySession, moduleUnitId, personalMastery, srs, sessionNonce]);
+  }, [activeActivityErrors, atlasStudySet, completedLessons, detailedErrorsAllowed, learnedCharsForStudySet, leechSession, masterySession, moduleUnitId, personalMastery, srs, sessionNonce]);
   // Modos de revisão: recuperar erros da tentativa/recentes, reforçar itens
   // fracos ou percorrer a fila inteligente inteira. O modo só filtra a fila já
   // congelada — não reconstrói SRS nem duplica nada.
@@ -1379,6 +1393,7 @@ export function RevisaoPage() {
       searchParams.has("modulo") ||
       searchParams.get("iniciar") === "1" ||
       searchParams.get("sessao") === "dominio" ||
+      searchParams.get("sessao") === "dificeis" ||
       atlasStudySet != null
   );
   // A Jornada grava a âncora ao desmontar (no mesmo commit em que esta tela
@@ -1502,6 +1517,9 @@ export function RevisaoPage() {
   const item = entry?.item;
   const sourceError = entry?.kind === "mistake" ? entry.error : null;
   const data = item ? resolve(item) : null;
+  // R3 — remediação: a palavra difícil reaparece com a dica e depois é testada sem ela.
+  const [leechHintSeen, setLeechHintSeen] = useState<string | null>(null);
+  const leechHintPending = Boolean(entry?.id.startsWith(LEECH_ENTRY_PREFIX) && data && leechHintSeen !== entry?.id);
   const domain = entry ? domainForEntry(entry) : "significado";
   const learnedItems = useMemo(() => Object.values(srs), [srs]);
   const studentName = useStudentFirstName();
@@ -1559,6 +1577,17 @@ export function RevisaoPage() {
     if (queue.length > 0 && pos >= queue.length) {
       reviewCompletedRef.current = true;
       trackFunnelEvent("review_completed", { items: queue.length, mode });
+      // R3 — resumo agregado do SRS (só contagens, respeitando o opt-in).
+      void trackPedagogyEvent({
+        eventType: "srs_summary",
+        metadata: {
+          source: leechSession ? "leech_review" : "review",
+          reviewed: sessionGrades.length,
+          promoted: sessionGrades.filter((graded) => graded.correct).length,
+          lapses: sessionGrades.filter((graded) => !graded.correct).length,
+          leeches: leechItems(useStore.getState().srs).length,
+        },
+      });
       // Concluir a revisão recupera a ofensiva pendente. Fica aqui, e não no
       // `recordStudyDay` de cada item corrigido, porque uma pergunta
       // respondida não é uma revisão concluída — quem entra, responde uma e
@@ -1566,6 +1595,7 @@ export function RevisaoPage() {
       // que a tela já usava, em vez de inventar uma segunda.
       completeStudySession();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dispara uma vez, no fim da sessão
   }, [completeStudySession, mode, pos, queue.length]);
 
   const sessionFinished = queue.length > 0 && pos >= queue.length;
@@ -1587,6 +1617,12 @@ export function RevisaoPage() {
     setPos(0);
     setSessionNonce((value) => value + 1);
   }, []);
+  // R3 — "Treinar com dica": mesma página, fila nova só com as palavras difíceis.
+  const startLeechSession = useCallback(() => {
+    setSearchParams({ sessao: "dificeis" });
+    continueReviewing();
+    setRoundStarted(true);
+  }, [continueReviewing, setSearchParams]);
 
   // Trocar de modo recomeça a fila filtrada do zero (sem carregar retry antigo).
   useEffect(() => {
@@ -1788,6 +1824,8 @@ export function RevisaoPage() {
             columns="grid-cols-2 sm:grid-cols-4"
           />
         </HubSection>
+
+        <LeechWordsCard srs={srs} onStart={startLeechSession} />
 
         <Card className="rounded-xl border-line/70 p-6 text-center shadow-none">
           {reviewed > 0 ? (
@@ -2270,7 +2308,8 @@ export function RevisaoPage() {
       )}
 
       {!inRound ? (
-        <div className="mx-auto max-w-xl" data-review-hub-start="">
+        <div className="mx-auto max-w-xl space-y-3" data-review-hub-start="">
+          <LeechWordsCard srs={srs} onStart={startLeechSession} />
           <Button
             size="lg"
             className="min-h-12 w-full"
@@ -2307,6 +2346,9 @@ export function RevisaoPage() {
           )}
         </div>
 
+        {leechHintPending && data && entry ? (
+          <LeechHintCard data={data} onTest={() => setLeechHintSeen(entry.id)} />
+        ) : (
         <Card className="p-6 sm:p-8">
           <div className="mb-3 text-center text-sm font-medium text-ink-soft">
             {correctionDrill
@@ -2448,10 +2490,59 @@ export function RevisaoPage() {
           </>
           )}
         </Card>
+        )}
       </div>
       )}
       <ProPaywall open={proPaywallOpen} kind={proPaywallKind} onClose={() => setProPaywallOpen(false)} />
     </HubPage>
+  );
+}
+
+/** QA 2026-10 · R3 — prefixo das entradas da sessão "Palavras difíceis". */
+const LEECH_ENTRY_PREFIX = "dificil:";
+
+/** Reapresentação da palavra difícil: hànzì, pinyin, sentido e dica; depois o teste sem dica. */
+function LeechHintCard({ data, onTest }: { data: Resolved; onTest: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <Card className="p-6 text-center sm:p-8" data-testid="review-leech-hint">
+      <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint">{t("review.leechHintEyebrow")}</div>
+      <div className={`mt-3 hanzi ${REVIEW_HANZI_CLASS.pair}`}>{data.hanzi}</div>
+      <div className="mt-1 text-sm font-medium text-ink-soft">{data.pinyin}</div>
+      <div className="mt-1 text-sm text-ink">{displayInstruction(data.meaningPt)}</div>
+      {data.mnemonicPt ? <p className="mt-3 text-xs leading-5 text-ink-faint">{displayInstruction(data.mnemonicPt)}</p> : null}
+      <Button size="lg" className="mt-5 min-h-12 w-full" onClick={onTest} data-testid="review-leech-test">
+        {t("review.leechTestNow")}
+      </Button>
+    </Card>
+  );
+}
+
+/** QA 2026-10 · R3 — hub: as palavras sanguessuga saem da fila e ficam aqui. */
+function LeechWordsCard({ srs, onStart }: { srs: Record<string, SRSItem>; onStart: () => void }) {
+  const { t } = useTranslation();
+  const words = leechItems(srs)
+    .map((leechItem) => resolve(leechItem))
+    .filter((resolved): resolved is Resolved => resolved !== null);
+  if (words.length === 0) return null;
+  const shown = words.filter((word, index) => words.findIndex((other) => other.hanzi === word.hanzi) === index).slice(0, 5);
+  return (
+    <Card className="rounded-xl border-line/70 p-4 shadow-none" data-testid="review-leech-card">
+      <div className="text-sm font-semibold text-ink">{t("review.leechTitle")}</div>
+      <p className="mt-1 text-xs leading-5 text-ink-soft">{t("review.leechDesc", { count: words.length })}</p>
+      <ul className="mt-3 flex flex-wrap gap-2">
+        {shown.map((word) => (
+          <li key={`${word.type}:${word.itemId}`}>
+            <Pill tone="accent">
+              <span className="hanzi">{word.hanzi}</span> · {word.pinyin}
+            </Pill>
+          </li>
+        ))}
+      </ul>
+      <Button variant="outline" className="mt-3 w-full sm:w-auto" onClick={onStart} data-testid="review-leech-start">
+        {t("review.leechStart")}
+      </Button>
+    </Card>
   );
 }
 
@@ -2501,7 +2592,8 @@ function buildReviewQueue(
   if (includeRecentWeakItems) {
     const recentErrors = Object.values(srs)
       .filter((item) => {
-        if (queued.has(item.id) || item.lapses <= 0) return false;
+        // Leech fica fora da fila normal (R3): volta por "Palavras difíceis".
+        if (queued.has(item.id) || item.lapses <= 0 || item.leech === true) return false;
         const touchedAt = item.reviewedAt ?? item.createdAt;
         return touchedAt >= now - RECENT_ERROR_WINDOW_MS;
       })

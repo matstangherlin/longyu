@@ -20,12 +20,80 @@ export interface SRSItem {
   lapses: number;
   createdAt: number;
   reviewedAt?: number;
+  /** QA 2026-10 · R3 — intervalo que o item tinha antes do último lapso (dias). */
+  lapseIntervalDays?: number;
+  /** QA 2026-10 · R3 — "sanguessuga": errou LEECH_LAPSES vezes; sai da fila normal. */
+  leech?: boolean;
+  /** QA 2026-10 · R1 — dia local (YYYY-MM-DD) da última promoção. */
+  lastPromotedDay?: string;
 }
 
 export type Grade = "again" | "hard" | "good" | "easy";
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
+
+/** QA 2026-10 · R3 — nenhum item some por mais de um ano. */
+export const MAX_INTERVAL_DAYS = 365;
+/** QA 2026-10 · R3 — teto do fator de facilidade (o piso continua 1,25 / 1,3). */
+export const MAX_EASE = 2.8;
+/**
+ * QA 2026-10 · R3 — lapso não zera o histórico: depois do `again` o item
+ * reaprende com os passos curtos e, ao graduar de novo, volta com
+ * `max(1, intervaloAnterior × LAPSE_INTERVAL_FACTOR)` dias.
+ */
+export const LAPSE_INTERVAL_FACTOR = 0.5;
+/** QA 2026-10 · R3 — lapsos até marcar o item como sanguessuga (leech). */
+export const LEECH_LAPSES = 8;
+/** QA 2026-10 · R3 — acertos seguidos na remediação para sair do leech. */
+export const LEECH_RELEASE_REPS = 2;
+
+/** Dia local do calendário (YYYY-MM-DD), a mesma regra de `todayKey`. */
+function localDayKey(now: number): string {
+  const d = new Date(now);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * QA 2026-10 · R1 (LGY-015) — o item já foi promovido hoje? A lição usa isso
+ * para que 4 passes no mesmo dia rendam no máximo uma promoção.
+ */
+export function promotedToday(item: SRSItem | undefined, now = Date.now()): boolean {
+  return Boolean(item?.lastPromotedDay) && item?.lastPromotedDay === localDayKey(now);
+}
+
+/** Resultado de uma etapa da lição, do ponto de vista da evidência. */
+export interface LessonStepEvidence {
+  /** A etapa avaliou resposta (não é só apresentação). */
+  graded: boolean;
+  correct?: boolean;
+  /** Pediu ajuda ou usou tentativa protegida (retry). */
+  assisted?: boolean;
+}
+
+/**
+ * QA 2026-10 · R1 (LGY-015) — nota que a lição dá ao item. `null` = só
+ * exposição: o item nasce/fica em aprendizado, sem promoção. Erro também é
+ * `null` aqui: o `again` vem dos alvos de revisão do erro.
+ */
+export function lessonEvidenceGrade(evidence: LessonStepEvidence | undefined): Grade | null {
+  if (!evidence?.graded || evidence.correct !== true) return null;
+  return evidence.assisted ? "hard" : "good";
+}
+
+function capEase(ease: number): number {
+  return Math.min(MAX_EASE, ease);
+}
+
+function capInterval(days: number): number {
+  return Math.min(MAX_INTERVAL_DAYS, days);
+}
+
+/** Sai do leech depois de LEECH_RELEASE_REPS acertos seguidos. */
+function leechAfter(item: SRSItem, reps: number): boolean | undefined {
+  if (!item.leech) return item.leech;
+  return reps < LEECH_RELEASE_REPS;
+}
 
 const INITIAL_DOMAIN_DELAY_MIN: Record<ReviewDomain, number> = {
   som: 0,
@@ -113,9 +181,14 @@ export function review(item: SRSItem, grade: Grade, now = Date.now()): SRSItem {
     reps = 0;
     lapses += 1;
     ease = Math.max(1.25, ease - 0.3);
+    // Guarda o intervalo de antes do lapso (um item que já estava reaprendendo
+    // mantém o que tinha) para graduar de volta numa fração dele.
+    const lapseIntervalDays = intervalDays > 0 ? intervalDays : item.lapseIntervalDays;
     intervalDays = 0;
-    return { ...item, ease, intervalDays, reps, lapses, due: now + 10 * 60 * 1000, reviewedAt: now };
+    const leech = item.leech || lapses >= LEECH_LAPSES;
+    return { ...item, ease, intervalDays, reps, lapses, lapseIntervalDays, leech, due: now + 10 * 60 * 1000, reviewedAt: now };
   }
+  const promotedDay = localDayKey(now);
 
   // Fase de aprendizado: item que ainda não graduou para um intervalo de dia
   // (novo ou que voltou a zero após "again"). Passos intra-dia em vez de pular
@@ -131,23 +204,40 @@ export function review(item: SRSItem, grade: Grade, now = Date.now()): SRSItem {
       return { ...item, ease, intervalDays: 0, reps, lapses, due: now + 10 * 60 * 1000, reviewedAt: now };
     }
     reps += 1;
+    const leech = leechAfter(item, reps);
     if (grade === "easy") {
-      ease = ease + 0.18;
+      ease = capEase(ease + 0.18);
       intervalDays = Math.max(1, Number((3 * intervalWeight).toFixed(2)));
     } else {
-      ease = Math.max(1.3, ease + 0.02);
+      ease = capEase(Math.max(1.3, ease + 0.02));
       if (reps === 1) {
-        return { ...item, ease, intervalDays: 0, reps, lapses, due: now + 60 * 60 * 1000, reviewedAt: now };
+        return { ...item, ease, intervalDays: 0, reps, lapses, leech, due: now + 60 * 60 * 1000, reviewedAt: now, lastPromotedDay: promotedDay };
       }
       intervalDays = Math.max(1, Number((1 * intervalWeight).toFixed(2)));
     }
-    return { ...item, ease, intervalDays, reps, lapses, due: now + intervalDays * DAY, reviewedAt: now };
+    // Reaprendendo depois de um lapso: volta numa fração do intervalo anterior.
+    if (item.lapseIntervalDays && item.lapseIntervalDays > 0) {
+      intervalDays = Math.max(intervalDays, Math.round(item.lapseIntervalDays * LAPSE_INTERVAL_FACTOR));
+    }
+    intervalDays = capInterval(intervalDays);
+    return {
+      ...item,
+      ease,
+      intervalDays,
+      reps,
+      lapses,
+      leech,
+      lapseIntervalDays: undefined,
+      due: now + intervalDays * DAY,
+      reviewedAt: now,
+      lastPromotedDay: promotedDay,
+    };
   }
 
   reps += 1;
   if (grade === "hard") ease = Math.max(1.3, ease - 0.18);
-  if (grade === "good") ease = Math.max(1.3, ease + 0.02);
-  if (grade === "easy") ease = ease + 0.18;
+  if (grade === "good") ease = capEase(Math.max(1.3, ease + 0.02));
+  if (grade === "easy") ease = capEase(ease + 0.18);
 
   if (grade === "hard") {
     const hardHours = domain ? DOMAIN_HARD_DELAY_HOURS[domain] : 12;
@@ -156,8 +246,10 @@ export function review(item: SRSItem, grade: Grade, now = Date.now()): SRSItem {
   else if (reps === 2) intervalDays = grade === "easy" ? 7 : 3;
   else intervalDays = intervalDays * ease;
 
-  intervalDays = Math.max(grade === "hard" ? 0.25 : 1, Number((intervalDays * intervalWeight).toFixed(2)));
-  return { ...item, ease, intervalDays, reps, lapses, due: now + intervalDays * DAY, reviewedAt: now };
+  intervalDays = capInterval(Math.max(grade === "hard" ? 0.25 : 1, Number((intervalDays * intervalWeight).toFixed(2))));
+  const leech = leechAfter(item, reps);
+  const lastPromotedDay = grade === "hard" ? item.lastPromotedDay : promotedDay;
+  return { ...item, ease, intervalDays, reps, lapses, leech, due: now + intervalDays * DAY, reviewedAt: now, lastPromotedDay };
 }
 
 export function isDue(item: SRSItem, now = Date.now()): boolean {
@@ -168,9 +260,19 @@ export function isSrsItem(value: unknown): value is SRSItem {
   return Boolean(value) && typeof value === "object" && typeof (value as SRSItem).due === "number";
 }
 
+/** QA 2026-10 · R3 — itens sanguessuga, para "Palavras difíceis" (mais lapsos primeiro). */
+export function leechItems(items: Record<string, SRSItem> | null | undefined): SRSItem[] {
+  return Object.values(items ?? {})
+    .filter(isSrsItem)
+    .filter((it) => it.leech === true)
+    .sort((a, b) => b.lapses - a.lapses || (b.reviewedAt ?? b.createdAt) - (a.reviewedAt ?? a.createdAt));
+}
+
 export function dueItems(items: Record<string, SRSItem> | null | undefined, now = Date.now()): SRSItem[] {
   const due = Object.values(items ?? {})
     .filter(isSrsItem)
+    // Leech sai da fila normal: volta pela remediação de "Palavras difíceis".
+    .filter((it) => it.leech !== true)
     .filter((it) => isDue(it, now))
     .sort((a, b) => reviewPriority(b, now) - reviewPriority(a, now));
 
