@@ -97,7 +97,9 @@ test.describe("RC2.2.23 · zero Cargas não trava o app", () => {
     await expect(page.getByTestId("energy-free-lanes").locator("a")).not.toHaveCount(0);
     const order = await landing.evaluate((root) => {
       const at = (id: string) => [...root.querySelectorAll("[data-testid]")].findIndex((node) => node.getAttribute("data-testid") === id);
-      return [at("energy-free-lanes"), at("energy-get-charge"), at("energy-pro-link")];
+      // QA 2026-10 · R-19 — "Conseguir Carga" só com missão resgatável; sem ela,
+      // a dica da missão de Carga ocupa o mesmo lugar.
+      return [at("energy-free-lanes"), Math.max(at("energy-get-charge"), at("energy-charge-mission-hint")), at("energy-pro-link")];
     });
     expect(order[0]).toBeGreaterThanOrEqual(0);
     expect(order[0]).toBeLessThan(order[1]);

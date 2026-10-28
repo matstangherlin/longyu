@@ -50,11 +50,11 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 | Business na beta | 16 | Mostrar `/business` | (a) esconder · (b) manter | (a) | padrão (a) aplicado em 26/10/2026; confirmação do Matty: ____ (data) |
 | Indicação | 16 | Recompensa por convite | agora ou depois | adiar (LGY-035) | adiado em 26/10/2026; confirmação do Matty: ____ (data) |
 | Perfil público | 16 | `/u/:username` na beta | sim ou não | não | 404 em `/u/*` e `/@*`; confirmação do Matty: ____ (data) |
-| Economia | 20 | Fonte canônica de Cargas | (a) `energyPolicy.ts` · (b) `economy.ts` | (a); `economy.ts` só constantes | ____ (data) |
-| Pinyin/Hànzì | 20 | Cobrar Pinyin Lab, Hànzì, Som, Fala, Leitura? | (a) não · (b) sim | (a) não cobrar; copy "Grátis" | ____ (data) |
-| Imersão | 20 | Imersão sem Cargas | (a) bloqueia áudio e libera histórias · (b) bloqueia tudo · (c) libera tudo | a regra que o código já cobra em `immersion_session`; banner igual ao código | ____ (data) |
-| Vocabulário | 20 | Renomear Vidas / Pulos / Energia | agora ou depois | adiar para depois da beta fechada | ____ (data) |
-| Módulo grátis | 20 | "Sem custo se aprovado" | agora ou depois | adiar | ____ (data) |
+| Economia | 20 | Fonte canônica de Cargas | (a) `energyPolicy.ts` · (b) `economy.ts` | (a); `economy.ts` só constantes | padrão (a) aplicado pelo agente em 27/10/2026 (`chargeCostFor` / `describeAccess`); confirmação do Matty: ____ (data) |
+| Pinyin/Hànzì | 20 | Cobrar Pinyin Lab, Hànzì, Som, Fala, Leitura? | (a) não · (b) sim | (a) não cobrar; copy "Grátis" | padrão (a) aplicado em 27/10/2026: comportamento atual mantido, a copy passou a dizer "Grátis"; confirmação do Matty: ____ (data) |
+| Imersão | 20 | Imersão sem Cargas | (a) bloqueia áudio e libera histórias · (b) bloqueia tudo · (c) libera tudo | a regra que o código já cobra em `immersion_session`; banner igual ao código | (a) aplicado em 27/10/2026, porque é o que o código cobra: sessão de escuta nova do dia ("Escuta e frases") usa 1 Carga; reouvir/continuar a mesma sessão no dia e as histórias interativas não usam. O banner diz isso. Confirmação do Matty: ____ (data) |
+| Vocabulário | 20 | Renomear Vidas / Pulos / Energia | agora ou depois | adiar para depois da beta fechada | adiado em 27/10/2026; nenhuma palavra da UI mudou; confirmação do Matty: ____ (data) |
+| Módulo grátis | 20 | "Sem custo se aprovado" | agora ou depois | adiar | adiado em 27/10/2026 (mudança de economia congelada); o teste de módulo continua custando 1 Carga; confirmação do Matty: ____ (data) |
 | Revisão Free | 23 | Limite por sessão | manter 20 ou mudar | manter 20; só corrigir a ordem | ____ (data) |
 | Prioridade SRS | 23 | Critério da fila Free | — | mais atrasado, depois lapsos/leech, depois mais antigo | ____ (data) |
 | SRS máximo | 21 | Intervalo máximo | 180 ou 365 dias, ou FSRS 0,90 | 365 dias, sem trocar o algoritmo | ____ (data) |
@@ -71,3 +71,21 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 | A/B | 28 | Experimentos na beta fechada | A/B ou coorte | antes/depois por coorte; A/B só na beta pública | ____ (data) |
 | A11y | 29 | Relação com o PR #358 | (a) depois do merge · (b) dentro do #358 | (a), um PR por item | ____ (data) |
 | Texto mínimo | 29 | Tamanho | — | 12 px informativo; 11 px só em rótulo decorativo/legal | ____ (data) |
+
+## Experimentos registrados (não implementados)
+
+### Fôlego determinístico (prompt 20 · R11 / §6.7 item 8)
+
+- Ideia: o Fôlego deixa de depender de sorte (`FOLEGO_PERFECT_EARN_CHANCE`) e passa a vir por regra fixa.
+- Estado: **não implementado**. É mudança de economia congelada.
+- Proposta: experimento A/B na beta pública, comparando D7 e uso de Fôlego entre as coortes. Na beta fechada, no máximo antes/depois por coorte (ver a decisão A/B do prompt 28).
+- Decisão do Matty: ____ (data)
+
+### Dia das Cargas no aparelho × no servidor (prompt 20 · LGY-034)
+
+- Fato: o servidor vira `user_economy.energy_day` com `current_date`, e o Postgres de produção roda em UTC (consulta só de leitura em 27/10/2026: `TimeZone = UTC`). O aparelho vira o dia à meia-noite local (`todayKey`).
+- Efeito: conta na nuvem em Brasília recebe Cargas às 21:00. A tela agora diz 21:00 para conta na nuvem e 00:00 para conta local.
+- Risco aberto: entre 21:00 e 00:00 o aparelho ainda acha que é o dia anterior. À meia-noite local o store pode recarregar sozinho e o servidor recusar a Carga ("Carga não confirmada pelo servidor").
+- Opções: (a) o servidor usar o fuso do aluno · (b) o cliente seguir o `energy_day` do servidor · (c) manter e só explicar. Este PR fez só (c). Mudar (a) ou (b) é economia congelada.
+- Decisão do Matty: ____ (data)
+

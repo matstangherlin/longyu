@@ -171,8 +171,9 @@ export const PLAN_FEATURES: readonly PlanFeature[] = [
     descricao: "Laboratório de pinyin, tons e pronúncia guiada.",
     plano: "free",
     freeTier: "Modos básicos após desbloqueio na Jornada",
-    freeLimit: "Consome Cargas no plano grátis",
-    proBenefit: "Pinyin Lab completo, sem limite de Cargas.",
+    // LGY-016 — Pinyin Lab é extra_training: não usa Carga (energyPolicy.ts).
+    freeLimit: "Laboratório completo no Pro",
+    proBenefit: "Pinyin Lab completo, com todos os modos.",
     paywallKind: "pinyin",
     rota: "/pinyin",
   },
@@ -443,7 +444,7 @@ export const PAYWALL_COPY: Record<PaywallKind, PaywallCopy> = {
   pinyin: paywallFromFeature(getPlanFeature("pinyin_lab"), {
     eyebrow: "Pinyin Lab completo",
     title: "Pinyin Lab completo é Longyu Pro",
-    description: "Modos básicos de pinyin continuam grátis com Cargas. O Pro libera o laboratório completo.",
+    description: "Modos básicos de pinyin continuam grátis e não usam Carga. O Pro libera o laboratório completo.",
     benefit: getPlanFeature("pinyin_lab").proBenefit,
   }),
   hanzi: paywallFromFeature(getPlanFeature("hanzi_lab"), {
@@ -478,7 +479,7 @@ export const PAYWALL_COPY: Record<PaywallKind, PaywallCopy> = {
     eyebrow: "Imersão ampliada",
     title: "Mantenha o mandarim no ouvido",
     description:
-      "Sessões de áudio consomem Cargas no plano grátis. Histórias introdutórias continuam grátis e podem devolver +1 Carga por dia.",
+      "No plano grátis, cada sessão de escuta nova usa 1 Carga; reouvir no mesmo dia é grátis. Histórias introdutórias continuam grátis e podem devolver +1 Carga por dia.",
     benefit: getPlanFeature("imersao").proBenefit,
     freeContinues: getPlanFeature("imersao").freeLimit!,
   }),

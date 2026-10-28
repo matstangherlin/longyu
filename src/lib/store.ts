@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { activityConsumesCharge as energyActivityConsumesCharge } from "./energyPolicy";
+import { chargeCostFor } from "./energyPolicy";
 import { checkUsername, type UsernameRejection } from "./username";
 import {
   ACTIVITY_MEMORY_LIMIT,
@@ -945,9 +945,10 @@ function buildEconomySummary(s: AppState, date = todayKey()): EconomySummary {
 }
 
 // RC2.2.23 — só NOVA progressão principal consome Carga (ver energyPolicy.ts).
-// Prática do que já foi aprendido (extra_training) fica livre com zero Cargas.
-function activityConsumesCharge(activityType: EnergyActivityType): boolean {
-  return energyActivityConsumesCharge(activityType);
+// QA 2026-10 · LGY-016 — o custo vem de `chargeCostFor`: prática
+// (extra_training), revisão e conta custam 0 e nunca descontam Carga.
+function chargeCostOf(activityType: EnergyActivityType, state: AppState): number {
+  return chargeCostFor(activityType, { isPro: hasProAccess(state) });
 }
 
 export interface ActivityReviewTarget {
@@ -5484,15 +5485,14 @@ export const useStore = create<AppState>()(
 
       canStartActivity: (activityType) => {
         const state = get();
-        if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
-        if (activityType === "extra_training" && get().hasFocusPass()) return true;
-        return activeDailyEnergy(state.dailyEnergy).charges >= CHARGE_COST_ACTIVITY;
+        const cost = chargeCostOf(activityType, state);
+        if (cost === 0) return true;
+        return activeDailyEnergy(state.dailyEnergy).charges >= cost;
       },
 
       consumeCharge: (activityType, idempotencyKey) => {
         const state = get();
-        if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
-        if (activityType === "extra_training" && get().hasFocusPass()) return true;
+        if (chargeCostOf(activityType, state) === 0) return true;
         const energy = activeDailyEnergy(state.dailyEnergy);
         if (idempotencyKey && (energy.consumedChargeKeys ?? []).includes(idempotencyKey)) return true;
         if (energy.charges < CHARGE_COST_ACTIVITY) return false;

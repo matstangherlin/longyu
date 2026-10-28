@@ -2,6 +2,7 @@ import { ButtonLink } from "../ui/primitives";
 import { IconStar, IconX } from "../ui/Icon";
 import { recordProOfferClicked, type ProOfferCopy } from "../../lib/proOfferEngine";
 import { useTranslation } from "../../i18n/useTranslation";
+import { chargeRefillTime } from "../../hooks/useChargeRecovery";
 
 /**
  * Oferta do Pro em faixa, no fluxo da página — a contrapartida discreta do
@@ -53,7 +54,11 @@ export function ProOfferBanner({
           <p className="mt-1 text-xs leading-5 text-ink-soft">{display.description}</p>
           {/* Mantém a promessa do grátis visível: a faixa vende sem sugerir
               que o caminho gratuito parou de existir. */}
-          <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">{display.freeContinues}</p>
+          <p className="mt-1.5 text-[11px] leading-4 text-ink-faint">
+            {display.freeContinues}
+            {/* LGY-034 — quando as Cargas voltam, não só "amanhã". */}
+            {offer.kind === "energy_limit" ? ` ${t("energyAccess.refillAt", { time: chargeRefillTime() })}` : null}
+          </p>
 
           <ButtonLink
             to="/pro"

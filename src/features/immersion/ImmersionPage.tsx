@@ -52,6 +52,8 @@ import { useAutoSpeak } from "../../lib/useAutoSpeak";
 import { KeyboardShortcutHint, ShortcutBadge, shortcutKeyForIndex, useExerciseHotkeys } from "../../lib/useExerciseHotkeys";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
+import { chargeRefillTime } from "../../hooks/useChargeRecovery";
+import { describeAccess } from "../../lib/energyPolicy";
 import { useIsPro } from "../../lib/proAccess";
 import { markDevicePerf } from "../../lib/devicePerf";
 
@@ -482,17 +484,19 @@ export function ImmersionPage() {
         </Card>
       )}
 
+      {/* LGY-017 — a regra que openSession cobra: só a sessão de escuta NOVA
+          usa Carga (immersion_session). Histórias e reouvir seguem abertos. */}
       {outOfCharges && (
-        <Card className="rounded-xl border-line/70 p-3.5 shadow-none">
+        <Card className="rounded-xl border-line/70 p-3.5 shadow-none" data-testid="immersion-no-charges">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Sem cargas</div>
-              <h2 className="mt-1 text-sm font-semibold text-ink">Imersão pausada no plano grátis</h2>
-              <p className="mt-0.5 text-xs text-ink-soft">Complete uma missão ou libere com Pro.</p>
+              <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">{t("hub.immersionNoChargesEyebrow")}</div>
+              <h2 className="mt-1 text-sm font-semibold text-ink">{t("hub.immersionNoChargesTitle")}</h2>
+              <p className="mt-0.5 text-xs text-ink-soft">{t("hub.immersionNoChargesBody", { time: chargeRefillTime() })}</p>
             </div>
             <div className="flex gap-2">
-              <ButtonLink to="/missoes" size="sm">Missões</ButtonLink>
-              <ButtonLink to="/pro" size="sm" variant="outline">Ver Pro</ButtonLink>
+              <ButtonLink to="/missoes" size="sm">{t("hub.immersionNoChargesMissions")}</ButtonLink>
+              <ButtonLink to="/pro" size="sm" variant="outline">{t("hub.immersionNoChargesPro")}</ButtonLink>
             </div>
           </div>
         </Card>
@@ -748,16 +752,18 @@ function ImmersionSessionCard({
   onOpen: () => void;
   onBlocked: () => void;
 }) {
+  const { t } = useTranslation();
   const meta = MODE_META[session.mode];
   const SessionIcon = meta.icon;
-  const chargeLabel = isPremium
-    ? "∞ Cargas"
+  // LGY-016 — o custo vem da política: já feita/iniciada hoje = grátis.
+  const chargeLabel = t(describeAccess("immersion_session", { isPro: isPremium, sessionCompleted: completed || startedToday }).labelKey);
+  const actionLabel = blocked
+    ? t("hub.immersionSessionBlocked")
     : completed
-      ? "Repetir grátis"
+      ? t("hub.immersionSessionReplay")
       : startedToday
-        ? "Já iniciada hoje"
-        : "Consome 1 carga";
-  const actionLabel = blocked ? "Sem cargas hoje" : completed ? "Reouvir grátis" : startedToday ? "Continuar" : "Começar";
+        ? t("hub.immersionSessionContinue")
+        : t("hub.immersionSessionStart");
   return (
     <Card
       data-testid={`immersion-card-${session.id}`}

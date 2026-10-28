@@ -50,6 +50,7 @@ import { ToneContour } from "../../components/tone/ToneContour";
 import { PINYIN_PRACTICE_NODE, getJourneyNode } from "../../data/journeyOrchestrator";
 import { completeJourneyNode } from "../../lib/journeyNodeProgress";
 import { useTranslation } from "../../i18n/useTranslation";
+import { describeAccess } from "../../lib/energyPolicy";
 
 const BUILD_INITIAL_CHOICES = ["", ...PINYIN_INITIALS.map((item) => item.id)];
 const BUILD_FINAL_CHOICES = Array.from(new Set(PINYIN_BUILD_ROUNDS.map((round) => round.final)));
@@ -66,7 +67,7 @@ const PINYIN_LAB_VIEWS: { id: PinyinLabView; label: string }[] = [
 export function PinyinLabPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { instructionLocale } = useTranslation();
+  const { instructionLocale, t } = useTranslation();
   const journeyNode = getJourneyNode(searchParams.get("journeyNode"));
   const completedLessons = useStore((s) => s.completedLessons);
   const isPremium = useIsPro();
@@ -210,7 +211,8 @@ export function PinyinLabPage() {
             </p>
 
             <div className="flex flex-wrap gap-2">
-              <Pill tone={access.pro ? "gold" : "muted"}>{access.pro ? "Pro liberado" : "Grátis com Cargas"}</Pill>
+              {/* LGY-016 — Pinyin Lab é extra_training: não usa Carga. */}
+              <Pill tone={access.pro ? "gold" : "muted"}>{t(describeAccess("extra_training", { isPro: access.pro }).labelKey)}</Pill>
               {!hasVoice && <Pill tone="accent">Sem voz zh-CN dedicada</Pill>}
             </div>
           </div>
@@ -553,6 +555,7 @@ function PinyinAccentTrainer({
 
   function ensureTrainingCharge(): boolean {
     if (sessionCharged) return true;
+    // extra_training não cobra Carga (chargeCostFor = 0, energyPolicy.ts): o retorno é sempre true.
     if (!consumeCharge("extra_training")) {
       setPaywallOpen(true);
       return false;
@@ -765,6 +768,7 @@ function PinyinAccentTrainer({
 }
 
 function PinyinBuilder() {
+  const { t } = useTranslation();
   const ensureSrs = useStore((s) => s.ensureSrs);
   const gradeSrs = useStore((s) => s.gradeSrs);
   const recordActivityError = useStore((s) => s.recordActivityError);
@@ -795,6 +799,7 @@ function PinyinBuilder() {
 
   function ensureTrainingCharge(): boolean {
     if (sessionCharged) return true;
+    // extra_training não cobra Carga (chargeCostFor = 0, energyPolicy.ts): o retorno é sempre true.
     if (!consumeCharge("extra_training")) {
       setPaywallOpen(true);
       return false;
@@ -971,10 +976,8 @@ function PinyinBuilder() {
             <IconShield width={22} height={22} />
           </span>
           <div>
-            <h3 className="font-serif text-xl font-semibold text-ink">Cargas no plano grátis</h3>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              O treino avançado usa uma Carga por sessão. No Pro, a prática fica liberada.
-            </p>
+            <h3 className="font-serif text-xl font-semibold text-ink">{t("energyAccess.practiceTitle")}</h3>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">{t(describeAccess("extra_training").reasonKey)}</p>
             <Link to="/revisao" className="mt-4 inline-flex text-sm font-semibold text-accent">
               Ver revisão
             </Link>
