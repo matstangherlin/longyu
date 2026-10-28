@@ -757,6 +757,7 @@
     "check:bundle-budget": "node scripts/check-bundle-budget.mjs",
     "test:bundle-budget": "node scripts/test-bundle-budget.mjs",
     "test:economy-reconcile": "node scripts/test-economy-reconcile.mjs",
+    "test:energy-policy": "node scripts/test-energy-policy.mjs",
     "validate:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs validate review-composer",
     "test:review-composer": "node scripts/rc2-2-19-guided-simple-verified.mjs test review-composer",
     "validate:product-release": "node scripts/rc2-2-19-guided-simple-verified.mjs validate product-release",

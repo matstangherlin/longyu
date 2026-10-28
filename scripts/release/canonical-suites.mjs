@@ -46,6 +46,7 @@ export const SUITES = [
       "test:stale-bundle",
       "test:bundle-budget",
       "test:economy-reconcile",
+      "test:energy-policy",
       "validate:security-boundaries",
       "validate:edge-cors",
       "validate:social-profile-security",
@@ -626,4 +627,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:netlify-404-rules": "QA 2026-10 prompt 16 — 404 de /u, /@ e /perfil/* antes do catch-all, sem pegar rota real.",
   "test:bundle-budget": "QA 2026-10 prompt 17 — teto do entry e meta de 300 KB gzip, com a meta ainda desligada.",
   "test:economy-reconcile": "QA 2026-10 prompt 19 — snapshot não apaga Qi pendente; replay não rende Qi.",
+  "test:energy-policy": "QA 2026-10 prompt 20 — R-07 sai do chargeCostFor; copy de atividade grátis não promete Carga.",
 });
