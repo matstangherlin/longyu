@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-28T12:50:04.192Z",
-  "generatedFromSha": "61b70ae2097f210f1eee7cb821fbf85aaf16126e",
-  "inputsDigest": "a54a471cea0d9e7e",
-  "evidenceDigest": "63f415a6767198e8",
+  "generatedAt": "2026-10-28T12:54:19.830Z",
+  "generatedFromSha": "3e0fa41a9cdaabbdd1930e87d429f72884bcb0ca",
+  "inputsDigest": "315709b623ebc32e",
+  "evidenceDigest": "6d01b503581d9e83",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -167,11 +167,11 @@
         "status": "BLOCKED",
         "ledger": {
           "productionRows": 36,
-          "repoFiles": 60,
+          "repoFiles": 61,
           "MATCH": 19,
           "LEGACY_EQUIVALENT": 0,
           "PROD_ONLY": 6,
-          "REPO_ONLY": 31,
+          "REPO_ONLY": 32,
           "UNKNOWN": 11
         }
       },
