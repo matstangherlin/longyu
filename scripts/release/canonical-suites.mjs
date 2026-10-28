@@ -47,6 +47,7 @@ export const SUITES = [
       "test:bundle-budget",
       "test:economy-reconcile",
       "test:energy-policy",
+      "test:srs-evidence",
       "validate:security-boundaries",
       "validate:edge-cors",
       "validate:social-profile-security",
@@ -628,4 +629,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:bundle-budget": "QA 2026-10 prompt 17 — teto do entry e meta de 300 KB gzip, com a meta ainda desligada.",
   "test:economy-reconcile": "QA 2026-10 prompt 19 — snapshot não apaga Qi pendente; replay não rende Qi.",
   "test:energy-policy": "QA 2026-10 prompt 20 — R-07 sai do chargeCostFor; copy de atividade grátis não promete Carga.",
+  "test:srs-evidence": "QA 2026-10 prompt 21 — só evidência promove, 1 promoção/dia, tetos 365 d e 2,8, leech em 8 lapsos, toda etapa com alvo.",
 });
