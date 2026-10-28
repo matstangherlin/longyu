@@ -1577,6 +1577,12 @@ export function RevisaoPage() {
     if (queue.length > 0 && pos >= queue.length) {
       reviewCompletedRef.current = true;
       trackFunnelEvent("review_completed", { items: queue.length, mode });
+      // Concluir a revisão recupera a ofensiva pendente. Fica aqui, e não no
+      // `recordStudyDay` de cada item corrigido, porque uma pergunta
+      // respondida não é uma revisão concluída — quem entra, responde uma e
+      // sai não recuperou nada. Reaproveita a definição de "revisão concluída"
+      // que a tela já usava, em vez de inventar uma segunda.
+      completeStudySession();
       // R3 — resumo agregado do SRS (só contagens, respeitando o opt-in).
       void trackPedagogyEvent({
         eventType: "srs_summary",
@@ -1588,12 +1594,6 @@ export function RevisaoPage() {
           leeches: leechItems(useStore.getState().srs).length,
         },
       });
-      // Concluir a revisão recupera a ofensiva pendente. Fica aqui, e não no
-      // `recordStudyDay` de cada item corrigido, porque uma pergunta
-      // respondida não é uma revisão concluída — quem entra, responde uma e
-      // sai não recuperou nada. Reaproveita a definição de "revisão concluída"
-      // que a tela já usava, em vez de inventar uma segunda.
-      completeStudySession();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- dispara uma vez, no fim da sessão
   }, [completeStudySession, mode, pos, queue.length]);
