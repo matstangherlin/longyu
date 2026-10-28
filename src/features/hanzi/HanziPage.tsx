@@ -412,6 +412,7 @@ function HanziBuildTrainer({
   const isLast = index + 1 >= builders.length;
 
   function start(id: string) {
+    // extra_training não cobra Carga (chargeCostFor = 0, energyPolicy.ts): o retorno é sempre true.
     if (!consumeCharge("extra_training")) {
       setEnergyPaywallOpen(true);
       return;

@@ -292,7 +292,8 @@ function freePracticeToolDecision(toolId: PracticeToolId, completed: string[], p
       cta: "Ver Longyu Pro",
     };
   }
-  if (toolId === "imersao") return unlocked("No plano grátis, a Imersão usa Cargas. No Pro, você pratica sem esse limite.", true);
+  // LGY-016/017 — a regra de energyPolicy.ts: só a sessão de escuta nova cobra.
+  if (toolId === "imersao") return unlocked("No plano grátis, só a sessão de escuta nova usa 1 Carga; histórias não usam. No Pro, nada usa Carga.", true);
 
   if (toolId === "treino" || toolId === "treino_focado") {
     const open = completed.length >= 3 || hasCompleted(completed, TOOL_UNLOCK_LESSONS.treino);
@@ -304,7 +305,7 @@ function freePracticeToolDecision(toolId: PracticeToolId, completed: string[], p
   if (toolId === "tons" || toolId === "som_tons" || toolId === "pinyin_lab") {
     const open = hasCompleted(completed, TOOL_UNLOCK_LESSONS.som);
     return open
-      ? unlocked("Som e pinyin ficam disponíveis com limite de Cargas no grátis.", true)
+      ? unlocked("Som e pinyin ficam liberados e não usam Carga.", true)
       : locked(TOOL_UNLOCK_LESSONS.som, toolId === "pinyin_lab" ? "Pinyin Lab" : "Treino de tons");
   }
 

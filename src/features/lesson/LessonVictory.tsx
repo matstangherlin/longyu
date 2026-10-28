@@ -62,6 +62,7 @@ export function LessonVictory({
   completion,
   progress,
   footnote,
+  chargeNotice,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -106,6 +107,8 @@ export function LessonVictory({
   /** Rodada do tema antes → depois desta conclusão (só aparece se avançou). */
   progress?: { before: number; after: number; total: number } | null;
   footnote?: string;
+  /** LGY-033 — o próximo passo usa Carga e o aluno tem 0: avisa antes do CTA. */
+  chargeNotice?: string;
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const hapticsOn = useStore((s) => s.hapticsEnabled !== false);
@@ -487,6 +490,11 @@ export function LessonVictory({
           }
           data-guided-action-dock={guided ? true : undefined}
         >
+          {chargeNotice && (
+            <p className="mb-2 text-center text-sm leading-5 text-ink-soft" data-testid="victory-next-needs-charge">
+              {chargeNotice}
+            </p>
+          )}
           {cultureNext && (
             <p className="mb-2 text-center text-sm leading-5 text-ink-soft" data-culture-guidance-type={cultureNext.type} data-testid="victory-culture-next">
               {cultureNext.line}

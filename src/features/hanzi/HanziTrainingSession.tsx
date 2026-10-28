@@ -136,10 +136,12 @@ export function HanziTrainingSession({ mode }: { mode: HanziPracticeMode }) {
   const total =
     meta.kind === "builder" ? builders.length : meta.kind === "writing" ? writingChars.length : questions.length;
 
-  // Uma carga por rodada. A chave é da sessão + rodada: um re-render ou o
-  // efeito duplo do StrictMode não cobra de novo (consumeCharge é idempotente).
+  // Marca o início da rodada. Treino de Hànzì é extra_training e não cobra Carga
+  // (chargeCostFor = 0, energyPolicy.ts): `consumeCharge` devolve true.
+  // A chave é da sessão + rodada: um re-render ou o efeito duplo do StrictMode
+  // não registra a rodada duas vezes.
   useEffect(() => {
-    if (writingLocked) return; // sem hànzì elegível: não cobra carga
+    if (writingLocked) return; // sem hànzì elegível: nada a começar
     if (roundStartRef.current?.round === round) return;
     const charged = consumeCharge("extra_training", `hanzi-practice-start:${accountId}:${mode}:${sessionId}:${round}`);
     roundStartRef.current = { round, missions: missionSnapshot(), pearls: hanziMilestonesClaimed(), charged };

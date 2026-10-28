@@ -4,7 +4,8 @@
 // Filosofia (free-to-play ético, sem cassino):
 // - A economia nunca vende progresso: Qi compra tentativas, conforto e
 //   cosméticos — nunca lições concluídas nem XP.
-// - Errar custa Vidas do Dragão (sessão) e, em sequência, pode gastar 1 Carga.
+// - Errar custa Vidas do Dragão (sessão), nunca Carga
+//   (CONSECUTIVE_MISTAKE_CHARGE_COST = 0).
 //   O Qi só entra quando o aluno ESCOLHE um atalho (refazer na hora, recuperar
 //   vidas, retry de teste). Pular custa Fôlego (reserva da conta).
 // - O plano grátis sempre tem um caminho sem pagar: missões dão Qi, cargas
@@ -13,12 +14,18 @@
 //
 // Todos os números de custo/ganho vivem aqui. Telas e store importam daqui
 // para o balanceamento ser ajustável em um só lugar.
+//
+// QUEM cobra Carga não é decidido aqui: a regra canônica é
+// src/lib/energyPolicy.ts (`chargeCostFor` / `describeAccess`). Este arquivo
+// só guarda os números que a política usa.
 // ————————————————————————————————————————————————————————————————
 
 // ——— Regras do plano grátis (resumo canônico) ———
 // - Cargas diárias limitadas (DAILY_CHARGES_FREE); missões devolvem cargas.
 // - Revisão básica limitada a FREE_REVIEW_SESSION_LIMIT itens por sessão.
-// - Pinyin Lab, Hànzì Builder e sessões de áudio da Imersão consomem Cargas.
+// - Só NOVA progressão consome Carga (energyPolicy.ts): 1ª rodada de um tema,
+//   teste de módulo e sessão de escuta nova da Imersão. Rodadas 2–4, replay,
+//   Pinyin Lab, Hànzì, Som, Fala e Leitura são grátis.
 // - Histórias introdutórias grátis não consomem Carga ao abrir; podem conceder +1 Carga (teto STORY_ENERGY_DAILY_CAP/dia).
 // - Erros detalhados (histórico + padrões) são Pro.
 // - Correção imediata do erro da lição atual é SEMPRE grátis — nunca bloquear.

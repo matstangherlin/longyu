@@ -51,6 +51,23 @@ export const PRE_BETA_FREEZE_EXCEPTION_QA19 = {
   forbids: ["new currency", "reward amount changes", "new lessons", "new topics"],
 } as const;
 
+/**
+ * QA 2026-10 — LGY-016, LGY-017, LGY-033, LGY-034.
+ * A política de Cargas (energyPolicy.ts) vira a fonte da cobrança e da copy.
+ * `economy.ts` muda só comentário. Nenhum valor, preço ou moeda muda.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_QA20 = {
+  id: "QA_2026_10_ENERGY_POLICY_SOURCE",
+  reason: "LGY-016 LGY-017 LGY-033 LGY-034",
+  allows: [
+    "economy.ts comment points at energyPolicy.ts",
+    "charge copy derived from describeAccess",
+    "energy paywall hides CTAs for locked pages",
+    "victory stops at 0 charges before a paid start",
+  ],
+  forbids: ["new currency", "charge amount changes", "new charged activity", "new lessons", "new topics"],
+} as const;
+
 export const PRE_BETA_FREEZE_EXCEPTION = {
   id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
   reason: "REAL_DEVICE_BETA_BLOCKER_FIX",

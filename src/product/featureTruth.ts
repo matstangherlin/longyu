@@ -110,14 +110,14 @@ export const FEATURE_TRUTH = {
     status: "available",
     requiresPro: true,
     gatedBy: "pinyin",
-    because: "Pinyin Lab no ar; sem limite de Cargas é benefício do Pro.",
+    because: "Pinyin Lab no ar e grátis, sem usar Carga; o laboratório completo é benefício do Pro.",
     metrics: ["audioHeard"],
   },
   immersion_audio: {
     id: "immersion_audio",
     status: "available",
     gatedBy: "immersion",
-    because: "Sessões de áudio e histórias no ar, consumindo Carga no plano grátis.",
+    because: "Sessões de áudio e histórias no ar; no plano grátis só a sessão de escuta nova usa Carga.",
     metrics: ["audioHeard", "phrasesReviewed", "microtextsRead"],
   },
   interactive_stories: {

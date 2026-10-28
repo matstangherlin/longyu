@@ -82,6 +82,8 @@ const NAMESPACES = [
   "discovery",
   // RC2.2.23 — zero Cargas: superfície calma com caminhos grátis.
   "energySoftLanding",
+  // QA 2026-10 · LGY-016 — copy de custo derivada de energyPolicy.describeAccess.
+  "energyAccess",
   // RC2.3.13E — ProgressionShell segmented control (UX navigation only).
   "progression",
 ];

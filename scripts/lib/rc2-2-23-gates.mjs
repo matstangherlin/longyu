@@ -288,7 +288,8 @@ export async function validateEnergySoftLanding(s) {
   const mistake = body(stripComments(s.src.player), "function noteConfirmedMistake()");
   if (!mistake || /consumeCharge|Charge/.test(mistake)) fail("MISTAKE_COSTS_CHARGE", "LessonPlayer.noteConfirmedMistake", "erro confirmado só mexe na sequência de erros");
   if (!/!lessonStartConsumesCharge\(\{ lessonCompleted: completedLessons\.includes\(foundLesson\.id\) \}\)/.test(s.src.player) || !/lessonStartConsumesCharge\(\{ lessonCompleted: completed\.includes\(lesson\.id\) \}\)/.test(s.src.lessonDetail)) fail("REPLAY_CHARGES", "LessonPlayer/LessonDetailPage", "replay de lição concluída não cobra");
-  if (!/energyActivityConsumesCharge/.test(s.src.store)) fail("ZERO_CHARGE_BLOCKS_FREE_STUDY", FILES.store, "store usa a política de energia");
+  // QA 2026-10 · LGY-016 — o store cobra pelo custo da política canônica.
+  if (!/\bchargeCostFor\(activityType/.test(stripComments(s.src.store))) fail("ZERO_CHARGE_BLOCKS_FREE_STUDY", FILES.store, "store cobra pelo chargeCostFor da política de energia");
   const landing = stripComments(s.src.softLanding);
   const lanesAt = landing.indexOf('data-testid="energy-free-lanes"');
   const chargeAt = landing.indexOf('data-testid="energy-get-charge"');

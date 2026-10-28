@@ -1,10 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
-import { lessonStartConsumesCharge } from "../../lib/energyPolicy";
+import { lessonStartConsumesCharge, victoryWaitsForCharge as nextStartWaitsForCharge } from "../../lib/energyPolicy";
+import { chargeRefillTime } from "../../hooks/useChargeRecovery";
 import { haptic } from "../../lib/haptics";
 import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
+import { ALL_LESSONS, currentLessonId, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { peekJourneyReturnAnchor } from "../../lib/journeyReturnAnchor";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
@@ -1773,6 +1774,7 @@ export function LessonPlayer() {
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
   const consumeCharge = useStore((s) => s.consumeCharge);
+  const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
   const inventory = useStore((s) => s.inventory);
   const useInventoryItem = useStore((s) => s.useInventoryItem);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
@@ -3034,6 +3036,11 @@ export function LessonPlayer() {
             ? t("player.checkingLoads")
             : t("player.assemblingSequence")}
         </p>
+        {energyBlocked && (
+          <p className="mt-2 text-sm font-medium text-ink-soft" data-testid="lesson-energy-refill-time">
+            {t("energyAccess.refillAt", { time: chargeRefillTime() })}
+          </p>
+        )}
         {energyBlocked && (
           <>
             <ButtonLink to="/revisao" size="lg" className="mt-6 w-full shadow-lift">
@@ -4424,9 +4431,24 @@ export function LessonPlayer() {
     const victoryNextIsCulture =
       lesson.lessonDomain !== "culture" && !isTopicMasteryLesson(lesson) && victoryContinuePath.startsWith("/licao/culture-");
 
+    // LGY-033 — com 0 Cargas a vitória não leva direto a um começo que cobra:
+    // diz o custo e o horário, e o CTA volta à Jornada. Rodadas 2–4 do mesmo
+    // tema e o Reforço + são grátis, então seguem como antes.
+    const victoryNextLessonId = victoryNextIsCulture
+      ? /^\/licao\/([^/?]+)/.exec(victoryContinuePath)?.[1]
+      : currentLessonId(passed && !completedLessons.includes(lesson.id) ? [...completedLessons, lesson.id] : completedLessons);
+    const victoryWaitsForCharge = nextStartWaitsForCharge({
+      nextIsFree: Boolean(plusResult) || (isTopicMasteryLesson(lesson) && masteryNow < 4),
+      nextLessonCompleted: Boolean(victoryNextLessonId && completedLessons.includes(victoryNextLessonId)),
+      isPro: isPremium,
+      charges: dailyEnergy.charges,
+    });
+    const victoryExitPath =
+      victoryWaitsForCharge && victoryNextIsCulture ? cultureReturnPath(new URLSearchParams("src=jornada"), false) : victoryContinuePath;
+
     function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
-      else navigate(victoryContinuePath);
+      else navigate(victoryExitPath);
     }
 
     // Botão principal: 1º toque resgata (se houver), depois volta à Jornada.
@@ -4469,7 +4491,7 @@ export function LessonPlayer() {
       // Pérolas de ofensiva: só marcos únicos (streak:7, streak:30, …).
       maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("streak", soundEffects);
-      navigate(victoryContinuePath);
+      navigate(victoryExitPath);
     }
 
     if (postLessonView === "streak") {
@@ -4591,6 +4613,7 @@ export function LessonPlayer() {
           title={displayLessonTitle(lesson.title, locale)}
           headline={victoryHeadline}
           footnote={replayNoQi ? t("player.replayNoQi") : undefined}
+          chargeNotice={victoryWaitsForCharge ? t("energyAccess.nextNeedsCharge", { time: chargeRefillTime() }) : undefined}
           stars={stars}
           xp={lessonXp}
           accuracy={precision}
@@ -4604,7 +4627,7 @@ export function LessonPlayer() {
           learned={!isPlusRoundSession && victoryContext !== "culture" ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
           masteryLines={victoryMasteryLines}
           cultureNext={
-            victoryNextIsCulture && !hasUnclaimedRewards && !plusResult
+            victoryNextIsCulture && !hasUnclaimedRewards && !plusResult && !victoryWaitsForCharge
               ? {
                   type: journeyCultureGuidanceType("core_after_topic"),
                   line: t("player.cultureRecommendedNext"),

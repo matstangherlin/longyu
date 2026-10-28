@@ -41,7 +41,7 @@ export function EngineGate({ track, mode = "engine", children }: EngineGateProps
   const hub = hubForLockedTool(track, mode);
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 pt-8 text-center">
+    <div className="mx-auto max-w-lg space-y-6 pt-8 text-center" data-engine-gate-locked={mode === "treino" ? "treino" : track}>
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-2 text-ink-faint">
         <IconLock width={32} height={32} />
       </div>
