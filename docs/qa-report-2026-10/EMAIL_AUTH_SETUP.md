@@ -28,7 +28,7 @@ A UI não cita um número de minutos. O painel tem o campo de expiração do OTP
 
 ## Colar no painel
 
-Staging ainda não existe. Em 26/10/2026 o Matty decidiu não pausar o atomurus nem subir o plano. A organização Noba está no Free, com dois projetos ativos (MandarimProject e atomurus). Enquanto não houver staging, não cole estes textos em produção só para "ver se chega". Quando houver um projeto de staging:
+Staging ainda não existe. Em 26/10/2026 o Matty decidiu não pausar o outro projeto da org nem subir o plano. A organização Noba está no Free, com MandarimProject e outro projeto ativo fora do Longyu. Enquanto não houver staging, não cole estes textos em produção só para "ver se chega". Quando houver um projeto de staging:
 
 1. Authentication → Emails.
 2. Para cada linha da tabela, abra o tipo, cole o assunto e o HTML do arquivo (sem o comentário de instrução, se o editor reclamar).

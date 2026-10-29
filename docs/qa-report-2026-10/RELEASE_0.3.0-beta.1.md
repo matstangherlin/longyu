@@ -14,7 +14,7 @@ Nada disso está em produção. O site vivo ainda serve o bundle anterior.
 
 - SQL do #361 não aplicado. `profiles.instruction_locale` não existe em produção.
 - Funções CORS do #363 não publicadas. O CI `test:backend-contract` segue vermelho até regenerar os hashes.
-- Staging não existe. Plano Free, MandarimProject e atomurus ativos. O Matty não pausou nada em 26/10/2026.
+- Staging não existe. Plano Free, MandarimProject e outro projeto da org ativos. O Matty não pausou nada em 26/10/2026.
 - Templates de e-mail e SMTP continuam no painel.
 - DSN do Sentry ausente no bundle.
 - Canal de WhatsApp ou Telegram não entra no repositório. O repo é público. O convite fica só com o Matty.

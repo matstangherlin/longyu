@@ -87,6 +87,13 @@ function actionLinkFromBody(value, type) {
   return null;
 }
 
+/** 6-digit OTP from recovery/code-only templates ({{ .Token }}), never from action links. */
+function otpTokenFromBody(value) {
+  const body = normalizeMailboxBody(value);
+  const match = body.match(/(?:^|[^\d])(\d{6})(?:[^\d]|$)/);
+  return match?.[1] ?? null;
+}
+
 function mailpitMessageMatches(message, email) {
   const needle = email.toLowerCase();
   const recipients = [message?.To, message?.to, message?.Recipients, message?.recipients]
@@ -124,31 +131,60 @@ async function findMailpitActionLink(baseUrl, email, type) {
   return null;
 }
 
-async function findMailboxActionLink(env, email, type, attempts = 20) {
+async function eachMailboxBody(env, email, onBody) {
   const mailbox = email.split("@")[0];
   const inbucket = env.inbucketUrl || "http://127.0.0.1:54324";
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const response = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}`, {
+  const response = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}`, {
+    headers: { Accept: "application/json" },
+  });
+  if (response.ok) {
+    const payload = await response.json();
+    const messages = Array.isArray(payload) ? payload : (payload?.messages ?? []);
+    const messageIds = messages
+      .map((message) => message?.id ?? message?.Id ?? message?.ID)
+      .filter(Boolean);
+    // `latest` is supported by Inbucket v1 and covers list responses that
+    // use a version-specific envelope or omit message metadata.
+    if (!messageIds.length) messageIds.push("latest");
+    for (const id of messageIds) {
+      const detail = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}/${id}`, {
+        headers: { Accept: "application/json" },
+      });
+      if (!detail.ok) continue;
+      const hit = onBody(await detail.text());
+      if (hit) return hit;
+    }
+  }
+  return null;
+}
+
+async function findMailpitOtpToken(baseUrl, email) {
+  const response = await fetch(`${baseUrl}/api/v1/messages?limit=100`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) return null;
+  const payload = await response.json();
+  const messages = Array.isArray(payload) ? payload : (payload?.messages ?? []);
+  const ids = messages
+    .filter((message) => mailpitMessageMatches(message, email))
+    .map((message) => message?.ID ?? message?.id ?? message?.MessageID ?? message?.messageId)
+    .filter(Boolean);
+  for (const id of ids) {
+    const detail = await fetch(`${baseUrl}/api/v1/message/${encodeURIComponent(id)}`, {
       headers: { Accept: "application/json" },
     });
-    if (response.ok) {
-      const payload = await response.json();
-      const messages = Array.isArray(payload) ? payload : (payload?.messages ?? []);
-      const messageIds = messages
-        .map((message) => message?.id ?? message?.Id ?? message?.ID)
-        .filter(Boolean);
-      // `latest` is supported by Inbucket v1 and covers list responses that
-      // use a version-specific envelope or omit message metadata.
-      if (!messageIds.length) messageIds.push("latest");
-      for (const id of messageIds) {
-        const detail = await fetch(`${inbucket}/api/v1/mailbox/${encodeURIComponent(mailbox)}/${id}`, {
-          headers: { Accept: "application/json" },
-        });
-        if (!detail.ok) continue;
-        const link = actionLinkFromBody(await detail.text(), type);
-        if (link) return link;
-      }
-    }
+    if (!detail.ok) continue;
+    const token = otpTokenFromBody(await detail.text());
+    if (token) return token;
+  }
+  return null;
+}
+
+async function findMailboxActionLink(env, email, type, attempts = 20) {
+  const inbucket = env.inbucketUrl || "http://127.0.0.1:54324";
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const link = await eachMailboxBody(env, email, (body) => actionLinkFromBody(body, type));
+    if (link) return link;
     // Supabase CLI 2.x now ships Mailpit (same port, different REST API),
     // while older stacks used Inbucket. Probe the Mailpit API after the
     // mailbox route so the harness works with either local mail service.
@@ -157,6 +193,30 @@ async function findMailboxActionLink(env, email, type, attempts = 20) {
     await wait(1000);
   }
   throw new EphemeralError(`Inbucket sem link ${type} para mailbox efêmera`);
+}
+
+/** Recovery template is code-only ({{ .Token }}); fall back to action-link token_hash if present. */
+async function findMailboxRecoveryCredential(env, email, attempts = 20) {
+  const inbucket = env.inbucketUrl || "http://127.0.0.1:54324";
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const otp = await eachMailboxBody(env, email, otpTokenFromBody);
+    if (otp) return { kind: "otp", token: otp };
+    const link = await eachMailboxBody(env, email, (body) => actionLinkFromBody(body, "recovery"));
+    if (link) return { kind: "link", token_hash: tokenHashFromActionLink(link) };
+    const mailpitOtp = await findMailpitOtpToken(inbucket, email);
+    if (mailpitOtp) return { kind: "otp", token: mailpitOtp };
+    const mailpitLink = await findMailpitActionLink(inbucket, email, "recovery");
+    if (mailpitLink) return { kind: "link", token_hash: tokenHashFromActionLink(mailpitLink) };
+    await wait(1000);
+  }
+  throw new EphemeralError("Inbucket sem código/link recovery para mailbox efêmera");
+}
+
+async function verifyRecoveryCredential(anon, email, credential) {
+  if (credential.kind === "otp") {
+    return anon.auth.verifyOtp({ email, token: credential.token, type: "recovery" });
+  }
+  return anon.auth.verifyOtp({ token_hash: credential.token_hash, type: "recovery" });
 }
 
 function tokenHashFromActionLink(actionLink) {
@@ -713,11 +773,8 @@ export async function runPasswordRecoveryFlow(env) {
   try {
     const requested = await anon.auth.resetPasswordForEmail(recoveredUser.email, { redirectTo });
     if (requested.error) throw new EphemeralError(`resetPasswordForEmail: ${requested.error.message}`);
-    const recoveryLink = await findMailboxActionLink(env, recoveredUser.email, "recovery");
-    const recovery = await anon.auth.verifyOtp({
-      token_hash: tokenHashFromActionLink(recoveryLink),
-      type: "recovery",
-    });
+    const recoveryCred = await findMailboxRecoveryCredential(env, recoveredUser.email);
+    const recovery = await verifyRecoveryCredential(anon, recoveredUser.email, recoveryCred);
     if (recovery.error || recovery.data.user?.id !== recoveredUser.id || !recovery.data.session) {
       throw new EphemeralError(`recovery verify: ${recovery.error?.message ?? "session mismatch"}`);
     }
@@ -755,15 +812,12 @@ export async function runPasswordRecoveryFlow(env) {
     if (expiredRequest.error) {
       throw new EphemeralError(`expired reset request: ${expiredRequest.error.message}`);
     }
-    const expiredLink = await findMailboxActionLink(env, expiredUser.email, "recovery");
+    const expiredCred = await findMailboxRecoveryCredential(env, expiredUser.email);
     querySql(
       env,
       `update auth.users set recovery_sent_at = now() - interval '2 hours' where id = '${expiredUser.id}';`
     );
-    const expired = await anon.auth.verifyOtp({
-      token_hash: tokenHashFromActionLink(expiredLink),
-      type: "recovery",
-    });
+    const expired = await verifyRecoveryCredential(anon, expiredUser.email, expiredCred);
     if (!expired.error || expired.data.session) {
       throw new EphemeralError("expired recovery token did not fail closed");
     }
@@ -782,7 +836,8 @@ export async function runPasswordRecoveryFlow(env) {
     return {
       ok: true,
       passwordRecovery: true,
-      recoveryLink: true,
+      recoveryLink: recoveryCred.kind === "link",
+      recoveryOtp: recoveryCred.kind === "otp",
       invalidLinkRejected: true,
       expiredLinkRejected: true,
       logoutLogin: true,

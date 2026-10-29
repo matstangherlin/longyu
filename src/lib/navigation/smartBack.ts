@@ -85,6 +85,9 @@ export const ROUTE_BACK_INVENTORY: readonly RouteBackEntry[] = [
   { pattern: "/config", parent: "/mais" },
   { pattern: "/config/:category", parent: "/config" },
   { pattern: "/ajustes", parent: "/mais" },
+  // Alias legado → /ajustes (redirect em routes.tsx).
+  { pattern: "/configuracoes", parent: "/mais" },
+  { pattern: "/configuracoes/*", parent: "/mais" },
   { pattern: "/dados-locais", parent: "/ajustes" },
   { pattern: "/admin/feedback", parent: "/mais", ownBack: true },
   { pattern: "/business/dashboard", parent: "/mais" },

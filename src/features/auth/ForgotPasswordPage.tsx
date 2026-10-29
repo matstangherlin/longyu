@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { readAuthLinkEmail } from "../../lib/auth/authLinkError";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
@@ -35,9 +35,10 @@ const FIELD_CLASS =
 export function ForgotPasswordPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [stage, setStage] = useState<Stage>("email");
-  const [email, setEmail] = useState(() => readAuthLinkEmail(searchParams.toString()));
+  // Prefill e-mail from the query string only — never put the OTP in the URL.
+  const [email, setEmail] = useState(() => readAuthLinkEmail(location.search.replace(/^\?/, "")));
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
