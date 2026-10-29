@@ -272,7 +272,8 @@ const OFFER_COPY: Record<ProOfferKind, Omit<ProOfferCopy, "kind" | "strength" | 
     title: "Suas cargas acabaram",
     description: OFFER_MESSAGES.out_of_energy,
     benefit: "Cargas ilimitadas para lições, imersão e labs.",
-    freeContinues: "Amanhã você ganha novas cargas. Missões também devolvem cargas.",
+    // LGY-034 — o horário exato entra na tela (ProOfferBanner), pelo relógio do servidor.
+    freeContinues: "Novas cargas voltam todo dia. Missões também devolvem cargas.",
     paywallKind: "energy",
   },
   review_limit: {

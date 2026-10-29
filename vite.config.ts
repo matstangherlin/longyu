@@ -53,6 +53,7 @@ export default defineConfig({
         // próprios (ver routes.tsx — carregamento lazy por rota).
         manualChunks: {
           "react-vendor": ["react", "react-dom", "react-router-dom", "zustand"],
+          "supabase-vendor": ["@supabase/supabase-js"],
         },
       },
     },

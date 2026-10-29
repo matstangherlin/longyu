@@ -8,6 +8,7 @@ import { useEffect, type ReactNode } from "react";
 import { PUBLIC_SEO_PAGES } from "../../lib/seo";
 import { LanguageSwitcher } from "../../components/i18n/LanguageSwitcher";
 import { useTranslation } from "../../i18n/useTranslation";
+import { isBusinessSurfaceEnabled } from "../../lib/cloud/backendCapability";
 
 const FOOTER_LINKS = PUBLIC_SEO_PAGES.filter((p) =>
   [
@@ -59,7 +60,7 @@ export function PublicMarketingLayout({
       <footer className="border-t border-line/60 bg-surface/40">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 sm:px-6">
           <nav aria-label={t("marketing.publicNav")} className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-            {FOOTER_LINKS.map((page) => (
+            {FOOTER_LINKS.filter((page) => page.path !== "/business" || isBusinessSurfaceEnabled()).map((page) => (
               <Link
                 key={page.path}
                 to={page.path}

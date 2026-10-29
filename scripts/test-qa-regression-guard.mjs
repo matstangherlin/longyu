@@ -387,8 +387,10 @@ try {
   assert(playerSource.includes("PieceAssemblyBoard") || playerSource.includes("PieceAssemblyTray"), "revisão usa PieceAssembly");
   assert(stepsSource.includes("PieceAssemblyBoard") || stepsSource.includes("buildAssemblyFeedback"), "lição usa assembly UX");
   assert(
-    /canRecoverStar\s*=\s*!recovered\s*&&\s*stars\s*<\s*masteryStars/.test(playerSource),
-    "canRecoverStar = 3ª estrela (não !passed)"
+    /canRecoverStar\s*=\s*!recovered\s*&&\s*finishReason\s*!==\s*"out_of_lives"\s*&&\s*!belowMinimum\s*&&\s*stars\s*<\s*masteryStars/.test(
+      playerSource
+    ),
+    "canRecoverStar = 3ª estrela (não !passed; sem vidas / abaixo do mínimo não recuperam)"
   );
   assert(
     /errorReviewMode === "offer"/.test(playerSource) &&

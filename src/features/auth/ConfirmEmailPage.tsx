@@ -11,6 +11,7 @@ import {
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
 import { resolvePostAuthPath } from "../../lib/subscribeAuthRedirect";
 import { getSupabaseClient } from "../../lib/supabaseClient";
+import { readAuthLinkError } from "../../lib/auth/authLinkError";
 import { finalizeOnboardingPath } from "../../lib/auth/publicRoutes";
 import { isCloudOnboardingV2Enabled } from "../../lib/featureFlags";
 import { resendConfirmationEmail } from "../../services/authService";
@@ -24,6 +25,11 @@ export function ConfirmEmailPage() {
   const [searchParams] = useSearchParams();
   const postAuthPath = resolvePostAuthPath(searchParams, "/jornada");
 
+  const linkError = useMemo(
+    () => readAuthLinkError(searchParams.toString(), typeof window !== "undefined" ? window.location.hash : ""),
+    [searchParams]
+  );
+
   const initialEmail = useMemo(() => {
     return (searchParams.get("email") ?? peekPendingConfirmEmail() ?? "").trim();
   }, [searchParams]);
@@ -32,7 +38,7 @@ export function ConfirmEmailPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [confirming, setConfirming] = useState(true);
+  const [confirming, setConfirming] = useState(() => !linkError);
   const cloudEnabled = isSupabaseBackendEnabled();
 
   useEffect(() => {
@@ -40,7 +46,7 @@ export function ConfirmEmailPage() {
   }, [email]);
 
   useEffect(() => {
-    if (!cloudEnabled) {
+    if (linkError || !cloudEnabled) {
       setConfirming(false);
       return;
     }
@@ -106,7 +112,7 @@ export function ConfirmEmailPage() {
       window.clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [cloudEnabled, navigate, postAuthPath]);
+  }, [cloudEnabled, linkError, navigate, postAuthPath]);
 
   async function handleResend(event: FormEvent) {
     event.preventDefault();
@@ -154,10 +160,18 @@ export function ConfirmEmailPage() {
         <div className="mx-auto mb-4 flex justify-center">
           <Mascot size={88} variant="wave" />
         </div>
-        <Pill tone="accent">{t("auth.almostThere")}</Pill>
-        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">{t("auth.confirmEmailTitle")}</h1>
+        {linkError ? (
+          <p className="text-sm font-semibold text-wrong" role="alert" data-testid="auth-link-expired">
+            {t("auth.invalidLinkLead")}
+          </p>
+        ) : (
+          <Pill tone="accent">{t("auth.almostThere")}</Pill>
+        )}
+        <h1 className="mt-3 font-serif text-2xl font-semibold text-ink sm:text-3xl">
+          {linkError ? t("auth.invalidLinkTitle") : t("auth.confirmEmailTitle")}
+        </h1>
         <p className="mt-2 text-sm leading-6 text-ink-soft">
-          {t("auth.confirmEmailLead")}
+          {linkError ? t("auth.invalidLinkLead") : t("auth.confirmEmailLead")}
         </p>
       </div>
 
@@ -189,7 +203,7 @@ export function ConfirmEmailPage() {
             </p>
           )}
 
-          <Button type="submit" size="lg" disabled={loading} className="w-full">
+          <Button type="submit" size="lg" disabled={loading} className="w-full" data-testid="auth-link-expired-action">
             {loading ? t("auth.resending") : t("auth.resendConfirmation")}
           </Button>
         </form>

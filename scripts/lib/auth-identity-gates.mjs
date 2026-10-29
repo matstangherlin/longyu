@@ -242,7 +242,8 @@ export function runAuthGate(rt) {
   } catch {
     fail("APPLE_NO_EMAIL_OK", "maskEmail", "missing e-mail throws");
   }
-  if (!/profileFromName\(suggestedName \?\? undefined\)/.test(rt.src.authService) || !/name\?\.trim\(\) \|\| "Aluno Longyu"/.test(rt.src.authService)) fail("APPLE_NO_EMAIL_OK", FILES.authService, "profile requires provider name/e-mail");
+  // suggestedName ?? saved ?? undefined — Apple/no-email still falls through to "Aluno Longyu".
+  if (!/profileFromName\(suggestedName \?\? (?:saved \?\? )?undefined\)/.test(rt.src.authService) || !/name\?\.trim\(\) \|\| "Aluno Longyu"/.test(rt.src.authService)) fail("APPLE_NO_EMAIL_OK", FILES.authService, "profile requires provider name/e-mail");
 
   // AI16 — claim idempotent
   {

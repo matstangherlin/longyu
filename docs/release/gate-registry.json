@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 990,
+    "CANONICAL": 1006,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
-    "EVIDENCE_ONLY": 144,
+    "EVIDENCE_ONLY": 148,
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1195,
+  "total": 1215,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -1964,6 +1964,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "test:account-isolation",
+      "status": "CANONICAL",
+      "domain": "identity-commercial",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-account-isolation.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:identity-commercial",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:identity-commercial"
+    },
+    {
       "gateId": "test:achievement-rarity",
       "status": "CANONICAL",
       "domain": "pedagogy-progression",
@@ -2270,6 +2288,24 @@
       "canonicalOwner": "suite:android-foundation"
     },
     {
+      "gateId": "test:auth-email-templates",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-auth-email-templates.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
+    },
+    {
       "gateId": "test:auth-recovery",
       "status": "CANONICAL",
       "domain": "android-foundation",
@@ -2448,6 +2484,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:identity-commercial"
+    },
+    {
+      "gateId": "test:bundle-budget",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-bundle-budget.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:business-foundation",
@@ -2954,6 +3008,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:experience"
+    },
+    {
+      "gateId": "test:contrast-feedback",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-contrast-feedback.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
     },
     {
       "gateId": "test:convergence-physical-truth",
@@ -3948,6 +4020,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "test:early-lesson-copy",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-early-lesson-copy.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
+    },
+    {
       "gateId": "test:early-transfer",
       "status": "CANONICAL",
       "domain": "pedagogy-progression",
@@ -3982,6 +4072,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-progression"
+    },
+    {
+      "gateId": "test:economy-reconcile",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-economy-reconcile.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:economy-server",
@@ -4036,6 +4144,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:pedagogy-progression"
+    },
+    {
+      "gateId": "test:energy-policy",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-energy-policy.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:energy-soft-landing",
@@ -4182,6 +4308,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:learner-systems"
+    },
+    {
+      "gateId": "test:feedback-context",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-feedback-context.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:feedback-csv-safety",
@@ -5180,6 +5324,24 @@
       "canonicalOwner": "suite:learner-systems"
     },
     {
+      "gateId": "test:legal-draft",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-legal-draft.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "test:lesson-advance-integrity",
       "status": "CANONICAL",
       "domain": "android-foundation",
@@ -5216,6 +5378,24 @@
       "canonicalOwner": null
     },
     {
+      "gateId": "test:lesson-star-rules",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-lesson-star-rules.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "test:lesson-step-progression",
       "status": "CANONICAL",
       "domain": "android-foundation",
@@ -5250,6 +5430,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:experience"
+    },
+    {
+      "gateId": "test:lint-content",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-lint-content.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
     },
     {
       "gateId": "test:live-league",
@@ -5916,6 +6114,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:culture"
+    },
+    {
+      "gateId": "test:netlify-404-rules",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-netlify-404-rules.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:odd-one-out-categories",
@@ -6980,6 +7196,24 @@
       "canonicalOwner": "suite:pedagogy-progression"
     },
     {
+      "gateId": "test:profile-save",
+      "status": "CANONICAL",
+      "domain": "identity-commercial",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-profile-save.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:identity-commercial",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:identity-commercial"
+    },
+    {
       "gateId": "test:progress-loading",
       "status": "CANONICAL",
       "domain": "experience",
@@ -7104,6 +7338,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:identity-commercial"
+    },
+    {
+      "gateId": "test:qa-staging-guard",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-qa-staging-guard.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:rc-hardening",
@@ -9914,6 +10166,24 @@
       "canonicalOwner": "suite:android-foundation"
     },
     {
+      "gateId": "test:review-targets-equivalence",
+      "status": "CANONICAL",
+      "domain": "pedagogy-structure",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-review-targets-equivalence.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:pedagogy-structure",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:pedagogy-structure"
+    },
+    {
       "gateId": "test:review-task-parity",
       "status": "CANONICAL",
       "domain": "experience",
@@ -10020,6 +10290,42 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:conversation-everyday"
+    },
+    {
+      "gateId": "test:schema-drift",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-schema-drift.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
+      "gateId": "test:schema-health",
+      "status": "EVIDENCE_ONLY",
+      "domain": "none",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-schema-health.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "NON_BLOCKING",
+      "executionPhase": "not-executed",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": null
     },
     {
       "gateId": "test:security-triage",
@@ -10166,6 +10472,24 @@
       "canonicalOwner": "suite:pedagogy-progression"
     },
     {
+      "gateId": "test:social-surface",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-social-surface.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
+    },
+    {
       "gateId": "test:speech",
       "status": "CANONICAL",
       "domain": "learner-systems",
@@ -10218,6 +10542,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:android-foundation"
+    },
+    {
+      "gateId": "test:srs-evidence",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-srs-evidence.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:srs-steps",
@@ -13576,6 +13918,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": "suite:identity-commercial"
+    },
+    {
+      "gateId": "validate:edge-cors",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/validate-edge-cors.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "none",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "validate:effective-entitlement",
@@ -21628,5 +21988,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "b4046fc223e38e5d"
+  "evidenceDigest": "a3368b06de3ee042"
 }

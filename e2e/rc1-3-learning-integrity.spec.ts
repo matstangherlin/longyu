@@ -50,7 +50,7 @@ function gradedQingwenSteps() {
  * destes erros. Os passos vêm do currículo (índice + tipo + resposta esperada),
  * para que a resolução por identidade encontre o passo certo.
  */
-async function seedPendingReview(page: Page, count = 4) {
+async function seedPendingReview(page: Page, count = 4, result = { correctCount: 5, finalStars: 2 }) {
   // Primeiro a semente padrão do player: ela resolve a ordem da Jornada, o
   // gate de tom e o fôlego. Sem isso a lição nem abre — cai no card
   // "Complete as 4 lições de 'O que é mandarim?'".
@@ -95,10 +95,10 @@ async function seedPendingReview(page: Page, count = 4) {
         startedAt: now - 60_000,
         finishedAt: now - 1_000,
         totalQuestions: 8,
-        correctCount: 5,
+        correctCount: result.correctCount,
         mistakes,
         recoveredMistakes: [],
-        finalStars: 2,
+        finalStars: result.finalStars,
       },
     }
   );
@@ -195,6 +195,81 @@ test.describe("RC1.3 · revisão finita", () => {
     await expect(page.locator("[data-review-leave]")).toBeVisible();
     await page.locator("[data-review-leave]").click();
     await expect(page.locator("[data-review-summary]")).toBeVisible({ timeout: 15_000 });
+  });
+});
+
+// ── QA 2026-10 · prompt 22 (LGY-031) — a conclusão mostra cada erro ──────
+
+test.describe("QA 2026-10 · erros na conclusão", () => {
+  test("75%: a conclusão lista cada etapa errada e a revisão usa esses itens @qa-lgy-031", async ({ page }) => {
+    // 6 de 8 = 75% (o caso ao vivo de "Montando primeiros hànzì"), com 2 erros reais.
+    const seeded = await seedPendingReview(page, 2, { correctCount: 6, finalStars: 1 });
+    const offer = await openPendingReviewOffer(page);
+    const steps = gradedQingwenSteps().slice(0, seeded);
+
+    // Foco gerenciado: o leitor de tela começa pelo título do resumo.
+    await expect(offer.locator("h1")).toBeFocused();
+    await expect(offer).toContainText("Você acertou 6 de");
+    await expect(offer.getByRole("heading", { name: `${seeded} etapas para rever` })).toBeVisible();
+
+    // Lista semântica: uma linha por etapa, com a resposta dada e a certa.
+    const list = offer.getByRole("list", { name: `${seeded} etapas para rever` });
+    await expect(list.getByRole("listitem")).toHaveCount(seeded);
+    for (const [index, { step }] of steps.entries()) {
+      const item = list.getByRole("listitem").nth(index);
+      await expect(item.locator("[data-review-offer-error-answer]")).toContainText("Sua resposta: 再见");
+      await expect(item.locator("[data-review-offer-error-correct]")).toContainText(step.correctAnswer!);
+    }
+
+    // "Praticar o que travou" abre a revisão com estes erros, e só eles.
+    await offer.locator("[data-review-start]").click();
+    const session = page.locator("[data-review-session]");
+    await expect(session).toBeVisible({ timeout: 15_000 });
+    const planned = Number(await session.getAttribute("data-review-planned"));
+    expect(planned).toBeGreaterThan(0);
+    expect(planned).toBeLessThanOrEqual(seeded);
+  });
+
+  test("1 acerto de 8: a lição não conclui; Reforço é prática e Tentar de novo conclui @qa-lgy-026", async ({ page }) => {
+    await seedPendingReview(page, 2, { correctCount: 1, finalStars: 0 });
+    const offer = await openPendingReviewOffer(page);
+    // Abaixo do mínimo a revisão não promete estrela nem conclusão.
+    await expect(offer).toHaveAttribute("data-review-can-recover", "false");
+    await expect(offer.locator("[data-review-offer-support]")).toContainText("Para concluir a lição, tente de novo e acerte pelo menos 60%.");
+
+    await offer.getByRole("button", { name: /^Continuar/ }).click();
+    await expect(page.getByRole("heading", { name: "Quase lá" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/Abaixo de 60% a lição ainda não conta/)).toBeVisible();
+    await expect(page.getByTestId("lesson-below-minimum-retry")).toBeVisible();
+    await dismissBlockingOverlays(page);
+    await page.getByTestId("lesson-below-minimum-reforco").click();
+    await expect(page.locator("[data-review-session]")).toBeVisible({ timeout: 15_000 });
+
+    // Saindo do Reforço, a lição continua sem concluir e o Reforço não reabre (P2.2).
+    await page.locator("[data-review-leave]").click();
+    await expect(page.locator("[data-review-summary]")).toBeVisible({ timeout: 15_000 });
+    await page.locator("[data-review-summary]").getByRole("button", { name: /^Continuar/ }).click();
+    await expect(page.getByRole("heading", { name: "Quase lá" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId("lesson-below-minimum-reforco")).toHaveCount(0);
+    await expect(page.getByTestId("lesson-below-minimum-retry")).toBeVisible();
+  });
+
+  test("7 de 8: a vitória explica estrelas e Qi no \"?\" @qa-lgy-026", async ({ page }) => {
+    await seedPendingReview(page, 1, { correctCount: 7, finalStars: 2 });
+    const offer = await openPendingReviewOffer(page);
+    await offer.getByRole("button", { name: /^Continuar/ }).click();
+    await dismissBlockingOverlays(page);
+    const toggle = page.locator("[data-victory-rules-toggle]");
+    await expect(toggle).toBeVisible({ timeout: 15_000 });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(page.locator("[data-victory-rules]")).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const rules = page.locator("[data-victory-rules]");
+    await expect(rules).toContainText("a partir de 60% = 1★, de 80% = 2★, de 95% = 3★");
+    // Conta local: o cliente é a autoridade e já paga graduado.
+    await expect(rules).toContainText("1★ = 3, 2★ = 4, 3★ = 5");
+    await expect(rules).toContainText("Replay não rende Qi.");
   });
 });
 

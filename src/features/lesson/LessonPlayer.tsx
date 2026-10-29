@@ -1,10 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
-import { lessonStartConsumesCharge } from "../../lib/energyPolicy";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { lessonStartConsumesCharge, victoryWaitsForCharge as nextStartWaitsForCharge } from "../../lib/energyPolicy";
+import { chargeRefillTime } from "../../hooks/useChargeRecovery";
 import { haptic } from "../../lib/haptics";
 import { cultureStepForDisplay } from "../../lib/cultureDragon";
 import { registerBackGuard } from "../../lib/navigation/smartBack";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ALL_LESSONS, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
+import { ALL_LESSONS, currentLessonId, getLesson, type LessonStep, type Skill, type StepKind } from "../../data/journey";
 import { peekJourneyReturnAnchor } from "../../lib/journeyReturnAnchor";
 import { CHARACTERS } from "../../data/characters";
 import { CHUNKS, chunkById } from "../../data/chunks";
@@ -27,7 +28,6 @@ import {
   useStore,
   type ActivityErrorRecord,
   type ActivityErrorSkill,
-  type ActivityReviewTarget,
   type LessonAttemptRecord,
   type LessonMistakeRecord,
   type LessonStar,
@@ -37,6 +37,7 @@ import {
 } from "../../lib/store";
 import { todayKey } from "../../lib/storage";
 import { gradeReviewDomain } from "../../lib/reviewPlan";
+import { contrastFeedbackPt } from "./contrastFeedback";
 import type { ReviewDomain } from "../../lib/srs";
 import {
   registerConversationVocabularyInSrs,
@@ -46,10 +47,18 @@ import { conversationSceneById, type ConversationVariantLevel } from "../../data
 import { conversationAssistanceFromHelp } from "../../data/productionHelp";
 import { resolveVisualConcept } from "../../data/visualVocabulary";
 import {
-  curriculumRefsThroughLesson,
   manifestFromConversationStep,
   primaryExerciseFamilyFor,
 } from "./lessonTasks";
+import {
+  isPinyinOrToneChoiceStep,
+  reviewTargetsForMistake,
+  SKILL_TRACK,
+  taughtRefsForLesson,
+  textReviewTargets,
+  uniqueLessonReviewTargets,
+  type LessonReviewTarget,
+} from "./reviewTargets";
 import { LessonPerfOverlay } from "./LessonPerfOverlay";
 import {
   BREATH_LIVES,
@@ -65,6 +74,7 @@ import {
   RETRY_QUESTION_QI,
 } from "../../data/economy";
 import { lessonCompletionQi } from "../../lib/lessonQi";
+import { replayGrantsQi } from "../../lib/economyReconcile";
 import { playMandarinAudio } from "../../lib/audioPlayback";
 
 function speak(text: string, options: { rate?: number } = {}) {
@@ -111,7 +121,7 @@ import { Pinyin } from "../../components/hanzi/Pinyin";
 import { GlossText } from "../../components/hanzi/GlossText";
 import { GlossLookupProvider } from "../../components/hanzi/helpMode";
 import { capAssistedGrade } from "../../lib/reviewLookup";
-import type { Grade } from "../../lib/srs";
+import { lessonEvidenceGrade, makeKey, promotedToday, type Grade, type LessonStepEvidence } from "../../lib/srs";
 import { StepRenderer, type PairMistakePayload } from "./steps";
 import { LessonActionPortal, LessonActionRegionProvider } from "./LessonActionRegion";
 import {
@@ -164,6 +174,8 @@ import {
 } from "../../data/topicMastery";
 import { ProPaywall, type ProPaywallKind } from "../../components/pro/ProPaywall";
 import { useProOffer } from "../../hooks/useProOffer";
+import { currentStorageNamespace } from "../../lib/accountStorage";
+import { scopedEnergyStorageKey } from "../../lib/auth/accountIsolation";
 import { leagueXpKeyLesson } from "../../lib/leagueXpKeys";
 import { requiredToneTrainerPackForLesson, toneTrainerPackCompleted } from "../../data/toneTrainer";
 import { enrichMatchPairsStep } from "../../data/adaptivePairs";
@@ -193,7 +205,14 @@ import { applyPedagogyV6ToPlan, loadTaughtConcepts, markConceptsTaught } from ".
 import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
-import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
+import {
+  canCompleteLesson,
+  computeLessonStars as lessonStars,
+  isPerfectLesson,
+  lessonRuleFacts,
+  reforcoRecoversAttempt,
+} from "./lessonStarRules";
+import { lessonQiGraduated } from "../../lib/economyServerBridge";
 import {
   REVIEW_OFFER,
   REVIEW_QUESTION,
@@ -256,14 +275,6 @@ function learnedItemsForLesson(
   return out;
 }
 
-const SKILL_TRACK: Record<Skill, Track> = {
-  som: "som",
-  fala: "fala",
-  hanzi: "hanzi",
-  leitura: "leitura",
-  sistema: "hanzi",
-};
-
 function isGradedStep(step: LessonStep): boolean {
   return isEvaluableQuestionStep(step);
 }
@@ -275,8 +286,6 @@ interface LessonMistake {
   correction: string;
   detail?: string;
 }
-
-type LessonReviewTarget = ActivityReviewTarget;
 
 interface ActivityError extends ActivityErrorRecord {
   type: StepKind | "pair-match";
@@ -482,253 +491,6 @@ function dayCountLabel(days: number): string {
   return `${days} ${days === 1 ? t("player.day") : t("player.days")}`;
 }
 
-function uniqueLessonReviewTargets(targets: LessonReviewTarget[]): LessonReviewTarget[] {
-  const seen = new Set<string>();
-  return targets.filter((target) => {
-    const key = `${target.type}:${target.itemId}:${target.domain}:${target.track}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-/**
- * Alvos de revisão de um texto — apenas o que o currículo JÁ ENSINOU.
- *
- * Antes todo caractere do texto virava item de revisão. Errar 不客气 na terceira
- * lição criava entradas para 客 e 气 como caracteres soltos, que a jornada nunca
- * apresenta individualmente; a revisão então cobrava palavra que o aluno não
- * tinha visto em tarefa nenhuma. Auditoria: 19% dos alvos gerados por erro
- * (61 itens distintos) eram deste tipo.
- *
- * O chunk continua entrando — ele é a unidade efetivamente ensinada. Os
- * caracteres entram quando o currículo os introduz. Sem alvo elegível, o erro
- * segue registrado para a remediação imediata, mas não vira dívida de revisão.
- */
-function textReviewTargets(
-  text: string | undefined,
-  domain: ReviewDomain,
-  track: Track,
-  introduced?: ReadonlySet<string>
-): LessonReviewTarget[] {
-  const targets: LessonReviewTarget[] = [];
-  const chunk = findChunkByText(text);
-  if (chunk && (!introduced || introduced.has(`chunk:${chunk.id}`))) {
-    targets.push({ type: "chunk", itemId: chunk.id, domain, track });
-  }
-  for (const char of charsInText(text)) {
-    if (introduced && !introduced.has(`char:${char.id}`)) continue;
-    targets.push({ type: "char", itemId: char.id, domain, track });
-  }
-  return targets;
-}
-
-/** Prefer chunk como unidade pedagógica; só cai em chars soltos se não houver chunk. */
-function pedagogicalTextTargets(
-  text: string | undefined,
-  domain: ReviewDomain,
-  track: Track,
-  introduced?: ReadonlySet<string>
-): LessonReviewTarget[] {
-  const chunk = findChunkByText(text);
-  if (chunk && (!introduced || introduced.has(`chunk:${chunk.id}`))) {
-    return [{ type: "chunk", itemId: chunk.id, domain, track }];
-  }
-  return charsInText(text)
-    .filter((char) => !introduced || introduced.has(`char:${char.id}`))
-    .map((char) => ({ type: "char" as const, itemId: char.id, domain, track }));
-}
-
-/**
- * O que já foi ensinado ATÉ e INCLUINDO a lição atual.
- *
- * `curriculumRefsThroughLesson` cobre o que o currículo declara, mas algumas
- * lições ensinam caracteres só pelo texto dos passos — as de tom (妈/麻/马/骂),
- * por exemplo, não os declaram. Sem somar os passos da própria lição, elas
- * ficariam sem nenhum alvo de revisão. Um caractere que o aluno acabou de ver
- * na tela foi abordado, então conta.
- */
-const lessonTaughtRefsCache = new Map<string, ReadonlySet<string>>();
-
-function taughtRefsForLesson(lesson: { id: string; steps?: LessonStep[] }): ReadonlySet<string> {
-  const cached = lessonTaughtRefsCache.get(lesson.id);
-  if (cached) return cached;
-  const refs = new Set<string>(curriculumRefsThroughLesson(lesson.id));
-  for (const step of lesson.steps ?? []) {
-    for (const text of [step.hanzi, step.correctAnswer, step.answer, step.blankAnswer, step.text]) {
-      if (!text) continue;
-      const chunk = findChunkByText(text);
-      if (chunk) refs.add(`chunk:${chunk.id}`);
-      for (const char of charsInText(text)) refs.add(`char:${char.id}`);
-    }
-  }
-  lessonTaughtRefsCache.set(lesson.id, refs);
-  return refs;
-}
-
-function reviewTargetsForMistake(
-  step: LessonStep,
-  track: Track,
-  introduced?: ReadonlySet<string>
-): LessonReviewTarget[] {
-  const targets: LessonReviewTarget[] = [];
-  const addText = (text: string | undefined, domain: ReviewDomain, sourceTrack: Track = track) => {
-    targets.push(...textReviewTargets(text, domain, sourceTrack, introduced));
-  };
-
-  if (step.pedagogyVariant === "audio_same_different") {
-    for (const audio of step.audioSequence ?? []) {
-      addText(audio, "som", "som");
-      addText(audio, "pinyin", "som");
-    }
-    return uniqueLessonReviewTargets(targets);
-  }
-  if (step.pedagogyVariant === "dragon_dictation") {
-    addText(step.audioText, "som", "som");
-    if (step.dictationMode === "pinyin") addText(step.audioText, "pinyin", "som");
-    else {
-      addText(step.audioText ?? step.answer, "uso");
-      addText(step.audioText ?? step.answer, "forma", "hanzi");
-    }
-    return uniqueLessonReviewTargets(targets);
-  }
-  if (step.pedagogyVariant?.startsWith("meaning_")) {
-    addText(step.correctAnswer ?? step.answer, "significado");
-    addText(step.correctAnswer ?? step.answer, "uso");
-    return uniqueLessonReviewTargets(targets);
-  }
-
-  if (step.kind === "tone") {
-    addText(step.hanzi, "som", "som");
-    addText(step.hanzi, "pinyin", "som");
-  }
-  if (step.kind === "comprehend") addText(step.hanzi ?? step.answer, "significado");
-  if (step.kind === "produce") {
-    const text = step.target?.join("");
-    addText(text, "uso");
-    addText(text, "fala");
-  }
-  if (step.kind === "recognize" && step.charId) {
-    targets.push({ type: "char", itemId: step.charId, domain: "significado", track });
-  }
-  if (step.kind === "write") {
-    if (step.chunkId) {
-      targets.push({ type: "chunk", itemId: step.chunkId, domain: "uso", track });
-      targets.push({ type: "chunk", itemId: step.chunkId, domain: "significado", track });
-    }
-    addText(step.answer, "uso");
-  }
-  if (step.kind === "match_pairs" || step.kind === "tone_pair") {
-    const domain: ReviewDomain = step.kind === "tone_pair" ? "som" : "significado";
-    const sourceTrack: Track = step.kind === "tone_pair" ? "som" : track;
-    for (const pair of step.pairs ?? []) {
-      if (pair.reviewType && pair.reviewItemId) {
-        targets.push({ type: pair.reviewType, itemId: pair.reviewItemId, domain, track: sourceTrack });
-      }
-      addText(pair.left, domain, sourceTrack);
-      addText(pair.right, domain, sourceTrack);
-    }
-  }
-  if (step.kind === "listen_select") {
-    addText(step.audioText ?? step.correctAnswer, "som", "som");
-    addText(step.audioText ?? step.correctAnswer, "pinyin", "som");
-    addText(step.correctAnswer, "significado");
-  }
-  if (step.kind === "image_choice") {
-    const hanzi = step.targetHanzi ?? step.hanzi;
-    const mode = step.imageChoiceMode;
-    if (mode === "listen_and_choose_image" || mode === "choose_pinyin") {
-      addText(hanzi, "som", "som");
-      addText(hanzi, "pinyin", "som");
-    }
-    if (mode === "choose_hanzi" || mode === "choose_image" || mode === "listen_and_choose_image") {
-      addText(hanzi, "forma", "hanzi");
-    }
-    addText(hanzi, "significado");
-  }
-  if (step.kind === "compare_with_image") {
-    const hanzi = step.targetHanzi ?? step.hanzi;
-    addText(hanzi, "significado");
-    addText(hanzi, "forma", "hanzi");
-  }
-  if (step.kind === "dialogue_choice" && isPinyinOrToneChoiceStep(step)) {
-    const source = step.sourceText ?? step.hanzi ?? step.audioText;
-    addText(source, "pinyin", "som");
-    addText(source, "som", "som");
-  }
-  if (step.kind === "sentence_build" || step.kind === "translation_build" || step.kind === "dialogue_choice" || step.kind === "conversation_scene" || step.kind === "place_label" || step.kind === "city_context" || step.kind === "contextual_choice" || step.kind === "dialogue_completion" || step.kind === "sign_reading" || step.kind === "menu_reading" || step.kind === "price_task" || step.kind === "schedule_reading") {
-    const text = step.correctAnswer ?? step.checkpoint?.correctAnswer ?? step.answer ?? step.targetParts?.join("");
-    if (step.kind === "conversation_scene") {
-      // Não lotar com cada linha da cena — resposta principal / chunk basta;
-      // o loop → SRS cobre o restante com dedupe.
-      targets.push(...pedagogicalTextTargets(text, "uso", track, introduced));
-      targets.push(...pedagogicalTextTargets(text, "fala", track, introduced));
-    } else {
-      addText(text, "uso");
-      addText(text, "fala");
-    }
-  }
-  if (step.kind === "address_build" || step.kind === "sentence_transform" || step.kind === "route_sequence") {
-    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "uso");
-    addText(step.targetParts?.join("") ?? step.routeParts?.join("") ?? step.correctAnswer, "fala");
-  }
-  if (step.kind === "map_direction") {
-    addText(step.prompt ?? step.audioText ?? step.mapCorrectAction, "uso");
-    if (step.audioText) addText(step.audioText, "som", "som");
-  }
-  if (step.kind === "reverse_recall") {
-    addText(step.answer ?? step.correctAnswer, "uso");
-    addText(step.answer ?? step.correctAnswer, "fala");
-  }
-  if (step.pedagogyVariant === "sentence_lab_audio") {
-    addText(step.audioText ?? step.correctAnswer, "som", "som");
-  }
-  if (step.kind === "fill_blank") {
-    addText(step.correctAnswer ?? step.answer ?? `${step.sentenceBefore ?? ""}${step.blankAnswer ?? ""}${step.sentenceAfter ?? ""}`, "uso");
-  }
-  if (step.kind === "hanzi_build") {
-    addText(step.correctAnswer ?? step.answer, "forma", "hanzi");
-    addText(step.targetParts?.join(""), "forma", "hanzi");
-  }
-  if (step.kind === "audio_discrimination") {
-    // Par mínimo alimenta só o domínio de SOM dos dois lados: o aluno não
-    // viu significado nem forma aqui.
-    for (const side of step.pairReveal ?? []) {
-      addText(side.hanzi, "som", "som");
-      addText(side.hanzi, "pinyin", "som");
-    }
-  }
-  if (step.kind === "dictation") {
-    const written = step.hanzi ?? step.correctAnswer ?? step.targetParts?.join("");
-    addText(written, "som", "som");
-    if (step.dictationMode === "pinyin") addText(written, "pinyin", "som");
-    if (step.dictationMode === "hanzi" || step.dictationMode === "blocks") addText(written, "forma", "hanzi");
-  }
-  if (step.kind === "odd_one_out") {
-    // Todas as opções foram julgadas por sentido, não só a resposta.
-    for (const option of step.options ?? []) addText(option, "significado");
-  }
-  if (step.kind === "spot_error") {
-    addText(step.correctAnswer ?? step.answer, "uso");
-    addText(step.correctAnswer ?? step.answer, "fala");
-  }
-  // Produzir a frase inteira sem apoio cobra USO, FALA e — porque o aluno
-  // escreveu de cabeça, sem peças na tela — também a FORMA.
-  if (step.kind === "free_production" || step.kind === "transfer_task") {
-    const produced = step.correctAnswer ?? step.answer;
-    addText(produced, "uso");
-    addText(produced, "fala");
-    addText(produced, "forma", "hanzi");
-  }
-  if (step.kind === "conversation_repair") {
-    const recovery = step.correctAnswer ?? step.answer;
-    addText(recovery, "uso");
-    addText(recovery, "fala");
-  }
-
-  return uniqueLessonReviewTargets(targets);
-}
-
 function activityErrorSkillForStep(step: LessonStep): ActivityErrorSkill {
   if (step.pedagogyVariant === "dragon_dictation") {
     return step.dictationMode === "pinyin" ? "pinyin" : step.dictationMode === "blocks" ? "uso" : "forma";
@@ -773,21 +535,6 @@ function sourceSkillForActivitySkill(skill: ActivityErrorSkill, lessonSkill: Ski
 
 function displayTextHasHanzi(value: string | undefined): boolean {
   return Boolean(value && charsInText(value).length > 0);
-}
-
-function hasPinyinToneMark(value: string | undefined): boolean {
-  return /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/iu.test(value ?? "");
-}
-
-function isPinyinOrToneChoiceStep(step: LessonStep): boolean {
-  const label = `${step.title ?? ""} ${step.prompt ?? ""} ${step.dialoguePrompt ?? ""}`.toLocaleLowerCase("pt-BR");
-  const options = [step.correctAnswer, step.answer, step.pinyin, step.sourcePinyin, ...(step.options ?? [])];
-  return (
-    label.includes("pinyin") ||
-    label.includes("acento") ||
-    (label.includes("tom") && options.some(hasPinyinToneMark)) ||
-    options.filter(hasPinyinToneMark).length >= 2
-  );
 }
 
 function errorHanziForStep(step: LessonStep): string | undefined {
@@ -1037,21 +784,51 @@ function pairExplanation(payload: PairMistakePayload): string {
   return `${payload.left} significa ${meaning}.`;
 }
 
+/**
+ * QA 2026-10 · prompt 22 (LGY-031) — a oferta lista cada etapa que travou: o
+ * enunciado, a resposta dada e a certa (com hànzì e pinyin quando houver). A
+ * revisão ("Praticar o que travou") usa exatamente estes erros e os alvos de
+ * `reviewTargets` que cada um já carrega.
+ */
+function reviewOfferErrorLines(error: ActivityError) {
+  const pair = Boolean(error.pairLeft && error.pairExpectedRight);
+  const yours = pair
+    ? error.pairSelectedRight
+      ? `${error.pairLeft} → ${error.pairSelectedRight}`
+      : ""
+    : error.selectedAnswer && error.selectedAnswer !== "Resposta incorreta"
+      ? error.selectedAnswer
+      : "";
+  const correctText = pair ? `${error.pairLeft} → ${error.pairExpectedRight}` : error.correctAnswer;
+  const hanzi = error.hanzi && !correctText.includes(error.hanzi) ? error.hanzi : undefined;
+  const pinyin = error.pinyin && !correctText.includes(error.pinyin) ? error.pinyin : undefined;
+  return { prompt: error.prompt, yours, correct: correctText, hanzi, pinyin };
+}
+
 function ImmediateErrorReviewOffer({
-  count,
+  errors,
   correct,
   total,
   canRecover,
+  belowMinimumPct,
   onStart,
   onLater,
 }: {
-  count: number;
+  errors: ActivityError[];
   correct: number;
   total: number;
   canRecover: boolean;
+  /** Aula abaixo do mínimo (QA22): a revisão é prática; concluir pede nova tentativa. */
+  belowMinimumPct?: number;
   onStart: () => void;
   onLater: () => void;
 }) {
+  const count = errors.length;
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const listId = useId();
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
   return (
     <div
       className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(var(--app-safe-bottom)+1rem)]"
@@ -1065,16 +842,44 @@ function ImmediateErrorReviewOffer({
         <div className="mt-4 inline-flex w-fit rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink-soft">
           {REVIEW_OFFER.score(correct, total)}
         </div>
-        <h1 className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink focus:outline-none sm:text-3xl"
+        >
           {REVIEW_OFFER.title(count, canRecover)}
         </h1>
         <p className="mt-3 max-w-md text-sm leading-6 text-ink-soft" data-review-offer-support>
-          {REVIEW_OFFER.supportLine(canRecover)}
+          {belowMinimumPct != null ? REVIEW_OFFER.supportLineBelowMinimum(belowMinimumPct) : REVIEW_OFFER.supportLine(canRecover)}
         </p>
 
+        <h2 id={listId} className="mt-5 text-sm font-semibold text-ink">
+          {REVIEW_OFFER.errorsHeading(count)}
+        </h2>
+        <ol aria-labelledby={listId} className="mt-2 space-y-2" data-review-offer-errors>
+          {errors.map((error) => {
+            const line = reviewOfferErrorLines(error);
+            return (
+              <li key={error.id} className="rounded-xl bg-surface-2 px-3 py-2 text-sm" data-review-offer-error>
+                <p className="font-medium text-ink">{line.prompt}</p>
+                <p className="mt-0.5 text-ink-soft" data-review-offer-error-answer>
+                  {REVIEW_OFFER.yourAnswer}:{" "}
+                  <span className="text-ink">{line.yours || REVIEW_OFFER.noAnswer}</span>
+                </p>
+                <p className="mt-0.5 text-ink-soft" data-review-offer-error-correct>
+                  {REVIEW_OFFER.correctAnswer}: <span className="font-semibold text-ink">{line.correct}</span>
+                  {line.hanzi ? <span className="hanzi ml-1.5 text-ink">{line.hanzi}</span> : null}
+                  {line.pinyin ? <span className="pinyin ml-1.5 text-ink-soft">{line.pinyin}</span> : null}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+
         <div className="mt-auto grid gap-2 pt-8">
-          {/* Avançar é a ação principal — a lição já está concluída. A prática
-              do que travou continua a um toque, mas como escolha do aluno. */}
+          {/* Avançar é a ação principal. Com a lição concluída, segue; abaixo
+              do mínimo, leva à tela com Reforço e Tentar de novo. A prática do
+              que travou continua a um toque, como escolha do aluno. */}
           <Button size="lg" className="w-full shadow-lift" onClick={onLater}>
             {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>
@@ -2034,6 +1839,7 @@ export function LessonPlayer() {
   const conversationHistory = useStore((s) => s.conversationHistory);
   const recordConversationScene = useStore((s) => s.recordConversationScene);
   const consumeCharge = useStore((s) => s.consumeCharge);
+  const dailyEnergy = useStore((s) => s.getActiveDailyEnergy());
   const inventory = useStore((s) => s.inventory);
   const useInventoryItem = useStore((s) => s.useInventoryItem);
   const recordDailyTask = useStore((s) => s.recordDailyTask);
@@ -2096,11 +1902,16 @@ export function LessonPlayer() {
   const [reviewSessionNonce, setReviewSessionNonce] = useState(0);
   /** P1.6 — conhecimentos que a revisão não resolveu; seguem para o SRS. */
   const reviewUnresolvedRef = useRef<string[]>([]);
+  /** QA22 — o Reforço desta tentativa já começou: a tela final não o reabre (P2.2). */
+  const reforcoStartedRef = useRef(false);
+  /** QA22 — etapas avaliadas concluídas sem acerto nem erro nesta tentativa. */
+  const unscoredGradedRef = useRef(0);
   // Estrela recuperada: o aluno corrigiu TODOS os erros da tentativa atual.
   const [recovered, setRecovered] = useState(false);
   // Fôlego esgotado ao tentar pular: abre o convite ao Pro (skips ilimitados).
   const [showFolegoUpsell, setShowFolegoUpsell] = useState(false);
   const [lessonReward, setLessonReward] = useState(0);
+  const [replayNoQi, setReplayNoQi] = useState(false);
   const [lessonXp, setLessonXp] = useState(0);
   const [postLessonView, setPostLessonView] = useState<"victory" | "streak">("victory");
   const [dailyGoalReached, setDailyGoalReached] = useState(false);
@@ -2124,6 +1935,9 @@ export function LessonPlayer() {
   // ficam com a 3ª estrela pendente até serem dominados na revisão.
   const folegoSkipCountRef = useRef(0);
   const folegoSkipRefsRef = useRef<Set<string>>(new Set());
+  // LGY-012 — etapas de escuta concluídas sem áudio não podem virar acerto de "som" no fim da lição.
+  const listeningDeferredIdxRef = useRef<Set<number>>(new Set());
+  const listeningVisualIdxRef = useRef<Set<number>>(new Set());
   /** Erros confirmados seguidos — ao atingir o limiar, perde 1 Carga. */
   const errorStreakRef = useRef(0);
   const retryUsesRef = useRef(0);
@@ -2133,6 +1947,8 @@ export function LessonPlayer() {
   // não respondidos (out_of_lives) nem sofrer com a poda do histórico de erros.
   const toneHitsRef = useRef(0);
   const mistakeReviewTargetsRef = useRef<LessonReviewTarget[]>([]);
+  /** LGY-015 / R1 — resultado de cada etapa (índice → evidência) para o finish(). */
+  const stepEvidenceRef = useRef<Map<number, LessonStepEvidence>>(new Map());
   /** Tentativas / erros da conversa atual (antes de handleDone). */
   const conversationAttemptsRef = useRef(1);
   const conversationErrorTargetsRef = useRef<LessonReviewTarget[]>([]);
@@ -2443,7 +2259,11 @@ export function LessonPlayer() {
     sessionResumeDoneRef.current = resumeKey;
     const cursor = lessonSessionStepById?.[foundLesson.id];
     if (cursor && cursor.pass === pass && cursor.stepIndex > 0) {
-      setIdx(Math.min(cursor.stepIndex, stepsForRender.length - 1));
+      const resumeAt = Math.min(cursor.stepIndex, stepsForRender.length - 1);
+      // QA22 — o resultado das etapas feitas antes de recarregar não volta:
+      // elas ficam fora da precisão das estrelas (a rodada fica em até 2★).
+      unscoredGradedRef.current = stepsForRender.slice(0, resumeAt).filter(isGradedStep).length;
+      setIdx(resumeAt);
     }
   }, [foundLesson, lessonMasteryById, lessonSessionStepById, planNonce, planReady, stepsForRender]);
 
@@ -2516,7 +2336,10 @@ export function LessonPlayer() {
     const pass = nextMasteryPass(lessonMasteryById?.[foundLesson.id]?.level ?? 0, {
       recoveryPending: lessonMasteryById?.[foundLesson.id]?.recoveryPending,
     });
-    const sessionKey = energySessionFlagForPass(foundLesson.id, pass, todayKey());
+    const sessionKey = scopedEnergyStorageKey(
+      energySessionFlagForPass(foundLesson.id, pass, todayKey()),
+      currentStorageNamespace()
+    );
     const alreadyInSession = window.sessionStorage.getItem(sessionKey) === "1";
     const cursor = lessonSessionStepById?.[foundLesson.id];
     const alreadyStarted = Boolean(cursor && cursor.pass === pass && cursor.stepIndex > 0);
@@ -3013,6 +2836,14 @@ export function LessonPlayer() {
     };
   }
 
+  function contrastReason(step: LessonStep): string | undefined {
+    if (step.kind !== "audio_discrimination" && step.pedagogyVariant !== "audio_same_different") return undefined;
+    const reveal = step.pairReveal;
+    if (!reveal || reveal.length < 2) return undefined;
+    const kind = step.contrastLabel?.toLocaleLowerCase("pt-BR").includes("tom") ? "tone" as const : undefined;
+    return contrastFeedbackPt({ hanzi: reveal[0].hanzi, pinyin: reveal[0].pinyin }, { hanzi: reveal[1].hanzi, pinyin: reveal[1].pinyin }, kind);
+  }
+
   function createActivityError(step: LessonStep, stepIndex: number, selectedAnswer?: string): ActivityError {
     const correction = correctionForStep(step);
     const targets = reviewTargetsForMistake(step, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
@@ -3051,6 +2882,7 @@ export function LessonPlayer() {
         correction.detail ??
         (correction.correction ? `Sugestão: ${correction.correction}` : undefined),
       mistakeReason:
+        contrastReason(step) ??
         compareWithImageMistakeReason(step, selectedAnswer) ??
         (diagnosis.cause === "unclassified" ? mistakeReasonForStep(step) : diagnosis.feedbackPt),
       diagnosis: diagnosis.cause,
@@ -3188,10 +3020,13 @@ export function LessonPlayer() {
       hadMistakes: attemptErrors.length > 0,
       outOfLives: false,
       isReview: lesson.isReview,
+      unscored: unscoredGradedSteps(),
     });
     const currentStars = lessonStarsById[lesson.id] ?? baseStars;
     if (currentStars >= 3) return;
     if (lesson.isReview && canCompleteLesson(baseStars, graded, true, correct) && attemptErrors.length === 0) return;
+    // QA22 — abaixo do mínimo o Reforço é prática: não conclui nem devolve estrela.
+    if (!reforcoRecoversAttempt({ attemptStars: baseStars, isReview: lesson.isReview })) return;
     recoveryAppliedRef.current = true;
     finishLessonAttempt(buildStoredAttempt(3, correct, correctedIds));
     const firstCompletion = !completedLessons.includes(lesson.id);
@@ -3207,12 +3042,19 @@ export function LessonPlayer() {
         source: "Conclusão de lição",
       });
       setLessonXp(xpClaimed ? recoveredXp : 0);
-      setLessonReward(lessonCompletionQi({ stars: 3, noSkip: skippedStepsRef.current === 0, pro: isPremium }));
+      setLessonReward(
+        lessonCompletionQi({ stars: 3, noSkip: skippedStepsRef.current === 0, pro: isPremium, graduated: lessonQiGraduated() })
+      );
     }
     if (firstCompletion || (lessonStarsById[lesson.id] ?? 0) < 3) recordDailyTask("threeStarLessons");
     setRecovered(true);
     setErrorReviewMode("recovered");
     playSoundFx("lessonComplete", soundEffects);
+  }
+
+  /** QA22 — etapas avaliadas sem resultado (pulo com Fôlego, escuta adiada…): fora da precisão. */
+  function unscoredGradedSteps(): number {
+    return unscoredGradedRef.current;
   }
 
   function markErrorCorrected(error: ActivityError, meta?: { assisted?: boolean }) {
@@ -3279,6 +3121,11 @@ export function LessonPlayer() {
             ? t("player.checkingLoads")
             : t("player.assemblingSequence")}
         </p>
+        {energyBlocked && (
+          <p className="mt-2 text-sm font-medium text-ink-soft" data-testid="lesson-energy-refill-time">
+            {t("energyAccess.refillAt", { time: chargeRefillTime() })}
+          </p>
+        )}
         {energyBlocked && (
           <>
             <ButtonLink to="/revisao" size="lg" className="mt-6 w-full shadow-lift">
@@ -3423,7 +3270,14 @@ export function LessonPlayer() {
     handleDone(false);
   }
 
-  type StepDoneMetaInput = { attempts?: number; helpLevel?: number; helpRequests?: number; initialHelpLevel?: number };
+  type StepDoneMetaInput = {
+    attempts?: number;
+    helpLevel?: number;
+    helpRequests?: number;
+    initialHelpLevel?: number;
+    listeningDeferred?: boolean;
+    listeningVisual?: boolean;
+  };
 
   /**
    * RC2.2.17 · O–Q — efeitos colaterais (telemetria, histórico de cena, SRS da
@@ -3617,19 +3471,71 @@ export function LessonPlayer() {
         });
       }
     });
+    const deferred = meta?.listeningDeferred === true;
+    const outcome = deferred ? undefined : wasCorrect;
     // Penalidade só existe se o aluno escolheu "continuar mesmo assim" (ou
     // pulou). Retry pago limpa o erro, então a questão volta a poder contar.
-    const hadRecordedMistake = currentStepHadMistakeRef.current;
+    if (deferred) {
+      listeningDeferredIdxRef.current.add(idx);
+      const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
+      for (const target of targets) {
+        gradeReviewDomain({
+          ensureSrs,
+          gradeSrs,
+          type: target.type,
+          itemId: target.itemId,
+          track: target.track,
+          domain: "pinyin",
+          grade: "hard",
+        });
+      }
+      void trackPedagogyEvent({
+        eventType: "exercise_skipped",
+        lessonId: lesson.id,
+        exerciseKind: currentStep.kind,
+        exerciseIndex: idx,
+        metadata: { via: "listening_fallback" },
+      });
+    } else if (meta?.listeningVisual && outcome === true) {
+      listeningVisualIdxRef.current.add(idx);
+      if (currentStep.kind === "audio_discrimination") {
+        const targets = reviewTargetsForMistake(currentStep, SKILL_TRACK[lesson.skill], taughtRefsForLesson(lesson));
+        for (const target of targets) {
+          gradeReviewDomain({
+            ensureSrs,
+            gradeSrs,
+            type: target.type,
+            itemId: target.itemId,
+            track: target.track,
+            domain: "pinyin",
+            grade: "good",
+          });
+        }
+      }
+    }
+    const hadRecordedMistake = deferred ? false : currentStepHadMistakeRef.current;
     const penaltyApplied = currentStepPenaltyApplied;
-    const countsAsCorrect = wasCorrect === true && !hadRecordedMistake;
+    const countsAsCorrect = outcome === true && !hadRecordedMistake;
+    // LGY-015 / R1 — o finish() só promove o que foi testado e acertado.
+    stepEvidenceRef.current.set(idx, {
+      graded: currentStepIsGraded && !deferred,
+      correct: countsAsCorrect,
+      // A escuta visual testa o pinyin (outro domínio), não é ajuda.
+      assisted: (meta?.helpRequests ?? 0) > 0 || retryProtected,
+    });
+    // QA22 — pulo com Fôlego, escuta adiada ou etapa avaliada que termina sem
+    // resultado: não é acerto nem erro, então sai da precisão das estrelas.
+    if (currentStepIsGraded && outcome === undefined) unscoredGradedRef.current += 1;
     const nextCorrect = correct + (countsAsCorrect ? 1 : 0);
     let nextLives = lives;
 
     if (countsAsCorrect) {
-      if (currentStep.kind === "tone") toneHitsRef.current += 1;
-      else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
-      else if (currentStep.kind === "audio_discrimination" && currentStep.contrastLabel?.includes("tom")) {
-        toneHitsRef.current += 1;
+      if (!meta?.listeningVisual) {
+        if (currentStep.kind === "tone") toneHitsRef.current += 1;
+        else if (currentStep.kind === "tone_pair") toneHitsRef.current += currentStep.pairs?.length ?? 1;
+        else if (currentStep.kind === "audio_discrimination" && currentStep.contrastLabel?.includes("tom")) {
+          toneHitsRef.current += 1;
+        }
       }
       errorStreakRef.current = 0;
       nextStreak = answerStreak + 1;
@@ -3644,11 +3550,11 @@ export function LessonPlayer() {
       } else {
         playSoundFx("success", soundEffects);
       }
-    } else if (wasCorrect === true) {
+    } else if (outcome === true) {
       nextStreak = 0;
       setAnswerStreak(0);
       playSoundFx("step", soundEffects);
-    } else if (wasCorrect === false) {
+    } else if (outcome === false) {
       nextStreak = 0;
       setAnswerStreak(0);
       // Erro que chegou aqui sem passar pelo painel (ex.: pular a questão):
@@ -3684,7 +3590,7 @@ export function LessonPlayer() {
     setRetryProtected(false);
     setPendingMistake(null);
     setStepAttempt(0);
-    if (wasCorrect === false && currentStepIsGraded && !hasUnlimitedLives && nextLives <= 0) {
+    if (outcome === false && currentStepIsGraded && !hasUnlimitedLives && nextLives <= 0) {
       finish(nextCorrect, "out_of_lives");
       return;
     }
@@ -3801,8 +3707,14 @@ export function LessonPlayer() {
     if (reason === "completed") haptic("lessonComplete");
     // Alimenta SRS e biblioteca com os itens da lição.
     const track = SKILL_TRACK[lesson.skill];
-    const gradedDomains = new Set<string>();
     const isCultureDomain = lesson.lessonDomain === "culture";
+    // LGY-015 / R1 — antes, todo item exibido levava "good". Agora cada item
+    // fica com a melhor evidência da lição: exibido sem resposta (ou errado)
+    // só entra em aprendizado; acerto com ajuda = hard; acerto sem ajuda =
+    // good, no máximo uma promoção por dia. O erro continua como "again".
+    const GRADE_RANK: Record<Grade, number> = { again: 0, hard: 1, good: 2, easy: 3 };
+    const lessonGrades = new Map<string, { type: ItemType; itemId: string; domain: ReviewDomain; track: Track; grade: Grade | null }>();
+    let stepGrade: Grade | null = null;
     const gradeOnce = (
       type: ItemType,
       itemId: string,
@@ -3811,17 +3723,12 @@ export function LessonPlayer() {
     ) => {
       if (isCultureDomain) return;
       const key = `${type}:${itemId}:${domain}`;
-      if (gradedDomains.has(key)) return;
-      gradedDomains.add(key);
-      gradeReviewDomain({
-        ensureSrs,
-        gradeSrs,
-        type,
-        itemId,
-        track: sourceTrack,
-        domain,
-        grade: "good",
-      });
+      const seen = lessonGrades.get(key);
+      if (!seen) {
+        lessonGrades.set(key, { type, itemId, domain, track: sourceTrack, grade: stepGrade });
+        return;
+      }
+      if (stepGrade && (!seen.grade || GRADE_RANK[stepGrade] > GRADE_RANK[seen.grade])) seen.grade = stepGrade;
     };
     const gradeText = (text: string | undefined, domain: ReviewDomain, sourceTrack: Track = track) => {
       const chunk = findChunkByText(text);
@@ -3832,6 +3739,7 @@ export function LessonPlayer() {
     };
 
     for (const s of lesson.steps) {
+      stepGrade = lessonEvidenceGrade(stepEvidenceRef.current.get(lesson.steps.indexOf(s)));
       if ((s.kind === "decompose" || s.kind === "recognize") && s.charId) {
         gradeOnce("char", s.charId, s.kind === "decompose" ? "forma" : "significado");
       }
@@ -3886,8 +3794,16 @@ export function LessonPlayer() {
         }
       }
       if (s.kind === "listen_select") {
-        gradeText(s.audioText ?? s.correctAnswer, "som", "som");
-        gradeText(s.correctAnswer, "significado");
+        const stepIndex = lesson.steps.indexOf(s);
+        // Sem áudio o passo já entrou na revisão como pinyin/hard. Não vira acerto de escuta.
+        if (!listeningDeferredIdxRef.current.has(stepIndex)) {
+          if (listeningVisualIdxRef.current.has(stepIndex)) {
+            gradeText(s.audioText ?? s.correctAnswer, "pinyin", "leitura");
+          } else {
+            gradeText(s.audioText ?? s.correctAnswer, "som", "som");
+          }
+          gradeText(s.correctAnswer, "significado");
+        }
       }
       if (s.kind === "sentence_build" || s.kind === "translation_build" || s.kind === "dialogue_choice" || s.kind === "conversation_scene") {
         // Conversas já alimentam o SRS no loop de vocabulário (com prioridade e
@@ -3923,6 +3839,21 @@ export function LessonPlayer() {
         }
       }
     }
+    const mistakeKeys = new Set(mistakeReviewTargetsRef.current.map((target) => `${target.type}:${target.itemId}:${target.domain}`));
+    const liveSrs = useStore.getState().srs;
+    const srsCounts = { promoted: 0, assisted: 0, exposed: 0 };
+    for (const [key, entry] of lessonGrades) {
+      const promote =
+        entry.grade && !mistakeKeys.has(key) && !(entry.grade === "good" && promotedToday(liveSrs[makeKey(entry.type, entry.itemId, entry.domain)]));
+      if (!promote || !entry.grade) {
+        if (!mistakeKeys.has(key)) srsCounts.exposed += 1;
+        ensureSrs(entry.type, entry.itemId, entry.track, entry.domain);
+        continue;
+      }
+      if (entry.grade === "good") srsCounts.promoted += 1;
+      else srsCounts.assisted += 1;
+      gradeReviewDomain({ ensureSrs, gradeSrs, type: entry.type, itemId: entry.itemId, track: entry.track, domain: entry.domain, grade: entry.grade });
+    }
     const weakDomains = new Set<string>();
     if (!isCultureDomain) {
       for (const target of mistakeReviewTargetsRef.current) {
@@ -3939,6 +3870,20 @@ export function LessonPlayer() {
           grade: "again",
         });
       }
+      // R3 — métricas agregadas (só contagens, respeitando o opt-in).
+      const srsAfter = useStore.getState().srs;
+      void trackPedagogyEvent({
+        eventType: "srs_summary",
+        lessonId: lesson.id,
+        metadata: {
+          source: "lesson",
+          promoted: srsCounts.promoted,
+          assisted: srsCounts.assisted,
+          exposed: srsCounts.exposed,
+          lapses: weakDomains.size,
+          leeches: mistakeReviewTargetsRef.current.filter((target) => srsAfter[makeKey(target.type, target.itemId, target.domain)]?.leech === true).length,
+        },
+      });
     }
     const minutesEarned = lesson.estimatedMinutes ?? 5;
     const goalMin = dailyGoalMinutesFor(useStore.getState());
@@ -3953,6 +3898,7 @@ export function LessonPlayer() {
       hadMistakes: hadRealMistakes,
       outOfLives: reason === "out_of_lives",
       isReview: lesson.isReview,
+      unscored: unscoredGradedSteps(),
     });
     // Pular com Fôlego conclui a pass (não o tema 4/4) mesmo em 2★, desde
     // que não tenha havido erro real — a 3ª estrela fica pendente até dominar o
@@ -3990,9 +3936,10 @@ export function LessonPlayer() {
       completionXp = LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0);
     }
     // Pro ganha um bônus fixo de Qi por conclusão (fricção menor, não XP).
-    // RC2.3.13R.3.2.5 — show exactly what grantLessonReward pays (0 below 3★).
+    // RC2.3.13R.3.2.5 — show exactly what grantLessonReward pays.
+    // QA22 — graduado (1★/2★) com a mesma chave que o store usa.
     const completionQi = passed && firstCompletion
-      ? lessonCompletionQi({ stars, noSkip: skippedStepsRef.current === 0, pro: isPremium })
+      ? lessonCompletionQi({ stars, noSkip: skippedStepsRef.current === 0, pro: isPremium, graduated: lessonQiGraduated() })
       : 0;
 
     const tonesHit = toneHitsRef.current;
@@ -4016,6 +3963,7 @@ export function LessonPlayer() {
     finishLessonAttempt(buildStoredAttempt(stars, finalCorrect));
     setLessonXp(xpClaimed ? completionXp : 0);
     setLessonReward(completionQi);
+    setReplayNoQi(Boolean(passed && !replayGrantsQi(firstCompletion)));
     setDailyGoalReached(passed && totalBefore < goalMin && totalBefore + minutesEarned >= goalMin);
     setPostLessonView("victory");
     setClaimedRewardCards(false);
@@ -4026,11 +3974,14 @@ export function LessonPlayer() {
     // Sessão de revisão NOVA: identidade nova, plano novo (P1.1).
     setReviewSessionNonce((value) => value + 1);
     reviewUnresolvedRef.current = [];
+    reforcoStartedRef.current = false;
     setRecovered(false);
     recoveryAppliedRef.current = false;
+    // QA22 — a tentativa acabou (concluída ou não): a próxima começa do
+    // início. Sem isto, voltar depois de "Quase lá" retomava na última etapa.
+    setLessonSessionStep(lesson.id, null);
     if (passed) {
       setLessonTaskProgress(lesson.id, 0);
-      setLessonSessionStep(lesson.id, null);
     } else {
       setLessonTaskProgress(
         lesson.id,
@@ -4160,16 +4111,18 @@ export function LessonPlayer() {
       hadMistakes: activityErrorsRef.current.length > 0,
       outOfLives: finishReason === "out_of_lives",
       isReview: lesson.isReview,
+      unscored: unscoredGradedSteps(),
     });
     // Recuperou a tentativa → 3 estrelas e lição concluída.
     const stars = recovered ? 3 : computedStars;
     const passed =
       recovered || (finishReason !== "out_of_lives" && canCompleteLesson(computedStars, graded, lesson.isReview, correct));
+    // QA22 — aula normal abaixo de 60%: não conclui; o Reforço é só prática.
+    const belowMinimum = !passed && finishReason !== "out_of_lives" && !lesson.isReview;
     const masteryStars = 3;
+    const ruleFacts = lessonRuleFacts();
     const requiredAccuracy = Math.round(MODULE_REVIEW_PASS_ACCURACY * 100);
-    const passRequirementLabel = lesson.isReview
-      ? `${requiredAccuracy}%`
-      : t("player.starsRequired", { n: masteryStars });
+    const passRequirementLabel = lesson.isReview ? `${requiredAccuracy}%` : `${ruleFacts.oneStarPct}%`;
     const helpCount = skippedStepsRef.current + retryUsesRef.current + recoveryUsesRef.current;
     const precision = graded === 0 ? 100 : Math.round((correct / graded) * 100);
     const committedErrors = (activityErrors.length > 0 ? activityErrors : activityErrorsRef.current).filter(
@@ -4236,19 +4189,27 @@ export function LessonPlayer() {
 
     // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
     // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
-    const canRecoverStar = !recovered && stars < masteryStars;
+    // Sem vidas e abaixo do mínimo a revisão não recupera nada (applyAttemptRecovery sai antes).
+    const canRecoverStar = !recovered && finishReason !== "out_of_lives" && !belowMinimum && stars < masteryStars;
 
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
         <ImmediateErrorReviewOffer
-          count={committedErrors.length}
+          errors={committedErrors}
           correct={correct}
           total={graded}
           canRecover={canRecoverStar}
-          onStart={() => setErrorReviewMode("review")}
+          belowMinimumPct={belowMinimum ? ruleFacts.oneStarPct : undefined}
+          onStart={() => {
+            reforcoStartedRef.current = true;
+            setErrorReviewMode("review");
+          }}
           onLater={() => {
             setErrorReviewMode("dismissed");
             if (lesson.lessonDomain === "culture") return;
+            // QA22 — abaixo do mínimo a lição não concluiu: fica em "Quase lá",
+            // com Reforço e Tentar de novo, em vez de voltar à Jornada.
+            if (!passed) return;
             const topicNodeDone = isTopicMasteryLesson(lesson);
             const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
             // Tema em andamento: fica na vitória (Lição X de 4). Só vai à
@@ -4331,23 +4292,30 @@ export function LessonPlayer() {
       setCorrectedErrorIds([]);
       setReviewSessionNonce((value) => value + 1);
       reviewUnresolvedRef.current = [];
+      reforcoStartedRef.current = false;
       setRecovered(false);
       recoveryAppliedRef.current = false;
       pendingReviewRestoredRef.current = false;
       setLessonReward(0);
       setLessonXp(0);
       skippedStepsRef.current = 0;
+      unscoredGradedRef.current = 0;
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
+      listeningDeferredIdxRef.current = new Set();
+      listeningVisualIdxRef.current = new Set();
       errorStreakRef.current = 0;
       retryUsesRef.current = 0;
       recoveryUsesRef.current = 0;
       toneHitsRef.current = 0;
       mistakeReviewTargetsRef.current = [];
+      stepEvidenceRef.current = new Map();
       setPostLessonView("victory");
       setDailyGoalReached(false);
       setClaimedRewardCards(false);
       setLessonTaskProgress(lesson.id, 0);
+      // QA22 — "Tentar de novo" é uma tentativa nova, do início (sem retomar no fim).
+      setLessonSessionStep(lesson.id, null);
       recordedMistakeStepRef.current = null;
       recordedPairMistakesRef.current.clear();
       startStoredAttempt();
@@ -4481,7 +4449,7 @@ export function LessonPlayer() {
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
                 ? t("player.needPrecisionReview", { requirement: passRequirementLabel })
-                : t("player.needCompleteStage")}
+                : t("player.belowMinimumBody", { pct: ruleFacts.oneStarPct })}
             </p>
 
             <div className="mt-5 flex justify-center gap-2">
@@ -4532,14 +4500,34 @@ export function LessonPlayer() {
               )}
             </Card>
 
-            <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              <Button className="w-full" onClick={() => retryLesson()}>
-                <IconRefresh width={17} height={17} /> {t("player.redoWeak")}
+            {/* QA22 — abaixo do mínimo: Reforço (revisão dos erros desta
+                tentativa, só prática) e Tentar de novo, que é o que conclui.
+                Repetir aqui não passa pela entrada: nenhuma Carga nova. */}
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              {!reforcoStartedRef.current && reviewQueue.length > 0 && lesson.lessonDomain !== "culture" ? (
+                <Button
+                  className="w-full"
+                  data-testid="lesson-below-minimum-reforco"
+                  onClick={() => {
+                    reforcoStartedRef.current = true;
+                    setErrorReviewMode("review");
+                  }}
+                >
+                  <IconTarget width={17} height={17} /> {t("player.belowMinimumReforco")}
+                </Button>
+              ) : null}
+              <Button
+                variant={!reforcoStartedRef.current && reviewQueue.length > 0 ? "outline" : "primary"}
+                className="w-full"
+                data-testid="lesson-below-minimum-retry"
+                onClick={() => retryLesson()}
+              >
+                <IconRefresh width={17} height={17} /> {t("player.belowMinimumRetry")}
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
                 <IconTarget width={17} height={17} /> {t("player.trainBefore")}
               </ButtonLink>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
+              <Button variant="ghost" className="w-full" onClick={() => navigate("/jornada")}>
                 {t("player.backToJourney")}
               </Button>
             </div>
@@ -4609,9 +4597,24 @@ export function LessonPlayer() {
     const victoryNextIsCulture =
       lesson.lessonDomain !== "culture" && !isTopicMasteryLesson(lesson) && victoryContinuePath.startsWith("/licao/culture-");
 
+    // LGY-033 — com 0 Cargas a vitória não leva direto a um começo que cobra:
+    // diz o custo e o horário, e o CTA volta à Jornada. Rodadas 2–4 do mesmo
+    // tema e o Reforço + são grátis, então seguem como antes.
+    const victoryNextLessonId = victoryNextIsCulture
+      ? /^\/licao\/([^/?]+)/.exec(victoryContinuePath)?.[1]
+      : currentLessonId(passed && !completedLessons.includes(lesson.id) ? [...completedLessons, lesson.id] : completedLessons);
+    const victoryWaitsForCharge = nextStartWaitsForCharge({
+      nextIsFree: Boolean(plusResult) || (isTopicMasteryLesson(lesson) && masteryNow < 4),
+      nextLessonCompleted: Boolean(victoryNextLessonId && completedLessons.includes(victoryNextLessonId)),
+      isPro: isPremium,
+      charges: dailyEnergy.charges,
+    });
+    const victoryExitPath =
+      victoryWaitsForCharge && victoryNextIsCulture ? cultureReturnPath(new URLSearchParams("src=jornada"), false) : victoryContinuePath;
+
     function continueJourney() {
       if (shouldShowStreak) setPostLessonView("streak");
-      else navigate(victoryContinuePath);
+      else navigate(victoryExitPath);
     }
 
     // Botão principal: 1º toque resgata (se houver), depois volta à Jornada.
@@ -4654,7 +4657,7 @@ export function LessonPlayer() {
       // Pérolas de ofensiva: só marcos únicos (streak:7, streak:30, …).
       maybeClaimPearlMilestonesFromProgress();
       if (claimed) playSoundFx("streak", soundEffects);
-      navigate(victoryContinuePath);
+      navigate(victoryExitPath);
     }
 
     if (postLessonView === "streak") {
@@ -4725,7 +4728,7 @@ export function LessonPlayer() {
         ? isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
           ? t("player.skippedBreathTopic")
           : t("player.skippedBreathNext")
-        : !recovered && stars === 2
+        : !recovered && (stars === 1 || stars === 2)
           ? isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
             ? t("player.topicLessonDoneContinue")
             : isTopicMasteryLesson(lesson)
@@ -4734,6 +4737,25 @@ export function LessonPlayer() {
           : undefined;
     const victoryContext =
       lesson.lessonDomain === "culture" ? "culture" : lesson.isReview ? "review" : "lesson";
+    // QA22 — o "?" da conclusão: a regra de estrelas e de Qi, lida das mesmas
+    // constantes e da mesma chave (lessonQiGraduated) que o store usa.
+    const victoryRules = {
+      label: t("player.rulesToggle"),
+      lines: [
+        t("player.rulesStars", { one: ruleFacts.oneStarPct, two: ruleFacts.twoStarPct, three: ruleFacts.threeStarPct }),
+        t("player.rulesMinimum", { one: ruleFacts.oneStarPct }),
+        lessonQiGraduated()
+          ? t("player.rulesQiGraduated", {
+              one: ruleFacts.qiOneStar,
+              two: ruleFacts.qiTwoStar,
+              three: ruleFacts.qiThreeStar,
+              noSkip: ruleFacts.qiNoSkip,
+              pro: ruleFacts.qiPro,
+            })
+          : t("player.rulesQiThreeStarOnly", { three: ruleFacts.qiThreeStar, noSkip: ruleFacts.qiNoSkip, pro: ruleFacts.qiPro }),
+        t("player.rulesReplay"),
+      ],
+    };
     // RC2.3.7 — real promotions to Firme/Consolidado during this lesson, shown once ever.
     let victoryMasteryLines: string[] | undefined;
     const masteryBefore = masteryBeforeRef.current;
@@ -4775,10 +4797,17 @@ export function LessonPlayer() {
           context={victoryContext}
           title={displayLessonTitle(lesson.title, locale)}
           headline={victoryHeadline}
+          footnote={replayNoQi ? t("player.replayNoQi") : undefined}
+          chargeNotice={victoryWaitsForCharge ? t("energyAccess.nextNeedsCharge", { time: chargeRefillTime() }) : undefined}
           stars={stars}
           xp={lessonXp}
           accuracy={precision}
-          errorCount={Math.max(0, graded - correct)}
+          // QA22 — o selo "Perfeito" é 100% sem nenhum erro registrado.
+          errorCount={
+            isPerfectLesson({ correct, graded, hadMistakes: committedErrors.length > 0, unscored: unscoredGradedSteps() })
+              ? 0
+              : Math.max(1, graded - correct)
+          }
           assistanceCount={helpCount}
           mistakesBySkill={mistakesBySkill}
           displayName={studentFirstName(accountName)}
@@ -4788,7 +4817,7 @@ export function LessonPlayer() {
           learned={!isPlusRoundSession && victoryContext !== "culture" ? learnedItemsForLesson(foundLesson ?? lesson, locale) : undefined}
           masteryLines={victoryMasteryLines}
           cultureNext={
-            victoryNextIsCulture && !hasUnclaimedRewards && !plusResult
+            victoryNextIsCulture && !hasUnclaimedRewards && !plusResult && !victoryWaitsForCharge
               ? {
                   type: journeyCultureGuidanceType("core_after_topic"),
                   line: t("player.cultureRecommendedNext"),
@@ -4799,6 +4828,7 @@ export function LessonPlayer() {
           }
           recovered={recovered}
           recoveredBanner={REVIEW_RECOVERED.banner}
+          rules={victoryContext === "lesson" ? victoryRules : undefined}
           pendingStarsHint={pendingStarsHint}
           topicLines={
             plusResult

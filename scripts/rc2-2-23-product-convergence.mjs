@@ -60,6 +60,7 @@ const MUTATIONS = {
     ["[9] zero Cargas bloqueia Revisão/Perfil/Cultura", "ZERO_CHARGE_BLOCKS_FREE_STUDY", src("energy", '  "/revisao",\n  "/praticar",', '  "/praticar",')],
     ["[9b] treino extra volta a cobrar", "ZERO_CHARGE_BLOCKS_FREE_STUDY", src("energy", '["lesson", "module_challenge", "immersion_session", "premium_preview"]', '["lesson", "module_challenge", "immersion_session", "premium_preview", "extra_training"]')],
     ["[10] replay cobra Carga", "REPLAY_CHARGES", src("energy", "  return !input.lessonCompleted;", "  return true;")],
+    ["[9c] store volta a decidir a cobrança sozinho", "ZERO_CHARGE_BLOCKS_FREE_STUDY", src("store", "return chargeCostFor(activityType, { isPro: hasProAccess(state) });", "return hasProAccess(state) ? 0 : 1;")],
     ["[11] Pro como único caminho", "PRO_ONLY_PATH", src("energy", "  return lanes.length > 0 ? lanes : [ZERO_CHARGE_FREE_LANES[0]];", "  return lanes;")],
     ["[11b] Pro antes dos caminhos grátis", "PRO_ONLY_PATH", src("softLanding", 'data-testid="energy-free-lanes"', 'data-testid="energy-lanes-moved"')],
     ["[12] erros seguidos tiram Carga", "MISTAKE_COSTS_CHARGE", src("economy", "export const CONSECUTIVE_MISTAKE_CHARGE_COST = 0;", "export const CONSECUTIVE_MISTAKE_CHARGE_COST = 1;")],

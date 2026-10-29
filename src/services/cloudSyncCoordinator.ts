@@ -1,3 +1,4 @@
+import { withTimeout as withTimeoutMs } from "../lib/async/withTimeout";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { getProgressScore, isMeaningfulProgress, type ProgressSnapshotBody } from "../lib/progressSnapshot";
 import { readUserCache, writeUserCache } from "../lib/auth/userCache";
@@ -6,8 +7,9 @@ import { activeLearningRepository } from "../lib/repositories/learningRepository
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { flushSocialEventQueue } from "./socialActivityQueue";
 import { syncSocialProfileFromStore } from "./socialService";
-import { useStore } from "../lib/store";
+import { cloudAccountId, useStore } from "../lib/store";
 import { claimAnonymousEvidence } from "../lib/auth/evidenceClaim";
+import { isAnonymousAccountId, progressBelongsToSession, resolveLoginProgress } from "../lib/auth/accountIsolation";
 import { claimId, classifyClaim, CLAIM_LEDGER_KEY, emptyLedger, recordClaim, type ClaimInput, type ClaimLedger } from "../lib/auth/progressClaim";
 import {
   buildLocalEconomyMigrationPayload,
@@ -42,21 +44,19 @@ let syncInFlight = false;
 let pendingPush = false;
 
 function withTimeout<T>(promise: Promise<T>, ms = CLOUD_SYNC_TIMEOUT_MS): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error("timeout"));
-    }, ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (error) => {
-        clearTimeout(timer);
-        reject(error);
-      }
-    );
-  });
+  return withTimeoutMs(promise, ms);
+}
+
+function isSchemaSyncFailure(message: string): boolean {
+  return /42703|PGRST204|PGRST205|schema cache|instruction_locale/i.test(message);
+}
+
+/** Schedule set "pending" and then the push returned before recording a result. */
+function settleAbandonedSync(message: string): void {
+  const state = useStore.getState().cloudSyncState;
+  if (state.status === "pending" && state.message === "Sincronização pendente.") {
+    useStore.getState().setCloudSyncState("error", message);
+  }
 }
 
 function markCloudSync(rawStatus: "loading" | "synced" | "pending" | "error", rawMessage: string): void {
@@ -64,9 +64,16 @@ function markCloudSync(rawStatus: "loading" | "synced" | "pending" | "error", ra
   // rotina é silenciosa; falha transitória continua "pending" e é re-tentada
   // sozinha; só falha persistente vira "error" com UM aviso calmo e deduplicado.
   const now = Date.now();
+  const schema = rawStatus === "error" && isSchemaSyncFailure(rawMessage);
   const decision =
     rawStatus === "error"
-      ? applySyncNoticePolicy({ kind: "failure", resource: "cloud-progress", errorKind: "progress-push", now })
+      ? applySyncNoticePolicy({
+          kind: "failure",
+          resource: "cloud-progress",
+          errorKind: schema ? "schema" : "progress-push",
+          now,
+          threatensLoss: schema,
+        })
       : rawStatus === "synced"
         ? applySyncNoticePolicy({ kind: "success", resource: "cloud-progress", now })
         : applySyncNoticePolicy({ kind: "routine", resource: "cloud-progress", status: rawStatus, now });
@@ -120,26 +127,48 @@ function snapshotBodyWithProgress(
 
 export async function pushProgressToCloud(): Promise<{ ok: boolean; message: string }> {
   if (isQaTestStateActive()) {
+    settleAbandonedSync("QA test state: sync desligado.");
     return { ok: false, message: "QA test state: sync desligado." };
   }
   if (!isSupabaseBackendEnabled()) {
+    settleAbandonedSync("Backend em nuvem desativado.");
     return { ok: false, message: "Backend em nuvem desativado." };
   }
   const client = getSupabaseClient();
-  if (!client) return { ok: false, message: "Cliente Supabase indisponível." };
+  if (!client) {
+    settleAbandonedSync("Cliente Supabase indisponível.");
+    return { ok: false, message: "Cliente Supabase indisponível." };
+  }
 
-  const {
-    data: { user },
-  } = await client.auth.getUser();
-  if (!user) return { ok: false, message: "Faça login para sincronizar o progresso." };
+  let user: { id: string } | null = null;
+  try {
+    const loaded = await withTimeout(client.auth.getUser(), CLOUD_SYNC_TIMEOUT_MS);
+    user = loaded.data.user;
+  } catch {
+    settleAbandonedSync(SYNC_TIMEOUT_MESSAGE);
+    return { ok: false, message: SYNC_TIMEOUT_MESSAGE };
+  }
+  if (!user) {
+    settleAbandonedSync("Faça login para sincronizar o progresso.");
+    return { ok: false, message: "Faça login para sincronizar o progresso." };
+  }
+  if (useStore.getState().currentAccountId !== cloudAccountId(user.id)) {
+    settleAbandonedSync("A conta ativa não é a desta sessão.");
+    return { ok: false, message: "A conta ativa não é a desta sessão." };
+  }
 
   markCloudSync("loading", "Sincronizando progresso com a nuvem...");
   try {
     const snapshot = activeLearningRepository().exportSnapshot();
     const result = await withTimeout(activeLearningRepository().importSnapshot(snapshot));
+    const schema = !result.ok && isSchemaSyncFailure(result.message);
     markCloudSync(
       result.ok ? "synced" : "error",
-      result.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
+      result.ok
+        ? "Progresso sincronizado."
+        : schema
+          ? `42703 ${result.message}`
+          : "Erro ao sincronizar — seu progresso local está seguro."
     );
     if (result.ok) {
       await syncSocialProfileFromStore();
@@ -218,15 +247,19 @@ export async function inspectProgressClaim(): Promise<{ ok: boolean; input?: Cla
   const local = activeLearningRepository().exportSnapshot();
   const remote = await withTimeout(activeLearningRepository().fetchSnapshot());
   if (!remote.ok) return { ok: false };
+  const currentAccountId = useStore.getState().currentAccountId;
+  const ownDevice = progressBelongsToSession(currentAccountId, user.id);
   const input: ClaimInput = {
-    localMeaningful: isMeaningfulProgress(local),
+    localMeaningful: ownDevice && isMeaningfulProgress(local),
     remoteMeaningful: isMeaningfulProgress(remote.snapshot),
     localFingerprint: progressFingerprint(local),
     remoteFingerprint: progressFingerprint(remote.snapshot ?? null),
     localScore: getProgressScore(local),
     remoteScore: getProgressScore(remote.snapshot),
+    localAccountId: currentAccountId,
+    sessionUserId: user.id,
   };
-  const id = claimId(useStore.getState().currentAccountId, user.id, input.localFingerprint);
+  const id = claimId(currentAccountId, user.id, input.localFingerprint);
   return { ok: true, input, case: classifyClaim(input), id };
 }
 
@@ -255,32 +288,40 @@ export async function syncAuthSessionProgress(options: { keepLocalParked?: boole
   if (!user?.id) return { ok: false, message: "Sem sessão ativa." };
 
   const store = useStore.getState();
+  const currentAccountId = store.currentAccountId;
+  const ownDevice = progressBelongsToSession(currentAccountId, user.id);
   markCloudSync("loading", "Carregando progresso da nuvem...");
 
   try {
     const exported = activeLearningRepository().exportSnapshot();
     const cached = readUserCache(user.id);
-    const localSnapshot =
-      !isMeaningfulProgress(exported) && cached && isMeaningfulProgress(cached) ? cached : exported;
+    const exportMeaningful = ownDevice && isMeaningfulProgress(exported);
+    const cacheMeaningful = Boolean(cached && isMeaningfulProgress(cached));
     const remote = await withTimeout(activeLearningRepository().fetchSnapshot());
     if (!remote.ok) {
       markCloudSync("error", "Erro ao sincronizar — seu progresso local está seguro.");
       return remote;
     }
 
+    const currentName = ownDevice
+      ? (store.accounts[currentAccountId]?.name ?? user.email ?? "Aluno Longyu")
+      : (user.email ?? "Aluno Longyu");
+
     // RC2.3.8 — "Agora não": the device progress is parked (never deleted) and the cloud is restored.
     if (options.keepLocalParked && remote.snapshot && isMeaningfulProgress(remote.snapshot)) {
-      try {
-        localStorage.setItem(PARKED_LOCAL_PROGRESS_KEY, JSON.stringify({ at: Date.now(), claimId: options.claimId ?? null, snapshot: exported }));
-      } catch {
-        /* quota: keep the user cache path below as the fallback copy */
-      }
-      if (options.claimId) {
-        const { ledger, changed } = recordClaim(readLedger(), options.claimId, "parked");
-        if (changed) writeLedger(ledger);
+      if (ownDevice) {
+        try {
+          localStorage.setItem(PARKED_LOCAL_PROGRESS_KEY, JSON.stringify({ at: Date.now(), claimId: options.claimId ?? null, snapshot: exported }));
+        } catch {
+          /* quota: keep the user cache path below as the fallback copy */
+        }
+        if (options.claimId) {
+          const { ledger, changed } = recordClaim(readLedger(), options.claimId, "parked");
+          if (changed) writeLedger(ledger);
+        }
       }
       store.activateCloudAccount(
-        { userId: user.id, email: user.email, name: remote.snapshot.snapshot.account.name ?? store.accounts[store.currentAccountId]?.name ?? "Aluno Longyu" },
+        { userId: user.id, email: user.email, name: remote.snapshot.snapshot.account.name ?? currentName },
         remote.snapshot.snapshot.progress
       );
       markCloudSync("synced", "Progresso sincronizado.");
@@ -290,15 +331,28 @@ export async function syncAuthSessionProgress(options: { keepLocalParked?: boole
       return { ok: true, message: "Progresso da conta restaurado; o deste aparelho ficou guardado." };
     }
 
-    const localProgress = localSnapshot.snapshot.progress;
     const remoteProgress = remote.snapshot?.snapshot.progress;
-    const localMeaningful = isMeaningfulProgress(localSnapshot);
     const remoteMeaningful = isMeaningfulProgress(remote.snapshot);
-    const localScore = getProgressScore(localSnapshot);
+    const plan = resolveLoginProgress({
+      currentAccountId,
+      sessionUserId: user.id,
+      exportMeaningful,
+      cacheMeaningful,
+      remoteMeaningful,
+      hasRemoteSnapshot: Boolean(remote.snapshot),
+      remoteProgressPresent: Boolean(remoteProgress),
+    });
+    const localBody = exportMeaningful ? exported : cacheMeaningful ? cached : null;
+    const localProgress = localBody?.snapshot.progress;
+    const localScore = getProgressScore(localBody);
     const remoteScore = getProgressScore(remote.snapshot);
-    const currentName = store.accounts[store.currentAccountId]?.name ?? user.email ?? "Aluno Longyu";
 
-    if (remote.snapshot && !localMeaningful && remoteMeaningful) {
+    const rememberClaim = (ok: boolean) => {
+      if (!ok || !ownDevice) return;
+      completeClaim(user.id, isAnonymousAccountId(currentAccountId) ? (options.claimId ?? null) : null);
+    };
+
+    if (plan.source === "remote" && remote.snapshot) {
       store.activateCloudAccount(
         { userId: user.id, email: user.email, name: remote.snapshot.snapshot.account.name ?? currentName },
         remote.snapshot.snapshot.progress
@@ -310,7 +364,7 @@ export async function syncAuthSessionProgress(options: { keepLocalParked?: boole
       return { ok: true, message: "Progresso restaurado da nuvem." };
     }
 
-    if (remote.snapshot && remoteProgress && localMeaningful) {
+    if ((plan.source === "merge" || plan.source === "cache") && remote.snapshot && remoteProgress && localProgress && plan.push) {
       const mergedProgress = mergeRemoteProgress(localProgress, remoteProgress);
       const mergedBody = snapshotBodyWithProgress(remote.snapshot.snapshot, mergedProgress, currentName, user.email);
       store.activateCloudAccount(
@@ -324,7 +378,7 @@ export async function syncAuthSessionProgress(options: { keepLocalParked?: boole
         push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
       );
       if (push.ok) {
-        completeClaim(user.id, options.claimId ?? null);
+        rememberClaim(true);
         persistNamespacedCache(user.id);
         await migrateEconomyAfterCloudLogin(user.id);
         await refreshServerEntitlementAfterLogin();
@@ -337,15 +391,22 @@ export async function syncAuthSessionProgress(options: { keepLocalParked?: boole
       };
     }
 
-    if (!remote.snapshot && localMeaningful) {
+    if ((plan.source === "local" || plan.source === "cache") && localProgress) {
       store.activateCloudAccount({ userId: user.id, email: user.email, name: currentName }, localProgress);
+      if (!plan.push) {
+        markCloudSync("synced", "Progresso sincronizado.");
+        persistNamespacedCache(user.id);
+        await migrateEconomyAfterCloudLogin(user.id);
+        await refreshServerEntitlementAfterLogin();
+        return { ok: true, message: "Progresso desta conta restaurado neste aparelho." };
+      }
       const push = await withTimeout(activeLearningRepository().importSnapshot(activeLearningRepository().exportSnapshot()));
       markCloudSync(
         push.ok ? "synced" : "error",
         push.ok ? "Progresso sincronizado." : "Erro ao sincronizar — seu progresso local está seguro."
       );
       if (push.ok) {
-        completeClaim(user.id, options.claimId ?? null);
+        rememberClaim(true);
         persistNamespacedCache(user.id);
         await migrateEconomyAfterCloudLogin(user.id);
         await refreshServerEntitlementAfterLogin();
@@ -357,6 +418,11 @@ export async function syncAuthSessionProgress(options: { keepLocalParked?: boole
     }
 
     store.activateCloudAccount({ userId: user.id, email: user.email, name: currentName });
+    if (!plan.push) {
+      markCloudSync("synced", "Progresso sincronizado.");
+      await refreshServerEntitlementAfterLogin();
+      return { ok: true, message: "Conta carregada sem progresso de outra pessoa." };
+    }
     const initialPush = await withTimeout(activeLearningRepository().importSnapshot(activeLearningRepository().exportSnapshot()));
     markCloudSync(
       initialPush.ok ? "synced" : "error",
@@ -413,7 +479,8 @@ export async function flushCloudProgressPush(): Promise<void> {
   }
   syncInFlight = true;
   try {
-    await pushProgressToCloud();
+    const result = await pushProgressToCloud();
+    if (!result.ok) settleAbandonedSync(result.message);
   } finally {
     syncInFlight = false;
     if (pendingPush) {

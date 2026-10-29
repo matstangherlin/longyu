@@ -19,8 +19,9 @@ runMutations("test:android-native-foundation", base, validateAndroidNativeFounda
   ["#20 WebView aponta para a produção", (s) => { s.capacitorConfig = swap(s.capacitorConfig, 'webDir: "dist",', 'webDir: "dist",\n  server: { url: "https://singular-meringue-7838cd.netlify.app" },'); }, "REMOTE_WEBVIEW"],
   ["versionName literal no Gradle", (s) => { s.appBuildGradle = swap(s.appBuildGradle, "versionName longyuVersionName", 'versionName "1.0"'); }, "VERSION_DIVERGENCE"],
   ["versionCode literal no Gradle", (s) => { s.appBuildGradle = swap(s.appBuildGradle, "versionCode longyuVersionCode", "versionCode 7"); }, "VERSION_DIVERGENCE"],
-  ["package.json ≠ manifesto", (s) => { s.packageJson.version = "0.3.0-beta.1"; }, "VERSION_DIVERGENCE"],
-  ["versionCode ≠ manifesto", (s) => { s.versionProperties = swap(s.versionProperties, "versionCode=1", "versionCode=2"); }, "VERSION_DIVERGENCE"],
+  // Probe must diverge from the live package.json version (today 0.3.0-beta.1).
+  ["package.json ≠ manifesto", (s) => { s.packageJson.version = `${s.packageJson.version}__mut`; }, "VERSION_DIVERGENCE"],
+  ["versionCode ≠ manifesto", (s) => { s.versionProperties = swap(s.versionProperties, `versionCode=${s.releaseManifest.versionCode}`, `versionCode=${Number(s.releaseManifest.versionCode) + 1}`); }, "VERSION_DIVERGENCE"],
   ["#15 cloud_auth marcado PASS", (s) => { check(s).cloud_auth.pass = true; }, "CLOUD_CHECK_PROMOTED"],
   ["cloud_sync marcado PASS", (s) => { check(s).cloud_sync.pass = true; }, "CLOUD_CHECK_PROMOTED"],
   ["feedback_backend marcado PASS", (s) => { check(s).feedback_backend.pass = true; }, "CLOUD_CHECK_PROMOTED"],

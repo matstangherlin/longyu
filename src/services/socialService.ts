@@ -2,7 +2,7 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { isBackendDomainAvailable } from "../lib/cloud/backendCapability";
 import { LEAGUE_META, type LeagueTier } from "../lib/leagues";
-import { useStore } from "../lib/store";
+import { cloudAccountId, useStore } from "../lib/store";
 import type {
   PublicProfile,
   SocialActivityItem,
@@ -11,6 +11,8 @@ import type {
   SocialProfileSettings,
 } from "../lib/social/types";
 import { isValidUsername, normalizeUsernameInput, suggestUsernameFromName } from "../lib/social/username";
+import { isMissingColumnError, markMissing } from "../lib/cloud/schemaDrift";
+import { displayNameForAccount, isPlaceholderDisplayName } from "../lib/displayName";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; message: string };
 
@@ -54,7 +56,7 @@ function mapPublicProfile(row: Record<string, unknown>): PublicProfile {
 }
 
 export async function fetchMySocialSettings(): Promise<ServiceResult<SocialProfileSettings>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -77,6 +79,9 @@ export async function fetchMySocialSettings(): Promise<ServiceResult<SocialProfi
 }
 
 export async function updateUsername(raw: string): Promise<ServiceResult<SocialProfileSettings>> {
+  if (!isBackendDomainAvailable("social")) {
+    return { ok: false, message: "Amigos chegam numa próxima atualização." };
+  }
   const gate = clientOrError();
   if (!gate.ok) return gate;
 
@@ -95,14 +100,19 @@ export async function updateUsername(raw: string): Promise<ServiceResult<SocialP
 
   if (error) {
     if (error.code === "23505") return { ok: false, message: "Este @apelido já está em uso." };
+    if (isMissingColumnError(error)) {
+      markMissing("profiles.username");
+      return { ok: false, message: "Amigos chegam numa próxima atualização." };
+    }
     return { ok: false, message: error.message };
   }
 
+  useStore.getState().setAccountUsername(cloudAccountId(userId), username, { pendingClaim: false });
   return fetchMySocialSettings();
 }
 
 export async function updateShowInSearch(show: boolean): Promise<ServiceResult<SocialProfileSettings>> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return gate;
 
   const userId = await currentUserId();
@@ -265,7 +275,7 @@ export async function fetchFriendsRanking(): Promise<ServiceResult<PublicProfile
   const account = state.accounts[state.currentAccountId];
   const me: PublicProfile = {
     user_id: userId,
-    display_name: account?.name ?? "Você",
+    display_name: account ? displayNameForAccount(account) : "Você",
     username: null,
     avatar_key: null,
     league_tier: state.leagueTier,
@@ -357,7 +367,7 @@ export async function recordSocialActivity(
 }
 
 export async function syncSocialProfileFromStore(): Promise<void> {
-  const gate = clientOrError();
+  const gate = socialClientOrError();
   if (!gate.ok) return;
 
   const userId = await currentUserId();
@@ -367,16 +377,20 @@ export async function syncSocialProfileFromStore(): Promise<void> {
   const account = state.accounts[state.currentAccountId];
   if (account?.authMode !== "cloud") return;
 
-  await gate.client
-    .from("profiles")
-    .update({
-      name: account.name,
-      league_tier: state.leagueTier,
-      public_weekly_xp: state.getWeeklyXp(),
-      public_streak: state.streak,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", userId);
+  const payload: {
+    name?: string;
+    league_tier: typeof state.leagueTier;
+    public_weekly_xp: number;
+    public_streak: number;
+    updated_at: string;
+  } = {
+    league_tier: state.leagueTier,
+    public_weekly_xp: state.getWeeklyXp(),
+    public_streak: state.streak,
+    updated_at: new Date().toISOString(),
+  };
+  if (!isPlaceholderDisplayName(account.name)) payload.name = account.name;
+  await gate.client.from("profiles").update(payload).eq("id", userId);
 }
 
 export function leagueLabel(tier: string): string {

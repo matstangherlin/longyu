@@ -279,9 +279,11 @@ test.describe("V4.9.3 — os dois cursos e a identidade pedagógica", () => {
     await open(page, route(CAPSULES.mandarin));
     await completeCapsule(page);
 
-    const donePt = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("longyu:journey-node-completions:v1") ?? "[]")
-    );
+    const donePt = await page.evaluate(() => {
+      const scoped = localStorage.getItem("longyu:journey-node-completions:v1::local");
+      const legacy = localStorage.getItem("longyu:journey-node-completions:v1");
+      return JSON.parse(scoped ?? legacy ?? "[]");
+    });
     expect(donePt).toContain("node:instruction:foundation:mandarin");
 
     await page.evaluate(() => {
@@ -290,9 +292,11 @@ test.describe("V4.9.3 — os dois cursos e a identidade pedagógica", () => {
     });
     await open(page, "/jornada");
 
-    const doneEn = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("longyu:journey-node-completions:v1") ?? "[]")
-    );
+    const doneEn = await page.evaluate(() => {
+      const scoped = localStorage.getItem("longyu:journey-node-completions:v1::local");
+      const legacy = localStorage.getItem("longyu:journey-node-completions:v1");
+      return JSON.parse(scoped ?? legacy ?? "[]");
+    });
     // O progresso é do slot, não da apresentação: o idioma é roupa.
     expect(doneEn).toContain("node:instruction:foundation:mandarin");
   });

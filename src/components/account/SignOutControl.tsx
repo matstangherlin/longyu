@@ -63,6 +63,8 @@ export function SignOutControl({
         onClick={() => setOpen(true)}
         className={cx(
           variant === "pill"
+            // The pill is hidden below `sm` so the top bar stays one row on a phone.
+            // Mobile sign-out is the row in Mais (tab sheet `more-sheet-sign-out`, page `more-sign-out`) and in /conta (`conta-sign-out`).
             ? "hidden min-h-11 shrink-0 items-center rounded-full border border-wrong/25 bg-wrong-soft px-3 text-xs font-semibold text-wrong transition hover:bg-wrong/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/35 sm:flex"
             : "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium text-wrong transition hover:bg-wrong-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wrong/40",
           className,

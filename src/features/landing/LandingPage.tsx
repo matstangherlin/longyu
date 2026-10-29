@@ -2,6 +2,7 @@ import { useResolvedTheme } from "../../lib/useResolvedTheme";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../lib/store";
+import { isBusinessSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { captureReferralFromSearch } from "../../lib/referralCapture";
 import {
   canEnterJourney,
@@ -218,9 +219,11 @@ export function LandingPage() {
           <Link to="/tons-do-mandarim" className="hover:text-ink-soft">
             {t("marketing.tones")}
           </Link>
-          <Link to="/business" className="hover:text-ink-soft">
-            {t("marketing.business")}
-          </Link>
+          {isBusinessSurfaceEnabled() ? (
+            <Link to="/business" className="hover:text-ink-soft">
+              {t("marketing.business")}
+            </Link>
+          ) : null}
           <Link to="/privacidade" className="hover:text-ink-soft">
             {t("marketing.privacy")}
           </Link>

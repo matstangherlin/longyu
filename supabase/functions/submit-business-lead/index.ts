@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { canonicalCountryCode } from "../_shared/placement/evidence.ts";
+import { browserAllowedHeaders } from "../_shared/cors.ts";
 
 const ALLOWED_ORIGINS = new Set([
   "https://longyu.com.br",
@@ -48,8 +49,7 @@ function corsHeaders(req: Request): Record<string, string> {
       : "https://singular-meringue-7838cd.netlify.app";
   return {
     "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": browserAllowedHeaders(),
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
   };

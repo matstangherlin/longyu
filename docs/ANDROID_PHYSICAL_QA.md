@@ -7,6 +7,27 @@
 
 Emulador, Playwright, Gradle e CI verde **não** são QA físico.
 
+## 0b. Um único AAB/APK candidato (QA 10/2026)
+
+Não gerar nem assinar nada neste repositório a partir de um agente. O caminho
+humano, depois do merge da pilha, é o workflow
+`.github/workflows/android-release.yml` (**Android release (manual)**): só
+`workflow_dispatch`, só a partir de `main`, e um push não publica.
+
+1. Escolher um SHA já mergeado. Anotar o SHA completo antes de disparar o workflow.
+2. Disparar o workflow uma vez. O artefato sobe como `longyu-android-release-<run>`
+   com a proveniência. Registrar nesse registro: SHA, `versionName`, `versionCode`
+   e o nome do arquivo.
+3. A regra é **não recompilar depois que o QA começar**. Um bug encontrado no
+   aparelho vira outro candidato, do zero, com outro SHA. Não se “ajusta e
+   reinstala” em cima do mesmo teste.
+4. O APK antigo `0.2.0-rc.5` (versionCode 651) não é o candidato desta beta.
+   A versão web da pilha é `0.3.0-beta.1`. O candidato Android só existe depois
+   que essa versão estiver no SHA mergeado e o workflow tiver rodado.
+
+O roteiro de casos da beta está em `docs/REAL_DEVICE_QA.md`. O formulário em
+branco está em `docs/qa-report-2026-10/QA_FISICO_REGISTRO.md`.
+
 ## 0. Identidade da build (obrigatório; sem isso a evidência é inválida)
 
 Registre antes de qualquer teste:

@@ -23,11 +23,11 @@ criada ≠ AAB enviado ≠ app instalado pela Play. Cada um é conferido à part
 | Acesso ao app | exige conta; ver §6 (conta de revisão) |
 | Anúncios | **Não** contém anúncios |
 | Classificação de conteúdo | questionário IARC: educação, sem violência, sem conteúdo gerado público além de @nome e nome de exibição |
-| Público-alvo | **decisão do owner** (sugestão: 13+). O app **não** verifica idade hoje, e a data de nascimento é opcional. Não é "projetado para crianças": **não** entrar no programa Famílias |
-| Data Safety | preencher à mão a partir de `docs/release/play-data-safety.json` |
-| Exclusão de conta | no app: Conta → Excluir conta na nuvem · web: `/privacidade#excluir-conta` |
+| Público-alvo | Beta fechada: só 18+, com checkbox no cadastro e sem data de nascimento (`docs/qa-report-2026-10/LGPD_INVENTARIO.md`). Não é app para crianças: não entrar no programa Famílias. Confirmar a faixa no Console antes da beta pública |
+| Data Safety | preencher à mão a partir de `docs/release/play-data-safety.json` e do inventário LGPD. O JSON ainda lista `birthDate`; o formulário do app não pede mais a data. Atualizar o Console quando o owner confirmar |
+| Exclusão de conta | no app: Conta → Excluir conta na nuvem · URL pública: `https://singular-meringue-7838cd.netlify.app/privacidade#excluir-conta` |
 | Países | Brasil primeiro (lançamento pt-BR); expandir depois |
-| Tracks | **internal** (padrão) → closed (alpha) → production (manual, com confirmação e aprovador) |
+| Tracks | **internal** → closed → production (manual). Conta nova de desenvolvedor: o número de testadores e os dias de teste fechado mudam. Ler no Play Console no dia do envio. Este doc não fixa esses números |
 
 ## 2. Store listing: texto inicial (não publicado)
 

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-16T00:43:32.653Z",
-  "generatedFromSha": "3b1bb08c36c6ad51129bc7022a8064f6a5c720a7",
-  "inputsDigest": "8216b218efc4af75",
-  "evidenceDigest": "3ff7a00403143bc1",
+  "generatedAt": "2026-10-29T01:13:20.239Z",
+  "generatedFromSha": "50586fd3ed3d3358a03363fa5ef0968ab0c8407d",
+  "inputsDigest": "afdc98483f9d9f9b",
+  "evidenceDigest": "ff6169d9b28698ea",
   "evidenceSources": [
     "package.json",
     "capacitor.config.ts",
@@ -33,7 +33,7 @@
   ],
   "product": {
     "name": "Longyu",
-    "version": "0.2.0-rc.5",
+    "version": "0.3.0-beta.1",
     "applicationId": "longyu.noba.com",
     "androidVersionCode": 1,
     "curriculumFingerprint": "29bb02ec0336",
@@ -167,11 +167,11 @@
         "status": "BLOCKED",
         "ledger": {
           "productionRows": 36,
-          "repoFiles": 58,
+          "repoFiles": 62,
           "MATCH": 19,
           "LEGACY_EQUIVALENT": 0,
           "PROD_ONLY": 6,
-          "REPO_ONLY": 29,
+          "REPO_ONLY": 33,
           "UNKNOWN": 11
         }
       },

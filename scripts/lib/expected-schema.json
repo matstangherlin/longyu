@@ -1,0 +1,27 @@
+{
+  "schema": "longyu-expected-schema/1",
+  "origin": "https://singular-meringue-7838cd.netlify.app",
+  "note": "Inventário do prompt 03 (LGY-001, LGY-002, LGY-003). gated=true quando o objeto está em knownMissingBackend.json domains.*.missing. notGatedHere não conta como gated.",
+  "columns": [
+    { "table": "profiles", "column": "instruction_locale", "gated": false },
+    { "table": "profiles", "column": "native_language", "gated": false },
+    { "table": "profiles", "column": "updated_at", "gated": false },
+    { "table": "user_follows", "column": "follower_id", "gated": true },
+    { "table": "social_activity_events", "column": "id", "gated": true }
+  ],
+  "rpcs": [
+    { "name": "search_public_profiles", "gated": true },
+    { "name": "get_public_profile_by_username", "gated": true },
+    { "name": "get_public_profiles_by_ids", "gated": true },
+    { "name": "claim_mission", "gated": false }
+  ],
+  "edges": [
+    { "name": "finalize-onboarding", "gated": false },
+    { "name": "commit-placement", "gated": false },
+    { "name": "submit-business-lead", "gated": true },
+    { "name": "create-checkout-session", "gated": false },
+    { "name": "create-billing-portal", "gated": false },
+    { "name": "delete-account", "gated": false },
+    { "name": "issue-anon-ingestion-session", "gated": false }
+  ]
+}

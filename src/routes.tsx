@@ -1,7 +1,9 @@
 import { lazy, type ComponentType } from "react";
-import type { RouteObject } from "react-router-dom";
+import { Navigate, type RouteObject } from "react-router-dom";
+import { BusinessSurface, SocialSurface } from "./components/routing/SurfaceRoute";
 import { AppShell } from "./components/layout/AppShell";
 import { PublicAuthLayout } from "./components/auth/PublicAuthLayout";
+import { RedirectIfSignedIn } from "./components/auth/RedirectIfSignedIn";
 import { RequireCloudSession } from "./components/auth/RequireCloudSession";
 import { importWithStaleBundleRetry } from "./lib/staleBundle";
 import { JourneyNodeGate } from "./components/journey/JourneyNodeGate";
@@ -123,15 +125,17 @@ export const routes: RouteObject[] = [
   { path: "/mandarim-para-brasileiros", element: <MarketingPage /> },
   { path: "/como-funciona", element: <MarketingPage /> },
   { path: "/metodo-longyu", element: <MarketingPage /> },
-  { path: "/business", element: <BusinessPage /> },
-  { path: "/business/login", element: <BusinessLoginPage /> },
+  { path: "/business", element: <BusinessSurface><BusinessPage /></BusinessSurface> },
+  { path: "/business/login", element: <BusinessSurface><BusinessLoginPage /></BusinessSurface> },
+  { path: "/configuracoes", element: <Navigate to="/ajustes" replace /> },
+  { path: "/configuracoes/*", element: <Navigate to="/ajustes" replace /> },
   { path: "/convite/:code", element: <ReferralInvitePage /> },
   { path: "/familia/convite/:token", element: <FamilyInvitePage /> },
   {
     element: <PublicAuthLayout />,
     children: [
-      { path: "comecar", element: <ComecarRoute /> },
-      { path: "login", element: <LoginPage /> },
+      { path: "comecar", element: <RedirectIfSignedIn><ComecarRoute /></RedirectIfSignedIn> },
+      { path: "login", element: <RedirectIfSignedIn><LoginPage /></RedirectIfSignedIn> },
       { path: "auth/callback", element: <OAuthCallbackPage /> },
       { path: "esqueci-senha", element: <ForgotPasswordPage /> },
       { path: "redefinir-senha", element: <ResetPasswordPage /> },
@@ -205,11 +209,11 @@ export const routes: RouteObject[] = [
       { path: "biblioteca", element: <BibliotecaPage /> },
       { path: "imersao", element: <FeatureRouteGate><JourneyNodeGate><ImmersionPage /></JourneyNodeGate></FeatureRouteGate> },
       { path: "ligas", element: <LigasPage /> },
-      { path: "amigos", element: <AmigosPage /> },
-      { path: "convide", element: <ReferralPage /> },
+      { path: "amigos", element: <SocialSurface><AmigosPage /></SocialSurface> },
+      { path: "convide", element: <SocialSurface><ReferralPage /></SocialSurface> },
       { path: "familia", element: <FamilyPage /> },
-      { path: "business/dashboard", element: <BusinessDashboardPage /> },
-      { path: "business/members", element: <BusinessMembersPage /> },
+      { path: "business/dashboard", element: <BusinessSurface><BusinessDashboardPage /></BusinessSurface> },
+      { path: "business/members", element: <BusinessSurface><BusinessMembersPage /></BusinessSurface> },
       { path: "conquistas", element: <AchievementsPage /> },
       { path: "pro", element: <ProPage /> },
       { path: "plano", element: <ProPage /> },

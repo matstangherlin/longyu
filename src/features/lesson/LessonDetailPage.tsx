@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { lessonStartConsumesCharge } from "../../lib/energyPolicy";
+import { describeAccess, lessonStartConsumesCharge } from "../../lib/energyPolicy";
+import { chargeRefillTime } from "../../hooks/useChargeRecovery";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ALL_LESSONS, currentLessonId, getLesson, type Skill } from "../../data/journey";
 import {
@@ -13,6 +14,8 @@ import { topicMasterySpecFor, passObjective } from "../../data/topicMasterySpecs
 import { LESSON_BASE_XP, LESSON_PASS_XP, LESSON_TOPIC_MASTERED_XP_BONUS, LESSON_THREE_STAR_XP_BONUS } from "../../data/economy";
 import { canStartLesson, useIsPro } from "../../lib/proAccess";
 import { useStore } from "../../lib/store";
+import { currentStorageNamespace } from "../../lib/accountStorage";
+import { scopedEnergyStorageKey } from "../../lib/auth/accountIsolation";
 import { todayKey } from "../../lib/storage";
 import { Card, ProgressBar } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, RightRail, ActionButton } from "../../components/ui/page";
@@ -182,6 +185,7 @@ export function LessonDetailPage() {
   const lessonSessionStepById = useStore((state) => state.lessonSessionStepById);
   const toneTrainer = useStore((state) => state.toneTrainer);
   const canStartActivity = useStore((state) => state.canStartActivity);
+  const dailyEnergy = useStore((state) => state.getActiveDailyEnergy());
   const [proPaywallKind, setProPaywallKind] = useState<ProPaywallKind | null>(null);
   const [cultureDismissed, setCultureDismissed] = useState(false);
 
@@ -291,7 +295,10 @@ export function LessonDetailPage() {
       navigate(toneLocked ? "/som" : "/");
       return;
     }
-    const energyFlag = energySessionFlagForPass(lesson.id, topicPass, todayKey());
+    const energyFlag = scopedEnergyStorageKey(
+      energySessionFlagForPass(lesson.id, topicPass, todayKey()),
+      currentStorageNamespace()
+    );
     const alreadyInSession = window.sessionStorage.getItem(energyFlag) === "1";
     const continuingSamePass = activityIndex > 0 && sessionCursor?.pass === topicPass;
     // TM-018: a Detail não cobra. O player cobra uma vez por pass com chave
@@ -312,6 +319,22 @@ export function LessonDetailPage() {
     if (!isLocked && index === progress) return "disponivel";
     return "bloqueada";
   }
+
+  // LGY-016/033 — mesma regra do player: rodada já paga hoje ou lição
+  // concluída não cobra; o resto mostra "Usa 1 Carga" e o saldo.
+  const lessonAccess = describeAccess("lesson", { isPro: isPremium, lessonCompleted: completed.includes(lesson.id) });
+  const passAlreadyPaid =
+    window.sessionStorage.getItem(scopedEnergyStorageKey(energySessionFlagForPass(lesson.id, topicPass, todayKey()), currentStorageNamespace())) === "1" ||
+    (activityIndex > 0 && sessionCursor?.pass === topicPass);
+  const chargeCaption =
+    hasAccess && !isLocked && !lessonAccess.free && !passAlreadyPaid
+      ? dailyEnergy.charges > 0
+        ? {
+            state: "has-charge",
+            text: t("energyAccess.lessonCost", { label: t(lessonAccess.labelKey), current: dailyEnergy.charges, max: dailyEnergy.maxCharges }),
+          }
+        : { state: "no-charge", text: t("energyAccess.thisNeedsCharge", { time: chargeRefillTime() }) }
+      : null;
 
   const baseTopicCta = localizedTopicCta(masteryLevel, activityIndex > 0, t);
   // P9 — com Reforço + pendente o CTA é "Fazer Reforço +", e a linha de apoio
@@ -463,6 +486,12 @@ export function LessonDetailPage() {
         {topicNode && topicCta.secondary ? (
           <p className="mt-1.5 text-center text-[11px] font-medium text-ink-faint sm:text-left" data-lesson-cta-caption="">
             {topicCta.secondary}
+          </p>
+        ) : null}
+        {/* LGY-033 — o custo aparece ANTES de "Começar", vindo da política. */}
+        {chargeCaption ? (
+          <p className="mt-1 text-center text-[11px] font-medium text-ink-faint sm:text-left" data-lesson-charge-cost={chargeCaption.state}>
+            {chargeCaption.text}
           </p>
         ) : null}
       </Card>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { activityConsumesCharge as energyActivityConsumesCharge } from "./energyPolicy";
+import { chargeCostFor } from "./energyPolicy";
 import { checkUsername, type UsernameRejection } from "./username";
 import {
   ACTIVITY_MEMORY_LIMIT,
@@ -109,7 +109,9 @@ import {
   PRO_CHEST_QI_MULTIPLIER,
   PRO_CHEST_RARE_BONUS,
   LESSON_NO_SKIP_QI,
+  LESSON_ONE_STAR_QI,
   LESSON_THREE_STAR_QI,
+  LESSON_TWO_STAR_QI,
   PRO_LESSON_QI_BONUS,
   PRO_MISSION_QI_MULTIPLIER,
   QI_PACK_AMOUNT,
@@ -136,6 +138,7 @@ import { canActivatePearlPro, formatPearlProUntil } from "./pearlPro";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import { buildProgressSnapshot, type ProgressSnapshotBody } from "./progressSnapshot";
 import {
+  lessonQiGraduated,
   shouldUseServerEconomy,
   serverActivatePearlProPass,
   serverClaimMission,
@@ -147,6 +150,7 @@ import {
   serverSpendQi,
 } from "./economyServerBridge";
 import { economyFailureMessage } from "./economyPending";
+import { isMissingEconomyRpc } from "./economyReconcile";
 import { confirmCloudPearlProActivation } from "./cloudPearlProActivation";
 import { mergeWithoutPersistedServerEntitlement } from "./persistenceSecurity";
 import { effectivePremium, isDevPreviewAllowed } from "./entitlements";
@@ -944,9 +948,10 @@ function buildEconomySummary(s: AppState, date = todayKey()): EconomySummary {
 }
 
 // RC2.2.23 — só NOVA progressão principal consome Carga (ver energyPolicy.ts).
-// Prática do que já foi aprendido (extra_training) fica livre com zero Cargas.
-function activityConsumesCharge(activityType: EnergyActivityType): boolean {
-  return energyActivityConsumesCharge(activityType);
+// QA 2026-10 · LGY-016 — o custo vem de `chargeCostFor`: prática
+// (extra_training), revisão e conta custam 0 e nunca descontam Carga.
+function chargeCostOf(activityType: EnergyActivityType, state: AppState): number {
+  return chargeCostFor(activityType, { isPro: hasProAccess(state) });
 }
 
 export interface ActivityReviewTarget {
@@ -1395,6 +1400,8 @@ interface AccountSnapshot extends XpBuckets {
   activityByDay: Record<string, DailyStudyRecord>;
   /** Dias de ofensiva a celebrar no modal (null = nada pendente). */
   pendingStreakCelebration: number | null;
+  /** Marcos de ofensiva já mostrados nesta conta. Não reabre o mesmo número. */
+  seenStreakMarks?: number[];
   /** Janela de recuperação aberta após a ofensiva quebrar (null = sem recuperação). */
   streakRecovery: StreakRecovery | null;
   /** Ofensiva a avisar no modal de recuperação ao abrir o app (null = nada pendente). */
@@ -1623,21 +1630,24 @@ function buildCloudAccount(
 ): LearningAccount {
   const id = cloudAccountId(identity.userId);
   const now = Date.now();
-  const baseSnapshot = progress ?? existing ?? fallback ?? blankSnapshot();
+  // LGY-005 — fallback é a conta que estava na tela. Só entra se for a MESMA
+  // conta. XP, lições, sequência, Qi, Cargas, nome e usuário de outra pessoa ficam de fora.
+  const same = existing ?? (fallback?.id === id ? fallback : undefined);
+  const baseSnapshot = progress ?? same ?? blankSnapshot();
   return {
-    ...makeAccount(id, identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu"),
-    ...(existing ?? {}),
+    ...makeAccount(id, identity.name?.trim() || same?.name || "Aluno Longyu"),
+    ...(same ?? {}),
     ...(baseSnapshot as AccountSnapshot),
     id,
-    name: identity.name?.trim() || existing?.name || fallback?.name || "Aluno Longyu",
-    email: identity.email ?? existing?.email ?? fallback?.email,
-    username: existing?.username ?? fallback?.username,
-    usernamePendingClaim: existing?.usernamePendingClaim ?? fallback?.usernamePendingClaim,
+    name: identity.name?.trim() || same?.name || "Aluno Longyu",
+    email: identity.email ?? same?.email,
+    username: same?.username,
+    usernamePendingClaim: same?.usernamePendingClaim,
     // RC2.2.14B · W — o curso é DESTA conta: nunca herdado de outra conta
     // (fallback) do aparelho. Sem valor, vem do perfil cloud.
     courseDirection: isAvailableCourseDirection(existing?.courseDirection) ? existing.courseDirection : null,
     authMode: "cloud",
-    createdAt: existing?.createdAt ?? now,
+    createdAt: same?.createdAt ?? now,
     updatedAt: now,
   };
 }
@@ -1691,6 +1701,7 @@ function snapshotFromState(s: Pick<AppState, keyof AccountSnapshot>): AccountSna
     lastStudyDate: s.lastStudyDate ?? null,
     activityByDay: s.activityByDay ?? {},
     pendingStreakCelebration: s.pendingStreakCelebration ?? null,
+    seenStreakMarks: s.seenStreakMarks ?? [],
     streakRecovery: s.streakRecovery ?? null,
     pendingStreakRecovery: s.pendingStreakRecovery ?? null,
     streakRecoveredOn: s.streakRecoveredOn ?? null,
@@ -1849,6 +1860,7 @@ function accountFields(account: LearningAccount): AccountSnapshot {
     lastStudyDate: account.lastStudyDate ?? null,
     activityByDay: account.activityByDay ?? {},
     pendingStreakCelebration: account.pendingStreakCelebration ?? null,
+    seenStreakMarks: account.seenStreakMarks ?? [],
     streakRecovery: account.streakRecovery ?? null,
     pendingStreakRecovery: account.pendingStreakRecovery ?? null,
     streakRecoveredOn: account.streakRecoveredOn ?? null,
@@ -2015,8 +2027,9 @@ function queueSocialFromApp(type: import("../lib/social/types").SocialActivityTy
     const state = useStore.getState();
     const account = state.accounts[state.currentAccountId];
     if (account?.authMode !== "cloud") return;
+    const userId = account.id.startsWith("cloud:") ? account.id.slice("cloud:".length) : null;
     const { queueSocialEvent } = await import("../services/socialActivityQueue");
-    queueSocialEvent(type, payload);
+    queueSocialEvent(type, payload, userId);
   });
 }
 
@@ -2111,8 +2124,14 @@ function cloudUserIdFromAccount(account: LearningAccount | undefined): string | 
   return null;
 }
 
+/** Slots salvos no último logout, para a casca de visitante não apagar as outras contas. */
+let preservedAccountsForGuestShell: Record<string, LearningAccount> | null = null;
+
 function cacheLiveProgressForCloudUser(s: AppState): void {
-  const account = s.accounts[s.currentAccountId];
+  // LGY-005 — grava o progresso ao vivo no slot atual e guarda o mapa. O
+  // wipe seguinte zera só a casca; cloud:A e perfis nomeados continuam no aparelho.
+  preservedAccountsForGuestShell = saveCurrentAccount(s);
+  const account = preservedAccountsForGuestShell[s.currentAccountId];
   const userId = cloudUserIdFromAccount(account);
   if (!userId || !account) return;
   writeUserCache(userId, buildProgressSnapshot(account));
@@ -2121,11 +2140,20 @@ function cacheLiveProgressForCloudUser(s: AppState): void {
 /** Logout / endCloudSession: limpa progresso ao vivo. Preferências de UI ficam. */
 function wipeToGuestShell(): Partial<AppState> {
   const guest = makeAccount(DEFAULT_ACCOUNT_ID, "Aluno", blankSnapshot(), undefined, "local");
+  const kept = preservedAccountsForGuestShell;
+  preservedAccountsForGuestShell = null;
+  const accounts: Record<string, LearningAccount> = { [DEFAULT_ACCOUNT_ID]: guest };
+  if (kept) {
+    for (const [id, account] of Object.entries(kept)) {
+      if (id === DEFAULT_ACCOUNT_ID || !account) continue;
+      accounts[id] = account;
+    }
+  }
   return {
     ...accountFields(guest),
     accountSetupComplete: false,
     currentAccountId: DEFAULT_ACCOUNT_ID,
-    accounts: { [DEFAULT_ACCOUNT_ID]: guest },
+    accounts,
     serverIsPro: false,
     cloudSyncState: freshCloudSyncState(),
     economySyncMessage: null,
@@ -2252,6 +2280,7 @@ interface AppState {
   lastStudyDate: string | null;
   activityByDay: Record<string, DailyStudyRecord>;
   pendingStreakCelebration: number | null;
+  seenStreakMarks?: number[];
   streakRecovery: StreakRecovery | null;
   pendingStreakRecovery: number | null;
   streakRecoveredOn: string | null;
@@ -3250,7 +3279,11 @@ export const useStore = create<AppState>()(
             scope === "daily" ? todayKey() : activeWeeklyMissions(get().weeklyMissions).weekKey;
           void serverClaimMission({ scope, missionId, periodKey, metricValue: metric }).then(
             (result) => {
-              if (!result.ok && !result.already_applied) {
+              if (isMissingEconomyRpc(result.error)) {
+                get().setEconomySyncMessage(
+                  "Recompensa salva neste aparelho. A sincronização fica pendente."
+                );
+              } else if (!result.ok && !result.already_applied) {
                 set((s) => {
                   const date = todayKey();
                   const day = activeDailyMissions(s.dailyMissions, date);
@@ -4502,16 +4535,23 @@ export const useStore = create<AppState>()(
         const rewardId = `lesson:${lessonId}:qi`;
         if ((state.rewardHistory ?? []).some((entry) => entry.id === rewardId)) return false;
 
+        // QA 2026-10 · prompt 22 — Qi graduado: 1★ = 3, 2★ = 4, bônus só a 3★.
+        // Na nuvem só com a chave (o servidor precisa pagar por estrela).
+        const graduated = lessonQiGraduated();
         const qiAmount =
           stars >= 3
             ? LESSON_THREE_STAR_QI +
               (noSkip ? LESSON_NO_SKIP_QI : 0) +
               (hasProAccess(state) ? PRO_LESSON_QI_BONUS : 0)
-            : 0;
+            : graduated && stars >= 2
+              ? LESSON_TWO_STAR_QI
+              : graduated && stars >= 1
+                ? LESSON_ONE_STAR_QI
+                : 0;
 
         if (qiAmount <= 0) {
-          // Abaixo de 3★ localmente: não chama o servidor (ele ignora métricas do
-          // cliente e só paga pacote attestado uma vez por lição).
+          // Sem Qi para esta conclusão: não chama o servidor (ele ignora as
+          // métricas do cliente e só paga o pacote attestado uma vez por lição).
           return false;
         }
 
@@ -5455,15 +5495,14 @@ export const useStore = create<AppState>()(
 
       canStartActivity: (activityType) => {
         const state = get();
-        if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
-        if (activityType === "extra_training" && get().hasFocusPass()) return true;
-        return activeDailyEnergy(state.dailyEnergy).charges >= CHARGE_COST_ACTIVITY;
+        const cost = chargeCostOf(activityType, state);
+        if (cost === 0) return true;
+        return activeDailyEnergy(state.dailyEnergy).charges >= cost;
       },
 
       consumeCharge: (activityType, idempotencyKey) => {
         const state = get();
-        if (hasProAccess(state) || !activityConsumesCharge(activityType)) return true;
-        if (activityType === "extra_training" && get().hasFocusPass()) return true;
+        if (chargeCostOf(activityType, state) === 0) return true;
         const energy = activeDailyEnergy(state.dailyEnergy);
         if (idempotencyKey && (energy.consumedChargeKeys ?? []).includes(idempotencyKey)) return true;
         if (energy.charges < CHARGE_COST_ACTIVITY) return false;
@@ -5835,8 +5874,10 @@ export const useStore = create<AppState>()(
           const { streak, streakShields, streakRecovery, pendingStreakRecovery } =
             computeStudyStreak(current, t);
           const longestStreak = Math.max(current.longestStreak, streak);
+          const seenStreakMarks = current.seenStreakMarks ?? [];
+          const wantsStreakModal = streak > prevStreak || (prevStudy !== t && streak >= 1);
           const pendingStreakCelebration =
-            streak > prevStreak || (prevStudy !== t && streak >= 1)
+            wantsStreakModal && !seenStreakMarks.includes(streak)
               ? streak
               : current.pendingStreakCelebration;
           const today = current.today?.date === t ? current.today : freshDay(t);
@@ -5886,8 +5927,9 @@ export const useStore = create<AppState>()(
       clearStreakCelebration: () =>
         set((s) => {
           if (s.pendingStreakCelebration == null) return {};
-          const next = { ...s, pendingStreakCelebration: null };
-          return { pendingStreakCelebration: null, accounts: saveCurrentAccount(next) };
+          const seenStreakMarks = [...new Set([...(s.seenStreakMarks ?? []), s.pendingStreakCelebration])];
+          const next = { ...s, pendingStreakCelebration: null, seenStreakMarks };
+          return { pendingStreakCelebration: null, seenStreakMarks, accounts: saveCurrentAccount(next) };
         }),
 
       // Reconcilia a ofensiva com o tempo real (chamado ao abrir o app).
@@ -6266,6 +6308,7 @@ export const useStore = create<AppState>()(
           lastStudyDate: root.lastStudyDate ?? null,
           activityByDay: root.activityByDay ?? {},
           pendingStreakCelebration: root.pendingStreakCelebration ?? null,
+          seenStreakMarks: root.seenStreakMarks ?? [],
           pearlMilestonesClaimed: root.pearlMilestonesClaimed ?? {},
           pearlLedger: root.pearlLedger ?? [],
           pearlProExpiresAt: root.pearlProExpiresAt ?? null,

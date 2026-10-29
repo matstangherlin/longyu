@@ -49,6 +49,20 @@ export const REVIEW_OFFER = {
         : t("review.offerManyAsk", { count }),
   supportLine: (canRecover: boolean) =>
     canRecover ? t("review.offerSupportRecover") : t("review.offerSupport"),
+  /** QA22 — tentativa abaixo do mínimo: a revisão é prática; concluir pede nova tentativa. */
+  supportLineBelowMinimum: (pct: number) => t("review.offerSupportBelowMinimum", { pct }),
+  /** QA22 · LGY-031 — título da lista de etapas que travaram. */
+  errorsHeading: (count: number) =>
+    count === 1 ? t("review.offerErrorsOne") : t("review.offerErrorsMany", { count }),
+  get yourAnswer() {
+    return t("review.offerYourAnswer");
+  },
+  get correctAnswer() {
+    return t("review.correctLabel");
+  },
+  get noAnswer() {
+    return t("review.offerNoAnswer");
+  },
   get ctaPrimary() {
     return t("player.continue");
   },

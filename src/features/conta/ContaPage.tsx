@@ -7,6 +7,8 @@ import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
 import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
+import { DisplayNameField } from "./DisplayNameField";
+import { displayNameForAccount } from "../../lib/displayName";
 import { Pill } from "../../components/ui/primitives";
 import { PageShell, PageHeader, CompactCard, ActionButton } from "../../components/ui/page";
 import { IconChevron, IconShield, IconStar, IconLibrary, IconGear, IconSun, IconUser, IconTarget, IconBook } from "../../components/ui/Icon";
@@ -175,11 +177,11 @@ export function ContaPage() {
         <div className="rounded-2xl border border-line bg-surface p-4">
           <div className="flex items-center gap-3">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accent-soft text-lg font-semibold text-accent" aria-hidden data-testid="conta-avatar">
-              {(account?.name?.trim() || "你").charAt(0).toUpperCase()}
+              {(displayNameForAccount(account) || "你").charAt(0).toUpperCase()}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="truncate text-base font-semibold text-ink" data-testid="conta-name">{account?.name?.trim() || t("hub.defaultLearner")}</span>
+                <span className="truncate text-base font-semibold text-ink" data-testid="conta-name">{displayNameForAccount(account)}</span>
                 <Pill tone={status.tone}>{status.label}</Pill>
               </div>
               {account?.email && <div className="truncate text-sm text-ink-soft" data-testid="conta-email">{account.email}</div>}
@@ -187,6 +189,7 @@ export function ContaPage() {
             <SyncStatusChip />
           </div>
           <p className="mt-3 text-xs font-medium text-ink-faint" data-account-save-status="">{status.where}</p>
+          {authMode === "cloud" ? <DisplayNameField /> : null}
           {notice && <p className="mt-2 text-xs text-ink-soft">{displayInstruction(notice)}</p>}
         </div>
 
@@ -210,8 +213,8 @@ export function ContaPage() {
         </SettingsGroup>
 
         <SettingsGroup>
-          <SettingsRow to="/privacidade" icon={IconShield} label={t("landing.privacy")} testId="conta-privacy" />
-          <SettingsRow to="/termos" icon={IconBook} label={t("landing.terms")} testId="conta-terms" />
+          <SettingsRow to="/privacidade" icon={IconShield} label={t("marketing.privacy")} testId="conta-privacy" />
+          <SettingsRow to="/termos" icon={IconBook} label={t("marketing.terms")} testId="conta-terms" />
         </SettingsGroup>
 
         {canSignOut ? <SignOutControl testId="conta-sign-out" /> : null}

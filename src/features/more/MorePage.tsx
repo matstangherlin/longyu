@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { useFeedbackUi } from "../../components/feedback/FeedbackContext";
+import { isBetaFeedbackEnabled } from "../../lib/featureFlags";
 import { Link } from "react-router-dom";
 import { IconShield, IconSun, IconUser } from "../../components/ui/Icon";
 import { isAdminEmail } from "../../lib/feedback";
@@ -17,6 +19,7 @@ import { useIsPro } from "../../lib/proAccess";
 import {
   MORE_CATALOG,
   isNavItemDiscovered,
+  isNavSurfaceEnabled,
   navLabel,
   previewNavItems,
   type NavItem,
@@ -118,6 +121,7 @@ export function MorePage() {
   // RC2.2.18 · AN/AO — sem parede de cadeados: some o que ainda não foi
   // descoberto ou está trancado por progressão; no máximo 2 "próximos" discretos.
   const isShown = (nav: NavItem) => {
+    if (!isNavSurfaceEnabled(nav)) return false;
     if (!isNavItemDiscovered(nav, visibility)) return false;
     const feature = nav.feature as FeatureId | undefined;
     return !feature || feature === "plano" || !featureAvailability(feature, completedLessons).locked;
@@ -196,12 +200,20 @@ export function MorePage() {
 function MoreYouBlock() {
   const { t } = useTranslation();
   const { canSignOut } = useCloudSignOut();
+  const { openFeedback } = useFeedbackUi();
   return (
     <section className="mb-5 space-y-3" data-testid="more-you" data-coachmark-target="more-you" data-cognitive-more-you="">
       <SettingsGroup title={t("navigation.groupYou")}>
         <SettingsRow to="/perfil" icon={IconUser} label={t("navigation.profile")} testId="more-profile" />
         <SettingsRow to="/conta" icon={IconShield} label={t("navigation.account")} testId="more-account" />
         <SettingsRow to="/config/aparencia" icon={IconSun} label={t("navigation.appearance")} testId="more-appearance" />
+        {isBetaFeedbackEnabled() ? (
+          <SettingsRow
+            label={t("common.reportProblem")}
+            testId="report-problem"
+            onClick={() => openFeedback({ screen: "/mais", route: "/mais" })}
+          />
+        ) : null}
       </SettingsGroup>
       {canSignOut ? <SignOutControl testId="more-sign-out" /> : null}
     </section>

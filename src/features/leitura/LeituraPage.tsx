@@ -35,6 +35,7 @@ export function LeituraPage() {
   useEffect(() => {
     if (!text) return;
     if (!sessionCharged) {
+      // extra_training não cobra Carga (chargeCostFor = 0, energyPolicy.ts): o retorno é sempre true.
       if (!consumeCharge("extra_training")) {
         setEnergyPaywallOpen(true);
         return;

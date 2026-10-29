@@ -60,7 +60,9 @@ import { t } from "../../i18n/catalog";
 import { answersEquivalent, resolveInstructionText, scoredAnswersMatch } from "../../i18n/overlays/instructionGloss";
 import { getInstructionLocale } from "../../i18n/instructionLocale";
 import { evaluateLearnerResponse } from "../../lib/learnerResponse";
-import { useStudentFirstName } from "../../lib/personalize";
+import { learnerSpokenName, useStudentFirstName } from "../../lib/personalize";
+import { isPlaceholderDisplayName } from "../../lib/displayName";
+import { AskLearnerName } from "./AskLearnerName";
 import { LessonKindLabel } from "../../components/ui/LessonKindLabel";
 import { LESSON_UI_CLASS } from "../../ui/lessonTokens";
 import { FreeAnswerField } from "./FreeAnswerField";
@@ -782,7 +784,7 @@ function InteractionPanel({
 
   const displayPrompt = naturalizeConversationPrompt(
     resolveInstructionText(interaction.prompt, getInstructionLocale())
-  ).replaceAll("Matheus", studentName ?? "você");
+  ).replaceAll("Matheus", learnerSpokenName(studentName));
 
   // RC2.2.17 · S — só em builds de fixture (E2E/preview): o driver de
   // integração responde pelo grafo. Produção nunca expõe a resposta no DOM.
@@ -1933,7 +1935,21 @@ function ConversationSceneV2({ step, onDone, onSkip }: StepProps) {
   );
 }
 
+function sceneAsksForName(step: StepProps["step"]): boolean {
+  const blob = [
+    step.sceneId,
+    ...(step.nodes ?? []).map((node) => `${node.hanzi ?? ""} ${node.pt ?? ""} ${node.interaction?.prompt ?? ""}`),
+    ...(step.lines ?? []).map((line) => `${line.hanzi ?? ""} ${line.pt ?? ""}`),
+  ].join("\n");
+  return /我叫|meu nome/i.test(blob);
+}
+
 export function ConversationSceneStep({ step, onDone, onSkip, onMistake }: StepProps) {
+  const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name);
+  const [nameDeferred, setNameDeferred] = useState(false);
+  if (sceneAsksForName(step) && isPlaceholderDisplayName(accountName) && !nameDeferred) {
+    return <AskLearnerName onDefer={() => setNameDeferred(true)} />;
+  }
   // Rollback: VITE_ENABLE_CONVERSATION_V2=false força o player V1 (lines/checkpoint).
   // Progresso do usuário permanece intacto — só muda o motor da cena.
   const hasNodes = isConversationV2Enabled() && (step.nodes?.length ?? 0) > 0;

@@ -1,3 +1,7 @@
+import { withTimeout } from "../lib/async/withTimeout";
+import { isExpiredSessionFailure } from "../lib/auth/loginSession";
+import { isPlaceholderDisplayName } from "../lib/displayName";
+import { cloudAccountId, useStore } from "../lib/store";
 import { getSupabaseClient } from "../lib/supabaseClient";
 import { isSupabaseBackendEnabled } from "../lib/backendConfig";
 import { emailConfirmationRedirectUrl, passwordRecoveryRedirectUrl } from "../lib/authRedirect";
@@ -6,6 +10,8 @@ import { canonicalCountryCode, launchLocaleFields } from "../lib/i18n/identity";
 import { readPendingPlacement, toServerPlacementEvidence } from "../lib/placement";
 import type { ProfileDetails } from "./profileTypes";
 import { profileDetailsPayload } from "./profileTypes";
+import { isMissingColumnError, markMissing, withoutMissingLocaleColumns } from "../lib/cloud/schemaDrift";
+import { captureSchemaDrift } from "../lib/observability/errorReporting";
 import { requestAccountDeletion } from "./privacyService";
 import { edgeOpsInit, noteOps } from "../lib/opsCorrelation";
 import {
@@ -76,18 +82,23 @@ async function ensureProfile(userId: string, profile: ProfileDetails): Promise<s
 
   // Fallback para ambientes sem a migration 021 ainda aplicada.
   if (/ensure_own_profile|could not find|pgrst|404|42883/i.test(rpcError.message)) {
-    const { error } = await client.from("profiles").upsert(
-      {
-        id: userId,
-        ...payload,
-      },
-      { onConflict: "id" }
-    );
-    if (!error) return null;
-    if (/row-level security|rls/i.test(error.message)) {
+    const upsert = (row: Record<string, unknown>) =>
+      client.from("profiles").upsert(row, { onConflict: "id" });
+    const first = await upsert({ id: userId, ...payload });
+    if (!first.error) return null;
+    if (isMissingColumnError(first.error)) {
+      if (markMissing("profiles.instruction_locale")) captureSchemaDrift("profiles.instruction_locale");
+      const second = await upsert({ id: userId, ...withoutMissingLocaleColumns(payload) });
+      if (!second.error) return null;
+      if (second.error && /row-level security|rls/i.test(second.error.message)) {
+        return "Não foi possível salvar o perfil. Confirme o email e entre de novo.";
+      }
+      return second.error?.message ?? first.error.message;
+    }
+    if (/row-level security|rls/i.test(first.error.message)) {
       return "Não foi possível salvar o perfil. Confirme o email e entre de novo.";
     }
-    return error.message;
+    return first.error.message;
   }
 
   if (/not_authenticated|42501|row-level security|rls/i.test(rpcError.message)) {
@@ -112,7 +123,64 @@ export async function ensureProfileForCurrentSession(suggestedName?: string | nu
     data: { session },
   } = await client.auth.getSession();
   if (!session?.user?.id) return "Sem sessão ativa.";
-  return ensureProfile(session.user.id, profileFromName(suggestedName ?? undefined));
+  const saved = await readSavedDisplayName(session.user.id);
+  if (saved && !isPlaceholderDisplayName(saved)) {
+    useStore.getState().renameAccount(cloudAccountId(session.user.id), saved);
+  }
+  return ensureProfile(session.user.id, profileFromName(suggestedName ?? saved ?? undefined));
+}
+
+const PROFILE_SAVE_TIMEOUT_MS = 12_000;
+const PROFILE_SAVE_ERROR = "Não foi possível salvar — tente de novo.";
+
+async function readSavedDisplayName(userId: string): Promise<string | null> {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data, error } = await client.from("profiles").select("name").eq("id", userId).maybeSingle();
+  if (error || !data?.name) return null;
+  return String(data.name);
+}
+
+/**
+ * LGY-008 — rename writes only `profiles.name`. instruction_locale stays out,
+ * so a missing column cannot fail a name change. The store updates after the server.
+ */
+export async function updateDisplayName(rawName: string): Promise<AuthServiceResult> {
+  const name = rawName.trim();
+  if (name.length < 2) return { status: "error", message: "Use pelo menos 2 letras no nome." };
+  const store = useStore.getState();
+  const accountId = store.currentAccountId;
+  if (!isSupabaseBackendEnabled() || store.accounts[accountId]?.authMode !== "cloud") {
+    store.renameAccount(accountId, name);
+    store.setCloudSyncState("synced", "Nome salvo.");
+    return { status: "ok", message: "Nome salvo." };
+  }
+  const client = getSupabaseClient();
+  if (!client) return { status: "error", message: PROFILE_SAVE_ERROR };
+  store.setCloudSyncState("loading", "Salvando…");
+  try {
+    const { data, error: userError } = await withTimeout(client.auth.getUser(), PROFILE_SAVE_TIMEOUT_MS);
+    if (userError || !data.user?.id) {
+      store.setCloudSyncState("error", PROFILE_SAVE_ERROR);
+      return { status: "error", message: PROFILE_SAVE_ERROR };
+    }
+    const { error } = await withTimeout(
+      client.from("profiles").update({ name, updated_at: new Date().toISOString() }).eq("id", data.user.id),
+      PROFILE_SAVE_TIMEOUT_MS
+    );
+    if (error) {
+      if (isMissingColumnError(error)) markMissing("profiles.name");
+      store.setCloudSyncState("error", PROFILE_SAVE_ERROR);
+      return { status: "error", message: PROFILE_SAVE_ERROR };
+    }
+    store.renameAccount(cloudAccountId(data.user.id), name);
+    if (store.currentAccountId !== cloudAccountId(data.user.id)) store.renameAccount(store.currentAccountId, name);
+    store.setCloudSyncState("synced", "Nome salvo.");
+    return { status: "ok", message: "Nome salvo." };
+  } catch {
+    store.setCloudSyncState("error", PROFILE_SAVE_ERROR);
+    return { status: "error", message: PROFILE_SAVE_ERROR };
+  }
 }
 
 function isUnconfirmedEmailError(message: string): boolean {
@@ -283,15 +351,20 @@ export async function login(
   if (parsed.kind === "email") {
     const { data, error } = await client.auth.signInWithPassword({ email: cleanEmail, password });
     if (error) {
-      if (isUnconfirmedEmailError(error.message)) {
+      const code = (error as { code?: string }).code;
+      if (isExpiredSessionFailure({ status: error.status, message: error.message, code })) {
+        await client.auth.signOut({ scope: "local" }).catch(() => undefined);
+        return { status: "error", message: "Sua sessão expirou. Entre de novo." };
+      }
+      if (isUnconfirmedEmailError(error.message) || code === "email_not_confirmed") {
         return {
           status: "pending_confirmation",
           message: "Confirme seu email antes de entrar. Reenvie o link se precisar.",
           data: { id: "", email: cleanEmail, name: profile?.name },
         };
       }
-      if (/429|rate.?limit|too many/i.test(error.message)) return { status: "error", message: LOGIN_RATE_LIMITED };
-      if (isInvalidCredentialsError(error.message)) return { status: "error", message: GENERIC_LOGIN_ERROR };
+      if (error.status === 429 || /429|rate.?limit|too many/i.test(error.message)) return { status: "error", message: LOGIN_RATE_LIMITED };
+      if (code === "invalid_credentials" || isInvalidCredentialsError(error.message)) return { status: "error", message: GENERIC_LOGIN_ERROR };
       return { status: "error", message: error.message };
     }
     user = data.user;
@@ -335,8 +408,8 @@ export async function login(
   if (!user) return { status: "error", message: "Sessão não iniciada." };
 
   const fallbackName = (user.user_metadata?.name as string | undefined) ?? profile?.name;
-  const profileError = await ensureProfile(user.id, profile ?? profileFromName(fallbackName));
-  if (profileError) return { status: "error", message: profileError };
+  // LGY-006 — the token is enough to enter. Profile upsert must not hold the button.
+  void ensureProfile(user.id, profile ?? profileFromName(fallbackName));
 
   return {
     status: "ok",
@@ -380,7 +453,7 @@ export async function requestPasswordReset(email: string): Promise<AuthServiceRe
   const cleanEmail = email.trim();
   let outcome: ReturnType<typeof classifyRecoveryRequestError>;
   try {
-    // O mesmo e-mail leva o código de 6 dígitos ({{ .Token }}) e o link.
+    // O modelo versionado manda só o código. redirectTo fica para um link antigo cair em /redefinir-senha.
     const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
       redirectTo: passwordRecoveryRedirectUrl(),
     });
@@ -460,6 +533,13 @@ export async function completePasswordRecovery(password: string): Promise<AuthSe
   return result;
 }
 
+/** Drops the Supabase session on this device even if the server revoke never returns. */
+export async function clearLocalAuthSession(): Promise<void> {
+  const client = getSupabaseClient();
+  if (!client) return;
+  await client.auth.signOut({ scope: "local" }).catch(() => undefined);
+}
+
 export async function logout(): Promise<AuthServiceResult> {
   if (!isSupabaseBackendEnabled()) return notImplemented();
   const client = getSupabaseClient();
@@ -480,7 +560,13 @@ export async function getCurrentUser(): Promise<AuthServiceResult<FutureAuthUser
   if (!client) return { ...notImplemented(), data: null };
 
   const { data, error } = await client.auth.getUser();
-  if (error) return { status: "error", message: error.message, data: null };
+  if (error) {
+    if (isExpiredSessionFailure({ status: error.status, message: error.message, code: (error as { code?: string }).code })) {
+      await clearLocalAuthSession();
+      return { status: "error", message: "Sua sessão expirou. Entre de novo.", data: null };
+    }
+    return { status: "error", message: error.message, data: null };
+  }
   const user = data.user;
   if (!user) return { status: "ok", message: "Sem sessão ativa.", data: null };
 

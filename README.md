@@ -1,21 +1,30 @@
 # Longyu
 
-Longyu é um app para brasileiros estudarem mandarim com foco em som, pinyin, tons, hànzì, prática e revisão.
+Longyu (龙语) é um app de mandarim para falantes de português do Brasil. O aluno treina som, pinyin, tons, hànzì, prática e revisão. Web/PWA no Netlify e Android via Capacitor 8.
 
-**Modo padrão:** progresso local no navegador (`localStorage`).
+**Estágio (26/10/2026):** beta fechada em preparação — **NO-GO** até zerar os P0 do relatório de QA de outubro/2026. O controle está em [`docs/qa-report-2026-10/`](docs/qa-report-2026-10/). Release e congelamento: [`docs/release/`](docs/release/).
 
-**Com Supabase configurado** (`VITE_BACKEND_MODE=supabase`): conta com email/senha, sessão persistente, sincronização automática do progresso na nuvem e assinatura Pro via Stripe (Edge Functions publicadas; secrets/webhook configurados no projeto — validação live em Test Mode ainda é pendência operacional; ver [`docs/SUBSCRIPTION_E2E_REPORT.md`](docs/SUBSCRIPTION_E2E_REPORT.md)).
+**Público do produto:** adultos no Brasil que ainda não estudaram mandarim. A decisão D2 (repositório privado até a beta pública) está recomendada e ainda não confirmada. O GitHub hoje está público; este repositório não muda essa visibilidade.
+
+**Stack:** Vite, React 18, TypeScript, react-router 7, Zustand, Tailwind, Supabase (Auth, Postgres com RLS, Edge Functions) e Stripe em modo teste. O progresso padrão fica no navegador (`localStorage`, chave `longyu-v1`).
 
 ## Requisitos
 
-- Node.js 20
+- Node.js 22 (`package.json` pede `>=22`; o CI e o `netlify.toml` usam 22)
 - npm
 
 ## Como rodar
 
 ```bash
-npm install
+npm ci
 npm run dev
+```
+
+Comandos do dia a dia:
+
+```bash
+npm run validate:beta
+npm run test:e2e
 ```
 
 Abra o endereço indicado pelo Vite, normalmente `http://localhost:5173`.
@@ -136,7 +145,7 @@ O deploy é estático. Conecte o repositório Git e deixe o Netlify instalar dep
 |-------|-------|
 | Build command | `npm run build` |
 | Publish directory | `dist` |
-| Node version | `20` (já em `netlify.toml`) |
+| Node version | `22` (já em `netlify.toml`) |
 
 **Com backend ativo**, adicione em *Site settings → Environment variables*:
 
@@ -178,6 +187,7 @@ Esse redirect SPA garante que rotas do React Router (`/jornada`, `/revisao`, `/p
 
 ## Segurança
 
+- `.env.production` e o contexto de produção do `netlify.toml` só repetem valores públicos (`VITE_BACKEND_MODE`, URL do Supabase, anon key e a site key do Turnstile). A anon key é pública por design; a RLS protege os dados. Segredos (`service_role`, `sk_*` do Stripe, SMTP, Sentry) ficam no Netlify e no Supabase Vault, nunca no git.
 - Não coloque chaves secretas (`service_role`, Stripe, webhook) no frontend — só em Supabase secrets / Edge Functions.
 - Variáveis `VITE_*` ficam visíveis no bundle do navegador; use apenas URL e anon key do Supabase.
 - Pro **real** vem do servidor (`subscriptions` + webhook Stripe), não de flag local. O Pro Preview local continua disponível sem cobrança.

@@ -47,6 +47,11 @@ interface ImportMetaEnv {
   readonly VITE_BACKEND_FAMILY_ENABLED?: string;
   readonly VITE_BACKEND_BUSINESS_ENABLED?: string;
   readonly VITE_BACKEND_PEARL_ENABLED?: string;
+  /**
+   * QA 2026-10 · prompt 22 — Qi graduado (1★/2★) em conta da nuvem. Só depois
+   * do SQL pendente qa-22-graduated-lesson-qi.sql. Default: desligado.
+   */
+  readonly VITE_GRADUATED_LESSON_QI?: string;
   /** Site key pública do Cloudflare Turnstile. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   /** URL canônica do site (SEO: canonical, Open Graph, sitemap). */

@@ -1,4 +1,7 @@
 import { SyncStatusChip } from "../../components/auth/SyncStatusChip";
+import { DisplayNameField } from "../conta/DisplayNameField";
+import { displayNameForAccount } from "../../lib/displayName";
+import { isSocialSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useStore, type MandarinDisplayMode, type SoundTheme, type ThemeName, type TranslationMode } from "../../lib/store";
@@ -22,6 +25,7 @@ import {
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { BetaBadge } from "../../components/feedback/BetaBadge";
 import { FeedbackPrompt } from "../../components/feedback/FeedbackPrompt";
+import { ReleaseIdentityCard } from "../../components/system/AppVersionLabel";
 import { MandarinText } from "../../components/hanzi/MandarinText";
 import { DOMAIN_META, DOMAIN_ORDER, type DomainTrack } from "../../data/domains";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
@@ -232,7 +236,7 @@ export function SettingsPage() {
       return;
     }
     setSocialUsername(result.data.username ?? "");
-    setSocialNotice(t("settings.usernameSaved"));
+    setSocialNotice(t("settings.usernameSavedAs", { username: result.data.username ?? socialUsername }));
   }
 
   async function handleToggleShowInSearch() {
@@ -282,6 +286,7 @@ export function SettingsPage() {
                 <span>{t("shell.syncStatusLabel")}</span>
                 <SyncStatusChip />
               </div>
+              {activeAccount?.authMode === "cloud" ? <DisplayNameField /> : null}
               {/* RC2.2.24 — perfis locais só em DEV/E2E; produção = uma conta. */}
               {isDevLocalAuthAllowed() && (
               <div className="grid gap-2">
@@ -299,7 +304,7 @@ export function SettingsPage() {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <div className="font-medium text-ink">{account.name}</div>
+                            <div className="font-medium text-ink">{displayNameForAccount(account)}</div>
                             <div className="text-xs text-ink-faint">
                               {t("settings.lessonsQiStreak", { lessons, qi: accountPoints, streak: account.longestStreak })}
                             </div>
@@ -352,6 +357,10 @@ export function SettingsPage() {
                 <p className="text-sm text-ink-soft">
                   {t("settings.needCloudForFriends")}
                 </p>
+              ) : !isSocialSurfaceEnabled() ? (
+                <p className="text-sm text-ink-soft" data-testid="username-unavailable">
+                  {t("settings.friendsComing")}
+                </p>
               ) : (
                 <>
                   <div>
@@ -385,7 +394,15 @@ export function SettingsPage() {
                     onChange={() => void handleToggleShowInSearch()}
                   />
 
-                  {socialNotice && <p className="text-sm text-ink-soft">{socialNotice}</p>}
+                  {socialNotice && (
+                    <p
+                      role={socialNotice.startsWith("@") ? "status" : "alert"}
+                      data-testid="username-save-notice"
+                      className="text-sm font-medium text-ink"
+                    >
+                      {socialNotice}
+                    </p>
+                  )}
                 </>
               )}
             </Card>
@@ -1013,6 +1030,7 @@ export function SettingsPage() {
 
       {!activeCategory && (
         <>
+          <ReleaseIdentityCard />
           <FeedbackPrompt context={{ screen: "/config" }} compact />
           <p className="text-center text-xs text-ink-faint">
             {t("settings.footer")}

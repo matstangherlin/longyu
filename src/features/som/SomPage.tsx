@@ -257,6 +257,7 @@ export function ToneTrainer({ journeyNode }: { journeyNode?: JourneyNode } = {})
 
   function ensureTrainingCharge(): boolean {
     if (sessionCharged) return true;
+    // extra_training não cobra Carga (chargeCostFor = 0, energyPolicy.ts): o retorno é sempre true.
     if (!consumeCharge("extra_training")) {
       setEnergyPaywallOpen(true);
       return false;

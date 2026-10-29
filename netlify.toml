@@ -11,16 +11,16 @@
   ignore = "node scripts/netlify-ignore-build.mjs"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   # Garante binários nativos do Rollup no Linux (evita "Cannot write module @rollup/rollup-linux-x64-gnu").
   NPM_FLAGS = "--include=optional"
-  VITE_APP_VERSION = "0.2.0-rc.5"
+  VITE_APP_VERSION = "0.3.0-beta.1"
 
 # Variáveis VITE_* são públicas (entram no bundle). RLS no Supabase protege os dados.
 # Production Beta = ambiente principal da beta pública.
 [context.production.environment]
   VITE_APP_ENV = "production_beta"
-  VITE_APP_VERSION = "0.2.0-rc.5"
+  VITE_APP_VERSION = "0.3.0-beta.1"
   VITE_BACKEND_MODE = "supabase"
   VITE_SUPABASE_URL = "https://drjcfalvlbbeblmmyhwj.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyamNmYWx2bGJiZWJsbW15aHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NzM1NTQsImV4cCI6MjA5OTA0OTU1NH0.kfIxdPbuYfAWCeEpcEuKhh0Bk2gz652XVK2RBjWq0TU"
@@ -52,7 +52,7 @@
 # propósito: um candidate sem backend QA não deve chegar a publicar.
 [context."rc2-candidate".environment]
   VITE_APP_ENV = "qa_candidate"
-  VITE_APP_VERSION = "0.2.0-rc.5"
+  VITE_APP_VERSION = "0.3.0-beta.1"
   VITE_BACKEND_MODE = "supabase"
   VITE_ALLOW_PRO_PREVIEW = "false"
   VITE_USE_TEST_FIXTURES = "false"
@@ -71,7 +71,7 @@
 #   VITE_SUPABASE_ANON_KEY=<anon do preview>
 [context.deploy-preview.environment]
   VITE_APP_ENV = "preview"
-  VITE_APP_VERSION = "0.2.0-rc.5"
+  VITE_APP_VERSION = "0.3.0-beta.1"
   VITE_BACKEND_MODE = "local"
   VITE_SUPABASE_URL = ""
   VITE_SUPABASE_ANON_KEY = ""
@@ -79,6 +79,40 @@
   VITE_USE_TEST_FIXTURES = "false"
   VITE_ENABLE_TELEMETRY = "false"
   VITE_ENABLE_BETA_FEEDBACK = "false"
+
+# LGY-029 — perfis públicos e @ não existem na beta. Estas regras vêm
+# antes do catch-all: no Netlify a primeira que casa vence.
+# /perfil (exato) continua sendo a rota do app.
+[[redirects]]
+  from = "/u/*"
+  to = "/index.html"
+  status = 404
+
+[[redirects]]
+  from = "/u"
+  to = "/index.html"
+  status = 404
+
+[[redirects]]
+  from = "/@*"
+  to = "/index.html"
+  status = 404
+
+[[redirects]]
+  from = "/perfil/*"
+  to = "/index.html"
+  status = 404
+
+# O app usa /ajustes e /config. /configuracoes era 404 no teste de 26/10.
+[[redirects]]
+  from = "/configuracoes"
+  to = "/ajustes"
+  status = 301
+
+[[redirects]]
+  from = "/configuracoes/*"
+  to = "/ajustes"
+  status = 301
 
 # SPA: qualquer rota (/som, /licao/:id, etc.) cai no index.html.
 # Sem isso, atualizar a página numa rota interna daria 404.
@@ -98,6 +132,26 @@
     # script-src: no 'unsafe-inline'. JSON-LD in index.html allowlisted by sha256.
     # style-src keeps 'unsafe-inline' for React inline styles (style={{...}}).
     Content-Security-Policy = "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'sha256-vywfNn7vNkB5YuzZDNSdCsVZoLK8nb8AQLe+06V8ku4=' https://js.stripe.com https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://*.netlify.app https://challenges.cloudflare.com; media-src 'self' blob: data:; worker-src 'self' blob:; manifest-src 'self'; frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://challenges.cloudflare.com; form-action 'self' https://checkout.stripe.com https://billing.stripe.com"
+
+# Cache. O bloco /* continua valendo para CSP e os outros headers de
+# segurança: no Netlify o caminho mais específico ganha só o header que
+# ele mesmo define. Cache-Control de /assets/* não apaga a CSP de /*.
+# Arquivos em /assets/ têm hash no nome, então immutable por um ano é
+# seguro. HTML e SW não têm hash e ficam no-cache.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
 
 # Service worker e manifest sempre frescos.
 [[headers]]

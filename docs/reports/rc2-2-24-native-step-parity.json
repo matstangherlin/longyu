@@ -709,7 +709,7 @@
     },
     {
       "kind": "dialogue_choice",
-      "occurrences": 594,
+      "occurrences": 593,
       "lessons": 123,
       "premiumLessons": 29,
       "focus": true,
@@ -763,8 +763,8 @@
     },
     {
       "kind": "hanzi_build",
-      "occurrences": 319,
-      "lessons": 85,
+      "occurrences": 318,
+      "lessons": 84,
       "premiumLessons": 20,
       "focus": false,
       "webMobile": "WEB_E2E_COVERED_BY_SUITE",
@@ -907,7 +907,7 @@
     },
     {
       "kind": "sentence_build",
-      "occurrences": 574,
+      "occurrences": 576,
       "lessons": 109,
       "premiumLessons": 33,
       "focus": false,

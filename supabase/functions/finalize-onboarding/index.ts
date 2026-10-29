@@ -13,6 +13,7 @@ import {
   parsePlacementEvidence,
 } from "../_shared/placement/evidence.ts";
 import { logOpsEdge } from "../_shared/opsCorrelation.ts";
+import { browserAllowedHeaders } from "../_shared/cors.ts";
 
 const CANONICAL_ORIGIN = Deno.env.get("APP_CANONICAL_ORIGIN") ?? "https://longyu.app";
 const DEFAULT_ORIGINS = [
@@ -44,7 +45,7 @@ function requestOrigin(req: Request): string {
 function corsHeaders(req: Request): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": requestOrigin(req),
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-longyu-correlation-id, x-longyu-session-id, x-longyu-op",
+    "Access-Control-Allow-Headers": browserAllowedHeaders(),
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
   };

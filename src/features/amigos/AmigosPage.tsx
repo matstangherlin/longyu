@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { HubHeader, HubPage, HubSection } from "../../components/layout/HubLayout";
 import { Button, Card, Pill } from "../../components/ui/primitives";
 import { isSupabaseBackendEnabled } from "../../lib/backendConfig";
+import { displayNameForAccount } from "../../lib/displayName";
 import { isBackendDomainAvailable } from "../../lib/cloud/backendCapability";
 import type { PublicProfile, SocialFollowRow } from "../../lib/social/types";
 import { friendsInviteUrl } from "../../lib/social/username";
@@ -32,7 +33,7 @@ type Tab = "buscar" | "seguindo" | "seguidores";
 export function AmigosPage() {
   const { t } = useTranslation();
   const authMode = useStore((s) => s.accounts[s.currentAccountId]?.authMode ?? "local");
-  const accountName = useStore((s) => s.accounts[s.currentAccountId]?.name ?? "Aluno");
+  const accountName = useStore((s) => displayNameForAccount(s.accounts[s.currentAccountId]));
   const cloudReady = isSupabaseBackendEnabled() && authMode === "cloud";
   const socialAvailable = isBackendDomainAvailable("social");
 

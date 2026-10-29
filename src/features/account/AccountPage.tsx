@@ -1,4 +1,5 @@
 import { isDevLocalAuthAllowed } from "../../lib/auth/localAuthPolicy";
+import { displayNameForAccount } from "../../lib/displayName";
 import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { DOMAIN_META, type DomainTrack } from "../../data/domains";
@@ -46,7 +47,7 @@ import { captureReferralFromSearch } from "../../lib/referralCapture";
 import { useCloudSignOut } from "../../hooks/useCloudSignOut";
 import { useCloudSignIn } from "../../hooks/useCloudSignIn";
 import { CloudLoginForm } from "../../components/auth/CloudLoginForm";
-import { ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
+import { AdultAgeGate, ProfileDetailsFields } from "../../components/auth/ProfileDetailsFields";
 import { PasswordField, PasswordRequirements } from "../../components/auth/PasswordField";
 import { LAUNCH_COUNTRY_CODE } from "../../lib/i18n/identity";
 import { formatDateTime } from "../../i18n/format";
@@ -54,6 +55,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 import { displayInstruction } from "../../i18n/overlays/journeyChrome";
 import { localizedAchievementTitle } from "../../i18n/achievements";
 import { FriendsProfileCard } from "../../components/social/FriendsProfileCard";
+import { isSocialSurfaceEnabled } from "../../lib/cloud/backendCapability";
 import { canRegisterWithCredentials } from "../../lib/authForm";
 import { activeLearningRepository } from "../../lib/repositories/learningRepository";
 import { validateProgressSnapshot } from "../../lib/progressSnapshot";
@@ -1588,6 +1590,7 @@ export function AccountPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [adultConfirmed, setAdultConfirmed] = useState(false);
   const [country, setCountry] = useState(LAUNCH_COUNTRY_CODE);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [signupSourceForm, setSignupSourceForm] = useState("");
@@ -1853,7 +1856,7 @@ export function AccountPage() {
   function buildSignupProfile(accountName: string): ProfileDetails {
     return {
       name: firstName(accountName),
-      birthDate: birthDate.trim() || null,
+      birthDate: null,
       country: country.trim() || null,
       signupSource: (source ?? signupSourceForm.trim()) || null,
       marketingOptIn,
@@ -1870,6 +1873,10 @@ export function AccountPage() {
           ? "Preencha email, senha e confirmação para criar sua conta."
           : "Preencha email, senha e confirmação para preparar uma conta agora."
       );
+      return;
+    }
+    if (!adultConfirmed) {
+      setAccountError(t("onboarding.adultRequired"));
       return;
     }
     setIsFinishingOnboarding(true);
@@ -1926,6 +1933,10 @@ export function AccountPage() {
           ? "Use um email válido e uma senha de pelo menos 6 caracteres."
           : "Use um email válido e uma senha de pelo menos 6 caracteres para preparar a conta (a senha não é salva)."
       );
+      return;
+    }
+    if (!adultConfirmed) {
+      setAccountError(t("onboarding.adultRequired"));
       return;
     }
     const accountName = activeAccount?.name ?? "Aluno Longyu";
@@ -2217,6 +2228,8 @@ export function AccountPage() {
             onCountry={setCountry}
             onMarketingOptIn={setMarketingOptIn}
             onSignupSource={setSignupSourceForm}
+            adultConfirmed={adultConfirmed}
+            onAdultConfirmed={setAdultConfirmed}
             onSubmit={handleCreateAccount}
             onSkip={handleSkipAccount}
             disabled={isFinishingOnboarding}
@@ -2485,7 +2498,7 @@ export function AccountPage() {
         </div>
       </HubContentCard>
 
-      <FriendsProfileCard />
+      {isSocialSurfaceEnabled() ? <FriendsProfileCard /> : null}
 
       <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <section ref={accountProfileRef} className="scroll-mt-4">
@@ -2870,6 +2883,7 @@ export function AccountPage() {
                   />
                 </label>
               </div>
+              <AdultAgeGate checked={adultConfirmed} onChange={setAdultConfirmed} />
               <ProfileDetailsFields
                 birthDate={birthDate}
                 country={country}
@@ -3141,7 +3155,7 @@ function AccountProfileStateCard({
       </div>
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
-        <ProfileDetailStat label="Nome" value={account?.name ?? "Aluno Longyu"} />
+        <ProfileDetailStat label="Nome" value={displayNameForAccount(account)} />
         <ProfileDetailStat label="Email" value={account?.email || "Sem email nesta sessão."} />
         <ProfileDetailStat label="Status da conta" value={status.label} />
         <ProfileDetailStat label="Nível atual" value={levelLabel} />
@@ -4277,6 +4291,8 @@ function OptionalAccountStep({
   marketingOptIn,
   signupSource,
   hideSignupSource,
+  adultConfirmed,
+  onAdultConfirmed,
   error,
   onEmail,
   onPassword,
@@ -4297,6 +4313,8 @@ function OptionalAccountStep({
   marketingOptIn: boolean;
   signupSource: string;
   hideSignupSource?: boolean;
+  adultConfirmed: boolean;
+  onAdultConfirmed: (value: boolean) => void;
   error: string | null;
   onEmail: (value: string) => void;
   onPassword: (value: string) => void;
@@ -4365,6 +4383,9 @@ function OptionalAccountStep({
           />
         </div>
         <PasswordRequirements password={password} confirmation={passwordConfirm} className="mt-3" />
+        <div className="mt-3">
+          <AdultAgeGate checked={adultConfirmed} onChange={onAdultConfirmed} />
+        </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className="block">
@@ -4738,7 +4759,7 @@ function AccountRow({
         ].join(" ")}
       >
         <div>
-          <div className="font-medium text-ink">{account.name}</div>
+          <div className="font-medium text-ink">{displayNameForAccount(account)}</div>
           <div className="text-xs text-ink-faint">
             {account.completedLessons.length} lições · {account.points} Qi · {Object.keys(account.srs).length} revisões
           </div>

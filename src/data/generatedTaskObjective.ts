@@ -14,6 +14,7 @@ import { chunkById } from "./chunks";
 import { radicalById } from "./radicals";
 import { buildersForCharacter } from "./hanziBuilder";
 import { makeReverseRecall } from "./exerciseFeasibility";
+import { isLearnerFacingPrompt } from "../lib/text/learnerCopy";
 
 const CJK_RUN = /[\u3400-\u9fff]+/g;
 const CJK_CHAR = /[\u3400-\u9fff]/g;
@@ -544,7 +545,21 @@ function passObjectiveUsable(spec: TopicMasterySpec | null | undefined, pass: Ma
     return null;
   }
   if (VIZINHOS_RE.test(raw)) return null;
+  if (!isLearnerFacingPrompt(raw)) return null;
   return raw;
+}
+
+/** Um único composto curto citado no objetivo (你好) substitui o caractere solto na produção. */
+function productionSurface(spec: TopicMasterySpec | null | undefined, targetRef: string): string {
+  if (!targetRef || [...targetRef].length !== 1) return targetRef;
+  const named = hanziTokens((spec?.canonicalExamples ?? []).join("\n")).filter(
+    (token) =>
+      [...token].length >= 2 &&
+      [...token].length <= 4 &&
+      token.includes(targetRef) &&
+      (spec?.mustProduce ?? []).some((line) => line.includes(token))
+  );
+  return named.length === 1 ? named[0] : targetRef;
 }
 
 function defaultDistractors(targetRef: string, objective: GeneratedTaskObjective, lesson: Lesson): string[] {
@@ -627,6 +642,16 @@ export function surfacesForObjective(
   }
 
   const distractors = defaultDistractors(target, objective, lesson ?? ({ libraryItems: [], steps: [], skill: "fala", id: "", title: "" } as Lesson));
+
+  if (!isLearnerFacingPrompt(prompt)) {
+    prompt = [...target].length > 1 ? "Qual opção comunica o núcleo deste tema?" : `Qual opção é ${target}?`;
+  }
+  // A checagem de superfície compara caracteres soltos: "你好" vira ["你","好"]
+  // e não contém o alvo "你好". Enunciado sem esse hànzì evita o falso conflito.
+  const promptChars = flattenHanziChars(hanziTokens(prompt));
+  if (promptChars.length > 0 && [...target].length > 1 && !promptChars.includes(target)) {
+    prompt = "Qual opção comunica o núcleo deste tema?";
+  }
 
   return {
     prompt,
@@ -824,7 +849,13 @@ export function buildGeneratedBonusStep(
   if (pass === 2) {
     return [
       attach(
-        dialogue("Reconhecer de verdade", surfaces.prompt, objective.targetRef, options, surfaces.explanation)
+        dialogue(
+          isLearnerFacingPrompt(surfaces.prompt) ? "Escolha" : "Reconhecer de verdade",
+          surfaces.prompt,
+          objective.targetRef,
+          options,
+          surfaces.explanation
+        )
       ),
     ];
   }
@@ -832,19 +863,21 @@ export function buildGeneratedBonusStep(
   if (pass === 3) {
     const produceGoal = spec?.mustProduce[0] ?? lesson.title;
     const assembleHanzi = /montar|monte|caractere/i.test(`${produceGoal} ${spec?.passObjectives[3] ?? ""}`);
-    const parts = [...objective.targetRef];
+    const produced = productionSurface(spec, objective.targetRef);
+    const parts = [...produced];
     // reverse_recall offers speech/assembly — never reuse a mustProduce that says "escolha/qual".
     const choiceLikeProduce = /escolh|\bqual\b|ouviu|marque|toque/i.test(produceGoal);
+    // reverse_recall title is "Diga…" — body must not say "Monte:" (instruction_mismatch).
     const sayBody = assembleHanzi
       ? "Diga o núcleo deste tema, sem ler a tradução."
       : choiceLikeProduce ||
           objective.relationType === "tone_contrast" ||
           objective.relationType === "numeric_value"
         ? `Diga ${objective.targetRef} em voz alta.`
-        : produceGoal;
-    const say = makeReverseRecall("Diga sem apoio extra", sayBody, objective.targetRef, [
-      objective.targetRef,
-    ]);
+        : isLearnerFacingPrompt(produceGoal) && !/montar|monte/i.test(produceGoal)
+          ? produceGoal
+          : `Diga ${produced} em voz alta.`;
+    const say = makeReverseRecall("Diga sem apoio extra", sayBody, produced, [produced]);
 
     if (assembleHanzi && parts.length === 1) {
       const builder =
@@ -872,14 +905,12 @@ export function buildGeneratedBonusStep(
       return [attach(say)];
     }
 
-    const bank = uniquePreserve([...parts, "一", "人", "木"]).slice(0, 6);
+    const bank = uniquePreserve([...parts, "一", "人", "木"]).slice(0, Math.max(6, parts.length + 3));
     return [
       attach(
         sentenceBuild(
           "Produza o núcleo",
-          surfaces.prompt.includes(objective.targetRef)
-            ? `Monte ${objective.targetRef}.`
-            : surfaces.prompt,
+          `Monte: ${produced}.`,
           parts,
           bank,
           surfaces.explanation
@@ -893,7 +924,7 @@ export function buildGeneratedBonusStep(
   return [
     attach(
       contextualChoice(
-        "Situação nova",
+        isLearnerFacingPrompt(surfaces.prompt) ? "Escolha" : "Situação nova",
         surfaces.prompt,
         objective.targetRef,
         options,

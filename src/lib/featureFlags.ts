@@ -27,11 +27,50 @@ export function isTelemetryEnabled(
   return flagEnabled(env.VITE_ENABLE_TELEMETRY, true);
 }
 
+/**
+ * QA 2026-10 · prompt 22 — Qi graduado (1★ = 3, 2★ = 4) numa conta da nuvem.
+ * Quem paga é o servidor, e hoje ele só conhece o pacote de 3★: ligar só
+ * depois de aplicar supabase/pending/qa-22-graduated-lesson-qi.sql.
+ * Default: desligado. Conta local não depende disto.
+ */
+export function isCloudGraduatedLessonQiEnabled(
+  env: { VITE_GRADUATED_LESSON_QI?: string } = import.meta.env
+): boolean {
+  return flagEnabled(env.VITE_GRADUATED_LESSON_QI, false);
+}
+
 /** Envio de feedback beta ao backend. Default: ligado. */
 export function isBetaFeedbackEnabled(
   env: { VITE_ENABLE_BETA_FEEDBACK?: string } = import.meta.env
 ): boolean {
   return flagEnabled(env.VITE_ENABLE_BETA_FEEDBACK, true);
+}
+
+type ProductSurfaceEnv = AppEnvironmentInput & {
+  VITE_ENABLE_SOCIAL?: string;
+  VITE_ENABLE_BUSINESS?: string;
+};
+
+/**
+ * LGY-032 — decisão de produto, separada do backend.
+ * production_beta e qa_candidate ficam desligados até VITE_ENABLE_SOCIAL=true.
+ * Dev/preview seguem ligados para a suíte que já abre /amigos.
+ */
+export function isSocialProductEnabled(
+  env: ProductSurfaceEnv = import.meta.env as ProductSurfaceEnv
+): boolean {
+  const raw = env.VITE_ENABLE_SOCIAL;
+  if (raw !== undefined && String(raw).trim() !== "") return flagEnabled(String(raw), false);
+  return !isProductionLikeEnv(env);
+}
+
+/** LGY-046 — /business na beta fechada fica escondido até VITE_ENABLE_BUSINESS=true. */
+export function isBusinessProductEnabled(
+  env: ProductSurfaceEnv = import.meta.env as ProductSurfaceEnv
+): boolean {
+  const raw = env.VITE_ENABLE_BUSINESS;
+  if (raw !== undefined && String(raw).trim() !== "") return flagEnabled(String(raw), false);
+  return !isProductionLikeEnv(env);
 }
 
 export type CloudOnboardingV2Env = AppEnvironmentInput & {

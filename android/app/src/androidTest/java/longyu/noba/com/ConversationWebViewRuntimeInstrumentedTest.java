@@ -80,6 +80,30 @@ public class ConversationWebViewRuntimeInstrumentedTest {
         Thread.sleep(600);
     }
 
+    /**
+     * LGY-022 — cenas com 我叫/meu nome abrem AskLearnerName quando a conta
+     * ainda tem placeholder. A fixture QA já materializa o nome; este defer
+     * cobre corrida de hydrate no WebView do APK.
+     */
+    private void dismissAskNameIfPresent(WebView webView) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + 4_000L;
+        while (System.currentTimeMillis() < deadline) {
+            String result = eval(webView,
+                "(function(){"
+                    + " var later = document.querySelector('[data-testid=\"lesson-ask-name-later\"]');"
+                    + " if (later) { later.click(); return 'deferred'; }"
+                    + " if (document.querySelector('[data-conversation-current-node]')) return 'scene';"
+                    + " return 'wait';"
+                    + " })()");
+            if ("deferred".equals(result) || "\"deferred\"".equals(result)
+                    || "scene".equals(result) || "\"scene\"".equals(result)) {
+                break;
+            }
+            Thread.sleep(200);
+        }
+        Thread.sleep(300);
+    }
+
     @Test
     public void primeiroCumprimentoAdvancesWithoutSpeechSynthesis() throws Exception {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
@@ -87,6 +111,7 @@ public class ConversationWebViewRuntimeInstrumentedTest {
             Thread.sleep(2500);
             assertSpeechSynthesisAbsent(webView);
             navigate(webView, "/qa/conversation-scene?scene=primeiro-cumprimento");
+            dismissAskNameIfPresent(webView);
             long deadline = System.currentTimeMillis() + 20_000L;
             String node = "";
             while (System.currentTimeMillis() < deadline) {
@@ -121,6 +146,7 @@ public class ConversationWebViewRuntimeInstrumentedTest {
             Thread.sleep(2500);
             assertSpeechSynthesisAbsent(webView);
             navigate(webView, "/qa/conversation-scene?scene=como-se-chama");
+            dismissAskNameIfPresent(webView);
             long deadline = System.currentTimeMillis() + 20_000L;
             String node = "";
             while (System.currentTimeMillis() < deadline) {
@@ -162,6 +188,7 @@ public class ConversationWebViewRuntimeInstrumentedTest {
                     + "   p.playCanonicalAudio = function(){ return Promise.resolve({ok:false,reason:'CHAOS_MEDIA_ERROR'}); };"
                     + " } return 'ok'; } catch(e) { return 'skip'; } })()");
             navigate(webView, "/qa/conversation-scene?scene=primeiro-cumprimento");
+            dismissAskNameIfPresent(webView);
             long deadline = System.currentTimeMillis() + 20_000L;
             String node = "";
             while (System.currentTimeMillis() < deadline) {

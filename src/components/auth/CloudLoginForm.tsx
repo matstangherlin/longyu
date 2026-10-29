@@ -73,7 +73,7 @@ export function CloudLoginForm({
         placeholder={t("auth.passwordPlaceholder")}
       />
       {error && (
-        <p role="alert" className="rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong" data-testid="login-error">
+        <p role="alert" aria-live="assertive" className="rounded-xl border border-wrong/20 bg-wrong-soft px-4 py-3 text-sm font-medium text-wrong" data-testid="login-error">
           {error}
         </p>
       )}

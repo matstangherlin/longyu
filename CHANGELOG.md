@@ -7,6 +7,10 @@ Versionamento: [SemVer](https://semver.org/lang/pt-BR/) com sufixo pré-release 
 
 ## [Não lançado]
 
+### 0.3.0-beta.1 — reporte e identidade da beta fechada
+
+"Reportar problema" fica no Mais (celular), no botão do desktop, na lição, na 404 e na tela de erro. O relato leva versão, SHA curto, rota, plataforma e tamanho da tela, sem email e sem nome. A versão exibida passa a ser `0.3.0-beta.1`, a mesma de `package.json`, Netlify e `versionName` do Android. A tag e o GitHub Release ficam com o Matty, depois do merge. Notas: `docs/qa-report-2026-10/RELEASE_0.3.0-beta.1.md`.
+
 ### RC1.4 — Generated Learning Integrity
 
 Planner escolhe `GeneratedTaskObjective` (target canônico + relação) antes de

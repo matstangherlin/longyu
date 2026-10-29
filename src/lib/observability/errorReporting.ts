@@ -50,6 +50,39 @@ export async function initErrorReporting(): Promise<void> {
   }
 }
 
+const SAFE_ID = /^[a-z0-9_.:-]{1,80}$/i;
+
+/** Etapa pulada pela validação. Só ids e o código — sem texto do aluno. */
+export function captureSkippedExercise(details: {
+  lessonId?: string;
+  stepId?: string;
+  validationFailureCode: string;
+}): void {
+  if (!sentry) return;
+  const lessonId = details.lessonId ?? "unknown";
+  const stepId = details.stepId ?? "unknown";
+  const code = details.validationFailureCode;
+  if (!SAFE_ID.test(lessonId) || !SAFE_ID.test(stepId) || !SAFE_ID.test(code)) return;
+  sentry.withScope((scope) => {
+    scope.setLevel("warning");
+    scope.setTag("lesson_id", lessonId);
+    scope.setTag("step_id", stepId);
+    scope.setTag("validation_failure_code", code);
+    sentry?.captureMessage("lesson_step_skipped", "warning");
+  });
+}
+
+/** Um aviso por objeto. Sem PII: a tag é só o nome do objeto (`profiles.instruction_locale`). */
+export function captureSchemaDrift(objectName: string): void {
+  if (!sentry) return;
+  if (!/^[a-z0-9_.]+$/i.test(objectName)) return;
+  sentry.withScope((scope) => {
+    scope.setLevel("warning");
+    scope.setTag("schema_drift", objectName);
+    sentry?.captureMessage("schema_drift", "warning");
+  });
+}
+
 export function captureError(error: unknown, area: string): void {
   if (!sentry) return;
   sentry.withScope((scope) => {

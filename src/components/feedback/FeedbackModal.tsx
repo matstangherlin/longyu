@@ -3,6 +3,8 @@ import { ModalOverlay } from "../ui/ModalOverlay";
 import { Button } from "../ui/primitives";
 import {
   FEEDBACK_CATEGORIES,
+  buildFeedbackMailto,
+  buildTechnicalContext,
   getAppVersion,
   type FeedbackCategoryId,
   type FeedbackContext,
@@ -59,6 +61,8 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
     );
   }, [preferTechnical, t]);
 
+  const technical = useMemo(() => buildTechnicalContext(context), [context]);
+
   const lessonHint = useMemo(() => {
     if (!context?.lessonId) return null;
     const parts = [
@@ -110,6 +114,15 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
             <p className="rounded-2xl border border-[rgb(var(--good)/0.35)] bg-[rgb(var(--good)/0.12)] px-4 py-3 text-sm font-medium text-ink">
               {delivery === "queued" ? t("feedback.thanksQueued") : t("feedback.thanks")}
             </p>
+            {delivery === "queued" && (
+              <a
+                href={buildFeedbackMailto(context)}
+                data-testid="feedback-mailto"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line text-sm font-semibold text-ink"
+              >
+                {t("feedback.mailto")}
+              </a>
+            )}
             <Button type="button" className="w-full" onClick={onClose}>
               {t("common.close")}
             </Button>
@@ -168,6 +181,12 @@ export function FeedbackModal({ context, onClose }: FeedbackModalProps) {
               />
               <span>{t("feedback.includeTechnical")}</span>
             </label>
+            {includeTechnical && (
+              <p className="rounded-xl bg-surface-2 px-3 py-2 text-xs leading-5 text-ink-soft" data-testid="feedback-technical">
+                {t("feedback.technicalLead")} {technical.appVersion}
+                {technical.commitSha ? ` (${technical.commitSha})` : ""} · {technical.platform} · {technical.route || "—"} · {technical.viewport}
+              </p>
+            )}
 
             {error && <p className="text-sm text-[rgb(var(--wrong))]">{error}</p>}
 

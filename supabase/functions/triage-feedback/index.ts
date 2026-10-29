@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { askJev, jevAllowed, jevInputHash, resolveTypesafeApiKey, type JevResponse } from "../_shared/jev.ts";
 import { logOpsEdge } from "../_shared/opsCorrelation.ts";
+import { browserAllowedHeaders } from "../_shared/cors.ts";
 import {
   AI_POLICY_VERSION,
   buildClassificationWrite,
@@ -35,8 +36,7 @@ function requestOrigin(req: Request): string {
 function corsHeaders(req: Request): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": requestOrigin(req),
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-longyu-correlation-id, x-longyu-session-id, x-longyu-op",
+    "Access-Control-Allow-Headers": browserAllowedHeaders(),
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
   };

@@ -13,6 +13,7 @@ import {
   type CanonicalResponse,
 } from "./canonicalAnswer";
 import type { HelpAffordance } from "./reviewHelpParity";
+import { toneQuestion } from "../../lib/text/learnerCopy";
 import { preferredReviewKind, reviewKindsForSourceKind } from "./reviewTaskParity";
 
 /**
@@ -587,7 +588,7 @@ function buildRemediationSurface(error: ActivityErrorInput): RemediationSurface 
     return {
       ...base,
       kind: "tone",
-      prompt: hanzi ? `Qual é o tom de ${hanzi}?` : "Escolha o tom correto.",
+      prompt: hanzi ? toneQuestion(hanzi, error.hanzi ?? error.correctAnswer) : "Escolha o tom correto.",
       display: hanzi,
       // Não mostrar pinyin no estímulo — revelaria o tom.
       displayPinyin: undefined,

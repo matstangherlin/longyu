@@ -36,16 +36,81 @@ export const CURRICULUM_FREEZE = "RC2_CONTENT_FREEZE" as const;
 export const FEATURE_FREEZE = "PUBLIC_BETA" as const;
 
 /**
- * RC2.3.13R.3.1 — PRE_BETA_FREEZE_EXCEPTION.
- *
- * Real-device owner QA exposed beta blockers (canonical exercise skips, audio
- * truncation, personalized utterance cuts, distractor leakage, visual
- * repetition, mobile activity fit). This exception allows learner-runtime
- * correctness fixes only — not product redesign or curriculum expansion.
- *
- * Reason: REAL_DEVICE_BETA_BLOCKER_FIX
- * Counts stay frozen: 134 lessons, 113 topics, 36 CultureItems.
+ * QA 2026-10 — LGY-009, LGY-018, LGY-019, LGY-020.
+ * O snapshot do servidor não apaga Qi/Cargas enquanto a fila local tem crédito.
+ * Não muda valor de recompensa, preço nem moeda.
  */
+export const PRE_BETA_FREEZE_EXCEPTION_QA19 = {
+  id: "QA_2026_10_ECONOMY_RECONCILE",
+  reason: "LGY-009 LGY-018 LGY-019 LGY-020",
+  allows: [
+    "keep local Qi and charges while an economy intent is pending",
+    "league rows never show Aluno local",
+    "streak modal once per mark on the account",
+  ],
+  forbids: ["new currency", "reward amount changes", "new lessons", "new topics"],
+} as const;
+
+/**
+ * QA 2026-10 — LGY-016, LGY-017, LGY-033, LGY-034.
+ * A política de Cargas (energyPolicy.ts) vira a fonte da cobrança e da copy.
+ * `economy.ts` muda só comentário. Nenhum valor, preço ou moeda muda.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_QA20 = {
+  id: "QA_2026_10_ENERGY_POLICY_SOURCE",
+  reason: "LGY-016 LGY-017 LGY-033 LGY-034",
+  allows: [
+    "economy.ts comment points at energyPolicy.ts",
+    "charge copy derived from describeAccess",
+    "energy paywall hides CTAs for locked pages",
+    "victory stops at 0 charges before a paid start",
+  ],
+  forbids: ["new currency", "charge amount changes", "new charged activity", "new lessons", "new topics"],
+} as const;
+
+/**
+ * QA 2026-10 — LGY-015, LGY-027 · R1, R3, R4 (prompt 21).
+ * `src/lib/srs.ts` (congelado): tetos de intervalo (365 d) e ease (2,8),
+ * lapso volta em fração do intervalo, leech em 8 lapsos. LessonPlayer
+ * `finish()`: só evidência promove, 1 promoção por item por dia.
+ * reviewTargets: toda etapa avaliada com mandarim do catálogo gera alvo.
+ * Mesmo algoritmo (SM-2 com passos), sem FSRS, sem item novo de currículo.
+ */
+export const PRE_BETA_FREEZE_EXCEPTION_QA21 = {
+  id: "QA_2026_10_SRS_EVIDENCE",
+  reason: "LGY-015 LGY-027 R1 R3 R4",
+  allows: [
+    "srs interval and ease ceilings",
+    "lapse relearn interval and leech flag",
+    "lesson grades only tested items, one promotion per item per day",
+    "review target for every evaluated step with a catalog item",
+    "hard words section in /revisao",
+  ],
+  forbids: ["FSRS", "new SRS engine", "dimension rule N3 changes", "new lessons", "new topics", "new catalog items"],
+} as const;
+
+export const PRE_BETA_FREEZE_EXCEPTION_QA22 = {
+  id: "QA_2026_10_GRADUATED_STARS_QI",
+  reason: "LGY-026 LGY-031 N4 R7",
+  allows: [
+    "star bands by accuracy (60/80/95) and minimum to complete a lesson",
+    "out of lives does not complete (0 stars)",
+    "graded steps without a result (Folego skip, listening deferral, steps before a resume) leave the accuracy denominator (max 2 stars)",
+    "a finished attempt and Try again clear the resume cursor",
+    "below-minimum Reforco is practice only (does not complete or restore stars)",
+    "graduated first-completion Qi (1 star = 3, 2 star = 4; 3 star unchanged)",
+    "economy exports TWO_STAR_ACCURACY LESSON_ONE_STAR_QI LESSON_TWO_STAR_QI; THREE_STAR_ACCURACY 0.9 -> 0.95",
+    "error list on the review offer and stars/Qi rules note on the victory",
+  ],
+  forbids: [
+    "charge prices or charge rules",
+    "path unlock (mastery 4/4)",
+    "module review star rule",
+    "recomputing stored stars",
+    "applying the pending server SQL",
+  ],
+} as const;
+
 export const PRE_BETA_FREEZE_EXCEPTION = {
   id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
   reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
@@ -531,6 +596,8 @@ export const BETA_PEDAGOGY_FREEZE = {
     // PRE_BETA_FREEZE_EXCEPTION_R325): no currency, rule, amount or grant timing.
     "src/lib/economyPending.ts",
     "src/lib/economyServerBridge.ts",
+    // QA 2026-10 LGY-009/018 — reconciliação do snapshot, sem moeda nova.
+    "src/lib/economyReconcile.ts",
     "src/lib/economyTypes.ts",
     "src/lib/leagueLiveFixture.ts",
     "src/lib/leagueLiveView.ts",
@@ -555,6 +622,8 @@ export const BETA_PEDAGOGY_FREEZE = {
     "MODULE_RETRY_QI", "THREE_STAR_ACCURACY", "THREE_STAR_SHORT_ACCURACY", "PASS_ACCURACY", "MODULE_REVIEW_PASS_ACCURACY",
     "LESSON_BASE_XP", "LESSON_PASS_XP", "LESSON_PASS_PRACTICE_XP", "LESSON_TOPIC_MASTERED_XP_BONUS",
     "LESSON_THREE_STAR_XP_BONUS", "LESSON_THREE_STAR_QI", "LESSON_NO_SKIP_QI", "PRO_LESSON_QI_BONUS",
+    // QA22 — PRE_BETA_FREEZE_EXCEPTION_QA22 (Qi graduado e faixa de 2★).
+    "TWO_STAR_ACCURACY", "LESSON_ONE_STAR_QI", "LESSON_TWO_STAR_QI",
     "PRO_CHEST_QI_MULTIPLIER", "PRO_MISSION_QI_MULTIPLIER", "PRO_CHEST_RARE_BONUS", "PRO_CHEST_FOCUS_PASS_CHANCE",
     "DAILY_GOAL_QI", "CHARGE_FREE_ACTIVITIES", "ECONOMY_SUMMARY", "MODULE_PASS_QI", "MODULE_SKIP_VALIDATION_QI",
     "SHOP_PRICES", "QI_PACK_AMOUNT", "FOCUS_PASS_HOURS", "PEARL_PRICES", "PEARL_PRO_PASS_DAYS", "PEARL_PRO_COOLDOWN_DAYS",

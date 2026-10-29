@@ -36,6 +36,13 @@ export const PEDAGOGY_EVENT_TYPES = [
   /** PED-095 — início/fim de uma mastery pass (ver trackMasteryPassTelemetry). */
   "mastery_pass_started",
   "mastery_pass_completed",
+  /**
+   * QA 2026-10 · prompt 21 — resumo do SRS por lição/revisão: só contagens
+   * (promovidos, com ajuda, só expostos, lapsos, leech). Exige a migration em
+   * supabase/pending/qa-21-srs-telemetry.sql; até lá o servidor recusa o tipo
+   * (`invalid_event_type`) e o cliente descarta sem erro.
+   */
+  "srs_summary",
 ] as const;
 
 export type PedagogyEventType = (typeof PEDAGOGY_EVENT_TYPES)[number];

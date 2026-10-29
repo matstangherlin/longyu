@@ -16,6 +16,7 @@
 // email em claro, ou responder diferente para "não existe" e "senha errada".
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { logOpsEdge } from "../_shared/opsCorrelation.ts";
+import { browserAllowedHeaders } from "../_shared/cors.ts";
 import { normalizeLoginUsername } from "./usernameRules.ts";
 
 const ALLOWED_ORIGINS = new Set([
@@ -38,8 +39,7 @@ function corsHeaders(req: Request): Record<string, string> {
     origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://singular-meringue-7838cd.netlify.app";
   return {
     "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-longyu-correlation-id, x-longyu-session-id, x-longyu-op",
+    "Access-Control-Allow-Headers": browserAllowedHeaders(),
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
   };

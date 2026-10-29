@@ -27,6 +27,24 @@ const HOME_SCREENSHOT_SPEC = "**/rc2-3-13b-home-screenshots.spec.ts";
 /** Porta do preview isolado (várias worktrees podem rodar E2E em paralelo). */
 const PREVIEW_PORT = process.env.PLAYWRIGHT_PREVIEW_PORT ?? "4173";
 
+// URL remota (staging) não sobe o preview local. Sem a variável, o CI e o
+// `npm run test:e2e` continuam construindo o preview com fixtures.
+const remoteBaseUrl = process.env.PLAYWRIGHT_BASE_URL?.trim() ?? "";
+const localPreviewServer = {
+  command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${PREVIEW_PORT}`,
+  // E2E usa preview isolado para fixtures locais. O build formal executado
+  // antes pelo gate continua production_beta e jamais recebe essas flags.
+  env: {
+    VITE_APP_ENV: "preview",
+    VITE_USE_TEST_FIXTURES: "true",
+    VITE_ALLOW_PRO_PREVIEW: "true",
+    VITE_DEV_ALLOW_LOCAL_AUTH: "1",
+  },
+  url: `http://127.0.0.1:${PREVIEW_PORT}`,
+  reuseExistingServer: !process.env.CI,
+  timeout: 120_000,
+};
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -45,20 +63,7 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
-  webServer: {
-    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${PREVIEW_PORT}`,
-    // E2E usa preview isolado para fixtures locais. O build formal executado
-    // antes pelo gate continua production_beta e jamais recebe essas flags.
-    env: {
-      VITE_APP_ENV: "preview",
-      VITE_USE_TEST_FIXTURES: "true",
-      VITE_ALLOW_PRO_PREVIEW: "true",
-      VITE_DEV_ALLOW_LOCAL_AUTH: "1",
-    },
-    url: `http://127.0.0.1:${PREVIEW_PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: remoteBaseUrl ? undefined : localPreviewServer,
   projects: [
     // ── Motores de mesa: suíte completa ────────────────────────────────────
     // Chromium é o portão padrão (roda em qualquer ambiente, inclusive só-Chromium).
@@ -84,7 +89,7 @@ export default defineConfig({
     // Chrome Android (touch, 393×851, DPR alto).
     {
       name: "mobile-chrome",
-      testMatch: DEVICE_SPEC,
+      testMatch: [DEVICE_SPEC, "**/qa-feedback-entry.spec.ts", "**/qa-legal-pages.spec.ts", "**/privacy-consent.spec.ts", "**/qa-social-visibility.spec.ts", "**/qa-missions-qi.spec.ts", "**/qa-energy-paywall.spec.ts", "**/qa-srs-leech.spec.ts"],
       use: { ...devices["Pixel 5"], ...chromiumLaunch },
     },
     // Safari iOS (WebKit, touch). Exige webkit instalado.

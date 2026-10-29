@@ -1,8 +1,11 @@
+import { syncItemMatchesSession } from "./auth/accountIsolation";
+import { reconcileEconomyBalance } from "./economyReconcile";
 import { isSupabaseBackendEnabled } from "./backendConfig";
+import { isCloudGraduatedLessonQiEnabled } from "./featureFlags";
 import { BACKEND_CAPABILITY_MISSING, isBackendDomainAvailable } from "./cloud/backendCapability";
 import { getSupabaseClient } from "./supabaseClient";
 import { useStore } from "./store";
-import type { EconomyRpcResult, ServerEconomySnapshot } from "./economyTypes";
+import type { EconomyIntent, EconomyRpcResult, ServerEconomySnapshot } from "./economyTypes";
 import type { PearlLedgerEntry } from "./pearlEconomy";
 import {
   bumpEconomyIntentAttempt,
@@ -11,6 +14,12 @@ import {
   removeEconomyIntent,
 } from "./economyIntentQueue";
 
+function queueIntent(intent: Omit<EconomyIntent, "createdAt" | "attempts">): void {
+  const accountId = intent.accountId ?? useStore.getState().currentAccountId;
+  const userId = intent.userId ?? (accountId.startsWith("cloud:") ? accountId.slice("cloud:".length) : undefined);
+  enqueueEconomyIntent(Object.assign({}, intent, { accountId, userId }));
+}
+
 export function shouldUseServerEconomy(): boolean {
   if (!isSupabaseBackendEnabled()) return false;
   const client = getSupabaseClient();
@@ -18,6 +27,17 @@ export function shouldUseServerEconomy(): boolean {
   const state = useStore.getState();
   const account = state.accounts[state.currentAccountId];
   return account?.authMode === "cloud";
+}
+
+/**
+ * QA 2026-10 · prompt 22 — a 1ª conclusão com 1★/2★ paga Qi graduado?
+ * Conta local: o cliente é a autoridade, então sim. Conta na nuvem: só quando o
+ * servidor também paga por estrela (SQL pendente aplicado + chave ligada).
+ * Sem isso o servidor pagaria o pacote de 3★ por uma conclusão de 1★.
+ */
+export function lessonQiGraduated(): boolean {
+  if (!shouldUseServerEconomy()) return true;
+  return isCloudGraduatedLessonQiEnabled();
 }
 
 function parseTs(value: string | null | undefined): number | null {
@@ -59,11 +79,28 @@ function normalizeClaimed(raw: unknown): Record<string, number> {
 }
 
 export function applyServerEconomyToStore(snapshot: ServerEconomySnapshot): void {
-  useStore.getState().setEconomySyncMessage(null);
+  // LGY-018: fila pendente segura Qi/Cargas locais acima do snapshot.
+  // Fila vazia: o servidor vence, mesmo com saldo menor.
+  const before = useStore.getState();
+  const accountId = before.currentAccountId;
+  const userId = accountId.startsWith("cloud:") ? accountId.slice("cloud:".length) : null;
+  const pendingCount = listEconomyIntents().filter((intent) =>
+    syncItemMatchesSession(intent, { accountId, userId })
+  ).length;
+  const reconciled = reconcileEconomyBalance(
+    { qi: before.points, charges: before.dailyEnergy.charges },
+    { qi: snapshot.qi, charges: snapshot.current_charges },
+    pendingCount
+  );
+  useStore.getState().setEconomySyncMessage(
+    reconciled.heldLocalGrant
+      ? "Seu Qi neste aparelho espera a sincronização. Não foi descartado."
+      : null
+  );
   useStore.setState((s) => {
     const dailyEnergy = {
       ...s.dailyEnergy,
-      charges: snapshot.current_charges,
+      charges: reconciled.charges,
       maxCharges: snapshot.max_charges,
       date: snapshot.energy_day,
     };
@@ -101,7 +138,7 @@ export function applyServerEconomyToStore(snapshot: ServerEconomySnapshot): void
           ...s.accounts,
           [s.currentAccountId]: {
             ...account,
-            points: snapshot.qi,
+            points: reconciled.qi,
             dragonPearls: snapshot.dragon_pearls,
             streakShields: snapshot.streak_shields,
             dailyEnergy,
@@ -114,7 +151,7 @@ export function applyServerEconomyToStore(snapshot: ServerEconomySnapshot): void
       : s.accounts;
 
     return {
-      points: snapshot.qi,
+      points: reconciled.qi,
       dragonPearls: snapshot.dragon_pearls,
       streakShields: snapshot.streak_shields,
       dailyEnergy,
@@ -165,7 +202,7 @@ export async function serverConsumeCharge(
     p_idempotency_key: idempotencyKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "consume_charge",
       idempotencyKey,
@@ -191,7 +228,7 @@ export async function serverSpendQi(
     p_idempotency_key: idempotencyKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "spend_qi",
       idempotencyKey,
@@ -219,7 +256,7 @@ export async function serverGrantLessonReward(input: {
   });
   if (error || !data) {
     const key = `lesson-reward:${input.lessonId}:${input.attemptId}`;
-    enqueueEconomyIntent({
+    queueIntent({
       id: key,
       operation: "grant_lesson_reward",
       idempotencyKey: key,
@@ -240,7 +277,7 @@ export async function serverGrantStoryEnergy(storyId: string, dayKey: string): P
     p_day_key: dayKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({ id: key, operation: "grant_story_energy", idempotencyKey: key, payload: { storyId, dayKey } });
+    queueIntent({ id: key, operation: "grant_story_energy", idempotencyKey: key, payload: { storyId, dayKey } });
     return { ok: false, error: error ?? "rpc_failed" };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
@@ -263,7 +300,7 @@ export async function serverClaimMission(input: {
     p_metric_value: input.metricValue,
   });
   if (error || !data) {
-    enqueueEconomyIntent({ id: key, operation: "claim_mission", idempotencyKey: key, payload: input });
+    queueIntent({ id: key, operation: "claim_mission", idempotencyKey: key, payload: input });
     return { ok: false, error: error ?? "rpc_failed" };
   }
   if (data.economy) applyServerEconomyToStore(data.economy);
@@ -279,7 +316,7 @@ export async function serverOpenChest(chestType: string, openingId: string): Pro
     p_opening_id: openingId,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: key,
       operation: "open_chest",
       idempotencyKey: key,
@@ -305,7 +342,7 @@ export async function serverActivatePearlProPass(
     p_idempotency_key: idempotencyKey,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "activate_pearl_pro_pass",
       idempotencyKey,
@@ -347,7 +384,7 @@ export async function serverClaimPearlMilestone(
     p_milestone_id: milestoneId,
   });
   if (error || !data) {
-    enqueueEconomyIntent({
+    queueIntent({
       id: idempotencyKey,
       operation: "claim_pearl_milestone",
       idempotencyKey,
@@ -416,6 +453,8 @@ export async function flushEconomyIntentQueue(): Promise<void> {
       if (!intent.accountId) removeEconomyIntent(intent.idempotencyKey, undefined);
       continue;
     }
+    const sessionUserId = flushAccountId.startsWith("cloud:") ? flushAccountId.slice("cloud:".length) : null;
+    if (!syncItemMatchesSession(intent, { accountId: flushAccountId, userId: sessionUserId })) continue;
     bumpEconomyIntentAttempt(intent.idempotencyKey, intent.accountId);
     let result: EconomyRpcResult = { ok: false };
     switch (intent.operation) {

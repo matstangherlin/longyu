@@ -7,6 +7,8 @@ import { diagnoseError, isUnexplainedProduction } from "../../data/errorDiagnosi
 import { TONE_LABELS, TONE_LISTENING_TIPS } from "../../data/tones";
 import { HANZI_EVOLUTIONS, HANZI_CONCEPT_EXPLANATIONS } from "../../data/hanziPedagogy";
 import { glossFor } from "../../data/gloss";
+import { contrastFeedback, type ContrastSide } from "./contrastFeedback";
+import { CannotListenNowButton, UnevaluatedListenButton, useListeningFallback } from "./listeningFallback";
 import { numericPinyinToDiacritics } from "../../lib/pinyin";
 import { evaluateLearnerResponse } from "../../lib/learnerResponse";
 import { useStickyActionsReserve } from "../../lib/useStickyActionsReserve";
@@ -21,12 +23,15 @@ import { installNativeTtsData } from "../../lib/platform/nativeSpeech";
 import { decideFeedbackAudio } from "./feedbackAudioPolicy";
 import {
   isPersonalizedUtterance,
+  learnerSpokenName,
   personalizeChoiceList,
   personalizeConversationPrompt,
   personalizeName as personalizeValue,
   repairNameOnlyAnswerLeak,
   useStudentFirstName,
 } from "../../lib/personalize";
+import { joinSentence, polishLearnerText } from "../../lib/text/learnerCopy";
+import { captureSkippedExercise } from "../../lib/observability/errorReporting";
 
 /**
  * RC2.2.32 — conteúdo fixo da lição passa pelo player canônico (sem TTS silencioso).
@@ -135,6 +140,10 @@ export interface StepDoneMeta {
   helpLevel?: number;
   helpRequests?: number;
   initialHelpLevel?: number;
+  /** Escuta adiada: não conta acerto, erro, Vida nem Fôlego. */
+  listeningDeferred?: boolean;
+  /** Acerto no modo visual: leitura de pinyin, não discriminação auditiva. */
+  listeningVisual?: boolean;
 }
 
 function displayPt(text: string | undefined | null): string {
@@ -488,7 +497,7 @@ function personalizeNode(node: ConversationNode, name: string | undefined): Conv
           options: personalizeChoiceList(interaction.options, name),
           accepts: interaction.accepts?.map((answer) => personalizeValue(answer, name) ?? answer),
         },
-        name
+        learnerSpokenName(name)
       )
     : interaction;
   return {
@@ -573,7 +582,21 @@ function personalizeStep(step: LessonStep, name: string | undefined): LessonStep
         )
       : step.checkpoint,
   };
-  return repairNameOnlyAnswerLeak(personalized, name);
+  const spoken = learnerSpokenName(name);
+  const repaired = repairNameOnlyAnswerLeak(personalized, spoken);
+  const source = repaired.sourceText;
+  const polish = (value: string | undefined) => polishLearnerText(value, source);
+  return {
+    ...repaired,
+    title: polish(repaired.title),
+    body: polish(repaired.body),
+    prompt: polish(repaired.prompt),
+    dialoguePrompt: polish(repaired.dialoguePrompt),
+    explanation: polish(repaired.explanation),
+    placeholder: polish(repaired.placeholder),
+    pt: polish(repaired.pt),
+    situationPt: polish(repaired.situationPt),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -2610,7 +2633,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
   const options = useMemo(() => [...(step.options ?? []), ...(step.distractors ?? [])], [step.options, step.distractors]);
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
-  const [audioFallback, setAudioFallback] = useState(false);
+  const { visual: audioFallback, enableVisual, backToAudio } = useListeningFallback();
   const finishTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
   const ttsRate = useStore((s) => s.ttsRate);
@@ -2638,10 +2661,10 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
     speak(slowAudioText, { rate: Math.min(ttsRate, 0.65) });
   }
 
-  function finish(correct: boolean) {
+  function finish(correct?: boolean, meta?: StepDoneMeta) {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    onDone(correct);
+    onDone(correct, meta);
   }
 
   function check() {
@@ -2650,7 +2673,10 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       setFeedback("correct");
       playSoundFx("success", soundEffects);
       // No modo visual o acerto vale, mas a parte de escuta vai para revisão.
-      finishTimerRef.current = window.setTimeout(() => finish(!audioFallback), 520);
+      finishTimerRef.current = window.setTimeout(
+        () => finish(true, audioFallback ? { listeningVisual: true } : undefined),
+        520
+      );
       return;
     }
     setFeedback("wrong");
@@ -2689,7 +2715,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       setFeedback(null);
     },
     onSubmit: check,
-    onContinue: () => finish(!audioFallback),
+    onContinue: () => finish(true, audioFallback ? { listeningVisual: true } : undefined),
   });
 
   return (
@@ -2793,21 +2819,21 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
       {!feedback && (
         <StickyActionBar className="grid gap-2 sm:grid-cols-[1fr_1fr_1.25fr]">
           {!audioFallback ? (
-            <Button
-              variant="outline"
+            <CannotListenNowButton
               onClick={() => {
-                setAudioFallback(true);
+                enableVisual();
                 setPicked(null);
                 setFeedback(null);
               }}
-            >
-              {t("player.cannotListenNow")}
-            </Button>
+            />
           ) : (
-            <Button variant="outline" onClick={() => setAudioFallback(false)}>
+            <Button variant="outline" className="min-h-11" onClick={() => backToAudio()}>
               {t("player.backToAudio")}
             </Button>
           )}
+          {audioFallback ? (
+            <UnevaluatedListenButton onClick={() => finish(undefined, { listeningDeferred: true })} />
+          ) : null}
           {onSkip && (
             <Button variant="outline" onClick={onSkip}>
               {t("player.skip")}
@@ -2830,6 +2856,7 @@ function StepListenSelect({ step, onDone, onSkip, onMistake }: StepProps) {
 
 /** Compara dois estímulos sem revelar hànzì ou pinyin antes da resposta. */
 function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) {
+  const { instructionLocale } = useTranslation();
   const soundEffects = useStore((s) => s.soundEffects);
   const ttsRate = useStore((s) => s.ttsRate);
   const audios = step.audioSequence ?? [];
@@ -2838,6 +2865,18 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
   const [picked, setPicked] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
+  const { visual, enableVisual, backToAudio } = useListeningFallback();
+  const locale = instructionLocale === "en" ? "en" : "pt-BR";
+  const sides = audios.map((audio) => sideFromStimulus(audio));
+  const contrast = sides.length >= 2 ? contrastFeedback(sides[0], sides[1], undefined, locale) : step.explanation;
+
+  function finishListening(correct?: boolean) {
+    if (visual) {
+      onDone(correct === true ? true : undefined, correct === true ? { listeningVisual: true } : { listeningDeferred: true });
+      return;
+    }
+    onDone(correct);
+  }
 
   function check() {
     if (!picked || feedback === "correct") return;
@@ -2846,10 +2885,12 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
       playSoundFx("success", soundEffects);
       return;
     }
-    setHadMistake(true);
+    if (!visual) {
+      setHadMistake(true);
+      onMistake?.(picked);
+    }
     setFeedback("wrong");
-    onMistake?.(picked);
-    if (!onMistake) playSoundFx("error", soundEffects);
+    if (!onMistake || visual) playSoundFx("error", soundEffects);
   }
 
   function retry() {
@@ -2868,32 +2909,46 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
       if (option && feedback !== "correct") setPicked(option);
     },
     onSubmit: check,
-    onContinue: () => onDone(!hadMistake),
+    onContinue: () => finishListening(visual ? undefined : !hadMistake),
   });
 
   return (
     <div>
-      <Eyebrow>{t("player.dragonEar")}</Eyebrow>
+      <Eyebrow>{visual ? t("player.listenVisualMode") : t("player.dragonEar")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold text-ink sm:text-xl">
-        {step.title ?? "Os dois áudios são iguais?"}
+        {visual ? t("player.areTheyTheSame") : step.title ?? "Os dois áudios são iguais?"}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
-        Escute A e B. Compare a pronúncia completa antes de responder.
+        {visual ? t("player.listenVisualLead") : "Escute A e B. Compare a pronúncia completa antes de responder."}
       </p>
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        {audios.map((audio, index) => (
-          <button
-            key={`${audio}-${index}`}
-            type="button"
-            onClick={() => speak(audio, { rate: Math.min(ttsRate, 0.82) })}
-            className="rounded-2xl border border-line bg-surface-2 p-5 text-center font-semibold text-ink shadow-card transition hover:border-accent-soft"
-            aria-label={`Ouvir áudio ${index === 0 ? "A" : "B"}`}
-          >
-            <IconSound width={28} height={28} className="mx-auto text-accent" />
-            <span className="mt-2 block">Áudio {index === 0 ? "A" : "B"}</span>
-          </button>
-        ))}
-      </div>
+      {visual ? (
+        <div className="mt-4 grid grid-cols-2 gap-3" data-testid="listen-visual-contrast">
+          {sides.map((side, index) => (
+            <div key={`${side.pinyin}-${index}`} className="rounded-2xl border border-line bg-surface-2 p-4 text-center">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{index === 0 ? "A" : "B"}</div>
+              {side.hanzi && side.hanzi !== side.pinyin ? (
+                <div className="hanzi mt-1 text-3xl font-semibold text-ink">{side.hanzi}</div>
+              ) : null}
+              <Pinyin text={side.pinyin || side.hanzi || ""} className="mt-1 block font-serif text-xl" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {audios.map((audio, index) => (
+            <button
+              key={`${audio}-${index}`}
+              type="button"
+              onClick={() => speak(audio, { rate: Math.min(ttsRate, 0.82) })}
+              className="rounded-2xl border border-line bg-surface-2 p-5 text-center font-semibold text-ink shadow-card transition hover:border-accent-soft"
+              aria-label={`Ouvir áudio ${index === 0 ? "A" : "B"}`}
+            >
+              <IconSound width={28} height={28} className="mx-auto text-accent" />
+              <span className="mt-2 block">Áudio {index === 0 ? "A" : "B"}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <KeyboardShortcutHint />
       <div className="mt-4 grid grid-cols-2 gap-3">
         {options.map((option, index) => (
@@ -2903,25 +2958,43 @@ function StepAudioSameDifferent({ step, onDone, onSkip, onMistake }: StepProps) 
             onClick={() => setPicked(option)}
             disabled={feedback === "correct"}
             {...optionChoiceDomProps(index, picked === option, option)}
-            className={[engineTileClass({ active: picked === option }), "relative"].join(" ")}
+            className={[engineTileClass({ active: picked === option }), "relative min-h-11"].join(" ")}
           >
             <ShortcutBadge>{shortcutKeyForIndex(index)}</ShortcutBadge>
             <span className="ml-2">{option}</span>
           </button>
         ))}
       </div>
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+        {!visual ? (
+          <CannotListenNowButton onClick={() => { enableVisual(); setPicked(null); setFeedback(null); }} />
+        ) : (
+          <>
+            <Button variant="outline" className="min-h-11" onClick={() => backToAudio()}>{t("player.backToAudio")}</Button>
+            <UnevaluatedListenButton onClick={() => finishListening(undefined)} />
+          </>
+        )}
+      </div>
       <EngineActions canCheck={Boolean(picked) && feedback !== "correct"} onCheck={check} onSkip={onSkip} />
       <EngineFeedbackPanel
         status={feedback}
-        model={feedback === "wrong" ? step.explanation : undefined}
-        explanation={feedback === "correct" ? step.explanation : undefined}
+        model={feedback === "wrong" ? contrast : undefined}
+        explanation={feedback === "correct" ? step.explanation : contrast}
         hadMistake={hadMistake}
-        deferMistakeToParent={Boolean(onMistake)}
+        deferMistakeToParent={Boolean(onMistake) && !visual}
         onRetry={retry}
-        onContinue={() => onDone(!hadMistake)}
+        onContinue={() => finishListening(visual ? (feedback === "correct" ? true : undefined) : !hadMistake)}
       />
     </div>
   );
+}
+
+function sideFromStimulus(audio: string): ContrastSide {
+  const hanzi = /[\u3400-\u9fff]/.test(audio) ? audio : undefined;
+  const pinyin = hanzi
+    ? [...hanzi].map((char) => glossFor(char)?.pinyin ?? "").filter(Boolean).join(" ")
+    : audio;
+  return { hanzi, pinyin: pinyin || audio };
 }
 
 function BuildExercise({ step, onDone, onSkip, onMistake, kindLabel, lessonId, attemptSeed }: StepProps & { kindLabel: string }) {
@@ -3959,6 +4032,7 @@ function DiscriminationAudioButton({
  * contraste, com a explicação adaptada ao idioma de instrução.
  */
 function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps) {
+  const { instructionLocale } = useTranslation();
   const soundEffects = useStore((s) => s.soundEffects);
   const ttsRate = useStore((s) => s.ttsRate);
   const answer = (step.correctAnswer ?? step.answer ?? "different") as "same" | "different";
@@ -3967,24 +4041,41 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
   const [picked, setPicked] = useState<"same" | "different" | null>(null);
   const [feedback, setFeedback] = useState<EngineFeedback>(null);
   const [hadMistake, setHadMistake] = useState(false);
+  const { visual, enableVisual, backToAudio } = useListeningFallback();
   const reveal = step.pairReveal ?? [];
+  const locale = instructionLocale === "en" ? "en" : "pt-BR";
+  const contrast = reveal.length >= 2
+    ? contrastFeedback(
+        { hanzi: reveal[0].hanzi, pinyin: reveal[0].pinyin },
+        { hanzi: reveal[1].hanzi, pinyin: reveal[1].pinyin },
+        step.contrastLabel?.toLocaleLowerCase("pt-BR").includes("tom") ? "tone" : undefined,
+        locale
+      )
+    : step.explanation;
 
   const playBoth = useCallback(() => {
     speak(audioA, { rate: Math.min(ttsRate, 0.8) });
-    // O segundo som entra depois do primeiro terminar; sem isso a TTS
-    // atropela e o par vira um borrão.
     return scheduleAutoSpeak(audioB, { rate: Math.min(ttsRate, 0.8), delayMs: 1100 });
   }, [audioA, audioB, ttsRate]);
 
   useEffect(() => {
+    if (visual) return undefined;
     const cancel = playBoth();
     return cancel;
-  }, [playBoth]);
+  }, [playBoth, visual]);
 
   const options: { value: "same" | "different"; label: string }[] = [
     { value: "same", label: t("player.same") },
     { value: "different", label: t("player.different") },
   ];
+
+  function finishListening(correct?: boolean) {
+    if (visual) {
+      onDone(correct === true ? true : undefined, correct === true ? { listeningVisual: true } : { listeningDeferred: true });
+      return;
+    }
+    onDone(correct);
+  }
 
   function check() {
     if (!picked || feedback === "correct") return;
@@ -3993,10 +4084,12 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
       playSoundFx("success", soundEffects);
       return;
     }
-    setHadMistake(true);
+    if (!visual) {
+      setHadMistake(true);
+      onMistake?.(picked);
+    }
     setFeedback("wrong");
-    onMistake?.(picked);
-    if (!onMistake) playSoundFx("error", soundEffects);
+    if (!onMistake || visual) playSoundFx("error", soundEffects);
   }
 
   useExerciseHotkeys({
@@ -4011,19 +4104,31 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
       setFeedback(null);
     },
     onSubmit: check,
-    onContinue: () => onDone(!hadMistake),
+    onContinue: () => finishListening(visual ? (feedback === "correct" ? true : undefined) : !hadMistake),
   });
 
   return (
     <div data-audio-discrimination>
-      <Eyebrow>{t("player.fineEar")}</Eyebrow>
+      <Eyebrow>{visual ? t("player.listenVisualMode") : t("player.fineEar")}</Eyebrow>
       <h2 className="mt-2 font-serif text-lg font-semibold sm:text-xl text-ink">
-        {step.title ?? t("player.sameOrDifferent")}
+        {visual ? t("player.areTheyTheSame") : step.title ?? t("player.sameOrDifferent")}
       </h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">
-        {step.prompt ?? t("player.listenAndCompare")}
+        {visual ? t("player.listenVisualLead") : step.prompt ?? t("player.listenAndCompare")}
       </p>
 
+      {visual ? (
+        <div className="mt-3 grid grid-cols-2 gap-3" data-testid="listen-visual-contrast">
+          {reveal.map((side, index) => (
+            <div key={`${side.hanzi}-${index}`} className="rounded-2xl border border-line bg-surface-2 p-4 text-center">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint">{index === 0 ? "A" : "B"}</div>
+              <div className="hanzi mt-1 text-3xl font-semibold text-ink">{side.hanzi}</div>
+              <Pinyin text={side.pinyin} className="mt-1 block font-serif text-xl" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
       <div className="mt-3 flex gap-3">
         <DiscriminationAudioButton
           label="A"
@@ -4042,6 +4147,8 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
           {t("player.listenBothAgain")}
         </Button>
       </div>
+        </>
+      )}
 
       <KeyboardShortcutHint />
       <div className="mt-3.5 grid grid-cols-2 gap-2">
@@ -4091,21 +4198,33 @@ function StepAudioDiscrimination({ step, onDone, onSkip, onMistake }: StepProps)
         </div>
       )}
 
+      <div className="mt-3" role="status" aria-live="polite">
       <EngineFeedbackPanel
         status={feedback}
-        explanation={step.explanation}
+        explanation={feedback === "wrong" ? contrast : step.explanation}
         hadMistake={hadMistake}
-        deferMistakeToParent={Boolean(onMistake)}
+        deferMistakeToParent={Boolean(onMistake) && !visual}
         onRetry={() => {
           setPicked(null);
           setFeedback(null);
-          playBoth();
+          if (!visual) playBoth();
         }}
-        onContinue={() => onDone(!hadMistake)}
+        onContinue={() => finishListening(visual ? (feedback === "correct" ? true : undefined) : !hadMistake)}
       />
+      </div>
 
       {feedback !== "correct" && (
-        <EngineActions canCheck={Boolean(picked)} onCheck={check} onSkip={onSkip} />
+        <div className="mt-3 flex flex-col gap-2">
+          {!visual ? (
+            <CannotListenNowButton onClick={() => { enableVisual(); setPicked(null); setFeedback(null); }} />
+          ) : (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button variant="outline" className="min-h-11" onClick={() => backToAudio()}>{t("player.backToAudio")}</Button>
+              <UnevaluatedListenButton onClick={() => finishListening(undefined)} />
+            </div>
+          )}
+          <EngineActions canCheck={Boolean(picked)} onCheck={check} onSkip={onSkip} />
+        </div>
       )}
     </div>
   );
@@ -4845,7 +4964,7 @@ function StepFreeProduction({ step, onDone, onSkip, onMistake, onUnrecognized, l
     : isOpen
       ? "Escreva o que você diria…"
       : step.patternPt
-        ? `Complete: ${step.patternPt}`
+        ? joinSentence("Complete:", step.patternPt)
         : "hànzì ou pinyin";
 
   const helpMeta = (
@@ -5395,6 +5514,11 @@ function BrokenStepFallback({
         .filter(Boolean)
         .join(" · ")
     );
+    captureSkippedExercise({
+      lessonId: diagnostics.lessonId,
+      stepId: diagnostics.activityType,
+      validationFailureCode: diagnostics.validationFailureCode,
+    });
   }, [diagnostics]);
 
   return (

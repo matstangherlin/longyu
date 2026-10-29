@@ -1,5 +1,5 @@
-import { isProductionLikeEnv, type AppEnvironmentInput } from "../appEnvironment";
-import { flagEnabled } from "../featureFlags";
+import { isProductionLikeEnv, isTestFixturesAllowed, type AppEnvironmentInput } from "../appEnvironment";
+import { flagEnabled, isBusinessProductEnabled, isSocialProductEnabled } from "../featureFlags";
 import knownMissing from "./knownMissingBackend.json";
 
 /**
@@ -51,4 +51,50 @@ export function isBackendDomainAvailable(
   }
   if (!isProductionLikeEnv(env)) return true;
   return !isKnownMissingBackendDomain(domain);
+}
+
+const E2E_SURFACE_KEYS = {
+  social: "longyu:e2e-social-surface",
+  business: "longyu:e2e-business-surface",
+} as const;
+
+type SurfaceStorage = { getItem(key: string): string | null };
+
+/**
+ * Só em build de fixture (preview/dev com VITE_USE_TEST_FIXTURES).
+ * Produção ignora o localStorage: "1" não liga Amigos na beta.
+ */
+export function readE2ESurfaceOverride(
+  kind: keyof typeof E2E_SURFACE_KEYS,
+  env: AppEnvironmentInput = import.meta.env,
+  storage?: SurfaceStorage
+): boolean | null {
+  if (!isTestFixturesAllowed(env)) return null;
+  const store = storage ?? (typeof localStorage === "undefined" ? null : localStorage);
+  if (!store) return null;
+  const raw = store.getItem(E2E_SURFACE_KEYS[kind]);
+  if (raw === "0") return false;
+  if (raw === "1") return true;
+  return null;
+}
+
+/** Flag de produto e backend. Os dois precisam estar ligados. */
+export function isSocialSurfaceEnabled(
+  env: BackendCapabilityEnv = import.meta.env,
+  storage?: SurfaceStorage
+): boolean {
+  const override = readE2ESurfaceOverride("social", env, storage);
+  if (override === false) return false;
+  const product = override === true ? true : isSocialProductEnabled(env);
+  return product && isBackendDomainAvailable("social", env);
+}
+
+export function isBusinessSurfaceEnabled(
+  env: BackendCapabilityEnv = import.meta.env,
+  storage?: SurfaceStorage
+): boolean {
+  const override = readE2ESurfaceOverride("business", env, storage);
+  if (override === false) return false;
+  const product = override === true ? true : isBusinessProductEnabled(env);
+  return product && isBackendDomainAvailable("business", env);
 }
