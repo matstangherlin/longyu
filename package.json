@@ -94,6 +94,7 @@
     "validate:visual-assets": "node scripts/validate-visual-assets.mjs",
     "test:srs-steps": "node scripts/test-srs-steps.mjs",
     "test:srs-evidence": "node scripts/test-srs-evidence.mjs",
+    "test:lesson-star-rules": "node scripts/test-lesson-star-rules.mjs",
     "test:stale-bundle": "node scripts/test-stale-bundle.mjs",
     "test:speech": "node scripts/test-speech.mjs",
     "test:subscribe-auth-redirect": "node scripts/test-subscribe-auth-redirect.mjs",

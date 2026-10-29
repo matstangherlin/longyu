@@ -48,6 +48,7 @@ export const SUITES = [
       "test:economy-reconcile",
       "test:energy-policy",
       "test:srs-evidence",
+      "test:lesson-star-rules",
       "validate:security-boundaries",
       "validate:edge-cors",
       "validate:social-profile-security",
@@ -630,4 +631,5 @@ export const ADDED_STEPS = Object.freeze({
   "test:economy-reconcile": "QA 2026-10 prompt 19 — snapshot não apaga Qi pendente; replay não rende Qi.",
   "test:energy-policy": "QA 2026-10 prompt 20 — R-07 sai do chargeCostFor; copy de atividade grátis não promete Carga.",
   "test:srs-evidence": "QA 2026-10 prompt 21 — só evidência promove, 1 promoção/dia, tetos 365 d e 2,8, leech em 8 lapsos, toda etapa com alvo.",
+  "test:lesson-star-rules": "QA 2026-10 prompt 22 — faixas 60/80/95, abaixo de 60% não conclui, Qi graduado igual na vitória e no store, erros listados na conclusão.",
 });

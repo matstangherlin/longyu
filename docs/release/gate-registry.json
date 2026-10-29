@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryVersion": "RC2.3.9",
   "counts": {
-    "CANONICAL": 1005,
+    "CANONICAL": 1006,
     "HISTORICAL": 19,
     "SUPERSEDED": 0,
     "DUPLICATE": 24,
@@ -10,7 +10,7 @@
     "OWNER_PHYSICAL": 0,
     "CLOUD_ONLY": 18
   },
-  "total": 1214,
+  "total": 1215,
   "gates": [
     {
       "gateId": "audit:early-lessons",
@@ -5376,6 +5376,24 @@
       "requiresDevice": false,
       "requiresOwner": false,
       "canonicalOwner": null
+    },
+    {
+      "gateId": "test:lesson-star-rules",
+      "status": "CANONICAL",
+      "domain": "release-truth",
+      "introducedBy": "PRE_RC2",
+      "script": "node scripts/test-lesson-star-rules.mjs",
+      "invariants": [],
+      "supportsInvariants": [],
+      "mutationCoverage": "self",
+      "criticality": "BLOCK_RELEASE",
+      "executionPhase": "suite:release-truth",
+      "supersededBy": null,
+      "estimatedRuntimeMs": null,
+      "requiresNetwork": false,
+      "requiresDevice": false,
+      "requiresOwner": false,
+      "canonicalOwner": "suite:release-truth"
     },
     {
       "gateId": "test:lesson-step-progression",
@@ -21970,5 +21988,5 @@
       "canonicalOwner": null
     }
   ],
-  "evidenceDigest": "cfda9219cb52d670"
+  "evidenceDigest": "a3368b06de3ee042"
 }
