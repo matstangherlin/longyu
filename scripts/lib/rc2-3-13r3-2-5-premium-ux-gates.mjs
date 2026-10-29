@@ -690,7 +690,8 @@ export function runTransientHook(source) {
 
 export function lessonQiModule(source, economy) {
   const consts = {};
-  for (const name of ["LESSON_THREE_STAR_QI", "LESSON_NO_SKIP_QI", "PRO_LESSON_QI_BONUS"]) {
+  // QA22 — graduated first-completion Qi (1★/2★) joins the three 3★ constants.
+  for (const name of ["LESSON_ONE_STAR_QI", "LESSON_TWO_STAR_QI", "LESSON_THREE_STAR_QI", "LESSON_NO_SKIP_QI", "PRO_LESSON_QI_BONUS"]) {
     const m = economy.match(new RegExp(`export const ${name} = (\\d+);`));
     consts[name] = m ? Number(m[1]) : NaN;
   }
@@ -701,14 +702,17 @@ export function lessonQiModule(source, economy) {
   }
 }
 
-/** The store's own grant formula, lifted out of grantLessonReward and executed. */
+/**
+ * The store's own grant formula, lifted out of grantLessonReward and executed.
+ * QA22 — `graduated` is the store's `lessonQiGraduated()`, passed in.
+ */
 export function storeLessonQi(store, consts) {
-  const m = store.match(/grantLessonReward: \(\{ lessonId, attemptId, stars, noSkip \}\) => \{[\s\S]{0,400}?const qiAmount =\s*([\s\S]*?);\n/);
+  const m = store.match(/grantLessonReward: \(\{ lessonId, attemptId, stars, noSkip \}\) => \{[\s\S]{0,600}?const qiAmount =\s*([\s\S]*?);\n/);
   if (!m) return null;
-  const expr = m[1].replace(/hasProAccess\(state\)/g, "pro");
+  const expr = m[1].replace(/hasProAccess\(state\)/g, "pro").replace(/lessonQiGraduated\(\)/g, "graduated");
   try {
     // eslint-disable-next-line no-new-func
-    return new Function("stars", "noSkip", "pro", ...Object.keys(consts), `return (${expr});`);
+    return new Function("stars", "noSkip", "pro", "graduated", ...Object.keys(consts), `return (${expr});`);
   } catch {
     return null;
   }
@@ -785,7 +789,11 @@ export function checkRewardUxContract(src) {
     for (const stars of [0, 1, 2, 3]) {
       for (const noSkip of [false, true]) {
         for (const pro of [false, true]) {
-          if (qi.lessonCompletionQi({ stars, noSkip, pro }) !== storeFn(stars, noSkip, pro, ...Object.values(consts))) errors.push("VICTORY_QI_UNTRUE");
+          for (const graduated of [false, true]) {
+            const shown = qi.lessonCompletionQi({ stars, noSkip, pro, graduated });
+            const paid = storeFn(stars, noSkip, pro, graduated, ...Object.values(consts));
+            if (!Number.isFinite(shown) || shown !== paid) errors.push("VICTORY_QI_UNTRUE");
+          }
         }
       }
     }

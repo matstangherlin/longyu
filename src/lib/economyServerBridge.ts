@@ -1,6 +1,7 @@
 import { syncItemMatchesSession } from "./auth/accountIsolation";
 import { reconcileEconomyBalance } from "./economyReconcile";
 import { isSupabaseBackendEnabled } from "./backendConfig";
+import { isCloudGraduatedLessonQiEnabled } from "./featureFlags";
 import { BACKEND_CAPABILITY_MISSING, isBackendDomainAvailable } from "./cloud/backendCapability";
 import { getSupabaseClient } from "./supabaseClient";
 import { useStore } from "./store";
@@ -26,6 +27,17 @@ export function shouldUseServerEconomy(): boolean {
   const state = useStore.getState();
   const account = state.accounts[state.currentAccountId];
   return account?.authMode === "cloud";
+}
+
+/**
+ * QA 2026-10 · prompt 22 — a 1ª conclusão com 1★/2★ paga Qi graduado?
+ * Conta local: o cliente é a autoridade, então sim. Conta na nuvem: só quando o
+ * servidor também paga por estrela (SQL pendente aplicado + chave ligada).
+ * Sem isso o servidor pagaria o pacote de 3★ por uma conclusão de 1★.
+ */
+export function lessonQiGraduated(): boolean {
+  if (!shouldUseServerEconomy()) return true;
+  return isCloudGraduatedLessonQiEnabled();
 }
 
 function parseTs(value: string | null | undefined): number | null {

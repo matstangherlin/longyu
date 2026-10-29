@@ -27,6 +27,18 @@ export function isTelemetryEnabled(
   return flagEnabled(env.VITE_ENABLE_TELEMETRY, true);
 }
 
+/**
+ * QA 2026-10 · prompt 22 — Qi graduado (1★ = 3, 2★ = 4) numa conta da nuvem.
+ * Quem paga é o servidor, e hoje ele só conhece o pacote de 3★: ligar só
+ * depois de aplicar supabase/pending/qa-22-graduated-lesson-qi.sql.
+ * Default: desligado. Conta local não depende disto.
+ */
+export function isCloudGraduatedLessonQiEnabled(
+  env: { VITE_GRADUATED_LESSON_QI?: string } = import.meta.env
+): boolean {
+  return flagEnabled(env.VITE_GRADUATED_LESSON_QI, false);
+}
+
 /** Envio de feedback beta ao backend. Default: ligado. */
 export function isBetaFeedbackEnabled(
   env: { VITE_ENABLE_BETA_FEEDBACK?: string } = import.meta.env

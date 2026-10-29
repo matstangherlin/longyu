@@ -109,7 +109,9 @@ import {
   PRO_CHEST_QI_MULTIPLIER,
   PRO_CHEST_RARE_BONUS,
   LESSON_NO_SKIP_QI,
+  LESSON_ONE_STAR_QI,
   LESSON_THREE_STAR_QI,
+  LESSON_TWO_STAR_QI,
   PRO_LESSON_QI_BONUS,
   PRO_MISSION_QI_MULTIPLIER,
   QI_PACK_AMOUNT,
@@ -136,6 +138,7 @@ import { canActivatePearlPro, formatPearlProUntil } from "./pearlPro";
 import { MANDARIN_TONES, type MandarinTone, type ToneTrainerAttemptInput, type ToneTrainerProgress } from "../data/toneTrainer";
 import { buildProgressSnapshot, type ProgressSnapshotBody } from "./progressSnapshot";
 import {
+  lessonQiGraduated,
   shouldUseServerEconomy,
   serverActivatePearlProPass,
   serverClaimMission,
@@ -4532,16 +4535,23 @@ export const useStore = create<AppState>()(
         const rewardId = `lesson:${lessonId}:qi`;
         if ((state.rewardHistory ?? []).some((entry) => entry.id === rewardId)) return false;
 
+        // QA 2026-10 · prompt 22 — Qi graduado: 1★ = 3, 2★ = 4, bônus só a 3★.
+        // Na nuvem só com a chave (o servidor precisa pagar por estrela).
+        const graduated = lessonQiGraduated();
         const qiAmount =
           stars >= 3
             ? LESSON_THREE_STAR_QI +
               (noSkip ? LESSON_NO_SKIP_QI : 0) +
               (hasProAccess(state) ? PRO_LESSON_QI_BONUS : 0)
-            : 0;
+            : graduated && stars >= 2
+              ? LESSON_TWO_STAR_QI
+              : graduated && stars >= 1
+                ? LESSON_ONE_STAR_QI
+                : 0;
 
         if (qiAmount <= 0) {
-          // Abaixo de 3★ localmente: não chama o servidor (ele ignora métricas do
-          // cliente e só paga pacote attestado uma vez por lição).
+          // Sem Qi para esta conclusão: não chama o servidor (ele ignora as
+          // métricas do cliente e só paga o pacote attestado uma vez por lição).
           return false;
         }
 
