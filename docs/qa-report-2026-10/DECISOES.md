@@ -58,10 +58,11 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 | Revisão Free | 23 | Limite por sessão | manter 20 ou mudar | manter 20; só corrigir a ordem | ____ (data) |
 | Prioridade SRS | 23 | Critério da fila Free | — | mais atrasado, depois lapsos/leech, depois mais antigo | ____ (data) |
 | SRS máximo | 21 | Intervalo máximo | 180 ou 365 dias, ou FSRS 0,90 | 365 dias, sem trocar o algoritmo | padrão aplicado em 28/10/2026: 365 dias, teto de ease 2,8, leech em 8 lapsos, FSRS não; confirmação do Matty: ____ (data) |
-| Estrelas | 22 | Faixas para concluir | — | < 60% não conclui; 60–79% = 1★; 80–94% = 2★; ≥ 95% = 3★; 100% sem erro = 3★ perfeito | ____ (data) |
-| Qi | 22 | Qi na 1ª conclusão | — | 1★ = 3, 2★ = 4, 3★ = 5; bônus sem pular e Pro só em 3★ | ____ (data) |
-| Sem vidas | 22 | `outOfLives` | conclui ou não | não conclui; oferece Reforço | ____ (data) |
-| Estrelas antigas | 22 | Recalcular quem já concluiu? | — | não recalcular | ____ (data) |
+| Estrelas | 22 | Faixas para concluir | — | < 60% não conclui; 60–79% = 1★; 80–94% = 2★; ≥ 95% = 3★; 100% sem erro = 3★ perfeito | padrão aplicado em 29/10/2026 (`lessonStarRules.ts`). Revisão de módulo sem mudança (80%). Confirmação do Matty: ____ (data) |
+| Qi | 22 | Qi na 1ª conclusão | — | 1★ = 3, 2★ = 4, 3★ = 5; bônus sem pular e Pro só em 3★ | padrão aplicado em 29/10/2026 na conta local. Conta na nuvem segue 0 abaixo de 3★ até o SQL pendente + `VITE_GRADUATED_LESSON_QI=true` (ver abaixo). Confirmação do Matty: ____ (data) |
+| Sem vidas | 22 | `outOfLives` | conclui ou não | não conclui; oferece Reforço | padrão aplicado em 29/10/2026: 0★ (antes 1★), não conclui. A revisão dos erros continua oferecida, mas não recupera estrela nem conclui (como antes). Confirmação do Matty: ____ (data) |
+| Estrelas antigas | 22 | Recalcular quem já concluiu? | — | não recalcular | padrão aplicado em 29/10/2026: nada recalcula estrela gravada. Confirmação do Matty: ____ (data) |
+| Reforço abaixo do mínimo | 22 | O Reforço de uma tentativa < 60% conclui a lição? | (a) conclui com 3★ · (b) conclui com 1★ · (c) não conclui: é prática; concluir pede nova tentativa ≥ 60% | (c), assumido pelo agente: em nó de tema, (a) e (b) concluiriam a aula sem contar a rodada (o anel ficaria parado), e a rodada só deve contar com 60% | padrão (c) aplicado em 29/10/2026 (`reforcoRecoversAttempt`). Tentativa que já concluía continua recuperando a 3ª estrela, como antes. Confirmação do Matty: ____ (data) |
 | Seguir | 24 | Seguir ou pedido de amizade | assimétrico × simétrico | manter seguir | ____ (data) |
 | Hànzì | 25 | Rótulo mnemônico × etimologia | — | "Dica para lembrar" e "Origem" separados; Origem só com fonte | ____ (data) |
 | Traços | 25 | Ordem de traços | importar agora ou plano | só plano + dry-run neste prompt | ____ (data) |
@@ -71,6 +72,32 @@ Nenhuma foi confirmada. O padrão é o do pacote, para o Matty aceitar ou trocar
 | A/B | 28 | Experimentos na beta fechada | A/B ou coorte | antes/depois por coorte; A/B só na beta pública | ____ (data) |
 | A11y | 29 | Relação com o PR #358 | (a) depois do merge · (b) dentro do #358 | (a), um PR por item | ____ (data) |
 | Texto mínimo | 29 | Tamanho | — | 12 px informativo; 11 px só em rótulo decorativo/legal | ____ (data) |
+
+## Estrelas e Qi (prompt 22 · LGY-026, LGY-031)
+
+| Regra | Antes | Depois |
+|---|---|---|
+| 1 acerto em 10 | 2★ e conclui | 0★, não conclui: Reforço dos erros (prática) e Tentar de novo |
+| Qualquer erro | no máximo 2★ | conta só a precisão: 95% com 1 erro = 3★ |
+| 3★ | só 100% | a partir de 95% (`THREE_STAR_ACCURACY` 0,9 → 0,95; antes sem uso) |
+| Selo "Perfeito" | 100% e `graded - correct = 0` | 100% e nenhum erro registrado |
+| Sem vidas | 1★ (não concluía) | 0★ (não conclui) |
+| Etapa avaliada sem resultado (pulo com Fôlego, "Não posso ouvir agora", etapa que termina só com "Continuar") | ficava no denominador; sem erro dava 1–2★ | sai da precisão; a rodada fica em no máximo 2★ (sem isso, quem está sem áudio não concluiria) |
+| Reforço de tentativa < 60% | — (a tentativa já concluía) | prática dos erros; não conclui. Concluir pede nova tentativa ≥ 60% |
+| Qi da 1ª conclusão | 0 abaixo de 3★; 3★ = 5 (+2 sem pular, +3 Pro) | 1★ = 3, 2★ = 4, 3★ igual. Na nuvem só com a chave |
+| Repetir abaixo do mínimo | "Refazer partes fracas" reabria a lição, mas o cursor de retomada ficava na última etapa e a nova tentativa começava quase no fim | "Tentar de novo" começa do início, no mesmo lugar: não passa pela entrada, não gasta Carga. O fim de qualquer tentativa limpa o cursor. Voltar no mesmo dia também não cobra (chave idempotente por lição/rodada/dia) |
+| Retomar no meio (recarregar a página) | os acertos de antes de recarregar se perdiam, mas qualquer acerto concluía com 2★ | as etapas avaliadas feitas antes de recarregar saem da precisão; a rodada fica em até 2★ |
+| Erros na conclusão | só "N pontos para firmar" | lista com o enunciado, a sua resposta e a certa (hànzì e pinyin) |
+
+Efeito colateral esperado: a média do tema (Reforço +) muda junto. Rodadas com 60–79% passam a valer 1★ (antes 2★) e rodadas com um erro em 20+ etapas passam a valer 3★ (antes 2★). O limiar da Plus (média ≤ 2,0) não mudou.
+
+### Qi graduado na nuvem (prompt 22)
+
+- Fato (só leitura em produção, 28/10/2026): `grant_lesson_reward` ignora `p_stars` e paga sempre o pacote de 3★ (5 + 2, +3 no Pro), uma vez por lição. Corpo igual a `20260808170000_harden_client_reward_claims.sql`.
+- Por isso a conta na nuvem continua sem Qi abaixo de 3★: graduar só no cliente faria o servidor pagar 7 por uma conclusão de 1★.
+- Pronto, **não aplicado**: `supabase/pending/qa-22-graduated-lesson-qi.sql` (+ `.down.sql`). `p_stars` só reduz o pacote: 3★ paga o mesmo de hoje.
+- Ordem: staging → produção com backup → `VITE_GRADUATED_LESSON_QI=true` no Netlify. Rollback: desligar a chave e depois aplicar o `.down.sql`.
+- Decisão do Matty: ____ (data)
 
 ## Experimentos registrados (não implementados)
 
