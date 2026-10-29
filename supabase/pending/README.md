@@ -11,6 +11,7 @@ script (`db:apply-api`, `apply-staging-migrations`, rehearsal efêmero) os aplic
 | `qa-03-profiles-instruction-locale.sql` (+ `.down.sql`) | QA 2026-10 LGY-001 | `PACKAGED_NOT_APPLIED`: só a coluna `instruction_locale`. Não substitui o handoff de placement |
 | `qa-03-social-minimum.sql` (+ `.down.sql`) | QA 2026-10 LGY-002 | `PACKAGED_NOT_APPLIED`: tabelas e RPCs sociais. Não é replay de `005_social.sql` |
 | `qa-21-srs-telemetry.sql` (+ `.down.sql`) | QA 2026-10 LGY-015/027 (prompt 21) | `PACKAGED_NOT_APPLIED`: allowlist `srs_summary` (só contagens). Parte de `20260814010000`, que também não está em produção (28/10) |
+| `qa-22-graduated-lesson-qi.sql` (+ `.down.sql`) | QA 2026-10 LGY-026 (prompt 22) | `PACKAGED_NOT_APPLIED`: `grant_lesson_reward` paga 1★ = 3 e 2★ = 4; 3★ igual a hoje. `p_stars` só reduz o pacote. Depois de aplicar: `VITE_GRADUATED_LESSON_QI=true` |
 
 Estado em 2026-09-24 (RC2.2.13, autorizado pelo owner):
 
