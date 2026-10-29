@@ -89,6 +89,28 @@ export const PRE_BETA_FREEZE_EXCEPTION_QA21 = {
   forbids: ["FSRS", "new SRS engine", "dimension rule N3 changes", "new lessons", "new topics", "new catalog items"],
 } as const;
 
+export const PRE_BETA_FREEZE_EXCEPTION_QA22 = {
+  id: "QA_2026_10_GRADUATED_STARS_QI",
+  reason: "LGY-026 LGY-031 N4 R7",
+  allows: [
+    "star bands by accuracy (60/80/95) and minimum to complete a lesson",
+    "out of lives does not complete (0 stars)",
+    "graded steps without a result (Folego skip, listening deferral, steps before a resume) leave the accuracy denominator (max 2 stars)",
+    "a finished attempt and Try again clear the resume cursor",
+    "below-minimum Reforco is practice only (does not complete or restore stars)",
+    "graduated first-completion Qi (1 star = 3, 2 star = 4; 3 star unchanged)",
+    "economy exports TWO_STAR_ACCURACY LESSON_ONE_STAR_QI LESSON_TWO_STAR_QI; THREE_STAR_ACCURACY 0.9 -> 0.95",
+    "error list on the review offer and stars/Qi rules note on the victory",
+  ],
+  forbids: [
+    "charge prices or charge rules",
+    "path unlock (mastery 4/4)",
+    "module review star rule",
+    "recomputing stored stars",
+    "applying the pending server SQL",
+  ],
+} as const;
+
 export const PRE_BETA_FREEZE_EXCEPTION = {
   id: "RC2_3_13R3_1_LEARNING_INTEGRITY",
   reason: "REAL_DEVICE_BETA_BLOCKER_FIX",
@@ -600,6 +622,8 @@ export const BETA_PEDAGOGY_FREEZE = {
     "MODULE_RETRY_QI", "THREE_STAR_ACCURACY", "THREE_STAR_SHORT_ACCURACY", "PASS_ACCURACY", "MODULE_REVIEW_PASS_ACCURACY",
     "LESSON_BASE_XP", "LESSON_PASS_XP", "LESSON_PASS_PRACTICE_XP", "LESSON_TOPIC_MASTERED_XP_BONUS",
     "LESSON_THREE_STAR_XP_BONUS", "LESSON_THREE_STAR_QI", "LESSON_NO_SKIP_QI", "PRO_LESSON_QI_BONUS",
+    // QA22 — PRE_BETA_FREEZE_EXCEPTION_QA22 (Qi graduado e faixa de 2★).
+    "TWO_STAR_ACCURACY", "LESSON_ONE_STAR_QI", "LESSON_TWO_STAR_QI",
     "PRO_CHEST_QI_MULTIPLIER", "PRO_MISSION_QI_MULTIPLIER", "PRO_CHEST_RARE_BONUS", "PRO_CHEST_FOCUS_PASS_CHANCE",
     "DAILY_GOAL_QI", "CHARGE_FREE_ACTIVITIES", "ECONOMY_SUMMARY", "MODULE_PASS_QI", "MODULE_SKIP_VALIDATION_QI",
     "SHOP_PRICES", "QI_PACK_AMOUNT", "FOCUS_PASS_HOURS", "PEARL_PRICES", "PEARL_PRO_PASS_DAYS", "PEARL_PRO_COOLDOWN_DAYS",

@@ -101,11 +101,16 @@ export const RETRY_QUESTION_QI = 1;
 export const MODULE_RETRY_QI = 30;
 
 // ——— Estrelas ———
-/** 3 estrelas: precisão mínima em lições com muitas questões. */
-export const THREE_STAR_ACCURACY = 0.9;
+// QA 2026-10 · prompt 22 (LGY-026, R7): faixas por precisão. Abaixo de
+// PASS_ACCURACY a aula não conclui (Reforço ou nova tentativa); 60–79% = 1★,
+// 80–94% = 2★, 95%+ = 3★. 100% sem erro ganha o selo "Perfeito".
+/** 3 estrelas: precisão mínima (antes 0,9 e sem uso; 3★ exigia 100%). */
+export const THREE_STAR_ACCURACY = 0.95;
 /** Lições curtas também exigem domínio: 3 estrelas só com alta precisão. */
 export const THREE_STAR_SHORT_ACCURACY = 0.9;
-/** 2 estrelas: precisão mínima para considerar a lição passada. */
+/** 2 estrelas: precisão mínima. */
+export const TWO_STAR_ACCURACY = 0.8;
+/** 1 estrela: precisão mínima para a aula contar como concluída. */
 export const PASS_ACCURACY = 0.6;
 /** Revisão de módulo: 80% basta para avançar; 90%+ vira excelente. */
 export const MODULE_REVIEW_PASS_ACCURACY = 0.8;
@@ -120,6 +125,13 @@ export const LESSON_PASS_PRACTICE_XP = 2;
 export const LESSON_TOPIC_MASTERED_XP_BONUS = 5;
 export const LESSON_THREE_STAR_XP_BONUS = 5;
 export const LESSON_THREE_STAR_QI = 5;
+/**
+ * QA 2026-10 · prompt 22 — Qi graduado da 1ª conclusão: 1★ = 3, 2★ = 4,
+ * 3★ = LESSON_THREE_STAR_QI. Os bônus (sem pular, Pro) continuam só a 3★.
+ * Conta na nuvem: só com VITE_GRADUATED_LESSON_QI (ver lessonQiGraduated).
+ */
+export const LESSON_ONE_STAR_QI = 3;
+export const LESSON_TWO_STAR_QI = 4;
 export const LESSON_NO_SKIP_QI = 2;
 /** Pro: bônus de Qi por conclusão de lição (remove fricção, não compra XP). */
 export const PRO_LESSON_QI_BONUS = 3;
