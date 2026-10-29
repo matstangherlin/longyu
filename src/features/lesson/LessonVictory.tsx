@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { journeyCultureAllowsSkip, type JourneyCultureGuidanceType } from "../../lib/journeyCultureGuidance";
 import { Mascot } from "../../components/brand/Mascot";
 import { Button } from "../../components/ui/primitives";
@@ -63,6 +63,7 @@ export function LessonVictory({
   progress,
   footnote,
   chargeNotice,
+  rules,
 }: {
   context?: LessonVictoryContext;
   title: string;
@@ -109,12 +110,16 @@ export function LessonVictory({
   footnote?: string;
   /** LGY-033 — o próximo passo usa Carga e o aluno tem 0: avisa antes do CTA. */
   chargeNotice?: string;
+  /** QA22 — "?" ao lado das estrelas: como estrelas e Qi são calculados. */
+  rules?: { label: string; lines: string[] };
 }) {
   const soundEffects = useStore((s) => s.soundEffects);
   const hapticsOn = useStore((s) => s.hapticsEnabled !== false);
   const [motionReady, setMotionReady] = useState(false);
   const [shownXp, setShownXp] = useState(0);
   const playedRef = useRef(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const rulesId = useId();
   // RC2.3.13R.3.2.5 — the one reduced-motion signal (livingUiMotion), read once
   // per Victory so already-scheduled stages keep a single mode.
   const [reducedMotion] = useState(() => prefersReducedMotion());
@@ -357,7 +362,33 @@ export function LessonVictory({
                 style={{ animationDelay: reducedMotion ? "0ms" : `${550 + (n - 1) * 150}ms` }}
               />
             ))}
+            {rules ? (
+              <button
+                type="button"
+                className="ml-1 flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface-2 text-xs font-semibold text-ink-soft transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                aria-label={rules.label}
+                aria-expanded={rulesOpen}
+                aria-controls={rulesId}
+                title={rules.label}
+                data-victory-rules-toggle
+                onClick={() => setRulesOpen((open) => !open)}
+              >
+                ?
+              </button>
+            ) : null}
           </div>
+          {rules ? (
+            <ul
+              id={rulesId}
+              hidden={!rulesOpen}
+              className="mx-auto mt-2 w-full max-w-sm space-y-1 rounded-2xl border border-line bg-surface-2/60 px-3 py-2 text-left text-xs leading-5 text-ink-soft"
+              data-victory-rules
+            >
+              {rules.lines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          ) : null}
 
           {recovered && recoveredBanner ? (
             <div className="mx-auto mt-2.5 rounded-xl border border-[rgb(var(--good)/0.3)] bg-[rgb(var(--good)/0.1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--good))]" data-review-recovered>

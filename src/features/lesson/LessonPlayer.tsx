@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, startTransition } from "react";
 import { lessonStartConsumesCharge, victoryWaitsForCharge as nextStartWaitsForCharge } from "../../lib/energyPolicy";
 import { chargeRefillTime } from "../../hooks/useChargeRecovery";
 import { haptic } from "../../lib/haptics";
@@ -205,7 +205,14 @@ import { applyPedagogyV6ToPlan, loadTaughtConcepts, markConceptsTaught } from ".
 import { scheduleAutoSpeak } from "../../lib/mandarinSpeech";
 import { getPendingAttemptReview, shouldRestorePendingAttemptReview } from "./lessonAttemptReview";
 import { installLessonRecoveryDebugHelpers } from "./lessonRecoveryDebug";
-import { canCompleteLesson, computeLessonStars as lessonStars } from "./lessonStarRules";
+import {
+  canCompleteLesson,
+  computeLessonStars as lessonStars,
+  isPerfectLesson,
+  lessonRuleFacts,
+  reforcoRecoversAttempt,
+} from "./lessonStarRules";
+import { lessonQiGraduated } from "../../lib/economyServerBridge";
 import {
   REVIEW_OFFER,
   REVIEW_QUESTION,
@@ -777,21 +784,51 @@ function pairExplanation(payload: PairMistakePayload): string {
   return `${payload.left} significa ${meaning}.`;
 }
 
+/**
+ * QA 2026-10 · prompt 22 (LGY-031) — a oferta lista cada etapa que travou: o
+ * enunciado, a resposta dada e a certa (com hànzì e pinyin quando houver). A
+ * revisão ("Praticar o que travou") usa exatamente estes erros e os alvos de
+ * `reviewTargets` que cada um já carrega.
+ */
+function reviewOfferErrorLines(error: ActivityError) {
+  const pair = Boolean(error.pairLeft && error.pairExpectedRight);
+  const yours = pair
+    ? error.pairSelectedRight
+      ? `${error.pairLeft} → ${error.pairSelectedRight}`
+      : ""
+    : error.selectedAnswer && error.selectedAnswer !== "Resposta incorreta"
+      ? error.selectedAnswer
+      : "";
+  const correctText = pair ? `${error.pairLeft} → ${error.pairExpectedRight}` : error.correctAnswer;
+  const hanzi = error.hanzi && !correctText.includes(error.hanzi) ? error.hanzi : undefined;
+  const pinyin = error.pinyin && !correctText.includes(error.pinyin) ? error.pinyin : undefined;
+  return { prompt: error.prompt, yours, correct: correctText, hanzi, pinyin };
+}
+
 function ImmediateErrorReviewOffer({
-  count,
+  errors,
   correct,
   total,
   canRecover,
+  belowMinimumPct,
   onStart,
   onLater,
 }: {
-  count: number;
+  errors: ActivityError[];
   correct: number;
   total: number;
   canRecover: boolean;
+  /** Aula abaixo do mínimo (QA22): a revisão é prática; concluir pede nova tentativa. */
+  belowMinimumPct?: number;
   onStart: () => void;
   onLater: () => void;
 }) {
+  const count = errors.length;
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const listId = useId();
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
   return (
     <div
       className="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-xl flex-col pb-[calc(var(--app-safe-bottom)+1rem)]"
@@ -805,16 +842,44 @@ function ImmediateErrorReviewOffer({
         <div className="mt-4 inline-flex w-fit rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink-soft">
           {REVIEW_OFFER.score(correct, total)}
         </div>
-        <h1 className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="mt-4 font-serif text-2xl font-semibold leading-tight text-ink focus:outline-none sm:text-3xl"
+        >
           {REVIEW_OFFER.title(count, canRecover)}
         </h1>
         <p className="mt-3 max-w-md text-sm leading-6 text-ink-soft" data-review-offer-support>
-          {REVIEW_OFFER.supportLine(canRecover)}
+          {belowMinimumPct != null ? REVIEW_OFFER.supportLineBelowMinimum(belowMinimumPct) : REVIEW_OFFER.supportLine(canRecover)}
         </p>
 
+        <h2 id={listId} className="mt-5 text-sm font-semibold text-ink">
+          {REVIEW_OFFER.errorsHeading(count)}
+        </h2>
+        <ol aria-labelledby={listId} className="mt-2 space-y-2" data-review-offer-errors>
+          {errors.map((error) => {
+            const line = reviewOfferErrorLines(error);
+            return (
+              <li key={error.id} className="rounded-xl bg-surface-2 px-3 py-2 text-sm" data-review-offer-error>
+                <p className="font-medium text-ink">{line.prompt}</p>
+                <p className="mt-0.5 text-ink-soft" data-review-offer-error-answer>
+                  {REVIEW_OFFER.yourAnswer}:{" "}
+                  <span className="text-ink">{line.yours || REVIEW_OFFER.noAnswer}</span>
+                </p>
+                <p className="mt-0.5 text-ink-soft" data-review-offer-error-correct>
+                  {REVIEW_OFFER.correctAnswer}: <span className="font-semibold text-ink">{line.correct}</span>
+                  {line.hanzi ? <span className="hanzi ml-1.5 text-ink">{line.hanzi}</span> : null}
+                  {line.pinyin ? <span className="pinyin ml-1.5 text-ink-soft">{line.pinyin}</span> : null}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+
         <div className="mt-auto grid gap-2 pt-8">
-          {/* Avançar é a ação principal — a lição já está concluída. A prática
-              do que travou continua a um toque, mas como escolha do aluno. */}
+          {/* Avançar é a ação principal. Com a lição concluída, segue; abaixo
+              do mínimo, leva à tela com Reforço e Tentar de novo. A prática do
+              que travou continua a um toque, como escolha do aluno. */}
           <Button size="lg" className="w-full shadow-lift" onClick={onLater}>
             {REVIEW_OFFER.ctaPrimary} <IconChevron width={18} height={18} />
           </Button>
@@ -1837,6 +1902,10 @@ export function LessonPlayer() {
   const [reviewSessionNonce, setReviewSessionNonce] = useState(0);
   /** P1.6 — conhecimentos que a revisão não resolveu; seguem para o SRS. */
   const reviewUnresolvedRef = useRef<string[]>([]);
+  /** QA22 — o Reforço desta tentativa já começou: a tela final não o reabre (P2.2). */
+  const reforcoStartedRef = useRef(false);
+  /** QA22 — etapas avaliadas concluídas sem acerto nem erro nesta tentativa. */
+  const unscoredGradedRef = useRef(0);
   // Estrela recuperada: o aluno corrigiu TODOS os erros da tentativa atual.
   const [recovered, setRecovered] = useState(false);
   // Fôlego esgotado ao tentar pular: abre o convite ao Pro (skips ilimitados).
@@ -2190,7 +2259,11 @@ export function LessonPlayer() {
     sessionResumeDoneRef.current = resumeKey;
     const cursor = lessonSessionStepById?.[foundLesson.id];
     if (cursor && cursor.pass === pass && cursor.stepIndex > 0) {
-      setIdx(Math.min(cursor.stepIndex, stepsForRender.length - 1));
+      const resumeAt = Math.min(cursor.stepIndex, stepsForRender.length - 1);
+      // QA22 — o resultado das etapas feitas antes de recarregar não volta:
+      // elas ficam fora da precisão das estrelas (a rodada fica em até 2★).
+      unscoredGradedRef.current = stepsForRender.slice(0, resumeAt).filter(isGradedStep).length;
+      setIdx(resumeAt);
     }
   }, [foundLesson, lessonMasteryById, lessonSessionStepById, planNonce, planReady, stepsForRender]);
 
@@ -2947,10 +3020,13 @@ export function LessonPlayer() {
       hadMistakes: attemptErrors.length > 0,
       outOfLives: false,
       isReview: lesson.isReview,
+      unscored: unscoredGradedSteps(),
     });
     const currentStars = lessonStarsById[lesson.id] ?? baseStars;
     if (currentStars >= 3) return;
     if (lesson.isReview && canCompleteLesson(baseStars, graded, true, correct) && attemptErrors.length === 0) return;
+    // QA22 — abaixo do mínimo o Reforço é prática: não conclui nem devolve estrela.
+    if (!reforcoRecoversAttempt({ attemptStars: baseStars, isReview: lesson.isReview })) return;
     recoveryAppliedRef.current = true;
     finishLessonAttempt(buildStoredAttempt(3, correct, correctedIds));
     const firstCompletion = !completedLessons.includes(lesson.id);
@@ -2966,12 +3042,19 @@ export function LessonPlayer() {
         source: "Conclusão de lição",
       });
       setLessonXp(xpClaimed ? recoveredXp : 0);
-      setLessonReward(lessonCompletionQi({ stars: 3, noSkip: skippedStepsRef.current === 0, pro: isPremium }));
+      setLessonReward(
+        lessonCompletionQi({ stars: 3, noSkip: skippedStepsRef.current === 0, pro: isPremium, graduated: lessonQiGraduated() })
+      );
     }
     if (firstCompletion || (lessonStarsById[lesson.id] ?? 0) < 3) recordDailyTask("threeStarLessons");
     setRecovered(true);
     setErrorReviewMode("recovered");
     playSoundFx("lessonComplete", soundEffects);
+  }
+
+  /** QA22 — etapas avaliadas sem resultado (pulo com Fôlego, escuta adiada…): fora da precisão. */
+  function unscoredGradedSteps(): number {
+    return unscoredGradedRef.current;
   }
 
   function markErrorCorrected(error: ActivityError, meta?: { assisted?: boolean }) {
@@ -3440,6 +3523,9 @@ export function LessonPlayer() {
       // A escuta visual testa o pinyin (outro domínio), não é ajuda.
       assisted: (meta?.helpRequests ?? 0) > 0 || retryProtected,
     });
+    // QA22 — pulo com Fôlego, escuta adiada ou etapa avaliada que termina sem
+    // resultado: não é acerto nem erro, então sai da precisão das estrelas.
+    if (currentStepIsGraded && outcome === undefined) unscoredGradedRef.current += 1;
     const nextCorrect = correct + (countsAsCorrect ? 1 : 0);
     let nextLives = lives;
 
@@ -3812,6 +3898,7 @@ export function LessonPlayer() {
       hadMistakes: hadRealMistakes,
       outOfLives: reason === "out_of_lives",
       isReview: lesson.isReview,
+      unscored: unscoredGradedSteps(),
     });
     // Pular com Fôlego conclui a pass (não o tema 4/4) mesmo em 2★, desde
     // que não tenha havido erro real — a 3ª estrela fica pendente até dominar o
@@ -3849,9 +3936,10 @@ export function LessonPlayer() {
       completionXp = LESSON_BASE_XP + (stars === 3 ? LESSON_THREE_STAR_XP_BONUS : 0);
     }
     // Pro ganha um bônus fixo de Qi por conclusão (fricção menor, não XP).
-    // RC2.3.13R.3.2.5 — show exactly what grantLessonReward pays (0 below 3★).
+    // RC2.3.13R.3.2.5 — show exactly what grantLessonReward pays.
+    // QA22 — graduado (1★/2★) com a mesma chave que o store usa.
     const completionQi = passed && firstCompletion
-      ? lessonCompletionQi({ stars, noSkip: skippedStepsRef.current === 0, pro: isPremium })
+      ? lessonCompletionQi({ stars, noSkip: skippedStepsRef.current === 0, pro: isPremium, graduated: lessonQiGraduated() })
       : 0;
 
     const tonesHit = toneHitsRef.current;
@@ -3886,11 +3974,14 @@ export function LessonPlayer() {
     // Sessão de revisão NOVA: identidade nova, plano novo (P1.1).
     setReviewSessionNonce((value) => value + 1);
     reviewUnresolvedRef.current = [];
+    reforcoStartedRef.current = false;
     setRecovered(false);
     recoveryAppliedRef.current = false;
+    // QA22 — a tentativa acabou (concluída ou não): a próxima começa do
+    // início. Sem isto, voltar depois de "Quase lá" retomava na última etapa.
+    setLessonSessionStep(lesson.id, null);
     if (passed) {
       setLessonTaskProgress(lesson.id, 0);
-      setLessonSessionStep(lesson.id, null);
     } else {
       setLessonTaskProgress(
         lesson.id,
@@ -4020,16 +4111,18 @@ export function LessonPlayer() {
       hadMistakes: activityErrorsRef.current.length > 0,
       outOfLives: finishReason === "out_of_lives",
       isReview: lesson.isReview,
+      unscored: unscoredGradedSteps(),
     });
     // Recuperou a tentativa → 3 estrelas e lição concluída.
     const stars = recovered ? 3 : computedStars;
     const passed =
       recovered || (finishReason !== "out_of_lives" && canCompleteLesson(computedStars, graded, lesson.isReview, correct));
+    // QA22 — aula normal abaixo de 60%: não conclui; o Reforço é só prática.
+    const belowMinimum = !passed && finishReason !== "out_of_lives" && !lesson.isReview;
     const masteryStars = 3;
+    const ruleFacts = lessonRuleFacts();
     const requiredAccuracy = Math.round(MODULE_REVIEW_PASS_ACCURACY * 100);
-    const passRequirementLabel = lesson.isReview
-      ? `${requiredAccuracy}%`
-      : t("player.starsRequired", { n: masteryStars });
+    const passRequirementLabel = lesson.isReview ? `${requiredAccuracy}%` : `${ruleFacts.oneStarPct}%`;
     const helpCount = skippedStepsRef.current + retryUsesRef.current + recoveryUsesRef.current;
     const precision = graded === 0 ? 100 : Math.round((correct / graded) * 100);
     const committedErrors = (activityErrors.length > 0 ? activityErrors : activityErrorsRef.current).filter(
@@ -4096,19 +4189,27 @@ export function LessonPlayer() {
 
     // Recuperação da 3ª estrela: qualquer tentativa com <3★ e erros pendentes.
     // Não usar `!passed` — aulas normais "passam" com 1★ e isso escondia a recuperação.
-    const canRecoverStar = !recovered && stars < masteryStars;
+    // Sem vidas e abaixo do mínimo a revisão não recupera nada (applyAttemptRecovery sai antes).
+    const canRecoverStar = !recovered && finishReason !== "out_of_lives" && !belowMinimum && stars < masteryStars;
 
     if (!recovered && errorReviewMode === "offer" && committedErrors.length > 0) {
       return (
         <ImmediateErrorReviewOffer
-          count={committedErrors.length}
+          errors={committedErrors}
           correct={correct}
           total={graded}
           canRecover={canRecoverStar}
-          onStart={() => setErrorReviewMode("review")}
+          belowMinimumPct={belowMinimum ? ruleFacts.oneStarPct : undefined}
+          onStart={() => {
+            reforcoStartedRef.current = true;
+            setErrorReviewMode("review");
+          }}
           onLater={() => {
             setErrorReviewMode("dismissed");
             if (lesson.lessonDomain === "culture") return;
+            // QA22 — abaixo do mínimo a lição não concluiu: fica em "Quase lá",
+            // com Reforço e Tentar de novo, em vez de voltar à Jornada.
+            if (!passed) return;
             const topicNodeDone = isTopicMasteryLesson(lesson);
             const levelNow = useStore.getState().lessonMasteryById?.[lesson.id]?.level ?? 0;
             // Tema em andamento: fica na vitória (Lição X de 4). Só vai à
@@ -4191,12 +4292,14 @@ export function LessonPlayer() {
       setCorrectedErrorIds([]);
       setReviewSessionNonce((value) => value + 1);
       reviewUnresolvedRef.current = [];
+      reforcoStartedRef.current = false;
       setRecovered(false);
       recoveryAppliedRef.current = false;
       pendingReviewRestoredRef.current = false;
       setLessonReward(0);
       setLessonXp(0);
       skippedStepsRef.current = 0;
+      unscoredGradedRef.current = 0;
       folegoSkipCountRef.current = 0;
       folegoSkipRefsRef.current = new Set();
       listeningDeferredIdxRef.current = new Set();
@@ -4211,6 +4314,8 @@ export function LessonPlayer() {
       setDailyGoalReached(false);
       setClaimedRewardCards(false);
       setLessonTaskProgress(lesson.id, 0);
+      // QA22 — "Tentar de novo" é uma tentativa nova, do início (sem retomar no fim).
+      setLessonSessionStep(lesson.id, null);
       recordedMistakeStepRef.current = null;
       recordedPairMistakesRef.current.clear();
       startStoredAttempt();
@@ -4344,7 +4449,7 @@ export function LessonPlayer() {
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-soft">
               {lesson.isReview
                 ? t("player.needPrecisionReview", { requirement: passRequirementLabel })
-                : t("player.needCompleteStage")}
+                : t("player.belowMinimumBody", { pct: ruleFacts.oneStarPct })}
             </p>
 
             <div className="mt-5 flex justify-center gap-2">
@@ -4395,14 +4500,34 @@ export function LessonPlayer() {
               )}
             </Card>
 
-            <div className="mt-6 grid gap-2 sm:grid-cols-3">
-              <Button className="w-full" onClick={() => retryLesson()}>
-                <IconRefresh width={17} height={17} /> {t("player.redoWeak")}
+            {/* QA22 — abaixo do mínimo: Reforço (revisão dos erros desta
+                tentativa, só prática) e Tentar de novo, que é o que conclui.
+                Repetir aqui não passa pela entrada: nenhuma Carga nova. */}
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              {!reforcoStartedRef.current && reviewQueue.length > 0 && lesson.lessonDomain !== "culture" ? (
+                <Button
+                  className="w-full"
+                  data-testid="lesson-below-minimum-reforco"
+                  onClick={() => {
+                    reforcoStartedRef.current = true;
+                    setErrorReviewMode("review");
+                  }}
+                >
+                  <IconTarget width={17} height={17} /> {t("player.belowMinimumReforco")}
+                </Button>
+              ) : null}
+              <Button
+                variant={!reforcoStartedRef.current && reviewQueue.length > 0 ? "outline" : "primary"}
+                className="w-full"
+                data-testid="lesson-below-minimum-retry"
+                onClick={() => retryLesson()}
+              >
+                <IconRefresh width={17} height={17} /> {t("player.belowMinimumRetry")}
               </Button>
               <ButtonLink to="/treino" variant="outline" className="w-full">
                 <IconTarget width={17} height={17} /> {t("player.trainBefore")}
               </ButtonLink>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/jornada")}>
+              <Button variant="ghost" className="w-full" onClick={() => navigate("/jornada")}>
                 {t("player.backToJourney")}
               </Button>
             </div>
@@ -4603,7 +4728,7 @@ export function LessonPlayer() {
         ? isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
           ? t("player.skippedBreathTopic")
           : t("player.skippedBreathNext")
-        : !recovered && stars === 2
+        : !recovered && (stars === 1 || stars === 2)
           ? isTopicMasteryLesson(lesson) && (lessonMasteryById?.[lesson.id]?.level ?? 0) < 4
             ? t("player.topicLessonDoneContinue")
             : isTopicMasteryLesson(lesson)
@@ -4612,6 +4737,25 @@ export function LessonPlayer() {
           : undefined;
     const victoryContext =
       lesson.lessonDomain === "culture" ? "culture" : lesson.isReview ? "review" : "lesson";
+    // QA22 — o "?" da conclusão: a regra de estrelas e de Qi, lida das mesmas
+    // constantes e da mesma chave (lessonQiGraduated) que o store usa.
+    const victoryRules = {
+      label: t("player.rulesToggle"),
+      lines: [
+        t("player.rulesStars", { one: ruleFacts.oneStarPct, two: ruleFacts.twoStarPct, three: ruleFacts.threeStarPct }),
+        t("player.rulesMinimum", { one: ruleFacts.oneStarPct }),
+        lessonQiGraduated()
+          ? t("player.rulesQiGraduated", {
+              one: ruleFacts.qiOneStar,
+              two: ruleFacts.qiTwoStar,
+              three: ruleFacts.qiThreeStar,
+              noSkip: ruleFacts.qiNoSkip,
+              pro: ruleFacts.qiPro,
+            })
+          : t("player.rulesQiThreeStarOnly", { three: ruleFacts.qiThreeStar, noSkip: ruleFacts.qiNoSkip, pro: ruleFacts.qiPro }),
+        t("player.rulesReplay"),
+      ],
+    };
     // RC2.3.7 — real promotions to Firme/Consolidado during this lesson, shown once ever.
     let victoryMasteryLines: string[] | undefined;
     const masteryBefore = masteryBeforeRef.current;
@@ -4658,7 +4802,12 @@ export function LessonPlayer() {
           stars={stars}
           xp={lessonXp}
           accuracy={precision}
-          errorCount={Math.max(0, graded - correct)}
+          // QA22 — o selo "Perfeito" é 100% sem nenhum erro registrado.
+          errorCount={
+            isPerfectLesson({ correct, graded, hadMistakes: committedErrors.length > 0, unscored: unscoredGradedSteps() })
+              ? 0
+              : Math.max(1, graded - correct)
+          }
           assistanceCount={helpCount}
           mistakesBySkill={mistakesBySkill}
           displayName={studentFirstName(accountName)}
@@ -4679,6 +4828,7 @@ export function LessonPlayer() {
           }
           recovered={recovered}
           recoveredBanner={REVIEW_RECOVERED.banner}
+          rules={victoryContext === "lesson" ? victoryRules : undefined}
           pendingStarsHint={pendingStarsHint}
           topicLines={
             plusResult
