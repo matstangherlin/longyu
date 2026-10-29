@@ -867,15 +867,16 @@ export function buildGeneratedBonusStep(
     const parts = [...produced];
     // reverse_recall offers speech/assembly — never reuse a mustProduce that says "escolha/qual".
     const choiceLikeProduce = /escolh|\bqual\b|ouviu|marque|toque/i.test(produceGoal);
+    // reverse_recall title is "Diga…" — body must not say "Monte:" (instruction_mismatch).
     const sayBody = assembleHanzi
       ? "Diga o núcleo deste tema, sem ler a tradução."
       : choiceLikeProduce ||
           objective.relationType === "tone_contrast" ||
           objective.relationType === "numeric_value"
         ? `Diga ${objective.targetRef} em voz alta.`
-        : isLearnerFacingPrompt(produceGoal)
+        : isLearnerFacingPrompt(produceGoal) && !/montar|monte/i.test(produceGoal)
           ? produceGoal
-          : `Monte: ${produced}.`;
+          : `Diga ${produced} em voz alta.`;
     const say = makeReverseRecall("Diga sem apoio extra", sayBody, produced, [produced]);
 
     if (assembleHanzi && parts.length === 1) {
