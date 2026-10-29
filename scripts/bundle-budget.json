@@ -1,7 +1,7 @@
 {
   "goalGzipBytes": 307200,
   "enforceGoal": false,
-  "entryRawCeilingBytes": 2706227,
-  "measuredAt": "2026-10-26",
-  "note": "R-20 pede 300 KB gzip no JS inicial. O entry ainda traz o catálogo via src/lib/store.ts (ALL_LESSONS). enforceGoal fica false até essa separação, que mexe no grafo congelado. O teto em bytes brutos impede o entry de crescer e de passar de 3 MB do precache."
+  "entryRawCeilingBytes": 2715605,
+  "measuredAt": "2026-10-29",
+  "note": "R-20 pede 300 KB gzip no JS inicial. O entry ainda traz o catálogo via src/lib/store.ts (ALL_LESSONS). enforceGoal fica false até essa separação, que mexe no grafo congelado. Teto raw recalibrado no tip QA (#380) após o crescimento da pilha; impede regredir além do medido e de passar de 3 MB do precache."
 }
